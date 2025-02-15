@@ -6,5 +6,6 @@
   "semi": true,
   "bracketSpacing": true,
   "arrowParens": "always",
-  "useTabs": false
+  "useTabs": false,
+  "plugins": ["prettier-plugin-tailwindcss"]
 }
