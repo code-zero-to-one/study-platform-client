@@ -7,7 +7,7 @@
     "target": "es5", // ts파일 변환 시 어떤 버전의 JS로
     "module": "esnext", // import 문법을 어떻게 할 것이냐
     "moduleResolution": "node",
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },

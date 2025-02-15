@@ -59,6 +59,9 @@ module.exports = {
     // RushStack의 변수 타입 정의 강제 규칙 비활성화
     '@rushstack/typedef-var': 'off',
 
+    // 네이밍 규칙 끄기
+    '@typescript-eslint/naming-convention': 'off',
+
     // TypeScript에서 타입 정의 강제하는 규칙 비활성화
     '@typescript-eslint/typedef': 'off',
 
