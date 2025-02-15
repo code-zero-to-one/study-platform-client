@@ -18,6 +18,9 @@ module.exports = {
     // React Hooks 관련 규칙 적용 (의존성 배열 검사 등)
     'plugin:react-hooks/recommended',
 
+    // tanstack-query 관련 규칙 적용
+    'plugin:@tanstack/eslint-plugin-query/recommended',
+
     // Next.js 프로젝트에 최적화된 ESLint 규칙 적용
     'next/core-web-vitals',
 
@@ -53,6 +56,9 @@ module.exports = {
 
     // import 정렬 및 규칙 적용을 위한 ESLint 플러그인 추가
     'import',
+
+    // tanstack-query 규칙 적용을 위한 ESLink 플러드인 추가
+    '@tanstack/query',
   ],
 
   rules: {
