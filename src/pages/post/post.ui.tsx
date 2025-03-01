@@ -13,7 +13,7 @@ export function Posts() {
       {data.map((post) => {
         return (
           <div key={post.id}>
-            <p>title: {post.title}</p>
+            <p className="heading4 text-green-500">title: {post.title}</p>
             <p>content: {post.body}</p>
           </div>
         );
