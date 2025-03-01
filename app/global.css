@@ -19,7 +19,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
  }
   /* ... */
 
-@theme inline{
+@theme inline {
   /* spacing */
   --spacing-sp0: 0.2rem;
   --spacing-sp1: 0.4rem;
@@ -43,16 +43,14 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-sp30: 12rem;
 
   /* font size */
-  --text-h0: 3.6rem;
-  --text-h1: 2.4rem;
-  --text-h2: 2rem;
-  --text-h3: 1.8rem;
-  --text-h4: 1.6rem;
-  --text-h5: 1.4rem;
-  --text-b1: 1.4rem;
-  --text-b2: 1.2rem;
-  --text-c1: 1.2rem;
-  --text-c2: 1rem;
+  --text-3xl: 3.6rem;
+  --text-2xl: 2.4rem;
+  --text-xl: 2rem;
+  --text-lg: 1.8rem;
+  --text-md: 1.6rem;
+  --text-sm: 1.4rem;
+  --text-xs: 1.2rem;
+  --text-xxs: 1rem;
 
   /* font weight */
   /* --font-weight-thin: 100;   */
@@ -66,16 +64,14 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   /* --font-weight-black: 900; */
 
   /* line height */
-  --leading-h0: 4rem;
-  --leading-h1: 2.8rem;
-  --leading-h2: 2.4rem;
-  --leading-h3: 2.2rem;
-  --leading-h4: 2rem;
-  --leading-h5: 1.8rem;
-  --leading-b1: 2.4rem;
-  --leading-b2: 2rem;
-  --leading-c1: 1.6rem;
-  --leading-c2: 1.2rem;
+  --leading-3xl: 4rem;
+  --leading-2xl: 2.8rem;
+  --leading-xl: 2.4rem;
+  --leading-lg: 2.2rem;
+  --leading-md: 2rem;
+  --leading-sm: 1.8rem;
+  --leading-xs: 1.6rem;
+  --leading-xxs: 1.2rem;
 
   /* letter spacing */
   --tracking-spacing: -1%;
@@ -114,11 +110,80 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
+  /* body {
     @apply bg-background text-foreground font-sans;
+  } */
+}
+
+@layer utilities {
+  .heading0 {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-3xl);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-2xl);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-xl);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-lg);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading4 {
+    font-size: var(--text-md);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-md);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading5 {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-sm);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .body1 {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-xl);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .body2 {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-md);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .caption1 {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-xs);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .caption2 {
+    font-size: var(--text-xxs);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-xxs);
+    letter-spacing: var(--tracking-spacing);
   }
 }
 
