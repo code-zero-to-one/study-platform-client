@@ -19,6 +19,109 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
  }
   /* ... */
 
+@theme inline{
+  /* spacing */
+  --spacing-sp0: 0.2rem;
+  --spacing-sp1: 0.4rem;
+  --spacing-sp2: 0.8rem;
+  --spacing-sp3: 1.2rem;
+  --spacing-sp4: 1.6rem;
+  --spacing-sp5: 2rem;
+  --spacing-sp6: 2.4rem;
+  --spacing-sp7: 2.8rem;
+  --spacing-sp8: 3.2rem;
+  --spacing-sp9: 3.6rem;
+  --spacing-sp10: 4rem;
+  --spacing-sp11: 4.4rem;
+  --spacing-sp12: 4.8rem;
+  --spacing-sp13: 5.2rem;
+  --spacing-sp14: 5.6rem;
+  --spacing-sp15: 6rem;
+  --spacing-sp16: 6.4rem;
+  --spacing-sp20: 8rem;
+  --spacing-sp25: 10rem;
+  --spacing-sp30: 12rem;
+
+  /* font size */
+  --text-h0: 3.6rem;
+  --text-h1: 2.4rem;
+  --text-h2: 2rem;
+  --text-h3: 1.8rem;
+  --text-h4: 1.6rem;
+  --text-h5: 1.4rem;
+  --text-b1: 1.4rem;
+  --text-b2: 1.2rem;
+  --text-c1: 1.2rem;
+  --text-c2: 1rem;
+
+  /* font weight */
+  /* --font-weight-thin: 100;   */
+  /* --font-weight-extralight: 200;   */
+  /* --font-weight-light: 300;   */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  /* --font-weight-extrabold: 800;   */
+  /* --font-weight-black: 900; */
+
+  /* line height */
+  --leading-h0: 4rem;
+  --leading-h1: 2.8rem;
+  --leading-h2: 2.4rem;
+  --leading-h3: 2.2rem;
+  --leading-h4: 2rem;
+  --leading-h5: 1.8rem;
+  --leading-b1: 2.4rem;
+  --leading-b2: 2rem;
+  --leading-c1: 1.6rem;
+  --leading-c2: 1.2rem;
+
+  /* letter spacing */
+  --tracking-spacing: -1%;
+
+  /* colors */
+  --color-green-50: #eefcfc;
+  --color-green-100: #cbf5f6;
+  --color-green-200: #b1f1f2;
+  --color-green-300: #8eeaec;
+  --color-green-400: #78e6e9;
+  --color-green-500: #56e0e3;
+  --color-green-600: #4ecccf;
+  --color-green-700: #3d9fa1;
+  --color-green-800: #2f7b7d;
+  --color-green-900: #245e5f;
+
+  --color-gray-50: #0c0d0e;
+  --color-gray-100: #17191c;
+  --color-gray-130: #1e2024;
+  --color-gray-150: #232529;
+  --color-gray-180: #292b30;
+  --color-gray-200: #2f3137;
+  --color-gray-250: #3b3d45;
+  --color-gray-300: #464a53;
+  --color-gray-400: #5e636e;
+  --color-gray-500: #757b8a;
+  --color-gray-600: #9196a1;
+  --color-gray-700: #acb0b9;
+  --color-gray-800: #c7cad1;
+  --color-gray-850: #d5d7dc;
+  --color-gray-900: #e2e4e9;
+  --color-gray-940: #eeeff1;
+  --color-gray-950: #f1f2f4;
+
+  --color-white: #ffffff;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
 /*
 ---break--- */
 
@@ -130,7 +233,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 /*
 ---break--- */
 
-@theme inline {
+/* @theme inline {
   --color-background: var(--background);
 
   --color-foreground: var(--foreground);
@@ -186,16 +289,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --radius-lg: var(--radius);
 
   --radius-xl: calc(var(--radius) + 4px);
-}
+} */
 
 /*
 ---break--- */
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-}
