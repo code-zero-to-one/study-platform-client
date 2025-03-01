@@ -1,9 +1,8 @@
 import './global.css';
 
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
-import QueryProvider from '@/app/provider/queryProvider';
+import MainProvider from '@/app/provider';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -30,12 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <QueryProvider>
-          {children}
-          {process.env.NODE_ENV === 'development' && (
-            <ReactQueryDevtools initialIsOpen={false} />
-          )}
-        </QueryProvider>
+        <MainProvider>
+          <main className="container mx-auto">{children}</main>
+        </MainProvider>
       </body>
     </html>
   );
