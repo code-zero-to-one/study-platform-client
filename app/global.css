@@ -19,8 +19,170 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
  }
   /* ... */
 
-/*
----break--- */
+@theme inline {
+  /* spacing */
+  --spacing-sp0: 0.2rem;
+  --spacing-sp1: 0.4rem;
+  --spacing-sp2: 0.8rem;
+  --spacing-sp3: 1.2rem;
+  --spacing-sp4: 1.6rem;
+  --spacing-sp5: 2rem;
+  --spacing-sp6: 2.4rem;
+  --spacing-sp7: 2.8rem;
+  --spacing-sp8: 3.2rem;
+  --spacing-sp9: 3.6rem;
+  --spacing-sp10: 4rem;
+  --spacing-sp11: 4.4rem;
+  --spacing-sp12: 4.8rem;
+  --spacing-sp13: 5.2rem;
+  --spacing-sp14: 5.6rem;
+  --spacing-sp15: 6rem;
+  --spacing-sp16: 6.4rem;
+  --spacing-sp20: 8rem;
+  --spacing-sp25: 10rem;
+  --spacing-sp30: 12rem;
+
+  /* font size */
+  --text-3xl: 3.6rem;
+  --text-2xl: 2.4rem;
+  --text-xl: 2rem;
+  --text-lg: 1.8rem;
+  --text-md: 1.6rem;
+  --text-sm: 1.4rem;
+  --text-xs: 1.2rem;
+  --text-xxs: 1rem;
+
+  /* font weight */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* line height */
+  --leading-3xl: 4rem;
+  --leading-2xl: 2.8rem;
+  --leading-xl: 2.4rem;
+  --leading-lg: 2.2rem;
+  --leading-md: 2rem;
+  --leading-sm: 1.8rem;
+  --leading-xs: 1.6rem;
+  --leading-xxs: 1.2rem;
+
+  /* letter spacing */
+  --tracking-spacing: -1%;
+
+  /* colors */
+  --color-green-50: #eefcfc;
+  --color-green-100: #cbf5f6;
+  --color-green-200: #b1f1f2;
+  --color-green-300: #8eeaec;
+  --color-green-400: #78e6e9;
+  --color-green-500: #56e0e3;
+  --color-green-600: #4ecccf;
+  --color-green-700: #3d9fa1;
+  --color-green-800: #2f7b7d;
+  --color-green-900: #245e5f;
+
+  --color-gray-50: #0c0d0e;
+  --color-gray-100: #17191c;
+  --color-gray-130: #1e2024;
+  --color-gray-150: #232529;
+  --color-gray-180: #292b30;
+  --color-gray-200: #2f3137;
+  --color-gray-250: #3b3d45;
+  --color-gray-300: #464a53;
+  --color-gray-400: #5e636e;
+  --color-gray-500: #757b8a;
+  --color-gray-600: #9196a1;
+  --color-gray-700: #acb0b9;
+  --color-gray-800: #c7cad1;
+  --color-gray-850: #d5d7dc;
+  --color-gray-900: #e2e4e9;
+  --color-gray-940: #eeeff1;
+  --color-gray-950: #f1f2f4;
+
+  --color-white: #ffffff;
+}
+
+@layer base {
+  /* body {
+    @apply bg-background text-foreground font-sans;
+  } */
+}
+
+@layer utilities {
+  .heading0 {
+    font-size: var(--text-3xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-3xl);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading1 {
+    font-size: var(--text-2xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--leading-2xl);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading2 {
+    font-size: var(--text-xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-xl);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading3 {
+    font-size: var(--text-lg);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-lg);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading4 {
+    font-size: var(--text-md);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-md);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .heading5 {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-sm);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .body1 {
+    font-size: var(--text-sm);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-xl);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .body2 {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-md);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .caption1 {
+    font-size: var(--text-xs);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-xs);
+    letter-spacing: var(--tracking-spacing);
+  }
+
+  .caption2 {
+    font-size: var(--text-xxs);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--leading-xxs);
+    letter-spacing: var(--tracking-spacing);
+  }
+}
+
+/* shadcn 색상 테마 */
 
 :root {
   --background: hsl(0 0% 100%);
@@ -125,77 +287,4 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --chart-4: hsl(280 65% 60%);
 
   --chart-5: hsl(340 75% 55%);
-}
-
-/*
----break--- */
-
-@theme inline {
-  --color-background: var(--background);
-
-  --color-foreground: var(--foreground);
-
-  --color-card: var(--card);
-
-  --color-card-foreground: var(--card-foreground);
-
-  --color-popover: var(--popover);
-
-  --color-popover-foreground: var(--popover-foreground);
-
-  --color-primary: var(--primary);
-
-  --color-primary-foreground: var(--primary-foreground);
-
-  --color-secondary: var(--secondary);
-
-  --color-secondary-foreground: var(--secondary-foreground);
-
-  --color-muted: var(--muted);
-
-  --color-muted-foreground: var(--muted-foreground);
-
-  --color-accent: var(--accent);
-
-  --color-accent-foreground: var(--accent-foreground);
-
-  --color-destructive: var(--destructive);
-
-  --color-destructive-foreground: var(--destructive-foreground);
-
-  --color-border: var(--border);
-
-  --color-input: var(--input);
-
-  --color-ring: var(--ring);
-
-  --color-chart-1: var(--chart-1);
-
-  --color-chart-2: var(--chart-2);
-
-  --color-chart-3: var(--chart-3);
-
-  --color-chart-4: var(--chart-4);
-
-  --color-chart-5: var(--chart-5);
-
-  --radius-sm: calc(var(--radius) - 4px);
-
-  --radius-md: calc(var(--radius) - 2px);
-
-  --radius-lg: var(--radius);
-
-  --radius-xl: calc(var(--radius) + 4px);
-}
-
-/*
----break--- */
-
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
