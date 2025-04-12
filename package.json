@@ -9,7 +9,10 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "prettier": "prettier --check .",
-    "prettier:fix": "prettier --write ."
+    "prettier:fix": "prettier --write .",
+    "api:on": "sh ./scripts/setup-backend.sh",
+    "api:off": "docker-compose -f ../study-platform-mvp/docker-compose.yml down",
+    "api:logs": "docker-compose -f ../study-platform-mvp/docker-compose.yml logs -f mvp-app"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.2",
