@@ -5,34 +5,7 @@ module.exports = {
   // 환경 설정: 브라우저 및 최신 ECMAScript 기능을 사용 가능하게 설정
   env: { browser: true, es2020: true },
 
-  extends: [
-    // 기본 ESLint 추천 규칙 사용
-    'eslint:recommended',
-
-    // TypeScript 관련 ESLint 추천 규칙 사용
-    'plugin:@typescript-eslint/recommended',
-
-    // React 관련 ESLint 추천 규칙 사용
-    'plugin:react/recommended',
-
-    // React Hooks 관련 규칙 적용 (의존성 배열 검사 등)
-    'plugin:react-hooks/recommended',
-
-    // tanstack-query 관련 규칙 적용
-    'plugin:@tanstack/eslint-plugin-query/recommended',
-
-    // Next.js 프로젝트에 최적화된 ESLint 규칙 적용
-    'next/core-web-vitals',
-
-    // RushStack의 웹 애플리케이션용 ESLint 프로필 적용
-    '@rushstack/eslint-config/profile/web-app',
-
-    // RushStack의 React 관련 Mixin 규칙 적용
-    '@rushstack/eslint-config/mixins/react',
-
-    // Prettier와 ESLint 간의 충돌을 방지하는 설정 적용
-    'prettier',
-  ],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'plugin:react-hooks/recommended', 'plugin:@tanstack/eslint-plugin-query/recommended', 'next/core-web-vitals', '@rushstack/eslint-config/profile/web-app', '@rushstack/eslint-config/mixins/react', 'prettier', 'plugin:storybook/recommended'],
 
   // TypeScript의 tsconfig.json 위치 지정
   parserOptions: { tsconfigRootDir: __dirname },

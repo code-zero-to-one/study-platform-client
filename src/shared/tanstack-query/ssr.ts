@@ -5,7 +5,6 @@ import {
   FetchQueryOptions,
 } from '@tanstack/react-query';
 
-// SSR을 위한 함수
 export async function getDehydratedState(
   options: FetchQueryOptions<unknown, DefaultError, unknown, unknown[]>,
 ) {
