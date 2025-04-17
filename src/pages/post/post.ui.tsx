@@ -9,12 +9,12 @@ export function Posts() {
   const { data } = useQuery({ queryKey: ['posts'], queryFn: fetchPosts });
 
   return (
-    <div>
+    <div className="shadow-1 rounded-500 flex flex-col gap-300 border-1 border-indigo-500 px-200 py-600">
       {data.map((post) => {
         return (
           <div key={post.id}>
-            <p className="heading4 text-green-500">title: {post.title}</p>
-            <p>content: {post.body}</p>
+            <p className="headings1 text-text-brand">title: {post.title}</p>
+            <p className="d24m">content: {post.body}</p>
           </div>
         );
       })}
