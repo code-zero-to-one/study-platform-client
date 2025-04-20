@@ -162,4 +162,4 @@ export const Modal = {
   Footer: ModalFooter,
   Body: ModalBody,
   Title: ModalTitle,
-};
+} as const;
