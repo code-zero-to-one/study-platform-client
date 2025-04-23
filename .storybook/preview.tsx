@@ -1,4 +1,5 @@
 import React from 'react';
+import '../app/global.css';
 
 import QueryProvider from '../src/app/provider/queryProvider';
 
