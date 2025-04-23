@@ -34,7 +34,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-gray-700: #414651;
   --color-gray-800: #252b37;
   --color-gray-900: #181d27;
-  --color-gray-1000: #000000;
+  --color-gray-1000: #0a0d12;
 
   --color-red-50: #fef3f2;
   --color-red-100: #fee4e2;
@@ -56,7 +56,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-rose-600: #e31b54;
   --color-rose-700: #c01048;
   --color-rose-800: #a11043;
-  --color-rose-900: #851651;
+  --color-rose-900: #89123e;
 
   --color-pink-50: #fdf2fa;
   --color-pink-100: #fce7f6;
@@ -89,7 +89,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-purple-600: #6938ef;
   --color-purple-700: #5925dc;
   --color-purple-800: #4a1fb8;
-  --color-purple-900: #5f3dc4;
+  --color-purple-900: #3E1C96;
 
   --color-indigo-50: #eef4ff;
   --color-indigo-100: #e0eaff;
@@ -213,19 +213,22 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-fill-brand-default-hover: var(--color-rose-600);
   --color-fill-brand-default-pressed: var(--color-rose-700);
   --color-fill-brand-subtle-default: var(--color-rose-50);
-  --color-fill-brand-subtle-hover: var(--color-rose-100);
-  --color-fill-brand-subtle-pressed: var(--color-rose-200);
+  --color-fill-brand-subtle-hover: var(--color-rose-200);
+  --color-fill-brand-subtle-pressed: var(--color-rose-300);
 
   --color-fill-neutral-strong-default: var(--color-gray-900);
   --color-fill-neutral-strong-hover: var(--color-gray-800);
   --color-fill-neutral-strong-pressed: var(--color-gray-700);
-  --color-fill-neutral-default-default: var(--color-gray-500);
-  --color-fill-neutral-default-hover: var(--color-gray-600);
-  --color-fill-neutral-default-pressed: var(--color-gray-700);
+  --color-fill-neutral-default-default: var(--color-gray-100);
+  --color-fill-neutral-default-hover: var(--color-gray-200);
+  --color-fill-neutral-default-pressed: var(--color-gray-300);
   --color-fill-neutral-subtle-default: var(--color-gray-0);
-  --color-fill-neutral-subtle-hover: var(--color-gray-100);
-  --color-fill-neutral-subtle-pressed: var(--color-gray-200);
+  --color-fill-neutral-subtle-hover: var(--color-gray-50);
+  --color-fill-neutral-subtle-pressed: var(--color-gray-100);
 
+  --color-fill-success-default: var(--color-rose-500);
+  --color-fill-success-hover: var(--color-rose-600);
+  --color-fill-success-pressed: var(--color-rose-700);
   --color-fill-success-strong-default: var(--color-green-900);
   --color-fill-success-strong-hover: var(--color-green-800);
   --color-fill-success-strong-pressed: var(--color-green-700);
@@ -236,6 +239,9 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-fill-success-subtle-hover: var(--color-green-100);
   --color-fill-success-subtle-pressed: var(--color-green-200);
 
+  --color-fill-danger-default: var(--color-rose-500);
+  --color-fill-danger-hover: var(--color-rose-600);
+  --color-fill-danger-pressed: var(--color-rose-700);
   --color-fill-danger-strong-default: var(--color-red-900);
   --color-fill-danger-strong-hover: var(--color-red-800);
   --color-fill-danger-strong-pressed: var(--color-red-700);
