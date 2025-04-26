@@ -266,6 +266,11 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-fill-information-subtle-hover: var(--color-blue-100);
   --color-fill-information-subtle-pressed: var(--color-blue-200);
 
+  /* font weight */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 700;
+
   /* radius */
   --radius-*: initial;
   --radius-0: 0px;
@@ -319,350 +324,350 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 
 @utility headings2 {
   font-size: 64px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 96px;
   letter-spacing: 0;
 }
 
 @utility headings3 {
   font-size: 58px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 88px;
   letter-spacing: 0;
 }
 
 @utility headings4 {
   font-size: 52px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 78px;
   letter-spacing: 0;
 }
 
 @utility headings5 {
   font-size: 48px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 72px;
   letter-spacing: 0;
 }
 
 @utility headings5 {
   font-size: 40px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 60px;
   letter-spacing: 0;
 }
 
 @utility bold-h1 {
   font-size: 36px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 54px;
   letter-spacing: 0;
 }
 
 @utility bold-h2 {
   font-size: 32px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 48px;
   letter-spacing: 0;
 }
 
 @utility bold-h3 {
   font-size: 28px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 42px;
   letter-spacing: 0;
 }
 
 @utility bold-h4 {
   font-size: 24px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 36px;
   letter-spacing: 0;
 }
 
 @utility bold-h5 {
   font-size: 20px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 30px;
   letter-spacing: 0;
 }
 
 @utility bold-h6 {
   font-size: 18px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 28px;
   letter-spacing: 0;
 }
 
 @utility d36r {
   font-size: 36px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 54px;
   letter-spacing: 0;
 }
 
 @utility d36m {
   font-size: 36px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 54px;
   letter-spacing: 0;
 }
 
 @utility d36b {
   font-size: 36px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 54px;
   letter-spacing: 0;
 }
 
 @utility d32r {
   font-size: 32px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 48px;
   letter-spacing: 0;
 }
 
 @utility d32m {
   font-size: 32px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 48px;
   letter-spacing: 0;
 }
 
 @utility d32b {
   font-size: 32px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 48px;
   letter-spacing: 0;
 }
 
 @utility d28r {
   font-size: 28px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 42px;
   letter-spacing: 0;
 }
 
 @utility d28m {
   font-size: 28px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 42px;
   letter-spacing: 0;
 }
 
 @utility d28b {
   font-size: 28px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 42px;
   letter-spacing: 0;
 }
 
 @utility d24r {
   font-size: 24px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 37px;
   letter-spacing: 0;
 }
 
 @utility d24m {
   font-size: 24px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 37px;
   letter-spacing: 0;
 }
 
 @utility d24b {
   font-size: 24px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 37px;
   letter-spacing: 0;
 }
 
 @utility d20r {
   font-size: 20px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 30px;
   letter-spacing: 0;
 }
 
 @utility d20m {
   font-size: 20px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 30px;
   letter-spacing: 0;
 }
 
 @utility d20b {
   font-size: 20px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 30px;
   letter-spacing: 0;
 }
 
 @utility d18r {
   font-size: 18px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 29px;
   letter-spacing: 0;
 }
 
 @utility d18m {
   font-size: 18px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 29px;
   letter-spacing: 0;
 }
 
 @utility d18b {
   font-size: 18px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 29px;
   letter-spacing: 0;
 }
 
 @utility d16r {
   font-size: 16px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 25px;
   letter-spacing: 0;
 }
 
 @utility d16m {
   font-size: 16px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 25px;
   letter-spacing: 0;
 }
 
 @utility d16b {
   font-size: 16px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 25px;
   letter-spacing: 0;
 }
 
 @utility d15r {
   font-size: 15px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 23px;
   letter-spacing: 0;
 }
 
 @utility d15m {
   font-size: 15px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 23px;
   letter-spacing: 0;
 }
 
 @utility d15b {
   font-size: 15px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 23px;
   letter-spacing: 0;
 }
 
 @utility d14r {
   font-size: 14px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 22px;
   letter-spacing: 0;
 }
 
 @utility d14m {
   font-size: 14px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 22px;
   letter-spacing: 0;
 }
 
 @utility d14b {
   font-size: 14px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 22px;
   letter-spacing: 0;
 }
 
 @utility d13r {
   font-size: 13px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 20px;
   letter-spacing: 0;
 }
 
 @utility d13m {
   font-size: 13px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 20px;
   letter-spacing: 0;
 }
 
 @utility d13b {
   font-size: 13px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 20px;
   letter-spacing: 0;
 }
 
 @utility d12r {
   font-size: 12px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 19px;
   letter-spacing: 0;
 }
 
 @utility d12m {
   font-size: 12px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 19px;
   letter-spacing: 0;
 }
 
 @utility d12b {
   font-size: 12px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 19px;
   letter-spacing: 0;
 }
 
 @utility d11r {
   font-size: 11px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 18px;
   letter-spacing: 0;
 }
 
 @utility d11m {
   font-size: 11px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 18px;
   letter-spacing: 0;
 }
 
 @utility d11b {
   font-size: 11px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 18px;
   letter-spacing: 0;
 }
 
 @utility d10r {
   font-size: 10px;
-  font-weight: --value(--font-weight-regular);
+  font-weight: var(--font-weight-regular);
   line-height: 17px;
   letter-spacing: 0;
 }
 
 @utility d10m {
   font-size: 10px;
-  font-weight: --value(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
   line-height: 17px;
   letter-spacing: 0;
 }
 
 @utility d10b {
   font-size: 10px;
-  font-weight: --value(--font-weight-bold);
+  font-weight: var(--font-weight-bold);
   line-height: 17px;
   letter-spacing: 0;
 }
