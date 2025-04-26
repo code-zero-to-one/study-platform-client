@@ -1,5 +1,3 @@
-// src/shared/ui/calendar/index.tsx
-
 'use client'
 
 import { ko } from "date-fns/locale"
@@ -18,7 +16,7 @@ const Calendar = ({ className, completedDays = [], ...props }: CalendarProps) =>
       <div
          className={cn(
             'relative',
-            'flex flex-col p-5 gap-4 items-start self-stretch',
+            'flex flex-col p-[20px] gap-4 items-start self-stretch',
             'rounded-[16px] border',
             'bg-[var(--Icon-inverse,#FFF)] border-[var(--border-subtle,#F5F5F5)]',
             className
@@ -33,6 +31,12 @@ const Calendar = ({ className, completedDays = [], ...props }: CalendarProps) =>
             modifiers={{
                completed: completedDays,
             }}
+            modifiersClassNames={{
+               completed: 'w-8 h-8 bg-green-500 opacity-20 rounded-full'
+            }}
+            components={{
+               Day: CalendarDay,
+            }}
             classNames={{
                months: 'flex flex-col',
                caption_label: 'd18b',
@@ -46,9 +50,6 @@ const Calendar = ({ className, completedDays = [], ...props }: CalendarProps) =>
                day_today: 'text-primary font-bold',
                day_selected: 'bg-black text-white',
                day_disabled: 'text-gray-300 opacity-50',
-            }}
-            components={{
-               Day: CalendarDay,
             }}
             {...props}
          />
