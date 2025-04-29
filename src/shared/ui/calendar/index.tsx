@@ -9,15 +9,26 @@ import { CalendarDay } from '@/shared/ui/calendar/calendarDay'
 
 type CalendarProps = React.ComponentProps<typeof ShadcnCalendar> & {
    completedDays?: Date[]
+   monthlyCompletedCount?: number
+   totalCompletedCount?: number
 }
 
-const Calendar = ({ className, completedDays = [], ...props }: CalendarProps) => {
+const Calendar = ({
+   className,
+   completedDays = [],
+   monthlyCompletedCount,
+   totalCompletedCount,
+   ...props
+}: CalendarProps) => {
+   const today = new Date()
+   const currentMonth = today.getMonth() + 1
+
    return (
       <div
          className={cn(
             'relative',
-            'flex flex-col p-[20px] gap-4 items-start self-stretch',
-            'rounded-[16px] border',
+            'flex flex-col p-200 gap-150 items-start self-stretch',
+            'rounded-200 border',
             'bg-[var(--Icon-inverse,#FFF)] border-[var(--border-subtle,#F5F5F5)]',
             className
          )}
@@ -32,7 +43,7 @@ const Calendar = ({ className, completedDays = [], ...props }: CalendarProps) =>
                completed: completedDays,
             }}
             modifiersClassNames={{
-               completed: 'w-8 h-8 bg-green-500 opacity-20 rounded-full'
+               completed: 'bg-background-success-default text-text-inverse rounded-full'
             }}
             components={{
                Day: CalendarDay,
@@ -41,18 +52,28 @@ const Calendar = ({ className, completedDays = [], ...props }: CalendarProps) =>
                months: 'flex flex-col',
                caption_label: 'd18b',
                nav: 'absolute right-0 flex items-center',
-               nav_button: 'p-1',
                head_row: 'flex',
                row: 'flex w-full',
                head_cell: 'text-center text-sm text-gray-400 w-[14.28%]',
                cell: 'w-[14.28%] h-14 text-center text-sm relative',
+               weekday: 'pt-[16px]',
                day: 'text-center d14m',
-               day_today: 'text-primary font-bold',
-               day_selected: 'bg-black text-white',
-               day_disabled: 'text-gray-300 opacity-50',
             }}
             {...props}
          />
+
+         <div className="flex flex-col w-full gap-75">
+            {typeof monthlyCompletedCount === 'number' && (
+               <div className="w-full rounded-100 bg-background-alternative px-50 py-100 d14m text-text-default">
+                  {currentMonth}월은 {monthlyCompletedCount}번의 스터디를 완료했어요.
+               </div>
+            )}
+            {typeof totalCompletedCount === 'number' && (
+               <div className="w-full rounded-100 bg-background-alternative px-50 py-100 d14m text-text-default">
+                  총 {totalCompletedCount}번의 스터디를 완료했어요.
+               </div>
+            )}
+         </div>
       </div>
    )
 }

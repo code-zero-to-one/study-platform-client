@@ -4,12 +4,18 @@ import Calendar from '@/shared/ui/calendar'
 const meta: Meta<typeof Calendar> = {
    title: 'UI/Calendar',
    component: Calendar,
-   tags: ['autodocs'], // optional: 자동 문서 생성용
+   tags: ['autodocs'],
    args: {
       mode: 'single',
       selected: new Date(),
-      highlightToday: true,
    },
+   decorators: [
+      (Story) => (
+         <div style={{ width: '335px' }}>
+            <Story />
+         </div>
+      ),
+   ],
 }
 
 export default meta
@@ -18,18 +24,33 @@ type Story = StoryObj<typeof Calendar>
 
 export const Default: Story = {}
 
-export const WithoutHighlightToday: Story = {
+export const WithCompletedDays: Story = {
    args: {
-      highlightToday: false,
+      completedDays: [
+         new Date(2025, 3, 4),
+         new Date(2025, 3, 5),
+         new Date(2025, 3, 27),
+         new Date(2025, 3, 28),
+      ],
    },
 }
 
-export const RangeMode: Story = {
+export const WithCountsOnly: Story = {
    args: {
-      mode: 'range',
-      selected: {
-         from: new Date(2024, 3, 1),
-         to: new Date(2024, 3, 10),
-      },
+      monthlyCompletedCount: 5,
+      totalCompletedCount: 20,
+   },
+}
+
+export const WithCompletedDaysAndCounts: Story = {
+   args: {
+      completedDays: [
+         new Date(2025, 3, 4),
+         new Date(2025, 3, 5),
+         new Date(2025, 3, 27),
+         new Date(2025, 3, 28),
+      ],
+      monthlyCompletedCount: 4,
+      totalCompletedCount: 25,
    },
 }
