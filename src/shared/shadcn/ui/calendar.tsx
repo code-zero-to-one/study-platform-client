@@ -1,7 +1,7 @@
 "use client"
 
-import * as React from "react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
+import * as React from "react"
 import { DayPicker } from "react-day-picker"
 
 import { cn } from "@/shared/shadcn/lib/utils"
@@ -60,13 +60,14 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
+        IconLeft: ({ className, ...props }: React.ComponentProps<'svg'>) => (
           <ChevronLeft className={cn("size-4", className)} {...props} />
         ),
-        IconRight: ({ className, ...props }) => (
+        IconRight: ({ className, ...props }: React.ComponentProps<'svg'>) => (
           <ChevronRight className={cn("size-4", className)} {...props} />
         ),
-      }}
+      } as any}
+
       {...props}
     />
   )
