@@ -14,11 +14,11 @@ export function CalendarDay({ day, modifiers, children, className, ...props }: C
    let customClass = ''
 
    if (modifiers.outside) {
-      customClass = 'text-gray-300'
+      customClass = 'text-text-subtlest'
    } else if (modifiers.completed) {
       customClass = 'bg-background-success-default text-text-inverse rounded-full'
    } else if (modifiers.sunday) {
-      customClass = 'text-error'
+      customClass = 'text-text-error'
    }
 
    return (

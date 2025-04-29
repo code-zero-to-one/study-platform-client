@@ -43,10 +43,6 @@ const Calendar = ({
                completed: completedDays,
                sunday: (date) => date.getDay() === 0,
             }}
-            modifiersClassNames={{
-               sunday: 'text-text-error',
-               outside: 'text-text-subtlest',
-            }}
             components={{
                Day: CalendarDay,
             }}
