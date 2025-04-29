@@ -13,10 +13,10 @@ interface CalendarDayProps extends HTMLAttributes<HTMLTableCellElement> {
 export function CalendarDay({ day, modifiers, children, className, ...props }: CalendarDayProps) {
    let customClass = ''
 
-   if (modifiers.completed) {
-      customClass = 'bg-background-success-default text-text-inverse rounded-full'
-   } else if (modifiers.outside) {
+   if (modifiers.outside) {
       customClass = 'text-gray-300'
+   } else if (modifiers.completed) {
+      customClass = 'bg-background-success-default text-text-inverse rounded-full'
    } else if (modifiers.sunday) {
       customClass = 'text-error'
    }
