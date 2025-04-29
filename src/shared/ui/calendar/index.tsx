@@ -53,7 +53,9 @@ const Calendar = ({
             classNames={{
                months: 'flex flex-col',
                caption_label: 'd18b',
-               nav: 'absolute right-0 flex items-center',
+               nav: 'absolute right-200 flex items-center',
+               button_next: 'p-[4px]',
+               button_previous: 'p-[4px]',
                head_row: 'flex',
                row: 'flex w-full',
                weekday: 'pt-[16px]',
