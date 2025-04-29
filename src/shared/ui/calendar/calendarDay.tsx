@@ -11,11 +11,20 @@ interface CalendarDayProps extends HTMLAttributes<HTMLTableCellElement> {
 }
 
 export function CalendarDay({ day, modifiers, children, className, ...props }: CalendarDayProps) {
+   let customClass = ''
+
+   if (modifiers.completed) {
+      customClass = 'bg-background-success-default text-text-inverse rounded-full'
+   } else if (modifiers.outside) {
+      customClass = 'text-gray-300'
+   } else if (modifiers.sunday) {
+      customClass = 'text-error'
+   }
 
    return (
       <td
          className={cn(
-            "relative w-[14.28%] text-center align-top",
+            "relative text-center align-top",
             className
          )}
          {...props}
@@ -23,7 +32,9 @@ export function CalendarDay({ day, modifiers, children, className, ...props }: C
          <div className="relative w-full">
             <div className="pt-[100%]" />
             <div className="absolute inset-0 flex items-center justify-center">
-               {children}
+               <div className={cn("size-[32px] flex items-center justify-center rounded-full", customClass)}>
+                  {children}
+               </div>
             </div>
          </div>
       </td>

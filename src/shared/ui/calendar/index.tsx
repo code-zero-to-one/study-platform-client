@@ -41,9 +41,11 @@ const Calendar = ({
             }}
             modifiers={{
                completed: completedDays,
+               sunday: (date) => date.getDay() === 0,
             }}
             modifiersClassNames={{
-               completed: 'bg-background-success-default text-text-inverse rounded-full'
+               sunday: 'text-text-error',
+               outside: 'text-text-subtlest',
             }}
             components={{
                Day: CalendarDay,
@@ -54,22 +56,20 @@ const Calendar = ({
                nav: 'absolute right-0 flex items-center',
                head_row: 'flex',
                row: 'flex w-full',
-               head_cell: 'text-center text-sm text-gray-400 w-[14.28%]',
-               cell: 'w-[14.28%] h-14 text-center text-sm relative',
                weekday: 'pt-[16px]',
-               day: 'text-center d14m',
+               day: 'text-center d14m rounded-full',
             }}
             {...props}
          />
 
          <div className="flex flex-col w-full gap-75">
             {typeof monthlyCompletedCount === 'number' && (
-               <div className="w-full rounded-100 bg-background-alternative px-50 py-100 d14m text-text-default">
+               <div className="w-full rounded-100 bg-background-alternative px-50 py-100 d14m text-text-default text-ellipsis">
                   {currentMonth}월은 {monthlyCompletedCount}번의 스터디를 완료했어요.
                </div>
             )}
             {typeof totalCompletedCount === 'number' && (
-               <div className="w-full rounded-100 bg-background-alternative px-50 py-100 d14m text-text-default">
+               <div className="w-full rounded-100 bg-background-alternative px-50 py-100 d14m text-text-default text-ellipsis">
                   총 {totalCompletedCount}번의 스터디를 완료했어요.
                </div>
             )}
