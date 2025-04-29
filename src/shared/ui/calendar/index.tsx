@@ -7,6 +7,7 @@ import { Calendar as ShadcnCalendar } from '@/shared/shadcn/ui/calendar'
 import { formatCaption } from '@/shared/ui/calendar/calendar.utils'
 import { CalendarDay } from '@/shared/ui/calendar/calendarDay'
 
+
 type CalendarProps = React.ComponentProps<typeof ShadcnCalendar> & {
    completedDays?: Date[]
    monthlyCompletedCount?: number
@@ -57,21 +58,24 @@ const Calendar = ({
                weekday: 'pt-[16px]',
                day: 'text-center d14m rounded-full',
             }}
+            footer={
+               (typeof monthlyCompletedCount === 'number' || typeof totalCompletedCount === 'number') && (
+                  <div className="flex flex-col w-full gap-75 pt-200">
+                     {typeof monthlyCompletedCount === 'number' && (
+                        <div className="rounded-100 bg-background-alternative px-150 py-100 d14m text-text-default text-ellipsis">
+                           {currentMonth}월은 {monthlyCompletedCount}번의 스터디를 완료했어요.
+                        </div>
+                     )}
+                     {typeof totalCompletedCount === 'number' && (
+                        <div className="rounded-100 bg-background-alternative px-150 py-100 d14m text-text-default text-ellipsis">
+                           총 {totalCompletedCount}번의 스터디를 완료했어요.
+                        </div>
+                     )}
+                  </div>
+               )
+            }
             {...props}
          />
-
-         <div className="flex flex-col w-full gap-75">
-            {typeof monthlyCompletedCount === 'number' && (
-               <div className="w-full rounded-100 bg-background-alternative px-50 py-100 d14m text-text-default text-ellipsis">
-                  {currentMonth}월은 {monthlyCompletedCount}번의 스터디를 완료했어요.
-               </div>
-            )}
-            {typeof totalCompletedCount === 'number' && (
-               <div className="w-full rounded-100 bg-background-alternative px-50 py-100 d14m text-text-default text-ellipsis">
-                  총 {totalCompletedCount}번의 스터디를 완료했어요.
-               </div>
-            )}
-         </div>
       </div>
    )
 }
