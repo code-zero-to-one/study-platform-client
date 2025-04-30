@@ -30,7 +30,7 @@ const Calendar = ({
             'relative',
             'flex flex-col p-200 gap-150 items-start self-stretch',
             'rounded-200 border',
-            'bg-[var(--Icon-inverse,#FFF)] border-[var(--border-subtle,#F5F5F5)]',
+            'bg-icon-inverse border-border-subtle',
             className
          )}
       >
