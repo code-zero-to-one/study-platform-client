@@ -6,16 +6,17 @@ import { cn } from '@/shared/shadcn/lib/utils'
 
 interface CalendarDayProps extends HTMLAttributes<HTMLTableCellElement> {
    day: DayPickerDay
-   modifiers: Modifiers
+   modifiers?: Modifiers
    children: React.ReactNode
 }
 
 export function CalendarDay({ day, modifiers, children, className, ...props }: CalendarDayProps) {
    const customClass = cn(
-      modifiers.outside && 'text-text-subtlest',
-      !modifiers.outside && modifiers.completed && 'bg-background-success-default text-text-inverse rounded-full',
-      !modifiers.outside && !modifiers.completed && modifiers.sunday && 'text-text-error'
+      modifiers?.outside && 'text-text-subtlest',
+      !modifiers?.outside && modifiers?.completed && 'bg-background-success-default text-text-inverse rounded-full',
+      !modifiers?.outside && !modifiers?.completed && modifiers?.sunday && 'text-text-error'
    )
+
 
 
    return (
