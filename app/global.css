@@ -34,7 +34,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-gray-700: #414651;
   --color-gray-800: #252b37;
   --color-gray-900: #181d27;
-  --color-gray-1000: #000000;
+  --color-gray-1000: #0a0d12;
 
   --color-red-50: #fef3f2;
   --color-red-100: #fee4e2;
@@ -56,7 +56,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-rose-600: #e31b54;
   --color-rose-700: #c01048;
   --color-rose-800: #a11043;
-  --color-rose-900: #851651;
+  --color-rose-900: #89123e;
 
   --color-pink-50: #fdf2fa;
   --color-pink-100: #fce7f6;
@@ -89,7 +89,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-purple-600: #6938ef;
   --color-purple-700: #5925dc;
   --color-purple-800: #4a1fb8;
-  --color-purple-900: #5f3dc4;
+  --color-purple-900: #3e1c96;
 
   --color-indigo-50: #eef4ff;
   --color-indigo-100: #e0eaff;
@@ -213,19 +213,22 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-fill-brand-default-hover: var(--color-rose-600);
   --color-fill-brand-default-pressed: var(--color-rose-700);
   --color-fill-brand-subtle-default: var(--color-rose-50);
-  --color-fill-brand-subtle-hover: var(--color-rose-100);
-  --color-fill-brand-subtle-pressed: var(--color-rose-200);
+  --color-fill-brand-subtle-hover: var(--color-rose-200);
+  --color-fill-brand-subtle-pressed: var(--color-rose-300);
 
   --color-fill-neutral-strong-default: var(--color-gray-900);
   --color-fill-neutral-strong-hover: var(--color-gray-800);
   --color-fill-neutral-strong-pressed: var(--color-gray-700);
-  --color-fill-neutral-default-default: var(--color-gray-500);
-  --color-fill-neutral-default-hover: var(--color-gray-600);
-  --color-fill-neutral-default-pressed: var(--color-gray-700);
+  --color-fill-neutral-default-default: var(--color-gray-100);
+  --color-fill-neutral-default-hover: var(--color-gray-200);
+  --color-fill-neutral-default-pressed: var(--color-gray-300);
   --color-fill-neutral-subtle-default: var(--color-gray-0);
-  --color-fill-neutral-subtle-hover: var(--color-gray-100);
-  --color-fill-neutral-subtle-pressed: var(--color-gray-200);
+  --color-fill-neutral-subtle-hover: var(--color-gray-50);
+  --color-fill-neutral-subtle-pressed: var(--color-gray-100);
 
+  --color-fill-success-default: var(--color-rose-500);
+  --color-fill-success-hover: var(--color-rose-600);
+  --color-fill-success-pressed: var(--color-rose-700);
   --color-fill-success-strong-default: var(--color-green-900);
   --color-fill-success-strong-hover: var(--color-green-800);
   --color-fill-success-strong-pressed: var(--color-green-700);
@@ -236,6 +239,9 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-fill-success-subtle-hover: var(--color-green-100);
   --color-fill-success-subtle-pressed: var(--color-green-200);
 
+  --color-fill-danger-default: var(--color-rose-500);
+  --color-fill-danger-hover: var(--color-rose-600);
+  --color-fill-danger-pressed: var(--color-rose-700);
   --color-fill-danger-strong-default: var(--color-red-900);
   --color-fill-danger-strong-hover: var(--color-red-800);
   --color-fill-danger-strong-pressed: var(--color-red-700);
@@ -315,357 +321,357 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 }
 
 /* typography */
-@utility headings1 {
+@utility font-display-headings1 {
   font-size: 72px;
   font-weight: var(--font-weight-semibold);
   line-height: 108px;
   letter-spacing: 0;
 }
 
-@utility headings2 {
+@utility font-display-headings2 {
   font-size: 64px;
   font-weight: var(--font-weight-bold);
   line-height: 96px;
   letter-spacing: 0;
 }
 
-@utility headings3 {
+@utility font-display-headings3 {
   font-size: 58px;
   font-weight: var(--font-weight-bold);
   line-height: 88px;
   letter-spacing: 0;
 }
 
-@utility headings4 {
+@utility font-display-headings4 {
   font-size: 52px;
   font-weight: var(--font-weight-bold);
   line-height: 78px;
   letter-spacing: 0;
 }
 
-@utility headings5 {
+@utility font-display-headings5 {
   font-size: 48px;
   font-weight: var(--font-weight-bold);
   line-height: 72px;
   letter-spacing: 0;
 }
 
-@utility headings5 {
+@utility font-display-headings6 {
   font-size: 40px;
   font-weight: var(--font-weight-bold);
   line-height: 60px;
   letter-spacing: 0;
 }
 
-@utility bold-h1 {
+@utility font-bold-h1 {
   font-size: 36px;
   font-weight: var(--font-weight-bold);
   line-height: 54px;
   letter-spacing: 0;
 }
 
-@utility bold-h2 {
+@utility font-bold-h2 {
   font-size: 32px;
   font-weight: var(--font-weight-bold);
   line-height: 48px;
   letter-spacing: 0;
 }
 
-@utility bold-h3 {
+@utility font-bold-h3 {
   font-size: 28px;
   font-weight: var(--font-weight-bold);
   line-height: 42px;
   letter-spacing: 0;
 }
 
-@utility bold-h4 {
+@utility font-bold-h4 {
   font-size: 24px;
   font-weight: var(--font-weight-bold);
   line-height: 36px;
   letter-spacing: 0;
 }
 
-@utility bold-h5 {
+@utility font-bold-h5 {
   font-size: 20px;
   font-weight: var(--font-weight-bold);
   line-height: 30px;
   letter-spacing: 0;
 }
 
-@utility bold-h6 {
+@utility font-bold-h6 {
   font-size: 18px;
   font-weight: var(--font-weight-bold);
   line-height: 28px;
   letter-spacing: 0;
 }
 
-@utility d36r {
+@utility font-designer-36r {
   font-size: 36px;
   font-weight: var(--font-weight-regular);
   line-height: 54px;
   letter-spacing: 0;
 }
 
-@utility d36m {
+@utility font-designer-36m {
   font-size: 36px;
   font-weight: var(--font-weight-medium);
   line-height: 54px;
   letter-spacing: 0;
 }
 
-@utility d36b {
+@utility font-designer-36b {
   font-size: 36px;
   font-weight: var(--font-weight-bold);
   line-height: 54px;
   letter-spacing: 0;
 }
 
-@utility d32r {
+@utility font-designer-32r {
   font-size: 32px;
   font-weight: var(--font-weight-regular);
   line-height: 48px;
   letter-spacing: 0;
 }
 
-@utility d32m {
+@utility font-designer-32m {
   font-size: 32px;
   font-weight: var(--font-weight-medium);
   line-height: 48px;
   letter-spacing: 0;
 }
 
-@utility d32b {
+@utility font-designer-32b {
   font-size: 32px;
   font-weight: var(--font-weight-bold);
   line-height: 48px;
   letter-spacing: 0;
 }
 
-@utility d28r {
+@utility font-designer-28r {
   font-size: 28px;
   font-weight: var(--font-weight-regular);
   line-height: 42px;
   letter-spacing: 0;
 }
 
-@utility d28m {
+@utility font-designer-28m {
   font-size: 28px;
   font-weight: var(--font-weight-medium);
   line-height: 42px;
   letter-spacing: 0;
 }
 
-@utility d28b {
+@utility font-designer-28b {
   font-size: 28px;
   font-weight: var(--font-weight-bold);
   line-height: 42px;
   letter-spacing: 0;
 }
 
-@utility d24r {
+@utility font-designer-24r {
   font-size: 24px;
   font-weight: var(--font-weight-regular);
   line-height: 37px;
   letter-spacing: 0;
 }
 
-@utility d24m {
+@utility font-designer-24m {
   font-size: 24px;
   font-weight: var(--font-weight-medium);
   line-height: 37px;
   letter-spacing: 0;
 }
 
-@utility d24b {
+@utility font-designer-24b {
   font-size: 24px;
   font-weight: var(--font-weight-bold);
   line-height: 37px;
   letter-spacing: 0;
 }
 
-@utility d20r {
+@utility font-designer-20r {
   font-size: 20px;
   font-weight: var(--font-weight-regular);
   line-height: 30px;
   letter-spacing: 0;
 }
 
-@utility d20m {
+@utility font-designer-20m {
   font-size: 20px;
   font-weight: var(--font-weight-medium);
   line-height: 30px;
   letter-spacing: 0;
 }
 
-@utility d20b {
+@utility font-designer-20b {
   font-size: 20px;
   font-weight: var(--font-weight-bold);
   line-height: 30px;
   letter-spacing: 0;
 }
 
-@utility d18r {
+@utility font-designer-18r {
   font-size: 18px;
   font-weight: var(--font-weight-regular);
   line-height: 29px;
   letter-spacing: 0;
 }
 
-@utility d18m {
+@utility font-designer-18m {
   font-size: 18px;
   font-weight: var(--font-weight-medium);
   line-height: 29px;
   letter-spacing: 0;
 }
 
-@utility d18b {
+@utility font-designer-18b {
   font-size: 18px;
   font-weight: var(--font-weight-bold);
   line-height: 29px;
   letter-spacing: 0;
 }
 
-@utility d16r {
+@utility font-designer-16r {
   font-size: 16px;
   font-weight: var(--font-weight-regular);
   line-height: 25px;
   letter-spacing: 0;
 }
 
-@utility d16m {
+@utility font-designer-16m {
   font-size: 16px;
   font-weight: var(--font-weight-medium);
   line-height: 25px;
   letter-spacing: 0;
 }
 
-@utility d16b {
+@utility font-designer-16b {
   font-size: 16px;
   font-weight: var(--font-weight-bold);
   line-height: 25px;
   letter-spacing: 0;
 }
 
-@utility d15r {
+@utility font-designer-15r {
   font-size: 15px;
   font-weight: var(--font-weight-regular);
   line-height: 23px;
   letter-spacing: 0;
 }
 
-@utility d15m {
+@utility font-designer-15m {
   font-size: 15px;
   font-weight: var(--font-weight-medium);
   line-height: 23px;
   letter-spacing: 0;
 }
 
-@utility d15b {
+@utility font-designer-15b {
   font-size: 15px;
   font-weight: var(--font-weight-bold);
   line-height: 23px;
   letter-spacing: 0;
 }
 
-@utility d14r {
+@utility font-designer-14r {
   font-size: 14px;
   font-weight: var(--font-weight-regular);
   line-height: 22px;
   letter-spacing: 0;
 }
 
-@utility d14m {
+@utility font-designer-14m {
   font-size: 14px;
   font-weight: var(--font-weight-medium);
   line-height: 22px;
   letter-spacing: 0;
 }
 
-@utility d14b {
+@utility font-designer-14b {
   font-size: 14px;
   font-weight: var(--font-weight-bold);
   line-height: 22px;
   letter-spacing: 0;
 }
 
-@utility d13r {
+@utility font-designer-13r {
   font-size: 13px;
   font-weight: var(--font-weight-regular);
   line-height: 20px;
   letter-spacing: 0;
 }
 
-@utility d13m {
+@utility font-designer-13m {
   font-size: 13px;
   font-weight: var(--font-weight-medium);
   line-height: 20px;
   letter-spacing: 0;
 }
 
-@utility d13b {
+@utility font-designer-13b {
   font-size: 13px;
   font-weight: var(--font-weight-bold);
   line-height: 20px;
   letter-spacing: 0;
 }
 
-@utility d12r {
+@utility font-designer-12r {
   font-size: 12px;
   font-weight: var(--font-weight-regular);
   line-height: 19px;
   letter-spacing: 0;
 }
 
-@utility d12m {
+@utility font-designer-12m {
   font-size: 12px;
   font-weight: var(--font-weight-medium);
   line-height: 19px;
   letter-spacing: 0;
 }
 
-@utility d12b {
+@utility font-designer-12b {
   font-size: 12px;
   font-weight: var(--font-weight-bold);
   line-height: 19px;
   letter-spacing: 0;
 }
 
-@utility d11r {
+@utility font-designer-11r {
   font-size: 11px;
   font-weight: var(--font-weight-regular);
   line-height: 18px;
   letter-spacing: 0;
 }
 
-@utility d11m {
+@utility font-designer-11m {
   font-size: 11px;
   font-weight: var(--font-weight-medium);
   line-height: 18px;
   letter-spacing: 0;
 }
 
-@utility d11b {
+@utility font-designer-11b {
   font-size: 11px;
   font-weight: var(--font-weight-bold);
   line-height: 18px;
   letter-spacing: 0;
 }
 
-@utility d10r {
+@utility font-designer-10r {
   font-size: 10px;
   font-weight: var(--font-weight-regular);
   line-height: 17px;
   letter-spacing: 0;
 }
 
-@utility d10m {
+@utility font-designer-10m {
   font-size: 10px;
   font-weight: var(--font-weight-medium);
   line-height: 17px;
   letter-spacing: 0;
 }
 
-@utility d10b {
+@utility font-designer-10b {
   font-size: 10px;
   font-weight: var(--font-weight-bold);
   line-height: 17px;
