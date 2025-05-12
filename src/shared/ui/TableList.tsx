@@ -1,38 +1,46 @@
 import {
-    Table,
-    TableHeader,
-    TableRow,
-    TableHead,
-    TableBody,
-    TableCell,
-  } from "@/shared/shadcn/ui/table";
+  Table,
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/shared/shadcn/ui/table";
 
-  interface Props<T extends string> {
-    headers: T[];
-    data: Record<Lowercase<T>, any>[];
-  }
-  
-  export default function TableList<T extends string>({ headers, data }: Props<T>) {  
-    return (
-      <Table>
-        <TableHeader>
-        <TableRow className="bg-[var(--color-background-alternative)] !p-[20px] border-none">
-            {headers.map((header) => (
-                <TableHead className="p-[20px] text-[13px] leading-[20px] text-[var(--color-text-subtle)]">{header}</TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
+interface Props<T extends string> {
+  headers: readonly T[];
+  data: Record<T, React.ReactNode>[];
+}
+
+export default function TableList<T extends string>({ headers, data }: Props<T>) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow className="bg-background-alternative rounded-50 border border-transparent">
+          {headers.map((header) => (
+            <TableHead
+              key={header}
+              className="p-200 text-center align-middle leading-[20px] font-designer-13r text-text-subtle"
+            >
+              {header}
+            </TableHead>
+          ))}
+        </TableRow>
+      </TableHeader>
+      <TableBody>
         {data.map((row, index) => (
           <TableRow key={index} className="border-none">
             {headers.map((header) => (
-              <TableCell className="p-[20px]" key={header}>
-                {row[header.toLowerCase() as Lowercase<T>]}
+              <TableCell
+                key={header}
+                className="p-300 text-center align-middle"
+              >
+                {row[header]}
               </TableCell>
             ))}
           </TableRow>
         ))}
-        </TableBody>
-      </Table>
-    );
-  }
+      </TableBody>
+    </Table>
+  );
+}
