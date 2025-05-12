@@ -18,6 +18,7 @@
     "api:logs": "docker-compose -f ../study-platform-mvp/docker-compose.yml logs -f mvp-app"
   },
   "dependencies": {
+    "@radix-ui/react-avatar": "^1.1.9",
     "@radix-ui/react-dialog": "^1.1.10",
     "@radix-ui/react-slot": "^1.2.2",
     "@radix-ui/react-switch": "^1.2.4",
