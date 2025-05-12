@@ -2,10 +2,10 @@
 
 import { ko } from "date-fns/locale"
 import * as React from 'react'
+import { formatCaption } from '@/features/calendar/calendar.utils'
+import { CalendarDay } from '@/features/calendar/calendarDay'
 import { cn } from '@/shared/shadcn/lib/utils'
 import { Calendar as ShadcnCalendar } from '@/shared/shadcn/ui/calendar'
-import { formatCaption } from '@/shared/ui/calendar/calendar.utils'
-import { CalendarDay } from '@/shared/ui/calendar/calendarDay'
 
 
 type CalendarProps = React.ComponentProps<typeof ShadcnCalendar> & {
