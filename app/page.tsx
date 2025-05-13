@@ -40,17 +40,22 @@ export default async function Home() {
           <div className='font-bold-h3'>3월 1주차 스터디</div>
           <DateSelector />
         </div>
-        <div className='p-400 border border-border-default rounded-200'>
+        <div className='p-400 border border-border-default rounded-200 flex flex-col gap-500'>
           <TodayStudyCard
-            teamName='2조'
-            interviewer='김지원'
-            topic='네트워크 - TCP 3-way handshake'
+            teamName="2조"
+            interviewer={{
+              name: '김지원',
+              img: '',
+            }}
+            topic="네트워크 - TCP 3-way handshake"
+            status="COMPLETED"
+            feedback="1NF, 2NF, 3NF의 차이를 명확하게 설명하였으며, 예제를 통해 이해도를 높였습니다."
           />
           <StudyListSection rawData={mockData} />
         </div>
       </div>
 
-      <aside className='w-[320px] shrink-0'>
+      <aside className='w-[335px] shrink-0'>
         <Sidebar />
       </aside>
     </div>
