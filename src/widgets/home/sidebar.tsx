@@ -13,8 +13,7 @@ export default function Sidebar() {
             time="오전, 심야"
             techStacks="HTML/CSS, Git/GitHub"
          />
-
-         <TodoList />
+         <TodoList statusList={[true, false, false]} />
          <Calendar />
       </aside>
    );
