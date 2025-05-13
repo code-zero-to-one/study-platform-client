@@ -1,7 +1,6 @@
-import Image from "next/image";
+import UserCell from '@/entities/user/ui/UserCell';
 import { Badge } from "@/shared/ui/badge/index";
 import TableList from "@/shared/ui/TableList";
-import DefaultUserIcon from "public/icons/DefaultUser.svg";
 import LinkIcon from "public/icons/Link.svg";
 
 const headers = ["조", "지원자", "면접관", "면접 주제", "피드백", "진행 상태", "참고 자료"] as const;
@@ -27,34 +26,14 @@ const statusBadgeMap: Record<string, React.ReactNode> = {
    NOT_STARTED: <Badge color="default">시작 전</Badge>,
 };
 
-/* 다른 구조에서도 사용 가능하기 때문에 분리 가능성 O, 이후 리팩토링*/
-function renderUserCell(user: { name: string; img?: string }) {
-   return (
-      <div className="flex items-center gap-150">
-         {user.img ? (
-            <Image
-               src={user.img}
-               alt={user.name}
-               width={32}
-               height={32}
-               className="rounded-full"
-            />
-         ) : (
-            <DefaultUserIcon width="32" height="32" />
-         )}
-         <span>{user.name}</span>
-      </div>
-   );
-}
-
 function mapDailyStudyToDisplayData(row: RawStudy, index: number): Record<Header, React.ReactNode> {
    const interviewee = { name: row.interviewee, img: "" };
    const interviewer = { name: row.interviewer, img: "" };
 
    return {
       "조": index + 1,
-      "지원자": renderUserCell(interviewee),
-      "면접관": renderUserCell(interviewer),
+      "지원자": <UserCell name={interviewee.name} img={interviewee.img} />,
+      "면접관": <UserCell name={interviewer.name} img={interviewer.img} />,
       "면접 주제": row.subject,
       "피드백": <p className="max-w-[300px] text-sm text-text-default line-clamp-2">
          {row.feedBack ?? "-"}
