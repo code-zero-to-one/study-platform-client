@@ -20,16 +20,16 @@ export default function DateSelector() {
          {dates.map((date, index) => {
             const isSelected = index === selectedIndex;
             const dayLabel = dayLabels[index];
-            const dateNum = format(date, "d"); // 숫자만 추출
+            const dateNum = format(date, "d");
 
             return (
                <button
                   key={index}
                   onClick={() => setSelectedIndex(index)}
-                  className={`flex-1 py-300 flex flex-col items-center rounded-150 transition
+                  className={`flex-1 py-300 flex flex-col items-center rounded-150 transition border border-border-default
     ${isSelected
-                        ? "bg-fill-brand-default-default"
-                        : "bg-fill-neutral-subtle-default border border-border-default hover:bg-gray-200"}`}
+                        ? "bg-fill-brand-default-default border-transparent"
+                        : "bg-fill-neutral-subtle-default hover:bg-gray-200"}`}
                >
                   <span
                      className={`font-designer-14m ${isSelected ? "text-gray-0" : "text-text-subtle"
