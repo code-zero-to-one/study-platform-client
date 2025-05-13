@@ -15,7 +15,7 @@ const toggleRootVariants = cva(
          size: {
             sm: 'h-200 w-[28px]',
             md: 'h-[20px] w-500',
-            lg: 'h-300 w-[44px]',
+            lg: 'h-300 w-[46px]',
          },
       },
       defaultVariants: {
@@ -31,8 +31,8 @@ const toggleThumbVariants = cva(
       variants: {
          size: {
             sm: 'size-150 translate-x-[2px] data-[state=checked]:translate-x-[14px]',
-            md: 'size-200 translate-x-[2px] data-[state=checked]:translate-x-[18px]',
-            lg: 'size-[20px] translate-x-[2px] data-[state=checked]:translate-x-[22px]',
+            md: 'size-200 translate-x-[2px] data-[state=checked]:translate-x-[22px]',
+            lg: 'size-[20px] translate-x-[2px] data-[state=checked]:translate-x-[24px]',
          },
       },
       defaultVariants: {
