@@ -36,5 +36,5 @@
       }
     ]
   },
-  "include": ["next-env.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"]
+  "include": ["svgr.d.ts", "next-env.d.ts", "src/**/*.d.ts", ".next/types/**/*.ts", "**/*.ts", "**/*.tsx"]
 }
