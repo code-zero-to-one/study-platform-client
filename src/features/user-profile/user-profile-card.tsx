@@ -1,5 +1,8 @@
+'use client'
+
 import Image from 'next/image';
-import Toggle from '@/shared/ui/toggle/index';
+import React from 'react';
+import { Toggle } from '@/shared/ui/toggle/index';
 import AccessTimeIcon from 'public/icons/access_time.svg'
 import AssignmentIcon from 'public/icons/assignment.svg'
 import CodeIcon from 'public/icons/code.svg'
@@ -23,6 +26,8 @@ export default function UserProfileCard({
    time,
    techStacks,
 }: UserProfileCardProps) {
+   const [enabled, setEnabled] = React.useState(false)
+
    return (
       <section className='p-200 rounded-200 border border-border-subtle bg-text-inverse flex flex-col items-start gap-200'>
          <div className='flex flex-row gap-200 items-center'>
@@ -47,7 +52,12 @@ export default function UserProfileCard({
                <div className='font-designer-18b'>{name}님</div>
                <div className='flex flex-row gap-100 items-center'>
                   <span className='font-designer-14r text-gray-800'>스터디 매칭</span>
-                  <Toggle checked={matching} />
+                  <Toggle.Provider
+                     color="primary"
+                     size="md"
+                     checked={enabled}
+                     onCheckedChange={setEnabled}
+                  />
                </div>
             </div>
          </div>
