@@ -2,8 +2,8 @@
 
 import { ko } from "date-fns/locale"
 import * as React from 'react'
-import { formatCaption } from '@/features/calendar/calendar.utils'
-import { CalendarDay } from '@/features/calendar/calendarDay'
+import { formatCaption } from '@/widgets/home/calendar/calendar.utils'
+import { CalendarDay } from '@/widgets/home/calendar/calendarDay'
 import { cn } from '@/shared/shadcn/lib/utils'
 import { Calendar as ShadcnCalendar } from '@/shared/shadcn/ui/calendar'
 

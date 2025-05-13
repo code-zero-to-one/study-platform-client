@@ -1,6 +1,6 @@
-import Calendar from "@/features/calendar/index";
-import TodoList from "@/features/todo/todo-list";
-import UserProfileCard from "@/features/user-profile/user-profile-card";
+import UserProfileCard from "@/features/home/user-profile-card";
+import Calendar from "@/widgets/home/calendar/index";
+import TodoList from "@/widgets/home/todo-list";
 
 export default function Sidebar() {
    return (
