@@ -20,7 +20,7 @@ export default function TableList<T extends string>({ headers, data }: Props<T>)
           {headers.map((header) => (
             <TableHead
               key={header}
-              className="p-200 text-center align-middle leading-[20px] font-designer-13r text-text-subtle"
+              className="px-100 py-200 text-center align-middle leading-[20px] font-designer-13r text-text-subtle"
             >
               {header}
             </TableHead>
@@ -33,7 +33,7 @@ export default function TableList<T extends string>({ headers, data }: Props<T>)
             {headers.map((header) => (
               <TableCell
                 key={header}
-                className="p-300 text-center align-middle"
+                className="p-300 text-center align-middle whitespace-normal"
               >
                 {row[header]}
               </TableCell>
