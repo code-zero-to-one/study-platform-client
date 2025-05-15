@@ -1,5 +1,6 @@
 'use client'
 
+import { XIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Input } from '@/shared/shadcn/ui/input'
 import UserAvatar from '@/shared/ui/avatar'
@@ -97,10 +98,13 @@ export default function TodayStudyCard({
         <Modal.Portal>
           <Modal.Overlay />
           <Modal.Content>
-            <Modal.Header>
+            <Modal.Header className="flex items-center justify-between">
               <Modal.Title>
                 {mode === 'ready' ? '면접 준비하기' : '면접 완료하기'}
               </Modal.Title>
+              <Modal.Close>
+                <XIcon />
+              </Modal.Close>
             </Modal.Header>
 
             <Modal.Body className='flex flex-col gap-400'>
