@@ -1,4 +1,4 @@
-import Banner from '@/features/home/banner';
+import Banner from '@/widgets/home/banner';
 import DateSelector from '@/features/home/data-selector';
 import Sidebar from '@/widgets/home/sidebar';
 import StudyListSection from '@/widgets/home/study-list-table';
