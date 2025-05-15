@@ -63,7 +63,7 @@ function ModalOverlay({
     <DialogOverlay
       data-slot="modal-overlay"
       className={cn(
-        'bg-[var(--color-background-dimmer)] opacity-20',
+        'bg-background-dimmer opacity-20',
         className,
       )}
       {...props}
@@ -84,12 +84,12 @@ function ModalContent({
         'top-[50%] left-[50%]',
         'translate-x-[-50%] translate-y-[-50%]',
         'max-w-[calc(100%-2rem)], w-full sm:max-w-lg',
-        'bg-[var(--color-background-default)]',
+        'bg-background-default',
         'z-50',
-        'rounded-[var(--radius-150)]',
+        'rounded-150',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200',
         'shadow-[0px_10px_10px_0px_rgba(0,0,0,0.24), 0px_4px_32px_0px_rgba(0,0,0,0.24)]',
-        'border-[1px] border-[var(--color-border-default)]',
+        'border border-border-default',
         className,
       )}
       {...props}
@@ -104,7 +104,7 @@ function ModalHeader({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="modal-header"
       className={cn(
-        'px-[var(--spacing-400)] pt-[var(--spacing-400)] pb-[var(--spacing-300)]',
+        'px-400 pt-400 pb-300',
         className,
       )}
       {...props}
@@ -117,7 +117,7 @@ function ModalBody({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="modal-body"
       className={cn(
-        'px-[var(--spacing-400)] py-[var(--spacing-300)]',
+        'px-400 py-300',
         className,
       )}
       {...props}
@@ -130,7 +130,7 @@ function ModalFooter({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="modal-footer"
       className={cn(
-        'px-[var(--spacing-400)] py-[var(--spacing-200)]',
+        'px-400 py-200',
         className,
       )}
       {...props}
@@ -145,7 +145,7 @@ function ModalTitle({
   return (
     <DialogTitle
       data-slot="modal-title"
-      className={cn('d20b', 'text-[var(--color-text-strong)]', className)}
+      className={cn('d20b', 'text-text-strong', className)}
       {...props}
     />
   );
