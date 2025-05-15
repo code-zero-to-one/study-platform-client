@@ -1,12 +1,11 @@
 'use client'
 
-import Image from 'next/image';
 import React from 'react';
+import UserAvatar from '@/shared/ui/avatar';
 import { Toggle } from '@/shared/ui/toggle/index';
 import AccessTimeIcon from 'public/icons/access_time.svg'
 import AssignmentIcon from 'public/icons/assignment.svg'
 import CodeIcon from 'public/icons/code.svg'
-import DefaultUserIcon from 'public/icons/DefaultUser.svg'
 import SettingIcon from 'public/icons/setting.svg'
 
 interface UserProfileCardProps {
@@ -26,24 +25,13 @@ export default function UserProfileCard({
    time,
    techStacks,
 }: UserProfileCardProps) {
-   const [enabled, setEnabled] = React.useState(false)
+   const [enabled, setEnabled] = React.useState(matching)
 
    return (
       <section className='p-200 rounded-200 border border-border-subtle bg-text-inverse flex flex-col items-start gap-200'>
          <div className='flex flex-row gap-200 items-center'>
             <div className="relative w-[64px] h-[64px] shrink-0">
-               {imageUrl ? (
-                  <Image
-                     src={imageUrl}
-                     alt={name}
-                     width={64}
-                     height={64}
-                     className="rounded-full object-cover"
-                  />
-               ) : (
-                  <DefaultUserIcon width={64} height={64} />
-               )}
-
+               <UserAvatar size={64} image={imageUrl} />
                <div className="absolute bottom-0 right-0 w-[24px] h-[24px] bg-background-accent-gray-strong rounded-full flex items-center justify-center">
                   <SettingIcon />
                </div>

@@ -1,4 +1,4 @@
-import UserCell from '@/entities/user/ui/UserCell';
+import UserAvatar from '@/shared/ui/avatar';
 import { Badge } from '@/shared/ui/badge';
 import Button from '@/shared/ui/button';
 import CreateIcon from 'public/icons/create.svg'
@@ -57,8 +57,9 @@ export default function TodayStudyCard({
         </div>
         <div className={getBoxClass('row')}>
           <span className={labelClass}>면접자</span>
-          <div className="flex items-center px-100 py-50 gap-75 border border-border-default rounded-full bg-background-default">
-            <UserCell name={interviewer.name} img={interviewer.img} />
+          <div className="flex items-center px-100 py-50 gap-100 border border-border-default rounded-full bg-background-default">
+            <UserAvatar />
+            <span className='font-designer-14m'>{interviewer.name}</span>
           </div>
         </div>
         <div className={getBoxClass('row')}>

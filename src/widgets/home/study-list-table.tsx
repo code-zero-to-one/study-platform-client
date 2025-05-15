@@ -1,4 +1,4 @@
-import UserCell from '@/entities/user/ui/UserCell';
+import UserAvatar from '@/shared/ui/avatar';
 import { Badge } from "@/shared/ui/badge/index";
 import TableList from "@/shared/ui/TableList";
 import LinkIcon from "public/icons/Link.svg";
@@ -32,8 +32,16 @@ function mapDailyStudyToDisplayData(row: RawStudy, index: number): Record<Header
 
    return {
       "조": index + 1,
-      "지원자": <UserCell name={interviewee.name} img={interviewee.img} />,
-      "면접관": <UserCell name={interviewer.name} img={interviewer.img} />,
+      "지원자":
+         <div className="flex items-center px-100 py-50 gap-150">
+            <UserAvatar image={interviewee.img} />
+            <span className='font-designer-14m'>{interviewee.name}</span>
+         </div>,
+      "면접관":
+         <div className="flex items-center px-100 py-50 gap-150">
+            <UserAvatar image={interviewer.img} />
+            <span className='font-designer-14m'>{interviewer.name}</span>
+         </div>,
       "면접 주제": row.subject,
       "피드백": <p className="max-w-[300px] text-sm text-text-default line-clamp-2">
          {row.feedBack ?? "-"}
