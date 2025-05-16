@@ -7,7 +7,7 @@ import { cn } from '@/shared/shadcn/lib/utils'
 interface CalendarDayProps extends HTMLAttributes<HTMLTableCellElement> {
    day: DayPickerDay
    modifiers?: Modifiers
-   children: React.ReactNode
+   children?: React.ReactNode
 }
 
 export function CalendarDay({ day, modifiers, children, className, ...props }: CalendarDayProps) {
