@@ -1,5 +1,4 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { Badge } from '@/shared/ui/badge/index';
 import Chip from '@/shared/ui/chip';
 
 const meta: Meta<typeof Chip> = {
