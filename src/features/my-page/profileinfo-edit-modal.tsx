@@ -49,6 +49,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
                 <ProfileInfoEditCard title="선호하는 스터디 주제" isRequired>
                   <div className="flex flex-col gap-[6px]">
                     <Dropdown
+                      defaultValue="cs-basic"
                       options={[
                         {
                           label: 'CS 기본기',

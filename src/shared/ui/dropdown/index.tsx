@@ -33,7 +33,8 @@ export default function Dropdown({
       <DropdownMenuTrigger className="w-full focus:outline-none">
         <div className="flex w-full items-center justify-between rounded-[var(--radius-100)] border border-[var(--color-border-strong)] p-[var(--spacing-150)]">
           <span className="text-[var(--color-text)]">
-            {selectedValue || placeholder}
+            {options.find((option) => option.value === selectedValue)?.label ||
+              placeholder}
           </span>
           {isOpen ? (
             <ChevronUp className="size-4" />
@@ -45,7 +46,7 @@ export default function Dropdown({
 
       <DropdownMenuContent
         onClick={() => setIsOpen(false)}
-        className="flex w-full flex-col gap-[var(--spacing-50)] rounded-[var(--radius-100)] border border-[var(--color-border-default)] p-[var(--spacing-50)] shadow-[var(--shadow-2)]"
+        className="flex w-full flex-col gap-[var(--spacing-50)] rounded-[var(--radius-100)] border border-[var(--color-border-default)] bg-[var(--color-background-default)] p-[var(--spacing-50)] shadow-[var(--shadow-2)]"
         style={{ width: 'var(--radix-dropdown-menu-trigger-width)' }}
       >
         {options.map((option) => (
