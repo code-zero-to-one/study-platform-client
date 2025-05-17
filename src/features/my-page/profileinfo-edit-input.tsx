@@ -32,7 +32,7 @@ export default function ProfileInfoEditInput({
     <div className="flex flex-col gap-[6px]">
       <Textarea
         placeholder={placeholder}
-        className="h-[60px] w-full rounded-[8px] border border-[var(--border)] p-[12px] focus-visible:border-none"
+        className="h-[60px] w-full rounded-[8px] border border-[var(--border)] p-[12px] focus-visible:ring-0 focus-visible:outline-none"
         value={value}
         onChange={handleChange}
       />

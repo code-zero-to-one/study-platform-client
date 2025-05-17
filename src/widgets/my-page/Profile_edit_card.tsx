@@ -24,7 +24,7 @@ export default function ProfileEditCard({
       <div className="flex flex-col gap-[6px]">
         <Input
           placeholder="입력하세요."
-          className="w-full rounded-[8px] border border-[var(--border)] pt-[3px] pr-[8px] pb-[3px] pl-[8px]"
+          className="w-full rounded-[8px] border border-[var(--border)] pt-[3px] pr-[8px] pb-[3px] pl-[8px] focus-visible:ring-0 focus-visible:outline-none"
         />
         <div className="text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
           {description}
