@@ -39,13 +39,23 @@ export default function Profile() {
         <div className="flex gap-[40px]">
           <div className="flex flex-col gap-[8px]">
             <div className="flex gap-[4px]">
-              <Image src="Cake.svg" alt="Profile" width={16} height={16} />
+              <Image
+                src="icons/Cake.svg"
+                alt="Profile"
+                width={16}
+                height={16}
+              />
               <div className="text-[12px] text-[var(--color-text-subtlest)]">
                 1999.01.01
               </div>
             </div>
             <div className="flex gap-[4px]">
-              <Image src="Phone.svg" alt="Profile" width={16} height={16} />
+              <Image
+                src="icons/Phone.svg"
+                alt="Profile"
+                width={16}
+                height={16}
+              />
               <div className="text-[12px] text-[var(--color-text-subtlest)]">
                 010-1234-5678
               </div>
@@ -55,7 +65,7 @@ export default function Profile() {
           <div className="flex flex-col gap-[8px]">
             <div className="flex gap-[4px]">
               <Image
-                src="GithubLogo.svg"
+                src="icons/GithubLogo.svg"
                 alt="Profile"
                 width={16}
                 height={16}
@@ -66,7 +76,7 @@ export default function Profile() {
             </div>
             <div className="flex gap-[4px]">
               <Image
-                src="GlobeSimple.svg"
+                src="icons/GlobeSimple.svg"
                 alt="Profile"
                 width={16}
                 height={16}
