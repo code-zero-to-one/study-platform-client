@@ -2,7 +2,7 @@ import { Input } from '@/shared/shadcn/ui/input';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { XIcon } from 'lucide-react';
-import ProfileEditCard from '../../widgets/my-page/Profile_edit_card';
+import ProfileEditCard from '../../widgets/my-page/Profile-edit-card';
 
 interface Props {
   onSubmit: () => void;

@@ -1,6 +1,6 @@
 'use client';
 
-import ProfileInfoCard from '../../widgets/my-page/profileinfo_card';
+import ProfileInfoCard from '../../widgets/my-page/profileinfo-card';
 import ProfileInfoEditModal from './profileinfo-edit-modal';
 
 export default function ProfileInfo() {
