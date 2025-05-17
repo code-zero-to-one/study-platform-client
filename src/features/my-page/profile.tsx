@@ -2,7 +2,7 @@
 
 import { Badge } from '@/shared/shadcn/ui/badge';
 import Image from 'next/image';
-import ProfileEditModal from '../../components/ProfileEditModal';
+import ProfileEditModal from './Profile_edit_modal';
 
 export default function Profile() {
   return (

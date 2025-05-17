@@ -2,8 +2,8 @@ import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { XIcon } from 'lucide-react';
 import Chip from '@/shared/ui/chip';
-import ProfileInfoEditCard from './ProfileInfoEditCard';
-import ProfileInfoEditInput from './ProfileInfoEditInput';
+import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo_edit_card';
+import ProfileInfoEditInput from './profileinfo-edit-input';
 
 interface Props {
   onSubmit: () => void;

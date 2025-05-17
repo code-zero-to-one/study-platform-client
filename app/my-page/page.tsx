@@ -1,5 +1,5 @@
 import Profile from '@/features/my-page/profile';
-import ProfileInfo from '@/components/profileInfo';
+import ProfileInfo from '@/features/my-page/profileinfo';
 import Sidebar from '@/widgets/my-page/sidebar';
 
 export default function MyPage() {
