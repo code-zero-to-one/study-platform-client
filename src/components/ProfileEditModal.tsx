@@ -11,7 +11,9 @@ interface Props {
 export default function ProfileEditModal({ onSubmit }: Props) {
   return (
     <Modal.Provider>
-      <Modal.Trigger>내 프로필 수정</Modal.Trigger>
+      <Modal.Trigger className="w-full rounded-[8px] bg-[var(--color-fill-brand-default-default)] px-[8px] py-[12px] text-[16px] text-[var(--color-text-inverse)]">
+        내 프로필 수정
+      </Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>

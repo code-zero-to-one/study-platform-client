@@ -21,9 +21,7 @@ export default function Header() {
           <Link href="/notifications" aria-label="알림">
             {/* <NotiIcon /> */}
           </Link>
-          <Link href="/mypage">
-            <UserAvatar />
-          </Link>
+          <Link href="/mypage">{/* <UserAvatar /> */}</Link>
         </div>
       </div>
     </header>

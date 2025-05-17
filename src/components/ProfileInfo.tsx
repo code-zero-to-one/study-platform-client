@@ -5,9 +5,9 @@ import ProfileInfoEditModal from './ProfileInfoEditModal';
 
 export default function ProfileInfo() {
   return (
-    <div className="flex flex-col items-start gap-[40px] rounded-[8px] border border-[#E0E0E0] p-[20px]">
+    <div className="flex flex-col items-start gap-[40px] border-t-[1px] border-[var(--color-border-subtle)] pt-[16px]">
       {/* 내정보 */}
-      <div className="flex w-full justify-between">
+      <div className="flex w-full items-center gap-[12px]">
         <div className="text-[18px] font-[700]">내정보</div>
         <ProfileInfoEditModal onSubmit={() => {}} />
       </div>
