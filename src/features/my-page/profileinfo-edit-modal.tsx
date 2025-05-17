@@ -4,6 +4,7 @@ import { XIcon } from 'lucide-react';
 import Chip from '@/shared/ui/chip';
 import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo-edit-card';
 import ProfileInfoEditInput from './profileinfo-edit-input';
+import Dropdown from '@/shared/ui/dropdown';
 
 interface Props {
   onSubmit: () => void;
@@ -47,7 +48,20 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
                 </ProfileInfoEditCard>
                 <ProfileInfoEditCard title="선호하는 스터디 주제" isRequired>
                   <div className="flex flex-col gap-[6px]">
-                    <div>dropdown</div>
+                    <Dropdown
+                      options={[
+                        {
+                          label: 'CS 기본기',
+                          value: 'cs-basic',
+                        },
+                        {
+                          label: 'CS 심화',
+                          value: 'cs-advanced',
+                        },
+                      ]}
+                      placeholder="선택하세요"
+                      onSelect={() => {}}
+                    />
                     <div className="flex justify-between text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
                       <div>자신의 성격 유형을 입력해 주세요.</div>
                       <div>3/30</div>
