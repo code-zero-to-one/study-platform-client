@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import UserAvatar from '@/shared/ui/avatar';
 import NotiIcon from 'public/icons/notifications_none.svg';
+import Button from "@/shared/ui/button";
 
 export default function Header() {
    return (
@@ -23,6 +24,11 @@ export default function Header() {
                </Link>
                <Link href='/mypage'>
                   <UserAvatar />
+               </Link>
+               <Link href="/login">
+                  <Button color="primary" size="small">
+                     로그인 / 회원가입
+                  </Button>
                </Link>
             </div>
          </div>
