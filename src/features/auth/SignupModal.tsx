@@ -4,15 +4,16 @@ import SignupNameInput from "./SignupNameInput";
 import { useState, useRef } from "react";
 import { XIcon } from "lucide-react";
 import Button from "@/shared/ui/button";
-import { useSignUpMutation } from "./api/useAuthMutation";
+import { useSignUpMutation, useUploadProfileImageMutation } from "./api/useAuthMutation";
 
 export default function SignupModal({ open, onClose }: { open: boolean, onClose: () => void }) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
-  const [image, setImage] = useState("/profile-default.svg");
+  const [image, setImage] = useState("/images/profile-default.svg");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const signUp = useSignUpMutation();
+  const uploadProfileImage = useUploadProfileImageMutation();
 
   // 이름 유효성 검사
   const validateName = (value: string) => {
@@ -31,14 +32,42 @@ export default function SignupModal({ open, onClose }: { open: boolean, onClose:
     }
   };
 
-  // 작성완료 버튼
+  // 회원가입 요청 (작성완료 버튼 클릭시 회원가입 요청 & 이미지 업로드 비동기 실행
+  // TODO : Response에는 generatedMemberId, URL이 들어옴 (URL 은 향후 S3 등 연동을 위한 인터페이스로 생각)
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+
+    // 회원가입 요청
     signUp.mutate({
       name: name,
-      image: image,
+      imageExtension: "jpg",
+    }, {
+      // 회원가입 성공 시 프로필 이미지 업로드드
+      onSuccess: (data) => {
+
+        if (data && data.generatedMemberId) {
+          const formData = new FormData();
+          
+          if (fileInputRef.current?.files?.[0]) {
+            formData.append('image', fileInputRef.current.files[0]);
+            
+            uploadProfileImage.mutate({
+              memberId: data.generatedMemberId,
+              filename: "profile.jpg",
+              formData: formData
+            });
+          }
+          
+          // 성공 후 홈페이지로 이동
+          window.location.href = "/";
+        }
+      },
+      onError: (error) => {
+        console.error("회원가입 실패:", error);
+        // TODO: 실제 토스트 메시지 컴포넌트로 교체 필요
+        alert("회원가입에 실패했습니다. 다시 시도해주세요.");
+      }
     });
-    alert("작성완료"); // TODO : 토스트 메세지로 수정필요
   };
 
   return (
