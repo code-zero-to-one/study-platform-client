@@ -1,10 +1,10 @@
-import Button from '@/shared/ui/button';
-import { Modal } from '@/shared/ui/modal';
 import { XIcon } from 'lucide-react';
+import Button from '@/shared/ui/button';
 import Chip from '@/shared/ui/chip';
-import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo-edit-card';
-import ProfileInfoEditInput from './profileinfo-edit-input';
 import Dropdown from '@/shared/ui/dropdown';
+import { Modal } from '@/shared/ui/modal';
+import ProfileInfoEditInput from './profileinfo-edit-input';
+import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo-edit-card';
 
 interface Props {
   onSubmit: () => void;
@@ -61,7 +61,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
                         },
                       ]}
                       placeholder="선택하세요"
-                      onSelect={() => {}}
+                      onSelect={() => { }}
                     />
                     <div className="flex justify-between text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
                       <div>자신의 성격 유형을 입력해 주세요.</div>

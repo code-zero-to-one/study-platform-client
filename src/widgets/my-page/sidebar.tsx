@@ -1,7 +1,7 @@
 'use client';
 
-import { cn } from '@/shared/shadcn/lib/utils';
 import { usePathname, useRouter } from 'next/navigation';
+import { cn } from '@/shared/shadcn/lib/utils';
 
 export default function Sidebar() {
   const router = useRouter();
@@ -22,11 +22,11 @@ export default function Sidebar() {
       >
         마이스터디
       </SidebarItem>
-      <SidebarItem onClick={() => {}} isActive={false}>
+      <SidebarItem onClick={() => { }} isActive={false}>
         계정설정
       </SidebarItem>
       <div className="h-[1px] bg-[var(--color-border-subtle)]" />
-      <SidebarItem onClick={() => {}} isActive={false}>
+      <SidebarItem onClick={() => { }} isActive={false}>
         로그아웃
       </SidebarItem>
     </div>

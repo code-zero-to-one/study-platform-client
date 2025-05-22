@@ -1,13 +1,13 @@
 'use client';
 
-import { Badge } from '@/shared/shadcn/ui/badge';
 import Image from 'next/image';
+import { Badge } from '@/shared/shadcn/ui/badge';
 import ProfileEditModal from './Profile-edit-modal';
 
 export default function Profile() {
   return (
     <div className="flex gap-[24px] px-[16px]">
-      <div className="h-[100px] w-[180px] rounded-[100px] bg-[var(--color-background-alternative)]"></div>
+      <div className="h-[100px] w-[180px] rounded-[100px] bg-[var(--color-background-alternative)]" />
 
       <div className="flex flex-col gap-[32px] pt-[12px]">
         <div className="flex flex-col gap-[24px]">
@@ -94,7 +94,7 @@ export default function Profile() {
           </div>
         </div>
         {/* 수정 버튼 */}
-        <ProfileEditModal onSubmit={() => {}} />
+        <ProfileEditModal onSubmit={() => { }} />
       </div>
       {/* Profile */}
 

@@ -1,5 +1,5 @@
-import { Textarea } from '@/shared/shadcn/ui/textarea';
 import { useState } from 'react';
+import { Textarea } from '@/shared/shadcn/ui/textarea';
 
 interface Props {
   defaultValue?: string;

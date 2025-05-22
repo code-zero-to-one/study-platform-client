@@ -1,5 +1,5 @@
-import MyStudyCard from '@/widgets/my-study/my-study-card';
 import Image from 'next/image';
+import MyStudyCard from '@/widgets/my-study/my-study-card';
 
 export default function MyStudy() {
   return (
