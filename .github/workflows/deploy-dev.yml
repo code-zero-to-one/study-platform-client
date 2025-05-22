@@ -41,7 +41,7 @@ jobs:
             echo "빌드 진행 중"
             yarn build
 
-            pm2 delete front-server-test || true
+            pm2 delete front-server || true
 
             echo "PM2로 새 프로세스 시작"
             pm2 start ecosystem.config.js
