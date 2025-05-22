@@ -41,8 +41,10 @@ jobs:
             echo "빌드 진행 중"
             yarn build
 
-            echo "서버 재시작 진행 중"
-            pm2 restart front-server
+            pm2 delete front-server-test || true
 
-            echo "배포 완료"
+            echo "PM2로 새 프로세스 시작"
+            pm2 start ecosystem.config.js
+
+            echo "테스트 서버 배포 완료"
           EOF
