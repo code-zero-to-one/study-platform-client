@@ -1,3 +1,8 @@
+'use client';
+
+import type { DailyStudy } from '@/features/home/api/get-home-data';
+import { useDailyStudiesQuery } from '@/features/home/model/use-home-query';
+
 import UserAvatar from '@/shared/ui/avatar';
 import { Badge } from "@/shared/ui/badge/index";
 import TableList from "@/shared/ui/TableList";
@@ -6,19 +11,6 @@ import LinkIcon from "public/icons/Link.svg";
 const headers = ["조", "지원자", "면접관", "면접 주제", "피드백", "진행 상태", "참고 자료"] as const;
 type Header = (typeof headers)[number];
 
-interface RawStudy {
-   interviewer: string;
-   interviewee: string;
-   subject: string;
-   feedBack: string | null;
-   progressStatus: string;
-   link: string;
-}
-
-interface StudyListSectionProps {
-   rawData: RawStudy[];
-}
-
 const statusBadgeMap: Record<string, React.ReactNode> = {
    COMPLETED: <Badge color="completed">완료</Badge>,
    INCOMPLETE: <Badge color="incomplete">미완료</Badge>,
@@ -26,7 +18,7 @@ const statusBadgeMap: Record<string, React.ReactNode> = {
    NOT_STARTED: <Badge color="default">시작 전</Badge>,
 };
 
-function mapDailyStudyToDisplayData(row: RawStudy, index: number): Record<Header, React.ReactNode> {
+function mapDailyStudyToDisplayData(row: DailyStudy, index: number): Record<Header, React.ReactNode> {
    const interviewee = { name: row.interviewee, img: "" };
    const interviewer = { name: row.interviewer, img: "" };
 
@@ -56,8 +48,17 @@ function mapDailyStudyToDisplayData(row: RawStudy, index: number): Record<Header
 }
 
 
-export default function StudyListSection({ rawData }: StudyListSectionProps) {
-   const displayData: Record<Header, React.ReactNode>[] = rawData.map(mapDailyStudyToDisplayData);
+export default function StudyListSection() {
+   const { data, isLoading, error } = useDailyStudiesQuery({
+      pageSize: 10,
+      pageable: { page: 0, size: 10, sort: ['planTime,desc'] },
+   });
+
+   if (isLoading) return <div>로딩 중...</div>;
+   if (error) return <div>에러 발생</div>;
+   if (!data) return null;
+
+   const displayData: Record<Header, React.ReactNode>[] = data.dailyStudyResponses.map(mapDailyStudyToDisplayData);
 
    return (
       <section className="w-full">
