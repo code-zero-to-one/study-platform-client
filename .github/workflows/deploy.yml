@@ -3,7 +3,7 @@ name: Front Test Server (Develop)
 on:
   push:
     branches:
-      - develop     # develop 브랜치에 push가 발생하면 실행
+      - develop # develop 브랜치에 push가 발생하면 실행
 
 jobs:
   deploy:
@@ -28,17 +28,21 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }} << 'EOF'
             cd ~/study-platform-client
 
+            echo "develop 브랜치로 전환"
+            git fetch origin
+            git checkout develop
+
             echo "develop 브랜치 최신 코드 pull"
             git pull origin develop
 
             echo "패키지 설치 중"
-            npm install
+            yarn install
 
             echo "빌드 진행 중"
-            npm run build
+            yarn build
 
             echo "서버 재시작 진행 중"
-            pm2 restart nextjs
+            pm2 restart front-server
 
             echo "배포 완료"
           EOF
