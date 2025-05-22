@@ -1,10 +1,10 @@
+import { XIcon } from "lucide-react";
+import { useState, useRef } from "react";
+import Button from "@/shared/ui/button";
 import { Modal } from "@/shared/ui/modal";
 import SignupImageSelector from "./SignupImageSelector";
 import SignupNameInput from "./SignupNameInput";
-import { useState, useRef } from "react";
-import { XIcon } from "lucide-react";
-import Button from "@/shared/ui/button";
-import { useSignUpMutation } from "./api/useAuthMutation";
+// import { useSignUpMutation } from "./api/useAuthMutation";
 
 export default function SignupModal({ open, onClose }: { open: boolean, onClose: () => void }) {
   const [name, setName] = useState("");
@@ -12,7 +12,7 @@ export default function SignupModal({ open, onClose }: { open: boolean, onClose:
   const [image, setImage] = useState("/profile-default.svg");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const signUp = useSignUpMutation();
+  // const signUp = useSignUpMutation();
 
   // 이름 유효성 검사
   const validateName = (value: string) => {
@@ -34,10 +34,10 @@ export default function SignupModal({ open, onClose }: { open: boolean, onClose:
   // 작성완료 버튼
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    signUp.mutate({
-      name: name,
-      image: image,
-    });
+    // signUp.mutate({
+    //   name: name,
+    //   image: image,
+    // });
     alert("작성완료"); // TODO : 토스트 메세지로 수정필요
   };
 

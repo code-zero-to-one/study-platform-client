@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
-import Input from '../input';
 import { useState } from 'react';
 import Chip from '../chip';
+import Input from '../input';
 
 interface Props {
   chips: string[];

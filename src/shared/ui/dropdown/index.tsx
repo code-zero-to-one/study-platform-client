@@ -1,11 +1,11 @@
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/shadcn/ui/dropdown-menu';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
 
 interface Option {
   label: string;

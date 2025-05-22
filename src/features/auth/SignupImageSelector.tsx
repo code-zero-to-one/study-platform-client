@@ -1,5 +1,6 @@
-import { PencilIcon } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { PencilIcon } from "lucide-react";
+import Image from "next/image";
 
 export default function SignupImageSelector({ image, setImage, fileInputRef, handleImageChange }: { image: string, setImage: (image: string) => void, fileInputRef: React.RefObject<HTMLInputElement>, handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void }) {
   const setDefaultImage = () => setImage("/profile-default.svg");
@@ -7,10 +8,12 @@ export default function SignupImageSelector({ image, setImage, fileInputRef, han
 
   return (
     <div className="relative">
-      <img
+      <Image
         src={image}
         alt="프로필"
-        className="relative w-28 h-28 rounded-full border-2 border-pink-200 object-cover"
+        width={112} // Tailwind 기준 w-28 = 112px
+        height={112}
+        className="relative rounded-full border-2 border-pink-200 object-cover"
       />
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>

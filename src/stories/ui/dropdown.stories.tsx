@@ -1,5 +1,5 @@
-import Dropdown from '@/shared/ui/dropdown';
 import { Meta, StoryObj } from '@storybook/react';
+import Dropdown from '@/shared/ui/dropdown';
 
 const meta: Meta<typeof Dropdown> = {
   component: Dropdown,
