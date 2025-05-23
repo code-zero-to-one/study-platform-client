@@ -1,8 +1,8 @@
 import DateSelector from '@/features/home/ui/data-selector';
+import StudyListSection from '@/features/home/ui/study-list-table';
 import TodayStudyCard from '@/features/home/ui/today-study-card';
 import Banner from '@/widgets/home/banner';
 import Sidebar from '@/widgets/home/sidebar';
-import StudyListSection from '@/features/home/ui/study-list-table';
 
 // const mockData = [
 //   {

@@ -1,6 +1,6 @@
-import { cn } from '@/shared/shadcn/lib/utils';
 import { cva } from 'class-variance-authority';
 import { X } from 'lucide-react';
+import { cn } from '@/shared/shadcn/lib/utils';
 
 interface Props {
   text: string;

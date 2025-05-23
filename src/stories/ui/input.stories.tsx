@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
-import Input from '@/shared/ui/input';
 import { ChangeEvent } from 'react';
+import Input from '@/shared/ui/input';
 
 const meta: Meta<typeof Input> = {
   component: Input,

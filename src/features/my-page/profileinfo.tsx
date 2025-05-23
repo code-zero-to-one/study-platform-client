@@ -1,7 +1,7 @@
 'use client';
 
-import ProfileInfoCard from '../../widgets/my-page/profileinfo-card';
 import ProfileInfoEditModal from './profileinfo-edit-modal';
+import ProfileInfoCard from '../../widgets/my-page/profileinfo-card';
 
 export default function ProfileInfo() {
   return (
@@ -9,7 +9,7 @@ export default function ProfileInfo() {
       {/* 내정보 */}
       <div className="flex w-full items-center gap-[12px]">
         <div className="text-[18px] font-[700]">내정보</div>
-        <ProfileInfoEditModal onSubmit={() => {}} />
+        <ProfileInfoEditModal onSubmit={() => { }} />
       </div>
 
       {/* 세부 설명 */}

@@ -1,5 +1,3 @@
-import { Textarea } from '@/shared/shadcn/ui/textarea';
-
 interface Props {
   title: string;
   children: React.ReactNode;

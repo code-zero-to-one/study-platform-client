@@ -1,7 +1,6 @@
-import { Input } from '@/shared/shadcn/ui/input';
+import { XIcon } from 'lucide-react';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
-import { XIcon } from 'lucide-react';
 import ProfileEditCard from '../../widgets/my-page/Profile-edit-card';
 
 interface Props {
@@ -32,7 +31,7 @@ export default function ProfileEditModal({ onSubmit }: Props) {
                 <div className="w-[112px] text-[14px] leading-[22px] font-[700]">
                   이미지 설정
                 </div>
-                <div className="h-[110px] w-[110px] rounded-full bg-red-100"></div>
+                <div className="h-[110px] w-[110px] rounded-full bg-red-100" />
               </div>
               <ProfileEditCard
                 title="이름 확인"
