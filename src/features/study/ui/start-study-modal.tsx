@@ -110,12 +110,12 @@ const TIME_SLOT_OPTIONS = [
 
 
 export default function StartStudyModal() {
-   const [isOpen, setIsOpen] = useState(false);
    const [introduce, setIntroduce] = useState('');
    const [studyPlan, setStudyPlan] = useState('');
    const [phoneNumber, setPhoneNumber] = useState('');
    const [github, setGithub] = useState('');
    const [blog, setBlog] = useState('');
+
 
    const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
 
@@ -144,7 +144,7 @@ export default function StartStudyModal() {
    };
 
    return (
-      <Modal.Provider open={isOpen} onOpenChange={setIsOpen} >
+      <Modal.Provider>
          <Modal.Trigger>
             <Image
                src="/images/start-study.png"
@@ -304,23 +304,24 @@ export default function StartStudyModal() {
                         취소
                      </Button>
                   </Modal.Close>
-                  <Button
-                     size="large"
-                     color="secondary"
-                     className={cn(!isFormValid && 'cursor-not-allowed')}
-                     onClick={() => {
-                        if (!isFormValid) {
-                           const missing = getMissingFields();
-                           alert(`다음 항목을 입력해 주세요: ${missing.join(', ')}`);
+                  <Modal.Close asChild>
+                     <Button
+                        size="large"
+                        color={isFormValid ? 'primary' : 'secondary'}
+                        className={cn(!isFormValid && 'cursor-not-allowed')}
+                        onClick={(e) => {
+                           if (!isFormValid) {
+                              e.preventDefault(); // 모달 닫힘 방지
+                              const missing = getMissingFields();
+                              alert(`다음 항목을 입력해 주세요: ${missing.join(', ')}`);
 
-                           return;
-                        }
-                        // 작성 시 저장 로직 필요
-                        setIsOpen(false);
-                     }}
-                  >
-                     작성 완료
-                  </Button>
+                              return;
+                           }
+                        }}
+                     >
+                        작성 완료
+                     </Button>
+                  </Modal.Close>
                </Modal.Footer>
             </Modal.Content>
          </Modal.Portal>
