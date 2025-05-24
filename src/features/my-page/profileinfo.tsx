@@ -6,7 +6,7 @@ import {
   useGetProfile,
   useGetSelectedAvailableStudyTimeDisplays,
 } from '@/hooks/profile';
-import { useGetSelectedTechStackDisplays } from '@/hooks/teck-stacks';
+import { useGetSelectedTechStackDisplays } from '@/hooks/tech-stacks';
 
 export default function ProfileInfo() {
   const { data: profile } = useGetProfile({ memberId: '10000' });
