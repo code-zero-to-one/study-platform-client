@@ -48,14 +48,19 @@ interface ToggleProps extends React.ComponentProps<typeof SwitchPrimitive.Root> 
    className?: string
 }
 
-function ToggleProvider({ color = 'primary',
+function ToggleProvider({
+   color = 'primary',
    size = 'md',
+   checked,
    className,
    ...props }: ToggleProps) {
+   const appliedColor = checked ? color : 'gray';
+
    return (
       <SwitchPrimitive.Root
          data-slot="toggle"
-         className={cn(toggleRootVariants({ color, size }), className)}
+         className={cn(toggleRootVariants({ color: appliedColor, size }), className)}
+         checked={checked}
          {...props}
       >
          <SwitchPrimitive.Thumb

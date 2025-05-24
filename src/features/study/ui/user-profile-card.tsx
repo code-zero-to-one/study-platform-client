@@ -41,7 +41,6 @@ export default function UserProfileCard({
                <div className='flex flex-row gap-100 items-center'>
                   <span className='font-designer-14r text-gray-800'>스터디 매칭</span>
                   <Toggle.Provider
-                     color="primary"
                      size="md"
                      checked={enabled}
                      onCheckedChange={setEnabled}
