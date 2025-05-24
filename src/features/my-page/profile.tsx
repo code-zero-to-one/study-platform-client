@@ -3,8 +3,11 @@
 import Image from 'next/image';
 import { Badge } from '@/shared/shadcn/ui/badge';
 import ProfileEditModal from './Profile-edit-modal';
+import { useGetProfile } from '@/hooks/profile';
 
 export default function Profile() {
+  const { data: profile } = useGetProfile({ memberId: '10000' });
+
   return (
     <div className="flex gap-[24px] px-[16px]">
       <div className="h-[100px] w-[180px] rounded-[100px] bg-[var(--color-background-alternative)]" />
@@ -30,14 +33,15 @@ export default function Profile() {
             </div>
             {/* 이름 */}
             <div className="text-blue text-[24px] leading-9 font-bold">
-              신채호
+              {profile?.memberProfile.name}
             </div>
 
-            <p className="text-[15px] leading-[23px] font-[500] text-[var(--color-text-default)]">
-              함께 성장하는 개발자가 되고 싶어요.함께 성장하는 개발자가 되고
-              싶어요.함께 성장하는 개발자가 되고 싶어요.함께 성장하는 개발자가
-              되고 싶어요.최대 글자수 두줄까지 두줄이상 말줄임 처리
-            </p>
+            <div
+              className="text-[15px] leading-[23px] font-[500] text-[var(--color-text-default)]"
+              dangerouslySetInnerHTML={{
+                __html: profile?.memberProfile.simpleIntroduction || '',
+              }}
+            />
           </div>
 
           {/* 생년월일, 전화번호, 깃허브, 웹사이트 */}
@@ -62,7 +66,7 @@ export default function Profile() {
                   height={16}
                 />
                 <div className="text-[12px] text-[var(--color-text-subtlest)]">
-                  010-1234-5678
+                  {profile?.memberProfile.tel}
                 </div>
               </div>
             </div>
@@ -76,7 +80,7 @@ export default function Profile() {
                   height={16}
                 />
                 <div className="text-[12px] text-[var(--color-text-subtlest)]">
-                  https://github.com/@zero-one
+                  {profile?.memberProfile.githubLink.url}
                 </div>
               </div>
               <div className="flex gap-[4px]">
@@ -87,18 +91,15 @@ export default function Profile() {
                   height={16}
                 />
                 <div className="text-[12px] text-[var(--color-text-subtlest)]">
-                  https://zero-one.com
+                  {profile?.memberProfile.blogOrSnsLink.url}
                 </div>
               </div>
             </div>
           </div>
         </div>
         {/* 수정 버튼 */}
-        <ProfileEditModal onSubmit={() => { }} />
+        <ProfileEditModal />
       </div>
-      {/* Profile */}
-
-      {/* 소개 */}
     </div>
   );
 }

@@ -32,10 +32,14 @@ export default function Dropdown({
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger className="w-full focus:outline-none">
         <div className="flex w-full items-center justify-between rounded-[var(--radius-100)] border border-[var(--color-border-strong)] px-[var(--spacing-150)] py-[var(--spacing-100)]">
-          <span className="text-[var(--color-text)]">
-            {options.find((option) => option.value === selectedValue)?.label ||
-              placeholder}
-          </span>
+          <span
+            className="text-[var(--color-text)]"
+            dangerouslySetInnerHTML={{
+              __html:
+                options.find((option) => option.value === selectedValue)
+                  ?.label || placeholder,
+            }}
+          />
           {isOpen ? (
             <ChevronUp className="size-4" />
           ) : (

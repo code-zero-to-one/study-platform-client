@@ -3,13 +3,19 @@ import Input from '@/shared/ui/input';
 interface Props {
   title: string;
   description: string;
+  defaultValue?: string;
   required?: boolean;
+  placeholder?: string;
+  onChange?: (value: string) => void;
 }
 
 export default function ProfileEditCard({
   title,
   description,
+  defaultValue,
   required = false,
+  placeholder = '입력하세요.',
+  onChange,
 }: Props) {
   return (
     <div className="flex">
@@ -22,7 +28,11 @@ export default function ProfileEditCard({
         )}
       </div>
       <div className="flex flex-col gap-[6px]">
-        <Input placeholder="입력하세요." />
+        <Input
+          placeholder={placeholder}
+          defaultValue={defaultValue}
+          onChange={(e) => onChange(e.target.value)}
+        />
         <div className="text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
           {description}
         </div>

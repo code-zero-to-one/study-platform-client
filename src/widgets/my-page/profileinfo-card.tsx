@@ -9,9 +9,10 @@ export default function ProfileInfoCard({ title, content }: Props) {
       <div className="shrink-0 text-[16px] font-[700] text-[var(--color-text-default)]">
         {title}
       </div>
-      <p className="flex-1 text-[15px] leading-[23px] font-[400] text-[var(--color-text-subtle)]">
-        {content}
-      </p>
+      <p
+        className="flex-1 text-[15px] leading-[23px] font-[400] text-[var(--color-text-subtle)]"
+        dangerouslySetInnerHTML={{ __html: content }}
+      />
     </div>
   );
 }
