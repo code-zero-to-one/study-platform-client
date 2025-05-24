@@ -5,7 +5,11 @@ import Dropdown from '@/shared/ui/dropdown';
 import { Modal } from '@/shared/ui/modal';
 import ProfileInfoEditInput from './profileinfo-edit-input';
 import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo-edit-card';
-import { useGetProfile, useUpdateProfileInfo } from '@/hooks/profile';
+import {
+  useGetAvailableStudyTimes,
+  useGetProfile,
+  useUpdateProfileInfo,
+} from '@/hooks/profile';
 import { useEffect, useState } from 'react';
 import { useGetTechStacks } from '@/hooks/teck-stacks';
 
@@ -15,6 +19,7 @@ export default function ProfileInfoEditModal() {
     memberId: '1',
   });
   const { data: techStacks } = useGetTechStacks();
+  const { data: availableStudyTimes } = useGetAvailableStudyTimes();
   const [selfIntroduction, setSelfIntroduction] = useState(
     profile?.memberInfo.selfIntroduction,
   );
@@ -22,9 +27,8 @@ export default function ProfileInfoEditModal() {
   const [preferredStudySubjectId, setPreferredStudySubjectId] = useState(
     profile?.memberInfo.preferredStudySubjectId,
   );
-  const [availableStudyTimeIds, setAvailableStudyTimeIds] = useState(
-    profile?.memberInfo.availableStudyTimes,
-  );
+  const [selectedAvailableStudyTimeIds, setSelectedAvailableStudyTimeIds] =
+    useState(profile?.memberInfo.availableStudyTimes);
   const [techStackIds, setTechStackIds] = useState(
     profile?.memberInfo.techStacks,
   );
@@ -37,7 +41,7 @@ export default function ProfileInfoEditModal() {
       selfIntroduction,
       studyPlan,
       preferredStudySubjectId,
-      availableStudyTimeIds: [],
+      availableStudyTimeIds: selectedAvailableStudyTimeIds,
       techStackIds,
     });
   };
@@ -46,7 +50,7 @@ export default function ProfileInfoEditModal() {
     setSelfIntroduction(profile?.memberInfo.selfIntroduction);
     setStudyPlan(profile?.memberInfo.studyPlan);
     setPreferredStudySubjectId(profile?.memberInfo.preferredStudySubjectId);
-    setAvailableStudyTimeIds(profile?.memberInfo.availableStudyTimes);
+    setSelectedAvailableStudyTimeIds(profile?.memberInfo.availableStudyTimes);
     setTechStackIds(profile?.memberInfo.techStacks);
   }, [profile]);
 
@@ -113,12 +117,15 @@ export default function ProfileInfoEditModal() {
                 </ProfileInfoEditCard>
                 <ProfileInfoEditCard title="가능 시간대" isRequired>
                   <div className="flex flex-wrap gap-[8px]">
-                    <Chip text="오전 (09:00~12:00)" isActive />
-                    <Chip text="점심 (12:00~13:00)" />
-                    <Chip text="오후 (13:00~18:00)" isActive />
-                    <Chip text="저녁 (18:00~21:00)" />
-                    <Chip text="심야 (21:00~23:00)" />
-                    <Chip text="시간 협의 가능" />
+                    {availableStudyTimes?.map((availableStudyTime) => (
+                      <Chip
+                        key={availableStudyTime.availableTimeId}
+                        text={availableStudyTime.display}
+                        isActive={selectedAvailableStudyTimeIds?.includes(
+                          availableStudyTime.availableTimeId,
+                        )}
+                      />
+                    ))}
                   </div>
                 </ProfileInfoEditCard>
 
