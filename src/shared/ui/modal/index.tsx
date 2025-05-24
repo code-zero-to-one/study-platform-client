@@ -75,7 +75,17 @@ function ModalContent({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content>) {
+}: React.ComponentProps<typeof DialogPrimitive.Content> & {
+  size?: 'small' | 'medium' | 'large';
+}) {
+  const { size = 'small', ...rest } = props;
+
+  const sizeClass = {
+    small: 'max-w-2xl',
+    medium: 'max-w-3xl',
+    large: 'max-w-4xl',
+  }[size];
+
   return (
     <DialogPrimitive.Content
       data-slot="modal-content"
@@ -83,7 +93,9 @@ function ModalContent({
         'fixed',
         'top-[50%] left-[50%]',
         'translate-x-[-50%] translate-y-[-50%]',
-        'max-w-[calc(100%-2rem)], w-full sm:max-w-lg',
+        'max-w-[calc(100%-2rem)], w-full',
+        sizeClass,
+        'max-h-[90vh] ',
         'bg-background-default',
         'z-50',
         'rounded-150',
@@ -92,9 +104,11 @@ function ModalContent({
         'border border-border-default',
         className,
       )}
-      {...props}
+      {...rest}
     >
-      {children}
+      <div className="flex flex-col max-h-[90vh]">
+        {children}
+      </div>
     </DialogPrimitive.Content>
   );
 }
@@ -117,7 +131,8 @@ function ModalBody({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="modal-body"
       className={cn(
-        'px-400 py-300',
+        'px-400 py-300 overflow-auto',
+        'flex-1',
         className,
       )}
       {...props}
