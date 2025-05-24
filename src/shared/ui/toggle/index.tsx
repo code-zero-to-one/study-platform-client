@@ -5,7 +5,7 @@ import { cva } from 'class-variance-authority';
 import { cn } from '@/shared/shadcn/lib/utils'
 
 const toggleRootVariants = cva(
-   'inline-flex items-center rounded-full transition-colors',
+   'inline-flex items-center rounded-full transition-colors cursor-pointer',
    {
       variants: {
          color: {
