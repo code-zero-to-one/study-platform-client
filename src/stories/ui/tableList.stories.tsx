@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
-import TableList from '@/shared/ui/TableList';
+import TableList from '@/shared/ui/table';
 
 const meta: Meta<typeof TableList> = {
   component: TableList,

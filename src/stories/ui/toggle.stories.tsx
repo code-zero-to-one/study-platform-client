@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import { Toggle } from '@/shared/ui/toggle'
+import { Toggle } from '@/shared/ui/toggle/switch'
 
 const meta: Meta<typeof Toggle.Provider> = {
   component: Toggle.Provider,

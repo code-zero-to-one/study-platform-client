@@ -14,16 +14,7 @@ export default async function Home() {
           <DateSelector />
         </div>
         <div className='p-400 border border-border-default rounded-200 flex flex-col gap-500'>
-          <TodayStudyCard
-            teamName="2조"
-            interviewer={{
-              name: '김지원',
-              img: '',
-            }}
-            topic="네트워크 - TCP 3-way handshake"
-            status="COMPLETED"
-            feedback="1NF, 2NF, 3NF의 차이를 명확하게 설명하였으며, 예제를 통해 이해도를 높였습니다."
-          />
+          <TodayStudyCard />
           <StudyListSection />
         </div>
       </div>
