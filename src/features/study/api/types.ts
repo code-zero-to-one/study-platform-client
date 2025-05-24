@@ -1,9 +1,16 @@
+export type StudyProgressStatus =
+  | 'BEFORE_PROGRESSED'
+  | 'PENDING'
+  | 'IN_PROGRESS'
+  | 'COMPLETE'
+  | 'ABSENT';
+
 export interface DailyStudy {
   interviewer: string;
   interviewee: string;
   subject: string;
   feedBack: string | null;
-  progressStatus: 'IN_PROGRESS' | 'COMPLETED' | string;
+  progressStatus: StudyProgressStatus;
   link: string;
 }
 
@@ -11,11 +18,6 @@ export interface GetDailyStudiesParams {
   cursor?: number;
   pageSize?: number;
   planTime?: string;
-  pageable?: {
-    page: number;
-    size: number;
-    sort: string[];
-  };
 }
 
 export interface GetDailyStudiesResponse {
