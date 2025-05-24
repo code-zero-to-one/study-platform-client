@@ -145,7 +145,7 @@ function ModalFooter({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="modal-footer"
       className={cn(
-        'px-400 py-200',
+        'px-400 py-200 border-t border-border-default',
         className,
       )}
       {...props}

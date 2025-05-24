@@ -1,4 +1,4 @@
-import StartStudyButton from '@/features/study/ui/start-study-btn';
+import StartStudyModal from '@/features/study/ui/start-study-modal';
 import UserProfileCard from "@/features/study/ui/user-profile-card";
 import Calendar from "@/widgets/home/calendar/index";
 import TodoList from "@/widgets/home/todo-list";
@@ -19,7 +19,7 @@ export default function Sidebar() {
          {hasTodo ? (
             <TodoList statusList={[true, false, false]} />
          ) : (
-            <StartStudyButton />
+            <StartStudyModal />
          )}
          <Calendar />
       </aside>
