@@ -104,7 +104,7 @@ function ModalHeader({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="modal-header"
       className={cn(
-        'px-400 pt-400 pb-300',
+        'px-400 pt-400 pb-300 border-b border-border-default',
         className,
       )}
       {...props}
