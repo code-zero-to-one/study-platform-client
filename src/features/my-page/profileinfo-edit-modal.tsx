@@ -5,12 +5,51 @@ import Dropdown from '@/shared/ui/dropdown';
 import { Modal } from '@/shared/ui/modal';
 import ProfileInfoEditInput from './profileinfo-edit-input';
 import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo-edit-card';
+import { useGetProfile, useUpdateProfileInfo } from '@/hooks/profile';
+import { useEffect, useState } from 'react';
+import { useGetTechStacks } from '@/hooks/teck-stacks';
 
-interface Props {
-  onSubmit: () => void;
-}
+export default function ProfileInfoEditModal() {
+  const { data: profile } = useGetProfile({ memberId: '1' });
+  const { mutate: updateProfileInfo } = useUpdateProfileInfo({
+    memberId: '1',
+  });
+  const { data: techStacks } = useGetTechStacks();
+  const [selfIntroduction, setSelfIntroduction] = useState(
+    profile?.memberInfo.selfIntroduction,
+  );
+  const [studyPlan, setStudyPlan] = useState(profile?.memberInfo.studyPlan);
+  const [preferredStudySubjectId, setPreferredStudySubjectId] = useState(
+    profile?.memberInfo.preferredStudySubjectId,
+  );
+  const [availableStudyTimeIds, setAvailableStudyTimeIds] = useState(
+    profile?.memberInfo.availableStudyTimes,
+  );
+  const [techStackIds, setTechStackIds] = useState(
+    profile?.memberInfo.techStacks,
+  );
+  // const [selectedTechStackIds, setSelectedTechStackIds] = useState(
+  //   profile?.memberInfo.techStacks,
+  // );
 
-export default function ProfileInfoEditModal({ onSubmit }: Props) {
+  const handleSubmit = () => {
+    updateProfileInfo({
+      selfIntroduction,
+      studyPlan,
+      preferredStudySubjectId,
+      availableStudyTimeIds: [],
+      techStackIds,
+    });
+  };
+
+  useEffect(() => {
+    setSelfIntroduction(profile?.memberInfo.selfIntroduction);
+    setStudyPlan(profile?.memberInfo.studyPlan);
+    setPreferredStudySubjectId(profile?.memberInfo.preferredStudySubjectId);
+    setAvailableStudyTimeIds(profile?.memberInfo.availableStudyTimes);
+    setTechStackIds(profile?.memberInfo.techStacks);
+  }, [profile]);
+
   return (
     <Modal.Provider>
       <Modal.Trigger>
@@ -34,9 +73,11 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
               <div className="flex flex-col gap-[24px]">
                 <ProfileInfoEditCard title="자기소개">
                   <ProfileInfoEditInput
+                    defaultValue={profile?.memberInfo.selfIntroduction}
                     placeholder="입력하세요."
                     guideText="간단한 자기소개를 입력해 주세요."
                     maxLength={30}
+                    onChange={(value) => setSelfIntroduction(value)}
                   />
                 </ProfileInfoEditCard>
                 <ProfileInfoEditCard title="공부 주제 및 계획" isRequired>
@@ -44,6 +85,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
                     placeholder="입력하세요."
                     guideText="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
                     maxLength={30}
+                    onChange={(value) => setStudyPlan(value)}
                   />
                 </ProfileInfoEditCard>
                 <ProfileInfoEditCard title="선호하는 스터디 주제" isRequired>
@@ -61,7 +103,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
                         },
                       ]}
                       placeholder="선택하세요"
-                      onSelect={() => { }}
+                      onSelect={(value) => setPreferredStudySubjectId(value)}
                     />
                     <div className="flex justify-between text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
                       <div>자신의 성격 유형을 입력해 주세요.</div>
@@ -82,14 +124,22 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
 
                 <ProfileInfoEditCard title="사용 가능한 기술 스택" isRequired>
                   <div className="flex flex-wrap gap-[8px]">
-                    <Chip text="HTML/CSS" isActive />
-                    <Chip text="JavaScript" />
-                    <Chip text="React" isActive />
-                    <Chip text="Express" />
-                    <Chip text="Django" />
-                    <Chip text="Java" />
-                    <Chip text="Git/GitHub" />
-                    <Chip text="MySQL" />
+                    {techStacks?.map((techStack) => (
+                      <Chip
+                        key={techStack.teckStackId}
+                        text={techStack.techStackName}
+                        isActive={techStackIds?.includes(techStack.teckStackId)}
+                        onClose={() => {
+                          if (techStackIds?.includes(techStack.teckStackId)) {
+                            setTechStackIds(
+                              techStackIds?.filter(
+                                (id) => id !== techStack.teckStackId,
+                              ),
+                            );
+                          }
+                        }}
+                      />
+                    ))}
                   </div>
                 </ProfileInfoEditCard>
               </div>
@@ -101,7 +151,10 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
                 <Button color="secondary" className="w-[140px] cursor-pointer">
                   취소
                 </Button>
-                <Button className="w-[140px] cursor-pointer" onClick={onSubmit}>
+                <Button
+                  className="w-[140px] cursor-pointer"
+                  onClick={handleSubmit}
+                >
                   수정 완료
                 </Button>
               </div>

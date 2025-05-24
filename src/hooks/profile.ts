@@ -1,5 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getProfile, updateProfile, UpdateProfileRequest } from '@/api/profile';
+import {
+  getProfile,
+  updateProfile,
+  updateProfileInfo,
+  UpdateProfileInfoRequest,
+  UpdateProfileRequest,
+} from '@/api/profile';
 
 export const useGetProfile = ({ memberId }: { memberId: string }) => {
   return useQuery({
@@ -15,6 +21,18 @@ export const useUpdateProfile = ({ memberId }: { memberId: string }) => {
   return useMutation({
     mutationFn: (data: UpdateProfileRequest) =>
       updateProfile({ memberId, data }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', memberId] });
+    },
+  });
+};
+
+export const useUpdateProfileInfo = ({ memberId }: { memberId: string }) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: UpdateProfileInfoRequest) =>
+      updateProfileInfo({ memberId, data }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', memberId] });
     },

@@ -9,7 +9,7 @@ interface Profile {
       studyPlan: string; // 공부 주제 및 계획
       preferredStudySubjectId: string; // 선호 하는 스터디 주제
       availableStudyTimes: string[]; // 가능한 스터디 시간
-      techStacks: string[]; // 사용 가능한 기술 스택
+      techStacks: number[]; // 사용 가능한 기술 스택
     };
     memberProfile: {
       name: string;
@@ -53,13 +53,7 @@ export const getProfile = async ({ memberId }: { memberId: string }) => {
   //       studyPlan: '매일 세 시간씩 자면서 공부할 계획입니다.',
   //       preferredStudySubjectId: 'CS_DEEP',
   //       availableStudyTimes: ['오전(09:00~12:00)', '저녁(18:00~21:00)'],
-  //       techStacks: [
-  //         'Apache Kafka',
-  //         'RabbitMQ',
-  //         'Microsoft Azure',
-  //         'LLM',
-  //         'Python',
-  //       ],
+  //       techStacks: [1, 2, 3, 4, 5],
   //     },
   //     memberProfile: {
   //       name: '제로원',
@@ -86,13 +80,13 @@ export const getProfile = async ({ memberId }: { memberId: string }) => {
 };
 
 export interface UpdateProfileRequest {
-  name?: string;
-  tel?: string;
-  githubLink?: string;
-  blogOrSnsLink?: string;
-  simpleIntroduction?: string;
-  mbti?: string;
-  interests?: {
+  name: string;
+  tel: string;
+  githubLink: string;
+  blogOrSnsLink: string;
+  simpleIntroduction: string;
+  mbti: string;
+  interests: {
     creations: string[];
     modifications: {
       id: number;
@@ -100,7 +94,7 @@ export interface UpdateProfileRequest {
     }[];
     deletions: number[];
   };
-  hobbies?: {
+  hobbies: {
     creations: string[];
     modifications: {
       id: number;
@@ -142,6 +136,40 @@ export const updateProfile = async ({
 }) => {
   const response = await Api.put<UpdateProfileResponse>(
     `/api/v1/members/${memberId}/profile`,
+    data,
+  );
+
+  return response.data.content;
+};
+
+export interface UpdateProfileInfoRequest {
+  selfIntroduction: string;
+  studyPlan: string;
+  preferredStudySubjectId: string;
+  availableStudyTimeIds: number[];
+  techStackIds: number[];
+}
+
+interface UpdateProfileInfoResponse {
+  statusCode: number;
+  content: {
+    memberId: number;
+    selfIntroduction: string;
+    studyPlan: string;
+    preferredStudySubjectId: string;
+    techStackIds: number[];
+  };
+}
+
+export const updateProfileInfo = async ({
+  memberId,
+  data,
+}: {
+  memberId: string;
+  data: UpdateProfileInfoRequest;
+}) => {
+  const response = await Api.put<UpdateProfileInfoResponse>(
+    `/api/v1/members/${memberId}/profile/info`,
     data,
   );
 

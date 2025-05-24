@@ -3,16 +3,23 @@
 import ProfileInfoEditModal from './profileinfo-edit-modal';
 import ProfileInfoCard from '../../widgets/my-page/profileinfo-card';
 import { useGetProfile } from '@/hooks/profile';
+import { useGetTechStacks } from '@/hooks/teck-stacks';
 
 export default function ProfileInfo() {
   const { data: profile } = useGetProfile({ memberId: '10000' });
+  const { data: techStacks } = useGetTechStacks();
+  const techStackNames = techStacks?.map((techStack) =>
+    profile?.memberInfo.techStacks.includes(techStack.teckStackId)
+      ? techStack.techStackName
+      : null,
+  );
 
   return (
     <div className="flex flex-col items-start gap-[40px] border-t-[1px] border-[var(--color-border-subtle)] pt-[16px]">
       {/* 내정보 */}
       <div className="flex w-full items-center gap-[12px]">
         <div className="text-[18px] font-[700]">내정보</div>
-        <ProfileInfoEditModal onSubmit={() => {}} />
+        <ProfileInfoEditModal />
       </div>
 
       {/* 세부 설명 */}
@@ -39,7 +46,7 @@ export default function ProfileInfo() {
 
         <ProfileInfoCard
           title="기술 스택"
-          content={profile?.memberInfo.techStacks.join(', ')}
+          content={techStackNames?.join(', ')}
         />
       </div>
     </div>
