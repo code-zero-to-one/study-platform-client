@@ -18,7 +18,7 @@ export const getTechStacks = async () => {
 
   return response.data.content;
 
-  // FIX: 추후 삭제 예정
+  // // FIX: 추후 삭제 예정
   // const mockTechStacks: {
   //   statusCode: number;
   //   timestamp: string;

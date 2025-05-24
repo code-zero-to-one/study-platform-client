@@ -11,7 +11,7 @@ import {
   useUpdateProfileInfo,
 } from '@/hooks/profile';
 import { useEffect, useState } from 'react';
-import { useGetTechStacks } from '@/hooks/teck-stacks';
+import { useGetTechStacks } from '@/hooks/tech-stacks';
 
 export default function ProfileInfoEditModal() {
   const { data: profile } = useGetProfile({ memberId: '1' });

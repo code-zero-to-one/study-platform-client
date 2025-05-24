@@ -8,7 +8,7 @@ interface Profile {
       selfIntroduction: string; // 자기소개
       studyPlan: string; // 공부 주제 및 계획
       preferredStudySubjectId: string; // 선호 하는 스터디 주제
-      availableStudyTimes: string[]; // 가능한 스터디 시간
+      availableStudyTimes: number[]; // 가능한 스터디 시간
       techStacks: number[]; // 사용 가능한 기술 스택
     };
     memberProfile: {
@@ -42,7 +42,7 @@ export const getProfile = async ({ memberId }: { memberId: string }) => {
     return response.data.content;
   }
 
-  // FIX: 추후 삭제 예정
+  // // FIX: 추후 삭제 예정
   // const mockProfile: Profile = {
   //   statusCode: 200,
   //   content: {
@@ -52,7 +52,7 @@ export const getProfile = async ({ memberId }: { memberId: string }) => {
   //         '<p>안녕하세요, 저는 개발자를 꿈꾸고 있습니다.</p><p>잘하지는 않지만 열심히 합니다.</p>',
   //       studyPlan: '매일 세 시간씩 자면서 공부할 계획입니다.',
   //       preferredStudySubjectId: 'CS_DEEP',
-  //       availableStudyTimes: ['오전(09:00~12:00)', '저녁(18:00~21:00)'],
+  //       availableStudyTimes: [1, 2],
   //       techStacks: [1, 2, 3, 4, 5],
   //     },
   //     memberProfile: {
@@ -174,4 +174,48 @@ export const updateProfileInfo = async ({
   );
 
   return response.data.content;
+};
+
+export interface AvailableStudyTime {
+  availableTimeId: number;
+  display: string;
+}
+
+export const getAvailableStudyTimes = async (): Promise<
+  AvailableStudyTime[]
+> => {
+  const response = await Api.get<{
+    statusCode: number;
+    content: AvailableStudyTime[];
+  }>('/api/v1/available-study-times');
+
+  return response.data.content;
+
+  // // FIX: 추후 삭제 예정
+  // return [
+  //   {
+  //     availableTimeId: 1,
+  //     display: '오전(09:00~12:00)',
+  //   },
+  //   {
+  //     availableTimeId: 2,
+  //     display: '점심(12:00~13:00)',
+  //   },
+  //   {
+  //     availableTimeId: 3,
+  //     display: '오후(13:00~18:00)',
+  //   },
+  //   {
+  //     availableTimeId: 4,
+  //     display: '저녁(18:00~21:00)',
+  //   },
+  //   {
+  //     availableTimeId: 5,
+  //     display: '심야(21:00~23:00)',
+  //   },
+  //   {
+  //     availableTimeId: 6,
+  //     display: '시간 협의 가능',
+  //   },
+  // ];
 };

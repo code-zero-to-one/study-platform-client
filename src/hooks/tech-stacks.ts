@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getTechStacks } from '@/api/teck-stacks';
+import { getTechStacks } from '@/api/tech-stacks';
 import { useGetProfile } from './profile';
 
 export const useGetTechStacks = () => {
