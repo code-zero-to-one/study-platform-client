@@ -1,35 +1,8 @@
-import DateSelector from '@/features/home/ui/data-selector';
-import StudyListSection from '@/features/home/ui/study-list-table';
-import TodayStudyCard from '@/features/home/ui/today-study-card';
+import DateSelector from '@/features/study/ui/data-selector';
+import StudyListSection from '@/features/study/ui/study-list-table';
+import TodayStudyCard from '@/features/study/ui/today-study-card';
 import Banner from '@/widgets/home/banner';
 import Sidebar from '@/widgets/home/sidebar';
-
-// const mockData = [
-//   {
-//     interviewer: "김지원",
-//     interviewee: "이하늘",
-//     subject: "TCP 3-way handshake란?",
-//     feedBack: "핵심 흐름을 잘 설명했음",
-//     progressStatus: "IN_PROGRESS",
-//     link: "https://github.com/haneul/study-tcp",
-//   },
-//   {
-//     interviewer: "박민수",
-//     interviewee: "정예지",
-//     subject: "HTTP와 HTTPS의 차이",
-//     feedBack: null,
-//     progressStatus: "NOT_STARTED",
-//     link: "",
-//   },
-//   {
-//     interviewer: "조수현",
-//     interviewee: "김지연",
-//     subject: "브라우저 렌더링 과정",
-//     feedBack: "예시가 부족했지만 전체 흐름 설명은 명확했음 예시가 부족했지만 전체 흐름 설명은 명확했음 예시가 부족했지만 전체 흐름 설명은 명확했음 예시가 부족했지만 전체 흐름 설명은 명확했음 예시가 부족했지만 전체 흐름 설명은 명확했음",
-//     progressStatus: "COMPLETED",
-//     link: "https://github.com/jiyun/render-flow",
-//   },
-// ];
 
 export default async function Home() {
   return (

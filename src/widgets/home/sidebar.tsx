@@ -1,4 +1,4 @@
-import UserProfileCard from "@/features/home/ui/user-profile-card";
+import UserProfileCard from "@/features/study/ui/user-profile-card";
 import Calendar from "@/widgets/home/calendar/index";
 import TodoList from "@/widgets/home/todo-list";
 
