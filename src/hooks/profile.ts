@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getAvailableStudyTimes,
   getProfile,
+  getStudySubjects,
   updateProfile,
   updateProfileInfo,
   UpdateProfileInfoRequest,
@@ -47,23 +48,9 @@ export const useGetAvailableStudyTimes = () => {
   });
 };
 
-export const useGetSelectedAvailableStudyTimeDisplays = ({
-  memberId,
-}: {
-  memberId: string;
-}) => {
-  const { data: availableStudyTimes } = useGetAvailableStudyTimes();
-  const { data: profile } = useGetProfile({ memberId });
-
-  const availableStudyTimeNames = availableStudyTimes
-    ?.map((availableStudyTime) =>
-      profile?.memberInfo.availableStudyTimes.includes(
-        availableStudyTime.availableTimeId,
-      )
-        ? availableStudyTime.display
-        : null,
-    )
-    .filter(Boolean);
-
-  return availableStudyTimeNames;
+export const useGetStudySubjects = () => {
+  return useQuery({
+    queryKey: ['study-subjects'],
+    queryFn: getStudySubjects,
+  });
 };

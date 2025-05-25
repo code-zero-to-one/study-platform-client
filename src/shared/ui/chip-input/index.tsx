@@ -36,6 +36,7 @@ export default function ChipInput({ chips, onChange }: Props) {
       <div className="flex flex-wrap gap-[var(--spacing-100)]">
         {chipArray.map((chip) => (
           <Chip
+            id={chip}
             text={chip}
             isActive
             key={chip}

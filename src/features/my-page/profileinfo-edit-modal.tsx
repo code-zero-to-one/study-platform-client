@@ -8,10 +8,12 @@ import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo-edit-card';
 import {
   useGetAvailableStudyTimes,
   useGetProfile,
+  useGetStudySubjects,
   useUpdateProfileInfo,
 } from '@/hooks/profile';
 import { useEffect, useState } from 'react';
 import { useGetTechStacks } from '@/hooks/tech-stacks';
+import ChipDropdown from '@/shared/ui/chip-dropdown';
 
 export default function ProfileInfoEditModal() {
   const { data: profile } = useGetProfile({ memberId: '1' });
@@ -20,6 +22,7 @@ export default function ProfileInfoEditModal() {
   });
   const { data: techStacks } = useGetTechStacks();
   const { data: availableStudyTimes } = useGetAvailableStudyTimes();
+  const { data: studySubjects } = useGetStudySubjects();
   const [selfIntroduction, setSelfIntroduction] = useState(
     profile?.memberInfo.selfIntroduction,
   );
@@ -28,30 +31,46 @@ export default function ProfileInfoEditModal() {
     profile?.memberInfo.preferredStudySubjectId,
   );
   const [selectedAvailableStudyTimeIds, setSelectedAvailableStudyTimeIds] =
-    useState(profile?.memberInfo.availableStudyTimes);
+    useState(
+      profile?.memberInfo.availableStudyTimes.map(
+        (availableStudyTime) => availableStudyTime.id,
+      ),
+    );
   const [techStackIds, setTechStackIds] = useState(
-    profile?.memberInfo.techStacks,
+    profile?.memberInfo.techStacks.map((techStack) => techStack.techStackId),
   );
-  // const [selectedTechStackIds, setSelectedTechStackIds] = useState(
-  //   profile?.memberInfo.techStacks,
-  // );
 
   const handleSubmit = () => {
-    updateProfileInfo({
+    const profileInfoData = {
       selfIntroduction,
       studyPlan,
       preferredStudySubjectId,
       availableStudyTimeIds: selectedAvailableStudyTimeIds,
       techStackIds,
-    });
+    };
+
+    // undefined가 아닌 값만 필터링
+    const filteredData = Object.fromEntries(
+      Object.entries(profileInfoData).filter(
+        ([_, value]) => value !== undefined,
+      ),
+    );
+
+    updateProfileInfo(filteredData);
   };
 
   useEffect(() => {
-    setSelfIntroduction(profile?.memberInfo.selfIntroduction);
-    setStudyPlan(profile?.memberInfo.studyPlan);
+    setSelectedAvailableStudyTimeIds(
+      profile?.memberInfo.availableStudyTimes.map(
+        (availableStudyTime) => availableStudyTime.id,
+      ),
+    );
+    setTechStackIds(
+      profile?.memberInfo.techStacks.map((techStack) => techStack.techStackId),
+    );
     setPreferredStudySubjectId(profile?.memberInfo.preferredStudySubjectId);
-    setSelectedAvailableStudyTimeIds(profile?.memberInfo.availableStudyTimes);
-    setTechStackIds(profile?.memberInfo.techStacks);
+    setStudyPlan(profile?.memberInfo.studyPlan);
+    setSelfIntroduction(profile?.memberInfo.selfIntroduction);
   }, [profile]);
 
   return (
@@ -90,64 +109,69 @@ export default function ProfileInfoEditModal() {
                     guideText="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
                     maxLength={30}
                     onChange={(value) => setStudyPlan(value)}
+                    defaultValue={profile?.memberInfo?.studyPlan}
                   />
                 </ProfileInfoEditCard>
                 <ProfileInfoEditCard title="선호하는 스터디 주제" isRequired>
                   <div className="flex flex-col gap-[6px]">
                     <Dropdown
-                      defaultValue="cs-basic"
-                      options={[
-                        {
-                          label: 'CS 기본기',
-                          value: 'cs-basic',
-                        },
-                        {
-                          label: 'CS 심화',
-                          value: 'cs-advanced',
-                        },
-                      ]}
+                      defaultValue={
+                        studySubjects?.find(
+                          (studySubject) =>
+                            studySubject?.studySubjectId ===
+                            profile?.memberInfo?.preferredStudySubjectId,
+                        ).studySubjectId
+                      }
+                      options={studySubjects?.map((studySubject) => ({
+                        label: studySubject.studySubjectName,
+                        value: studySubject.studySubjectId,
+                      }))}
                       placeholder="선택하세요"
                       onSelect={(value) => setPreferredStudySubjectId(value)}
                     />
-                    <div className="flex justify-between text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
-                      <div>자신의 성격 유형을 입력해 주세요.</div>
-                      <div>3/30</div>
-                    </div>
                   </div>
                 </ProfileInfoEditCard>
                 <ProfileInfoEditCard title="가능 시간대" isRequired>
                   <div className="flex flex-wrap gap-[8px]">
                     {availableStudyTimes?.map((availableStudyTime) => (
                       <Chip
+                        id={availableStudyTime.availableTimeId}
                         key={availableStudyTime.availableTimeId}
                         text={availableStudyTime.display}
                         isActive={selectedAvailableStudyTimeIds?.includes(
                           availableStudyTime.availableTimeId,
                         )}
+                        onClick={(id) => {
+                          if (selectedAvailableStudyTimeIds?.includes(id)) {
+                            setSelectedAvailableStudyTimeIds(
+                              selectedAvailableStudyTimeIds?.filter(
+                                (availableStudyTimeId) =>
+                                  availableStudyTimeId !== id,
+                              ),
+                            );
+                          } else {
+                            setSelectedAvailableStudyTimeIds([
+                              ...selectedAvailableStudyTimeIds,
+                              id,
+                            ]);
+                          }
+                        }}
                       />
                     ))}
                   </div>
                 </ProfileInfoEditCard>
 
                 <ProfileInfoEditCard title="사용 가능한 기술 스택" isRequired>
-                  <div className="flex flex-wrap gap-[8px]">
-                    {techStacks?.map((techStack) => (
-                      <Chip
-                        key={techStack.teckStackId}
-                        text={techStack.techStackName}
-                        isActive={techStackIds?.includes(techStack.teckStackId)}
-                        onClose={() => {
-                          if (techStackIds?.includes(techStack.teckStackId)) {
-                            setTechStackIds(
-                              techStackIds?.filter(
-                                (id) => id !== techStack.teckStackId,
-                              ),
-                            );
-                          }
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <ChipDropdown
+                    options={techStacks?.map((techStack) => ({
+                      label: techStack.techStackName,
+                      value: techStack.teckStackId.toString(),
+                    }))}
+                    defaultValueIds={techStackIds}
+                    onChange={(value) => {
+                      setTechStackIds(value);
+                    }}
+                  />
                 </ProfileInfoEditCard>
               </div>
             </div>
@@ -161,6 +185,13 @@ export default function ProfileInfoEditModal() {
                 <Button
                   className="w-[140px] cursor-pointer"
                   onClick={handleSubmit}
+                  disabled={
+                    !selfIntroduction ||
+                    !studyPlan ||
+                    !preferredStudySubjectId ||
+                    selectedAvailableStudyTimeIds?.length === 0 ||
+                    techStackIds?.length === 0
+                  }
                 >
                   수정 완료
                 </Button>

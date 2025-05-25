@@ -31,7 +31,7 @@ export default function Dropdown({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger className="w-full focus:outline-none">
-        <div className="flex w-full items-center justify-between rounded-[var(--radius-100)] border border-[var(--color-border-strong)] px-[var(--spacing-150)] py-[var(--spacing-100)]">
+        <div className="flex w-full items-center justify-between rounded-[var(--radius-100)] border border-[var(--color-button-secondary-border)] px-[var(--spacing-150)] py-[var(--spacing-100)]">
           <span
             className="text-[var(--color-text)]"
             dangerouslySetInnerHTML={{

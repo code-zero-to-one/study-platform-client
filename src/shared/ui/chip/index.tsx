@@ -2,10 +2,12 @@ import { cva } from 'class-variance-authority';
 import { X } from 'lucide-react';
 import { cn } from '@/shared/shadcn/lib/utils';
 
-interface Props {
+interface Props<T extends string | number> {
+  id: T;
   text: string;
   isActive?: boolean;
   className?: string;
+  onClick?: (id: T, e: React.MouseEvent) => void;
   onClose?: (e: React.MouseEvent) => void;
 }
 
@@ -26,14 +28,27 @@ const chipVariants = cva(
   },
 );
 
-function Chip({ text, isActive = false, className, onClose }: Props) {
+function Chip<T extends string | number>({
+  id,
+  text,
+  isActive = false,
+  className,
+  onClose,
+  onClick,
+}: Props<T>) {
   return (
     <div
       className={cn(
         chipVariants({ color: isActive ? 'isActive' : 'default' }),
         className,
         'flex items-center gap-[var(--spacing-50)]',
+        `${onClick ? 'cursor-pointer' : ''}`,
       )}
+      onClick={(e) => {
+        if (onClick) {
+          onClick(id, e);
+        }
+      }}
     >
       {text}
       {onClose && (

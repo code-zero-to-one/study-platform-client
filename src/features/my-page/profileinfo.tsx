@@ -2,18 +2,12 @@
 
 import ProfileInfoEditModal from './profileinfo-edit-modal';
 import ProfileInfoCard from '../../widgets/my-page/profileinfo-card';
-import {
-  useGetProfile,
-  useGetSelectedAvailableStudyTimeDisplays,
-} from '@/hooks/profile';
+import { useGetProfile } from '@/hooks/profile';
 import { useGetSelectedTechStackDisplays } from '@/hooks/tech-stacks';
 
 export default function ProfileInfo() {
   const { data: profile } = useGetProfile({ memberId: '10000' });
   const techStackNames = useGetSelectedTechStackDisplays({ memberId: '10000' });
-  const availableStudyTimeNames = useGetSelectedAvailableStudyTimeDisplays({
-    memberId: '10000',
-  });
 
   return (
     <div className="flex flex-col items-start gap-[40px] border-t-[1px] border-[var(--color-border-subtle)] pt-[16px]">
@@ -42,7 +36,9 @@ export default function ProfileInfo() {
 
         <ProfileInfoCard
           title="가능 시간대"
-          content={availableStudyTimeNames?.join(', ')}
+          content={profile?.memberInfo.availableStudyTimes
+            .map((availableStudyTime) => availableStudyTime.fullLabel)
+            .join(', ')}
         />
 
         <ProfileInfoCard

@@ -8,8 +8,20 @@ interface Profile {
       selfIntroduction: string; // 자기소개
       studyPlan: string; // 공부 주제 및 계획
       preferredStudySubjectId: string; // 선호 하는 스터디 주제
-      availableStudyTimes: number[]; // 가능한 스터디 시간
-      techStacks: number[]; // 사용 가능한 기술 스택
+      availableStudyTimes: {
+        id: number;
+        fromTime: string | null; // "09:00"
+        toTime: string | null; // "12:00"
+        label: string; // "오전"
+        fullLabel: string; // "오전(09:00~12:00)"
+      }[]; // 가능한 스터디 시간
+      techStacks: {
+        techStackId: number;
+        code: string;
+        techStackName: string;
+        parentId: number | null;
+        level: number;
+      }[]; // 사용 가능한 기술 스택
     };
     memberProfile: {
       memberName: string;
@@ -29,8 +41,14 @@ interface Profile {
       };
       simpleIntroduction: string;
       mbti: string;
-      interests: string[];
-      hobbies: string[];
+      interests: {
+        id: number;
+        name: string;
+      }[];
+      hobbies: {
+        id: number;
+        name: string;
+      }[];
       githubLink: {
         url: string;
         iconUrl: string;
@@ -66,15 +84,81 @@ export const getProfile = async ({ memberId }: { memberId: string }) => {
   //         '<p>안녕하세요, 저는 개발자를 꿈꾸고 있습니다.</p><p>잘하지는 않지만 열심히 합니다.</p>',
   //       studyPlan: '매일 세 시간씩 자면서 공부할 계획입니다.',
   //       preferredStudySubjectId: 'CS_DEEP',
-  //       availableStudyTimes: [1, 2],
-  //       techStacks: [1, 2, 3, 4, 5],
+  //       availableStudyTimes: [
+  //         {
+  //           id: 1,
+  //           fromTime: '09:00',
+  //           toTime: '12:00',
+  //           label: '오전',
+  //           fullLabel: '오전(09:00~12:00)',
+  //         },
+  //         {
+  //           id: 2,
+  //           fromTime: '12:00',
+  //           toTime: '13:00',
+  //           label: '점심',
+  //           fullLabel: '점심(12:00~13:00)',
+  //         },
+  //       ],
+  //       techStacks: [
+  //         {
+  //           techStackId: 1,
+  //           code: 'BCD',
+  //           techStackName: 'Back-end',
+  //           parentId: null,
+  //           level: 1,
+  //         },
+  //         {
+  //           techStackId: 2,
+  //           code: 'KFK',
+  //           techStackName: 'Apache Kafka',
+  //           parentId: 1,
+  //           level: 2,
+  //         },
+  //       ],
   //     },
   //     memberProfile: {
-  //       name: '제로원',
+  //       memberName: '제로원',
+  //       profileImage: {
+  //         imageId: 1,
+  //         resizedImage: [
+  //           {
+  //             resizedImageId: 1,
+  //             resizedImageUrl: 'https://s3.com/image/profile.png',
+  //             imageSizeType: {
+  //               imageTypeName: 'ORIGINAL',
+  //               width: 100,
+  //               height: 100,
+  //             },
+  //           },
+  //         ],
+  //       },
   //       simpleIntroduction: '잘 부탁드립니다.',
   //       mbti: 'ENTP',
-  //       interests: ['Self-teaching', 'MIT OCW', 'Google'],
-  //       hobbies: ['축구', '농구'],
+  //       interests: [
+  //         {
+  //           id: 1,
+  //           name: 'Self-teaching',
+  //         },
+  //         {
+  //           id: 2,
+  //           name: 'MIT OCW',
+  //         },
+  //         {
+  //           id: 3,
+  //           name: 'Google',
+  //         },
+  //       ],
+  //       hobbies: [
+  //         {
+  //           id: 1,
+  //           name: '축구',
+  //         },
+  //         {
+  //           id: 2,
+  //           name: '농구',
+  //         },
+  //       ],
   //       githubLink: {
   //         url: 'https://github.com/rudeh1253',
   //         iconUrl: 'https://s3.com/image/github.png',
@@ -94,13 +178,13 @@ export const getProfile = async ({ memberId }: { memberId: string }) => {
 };
 
 export interface UpdateProfileRequest {
-  name: string;
-  tel: string;
-  githubLink: string;
-  blogOrSnsLink: string;
-  simpleIntroduction: string;
-  mbti: string;
-  interests: {
+  name?: string;
+  tel?: string;
+  githubLink?: string;
+  blogOrSnsLink?: string;
+  simpleIntroduction?: string;
+  mbti?: string;
+  interests?: {
     creations: string[];
     modifications: {
       id: number;
@@ -108,7 +192,7 @@ export interface UpdateProfileRequest {
     }[];
     deletions: number[];
   };
-  hobbies: {
+  hobbies?: {
     creations: string[];
     modifications: {
       id: number;
@@ -148,7 +232,7 @@ export const updateProfile = async ({
   memberId: string;
   data: UpdateProfileRequest;
 }) => {
-  const response = await Api.put<UpdateProfileResponse>(
+  const response = await Api.patch<UpdateProfileResponse>(
     `/api/v1/members/${memberId}/profile`,
     data,
   );
@@ -157,11 +241,11 @@ export const updateProfile = async ({
 };
 
 export interface UpdateProfileInfoRequest {
-  selfIntroduction: string;
-  studyPlan: string;
-  preferredStudySubjectId: string;
-  availableStudyTimeIds: number[];
-  techStackIds: number[];
+  selfIntroduction?: string;
+  studyPlan?: string;
+  preferredStudySubjectId?: string;
+  availableStudyTimeIds?: number[];
+  techStackIds?: number[];
 }
 
 interface UpdateProfileInfoResponse {
@@ -182,7 +266,7 @@ export const updateProfileInfo = async ({
   memberId: string;
   data: UpdateProfileInfoRequest;
 }) => {
-  const response = await Api.put<UpdateProfileInfoResponse>(
+  const response = await Api.patch<UpdateProfileInfoResponse>(
     `/api/v1/members/${memberId}/profile/info`,
     data,
   );
@@ -230,6 +314,37 @@ export const getAvailableStudyTimes = async (): Promise<
   //   {
   //     availableTimeId: 6,
   //     display: '시간 협의 가능',
+  //   },
+  // ];
+};
+
+export interface StudySubject {
+  studySubjectId: string;
+  studySubjectName: string;
+}
+
+export const getStudySubjects = async (): Promise<StudySubject[]> => {
+  const response = await Api.get<{
+    statusCode: number;
+    content: StudySubject[];
+    message: string;
+  }>('/api/v1/study-subjects');
+
+  return response.data.content;
+
+  // // FIX: 추후 삭제 예정
+  // return [
+  //   {
+  //     studySubjectId: 'CS_DEEP',
+  //     studySubjectName: 'CS Deep Dive',
+  //   },
+  //   {
+  //     studySubjectId: 'BACKEND_DEEP',
+  //     studySubjectName: 'Back-end Deep Dive',
+  //   },
+  //   {
+  //     studySubjectId: 'FRONTEND_DEEP',
+  //     studySubjectName: 'Front-end Deep Dive',
   //   },
   // ];
 };

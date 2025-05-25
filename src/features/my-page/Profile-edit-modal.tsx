@@ -10,7 +10,7 @@ export default function ProfileEditModal() {
   const { data: profile } = useGetProfile({ memberId: '10000' });
   const { mutate: updateProfile } = useUpdateProfile({ memberId: '10000' });
 
-  const [name, setName] = useState(profile?.memberProfile.name);
+  const [name, setName] = useState(profile?.memberProfile.memberName);
   const [tel, setTel] = useState(profile?.memberProfile.tel);
   const [githubLink, setGithubLink] = useState(
     profile?.memberProfile.githubLink.url,
@@ -24,18 +24,25 @@ export default function ProfileEditModal() {
   );
 
   const handleSubmit = () => {
-    updateProfile({
+    const profileData = {
       name,
       tel,
       githubLink,
       blogOrSnsLink,
       simpleIntroduction: selfIntroduction,
       mbti,
-    });
+    };
+
+    // undefined가 아닌 값만 필터링
+    const filteredData = Object.fromEntries(
+      Object.entries(profileData).filter(([_, value]) => value !== undefined),
+    );
+
+    updateProfile(filteredData);
   };
 
   useEffect(() => {
-    setName(profile?.memberProfile.name);
+    setName(profile?.memberProfile.memberName);
     setTel(profile?.memberProfile.tel);
     setGithubLink(profile?.memberProfile.githubLink.url);
     setMbti(profile?.memberProfile.mbti);
@@ -72,7 +79,7 @@ export default function ProfileEditModal() {
                 title="이름 확인"
                 description="소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요."
                 required
-                defaultValue={profile?.memberProfile.name}
+                defaultValue={profile?.memberProfile.memberName}
                 onChange={(value) => setName(value)}
               />
               <ProfileEditCard
@@ -95,6 +102,18 @@ export default function ProfileEditModal() {
                 defaultValue={profile?.memberProfile.mbti}
                 onChange={(value) => setMbti(value)}
               />
+              {/* <ProfileEditChipDropdown
+                title="관심사"
+                defaultValueIds={profile?.memberProfile.interests.map(
+                  (interest) => interest.id,
+                )}
+                options={[
+                  { value: '1', label: 'Self-teaching' },
+                  { value: '2', label: 'MIT OCW' },
+                  { value: '3', label: 'Google' },
+                ]}
+                onChange={(value) => setInterests(value)}
+              /> */}
               <ProfileEditTextarea
                 placeholder="입력하세요."
                 title="한마디 소개"
@@ -120,6 +139,7 @@ export default function ProfileEditModal() {
                 <Button
                   className="w-[140px] cursor-pointer"
                   onClick={handleSubmit}
+                  disabled={!name || !tel}
                 >
                   수정 완료
                 </Button>

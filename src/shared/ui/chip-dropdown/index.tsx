@@ -8,27 +8,25 @@ import {
 } from '@/shared/shadcn/ui/dropdown-menu';
 import Chip from '../chip';
 
-interface Option {
+export interface Option {
   label: string;
   value: string;
 }
 
-interface Props {
+interface Props<T extends string | number> {
   options: Option[];
-  defaultValueIds?: (string | number)[];
+  defaultValueIds?: T[];
   placeholder?: string;
-  onChange?: (ids: (string | number)[]) => void;
+  onChange?: (ids: T[]) => void;
 }
 
-export default function ChipDropdown({
+export default function ChipDropdown<T extends string | number>({
   options,
   defaultValueIds,
   placeholder,
   onChange,
-}: Props) {
-  const [selectedIds, setSelectedIds] = useState<(string | number)[]>(
-    defaultValueIds || [],
-  );
+}: Props<T>) {
+  const [selectedIds, setSelectedIds] = useState<T[]>(defaultValueIds || []);
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -47,6 +45,7 @@ export default function ChipDropdown({
             ) : (
               selectedIds.map((id) => (
                 <Chip
+                  id={id}
                   isActive
                   key={id}
                   text={options.find((option) => option.value === id)?.label}
@@ -77,10 +76,12 @@ export default function ChipDropdown({
           <DropdownMenuItem
             key={option.value}
             onClick={() => {
-              if (selectedIds.includes(option.value)) {
-                setSelectedIds(selectedIds.filter((id) => id !== option.value));
+              if (selectedIds.includes(option.value as T)) {
+                setSelectedIds(
+                  selectedIds.filter((id) => id !== (option.value as T)),
+                );
               } else {
-                setSelectedIds([...selectedIds, option.value]);
+                setSelectedIds([...selectedIds, option.value as T]);
               }
             }}
             className="h-[45px] w-full cursor-pointer p-[var(--spacing-150)]"
