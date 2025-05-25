@@ -12,7 +12,21 @@ interface Profile {
       techStacks: number[]; // 사용 가능한 기술 스택
     };
     memberProfile: {
-      name: string;
+      memberName: string;
+      profileImage: {
+        imageId: number;
+        resizedImage: [
+          {
+            resizedImageId: number;
+            resizedImageUrl: string;
+            imageSizeType: {
+              imageTypeName: string;
+              width: number | null;
+              height: number | null;
+            };
+          },
+        ];
+      };
       simpleIntroduction: string;
       mbti: string;
       interests: string[];

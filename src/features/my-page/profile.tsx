@@ -33,7 +33,7 @@ export default function Profile() {
             </div>
             {/* 이름 */}
             <div className="text-blue text-[24px] leading-9 font-bold">
-              {profile?.memberProfile.name}
+              {profile?.memberProfile.memberName}
             </div>
 
             <div
