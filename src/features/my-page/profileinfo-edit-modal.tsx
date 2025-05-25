@@ -73,6 +73,10 @@ export default function ProfileInfoEditModal() {
     setSelfIntroduction(profile?.memberInfo.selfIntroduction);
   }, [profile]);
 
+  if (!profile) {
+    return null;
+  }
+
   return (
     <Modal.Provider>
       <Modal.Trigger>
