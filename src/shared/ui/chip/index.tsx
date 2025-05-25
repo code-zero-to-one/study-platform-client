@@ -6,7 +6,7 @@ interface Props {
   text: string;
   isActive?: boolean;
   className?: string;
-  onClose?: () => void;
+  onClose?: (e: React.MouseEvent) => void;
 }
 
 const chipVariants = cva(
