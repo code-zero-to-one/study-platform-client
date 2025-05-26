@@ -45,6 +45,7 @@ interface Profile {
         id: number;
         name: string;
       }[];
+      birthDate: string;
       hobbies: {
         id: number;
         name: string;
@@ -124,7 +125,8 @@ export const getProfile = async ({ memberId }: { memberId: string }) => {
   //         resizedImage: [
   //           {
   //             resizedImageId: 1,
-  //             resizedImageUrl: 'https://s3.com/image/profile.png',
+  //             resizedImageUrl:
+  //               'https://plus.unsplash.com/premium_photo-1719297388945-76b5b5a42d43?q=80&w=3132&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
   //             imageSizeType: {
   //               imageTypeName: 'ORIGINAL',
   //               width: 100,
@@ -135,6 +137,7 @@ export const getProfile = async ({ memberId }: { memberId: string }) => {
   //       },
   //       simpleIntroduction: '잘 부탁드립니다.',
   //       mbti: 'ENTP',
+  //       birthDate: '1990-01-01',
   //       interests: [
   //         {
   //           id: 1,

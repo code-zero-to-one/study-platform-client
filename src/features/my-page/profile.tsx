@@ -10,8 +10,20 @@ export default function Profile() {
 
   return (
     <div className="flex gap-[24px] px-[16px]">
-      <div className="h-[100px] w-[180px] rounded-[100px] bg-[var(--color-background-alternative)]" />
-
+      {profile?.memberProfile.profileImage.resizedImage[0].resizedImageUrl && (
+        <div className="pt-[var(--spacing-100)]">
+          <Image
+            src={
+              profile?.memberProfile.profileImage.resizedImage[0]
+                .resizedImageUrl
+            }
+            alt="Profile"
+            width={90}
+            height={90}
+            className="h-[90px] w-[90px] rounded-[90px]"
+          />
+        </div>
+      )}
       <div className="flex flex-col gap-[32px] pt-[12px]">
         <div className="flex flex-col gap-[24px]">
           {/* 이름, 소개, 배찌들 */}
@@ -55,7 +67,13 @@ export default function Profile() {
                   height={16}
                 />
                 <div className="text-[12px] text-[var(--color-text-subtlest)]">
-                  1999.01.01
+                  {new Date(
+                    profile?.memberProfile.birthDate,
+                  ).toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                  })}
                 </div>
               </div>
               <div className="flex gap-[4px]">
