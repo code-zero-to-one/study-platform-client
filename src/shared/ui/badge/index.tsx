@@ -13,6 +13,9 @@ const badgeVariants = cva(
             default: 'bg-background-accent-blue-subtle text-text-subtlest border-border-default',
             completed: 'bg-fill-success-subtle-default text-text-success',
             incomplete: 'bg-fill-danger-subtle-default text-text-error',
+            orange: 'bg-background-accent-orange-subtle text-background-accent-orange-strong',
+            gray: 'bg-background-accent-gray-subtle text-background-accent-gray-strong',
+            purple: 'bg-background-accent-purple-subtle text-background-accent-purple-strong'
          },
          shape: {
             rectangle: 'rounded-50',
