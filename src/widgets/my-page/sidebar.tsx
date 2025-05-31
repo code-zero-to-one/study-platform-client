@@ -9,7 +9,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <div className="box-border flex w-[300px] flex-col gap-[12px] px-[24px] pt-[40px]">
+    <div className="box-border flex w-[300px] flex-col gap-150 px-300 pt-500 border-x-1 border-border-subtle">
       <SidebarItem
         onClick={() => router.push('/my-page')}
         isActive={pathname === '/my-page'}

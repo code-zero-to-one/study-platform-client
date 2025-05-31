@@ -56,7 +56,7 @@ function CarouselButtonPrevious({
       <CarouselPrevious
          variant='default'
          icon={icon}
-         className={cn('top-1/2 -left-200 -translate-y-1/2 border border-border-default bg-fill-neutral-subtle-default p-100', className)}
+         className={cn('top-1/2 -left-200 -translate-y-1/2 border border-border-default bg-fill-neutral-subtle-default p-100 cursor-pointer', className)}
          {...props}
       />
    );
@@ -73,7 +73,7 @@ function CarouselButtonNext({
       <CarouselNext
          variant='default'
          icon={icon}
-         className={cn('top-1/2 -right-200 -translate-y-1/2 border border-border-default bg-fill-neutral-subtle-default p-100', className)}
+         className={cn('top-1/2 -right-200 -translate-y-1/2 border border-border-default bg-fill-neutral-subtle-default p-100 cursor-pointer', className)}
          {...props}
       />
    );

@@ -13,16 +13,17 @@ export default function Header() {
                <Link href='/'>ZERO-ONE</Link>
             </div>
 
-            <nav className='hidden flex-grow md:flex gap-150 font-designer-14m text-text-default'>
+            {/* 1차 MVP에선 사용하지 않아 제외 */}
+            {/* <nav className='hidden flex-grow md:flex gap-150 font-designer-14m text-text-default'>
                <Link href='/about'>제로원 알아보기</Link>
                <Link href='/study'>마이스터디</Link>
-            </nav>
+            </nav> */}
 
             <div className='shrink-0 flex items-center gap-150'>
                <Link href='/notifications' aria-label='알림'>
                   <NotiIcon />
                </Link>
-               <Link href='/mypage'>
+               <Link href='/my-page'>
                   <UserAvatar />
                </Link>
                <Link href="/login">

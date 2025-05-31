@@ -17,7 +17,7 @@ export default function BannerCarousel() {
          <Carousel.Viewport>
             {bannerImages.map((src, i) => (
                <Carousel.Slide key={i}>
-                  <div className="relative h-[160px] w-full">
+                  <div className="relative h-[160px] w-full bg-background-alternative">
                      <Image
                         src={src}
                         alt={`배너 ${i + 1}`}

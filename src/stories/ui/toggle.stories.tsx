@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { useState } from 'react'
-import { Toggle } from '@/shared/ui/toggle'
+import { ToggleSwitch } from '@/shared/ui/toggle/switch'
 
-const meta: Meta<typeof Toggle.Provider> = {
-  component: Toggle.Provider,
+const meta: Meta<typeof ToggleSwitch.Provider> = {
+  component: ToggleSwitch.Provider,
   tags: ['autodocs'],
   argTypes: {
     color: {
@@ -26,13 +26,13 @@ const meta: Meta<typeof Toggle.Provider> = {
 }
 export default meta
 
-type Story = StoryObj<typeof Toggle.Provider>
+type Story = StoryObj<typeof ToggleSwitch.Provider>
 
 const ToggleWithState = (args: any) => {
   const [checked, setChecked] = useState(false)
 
   return (
-    <Toggle.Provider
+    <ToggleSwitch.Provider
       {...args}
       checked={checked}
       onCheckedChange={setChecked}
