@@ -33,15 +33,18 @@ const buttonVariants = cva(
   },
 );
 
-function Button({ color = 'primary', size = 'medium', icon,
-  iconPosition = 'left', className, children, ...rest }: ButtonProps) {
-
+function Button({
+  color = 'primary',
+  size = 'medium',
+  icon,
+  iconPosition = 'left',
+  className,
+  children,
+  ...rest
+}: ButtonProps) {
   return (
     <ButtonShadcn
-      className={cn(
-        buttonVariants({ color, size }),
-        className
-      )}
+      className={cn(buttonVariants({ color, size }), className)}
       {...rest}
     >
       <span className="flex items-center gap-50">
