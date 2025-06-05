@@ -1,7 +1,7 @@
 import './global.css';
 
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
+import localFont from "next/font/local";
 import MainProvider from '@/app/provider';
 import Header from '@/widgets/home/header';
 
@@ -11,10 +11,11 @@ export const metadata: Metadata = {
 };
 
 const pretendard = localFont({
-  src: '../public/fonts/PretendardVariable.woff2',
-  variable: '--font-pretendard',
-  display: 'swap',
+  src: "../public/fonts/PretendardVariable.woff2",
+  variable: "--font-pretendard",
+  display: "swap",
 });
+
 
 export default function RootLayout({
   children,
@@ -23,7 +24,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={pretendard.className}>
+      <body
+        className={pretendard.className}
+      >
         <MainProvider>
           <Header />
           <main className="container mx-auto">{children}</main>
