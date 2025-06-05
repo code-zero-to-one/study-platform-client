@@ -1,6 +1,11 @@
+<<<<<<< Updated upstream
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { PencilIcon } from "lucide-react";
+import Image from "next/image";
+=======
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { PencilIcon } from 'lucide-react';
-import Image from 'next/image';
+>>>>>>> Stashed changes
 
 export default function SignupImageSelector({
   image,
@@ -21,9 +26,13 @@ export default function SignupImageSelector({
       <Image
         src={image}
         alt="프로필"
+<<<<<<< Updated upstream
         width={112} // Tailwind 기준 w-28 = 112px
         height={112}
         className="relative rounded-full border-2 border-pink-200 object-cover"
+=======
+        className="relative h-28 w-28 rounded-full border-2 border-pink-200 object-cover"
+>>>>>>> Stashed changes
       />
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>

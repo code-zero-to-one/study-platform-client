@@ -1,6 +1,12 @@
+<<<<<<< Updated upstream
+import { Slot } from "@radix-ui/react-slot"
+import { cva, type VariantProps } from "class-variance-authority"
+import * as React from "react"
+=======
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
+>>>>>>> Stashed changes
 
 import { cn } from '@/shared/shadcn/lib/utils';
 

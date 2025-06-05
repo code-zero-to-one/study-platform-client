@@ -9,7 +9,7 @@ export default function ProfileInfo() {
       {/* 내정보 */}
       <div className="flex w-full items-center gap-[12px]">
         <div className="text-[18px] font-[700]">내정보</div>
-        <ProfileInfoEditModal onSubmit={() => {}} />
+        <ProfileInfoEditModal onSubmit={() => { }} />
       </div>
 
       {/* 세부 설명 */}

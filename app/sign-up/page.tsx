@@ -3,8 +3,8 @@ import Landing from '@/features/auth/Landing';
 
 // 랜딩페이지에서 회원가입 모달이 뜨는 것으로 파악
 export default function SignupPage() {
-  // TODO : URL 에서 토큰 파싱후
-  console.log('회원가입 페이지');
+  // TODO : URL 에서 토큰 파싱후 
+  console.log("회원가입 페이지")
 
   return <Landing isSignupPage={true} />;
 }

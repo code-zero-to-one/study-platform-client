@@ -1,7 +1,7 @@
 import UserAvatar from '@/shared/ui/avatar';
 import { Badge } from '@/shared/ui/badge/index';
+import TableList from '@/shared/ui/TableList';
 import LinkIcon from 'public/icons/Link.svg';
-import TableList from '@/shared/ui/table';
 
 const headers = [
   '조',

@@ -10,7 +10,7 @@ interface Props {
 export default function ProfileEditModal({ onSubmit }: Props) {
   return (
     <Modal.Provider>
-      <Modal.Trigger className="rounded-100 bg-fill-brand-default-default text-text-inverse w-full px-150 py-100 text-[16px]">
+      <Modal.Trigger className="w-full rounded-100 bg-fill-brand-default-default px-150 py-100 text-[16px] text-text-inverse">
         내 프로필 수정
       </Modal.Trigger>
       <Modal.Portal>
