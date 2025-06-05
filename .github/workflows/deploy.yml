@@ -1,9 +1,9 @@
-name: Front Production Server (main)
+name: Front Test Server (Develop)
 
 on:
   push:
     branches:
-      - main # main 브랜치에 push가 발생하면 실행
+      - develop # develop 브랜치에 push가 발생하면 실행
 
 jobs:
   deploy:
@@ -15,6 +15,7 @@ jobs:
 
       - name: Setup SSH
         run: |
+          echo "SSH 비밀키 설정 진행 중"
           mkdir -p ~/.ssh
           echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
@@ -23,20 +24,21 @@ jobs:
 
       - name: Deploy to server
         run: |
+          echo "서버에 SSH 접속 중"
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }} << 'EOF'
-            cd ~/study-platform-client-prod
+            cd ~/study-platform-client
 
-            git fetch origin
-            git checkout main
-            git pull origin main
+            echo "develop 브랜치 최신 코드 pull"
+            git pull origin develop
 
             echo "패키지 설치 중"
-            yarn install
+            npm install
+
             echo "빌드 진행 중"
-            yarn build
+            npm run build
 
-            pm2 delete front-server-prod || true
-            pm2 start ecosystem.config.js
+            echo "서버 재시작 진행 중"
+            pm2 restart nextjs
 
-            echo "운영 서버 배포 완료"
+            echo "배포 완료"
           EOF

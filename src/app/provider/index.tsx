@@ -1,5 +1,5 @@
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import QueryProvider from '@/app/provider/query-provider';
+import QueryProvider from '@/app/provider/queryProvider';
 
 interface ProviderProps {
   children: React.ReactNode;

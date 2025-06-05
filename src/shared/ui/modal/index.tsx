@@ -62,10 +62,7 @@ function ModalOverlay({
   return (
     <DialogOverlay
       data-slot="modal-overlay"
-      className={cn(
-        'bg-background-dimmer opacity-20',
-        className,
-      )}
+      className={cn('bg-background-dimmer opacity-20', className)}
       {...props}
     />
   );
@@ -75,17 +72,7 @@ function ModalContent({
   className,
   children,
   ...props
-}: React.ComponentProps<typeof DialogPrimitive.Content> & {
-  size?: 'small' | 'medium' | 'large';
-}) {
-  const { size = 'small', ...rest } = props;
-
-  const sizeClass = {
-    small: 'max-w-2xl',
-    medium: 'max-w-3xl',
-    large: 'max-w-4xl',
-  }[size];
-
+}: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Content
       data-slot="modal-content"
@@ -93,22 +80,18 @@ function ModalContent({
         'fixed',
         'top-[50%] left-[50%]',
         'translate-x-[-50%] translate-y-[-50%]',
-        'max-w-[calc(100%-2rem)], w-full',
-        sizeClass,
-        'max-h-[90vh] ',
+        'max-w-[calc(100%-2rem)], w-full sm:max-w-lg',
         'bg-background-default',
         'z-50',
         'rounded-150',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200',
         'shadow-[0px_10px_10px_0px_rgba(0,0,0,0.24), 0px_4px_32px_0px_rgba(0,0,0,0.24)]',
-        'border border-border-default',
+        'border-border-default border',
         className,
       )}
-      {...rest}
+      {...props}
     >
-      <div className="flex flex-col max-h-[90vh]">
-        {children}
-      </div>
+      {children}
     </DialogPrimitive.Content>
   );
 }
@@ -117,10 +100,7 @@ function ModalHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-header"
-      className={cn(
-        'px-400 pt-400 pb-300 border-b border-border-default',
-        className,
-      )}
+      className={cn('px-400 pt-400 pb-300', className)}
       {...props}
     />
   );
@@ -130,11 +110,7 @@ function ModalBody({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-body"
-      className={cn(
-        'px-400 py-300 overflow-auto',
-        'flex-1',
-        className,
-      )}
+      className={cn('px-400 py-300', className)}
       {...props}
     />
   );
@@ -144,10 +120,7 @@ function ModalFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-footer"
-      className={cn(
-        'px-400 py-200 border-t border-border-default',
-        className,
-      )}
+      className={cn('px-400 py-200', className)}
       {...props}
     />
   );

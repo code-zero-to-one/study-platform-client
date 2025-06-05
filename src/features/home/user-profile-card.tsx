@@ -1,0 +1,69 @@
+'use client';
+
+import React from 'react';
+import UserAvatar from '@/shared/ui/avatar';
+import { Toggle } from '@/shared/ui/toggle/index';
+import AccessTimeIcon from 'public/icons/access_time.svg';
+import AssignmentIcon from 'public/icons/assignment.svg';
+import CodeIcon from 'public/icons/code.svg';
+import SettingIcon from 'public/icons/setting.svg';
+
+interface UserProfileCardProps {
+  name: string;
+  imageUrl: string;
+  matching: boolean;
+  subject: string;
+  time: string;
+  techStacks: string;
+}
+
+export default function UserProfileCard({
+  name,
+  imageUrl,
+  matching,
+  subject,
+  time,
+  techStacks,
+}: UserProfileCardProps) {
+  const [enabled, setEnabled] = React.useState(matching);
+
+  return (
+    <section className="rounded-200 border-border-subtle bg-text-inverse flex flex-col items-start gap-200 border p-200">
+      <div className="flex flex-row items-center gap-200">
+        <div className="relative h-[64px] w-[64px] shrink-0">
+          <UserAvatar size={64} image={imageUrl} />
+          <div className="bg-background-accent-gray-strong absolute right-0 bottom-0 flex h-[24px] w-[24px] items-center justify-center rounded-full">
+            <SettingIcon />
+          </div>
+        </div>
+        <div className="flex flex-col">
+          <div className="font-designer-18b">{name}님</div>
+          <div className="flex flex-row items-center gap-100">
+            <span className="font-designer-14r text-gray-800">스터디 매칭</span>
+            <Toggle.Provider
+              color="primary"
+              size="md"
+              checked={enabled}
+              onCheckedChange={setEnabled}
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-background-alternative rounded-100 font-designer-15m flex w-full flex-col gap-200 px-200 py-150">
+        <div className="flex items-center gap-100">
+          <AssignmentIcon />
+          <span>{subject}</span>
+        </div>
+        <div className="flex items-center gap-100">
+          <AccessTimeIcon />
+          <span>{time}</span>
+        </div>
+        <div className="flex items-center gap-100">
+          <CodeIcon />
+          <span>{techStacks}</span>
+        </div>
+      </div>
+    </section>
+  );
+}
