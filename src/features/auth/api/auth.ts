@@ -1,8 +1,10 @@
 import { Api } from "@/shared/api/apiInstance";
 
 // 회원가입 요청 API
+
 export async function signUp(data: any) {
   const res = await Api.post("/api/v1/members", data);
+
   return res.data;
 }
 
@@ -14,5 +16,6 @@ export async function uploadProfileImage(memberId: number, filename: string, for
     //   'Content-Type': 'multipart/form-data'
     // }
   });
+
   return res.data;
 }

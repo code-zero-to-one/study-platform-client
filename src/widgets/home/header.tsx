@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import UserAvatar from '@/shared/ui/avatar';
-import NotiIcon from 'public/icons/notifications_none.svg';
 import Button from "@/shared/ui/button";
+import NotiIcon from 'public/icons/notifications_none.svg';
 
 export default function Header() {
    return (

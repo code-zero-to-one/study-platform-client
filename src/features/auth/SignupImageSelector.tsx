@@ -1,5 +1,5 @@
-import { PencilIcon } from "lucide-react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { PencilIcon } from "lucide-react";
 
 export default function SignupImageSelector({ image, setImage, fileInputRef, handleImageChange }: { image: string, setImage: (image: string) => void, fileInputRef: React.RefObject<HTMLInputElement>, handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void }) {
   const setDefaultImage = () => setImage("/profile-default.svg");

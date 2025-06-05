@@ -1,10 +1,10 @@
 'use client'
 
+import Image from "next/image"
+import { useState, useEffect } from "react";
 import LoginModal from "@/features/auth/LoginModal";
 import SignupModal from "@/features/auth/SignupModal";
 import Button from "@/shared/ui/button"
-import Image from "next/image"
-import { useState, useEffect } from "react";
 
 export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
   const [loginOpen, setLoginOpen] = useState(false);
@@ -13,6 +13,7 @@ export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
   // 쿠키 파싱 함수
   function getCookie(name: string) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+
     return match ? decodeURIComponent(match[2]) : null;
   }
 

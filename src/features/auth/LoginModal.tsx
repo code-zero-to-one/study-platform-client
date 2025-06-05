@@ -1,5 +1,6 @@
-import { Modal } from '../../shared/ui/modal';
 import { XIcon } from 'lucide-react';
+import Image from 'next/image';
+import { Modal } from '../../shared/ui/modal';
 
 export default function LoginModal({ open, onClose }: { open: boolean, onClose: () => void }) {
 
@@ -31,27 +32,33 @@ export default function LoginModal({ open, onClose }: { open: boolean, onClose: 
             <div className="flex flex-col gap-[12px] mt-5 mb-5">
               <button
                 className="flex h-[52px] px-5 justify-center items-center gap-3 rounded bg-[#03C75A]"
-                onClick={() => window.location.href = NAVER_LOGIN_URL}
+                onClick={() => {
+                  window.location.href = NAVER_LOGIN_URL;
+                }}
               >
-                <img src="/icons/naver-icon.svg" alt="Naver" className="w-5 h-5" />
+                <Image src="/icons/naver-icon.svg" alt="Naver" className="w-5 h-5" />
                 <span className="text-[#FFF] text-center font-['Pretendard'] text-[15px] font-bold leading-[23px]">
                   네이버 계정 로그인
                 </span>
               </button>
               <button
                 className="flex h-[52px] px-5 justify-center items-center gap-3 rounded bg-[#FFE812] text-black border border-[#FEE500]"
-                onClick={() => window.location.href = KAKAO_LOGIN_URL}
+                onClick={() => {
+                  window.location.href = KAKAO_LOGIN_URL;
+                }}
               >
-                <img src="/icons/kakao-icon.svg" alt="Kakao" className="w-5 h-5" />
+                <Image src="/icons/kakao-icon.svg" alt="Kakao" className="w-5 h-5" />
                 <span className="text-[#181D27] text-center font-['Pretendard'] text-[15px] font-bold leading-[23px]">
                   카카오 계정 로그인
                 </span>
               </button>
               <button
                 className="flex h-[52px] px-5 justify-center items-center gap-3 rounded bg-white text-black border border-[#3D4148]"
-                onClick={() => window.location.href = GOOGLE_LOGIN_URL}
+                onClick={() => {
+                  window.location.href = GOOGLE_LOGIN_URL;
+                }}
               >
-                <img src="/icons/google-icon.svg" alt="Google" className="w-5 h-5" />
+                <Image src="/icons/google-icon.svg" alt="Google" className="w-5 h-5" />
                 <span className="text-[#181D27] text-center font-['Pretendard'] text-[15px] font-bold leading-[23px]">
                   Google 계정 로그인
                 </span>

@@ -1,10 +1,10 @@
+import { XIcon } from "lucide-react";
+import { useState, useRef } from "react";
+import Button from "@/shared/ui/button";
 import { Modal } from "@/shared/ui/modal";
+import { useSignUpMutation, useUploadProfileImageMutation } from "./api/useAuthMutation";
 import SignupImageSelector from "./SignupImageSelector";
 import SignupNameInput from "./SignupNameInput";
-import { useState, useRef } from "react";
-import { XIcon } from "lucide-react";
-import Button from "@/shared/ui/button";
-import { useSignUpMutation, useUploadProfileImageMutation } from "./api/useAuthMutation";
 
 export default function SignupModal({ open, onClose }: { open: boolean, onClose: () => void }) {
   const [name, setName] = useState("");
