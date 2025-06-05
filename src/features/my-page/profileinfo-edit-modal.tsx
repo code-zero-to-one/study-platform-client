@@ -20,7 +20,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
       </Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content size='medium'>
+        <Modal.Content size="medium">
           <Modal.Header>
             <div className="flex items-center justify-between">
               <Modal.Title>내 정보 수정</Modal.Title>
@@ -60,7 +60,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
                       },
                     ]}
                     placeholder="선택하세요"
-                    onSelect={() => { }}
+                    onSelect={() => {}}
                   />
                   <div className="flex justify-between text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
                     <div>자신의 성격 유형을 입력해 주세요.</div>

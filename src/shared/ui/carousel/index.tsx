@@ -42,28 +42,17 @@ function CarouselButtonPrevious({
 }: {
   icon?: React.ReactNode;
 } & React.ComponentProps<typeof CarouselPrevious>) {
-<<<<<<< Updated upstream
-   return (
-      <CarouselPrevious
-         variant='default'
-         icon={icon}
-         className={cn('top-1/2 -left-200 -translate-y-1/2 border border-border-default bg-fill-neutral-subtle-default p-100 cursor-pointer', className)}
-         {...props}
-      />
-   );
-=======
   return (
     <CarouselPrevious
       variant="default"
       icon={icon}
       className={cn(
-        'border-border-default bg-fill-neutral-subtle-default top-1/2 -left-200 -translate-y-1/2 border p-100',
+        'border-border-default bg-fill-neutral-subtle-default top-1/2 -left-200 -translate-y-1/2 cursor-pointer border p-100',
         className,
       )}
       {...props}
     />
   );
->>>>>>> Stashed changes
 }
 
 function CarouselButtonNext({
@@ -73,28 +62,17 @@ function CarouselButtonNext({
 }: {
   icon?: React.ReactNode;
 } & React.ComponentProps<typeof CarouselNext>) {
-<<<<<<< Updated upstream
-   return (
-      <CarouselNext
-         variant='default'
-         icon={icon}
-         className={cn('top-1/2 -right-200 -translate-y-1/2 border border-border-default bg-fill-neutral-subtle-default p-100 cursor-pointer', className)}
-         {...props}
-      />
-   );
-=======
   return (
     <CarouselNext
       variant="default"
       icon={icon}
       className={cn(
-        'border-border-default bg-fill-neutral-subtle-default top-1/2 -right-200 -translate-y-1/2 border p-100',
+        'border-border-default bg-fill-neutral-subtle-default top-1/2 -right-200 -translate-y-1/2 cursor-pointer border p-100',
         className,
       )}
       {...props}
     />
   );
->>>>>>> Stashed changes
 }
 
 export const Carousel = {

@@ -12,34 +12,12 @@ const bannerImages = [
 ];
 
 export default function BannerCarousel() {
-<<<<<<< Updated upstream
-   return (
-      <Carousel.Provider className="rounded-150 border border-border-subtle">
-         <Carousel.Viewport>
-            {bannerImages.map((src, i) => (
-               <Carousel.Slide key={i}>
-                  <div className="relative h-[160px] w-full bg-background-alternative">
-                     <Image
-                        src={src}
-                        alt={`배너 ${i + 1}`}
-                        fill
-                        className="object-contain"
-                     />
-                  </div>
-               </Carousel.Slide>
-            ))}
-         </Carousel.Viewport>
-         <Carousel.Prev icon={<ArrowBackIcon />} />
-         <Carousel.Next icon={<ArrowForwardIcon />} />
-      </Carousel.Provider>
-   );
-=======
   return (
     <Carousel.Provider className="rounded-150 border-border-subtle border">
       <Carousel.Viewport>
         {bannerImages.map((src, i) => (
           <Carousel.Slide key={i}>
-            <div className="relative h-[160px] w-full">
+            <div className="bg-background-alternative relative h-[160px] w-full">
               <Image
                 src={src}
                 alt={`배너 ${i + 1}`}
@@ -54,5 +32,4 @@ export default function BannerCarousel() {
       <Carousel.Next icon={<ArrowForwardIcon />} />
     </Carousel.Provider>
   );
->>>>>>> Stashed changes
 }

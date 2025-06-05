@@ -92,7 +92,7 @@ function ModalContent({
         'translate-x-[-50%] translate-y-[-50%]',
         'max-w-[calc(100%-2rem)], w-full',
         sizeClass,
-        'max-h-[90vh] ',
+        'max-h-[90vh]',
         'bg-background-default',
         'z-50',
         'rounded-150',
@@ -103,9 +103,7 @@ function ModalContent({
       )}
       {...rest}
     >
-      <div className="flex flex-col max-h-[90vh]">
-        {children}
-      </div>
+      <div className="flex max-h-[90vh] flex-col">{children}</div>
     </DialogPrimitive.Content>
   );
 }
@@ -114,14 +112,10 @@ function ModalHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-header"
-<<<<<<< Updated upstream
       className={cn(
-        'px-400 pt-400 pb-300 border-b border-border-default',
+        'border-border-default border-b px-400 pt-400 pb-300',
         className,
       )}
-=======
-      className={cn('px-400 pt-400 pb-300', className)}
->>>>>>> Stashed changes
       {...props}
     />
   );
@@ -131,15 +125,7 @@ function ModalBody({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-body"
-<<<<<<< Updated upstream
-      className={cn(
-        'px-400 py-300 overflow-auto',
-        'flex-1',
-        className,
-      )}
-=======
-      className={cn('px-400 py-300', className)}
->>>>>>> Stashed changes
+      className={cn('overflow-auto px-400 py-300', 'flex-1', className)}
       {...props}
     />
   );
@@ -149,14 +135,7 @@ function ModalFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-footer"
-<<<<<<< Updated upstream
-      className={cn(
-        'px-400 py-200 border-t border-border-default',
-        className,
-      )}
-=======
-      className={cn('px-400 py-200', className)}
->>>>>>> Stashed changes
+      className={cn('border-border-default border-t px-400 py-200', className)}
       {...props}
     />
   );

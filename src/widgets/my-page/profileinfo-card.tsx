@@ -5,11 +5,11 @@ interface Props {
 
 export default function ProfileInfoCard({ title, content }: Props) {
   return (
-    <div className="flex gap-500 rounded-75 bg-background-alternative p-250">
-      <div className="w-1/6 font-designer-16b shrink-0 text-text-default">
+    <div className="rounded-75 bg-background-alternative flex gap-500 p-250">
+      <div className="font-designer-16b text-text-default w-1/6 shrink-0">
         {title}
       </div>
-      <p className="w-3/6 flex-1 font-designer-15r text-text-default">
+      <p className="font-designer-15r text-text-default w-3/6 flex-1">
         {content}
       </p>
     </div>
