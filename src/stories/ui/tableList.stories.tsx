@@ -15,24 +15,27 @@ type Story = StoryObj<typeof TableList>;
 
 export const Default: Story = {
   render: () => {
-    return <TableList headers={["name", "email", "phone"]} data={[
-      {
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "1234567890",
-      },
-      {
-        name: "Jane Doe",
-        email: "jane.doe@example.com",
-        phone: "1234567890",
-      },
-      {
-        name: "John Doe",
-        email: "john.doe@example.com",
-        phone: "1234567890",
-      },
-    ]} />
+    return (
+      <TableList
+        headers={['name', 'email', 'phone']}
+        data={[
+          {
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            phone: '1234567890',
+          },
+          {
+            name: 'Jane Doe',
+            email: 'jane.doe@example.com',
+            phone: '1234567890',
+          },
+          {
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            phone: '1234567890',
+          },
+        ]}
+      />
+    );
   },
 };
-
-

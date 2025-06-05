@@ -3,7 +3,7 @@ name: Front Test Server (Develop)
 on:
   push:
     branches:
-      - develop     # develop 브랜치에 push가 발생하면 실행
+      - develop # develop 브랜치에 push가 발생하면 실행
 
 jobs:
   deploy:

@@ -62,10 +62,7 @@ function ModalOverlay({
   return (
     <DialogOverlay
       data-slot="modal-overlay"
-      className={cn(
-        'bg-background-dimmer opacity-20',
-        className,
-      )}
+      className={cn('bg-background-dimmer opacity-20', className)}
       {...props}
     />
   );
@@ -89,7 +86,7 @@ function ModalContent({
         'rounded-150',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200',
         'shadow-[0px_10px_10px_0px_rgba(0,0,0,0.24), 0px_4px_32px_0px_rgba(0,0,0,0.24)]',
-        'border border-border-default',
+        'border-border-default border',
         className,
       )}
       {...props}
@@ -103,10 +100,7 @@ function ModalHeader({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-header"
-      className={cn(
-        'px-400 pt-400 pb-300',
-        className,
-      )}
+      className={cn('px-400 pt-400 pb-300', className)}
       {...props}
     />
   );
@@ -116,10 +110,7 @@ function ModalBody({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-body"
-      className={cn(
-        'px-400 py-300',
-        className,
-      )}
+      className={cn('px-400 py-300', className)}
       {...props}
     />
   );
@@ -129,10 +120,7 @@ function ModalFooter({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       data-slot="modal-footer"
-      className={cn(
-        'px-400 py-200',
-        className,
-      )}
+      className={cn('px-400 py-200', className)}
       {...props}
     />
   );
