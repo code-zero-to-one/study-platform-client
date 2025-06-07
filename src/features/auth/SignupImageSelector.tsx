@@ -22,6 +22,8 @@ export default function SignupImageSelector({
         src={image}
         alt="프로필"
         className="relative h-28 w-28 rounded-full border-2 border-pink-200 object-cover"
+        width={112}
+        height={112}
       />
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { XIcon } from 'lucide-react';
 import { useState, useRef } from 'react';
 import Button from '@/shared/ui/button';
@@ -9,6 +10,35 @@ import {
 import SignupImageSelector from './SignupImageSelector';
 import SignupNameInput from './SignupNameInput';
 
+=======
+<<<<<<< Updated upstream
+import { XIcon } from "lucide-react";
+import { useState, useRef } from "react";
+import Button from "@/shared/ui/button";
+import { Modal } from "@/shared/ui/modal";
+import SignupImageSelector from "./SignupImageSelector";
+import SignupNameInput from "./SignupNameInput";
+// import { useSignUpMutation } from "./api/useAuthMutation";
+
+export default function SignupModal({ open, onClose }: { open: boolean, onClose: () => void }) {
+  const [name, setName] = useState("");
+  const [error, setError] = useState("");
+  const [image, setImage] = useState("/profile-default.svg");
+=======
+import { XIcon } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { setCookie } from '@/shared/api/cookie';
+import Button from '@/shared/ui/button';
+import { Modal } from '@/shared/ui/modal';
+import { getMemberId, getProfileImage } from './api/auth';
+import {
+  useSignUpMutation,
+  useUploadProfileImageMutation,
+} from './api/useAuthMutation';
+import SignupImageSelector from './SignupImageSelector';
+import SignupNameInput from './SignupNameInput';
+
+>>>>>>> d9c47b5 (chore : 임시커밋)
 export default function SignupModal({
   open,
   onClose,
@@ -19,6 +49,17 @@ export default function SignupModal({
   const [name, setName] = useState('');
   const [error, setError] = useState('');
   const [image, setImage] = useState('/images/profile-default.svg');
+<<<<<<< HEAD
+=======
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
+>>>>>>> d9c47b5 (chore : 임시커밋)
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const signUp = useSignUpMutation();
@@ -37,7 +78,8 @@ export default function SignupModal({
   // 이미지 업로드
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(URL.createObjectURL(e.target.files[0]));
+      setImage(URL.createObjectURL(e.target.files[0])); // 이미지 미리보기
+      setSelectedImage(e.target.files[0]);
     }
   };
 
@@ -45,6 +87,16 @@ export default function SignupModal({
   // TODO : Response에는 generatedMemberId, URL이 들어옴 (URL 은 향후 S3 등 연동을 위한 인터페이스로 생각)
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+<<<<<<< HEAD
+=======
+<<<<<<< Updated upstream
+    // signUp.mutate({
+    //   name: name,
+    //   image: image,
+    // });
+    alert("작성완료"); // TODO : 토스트 메세지로 수정필요
+=======
+>>>>>>> d9c47b5 (chore : 임시커밋)
 
     // 회원가입 요청
     signUp.mutate(
@@ -54,6 +106,7 @@ export default function SignupModal({
       },
       {
         // 회원가입 성공 시 프로필 이미지 업로드드
+<<<<<<< HEAD
         onSuccess: (data) => {
           if (data && data.generatedMemberId) {
             const formData = new FormData();
@@ -63,13 +116,50 @@ export default function SignupModal({
 
               uploadProfileImage.mutate({
                 memberId: data.generatedMemberId,
+=======
+        onSuccess: async (data) => {
+          if (data && data.content.generatedMemberId) {
+            const formData = new FormData();
+
+            if (selectedImage) {
+              formData.append('image', selectedImage);
+
+              uploadProfileImage.mutate({
+                memberId: data.content.generatedMemberId,
+>>>>>>> d9c47b5 (chore : 임시커밋)
                 filename: 'profile.jpg',
                 formData: formData,
               });
             }
 
+<<<<<<< HEAD
             // 성공 후 홈페이지로 이동
             window.location.href = '/';
+=======
+            try {
+              const data = await getMemberId();
+              console.log('memberId', data.content);
+              const profileImage = await getProfileImage(data.content);
+              console.log('profileImage', profileImage);
+
+              setCookie('memberId', data.content);
+              console.log(
+                'profileImage',
+                profileImage.content.memberProfile.profileImage.resizedImages[0]
+                  .resizedImageUrl,
+              );
+              setCookie(
+                'profileImage',
+                profileImage.content.memberProfile.profileImage
+                  ?.resizedImages[0].resizedImageUrl,
+              );
+            } catch (error) {
+              console.error('프로필 이미지 조회 실패:', error);
+            }
+
+            // 성공 후 홈페이지로 이동
+            // window.location.href = "/";
+>>>>>>> d9c47b5 (chore : 임시커밋)
           }
         },
         onError: (error) => {
@@ -79,6 +169,10 @@ export default function SignupModal({
         },
       },
     );
+<<<<<<< HEAD
+=======
+>>>>>>> Stashed changes
+>>>>>>> d9c47b5 (chore : 임시커밋)
   };
 
   return (

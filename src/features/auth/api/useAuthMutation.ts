@@ -1,14 +1,26 @@
 // React Query 커스텀 훅
 
 import { useMutation } from '@tanstack/react-query';
-import { signUp, uploadProfileImage } from './auth';
+import { getProfileImage, signUp, uploadProfileImage } from './auth';
+
+interface SignUpResponse {
+  content: {
+    generatedMemberId: string;
+  };
+  status: number;
+  message: string;
+}
 
 // 회원가입 요청 커스텀 훅
-export function useSignUpMutation() {
-  return useMutation({
+export const useSignUpMutation = () => {
+  return useMutation<
+    SignUpResponse,
+    Error,
+    { name: string; imageExtension: string }
+  >({
     mutationFn: (data: any) => signUp(data),
   });
-}
+};
 
 // 프로필 이미지 업로드 요청 커스텀 훅
 export function useUploadProfileImageMutation() {
