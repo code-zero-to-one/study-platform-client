@@ -1,16 +1,49 @@
+'use client';
+
 import { XIcon } from 'lucide-react';
+import { useState } from 'react';
 import Button from '@/shared/ui/button';
-import Chip from '@/shared/ui/chip';
 import Dropdown from '@/shared/ui/dropdown';
+import MultiDropdown from '@/shared/ui/dropdown/multi';
 import { Modal } from '@/shared/ui/modal';
-import ProfileInfoEditInput from './profileinfo-edit-input';
+import { ToggleButton } from '@/shared/ui/toggle/button';
+import EditInput from '../../shared/ui/input/edit';
 import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo-edit-card';
 
 interface Props {
   onSubmit: () => void;
 }
 
+const TIME_SLOT_OPTIONS = [
+  { key: 'morning', label: '오전 (09:00~12:00)' },
+  { key: 'lunch', label: '점심 (12:00~13:00)' },
+  { key: 'afternoon', label: '오후 (13:00~18:00)' },
+  { key: 'evening', label: '저녁 (18:00~21:00)' },
+  { key: 'night', label: '심야 (21:00~23:00)' },
+  { key: 'flexible', label: '시간 협의 가능' },
+];
+
+const skillOptions = [
+  { label: 'HTML/CSS', value: 'html' },
+  { label: 'JavaScript', value: 'js' },
+  { label: 'React', value: 'react' },
+  { label: 'Django', value: 'django' },
+  { label: 'MySQL', value: 'mysql' },
+];
+
 export default function ProfileInfoEditModal({ onSubmit }: Props) {
+
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+  const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+
+  const toggleTimeSlot = (key: string) => {
+    setAvailableTimeSlots((prev) =>
+      prev.includes(key)
+        ? prev.filter((item) => item !== key)
+        : [...prev, key]
+    );
+  };
+
   return (
     <Modal.Provider>
       <Modal.Trigger>
@@ -32,14 +65,14 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
           <Modal.Body>
             <div className="flex flex-col gap-300">
               <ProfileInfoEditCard title="자기소개">
-                <ProfileInfoEditInput
+                <EditInput
                   placeholder="입력하세요."
                   guideText="간단한 자기소개를 입력해 주세요."
                   maxLength={30}
                 />
               </ProfileInfoEditCard>
               <ProfileInfoEditCard title="공부 주제 및 계획" isRequired>
-                <ProfileInfoEditInput
+                <EditInput
                   placeholder="입력하세요."
                   guideText="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
                   maxLength={30}
@@ -69,27 +102,26 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
                 </div>
               </ProfileInfoEditCard>
               <ProfileInfoEditCard title="가능 시간대" isRequired>
-                <div className="flex flex-wrap gap-[8px]">
-                  <Chip text="오전 (09:00~12:00)" isActive />
-                  <Chip text="점심 (12:00~13:00)" />
-                  <Chip text="오후 (13:00~18:00)" isActive />
-                  <Chip text="저녁 (18:00~21:00)" />
-                  <Chip text="심야 (21:00~23:00)" />
-                  <Chip text="시간 협의 가능" />
+                <div className="grid grid-cols-4 gap-100">
+                  {TIME_SLOT_OPTIONS.map(({ key, label }) => (
+                    <ToggleButton.Provider
+                      key={key}
+                      pressed={availableTimeSlots.includes(key)}
+                      onPressedChange={() => toggleTimeSlot(key)}
+                    >
+                      {label}
+                    </ToggleButton.Provider>
+                  ))}
                 </div>
               </ProfileInfoEditCard>
 
               <ProfileInfoEditCard title="사용 가능한 기술 스택" isRequired>
-                <div className="flex flex-wrap gap-[8px]">
-                  <Chip text="HTML/CSS" isActive />
-                  <Chip text="JavaScript" />
-                  <Chip text="React" isActive />
-                  <Chip text="Express" />
-                  <Chip text="Django" />
-                  <Chip text="Java" />
-                  <Chip text="Git/GitHub" />
-                  <Chip text="MySQL" />
-                </div>
+                <MultiDropdown
+                  options={skillOptions}
+                  selected={selectedSkills}
+                  onChange={setSelectedSkills}
+                  placeholder="기술을 선택해주세요"
+                />
               </ProfileInfoEditCard>
             </div>
           </Modal.Body>
