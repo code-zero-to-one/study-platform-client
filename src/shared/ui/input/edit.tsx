@@ -29,14 +29,14 @@ export default function ProfileInfoEditInput({
   };
 
   return (
-    <div className="flex flex-col gap-[6px]">
+    <div className="flex flex-col gap-75">
       <Textarea
         placeholder={placeholder}
-        className="h-[60px] w-full rounded-[8px] border border-[var(--border)] p-[12px] focus-visible:ring-0 focus-visible:outline-none"
+        className="h-[60px] w-full rounded-100 border border-border-default p-150 focus-visible:ring-0 focus-visible:outline-none"
         value={value}
         onChange={handleChange}
       />
-      <div className="flex justify-between text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
+      <div className="flex justify-between font-designer-14m text-text-subtle">
         <div>{guideText}</div>
         <div>
           {count}/{maxLength}
