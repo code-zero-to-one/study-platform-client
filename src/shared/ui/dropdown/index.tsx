@@ -31,8 +31,8 @@ export default function Dropdown({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger className="w-full focus:outline-none">
-        <div className="flex w-full items-center justify-between rounded-[var(--radius-100)] border border-[var(--color-border-strong)] px-[var(--spacing-150)] py-[var(--spacing-100)]">
-          <span className="text-[var(--color-text)]">
+        <div className="flex w-full items-center justify-between rounded-150 px-150 h-[48px] border border-border-default bg-fill-neutral-subtle-default">
+          <span className="font-designer-14m text-text-subtle">
             {options.find((option) => option.value === selectedValue)?.label ||
               placeholder}
           </span>
@@ -46,7 +46,7 @@ export default function Dropdown({
 
       <DropdownMenuContent
         onClick={() => setIsOpen(false)}
-        className="flex w-full flex-col gap-[var(--spacing-50)] rounded-[var(--radius-100)] border border-[var(--color-border-default)] bg-[var(--color-background-default)] p-[var(--spacing-50)] shadow-[var(--shadow-2)]"
+        className="flex w-full flex-col gap-50 rounded-100 border border-border-default bg-background-default p-50 shadow-2"
         style={{ width: 'var(--radix-dropdown-menu-trigger-width)' }}
       >
         {options.map((option) => (
@@ -56,9 +56,9 @@ export default function Dropdown({
               setSelectedValue(option.value);
               onSelect(option.value);
             }}
-            className="h-[45px] w-full cursor-pointer p-[var(--spacing-150)]"
+            className="h-[48px] w-full cursor-pointer p-150 active:bg-fill-neutral-subtle-pressed rounded-100"
           >
-            <span className="font-designer-14m text-[var(--color-text-subtlest)]">
+            <span className="font-designer-14m text-text-subtle ">
               {option.label}
             </span>
           </DropdownMenuItem>

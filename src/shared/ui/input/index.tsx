@@ -9,7 +9,7 @@ export default function Input({
     <ShadcnInput
       className={cn(
         className,
-        'rounded-[var(--radius-100)] border border-[var(--color-border-default)] px-[var(--spacing-150)] py-[var(--spacing-100)] focus-visible:ring-0',
+        'rounded-100 whitespace-pre-line border border-border-default px-150 py-100 focus-visible:ring-0',
       )}
       {...props}
     />
