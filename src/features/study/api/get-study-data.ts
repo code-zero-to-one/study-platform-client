@@ -18,5 +18,5 @@ export const getDailyStudies = async (
 ): Promise<GetDailyStudiesResponse> => {
   const res = await axiosInstance.get('/study/daily', { params });
 
-  return res.data;
+  return res.data.content;
 };
