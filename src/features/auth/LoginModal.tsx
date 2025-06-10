@@ -6,8 +6,8 @@ import { Modal } from '../../shared/ui/modal';
 export default function LoginModal({ open, onClose }: { open: boolean, onClose: () => void }) {
 
   // TODO : 실제 백엔드에서 제공하는 URL로 교체필요
-  const NAVER_LOGIN_URL = "http://43.203.249.13:9090/om/api/auth/naver";
-  const KAKAO_LOGIN_URL = "https://kauth.kakao.com/oauth/authorize?client_id=3194796599a4325c0223d154319351a4&redirect_uri=http://43.203.249.13:9090/api/v1/auth/kakao/redirect-uri&response_type=code";
+  const NAVER_LOGIN_URL = '';
+  const KAKAO_LOGIN_URL = 'https://kauth.kakao.com/oauth/authorize?client_id=3194796599a4325c0223d154319351a4&redirect_uri=http://test.zeroone.it.kr:9090/api/v1/auth/kakao/redirect-uri&response_type=code';
   const GOOGLE_LOGIN_URL = "https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=http://localhost:8080/api/v1/auth/google/redirect-uri&client_id=616205933420-b45d510q23togkaqo069j8igmsjhp9v0.apps.googleusercontent.com";
 
   return (
