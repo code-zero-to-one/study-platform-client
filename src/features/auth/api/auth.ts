@@ -1,31 +1,6 @@
+// API 통신만 담당하는 순수 함수들
+
 import { Api } from '@/shared/api/apiInstance';
-
-// Query Keys
-export const authKeys = {
-  user: ['user'] as const,
-  profile: ['profile'] as const,
-} as const;
-
-export interface UserResponse {
-  content: string;  // memberId
-  status: number;
-  message: string;
-}
-
-export interface ProfileResponse {
-  content: {
-    memberProfile: {
-      memberName: string;
-      profileImage: {
-        resizedImages: Array<{
-          resizedImageUrl: string;
-        }>;
-      };
-    };
-  };
-  status: number;
-  message: string;
-}
 
 // 회원가입 요청 API
 export async function signUp(data: any) {
@@ -64,9 +39,17 @@ export async function getMemberId() {
 }
 
 // 프로필 조회 API
-export async function getProfileImage(memberId: number) {
+export async function getProfile(memberId: number) {
   const res = await Api.get(`/api/v1/members/${memberId}/profile`);
-  console.log('getProfileImage res', res);
+  console.log('getProfile res', res);
+
+  return res.data;
+}
+
+// 로그아웃 API
+export async function logout() {
+  const res = await Api.post('/api/v1/auth/logout');
+  console.log('logout res', res);
 
   return res.data;
 }

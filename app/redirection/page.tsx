@@ -1,11 +1,10 @@
-// 소셜 로그인시 리디렉션 되는 페이지로 url 파라미터로 받은 토큰을 쿠키에 저장함
+// 소셜 로그인시 리디렉션 되는 페이지로 url 파라미터로 받은 토큰을 쿼리캐시에 저장함
 
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { prefetchUserData } from '@/features/auth/api/useAuth';
 import { setCookie } from '@/shared/api/cookie';
 
 export default function RedirectionPage() {
@@ -13,6 +12,10 @@ export default function RedirectionPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   
+  searchParams.forEach((value, key) => {
+    console.log(key, value);
+  });
+
   useEffect(() => {
     const handleRedirection = async () => {
       try {
@@ -20,12 +23,14 @@ export default function RedirectionPage() {
         const isGuest = searchParams.get('is-guest');
 
         setCookie("accessToken", accessToken);
+        setCookie("memberId", searchParams.get('member-id') || '');
 
         if (isGuest === 'true') {
+          // 비회원일 경우 회원가입 페이지로 이동
           await router.push('/sign-up');
         } else {
-          // 쿼리 캐시에 사용자 데이터 저장
-          await prefetchUserData(queryClient);
+          // 회원일 경우 쿼리 캐시 무효화
+          awaitqueryClient.invalidateQueries({ queryKey: ['memberInfo'] });
           await router.push('/');
         }
       } catch (error) {
@@ -33,8 +38,8 @@ export default function RedirectionPage() {
       }
     };
 
-    handleRedirection();
-  }, [searchParams, router, queryClient]);
+    handleRedirection().catch(console.error);
+  }, []);
 
   return <div>RedirectionPage</div>;
 }

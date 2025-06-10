@@ -23,14 +23,14 @@ export const Api = axios.create({
 Api.interceptors.request.use(
   (config) => {
     const accessToken = getCookie('accessToken');
-
+    
     // if (accessToken) {
     //   const jsonToken = localStorage.getItem('jsonToken');
     //   const parsedToken = { "id": jsonToken };
     //   config.headers.Authorization = `Bearer ${JSON.stringify(parsedToken)}`;
     // }
 
-    config.headers.Authorization = `Bearer ${accessToken}`;
+    config.headers.Authorization = `Bearer ${accessToken}`
 
     console.log(config.headers.Authorization);
 
@@ -57,7 +57,7 @@ Api.interceptors.response.use(
         const refreshApi = axios.create({
           baseURL: 'http://localhost:8080',
         });
-
+        
         const res = await refreshApi.get('/api/v1/auth/access-token/refresh');
         const newAccessToken = res.data.accessToken;
 
@@ -65,7 +65,7 @@ Api.interceptors.response.use(
           setCookie('accessToken', newAccessToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-          return Api(originalRequest);
+          return Api(originalRequest);  
         }
       } catch (err) {
         // 토큰 갱신 실패시 로그인 페이지로 이동
@@ -81,7 +81,7 @@ Api.interceptors.response.use(
 // 로깅용
 Api.interceptors.request.use(
   (config) => {
-    console.log('🔫 request', config);
+    console.log("🔫 request", config);
 
     return config;
   },
@@ -92,12 +92,12 @@ Api.interceptors.request.use(
 
 Api.interceptors.response.use(
   (response) => {
-    console.log('🔫 response', response);
+    console.log("🔫 response", response);
 
     return response;
   },
   (error) => {
-    console.log('error.response.data', error);
+    console.log("error.response.data", error);
 
     return Promise.reject(error);
   },
