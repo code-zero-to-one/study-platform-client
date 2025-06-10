@@ -7,8 +7,8 @@ import Dropdown from '@/shared/ui/dropdown';
 import MultiDropdown from '@/shared/ui/dropdown/multi';
 import { Modal } from '@/shared/ui/modal';
 import { ToggleButton } from '@/shared/ui/toggle/button';
-import EditInput from '../../shared/ui/input/edit';
-import ProfileInfoEditCard from '../../widgets/my-page/Profileinfo-edit-card';
+import EditInput from '../../../shared/ui/input/edit';
+import ProfileInfoEditCard from '../../../widgets/my-page/Profileinfo-edit-card';
 
 interface Props {
   onSubmit: () => void;

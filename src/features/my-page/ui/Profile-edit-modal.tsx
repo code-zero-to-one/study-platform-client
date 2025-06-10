@@ -1,7 +1,7 @@
 import { XIcon } from 'lucide-react';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
-import ProfileEditCard from '../../widgets/my-page/Profile-edit-card';
+import ProfileEditCard from '../../../widgets/my-page/Profile-edit-card';
 
 interface Props {
   onSubmit: () => void;
