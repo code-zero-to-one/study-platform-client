@@ -2,7 +2,7 @@ import axios from 'axios';
 import { getCookie, setCookie } from './cookie';
 
 export const axiosInstance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -46,10 +46,10 @@ axiosInstance.interceptors.response.use(
       try {
         // 토큰 갱신 요청시에는 기존 인터셉터를 사용하지 않는 새로운 axios 인스턴스 사용
         const refreshApi = axios.create({
-          baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+          baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
         });
 
-        const res = await refreshApi.get('/api/v1/auth/access-token/refresh');
+        const res = await refreshApi.get('/auth/access-token/refresh');
         const newAccessToken = res.data.accessToken;
 
         if (newAccessToken) {
@@ -71,7 +71,7 @@ axiosInstance.interceptors.response.use(
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    console.log("요청 헤더 확인", config.headers.Authorization);
+    console.log("요청 헤더 확인", config.headers);
 
     return config;
   },

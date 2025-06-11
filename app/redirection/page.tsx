@@ -16,6 +16,10 @@ function RedirectionContent() {
         const accessToken = decodeURIComponent(searchParams.get('access-token') || '');
         const isGuest = searchParams.get('is-guest');
 
+        searchParams.forEach((value, key) => {
+          console.log(key, value);
+        });
+
         setCookie("accessToken", accessToken);
         setCookie("memberId", searchParams.get('member-id') || '');
 
@@ -26,6 +30,7 @@ function RedirectionContent() {
           // 회원일 경우 쿼리 캐시 무효화
           await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
           await router.push('/');
+          await router.refresh();
         }
       } catch (error) {
         console.error('Redirection failed:', error);

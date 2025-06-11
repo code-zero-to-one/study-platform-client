@@ -36,6 +36,11 @@ interface CookieOptions {
   
   // 쿠키 조회
   export const getCookie = (name: string): string | undefined => {
+    // 서버 사이드에서 쿠키 조회를 할 때 발생하는 ReferenceError: document is not defined 에러방지
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) {
