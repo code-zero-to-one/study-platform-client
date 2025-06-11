@@ -1,7 +1,7 @@
 import { cn } from '@/shared/shadcn/lib/utils';
 import { Input as ShadcnInput } from '@/shared/shadcn/ui/input';
 
-export default function Input({
+export default function BaseInputProvider({
   className,
   ...props
 }: React.ComponentProps<typeof ShadcnInput>) {
@@ -15,3 +15,7 @@ export default function Input({
     />
   );
 }
+
+export const BaseInput = {
+  Provider: BaseInputProvider,
+} as const;

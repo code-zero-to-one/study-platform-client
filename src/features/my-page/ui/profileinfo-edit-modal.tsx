@@ -3,12 +3,11 @@
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import Button from '@/shared/ui/button';
-import Dropdown from '@/shared/ui/dropdown';
-import MultiDropdown from '@/shared/ui/dropdown/multi';
+import { SingleDropdown, MultiDropdown } from '@/shared/ui/dropdown';
+import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import { ToggleButton } from '@/shared/ui/toggle/button';
-import EditInput from '../../../shared/ui/input/edit';
-import ProfileInfoEditCard from '../../../widgets/my-page/Profileinfo-edit-card';
+import ProfileInfoEditCard from '@/widgets/my-page/Profileinfo-edit-card';
 
 interface Props {
   onSubmit: () => void;
@@ -65,14 +64,14 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
           <Modal.Body>
             <div className="flex flex-col gap-300">
               <ProfileInfoEditCard title="자기소개">
-                <EditInput
+                <TextAreaInput.Provider
                   placeholder="입력하세요."
                   guideText="간단한 자기소개를 입력해 주세요."
                   maxLength={30}
                 />
               </ProfileInfoEditCard>
               <ProfileInfoEditCard title="공부 주제 및 계획" isRequired>
-                <EditInput
+                <TextAreaInput.Provider
                   placeholder="입력하세요."
                   guideText="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
                   maxLength={30}
@@ -80,7 +79,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
               </ProfileInfoEditCard>
               <ProfileInfoEditCard title="선호하는 스터디 주제" isRequired>
                 <div className="flex flex-col gap-[6px]">
-                  <Dropdown
+                  <SingleDropdown.Provider
                     defaultValue="cs-basic"
                     options={[
                       {
@@ -116,7 +115,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
               </ProfileInfoEditCard>
 
               <ProfileInfoEditCard title="사용 가능한 기술 스택" isRequired>
-                <MultiDropdown
+                <MultiDropdown.Provider
                   options={skillOptions}
                   selected={selectedSkills}
                   onChange={setSelectedSkills}

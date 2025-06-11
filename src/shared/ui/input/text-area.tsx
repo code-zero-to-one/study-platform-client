@@ -1,31 +1,25 @@
-import { useState } from 'react';
 import { Textarea } from '@/shared/shadcn/ui/textarea';
 
 interface Props {
-  defaultValue?: string;
+  value: string;
   placeholder?: string;
   guideText?: string;
   maxLength?: number;
   onChange?: (value: string) => void;
 }
 
-export default function ProfileInfoEditInput({
-  defaultValue,
+export default function TextAreaInputProvider({
+  value,
   placeholder,
   guideText,
   maxLength = 30,
   onChange,
 }: Props) {
-  const [value, setValue] = useState(defaultValue);
-  const [count, setCount] = useState(0);
-
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length > maxLength) {
       return;
     }
-    setValue(e.target.value);
     onChange?.(e.target.value);
-    setCount(e.target.value.length);
   };
 
   return (
@@ -37,11 +31,15 @@ export default function ProfileInfoEditInput({
         onChange={handleChange}
       />
       <div className='flex justify-between'>
-        <div className='font-designer-14m text-text-subtle'>{guideText}</div>
-        <div className='font-designer-14m text-text-subtle'>
-          {count}/{maxLength}
+        <div className='font-designer-13r text-text-subtle'>{guideText}</div>
+        <div className='font-designer-13r text-text-subtle'>
+          {value.length}/{maxLength}
         </div>
       </div>
     </div>
   );
 }
+
+export const TextAreaInput = {
+  Provider: TextAreaInputProvider,
+} as const;

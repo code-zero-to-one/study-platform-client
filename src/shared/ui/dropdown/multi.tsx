@@ -1,7 +1,7 @@
 'use client';
 
 import { XIcon, ChevronDown, ChevronUp } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import {
    DropdownMenu,
    DropdownMenuContent,
@@ -13,34 +13,39 @@ interface Option {
    label: string;
    value: string;
 }
-
 interface MultiDropdownProps {
    options: Option[];
-   selected: string[];
-   onChange: (selected: string[]) => void;
+   defaultValue?: string[];
+   onChange?: (selected: string[]) => void;
    placeholder?: string;
 }
 
-export default function MultiDropdown({
+export default function MultiDropdownProvider({
    options,
-   selected,
+   defaultValue = [],
    onChange,
    placeholder = '선택해주세요',
 }: MultiDropdownProps) {
    const [isOpen, setIsOpen] = useState(false);
    const [query, setQuery] = useState('');
+   const [selected, setSelected] = useState<string[]>(defaultValue);
 
    const handleAdd = (val: string) => {
-      onChange([...selected, val]);
+      const newSelected = [...selected, val];
+      setSelected(newSelected);
+      onChange?.(newSelected);
       setQuery('');
    };
 
    const handleRemove = (val: string) => {
-      onChange(selected.filter((v) => v !== val));
+      const newSelected = selected.filter((v) => v !== val);
+      setSelected(newSelected);
+      onChange?.(newSelected);
    };
 
    const handleClear = () => {
-      onChange([]);
+      setSelected([]);
+      onChange?.([]);
       setQuery('');
    };
 
@@ -100,7 +105,6 @@ export default function MultiDropdown({
             </div>
          </DropdownMenuTrigger>
 
-
          <DropdownMenuContent
             onClick={() => setIsOpen(false)}
             className="flex w-full flex-col gap-50 rounded-100 border border-border-default bg-background-default p-50 shadow-2"
@@ -110,19 +114,22 @@ export default function MultiDropdown({
                options.map((option) => (
                   <DropdownMenuItem
                      key={option.value}
-                     onClick={() => {
-                        handleAdd(option.value);
-                     }}
+                     onClick={() => handleAdd(option.value)}
                      className="h-[48px] w-full cursor-pointer p-150 active:bg-fill-neutral-subtle-pressed rounded-100"
                   >
                      <span className="font-designer-14m text-text-subtle ">
                         {option.label}
                      </span>
                   </DropdownMenuItem>
-               ))) : (
+               ))
+            ) : (
                <div className="px-4 py-2 text-sm text-gray-400">결과 없음</div>
             )}
          </DropdownMenuContent>
       </DropdownMenu>
    );
 }
+
+export const MultiDropdown = {
+   Provider: MultiDropdownProvider,
+} as const;

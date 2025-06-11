@@ -19,7 +19,7 @@ interface Props {
   onSelect: (value: string) => void;
 }
 
-export default function Dropdown({
+export default function SingleDropdownProvider({
   placeholder,
   options,
   defaultValue,
@@ -67,3 +67,7 @@ export default function Dropdown({
     </DropdownMenu>
   );
 }
+
+export const SingleDropdown = {
+  Provider: SingleDropdownProvider,
+} as const;

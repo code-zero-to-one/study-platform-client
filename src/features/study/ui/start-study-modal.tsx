@@ -5,9 +5,8 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
-import Chip from '@/shared/ui/chip';
-import Dropdown from '@/shared/ui/dropdown';
-import Input from '@/shared/ui/input';
+import { SingleDropdown, MultiDropdown } from '@/shared/ui/dropdown';
+import { BaseInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import { ToggleButton } from '@/shared/ui/toggle';
 
@@ -108,6 +107,13 @@ const TIME_SLOT_OPTIONS = [
    { key: 'flexible', label: '시간 협의 가능' },
 ];
 
+const skillOptions = [
+   { label: 'HTML/CSS', value: 'html' },
+   { label: 'JavaScript', value: 'js' },
+   { label: 'React', value: 'react' },
+   { label: 'Django', value: 'django' },
+   { label: 'MySQL', value: 'mysql' },
+];
 
 export default function StartStudyModal() {
    const [introduce, setIntroduce] = useState('');
@@ -118,6 +124,7 @@ export default function StartStudyModal() {
 
 
    const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
+   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
    const toggleTimeSlot = (key: string) => {
       setAvailableTimeSlots((prev) =>
@@ -187,9 +194,10 @@ export default function StartStudyModal() {
                         required
                         description="간단한 자기소개를 입력해 주세요."
                      >
-                        <Input
+                        <BaseInput.Provider
                            className="p-150 border border-border-default rounded-100"
-                           placeholder="신입 프론트엔드 개발자입니다. 리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
+                           placeholder="신입 프론트엔드 개발자입니다.
+                           리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
                            value={introduce}
                            onChange={(e) => setIntroduce(e.target.value)}
                         />
@@ -200,7 +208,7 @@ export default function StartStudyModal() {
                         required
                         description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
                      >
-                        <Input
+                        <BaseInput.Provider
                            className="p-150 border border-border-default rounded-100"
                            placeholder="CS 기본기를 탄탄하게 다지는 것이 목표입니다. 각자 맡은 주제를 정리하고 공유하는 방식으로 진행하고 싶어요."
                            value={studyPlan}
@@ -213,7 +221,7 @@ export default function StartStudyModal() {
                         required
                         description="관심 있는 스터디 유형을 선택해 주세요."
                      >
-                        <Dropdown
+                        <SingleDropdown.Provider
                            defaultValue="cs-basic"
                            options={[
                               { label: 'CS 기본기', value: 'cs-basic' },
@@ -248,14 +256,13 @@ export default function StartStudyModal() {
                         required
                         description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
                      >
-                        <div className="grid grid-cols-8 gap-100">
-                           <Chip text="React" isActive />
-                           <Chip text="Next.js" />
-                           <Chip text="TypeScript" isActive />
-                           <Chip text="Node.js" />
-                           <Chip text="Flutter" />
-                           <Chip text="Java" />
-                        </div>
+                        <MultiDropdown.Provider
+                           options={skillOptions}
+                           onChange={(newSelected) => {
+                              setSelectedSkills(newSelected);
+                           }}
+                           placeholder="기술을 선택해주세요"
+                        />
                      </LabeledField>
 
                      <LabeledField
@@ -263,7 +270,7 @@ export default function StartStudyModal() {
                         required
                         description="스터디 진행을 위해 연락 가능한 정보를 입력해 주세요. 입력하신 정보는 매칭된 스터디원에게만 제공되며, 외부에는 노출되지 않습니다."
                      >
-                        <Input
+                        <BaseInput.Provider
                            className="p-150 border border-border-default rounded-100"
                            placeholder="010-1234-5678"
                            value={phoneNumber}
@@ -275,7 +282,7 @@ export default function StartStudyModal() {
                         label="GitHub"
                         description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
                      >
-                        <Input
+                        <BaseInput.Provider
                            className="p-150 border border-border-default rounded-100"
                            placeholder="https://github.com/@zero-one"
                            value={github}
@@ -287,7 +294,7 @@ export default function StartStudyModal() {
                         label="블로그/SNS 등 링크"
                         description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
                      >
-                        <Input
+                        <BaseInput.Provider
                            className="p-150 border border-border-default rounded-100"
                            placeholder="https://velog.io/@zero-one"
                            value={blog}
