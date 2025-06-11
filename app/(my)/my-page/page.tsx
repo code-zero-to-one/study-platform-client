@@ -1,5 +1,5 @@
-import Profile from '@/features/my-page/profile';
-import ProfileInfo from '@/features/my-page/profileinfo';
+import Profile from '@/features/my-page/ui/profile';
+import ProfileInfo from '@/features/my-page/ui/profileinfo';
 
 export default function MyPage() {
   return (
