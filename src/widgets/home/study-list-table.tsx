@@ -1,11 +1,9 @@
-'use client';
-
 import { useDailyStudiesQuery } from '@/features/study/model/use-study-query';
 import UserAvatar from '@/shared/ui/avatar';
 import { Badge } from "@/shared/ui/badge/index";
 import TableList from "@/shared/ui/table";
 import LinkIcon from "public/icons/Link.svg";
-import { DailyStudy, StudyProgressStatus } from '../api/types';
+import { DailyStudy, StudyProgressStatus } from '../../features/study/api/types';
 
 const headers = ["조", "지원자", "면접관", "면접 주제", "피드백", "진행 상태", "참고 자료"] as const;
 type Header = (typeof headers)[number];
