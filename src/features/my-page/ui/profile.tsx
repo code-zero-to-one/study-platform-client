@@ -31,7 +31,9 @@ export default function Profile() {
         <div className="flex flex-col gap-300">
           <div className="flex flex-col gap-75">
             <div className="flex gap-50">
-              <Badge color="orange">{userProfile.memberProfile.mbti}</Badge>
+              {userProfile.memberProfile.mbti && (
+                <Badge color="orange">{userProfile.memberProfile.mbti}</Badge>
+              )}
               {userProfile.memberProfile.interests.slice(0, 4).map((interest) => (
                 <Badge key={interest.id} color="purple">
                   {interest.name}
