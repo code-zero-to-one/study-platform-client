@@ -1,31 +1,70 @@
-import Input from '@/shared/ui/input';
+import { MultiDropdown } from '@/shared/ui/dropdown';
+import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 
-interface Props {
-  title: string;
-  description: string;
+type InputType = 'text' | 'textarea' | 'dropdown';
+
+interface FormFieldProps<T> {
+  label: string;
+  description?: string;
+  type: InputType;
   required?: boolean;
+  options?: { label: string; value: string }[];
+  value: T;
+  onChange: (value: T) => void;
 }
 
-export default function ProfileEditCard({
-  title,
-  description,
-  required = false,
-}: Props) {
+export function FormField<T>({
+  label, description, type, required = false, options = [], value, onChange
+}: FormFieldProps<T>) {
+
+  const renderInput = () => {
+    switch (type) {
+      case 'text':
+        return (
+          <>
+            <BaseInput.Provider
+              placeholder="입력하세요."
+              value={value as string}
+              onChange={(e) => onChange(e.target.value as T)}
+            />
+            {description && (
+              <div className="font-designer-13r text-text-subtle">{description}</div>
+            )}
+          </>
+        );
+      case 'textarea':
+        return (
+          <TextAreaInput.Provider
+            placeholder="입력하세요."
+            guideText={description}
+            value={value as string}
+            onChange={(e) => onChange(e as T)}
+          />
+        );
+      case 'dropdown':
+        return (
+          <MultiDropdown.Provider
+            options={options}
+            defaultValue={value as string[]}
+            onChange={(v) => onChange(v as T)}
+            placeholder="선택해주세요"
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="flex">
-      <div className="flex w-[112px] gap-[8px] pt-[8px]">
-        <div className="text-[14px] leading-[22px] font-[700]">{title}</div>
+    <div className="flex gap-600">
+      <div className="flex w-[112px] gap-100 pt-100">
+        <div className="font-designer-14b">{label}</div>
         {required && (
-          <div className="text-[12px] leading-[18px] font-[500] text-[var(--color-text-error)]">
-            필수
-          </div>
+          <div className="font-designer-13r text-text-error">필수</div>
         )}
       </div>
-      <div className="flex flex-col gap-[6px]">
-        <Input placeholder="입력하세요." />
-        <div className="text-[13px] leading-[20px] font-[400] text-[var(--color-text-subtlest)]">
-          {description}
-        </div>
+      <div className="flex flex-col gap-75 w-full">
+        {renderInput()}
       </div>
     </div>
   );
