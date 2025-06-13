@@ -24,7 +24,9 @@ export default async function Sidebar() {
       <aside className="flex flex-col gap-300">
          <UserProfileCard
             name={userProfile?.memberProfile.memberName || '비회원'}
-            imageUrl={userProfile?.memberProfile.profileImage.resizedImages[0]?.resizedImageUrl || ''}
+            // 프로필 오류로 인한 임시
+            // imageUrl={userProfile?.memberProfile.profileImage.resizedImages[0]?.resizedImageUrl || ''}
+            imageUrl={''}
             matching={userProfile?.autoMatching ?? false}
             subject={userProfile?.memberInfo.preferredStudySubject?.name ?? '선택안함'}
             time={userProfile?.memberInfo.availableStudyTimes?.length
