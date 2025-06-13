@@ -1,17 +1,15 @@
-// features/user-profile/api/types.ts
-
 export interface TechStack {
   techStackId: number;
   code: string;
   techStackName: string;
-  parentId: number | null;
+  parentId: number | undefined;
   level: number;
 }
 
 export interface AvailableStudyTime {
   id: number;
-  fromTime: string | null;
-  toTime: string | null;
+  fromTime: string | undefined;
+  toTime: string | undefined;
   label: string;
   fullLabel: string;
 }
@@ -41,8 +39,8 @@ export interface ResizedImage {
   resizedImageUrl: string;
   imageSizeType: {
     imageTypeName: string;
-    width: number | null;
-    height: number | null;
+    width: number | undefined;
+    height: number | undefined;
   };
 }
 
@@ -69,8 +67,8 @@ export interface MemberProfile {
   interests: Interest[];
   hobbies: Hobby[];
   birthDate: string;
-  githubLink: SocialLink | null;
-  blogOrSnsLink: SocialLink | null;
+  githubLink: SocialLink | undefined;
+  blogOrSnsLink: SocialLink | undefined;
   tel: string;
 }
 

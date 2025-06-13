@@ -12,7 +12,7 @@ export interface DailyStudy {
   intervieweeImage: string;
   dailyStudyId: number;
   subject: string;
-  feedback: string | null;
+  feedback: string | undefined;
   progressStatus: StudyProgressStatus;
   link: string;
 }
