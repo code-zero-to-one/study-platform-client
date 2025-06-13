@@ -30,14 +30,13 @@ export default function Profile() {
       <div className="flex flex-col gap-400">
         <div className="flex flex-col gap-300">
           <div className="flex flex-col gap-75">
-            {/* 배찌들 */}
             <div className="flex gap-50">
-              <Badge color='orange'>ENFJ</Badge>
-              <Badge color='orange'>IT</Badge>
-              <Badge color='gray'>AI</Badge>
-              <Badge color='gray'>Back-end</Badge>
-              <Badge color='purple'>플라잉요가</Badge>
-              <Badge color='purple'>사진</Badge>
+              <Badge color="orange">{userProfile.memberProfile.mbti}</Badge>
+              {userProfile.memberProfile.interests.slice(0, 4).map((interest) => (
+                <Badge key={interest.id} color="purple">
+                  {interest.name}
+                </Badge>
+              ))}
             </div>
             <div className="font-designer-28b">
               {userProfile.memberProfile.memberName}
