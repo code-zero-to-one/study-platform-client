@@ -10,7 +10,7 @@ export const getDailyStudyDetail = async (
 ): Promise<DailyStudy> => {
   const res = await axiosInstance.get(`/study/daily/${dailyId}`);
 
-  return res.data;
+  return res.data.content;
 };
 
 export const getDailyStudies = async (
