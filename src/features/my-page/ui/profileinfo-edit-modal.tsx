@@ -31,7 +31,9 @@ const skillOptions = [
 ];
 
 export default function ProfileInfoEditModal({ onSubmit }: Props) {
-
+  const [selfIntroduction, setSelfIntroduction] = useState('');
+  const [studyPlan, setStudyPlan] = useState('');
+  const [preferredSubject, setPreferredSubject] = useState('cs-basic');
   const [availableTimeSlots, setAvailableTimeSlots] = useState<string[]>([]);
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
 
@@ -65,6 +67,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
             <div className="flex flex-col gap-300">
               <ProfileInfoEditCard title="자기소개">
                 <TextAreaInput.Provider
+                  value={selfIntroduction}
                   placeholder="입력하세요."
                   guideText="간단한 자기소개를 입력해 주세요."
                   maxLength={30}
@@ -72,6 +75,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
               </ProfileInfoEditCard>
               <ProfileInfoEditCard title="공부 주제 및 계획" isRequired>
                 <TextAreaInput.Provider
+                  value={studyPlan}
                   placeholder="입력하세요."
                   guideText="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
                   maxLength={30}
@@ -117,7 +121,7 @@ export default function ProfileInfoEditModal({ onSubmit }: Props) {
               <ProfileInfoEditCard title="사용 가능한 기술 스택" isRequired>
                 <MultiDropdown.Provider
                   options={skillOptions}
-                  selected={selectedSkills}
+                  defaultValue={selectedSkills}
                   onChange={setSelectedSkills}
                   placeholder="기술을 선택해주세요"
                 />

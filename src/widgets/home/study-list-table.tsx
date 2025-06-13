@@ -35,7 +35,7 @@ function mapDailyStudyToDisplayData(row: DailyStudy, index: number): Record<Head
          </div>,
       "면접 주제": row.subject,
       "피드백": <p className="max-w-[300px] text-sm text-text-default line-clamp-2">
-         {row.feedBack ?? "-"}
+         {row.feedback ?? "-"}
       </p>,
       "진행 상태": statusBadgeMap[row.progressStatus],
       "참고 자료": row.link ? (
