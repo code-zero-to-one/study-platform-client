@@ -48,13 +48,16 @@ function mapDailyStudyToDisplayData(row: DailyStudy, index: number): Record<Head
 
 
 export default function StudyListSection({ date }: Props) {
+   const year = date.getFullYear();
+   const month = date.getMonth() + 1;
+   const day = date.getDate();
+
    const { data, isLoading, error } = useDailyStudiesQuery({
       cursor: 0,
       pageSize: 10,
-      year: 2025,
-      month: 5,
-      day: 10
-
+      year,
+      month,
+      day,
    });
 
    if (isLoading) return <div>로딩 중...</div>;
