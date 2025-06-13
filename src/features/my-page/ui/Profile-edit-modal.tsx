@@ -2,6 +2,7 @@
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { FormField } from '../../../widgets/my-page/Profile-edit-card';
@@ -23,7 +24,7 @@ const skillOptions = [
 
 
 export default function ProfileEditModal({ onSubmit }: Props) {
-  const memberId = 1;
+  const memberId = Number(getCookie('memberId'));
 
   const [name, setName] = useState('');
   const [tel, setTel] = useState('');
@@ -35,6 +36,18 @@ export default function ProfileEditModal({ onSubmit }: Props) {
 
 
   const handleSubmit = async () => {
+    if (
+      !name ||
+      !tel ||
+      !mbti ||
+      !simpleIntroduction ||
+      interests.length === 0
+    ) {
+      alert("모든 필수 정보를 입력해주세요!");
+
+      return;
+    }
+
     const formData: UpdateUserProfileRequest = {
       name,
       tel,
@@ -47,12 +60,7 @@ export default function ProfileEditModal({ onSubmit }: Props) {
       hobbies: [],  // 임시 생략
     };
 
-    try {
-      await updateUserProfile(memberId, formData);
-      console.log('수정 완료!');
-    } catch (err) {
-      console.error('수정 실패:', err);
-    }
+    onSubmit(formData);
   };
 
 

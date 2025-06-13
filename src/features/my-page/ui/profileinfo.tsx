@@ -1,18 +1,14 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { getUserProfile } from '@/entities/user/api/get-user-profile';
+import { MemberInfo } from '@/entities/user/api/types';
 import ProfileInfoEditModal from '@/features/my-page/ui/profileinfo-edit-modal';
 import ProfileInfoCard from '@/widgets/my-page/profileinfo-card';
 
-export default function ProfileInfo() {
-  const memberId = 1;
-  const { data: userProfile } = useQuery({
-    queryKey: ['userProfile', memberId],
-    queryFn: () => getUserProfile(memberId),
-  });
+interface ProfileInfoProps {
+  memberInfo: MemberInfo;
+}
 
-  if (!userProfile) return null;
+export default function ProfileInfo({ memberInfo }: ProfileInfoProps) {
 
   return (
     <div className="flex flex-col items-start gap-[40px] border-t border-border-subtle pt-200">
@@ -24,30 +20,30 @@ export default function ProfileInfo() {
 
         <ProfileInfoCard
           title="자기소개"
-          content={userProfile.memberInfo.selfIntroduction}
+          content={memberInfo.selfIntroduction}
         />
 
         <ProfileInfoCard
           title="공부 주제 및 계획"
-          content={userProfile.memberInfo.studyPlan}
+          content={memberInfo.studyPlan}
         />
 
         <ProfileInfoCard
           title="선호하는 스터디 주제"
-          content={userProfile.memberInfo.preferredStudySubject?.name}
+          content={memberInfo.preferredStudySubject?.name}
         />
 
         <ProfileInfoCard
           title="가능 시간대"
-          content={userProfile.memberInfo.availableStudyTimes && userProfile.memberInfo.availableStudyTimes.length > 0
-            ? userProfile.memberInfo.availableStudyTimes.map(time => time.fullLabel).join(', ')
+          content={memberInfo.availableStudyTimes && memberInfo.availableStudyTimes.length > 0
+            ? memberInfo.availableStudyTimes.map(time => time.fullLabel).join(', ')
             : '선택안함'}
         />
 
         <ProfileInfoCard
           title="기술 스택"
-          content={userProfile.memberInfo.techStacks && userProfile.memberInfo.techStacks.length > 0
-            ? userProfile.memberInfo.techStacks.map(tech => tech.techStackName).join(', ')
+          content={memberInfo.techStacks && memberInfo.techStacks.length > 0
+            ? memberInfo.techStacks.map(tech => tech.techStackName).join(', ')
             : '선택안함'}
         />
       </div>
