@@ -1,11 +1,21 @@
 import axios from 'axios';
 import { getCookie, setCookie } from './cookie';
 
+// json 요청용
 export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
+  },
+});
+
+// blob 요청용 (파일 업로드용)
+export const axiosInstanceForBlob = axios.create({
+  baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/octet-stream',
   },
 });
 
