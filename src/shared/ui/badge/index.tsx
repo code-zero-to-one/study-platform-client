@@ -6,7 +6,7 @@ import * as React from 'react'
 import { cn } from '@/shared/shadcn/lib/utils'
 
 const badgeVariants = cva(
-   'inline-flex min-w-[24px] px-[6px] py-[2.5px] justify-center items-center gap-[2px] text-xs font-medium whitespace-nowrap',
+   'inline-flex min-w-[24px] px-100 py-50 justify-center items-center gap-[2px] text-xs font-medium whitespace-nowrap',
    {
       variants: {
          color: {
