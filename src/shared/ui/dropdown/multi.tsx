@@ -11,12 +11,13 @@ import {
 
 interface Option {
    label: string;
-   value: string;
+   value: string | number;
 }
+
 interface MultiDropdownProps {
    options: Option[];
-   defaultValue?: string[];
-   onChange?: (selected: string[]) => void;
+   defaultValue?: (string | number)[];
+   onChange?: (selected: (string | number)[]) => void;
    placeholder?: string;
 }
 
@@ -28,7 +29,7 @@ export default function MultiDropdownProvider({
 }: MultiDropdownProps) {
    const [isOpen, setIsOpen] = useState(false);
    const [query, setQuery] = useState('');
-   const [selected, setSelected] = useState<string[]>(defaultValue);
+   const [selected, setSelected] = useState<(string | number)[]>(defaultValue);
 
    const handleAdd = (val: string) => {
       const newSelected = [...selected, val];

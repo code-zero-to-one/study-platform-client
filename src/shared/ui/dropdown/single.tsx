@@ -9,32 +9,33 @@ import {
 
 interface Option {
   label: string;
-  value: string;
+  value: string | number;
 }
 
 interface Props {
   options: Option[];
-  defaultValue?: string;
+  defaultValue?: string | number;
   placeholder?: string;
-  onSelect: (value: string) => void;
+  onChange: (value: string | number) => void;
 }
 
 export default function SingleDropdownProvider({
   placeholder,
   options,
   defaultValue,
-  onSelect,
+  onChange,
 }: Props) {
-  const [selectedValue, setSelectedValue] = useState(defaultValue);
+  const [selectedValue, setSelectedValue] = useState<string | number | undefined>(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((option) => option.value === selectedValue);
+  const displayText = selectedOption?.label || placeholder;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger className="w-full focus:outline-none">
         <div className="flex w-full items-center justify-between rounded-150 px-150 h-[48px] border border-border-default bg-fill-neutral-subtle-default">
-          <span className="font-designer-14m text-text-subtle">
-            {options.find((option) => option.value === selectedValue)?.label ||
-              placeholder}
+          <span className={`font-designer-14m ${selectedOption ? 'text-text-subtle' : 'text-text-subtlest'}`}>
+            {displayText}
           </span>
           {isOpen ? (
             <ChevronUp className="size-4" />
@@ -54,11 +55,11 @@ export default function SingleDropdownProvider({
             key={option.value}
             onClick={() => {
               setSelectedValue(option.value);
-              onSelect(option.value);
+              onChange(option.value);
             }}
             className="h-[48px] w-full cursor-pointer p-150 active:bg-fill-neutral-subtle-pressed rounded-100"
           >
-            <span className="font-designer-14m text-text-subtle ">
+            <span className="font-designer-14m ">
               {option.label}
             </span>
           </DropdownMenuItem>
