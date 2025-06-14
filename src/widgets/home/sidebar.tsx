@@ -15,7 +15,7 @@ export default function Sidebar() {
       <aside className="flex flex-col gap-300">
          <UserProfileCard
             name={memberInfo.data?.content?.memberProfile.memberName || '비회원'}
-            imageUrl={memberInfo.data?.content?.memberProfile.profileImage.resizedImages[0].resizedImageUrl || ''}
+            imageUrl={memberInfo.data?.content?.memberProfile.profileImage?.resizedImages[0].resizedImageUrl || ''}
             matching={true}
             subject="CS DeepDive"
             time="오전, 심야"
