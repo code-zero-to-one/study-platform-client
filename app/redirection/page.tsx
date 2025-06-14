@@ -16,9 +16,12 @@ function RedirectionContent() {
         const accessToken = decodeURIComponent(searchParams.get('access-token') || '');
         const isGuest = searchParams.get('is-guest');
 
+        searchParams.forEach((value, key) => {
+          console.log(key, value);
+        });
+
         setCookie("accessToken", accessToken);
         setCookie("memberId", searchParams.get('member-id') || '');
-        setCookie("socialImageURL", searchParams.get('profile-image-url') || '');
 
         if (isGuest === 'true') {
           // 비회원일 경우 회원가입 페이지로 이동

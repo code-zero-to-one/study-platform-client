@@ -8,7 +8,6 @@ import {
 } from '@/features/auth/model/useAuthMutation';
 import SignupImageSelector from './SignupImageSelector';
 import SignupNameInput from './SignupNameInput';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 
 export default function SignupModal({
   open,
@@ -19,7 +18,7 @@ export default function SignupModal({
 }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const [image, setImage] = useState(getCookie('socialImageURL') || '/profile-default.svg');
+  const [image, setImage] = useState('/images/profile-default.svg');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const signUp = useSignUpMutation();
@@ -57,17 +56,15 @@ export default function SignupModal({
         // 회원가입 성공 시 프로필 이미지 업로드
         onSuccess: (data) => {
           if (data && data.content.generatedMemberId) {
-            // 백엔드 서버에서 multipart 가 아닌 inputstream 으로 받음에 따라 바이너리로 변경
-            // const formData = new FormData();
+            const formData = new FormData();
 
             if (fileInputRef.current?.files?.[0]) {
-              // formData.append('image', fileInputRef.current.files[0]);
+              formData.append('image', fileInputRef.current.files[0]);
 
               uploadProfileImage.mutate({
                 memberId: Number(data.content.generatedMemberId),
-                filename: `profile-${data.content.generatedMemberId}.jpg`,
-                // formData: formData,
-                file: fileInputRef.current.files[0],
+                filename: 'profile.jpg',
+                formData: formData,
               });
             }
 
