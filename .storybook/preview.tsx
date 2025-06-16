@@ -3,7 +3,7 @@ import '../app/global.css';
 import React from 'react';
 import '../app/global.css';
 
-import QueryProvider from '../src/app/provider/queryProvider';
+import QueryProvider from '../src/app/provider/query-provider';
 
 import type { Preview } from '@storybook/react';
 
