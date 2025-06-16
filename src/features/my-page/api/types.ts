@@ -55,3 +55,11 @@ export interface StudySubjectResponse {
   studySubjectId: string;
   name: string;
 }
+
+export interface TechStackResponse {
+  techStackId: number;
+  code: string;
+  techStackName: string;
+  parentId: number | undefined;
+  level: number;
+}

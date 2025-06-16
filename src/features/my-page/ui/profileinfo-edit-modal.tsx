@@ -10,50 +10,13 @@ import { UpdateUserProfileInfoRequest } from '../api/types';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
+  useTechStacksQuery,
 } from '../model/use-update-user-profile-mutation';
 
 interface Props {
   memberInfo: MemberInfo;
   onSubmit: (formData: UpdateUserProfileInfoRequest) => void;
 }
-
-const techStackOptions = [
-  {
-    techStackId: 1,
-    code: 'BCD',
-    techStackName: 'Back-end',
-    parentId: null,
-    level: 1,
-  },
-  {
-    techStackId: 2,
-    code: 'KFK',
-    techStackName: 'Apache Kafka',
-    parentId: 1,
-    level: 2,
-  },
-  { techStackId: 3, code: 'JV', techStackName: 'Java', parentId: 1, level: 2 },
-  {
-    techStackId: 4,
-    code: 'SPR',
-    techStackName: 'Spring Framework',
-    parentId: 1,
-    level: 2,
-  },
-  {
-    techStackId: 5,
-    code: 'SPJ',
-    techStackName: 'Spring Data JPA',
-    parentId: 4,
-    level: 3,
-  },
-];
-
-// const studySubjectOptions = [
-//   { studySubjectId: 'CS_DEEP', studySubjectName: 'CS Deep Dive' },
-//   { studySubjectId: 'BACKEND_DEEP', studySubjectName: 'Back-end Deep Dive' },
-//   { studySubjectId: 'FRONTEND_DEEP', studySubjectName: 'Front-end Deep Dive' },
-// ];
 
 export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
   const [selfIntroduction, setSelfIntroduction] = useState(
@@ -85,6 +48,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
 
   const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
   const { data: studySubjects } = useStudySubjectsQuery();
+  const { data: techStacks } = useTechStacksQuery();
 
   return (
     <Modal.Provider>
@@ -128,7 +92,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
               <FormField
                 label="선호하는 스터디 주제"
                 type="singledropdown"
-                description="자신의 성격 유형을 입력해 주세요."
+                description="관심있는 스터디 유형을 선택해주세요."
                 value={preferredSubject}
                 onChange={setPreferredSubject}
                 direction="vertical"
@@ -162,7 +126,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
                 onChange={setSelectedSkills}
                 direction="vertical"
                 required
-                options={techStackOptions.map(
+                options={(techStacks ?? []).map(
                   ({ techStackId, techStackName }) => ({
                     value: techStackId,
                     label: techStackName,

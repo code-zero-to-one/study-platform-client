@@ -7,6 +7,7 @@ import {
 import {
   getAvailableStudyTimes,
   getStudySubjects,
+  getTechStacks,
   updateUserProfile,
   updateUserProfileInfo,
 } from '../api/update-user-profile';
@@ -48,5 +49,12 @@ export const useStudySubjectsQuery = () => {
   return useQuery({
     queryKey: ['studySubjects'],
     queryFn: getStudySubjects,
+  });
+};
+
+export const useTechStacksQuery = () => {
+  return useQuery({
+    queryKey: ['techStacks'],
+    queryFn: getTechStacks,
   });
 };
