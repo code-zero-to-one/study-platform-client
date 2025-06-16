@@ -1,18 +1,13 @@
 import { redirect } from 'next/navigation';
 import StudyCard from '@/features/study/ui/study-card';
-import { getServerCookie } from '@/shared/lib/server-cookie';
+import { getLoginUserId } from '@/shared/lib/get-login-user';
 import Banner from '@/widgets/home/banner';
 import Sidebar from '@/widgets/home/sidebar';
 
 export default async function Home() {
-  const memberIdStr = await getServerCookie('memberId');
+  const memberId = await getLoginUserId();
 
-  if (!memberIdStr) {
-    redirect('/login');
-  }
-  const memberId = Number(memberIdStr);
-
-  if (isNaN(memberId) || memberId <= 0) {
+  if (!memberId) {
     redirect('/login');
   }
 

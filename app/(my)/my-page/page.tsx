@@ -1,14 +1,14 @@
+import { redirect } from 'next/navigation';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 import Profile from '@/features/my-page/ui/profile';
 import ProfileInfo from '@/features/my-page/ui/profileinfo';
-import { getServerCookie } from '@/shared/lib/server-cookie';
+import { getLoginUserId } from '@/shared/lib/get-login-user';
 
 export default async function MyPage() {
-  const memberIdStr = await getServerCookie('memberId');
-  const memberId = Number(memberIdStr ?? 0);
+  const memberId = await getLoginUserId();
 
   if (!memberId) {
-    return <div>로그인이 필요합니다.</div>;
+    redirect('/login');
   }
 
   const userProfile = await getUserProfile(memberId);
