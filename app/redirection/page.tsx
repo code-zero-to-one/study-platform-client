@@ -13,15 +13,17 @@ function RedirectionContent() {
   useEffect(() => {
     const handleRedirection = async () => {
       try {
-        const accessToken = decodeURIComponent(searchParams.get('access-token') || '');
+        const accessToken = decodeURIComponent(
+          searchParams.get('access-token') || '',
+        );
         const isGuest = searchParams.get('is-guest');
 
         searchParams.forEach((value, key) => {
           console.log(key, value);
         });
 
-        setCookie("accessToken", accessToken);
-        setCookie("memberId", searchParams.get('member-id') || '');
+        setCookie('accessToken', accessToken);
+        setCookie('memberId', searchParams.get('member-id') || '');
 
         if (isGuest === 'true') {
           // 비회원일 경우 회원가입 페이지로 이동
@@ -29,7 +31,7 @@ function RedirectionContent() {
         } else {
           // 회원일 경우 쿼리 캐시 무효화
           await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
-          await router.push('/');
+          window.location.href = '/';
           await router.refresh();
         }
       } catch (error) {
@@ -43,7 +45,7 @@ function RedirectionContent() {
   return <div>처리중...</div>;
 }
 
-// useSearchParams() should be wrapped in a suspense boundary 
+// useSearchParams() should be wrapped in a suspense boundary
 export default function RedirectionPage() {
   return (
     <Suspense fallback={<div>로딩중...</div>}>

@@ -19,7 +19,9 @@ export default function LoginModal({
   }, []);
 
   // state가 없으면 로딩 또는 빈 화면 처리
-  if (!state) return null;
+  if (!state) {
+    return <div>로딩중...</div>;
+  }
 
   // TODO : 실제 백엔드에서 제공하는 URL로 교체필요
   const NAVER_LOGIN_URL = '';
