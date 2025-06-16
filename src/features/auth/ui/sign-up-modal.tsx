@@ -1,13 +1,13 @@
 import { XIcon } from 'lucide-react';
 import { useState, useRef } from 'react';
-import Button from '@/shared/ui/button';
-import { Modal } from '@/shared/ui/modal';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/features/auth/model/useAuthMutation';
-import SignupImageSelector from './SignupImageSelector';
-import SignupNameInput from './SignupNameInput';
+import Button from '@/shared/ui/button';
+import { Modal } from '@/shared/ui/modal';
+import SignupImageSelector from './sign-up-image-selector';
+import SignupNameInput from './sign-up-name-input';
 
 export default function SignupModal({
   open,

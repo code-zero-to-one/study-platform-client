@@ -3,7 +3,7 @@
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { Modal } from '../../shared/ui/modal';
+import { Modal } from '../../../shared/ui/modal';
 
 export default function LoginModal({
   open,
