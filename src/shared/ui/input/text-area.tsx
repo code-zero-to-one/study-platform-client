@@ -23,16 +23,16 @@ export default function TextAreaInputProvider({
   };
 
   return (
-    <div className='flex flex-col gap-75'>
+    <div className="flex flex-col gap-75">
       <Textarea
         placeholder={placeholder}
-        className='h-[60px] w-full rounded-100 border border-border-default p-150 focus-visible:ring-0 focus-visible:outline-none'
+        className="rounded-100 border-border-default h-[60px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none"
         value={value}
         onChange={handleChange}
       />
-      <div className='flex justify-between'>
-        <div className='font-designer-13r text-text-subtle'>{guideText}</div>
-        <div className='font-designer-13r text-text-subtle'>
+      <div className="font-designer-13r text-text-subtlest flex justify-between">
+        <div>{guideText}</div>
+        <div>
           {value.length}/{maxLength}
         </div>
       </div>

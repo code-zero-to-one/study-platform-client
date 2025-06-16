@@ -2,7 +2,12 @@ import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { ToggleButton } from '../toggle';
 
-type InputType = 'text' | 'textarea' | 'singledropdown' | 'multidropdown' | 'togglegroup';
+type InputType =
+  | 'text'
+  | 'textarea'
+  | 'singledropdown'
+  | 'multidropdown'
+  | 'togglegroup';
 
 interface FormFieldProps<T> {
   label: string;
@@ -10,17 +15,23 @@ interface FormFieldProps<T> {
   type: InputType;
   maxLength?: number;
   required?: boolean;
-  options?: { value: string | number, label: string }[]
+  options?: { value: string | number; label: string }[];
   value: T;
   direction?: 'horizontal' | 'vertical';
   onChange: (value: T) => void;
 }
 
-
 export function FormField<T>({
-  label, description, type, required = false, maxLength = 30, options = [], value, direction = 'horizontal', onChange
+  label,
+  description,
+  type,
+  required = false,
+  maxLength = 30,
+  options = [],
+  value,
+  direction = 'horizontal',
+  onChange,
 }: FormFieldProps<T>) {
-
   const renderInput = () => {
     switch (type) {
       case 'text':
@@ -32,7 +43,9 @@ export function FormField<T>({
               onChange={(e) => onChange(e.target.value as T)}
             />
             {description && (
-              <div className="font-designer-13r text-text-subtle">{description}</div>
+              <div className="font-designer-13r text-text-subtlest">
+                {description}
+              </div>
             )}
           </>
         );
@@ -56,7 +69,9 @@ export function FormField<T>({
               onChange={(v) => onChange(v as T)}
             />
             {description && (
-              <div className="font-designer-13r text-text-subtle">{description}</div>
+              <div className="font-designer-13r text-text-subtlest">
+                {description}
+              </div>
             )}
           </>
         );
@@ -70,47 +85,55 @@ export function FormField<T>({
               placeholder="선택해주세요"
             />
             {description && (
-              <div className="font-designer-13r text-text-subtle">{description}</div>
+              <div className="font-designer-13r text-text-subtlest">
+                {description}
+              </div>
             )}
           </>
         );
-      case 'togglegroup':
-        {
-          const toggleItem = (key: string | number) => {
-            const prev = value as (string | number)[];
-            const updated = prev.includes(key)
-              ? prev.filter((item) => item !== key)
-              : [...prev, key];
-            onChange(updated as T);
-          };
+      case 'togglegroup': {
+        const toggleItem = (key: string | number) => {
+          const prev = value as (string | number)[];
+          const updated = prev.includes(key)
+            ? prev.filter((item) => item !== key)
+            : [...prev, key];
+          onChange(updated as T);
+        };
 
-
-          return (
-            <div className="flex flex-wrap gap-100">
-              {options.map(({ value: optionValue, label }) => (
-                <ToggleButton.Provider
-                  key={optionValue}
-                  pressed={(value as (string | number)[]).map(String).includes(optionValue.toString())}
-                  onPressedChange={() => toggleItem(optionValue)}
-                >
-                  {label}
-                </ToggleButton.Provider>
-              ))}
-            </div>
-          );
-        }
+        return (
+          <div className="flex flex-wrap gap-100">
+            {options.map(({ value: optionValue, label }) => (
+              <ToggleButton.Provider
+                key={optionValue}
+                pressed={(value as (string | number)[])
+                  .map(String)
+                  .includes(optionValue.toString())}
+                onPressedChange={() => toggleItem(optionValue)}
+              >
+                {label}
+              </ToggleButton.Provider>
+            ))}
+          </div>
+        );
+      }
       default:
         return null;
     }
   };
 
   return (
-    <div className={`flex ${direction === 'vertical' ? 'flex-col gap-150' : 'gap-600'}`}>
-      <div className={`flex ${direction === 'vertical' ? 'w-full gap-75 items-center' : 'w-[112px] gap-100 pt-100'}`}>
+    <div
+      className={`flex ${direction === 'vertical' ? 'flex-col gap-150' : 'gap-600'}`}
+    >
+      <div
+        className={`flex ${direction === 'vertical' ? 'w-full items-center gap-75' : 'w-[112px] gap-100 pt-100'}`}
+      >
         <div className="font-designer-14b text-text-default">{label}</div>
-        {required && <div className="font-designer-13r text-text-error">필수</div>}
+        {required && (
+          <div className="font-designer-13r text-text-error">필수</div>
+        )}
       </div>
-      <div className="flex flex-col gap-75 w-full">{renderInput()}</div>
+      <div className="flex w-full flex-col gap-75">{renderInput()}</div>
     </div>
   );
 }
