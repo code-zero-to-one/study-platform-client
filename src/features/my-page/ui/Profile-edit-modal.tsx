@@ -2,12 +2,10 @@
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
-import { FormField } from '../../../widgets/my-page/Profile-edit-card';
+import { FormField } from '../../../shared/ui/form/form-field';
 import { UpdateUserProfileRequest } from '../api/types';
-import { updateUserProfile } from '../api/update-user-profile';
 
 interface Props {
   onSubmit: (formData: UpdateUserProfileRequest) => void;
@@ -21,11 +19,7 @@ const skillOptions = [
   { label: 'MySQL', value: 'MySQL' },
 ];
 
-
-
 export default function ProfileEditModal({ onSubmit }: Props) {
-  const memberId = Number(getCookie('memberId'));
-
   const [name, setName] = useState('');
   const [tel, setTel] = useState('');
   const [githubLink, setGithubLink] = useState('');
@@ -111,7 +105,7 @@ export default function ProfileEditModal({ onSubmit }: Props) {
                 value={mbti} onChange={setMbti}
               />
               <FormField
-                label="관심사" type="dropdown"
+                label="관심사" type="multidropdown"
                 value={interests} onChange={setInterests}
                 options={skillOptions}
               />

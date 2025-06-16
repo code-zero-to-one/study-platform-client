@@ -29,3 +29,19 @@ export interface UpdateUserProfileResponse {
     name: string;
   }[];
 }
+
+export interface UpdateUserProfileInfoRequest {
+  selfIntroduction: string;
+  studyPlan: string;
+  preferredStudySubject: string;
+  availableStudyTimeIds: number[];
+  techStackIds: number[];
+}
+
+export interface UpdateUserProfileInfoResponse {
+  memberId: number;
+  selfIntroduction: string;
+  studyPlan: string;
+  preferredStudySubjectId: string;
+  techStackIds: number[];
+}

@@ -3,19 +3,28 @@
 import { MemberInfo } from '@/entities/user/api/types';
 import ProfileInfoEditModal from '@/features/my-page/ui/profileinfo-edit-modal';
 import ProfileInfoCard from '@/widgets/my-page/profileinfo-card';
+import { UpdateUserProfileInfoRequest } from '../api/types';
+import { useUpdateUserProfileInfoMutation } from '../model/use-update-user-profile-mutation';
 
 interface ProfileInfoProps {
+  memberId: number;
   memberInfo: MemberInfo;
 }
 
-export default function ProfileInfo({ memberInfo }: ProfileInfoProps) {
+export default function ProfileInfo({ memberId, memberInfo }: ProfileInfoProps) {
+
+  const { mutate } = useUpdateUserProfileInfoMutation(memberId);
+
+  const handleSubmit = (formData: UpdateUserProfileInfoRequest) => {
+    mutate(formData);
+  };
 
   return (
     <div className="flex flex-col items-start gap-[40px] border-t border-border-subtle pt-200">
       <div className="flex flex-col gap-200 w-full">
         <div className="flex w-full items-center gap-150">
           <div className="font-designer-20b">내정보</div>
-          <ProfileInfoEditModal onSubmit={() => { }} />
+          <ProfileInfoEditModal memberInfo={memberInfo} onSubmit={handleSubmit} />
         </div>
 
         <ProfileInfoCard
