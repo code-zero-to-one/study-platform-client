@@ -1,13 +1,25 @@
+'use client';
+
 import { XIcon } from 'lucide-react';
-import Image from "next/image";
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 import { Modal } from '../../shared/ui/modal';
 
+export default function LoginModal({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const [state, setState] = useState<string | null>(null);
 
-export default function LoginModal({ open, onClose }: { open: boolean, onClose: () => void }) {
+  useEffect(() => {
+    setState(window.location.origin);
+  }, []);
 
-  console.log('window.location.origin',window.location.origin)
-  const state = window.location.origin
-
+  // state가 없으면 로딩 또는 빈 화면 처리
+  if (!state) return null;
 
   // TODO : 실제 백엔드에서 제공하는 URL로 교체필요
   const NAVER_LOGIN_URL = '';
@@ -21,19 +33,19 @@ export default function LoginModal({ open, onClose }: { open: boolean, onClose: 
         <Modal.Content>
           <Modal.Header>
             <div className="flex items-center justify-between">
-              <Modal.Title className="text-[#202020] text-center font-bold text-[32px] leading-[49px] font-['Pretendard'] w-full">
+              <Modal.Title className="w-full text-center font-['Pretendard'] text-[32px] leading-[49px] font-bold text-[#202020]">
                 로그인
               </Modal.Title>
               <Modal.Close>
                 <XIcon />
               </Modal.Close>
             </div>
-            <div className="text-center mt-2 text-[#252B37] text-[20px] font-medium leading-[30px]">
+            <div className="mt-2 text-center text-[20px] leading-[30px] font-medium text-[#252B37]">
               ZERO - ONE에 오신 것을 환영합니다.
             </div>
           </Modal.Header>
           <Modal.Body>
-            <div className="flex flex-col gap-[12px] mt-5 mb-5">
+            <div className="mt-5 mb-5 flex flex-col gap-[12px]">
               {/* <button
                 className="flex h-[52px] px-5 justify-center items-center gap-3 rounded bg-[#03C75A]"
                 onClick={() => { window.location.href = NAVER_LOGIN_URL }}
@@ -44,31 +56,47 @@ export default function LoginModal({ open, onClose }: { open: boolean, onClose: 
                 </span>
               </button> */}
               <button
-                className="flex h-[52px] px-5 justify-center items-center gap-3 rounded bg-[#FFE812] text-black border border-[#FEE500]"
-                onClick={() => { window.location.href = KAKAO_LOGIN_URL }}
+                className="flex h-[52px] items-center justify-center gap-3 rounded border border-[#FEE500] bg-[#FFE812] px-5 text-black"
+                onClick={() => {
+                  window.location.href = KAKAO_LOGIN_URL;
+                }}
               >
-                <Image src="/kakao-icon.svg" alt="Naver" width={20} height={20} />
-                <span className="text-[#181D27] text-center font-['Pretendard'] text-[15px] font-bold leading-[23px]">
+                <Image
+                  src="/kakao-icon.svg"
+                  alt="Naver"
+                  width={20}
+                  height={20}
+                />
+                <span className="text-center font-['Pretendard'] text-[15px] leading-[23px] font-bold text-[#181D27]">
                   카카오 계정 로그인
                 </span>
               </button>
               <button
-                className="flex h-[52px] px-5 justify-center items-center gap-3 rounded bg-white text-black border border-[#3D4148]"
-                onClick={() => { window.location.href = GOOGLE_LOGIN_URL }}
+                className="flex h-[52px] items-center justify-center gap-3 rounded border border-[#3D4148] bg-white px-5 text-black"
+                onClick={() => {
+                  window.location.href = GOOGLE_LOGIN_URL;
+                }}
               >
-                <Image src="/google-icon.svg" alt="Naver" width={20} height={20} />
-                <span className="text-[#181D27] text-center font-['Pretendard'] text-[15px] font-bold leading-[23px]">
+                <Image
+                  src="/google-icon.svg"
+                  alt="Naver"
+                  width={20}
+                  height={20}
+                />
+                <span className="text-center font-['Pretendard'] text-[15px] leading-[23px] font-bold text-[#181D27]">
                   Google 계정 로그인
                 </span>
               </button>
             </div>
-            <div className="mt-[20px] text-xs text-gray-500 flex items-center gap-2">
+            <div className="mt-[20px] flex items-center gap-2 text-xs text-gray-500">
               <input type="checkbox" id="agree" />
-              <label htmlFor="agree">ZERO-ONE의 이용 약관과 개인정보 처리방침에 동의할게요.</label>
+              <label htmlFor="agree">
+                ZERO-ONE의 이용 약관과 개인정보 처리방침에 동의할게요.
+              </label>
             </div>
           </Modal.Body>
         </Modal.Content>
       </Modal.Portal>
     </Modal.Provider>
-  )
+  );
 }
