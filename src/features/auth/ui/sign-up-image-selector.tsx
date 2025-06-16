@@ -1,9 +1,19 @@
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
-import { PencilIcon } from "lucide-react";
-import Image from "next/image";
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { PencilIcon } from 'lucide-react';
+import Image from 'next/image';
 
-export default function SignupImageSelector({ image, setImage, fileInputRef, handleImageChange }: { image: string, setImage: (image: string) => void, fileInputRef: React.RefObject<HTMLInputElement>, handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void }) {
-  const setDefaultImage = () => setImage("/profile-default.svg");
+export default function SignupImageSelector({
+  image,
+  setImage,
+  fileInputRef,
+  handleImageChange,
+}: {
+  image: string;
+  setImage: (image: string) => void;
+  fileInputRef: React.RefObject<HTMLInputElement>;
+  handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+}) {
+  const setDefaultImage = () => setImage('/profile-default.svg');
   const openFileDialog = () => fileInputRef.current?.click();
 
   return (
@@ -18,24 +28,24 @@ export default function SignupImageSelector({ image, setImage, fileInputRef, han
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button
-            className="absolute bottom-0 right-0 bg-white border rounded-full p-2 shadow hover:bg-gray-100"
+            className="absolute right-0 bottom-0 rounded-full border bg-white p-2 shadow hover:bg-gray-100"
             aria-label="프로필 이미지 변경"
           >
-            <PencilIcon className="w-5 h-5 text-gray-600" />
+            <PencilIcon className="h-5 w-5 text-gray-600" />
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
           sideOffset={8}
-          className="bg-white rounded shadow-lg border p-1 min-w-[120px] z-50"
+          className="z-50 min-w-[120px] rounded border bg-white p-1 shadow-lg"
         >
           <DropdownMenu.Item
-            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+            className="cursor-pointer px-4 py-2 text-sm hover:bg-gray-100"
             onSelect={setDefaultImage}
           >
             기본 이미지
           </DropdownMenu.Item>
           <DropdownMenu.Item
-            className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+            className="cursor-pointer px-4 py-2 text-sm hover:bg-gray-100"
             onSelect={openFileDialog}
           >
             앨범에서 선택

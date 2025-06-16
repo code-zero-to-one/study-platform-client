@@ -31,7 +31,7 @@ function RedirectionContent() {
         } else {
           // 회원일 경우 쿼리 캐시 무효화
           await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
-          window.location.href = '/';
+          await router.push('/');
           await router.refresh();
         }
       } catch (error) {
