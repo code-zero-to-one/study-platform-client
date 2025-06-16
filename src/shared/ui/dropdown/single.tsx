@@ -9,32 +9,33 @@ import {
 
 interface Option {
   label: string;
-  value: string;
+  value: string | number;
 }
 
 interface Props {
   options: Option[];
-  defaultValue?: string;
+  defaultValue?: string | number;
   placeholder?: string;
-  onSelect: (value: string) => void;
+  onChange: (value: string | number) => void;
 }
 
-export default function Dropdown({
+export default function SingleDropdownProvider({
   placeholder,
   options,
   defaultValue,
-  onSelect,
+  onChange,
 }: Props) {
-  const [selectedValue, setSelectedValue] = useState(defaultValue);
+  const [selectedValue, setSelectedValue] = useState<string | number | undefined>(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
+  const selectedOption = options.find((option) => option.value === selectedValue);
+  const displayText = selectedOption?.label || placeholder;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger className="w-full focus:outline-none">
-        <div className="flex w-full items-center justify-between rounded-[var(--radius-100)] border border-[var(--color-border-strong)] px-[var(--spacing-150)] py-[var(--spacing-100)]">
-          <span className="text-[var(--color-text)]">
-            {options.find((option) => option.value === selectedValue)?.label ||
-              placeholder}
+        <div className="flex w-full items-center justify-between rounded-150 px-150 h-[48px] border border-border-default bg-fill-neutral-subtle-default">
+          <span className={`font-designer-14m ${selectedOption ? 'text-text-subtle' : 'text-text-subtlest'}`}>
+            {displayText}
           </span>
           {isOpen ? (
             <ChevronUp className="size-4" />
@@ -46,7 +47,7 @@ export default function Dropdown({
 
       <DropdownMenuContent
         onClick={() => setIsOpen(false)}
-        className="flex w-full flex-col gap-[var(--spacing-50)] rounded-[var(--radius-100)] border border-[var(--color-border-default)] bg-[var(--color-background-default)] p-[var(--spacing-50)] shadow-[var(--shadow-2)]"
+        className="flex w-full flex-col gap-50 rounded-100 border border-border-default bg-background-default p-50 shadow-2"
         style={{ width: 'var(--radix-dropdown-menu-trigger-width)' }}
       >
         {options.map((option) => (
@@ -54,11 +55,11 @@ export default function Dropdown({
             key={option.value}
             onClick={() => {
               setSelectedValue(option.value);
-              onSelect(option.value);
+              onChange(option.value);
             }}
-            className="h-[45px] w-full cursor-pointer p-[var(--spacing-150)]"
+            className="h-[48px] w-full cursor-pointer p-150 active:bg-fill-neutral-subtle-pressed rounded-100"
           >
-            <span className="font-designer-14m text-[var(--color-text-subtlest)]">
+            <span className="font-designer-14m ">
               {option.label}
             </span>
           </DropdownMenuItem>
@@ -67,3 +68,7 @@ export default function Dropdown({
     </DropdownMenu>
   );
 }
+
+export const SingleDropdown = {
+  Provider: SingleDropdownProvider,
+} as const;

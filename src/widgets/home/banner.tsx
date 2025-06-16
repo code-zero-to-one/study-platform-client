@@ -22,6 +22,7 @@ export default function BannerCarousel() {
                         src={src}
                         alt={`배너 ${i + 1}`}
                         fill
+                        priority
                         className="object-contain"
                      />
                   </div>

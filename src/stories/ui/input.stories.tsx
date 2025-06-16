@@ -1,14 +1,14 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { ChangeEvent } from 'react';
-import Input from '@/shared/ui/input';
+import { BaseInput } from '@/shared/ui/input';
 
-const meta: Meta<typeof Input> = {
-  component: Input,
+const meta: Meta<typeof BaseInput.Provider> = {
+  component: BaseInput.Provider,
 };
 
 export default meta;
 
-type Story = StoryObj<typeof Input>;
+type Story = StoryObj<typeof BaseInput.Provider>;
 
 export const Default: Story = {
   args: {

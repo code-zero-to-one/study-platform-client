@@ -7,9 +7,12 @@ export type StudyProgressStatus =
 
 export interface DailyStudy {
   interviewer: string;
+  interviewerImage: string;
   interviewee: string;
+  intervieweeImage: string;
+  dailyStudyId: number;
   subject: string;
-  feedBack: string | null;
+  feedback: string | undefined;
   progressStatus: StudyProgressStatus;
   link: string;
 }
@@ -17,7 +20,9 @@ export interface DailyStudy {
 export interface GetDailyStudiesParams {
   cursor?: number;
   pageSize?: number;
-  planTime?: string;
+  year?: number;
+  month?: number;
+  day?: number;
 }
 
 export interface GetDailyStudiesResponse {

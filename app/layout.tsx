@@ -1,5 +1,6 @@
 import './global.css';
 
+import { GoogleTagManager } from '@next/third-parties/google'
 import type { Metadata } from 'next';
 import localFont from "next/font/local";
 import MainProvider from '@/app/provider';
@@ -16,6 +17,7 @@ const pretendard = localFont({
   display: "swap",
 });
 
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID
 
 export default function RootLayout({
   children,
@@ -24,6 +26,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
+      </head>
       <body
         className={pretendard.className}
       >
@@ -35,3 +40,4 @@ export default function RootLayout({
     </html>
   );
 }
+

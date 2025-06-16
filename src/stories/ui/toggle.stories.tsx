@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { useState } from 'react'
+import { useState, ComponentProps } from 'react'
 import { ToggleSwitch } from '@/shared/ui/toggle/switch'
+
+type ToggleSwitchProviderProps = ComponentProps<typeof ToggleSwitch.Provider>
 
 const meta: Meta<typeof ToggleSwitch.Provider> = {
   component: ToggleSwitch.Provider,
@@ -8,7 +10,7 @@ const meta: Meta<typeof ToggleSwitch.Provider> = {
   argTypes: {
     color: {
       control: 'select',
-      options: ['primary', 'gray'], // 기존 예시 기준 수정
+      options: ['primary', 'gray'],
     },
     size: {
       control: 'select',
@@ -28,7 +30,7 @@ export default meta
 
 type Story = StoryObj<typeof ToggleSwitch.Provider>
 
-const ToggleWithState = (args: any) => {
+const ToggleWithState = (args: ToggleSwitchProviderProps) => {
   const [checked, setChecked] = useState(false)
 
   return (

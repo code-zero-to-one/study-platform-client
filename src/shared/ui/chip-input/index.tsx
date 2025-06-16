@@ -1,7 +1,7 @@
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 import Chip from '../chip';
-import Input from '../input';
+import { BaseInput } from '../input';
 
 interface Props {
   chips: string[];
@@ -15,7 +15,7 @@ export default function ChipInput({ chips, onChange }: Props) {
   return (
     <div className="flex flex-col gap-[var(--spacing-75)]">
       <div className="flex items-center gap-[var(--spacing-50)]">
-        <Input
+        <BaseInput.Provider
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
         />

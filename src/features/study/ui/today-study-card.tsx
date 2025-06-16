@@ -5,16 +5,11 @@ import { useDailyStudyDetailQuery } from '@/features/study/model/use-study-query
 import UserAvatar from '@/shared/ui/avatar';
 import { Badge } from '@/shared/ui/badge';
 import TodayStudyModal from './today-study-modal';
-import { DailyStudy, StudyProgressStatus } from '../api/types';
+import { StudyProgressStatus } from '../api/types';
 
-const mockData: DailyStudy = {
-  interviewer: '김지원',
-  interviewee: '홍길동',
-  subject: '운영체제 - 스케줄링',
-  feedBack: '면접 질문이 깔끔했고, 설명도 좋았습니다.',
-  progressStatus: 'COMPLETE',
-  link: 'https://github.com',
-};
+interface Props {
+  date: Date;
+}
 
 const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
   BEFORE_PROGRESSED: <Badge color="default">시작 전</Badge>,
@@ -24,16 +19,14 @@ const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
   ABSENT: <Badge color="incomplete">불참</Badge>,
 };
 
-export default function TodayStudyCard() {
-  const [mode, setMode] = useState<'ready' | 'done'>('ready');
+export default function TodayStudyCard({ date }: Props) {
+  const [mode] = useState<'ready' | 'done'>('ready');
 
-  const dailyId = 123; // 일단 하드코딩, 나중에 useParams나 Zustand로 대체 가능
-  // const { data, isLoading, error } = useDailyStudyDetailQuery(dailyId);
+  const dailyId = 1; // 일단 하드코딩, 나중에 useParams나 Zustand로 대체 가능
+  const { data, isLoading, error } = useDailyStudyDetailQuery(dailyId);
 
-  const { data = mockData } = useDailyStudyDetailQuery(dailyId);
-
-  // if (isLoading) return <div>로딩 중...</div>;
-  // if (error || !data) return <div>에러 발생</div>;
+  if (isLoading) return <div>로딩 중...</div>;
+  if (error || !data) return <div>에러 발생</div>;
 
   return (
     <section className='w-full flex flex-col gap-150'>
@@ -56,7 +49,7 @@ export default function TodayStudyCard() {
 
       <div className='flex flex-col px-300 py-150 gap-150 rounded-100 bg-background-alternative'>
         <div className='text-text-subtle font-designer-14r'>피드백</div>
-        <p className='leading-relaxed'>{data.feedBack ?? '-'}</p>
+        <p className='leading-relaxed'>{data.feedback ?? '-'}</p>
       </div>
     </section>
   );

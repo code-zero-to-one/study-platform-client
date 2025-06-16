@@ -1,6 +1,6 @@
 interface Props {
   title: string;
-  content: string;
+  content?: string;
 }
 
 export default function ProfileInfoCard({ title, content }: Props) {
@@ -9,9 +9,10 @@ export default function ProfileInfoCard({ title, content }: Props) {
       <div className="w-1/6 font-designer-16b shrink-0 text-text-default">
         {title}
       </div>
-      <p className="w-3/6 flex-1 font-designer-15r text-text-default">
-        {content}
-      </p>
+      <div className="flex-1 font-designer-15r text-text-default">
+        {content ?? '정보 없음'}
+      </div>
     </div>
+
   );
 }
