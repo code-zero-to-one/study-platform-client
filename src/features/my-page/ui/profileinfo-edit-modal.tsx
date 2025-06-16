@@ -53,7 +53,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
   return (
     <Modal.Provider>
       <Modal.Trigger>
-        <div className="cursor-pointer rounded-[3px] border border-[var(--color-button-secondary-border)] bg-[var(--color-button-secondary-background)] px-150 py-75 text-[14px] font-[500]">
+        <div className="rounded-75 bg-fill-neutral-default-default font-designer-13b text-text-default cursor-pointer px-150 py-75">
           편집
         </div>
       </Modal.Trigger>
