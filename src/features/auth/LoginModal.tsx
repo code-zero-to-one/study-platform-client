@@ -15,10 +15,16 @@ export default function LoginModal({
   const [state, setState] = useState<string | null>(null);
 
   useEffect(() => {
-    setState(window.location.origin);
+    const origin = window.location.origin;
+    const isLocalhost = origin.includes('localhost');
+
+    const redirectionUrl = isLocalhost
+      ? origin // 로컬은 포트 포함 유지
+      : origin.replace(/:\d+$/, ''); // 배포는 포트 제거
+
+    setState(redirectionUrl);
   }, []);
 
-  // state가 없으면 로딩 또는 빈 화면 처리
   if (!state) {
     return <div>로딩중...</div>;
   }
