@@ -6,6 +6,7 @@ import {
 } from '../api/types';
 import {
   getAvailableStudyTimes,
+  getStudySubjects,
   updateUserProfile,
   updateUserProfileInfo,
 } from '../api/update-user-profile';
@@ -40,5 +41,12 @@ export const useAvailableStudyTimesQuery = () => {
   return useQuery({
     queryKey: ['availableStudyTimes'],
     queryFn: getAvailableStudyTimes,
+  });
+};
+
+export const useStudySubjectsQuery = () => {
+  return useQuery({
+    queryKey: ['studySubjects'],
+    queryFn: getStudySubjects,
   });
 };

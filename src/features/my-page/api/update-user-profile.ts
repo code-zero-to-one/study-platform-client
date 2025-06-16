@@ -1,5 +1,6 @@
 import type {
   AvailableStudyTimeResponse,
+  StudySubjectResponse,
   UpdateUserProfileInfoRequest,
   UpdateUserProfileInfoResponse,
   UpdateUserProfileRequest,
@@ -32,6 +33,12 @@ export const getAvailableStudyTimes = async (): Promise<
   AvailableStudyTimeResponse[]
 > => {
   const res = await axiosInstance.get('/available-study-times');
+
+  return res.data.content;
+};
+
+export const getStudySubjects = async (): Promise<StudySubjectResponse[]> => {
+  const res = await axiosInstance.get('/study-subjects');
 
   return res.data.content;
 };

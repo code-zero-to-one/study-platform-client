@@ -7,7 +7,10 @@ import Button from '@/shared/ui/button';
 import { FormField } from '@/shared/ui/form/form-field';
 import { Modal } from '@/shared/ui/modal';
 import { UpdateUserProfileInfoRequest } from '../api/types';
-import { useAvailableStudyTimesQuery } from '../model/use-update-user-profile-mutation';
+import {
+  useAvailableStudyTimesQuery,
+  useStudySubjectsQuery,
+} from '../model/use-update-user-profile-mutation';
 
 interface Props {
   memberInfo: MemberInfo;
@@ -46,11 +49,11 @@ const techStackOptions = [
   },
 ];
 
-const studySubjectOptions = [
-  { studySubjectId: 'CS_DEEP', studySubjectName: 'CS Deep Dive' },
-  { studySubjectId: 'BACKEND_DEEP', studySubjectName: 'Back-end Deep Dive' },
-  { studySubjectId: 'FRONTEND_DEEP', studySubjectName: 'Front-end Deep Dive' },
-];
+// const studySubjectOptions = [
+//   { studySubjectId: 'CS_DEEP', studySubjectName: 'CS Deep Dive' },
+//   { studySubjectId: 'BACKEND_DEEP', studySubjectName: 'Back-end Deep Dive' },
+//   { studySubjectId: 'FRONTEND_DEEP', studySubjectName: 'Front-end Deep Dive' },
+// ];
 
 export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
   const [selfIntroduction, setSelfIntroduction] = useState(
@@ -81,6 +84,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
   };
 
   const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
+  const { data: studySubjects } = useStudySubjectsQuery();
 
   return (
     <Modal.Provider>
@@ -129,12 +133,12 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
                 onChange={setPreferredSubject}
                 direction="vertical"
                 required
-                options={studySubjectOptions.map(
-                  ({ studySubjectId, studySubjectName }) => ({
+                options={
+                  studySubjects?.map(({ studySubjectId, name }) => ({
                     value: studySubjectId,
-                    label: studySubjectName,
-                  }),
-                )}
+                    label: name,
+                  })) ?? []
+                }
               />
               <FormField
                 label="가능 시간대"

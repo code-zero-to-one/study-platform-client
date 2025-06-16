@@ -50,3 +50,8 @@ export interface AvailableStudyTimeResponse {
   availableTimeId: number;
   display: string;
 }
+
+export interface StudySubjectResponse {
+  studySubjectId: string;
+  name: string;
+}
