@@ -1,10 +1,11 @@
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import {
   UpdateUserProfileInfoRequest,
   UpdateUserProfileRequest,
 } from '../api/types';
 import {
+  getAvailableStudyTimes,
   updateUserProfile,
   updateUserProfileInfo,
 } from '../api/update-user-profile';
@@ -32,5 +33,12 @@ export const useUpdateUserProfileInfoMutation = (memberId: number) => {
     onSuccess: () => {
       router.refresh();
     },
+  });
+};
+
+export const useAvailableStudyTimesQuery = () => {
+  return useQuery({
+    queryKey: ['availableStudyTimes'],
+    queryFn: getAvailableStudyTimes,
   });
 };

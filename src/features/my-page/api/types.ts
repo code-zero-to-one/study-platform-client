@@ -45,3 +45,8 @@ export interface UpdateUserProfileInfoResponse {
   preferredStudySubjectId: string;
   techStackIds: number[];
 }
+
+export interface AvailableStudyTimeResponse {
+  availableTimeId: number;
+  display: string;
+}
