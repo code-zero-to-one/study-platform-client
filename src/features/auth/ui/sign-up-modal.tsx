@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
-} from '@/features/auth/model/useAuthMutation';
+} from '@/features/auth/model/use-auth-mutation';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import SignupImageSelector from './sign-up-image-selector';

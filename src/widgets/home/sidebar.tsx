@@ -23,6 +23,7 @@ export default async function Sidebar() {
   return (
     <aside className="flex flex-col gap-300">
       <UserProfileCard
+        memberId={memberId}
         name={userProfile?.memberProfile.memberName || '비회원'}
         // 프로필 오류로 인한 임시
         // imageUrl={userProfile?.memberProfile.profileImage.resizedImages[0]?.resizedImageUrl || ''}

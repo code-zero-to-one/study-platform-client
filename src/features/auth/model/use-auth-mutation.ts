@@ -1,8 +1,8 @@
 // 데이터 변경(Mutation) 을 담당하는 커스텀 훅
 
 import { useMutation } from '@tanstack/react-query';
+import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
 import { SignUpResponse } from './types';
-import { signUp, uploadProfileImage } from '@/features/auth/api/auth';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
@@ -25,3 +25,9 @@ export function useUploadProfileImageMutation() {
     }) => uploadProfileImage(data.memberId, data.filename, data.formData),
   });
 }
+
+export const useLogoutMutation = () => {
+  return useMutation<number, unknown, void>({
+    mutationFn: logout,
+  });
+};

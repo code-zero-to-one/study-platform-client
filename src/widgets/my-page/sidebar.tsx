@@ -1,15 +1,31 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
+import { logout } from '@/features/auth/api/auth';
 import { cn } from '@/shared/shadcn/lib/utils';
+import { deleteCookie } from '@/shared/tanstack-query/cookie';
 
 export default function Sidebar() {
   const router = useRouter();
-
+  const queryClient = useQueryClient();
   const pathname = usePathname();
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      deleteCookie('accessToken');
+      deleteCookie('memberId');
+      queryClient.clear();
+      router.push('/');
+      router.refresh();
+    } catch (error) {
+      console.error('로그아웃 실패:', error);
+    }
+  };
+
   return (
-    <div className="box-border flex w-[300px] flex-col gap-150 px-300 pt-500 border-x-1 border-border-subtle">
+    <div className="border-border-subtle box-border flex w-[300px] flex-col gap-150 border-x-1 px-300 pt-500">
       <SidebarItem
         onClick={() => router.push('/my-page')}
         isActive={pathname === '/my-page'}
@@ -22,11 +38,11 @@ export default function Sidebar() {
       >
         마이스터디
       </SidebarItem>
-      <SidebarItem onClick={() => { }} isActive={false}>
+      <SidebarItem onClick={() => {}} isActive={false}>
         계정설정
       </SidebarItem>
-      <div className="h-[1px] bg-[var(--color-border-subtle)]" />
-      <SidebarItem onClick={() => { }} isActive={false}>
+      <div className="bg-border-subtlest h-[1px]" />
+      <SidebarItem onClick={handleLogout} isActive={false}>
         로그아웃
       </SidebarItem>
     </div>
@@ -47,8 +63,8 @@ function SidebarItem({
       <div
         onClick={onClick}
         className={cn(
-          'cursor-pointer text-[18px] leading-[29px] font-[500]',
-          isActive && 'font-[700]',
+          'font-designer-18m text-text-default cursor-pointer',
+          isActive && 'font-designer-18b text-text-default',
         )}
       >
         {children}
