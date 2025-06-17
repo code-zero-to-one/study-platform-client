@@ -5,10 +5,8 @@ import type {
 } from '@/features/study/api/types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 
-export const getDailyStudyDetail = async (
-  dailyId: number,
-): Promise<DailyStudy> => {
-  const res = await axiosInstance.get(`/study/daily/${dailyId}`);
+export const getDailyStudyDetail = async (): Promise<DailyStudy> => {
+  const res = await axiosInstance.get(`/study/daily/today`);
 
   return res.data.content;
 };
