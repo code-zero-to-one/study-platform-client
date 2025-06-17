@@ -30,6 +30,10 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
     console.log('에러 확인', error);
+    console.log('에러 응답 데이터:', error.response?.data);
+    console.log('에러 상태코드:', error.response?.status);
+    console.log('에러 헤더:', error.response?.headers);
+    console.log('에러 전체:', error.toJSON?.() ?? error);
 
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
