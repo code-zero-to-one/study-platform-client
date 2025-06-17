@@ -16,13 +16,8 @@ export default function LoginModal({
 
   useEffect(() => {
     const origin = window.location.origin;
-    const isLocalhost = origin.includes('localhost');
 
-    const redirectionUrl = isLocalhost
-      ? origin // 로컬은 포트 포함 유지
-      : origin.replace(/:\d+$/, ''); // 배포는 포트 제거
-
-    setState(redirectionUrl);
+    setState(origin);
   }, []);
 
   if (!state) {
