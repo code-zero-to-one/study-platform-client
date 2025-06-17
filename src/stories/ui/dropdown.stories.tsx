@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
-import Dropdown from '@/shared/ui/dropdown';
+import { SingleDropdown } from '@/shared/ui/dropdown';
 
-const meta: Meta<typeof Dropdown> = {
-  component: Dropdown,
+const meta: Meta<typeof SingleDropdown.Provider> = {
+  component: SingleDropdown.Provider,
   argTypes: {
     placeholder: {
       control: { type: 'text' },
@@ -12,7 +12,7 @@ const meta: Meta<typeof Dropdown> = {
 
 export default meta;
 
-type Story = StoryObj<typeof Dropdown>;
+type Story = StoryObj<typeof SingleDropdown.Provider>;
 
 export const Default: Story = {
   args: {

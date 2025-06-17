@@ -6,9 +6,8 @@ import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/features/auth/model/useAuthMutation';
-import SignupImageSelector from './SignupImageSelector';
-import SignupNameInput from './SignupNameInput';
-import { getCookie } from '@/shared/tanstack-query/cookie';
+import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
+import SignupNameInput from '@/features/auth/ui/sign-up-name-input';
 
 export default function SignupModal({
   open,
@@ -19,7 +18,7 @@ export default function SignupModal({
 }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const [image, setImage] = useState(getCookie('socialImageURL') || '/profile-default.svg');
+  const [image, setImage] = useState('/images/profile-default.svg');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const signUp = useSignUpMutation();
@@ -65,8 +64,7 @@ export default function SignupModal({
 
               uploadProfileImage.mutate({
                 memberId: Number(data.content.generatedMemberId),
-                filename: `profile-${data.content.generatedMemberId}.jpg`,
-                // formData: formData,
+                filename: 'profile.jpg',
                 file: fileInputRef.current.files[0],
               });
             }

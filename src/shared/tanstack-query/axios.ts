@@ -8,6 +8,7 @@ export const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
 // blob 요청용 (파일 업로드용)
@@ -26,14 +27,7 @@ export const axiosInstanceForBlob = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    // const token =
-    //   typeof window !== 'undefined'
-    //     ? localStorage.getItem('accessToken')
-    //     : null;
-
-    // 임시로 토큰 지정 후 사용
     const accessToken = getCookie('accessToken');
-
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
@@ -46,19 +40,16 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   async (error) => {
-    // error.config에는 실패한 요청의 모든 설정(URL, 헤더, 데이터 등)이 포함
-    const originalRequest = error.config;
+    console.log('에러 확인', error);
+    console.log('에러 상태코드:', error.response?.status);
 
-    // 401 에러(인증 실패) 발생시 토큰 갱신 후 실패한 요청을 재시도
+    const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
       try {
-        // 토큰 갱신 요청시에는 기존 인터셉터를 사용하지 않는 새로운 axios 인스턴스 사용
         const refreshApi = axios.create({
           baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
         });
-
         const res = await refreshApi.get('/auth/access-token/refresh');
         const newAccessToken = res.data.accessToken;
 
@@ -66,32 +57,13 @@ axiosInstance.interceptors.response.use(
           setCookie('accessToken', newAccessToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-          return axiosInstance(originalRequest);  
+          return axiosInstance(originalRequest);
         }
       } catch (err) {
-        // 토큰 갱신 실패시 로그인 페이지로 이동
-        // window.location.href = '/';
+        // 로그인 페이지 리다이렉트 등 처리
         return Promise.reject(err);
       }
     }
-
-    return Promise.reject(error);
-  },
-);
-
-axiosInstance.interceptors.request.use(
-  (config) => {
-    console.log("요청 헤더 확인", config.headers);
-
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
-axiosInstance.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.log("에러 확인", error);
 
     return Promise.reject(error);
   },

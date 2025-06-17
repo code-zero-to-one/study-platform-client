@@ -13,7 +13,9 @@ function RedirectionContent() {
   useEffect(() => {
     const handleRedirection = async () => {
       try {
-        const accessToken = decodeURIComponent(searchParams.get('access-token') || '');
+        const accessToken = decodeURIComponent(
+          searchParams.get('access-token') || '',
+        );
         const isGuest = searchParams.get('is-guest');
 
         setCookie("accessToken", accessToken);
@@ -40,7 +42,7 @@ function RedirectionContent() {
   return <div>처리중...</div>;
 }
 
-// useSearchParams() should be wrapped in a suspense boundary 
+// useSearchParams() should be wrapped in a suspense boundary
 export default function RedirectionPage() {
   return (
     <Suspense fallback={<div>로딩중...</div>}>

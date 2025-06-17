@@ -2,7 +2,7 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
-import Input from '@/shared/ui/input';
+import Input from '@/shared/ui/input/base';
 import { Modal } from '@/shared/ui/modal';
 import CreateIcon from 'public/icons/create.svg';
 
