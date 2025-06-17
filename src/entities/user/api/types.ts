@@ -78,3 +78,8 @@ export interface GetUserProfileResponse {
   memberInfo: MemberInfo;
   memberProfile: MemberProfile;
 }
+
+export interface PatchAutoMatchingParams {
+  memberId: number;
+  autoMatching: boolean;
+}
