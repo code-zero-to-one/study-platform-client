@@ -2,7 +2,7 @@ import { getUserProfile } from '@/entities/user/api/get-user-profile';
 import StartStudyModal from '@/features/study/ui/start-study-modal';
 import UserProfileCard from '@/features/study/ui/user-profile-card';
 import { getServerCookie } from '@/shared/lib/server-cookie';
-import Calendar from '@/widgets/home/calendar/index';
+import Calendar from '@/widgets/home/calendar';
 import TodoList from '@/widgets/home/todo-list';
 
 export default async function Sidebar() {
