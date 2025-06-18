@@ -9,7 +9,7 @@ export default function BaseInputProvider({
     <ShadcnInput
       className={cn(
         className,
-        'rounded-100 whitespace-pre-line border border-border-default px-150 py-100 focus-visible:ring-0',
+        'rounded-100 border-border-default border px-150 py-100 whitespace-pre-line focus-visible:ring-0',
       )}
       {...props}
     />

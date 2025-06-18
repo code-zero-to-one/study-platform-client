@@ -25,16 +25,22 @@ export default function SingleDropdownProvider({
   defaultValue,
   onChange,
 }: Props) {
-  const [selectedValue, setSelectedValue] = useState<string | number | undefined>(defaultValue);
+  const [selectedValue, setSelectedValue] = useState<
+    string | number | undefined
+  >(defaultValue);
   const [isOpen, setIsOpen] = useState(false);
-  const selectedOption = options.find((option) => option.value === selectedValue);
+  const selectedOption = options.find(
+    (option) => option.value === selectedValue,
+  );
   const displayText = selectedOption?.label || placeholder;
 
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger className="w-full focus:outline-none">
-        <div className="flex w-full items-center justify-between rounded-150 px-150 h-[48px] border border-border-default bg-fill-neutral-subtle-default">
-          <span className={`font-designer-14m ${selectedOption ? 'text-text-subtle' : 'text-text-subtlest'}`}>
+        <div className="rounded-150 border-border-default bg-fill-neutral-subtle-default flex h-[48px] w-full items-center justify-between border px-150">
+          <span
+            className={`font-designer-14m ${selectedOption ? 'text-text-subtle' : 'text-text-subtlest'}`}
+          >
             {displayText}
           </span>
           {isOpen ? (
@@ -47,7 +53,7 @@ export default function SingleDropdownProvider({
 
       <DropdownMenuContent
         onClick={() => setIsOpen(false)}
-        className="flex w-full flex-col gap-50 rounded-100 border border-border-default bg-background-default p-50 shadow-2"
+        className="rounded-100 border-border-default bg-background-default shadow-2 flex w-full flex-col gap-50 border p-50"
         style={{ width: 'var(--radix-dropdown-menu-trigger-width)' }}
       >
         {options.map((option) => (
@@ -57,11 +63,9 @@ export default function SingleDropdownProvider({
               setSelectedValue(option.value);
               onChange(option.value);
             }}
-            className="h-[48px] w-full cursor-pointer p-150 active:bg-fill-neutral-subtle-pressed rounded-100"
+            className="active:bg-fill-neutral-subtle-pressed rounded-100 h-[48px] w-full cursor-pointer p-150"
           >
-            <span className="font-designer-14m ">
-              {option.label}
-            </span>
+            <span className="font-designer-14m">{option.label}</span>
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>

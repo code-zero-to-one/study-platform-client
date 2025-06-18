@@ -11,8 +11,10 @@ interface ProfileInfoProps {
   memberInfo: MemberInfo;
 }
 
-export default function ProfileInfo({ memberId, memberInfo }: ProfileInfoProps) {
-
+export default function ProfileInfo({
+  memberId,
+  memberInfo,
+}: ProfileInfoProps) {
   const { mutate } = useUpdateUserProfileInfoMutation(memberId);
 
   const handleSubmit = (formData: UpdateUserProfileInfoRequest) => {
@@ -20,11 +22,14 @@ export default function ProfileInfo({ memberId, memberInfo }: ProfileInfoProps) 
   };
 
   return (
-    <div className="flex flex-col items-start gap-[40px] border-t border-border-subtle pt-200">
-      <div className="flex flex-col gap-200 w-full">
+    <div className="border-border-subtle flex flex-col items-start gap-[40px] border-t pt-200">
+      <div className="flex w-full flex-col gap-200">
         <div className="flex w-full items-center gap-150">
           <div className="font-designer-20b">내정보</div>
-          <ProfileInfoEditModal memberInfo={memberInfo} onSubmit={handleSubmit} />
+          <ProfileInfoEditModal
+            memberInfo={memberInfo}
+            onSubmit={handleSubmit}
+          />
         </div>
 
         <ProfileInfoCard
@@ -44,16 +49,25 @@ export default function ProfileInfo({ memberId, memberInfo }: ProfileInfoProps) 
 
         <ProfileInfoCard
           title="가능 시간대"
-          content={memberInfo.availableStudyTimes && memberInfo.availableStudyTimes.length > 0
-            ? memberInfo.availableStudyTimes.map(time => time.fullLabel).join(', ')
-            : '선택안함'}
+          content={
+            memberInfo.availableStudyTimes &&
+            memberInfo.availableStudyTimes.length > 0
+              ? memberInfo.availableStudyTimes
+                  .map((time) => time.fullLabel)
+                  .join(', ')
+              : '선택안함'
+          }
         />
 
         <ProfileInfoCard
           title="기술 스택"
-          content={memberInfo.techStacks && memberInfo.techStacks.length > 0
-            ? memberInfo.techStacks.map(tech => tech.techStackName).join(', ')
-            : '선택안함'}
+          content={
+            memberInfo.techStacks && memberInfo.techStacks.length > 0
+              ? memberInfo.techStacks
+                  .map((tech) => tech.techStackName)
+                  .join(', ')
+              : '선택안함'
+          }
         />
       </div>
     </div>
