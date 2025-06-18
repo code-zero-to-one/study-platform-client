@@ -141,7 +141,7 @@ export default function StartStudyModal() {
   };
 
   return (
-    <Modal.Provider>
+    <Modal.Root>
       <Modal.Trigger>
         <Image
           src="/images/start-study.png"
@@ -182,10 +182,9 @@ export default function StartStudyModal() {
                 required
                 description="간단한 자기소개를 입력해 주세요."
               >
-                <BaseInput.Provider
+                <BaseInput
                   className="border-border-default rounded-100 border p-150"
-                  placeholder="신입 프론트엔드 개발자입니다.
-                           리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
+                  placeholder="신입 프론트엔드 개발자입니다. 리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
                   value={introduce}
                   onChange={(e) => setIntroduce(e.target.value)}
                 />
@@ -196,7 +195,7 @@ export default function StartStudyModal() {
                 required
                 description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
               >
-                <BaseInput.Provider
+                <BaseInput
                   className="border-border-default rounded-100 border p-150"
                   placeholder="CS 기본기를 탄탄하게 다지는 것이 목표입니다. 각자 맡은 주제를 정리하고 공유하는 방식으로 진행하고 싶어요."
                   value={studyPlan}
@@ -209,7 +208,7 @@ export default function StartStudyModal() {
                 required
                 description="관심 있는 스터디 유형을 선택해 주세요."
               >
-                <SingleDropdown.Provider
+                <SingleDropdown
                   defaultValue={preferredSubject}
                   options={(studySubjects ?? []).map(
                     ({ studySubjectId, name }) => ({
@@ -230,13 +229,13 @@ export default function StartStudyModal() {
                 <div className="grid grid-cols-5 gap-100">
                   {(availableStudyTimes ?? []).map(
                     ({ availableTimeId, display }) => (
-                      <ToggleButton.Provider
+                      <ToggleButton
                         key={availableTimeId}
                         pressed={availableTimeSlots.includes(availableTimeId)}
                         onPressedChange={() => toggleTimeSlot(availableTimeId)}
                       >
                         {display}
-                      </ToggleButton.Provider>
+                      </ToggleButton>
                     ),
                   )}
                 </div>
@@ -247,7 +246,7 @@ export default function StartStudyModal() {
                 required
                 description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
               >
-                <MultiDropdown.Provider
+                <MultiDropdown
                   options={(techStacks ?? []).map(
                     ({ techStackId, techStackName }) => ({
                       value: techStackId,
@@ -266,7 +265,7 @@ export default function StartStudyModal() {
                 required
                 description="스터디 진행을 위해 연락 가능한 정보를 입력해 주세요. 입력하신 정보는 매칭된 스터디원에게만 제공되며, 외부에는 노출되지 않습니다."
               >
-                <BaseInput.Provider
+                <BaseInput
                   className="border-border-default rounded-100 border p-150"
                   placeholder="010-1234-5678"
                   value={phoneNumber}
@@ -278,7 +277,7 @@ export default function StartStudyModal() {
                 label="GitHub"
                 description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
               >
-                <BaseInput.Provider
+                <BaseInput
                   className="border-border-default rounded-100 border p-150"
                   placeholder="https://github.com/@zero-one"
                   value={github}
@@ -290,7 +289,7 @@ export default function StartStudyModal() {
                 label="블로그/SNS 등 링크"
                 description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
               >
-                <BaseInput.Provider
+                <BaseInput
                   className="border-border-default rounded-100 border p-150"
                   placeholder="https://velog.io/@zero-one"
                   value={blog}
@@ -327,6 +326,6 @@ export default function StartStudyModal() {
           </Modal.Footer>
         </Modal.Content>
       </Modal.Portal>
-    </Modal.Provider>
+    </Modal.Root>
   );
 }

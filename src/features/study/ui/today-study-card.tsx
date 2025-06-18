@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useDailyStudyDetailQuery } from '@/features/study/model/use-study-query';
 import UserAvatar from '@/shared/ui/avatar';
-import { Badge } from '@/shared/ui/badge';
+import Badge from '@/shared/ui/badge';
 import TodayStudyModal from './today-study-modal';
 import { StudyProgressStatus } from '../api/types';
 

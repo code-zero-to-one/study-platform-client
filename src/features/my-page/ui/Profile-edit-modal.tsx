@@ -57,7 +57,7 @@ export default function ProfileEditModal({ onSubmit }: Props) {
   };
 
   return (
-    <Modal.Provider>
+    <Modal.Root>
       <Modal.Trigger className="rounded-100 bg-fill-brand-default-default font-designer-16b text-text-inverse w-full px-150 py-100">
         내 프로필 수정
       </Modal.Trigger>
@@ -150,6 +150,6 @@ export default function ProfileEditModal({ onSubmit }: Props) {
           </Modal.Footer>
         </Modal.Content>
       </Modal.Portal>
-    </Modal.Provider>
+    </Modal.Root>
   );
 }

@@ -19,7 +19,7 @@ interface Props {
   onChange: (value: string | number) => void;
 }
 
-export default function SingleDropdownProvider({
+function SingleDropdown({
   placeholder,
   options,
   defaultValue,
@@ -73,6 +73,4 @@ export default function SingleDropdownProvider({
   );
 }
 
-export const SingleDropdown = {
-  Provider: SingleDropdownProvider,
-} as const;
+export default SingleDropdown;

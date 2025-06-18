@@ -49,7 +49,7 @@ interface ToggleProps
   className?: string;
 }
 
-function ToggleProvider({
+function ToggleRoot({
   color = 'primary',
   size = 'md',
   checked,
@@ -93,6 +93,6 @@ function ToggleLabel({
 }
 
 export const ToggleSwitch = {
-  Provider: ToggleProvider,
+  Root: ToggleRoot,
   Label: ToggleLabel,
 } as const;

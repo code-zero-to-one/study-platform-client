@@ -15,7 +15,7 @@ export default function TodayStudyModal({ mode }: TodayStudyModalProps) {
   const [referenceLink, setReferenceLink] = useState('');
 
   return (
-    <Modal.Provider>
+    <Modal.Root>
       <Modal.Trigger>
         <div className="rounded-100 font-designer-16b bg-fill-brand-default-default text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed flex cursor-pointer items-center justify-center px-100 py-75">
           <CreateIcon />
@@ -92,6 +92,6 @@ export default function TodayStudyModal({ mode }: TodayStudyModalProps) {
           </Modal.Footer>
         </Modal.Content>
       </Modal.Portal>
-    </Modal.Provider>
+    </Modal.Root>
   );
 }

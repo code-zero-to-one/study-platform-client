@@ -50,7 +50,7 @@ interface ToggleButtonProps
   className?: string;
 }
 
-function ToggleButtonProvider({
+function ToggleButton({
   size = 'md',
   variant = 'round',
   color = 'primary',
@@ -69,6 +69,4 @@ function ToggleButtonProvider({
   );
 }
 
-export const ToggleButton = {
-  Provider: ToggleButtonProvider,
-} as const;
+export default ToggleButton;

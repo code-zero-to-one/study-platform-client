@@ -9,7 +9,7 @@ import {
   CarouselPrevious,
 } from '@/shared/shadcn/ui/carousel';
 
-function CarouselProvider({
+function CarouselRoot({
   className,
   ...props
 }: React.ComponentProps<typeof ShadCarousel>) {
@@ -76,7 +76,7 @@ function CarouselButtonNext({
 }
 
 export const Carousel = {
-  Provider: CarouselProvider,
+  Root: CarouselRoot,
   Viewport: CarouselViewport,
   Slide: CarouselSlide,
   Prev: CarouselButtonPrevious,

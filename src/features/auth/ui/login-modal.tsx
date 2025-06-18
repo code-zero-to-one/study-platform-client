@@ -29,7 +29,7 @@ export default function LoginModal({
   const GOOGLE_LOGIN_URL = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=http://test.zeroone.it.kr:9090/api/v1/auth/google/redirect-uri&client_id=616205933420-b45d510q23togkaqo069j8igmsjhp9v0.apps.googleusercontent.com&state=${state}`;
 
   return (
-    <Modal.Provider open={open} onOpenChange={onClose}>
+    <Modal.Root open={open} onOpenChange={onClose}>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>
@@ -99,6 +99,6 @@ export default function LoginModal({
           </Modal.Body>
         </Modal.Content>
       </Modal.Portal>
-    </Modal.Provider>
+    </Modal.Root>
   );
 }

@@ -12,7 +12,7 @@ type Story = StoryObj<typeof Modal>;
 export const Default: Story = {
   render: () => {
     return (
-      <Modal.Provider>
+      <Modal.Root>
         <Modal.Trigger>Open Modal</Modal.Trigger>
         <Modal.Portal>
           <Modal.Overlay />
@@ -38,7 +38,7 @@ export const Default: Story = {
             </Modal.Footer>
           </Modal.Content>
         </Modal.Portal>
-      </Modal.Provider>
+      </Modal.Root>
     );
   },
 };

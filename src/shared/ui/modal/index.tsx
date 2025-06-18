@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '@/shared/shadcn/ui/dialog';
 
-function ModalProvider({
+function ModalRoot({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
   return <Dialog data-slot="modal" {...props} />;
@@ -155,7 +155,7 @@ function ModalTitle({
 }
 
 export const Modal = {
-  Provider: ModalProvider,
+  Root: ModalRoot,
   Trigger: ModalTrigger,
   Close: ModalClose,
   Portal: ModalPortal,

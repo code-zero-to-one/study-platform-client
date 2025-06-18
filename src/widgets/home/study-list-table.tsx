@@ -1,6 +1,6 @@
 import { useDailyStudiesQuery } from '@/features/study/model/use-study-query';
 import UserAvatar from '@/shared/ui/avatar';
-import { Badge } from '@/shared/ui/badge/index';
+import Badge from '@/shared/ui/badge/index';
 import TableList from '@/shared/ui/table';
 import LinkIcon from 'public/icons/Link.svg';
 import {

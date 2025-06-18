@@ -1,6 +1,6 @@
 import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
-import { ToggleButton } from '../toggle';
+import { ToggleButton } from '@/shared/ui/toggle';
 
 type InputType =
   | 'text'
@@ -37,7 +37,7 @@ export function FormField<T>({
       case 'text':
         return (
           <>
-            <BaseInput.Provider
+            <BaseInput
               placeholder="입력하세요."
               value={value as string}
               onChange={(e) => onChange(e.target.value as T)}
@@ -51,7 +51,7 @@ export function FormField<T>({
         );
       case 'textarea':
         return (
-          <TextAreaInput.Provider
+          <TextAreaInput
             placeholder="입력하세요."
             guideText={description}
             value={value as string}
@@ -62,7 +62,7 @@ export function FormField<T>({
       case 'singledropdown':
         return (
           <>
-            <SingleDropdown.Provider
+            <SingleDropdown
               options={options}
               defaultValue={value ? (value as string) : undefined}
               placeholder="선택해주세요"
@@ -78,7 +78,7 @@ export function FormField<T>({
       case 'multidropdown':
         return (
           <>
-            <MultiDropdown.Provider
+            <MultiDropdown
               options={options}
               defaultValue={value as string[]}
               onChange={(v) => onChange(v as T)}
@@ -103,7 +103,7 @@ export function FormField<T>({
         return (
           <div className="flex flex-wrap gap-100">
             {options.map(({ value: optionValue, label }) => (
-              <ToggleButton.Provider
+              <ToggleButton
                 key={optionValue}
                 pressed={(value as (string | number)[])
                   .map(String)
@@ -111,7 +111,7 @@ export function FormField<T>({
                 onPressedChange={() => toggleItem(optionValue)}
               >
                 {label}
-              </ToggleButton.Provider>
+              </ToggleButton>
             ))}
           </div>
         );

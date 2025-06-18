@@ -21,7 +21,7 @@ interface MultiDropdownProps {
   placeholder?: string;
 }
 
-export default function MultiDropdownProvider({
+function MultiDropdown({
   options,
   defaultValue = [],
   onChange,
@@ -138,6 +138,4 @@ export default function MultiDropdownProvider({
   );
 }
 
-export const MultiDropdown = {
-  Provider: MultiDropdownProvider,
-} as const;
+export default MultiDropdown;

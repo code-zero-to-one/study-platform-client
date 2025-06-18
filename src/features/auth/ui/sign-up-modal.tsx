@@ -82,7 +82,7 @@ export default function SignupModal({
   };
 
   return (
-    <Modal.Provider open={open} onOpenChange={onClose}>
+    <Modal.Root open={open} onOpenChange={onClose}>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>
@@ -125,6 +125,6 @@ export default function SignupModal({
           </Modal.Body>
         </Modal.Content>
       </Modal.Portal>
-    </Modal.Provider>
+    </Modal.Root>
   );
 }

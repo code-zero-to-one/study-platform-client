@@ -13,7 +13,7 @@ const bannerImages = [
 
 export default function BannerCarousel() {
   return (
-    <Carousel.Provider className="rounded-150 border-border-subtle border">
+    <Carousel.Root className="rounded-150 border-border-subtle border">
       <Carousel.Viewport>
         {bannerImages.map((src, i) => (
           <Carousel.Slide key={i}>
@@ -31,6 +31,6 @@ export default function BannerCarousel() {
       </Carousel.Viewport>
       <Carousel.Prev icon={<ArrowBackIcon />} />
       <Carousel.Next icon={<ArrowForwardIcon />} />
-    </Carousel.Provider>
+    </Carousel.Root>
   );
 }
