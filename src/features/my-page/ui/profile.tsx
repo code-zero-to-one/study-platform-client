@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { MemberProfile } from '@/entities/user/api/types';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
-import ProfileEditModal from './Profile-edit-modal';
+import ProfileEditModal from './profile-edit-modal';
 import { UpdateUserProfileRequest } from '../api/types';
 import { useUpdateUserProfileMutation } from '../model/use-update-user-profile-mutation';
 
