@@ -26,13 +26,9 @@ function RedirectionContent() {
         setCookie('memberId', searchParams.get('member-id') || '');
 
         if (isGuest === 'true') {
-          // 비회원일 경우 회원가입 페이지로 이동
-          await router.push('/sign-up');
+          window.location.href = '/sign-up';
         } else {
-          // 회원일 경우 쿼리 캐시 무효화
-          await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
-          await router.push('/');
-          await router.refresh();
+          window.location.href = '/';
         }
       } catch (error) {
         console.error('Redirection failed:', error);

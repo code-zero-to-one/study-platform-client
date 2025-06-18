@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -28,7 +28,6 @@ export default function ProfileEditModal({ onSubmit }: Props) {
   const [simpleIntroduction, setSimpleIntroduction] = useState('');
   const [interests, setInterests] = useState<string[]>([]);
 
-
   const handleSubmit = async () => {
     if (
       !name ||
@@ -37,7 +36,7 @@ export default function ProfileEditModal({ onSubmit }: Props) {
       !simpleIntroduction ||
       interests.length === 0
     ) {
-      alert("모든 필수 정보를 입력해주세요!");
+      alert('모든 필수 정보를 입력해주세요!');
 
       return;
     }
@@ -51,22 +50,21 @@ export default function ProfileEditModal({ onSubmit }: Props) {
       mbti,
       birthDate: '1997-01-01', // 임시 생략
       interests,
-      hobbies: [],  // 임시 생략
+      hobbies: [], // 임시 생략
     };
 
     onSubmit(formData);
   };
 
-
   return (
-    <Modal.Provider>
-      <Modal.Trigger className="w-full rounded-100 bg-fill-brand-default-default px-150 py-100 font-designer-16b text-text-inverse">
+    <Modal.Root>
+      <Modal.Trigger className="rounded-100 bg-fill-brand-default-default font-designer-16b text-text-inverse w-full px-150 py-100">
         내 프로필 수정
       </Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>
-          <Modal.Header>
+          <Modal.Header className="border-border-default border-b">
             <div className="flex items-center justify-between">
               <Modal.Title>내 프로필 수정</Modal.Title>
               <Modal.Close>
@@ -77,47 +75,61 @@ export default function ProfileEditModal({ onSubmit }: Props) {
           <Modal.Body>
             <div className="flex flex-col gap-300">
               <div className="flex gap-500">
-                <div className="flex w-[112px] font-designer-14b">
+                <div className="font-designer-14b flex w-[112px]">
                   이미지 설정
                 </div>
                 <div className="h-[110px] w-[110px] rounded-full bg-red-100" />
               </div>
               <FormField
-                label="이름 확인" type="text"
+                label="이름 확인"
+                type="text"
                 description="소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요."
-                value={name} onChange={setName}
+                value={name}
+                onChange={setName}
                 required
               />
               <FormField
-                label="연락처" type="text"
+                label="연락처"
+                type="text"
                 description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
-                value={tel} onChange={setTel}
+                value={tel}
+                onChange={setTel}
                 required
               />
               <FormField
-                label="Github" type="text"
+                label="Github"
+                type="text"
                 description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
-                value={githubLink} onChange={setGithubLink}
+                value={githubLink}
+                onChange={setGithubLink}
               />
               <FormField
-                label="MBTI" type="text"
+                label="MBTI"
+                type="text"
                 description="자신의 성격 유형을 입력해 주세요."
-                value={mbti} onChange={setMbti}
+                value={mbti}
+                onChange={setMbti}
               />
               <FormField
-                label="관심사" type="multidropdown"
-                value={interests} onChange={setInterests}
+                label="관심사"
+                type="multidropdown"
+                value={interests}
+                onChange={setInterests}
                 options={skillOptions}
               />
               <FormField
-                label="한마디 소개" type="textarea"
+                label="한마디 소개"
+                type="textarea"
                 description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
-                value={simpleIntroduction} onChange={setSimpleIntroduction}
+                value={simpleIntroduction}
+                onChange={setSimpleIntroduction}
               />
               <FormField
-                label="블로그/SNS 등 링크" type="text"
+                label="블로그/SNS 등 링크"
+                type="text"
                 description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
-                value={blogOrSnsLink} onChange={setBlogOrSnsLink}
+                value={blogOrSnsLink}
+                onChange={setBlogOrSnsLink}
               />
             </div>
           </Modal.Body>
@@ -127,7 +139,10 @@ export default function ProfileEditModal({ onSubmit }: Props) {
                 <Button color="secondary" className="w-[140px] cursor-pointer">
                   취소
                 </Button>
-                <Button className="w-[140px] cursor-pointer" onClick={handleSubmit}>
+                <Button
+                  className="w-[140px] cursor-pointer"
+                  onClick={handleSubmit}
+                >
                   수정 완료
                 </Button>
               </div>
@@ -135,6 +150,6 @@ export default function ProfileEditModal({ onSubmit }: Props) {
           </Modal.Footer>
         </Modal.Content>
       </Modal.Portal>
-    </Modal.Provider>
+    </Modal.Root>
   );
 }

@@ -60,7 +60,7 @@ export default function UserProfileCard({
           <div className="font-designer-18b">{name}님</div>
           <div className="flex flex-row items-center gap-100">
             <span className="font-designer-14r text-gray-800">스터디 매칭</span>
-            <ToggleSwitch.Provider
+            <ToggleSwitch.Root
               size="md"
               checked={enabled}
               onCheckedChange={handleToggleChange}

@@ -15,7 +15,7 @@ export default function ChipInput({ chips, onChange }: Props) {
   return (
     <div className="flex flex-col gap-[var(--spacing-75)]">
       <div className="flex items-center gap-[var(--spacing-50)]">
-        <BaseInput.Provider
+        <BaseInput
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
         />

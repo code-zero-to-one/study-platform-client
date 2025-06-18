@@ -1,8 +1,8 @@
 import './global.css';
 
-import { GoogleTagManager } from '@next/third-parties/google'
+import { GoogleTagManager } from '@next/third-parties/google';
 import type { Metadata } from 'next';
-import localFont from "next/font/local";
+import localFont from 'next/font/local';
 import MainProvider from '@/app/provider';
 import Header from '@/widgets/home/header';
 
@@ -12,12 +12,12 @@ export const metadata: Metadata = {
 };
 
 const pretendard = localFont({
-  src: "../public/fonts/PretendardVariable.woff2",
-  variable: "--font-pretendard",
-  display: "swap",
+  src: '../public/fonts/PretendardVariable.woff2',
+  variable: '--font-pretendard',
+  display: 'swap',
 });
 
-const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID
+const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export default function RootLayout({
   children,
@@ -26,12 +26,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        {GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
-      </head>
-      <body
-        className={pretendard.className}
-      >
+      <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
+      <body className={pretendard.className}>
         <MainProvider>
           <Header />
           <main className="container mx-auto">{children}</main>
@@ -40,4 +36,3 @@ export default function RootLayout({
     </html>
   );
 }
-

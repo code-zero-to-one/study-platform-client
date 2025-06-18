@@ -8,7 +8,7 @@ interface Props {
   onChange?: (value: string) => void;
 }
 
-export default function TextAreaInputProvider({
+function TextAreaInput({
   value,
   placeholder,
   guideText,
@@ -40,6 +40,4 @@ export default function TextAreaInputProvider({
   );
 }
 
-export const TextAreaInput = {
-  Provider: TextAreaInputProvider,
-} as const;
+export default TextAreaInput;
