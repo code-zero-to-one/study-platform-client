@@ -60,7 +60,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="medium">
-          <Modal.Header>
+          <Modal.Header className="border-border-default border-b">
             <div className="flex items-center justify-between">
               <Modal.Title>내 정보 수정</Modal.Title>
               <Modal.Close>

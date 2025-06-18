@@ -155,7 +155,7 @@ export default function StartStudyModal() {
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="large">
-          <Modal.Header className="flex items-center justify-between">
+          <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title className="font-designer-20b">
               CS 스터디 신청하기
             </Modal.Title>

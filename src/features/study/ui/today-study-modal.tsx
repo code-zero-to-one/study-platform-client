@@ -25,7 +25,7 @@ export default function TodayStudyModal({ mode }: TodayStudyModalProps) {
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>
-          <Modal.Header className="flex items-center justify-between">
+          <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title>
               {mode === 'ready' ? '면접 준비하기' : '면접 완료하기'}
             </Modal.Title>

@@ -64,7 +64,7 @@ export default function ProfileEditModal({ onSubmit }: Props) {
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>
-          <Modal.Header>
+          <Modal.Header className="border-border-default border-b">
             <div className="flex items-center justify-between">
               <Modal.Title>내 프로필 수정</Modal.Title>
               <Modal.Close>
