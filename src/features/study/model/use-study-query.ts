@@ -5,11 +5,10 @@ import {
 } from '@/features/study/api/get-study-data';
 import { GetDailyStudiesParams } from '../api/types';
 
-export const useDailyStudyDetailQuery = (dailyId: number) => {
+export const useDailyStudyDetailQuery = () => {
   return useQuery({
-    queryKey: ['dailyStudyDetail', dailyId],
-    queryFn: () => getDailyStudyDetail(dailyId),
-    enabled: !!dailyId,
+    queryKey: ['dailyStudyDetail'],
+    queryFn: () => getDailyStudyDetail(),
     staleTime: 60 * 1000,
   });
 };

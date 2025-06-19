@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/features/auth/api/auth';
-import { useMemberInfo } from '@/features/auth/model/useAuth';
+import { useMemberInfo } from '@/features/auth/model/use-auth';
 import { deleteCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
@@ -28,8 +28,8 @@ export default function Header() {
       queryClient.clear();
 
       // 4. 홈으로 리다이렉트
-      await router.push('/');
-      await router.refresh(); // 전체 페이지 리프레시
+      router.push('/');
+      router.refresh(); // 전체 페이지 리프레시
     } catch (error) {
       console.error('로그아웃 실패:', error);
     }

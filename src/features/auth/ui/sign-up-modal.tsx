@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
-} from '@/features/auth/model/useAuthMutation';
+} from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import SignupNameInput from '@/features/auth/ui/sign-up-name-input';
 import Button from '@/shared/ui/button';
@@ -83,7 +83,7 @@ export default function SignupModal({
   };
 
   return (
-    <Modal.Provider open={open} onOpenChange={onClose}>
+    <Modal.Root open={open} onOpenChange={onClose}>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>
@@ -126,6 +126,6 @@ export default function SignupModal({
           </Modal.Body>
         </Modal.Content>
       </Modal.Portal>
-    </Modal.Provider>
+    </Modal.Root>
   );
 }

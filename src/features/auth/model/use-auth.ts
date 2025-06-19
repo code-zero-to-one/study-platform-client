@@ -31,20 +31,20 @@ export const useProfile = (memberId?: string) => {
 // 회원 Id 기반 회원 정보 조회
 export const useMemberInfo = () => {
   const memberId = getCookie('memberId');
-  
+
   return useQuery<MemberInfoResponse>({
     queryKey: ['memberInfo', memberId],
     queryFn: async () => {
       if (!memberId) return { isLogin: false };
-      
+
       try {
         const profileData = await getProfile(Number(memberId));
-        
+
         return { isLogin: true, ...profileData };
       } catch (error) {
         return { isLogin: false };
       }
     },
-    enabled: !!memberId
+    enabled: !!memberId,
   });
 };

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { usePatchAutoMatchingMutation } from '@/entities/user/model/use-user-profile-query';
 import UserAvatar from '@/shared/ui/avatar';
 import { ToggleSwitch } from '@/shared/ui/toggle';
 import AccessTimeIcon from 'public/icons/access_time.svg';
@@ -9,6 +10,7 @@ import CodeIcon from 'public/icons/code.svg';
 import SettingIcon from 'public/icons/setting.svg';
 
 interface UserProfileCardProps {
+  memberId: number;
   name: string;
   imageUrl: string;
   matching: boolean;
@@ -18,6 +20,7 @@ interface UserProfileCardProps {
 }
 
 export default function UserProfileCard({
+  memberId,
   name,
   imageUrl,
   matching,
@@ -26,6 +29,23 @@ export default function UserProfileCard({
   techStacks,
 }: UserProfileCardProps) {
   const [enabled, setEnabled] = React.useState(matching);
+
+  const { mutate: patchAutoMatching, isPending } =
+    usePatchAutoMatchingMutation();
+
+  const handleToggleChange = (checked: boolean) => {
+    setEnabled(checked); // UI 즉시 반영 (낙관적 업데이트)
+
+    patchAutoMatching(
+      { memberId, autoMatching: checked },
+      {
+        onError: () => {
+          // 실패 시 원상복구
+          setEnabled(!checked);
+        },
+      },
+    );
+  };
 
   return (
     <section className="rounded-200 border-border-subtle bg-text-inverse flex flex-col items-start gap-200 border p-200">
@@ -40,10 +60,11 @@ export default function UserProfileCard({
           <div className="font-designer-18b">{name}님</div>
           <div className="flex flex-row items-center gap-100">
             <span className="font-designer-14r text-gray-800">스터디 매칭</span>
-            <ToggleSwitch.Provider
+            <ToggleSwitch.Root
               size="md"
               checked={enabled}
-              onCheckedChange={setEnabled}
+              onCheckedChange={handleToggleChange}
+              disabled={isPending}
             />
           </div>
         </div>

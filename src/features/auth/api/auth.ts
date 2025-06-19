@@ -43,9 +43,8 @@ export async function getProfile(memberId: number) {
 }
 
 // 로그아웃 API
-export async function logout() {
+export const logout = async (): Promise<number> => {
   const res = await axiosInstance.post('/auth/logout');
-  console.log('logout res', res);
 
-  return res.data;
-}
+  return res.data.statusCode;
+};

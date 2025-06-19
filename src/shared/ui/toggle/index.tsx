@@ -1,2 +1,2 @@
 export * from './switch';
-export * from './button';
+export { default as ToggleButton } from './button';

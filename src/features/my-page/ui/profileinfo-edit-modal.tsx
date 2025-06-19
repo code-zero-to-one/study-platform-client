@@ -51,7 +51,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
   const { data: techStacks } = useTechStacksQuery();
 
   return (
-    <Modal.Provider>
+    <Modal.Root>
       <Modal.Trigger>
         <div className="rounded-75 bg-fill-neutral-default-default font-designer-13b text-text-default cursor-pointer px-150 py-75">
           편집
@@ -60,7 +60,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="medium">
-          <Modal.Header>
+          <Modal.Header className="border-border-default border-b">
             <div className="flex items-center justify-between">
               <Modal.Title>내 정보 수정</Modal.Title>
               <Modal.Close>
@@ -152,6 +152,6 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
           </Modal.Footer>
         </Modal.Content>
       </Modal.Portal>
-    </Modal.Provider>
+    </Modal.Root>
   );
 }
