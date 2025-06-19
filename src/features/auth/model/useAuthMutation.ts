@@ -1,8 +1,8 @@
 // 데이터 변경(Mutation) 을 담당하는 커스텀 훅
 
 import { useMutation } from '@tanstack/react-query';
-import { SignUpResponse } from './types';
 import { signUp, uploadProfileImage } from '@/features/auth/api/auth';
+import { SignUpResponse } from './types';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
