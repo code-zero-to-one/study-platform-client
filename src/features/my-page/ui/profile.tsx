@@ -2,9 +2,9 @@
 
 import Image from 'next/image';
 import { MemberProfile } from '@/entities/user/api/types';
+import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
-import ProfileEditModal from './profile-edit-modal';
 import { UpdateUserProfileRequest } from '../api/types';
 import { useUpdateUserProfileMutation } from '../model/use-update-user-profile-mutation';
 
