@@ -2,11 +2,14 @@ import type {
   DailyStudy,
   GetDailyStudiesParams,
   GetDailyStudiesResponse,
+  GetDailyStudyDetailParams,
 } from '@/features/study/api/types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 
-export const getDailyStudyDetail = async (): Promise<DailyStudy> => {
-  const res = await axiosInstance.get(`/study/daily/today`);
+export const getDailyStudyDetail = async (
+  params: GetDailyStudyDetailParams,
+): Promise<DailyStudy> => {
+  const res = await axiosInstance.get(`/study/daily/today`, { params });
 
   return res.data.content;
 };

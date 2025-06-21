@@ -22,7 +22,13 @@ const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
 export default function TodayStudyCard({ date }: Props) {
   const [mode] = useState<'ready' | 'done'>('ready');
 
-  const { data, isLoading, error } = useDailyStudyDetailQuery();
+  const params = {
+    year: date.getFullYear(),
+    month: date.getMonth() + 1,
+    day: date.getDate(),
+  };
+
+  const { data, isLoading, error } = useDailyStudyDetailQuery(params);
 
   if (isLoading) return <div>로딩 중...</div>;
   if (error || !data) return <div>에러 발생</div>;
@@ -35,7 +41,7 @@ export default function TodayStudyCard({ date }: Props) {
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-100">
-        <InfoBox label="스터디 조" value="2조" />
+        <InfoBox label="스터디 조" value={`${data.studySpaceId} 조`} />
         <InfoBox
           label="면접자"
           value={

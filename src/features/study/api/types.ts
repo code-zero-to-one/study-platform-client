@@ -10,11 +10,17 @@ export interface DailyStudy {
   interviewerImage: string;
   interviewee: string;
   intervieweeImage: string;
-  dailyStudyId: number;
+  studySpaceId: number;
   subject: string;
   feedback: string | undefined;
   progressStatus: StudyProgressStatus;
   link: string;
+}
+
+export interface GetDailyStudyDetailParams {
+  year: number;
+  month: number;
+  day: number;
 }
 
 export interface GetDailyStudiesParams {

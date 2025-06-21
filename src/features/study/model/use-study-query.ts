@@ -3,13 +3,14 @@ import {
   getDailyStudies,
   getDailyStudyDetail,
 } from '@/features/study/api/get-study-data';
-import { GetDailyStudiesParams } from '../api/types';
+import { GetDailyStudiesParams, GetDailyStudyDetailParams } from '../api/types';
 
-export const useDailyStudyDetailQuery = () => {
+export const useDailyStudyDetailQuery = (params: GetDailyStudyDetailParams) => {
   return useQuery({
-    queryKey: ['dailyStudyDetail'],
-    queryFn: () => getDailyStudyDetail(),
+    queryKey: ['dailyStudyDetail', params],
+    queryFn: () => getDailyStudyDetail(params),
     staleTime: 60 * 1000,
+    enabled: !!params,
   });
 };
 
