@@ -1,4 +1,5 @@
 export type StudyProgressStatus =
+  | 'NONE'
   | 'BEFORE_PROGRESSED'
   | 'PENDING'
   | 'IN_PROGRESS'
@@ -33,4 +34,17 @@ export interface GetDailyStudiesParams {
 
 export interface GetDailyStudiesResponse {
   dailyStudyResponses: DailyStudy[];
+}
+
+export interface GetMonthlyCalendarParams {
+  year: number;
+  month: number;
+}
+
+export interface MonthlyCalendarResponse {
+  calender: {
+    [day: string]: {
+      [slot: string]: StudyProgressStatus;
+    };
+  };
 }
