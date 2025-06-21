@@ -29,13 +29,7 @@ export default function ProfileEditModal({ onSubmit }: Props) {
   const [interests, setInterests] = useState<string[]>([]);
 
   const handleSubmit = async () => {
-    if (
-      !name ||
-      !tel ||
-      !mbti ||
-      !simpleIntroduction ||
-      interests.length === 0
-    ) {
+    if (!name || !tel) {
       alert('모든 필수 정보를 입력해주세요!');
 
       return;
@@ -50,7 +44,6 @@ export default function ProfileEditModal({ onSubmit }: Props) {
       mbti,
       birthDate: '1997-01-01', // 임시 생략
       interests,
-      hobbies: [], // 임시 생략
     };
 
     onSubmit(formData);
