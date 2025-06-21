@@ -1,13 +1,12 @@
 export interface UpdateUserProfileRequest {
   name: string;
   tel: string;
-  githubLink: string;
-  blogOrSnsLink: string;
-  simpleIntroduction: string;
-  mbti: string;
-  birthDate: string;
-  interests: string[];
-  hobbies: string[];
+  githubLink?: string;
+  blogOrSnsLink?: string;
+  simpleIntroduction?: string;
+  mbti?: string;
+  interests?: string[];
+  profileImageExtension?: string;
 }
 
 export interface UpdateUserProfileResponse {

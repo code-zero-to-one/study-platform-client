@@ -88,7 +88,10 @@ export default function Profile({ memberId, memberProfile }: ProfileProps) {
           </div>
         </div>
 
-        <ProfileEditModal onSubmit={handleSubmit} />
+        <ProfileEditModal
+          onSubmit={handleSubmit}
+          memberProfile={memberProfile}
+        />
       </div>
     </div>
   );
