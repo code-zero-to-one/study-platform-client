@@ -48,16 +48,20 @@ export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
       return;
     }
 
-    const formData: UpdateUserProfileRequest = {
+    const rawFormData: UpdateUserProfileRequest = {
       name,
       tel,
-      githubLink,
-      blogOrSnsLink,
-      simpleIntroduction,
-      mbti,
-      interests,
-      profileImageExtension,
+      githubLink: githubLink.trim() || undefined,
+      blogOrSnsLink: blogOrSnsLink.trim() || undefined,
+      simpleIntroduction: simpleIntroduction.trim() || undefined,
+      mbti: mbti.trim() || undefined,
+      interests: interests.length > 0 ? interests : undefined,
+      profileImageExtension: profileImageExtension || undefined,
     };
+
+    const formData = Object.fromEntries(
+      Object.entries(rawFormData).filter(([_, v]) => v !== undefined),
+    ) as UpdateUserProfileRequest;
 
     onSubmit(formData);
   };
