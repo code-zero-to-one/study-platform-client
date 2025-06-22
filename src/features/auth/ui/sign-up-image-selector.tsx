@@ -18,13 +18,9 @@ export default function SignupImageSelector({
 
   return (
     <div className="relative">
-      <Image
-        src={image}
-        alt="프로필"
-        width={112} // Tailwind 기준 w-28 = 112px
-        height={112}
-        className="relative rounded-full object-cover"
-      />
+      <div className="relative h-[112px] w-[112px] overflow-hidden rounded-full">
+        <Image src={image} alt="프로필" fill className="object-cover" />
+      </div>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button
