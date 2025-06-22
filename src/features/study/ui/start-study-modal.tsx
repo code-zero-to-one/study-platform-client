@@ -10,7 +10,8 @@ import {
 } from '@/features/my-page/model/use-update-user-profile-mutation';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
-import { SingleDropdown, MultiDropdown } from '@/shared/ui/dropdown';
+import MultiDropdown from '@/shared/ui/dropdown/multi';
+import SingleDropdown from '@/shared/ui/dropdown/single';
 import { BaseInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import { ToggleButton } from '@/shared/ui/toggle';

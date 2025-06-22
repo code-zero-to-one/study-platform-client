@@ -21,8 +21,8 @@ export function useUploadProfileImageMutation() {
     mutationFn: (data: {
       memberId: number;
       filename: string;
-      formData: FormData;
-    }) => uploadProfileImage(data.memberId, data.filename, data.formData),
+      file: FormData;
+    }) => uploadProfileImage(data.memberId, data.filename, data.file),
   });
 }
 

@@ -4,10 +4,11 @@ import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/features/auth/model/use-auth-mutation';
+import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
+import SignupNameInput from '@/features/auth/ui/sign-up-name-input';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
-import SignupImageSelector from './sign-up-image-selector';
-import SignupNameInput from './sign-up-name-input';
 
 export default function SignupModal({
   open,
@@ -18,7 +19,9 @@ export default function SignupModal({
 }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const [image, setImage] = useState('/profile-default.svg');
+  const [image, setImage] = useState(
+    getCookie('socialImageURL') || 'profile-default.svg',
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const signUp = useSignUpMutation();
@@ -59,17 +62,19 @@ export default function SignupModal({
             const formData = new FormData();
 
             if (fileInputRef.current?.files?.[0]) {
-              formData.append('image', fileInputRef.current.files[0]);
+              // 스프링서버에서 받는 파라미터 이름이 file
+              formData.append('file', fileInputRef.current.files[0]);
 
               uploadProfileImage.mutate({
                 memberId: Number(data.content.generatedMemberId),
-                filename: 'profile.jpg',
-                formData: formData,
+                filename: `profile-formdata-${data.content.generatedMemberId}`,
+                file: formData,
               });
             }
 
+            console.log('formData', formData.get('file'));
             // 성공 후 홈페이지로 이동
-            window.location.href = '/';
+            // window.location.href = '/';
           }
         },
         onError: (error) => {
