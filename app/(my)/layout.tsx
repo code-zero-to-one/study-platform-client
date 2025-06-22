@@ -1,4 +1,10 @@
+import { Metadata } from 'next';
 import Sidebar from '@/widgets/my-page/sidebar';
+
+export const metadata: Metadata = {
+  title: '마이페이지',
+  description: 'ZERO-ONE 마이페이지',
+};
 
 export default function MyLayout({
   children,
