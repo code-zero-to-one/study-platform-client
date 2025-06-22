@@ -22,7 +22,10 @@ export default function Profile({ memberId, memberProfile }: ProfileProps) {
 
   return (
     <div className="flex w-full max-w-[80%] gap-300 px-200">
-      <UserAvatar image={''} size={90} />
+      <UserAvatar
+        image={memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl}
+        size={90}
+      />
       <div className="flex flex-grow flex-col gap-400">
         <div className="flex flex-col gap-300">
           <div className="flex flex-col gap-75">
@@ -91,6 +94,7 @@ export default function Profile({ memberId, memberProfile }: ProfileProps) {
         <ProfileEditModal
           onSubmit={handleSubmit}
           memberProfile={memberProfile}
+          memberId={memberId}
         />
       </div>
     </div>

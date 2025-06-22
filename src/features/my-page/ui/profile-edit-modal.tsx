@@ -1,8 +1,10 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { MemberProfile } from '@/entities/user/api/types';
+import { useUploadProfileImageMutation } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
@@ -12,6 +14,7 @@ import { UpdateUserProfileRequest } from '../api/types';
 interface Props {
   onSubmit: (formData: UpdateUserProfileRequest) => void;
   memberProfile: MemberProfile;
+  memberId: number;
 }
 
 const skillOptions = [
@@ -22,7 +25,11 @@ const skillOptions = [
   { label: 'MySQL', value: 'MySQL' },
 ];
 
-export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
+export default function ProfileEditModal({
+  onSubmit,
+  memberProfile,
+  memberId,
+}: Props) {
   const [name, setName] = useState<UpdateUserProfileRequest['name']>(
     memberProfile.memberName ?? '',
   );
@@ -52,12 +59,27 @@ export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
   const [profileImageExtension, setProfileImageExtension] =
     useState<UpdateUserProfileRequest['profileImageExtension']>(undefined);
 
-  const [image, setImage] = useState('/profile-default.svg');
+  const [image, setImage] = useState(
+    memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl ??
+      '/profile-default.svg',
+  );
+
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const uploadProfileImage = useUploadProfileImageMutation();
+  const queryClient = useQueryClient();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(URL.createObjectURL(e.target.files[0]));
+      const file = e.target.files[0];
+      setImage(URL.createObjectURL(file));
+
+      const ext = file.name.split('.').pop()?.toUpperCase();
+      if (ext && ['JPG', 'PNG', 'GIF', 'WEBP'].includes(ext)) {
+        setProfileImageExtension(ext as 'JPG' | 'PNG' | 'GIF' | 'WEBP');
+      } else {
+        alert('지원하지 않는 이미지 형식입니다.');
+        setProfileImageExtension(undefined);
+      }
     }
   };
 
@@ -68,6 +90,8 @@ export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
       return;
     }
 
+    const isDefaultImage = image === '/profile-default.svg';
+
     const rawFormData: UpdateUserProfileRequest = {
       name,
       tel,
@@ -76,7 +100,7 @@ export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
       simpleIntroduction: simpleIntroduction.trim() || undefined,
       mbti: mbti.trim() || undefined,
       interests: interests.length > 0 ? interests : undefined,
-      profileImageExtension: profileImageExtension || undefined,
+      profileImageExtension: isDefaultImage ? undefined : profileImageExtension,
     };
 
     const formData = Object.fromEntries(
@@ -84,6 +108,24 @@ export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
     ) as UpdateUserProfileRequest;
 
     onSubmit(formData);
+
+    if (fileInputRef.current?.files?.[0]) {
+      const imageFormData = new FormData();
+      imageFormData.append('file', fileInputRef.current.files[0]);
+
+      try {
+        await uploadProfileImage.mutateAsync({
+          memberId: memberId,
+          filename: `profile-formdata-${memberId}`,
+          file: imageFormData,
+        });
+
+        await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
+      } catch (error) {
+        console.error('이미지 업로드 실패:', error);
+        alert('이미지 업로드에 실패했습니다.');
+      }
+    }
   };
 
   return (
