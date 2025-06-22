@@ -25,9 +25,7 @@ export default async function Sidebar() {
       <UserProfileCard
         memberId={memberId}
         name={userProfile?.memberProfile.memberName || '비회원'}
-        // 프로필 오류로 인한 임시
-        // imageUrl={userProfile?.memberProfile.profileImage.resizedImages[0]?.resizedImageUrl || ''}
-        imageUrl={''}
+        imageUrl={userProfile?.memberProfile?.profileImage?.resizedImages[0]?.resizedImageUrl || ''}
         matching={userProfile?.autoMatching ?? false}
         subject={
           userProfile?.memberInfo.preferredStudySubject?.name ?? '선택안함'

@@ -8,12 +8,15 @@ import { useMemberInfo } from '@/features/auth/model/use-auth';
 import { deleteCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
+import { HeaderDropdown } from '@/shared/ui/dropdown';
 import NotiIcon from 'public/icons/notifications_none.svg';
 
 export default function Header() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const memberInfo = useMemberInfo();
+  console.log("프로필 이미지 주소",memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]?.resizedImageUrl);
+
   const handleLogout = async () => {
     try {
       // 1. 서버에 로그아웃 요청 (refresh token 삭제)
@@ -47,26 +50,39 @@ export default function Header() {
                <Link href='/study'>마이스터디</Link>
             </nav> */}
 
-        <div className="flex shrink-0 items-center gap-150">
-          <Link href="/notifications" aria-label="알림">
-            <NotiIcon />
-          </Link>
-          <Link href="/my-page">
-            <UserAvatar />
-          </Link>
-          {!memberInfo.data?.isLogin ? (
-            <Link href="/login">
-              <Button color="primary" size="small">
-                로그인 / 회원가입
-              </Button>
-            </Link>
-          ) : (
-            <Button color="primary" size="small" onClick={handleLogout}>
-              로그아웃
-            </Button>
-          )}
-        </div>
-      </div>
-    </header>
-  );
+            <div className='shrink-0 flex items-center gap-150'>
+               <Link href='/notifications' aria-label='알림'>
+                  <NotiIcon />
+               </Link>
+               <HeaderDropdown.Provider
+                  placeholder={<UserAvatar image={memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]?.resizedImageUrl || 'profile-default.svg'} />}
+                  options={[
+                     {
+                        label: '내 정보 수정',
+                        value: '/my-page',
+                     },
+                     {
+                        label: '로그아웃',
+                        value: 'logout',                        
+                     }
+                  ]}
+                  onChange={async (value) => {
+                     if (value === '/my-page') {
+                        await router.push(value);
+                     } else if (value === 'logout') {
+                        await handleLogout();
+                     }
+                  }}
+               />
+               {!memberInfo.data?.isLogin && (
+               <Link href="/login">
+                  <Button color="primary" size="small">
+                     로그인 / 회원가입
+                  </Button>
+               </Link>
+               )}
+            </div>
+         </div>
+      </header>
+   );
 }
