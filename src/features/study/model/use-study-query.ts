@@ -1,13 +1,15 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   getDailyStudies,
   getDailyStudyDetail,
   getMonthlyStudyCalendar,
+  postJoinStudy,
 } from '@/features/study/api/get-study-data';
 import {
   GetDailyStudiesParams,
   GetDailyStudyDetailParams,
   GetMonthlyCalendarParams,
+  JoinStudyRequest,
   MonthlyCalendarResponse,
 } from '../api/types';
 
@@ -36,5 +38,11 @@ export const useMonthlyStudyCalendarQuery = (
     queryFn: () => getMonthlyStudyCalendar(params),
     staleTime: 60 * 1000,
     enabled: !!params?.year && !!params?.month,
+  });
+};
+
+export const useJoinStudyMutation = () => {
+  return useMutation({
+    mutationFn: (payload: JoinStudyRequest) => postJoinStudy(payload),
   });
 };
