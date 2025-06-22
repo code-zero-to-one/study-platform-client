@@ -35,17 +35,18 @@ export default function SignupImageSelector({
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
+          side="right"
           sideOffset={8}
-          className="z-50 min-w-[120px] rounded border bg-white p-1 shadow-lg"
+          className="rounded-50 border-border-default font-designer-14m text-text-subtle z-50 min-w-[120px] border bg-white p-50 shadow-lg"
         >
           <DropdownMenu.Item
-            className="cursor-pointer px-4 py-2 text-sm hover:bg-gray-100"
+            className="hover:text-text-default hover:font-designer-14b cursor-pointer px-50 py-[2px] hover:bg-gray-100"
             onSelect={setDefaultImage}
           >
             기본 이미지
           </DropdownMenu.Item>
           <DropdownMenu.Item
-            className="cursor-pointer px-4 py-2 text-sm hover:bg-gray-100"
+            className="hover:text-text-default hover:font-designer-14b cursor-pointer px-50 py-[2px] hover:bg-gray-100"
             onSelect={openFileDialog}
           >
             앨범에서 선택

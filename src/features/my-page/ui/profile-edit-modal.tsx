@@ -1,8 +1,9 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { MemberProfile } from '@/entities/user/api/types';
+import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { FormField } from '../../../shared/ui/form/form-field';
@@ -40,6 +41,15 @@ export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
   const [profileImageExtension, setProfileImageExtension] = useState<
     string | undefined
   >(undefined);
+
+  const [image, setImage] = useState('/profile-default.svg');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setImage(URL.createObjectURL(e.target.files[0]));
+    }
+  };
 
   const handleSubmit = async () => {
     if (!name || !tel) {
@@ -85,10 +95,15 @@ export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
           <Modal.Body>
             <div className="flex flex-col gap-300">
               <div className="flex gap-500">
-                <div className="font-designer-14b flex w-[112px]">
+                <div className="font-designer-14b flex w-[100px]">
                   이미지 설정
                 </div>
-                <div className="h-[110px] w-[110px] rounded-full bg-red-100" />
+                <SignupImageSelector
+                  image={image}
+                  setImage={setImage}
+                  fileInputRef={fileInputRef}
+                  handleImageChange={handleImageChange}
+                />
               </div>
               <FormField
                 label="이름 확인"
