@@ -1,5 +1,4 @@
-import MultiDropdown from '@/shared/ui/dropdown/multi';
-import SingleDropdown from '@/shared/ui/dropdown/single';
+import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { ToggleButton } from '@/shared/ui/toggle';
 
