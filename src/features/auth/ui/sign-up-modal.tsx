@@ -70,9 +70,8 @@ export default function SignupModal({
               });
             }
 
-            console.log('formData', formData.get('file'));
             // 성공 후 홈페이지로 이동
-            // window.location.href = '/';
+            window.location.href = '/';
           }
         },
         onError: (error) => {
