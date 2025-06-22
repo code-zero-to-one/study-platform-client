@@ -28,7 +28,6 @@ export const axiosInstanceForMultipart = axios.create({
 // multipart 요청 로깅용
 axiosInstanceForMultipart.interceptors.request.use(
   (config) => {
-    console.log('axios.ts - mulitpart requset 디버깅콘솔', config);
     return config;
   },
   (error) => Promise.reject(error),
