@@ -1,27 +1,15 @@
 'use client';
 
 import { ko } from 'date-fns/locale';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { HTMLAttributes } from 'react';
 import {
   type CalendarDay as DayPickerDay,
   type Modifiers,
 } from 'react-day-picker';
+import { useMonthlyStudyCalendarQuery } from '@/features/study/model/use-study-query';
 import { cn } from '@/shared/shadcn/lib/utils';
 import { Calendar as ShadcnCalendar } from '@/shared/shadcn/ui/calendar';
-
-// 임시 API 함수 가정
-async function fetchCalendarData() {
-  return {
-    completedDays: [
-      new Date(2025, 5, 17),
-      new Date(2025, 5, 12),
-      new Date(2025, 5, 3),
-    ],
-    monthlyCompletedCount: 3,
-    totalCompletedCount: 25,
-  };
-}
 
 interface CalendarDayProps extends HTMLAttributes<HTMLTableCellElement> {
   day: DayPickerDay;
@@ -74,28 +62,24 @@ export const formatCaption = (date: Date) => {
 };
 
 const Calendar = (props: React.ComponentProps<typeof ShadcnCalendar>) => {
-  const [completedDays, setCompletedDays] = useState<Date[]>([]);
-  const [monthlyCompletedCount, setMonthlyCompletedCount] = useState<number>();
-  const [totalCompletedCount, setTotalCompletedCount] = useState<number>();
-  const [loading, setLoading] = useState(true);
+  const [selectedMonth, setSelectedMonth] = useState(new Date());
 
-  const today = new Date();
-  const currentMonth = today.getMonth() + 1;
+  const year = selectedMonth.getFullYear();
+  const month = selectedMonth.getMonth() + 1;
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const data = await fetchCalendarData();
-      setCompletedDays(data.completedDays);
-      setMonthlyCompletedCount(data.monthlyCompletedCount);
-      setTotalCompletedCount(data.totalCompletedCount);
-      setLoading(false);
-    };
+  const { data, isLoading } = useMonthlyStudyCalendarQuery({ year, month });
 
-    fetchData().catch(console.error);
-  }, []);
+  const completedDays = React.useMemo(() => {
+    if (!data?.calender) return [];
 
-  if (loading) return <div>로딩 중...</div>;
+    return Object.entries(data.calender)
+      .filter(([, timeSlots]) => Object.values(timeSlots).includes('COMPLETE'))
+      .map(([day]) => new Date(Number(day)));
+  }, [data]);
+
+  const monthlyCompletedCount = completedDays.length;
+
+  if (isLoading) return <div>로딩 중...</div>;
 
   return (
     <div
@@ -109,6 +93,8 @@ const Calendar = (props: React.ComponentProps<typeof ShadcnCalendar>) => {
       <ShadcnCalendar
         className="w-full"
         locale={ko}
+        month={selectedMonth}
+        onMonthChange={setSelectedMonth}
         formatters={{ formatCaption }}
         modifiers={{
           completed: completedDays,
@@ -127,22 +113,14 @@ const Calendar = (props: React.ComponentProps<typeof ShadcnCalendar>) => {
           day: 'text-center font-designer-14m rounded-full',
         }}
         footer={
-          (typeof monthlyCompletedCount === 'number' ||
-            typeof totalCompletedCount === 'number') && (
-            <div className="flex w-full flex-col gap-75 pt-200">
-              {typeof monthlyCompletedCount === 'number' && (
-                <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
-                  {currentMonth}월은 {monthlyCompletedCount}번의 스터디를
-                  완료했어요.
-                </div>
-              )}
-              {typeof totalCompletedCount === 'number' && (
-                <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
-                  총 {totalCompletedCount}번의 스터디를 완료했어요.
-                </div>
-              )}
+          <div className="flex w-full flex-col gap-75 pt-200">
+            <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
+              {month}월은 {monthlyCompletedCount}번의 스터디를 완료했어요.
             </div>
-          )
+            <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
+              총 {monthlyCompletedCount}번의 스터디를 완료했어요.
+            </div>
+          </div>
         }
         {...props}
       />

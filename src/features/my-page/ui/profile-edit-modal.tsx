@@ -2,6 +2,7 @@
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import { MemberProfile } from '@/entities/user/api/types';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { FormField } from '../../../shared/ui/form/form-field';
@@ -9,6 +10,7 @@ import { UpdateUserProfileRequest } from '../api/types';
 
 interface Props {
   onSubmit: (formData: UpdateUserProfileRequest) => void;
+  memberProfile: MemberProfile;
 }
 
 const skillOptions = [
@@ -19,23 +21,28 @@ const skillOptions = [
   { label: 'MySQL', value: 'MySQL' },
 ];
 
-export default function ProfileEditModal({ onSubmit }: Props) {
-  const [name, setName] = useState('');
-  const [tel, setTel] = useState('');
-  const [githubLink, setGithubLink] = useState('');
-  const [blogOrSnsLink, setBlogOrSnsLink] = useState('');
-  const [mbti, setMbti] = useState('');
-  const [simpleIntroduction, setSimpleIntroduction] = useState('');
-  const [interests, setInterests] = useState<string[]>([]);
+export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
+  const [name, setName] = useState(memberProfile.memberName ?? '');
+  const [tel, setTel] = useState(memberProfile.tel ?? '');
+  const [githubLink, setGithubLink] = useState(
+    memberProfile.githubLink?.url ?? '',
+  );
+  const [blogOrSnsLink, setBlogOrSnsLink] = useState(
+    memberProfile.blogOrSnsLink?.url ?? '',
+  );
+  const [mbti, setMbti] = useState(memberProfile.mbti ?? '');
+  const [simpleIntroduction, setSimpleIntroduction] = useState(
+    memberProfile.simpleIntroduction ?? '',
+  );
+  const [interests, setInterests] = useState<string[]>(
+    memberProfile.interests?.map((item) => item.name) ?? [],
+  );
+  const [profileImageExtension, setProfileImageExtension] = useState<
+    string | undefined
+  >(undefined);
 
   const handleSubmit = async () => {
-    if (
-      !name ||
-      !tel ||
-      !mbti ||
-      !simpleIntroduction ||
-      interests.length === 0
-    ) {
+    if (!name || !tel) {
       alert('모든 필수 정보를 입력해주세요!');
 
       return;
@@ -48,9 +55,8 @@ export default function ProfileEditModal({ onSubmit }: Props) {
       blogOrSnsLink,
       simpleIntroduction,
       mbti,
-      birthDate: '1997-01-01', // 임시 생략
       interests,
-      hobbies: [], // 임시 생략
+      profileImageExtension,
     };
 
     onSubmit(formData);
