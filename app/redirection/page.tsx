@@ -18,14 +18,18 @@ function RedirectionContent() {
         );
         const isGuest = searchParams.get('is-guest');
 
-        setCookie("accessToken", accessToken);
-        setCookie("memberId", searchParams.get('member-id') || '');
-        setCookie("socialImageURL", searchParams.get('profile-image-url') || '');
+        setCookie('accessToken', accessToken);
+        setCookie('memberId', searchParams.get('member-id') || '');
+        setCookie(
+          'socialImageURL',
+          searchParams.get('profile-image-url') || '',
+        );
 
         if (isGuest === 'true') {
-          window.location.href = '/sign-up';
+          router.push('/sign-up');
         } else {
-          window.location.href = '/';
+          router.push('/');
+          router.refresh();
         }
       } catch (error) {
         console.error('Redirection failed:', error);
