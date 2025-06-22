@@ -15,6 +15,8 @@ export default function Header() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const memberInfo = useMemberInfo();
+  console.log("프로필 이미지 주소",memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]?.resizedImageUrl);
+
   const handleLogout = async () => {
     try {
       // 1. 서버에 로그아웃 요청 (refresh token 삭제)
@@ -53,7 +55,7 @@ export default function Header() {
                   <NotiIcon />
                </Link>
                <HeaderDropdown.Provider
-                  placeholder={<UserAvatar image={memberInfo.data?.content.memberProfile.profileImage.resizedImages[0]?.resizedImageUrl || 'profile-default.svg'} />}
+                  placeholder={<UserAvatar image={memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]?.resizedImageUrl || 'profile-default.svg'} />}
                   options={[
                      {
                         label: '내 정보 수정',

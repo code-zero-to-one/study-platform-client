@@ -1,6 +1,6 @@
 // API 통신만 담당하는 순수 함수들
 
-import { axiosInstance, axiosInstanceForBlob } from '@/shared/tanstack-query/axios';
+import { axiosInstance, axiosInstanceForMultipart } from '@/shared/tanstack-query/axios';
 
 // 회원가입 요청 API
 export async function signUp(data: any) {
@@ -14,14 +14,15 @@ export async function signUp(data: any) {
 export async function uploadProfileImage(
   memberId: number,
   filename: string,
-  file: File,
+  file: FormData,
 ) {
-  const res = await axiosInstanceForBlob.put(
+  console.log('uploadProfileImage 요청직전', file);
+  // Bug : 여기서 에러발생중
+  const res = await axiosInstanceForMultipart.put(
     `/files/members/${memberId}/profile/image/${filename}`,
     file,
-    {
-    },
   );
+  console.log('auth.ts - uploadProfileImage 응답', res);
 
   return res.data;
 }

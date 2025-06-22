@@ -11,12 +11,12 @@ export const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// blob 요청용 (파일 업로드용)
-export const axiosInstanceForBlob = axios.create({
+// multipart 요청용
+export const axiosInstanceForMultipart = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
   timeout: 10000,
   headers: {
-    'Content-Type': 'application/octet-stream',
+    // JS에서 formData 를 넘길땐 Content-Type 생략해야 자동으로 multipart/form-data + boundary 설정됨
   },
 });
 
@@ -24,6 +24,15 @@ export const axiosInstanceForBlob = axios.create({
     accessToken 은 쿠키에 저장
     refreshToken 은 HttpOnly 쿠키로 JS에서 접근 불가, 백엔드 서버와 쿠키로 통신
 */
+
+// multipart 요청 로깅용
+axiosInstanceForMultipart.interceptors.request.use(
+  (config) => {
+    console.log('axios.ts - mulitpart requset 디버깅콘솔', config);
+    return config;
+  },
+  (error) => Promise.reject(error),
+);
 
 axiosInstance.interceptors.request.use(
   (config) => {
