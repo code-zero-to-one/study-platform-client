@@ -1,5 +1,4 @@
 import type {
-  DailyStudy,
   DailyStudyDetail,
   GetDailyStudiesParams,
   GetDailyStudiesResponse,

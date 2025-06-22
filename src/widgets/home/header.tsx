@@ -3,12 +3,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
 import { logout } from '@/features/auth/api/auth';
 import { useMemberInfo } from '@/features/auth/model/use-auth';
 import { deleteCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
-import Button from '@/shared/ui/button';
 import { HeaderDropdown } from '@/shared/ui/dropdown';
 import NotiIcon from 'public/icons/notifications_none.svg';
 
