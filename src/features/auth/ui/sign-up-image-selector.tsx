@@ -23,15 +23,15 @@ export default function SignupImageSelector({
         alt="프로필"
         width={112} // Tailwind 기준 w-28 = 112px
         height={112}
-        className="relative rounded-full border-2 border-pink-200 object-cover"
+        className="relative rounded-full object-cover"
       />
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button
-            className="absolute right-0 bottom-0 rounded-full border bg-white p-2 shadow hover:bg-gray-100"
+            className="bg-background-dimmer hover:bg-background-accent-gray-strong border-border-default absolute right-0 bottom-0 rounded-full border-2 p-75 shadow"
             aria-label="프로필 이미지 변경"
           >
-            <PencilIcon className="h-5 w-5 text-gray-600" />
+            <PencilIcon className="text-icon-inverse h-200 w-200" />
           </button>
         </DropdownMenu.Trigger>
         <DropdownMenu.Content
