@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/shared/shadcn/lib/utils';
@@ -5,14 +6,22 @@ import Button from '@/shared/ui/button';
 import Input from '@/shared/ui/input/base';
 import { Modal } from '@/shared/ui/modal';
 import CreateIcon from 'public/icons/create.svg';
+import { postDailyRetrospect, postStudyDaily } from '../api/get-study-data';
 
 interface TodayStudyModalProps {
   mode: 'ready' | 'done';
+  refetchKey: ['dailyStudyDetail', any];
 }
 
-export default function TodayStudyModal({ mode }: TodayStudyModalProps) {
+export default function TodayStudyModal({
+  mode,
+  refetchKey,
+}: TodayStudyModalProps) {
   const [interviewTopic, setInterviewTopic] = useState('');
   const [referenceLink, setReferenceLink] = useState('');
+  const queryClient = useQueryClient();
+
+  const now = new Date();
 
   return (
     <Modal.Root>
@@ -78,11 +87,37 @@ export default function TodayStudyModal({ mode }: TodayStudyModalProps) {
                 size="large"
                 color={interviewTopic ? 'primary' : 'secondary'}
                 className={cn(!interviewTopic && 'cursor-not-allowed')}
-                onClick={(e) => {
+                onClick={async (e) => {
                   if (!interviewTopic) {
                     e.preventDefault();
 
                     return;
+                  }
+
+                  try {
+                    if (mode === 'ready') {
+                      await postStudyDaily({
+                        subject: interviewTopic,
+                        description: '',
+                        link: referenceLink,
+                        privated: true,
+                        planTime: now.toISOString(),
+                      });
+                    } else {
+                      await postDailyRetrospect({
+                        description: interviewTopic,
+                        parentId: 9007199254740991,
+                      });
+                    }
+
+                    // ✅ TodayStudyCard refetch
+                    await queryClient.invalidateQueries({
+                      queryKey: refetchKey,
+                    });
+                  } catch (err) {
+                    e.preventDefault();
+                    console.error(err);
+                    alert('요청 처리에 실패했습니다. 다시 시도해주세요.');
                   }
                 }}
               >

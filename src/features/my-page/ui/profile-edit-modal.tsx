@@ -23,24 +23,34 @@ const skillOptions = [
 ];
 
 export default function ProfileEditModal({ onSubmit, memberProfile }: Props) {
-  const [name, setName] = useState(memberProfile.memberName ?? '');
-  const [tel, setTel] = useState(memberProfile.tel ?? '');
-  const [githubLink, setGithubLink] = useState(
-    memberProfile.githubLink?.url ?? '',
+  const [name, setName] = useState<UpdateUserProfileRequest['name']>(
+    memberProfile.memberName ?? '',
   );
-  const [blogOrSnsLink, setBlogOrSnsLink] = useState(
-    memberProfile.blogOrSnsLink?.url ?? '',
+  const [tel, setTel] = useState<UpdateUserProfileRequest['tel']>(
+    memberProfile.tel ?? '',
   );
-  const [mbti, setMbti] = useState(memberProfile.mbti ?? '');
-  const [simpleIntroduction, setSimpleIntroduction] = useState(
-    memberProfile.simpleIntroduction ?? '',
+  const [githubLink, setGithubLink] = useState<
+    UpdateUserProfileRequest['githubLink']
+  >(memberProfile.githubLink?.url ?? '');
+
+  const [blogOrSnsLink, setBlogOrSnsLink] = useState<
+    UpdateUserProfileRequest['blogOrSnsLink']
+  >(memberProfile.blogOrSnsLink?.url ?? '');
+
+  const [mbti, setMbti] = useState<UpdateUserProfileRequest['mbti']>(
+    memberProfile.mbti ?? '',
   );
-  const [interests, setInterests] = useState<string[]>(
-    memberProfile.interests?.map((item) => item.name) ?? [],
-  );
-  const [profileImageExtension, setProfileImageExtension] = useState<
-    string | undefined
-  >(undefined);
+
+  const [simpleIntroduction, setSimpleIntroduction] = useState<
+    UpdateUserProfileRequest['simpleIntroduction']
+  >(memberProfile.simpleIntroduction ?? '');
+
+  const [interests, setInterests] = useState<
+    UpdateUserProfileRequest['interests']
+  >(memberProfile.interests?.map((item) => item.name) ?? []);
+
+  const [profileImageExtension, setProfileImageExtension] =
+    useState<UpdateUserProfileRequest['profileImageExtension']>(undefined);
 
   const [image, setImage] = useState('/profile-default.svg');
   const fileInputRef = useRef<HTMLInputElement>(null);
