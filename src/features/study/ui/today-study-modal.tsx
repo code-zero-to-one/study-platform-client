@@ -42,38 +42,63 @@ export default function TodayStudyModal({
               <XIcon />
             </Modal.Close>
           </Modal.Header>
-
           <Modal.Body className="flex flex-col gap-400">
-            <div className="flex flex-col gap-100">
-              <label className="font-designer-16b text-text-default mb-100 inline-block">
-                면접 주제{' '}
-                <span className="font-designer-13m text-text-error">필수</span>
-              </label>
-              <span className="font-designer-13m text-text-subtle">
-                이번 스터디에서 다룰 면접 주제를 입력하세요
-              </span>
-              <Input
-                className="border-border-default rounded-100 border p-150"
-                placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교"
-                value={interviewTopic}
-                onChange={(e) => setInterviewTopic(e.target.value)}
-              />
-            </div>
+            {mode === 'ready' ? (
+              <>
+                <div className="flex flex-col gap-100">
+                  <label className="font-designer-16b text-text-default mb-100 inline-block">
+                    면접 주제{' '}
+                    <span className="font-designer-13m text-text-error">
+                      필수
+                    </span>
+                  </label>
+                  <span className="font-designer-13m text-text-subtle">
+                    이번 스터디에서 다룰 면접 주제를 입력하세요
+                  </span>
+                  <Input
+                    className="border-border-default rounded-100 border p-150"
+                    placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교"
+                    value={interviewTopic}
+                    onChange={(e) => setInterviewTopic(e.target.value)}
+                  />
+                </div>
 
-            <div className="flex flex-col gap-100">
-              <label className="font-designer-16b text-text-default mb-100 inline-block">
-                참고 자료
-              </label>
-              <span className="font-designer-13m text-text-subtle">
-                참고할 링크나 자료가 있다면 입력해 주세요
-              </span>
-              <Input
-                className="border-border-default rounded-100 border p-150"
-                placeholder="https://github.com"
-                value={referenceLink}
-                onChange={(e) => setReferenceLink(e.target.value)}
-              />
-            </div>
+                <div className="flex flex-col gap-100">
+                  <label className="font-designer-16b text-text-default mb-100 inline-block">
+                    참고 자료
+                  </label>
+                  <span className="font-designer-13m text-text-subtle">
+                    참고할 링크나 자료가 있다면 입력해 주세요
+                  </span>
+                  <Input
+                    className="border-border-default rounded-100 border p-150"
+                    placeholder="https://github.com"
+                    value={referenceLink}
+                    onChange={(e) => setReferenceLink(e.target.value)}
+                  />
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="flex flex-col gap-100">
+                  <label className="font-designer-16b text-text-default mb-100 inline-block">
+                    회고 작성{' '}
+                    <span className="font-designer-13m text-text-error">
+                      필수
+                    </span>
+                  </label>
+                  <span className="font-designer-13m text-text-subtle">
+                    오늘 면접에 대한 회고를 작성해 주세요
+                  </span>
+                  <Input
+                    className="border-border-default rounded-100 border p-150"
+                    placeholder="생각보다 어렵지 않았어요. 다음엔 좀 더 자세히 준비할게요."
+                    value={interviewTopic}
+                    onChange={(e) => setInterviewTopic(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
           </Modal.Body>
 
           <Modal.Footer className="flex justify-end gap-100">
@@ -110,7 +135,6 @@ export default function TodayStudyModal({
                       });
                     }
 
-                    // ✅ TodayStudyCard refetch
                     await queryClient.invalidateQueries({
                       queryKey: refetchKey,
                     });

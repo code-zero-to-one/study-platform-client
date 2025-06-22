@@ -1,7 +1,6 @@
 'use client';
 
-import { Avatar, AvatarImage, AvatarFallback } from '@/shared/shadcn/ui/avatar';
-import DefaultUserIcon from 'public/profile-default.svg';
+import { Avatar, AvatarImage } from '@/shared/shadcn/ui/avatar';
 
 interface UserAvatarProps {
   image?: string;

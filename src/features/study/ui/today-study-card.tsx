@@ -37,7 +37,10 @@ export default function TodayStudyCard({ date }: Props) {
     <section className="flex w-full flex-col gap-150">
       <div className="mb-4 flex items-start justify-between">
         <h3 className="font-bold-h5 text-text-strong">오늘의 스터디</h3>
-        <TodayStudyModal mode={mode} />
+        <TodayStudyModal
+          mode={mode}
+          refetchKey={['dailyStudyDetail', params]}
+        />
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-100">
