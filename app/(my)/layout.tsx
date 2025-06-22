@@ -14,9 +14,7 @@ export default function MyLayout({
   return (
     <div className="flex">
       <Sidebar />
-      <div className="w-full px-[150px] pt-[var(--spacing-500)] pb-[100px]">
-        {children}
-      </div>
+      <div className="w-full px-[150px] pt-500 pb-[100px]">{children}</div>
     </div>
   );
 }
