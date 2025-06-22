@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import React from 'react';
 import { usePatchAutoMatchingMutation } from '@/entities/user/model/use-user-profile-query';
 import UserAvatar from '@/shared/ui/avatar';
@@ -52,9 +53,12 @@ export default function UserProfileCard({
       <div className="flex flex-row items-center gap-200">
         <div className="relative h-[64px] w-[64px] shrink-0">
           <UserAvatar size={64} image={imageUrl} />
-          <div className="bg-background-accent-gray-strong absolute right-0 bottom-0 flex h-[24px] w-[24px] items-center justify-center rounded-full">
+          <Link
+            href="/my-page"
+            className="bg-background-accent-gray-strong absolute right-0 bottom-0 flex h-[24px] w-[24px] items-center justify-center rounded-full"
+          >
             <SettingIcon />
-          </div>
+          </Link>
         </div>
         <div className="flex flex-col">
           <div className="font-designer-18b">{name}님</div>
