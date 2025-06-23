@@ -348,7 +348,7 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                   });
                 }}
               >
-                작성 완료
+                신청 완료
               </Button>
             </Modal.Close>
           </Modal.Footer>
