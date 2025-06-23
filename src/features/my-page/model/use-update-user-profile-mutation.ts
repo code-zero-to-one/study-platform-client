@@ -16,6 +16,7 @@ export const useUpdateUserProfileMutation = (memberId: number) => {
   const router = useRouter();
 
   return useMutation({
+    mutationKey: ['updateUserProfile', memberId],
     mutationFn: (formData: UpdateUserProfileRequest) =>
       updateUserProfile(memberId, formData),
 

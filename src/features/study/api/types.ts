@@ -18,6 +18,17 @@ export interface DailyStudy {
   link: string;
 }
 
+export interface DailyStudyDetail {
+  interviewer: string;
+  interviewerImage: string;
+  studySpaceId: number;
+  interviewee: string;
+  subject: string;
+  progressStatus: StudyProgressStatus;
+  link: string;
+  feedback: string | undefined;
+}
+
 export interface GetDailyStudyDetailParams {
   year: number;
   month: number;
@@ -47,4 +58,29 @@ export interface MonthlyCalendarResponse {
       [slot: string]: StudyProgressStatus;
     };
   };
+}
+
+export interface PostDailyRetrospectRequest {
+  description: string;
+  parentId: number;
+}
+
+export interface PostStudyDailyRequest {
+  subject: string;
+  description: string;
+  link: string;
+  privated: boolean;
+  planTime: string;
+}
+
+export interface JoinStudyRequest {
+  memberId: number;
+  selfIntroduction?: string;
+  studyPlan?: string;
+  preferredStudySubjectId?: string;
+  availableStudyTimeIds?: number[];
+  techStackIds?: number[];
+  tel?: string;
+  githubLink?: string;
+  blogOrSnsLink?: string;
 }

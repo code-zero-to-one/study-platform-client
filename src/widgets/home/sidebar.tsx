@@ -1,22 +1,14 @@
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 import StartStudyModal from '@/features/study/ui/start-study-modal';
 import UserProfileCard from '@/features/study/ui/user-profile-card';
-import { getServerCookie } from '@/shared/lib/server-cookie';
+import { getLoginUserId } from '@/shared/lib/get-login-user';
 import Calendar from '@/widgets/home/calendar';
 import TodoList from '@/widgets/home/todo-list';
 
 export default async function Sidebar() {
-  const memberIdStr = await getServerCookie('memberId');
-  const memberId = Number(memberIdStr ?? 0);
+  const memberId = await getLoginUserId();
 
-  let userProfile = null;
-  if (memberId) {
-    try {
-      userProfile = await getUserProfile(memberId);
-    } catch (e) {
-      console.error('Fail to get userProfile', e);
-    }
-  }
+  const userProfile = await getUserProfile(memberId);
 
   const hasTodo = false; // 나중에 스터디 참여 유무로 변경할 예정
 
@@ -48,7 +40,7 @@ export default async function Sidebar() {
       {hasTodo ? (
         <TodoList statusList={[true, false, false]} />
       ) : (
-        <StartStudyModal />
+        <StartStudyModal memberId={memberId} />
       )}
       <Calendar />
     </aside>

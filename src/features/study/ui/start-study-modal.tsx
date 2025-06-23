@@ -10,11 +10,16 @@ import {
 } from '@/features/my-page/model/use-update-user-profile-mutation';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
-import MultiDropdown from '@/shared/ui/dropdown/multi';
-import SingleDropdown from '@/shared/ui/dropdown/single';
+import { SingleDropdown, MultiDropdown } from '@/shared/ui/dropdown';
 import { BaseInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import { ToggleButton } from '@/shared/ui/toggle';
+import { JoinStudyRequest } from '../api/types';
+import { useJoinStudyMutation } from '../model/use-study-query';
+
+interface StartStudyModalProps {
+  memberId: number;
+}
 
 interface LabeledFieldProps {
   label: string;
@@ -102,22 +107,27 @@ export function LabeledField({
   );
 }
 
-export default function StartStudyModal() {
-  const [introduce, setIntroduce] = useState('');
-  const [studyPlan, setStudyPlan] = useState('');
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [github, setGithub] = useState('');
-  const [blog, setBlog] = useState('');
-  const [preferredSubject, setPreferredSubject] = useState<
-    string | number | undefined
-  >(undefined);
-
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<number[]>([]);
-  const [selectedSkills, setSelectedSkills] = useState<number[]>([]);
+export default function StartStudyModal({ memberId }: StartStudyModalProps) {
+  const [introduce, setIntroduce] =
+    useState<JoinStudyRequest['selfIntroduction']>('');
+  const [studyPlan, setStudyPlan] = useState<JoinStudyRequest['studyPlan']>('');
+  const [phoneNumber, setPhoneNumber] = useState<JoinStudyRequest['tel']>('');
+  const [github, setGithub] = useState<JoinStudyRequest['githubLink']>('');
+  const [blog, setBlog] = useState<JoinStudyRequest['blogOrSnsLink']>('');
+  const [preferredSubject, setPreferredSubject] =
+    useState<JoinStudyRequest['preferredStudySubjectId']>(undefined);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<
+    JoinStudyRequest['availableStudyTimeIds']
+  >([]);
+  const [selectedSkills, setSelectedSkills] = useState<
+    JoinStudyRequest['techStackIds']
+  >([]);
 
   const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
   const { data: studySubjects } = useStudySubjectsQuery();
   const { data: techStacks } = useTechStacksQuery();
+
+  const { mutate: joinStudy } = useJoinStudyMutation();
 
   const toggleTimeSlot = (id: number) => {
     setAvailableTimeSlots((prev) =>
@@ -129,14 +139,19 @@ export default function StartStudyModal() {
     introduce.trim() !== '' &&
     studyPlan.trim() !== '' &&
     phoneNumber.trim() !== '' &&
-    availableTimeSlots.length > 0;
+    preferredSubject !== undefined &&
+    availableTimeSlots.length > 0 &&
+    selectedSkills.length > 0;
 
   const getMissingFields = () => {
     const missing: string[] = [];
+
     if (introduce.trim() === '') missing.push('자기소개');
     if (studyPlan.trim() === '') missing.push('공부 주제 및 계획');
-    if (phoneNumber.trim() === '') missing.push('연락처');
+    if (preferredSubject === undefined) missing.push('선호하는 스터디 주제');
     if (availableTimeSlots.length === 0) missing.push('가능 시간대');
+    if (selectedSkills.length === 0) missing.push('사용 가능한 기술 스택');
+    if (phoneNumber.trim() === '') missing.push('연락처');
 
     return missing;
   };
@@ -218,7 +233,7 @@ export default function StartStudyModal() {
                     }),
                   )}
                   placeholder="선택하세요"
-                  onChange={(value) => setPreferredSubject(value)}
+                  onChange={(value) => setPreferredSubject(value.toString())}
                 />
               </LabeledField>
 
@@ -313,12 +328,24 @@ export default function StartStudyModal() {
                 className={cn(!isFormValid && 'cursor-not-allowed')}
                 onClick={(e) => {
                   if (!isFormValid) {
-                    e.preventDefault(); // 모달 닫힘 방지
+                    e.preventDefault();
                     const missing = getMissingFields();
                     alert(`다음 항목을 입력해 주세요: ${missing.join(', ')}`);
 
                     return;
                   }
+
+                  joinStudy({
+                    memberId,
+                    selfIntroduction: introduce,
+                    studyPlan,
+                    preferredStudySubjectId: preferredSubject?.toString(),
+                    availableStudyTimeIds: availableTimeSlots,
+                    techStackIds: selectedSkills,
+                    tel: phoneNumber,
+                    githubLink: github.trim() || undefined,
+                    blogOrSnsLink: blog.trim() || undefined,
+                  });
                 }}
               >
                 작성 완료

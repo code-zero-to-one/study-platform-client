@@ -19,19 +19,21 @@ interface Props {
 }
 
 export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
-  const [selfIntroduction, setSelfIntroduction] = useState(
-    memberInfo.selfIntroduction ?? '',
-  );
-  const [studyPlan, setStudyPlan] = useState(memberInfo.studyPlan ?? '');
-  const [preferredSubject, setPreferredSubject] = useState(
-    memberInfo.preferredStudySubject?.studySubjectId ?? undefined,
-  );
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<number[]>(
-    (memberInfo.availableStudyTimes ?? []).map((time) => time?.id ?? 0),
-  );
-  const [selectedSkills, setSelectedSkills] = useState<number[]>(
-    (memberInfo.techStacks ?? []).map((tech) => tech?.techStackId ?? 0),
-  );
+  const [selfIntroduction, setSelfIntroduction] = useState<
+    UpdateUserProfileInfoRequest['selfIntroduction']
+  >(memberInfo.selfIntroduction ?? '');
+  const [studyPlan, setStudyPlan] = useState<
+    UpdateUserProfileInfoRequest['studyPlan']
+  >(memberInfo.studyPlan ?? '');
+  const [preferredSubject, setPreferredSubject] = useState<
+    UpdateUserProfileInfoRequest['preferredStudySubject']
+  >(memberInfo.preferredStudySubject?.studySubjectId ?? undefined);
+  const [availableTimeSlots, setAvailableTimeSlots] = useState<
+    UpdateUserProfileInfoRequest['availableStudyTimeIds']
+  >((memberInfo.availableStudyTimes ?? []).map((time) => time?.id ?? 0));
+  const [selectedSkills, setSelectedSkills] = useState<
+    UpdateUserProfileInfoRequest['techStackIds']
+  >((memberInfo.techStacks ?? []).map((tech) => tech?.techStackId ?? 0));
 
   const handleSubmit = () => {
     const formData: UpdateUserProfileInfoRequest = {

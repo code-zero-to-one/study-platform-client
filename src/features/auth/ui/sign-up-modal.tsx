@@ -6,9 +6,9 @@ import {
 } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import SignupNameInput from '@/features/auth/ui/sign-up-name-input';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 
 export default function SignupModal({
   open,
@@ -19,7 +19,9 @@ export default function SignupModal({
 }) {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
-  const [image, setImage] = useState(getCookie('socialImageURL') || 'profile-default.svg');
+  const [image, setImage] = useState(
+    getCookie('socialImageURL') || 'profile-default.svg',
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const signUp = useSignUpMutation();
@@ -87,8 +89,8 @@ export default function SignupModal({
     <Modal.Root open={open} onOpenChange={onClose}>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content>
-          <Modal.Header>
+        <Modal.Content size="small">
+          <Modal.Header className="border-border-default border-b">
             <div className="flex items-center justify-between">
               <Modal.Title>ZERO - ONE 시작하기</Modal.Title>
               <Modal.Close>
@@ -96,15 +98,15 @@ export default function SignupModal({
               </Modal.Close>
             </div>
           </Modal.Header>
-          <Modal.Body>
-            <div className="flex flex-col items-center gap-[12px]">
+          <Modal.Body className="px-400 py-500">
+            <div className="flex flex-col items-center gap-400">
               <SignupImageSelector
                 image={image}
                 setImage={setImage}
                 fileInputRef={fileInputRef}
                 handleImageChange={handleImageChange}
               />
-              <div className="mt-2 text-center text-lg font-semibold">
+              <div className="font-designer-24b text-text-default mt-2 text-center">
                 서비스 이용을 위해
                 <br />
                 닉네임 대신 이름을 입력해주세요.
@@ -121,7 +123,7 @@ export default function SignupModal({
                 type="submit"
                 onClick={handleSubmit}
               >
-                작성 완료
+                가입 완료
               </Button>
             </div>
           </Modal.Body>
