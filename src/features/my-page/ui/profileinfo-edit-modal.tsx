@@ -1,8 +1,10 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { MemberInfo } from '@/entities/user/api/types';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { FormField } from '@/shared/ui/form/form-field';
 import { Modal } from '@/shared/ui/modal';
@@ -145,7 +147,20 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
                 </Button>
                 <Button
                   className="w-[140px] cursor-pointer"
-                  onClick={handleSubmit}
+                  onClick={() => {
+                    handleSubmit();
+
+                    const selectedSkillNames = techStacks.filter((techStack) =>
+                      selectedSkills.includes(techStack.techStackId),
+                    );
+
+                    sendGTMEvent({
+                      event_name: 'member_card',
+                      timestamp: new Date().toISOString(),
+                      dl_member_id: getCookie('memberId'),
+                      dl_tags: selectedSkillNames,
+                    });
+                  }}
                 >
                   수정 완료
                 </Button>
