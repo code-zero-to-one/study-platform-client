@@ -1,7 +1,9 @@
+import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/shared/shadcn/lib/utils';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import Input from '@/shared/ui/input/base';
 import { Modal } from '@/shared/ui/modal';
@@ -132,6 +134,14 @@ export default function TodayStudyModal({
                       await postDailyRetrospect({
                         description: interviewTopic,
                         parentId: 9007199254740991,
+                      });
+                      // ? dl_study_id와 dl_attendee_id를 어떻게 설정하면 좋을지 고민
+                      sendGTMEvent({
+                        event_name: 'study_complete',
+                        timestamp: new Date().toISOString(),
+                        // dl_study_id: 'study_2103',
+                        dl_member_id: getCookie('memberId'),
+                        // dl_attendee_id: 'member_1023',
                       });
                     }
 
