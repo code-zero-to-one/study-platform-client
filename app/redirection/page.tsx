@@ -42,7 +42,7 @@ function RedirectionContent() {
             event_name: 'member_login',
             timestamp: new Date().toISOString(),
             dl_member_id: memberId,
-            dl_login_method: '',
+            // dl_login_method: '',
           });
         }
       } catch (error) {
