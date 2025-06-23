@@ -29,6 +29,11 @@ function RedirectionContent() {
 
         if (isGuest === 'true') {
           router.push('/sign-up');
+          sendGTMEvent({
+            event: 'member_join',
+            timestamp: new Date().toISOString(),
+            dl_member_id: memberId,
+          });
         } else {
           // todo: login_method는 google 또는 kakao로 설정
           router.push('/');
