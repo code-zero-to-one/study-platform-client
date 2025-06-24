@@ -4,6 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { MemberInfo } from '@/entities/user/api/types';
+import { hashValue } from '@/shared/lib/hash';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { FormField } from '@/shared/ui/form/form-field';
@@ -150,6 +151,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
                   onClick={() => {
                     handleSubmit();
 
+                    const memberId = getCookie('memberId');
                     const selectedSkillNames = techStacks.filter((techStack) =>
                       selectedSkills.includes(techStack.techStackId),
                     );
@@ -157,7 +159,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
                     sendGTMEvent({
                       event_name: 'member_card',
                       timestamp: new Date().toISOString(),
-                      dl_member_id: getCookie('memberId'),
+                      dl_member_id: hashValue(memberId),
                       dl_tags: selectedSkillNames,
                     });
                   }}

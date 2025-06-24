@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/features/auth/api/auth';
 import { useMemberInfo } from '@/features/auth/model/use-auth';
+import { hashValue } from '@/shared/lib/hash';
 import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import { HeaderDropdown } from '@/shared/ui/dropdown';
@@ -31,7 +32,7 @@ export default function Header() {
       sendGTMEvent({
         event_name: 'member_logout',
         timestamp: new Date().toISOString(),
-        dl_member_id: memberId,
+        dl_member_id: hashValue(memberId),
       });
 
       // 2. 클라이언트의 access token 삭제

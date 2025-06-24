@@ -4,6 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, Suspense } from 'react';
+import { hashValue } from '@/shared/lib/hash';
 import { setCookie } from '@/shared/tanstack-query/cookie';
 
 function RedirectionContent() {
@@ -32,7 +33,7 @@ function RedirectionContent() {
           sendGTMEvent({
             event: 'member_join',
             timestamp: new Date().toISOString(),
-            dl_member_id: memberId,
+            dl_member_id: hashValue(memberId),
           });
         } else {
           // todo: login_method는 google 또는 kakao로 설정
@@ -41,7 +42,7 @@ function RedirectionContent() {
           sendGTMEvent({
             event_name: 'member_login',
             timestamp: new Date().toISOString(),
-            dl_member_id: memberId,
+            dl_member_id: hashValue(memberId),
             // dl_login_method: '',
           });
         }
