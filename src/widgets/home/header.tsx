@@ -1,11 +1,13 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { logout } from '@/features/auth/api/auth';
 import { useMemberInfo } from '@/features/auth/model/use-auth';
-import { deleteCookie } from '@/shared/tanstack-query/cookie';
+import { hashValue } from '@/shared/lib/hash';
+import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import { HeaderDropdown } from '@/shared/ui/dropdown';
 import NotiIcon from 'public/icons/notifications_none.svg';
@@ -25,6 +27,13 @@ export default function Header() {
     try {
       // 1. 서버에 로그아웃 요청 (refresh token 삭제)
       await logout();
+
+      const memberId = getCookie('memberId');
+      sendGTMEvent({
+        event_name: 'member_logout',
+        timestamp: new Date().toISOString(),
+        dl_member_id: hashValue(memberId),
+      });
 
       // 2. 클라이언트의 access token 삭제
       deleteCookie('accessToken');

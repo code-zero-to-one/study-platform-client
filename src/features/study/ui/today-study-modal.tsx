@@ -1,7 +1,10 @@
+import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import { hashValue } from '@/shared/lib/hash';
 import { cn } from '@/shared/shadcn/lib/utils';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import Input from '@/shared/ui/input/base';
 import { Modal } from '@/shared/ui/modal';
@@ -133,6 +136,17 @@ export default function TodayStudyModal({
                         description: interviewTopic,
                         parentId: 9007199254740991,
                       });
+
+                      // ? dl_study_id와 dl_attendee_id를 어떻게 설정하면 좋을지 고민
+                      // const memberId = getCookie('memberId');
+
+                      // sendGTMEvent({
+                      //   event_name: 'study_complete',
+                      //   timestamp: new Date().toISOString(),
+                      //   // dl_study_id: 'study_2103',
+                      //   dl_member_id: hashValue(memberId),
+                      //   // dl_attendee_id: 'member_1023',
+                      // });
                     }
 
                     await queryClient.invalidateQueries({

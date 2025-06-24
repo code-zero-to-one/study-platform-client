@@ -1,10 +1,12 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
 import { logout } from '@/features/auth/api/auth';
+import { hashValue } from '@/shared/lib/hash';
 import { cn } from '@/shared/shadcn/lib/utils';
-import { deleteCookie } from '@/shared/tanstack-query/cookie';
+import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
 
 export default function Sidebar() {
   const router = useRouter();
@@ -14,8 +16,17 @@ export default function Sidebar() {
   const handleLogout = async () => {
     try {
       await logout();
+
+      const memberId = getCookie('memberId');
+      sendGTMEvent({
+        event_name: 'member_logout',
+        timestamp: new Date().toISOString(),
+        dl_member_id: hashValue(memberId),
+      });
+
       deleteCookie('accessToken');
       deleteCookie('memberId');
+
       queryClient.clear();
       router.push('/');
       router.refresh();
