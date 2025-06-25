@@ -4,6 +4,8 @@ import QueryProvider from '../src/app/provider/query-provider';
 import type { Preview } from '@storybook/nextjs-vite';
 
 const preview: Preview = {
+  // mocking APIs of server interaction
+  // loaders: [mswLoader],
   parameters: {
     controls: {
       matchers: {
