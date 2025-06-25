@@ -1,3 +1,4 @@
+import { sendGTMEvent } from '@next/third-parties/google';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
   getUserProfile,
@@ -7,6 +8,7 @@ import type {
   GetUserProfileResponse,
   PatchAutoMatchingParams,
 } from '@/entities/user/api/types';
+import { hashValue } from '@/shared/lib/hash';
 
 export const useUserProfileQuery = (memberId: number) => {
   return useQuery<GetUserProfileResponse>({
@@ -20,5 +22,20 @@ export const useUserProfileQuery = (memberId: number) => {
 export const usePatchAutoMatchingMutation = () => {
   return useMutation<void, unknown, PatchAutoMatchingParams>({
     mutationFn: patchAutoMatching,
+    onSuccess: (_, variables) => {
+      if (variables.autoMatching) {
+        sendGTMEvent({
+          event_name: 'member_study_toggle_on',
+          timestamp: new Date().toISOString(),
+          dl_member_id: hashValue(String(variables.memberId)),
+        });
+      } else {
+        sendGTMEvent({
+          event_name: 'member_study_toggle_off',
+          timestamp: new Date().toISOString(),
+          dl_member_id: hashValue(String(variables.memberId)),
+        });
+      }
+    },
   });
 };
