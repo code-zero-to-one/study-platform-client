@@ -1,5 +1,5 @@
 import { beforeAll } from 'vitest';
-import { setProjectAnnotations } from '@storybook/experimental-nextjs-vite';
+import { setProjectAnnotations } from '@storybook/nextjs-vite';
 import * as projectAnnotations from './preview';
 
 // This is an important step to apply the right configuration when testing your stories.
@@ -7,3 +7,4 @@ import * as projectAnnotations from './preview';
 const project = setProjectAnnotations([projectAnnotations]);
 
 beforeAll(project.beforeAll);
+
