@@ -34,13 +34,9 @@ function Badge({
   VariantProps<typeof badgeVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot : 'span';
 
-  return (
-    <Comp
-      data-slot="badge"
-      className={cn(badgeVariants({ variant }), className)}
-      {...props}
-    />
-  );
+  // Default shadcn 스타일을 사용하지 않는다고 판단해, badgeVariants 제공하지 않습니다.
+  // TODO: PR 이 approve 되면 해당 주석을 제거합니다.
+  return <Comp data-slot="badge" className={cn(className)} {...props} />;
 }
 
 export { Badge, badgeVariants };
