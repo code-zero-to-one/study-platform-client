@@ -41,7 +41,7 @@ const toggleThumbVariants = cva(
   },
 );
 
-interface ToggleProps
+export interface ToggleProps
   extends React.ComponentProps<typeof SwitchPrimitive.Root> {
   label?: string;
   color?: 'primary' | 'gray';
