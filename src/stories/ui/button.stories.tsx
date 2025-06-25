@@ -1,93 +1,114 @@
-import type { Meta, StoryObj } from '@storybook/react';
-
+import { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { fn } from 'storybook/test';
 import Button from '@/shared/ui/button';
 
-const meta: Meta<typeof Button> = {
+const meta = {
+  title: 'UI/Button',
+  tags: ['autodocs'],
   component: Button,
   argTypes: {
     children: {
+      description: 'Button 레이블',
       control: {
         type: 'text',
       },
     },
+    asChild: {
+      control: 'boolean',
+      description:
+        'Children 으로 전달된 HTML 요소로 해당 컴포넌트를 렌더링할지의 여부를 결정합니다.',
+      table: {
+        type: { summary: 'boolean' },
+        defaultValue: { summary: 'false' },
+      },
+    },
     disabled: {
+      description: 'Button 활성화 유무',
+      type: 'boolean',
       control: {
         type: 'boolean',
         defaultValue: false,
       },
     },
     color: {
+      description: 'Button 컴포넌트 색',
       control: {
-        options: ['primary', 'secondary'],
         type: 'select',
       },
+      options: ['primary', 'secondary'],
     },
     size: {
+      description: 'Button 컴포넌트 크기',
       control: {
-        options: ['xsmall', 'small', 'medium', 'large'],
         type: 'select',
       },
+      options: ['xsmall', 'small', 'medium', 'large'],
     },
   },
-};
+  decorators: [
+    (Story, context) => {
+      if (context.args.asChild && typeof context.args.children === 'string') {
+        return (
+          <Story
+            args={{
+              ...context.args,
+              children: <p>{context.args.children}</p>,
+            }}
+          />
+        );
+      }
+
+      return <Story />;
+    },
+  ],
+  args: {
+    onClick: fn(),
+  },
+} satisfies Meta<typeof Button>;
 
 export default meta;
-
 type Story = StoryObj<typeof Button>;
 
+// --- Stories ---
+
 export const Default: Story = {
-  render: ({ children, ...args }) => {
-    return <Button {...args}>{children ?? 'Hello World'}</Button>;
+  args: {
+    disabled: false,
+    children: '버튼 레이블',
   },
 };
 
-export const All = {
-  render: () => (
-    <div className="flex w-[150px] flex-col gap-50">
-      <div className="flex gap-50">
-        <Button color="primary" size="xsmall">
-          Primary XSmall
-        </Button>
-        <Button color="secondary" size="xsmall">
-          Secondary XSmall
-        </Button>
-        <Button color="primary" size="xsmall" disabled className="flex-grow-0">
-          Disabled XSmall
-        </Button>
-      </div>
-      <div className="flex gap-50">
-        <Button color="primary" size="small">
-          Primary Small
-        </Button>
-        <Button color="secondary" size="small">
-          Secondary Small
-        </Button>
-        <Button color="primary" size="small" disabled className="flex-grow-0">
-          Disabled Small
-        </Button>
-      </div>
-      <div className="flex gap-50">
-        <Button color="primary" size="medium">
-          Primary Medium
-        </Button>
-        <Button color="secondary" size="medium">
-          Secondary Medium
-        </Button>
-        <Button color="primary" size="medium" disabled className="flex-grow-0">
-          Disabled Medium
-        </Button>
-      </div>
-      <div className="flex gap-50">
-        <Button color="primary" size="large">
-          Primary Large
-        </Button>
-        <Button color="secondary" size="large">
-          Secondary Large
-        </Button>
-        <Button color="primary" size="large" disabled className="flex-grow-0">
-          Disabled Large
-        </Button>
-      </div>
-    </div>
-  ),
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+    children: '버튼 레이블',
+  },
+};
+export const Small: Story = {
+  args: {
+    size: 'small',
+    disabled: false,
+    children: '버튼 레이블',
+  },
+};
+export const XSmall: Story = {
+  args: {
+    size: 'xsmall',
+    disabled: false,
+    children: '버튼 레이블',
+  },
+};
+export const Medium: Story = {
+  args: {
+    size: 'medium',
+    disabled: false,
+    children: '버튼 레이블',
+  },
+};
+export const Large: Story = {
+  args: {
+    size: 'large',
+    disabled: false,
+    children: '버튼 레이블',
+  },
 };
