@@ -8,16 +8,16 @@ import {
   StudyProgressStatus,
 } from '../../features/study/api/types';
 
-const headers = [
-  '조',
-  '지원자',
-  '면접관',
-  '면접 주제',
-  '피드백',
-  '진행 상태',
-  '참고 자료',
-] as const;
-type Header = (typeof headers)[number];
+// const headers = [
+//   '조',
+//   '지원자',
+//   '면접관',
+//   '면접 주제',
+//   '피드백',
+//   '진행 상태',
+//   '참고 자료',
+// ] as const;
+// type Header = (typeof headers)[number];
 
 interface Props {
   date: Date;
@@ -31,10 +31,7 @@ const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
   ABSENT: <Badge color="incomplete">불참</Badge>,
 };
 
-function mapDailyStudyToDisplayData(
-  row: DailyStudy,
-  index: number,
-): Record<Header, React.ReactNode> {
+function mapDailyStudyToDisplayData(row: DailyStudy, index: number) {
   return {
     조: index + 1,
     지원자: (
@@ -85,13 +82,12 @@ export default function StudyListSection({ date }: Props) {
   if (error) return <div>에러 발생</div>;
   if (!data) return null;
 
-  const displayData: Record<Header, React.ReactNode>[] =
-    data.dailyStudyResponses.map(mapDailyStudyToDisplayData);
+  const displayData = data.dailyStudyResponses.map(mapDailyStudyToDisplayData);
 
   return (
     <section className="w-full">
       <h3 className="font-bold-h5 pb-150">오늘의 스터디 리스트</h3>
-      <TableList headers={headers} data={displayData} />
+      <TableList data={displayData} />
     </section>
   );
 }
