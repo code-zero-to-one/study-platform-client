@@ -35,7 +35,7 @@ jobs:
 
             # git 저장소 없으면 clone, 있으면 fetch + reset (덮어쓰기)
             if [ ! -d ".git" ]; then
-              git clone https://github.com/your/repo.git .
+              git clone https://github.com/code-zero-to-one/study-platform-client.git .
               echo "Git clone 완료"
             else
               git fetch origin
