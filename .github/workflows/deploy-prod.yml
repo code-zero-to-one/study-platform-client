@@ -33,6 +33,16 @@ jobs:
             
             cd ~/study-platform-client-prod
 
+            # git 저장소 없으면 clone, 있으면 fetch + reset (덮어쓰기)
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/your/repo.git .
+              echo "Git clone 완료"
+            else
+              git fetch origin
+              git reset --hard origin/main
+              echo "Git fetch & reset 완료"
+            fi
+            
             git fetch origin
             git checkout main
             git pull origin main
