@@ -6,6 +6,9 @@ WORKDIR /app
 
 COPY . .
 
+# 빌드시점에 .env 파일 복사
+COPY .env .env
+
 RUN yarn install && yarn build
 
 # 2단계: production
