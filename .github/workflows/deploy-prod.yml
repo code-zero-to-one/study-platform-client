@@ -35,8 +35,9 @@ jobs:
             echo "빌드 진행 중"
             yarn build
 
-            pm2 delete front-server-prod || true
-            pm2 start ecosystem.config.js
-
+            echo "도커 컴포즈 재시작"
+            docker-compose down || true
+            docker-compose up -d --build
+            
             echo "운영 서버 배포 완료"
           EOF
