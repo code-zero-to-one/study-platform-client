@@ -10,6 +10,6 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - NODE_ENV=production
+      # - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=https://api.zeroone.it.kr
     restart: unless-stopped
