@@ -6,7 +6,7 @@ WORKDIR /app
 
 COPY . .
 
-# 빌드시점에 .env 파일 복사
+# 빌드시점에 .env 파일 복사 
 COPY .env .env
 
 RUN yarn install && yarn build
@@ -21,6 +21,9 @@ COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
+
+# 런타임시점에도 .env 파일 복사
+COPY --from=builder /app/.env .env
 
 # devDependencies는 설치하지 않고 dependencies만 설치
 RUN yarn install --production 
