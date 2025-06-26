@@ -36,8 +36,8 @@ jobs:
             yarn build
 
             echo "도커 컴포즈 재시작"
-            docker-compose down || true
-            docker-compose up -d --build
-            
+            docker compose down || true
+            docker compose up -d --build
+
             echo "운영 서버 배포 완료"
           EOF
