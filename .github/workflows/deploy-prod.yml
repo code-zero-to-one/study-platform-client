@@ -24,16 +24,20 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_PROD_USER }}@${{ secrets.LIGHTSAIL_PROD_HOST }} << 'EOF'
+            
+            # 디렉토리 없으면 생성
+            if [ ! -d "$HOME/study-platform-client-prod" ]; then
+              mkdir -p "$HOME/study-platform-client-prod"
+              echo "디렉토리 생성 완료"
+            fi
+            
             cd ~/study-platform-client-prod
 
             git fetch origin
             git checkout main
             git pull origin main
 
-            echo "패키지 설치 중"
-            yarn install
-            echo "빌드 진행 중"
-            yarn build
+            # 도커로 패키지 설치와 빌드 진행
 
             echo "도커 컴포즈 재시작"
             docker compose down || true
