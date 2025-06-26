@@ -1,13 +1,15 @@
 import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { ToggleButton } from '@/shared/ui/toggle';
+import UserSelector from './user-select-field';
 
 type InputType =
   | 'text'
   | 'textarea'
   | 'singledropdown'
   | 'multidropdown'
-  | 'togglegroup';
+  | 'togglegroup'
+  | 'userselect';
 
 interface FormFieldProps<T> {
   label: string;
@@ -115,6 +117,9 @@ export function FormField<T>({
             ))}
           </div>
         );
+      }
+      case 'userselect': {
+        return <UserSelector />;
       }
       default:
         return null;

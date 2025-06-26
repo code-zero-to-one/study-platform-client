@@ -211,7 +211,7 @@ export default function ProfileEditModal({
               />
               <FormField
                 label="관심사"
-                type="multidropdown"
+                type="userselect"
                 value={interests}
                 onChange={setInterests}
                 options={skillOptions}
