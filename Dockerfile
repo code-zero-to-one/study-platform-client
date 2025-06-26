@@ -19,7 +19,8 @@ COPY --from=builder /app/public ./public
 COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/yarn.lock ./yarn.lock
 
-RUN yarn install --production
+# devDependencies는 설치하지 않고 dependencies만 설치
+RUN yarn install --production 
 
 EXPOSE 3000
 
