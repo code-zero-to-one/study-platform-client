@@ -16,14 +16,14 @@ jobs:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.LIGHTSAIL_PROD_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.LIGHTSAIL_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.LIGHTSAIL_PROD_HOST }} >> ~/.ssh/known_hosts
           echo "SSH 설정 완료"
 
       - name: Deploy to server
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }} << 'EOF'
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_PROD_USER }}@${{ secrets.LIGHTSAIL_PROD_HOST }} << 'EOF'
             cd ~/study-platform-client-prod
 
             git fetch origin
