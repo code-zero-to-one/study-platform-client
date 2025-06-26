@@ -51,8 +51,15 @@ jobs:
             git checkout main
             git pull origin main
 
+            echo ".env 파일 생성"
+            cat <<EOT > .env
+            NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_PROD_BASE_URL }}
+            NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}
+            EOT
+
             echo "도커 컴포즈 재시작"
-            sudo docker compose down || true
+            sudo docker stop study-platform-client-prod-frontend-1
+            sudo docker rm study-platform-client-prod-frontend-1
             sudo docker compose up -d --build
 
             echo "운영 서버 배포 완료"
