@@ -25,6 +25,11 @@ jobs:
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_PROD_USER }}@${{ secrets.LIGHTSAIL_PROD_HOST }} << 'EOF'
             
+            # 용량 확보를 위해 도커 컨테이너, 이미지 먼저 정리
+            echo "도커 컨테이너, 이미지 정리 중..."
+            sudo docker container prune -f
+            sudo docker image prune -af
+
             # 디렉토리 없으면 생성
             if [ ! -d "$HOME/front/study-platform-client-prod" ]; then
               mkdir -p "$HOME/front/study-platform-client-prod"
@@ -46,8 +51,6 @@ jobs:
             git fetch origin
             git checkout main
             git pull origin main
-
-            # 도커로 패키지 설치와 빌드 진행
 
             echo "도커 컴포즈 재시작"
             sudo docker compose down || true
