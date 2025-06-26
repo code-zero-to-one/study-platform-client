@@ -26,9 +26,8 @@ jobs:
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_PROD_USER }}@${{ secrets.LIGHTSAIL_PROD_HOST }} << 'EOF'
             
             # 용량 확보를 위해 도커 컨테이너, 이미지 먼저 정리
-            echo "도커 컨테이너, 이미지 정리 중..."
-            sudo docker container prune -f
-            sudo docker image prune -af
+            echo "사용하지 않는 컨테이너, 이미지, 네트워크 정리 중 (볼륨제외)..."
+            sudo docker system prune -a -f
 
             # 디렉토리 없으면 생성
             if [ ! -d "$HOME/front/study-platform-client-prod" ]; then
