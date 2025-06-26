@@ -1,58 +1,55 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Button from '@/shared/ui/button';
 import { ToggleButton } from '@/shared/ui/toggle';
 import { BaseInput } from '../input';
 
-const DEFAULT_INTERESTS = [
-  '운동/헬스',
-  '여행',
-  '음악',
-  '영화/드라마',
-  '독서',
-  '게임',
-  '요리/맛집 탐방',
-  '패션/뷰티',
-  '사진/영상',
-  '자기계발',
-];
+interface Props {
+  value: string[];
+  onChange: (updated: string[]) => void;
+  options?: string[];
+}
 
-export default function UserSelector() {
-  const [selected, setSelected] = useState<string[]>([]);
+export default function SelectableTagsInput({
+  value,
+  onChange,
+  options = [],
+}: Props) {
   const [customInput, setCustomInput] = useState('');
   const [customTags, setCustomTags] = useState<string[]>([]);
   const [showInput, setShowInput] = useState(false);
 
   const toggleItem = (key: string) => {
-    setSelected((prev) => {
-      const isSelected = prev.includes(key);
-      if (isSelected) {
-        return prev.filter((item) => item !== key);
-      }
-      if (prev.length >= 4) {
-        return prev;
-      }
-
-      return [...prev, key];
-    });
+    onChange(
+      value.includes(key)
+        ? value.filter((item) => item !== key)
+        : value.length < 4
+          ? [...value, key]
+          : value,
+    );
   };
 
   const removeCustomTag = (tag: string) => {
-    setSelected(selected.filter((item) => item !== tag));
-    setCustomTags(customTags.filter((item) => item !== tag));
+    onChange(value.filter((item) => item !== tag));
+    setCustomTags((prev) => prev.filter((item) => item !== tag));
   };
+
+  useEffect(() => {
+    const customOnly = value.filter((v) => !options.includes(v));
+    setCustomTags(customOnly);
+  }, [value, options]);
 
   return (
     <div className="flex flex-col gap-50">
       <div className="flex flex-wrap gap-100">
-        {DEFAULT_INTERESTS.map((item) => (
+        {options.map((item) => (
           <ToggleButton
             size="sm"
             variant="square"
             key={item}
-            pressed={selected.includes(item)}
+            pressed={value.includes(item)}
             onPressedChange={() => toggleItem(item)}
           >
             {item}
@@ -81,8 +78,8 @@ export default function UserSelector() {
             ) as HTMLInputElement;
             const trimmed = input?.value.trim();
 
-            if (trimmed && !selected.includes(trimmed) && selected.length < 4) {
-              setSelected((prev) => [...prev, trimmed]);
+            if (trimmed && !value.includes(trimmed) && value.length < 4) {
+              onChange([...value, trimmed]);
               setCustomTags((prev) => [...prev, trimmed]);
               setCustomInput('');
             }
@@ -93,16 +90,16 @@ export default function UserSelector() {
             name="custom"
             type="text"
             placeholder={
-              selected.length >= 4
+              value.length >= 4
                 ? '최대 4개까지 선택 가능합니다'
                 : 'IT, Back-end, AI'
             }
-            color={selected.length >= 4 ? 'error' : 'default'}
-            disabled={selected.length >= 4}
+            color={value.length >= 4 ? 'error' : 'default'}
+            disabled={value.length >= 4}
             value={customInput}
             onChange={(e) => setCustomInput(e.target.value)}
           />
-          <Button type="submit" disabled={selected.length >= 4}>
+          <Button type="submit" disabled={value.length >= 4}>
             추가
           </Button>
         </form>

@@ -17,12 +17,17 @@ interface Props {
   memberId: number;
 }
 
-const skillOptions = [
-  { label: 'HTML/CSS', value: 'HTML/CSS' },
-  { label: 'JavaScript', value: 'JavaScript' },
-  { label: 'React', value: 'React' },
-  { label: 'Django', value: 'Django' },
-  { label: 'MySQL', value: 'MySQL' },
+const DEFAULT_OPTIONS = [
+  { label: '운동/헬스', value: '운동/헬스' },
+  { label: '여행', value: '여행' },
+  { label: '음악', value: '음악' },
+  { label: '영화/드라마', value: '영화/드라마' },
+  { label: '독서', value: '독서' },
+  { label: '게임', value: '게임' },
+  { label: '요리/맛집 탐방', value: '요리/맛집 탐방' },
+  { label: '패션/뷰티', value: '패션/뷰티' },
+  { label: '사진/영상', value: '사진/영상' },
+  { label: '자기계발', value: '자기계발' },
 ];
 
 export const MBTI_OPTIONS = [
@@ -210,11 +215,11 @@ export default function ProfileEditModal({
                 options={MBTI_OPTIONS}
               />
               <FormField
-                label="관심사"
+                label="관심 태그"
                 type="userselect"
                 value={interests}
                 onChange={setInterests}
-                options={skillOptions}
+                options={DEFAULT_OPTIONS}
               />
               <FormField
                 label="한마디 소개"
