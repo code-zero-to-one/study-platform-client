@@ -11,8 +11,6 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  console.log("NEXT_PUBLIC_API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL);
-  
   const memberId = await getLoginUserId();
 
   if (!memberId) {
