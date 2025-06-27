@@ -54,6 +54,7 @@ jobs:
             echo ".env 파일 생성"
             echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_PROD_BASE_URL }}" > .env
             echo "NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}" >> .env
+            echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_KAKAO_CLIENT_ID }}" >> .env
 
             echo "도커 컴포즈 재시작"
             sudo docker stop study-platform-client-prod-frontend-1
