@@ -28,8 +28,8 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
   const [studyPlan, setStudyPlan] = useState<
     UpdateUserProfileInfoRequest['studyPlan']
   >(memberInfo.studyPlan ?? '');
-  const [preferredSubject, setPreferredSubject] = useState<
-    UpdateUserProfileInfoRequest['preferredStudySubject']
+  const [preferredStudySubjectId, setPreferredStudySubjectId] = useState<
+    UpdateUserProfileInfoRequest['preferredStudySubjectId']
   >(memberInfo.preferredStudySubject?.studySubjectId ?? undefined);
   const [availableTimeSlots, setAvailableTimeSlots] = useState<
     UpdateUserProfileInfoRequest['availableStudyTimeIds']
@@ -42,7 +42,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
     const formData: UpdateUserProfileInfoRequest = {
       selfIntroduction,
       studyPlan,
-      preferredStudySubject: preferredSubject,
+      preferredStudySubjectId: preferredStudySubjectId,
       availableStudyTimeIds: availableTimeSlots
         .filter((id) => id)
         .map((id) => Number(id)),
@@ -98,8 +98,8 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
                 label="선호하는 스터디 주제"
                 type="singledropdown"
                 description="관심있는 스터디 유형을 선택해주세요."
-                value={preferredSubject}
-                onChange={setPreferredSubject}
+                value={preferredStudySubjectId}
+                onChange={setPreferredStudySubjectId}
                 direction="vertical"
                 required
                 options={
@@ -112,7 +112,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
               <FormField
                 label="가능 시간대"
                 type="togglegroup"
-                value={availableTimeSlots}
+                value={availableTimeSlots.map(String)}
                 direction="vertical"
                 options={
                   availableStudyTimes?.map(({ availableTimeId, display }) => ({
@@ -120,7 +120,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
                     label: display,
                   })) ?? []
                 }
-                onChange={setAvailableTimeSlots}
+                onChange={(v) => setAvailableTimeSlots(v.map(Number))}
                 required
               />
               <FormField
