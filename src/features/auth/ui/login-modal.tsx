@@ -23,10 +23,13 @@ export default function LoginModal({
     return <div>로딩중...</div>;
   }
 
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID; // 테스트 운영서버 분기 필요
+
   // TODO : 실제 백엔드에서 제공하는 URL로 교체필요
   const NAVER_LOGIN_URL = '';
-  const KAKAO_LOGIN_URL = `https://kauth.kakao.com/oauth/authorize?client_id=3194796599a4325c0223d154319351a4&redirect_uri=${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/kakao/redirect-uri&response_type=code&state=${state}`;
-  const GOOGLE_LOGIN_URL = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/google/redirect-uri&client_id=616205933420-b45d510q23togkaqo069j8igmsjhp9v0.apps.googleusercontent.com&state=${state}`;
+  const KAKAO_LOGIN_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${API_BASE_URL}/api/v1/auth/kakao/redirect-uri&response_type=code&state=${state}`;
+  const GOOGLE_LOGIN_URL = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=${API_BASE_URL}/api/v1/auth/google/redirect-uri&client_id=616205933420-b45d510q23togkaqo069j8igmsjhp9v0.apps.googleusercontent.com&state=${state}`;
 
   return (
     <Modal.Root open={open} onOpenChange={onClose}>
