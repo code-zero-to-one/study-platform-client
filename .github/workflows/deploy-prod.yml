@@ -30,8 +30,8 @@ jobs:
             sudo docker system prune -a -f
 
             # 디렉토리 없으면 생성
-            if [ ! -d "$HOME/front/study-platform-client-prod" ]; then
-              mkdir -p "$HOME/front/study-platform-client-prod"
+            if [ ! -d "/home/ubuntu/front/study-platform-client-prod" ]; then
+              mkdir -p "/home/ubuntu/front/study-platform-client-prod"
               echo "디렉토리 생성 완료"
             fi
             

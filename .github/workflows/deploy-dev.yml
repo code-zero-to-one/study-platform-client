@@ -30,8 +30,8 @@ jobs:
             sudo docker system prune -a -f
 
             # 디렉토리 없으면 생성
-            if [ ! -d "$HOME/front/study-platform-client-dev" ]; then
-              mkdir -p "$HOME/front/study-platform-client-dev"
+            if [ ! -d "/home/ubuntu/front/study-platform-client-dev" ]; then
+              mkdir -p "/home/ubuntu/front/study-platform-client-dev"
               echo "디렉토리 생성 완료"
             fi
             
@@ -58,8 +58,8 @@ jobs:
             echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env
 
             echo "도커 컴포즈 재시작"
-            sudo docker stop frontend-prod
-            sudo docker rm frontend-prod
+            sudo docker stop frontend-dev
+            sudo docker rm frontend-dev
             sudo docker compose up -d --build
 
             echo "운영 서버 배포 완료"
