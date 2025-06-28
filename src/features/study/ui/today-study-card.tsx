@@ -25,11 +25,11 @@ export default function TodayStudyCard({ date }: Props) {
   const params = {
     year: date.getFullYear(),
     month: date.getMonth() + 1,
-    day: date.getDate(),
+    day: date.getDate() + 1,
   };
 
-  const { data, isLoading, error } = useDailyStudyDetailQuery(params);
 
+  const { data, isLoading, error } = useDailyStudyDetailQuery(params);
   if (isLoading) return <div>로딩 중...</div>;
   if (error || !data) return <div>에러 발생</div>;
 
