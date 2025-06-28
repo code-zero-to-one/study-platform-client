@@ -39,14 +39,23 @@ axiosInstance.interceptors.request.use(
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-
+    console.log("------------------------")
+    console.log("✅ 요청주소", config.url);
+    console.log("✅ 요청 Bearer", config.headers.Authorization);
+    console.log("✅ 요청내용", config);
     return config;
   },
   (error) => Promise.reject(error),
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    console.log("------------------------")
+    console.log("✅ 응답주소", response.request.responseURL);    
+    console.log("✅ 응답로그", response);
+    return response;
+  },
+
   async (error) => {
     console.log('에러 확인', error);
     console.log('에러 상태코드:', error.response?.status);

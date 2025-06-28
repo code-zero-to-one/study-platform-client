@@ -4,9 +4,10 @@ version: '3.8'
 
 services:
   frontend:
+    container_name: frontend-prod
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.prod
     ports:
       - '3000:3000'
     env_file:
