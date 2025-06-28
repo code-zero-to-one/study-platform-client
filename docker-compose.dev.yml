@@ -1,0 +1,15 @@
+# 운영환경(main branch)에서 사용하는 docker-compose.yml
+
+version: '3.8'
+
+services:
+  frontend:
+    container_name: frontend-dev
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env
+    restart: unless-stopped
