@@ -1,6 +1,9 @@
 // API 통신만 담당하는 순수 함수들
 
-import { axiosInstance, axiosInstanceForMultipart } from '@/shared/tanstack-query/axios';
+import {
+  axiosInstance,
+  axiosInstanceForMultipart,
+} from '@/shared/tanstack-query/axios';
 
 // 회원가입 요청 API
 export async function signUp(data: any) {
