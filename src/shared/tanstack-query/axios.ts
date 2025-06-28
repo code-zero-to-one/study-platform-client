@@ -43,6 +43,7 @@ axiosInstance.interceptors.request.use(
     console.log("✅ 요청주소", config.url);
     console.log("✅ 요청 Bearer", config.headers.Authorization);
     console.log("✅ 요청내용", config);
+
     return config;
   },
   (error) => Promise.reject(error),
@@ -53,6 +54,7 @@ axiosInstance.interceptors.response.use(
     console.log("------------------------")
     console.log("✅ 응답주소", response.request.responseURL);    
     console.log("✅ 응답로그", response);
+    
     return response;
   },
 
