@@ -60,7 +60,7 @@ jobs:
             echo "도커 컴포즈 재시작"
             sudo docker stop frontend-prod
             sudo docker rm frontend-prod
-            sudo docker compose up -d --build
+            sudo docker compose -f docker-compose.prod.yml up -d --build
 
             echo "운영 서버 배포 완료"
           EOF
