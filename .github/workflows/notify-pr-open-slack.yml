@@ -2,7 +2,9 @@ name: Notify Slack on PR Open
 
 on:
   pull_request:
-    types: [opened, reopened] # PR이 열릴 때마다 실행
+    types: # PR이 열릴 때마다 실행
+      - opened
+      - reopened
     branches:
       - develop # develop 브랜치로 향하는 PR만 대상으로 함
 
