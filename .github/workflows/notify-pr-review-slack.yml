@@ -1,0 +1,64 @@
+name: Notify PR Review to Author
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  notify-author:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Notify PR author on review
+        env:
+          MEMBER_INFO: ${{ secrets.MEMBER_INFO_MAP }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        run: |
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          REVIEWER="${{ github.event.review.user.login }}"
+          REVIEW_STATE="${{ github.event.review.state }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_URL="${{ github.event.pull_request.html_url }}"
+
+          # PR 작성자와 리뷰어가 같은 경우, 메세지 전송 x
+          if [ "$PR_AUTHOR" = "$REVIEWER" ]; then
+            echo "PR 작성자 본인이 리뷰했으므로 메시지 전송 안 함"
+            exit 0
+          fi
+
+          # memberMap.json에서 slackId 추출
+          echo "$MEMBER_INFO" > memberMap.json
+          AUTHOR_SLACK_ID=$(jq -r --arg id "$PR_AUTHOR" '.[$id].slackId' memberMap.json)
+          REVIEWER_SLACK_ID=$(jq -r --arg id "$REVIEWER" '.[$id].slackId' memberMap.json)
+
+          # PR 작성자와 reviewer에 해당하는 slackId가 없을 경우, 메세지 전송 x
+          if [ -z "$AUTHOR_SLACK_ID" ] || [ -z "$REVIEWER_SLACK_ID" ] || \
+            [ "$AUTHOR_SLACK_ID" = "null" ] || [ "$REVIEWER_SLACK_ID" = "null" ]; then
+            echo "Slack ID 매칭 실패 또는 비어 있음. 메시지 전송 생략"
+            exit 0
+          fi
+
+          # 리뷰 상태에 따라 DM 내용 설정
+          if [ "$REVIEW_STATE" = "approved" ]; then
+            TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\"를 approve 하셨습니다!"
+          else
+            TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\"에 코드 리뷰를 남기셨습니다!"
+          fi
+
+          # PR 작성자에게 Slack DM 전송
+          RESPONSE=$(curl -s -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"channel\": \"$AUTHOR_SLACK_ID\",
+              \"text\": \"$TEXT\"
+            }")
+
+          # Slack DM 전송 결과
+          echo "Slack DM 전송 응답: $RESPONSE"
+
+          # 실패 여부 확인
+          if ! echo "$RESPONSE" | jq -e '.ok' | grep -q true; then
+            echo "❌ Slack 메시지 전송 실패"
+            exit 1
+          fi
