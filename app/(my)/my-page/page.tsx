@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 import Profile from '@/features/my-page/ui/profile';
-import ProfileInfo from '@/features/my-page/ui/profileinfo';
+import ProfileInfo from '@/features/my-page/ui/profile-info';
 import { getLoginUserId } from '@/shared/lib/get-login-user';
 
 export default async function MyPage() {

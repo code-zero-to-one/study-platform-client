@@ -120,7 +120,9 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
                     label: display,
                   })) ?? []
                 }
-                onChange={(v) => setAvailableTimeSlots(v.map(Number))}
+                onChange={(availableStudyTimeIds) =>
+                  setAvailableTimeSlots(availableStudyTimeIds.map(Number))
+                }
                 required
               />
               <FormField
