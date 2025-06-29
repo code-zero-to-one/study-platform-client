@@ -4,9 +4,8 @@ import { cn } from '@/shared/shadcn/lib/utils';
 
 export const toggleButtonVariants = cva(
   [
-    'inline-flex items-center justify-center font-medium transition-colors disabled:pointer-events-none disabled:opacity-50',
+    'inline-flex items-center justify-center font-medium border transition-colors disabled:pointer-events-none disabled:opacity-50',
     'data-[state=off]:bg-fill-neutral-subtle-default',
-    'data-[state=off]:border',
     'data-[state=off]:border-border-default',
     'data-[state=off]:text-text-default',
   ],
@@ -16,22 +15,22 @@ export const toggleButtonVariants = cva(
         primary: [
           'data-[state=on]:bg-fill-brand-default-default',
           'data-[state=on]:text-text-inverse',
-          'data-[state=on]:border-none',
+          'data-[state=on]:border-border-brand',
         ],
         gray: [
           'data-[state=on]:bg-background-accent-gray-strong',
           'data-[state=on]:text-text-inverse',
-          'data-[state=on]:border-none',
+          'data-[state=on]:border-background-accent-gray-strong',
         ],
       },
       size: {
-        sm: 'px-150 py-50 font-designer-13m',
+        sm: 'px-150 py-75 font-designer-13m',
         md: 'px-200 py-100 font-designer-14m',
         lg: 'px-250 py-150 font-designer-15m',
       },
       variant: {
         round: 'rounded-full',
-        square: 'rounded-100',
+        square: 'rounded-150',
       },
     },
     defaultVariants: {

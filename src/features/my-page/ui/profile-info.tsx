@@ -1,7 +1,7 @@
 'use client';
 
 import { MemberInfo } from '@/entities/user/api/types';
-import ProfileInfoEditModal from '@/features/my-page/ui/profileinfo-edit-modal';
+import ProfileInfoEditModal from '@/features/my-page/ui/profile-info-edit-modal';
 import ProfileInfoCard from '@/widgets/my-page/profileinfo-card';
 import { UpdateUserProfileInfoRequest } from '../api/types';
 import { useUpdateUserProfileInfoMutation } from '../model/use-update-user-profile-mutation';

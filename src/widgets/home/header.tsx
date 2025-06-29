@@ -9,6 +9,7 @@ import { useMemberInfo } from '@/features/auth/model/use-auth';
 import { hashValue } from '@/shared/lib/hash';
 import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
+import Button from '@/shared/ui/button';
 import { HeaderDropdown } from '@/shared/ui/dropdown';
 import NotiIcon from 'public/icons/notifications_none.svg';
 
@@ -95,6 +96,13 @@ export default function Header() {
               }
             }}
           />
+          {!memberInfo.data?.isLogin && (
+            <Link href="/login">
+              <Button color="primary" size="small">
+                로그인 / 회원가입
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>
