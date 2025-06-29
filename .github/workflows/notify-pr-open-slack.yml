@@ -1,0 +1,37 @@
+name: Notify Slack on PR Open
+
+on:
+  pull_request:
+    types: [opened, reopened] # PR이 열릴 때마다 실행
+    branches:
+      - develop # develop 브랜치로 향하는 PR만 대상으로 함
+
+jobs:
+  notify-slack:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Get PR author and reviewers
+        id: get_member_info
+        run: |
+          echo "${{ secrets.MEMBER_INFO_MAP }}" > memberMap.json
+
+          # PR 작성자 이름 추출
+          PR_AUTHOR_GITHUB_ID="${{ github.event.pull_request.user.login }}"
+          PR_AUTHOR_NAME=$(jq -r --arg id "$PR_AUTHOR_GITHUB_ID" '.[$id].name' memberMap.json)
+          echo "pr_author_name=$PR_AUTHOR_NAME" >> $GITHUB_OUTPUT
+
+          # PR 작성자 제외한 멤버들의 slackId를 멘션으로 모으기
+          MENTIONS=$(jq -r --arg author "$PR_AUTHOR_GITHUB_ID" 'to_entries | map(select(.key != $author)) | map("<@" + .value.slackId + ">") | join(" ")' memberMap.json)
+          echo "reviewers_mention=$MENTIONS" >> $GITHUB_OUTPUT
+
+      - name: Send Slack message
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ secrets.SLACK_FRONT_CHANNEL_ID }}
+            text:  "리뷰하러 가기 > <${{ github.event.pull_request.html_url }}|go>\n- PR 타이틀: ${{ github.event.pull_request.title }}\n- PR 작성자: ${{ steps.get_member_info.outputs.pr_author_name }}\n- 리뷰어: ${{ steps.get_member_info.outputs.reviewers_mention }}"
+            unfurl_links: false
+            unfurl_media: false
