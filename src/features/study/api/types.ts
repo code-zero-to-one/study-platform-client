@@ -22,7 +22,7 @@ export interface DailyStudyDetail {
   interviewer: string;
   interviewerImage: string;
   studySpaceId: number;
-  interviewee: string;
+  intervieweeId: string;
   subject: string;
   progressStatus: StudyProgressStatus;
   link: string;
