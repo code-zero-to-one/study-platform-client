@@ -11,7 +11,7 @@ export interface DailyStudy {
   interviewerImage: string;
   interviewee: string;
   intervieweeImage: string;
-  studySpaceId: number;
+  dailyStudyId: number;
   subject: string;
   feedback: string | undefined;
   progressStatus: StudyProgressStatus;
