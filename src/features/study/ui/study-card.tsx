@@ -56,19 +56,20 @@ function getWeekly(date: Date): { month: number; week: number } {
 
 // 금요일 보정 함수 (토 or 일 인 경우 금요일로 조정) -> 토, 일인 경우 날짜를 하루 적게 전달
 // 해당 함수는 주말에 어떤 값을 보여줄 건지에 따라 변경할 예정
-function adjustDateToWeekday(date: Date): Date {
-  const day = getDay(date);
-  if (day >= FRIDAY) {
-    return addDays(startOfWeek(date, { weekStartsOn: 1 }), FRIDAY_OFFSET);
-  }
+// function adjustDateToWeekday(date: Date): Date {
+//   const day = getDay(date);
+//   if (day >= FRIDAY) {
+//     return addDays(startOfWeek(date, { weekStartsOn: 1 }), FRIDAY_OFFSET);
+//   }
 
-  return date;
-}
+//   return date;
+// }
 
 export default function StudyCard() {
-  const [selectedDate, setSelectedDate] = useState(() =>
-    adjustDateToWeekday(new Date()),
-  );
+  // const [selectedDate, setSelectedDate] = useState(() =>
+  //   adjustDateToWeekday(new Date()),
+  // );
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   const { month, week } = getWeekly(selectedDate);
 
