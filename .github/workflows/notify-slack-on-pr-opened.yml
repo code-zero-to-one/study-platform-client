@@ -1,4 +1,4 @@
-name: Notify Slack on PR Open
+name: Notify Slack When PR Is Opened
 
 on:
   pull_request:
