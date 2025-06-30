@@ -1,20 +1,25 @@
-import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { hashValue } from '@/shared/lib/hash';
 import { cn } from '@/shared/shadcn/lib/utils';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
-import Input from '@/shared/ui/input/base';
+import { SingleDropdown } from '@/shared/ui/dropdown';
+import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import CreateIcon from 'public/icons/create.svg';
 import { postDailyRetrospect, postStudyDaily } from '../api/get-study-data';
+import { StudyProgressStatus } from '../api/types';
 
 interface TodayStudyModalProps {
   mode: 'ready' | 'done';
   refetchKey: ['dailyStudyDetail', any];
 }
+
+const STUDY_PROGRESS_OPTIONS = [
+  { label: '시작 전', value: 'BEFORE_PROGRESSED' },
+  { label: '미완료', value: 'ABSENT' },
+  { label: '완료', value: 'COMPLETE' },
+];
 
 export default function TodayStudyModal({
   mode,
@@ -22,6 +27,8 @@ export default function TodayStudyModal({
 }: TodayStudyModalProps) {
   const [interviewTopic, setInterviewTopic] = useState('');
   const [referenceLink, setReferenceLink] = useState('');
+  const [progressStatus, setProgressStatus] =
+    useState<StudyProgressStatus>('BEFORE_PROGRESSED');
   const queryClient = useQueryClient();
 
   const now = new Date();
@@ -49,17 +56,16 @@ export default function TodayStudyModal({
             {mode === 'ready' ? (
               <>
                 <div className="flex flex-col gap-100">
-                  <label className="font-designer-16b text-text-default mb-100 inline-block">
-                    면접 주제{' '}
-                    <span className="font-designer-13m text-text-error">
+                  <label className="font-designer-16b text-text-default inline-block">
+                    면접 주제
+                    <span className="font-designer-13m text-text-error pl-100">
                       필수
                     </span>
                   </label>
-                  <span className="font-designer-13m text-text-subtle">
+                  <span className="font-designer-14r text-text-subtle mb-150">
                     이번 스터디에서 다룰 면접 주제를 입력하세요
                   </span>
-                  <Input
-                    className="border-border-default rounded-100 border p-150"
+                  <BaseInput
                     placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교"
                     value={interviewTopic}
                     onChange={(e) => setInterviewTopic(e.target.value)}
@@ -67,14 +73,13 @@ export default function TodayStudyModal({
                 </div>
 
                 <div className="flex flex-col gap-100">
-                  <label className="font-designer-16b text-text-default mb-100 inline-block">
+                  <label className="font-designer-16b text-text-default inline-block">
                     참고 자료
                   </label>
-                  <span className="font-designer-13m text-text-subtle">
+                  <span className="font-designer-14r text-text-subtle mb-150">
                     참고할 링크나 자료가 있다면 입력해 주세요
                   </span>
-                  <Input
-                    className="border-border-default rounded-100 border p-150"
+                  <BaseInput
                     placeholder="https://github.com"
                     value={referenceLink}
                     onChange={(e) => setReferenceLink(e.target.value)}
@@ -84,20 +89,40 @@ export default function TodayStudyModal({
             ) : (
               <>
                 <div className="flex flex-col gap-100">
-                  <label className="font-designer-16b text-text-default mb-100 inline-block">
-                    회고 작성{' '}
-                    <span className="font-designer-13m text-text-error">
+                  <label className="font-designer-16b text-text-default inline-block">
+                    진행 현황
+                    <span className="font-designer-13m text-text-error pl-100">
                       필수
                     </span>
                   </label>
-                  <span className="font-designer-13m text-text-subtle">
-                    오늘 면접에 대한 회고를 작성해 주세요
+                  <span className="font-designer-14r text-text-subtle mb-150">
+                    면접 완료 후 해당 지원자의 상태를 업데이트해 주세요.
                   </span>
-                  <Input
-                    className="border-border-default rounded-100 border p-150"
-                    placeholder="생각보다 어렵지 않았어요. 다음엔 좀 더 자세히 준비할게요."
+                  <SingleDropdown
+                    options={STUDY_PROGRESS_OPTIONS}
+                    defaultValue={progressStatus}
+                    placeholder="선택해주세요"
+                    onChange={(e) =>
+                      setProgressStatus(e as StudyProgressStatus)
+                    }
+                  />
+                </div>
+
+                <div className="flex flex-col gap-100">
+                  <label className="font-designer-16b text-text-default inline-block">
+                    피드백
+                    <span className="font-designer-13m text-text-error pl-100">
+                      필수
+                    </span>
+                  </label>
+                  <span className="font-designer-14r text-text-subtle mb-150">
+                    면접 결과에 대한 간단한 피드백을 입력해 주세요.
+                  </span>
+                  <TextAreaInput
+                    placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
                     value={interviewTopic}
-                    onChange={(e) => setInterviewTopic(e.target.value)}
+                    maxLength={100}
+                    onChange={(e) => setInterviewTopic(e)}
                   />
                 </div>
               </>
