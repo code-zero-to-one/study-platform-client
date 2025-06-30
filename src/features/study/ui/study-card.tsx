@@ -17,10 +17,14 @@ const FRIDAY = 5;
 const FRIDAY_OFFSET = 4;
 
 // 스터디 주차 구하는 함수
-function getWeekOfMonth(date: Date) {
-  const start = startOfMonth(date);
+function getWeekOfMonth(date: Date): number {
+  const firstWeekStart = startOfWeek(startOfMonth(date), { weekStartsOn: 1 });
 
-  return differenceInCalendarWeeks(date, start, { weekStartsOn: 1 });
+  return (
+    differenceInCalendarWeeks(date, firstWeekStart, {
+      weekStartsOn: 1,
+    }) + 1
+  );
 }
 
 // 금요일 보정 함수 (토 or 일 인 경우 금요일로 조정)
