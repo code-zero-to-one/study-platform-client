@@ -39,10 +39,11 @@ axiosInstance.interceptors.request.use(
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-    console.log("------------------------")
-    console.log("✅ 요청주소", config.url);
-    console.log("✅ 요청 Bearer", config.headers.Authorization);
-    console.log("✅ 요청내용", config);
+    // 로컬 테스트에서 사용시 주석 제거
+    // console.log("------------------------")
+    // console.log("✅ 요청주소", config.url);
+    // console.log("✅ 요청 Bearer", config.headers.Authorization);
+    // console.log("✅ 요청내용", config);
 
     return config;
   },
@@ -51,10 +52,11 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    console.log("------------------------")
-    console.log("✅ 응답주소", response.request.responseURL);    
-    console.log("✅ 응답로그", response);
-    
+    // 로컬 테스트에서 사용시 주석 제거
+    // console.log('------------------------');
+    // console.log('✅ 응답주소', response.request.responseURL);
+    // console.log('✅ 응답로그', response);
+
     return response;
   },
 

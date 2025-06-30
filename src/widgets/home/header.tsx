@@ -18,12 +18,13 @@ export default function Header() {
   const router = useRouter();
   const memberInfo = useMemberInfo();
 
-  console.log('요청 주소', process.env.API_BASE_URL);
-  console.log(
-    '프로필 이미지 주소',
-    memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]
-      ?.resizedImageUrl,
-  );
+  // 로컬 테스트에서 사용시 주석 제거
+  // console.log('요청 주소', process.env.API_BASE_URL);
+  // console.log(
+  //   '프로필 이미지 주소',
+  //   memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]
+  //     ?.resizedImageUrl,
+  // );
 
   const handleLogout = async () => {
     try {
