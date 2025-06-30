@@ -25,9 +25,8 @@ export default function TodayStudyCard({ date }: Props) {
   const params = {
     year: date.getFullYear(),
     month: date.getMonth() + 1,
-    day: date.getDate() + 1,
+    day: date.getDate(),
   };
-
 
   const { data, isLoading, error } = useDailyStudyDetailQuery(params);
   if (isLoading) return <div>로딩 중...</div>;
