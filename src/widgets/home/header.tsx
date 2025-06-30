@@ -67,9 +67,9 @@ export default function Header() {
             </nav> */}
 
         <div className="flex shrink-0 items-center gap-150">
-          <Link href="/notifications" aria-label="알림">
+          <div>
             <NotiIcon />
-          </Link>
+          </div>
           <HeaderDropdown
             placeholder={
               <UserAvatar
