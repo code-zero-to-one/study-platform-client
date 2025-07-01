@@ -1,14 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { useDailyStudyDetailQuery } from '@/features/study/model/use-study-query';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import TodayStudyModal from './today-study-modal';
-import { StudyProgressStatus } from '../api/types';
+import { DailyStudyDetail, StudyProgressStatus } from '../api/types';
 
 interface Props {
-  date: Date;
+  data: DailyStudyDetail;
+  refetch: () => void;
 }
 
 const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
@@ -19,27 +19,14 @@ const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
   ABSENT: <Badge color="incomplete">불참</Badge>,
 };
 
-export default function TodayStudyCard({ date }: Props) {
+export default function TodayStudyCard({ data, refetch }: Props) {
   const [mode] = useState<'ready' | 'done'>('ready');
-
-  const params = {
-    year: date.getFullYear(),
-    month: date.getMonth() + 1,
-    day: date.getDate(),
-  };
-
-  const { data, isLoading, error } = useDailyStudyDetailQuery(params);
-  if (isLoading) return <div>로딩 중...</div>;
-  if (error || !data) return <div>에러 발생</div>;
 
   return (
     <section className="flex w-full flex-col gap-150">
       <div className="mb-4 flex items-start justify-between">
         <h3 className="font-bold-h5 text-text-strong">오늘의 스터디</h3>
-        <TodayStudyModal
-          mode={mode}
-          refetchKey={['dailyStudyDetail', params]}
-        />
+        <TodayStudyModal mode={mode} refetch={refetch} />
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-100">
