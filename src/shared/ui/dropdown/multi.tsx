@@ -63,11 +63,11 @@ function MultiDropdown({
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <div
-          className="rounded-150 border-border-default bg-fill-neutral-subtle-default flex h-[48px] w-full cursor-pointer items-center justify-between border px-150"
+          className="rounded-150 border-border-default bg-fill-neutral-subtle-default flex h-auto max-h-[120px] w-full cursor-pointer flex-wrap items-center justify-between border px-150 py-100"
           role="button"
           tabIndex={0}
         >
-          <div className="flex flex-1 flex-wrap items-center gap-50">
+          <div className="scrollbar-hide flex max-h-[96px] flex-1 flex-wrap items-center gap-50 overflow-y-auto">
             {selected.length === 0 && !query && (
               <span className="text-text-subtlest font-designer-14r">
                 {placeholder}
@@ -95,25 +95,26 @@ function MultiDropdown({
             ))}
           </div>
 
-          {selected.length > 0 && (
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                handleClear();
-              }}
-              className="bg-icon-strong ml-2 flex h-200 w-200 cursor-pointer items-center justify-center rounded-full"
-              role="button"
-              tabIndex={0}
-            >
-              <XIcon className="text-icon-inverse" size={14} />
-            </span>
-          )}
-
-          {isOpen ? (
-            <ChevronUp className="ml-2 size-4" />
-          ) : (
-            <ChevronDown className="ml-2 size-4" />
-          )}
+          <div className="ml-auto flex flex-shrink-0 items-center gap-100">
+            {selected.length > 0 && (
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClear();
+                }}
+                className="bg-icon-strong flex h-200 w-200 cursor-pointer items-center justify-center rounded-full"
+                role="button"
+                tabIndex={0}
+              >
+                <XIcon className="text-icon-inverse" size={14} />
+              </span>
+            )}
+            {isOpen ? (
+              <ChevronUp className="ml-2 size-4" />
+            ) : (
+              <ChevronDown className="ml-2 size-4" />
+            )}
+          </div>
         </div>
       </DropdownMenuTrigger>
 
