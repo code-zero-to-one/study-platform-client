@@ -160,7 +160,7 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
 
                     sendGTMEvent({
                       event: 'custom_member_card',
-                      timestamp: new Date().toISOString(),
+                      dl_timestamp: new Date().toISOString(),
                       dl_member_id: hashValue(memberId),
                       dl_tags: selectedSkillNames,
                     });

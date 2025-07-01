@@ -33,7 +33,7 @@ function RedirectionContent() {
           router.push('/sign-up');
           sendGTMEvent({
             event: 'custom_member_join',
-            timestamp: new Date().toISOString(),
+            dl_timestamp: new Date().toISOString(),
             dl_member_id: hashValue(memberId),
           });
         } else {
@@ -41,7 +41,7 @@ function RedirectionContent() {
           router.refresh();
           sendGTMEvent({
             event: 'custom_member_login',
-            timestamp: new Date().toISOString(),
+            dl_timestamp: new Date().toISOString(),
             dl_member_id: hashValue(memberId),
             dl_login_method: authVendor || '',
           });

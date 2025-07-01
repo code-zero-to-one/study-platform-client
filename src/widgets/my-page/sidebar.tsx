@@ -20,7 +20,7 @@ export default function Sidebar() {
       const memberId = getCookie('memberId');
       sendGTMEvent({
         event: 'custom_member_logout',
-        timestamp: new Date().toISOString(),
+        dl_timestamp: new Date().toISOString(),
         dl_member_id: hashValue(memberId),
       });
 
