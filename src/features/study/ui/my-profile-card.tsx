@@ -1,26 +1,27 @@
 'use client';
 
 import Link from 'next/link';
-import React from 'react';
+import React, { useState } from 'react';
 import { usePatchAutoMatchingMutation } from '@/entities/user/model/use-user-profile-query';
 import UserAvatar from '@/shared/ui/avatar';
 import { ToggleSwitch } from '@/shared/ui/toggle';
+import UserProfileModal from '@/widgets/modal/user-profile-modal';
 import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import CodeIcon from 'public/icons/code.svg';
 import SettingIcon from 'public/icons/setting.svg';
 
-interface UserProfileCardProps {
+interface MyProfileCardProps {
   memberId: number;
-  name: string;
-  imageUrl: string;
+  name?: string;
+  imageUrl?: string;
   matching: boolean;
-  subject: string;
-  time: string;
-  techStacks: string;
+  subject?: string;
+  time?: string;
+  techStacks?: string;
 }
 
-export default function UserProfileCard({
+export default function MyProfileCard({
   memberId,
   name,
   imageUrl,
@@ -28,14 +29,15 @@ export default function UserProfileCard({
   subject,
   time,
   techStacks,
-}: UserProfileCardProps) {
-  const [enabled, setEnabled] = React.useState(matching);
+}: MyProfileCardProps) {
+  const [enabled, setEnabled] = useState(matching);
+  const [isOpen, setIsOpen] = useState(false);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
 
   const handleToggleChange = (checked: boolean) => {
-    setEnabled(checked); // UI 즉시 반영 (낙관적 업데이트)
+    setEnabled(checked);
 
     patchAutoMatching(
       { memberId, autoMatching: checked },
@@ -52,16 +54,18 @@ export default function UserProfileCard({
     <section className="rounded-200 border-border-subtle bg-text-inverse flex flex-col items-start gap-200 border p-200">
       <div className="flex flex-row items-center gap-200">
         <div className="relative h-[64px] w-[64px] shrink-0">
-          <UserAvatar size={64} image={imageUrl} />
-          <Link
-            href="/my-page"
-            className="bg-background-accent-gray-strong absolute right-0 bottom-0 flex h-[24px] w-[24px] items-center justify-center rounded-full"
-          >
-            <SettingIcon />
-          </Link>
+          <UserAvatar size={64} image={imageUrl?.trim() || ''} />
+          {/* <UserProfileModal
+            memberId={memberId}
+            trigger={
+              <button className="bg-background-accent-gray-strong absolute right-0 bottom-0 flex h-[24px] w-[24px] items-center justify-center rounded-full">
+                <SettingIcon />
+              </button>
+            }
+          /> */}
         </div>
         <div className="flex flex-col">
-          <div className="font-designer-18b">{name}님</div>
+          <div className="font-designer-18b">{name?.trim() || '비회원'}님</div>
           <div className="flex flex-row items-center gap-100">
             <span className="font-designer-14r text-gray-800">스터디 매칭</span>
             <ToggleSwitch.Root
@@ -77,15 +81,15 @@ export default function UserProfileCard({
       <div className="bg-background-alternative rounded-100 font-designer-15m text-text-default flex w-full flex-col gap-200 px-200 py-150">
         <div className="flex items-center gap-100">
           <AssignmentIcon />
-          <span>{subject}</span>
+          <span>{subject?.trim() || '없음'}</span>
         </div>
         <div className="flex items-center gap-100">
           <AccessTimeIcon />
-          <span>{time}</span>
+          <span>{time?.trim() || '없음'}</span>
         </div>
         <div className="flex items-center gap-100">
           <CodeIcon />
-          <span>{techStacks}</span>
+          <span>{techStacks?.trim() || '없음'}</span>
         </div>
       </div>
     </section>
