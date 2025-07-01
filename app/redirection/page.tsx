@@ -20,6 +20,7 @@ function RedirectionContent() {
         );
         const isGuest = searchParams.get('is-guest');
         const memberId = searchParams.get('member-id');
+        const authVendor = searchParams.get('auth-vendor');
 
         setCookie('accessToken', accessToken);
         setCookie('memberId', memberId);
@@ -40,10 +41,10 @@ function RedirectionContent() {
           router.push('/');
           router.refresh();
           sendGTMEvent({
-            event_name: 'member_login',
+            event: 'custom_member_login',
             timestamp: new Date().toISOString(),
             dl_member_id: hashValue(memberId),
-            // dl_login_method: '',
+            dl_login_method: authVendor || '',
           });
         }
       } catch (error) {
