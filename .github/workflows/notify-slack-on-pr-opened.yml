@@ -2,22 +2,23 @@ name: Notify Slack When PR Is Opened
 
 on:
   pull_request:
-    types: # PR이 열릴 때마다 실행
+    types:
       - opened
       - reopened
     branches:
-      - develop # develop 브랜치로 향하는 PR만 대상으로 함
+      - develop
 
 jobs:
   notify-slack:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Decode memberMap.json from secret
+        run: |
+          echo "${{ secrets.MEMBER_INFO_MAP }}" | base64 --decode > memberMap.json
       - name: Get PR author and reviewers
         id: get_member_info
         run: |
-          echo "${{ secrets.MEMBER_INFO_MAP }}" > memberMap.json
-
           # PR 작성자 이름 추출
           PR_AUTHOR_GITHUB_ID="${{ github.event.pull_request.user.login }}"
           PR_AUTHOR_NAME=$(jq -r --arg id "$PR_AUTHOR_GITHUB_ID" '.[$id].name' memberMap.json)

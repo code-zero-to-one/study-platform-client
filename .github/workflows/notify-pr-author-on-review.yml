@@ -27,7 +27,7 @@ jobs:
           fi
 
           # memberMap.json에서 slackId 추출
-          echo "$MEMBER_INFO" > memberMap.json
+          echo "$MEMBER_INFO" | base64 --decode > memberMap.json
           AUTHOR_SLACK_ID=$(jq -r --arg id "$PR_AUTHOR" '.[$id].slackId' memberMap.json)
           REVIEWER_SLACK_ID=$(jq -r --arg id "$REVIEWER" '.[$id].slackId' memberMap.json)
 
