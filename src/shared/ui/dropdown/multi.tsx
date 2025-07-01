@@ -55,6 +55,10 @@ function MultiDropdown({
     .map((val) => options.find((opt) => opt.value === val)?.label)
     .filter(Boolean) as string[];
 
+  const filteredOptions = options.filter(
+    (opt) => !selected.includes(opt.value),
+  );
+
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
@@ -118,8 +122,8 @@ function MultiDropdown({
         className="rounded-100 border-border-default bg-background-default shadow-2 flex w-full flex-col gap-50 border p-50"
         style={{ width: 'var(--radix-dropdown-menu-trigger-width)' }}
       >
-        {options.length > 0 ? (
-          options.map((option) => (
+        {filteredOptions.length > 0 ? (
+          filteredOptions.map((option) => (
             <DropdownMenuItem
               key={option.value}
               onClick={() => handleAdd(option.value)}
