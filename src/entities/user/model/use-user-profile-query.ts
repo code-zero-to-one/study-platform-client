@@ -25,13 +25,13 @@ export const usePatchAutoMatchingMutation = () => {
     onSuccess: (_, variables) => {
       if (variables.autoMatching) {
         sendGTMEvent({
-          event_name: 'member_study_toggle_on',
+          event: 'custom_member_study_toggle_on',
           timestamp: new Date().toISOString(),
           dl_member_id: hashValue(String(variables.memberId)),
         });
       } else {
         sendGTMEvent({
-          event_name: 'member_study_toggle_off',
+          event: 'custom_member_study_toggle_off',
           timestamp: new Date().toISOString(),
           dl_member_id: hashValue(String(variables.memberId)),
         });
