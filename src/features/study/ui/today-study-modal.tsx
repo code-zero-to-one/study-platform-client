@@ -1,4 +1,3 @@
-import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/shared/shadcn/lib/utils';
@@ -9,27 +8,21 @@ import { Modal } from '@/shared/ui/modal';
 import CreateIcon from 'public/icons/create.svg';
 import { postDailyRetrospect, postStudyDaily } from '../api/get-study-data';
 import { StudyProgressStatus } from '../api/types';
+import { STUDY_PROGRESS_OPTIONS } from '../consts/study-const';
 
 interface TodayStudyModalProps {
   mode: 'ready' | 'done';
-  refetchKey: ['dailyStudyDetail', any];
+  refetch: () => void;
 }
-
-const STUDY_PROGRESS_OPTIONS = [
-  { label: '시작 전', value: 'BEFORE_PROGRESSED' },
-  { label: '미완료', value: 'ABSENT' },
-  { label: '완료', value: 'COMPLETE' },
-];
 
 export default function TodayStudyModal({
   mode,
-  refetchKey,
+  refetch,
 }: TodayStudyModalProps) {
   const [interviewTopic, setInterviewTopic] = useState('');
   const [referenceLink, setReferenceLink] = useState('');
   const [progressStatus, setProgressStatus] =
     useState<StudyProgressStatus>('BEFORE_PROGRESSED');
-  const queryClient = useQueryClient();
 
   const now = new Date();
 
@@ -174,9 +167,7 @@ export default function TodayStudyModal({
                       // });
                     }
 
-                    await queryClient.invalidateQueries({
-                      queryKey: refetchKey,
-                    });
+                    await refetch();
                   } catch (err) {
                     e.preventDefault();
                     console.error(err);
