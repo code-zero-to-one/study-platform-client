@@ -37,7 +37,6 @@ function RedirectionContent() {
             dl_member_id: hashValue(memberId),
           });
         } else {
-          // todo: login_method는 google 또는 kakao로 설정
           router.push('/');
           router.refresh();
           sendGTMEvent({
