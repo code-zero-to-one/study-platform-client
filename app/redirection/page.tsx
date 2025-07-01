@@ -32,7 +32,7 @@ function RedirectionContent() {
         if (isGuest === 'true') {
           router.push('/sign-up');
           sendGTMEvent({
-            event: 'member_join',
+            event: 'custom_member_join',
             timestamp: new Date().toISOString(),
             dl_member_id: hashValue(memberId),
           });
