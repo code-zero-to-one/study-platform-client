@@ -41,6 +41,8 @@ jobs:
           # 리뷰 상태에 따라 DM 내용 설정
           if [ "$REVIEW_STATE" = "approved" ]; then
             TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\"를 approve 하셨습니다!"
+          elif [ "$REVIEW_STATE" = "changes_requested" ]; then
+            TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\"에 변경을 요청하셨습니다!"
           else
             TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\"에 코드 리뷰를 남기셨습니다!"
           fi
