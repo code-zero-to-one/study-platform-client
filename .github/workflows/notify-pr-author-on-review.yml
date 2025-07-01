@@ -9,10 +9,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Notify PR author on review
+      - name: Extract Slack IDs and DM Text
+        id: extract_info
         env:
           MEMBER_INFO: ${{ secrets.MEMBER_INFO_MAP }}
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         run: |
           PR_AUTHOR="${{ github.event.pull_request.user.login }}"
           REVIEWER="${{ github.event.review.user.login }}"
@@ -20,25 +20,22 @@ jobs:
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_URL="${{ github.event.pull_request.html_url }}"
 
-          # PR 작성자와 리뷰어가 같은 경우, 메세지 전송 x
+          # PR 작성자와 리뷰어가 같은 경우, 스킵 표시
           if [ "$PR_AUTHOR" = "$REVIEWER" ]; then
-            echo "PR 작성자 본인이 리뷰했으므로 메시지 전송 안 함"
+            echo "skip=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # memberMap.json에서 slackId 추출
           echo "$MEMBER_INFO" | base64 --decode > memberMap.json
           AUTHOR_SLACK_ID=$(jq -r --arg id "$PR_AUTHOR" '.[$id].slackId' memberMap.json)
           REVIEWER_SLACK_ID=$(jq -r --arg id "$REVIEWER" '.[$id].slackId' memberMap.json)
 
-          # PR 작성자와 reviewer에 해당하는 slackId가 없을 경우, 메세지 전송 x
           if [ -z "$AUTHOR_SLACK_ID" ] || [ -z "$REVIEWER_SLACK_ID" ] || \
             [ "$AUTHOR_SLACK_ID" = "null" ] || [ "$REVIEWER_SLACK_ID" = "null" ]; then
-            echo "Slack ID 매칭 실패 또는 비어 있음. 메시지 전송 생략"
+            echo "skip=true" >> $GITHUB_OUTPUT
             exit 0
           fi
 
-          # 리뷰 상태에 따라 DM 내용 설정
           if [ "$REVIEW_STATE" = "approved" ]; then
             TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\" PR를 approve 하셨습니다!"
           elif [ "$REVIEW_STATE" = "changes_requested" ]; then
@@ -47,19 +44,22 @@ jobs:
             TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\"에 코멘트를 남기셨습니다!"
           fi
 
-          # PR 작성자에게 Slack DM 전송
+          echo "author_slack_id=$AUTHOR_SLACK_ID" >> $GITHUB_OUTPUT
+          echo "text=$TEXT" >> $GITHUB_OUTPUT
+
+      - name: Send Slack DM to PR Author
+        if: steps.extract_info.outputs.skip != 'true'
+        run: |
           RESPONSE=$(curl -s -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Authorization: Bearer ${{ secrets.SLACK_BOT_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "{
-              \"channel\": \"$AUTHOR_SLACK_ID\",
-              \"text\": \"$TEXT\"
+              \"channel\": \"${{ steps.extract_info.outputs.author_slack_id }}\",
+              \"text\": \"${{ steps.extract_info.outputs.text }}\"
             }")
 
-          # Slack DM 전송 결과
           echo "Slack DM 전송 응답: $RESPONSE"
 
-          # 실패 여부 확인
           if ! echo "$RESPONSE" | jq -e '.ok' | grep -q true; then
             echo "❌ Slack 메시지 전송 실패"
             exit 1
