@@ -9,6 +9,7 @@ import { useMemberInfo } from '@/features/auth/model/use-auth';
 import { hashValue } from '@/shared/lib/hash';
 import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
+import Button from '@/shared/ui/button';
 import { HeaderDropdown } from '@/shared/ui/dropdown';
 import NotiIcon from 'public/icons/notifications_none.svg';
 
@@ -17,12 +18,13 @@ export default function Header() {
   const router = useRouter();
   const memberInfo = useMemberInfo();
 
-  console.log('요청 주소', process.env.API_BASE_URL);
-  console.log(
-    '프로필 이미지 주소',
-    memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]
-      ?.resizedImageUrl,
-  );
+  // 로컬 테스트에서 사용시 주석 제거
+  // console.log('요청 주소', process.env.API_BASE_URL);
+  // console.log(
+  //   '프로필 이미지 주소',
+  //   memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]
+  //     ?.resizedImageUrl,
+  // );
 
   const handleLogout = async () => {
     try {
@@ -31,8 +33,8 @@ export default function Header() {
 
       const memberId = getCookie('memberId');
       sendGTMEvent({
-        event_name: 'member_logout',
-        timestamp: new Date().toISOString(),
+        event: 'custom_member_logout',
+        dl_timestamp: new Date().toISOString(),
         dl_member_id: hashValue(memberId),
       });
 
@@ -65,9 +67,9 @@ export default function Header() {
             </nav> */}
 
         <div className="flex shrink-0 items-center gap-150">
-          <Link href="/notifications" aria-label="알림">
+          <div>
             <NotiIcon />
-          </Link>
+          </div>
           <HeaderDropdown
             placeholder={
               <UserAvatar
@@ -95,6 +97,13 @@ export default function Header() {
               }
             }}
           />
+          {!memberInfo.data?.isLogin && (
+            <Link href="/login">
+              <Button color="primary" size="small">
+                로그인 / 회원가입
+              </Button>
+            </Link>
+          )}
         </div>
       </div>
     </header>

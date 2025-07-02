@@ -1,13 +1,15 @@
 import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { ToggleButton } from '@/shared/ui/toggle';
+import MultiItemSelector from './multi-item-selector';
 
 type InputType =
   | 'text'
   | 'textarea'
   | 'singledropdown'
   | 'multidropdown'
-  | 'togglegroup';
+  | 'togglegroup'
+  | 'userselect';
 
 interface FormFieldProps<T> {
   label: string;
@@ -114,6 +116,15 @@ export function FormField<T>({
               </ToggleButton>
             ))}
           </div>
+        );
+      }
+      case 'userselect': {
+        return (
+          <MultiItemSelector
+            value={value as string[]}
+            onChange={(v) => onChange(v as T)}
+            options={options?.map((opt) => opt.label)}
+          />
         );
       }
       default:

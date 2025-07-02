@@ -1,6 +1,6 @@
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
+import MyProfileCard from '@/features/study/ui/my-profile-card';
 import StartStudyModal from '@/features/study/ui/start-study-modal';
-import UserProfileCard from '@/features/study/ui/user-profile-card';
 import { getLoginUserId } from '@/shared/lib/get-login-user';
 import Calendar from '@/widgets/home/calendar';
 import TodoList from '@/widgets/home/todo-list';
@@ -14,10 +14,13 @@ export default async function Sidebar() {
 
   return (
     <aside className="flex flex-col gap-300">
-      <UserProfileCard
+      <MyProfileCard
         memberId={memberId}
         name={userProfile?.memberProfile.memberName || '비회원'}
-        imageUrl={userProfile?.memberProfile?.profileImage?.resizedImages[0]?.resizedImageUrl || ''}
+        imageUrl={
+          userProfile?.memberProfile?.profileImage?.resizedImages[0]
+            ?.resizedImageUrl || ''
+        }
         matching={userProfile?.autoMatching ?? false}
         subject={
           userProfile?.memberInfo.preferredStudySubject?.name ?? '선택안함'

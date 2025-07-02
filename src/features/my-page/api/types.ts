@@ -32,7 +32,7 @@ export interface UpdateUserProfileResponse {
 export interface UpdateUserProfileInfoRequest {
   selfIntroduction: string;
   studyPlan: string;
-  preferredStudySubject: string;
+  preferredStudySubjectId: string;
   availableStudyTimeIds: number[];
   techStackIds: number[];
 }

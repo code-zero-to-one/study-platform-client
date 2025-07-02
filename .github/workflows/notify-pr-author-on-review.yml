@@ -1,0 +1,70 @@
+name: Notify PR Review to Author
+
+on:
+  pull_request_review:
+    types: [submitted]
+
+jobs:
+  notify-author:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract Slack IDs and DM Text
+        id: extract_info
+        env:
+          MEMBER_INFO: ${{ secrets.MEMBER_INFO_MAP }}
+        run: |
+          PR_AUTHOR="${{ github.event.pull_request.user.login }}"
+          REVIEWER="${{ github.event.review.user.login }}"
+          REVIEW_STATE="${{ github.event.review.state }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_URL="${{ github.event.pull_request.html_url }}"
+
+          # PR 작성자와 리뷰어가 같은 경우, 스킵 표시
+          if [ "$PR_AUTHOR" = "$REVIEWER" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "$MEMBER_INFO" | base64 --decode > memberMap.json
+          AUTHOR_SLACK_ID=$(jq -r --arg id "$PR_AUTHOR" '.[$id].slackId' memberMap.json)
+          REVIEWER_SLACK_ID=$(jq -r --arg id "$REVIEWER" '.[$id].slackId' memberMap.json)
+
+          if [ -z "$AUTHOR_SLACK_ID" ] || [ -z "$REVIEWER_SLACK_ID" ] || \
+            [ "$AUTHOR_SLACK_ID" = "null" ] || [ "$REVIEWER_SLACK_ID" = "null" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          if [ "$REVIEW_STATE" = "approved" ]; then
+            TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\" PR를 approve 하셨습니다!"
+          elif [ "$REVIEW_STATE" = "changes_requested" ]; then
+            TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\"에 변경을 요청하셨습니다!"
+          else
+            TEXT="<@$REVIEWER_SLACK_ID>님이 \"<$PR_URL|$PR_TITLE>\"에 코멘트를 남기셨습니다!"
+          fi
+
+          echo "author_slack_id=$AUTHOR_SLACK_ID" >> $GITHUB_OUTPUT
+          echo "text=$TEXT" >> $GITHUB_OUTPUT
+
+      - name: Send Slack DM to PR Author
+        if: steps.extract_info.outputs.skip != 'true'
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          AUTHOR_SLACK_ID: ${{ steps.extract_info.outputs.author_slack_id }}
+          TEXT: ${{ steps.extract_info.outputs.text }}
+        run: |
+          RESPONSE=$(curl -s -X POST https://slack.com/api/chat.postMessage \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "channel": "'"$AUTHOR_SLACK_ID"'",
+              "text": "'"$TEXT"'"
+            }')
+
+          echo "Slack DM 전송 응답: $RESPONSE"
+
+          if ! echo "$RESPONSE" | jq -e '.ok' | grep -q true; then
+            echo "❌ Slack 메시지 전송 실패"
+            exit 1
+          fi

@@ -20,6 +20,7 @@ function RedirectionContent() {
         );
         const isGuest = searchParams.get('is-guest');
         const memberId = searchParams.get('member-id');
+        const authVendor = searchParams.get('auth-vendor');
 
         setCookie('accessToken', accessToken);
         setCookie('memberId', memberId);
@@ -31,19 +32,18 @@ function RedirectionContent() {
         if (isGuest === 'true') {
           router.push('/sign-up');
           sendGTMEvent({
-            event: 'member_join',
-            timestamp: new Date().toISOString(),
+            event: 'custom_member_join',
+            dl_timestamp: new Date().toISOString(),
             dl_member_id: hashValue(memberId),
           });
         } else {
-          // todo: login_method는 google 또는 kakao로 설정
           router.push('/');
           router.refresh();
           sendGTMEvent({
-            event_name: 'member_login',
-            timestamp: new Date().toISOString(),
+            event: 'custom_member_login',
+            dl_timestamp: new Date().toISOString(),
             dl_member_id: hashValue(memberId),
-            // dl_login_method: '',
+            dl_login_method: authVendor || '',
           });
         }
       } catch (error) {

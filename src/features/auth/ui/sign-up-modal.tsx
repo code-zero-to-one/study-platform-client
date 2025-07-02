@@ -107,9 +107,7 @@ export default function SignupModal({
                 handleImageChange={handleImageChange}
               />
               <div className="font-designer-24b text-text-default mt-2 text-center">
-                서비스 이용을 위해
-                <br />
-                닉네임 대신 이름을 입력해주세요.
+                서비스 이용을 위해 이름을 입력해주세요.
               </div>
               <SignupNameInput
                 name={name}
