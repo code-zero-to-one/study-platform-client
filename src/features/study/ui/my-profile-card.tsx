@@ -1,11 +1,10 @@
 'use client';
 
-import Link from 'next/link';
 import React, { useState } from 'react';
 import { usePatchAutoMatchingMutation } from '@/entities/user/model/use-user-profile-query';
+import UserProfileModal from '@/features/my-page/ui/user-profile-modal';
 import UserAvatar from '@/shared/ui/avatar';
 import { ToggleSwitch } from '@/shared/ui/toggle';
-import UserProfileModal from '@/widgets/modal/user-profile-modal';
 import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import CodeIcon from 'public/icons/code.svg';
@@ -31,7 +30,6 @@ export default function MyProfileCard({
   techStacks,
 }: MyProfileCardProps) {
   const [enabled, setEnabled] = useState(matching);
-  const [isOpen, setIsOpen] = useState(false);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
@@ -43,7 +41,6 @@ export default function MyProfileCard({
       { memberId, autoMatching: checked },
       {
         onError: () => {
-          // 실패 시 원상복구
           setEnabled(!checked);
         },
       },
@@ -55,14 +52,14 @@ export default function MyProfileCard({
       <div className="flex flex-row items-center gap-200">
         <div className="relative h-[64px] w-[64px] shrink-0">
           <UserAvatar size={64} image={imageUrl?.trim() || ''} />
-          {/* <UserProfileModal
+          <UserProfileModal
             memberId={memberId}
             trigger={
               <button className="bg-background-accent-gray-strong absolute right-0 bottom-0 flex h-[24px] w-[24px] items-center justify-center rounded-full">
                 <SettingIcon />
               </button>
             }
-          /> */}
+          />
         </div>
         <div className="flex flex-col">
           <div className="font-designer-18b">{name?.trim() || '비회원'}님</div>
