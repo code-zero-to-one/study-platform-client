@@ -14,11 +14,14 @@ import {
 } from '../api/types';
 
 export const useDailyStudyDetailQuery = (params: GetDailyStudyDetailParams) => {
+  // 나중에 변수 추가 시 tanstack-query를 이용해 받을 예정입니다.
+  const hasParticipated = false;
+
   return useQuery({
     queryKey: ['dailyStudyDetail', params],
     queryFn: () => getDailyStudyDetail(params),
     staleTime: 60 * 1000,
-    enabled: !!params,
+    enabled: hasParticipated && !!params,
   });
 };
 

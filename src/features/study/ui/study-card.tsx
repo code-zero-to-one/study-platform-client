@@ -76,7 +76,7 @@ export default function StudyCard() {
     month: selectedDate.getMonth() + 1,
     day: selectedDate.getDate(),
   };
-  const { data, isError, refetch } = useDailyStudyDetailQuery(params);
+  const { data, refetch } = useDailyStudyDetailQuery(params);
 
   const { month, week } = getWeekly(selectedDate);
 
