@@ -40,7 +40,7 @@ export default function UserProfileModal({
             <div className="flex flex-row gap-300 px-200">
               <UserAvatar
                 image={
-                  profile.memberProfile.profileImage.resizedImages[0]
+                  profile.memberProfile.profileImage?.resizedImages[0]
                     .resizedImageUrl
                 }
                 size={80}
