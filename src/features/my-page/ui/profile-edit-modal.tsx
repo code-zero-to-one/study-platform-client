@@ -10,44 +10,13 @@ import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { FormField } from '../../../shared/ui/form/form-field';
 import { UpdateUserProfileRequest } from '../api/types';
+import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '../consts/my-page-const';
 
 interface Props {
   onSubmit: (formData: UpdateUserProfileRequest) => void;
   memberProfile: MemberProfile;
   memberId: number;
 }
-
-const DEFAULT_OPTIONS = [
-  { label: '운동/헬스', value: '운동/헬스' },
-  { label: '여행', value: '여행' },
-  { label: '음악', value: '음악' },
-  { label: '영화/드라마', value: '영화/드라마' },
-  { label: '독서', value: '독서' },
-  { label: '게임', value: '게임' },
-  { label: '요리/맛집 탐방', value: '요리/맛집 탐방' },
-  { label: '패션/뷰티', value: '패션/뷰티' },
-  { label: '사진/영상', value: '사진/영상' },
-  { label: '자기계발', value: '자기계발' },
-];
-
-export const MBTI_OPTIONS = [
-  { label: 'ISTJ', value: 'ISTJ' },
-  { label: 'ISFJ', value: 'ISFJ' },
-  { label: 'INFJ', value: 'INFJ' },
-  { label: 'INTJ', value: 'INTJ' },
-  { label: 'ISTP', value: 'ISTP' },
-  { label: 'ISFP', value: 'ISFP' },
-  { label: 'INFP', value: 'INFP' },
-  { label: 'INTP', value: 'INTP' },
-  { label: 'ESTP', value: 'ESTP' },
-  { label: 'ESFP', value: 'ESFP' },
-  { label: 'ENFP', value: 'ENFP' },
-  { label: 'ENTP', value: 'ENTP' },
-  { label: 'ESTJ', value: 'ESTJ' },
-  { label: 'ESFJ', value: 'ESFJ' },
-  { label: 'ENFJ', value: 'ENFJ' },
-  { label: 'ENTJ', value: 'ENTJ' },
-];
 
 export type MbtiValue = (typeof MBTI_OPTIONS)[number]['value'];
 

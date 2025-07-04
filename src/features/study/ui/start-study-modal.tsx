@@ -2,6 +2,7 @@
 
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
   useAvailableStudyTimesQuery,
@@ -15,6 +16,7 @@ import { BaseInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import { ToggleButton } from '@/shared/ui/toggle';
 import { JoinStudyRequest } from '../api/types';
+import { studySteps } from '../consts/study-const';
 import { useJoinStudyMutation } from '../model/use-study-query';
 
 interface StartStudyModalProps {
@@ -33,37 +35,6 @@ interface NumberedBulletSectionProps {
   title: string;
   items: string[];
 }
-
-const studySteps = [
-  {
-    title: '1. 면접 준비',
-    items: [
-      '‘면접 준비하기’ 버튼을 클릭한 후 주제와 학습 자료 링크를 등록합니다.',
-    ],
-  },
-  {
-    title: '2. 스터디 진행 (면접관 & 지원자)',
-    items: [
-      '면접관은 당일 오전, 학습 자료를 바탕으로 지원자와 최소 3문항 이상의 Q&A를 주고받으며 약 20분간 스터디를 진행합니다.',
-      '기본 스터디 시간은 오전 9시 30분이며, 상황에 따라 일정 조율이 가능합니다.',
-      '스터디는 기본적으로 전화로 진행되며, 필요 시 Zoom 또는 Google Meet 등의 화상 회의 도구를 활용할 수 있습니다.',
-    ],
-  },
-  {
-    title: '3. 스터디 종료 후 처리',
-    items: [
-      '면접관은 ‘면접 완료하기’ 버튼을 클릭하여 진행 상태를 변경하고 코멘트를 남깁니다.',
-      '만약 자료 미제출, 전화 부재(지원자/면접관) 등의 사유로 스터디가 진행되지 못한 경우, 면접관이 진행 상태를 변경합니다.',
-      '스터디를 진행하지 못한 사유가 있는 경우, 귀책 당사자가 상대방에게 커피 등 소정의 기프티콘을 제공하며, 면접관은 진행 상태를 ‘미완료’로 설정합니다.',
-    ],
-  },
-  {
-    title: '4. 다음 주 스터디 휴식 설정',
-    items: [
-      '다음 주 스터디 참여가 어려운 경우, 금요일 저녁 전까지 스터디 매칭 토글을 ‘Off’로 변경해주세요.',
-    ],
-  },
-];
 
 function NumberedBulletSection({ title, items }: NumberedBulletSectionProps) {
   return (
@@ -126,6 +97,7 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
   const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
   const { data: studySubjects } = useStudySubjectsQuery();
   const { data: techStacks } = useTechStacksQuery();
+  const router = useRouter();
 
   const { mutate: joinStudy } = useJoinStudyMutation();
 
@@ -335,17 +307,29 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                     return;
                   }
 
-                  joinStudy({
-                    memberId,
-                    selfIntroduction: introduce,
-                    studyPlan,
-                    preferredStudySubjectId: preferredSubject?.toString(),
-                    availableStudyTimeIds: availableTimeSlots,
-                    techStackIds: selectedSkills,
-                    tel: phoneNumber,
-                    githubLink: github.trim() || undefined,
-                    blogOrSnsLink: blog.trim() || undefined,
-                  });
+                  joinStudy(
+                    {
+                      memberId,
+                      selfIntroduction: introduce,
+                      studyPlan,
+                      preferredStudySubjectId: preferredSubject?.toString(),
+                      availableStudyTimeIds: availableTimeSlots,
+                      techStackIds: selectedSkills,
+                      tel: phoneNumber,
+                      githubLink: github.trim() || undefined,
+                      blogOrSnsLink: blog.trim() || undefined,
+                    },
+                    {
+                      onSuccess: () => {
+                        router.refresh();
+                      },
+                      onError: () => {
+                        alert(
+                          '스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.',
+                        );
+                      },
+                    },
+                  );
                 }}
               >
                 신청 완료

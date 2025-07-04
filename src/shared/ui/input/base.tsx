@@ -7,7 +7,7 @@ interface BaseInputProps extends React.ComponentProps<typeof ShadcnInput> {
 }
 
 const inputVariants = cva(
-  'rounded-100 border px-150 py-100 whitespace-pre-line focus-visible:ring-0',
+  'rounded-100 border px-150 py-100 whitespace-pre-line focus-visible:ring-0 font-designer-16m',
   {
     variants: {
       color: {

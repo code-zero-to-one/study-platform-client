@@ -25,7 +25,7 @@ export default function ProfileInfo({
     <div className="border-border-subtle flex flex-col items-start gap-[40px] border-t pt-200">
       <div className="flex w-full flex-col gap-200">
         <div className="flex w-full items-center gap-150">
-          <div className="font-designer-20b">내정보</div>
+          <div className="font-designer-20b">내 정보</div>
           <ProfileInfoEditModal
             memberInfo={memberInfo}
             onSubmit={handleSubmit}

@@ -16,29 +16,19 @@ export default async function Sidebar() {
     <aside className="flex flex-col gap-300">
       <MyProfileCard
         memberId={memberId}
-        name={userProfile?.memberProfile.memberName || '비회원'}
+        name={userProfile?.memberProfile.memberName}
         imageUrl={
           userProfile?.memberProfile?.profileImage?.resizedImages[0]
-            ?.resizedImageUrl || ''
+            ?.resizedImageUrl
         }
         matching={userProfile?.autoMatching ?? false}
-        subject={
-          userProfile?.memberInfo.preferredStudySubject?.name ?? '선택안함'
-        }
-        time={
-          userProfile?.memberInfo.availableStudyTimes?.length
-            ? userProfile.memberInfo.availableStudyTimes
-                .map((t) => t.label)
-                .join(', ')
-            : '없음'
-        }
-        techStacks={
-          userProfile?.memberInfo.techStacks?.length
-            ? userProfile.memberInfo.techStacks
-                .map((t) => t.techStackName)
-                .join(', ')
-            : '없음'
-        }
+        subject={userProfile?.memberInfo.preferredStudySubject?.name}
+        time={userProfile?.memberInfo.availableStudyTimes
+          ?.map((t) => t.label)
+          .join(', ')}
+        techStacks={userProfile?.memberInfo.techStacks
+          ?.map((t) => t.techStackName)
+          .join(', ')}
       />
       {hasTodo ? (
         <TodoList statusList={[true, false, false]} />
