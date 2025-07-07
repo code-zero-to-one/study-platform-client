@@ -3,6 +3,7 @@ import {
   getDailyStudies,
   getDailyStudyDetail,
   getMonthlyStudyCalendar,
+  getWeeklyParticipation,
   postJoinStudy,
 } from '@/features/study/api/get-study-data';
 import {
@@ -13,15 +14,23 @@ import {
   MonthlyCalendarResponse,
 } from '../api/types';
 
-export const useDailyStudyDetailQuery = (params: GetDailyStudyDetailParams) => {
-  // 나중에 변수 추가 시 tanstack-query를 이용해 받을 예정입니다.
-  const hasParticipated = false;
+export const useWeeklyParticipation = (params: GetDailyStudyDetailParams) => {
+  return useQuery({
+    queryKey: ['weeklyParticipation', params],
+    queryFn: () => getWeeklyParticipation(params),
+    staleTime: 60 * 1000,
+  });
+};
 
+export const useDailyStudyDetailQuery = (
+  params: GetDailyStudyDetailParams,
+  enabled: boolean = true,
+) => {
   return useQuery({
     queryKey: ['dailyStudyDetail', params],
     queryFn: () => getDailyStudyDetail(params),
     staleTime: 60 * 1000,
-    enabled: hasParticipated && !!params,
+    enabled: enabled && !!params,
   });
 };
 
