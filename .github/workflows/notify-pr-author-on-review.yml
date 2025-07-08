@@ -54,17 +54,23 @@ jobs:
           AUTHOR_SLACK_ID: ${{ steps.extract_info.outputs.author_slack_id }}
           TEXT: ${{ steps.extract_info.outputs.text }}
         run: |
+          JSON_DATA=$(jq -n \
+            --arg channel "$AUTHOR_SLACK_ID" \
+            --arg text "$TEXT" \
+            '{
+              "channel": $channel,
+              "text": $text
+            }')
+
           RESPONSE=$(curl -s -X POST https://slack.com/api/chat.postMessage \
             -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
             -H "Content-Type: application/json" \
-            -d '{
-              "channel": "'"$AUTHOR_SLACK_ID"'",
-              "text": "'"$TEXT"'"
-            }')
+            -d "$JSON_DATA")
 
           echo "Slack DM 전송 응답: $RESPONSE"
 
           if ! echo "$RESPONSE" | jq -e '.ok' | grep -q true; then
             echo "❌ Slack 메시지 전송 실패"
+            echo "에러 상세: $(echo "$RESPONSE" | jq -r '.error // "unknown error"')"
             exit 1
           fi
