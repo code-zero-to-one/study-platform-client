@@ -12,7 +12,7 @@ const todoItems = [
 
 export default function TodoList({ statusList }: TodoListProps) {
   return (
-    <section className="rounded-200 border-border-subtle bg-background-default flex flex-col gap-150 border p-200">
+    <section className="rounded-200 border-border-subtle bg-background-default flex flex-col gap-150 border p-250">
       <h4 className="font-designer-18b text-text-default">오늘 할 일</h4>
       <ul>
         {todoItems.map((item, idx) => {
@@ -25,7 +25,7 @@ export default function TodoList({ statusList }: TodoListProps) {
                 <CheckIcon
                   width={28}
                   height={28}
-                  className={`${done ? 'text-icon-brand' : 'text-gray-400'}`}
+                  className={`${done ? 'text-icon-brand' : 'text-icon-disabled'}`}
                 />
 
                 <span
