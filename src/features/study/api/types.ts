@@ -84,3 +84,8 @@ export interface JoinStudyRequest {
   githubLink?: string;
   blogOrSnsLink?: string;
 }
+
+export interface WeeklyParticipationResponse {
+  memberId: number;
+  isParticipate: boolean;
+}

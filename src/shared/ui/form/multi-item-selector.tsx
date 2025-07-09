@@ -8,6 +8,7 @@ import { BaseInput } from '../input';
 
 interface Props {
   value: string[];
+  maxSelectable?: number;
   onChange: (updated: string[]) => void;
   options?: string[];
 }
@@ -15,6 +16,7 @@ interface Props {
 export default function SelectableTagsInput({
   value,
   onChange,
+  maxSelectable = 4,
   options = [],
 }: Props) {
   const [customInput, setCustomInput] = useState('');
@@ -90,19 +92,25 @@ export default function SelectableTagsInput({
             name="custom"
             type="text"
             placeholder={
-              value.length >= 4
-                ? '최대 4개까지 선택 가능합니다'
+              value.length >= maxSelectable
+                ? `최대 ${maxSelectable}개까지 선택 가능합니다`
                 : 'IT, Back-end, AI'
             }
-            color={value.length >= 4 ? 'error' : 'default'}
-            disabled={value.length >= 4}
+            color={value.length >= maxSelectable ? 'error' : 'default'}
+            disabled={value.length >= maxSelectable}
             value={customInput}
             onChange={(e) => setCustomInput(e.target.value)}
           />
-          <Button type="submit" disabled={value.length >= 4}>
+          <Button type="submit" disabled={value.length >= maxSelectable}>
             추가
           </Button>
         </form>
+      )}
+
+      {value.length >= maxSelectable && (
+        <p className="text-text-brand font-designer-13r mt-50">
+          최대 {maxSelectable}개까지 선택 가능합니다.
+        </p>
       )}
     </div>
   );

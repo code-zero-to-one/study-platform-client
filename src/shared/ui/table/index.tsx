@@ -9,11 +9,13 @@ import {
 
 interface Props<T extends string> {
   headers: readonly T[];
+  placeholder?: string;
   data: Record<T, React.ReactNode>[];
 }
 
 export default function TableList<T extends string>({
   headers,
+  placeholder = '아직 진행된 매칭이 없어요!',
   data,
 }: Props<T>) {
   return (
@@ -31,18 +33,29 @@ export default function TableList<T extends string>({
         </TableRow>
       </TableHeader>
       <TableBody>
-        {data.map((row, index) => (
-          <TableRow key={index} className="border-none">
-            {headers.map((header) => (
-              <TableCell
-                key={header}
-                className="p-300 text-center align-middle whitespace-normal"
-              >
-                {row[header]}
-              </TableCell>
-            ))}
+        {data.length === 0 ? (
+          <TableRow className="h-[240px]">
+            <TableCell
+              colSpan={headers.length}
+              className="text-text-subtle p-300 text-center"
+            >
+              {placeholder}
+            </TableCell>
           </TableRow>
-        ))}
+        ) : (
+          data.map((row, index) => (
+            <TableRow key={index} className="border-none">
+              {headers.map((header) => (
+                <TableCell
+                  key={header}
+                  className="p-300 text-center align-middle whitespace-normal"
+                >
+                  {row[header]}
+                </TableCell>
+              ))}
+            </TableRow>
+          ))
+        )}
       </TableBody>
     </Table>
   );
