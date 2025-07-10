@@ -8,6 +8,7 @@ import type {
   MonthlyCalendarResponse,
   PostDailyRetrospectRequest,
   PostStudyDailyRequest,
+  WeeklyParticipationResponse,
 } from '@/features/study/api/types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 
@@ -47,7 +48,7 @@ export const postStudyDaily = async (body: PostStudyDailyRequest) => {
   return res.data;
 };
 
-export async function postJoinStudy(payload: JoinStudyRequest) {
+export const postJoinStudy = async (payload: JoinStudyRequest) => {
   const cleanPayload = Object.fromEntries(
     Object.entries(payload).filter(
       ([_, value]) =>
@@ -60,4 +61,14 @@ export async function postJoinStudy(payload: JoinStudyRequest) {
   const res = await axiosInstance.post('/matching/apply', cleanPayload);
 
   return res.data;
-}
+};
+
+export const getWeeklyParticipation = async (
+  params: GetDailyStudyDetailParams,
+): Promise<WeeklyParticipationResponse> => {
+  const res = await axiosInstance.get('/study/week/participation', {
+    params,
+  });
+
+  return res.data.content;
+};

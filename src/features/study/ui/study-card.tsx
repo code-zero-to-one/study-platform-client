@@ -5,6 +5,10 @@ import { useState } from 'react';
 import DateSelector from './data-selector';
 import TodayStudyCard from './today-study-card';
 import StudyListSection from '../../../widgets/home/study-list-table';
+import {
+  useDailyStudyDetailQuery,
+  useWeeklyParticipation,
+} from '../model/use-study-query';
 
 const FRIDAY = 5;
 const FRIDAY_OFFSET = 4;
@@ -70,7 +74,16 @@ export default function StudyCard() {
   //   adjustDateToWeekday(new Date()),
   // );
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const params = {
+    year: selectedDate.getFullYear(),
+    month: selectedDate.getMonth() + 1,
+    day: selectedDate.getDate(),
+  };
 
+  const { data: participationData } = useWeeklyParticipation(params);
+  const isParticipate = participationData?.isParticipate ?? false;
+
+  const { data, refetch } = useDailyStudyDetailQuery(params, isParticipate);
   const { month, week } = getWeekly(selectedDate);
 
   return (
@@ -80,7 +93,9 @@ export default function StudyCard() {
         <DateSelector value={selectedDate} onChange={setSelectedDate} />
       </div>
       <div className="border-border-default rounded-200 flex flex-col gap-500 border p-400">
-        <TodayStudyCard date={selectedDate} />
+        {isParticipate && data && (
+          <TodayStudyCard data={data} refetch={refetch} />
+        )}
         <StudyListSection date={selectedDate} />
       </div>
     </>

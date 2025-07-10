@@ -22,7 +22,7 @@ export interface DailyStudyDetail {
   interviewer: string;
   interviewerImage: string;
   studySpaceId: number;
-  interviewee: string;
+  intervieweeId: string;
   subject: string;
   progressStatus: StudyProgressStatus;
   link: string;
@@ -83,4 +83,9 @@ export interface JoinStudyRequest {
   tel?: string;
   githubLink?: string;
   blogOrSnsLink?: string;
+}
+
+export interface WeeklyParticipationResponse {
+  memberId: number;
+  isParticipate: boolean;
 }

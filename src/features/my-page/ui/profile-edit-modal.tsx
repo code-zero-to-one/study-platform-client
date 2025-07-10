@@ -10,44 +10,14 @@ import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { FormField } from '../../../shared/ui/form/form-field';
 import { UpdateUserProfileRequest } from '../api/types';
+import { updateUserProfile } from '../api/update-user-profile';
+import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '../consts/my-page-const';
 
 interface Props {
   onSubmit: (formData: UpdateUserProfileRequest) => void;
   memberProfile: MemberProfile;
   memberId: number;
 }
-
-const DEFAULT_OPTIONS = [
-  { label: '운동/헬스', value: '운동/헬스' },
-  { label: '여행', value: '여행' },
-  { label: '음악', value: '음악' },
-  { label: '영화/드라마', value: '영화/드라마' },
-  { label: '독서', value: '독서' },
-  { label: '게임', value: '게임' },
-  { label: '요리/맛집 탐방', value: '요리/맛집 탐방' },
-  { label: '패션/뷰티', value: '패션/뷰티' },
-  { label: '사진/영상', value: '사진/영상' },
-  { label: '자기계발', value: '자기계발' },
-];
-
-export const MBTI_OPTIONS = [
-  { label: 'ISTJ', value: 'ISTJ' },
-  { label: 'ISFJ', value: 'ISFJ' },
-  { label: 'INFJ', value: 'INFJ' },
-  { label: 'INTJ', value: 'INTJ' },
-  { label: 'ISTP', value: 'ISTP' },
-  { label: 'ISFP', value: 'ISFP' },
-  { label: 'INFP', value: 'INFP' },
-  { label: 'INTP', value: 'INTP' },
-  { label: 'ESTP', value: 'ESTP' },
-  { label: 'ESFP', value: 'ESFP' },
-  { label: 'ENFP', value: 'ENFP' },
-  { label: 'ENTP', value: 'ENTP' },
-  { label: 'ESTJ', value: 'ESTJ' },
-  { label: 'ESFJ', value: 'ESFJ' },
-  { label: 'ENFJ', value: 'ENFJ' },
-  { label: 'ENTJ', value: 'ENTJ' },
-];
 
 export type MbtiValue = (typeof MBTI_OPTIONS)[number]['value'];
 
@@ -82,14 +52,12 @@ export default function ProfileEditModal({
     UpdateUserProfileRequest['interests']
   >(memberProfile.interests?.map((item) => item.name) ?? []);
 
-  const [profileImageExtension, setProfileImageExtension] =
-    useState<UpdateUserProfileRequest['profileImageExtension']>(undefined);
-
   const [image, setImage] = useState(
     memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl ??
       '/profile-default.svg',
   );
 
+  const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadProfileImage = useUploadProfileImageMutation();
   const queryClient = useQueryClient();
@@ -98,14 +66,6 @@ export default function ProfileEditModal({
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       setImage(URL.createObjectURL(file));
-
-      const ext = file.name.split('.').pop()?.toUpperCase();
-      if (ext && ['JPG', 'PNG', 'GIF', 'WEBP'].includes(ext)) {
-        setProfileImageExtension(ext as 'JPG' | 'PNG' | 'GIF' | 'WEBP');
-      } else {
-        alert('지원하지 않는 이미지 형식입니다.');
-        setProfileImageExtension(undefined);
-      }
     }
   };
 
@@ -116,7 +76,12 @@ export default function ProfileEditModal({
       return;
     }
 
-    const isDefaultImage = image === '/profile-default.svg';
+    const file = fileInputRef.current?.files?.[0];
+
+    const hasImageFile = !!file;
+    const ext = file?.name.split('.').pop()?.toUpperCase();
+    const profileImageExtension =
+      ext && ['JPG', 'PNG', 'GIF', 'WEBP'].includes(ext) ? ext : undefined;
 
     const rawFormData: UpdateUserProfileRequest = {
       name,
@@ -126,37 +91,44 @@ export default function ProfileEditModal({
       simpleIntroduction: simpleIntroduction.trim() || undefined,
       mbti: mbti.trim() || undefined,
       interests: interests.length > 0 ? interests : undefined,
-      profileImageExtension: isDefaultImage ? undefined : profileImageExtension,
+      profileImageExtension: hasImageFile ? profileImageExtension : undefined,
     };
 
     const formData = Object.fromEntries(
       Object.entries(rawFormData).filter(([_, v]) => v !== undefined),
     ) as UpdateUserProfileRequest;
 
-    onSubmit(formData);
+    const updated = await updateUserProfile(memberId, formData);
 
-    if (fileInputRef.current?.files?.[0]) {
+    if (fileInputRef.current?.files?.[0] && updated.profileImageUploadUrl) {
       const imageFormData = new FormData();
       imageFormData.append('file', fileInputRef.current.files[0]);
 
+      const filename = updated.profileImageUploadUrl.split('/').pop();
+      if (!filename) return;
+
       try {
         await uploadProfileImage.mutateAsync({
-          memberId: memberId,
-          filename: `profile-formdata-${memberId}`,
+          memberId,
+          filename,
           file: imageFormData,
         });
-
-        await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
       } catch (error) {
         console.error('이미지 업로드 실패:', error);
         alert('이미지 업로드에 실패했습니다.');
       }
     }
+    await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
+
+    onSubmit(formData);
   };
 
   return (
-    <Modal.Root>
-      <Modal.Trigger className="rounded-100 bg-fill-brand-default-default font-designer-16b text-text-inverse w-full px-150 py-100">
+    <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
+      <Modal.Trigger
+        onClick={() => setIsOpen(true)}
+        className="rounded-100 bg-fill-brand-default-default font-designer-16b text-text-inverse w-full px-150 py-100"
+      >
         내 프로필 수정
       </Modal.Trigger>
       <Modal.Portal>
@@ -238,19 +210,24 @@ export default function ProfileEditModal({
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <Modal.Close asChild>
-              <div className="flex w-full justify-center gap-[8px]">
-                <Button color="secondary" className="w-[140px] cursor-pointer">
-                  취소
-                </Button>
-                <Button
-                  className="w-[140px] cursor-pointer"
-                  onClick={handleSubmit}
-                >
-                  수정 완료
-                </Button>
-              </div>
-            </Modal.Close>
+            <div className="flex w-full justify-center gap-[8px]">
+              <Button
+                color="secondary"
+                className="w-[140px] cursor-pointer"
+                onClick={() => setIsOpen(false)}
+              >
+                취소
+              </Button>
+              <Button
+                className="w-[140px] cursor-pointer"
+                onClick={async () => {
+                  await handleSubmit(); // 여기서 이미지 업로드 포함
+                  setIsOpen(false); // 모달 닫기
+                }}
+              >
+                수정 완료
+              </Button>
+            </div>
           </Modal.Footer>
         </Modal.Content>
       </Modal.Portal>

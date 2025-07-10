@@ -3,6 +3,7 @@ import {
   getDailyStudies,
   getDailyStudyDetail,
   getMonthlyStudyCalendar,
+  getWeeklyParticipation,
   postJoinStudy,
 } from '@/features/study/api/get-study-data';
 import {
@@ -13,12 +14,23 @@ import {
   MonthlyCalendarResponse,
 } from '../api/types';
 
-export const useDailyStudyDetailQuery = (params: GetDailyStudyDetailParams) => {
+export const useWeeklyParticipation = (params: GetDailyStudyDetailParams) => {
+  return useQuery({
+    queryKey: ['weeklyParticipation', params],
+    queryFn: () => getWeeklyParticipation(params),
+    staleTime: 60 * 1000,
+  });
+};
+
+export const useDailyStudyDetailQuery = (
+  params: GetDailyStudyDetailParams,
+  enabled: boolean = true,
+) => {
   return useQuery({
     queryKey: ['dailyStudyDetail', params],
     queryFn: () => getDailyStudyDetail(params),
     staleTime: 60 * 1000,
-    enabled: !!params,
+    enabled: enabled && !!params,
   });
 };
 

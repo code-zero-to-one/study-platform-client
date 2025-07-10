@@ -1,6 +1,7 @@
 import type {
   GetUserProfileResponse,
   PatchAutoMatchingParams,
+  StudyDashboardResponse,
 } from '@/entities/user/api/types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 
@@ -19,4 +20,13 @@ export const patchAutoMatching = async ({
   await axiosInstance.patch(`/members/${memberId}/auto-matching`, undefined, {
     params: { 'auto-matching': autoMatching },
   });
+};
+
+export const getStudyDashboard = async (
+  memberId: number,
+): Promise<StudyDashboardResponse> => {
+  const res = await axiosInstance.get(`/study/dashboard/${memberId}`);
+  console.log('errrrpr' + res.data.content);
+
+  return res.data.content;
 };

@@ -75,6 +75,7 @@ export interface MemberProfile {
 export interface GetUserProfileResponse {
   memberId: number;
   autoMatching: boolean;
+  studyApplied: boolean;
   memberInfo: MemberInfo;
   memberProfile: MemberProfile;
 }
@@ -82,4 +83,17 @@ export interface GetUserProfileResponse {
 export interface PatchAutoMatchingParams {
   memberId: number;
   autoMatching: boolean;
+}
+
+export interface StudyDashboardResponse {
+  tier: string;
+  experience: number;
+  monthAttendance: number;
+  weekAttendance: number;
+  techStack: Record<string, number>;
+  mainStackCount: {
+    FE: number;
+    BE: number;
+    CS: number;
+  };
 }
