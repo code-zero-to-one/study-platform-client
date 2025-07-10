@@ -30,8 +30,8 @@ export default async function Sidebar() {
           ?.map((t) => t.techStackName)
           .join(', ')}
       />
-      {hasTodo ? (
-        <TodoList statusList={[true, false, false]} />
+      {userProfile.studyApplied ? (
+        <TodoList statusList={[false, false, false]} />
       ) : (
         <StartStudyModal memberId={memberId} />
       )}
