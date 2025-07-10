@@ -2346,9 +2346,9 @@
     ts-dedent "^2.0.0"
 
 "@storybook/addon-vitest@^9.0.12":
-  version "9.0.12"
-  resolved "https://registry.yarnpkg.com/@storybook/addon-vitest/-/addon-vitest-9.0.12.tgz#7acd5bbbb7dd242c86d5a3563d4e4bcd5871134d"
-  integrity sha512-f3JPzQ9c7V06VsTFCNWzNmFhGvMPvZePVxPprzacEwAACU5GmRJ8lBqIFPyQALCMGKvaxqv0zbUwWEAsex7FQA==
+  version "9.0.15"
+  resolved "https://registry.yarnpkg.com/@storybook/addon-vitest/-/addon-vitest-9.0.15.tgz#696aae697a03cc6f61286c962fb799e0ca5f7cdd"
+  integrity sha512-4TynzdZgJMsvneT5lZGp+WrUoFtp8+LRL3y35EepJa3GMBc+9WgsKQrso+xnDQh1gLvVNe46n3klZvunVr4AFA==
   dependencies:
     "@storybook/global" "^5.0.0"
     "@storybook/icons" "^1.4.0"
