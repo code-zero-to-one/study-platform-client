@@ -9,13 +9,14 @@ const config: StorybookConfig = {
   addons: [
     '@chromatic-com/storybook',
     '@storybook/addon-docs',
-    '@storybook/addon-vitest',
+    'msw-storybook-addon',
+    '@storybook/addon-vitest'
   ],
   framework: {
     name: '@storybook/nextjs-vite',
     options: {},
   },
-  staticDirs: ['../public'],
+  staticDirs: ['../public', '../public/mock/'],
   viteFinal: (config) => {
     // SVGR plugin이 Storybook 내 Vite 번들링에 사용되도록 추가
     config.plugins = [...(config.plugins || []), svgr({ include: /\.svg$/ })];

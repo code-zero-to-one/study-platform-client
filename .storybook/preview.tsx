@@ -1,11 +1,23 @@
-import { mswLoader } from 'msw-storybook-addon';
+import { initialize, mswLoader } from 'msw-storybook-addon';
 import '../app/global.css';
-import QueryProvider from '../src/app/provider/query-provider';
 import type { Preview } from '@storybook/nextjs-vite';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+// initialize MSW
+initialize();
+
+// test query client for not caching results
+const testQueryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 0,
+      retry: false,
+    },
+  },
+});
 
 const preview: Preview = {
   // mocking APIs of server interaction
-  // loaders: [mswLoader],
   parameters: {
     controls: {
       matchers: {
@@ -17,12 +29,15 @@ const preview: Preview = {
       appDirectory: true,
     },
   },
+  loaders: [mswLoader],
   decorators: [
-    (Story) => (
-      <QueryProvider>
-        <Story />
-      </QueryProvider>
-    ),
+    (Story) => {
+      return (
+        <QueryClientProvider client={testQueryClient}>
+          <Story />
+        </QueryClientProvider>
+      );
+    },
   ],
 };
 
