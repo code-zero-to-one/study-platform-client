@@ -17,9 +17,7 @@ export default function TableList<T extends string>({
   headers,
   placeholder = '아직 진행된 매칭이 없어요!',
   data,
-}: TableListProps<T>) {
-  const headers = Object.keys(data[0]);
-
+}: Props<T>) {
   return (
     <Table>
       <TableHeader>
