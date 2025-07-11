@@ -54,8 +54,16 @@ jobs:
           AUTHOR_SLACK_ID: ${{ steps.extract_info.outputs.author_slack_id }}
           TEXT: ${{ steps.extract_info.outputs.text }}
         run: |
+          # slack bot과 PR 작성자와의 채널 조회 (DM을 보내기 위해, 반드시 slack bot과의 채널 id가 필요함)
+          JSON_IM_CHANNEL=$(curl -s -X POST https://slack.com/api/conversations.open \
+            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"users\":\"$AUTHOR_SLACK_ID\"}")
+          # slack bot과의 채널 id 저장
+          IM_CHANNEL_ID=$(echo "$JSON_IM_CHANNEL" | jq -r '.channel.id') 
+
           JSON_DATA=$(jq -n \
-            --arg channel "$AUTHOR_SLACK_ID" \
+            --arg channel "$IM_CHANNEL_ID" \
             --arg text "$TEXT" \
             '{
               "channel": $channel,
