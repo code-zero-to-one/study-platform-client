@@ -6,7 +6,7 @@ import {
 } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import SignupNameInput from '@/features/auth/ui/sign-up-name-input';
-import { getCookie } from '@/shared/tanstack-query/cookie';
+import { getCookie, setCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 
@@ -59,6 +59,7 @@ export default function SignupModal({
         // 회원가입 성공 시 프로필 이미지 업로드
         onSuccess: (data) => {
           if (data && data.content.generatedMemberId) {
+            setCookie('memberId', data.content.generatedMemberId )
             const formData = new FormData();
 
             if (fileInputRef.current?.files?.[0]) {
