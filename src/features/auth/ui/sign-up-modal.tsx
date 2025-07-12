@@ -9,6 +9,8 @@ import SignupNameInput from '@/features/auth/ui/sign-up-name-input';
 import { getCookie, setCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
+import { sendGTMEvent } from '@next/third-parties/google';
+import { hashValue } from '@/shared/lib/hash';
 
 export default function SignupModal({
   open,
@@ -58,8 +60,19 @@ export default function SignupModal({
       {
         // 회원가입 성공 시 프로필 이미지 업로드
         onSuccess: (data) => {
-          if (data && data.content.generatedMemberId) {
-            setCookie('memberId', data.content.generatedMemberId )
+
+          const memberId = data.content.generatedMemberId;
+
+          if (data && memberId) {
+            setCookie('memberId', memberId)
+            
+            // 회원가입 GA 이벤트 전송
+            sendGTMEvent({
+              event: 'custom_member_join',
+              dl_timestamp: new Date().toISOString(),
+              dl_member_id: hashValue(memberId),
+            });
+
             const formData = new FormData();
 
             if (fileInputRef.current?.files?.[0]) {
@@ -72,6 +85,7 @@ export default function SignupModal({
                 file: formData,
               });
             }
+            
 
             // 성공 후 홈페이지로 이동
             window.location.href = '/';
