@@ -8,3 +8,12 @@ export const getServerCookie = async (
 
   return value ?? undefined;
 };
+
+export const setServerCookie = async(
+  name: string,
+  value: string,
+  options: { path?: string } = {},
+): Promise<void> => {
+  const cookieStore = await cookies();
+  cookieStore.set(name, value, { path: '/', ...options });
+};
