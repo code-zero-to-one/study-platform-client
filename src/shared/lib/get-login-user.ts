@@ -43,7 +43,7 @@ export async function getLoginUserId(): Promise<number | undefined> {
         );
         accessToken = refreshRes.data.accessToken;
         // 5. SSR에서 최신화된 AccessToken을 쿠키등록
-        setServerCookie('accessToken', accessToken, { path: '/' });
+        await setServerCookie('accessToken', accessToken, { path: '/' });
 
         // 6. 갱신된 토큰으로 다시 /auth/me 호출
         const res2 = await axios.get(
@@ -54,6 +54,7 @@ export async function getLoginUserId(): Promise<number | undefined> {
           }
         );
         if (Number(res2.data.memberId) !== memberId) return null;
+        
         return memberId;
       } catch (refreshError) {
         // 갱신 실패 → 로그인 페이지로 리다이렉트
