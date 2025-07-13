@@ -31,14 +31,6 @@ function RedirectionContent() {
 
         if (isGuest === 'true') {
           router.push('/sign-up');
-          // isGuest가 true 인 경우 memberId가 없어서 아래 hashValue 에서 에러가 남.
-          // 따라서 해당 이벤트는 회원가입 직후인 'sign-up-modal.tsx' 로 이동.
-
-          // sendGTMEvent({
-          //   event: 'custom_member_join',
-          //   dl_timestamp: new Date().toISOString(),
-          //   dl_member_id: hashValue(memberId),
-          // });
         } else {
           router.push('/');
           router.refresh();
