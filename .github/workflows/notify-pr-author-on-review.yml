@@ -49,36 +49,10 @@ jobs:
 
       - name: Send Slack DM to PR Author
         if: steps.extract_info.outputs.skip != 'true'
-        env:
-          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-          AUTHOR_SLACK_ID: ${{ steps.extract_info.outputs.author_slack_id }}
-          TEXT: ${{ steps.extract_info.outputs.text }}
-        run: |
-          # slack bot과 PR 작성자와의 채널 조회 (DM을 보내기 위해, 반드시 slack bot과의 채널 id가 필요함)
-          JSON_IM_CHANNEL=$(curl -s -X POST https://slack.com/api/conversations.open \
-            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{\"users\":\"$AUTHOR_SLACK_ID\"}")
-          # slack bot과의 채널 id 저장
-          IM_CHANNEL_ID=$(echo "$JSON_IM_CHANNEL" | jq -r '.channel.id') 
-
-          JSON_DATA=$(jq -n \
-            --arg channel "$IM_CHANNEL_ID" \
-            --arg text "$TEXT" \
-            '{
-              "channel": $channel,
-              "text": $text
-            }')
-
-          RESPONSE=$(curl -s -X POST https://slack.com/api/chat.postMessage \
-            -H "Authorization: Bearer $SLACK_BOT_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "$JSON_DATA")
-
-          echo "Slack DM 전송 응답: $RESPONSE"
-
-          if ! echo "$RESPONSE" | jq -e '.ok' | grep -q true; then
-            echo "❌ Slack 메시지 전송 실패"
-            echo "에러 상세: $(echo "$RESPONSE" | jq -r '.error // "unknown error"')"
-            exit 1
-          fi
+        uses: slackapi/slack-github-action@v2.1.0
+        with:
+          method: chat.postMessage
+          token: ${{ secrets.SLACK_BOT_TOKEN }}
+          payload: |
+            channel: ${{ steps.extract_info.outputs.author_slack_id }}
+            text: ${{ steps.extract_info.outputs.text }}
