@@ -12,11 +12,14 @@ import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
 import { HeaderDropdown } from '@/shared/ui/dropdown';
 import NotiIcon from 'public/icons/notifications_none.svg';
+import LoginModal from '@/features/auth/ui/login-modal';
+import { useState } from 'react';
 
 export default function Header() {
   const queryClient = useQueryClient();
   const router = useRouter();
   const memberInfo = useMemberInfo();
+  const [loginOpen, setLoginOpen] = useState(false);
 
   // 로컬 테스트에서 사용시 주석 제거
   // console.log('요청 주소', process.env.API_BASE_URL);
@@ -99,9 +102,14 @@ export default function Header() {
           />
           {!memberInfo.data?.isLogin && (
             <Link href="/login">
-              <Button color="primary" size="small">
+              <Button 
+                color="primary" 
+                size="small"
+                onClick={() => setLoginOpen(true)}
+              >
                 로그인 / 회원가입
               </Button>
+              <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
             </Link>
           )}
         </div>

@@ -31,11 +31,6 @@ function RedirectionContent() {
 
         if (isGuest === 'true') {
           router.push('/sign-up');
-          sendGTMEvent({
-            event: 'custom_member_join',
-            dl_timestamp: new Date().toISOString(),
-            dl_member_id: hashValue(memberId),
-          });
         } else {
           router.push('/');
           router.refresh();

@@ -65,7 +65,7 @@ export default function LoginModal({
             </div>
             <div className="flex flex-col gap-150 py-150">
               {/* <button
-                className="flex h-[52px] px-5 justify-center items-center gap-3 rounded bg-[#03C75A]"
+                className="flex h-[52px] px-5 justify-center items-center gap-150 rounded bg-[#03C75A]"
                 onClick={() => { window.location.href = NAVER_LOGIN_URL }}
               >
                 <Image src="/naver-icon.svg" alt="Naver" width={20} height={20} />
@@ -74,7 +74,7 @@ export default function LoginModal({
                 </span>
               </button> */}
               <button
-                className="rounded-50 flex h-[52px] items-center justify-center gap-3 border border-[#FEE500] bg-[#FFE812] px-5 text-black"
+                className="rounded-50 flex h-[52px] items-center justify-center gap-150 border border-[#FEE500] bg-[#FFE812] px-5 text-black"
                 onClick={() => {
                   window.location.href = KAKAO_LOGIN_URL;
                 }}
@@ -90,7 +90,7 @@ export default function LoginModal({
                 </span>
               </button>
               <button
-                className="rounded-50 flex h-[52px] items-center justify-center gap-3 border border-[#3D4148] bg-white px-5 text-black"
+                className="rounded-50 flex h-[52px] items-center justify-center gap-150 border border-[#3D4148] bg-white px-5 text-black"
                 onClick={() => {
                   window.location.href = GOOGLE_LOGIN_URL;
                 }}
