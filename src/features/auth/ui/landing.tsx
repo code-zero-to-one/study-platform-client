@@ -38,7 +38,7 @@ export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
         <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
         <SignupModal open={signupOpen} onClose={() => setSignupOpen(false)} />
       </section>
-      <section className="aspect-[349.44/524.16] h-[524.16px] w-[349.44px] flex-shrink-0 bg-[url('/your-image.jpg')] bg-cover bg-center bg-no-repeat">
+      <section className="aspect-[349.44/524.16] h-[524.16px] w-[349.44px] flex-shrink-0 bg-cover bg-center bg-no-repeat">
         <Image
           src="graphic-area.svg"
           alt="Graphic Area"
