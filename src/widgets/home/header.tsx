@@ -1,60 +1,20 @@
-'use client';
-
-import { sendGTMEvent } from '@next/third-parties/google';
-import { useQueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import { logout } from '@/features/auth/api/auth';
-import { useMemberInfo } from '@/features/auth/model/use-auth';
-import { hashValue } from '@/shared/lib/hash';
-import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
-import UserAvatar from '@/shared/ui/avatar';
-import Button from '@/shared/ui/button';
-import { HeaderDropdown } from '@/shared/ui/dropdown';
-import NotiIcon from 'public/icons/notifications_none.svg';
-import LoginModal from '@/features/auth/ui/login-modal';
-import { useState } from 'react';
+import { getUserProfile } from '@/entities/user/api/get-user-profile';
 
-export default function Header() {
-  const queryClient = useQueryClient();
-  const router = useRouter();
-  const memberInfo = useMemberInfo();
-  const [loginOpen, setLoginOpen] = useState(false);
+import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
+import OpenLoginModalButton from '@/features/auth/ui/open-login-modal-button';
+import { getServerCookie } from '@/shared/lib/server-cookie';
 
-  // 로컬 테스트에서 사용시 주석 제거
-  // console.log('요청 주소', process.env.API_BASE_URL);
-  // console.log(
-  //   '프로필 이미지 주소',
-  //   memberInfo.data?.content?.memberProfile?.profileImage?.resizedImages[0]
-  //     ?.resizedImageUrl,
-  // );
+// import NotiIcon from 'public/icons/notifications_none.svg';
 
-  const handleLogout = async () => {
-    try {
-      // 1. 서버에 로그아웃 요청 (refresh token 삭제)
-      await logout();
+export default async function Header() {
+  const memberId = await getServerCookie('memberId');
+  const isLogin = /^\d+$/.test(memberId || '');
 
-      const memberId = getCookie('memberId');
-      sendGTMEvent({
-        event: 'custom_member_logout',
-        dl_timestamp: new Date().toISOString(),
-        dl_member_id: hashValue(memberId),
-      });
-
-      // 2. 클라이언트의 access token 삭제
-      deleteCookie('accessToken');
-      deleteCookie('memberId');
-
-      // 3. React Query 캐시 초기화
-      queryClient.clear();
-
-      // 4. 홈으로 리다이렉트
-      router.push('/');
-      router.refresh(); // 전체 페이지 리프레시
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-    }
-  };
+  const userInfo = isLogin ? await getUserProfile(Number(memberId)) : null;
+  const userImg = isLogin
+    ? userInfo.memberProfile.profileImage?.resizedImages[0].resizedImageUrl
+    : 'profile-default.svg';
 
   return (
     <header className="w-full border-b border-[#E7E8EA] bg-white mix-blend-multiply">
@@ -70,48 +30,13 @@ export default function Header() {
             </nav> */}
 
         <div className="flex shrink-0 items-center gap-150">
-          <div>
+          {/* 알림 기능을 구현하지 못해 주석 처리 */}
+          {/* <div>
             <NotiIcon />
-          </div>
-          <HeaderDropdown
-            placeholder={
-              <UserAvatar
-                image={
-                  memberInfo.data?.content?.memberProfile?.profileImage
-                    ?.resizedImages[0]?.resizedImageUrl || 'profile-default.svg'
-                }
-              />
-            }
-            options={[
-              {
-                label: '내 정보 수정',
-                value: '/my-page',
-              },
-              {
-                label: '로그아웃',
-                value: 'logout',
-              },
-            ]}
-            onChange={async (value) => {
-              if (value === '/my-page') {
-                await router.push(value);
-              } else if (value === 'logout') {
-                await handleLogout();
-              }
-            }}
-          />
-          {!memberInfo.data?.isLogin && (
-            <Link href="/login">
-              <Button 
-                color="primary" 
-                size="small"
-                onClick={() => setLoginOpen(true)}
-              >
-                로그인 / 회원가입
-              </Button>
-              <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
-            </Link>
-          )}
+          </div> */}
+
+          {isLogin && <HeaderUserDropdown userImg={userImg} />}
+          {!isLogin && <OpenLoginModalButton />}
         </div>
       </div>
     </header>
