@@ -17,17 +17,6 @@ export const useMemberId = () => {
   });
 };
 
-// 회원 프로필 조회
-export const useProfile = (memberId?: string) => {
-  return useQuery<MemberInfoResponse>({
-    queryKey: ['profile', memberId],
-    queryFn: () => getProfile(Number(memberId)),
-    enabled: !!memberId, // memberId가 있을 때만 실행
-    // staleTime으로 캐시 유효 기간 설정
-    staleTime: 5 * 60 * 1000, // 5분
-  });
-};
-
 // 회원 Id 기반 회원 정보 조회
 export const useMemberInfo = () => {
   const memberId = getCookie('memberId');
