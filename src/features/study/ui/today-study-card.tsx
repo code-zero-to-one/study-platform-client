@@ -12,7 +12,6 @@ interface Props {
 }
 
 const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
-  BEFORE_PROGRESSED: <Badge color="default">시작 전</Badge>,
   PENDING: <Badge color="incomplete">보류</Badge>,
   IN_PROGRESS: <Badge color="incomplete">진행중</Badge>,
   COMPLETE: <Badge color="completed">완료</Badge>,

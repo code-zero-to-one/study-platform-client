@@ -1,6 +1,4 @@
 export type StudyProgressStatus =
-  | 'NONE'
-  | 'BEFORE_PROGRESSED'
   | 'PENDING'
   | 'IN_PROGRESS'
   | 'COMPLETE'
@@ -103,4 +101,8 @@ export interface JoinStudyRequest {
 export interface WeeklyParticipationResponse {
   memberId: number;
   isParticipate: boolean;
+}
+
+export interface PutRetrospectRequest {
+  description: string;
 }

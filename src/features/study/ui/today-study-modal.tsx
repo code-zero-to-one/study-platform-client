@@ -9,9 +9,14 @@ import { SingleDropdown } from '@/shared/ui/dropdown';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import CreateIcon from 'public/icons/create.svg';
-import { postDailyRetrospect, putStudyDaily } from '../api/get-study-data';
+import {
+  patchStudyStatus,
+  putRetrospect,
+  putStudyDaily,
+} from '../api/get-study-data';
 import {
   DailyStudyDetail,
+  PutRetrospectRequest,
   PutStudyDailyRequest,
   StudyProgressStatus,
 } from '../api/types';
@@ -61,7 +66,7 @@ export default function TodayStudyModal({
             {isReady ? (
               <ReadyForm refetch={refetch} data={data} />
             ) : (
-              <DoneForm refetch={refetch} />
+              <DoneForm refetch={refetch} data={data} />
             )}
           </Modal.Body>
         </Modal.Content>
@@ -158,23 +163,35 @@ function ReadyForm({
   );
 }
 
-function DoneForm({ refetch }: { refetch: () => void }) {
-  const [feedback, setFeedback] = useState('');
-  const [progressStatus, setProgressStatus] =
-    useState<StudyProgressStatus>('BEFORE_PROGRESSED');
+function DoneForm({
+  data,
+  refetch,
+}: {
+  data: DailyStudyDetail;
+  refetch: () => void;
+}) {
+  const [feedback, setFeedback] = useState<PutRetrospectRequest['description']>(
+    data.description ?? '',
+  );
+
+  const [progressStatus, setProgressStatus] = useState<StudyProgressStatus>(
+    data.progressStatus ?? 'PENDING',
+  );
 
   const handleSubmit = async (e: React.MouseEvent) => {
-    if (!feedback) {
+    if (!feedback || !progressStatus) {
       e.preventDefault();
 
       return;
     }
 
     try {
-      await postDailyRetrospect({
+      await patchStudyStatus(data.dailyStudyId, progressStatus);
+
+      await putRetrospect(data.dailyStudyId, {
         description: feedback,
-        parentId: 9007199254740991,
       });
+
       await refetch();
     } catch (err) {
       e.preventDefault();
@@ -226,8 +243,10 @@ function DoneForm({ refetch }: { refetch: () => void }) {
         <Modal.Close asChild>
           <Button
             size="large"
-            color={feedback ? 'primary' : 'secondary'}
-            className={cn(!feedback && 'cursor-not-allowed')}
+            color={feedback && progressStatus ? 'primary' : 'secondary'}
+            className={cn(
+              (!feedback || !progressStatus) && 'cursor-not-allowed',
+            )}
             onClick={handleSubmit}
           >
             작성 완료
