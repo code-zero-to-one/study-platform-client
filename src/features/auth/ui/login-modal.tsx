@@ -20,13 +20,12 @@ export default function LoginModal({
   }, []);
 
   if (!state) {
-    return <div>로딩중...</div>;
+    return <></>;
   }
 
   const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1'); // 로컬환경 테스트용
   localStorage.setItem('isLocal', JSON.stringify(isLocal));
 
-  console.log("로컬 환경 여부", isLocal);
   const API_BASE_URL = isLocal
     ? 'https://test-api.zeroone.it.kr'
     : process.env.NEXT_PUBLIC_API_BASE_URL;
