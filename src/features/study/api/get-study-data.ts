@@ -3,6 +3,7 @@ import type {
   GetDailyStudiesParams,
   GetDailyStudiesResponse,
   GetDailyStudyDetailParams,
+  GetDailyStudyDetailParams2,
   GetMonthlyCalendarParams,
   JoinStudyRequest,
   MonthlyCalendarResponse,
@@ -12,14 +13,18 @@ import type {
 } from '@/features/study/api/types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 
+// 스터디 상세 조회
 export const getDailyStudyDetail = async (
   params: GetDailyStudyDetailParams,
 ): Promise<DailyStudyDetail> => {
-  const res = await axiosInstance.get(`/study/daily/today`, { params });
+  const { studyDate } = params;
+
+  const res = await axiosInstance.get(`/study/daily/mine/${studyDate}`);
 
   return res.data.content;
 };
 
+// 스터디 전체 조회
 export const getDailyStudies = async (
   params?: GetDailyStudiesParams,
 ): Promise<GetDailyStudiesResponse> => {
@@ -28,6 +33,7 @@ export const getDailyStudies = async (
   return res.data.content;
 };
 
+// 월 별 스터디 캘린더 조회
 export const getMonthlyStudyCalendar = async (
   params: GetMonthlyCalendarParams,
 ): Promise<MonthlyCalendarResponse> => {
@@ -64,7 +70,7 @@ export const postJoinStudy = async (payload: JoinStudyRequest) => {
 };
 
 export const getWeeklyParticipation = async (
-  params: GetDailyStudyDetailParams,
+  params: GetDailyStudyDetailParams2,
 ): Promise<WeeklyParticipationResponse> => {
   const res = await axiosInstance.get('/study/week/participation', {
     params,

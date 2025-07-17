@@ -80,10 +80,15 @@ export default function StudyCard() {
     day: selectedDate.getDate(),
   };
 
+  const studyParams = { studyDate: selectedDate.toISOString().split('T')[0] };
+
   const { data: participationData } = useWeeklyParticipation(params);
   const isParticipate = participationData?.isParticipate ?? false;
 
-  const { data, refetch } = useDailyStudyDetailQuery(params, isParticipate);
+  const { data: todayStudyData, refetch } = useDailyStudyDetailQuery(
+    studyParams,
+    isParticipate,
+  );
   const { month, week } = getWeekly(selectedDate);
 
   return (
@@ -93,8 +98,8 @@ export default function StudyCard() {
         <DateSelector value={selectedDate} onChange={setSelectedDate} />
       </div>
       <div className="border-border-default rounded-200 flex flex-col gap-500 border p-400">
-        {isParticipate && data && (
-          <TodayStudyCard data={data} refetch={refetch} />
+        {isParticipate && todayStudyData && (
+          <TodayStudyCard data={todayStudyData} refetch={refetch} />
         )}
         <StudyListSection date={selectedDate} />
       </div>

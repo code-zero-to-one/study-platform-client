@@ -35,8 +35,8 @@ export default function TodayStudyCard({ data, refetch }: Props) {
           label="면접자"
           value={
             <div className="border-border-default bg-background-default flex items-center gap-100 rounded-full border px-100 py-50">
-              <UserAvatar image={''} />
-              <span className="font-designer-14m">{data.interviewer}</span>
+              <UserAvatar image={data.interviewerImage} />
+              <span className="font-designer-14m">{data.interviewerName}</span>
             </div>
           }
         />

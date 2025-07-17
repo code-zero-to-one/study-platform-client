@@ -85,8 +85,9 @@ export default function StudyListSection({ date }: Props) {
   if (error) return <div>에러 발생</div>;
   if (!data) return null;
 
-  const displayData: Record<Header, React.ReactNode>[] =
-    data.dailyStudyResponses.map(mapDailyStudyToDisplayData);
+  const displayData: Record<Header, React.ReactNode>[] = data.items.map(
+    mapDailyStudyToDisplayData,
+  );
 
   return (
     <section className="w-full">
