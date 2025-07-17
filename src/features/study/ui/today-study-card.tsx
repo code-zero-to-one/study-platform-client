@@ -1,6 +1,5 @@
 'use client';
 
-import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import TodayStudyModal from './today-study-modal';
