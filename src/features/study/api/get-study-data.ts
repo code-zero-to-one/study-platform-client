@@ -8,7 +8,7 @@ import type {
   JoinStudyRequest,
   MonthlyCalendarResponse,
   PostDailyRetrospectRequest,
-  PostStudyDailyRequest,
+  PutStudyDailyRequest,
   WeeklyParticipationResponse,
 } from '@/features/study/api/types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
@@ -48,8 +48,12 @@ export const postDailyRetrospect = async (body: PostDailyRetrospectRequest) => {
   return res.data;
 };
 
-export const postStudyDaily = async (body: PostStudyDailyRequest) => {
-  const res = await axiosInstance.post('/study/daily', body);
+// 피면접자 스터디 업데이트
+export const putStudyDaily = async (
+  dailyId: number,
+  body: PutStudyDailyRequest,
+) => {
+  const res = await axiosInstance.put(`/study/daily/${dailyId}`, body);
 
   return res.data;
 };

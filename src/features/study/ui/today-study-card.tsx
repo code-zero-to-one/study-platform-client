@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import TodayStudyModal from './today-study-modal';
@@ -20,13 +20,11 @@ const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
 };
 
 export default function TodayStudyCard({ data, refetch }: Props) {
-  const [mode] = useState<'ready' | 'done'>('ready');
-
   return (
     <section className="flex w-full flex-col gap-150">
       <div className="mb-4 flex items-start justify-between">
         <h3 className="font-bold-h5 text-text-strong">오늘의 스터디</h3>
-        <TodayStudyModal mode={mode} refetch={refetch} />
+        <TodayStudyModal data={data} refetch={refetch} />
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-100">

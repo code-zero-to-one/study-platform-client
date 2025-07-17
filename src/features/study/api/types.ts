@@ -82,12 +82,10 @@ export interface PostDailyRetrospectRequest {
   parentId: number;
 }
 
-export interface PostStudyDailyRequest {
+export interface PutStudyDailyRequest {
   subject: string;
   description: string;
   link: string;
-  privated: boolean;
-  planTime: string;
 }
 
 export interface JoinStudyRequest {
