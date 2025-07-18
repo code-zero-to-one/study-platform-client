@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { ToggleSwitch } from '@/shared/ui/toggle/switch';
 
+// TODO: docs 상태에서 switch 적용되도록
 const meta = {
   title: 'UI/Toggle Switch',
   component: ToggleSwitch.Root,
