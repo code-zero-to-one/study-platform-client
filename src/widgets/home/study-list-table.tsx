@@ -1,7 +1,7 @@
 import { useDailyStudiesQuery } from '@/features/study/model/use-study-query';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge/index';
-import TableList from '@/shared/ui/table';
+import TableList from '@/shared/ui/table-list';
 import LinkIcon from 'public/icons/Link.svg';
 import {
   DailyStudy,
@@ -17,7 +17,9 @@ const headers = [
   '진행 상태',
   '참고 자료',
 ] as const;
-type Header = (typeof headers)[number];
+
+// unused
+// type StudyListTableHeader = (typeof headers)[number];
 
 interface Props {
   date: Date;
@@ -79,10 +81,13 @@ export default function StudyListSection({ date }: Props) {
   });
 
   if (isLoading) return <div>로딩 중...</div>;
-  if (error) return <div>에러 발생</div>;
-  if (!data) return null;
+  // 명확한 에러 상태
+  if (error && !data) return <div>에러 발생</div>;
 
-  const displayData = data.dailyStudyResponses.map(mapDailyStudyToDisplayData);
+  const displayData =
+    data.dailyStudyResponses && data.dailyStudyResponses.length
+      ? data.dailyStudyResponses.map(mapDailyStudyToDisplayData)
+      : [];
 
   return (
     <section className="w-full">

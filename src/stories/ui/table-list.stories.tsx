@@ -1,8 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import TableList from '@/shared/ui/table';
+import TableList from '@/shared/ui/table-list';
 
 const meta = {
-  title: 'UI/Table',
+  title: 'UI/TableList',
   tags: ['autodocs'],
   component: TableList,
   argTypes: {
@@ -12,19 +12,20 @@ const meta = {
     },
   },
   args: {
+    headers: ['name', 'email', 'phone'],
     data: [
       {
-        name: 'John Doe',
+        name: '김철수',
         email: 'john.doe@example.com',
         phone: '1234567890',
       },
       {
-        name: 'Jane Doe',
+        name: '김영희',
         email: 'jane.doe@example.com',
         phone: '1234567890',
       },
       {
-        name: 'John Doe',
+        name: '최철수',
         email: 'john.doe@example.com',
         phone: '1234567890',
       },
