@@ -70,14 +70,12 @@ const Calendar = (props: React.ComponentProps<typeof ShadcnCalendar>) => {
   const { data, isLoading } = useMonthlyStudyCalendarQuery({ year, month });
 
   const completedDays = React.useMemo(() => {
-    if (!data?.calender) return [];
+    if (!data?.calendar) return [];
 
-    return Object.entries(data.calender)
-      .filter(([, timeSlots]) => Object.values(timeSlots).includes('COMPLETE'))
-      .map(([day]) => new Date(Number(day)));
-  }, [data]);
-
-  const monthlyCompletedCount = completedDays.length;
+    return data.calendar
+      .filter((entry) => entry.hasStudy && entry.status === 'COMPLETE')
+      .map((entry) => new Date(year, month - 1, entry.day));
+  }, [data, year, month]);
 
   if (isLoading) return <div>로딩 중...</div>;
 
@@ -115,10 +113,10 @@ const Calendar = (props: React.ComponentProps<typeof ShadcnCalendar>) => {
         footer={
           <div className="flex w-full flex-col gap-75 pt-200">
             <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
-              {month}월은 {monthlyCompletedCount}번의 스터디를 완료했어요.
+              {month}월은 {data.monthlyCompletedCount}번의 스터디를 완료했어요.
             </div>
             <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
-              총 {monthlyCompletedCount}번의 스터디를 완료했어요.
+              총 {data.totalCompletedCount}번의 스터디를 완료했어요.
             </div>
           </div>
         }

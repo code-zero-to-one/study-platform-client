@@ -1,6 +1,6 @@
 'use client';
 
-import { getMonth, getDay, addDays, startOfWeek, getDate } from 'date-fns';
+import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
 import { useState } from 'react';
 import DateSelector from './data-selector';
 import TodayStudyCard from './today-study-card';
@@ -9,9 +9,6 @@ import {
   useDailyStudyDetailQuery,
   useWeeklyParticipation,
 } from '../model/use-study-query';
-
-const FRIDAY = 5;
-const FRIDAY_OFFSET = 4;
 
 // 스터디 주차 구하는 함수
 function getWeekly(date: Date): { month: number; week: number } {
@@ -48,7 +45,6 @@ function getWeekly(date: Date): { month: number; week: number } {
     };
   }
 
-  // 주차 계산
   const diffMs = currentWeekStart.getTime() - officialFirstWeekStart.getTime();
   const diffWeeks = Math.floor(diffMs / (7 * 24 * 60 * 60 * 1000));
 
@@ -58,21 +54,7 @@ function getWeekly(date: Date): { month: number; week: number } {
   };
 }
 
-// 금요일 보정 함수 (토 or 일 인 경우 금요일로 조정) -> 토, 일인 경우 날짜를 하루 적게 전달
-// 해당 함수는 주말에 어떤 값을 보여줄 건지에 따라 변경할 예정
-// function adjustDateToWeekday(date: Date): Date {
-//   const day = getDay(date);
-//   if (day >= FRIDAY) {
-//     return addDays(startOfWeek(date, { weekStartsOn: 1 }), FRIDAY_OFFSET);
-//   }
-
-//   return date;
-// }
-
 export default function StudyCard() {
-  // const [selectedDate, setSelectedDate] = useState(() =>
-  //   adjustDateToWeekday(new Date()),
-  // );
   const [selectedDate, setSelectedDate] = useState(new Date());
   const params = {
     year: selectedDate.getFullYear(),
@@ -80,10 +62,15 @@ export default function StudyCard() {
     day: selectedDate.getDate(),
   };
 
+  const studyParams = { studyDate: selectedDate.toISOString().split('T')[0] };
+
   const { data: participationData } = useWeeklyParticipation(params);
   const isParticipate = participationData?.isParticipate ?? false;
 
-  const { data, refetch } = useDailyStudyDetailQuery(params, isParticipate);
+  const { data: todayStudyData, refetch } = useDailyStudyDetailQuery(
+    studyParams,
+    isParticipate,
+  );
   const { month, week } = getWeekly(selectedDate);
 
   return (
@@ -93,8 +80,8 @@ export default function StudyCard() {
         <DateSelector value={selectedDate} onChange={setSelectedDate} />
       </div>
       <div className="border-border-default rounded-200 flex flex-col gap-500 border p-400">
-        {isParticipate && data && (
-          <TodayStudyCard data={data} refetch={refetch} />
+        {isParticipate && todayStudyData && (
+          <TodayStudyCard data={todayStudyData} refetch={refetch} />
         )}
         <StudyListSection date={selectedDate} />
       </div>

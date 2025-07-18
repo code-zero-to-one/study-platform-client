@@ -10,8 +10,6 @@ export default async function Sidebar() {
 
   const userProfile = await getUserProfile(memberId);
 
-  const hasTodo = false; // 나중에 스터디 참여 유무로 변경할 예정
-
   return (
     <aside className="flex flex-col gap-300">
       <MyProfileCard

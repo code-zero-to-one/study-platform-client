@@ -9,12 +9,13 @@ import {
 import {
   GetDailyStudiesParams,
   GetDailyStudyDetailParams,
+  GetDailyStudyDetailParams2,
   GetMonthlyCalendarParams,
   JoinStudyRequest,
   MonthlyCalendarResponse,
 } from '../api/types';
 
-export const useWeeklyParticipation = (params: GetDailyStudyDetailParams) => {
+export const useWeeklyParticipation = (params: GetDailyStudyDetailParams2) => {
   return useQuery({
     queryKey: ['weeklyParticipation', params],
     queryFn: () => getWeeklyParticipation(params),
