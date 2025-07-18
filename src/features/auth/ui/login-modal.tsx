@@ -82,6 +82,10 @@ export default function LoginModal({
                   alt="Naver"
                   width={20}
                   height={20}
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                  }}
                 />
                 <span className="text-center font-['Pretendard'] text-[15px] leading-[23px] font-bold text-[#181D27]">
                   카카오 계정 로그인
@@ -98,6 +102,10 @@ export default function LoginModal({
                   alt="Naver"
                   width={20}
                   height={20}
+                  style={{
+                    width: '20px',
+                    height: '20px',
+                  }}
                 />
                 <span className="text-center font-['Pretendard'] text-[15px] leading-[23px] font-bold text-[#181D27]">
                   Google 계정 로그인
