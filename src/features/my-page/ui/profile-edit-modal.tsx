@@ -87,10 +87,10 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
     const rawFormData: UpdateUserProfileRequest = {
       name: profileForm.name,
       tel: profileForm.tel,
-      githubLink: profileForm.githubLink.trim() || undefined,
-      blogOrSnsLink: profileForm.blogOrSnsLink.trim() || undefined,
+      githubLink: profileForm.githubLink,
+      blogOrSnsLink: profileForm.blogOrSnsLink,
       simpleIntroduction: profileForm.simpleIntroduction.trim() || undefined,
-      mbti: profileForm.mbti.trim() || undefined,
+      mbti: profileForm.mbti || undefined,
       interests:
         profileForm.interests.length > 0 ? profileForm.interests : undefined,
       profileImageExtension: hasImageFile ? profileImageExtension : undefined,
@@ -201,7 +201,10 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
                 description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
                 value={profileForm.githubLink}
                 onChange={(value) =>
-                  setProfileForm({ ...profileForm, githubLink: value })
+                  setProfileForm({
+                    ...profileForm,
+                    githubLink: value.replace(/\s/g, ''),
+                  })
                 }
               />
               <FormField
@@ -238,7 +241,10 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
                 description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
                 value={profileForm.blogOrSnsLink}
                 onChange={(value) =>
-                  setProfileForm({ ...profileForm, blogOrSnsLink: value })
+                  setProfileForm({
+                    ...profileForm,
+                    blogOrSnsLink: value.replace(/\s/g, ''),
+                  })
                 }
               />
             </div>
