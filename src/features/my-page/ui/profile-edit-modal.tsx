@@ -223,16 +223,16 @@ export default function ProfileEditModal({
             </div>
           </Modal.Body>
           <Modal.Footer>
-            <div className="flex w-full justify-center gap-[8px]">
+            <div className="flex justify-end gap-[8px]">
               <Button
                 color="secondary"
-                className="w-[140px] cursor-pointer"
+                size="large"
                 onClick={() => setIsOpen(false)}
               >
                 취소
               </Button>
               <Button
-                className="w-[140px] cursor-pointer"
+                size="large"
                 onClick={async () => {
                   await handleSubmit(); // 여기서 이미지 업로드 포함
                   setIsOpen(false); // 모달 닫기
