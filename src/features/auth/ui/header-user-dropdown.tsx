@@ -4,9 +4,14 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { hashValue } from '@/shared/lib/hash';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/shared/shadcn/ui/dropdown-menu';
 import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
-import { HeaderDropdown } from '@/shared/ui/dropdown';
 import { logout } from '../api/auth';
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
@@ -41,33 +46,37 @@ export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   };
 
   return (
-    <HeaderDropdown
-      placeholder={
-        <UserAvatar
-          image={
-            userImg
-            // memberInfo.data?.content?.memberProfile?.profileImage
-            //   ?.resizedImages[0]?.resizedImageUrl || 'profile-default.svg'
-          }
-        />
-      }
-      options={[
-        {
-          label: '내 정보 수정',
-          value: '/my-page',
-        },
-        {
-          label: '로그아웃',
-          value: 'logout',
-        },
-      ]}
-      onChange={async (value) => {
-        if (value === '/my-page') {
-          await router.push(value);
-        } else if (value === 'logout') {
-          await handleLogout();
-        }
-      }}
-    />
+    <DropdownMenu>
+      <DropdownMenuTrigger className="w-full focus:outline-none">
+        <div>
+          <UserAvatar image={userImg} />
+        </div>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent className="rounded-100 border-border-default bg-background-default shadow-2 flex w-full flex-col gap-50 border p-50">
+        {[
+          {
+            label: '내 정보 수정',
+            value: '/my-page',
+            onMenuClick: () => router.push('/my-page'),
+          },
+          {
+            label: '로그아웃',
+            value: 'logout',
+            onMenuClick: handleLogout,
+          },
+        ].map((option) => (
+          <DropdownMenuItem
+            key={option.value}
+            onClick={option.onMenuClick}
+            className="active:bg-fill-neutral-subtle-pressed rounded-100 h-[48px] w-full cursor-pointer p-150"
+          >
+            <span className="font-designer-14m text-text-subtle">
+              {option.label}
+            </span>
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
