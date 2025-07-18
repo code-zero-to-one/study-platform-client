@@ -2,15 +2,13 @@
 
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { Modal } from '../../../shared/ui/modal';
 
 export default function LoginModal({
-  open,
-  onClose,
+  openTrigger,
 }: {
-  open: boolean;
-  onClose: () => void;
+  openTrigger: ReactNode;
 }) {
   const [state, setState] = useState<string | null>(null);
 
@@ -43,7 +41,8 @@ export default function LoginModal({
   const GOOGLE_LOGIN_URL = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=${API_BASE_URL}/api/v1/auth/google/redirect-uri&client_id=${GOOGLE_CLIENT_ID}&state=${state}`;
 
   return (
-    <Modal.Root open={open} onOpenChange={onClose}>
+    <Modal.Root>
+      <Modal.Trigger asChild>{openTrigger}</Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>
