@@ -60,6 +60,22 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
     }
   };
 
+  const resetForm = () => {
+    setProfileForm({
+      name: memberProfile.memberName ?? '',
+      tel: memberProfile.tel ?? '',
+      githubLink: memberProfile.githubLink?.url ?? '',
+      blogOrSnsLink: memberProfile.blogOrSnsLink?.url ?? '',
+      mbti: memberProfile.mbti ?? '',
+      simpleIntroduction: memberProfile.simpleIntroduction ?? '',
+      interests: memberProfile.interests?.map((item) => item.name) ?? [],
+    });
+    setImage(
+      memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl ??
+        DEFAULT_PROFILE_IMAGE_URL,
+    );
+  };
+
   const handleSubmit = async () => {
     const file = fileInputRef.current?.files?.[0];
 
@@ -121,7 +137,7 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
       </Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content>
+        <Modal.Content onCloseAutoFocus={resetForm}>
           <Modal.Header className="border-border-default border-b">
             <div className="flex items-center justify-between">
               <Modal.Title>내 프로필 수정</Modal.Title>
