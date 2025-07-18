@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 
 import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
-import OpenLoginModalButton from '@/features/auth/ui/open-login-modal-button';
+import LoginModal from '@/features/auth/ui/login-modal';
 import { getServerCookie } from '@/shared/lib/server-cookie';
+import Button from '@/shared/ui/button';
 
 // import NotiIcon from 'public/icons/notifications_none.svg';
 
@@ -36,7 +37,9 @@ export default async function Header() {
           </div> */}
 
           {isLogin && <HeaderUserDropdown userImg={userImg} />}
-          {!isLogin && <OpenLoginModalButton />}
+          {!isLogin && (
+            <LoginModal openTrigger={<Button>로그인 / 회원가입</Button>} />
+          )}
         </div>
       </div>
     </header>
