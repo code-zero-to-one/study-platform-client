@@ -10,22 +10,20 @@ import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { FormField } from '../../../shared/ui/form/form-field';
 import { UpdateUserProfileRequest } from '../api/types';
-import { updateUserProfile } from '../api/update-user-profile';
 import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '../consts/my-page-const';
+import { useUpdateUserProfileMutation } from '../model/use-update-user-profile-mutation';
 
 interface Props {
-  onSubmit: (formData: UpdateUserProfileRequest) => void;
   memberProfile: MemberProfile;
   memberId: number;
 }
 
 export type MbtiValue = (typeof MBTI_OPTIONS)[number]['value'];
 
-export default function ProfileEditModal({
-  onSubmit,
-  memberProfile,
-  memberId,
-}: Props) {
+export default function ProfileEditModal({ memberProfile, memberId }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [name, setName] = useState<UpdateUserProfileRequest['name']>(
     memberProfile.memberName ?? '',
   );
@@ -63,10 +61,10 @@ export default function ProfileEditModal({
       '/profile-default.svg',
   );
 
-  const [isOpen, setIsOpen] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadProfileImage = useUploadProfileImageMutation();
   const queryClient = useQueryClient();
+  const { mutateAsync: updateProfile, data: updatedProfile } =
+    useUpdateUserProfileMutation(memberId);
+  const { mutateAsync: uploadProfileImage } = useUploadProfileImageMutation();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -98,17 +96,20 @@ export default function ProfileEditModal({
       Object.entries(rawFormData).filter(([_, v]) => v !== undefined),
     ) as UpdateUserProfileRequest;
 
-    const updated = await updateUserProfile(memberId, formData);
+    await updateProfile(formData);
 
-    if (fileInputRef.current?.files?.[0] && updated.profileImageUploadUrl) {
+    if (
+      fileInputRef.current?.files?.[0] &&
+      updatedProfile.profileImageUploadUrl
+    ) {
       const imageFormData = new FormData();
       imageFormData.append('file', fileInputRef.current.files[0]);
 
-      const filename = updated.profileImageUploadUrl.split('/').pop();
+      const filename = updatedProfile.profileImageUploadUrl.split('/').pop();
       if (!filename) return;
 
       try {
-        await uploadProfileImage.mutateAsync({
+        await uploadProfileImage({
           memberId,
           filename,
           file: imageFormData,
@@ -119,8 +120,6 @@ export default function ProfileEditModal({
       }
     }
     await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
-
-    onSubmit(formData);
   };
 
   return (

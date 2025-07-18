@@ -1,12 +1,8 @@
-'use client';
-
 import Image from 'next/image';
 import { MemberProfile } from '@/entities/user/api/types';
 import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
-import { UpdateUserProfileRequest } from '../api/types';
-import { useUpdateUserProfileMutation } from '../model/use-update-user-profile-mutation';
 
 interface ProfileProps {
   memberId: number;
@@ -14,12 +10,6 @@ interface ProfileProps {
 }
 
 export default function Profile({ memberId, memberProfile }: ProfileProps) {
-  const { mutate } = useUpdateUserProfileMutation(memberId);
-
-  const handleSubmit = (formData: UpdateUserProfileRequest) => {
-    mutate(formData);
-  };
-
   return (
     <div className="flex w-full max-w-[80%] gap-300 px-200">
       <UserAvatar
@@ -91,11 +81,7 @@ export default function Profile({ memberId, memberProfile }: ProfileProps) {
           </div>
         </div>
 
-        <ProfileEditModal
-          onSubmit={handleSubmit}
-          memberProfile={memberProfile}
-          memberId={memberId}
-        />
+        <ProfileEditModal memberProfile={memberProfile} memberId={memberId} />
       </div>
     </div>
   );
