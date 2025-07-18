@@ -10,7 +10,11 @@ import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { FormField } from '../../../shared/ui/form/form-field';
 import { UpdateUserProfileRequest } from '../api/types';
-import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '../consts/my-page-const';
+import {
+  DEFAULT_OPTIONS,
+  DEFAULT_PROFILE_IMAGE_URL,
+  MBTI_OPTIONS,
+} from '../consts/my-page-const';
 import { useUpdateUserProfileMutation } from '../model/use-update-user-profile-mutation';
 
 interface Props {
@@ -58,7 +62,7 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
 
   const [image, setImage] = useState(
     memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl ??
-      '/profile-default.svg',
+      DEFAULT_PROFILE_IMAGE_URL,
   );
 
   const queryClient = useQueryClient();
@@ -119,6 +123,7 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
         alert('이미지 업로드에 실패했습니다.');
       }
     }
+    console.log('memberinfo 업데이트');
     await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
   };
 
