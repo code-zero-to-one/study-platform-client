@@ -1,9 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { http, HttpResponse } from 'msw';
 import {
   ISidebarProps,
   SidebarClient as Sidebar,
 } from '@/widgets/home/sidebar';
 
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL + '/api/v1';
+
+// TODO: 추후에 따로 mockResponse 만을 모아 정리
 const MOCK_DATA: ISidebarProps = {
   hasTodo: true,
   memberId: 4,
@@ -97,11 +101,33 @@ const MOCK_DATA: ISidebarProps = {
   },
 };
 
+// TODO: 각각의 fetch 요청에 mock response 작성
 const meta = {
   title: 'Widget/Home/Sidebar',
-  beforeEach: async () => {},
   parameters: {
     layout: 'centered',
+    msw: {
+      handlers: [
+        http.get(API_URL + '/study-subjects', () => {
+          return HttpResponse.json({ data: 'okay' });
+        }),
+        http.get(API_URL + '/tech-stacks', () => {
+          return HttpResponse.json({ data: 'okay' });
+        }),
+        http.get(API_URL + '/available-study-times', () => {
+          return HttpResponse.json({ data: 'okay' });
+        }),
+        http.get(API_URL + '/available-study-times', () => {
+          return HttpResponse.json({ data: 'okay' });
+        }),
+        http.get(API_URL + '/members/4/profile', () => {
+          return HttpResponse.json({ message: 'okay' });
+        }),
+        http.get(API_URL + '/study/daily/month', () => {
+          return HttpResponse.json({ data: 'okay' });
+        }),
+      ],
+    },
   },
   component: Sidebar,
 } satisfies Meta<typeof Sidebar>;
