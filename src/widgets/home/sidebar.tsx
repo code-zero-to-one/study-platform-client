@@ -17,7 +17,6 @@ export const SidebarClient = ({
   memberId,
   hasTodo,
 }: ISidebarProps) => {
-
   return (
     <aside className="flex flex-col gap-300">
       <MyProfileCard
@@ -36,7 +35,7 @@ export const SidebarClient = ({
           ?.map((t) => t.techStackName)
           .join(', ')}
       />
-      {userProfile.studyApplied ? (
+      {userProfile?.studyApplied ? (
         <TodoList statusList={[false, false, false]} />
       ) : (
         <StartStudyModal memberId={memberId} />
