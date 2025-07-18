@@ -7,7 +7,6 @@ import SignupModal from '@/features/auth/ui/sign-up-modal';
 import Button from '@/shared/ui/button';
 
 export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
-  const [loginOpen, setLoginOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
 
   useEffect(() => {
@@ -27,18 +26,17 @@ export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
           개발자 면접 준비, 이제 ZERO-ONE에서 <br />
           매주 실전처럼 연습해보세요.
         </p>
-        <Button
-          color="primary"
-          size="large"
-          className="w-[234px]"
-          onClick={() => setLoginOpen(true)}
-        >
-          시작하기
-        </Button>
-        <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+
+        <LoginModal
+          openTrigger={
+            <Button color="primary" size="large" className="w-[234px]">
+              시작하기
+            </Button>
+          }
+        />
         <SignupModal open={signupOpen} onClose={() => setSignupOpen(false)} />
       </section>
-      <section className="aspect-[349.44/524.16] h-[524.16px] w-[349.44px] flex-shrink-0 bg-[url('/your-image.jpg')] bg-cover bg-center bg-no-repeat">
+      <section className="aspect-[349.44/524.16] h-[524.16px] w-[349.44px] flex-shrink-0 bg-cover bg-center bg-no-repeat">
         <Image
           src="graphic-area.svg"
           alt="Graphic Area"
