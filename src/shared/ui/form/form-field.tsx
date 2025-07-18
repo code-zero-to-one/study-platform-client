@@ -21,10 +21,12 @@ interface FormFieldProps<T> {
   value: T;
   direction?: 'horizontal' | 'vertical';
   onChange: (value: T) => void;
+  error?: boolean;
 }
 
 export function FormField<T>({
   label,
+  error = false,
   description,
   type,
   required = false,
@@ -42,10 +44,13 @@ export function FormField<T>({
             <BaseInput
               placeholder="입력하세요."
               value={value as string}
+              color={error ? 'error' : 'default'}
               onChange={(e) => onChange(e.target.value as T)}
             />
             {description && (
-              <div className="font-designer-13r text-text-subtlest">
+              <div
+                className={`font-designer-13r ${error ? 'text-text-error' : 'text-text-subtlest'}`}
+              >
                 {description}
               </div>
             )}

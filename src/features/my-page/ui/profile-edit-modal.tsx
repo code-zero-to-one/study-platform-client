@@ -29,9 +29,15 @@ export default function ProfileEditModal({
   const [name, setName] = useState<UpdateUserProfileRequest['name']>(
     memberProfile.memberName ?? '',
   );
+  // 이름 유효성 검사: 2~10자, 한글 또는 영문만 허용
+  const isNameValid = /^[가-힣a-zA-Z]{2,10}$/.test(name);
+
   const [tel, setTel] = useState<UpdateUserProfileRequest['tel']>(
     memberProfile.tel ?? '',
   );
+  // 연락처 유효성 검사: "(2~3자리 지역번호)-(3~4자리 번호)-(4자리 번호)" 형식
+  const isTelValid = /^\d{2,3}-\d{3,4}-\d{4}$/.test(tel);
+
   const [githubLink, setGithubLink] = useState<
     UpdateUserProfileRequest['githubLink']
   >(memberProfile.githubLink?.url ?? '');
@@ -70,12 +76,6 @@ export default function ProfileEditModal({
   };
 
   const handleSubmit = async () => {
-    if (!name || !tel) {
-      alert('모든 필수 정보를 입력해주세요!');
-
-      return;
-    }
-
     const file = fileInputRef.current?.files?.[0];
 
     const hasImageFile = !!file;
@@ -158,7 +158,12 @@ export default function ProfileEditModal({
               <FormField
                 label="이름 확인"
                 type="text"
-                description="소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요."
+                error={!isNameValid}
+                description={
+                  isNameValid
+                    ? '소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요.'
+                    : '이름은 2~10자의 한글 또는 영문만 허용됩니다.'
+                }
                 value={name}
                 onChange={setName}
                 required
@@ -166,7 +171,12 @@ export default function ProfileEditModal({
               <FormField
                 label="연락처"
                 type="text"
-                description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
+                error={!isTelValid}
+                description={
+                  isTelValid
+                    ? '스터디 진행을 위한 연락 가능한 정보를 입력해 주세요.'
+                    : '연락처는 숫자와 하이픈(-)을 포함한 형식으로 입력해주세요.'
+                }
                 value={tel}
                 onChange={setTel}
                 required
@@ -224,6 +234,7 @@ export default function ProfileEditModal({
                   await handleSubmit(); // 여기서 이미지 업로드 포함
                   setIsOpen(false); // 모달 닫기
                 }}
+                disabled={!isNameValid || !isTelValid}
               >
                 수정 완료
               </Button>
