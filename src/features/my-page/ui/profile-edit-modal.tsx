@@ -178,7 +178,10 @@ export default function ProfileEditModal({
                     : '연락처는 숫자와 하이픈(-)을 포함한 형식으로 입력해주세요.'
                 }
                 value={tel}
-                onChange={setTel}
+                onChange={(value) => {
+                  const onlyNumberAndHyphen = value.replace(/[^\d-]/g, '');
+                  setTel(onlyNumberAndHyphen);
+                }}
                 required
               />
               <FormField
