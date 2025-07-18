@@ -40,7 +40,7 @@ export default function TodayStudyModal({
 
   if (memberId === null) return null;
 
-  const isReady = memberId !== data.interviewerId;
+  const isInterviewee = memberId === data.intervieweeId;
 
   return (
     <Modal.Root>
@@ -55,7 +55,7 @@ export default function TodayStudyModal({
         <Modal.Content>
           <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title>
-              {isReady ? '면접 준비하기' : '면접 완료하기'}
+              {isInterviewee ? '면접 준비하기' : '면접 완료하기'}
             </Modal.Title>
             <Modal.Close>
               <XIcon />
@@ -63,7 +63,7 @@ export default function TodayStudyModal({
           </Modal.Header>
 
           <Modal.Body className="flex flex-col gap-400">
-            {isReady ? (
+            {isInterviewee ? (
               <ReadyForm refetch={refetch} data={data} />
             ) : (
               <DoneForm refetch={refetch} data={data} />
