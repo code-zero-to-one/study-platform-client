@@ -4,7 +4,18 @@ import type { Preview } from '@storybook/nextjs-vite';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // initialize MSW
-initialize();
+initialize({
+  onUnhandledRequest: (req, print) => {
+    // supress warnings for requesting static assets
+    const isStaticAssetRequest =
+      /(public|assets)\/(.*?)\.|(svg|jpg|jpeg|png|webp)(\?.*)?$/g;
+
+    if (isStaticAssetRequest.test(req.url)) {
+      return;
+    }
+    print.warning();
+  },
+});
 
 // test query client for not caching results
 const testQueryClient = new QueryClient({
