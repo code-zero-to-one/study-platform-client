@@ -25,45 +25,28 @@ interface Props {
 export type MbtiValue = (typeof MBTI_OPTIONS)[number]['value'];
 
 export default function ProfileEditModal({ memberProfile, memberId }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
-  const [name, setName] = useState<UpdateUserProfileRequest['name']>(
-    memberProfile.memberName ?? '',
-  );
-  // 이름 유효성 검사: 2~10자, 한글 또는 영문만 허용
-  const isNameValid = /^[가-힣a-zA-Z]{2,10}$/.test(name);
-
-  const [tel, setTel] = useState<UpdateUserProfileRequest['tel']>(
-    memberProfile.tel ?? '',
-  );
-  // 연락처 유효성 검사: "(2~3자리 지역번호)-(3~4자리 번호)-(4자리 번호)" 형식
-  const isTelValid = /^\d{2,3}-\d{3,4}-\d{4}$/.test(tel);
-
-  const [githubLink, setGithubLink] = useState<
-    UpdateUserProfileRequest['githubLink']
-  >(memberProfile.githubLink?.url ?? '');
-
-  const [blogOrSnsLink, setBlogOrSnsLink] = useState<
-    UpdateUserProfileRequest['blogOrSnsLink']
-  >(memberProfile.blogOrSnsLink?.url ?? '');
-
-  const [mbti, setMbti] = useState<UpdateUserProfileRequest['mbti']>(
-    memberProfile.mbti ?? '',
-  );
-
-  const [simpleIntroduction, setSimpleIntroduction] = useState<
-    UpdateUserProfileRequest['simpleIntroduction']
-  >(memberProfile.simpleIntroduction ?? '');
-
-  const [interests, setInterests] = useState<
-    UpdateUserProfileRequest['interests']
-  >(memberProfile.interests?.map((item) => item.name) ?? []);
+  const [profileForm, setProfileForm] = useState<UpdateUserProfileRequest>({
+    name: memberProfile.memberName ?? '',
+    tel: memberProfile.tel ?? '',
+    githubLink: memberProfile.githubLink?.url ?? '',
+    blogOrSnsLink: memberProfile.blogOrSnsLink?.url ?? '',
+    mbti: memberProfile.mbti ?? '',
+    simpleIntroduction: memberProfile.simpleIntroduction ?? '',
+    interests: memberProfile.interests?.map((item) => item.name) ?? [],
+  });
 
   const [image, setImage] = useState(
     memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl ??
       DEFAULT_PROFILE_IMAGE_URL,
   );
+
+  // 이름 유효성 검사: 2~10자, 한글 또는 영문만 허용
+  const isNameValid = /^[가-힣a-zA-Z]{2,10}$/.test(profileForm.name);
+  // 연락처 유효성 검사: "(2~3자리 지역번호)-(3~4자리 번호)-(4자리 번호)" 형식
+  const isTelValid = /^\d{2,3}-\d{3,4}-\d{4}$/.test(profileForm.tel);
 
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile, data: updatedProfile } =
@@ -86,13 +69,14 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
       ext && ['JPG', 'PNG', 'GIF', 'WEBP'].includes(ext) ? ext : undefined;
 
     const rawFormData: UpdateUserProfileRequest = {
-      name,
-      tel,
-      githubLink: githubLink.trim() || undefined,
-      blogOrSnsLink: blogOrSnsLink.trim() || undefined,
-      simpleIntroduction: simpleIntroduction.trim() || undefined,
-      mbti: mbti.trim() || undefined,
-      interests: interests.length > 0 ? interests : undefined,
+      name: profileForm.name,
+      tel: profileForm.tel,
+      githubLink: profileForm.githubLink.trim() || undefined,
+      blogOrSnsLink: profileForm.blogOrSnsLink.trim() || undefined,
+      simpleIntroduction: profileForm.simpleIntroduction.trim() || undefined,
+      mbti: profileForm.mbti.trim() || undefined,
+      interests:
+        profileForm.interests.length > 0 ? profileForm.interests : undefined,
       profileImageExtension: hasImageFile ? profileImageExtension : undefined,
     };
 
@@ -168,8 +152,14 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
                     ? '소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요.'
                     : '이름은 2~10자의 한글 또는 영문만 허용됩니다.'
                 }
-                value={name}
-                onChange={setName}
+                value={profileForm.name}
+                onChange={(value) => {
+                  // 공백 입력하지 못하도록 제한
+                  setProfileForm({
+                    ...profileForm,
+                    name: value.replace(/\s/g, ''),
+                  });
+                }}
                 required
               />
               <FormField
@@ -181,10 +171,11 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
                     ? '스터디 진행을 위한 연락 가능한 정보를 입력해 주세요.'
                     : '연락처는 숫자와 하이픈(-)을 포함한 형식으로 입력해주세요.'
                 }
-                value={tel}
+                value={profileForm.tel}
                 onChange={(value) => {
+                  // 숫자와 하이픈(-)만 입력 허용
                   const onlyNumberAndHyphen = value.replace(/[^\d-]/g, '');
-                  setTel(onlyNumberAndHyphen);
+                  setProfileForm({ ...profileForm, tel: onlyNumberAndHyphen });
                 }}
                 required
               />
@@ -192,37 +183,47 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
                 label="Github"
                 type="text"
                 description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
-                value={githubLink}
-                onChange={setGithubLink}
+                value={profileForm.githubLink}
+                onChange={(value) =>
+                  setProfileForm({ ...profileForm, githubLink: value })
+                }
               />
               <FormField
                 label="MBTI"
                 type="singledropdown"
                 description="자신의 성격 유형을 입력해 주세요."
-                value={mbti}
-                onChange={setMbti}
+                value={profileForm.mbti}
+                onChange={(value) =>
+                  setProfileForm({ ...profileForm, mbti: value })
+                }
                 options={MBTI_OPTIONS}
               />
               <FormField
                 label="관심 태그"
                 type="userselect"
-                value={interests}
-                onChange={setInterests}
+                value={profileForm.interests}
+                onChange={(value) =>
+                  setProfileForm({ ...profileForm, interests: value })
+                }
                 options={DEFAULT_OPTIONS}
               />
               <FormField
                 label="한마디 소개"
                 type="textarea"
                 description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
-                value={simpleIntroduction}
-                onChange={setSimpleIntroduction}
+                value={profileForm.simpleIntroduction}
+                onChange={(value) =>
+                  setProfileForm({ ...profileForm, simpleIntroduction: value })
+                }
               />
               <FormField
                 label="블로그/SNS 등 링크"
                 type="text"
                 description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
-                value={blogOrSnsLink}
-                onChange={setBlogOrSnsLink}
+                value={profileForm.blogOrSnsLink}
+                onChange={(value) =>
+                  setProfileForm({ ...profileForm, blogOrSnsLink: value })
+                }
               />
             </div>
           </Modal.Body>
