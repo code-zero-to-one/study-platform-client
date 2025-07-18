@@ -8,7 +8,6 @@ import {
 // 회원가입 요청 API
 export async function signUp(data: any) {
   const res = await axiosInstance.post('/members', data);
-  console.log('signUp res', res);
 
   return res.data;
 }

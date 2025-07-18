@@ -26,7 +26,6 @@ export const getStudyDashboard = async (
   memberId: number,
 ): Promise<StudyDashboardResponse> => {
   const res = await axiosInstance.get(`/study/dashboard/${memberId}`);
-  console.log('errrrpr' + res.data.content);
 
   return res.data.content;
 };
