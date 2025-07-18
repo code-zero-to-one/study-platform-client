@@ -65,7 +65,7 @@ export default function Profile({ memberId, memberProfile }: ProfileProps) {
                   width={16}
                   height={16}
                 />
-                {memberProfile.githubLink?.url ?? '깃허브 링크를 입력해주세요!'}
+                {memberProfile.githubLink?.url || '깃허브 링크를 입력해주세요!'}
               </div>
               <div className="font-designer-14r text-text-subtle flex gap-100">
                 <Image
@@ -74,7 +74,7 @@ export default function Profile({ memberId, memberProfile }: ProfileProps) {
                   width={16}
                   height={16}
                 />
-                {memberProfile.blogOrSnsLink?.url ??
+                {memberProfile.blogOrSnsLink?.url ||
                   '블로그 링크를 입력해주세요!'}
               </div>
             </div>
