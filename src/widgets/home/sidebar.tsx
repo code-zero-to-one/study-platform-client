@@ -12,7 +12,6 @@ export interface ISidebarProps {
   hasTodo: boolean;
 }
 
-  const userProfile = await getUserProfile(memberId);
 export const SidebarClient = ({
   userProfile,
   memberId,

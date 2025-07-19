@@ -83,12 +83,9 @@ export default function StudyListSection({ date }: Props) {
   // 명확한 에러 상태
   if (error && !data) return <div>에러 발생</div>;
 
-  const displayData: Record<Header, React.ReactNode>[] = data.items.map(
-    mapDailyStudyToDisplayData,
-  );
   const displayData =
-    data.dailyStudyResponses && data.dailyStudyResponses.length
-      ? data.dailyStudyResponses.map(mapDailyStudyToDisplayData)
+    data.items && data.items.length
+      ? data.items.map(mapDailyStudyToDisplayData)
       : [];
 
   return (
