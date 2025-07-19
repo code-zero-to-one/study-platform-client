@@ -241,14 +241,14 @@ function DoneForm({
               면접 결과에 대한 간단한 피드백을 입력해 주세요.
             </span>
           </div>
-        </div>
 
-        <TextAreaInput
-          placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
-          value={feedback}
-          maxLength={100}
-          onChange={(e) => setFeedback(e)}
-        />
+          <TextAreaInput
+            placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
+            value={feedback}
+            maxLength={100}
+            onChange={(e) => setFeedback(e)}
+          />
+        </div>
       </Modal.Body>
 
       <Modal.Footer className="flex justify-end gap-100">
