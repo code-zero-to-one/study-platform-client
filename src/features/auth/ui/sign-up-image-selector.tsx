@@ -14,7 +14,7 @@ export default function SignupImageSelector({
   handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const setDefaultImage = () => setImage('/profile-default.svg');
-  const openFileDialog = () => fileInputRef.current?.click();
+  const openFileFolder = () => fileInputRef.current?.click();
 
   return (
     <div className="relative">
@@ -44,7 +44,7 @@ export default function SignupImageSelector({
           </DropdownMenu.Item>
           <DropdownMenu.Item
             className="hover:text-text-default hover:font-designer-14b cursor-pointer px-50 py-[2px] hover:bg-gray-100"
-            onSelect={openFileDialog}
+            onSelect={openFileFolder}
           >
             앨범에서 선택
           </DropdownMenu.Item>
