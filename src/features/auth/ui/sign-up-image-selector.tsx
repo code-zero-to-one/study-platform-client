@@ -20,7 +20,7 @@ export default function SignupImageSelector({
     <div className="relative">
       <div className="relative h-[112px] w-[112px] overflow-hidden rounded-full">
         <Image src={image} alt="프로필" fill className="object-cover" />
-        <img src={image} alt="next최적화안쓴프로필" className='object-covoer' />
+        <img src={image} alt="next최적화안쓴프로필" className="object-covoer" />
       </div>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
@@ -53,8 +53,9 @@ export default function SignupImageSelector({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpg,image/png,image/gif,image/webp"
         className="hidden"
+        multiple={false}
         onChange={handleImageChange}
       />
     </div>
