@@ -142,7 +142,7 @@ function ProfileEditForm({
         alert('이미지 업로드에 실패했습니다.');
       }
     }
-    console.log('memberinfo 업데이트');
+
     await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
   };
 
