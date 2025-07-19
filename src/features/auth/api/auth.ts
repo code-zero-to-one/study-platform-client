@@ -38,14 +38,6 @@ export async function getMemberId() {
   return res.data;
 }
 
-// 프로필 조회 API
-export async function getProfile(memberId: number) {
-  const res = await axiosInstance.get(`/members/${memberId}/profile`);
-  console.log('getProfile res', res);
-
-  return res.data;
-}
-
 // 로그아웃 API
 export const logout = async (): Promise<number> => {
   const res = await axiosInstance.post('/auth/logout');

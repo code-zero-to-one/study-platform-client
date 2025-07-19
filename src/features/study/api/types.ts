@@ -1,6 +1,4 @@
 export type StudyProgressStatus =
-  | 'NONE'
-  | 'BEFORE_PROGRESSED'
   | 'PENDING'
   | 'IN_PROGRESS'
   | 'COMPLETE'
@@ -13,23 +11,34 @@ export interface DailyStudy {
   intervieweeImage: string;
   dailyStudyId: number;
   subject: string;
-  feedback: string | undefined;
-  progressStatus: StudyProgressStatus;
+  description: string;
   link: string;
+  progressStatus: StudyProgressStatus;
+  studyDate: string;
+  feedback: string | undefined;
 }
 
 export interface DailyStudyDetail {
-  interviewer: string;
+  dailyStudyId: number;
+  interviewerId: number;
+  interviewerName: string;
   interviewerImage: string;
+  intervieweeId: number;
+  intervieweeName: string;
+  intervieweeImage: string;
   studySpaceId: number;
-  intervieweeId: string;
-  subject: string;
   progressStatus: StudyProgressStatus;
+  subject: string;
+  description: string;
   link: string;
-  feedback: string | undefined;
+  feedback: string;
 }
 
 export interface GetDailyStudyDetailParams {
+  studyDate: string;
+}
+
+export interface GetDailyStudyDetailParams2 {
   year: number;
   month: number;
   day: number;
@@ -44,7 +53,9 @@ export interface GetDailyStudiesParams {
 }
 
 export interface GetDailyStudiesResponse {
-  dailyStudyResponses: DailyStudy[];
+  items: DailyStudy[];
+  nextCursor: number;
+  hasNext: boolean;
 }
 
 export interface GetMonthlyCalendarParams {
@@ -52,12 +63,16 @@ export interface GetMonthlyCalendarParams {
   month: number;
 }
 
+export interface StudyCalendarDay {
+  day: number;
+  hasStudy: boolean;
+  status: StudyProgressStatus | undefined;
+}
+
 export interface MonthlyCalendarResponse {
-  calender: {
-    [day: string]: {
-      [slot: string]: StudyProgressStatus;
-    };
-  };
+  calendar: StudyCalendarDay[];
+  monthlyCompletedCount: number;
+  totalCompletedCount: number;
 }
 
 export interface PostDailyRetrospectRequest {
@@ -65,12 +80,10 @@ export interface PostDailyRetrospectRequest {
   parentId: number;
 }
 
-export interface PostStudyDailyRequest {
+export interface PutStudyDailyRequest {
   subject: string;
   description: string;
   link: string;
-  privated: boolean;
-  planTime: string;
 }
 
 export interface JoinStudyRequest {
@@ -88,4 +101,8 @@ export interface JoinStudyRequest {
 export interface WeeklyParticipationResponse {
   memberId: number;
   isParticipate: boolean;
+}
+
+export interface PutRetrospectRequest {
+  description: string;
 }

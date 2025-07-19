@@ -24,8 +24,7 @@ interface Props {
 }
 
 const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
-  BEFORE_PROGRESSED: <Badge color="default">시작전</Badge>,
-  PENDING: <Badge color="incomplete">보류</Badge>,
+  PENDING: <Badge color="default">시작 전</Badge>,
   IN_PROGRESS: <Badge color="incomplete">진행중</Badge>,
   COMPLETE: <Badge color="completed">완료</Badge>,
   ABSENT: <Badge color="incomplete">불참</Badge>,
@@ -85,8 +84,9 @@ export default function StudyListSection({ date }: Props) {
   if (error) return <div>에러 발생</div>;
   if (!data) return null;
 
-  const displayData: Record<Header, React.ReactNode>[] =
-    data.dailyStudyResponses.map(mapDailyStudyToDisplayData);
+  const displayData: Record<Header, React.ReactNode>[] = data.items.map(
+    mapDailyStudyToDisplayData,
+  );
 
   return (
     <section className="w-full">
