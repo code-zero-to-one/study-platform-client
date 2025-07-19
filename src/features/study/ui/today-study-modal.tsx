@@ -44,11 +44,8 @@ export default function TodayStudyModal({
 
   return (
     <Modal.Root>
-      <Modal.Trigger>
-        <div className="rounded-100 font-designer-16b bg-fill-brand-default-default text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed flex cursor-pointer items-center justify-center px-100 py-75">
-          <CreateIcon />
-          <span className="ml-75">작성하기</span>
-        </div>
+      <Modal.Trigger asChild>
+        <Button size="medium">{isInterviewee ? '준비하기' : '완료하기'}</Button>
       </Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
