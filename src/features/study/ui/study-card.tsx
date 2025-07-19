@@ -62,7 +62,10 @@ export default function StudyCard() {
     day: selectedDate.getDate(),
   };
 
-  const studyParams = { studyDate: selectedDate.toISOString().split('T')[0] };
+  const offset = selectedDate.getTimezoneOffset() * 60000; // ms단위라 60000곱해줌
+  const dateOffset = new Date(selectedDate.getTime() - offset);
+
+  const studyParams = { studyDate: dateOffset.toISOString().split('T')[0] };
 
   const { data: participationData } = useWeeklyParticipation(params);
   const isParticipate = participationData?.isParticipate ?? false;
