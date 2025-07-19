@@ -219,7 +219,7 @@ function ProfileEditForm({
           <FormField
             label="Github"
             type="text"
-            description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
+            description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
             value={profileForm.githubLink}
             onChange={(value) =>
               setProfileForm({
@@ -250,7 +250,7 @@ function ProfileEditForm({
           <FormField
             label="한마디 소개"
             type="textarea"
-            description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
+            description="본인을 간단히 소개하는 한마디를 입력해 주세요."
             value={profileForm.simpleIntroduction}
             onChange={(value) =>
               setProfileForm({ ...profileForm, simpleIntroduction: value })
