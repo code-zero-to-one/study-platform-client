@@ -96,7 +96,8 @@ function ProfileEditForm({
 
   const handleSubmit = async () => {
     const file = fileInputRef.current?.files?.[0];
-    const profileImageExtension = file?.name.split('.').pop();
+    const profileImageExtension =
+      image === DEFAULT_PROFILE_IMAGE_URL ? 'jpg' : file?.name.split('.').pop();
 
     const rawFormData: UpdateUserProfileRequest = {
       name: profileForm.name,
@@ -116,36 +117,22 @@ function ProfileEditForm({
 
     const updatedProfile = await updateProfile(formData);
 
-    // todo: 서버 측에서 api 수정되면, 리팩토링
-    // 기본 프로필 이미지를 선택할 경우, 기본 프로필 이미지 전송 -> 서버 측에서 나중에 리팩토링 예정
-    // public 폴더의 profile-default.jpg 파일을 fetch해서 FormData에 추가
-    // profile-default.jpg를 추가한 이유는 서버에서 프로필 이미지 확장자에 svg 파일을 고려하지 못함 -> 서버 측에서 리팩토링 예정
-    if (image === DEFAULT_PROFILE_IMAGE_URL) {
-      try {
+    if (updatedProfile.profileImageUploadUrl) {
+      const imageFormData = new FormData();
+
+      if (file) imageFormData.append('file', file);
+
+      // 기본 프로필 이미지를 선택할 경우, public 폴더의 profile-default.jpg로 서버 api에게 기본 프로필 이미지 전송 -> 서버 측에서 나중에 리팩토링 예정
+      // profile-default.jpg를 추가한 이유는 서버에서 프로필 이미지 확장자에 svg 파일을 고려하지 못함 -> 서버 측에서 리팩토링 예정
+      if (!file && image === DEFAULT_PROFILE_IMAGE_URL) {
         const defaultProfileImage = 'profile-default.jpg';
         const response = await fetch(defaultProfileImage);
         const blob = await response.blob();
-        const defaultFile = new File([blob], defaultProfileImage, {
-          type: 'image/jpeg',
+        const defaultProfileFile = new File([blob], defaultProfileImage, {
+          type: 'image/jpg',
         });
-        const imageFormData = new FormData();
-        imageFormData.append('file', defaultFile);
-
-        await uploadProfileImage({
-          memberId,
-          filename: defaultProfileImage,
-          file: imageFormData,
-        });
-      } catch (error) {
-        console.error('기본 프로필 이미지 업로드 실패:', error);
-        alert('기본 프로필 이미지 업로드에 실패했습니다.');
+        imageFormData.append('file', defaultProfileFile);
       }
-    }
-
-    // 폴더에서 이미지를 선택한 경우
-    if (file && updatedProfile.profileImageUploadUrl) {
-      const imageFormData = new FormData();
-      imageFormData.append('file', file);
 
       const filename = updatedProfile.profileImageUploadUrl.split('/').pop();
       if (!filename) return;
