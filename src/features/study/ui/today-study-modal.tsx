@@ -62,13 +62,11 @@ export default function TodayStudyModal({
             </Modal.Close>
           </Modal.Header>
 
-          <Modal.Body className="flex flex-col gap-400">
-            {isInterviewee ? (
-              <ReadyForm refetch={refetch} data={data} />
-            ) : (
-              <DoneForm refetch={refetch} data={data} />
-            )}
-          </Modal.Body>
+          {isInterviewee ? (
+            <ReadyForm refetch={refetch} data={data} />
+          ) : (
+            <DoneForm refetch={refetch} data={data} />
+          )}
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
@@ -113,34 +111,44 @@ function ReadyForm({
 
   return (
     <>
-      <div className="flex flex-col gap-100">
-        <label className="font-designer-16b text-text-default inline-block">
-          면접 주제
-          <span className="font-designer-13m text-text-error pl-100">필수</span>
-        </label>
-        <span className="font-designer-14r text-text-subtle mb-150">
-          이번 스터디에서 다룰 면접 주제를 입력하세요
-        </span>
-        <BaseInput
-          placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교"
-          value={interviewTopic}
-          onChange={(e) => setInterviewTopic(e.target.value)}
-        />
-      </div>
+      <Modal.Body className="flex flex-col gap-400">
+        <div className="flex flex-col gap-250">
+          <div className="flex flex-col gap-100">
+            <label className="font-designer-16b text-text-default inline-block">
+              면접 주제
+              <span className="font-designer-13m text-text-error pl-100">
+                필수
+              </span>
+            </label>
+            <span className="font-designer-14r text-text-subtle">
+              이번 스터디에서 다룰 면접 주제를 입력하세요
+            </span>
+          </div>
 
-      <div className="flex flex-col gap-100">
-        <label className="font-designer-16b text-text-default inline-block">
-          참고 자료
-        </label>
-        <span className="font-designer-14r text-text-subtle mb-150">
-          참고할 링크나 자료가 있다면 입력해 주세요
-        </span>
-        <BaseInput
-          placeholder="https://github.com"
-          value={referenceLink}
-          onChange={(e) => setReferenceLink(e.target.value)}
-        />
-      </div>
+          <BaseInput
+            placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교"
+            value={interviewTopic}
+            onChange={(e) => setInterviewTopic(e.target.value)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-250">
+          <div className="flex flex-col gap-100">
+            <label className="font-designer-16b text-text-default inline-block">
+              참고 자료
+            </label>
+            <span className="font-designer-14r text-text-subtle">
+              참고할 링크나 자료가 있다면 입력해 주세요
+            </span>
+          </div>
+
+          <BaseInput
+            placeholder="https://github.com"
+            value={referenceLink}
+            onChange={(e) => setReferenceLink(e.target.value)}
+          />
+        </div>
+      </Modal.Body>
 
       <Modal.Footer className="flex justify-end gap-100">
         <Modal.Close asChild>
@@ -202,37 +210,49 @@ function DoneForm({
 
   return (
     <>
-      <div className="flex flex-col gap-100">
-        <label className="font-designer-16b text-text-default inline-block">
-          진행 현황
-          <span className="font-designer-13m text-text-error pl-100">필수</span>
-        </label>
-        <span className="font-designer-14r text-text-subtle mb-150">
-          면접 완료 후 해당 지원자의 상태를 업데이트해 주세요.
-        </span>
-        <SingleDropdown
-          options={STUDY_PROGRESS_OPTIONS}
-          defaultValue={progressStatus}
-          placeholder="선택해주세요"
-          onChange={(e) => setProgressStatus(e as StudyProgressStatus)}
-        />
-      </div>
+      <Modal.Body className="flex flex-col gap-400">
+        <div className="flex flex-col gap-250">
+          <div className="flex flex-col gap-100">
+            <label className="font-designer-16b text-text-default inline-block">
+              진행 현황
+              <span className="font-designer-13m text-text-error pl-100">
+                필수
+              </span>
+            </label>
+            <span className="font-designer-14r text-text-subtle">
+              면접 완료 후 해당 지원자의 상태를 업데이트해 주세요.
+            </span>
+          </div>
 
-      <div className="flex flex-col gap-100">
-        <label className="font-designer-16b text-text-default inline-block">
-          피드백
-          <span className="font-designer-13m text-text-error pl-100">필수</span>
-        </label>
-        <span className="font-designer-14r text-text-subtle mb-150">
-          면접 결과에 대한 간단한 피드백을 입력해 주세요.
-        </span>
+          <SingleDropdown
+            options={STUDY_PROGRESS_OPTIONS}
+            defaultValue={progressStatus}
+            placeholder="선택해주세요"
+            onChange={(e) => setProgressStatus(e as StudyProgressStatus)}
+          />
+        </div>
+
+        <div className="flex flex-col gap-250">
+          <div className="flex flex-col gap-100">
+            <label className="font-designer-16b text-text-default inline-block">
+              피드백
+              <span className="font-designer-13m text-text-error pl-100">
+                필수
+              </span>
+            </label>
+            <span className="font-designer-14r text-text-subtle">
+              면접 결과에 대한 간단한 피드백을 입력해 주세요.
+            </span>
+          </div>
+        </div>
+
         <TextAreaInput
           placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
           value={feedback}
           maxLength={100}
           onChange={(e) => setFeedback(e)}
         />
-      </div>
+      </Modal.Body>
 
       <Modal.Footer className="flex justify-end gap-100">
         <Modal.Close asChild>
