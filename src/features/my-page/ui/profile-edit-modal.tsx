@@ -84,8 +84,7 @@ function ProfileEditForm({
   const isTelValid = /^\d{2,3}-\d{3,4}-\d{4}$/.test(profileForm.tel);
 
   const queryClient = useQueryClient();
-  const { mutateAsync: updateProfile, data: updatedProfile } =
-    useUpdateUserProfileMutation(memberId);
+  const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
   const { mutateAsync: uploadProfileImage } = useUploadProfileImageMutation();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,11 +96,7 @@ function ProfileEditForm({
 
   const handleSubmit = async () => {
     const file = fileInputRef.current?.files?.[0];
-
-    const hasImageFile = !!file;
-    const ext = file?.name.split('.').pop()?.toUpperCase();
-    const profileImageExtension =
-      ext && ['JPG', 'PNG', 'GIF', 'WEBP'].includes(ext) ? ext : undefined;
+    const profileImageExtension = file?.name.split('.').pop();
 
     const rawFormData: UpdateUserProfileRequest = {
       name: profileForm.name,
@@ -112,21 +107,18 @@ function ProfileEditForm({
       mbti: profileForm.mbti || undefined,
       interests:
         profileForm.interests.length > 0 ? profileForm.interests : undefined,
-      profileImageExtension: hasImageFile ? profileImageExtension : undefined,
+      profileImageExtension: profileImageExtension,
     };
 
     const formData = Object.fromEntries(
       Object.entries(rawFormData).filter(([_, v]) => v !== undefined),
     ) as UpdateUserProfileRequest;
 
-    await updateProfile(formData);
+    const updatedProfile = await updateProfile(formData);
 
-    if (
-      fileInputRef.current?.files?.[0] &&
-      updatedProfile.profileImageUploadUrl
-    ) {
+    if (file && updatedProfile.profileImageUploadUrl) {
       const imageFormData = new FormData();
-      imageFormData.append('file', fileInputRef.current.files[0]);
+      imageFormData.append('file', file);
 
       const filename = updatedProfile.profileImageUploadUrl.split('/').pop();
       if (!filename) return;
@@ -143,7 +135,9 @@ function ProfileEditForm({
       }
     }
 
-    await queryClient.invalidateQueries({ queryKey: ['memberInfo'] });
+    await queryClient.invalidateQueries({
+      queryKey: ['userProfile', memberId],
+    });
   };
 
   return (
