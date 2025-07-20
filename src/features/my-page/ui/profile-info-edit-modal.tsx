@@ -5,7 +5,6 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { MemberInfo } from '@/entities/user/api/types';
 import { hashValue } from '@/shared/lib/hash';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { FormField } from '@/shared/ui/form/form-field';
 import { Modal } from '@/shared/ui/modal';
@@ -14,14 +13,15 @@ import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
   useTechStacksQuery,
+  useUpdateUserProfileInfoMutation,
 } from '../model/use-update-user-profile-mutation';
 
 interface Props {
+  memberId: number;
   memberInfo: MemberInfo;
-  onSubmit: (formData: UpdateUserProfileInfoRequest) => void;
 }
 
-export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
+export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
   return (
@@ -43,8 +43,8 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
             </div>
           </Modal.Header>
           <ProfileInfoEditForm
+            memberId={memberId}
             memberInfo={memberInfo}
-            onSubmit={onSubmit}
             onClose={() => setIsOpen(false)}
           />
         </Modal.Content>
@@ -54,12 +54,12 @@ export default function ProfileInfoEditModal({ memberInfo, onSubmit }: Props) {
 }
 
 function ProfileInfoEditForm({
+  memberId,
   memberInfo,
-  onSubmit,
   onClose,
 }: {
+  memberId: number;
   memberInfo: MemberInfo;
-  onSubmit: (formData: UpdateUserProfileInfoRequest) => void;
   onClose: () => void;
 }) {
   const [infoForm, setInfoForm] = useState<UpdateUserProfileInfoRequest>({
@@ -74,6 +74,9 @@ function ProfileInfoEditForm({
     ),
   });
 
+  const { mutate: updateProfileInfo } =
+    useUpdateUserProfileInfoMutation(memberId);
+
   const handleSubmit = () => {
     const formData: UpdateUserProfileInfoRequest = {
       selfIntroduction: infoForm.selfIntroduction,
@@ -87,7 +90,7 @@ function ProfileInfoEditForm({
         .map((id) => Number(id)),
     };
 
-    onSubmit(formData);
+    updateProfileInfo(formData);
   };
 
   const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
@@ -189,7 +192,7 @@ function ProfileInfoEditForm({
         </div>
       </Modal.Body>
       <Modal.Footer>
-        <div className="flex justify-end gap-[8px]">
+        <div className="flex justify-end gap-100">
           <Button color="secondary" size="large" onClick={onClose}>
             취소
           </Button>
@@ -200,7 +203,6 @@ function ProfileInfoEditForm({
             onClick={() => {
               handleSubmit();
 
-              const memberId = getCookie('memberId');
               const selectedSkillNames = techStacks.filter((techStack) =>
                 infoForm.techStackIds.includes(techStack.techStackId),
               );
@@ -208,7 +210,7 @@ function ProfileInfoEditForm({
               sendGTMEvent({
                 event: 'custom_member_card',
                 dl_timestamp: new Date().toISOString(),
-                dl_member_id: hashValue(memberId),
+                dl_member_id: hashValue(String(memberId)),
                 dl_tags: selectedSkillNames,
               });
 
