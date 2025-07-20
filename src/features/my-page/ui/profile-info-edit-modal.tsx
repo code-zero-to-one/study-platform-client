@@ -211,7 +211,17 @@ function ProfileInfoEditForm({
             취소
           </Button>
 
-          <Button color="primary" size="large" onClick={handleSubmit}>
+          <Button
+            color="primary"
+            size="large"
+            onClick={handleSubmit}
+            disabled={
+              infoForm.studyPlan.trim() === '' ||
+              infoForm.preferredStudySubjectId === undefined ||
+              infoForm.availableStudyTimeIds.length === 0 ||
+              infoForm.techStackIds.length === 0
+            }
+          >
             수정 완료
           </Button>
         </div>
