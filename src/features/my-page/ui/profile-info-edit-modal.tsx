@@ -74,6 +74,9 @@ function ProfileInfoEditForm({
     ),
   });
 
+  const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
+  const { data: studySubjects } = useStudySubjectsQuery();
+  const { data: techStacks } = useTechStacksQuery();
   const { mutate: updateProfileInfo } =
     useUpdateUserProfileInfoMutation(memberId);
 
@@ -90,12 +93,23 @@ function ProfileInfoEditForm({
         .map((id) => Number(id)),
     };
 
-    updateProfileInfo(formData);
-  };
+    updateProfileInfo(formData, {
+      onSuccess: () => {
+        const selectedSkillNames = techStacks.filter((techStack) =>
+          infoForm.techStackIds.includes(techStack.techStackId),
+        );
 
-  const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
-  const { data: studySubjects } = useStudySubjectsQuery();
-  const { data: techStacks } = useTechStacksQuery();
+        sendGTMEvent({
+          event: 'custom_member_card',
+          dl_timestamp: new Date().toISOString(),
+          dl_member_id: hashValue(String(memberId)),
+          dl_tags: selectedSkillNames,
+        });
+
+        onClose();
+      },
+    });
+  };
 
   return (
     <>
@@ -197,26 +211,7 @@ function ProfileInfoEditForm({
             취소
           </Button>
 
-          <Button
-            color="primary"
-            size="large"
-            onClick={() => {
-              handleSubmit();
-
-              const selectedSkillNames = techStacks.filter((techStack) =>
-                infoForm.techStackIds.includes(techStack.techStackId),
-              );
-
-              sendGTMEvent({
-                event: 'custom_member_card',
-                dl_timestamp: new Date().toISOString(),
-                dl_member_id: hashValue(String(memberId)),
-                dl_tags: selectedSkillNames,
-              });
-
-              onClose();
-            }}
-          >
+          <Button color="primary" size="large" onClick={handleSubmit}>
             수정 완료
           </Button>
         </div>
