@@ -68,16 +68,15 @@ function mapDailyStudyToDisplayData(
 }
 
 export default function StudyListSection({ date }: Props) {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
+  const offset = date.getTimezoneOffset() * 60000;
+  const dateOffset = new Date(date.getTime() - offset);
+
+  const studyDate = dateOffset.toISOString().split('T')[0];
 
   const { data, isLoading, error } = useDailyStudiesQuery({
     cursor: 0,
     pageSize: 10,
-    year,
-    month,
-    day,
+    studyDate,
   });
 
   if (isLoading) return <div>로딩 중...</div>;

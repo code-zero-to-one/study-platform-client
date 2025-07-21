@@ -47,9 +47,7 @@ export interface GetDailyStudyDetailParams2 {
 export interface GetDailyStudiesParams {
   cursor?: number;
   pageSize?: number;
-  year?: number;
-  month?: number;
-  day?: number;
+  studyDate?: string;
 }
 
 export interface GetDailyStudiesResponse {

@@ -15,6 +15,7 @@ import {
   MonthlyCalendarResponse,
 } from '../api/types';
 
+// 스터디 주간 참여 유무 확인 query
 export const useWeeklyParticipation = (params: GetDailyStudyDetailParams2) => {
   return useQuery({
     queryKey: ['weeklyParticipation', params],
@@ -23,6 +24,7 @@ export const useWeeklyParticipation = (params: GetDailyStudyDetailParams2) => {
   });
 };
 
+// 스터디 상세 조회 query
 export const useDailyStudyDetailQuery = (
   params: GetDailyStudyDetailParams,
   enabled: boolean = true,
@@ -35,6 +37,7 @@ export const useDailyStudyDetailQuery = (
   });
 };
 
+// 스터디 전체 조회 query
 export const useDailyStudiesQuery = (params?: GetDailyStudiesParams) => {
   return useQuery({
     queryKey: ['dailyStudies', params],
@@ -43,6 +46,7 @@ export const useDailyStudiesQuery = (params?: GetDailyStudiesParams) => {
   });
 };
 
+// 스터디 캘린더 조회 query
 export const useMonthlyStudyCalendarQuery = (
   params: GetMonthlyCalendarParams,
 ) => {
@@ -54,6 +58,7 @@ export const useMonthlyStudyCalendarQuery = (
   });
 };
 
+// 스터디 신청 mutation
 export const useJoinStudyMutation = () => {
   return useMutation({
     mutationFn: (payload: JoinStudyRequest) => postJoinStudy(payload),
