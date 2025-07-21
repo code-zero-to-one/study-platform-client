@@ -1,4 +1,5 @@
 import type {
+  CompleteStudyRequest,
   DailyStudyDetail,
   GetDailyStudiesParams,
   GetDailyStudiesResponse,
@@ -8,9 +9,7 @@ import type {
   JoinStudyRequest,
   MonthlyCalendarResponse,
   PostDailyRetrospectRequest,
-  PutRetrospectRequest,
   PutStudyDailyRequest,
-  StudyProgressStatus,
   WeeklyParticipationResponse,
 } from '@/features/study/api/types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
@@ -60,29 +59,13 @@ export const putStudyDaily = async (
   return res.data;
 };
 
-// 면접자 스터디 업데이트 [스터디 진행 상태]
-export const patchStudyStatus = async (
+// 면접 완료 및 회고 작성
+export const completeStudy = async (
   dailyStudyId: number,
-  progressStatus: StudyProgressStatus,
+  body: CompleteStudyRequest,
 ) => {
-  const res = await axiosInstance.patch(
-    `/study/daily/${dailyStudyId}/status`,
-    null,
-    {
-      params: { progressStatus },
-    },
-  );
-
-  return res.data;
-};
-
-// 면접자 스터디 업데이트 [피드백]
-export const putRetrospect = async (
-  retrospectId: number,
-  body: PutRetrospectRequest,
-) => {
-  const res = await axiosInstance.put(
-    `/study/daily/retrospect/${retrospectId}`,
+  const res = await axiosInstance.post(
+    `/study/daily/${dailyStudyId}/complete`,
     body,
   );
 

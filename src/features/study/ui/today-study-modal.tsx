@@ -8,15 +8,10 @@ import Button from '@/shared/ui/button';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import CreateIcon from 'public/icons/create.svg';
+import { completeStudy, putStudyDaily } from '../api/get-study-data';
 import {
-  patchStudyStatus,
-  putRetrospect,
-  putStudyDaily,
-} from '../api/get-study-data';
-import {
+  CompleteStudyRequest,
   DailyStudyDetail,
-  PutRetrospectRequest,
   PutStudyDailyRequest,
   StudyProgressStatus,
 } from '../api/types';
@@ -60,9 +55,9 @@ export default function TodayStudyModal({
           </Modal.Header>
 
           {isInterviewee ? (
-            <ReadyForm refetch={refetch} data={data} />
+            <StudyReadyForm refetch={refetch} data={data} />
           ) : (
-            <DoneForm refetch={refetch} data={data} />
+            <StudyDoneForm refetch={refetch} data={data} />
           )}
         </Modal.Content>
       </Modal.Portal>
@@ -70,7 +65,7 @@ export default function TodayStudyModal({
   );
 }
 
-function ReadyForm({
+function StudyReadyForm({
   refetch,
   data,
 }: {
@@ -168,34 +163,27 @@ function ReadyForm({
   );
 }
 
-function DoneForm({
+function StudyDoneForm({
   data,
   refetch,
 }: {
   data: DailyStudyDetail;
   refetch: () => void;
 }) {
-  const [feedback, setFeedback] = useState<PutRetrospectRequest['description']>(
-    data.description ?? '',
-  );
-
-  const [progressStatus, setProgressStatus] = useState<StudyProgressStatus>(
-    data.progressStatus ?? 'PENDING',
-  );
+  const [form, setForm] = useState<CompleteStudyRequest>({
+    description: data.description ?? '',
+    progressStatus: data.progressStatus ?? 'PENDING',
+  });
 
   const handleSubmit = async (e: React.MouseEvent) => {
-    if (!feedback || !progressStatus) {
+    if (!form.description || !form.progressStatus) {
       e.preventDefault();
 
       return;
     }
 
     try {
-      await patchStudyStatus(data.dailyStudyId, progressStatus);
-
-      await putRetrospect(data.dailyStudyId, {
-        description: feedback,
-      });
+      await completeStudy(data.dailyStudyId, form);
 
       await refetch();
     } catch (err) {
@@ -223,9 +211,14 @@ function DoneForm({
 
           <SingleDropdown
             options={STUDY_PROGRESS_OPTIONS}
-            defaultValue={progressStatus}
+            defaultValue={form.progressStatus}
             placeholder="선택해주세요"
-            onChange={(e) => setProgressStatus(e as StudyProgressStatus)}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                progressStatus: e as StudyProgressStatus,
+              }))
+            }
           />
         </div>
 
@@ -244,9 +237,11 @@ function DoneForm({
 
           <TextAreaInput
             placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
-            value={feedback}
+            value={form.description}
             maxLength={100}
-            onChange={(e) => setFeedback(e)}
+            onChange={(value) =>
+              setForm((prev) => ({ ...prev, description: value }))
+            }
           />
         </div>
       </Modal.Body>
@@ -260,9 +255,12 @@ function DoneForm({
         <Modal.Close asChild>
           <Button
             size="large"
-            color={feedback && progressStatus ? 'primary' : 'secondary'}
+            color={
+              form.description && form.progressStatus ? 'primary' : 'secondary'
+            }
             className={cn(
-              (!feedback || !progressStatus) && 'cursor-not-allowed',
+              (!form.description || !form.progressStatus) &&
+                'cursor-not-allowed',
             )}
             onClick={handleSubmit}
           >

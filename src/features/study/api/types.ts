@@ -101,6 +101,7 @@ export interface WeeklyParticipationResponse {
   isParticipate: boolean;
 }
 
-export interface PutRetrospectRequest {
+export interface CompleteStudyRequest {
   description: string;
+  progressStatus: StudyProgressStatus;
 }
