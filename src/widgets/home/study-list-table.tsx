@@ -1,12 +1,9 @@
+import { getStatusBadge } from '@/features/study/lib/ui/status-badge-map';
 import { useDailyStudiesQuery } from '@/features/study/model/use-study-query';
 import UserAvatar from '@/shared/ui/avatar';
-import Badge from '@/shared/ui/badge/index';
 import TableList from '@/shared/ui/table';
 import LinkIcon from 'public/icons/Link.svg';
-import {
-  DailyStudy,
-  StudyProgressStatus,
-} from '../../features/study/api/types';
+import { DailyStudy } from '../../features/study/api/types';
 
 const headers = [
   '조',
@@ -22,13 +19,6 @@ type Header = (typeof headers)[number];
 interface Props {
   date: Date;
 }
-
-const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
-  PENDING: <Badge color="default">시작 전</Badge>,
-  IN_PROGRESS: <Badge color="incomplete">진행중</Badge>,
-  COMPLETE: <Badge color="completed">완료</Badge>,
-  ABSENT: <Badge color="incomplete">불참</Badge>,
-};
 
 function mapDailyStudyToDisplayData(
   row: DailyStudy,
@@ -58,7 +48,7 @@ function mapDailyStudyToDisplayData(
         {row.feedback ?? '-'}
       </p>
     ),
-    '진행 상태': statusBadgeMap[row.progressStatus],
+    '진행 상태': getStatusBadge(row.progressStatus),
     '참고 자료': row.link ? (
       <a href={row.link} target="_blank" rel="noopener noreferrer">
         <LinkIcon className="h-4 w-4 text-blue-500 hover:text-blue-700" />

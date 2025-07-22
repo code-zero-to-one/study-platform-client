@@ -1,24 +1,17 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { getStatusBadge } from '@/features/study/lib/ui/status-badge-map';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
-import Badge from '@/shared/ui/badge';
 import StudyDoneModal from './study-done-modal';
 import StudyReadyModal from './study-ready-modal';
-import { DailyStudyDetail, StudyProgressStatus } from '../api/types';
+import { DailyStudyDetail } from '../api/types';
 
 interface Props {
   data: DailyStudyDetail;
   refetch: () => void;
 }
-
-const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
-  PENDING: <Badge color="default">시작 전</Badge>,
-  IN_PROGRESS: <Badge color="incomplete">진행중</Badge>,
-  COMPLETE: <Badge color="completed">완료</Badge>,
-  ABSENT: <Badge color="incomplete">불참</Badge>,
-};
 
 export default function TodayStudyCard({ data, refetch }: Props) {
   const [memberId, setMemberId] = useState<number | null>(null);
@@ -80,9 +73,5 @@ export default function TodayStudyCard({ data, refetch }: Props) {
         <span className="font-designer-16m text-text-default">{value}</span>
       </div>
     );
-  }
-
-  function getStatusBadge(status: StudyProgressStatus) {
-    return statusBadgeMap[status] ?? null;
   }
 }
