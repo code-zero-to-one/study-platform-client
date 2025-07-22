@@ -78,9 +78,8 @@ export interface PostDailyRetrospectRequest {
   parentId: number;
 }
 
-export interface PutStudyDailyRequest {
+export interface PrepareStudyRequest {
   subject: string;
-  description: string;
   link: string;
 }
 
