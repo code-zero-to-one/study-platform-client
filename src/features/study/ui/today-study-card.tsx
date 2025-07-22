@@ -1,8 +1,11 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
-import TodayStudyModal from './today-study-modal';
+import StudyDoneModal from './study-done-modal';
+import StudyReadyModal from './study-ready-modal';
 import { DailyStudyDetail, StudyProgressStatus } from '../api/types';
 
 interface Props {
@@ -18,11 +21,25 @@ const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
 };
 
 export default function TodayStudyCard({ data, refetch }: Props) {
+  const [memberId, setMemberId] = useState<number | null>(null);
+
+  useEffect(() => {
+    const id = getCookie('memberId');
+    setMemberId(id ? Number(id) : null);
+  }, []);
+
+  const isInterviewee = memberId === data.intervieweeId;
+
   return (
     <section className="flex w-full flex-col gap-150">
       <div className="mb-4 flex items-start justify-between">
         <h3 className="font-bold-h5 text-text-strong">오늘의 스터디</h3>
-        <TodayStudyModal data={data} refetch={refetch} />
+        {memberId !== null &&
+          (isInterviewee ? (
+            <StudyReadyModal data={data} refetch={refetch} />
+          ) : (
+            <StudyDoneModal data={data} refetch={refetch} />
+          ))}
       </div>
 
       <div className="mb-4 grid grid-cols-2 gap-100">
