@@ -51,9 +51,11 @@ function mapDailyStudyToDisplayData(
     '진행 상태': getStatusBadge(row.progressStatus),
     '참고 자료': row.link ? (
       <a href={row.link} target="_blank" rel="noopener noreferrer">
-        <LinkIcon className="h-4 w-4 text-blue-500 hover:text-blue-700" />
+        <LinkIcon className="h-4 w-4" />
       </a>
-    ) : null,
+    ) : (
+      <LinkIcon color={'gray'} className="h-4 w-4" />
+    ),
   };
 }
 
