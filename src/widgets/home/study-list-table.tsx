@@ -38,12 +38,8 @@ function mapDailyStudyToDisplayData(
         </span>
       </div>
     ),
-    '면접 주제': row.subject,
-    피드백: (
-      <p className="text-text-default line-clamp-2 max-w-[300px] text-sm">
-        {row.feedback ?? '-'}
-      </p>
-    ),
+    '면접 주제': row.subject || '-',
+    피드백: row.feedback || '-',
     '진행 상태': getStatusBadge(row.progressStatus),
     '참고 자료': row.link ? (
       <a href={row.link} target="_blank" rel="noopener noreferrer">
