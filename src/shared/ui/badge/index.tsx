@@ -11,12 +11,10 @@ const badgeVariants = cva(
     variants: {
       color: {
         default: 'text-text-subtlest border-border-default',
-        completed:
+        green:
           'bg-fill-success-subtle-default text-text-success border-fill-success-subtle-default',
-        incomplete:
-          'bg-fill-danger-subtle-default text-text-error border-fill-danger-subtle-default',
-        progress:
-          'bg-background-accent-blue-default text-text-information border-background-accent-blue-default',
+        red: 'bg-fill-danger-subtle-default text-text-error border-fill-danger-subtle-default',
+        blue: 'bg-background-accent-blue-subtle text-text-information border-background-accent-blue-subtle',
         orange:
           'bg-background-accent-orange-subtle text-background-accent-orange-strong',
         gray: 'bg-background-accent-gray-subtle text-background-accent-gray-strong',
