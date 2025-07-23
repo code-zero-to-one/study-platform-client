@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getDailyStudies,
   getDailyStudyDetail,
@@ -8,7 +8,6 @@ import {
 } from '@/features/study/api/get-study-data';
 import {
   GetDailyStudiesParams,
-  GetDailyStudyDetailParams,
   GetDailyStudyDetailParams2,
   GetMonthlyCalendarParams,
   JoinStudyRequest,
@@ -25,15 +24,12 @@ export const useWeeklyParticipation = (params: GetDailyStudyDetailParams2) => {
 };
 
 // 스터디 상세 조회 query
-export const useDailyStudyDetailQuery = (
-  params: GetDailyStudyDetailParams,
-  enabled: boolean = true,
-) => {
+export const useDailyStudyDetailQuery = (params: string) => {
   return useQuery({
     queryKey: ['dailyStudyDetail', params],
     queryFn: () => getDailyStudyDetail(params),
     staleTime: 60 * 1000,
-    enabled: enabled && !!params,
+    enabled: !!params,
   });
 };
 
@@ -63,4 +59,25 @@ export const useJoinStudyMutation = () => {
   return useMutation({
     mutationFn: (payload: JoinStudyRequest) => postJoinStudy(payload),
   });
+};
+
+// 스터디 상세 & 리스트 업데이트
+export const useInvalidateStudyQueries = () => {
+  const queryClient = useQueryClient();
+
+  const invalidateDailyStudyDetail = async (params: string) => {
+    await queryClient.invalidateQueries({
+      queryKey: ['dailyStudyDetail', params],
+      exact: true,
+    });
+  };
+
+  const invalidateDailyStudies = async (params: GetDailyStudiesParams) => {
+    await queryClient.invalidateQueries({
+      queryKey: ['dailyStudies', params],
+      exact: true,
+    });
+  };
+
+  return { invalidateDailyStudyDetail, invalidateDailyStudies };
 };
