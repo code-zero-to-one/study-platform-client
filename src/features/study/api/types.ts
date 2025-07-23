@@ -101,6 +101,6 @@ export interface WeeklyParticipationResponse {
 }
 
 export interface CompleteStudyRequest {
-  description: string;
+  feedback: string;
   progressStatus: StudyProgressStatus;
 }

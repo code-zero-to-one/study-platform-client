@@ -63,12 +63,12 @@ function StudyDoneForm({
   onClose: () => void;
 }) {
   const [form, setForm] = useState<CompleteStudyRequest>({
-    description: data.description ?? '',
+    feedback: data.feedback ?? '',
     progressStatus: data.progressStatus ?? 'PENDING',
   });
 
   const handleSubmit = async (e: React.MouseEvent) => {
-    if (!form.description || !form.progressStatus) {
+    if (!form.feedback || !form.progressStatus) {
       e.preventDefault();
 
       return;
@@ -129,10 +129,10 @@ function StudyDoneForm({
 
           <TextAreaInput
             placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
-            value={form.description}
+            value={form.feedback}
             maxLength={100}
             onChange={(value) =>
-              setForm((prev) => ({ ...prev, description: value }))
+              setForm((prev) => ({ ...prev, feedback: value }))
             }
           />
         </div>
@@ -146,11 +146,10 @@ function StudyDoneForm({
           <Button
             size="large"
             color={
-              form.description && form.progressStatus ? 'primary' : 'secondary'
+              form.feedback && form.progressStatus ? 'primary' : 'secondary'
             }
             className={cn(
-              (!form.description || !form.progressStatus) &&
-                'cursor-not-allowed',
+              (!form.feedback || !form.progressStatus) && 'cursor-not-allowed',
             )}
             onClick={handleSubmit}
           >
