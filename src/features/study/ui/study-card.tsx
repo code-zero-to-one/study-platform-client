@@ -5,10 +5,7 @@ import { useState } from 'react';
 import DateSelector from './data-selector';
 import TodayStudyCard from './today-study-card';
 import StudyListSection from '../../../widgets/home/study-list-table';
-import {
-  useDailyStudyDetailQuery,
-  useWeeklyParticipation,
-} from '../model/use-study-query';
+import { useWeeklyParticipation } from '../model/use-study-query';
 
 // 스터디 주차 구하는 함수
 function getWeekly(date: Date): { month: number; week: number } {

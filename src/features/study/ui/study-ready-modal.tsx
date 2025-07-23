@@ -2,7 +2,6 @@
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
 import { BaseInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
@@ -137,7 +136,7 @@ function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
           <Button
             size="large"
             color={subject.trim() ? 'primary' : 'secondary'}
-            className={cn(!subject.trim() && 'cursor-not-allowed')}
+            disabled={!subject.trim()}
             onClick={handleSubmit}
           >
             작성 완료

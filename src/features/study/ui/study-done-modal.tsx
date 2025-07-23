@@ -2,7 +2,6 @@
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import { TextAreaInput } from '@/shared/ui/input';
@@ -116,7 +115,6 @@ function StudyDoneForm({ data, studyDate, onClose }: StudyDoneFormProps) {
           />
         </div>
 
-        {/* 피드백 */}
         <div className="flex flex-col gap-250">
           <div className="flex flex-col gap-100">
             <label className="font-designer-16b text-text-default">
@@ -147,9 +145,7 @@ function StudyDoneForm({ data, studyDate, onClose }: StudyDoneFormProps) {
           <Button
             size="large"
             color={feedback.trim() && progressStatus ? 'primary' : 'secondary'}
-            className={cn(
-              (!feedback.trim() || !progressStatus) && 'cursor-not-allowed',
-            )}
+            disabled={!feedback.trim() || !progressStatus}
             onClick={handleSubmit}
           >
             작성 완료
