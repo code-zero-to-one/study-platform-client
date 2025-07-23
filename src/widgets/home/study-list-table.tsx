@@ -1,5 +1,5 @@
-import { getStatusBadge } from '@/features/study/lib/ui/status-badge-map';
 import { useDailyStudiesQuery } from '@/features/study/model/use-study-query';
+import { getStatusBadge } from '@/features/study/ui/status-badge-map';
 import UserAvatar from '@/shared/ui/avatar';
 import TableList from '@/shared/ui/table';
 import LinkIcon from 'public/icons/Link.svg';
@@ -15,10 +15,6 @@ const headers = [
   '참고 자료',
 ] as const;
 type Header = (typeof headers)[number];
-
-interface Props {
-  date: Date;
-}
 
 function mapDailyStudyToDisplayData(
   row: DailyStudy,
@@ -59,12 +55,7 @@ function mapDailyStudyToDisplayData(
   };
 }
 
-export default function StudyListSection({ date }: Props) {
-  const offset = date.getTimezoneOffset() * 60000;
-  const dateOffset = new Date(date.getTime() - offset);
-
-  const studyDate = dateOffset.toISOString().split('T')[0];
-
+export default function StudyListSection({ studyDate }: { studyDate: string }) {
   const { data, isLoading, error } = useDailyStudiesQuery({
     cursor: 0,
     pageSize: 10,

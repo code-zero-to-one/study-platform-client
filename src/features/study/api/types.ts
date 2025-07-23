@@ -34,10 +34,6 @@ export interface DailyStudyDetail {
   feedback: string;
 }
 
-export interface GetDailyStudyDetailParams {
-  studyDate: string;
-}
-
 export interface GetDailyStudyDetailParams2 {
   year: number;
   month: number;

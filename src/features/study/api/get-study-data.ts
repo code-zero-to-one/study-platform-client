@@ -3,7 +3,6 @@ import type {
   DailyStudyDetail,
   GetDailyStudiesParams,
   GetDailyStudiesResponse,
-  GetDailyStudyDetailParams,
   GetDailyStudyDetailParams2,
   GetMonthlyCalendarParams,
   JoinStudyRequest,
@@ -16,11 +15,9 @@ import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 // 스터디 상세 조회
 export const getDailyStudyDetail = async (
-  params: GetDailyStudyDetailParams,
+  params: string,
 ): Promise<DailyStudyDetail> => {
-  const { studyDate } = params;
-
-  const res = await axiosInstance.get(`/study/daily/mine/${studyDate}`);
+  const res = await axiosInstance.get(`/study/daily/mine/${params}`);
 
   return res.data.content;
 };
