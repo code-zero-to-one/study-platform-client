@@ -208,6 +208,7 @@ function ProfileEditForm({
             label="Github"
             type="text"
             description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
+            placeholder="https://github.com/username"
             value={profileForm.githubLink}
             onChange={(value) =>
               setProfileForm({
