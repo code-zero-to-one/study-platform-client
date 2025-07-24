@@ -81,9 +81,7 @@ function ProfileEditForm({
   // 이름 유효성 검사: 2~10자, 한글 또는 영문만 허용
   const isNameValid = /^[가-힣a-zA-Z]{2,10}$/.test(profileForm.name);
   // 연락처 유효성 검사: "(2~3자리 지역번호)-(3~4자리 번호)-(4자리 번호)" 형식
-  const isTelValid =
-    profileForm.tel.length === 0 ||
-    /^\d{2,3}-\d{3,4}-\d{4}$/.test(profileForm.tel);
+  const isTelValid = /^\d{2,3}-\d{3,4}-\d{4}$/.test(profileForm.tel);
 
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
@@ -191,12 +189,13 @@ function ProfileEditForm({
           <FormField
             label="연락처"
             type="text"
-            error={!isTelValid}
+            error={!(isTelValid || profileForm.tel === '')}
             description={
-              isTelValid
+              isTelValid || profileForm.tel === ''
                 ? '스터디 진행을 위한 연락 가능한 정보를 입력해 주세요.'
                 : '연락처는 숫자와 하이픈(-)을 포함한 형식으로 입력해주세요.'
             }
+            placeholder="010-1234-5678"
             value={profileForm.tel}
             onChange={(value) => {
               // 숫자와 하이픈(-)만 입력 허용
