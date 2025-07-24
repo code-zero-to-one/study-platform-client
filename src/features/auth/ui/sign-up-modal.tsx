@@ -29,9 +29,6 @@ export default function SignupModal({
   const signUp = useSignUpMutation();
   const uploadProfileImage = useUploadProfileImageMutation();
 
-  // 디버깅
-  console.log('Decoded 소셜이미지 cookie', getCookie('socialImageURL'));
-
   // 이름 유효성 검사
   const validateName = (value: string) => {
     if (!/^[가-힣a-zA-Z]{2,10}$/.test(value)) {
