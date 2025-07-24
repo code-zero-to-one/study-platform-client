@@ -5,9 +5,8 @@ import { useState } from 'react';
 import Button from '@/shared/ui/button';
 import { BaseInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { putStudyDaily } from '../api/get-study-data';
 import { DailyStudyDetail, PrepareStudyRequest } from '../api/types';
-import { useInvalidateStudyQueries } from '../model/use-study-query';
+import { useUpdateDailyStudyMutation } from '../model/use-study-query';
 
 interface StudyReadyModalProps {
   data: DailyStudyDetail;
@@ -61,30 +60,31 @@ function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
     link: data.link ?? '',
   });
 
-  const { invalidateDailyStudyDetail, invalidateDailyStudies } =
-    useInvalidateStudyQueries();
+  const { mutate, isPending } = useUpdateDailyStudyMutation();
   const { subject, link } = form;
 
-  const handleChange =
-    (key: keyof PrepareStudyRequest) =>
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setForm((prev) => ({ ...prev, [key]: e.target.value }));
-    };
+  const handleChange = (key: keyof PrepareStudyRequest) => (value: string) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  };
 
-  const handleSubmit = async (e: React.MouseEvent) => {
-    e.preventDefault();
-
+  const handleSubmit = async () => {
     if (!subject.trim()) return;
 
-    try {
-      await putStudyDaily(data.dailyStudyId, { subject, link });
-      await invalidateDailyStudyDetail(studyDate);
-      await invalidateDailyStudies({ studyDate, cursor: 0, pageSize: 10 });
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert('요청 처리에 실패했습니다. 다시 시도해주세요.');
-    }
+    mutate(
+      {
+        dailyStudyId: data.dailyStudyId,
+        studyDate,
+        form,
+        requestType: 'prepare',
+      },
+      {
+        onSuccess: onClose,
+        onError: (err) => {
+          console.error(err);
+          alert('요청 처리에 실패했습니다. 다시 시도해주세요.');
+        },
+      },
+    );
   };
 
   return (
@@ -106,7 +106,7 @@ function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
           <BaseInput
             placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교"
             value={subject}
-            onChange={handleChange('subject')}
+            onChange={(e) => handleChange('subject')(e.target.value)}
           />
         </div>
 
@@ -123,7 +123,7 @@ function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
           <BaseInput
             placeholder="https://github.com"
             value={link}
-            onChange={handleChange('link')}
+            onChange={(e) => handleChange('link')(e.target.value)}
           />
         </div>
       </Modal.Body>

@@ -1,17 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  completeStudy,
   getDailyStudies,
   getDailyStudyDetail,
   getMonthlyStudyCalendar,
   getWeeklyParticipation,
   postJoinStudy,
+  putStudyDaily,
 } from '@/features/study/api/get-study-data';
 import {
+  CompleteStudyRequest,
   GetDailyStudiesParams,
   GetDailyStudyDetailParams2,
   GetMonthlyCalendarParams,
   JoinStudyRequest,
   MonthlyCalendarResponse,
+  PrepareStudyRequest,
 } from '../api/types';
 
 // 스터디 주간 참여 유무 확인 query
@@ -62,22 +66,34 @@ export const useJoinStudyMutation = () => {
 };
 
 // 스터디 상세 & 리스트 업데이트
-export const useInvalidateStudyQueries = () => {
+interface UpdateDailyStudyVariables {
+  dailyStudyId: number;
+  studyDate: string;
+  form: PrepareStudyRequest | CompleteStudyRequest;
+  requestType: 'prepare' | 'complete';
+}
+
+export const useUpdateDailyStudyMutation = () => {
   const queryClient = useQueryClient();
 
-  const invalidateDailyStudyDetail = async (params: string) => {
-    await queryClient.invalidateQueries({
-      queryKey: ['dailyStudyDetail', params],
-      exact: true,
-    });
-  };
+  return useMutation<void, unknown, UpdateDailyStudyVariables>({
+    mutationFn: async ({ dailyStudyId, form, requestType }) => {
+      if (requestType === 'prepare') {
+        await putStudyDaily(dailyStudyId, form as PrepareStudyRequest);
+      } else {
+        await completeStudy(dailyStudyId, form as CompleteStudyRequest);
+      }
+    },
+    onSuccess: async (_data, { studyDate }) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['dailyStudyDetail', studyDate],
+        exact: true,
+      });
 
-  const invalidateDailyStudies = async (params: GetDailyStudiesParams) => {
-    await queryClient.invalidateQueries({
-      queryKey: ['dailyStudies', params],
-      exact: true,
-    });
-  };
-
-  return { invalidateDailyStudyDetail, invalidateDailyStudies };
+      await queryClient.invalidateQueries({
+        queryKey: ['dailyStudies', { studyDate }],
+        exact: false,
+      });
+    },
+  });
 };

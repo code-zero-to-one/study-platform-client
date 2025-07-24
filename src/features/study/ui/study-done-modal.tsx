@@ -6,14 +6,13 @@ import Button from '@/shared/ui/button';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { completeStudy } from '../api/get-study-data';
 import {
   CompleteStudyRequest,
   DailyStudyDetail,
   StudyProgressStatus,
 } from '../api/types';
 import { STUDY_PROGRESS_OPTIONS } from '../consts/study-const';
-import { useInvalidateStudyQueries } from '../model/use-study-query';
+import { useUpdateDailyStudyMutation } from '../model/use-study-query';
 
 interface StudyDoneModalProps {
   data: DailyStudyDetail;
@@ -67,9 +66,8 @@ function StudyDoneForm({ data, studyDate, onClose }: StudyDoneFormProps) {
     progressStatus: data.progressStatus ?? 'PENDING',
   });
 
+  const { mutate, isPending } = useUpdateDailyStudyMutation();
   const { feedback, progressStatus } = form;
-  const { invalidateDailyStudyDetail, invalidateDailyStudies } =
-    useInvalidateStudyQueries();
 
   const handleChange = (key: keyof CompleteStudyRequest) => (value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -78,15 +76,21 @@ function StudyDoneForm({ data, studyDate, onClose }: StudyDoneFormProps) {
   const handleSubmit = async () => {
     if (!feedback.trim() || !progressStatus) return;
 
-    try {
-      await completeStudy(data.dailyStudyId, form);
-      await invalidateDailyStudyDetail(studyDate);
-      await invalidateDailyStudies({ studyDate, cursor: 0, pageSize: 10 });
-      onClose();
-    } catch (err) {
-      console.error(err);
-      alert('요청 처리에 실패했습니다. 다시 시도해주세요.');
-    }
+    mutate(
+      {
+        dailyStudyId: data.dailyStudyId,
+        studyDate,
+        form,
+        requestType: 'complete',
+      },
+      {
+        onSuccess: onClose,
+        onError: (err) => {
+          console.error(err);
+          alert('요청 처리에 실패했습니다. 다시 시도해주세요.');
+        },
+      },
+    );
   };
 
   return (
