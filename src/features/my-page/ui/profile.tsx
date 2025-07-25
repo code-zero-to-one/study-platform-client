@@ -1,5 +1,8 @@
-import Image from 'next/image';
 import { MemberProfile } from '@/entities/user/api/types';
+import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
+import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
+import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
+import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
@@ -37,43 +40,23 @@ export default function Profile({ memberId, memberProfile }: ProfileProps) {
 
           <div className="flex gap-250">
             <div className="flex flex-col gap-100">
-              <div className="font-designer-14r text-text-subtle flex gap-100">
-                <Image
-                  src="icons/Cake.svg"
-                  alt="Profile"
-                  width={16}
-                  height={16}
-                />
+              <div className="font-designer-14r text-text-subtle flex items-center gap-100">
+                <CakeIcon width={16} height={16} />
                 {memberProfile.birthDate ?? '생일을 입력해주세요!'}
               </div>
-              <div className="font-designer-14r text-text-subtle flex gap-100">
-                <Image
-                  src="icons/Phone.svg"
-                  alt="Profile"
-                  width={16}
-                  height={16}
-                />
+              <div className="font-designer-14r text-text-subtle flex items-center gap-100">
+                <PhoneIcon width={16} height={16} />
                 {memberProfile.tel ?? '번호를 입력해주세요!'}
               </div>
             </div>
 
             <div className="flex flex-col gap-100">
-              <div className="font-designer-14r text-text-subtle flex gap-100">
-                <Image
-                  src="icons/GithubLogo.svg"
-                  alt="Profile"
-                  width={16}
-                  height={16}
-                />
+              <div className="font-designer-14r text-text-subtle flex items-center gap-100">
+                <GithubIcon width={16} height={16} />
                 {memberProfile.githubLink?.url || '깃허브 링크를 입력해주세요!'}
               </div>
-              <div className="font-designer-14r text-text-subtle flex gap-100">
-                <Image
-                  src="icons/GlobeSimple.svg"
-                  alt="Profile"
-                  width={16}
-                  height={16}
-                />
+              <div className="font-designer-14r text-text-subtle flex items-center gap-100">
+                <GlobeIcon width={16} height={16} />
                 {memberProfile.blogOrSnsLink?.url ||
                   '블로그 링크를 입력해주세요!'}
               </div>

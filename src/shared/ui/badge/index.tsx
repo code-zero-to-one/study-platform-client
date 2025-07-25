@@ -6,14 +6,15 @@ import * as React from 'react';
 import { cn } from '@/shared/shadcn/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex min-w-[24px] px-100 py-50 justify-center items-center gap-[2px] text-xs font-medium whitespace-nowrap',
+  'inline-flex min-w-[24px] px-100 py-50 justify-center items-center border gap-[2px] text-xs font-medium whitespace-nowrap',
   {
     variants: {
       color: {
-        default:
-          'bg-background-accent-blue-subtle text-text-subtlest border-border-default',
-        completed: 'bg-fill-success-subtle-default text-text-success',
-        incomplete: 'bg-fill-danger-subtle-default text-text-error',
+        default: 'text-text-subtlest border-border-default',
+        green:
+          'bg-fill-success-subtle-default text-text-success border-fill-success-subtle-default',
+        red: 'bg-fill-danger-subtle-default text-text-error border-fill-danger-subtle-default',
+        blue: 'bg-background-accent-blue-subtle text-text-information border-background-accent-blue-subtle',
         orange:
           'bg-background-accent-orange-subtle text-background-accent-orange-strong',
         gray: 'bg-background-accent-gray-subtle text-background-accent-gray-strong',

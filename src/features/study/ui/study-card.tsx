@@ -5,10 +5,7 @@ import { useState } from 'react';
 import DateSelector from './data-selector';
 import TodayStudyCard from './today-study-card';
 import StudyListSection from '../../../widgets/home/study-list-table';
-import {
-  useDailyStudyDetailQuery,
-  useWeeklyParticipation,
-} from '../model/use-study-query';
+import { useWeeklyParticipation } from '../model/use-study-query';
 
 // 스터디 주차 구하는 함수
 function getWeekly(date: Date): { month: number; week: number } {
@@ -65,15 +62,11 @@ export default function StudyCard() {
   const offset = selectedDate.getTimezoneOffset() * 60000; // ms단위라 60000곱해줌
   const dateOffset = new Date(selectedDate.getTime() - offset);
 
-  const studyParams = { studyDate: dateOffset.toISOString().split('T')[0] };
+  const studyDate = dateOffset.toISOString().split('T')[0];
 
   const { data: participationData } = useWeeklyParticipation(params);
   const isParticipate = participationData?.isParticipate ?? false;
 
-  const { data: todayStudyData, refetch } = useDailyStudyDetailQuery(
-    studyParams,
-    isParticipate,
-  );
   const { month, week } = getWeekly(selectedDate);
 
   return (
@@ -83,10 +76,8 @@ export default function StudyCard() {
         <DateSelector value={selectedDate} onChange={setSelectedDate} />
       </div>
       <div className="border-border-default rounded-200 flex flex-col gap-500 border p-400">
-        {isParticipate && todayStudyData && (
-          <TodayStudyCard data={todayStudyData} refetch={refetch} />
-        )}
-        <StudyListSection date={selectedDate} />
+        {isParticipate && <TodayStudyCard studyDate={studyDate} />}
+        <StudyListSection studyDate={studyDate} />
       </div>
     </>
   );
