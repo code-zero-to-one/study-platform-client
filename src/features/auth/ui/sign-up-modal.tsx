@@ -1,3 +1,4 @@
+import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useState, useRef } from 'react';
 import {
@@ -5,12 +6,11 @@ import {
   useUploadProfileImageMutation,
 } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
-import SignupNameInput from '@/features/auth/ui/sign-up-name-input';
+import { hashValue } from '@/shared/lib/hash';
 import { getCookie, setCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
+import { BaseInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { sendGTMEvent } from '@next/third-parties/google';
-import { hashValue } from '@/shared/lib/hash';
 
 export default function SignupModal({
   open,
@@ -20,7 +20,6 @@ export default function SignupModal({
   onClose: () => void;
 }) {
   const [name, setName] = useState('');
-  const [error, setError] = useState('');
   const [image, setImage] = useState(
     getCookie('socialImageURL') || 'profile-default.svg',
   );
@@ -29,15 +28,7 @@ export default function SignupModal({
   const signUp = useSignUpMutation();
   const uploadProfileImage = useUploadProfileImageMutation();
 
-  // 이름 유효성 검사
-  const validateName = (value: string) => {
-    if (!/^[가-힣a-zA-Z]{2,10}$/.test(value)) {
-      setError('이름에는 숫자나 특수문자를 사용할 수 없습니다.');
-    } else {
-      setError('');
-    }
-    setName(value);
-  };
+  const isValidName = /^[가-힣a-zA-Z]{2,10}$/.test(name);
 
   // 이미지 업로드
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,12 +51,11 @@ export default function SignupModal({
       {
         // 회원가입 성공 시 프로필 이미지 업로드
         onSuccess: (data) => {
-
           const memberId = data.content.generatedMemberId;
 
           if (data && memberId) {
-            setCookie('memberId', memberId)
-            
+            setCookie('memberId', memberId);
+
             // 회원가입 GA 이벤트 전송
             sendGTMEvent({
               event: 'custom_member_join',
@@ -85,7 +75,6 @@ export default function SignupModal({
                 file: formData,
               });
             }
-            
 
             // 성공 후 홈페이지로 이동
             window.location.href = '/';
@@ -124,17 +113,41 @@ export default function SignupModal({
               <div className="font-designer-24b text-text-default mt-2 text-center">
                 서비스 이용을 위해 이름을 입력해주세요.
               </div>
-              <SignupNameInput
-                name={name}
-                setName={validateName}
-                error={error}
-              />
+              <div className="flex w-full flex-col items-center gap-200">
+                <div className="flex w-full flex-col gap-75">
+                  <BaseInput
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="홍길동"
+                    className={`w-full`}
+                    color={isValidName ? 'default' : 'error'}
+                  />
+                  <div
+                    className={`font-designer-13r ${isValidName ? 'text-text-subtlest' : 'text-text-error'}`}
+                  >
+                    {isValidName
+                      ? '신뢰 있는 매칭을 위해 실명을 사용해주세요. (예: 홍길동 )'
+                      : '이름에는 숫자나 특수문자를 사용할 수 없습니다. 두 글자 이상 입력해주세요.'}
+                  </div>
+                </div>
+                <div className="flex w-full gap-75">
+                  <input type="checkbox" id="agree" />
+                  <label
+                    htmlFor="agree"
+                    className="font-designer-14m text-text-subtle text-sm"
+                  >
+                    ZERO-ONE의 이용 약관과 개인정보 처리방침에 동의할게요.
+                  </label>
+                </div>
+              </div>
               <Button
                 color="primary"
                 size="large"
                 className="w-full"
                 type="submit"
                 onClick={handleSubmit}
+                disabled={!isValidName || signUp.isPending}
               >
                 가입 완료
               </Button>
