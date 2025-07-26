@@ -20,6 +20,7 @@ export default function SignupModal({
   onClose: () => void;
 }) {
   const [name, setName] = useState('');
+  const [checked, setChecked] = useState<boolean>(false);
   const [image, setImage] = useState(
     getCookie('socialImageURL') || 'profile-default.svg',
   );
@@ -142,7 +143,12 @@ export default function SignupModal({
                   </div>
                 </div>
                 <div className="flex w-full gap-75">
-                  <input type="checkbox" id="agree" />
+                  <input
+                    type="checkbox"
+                    id="agree"
+                    checked={checked}
+                    onChange={(e) => setChecked(e.target.checked)}
+                  />
                   <label
                     htmlFor="agree"
                     className="font-designer-14m text-text-subtle text-sm"
@@ -157,7 +163,7 @@ export default function SignupModal({
                 className="w-full"
                 type="submit"
                 onClick={handleSubmit}
-                disabled={!isValidName || signUp.isPending}
+                disabled={!isValidName || !checked || signUp.isPending}
               >
                 가입 완료
               </Button>
