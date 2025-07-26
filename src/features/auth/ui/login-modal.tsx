@@ -112,12 +112,6 @@ export default function LoginModal({
                 </span>
               </button>
             </div>
-            <div className="font-designer-14m text-text-subtle mb-250 flex items-center gap-75">
-              <input type="checkbox" id="agree" />
-              <label htmlFor="agree">
-                ZERO-ONE의 이용 약관과 개인정보 처리방침에 동의할게요.
-              </label>
-            </div>
           </Modal.Body>
         </Modal.Content>
       </Modal.Portal>
