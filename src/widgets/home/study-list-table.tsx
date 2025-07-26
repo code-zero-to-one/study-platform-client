@@ -1,12 +1,9 @@
 import { useDailyStudiesQuery } from '@/features/study/model/use-study-query';
+import { getStatusBadge } from '@/features/study/ui/status-badge-map';
 import UserAvatar from '@/shared/ui/avatar';
-import Badge from '@/shared/ui/badge/index';
 import TableList from '@/shared/ui/table';
 import LinkIcon from 'public/icons/Link.svg';
-import {
-  DailyStudy,
-  StudyProgressStatus,
-} from '../../features/study/api/types';
+import { DailyStudy } from '../../features/study/api/types';
 
 const headers = [
   '조',
@@ -18,17 +15,6 @@ const headers = [
   '참고 자료',
 ] as const;
 type Header = (typeof headers)[number];
-
-interface Props {
-  date: Date;
-}
-
-const statusBadgeMap: Partial<Record<StudyProgressStatus, React.ReactNode>> = {
-  PENDING: <Badge color="default">시작 전</Badge>,
-  IN_PROGRESS: <Badge color="incomplete">진행중</Badge>,
-  COMPLETE: <Badge color="completed">완료</Badge>,
-  ABSENT: <Badge color="incomplete">불참</Badge>,
-};
 
 function mapDailyStudyToDisplayData(
   row: DailyStudy,
@@ -52,32 +38,24 @@ function mapDailyStudyToDisplayData(
         </span>
       </div>
     ),
-    '면접 주제': row.subject,
-    피드백: (
-      <p className="text-text-default line-clamp-2 max-w-[300px] text-sm">
-        {row.feedback ?? '-'}
-      </p>
-    ),
-    '진행 상태': statusBadgeMap[row.progressStatus],
+    '면접 주제': row.subject || '-',
+    피드백: row.feedback || '-',
+    '진행 상태': getStatusBadge(row.progressStatus),
     '참고 자료': row.link ? (
       <a href={row.link} target="_blank" rel="noopener noreferrer">
-        <LinkIcon className="h-4 w-4 text-blue-500 hover:text-blue-700" />
+        <LinkIcon className="h-4 w-4" />
       </a>
-    ) : null,
+    ) : (
+      <LinkIcon color={'gray'} className="h-4 w-4" />
+    ),
   };
 }
 
-export default function StudyListSection({ date }: Props) {
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-
+export default function StudyListSection({ studyDate }: { studyDate: string }) {
   const { data, isLoading, error } = useDailyStudiesQuery({
     cursor: 0,
     pageSize: 10,
-    year,
-    month,
-    day,
+    studyDate,
   });
 
   if (isLoading) return <div>로딩 중...</div>;

@@ -34,10 +34,6 @@ export interface DailyStudyDetail {
   feedback: string;
 }
 
-export interface GetDailyStudyDetailParams {
-  studyDate: string;
-}
-
 export interface GetDailyStudyDetailParams2 {
   year: number;
   month: number;
@@ -47,9 +43,7 @@ export interface GetDailyStudyDetailParams2 {
 export interface GetDailyStudiesParams {
   cursor?: number;
   pageSize?: number;
-  year?: number;
-  month?: number;
-  day?: number;
+  studyDate?: string;
 }
 
 export interface GetDailyStudiesResponse {
@@ -80,9 +74,8 @@ export interface PostDailyRetrospectRequest {
   parentId: number;
 }
 
-export interface PutStudyDailyRequest {
+export interface PrepareStudyRequest {
   subject: string;
-  description: string;
   link: string;
 }
 
@@ -103,6 +96,7 @@ export interface WeeklyParticipationResponse {
   isParticipate: boolean;
 }
 
-export interface PutRetrospectRequest {
-  description: string;
+export interface CompleteStudyRequest {
+  feedback: string;
+  progressStatus: StudyProgressStatus;
 }

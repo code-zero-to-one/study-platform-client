@@ -14,13 +14,13 @@ export default function SignupImageSelector({
   handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
   const setDefaultImage = () => setImage('/profile-default.svg');
-  const openFileDialog = () => fileInputRef.current?.click();
+  const openFileFolder = () => fileInputRef.current?.click();
 
   return (
     <div className="relative">
       <div className="relative h-[112px] w-[112px] overflow-hidden rounded-full">
         <Image src={image} alt="프로필" fill className="object-cover" />
-        <img src={image} alt="next최적화안쓴프로필" className='object-covoer' />
+        <img src={image} alt="next최적화안쓴프로필" className="object-covoer" />
       </div>
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
@@ -44,7 +44,7 @@ export default function SignupImageSelector({
           </DropdownMenu.Item>
           <DropdownMenu.Item
             className="hover:text-text-default hover:font-designer-14b cursor-pointer px-50 py-[2px] hover:bg-gray-100"
-            onSelect={openFileDialog}
+            onSelect={openFileFolder}
           >
             앨범에서 선택
           </DropdownMenu.Item>
@@ -53,8 +53,9 @@ export default function SignupImageSelector({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpg,image/png,image/gif,image/webp"
         className="hidden"
+        multiple={false}
         onChange={handleImageChange}
       />
     </div>

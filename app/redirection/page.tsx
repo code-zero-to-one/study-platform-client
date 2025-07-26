@@ -21,13 +21,13 @@ function RedirectionContent() {
         const isGuest = searchParams.get('is-guest');
         const memberId = searchParams.get('member-id');
         const authVendor = searchParams.get('auth-vendor');
+        const socialImageURL = decodeURIComponent(
+          searchParams.get('profile-image-url') || '',
+        );
 
         setCookie('accessToken', accessToken);
         setCookie('memberId', memberId);
-        setCookie(
-          'socialImageURL',
-          searchParams.get('profile-image-url') || '',
-        );
+        setCookie('socialImageURL', socialImageURL);
 
         if (isGuest === 'true') {
           router.push('/sign-up');

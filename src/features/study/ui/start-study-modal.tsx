@@ -321,6 +321,7 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                     },
                     {
                       onSuccess: () => {
+                        alert('스터디 신청이 완료되었습니다!');
                         router.refresh();
                       },
                       onError: () => {

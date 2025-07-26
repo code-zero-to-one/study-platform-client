@@ -29,3 +29,5 @@ export const MBTI_OPTIONS = [
   { label: 'ENFJ', value: 'ENFJ' },
   { label: 'ENTJ', value: 'ENTJ' },
 ];
+
+export const DEFAULT_PROFILE_IMAGE_URL = '/profile-default.svg';

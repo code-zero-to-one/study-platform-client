@@ -19,13 +19,10 @@ export async function uploadProfileImage(
   filename: string,
   file: FormData,
 ) {
-  console.log('uploadProfileImage 요청직전', file);
-  // Bug : 여기서 에러발생중
   const res = await axiosInstanceForMultipart.put(
     `/files/members/${memberId}/profile/image/${filename}`,
     file,
   );
-  console.log('auth.ts - uploadProfileImage 응답', res);
 
   return res.data;
 }

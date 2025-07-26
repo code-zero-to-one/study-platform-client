@@ -1,20 +1,24 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  completeStudy,
   getDailyStudies,
   getDailyStudyDetail,
   getMonthlyStudyCalendar,
   getWeeklyParticipation,
   postJoinStudy,
+  putStudyDaily,
 } from '@/features/study/api/get-study-data';
 import {
+  CompleteStudyRequest,
   GetDailyStudiesParams,
-  GetDailyStudyDetailParams,
   GetDailyStudyDetailParams2,
   GetMonthlyCalendarParams,
   JoinStudyRequest,
   MonthlyCalendarResponse,
+  PrepareStudyRequest,
 } from '../api/types';
 
+// 스터디 주간 참여 유무 확인 query
 export const useWeeklyParticipation = (params: GetDailyStudyDetailParams2) => {
   return useQuery({
     queryKey: ['weeklyParticipation', params],
@@ -23,18 +27,17 @@ export const useWeeklyParticipation = (params: GetDailyStudyDetailParams2) => {
   });
 };
 
-export const useDailyStudyDetailQuery = (
-  params: GetDailyStudyDetailParams,
-  enabled: boolean = true,
-) => {
+// 스터디 상세 조회 query
+export const useDailyStudyDetailQuery = (params: string) => {
   return useQuery({
     queryKey: ['dailyStudyDetail', params],
     queryFn: () => getDailyStudyDetail(params),
     staleTime: 60 * 1000,
-    enabled: enabled && !!params,
+    enabled: !!params,
   });
 };
 
+// 스터디 전체 조회 query
 export const useDailyStudiesQuery = (params?: GetDailyStudiesParams) => {
   return useQuery({
     queryKey: ['dailyStudies', params],
@@ -43,6 +46,7 @@ export const useDailyStudiesQuery = (params?: GetDailyStudiesParams) => {
   });
 };
 
+// 스터디 캘린더 조회 query
 export const useMonthlyStudyCalendarQuery = (
   params: GetMonthlyCalendarParams,
 ) => {
@@ -54,8 +58,42 @@ export const useMonthlyStudyCalendarQuery = (
   });
 };
 
+// 스터디 신청 mutation
 export const useJoinStudyMutation = () => {
   return useMutation({
     mutationFn: (payload: JoinStudyRequest) => postJoinStudy(payload),
+  });
+};
+
+// 스터디 상세 & 리스트 업데이트
+interface UpdateDailyStudyVariables {
+  dailyStudyId: number;
+  studyDate: string;
+  form: PrepareStudyRequest | CompleteStudyRequest;
+  requestType: 'prepare' | 'complete';
+}
+
+export const useUpdateDailyStudyMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<void, unknown, UpdateDailyStudyVariables>({
+    mutationFn: async ({ dailyStudyId, form, requestType }) => {
+      if (requestType === 'prepare') {
+        await putStudyDaily(dailyStudyId, form as PrepareStudyRequest);
+      } else {
+        await completeStudy(dailyStudyId, form as CompleteStudyRequest);
+      }
+    },
+    onSuccess: async (_data, { studyDate }) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['dailyStudyDetail', studyDate],
+        exact: true,
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ['dailyStudies', { studyDate }],
+        exact: false,
+      });
+    },
   });
 };
