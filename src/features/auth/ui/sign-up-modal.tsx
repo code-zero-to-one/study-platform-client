@@ -121,10 +121,12 @@ export default function SignupModal({
                     onChange={(e) => setName(e.target.value)}
                     placeholder="홍길동"
                     className={`w-full`}
-                    color={isValidName ? 'default' : 'error'}
+                    color={
+                      isValidName || name.length === 0 ? 'default' : 'error'
+                    }
                   />
                   <div
-                    className={`font-designer-13r ${isValidName ? 'text-text-subtlest' : 'text-text-error'}`}
+                    className={`font-designer-13r ${isValidName || name.length === 0 ? 'text-text-subtlest' : 'text-text-error'}`}
                   >
                     {isValidName
                       ? '신뢰 있는 매칭을 위해 실명을 사용해주세요. (예: 홍길동 )'
