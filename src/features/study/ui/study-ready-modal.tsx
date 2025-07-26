@@ -134,7 +134,7 @@ function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
           <Button
             size="large"
             color={subject.trim() ? 'primary' : 'secondary'}
-            disabled={!subject.trim()}
+            disabled={!subject.trim() || isPending}
             onClick={handleSubmit}
           >
             작성 완료
