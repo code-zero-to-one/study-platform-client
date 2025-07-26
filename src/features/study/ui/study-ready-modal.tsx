@@ -21,10 +21,8 @@ export default function StudyReadyModal({
 
   return (
     <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Modal.Trigger>
-        <div className="rounded-100 bg-fill-brand-default-default font-designer-16b text-text-inverse hover:bg-fill-brand-default-hover cursor-pointer px-150 py-100">
-          준비하기
-        </div>
+      <Modal.Trigger asChild>
+        <Button size="medium">준비하기</Button>
       </Modal.Trigger>
 
       <Modal.Portal>
@@ -136,7 +134,7 @@ function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
           <Button
             size="large"
             color={subject.trim() ? 'primary' : 'secondary'}
-            disabled={!subject.trim()}
+            disabled={!subject.trim() || isPending}
             onClick={handleSubmit}
           >
             작성 완료

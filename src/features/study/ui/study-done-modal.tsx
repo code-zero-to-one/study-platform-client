@@ -27,11 +27,13 @@ export default function StudyDoneModal({
 
   return (
     <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Modal.Trigger>
-        <div className="rounded-100 bg-fill-brand-default-default font-designer-16b text-text-inverse hover:bg-fill-brand-default-hover cursor-pointer px-150 py-100">
-          완료하기
-        </div>
-      </Modal.Trigger>
+      <Button
+        disabled={data.progressStatus === 'PENDING'}
+        size="medium"
+        onClick={() => setIsOpen(true)}
+      >
+        완료하기
+      </Button>
 
       <Modal.Portal>
         <Modal.Overlay />
@@ -149,7 +151,7 @@ function StudyDoneForm({ data, studyDate, onClose }: StudyDoneFormProps) {
           <Button
             size="large"
             color={feedback.trim() && progressStatus ? 'primary' : 'secondary'}
-            disabled={!feedback.trim() || !progressStatus}
+            disabled={!feedback.trim() || isPending}
             onClick={handleSubmit}
           >
             작성 완료
