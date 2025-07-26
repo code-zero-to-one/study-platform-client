@@ -118,17 +118,25 @@ export default function SignupModal({
                   <BaseInput
                     type="text"
                     value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      const filteredValue = value
+                        .replace(/[^a-zA-Zㄱ-힣]/g, '')
+                        .slice(0, 10)
+                        .trim();
+                      setName(filteredValue);
+                    }}
                     placeholder="홍길동"
                     className={`w-full`}
                     color={
                       isValidName || name.length === 0 ? 'default' : 'error'
                     }
+                    maxLength={10}
                   />
                   <div
                     className={`font-designer-13r ${isValidName || name.length === 0 ? 'text-text-subtlest' : 'text-text-error'}`}
                   >
-                    {isValidName
+                    {isValidName || name.length === 0
                       ? '신뢰 있는 매칭을 위해 실명을 사용해주세요. (예: 홍길동 )'
                       : '이름에는 숫자나 특수문자를 사용할 수 없습니다. 두 글자 이상 입력해주세요.'}
                   </div>
