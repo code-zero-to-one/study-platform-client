@@ -79,20 +79,26 @@ export function LabeledField({
 }
 
 export default function StartStudyModal({ memberId }: StartStudyModalProps) {
-  const [introduce, setIntroduce] =
-    useState<JoinStudyRequest['selfIntroduction']>('');
-  const [studyPlan, setStudyPlan] = useState<JoinStudyRequest['studyPlan']>('');
-  const [phoneNumber, setPhoneNumber] = useState<JoinStudyRequest['tel']>('');
-  const [github, setGithub] = useState<JoinStudyRequest['githubLink']>('');
-  const [blog, setBlog] = useState<JoinStudyRequest['blogOrSnsLink']>('');
-  const [preferredSubject, setPreferredSubject] =
-    useState<JoinStudyRequest['preferredStudySubjectId']>(undefined);
-  const [availableTimeSlots, setAvailableTimeSlots] = useState<
-    JoinStudyRequest['availableStudyTimeIds']
-  >([]);
-  const [selectedSkills, setSelectedSkills] = useState<
-    JoinStudyRequest['techStackIds']
-  >([]);
+  const [form, setForm] = useState<Omit<JoinStudyRequest, 'memberId'>>({
+    selfIntroduction: '',
+    studyPlan: '',
+    tel: '',
+    githubLink: '',
+    blogOrSnsLink: '',
+    preferredStudySubjectId: undefined,
+    availableStudyTimeIds: [],
+    techStackIds: [],
+  });
+  const {
+    selfIntroduction,
+    studyPlan,
+    tel,
+    githubLink,
+    blogOrSnsLink,
+    preferredStudySubjectId,
+    availableStudyTimeIds,
+    techStackIds,
+  } = form;
 
   const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
   const { data: studySubjects } = useStudySubjectsQuery();
@@ -102,28 +108,39 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
   const { mutate: joinStudy } = useJoinStudyMutation();
 
   const toggleTimeSlot = (id: number) => {
-    setAvailableTimeSlots((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+    setForm((prev) =>
+      prev.availableStudyTimeIds.includes(id)
+        ? {
+            ...prev,
+            availableStudyTimeIds: prev.availableStudyTimeIds.filter(
+              (item) => item !== id,
+            ),
+          }
+        : {
+            ...prev,
+            availableStudyTimeIds: [...prev.availableStudyTimeIds, id],
+          },
     );
   };
 
   const isFormValid =
-    introduce.trim() !== '' &&
+    selfIntroduction.trim() !== '' &&
     studyPlan.trim() !== '' &&
-    phoneNumber.trim() !== '' &&
-    preferredSubject !== undefined &&
-    availableTimeSlots.length > 0 &&
-    selectedSkills.length > 0;
+    tel.trim() !== '' &&
+    preferredStudySubjectId !== undefined &&
+    availableStudyTimeIds.length > 0 &&
+    techStackIds.length > 0;
 
   const getMissingFields = () => {
     const missing: string[] = [];
 
-    if (introduce.trim() === '') missing.push('자기소개');
+    if (selfIntroduction.trim() === '') missing.push('자기소개');
     if (studyPlan.trim() === '') missing.push('공부 주제 및 계획');
-    if (preferredSubject === undefined) missing.push('선호하는 스터디 주제');
-    if (availableTimeSlots.length === 0) missing.push('가능 시간대');
-    if (selectedSkills.length === 0) missing.push('사용 가능한 기술 스택');
-    if (phoneNumber.trim() === '') missing.push('연락처');
+    if (preferredStudySubjectId === undefined)
+      missing.push('선호하는 스터디 주제');
+    if (availableStudyTimeIds.length === 0) missing.push('가능 시간대');
+    if (techStackIds.length === 0) missing.push('사용 가능한 기술 스택');
+    if (tel.trim() === '') missing.push('연락처');
 
     return missing;
   };
@@ -173,8 +190,13 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                 <BaseInput
                   className="border-border-default rounded-100 border p-150"
                   placeholder="신입 프론트엔드 개발자입니다. 리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
-                  value={introduce}
-                  onChange={(e) => setIntroduce(e.target.value)}
+                  value={selfIntroduction}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      selfIntroduction: e.target.value,
+                    }))
+                  }
                 />
               </LabeledField>
 
@@ -187,7 +209,12 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                   className="border-border-default rounded-100 border p-150"
                   placeholder="CS 기본기를 탄탄하게 다지는 것이 목표입니다. 각자 맡은 주제를 정리하고 공유하는 방식으로 진행하고 싶어요."
                   value={studyPlan}
-                  onChange={(e) => setStudyPlan(e.target.value)}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      studyPlan: e.target.value,
+                    }))
+                  }
                 />
               </LabeledField>
 
@@ -197,7 +224,7 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                 description="관심 있는 스터디 유형을 선택해 주세요."
               >
                 <SingleDropdown
-                  defaultValue={preferredSubject}
+                  defaultValue={preferredStudySubjectId}
                   options={(studySubjects ?? []).map(
                     ({ studySubjectId, name }) => ({
                       value: studySubjectId,
@@ -205,7 +232,12 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                     }),
                   )}
                   placeholder="선택하세요"
-                  onChange={(value) => setPreferredSubject(value.toString())}
+                  onChange={(value) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      preferredStudySubjectId: value.toString(),
+                    }))
+                  }
                 />
               </LabeledField>
 
@@ -219,7 +251,9 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                     ({ availableTimeId, display }) => (
                       <ToggleButton
                         key={availableTimeId}
-                        pressed={availableTimeSlots.includes(availableTimeId)}
+                        pressed={availableStudyTimeIds.includes(
+                          availableTimeId,
+                        )}
                         onPressedChange={() => toggleTimeSlot(availableTimeId)}
                       >
                         {display}
@@ -242,7 +276,10 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                     }),
                   )}
                   onChange={(newSelected) =>
-                    setSelectedSkills(newSelected as number[])
+                    setForm((prev) => ({
+                      ...prev,
+                      techStackIds: newSelected as number[],
+                    }))
                   }
                   placeholder="기술을 선택해주세요"
                 />
@@ -256,8 +293,13 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                 <BaseInput
                   className="border-border-default rounded-100 border p-150"
                   placeholder="010-1234-5678"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  value={tel}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      tel: e.target.value,
+                    }))
+                  }
                 />
               </LabeledField>
 
@@ -268,8 +310,10 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                 <BaseInput
                   className="border-border-default rounded-100 border p-150"
                   placeholder="https://github.com/@zero-one"
-                  value={github}
-                  onChange={(e) => setGithub(e.target.value)}
+                  value={githubLink}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, githubLink: e.target.value }))
+                  }
                 />
               </LabeledField>
 
@@ -280,8 +324,13 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                 <BaseInput
                   className="border-border-default rounded-100 border p-150"
                   placeholder="https://velog.io/@zero-one"
-                  value={blog}
-                  onChange={(e) => setBlog(e.target.value)}
+                  value={blogOrSnsLink}
+                  onChange={(e) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      blogOrSnsLink: e.target.value,
+                    }))
+                  }
                 />
               </LabeledField>
             </div>
@@ -310,14 +359,14 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
                   joinStudy(
                     {
                       memberId,
-                      selfIntroduction: introduce,
+                      selfIntroduction,
                       studyPlan,
-                      preferredStudySubjectId: preferredSubject?.toString(),
-                      availableStudyTimeIds: availableTimeSlots,
-                      techStackIds: selectedSkills,
-                      tel: phoneNumber,
-                      githubLink: github.trim() || undefined,
-                      blogOrSnsLink: blog.trim() || undefined,
+                      preferredStudySubjectId,
+                      availableStudyTimeIds,
+                      techStackIds,
+                      tel,
+                      githubLink: githubLink.trim() || undefined,
+                      blogOrSnsLink: blogOrSnsLink.trim() || undefined,
                     },
                     {
                       onSuccess: () => {
