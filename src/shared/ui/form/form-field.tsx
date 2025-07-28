@@ -14,6 +14,7 @@ type InputType =
 interface FormFieldProps<T> {
   label: string;
   description?: string;
+  placeholder?: string;
   type: InputType;
   maxLength?: number;
   required?: boolean;
@@ -28,6 +29,7 @@ export function FormField<T>({
   label,
   error = false,
   description,
+  placeholder,
   type,
   required = false,
   maxLength = 30,
@@ -42,7 +44,7 @@ export function FormField<T>({
         return (
           <>
             <BaseInput
-              placeholder="입력하세요."
+              placeholder={placeholder || '입력해주세요.'}
               value={value as string}
               color={error ? 'error' : 'default'}
               onChange={(e) => onChange(e.target.value as T)}
@@ -59,7 +61,7 @@ export function FormField<T>({
       case 'textarea':
         return (
           <TextAreaInput
-            placeholder="입력하세요."
+            placeholder={placeholder || '입력해주세요.'}
             guideText={description}
             value={value as string}
             maxLength={maxLength}
@@ -72,7 +74,7 @@ export function FormField<T>({
             <SingleDropdown
               options={options}
               defaultValue={value ? (value as string) : undefined}
-              placeholder="선택해주세요"
+              placeholder={placeholder || '선택해주세요'}
               onChange={(v) => onChange(v as T)}
             />
             {description && (
@@ -89,7 +91,7 @@ export function FormField<T>({
               options={options}
               defaultValue={value as string[]}
               onChange={(v) => onChange(v as T)}
-              placeholder="선택해주세요"
+              placeholder={placeholder || '선택해주세요.'}
             />
             {description && (
               <div className="font-designer-13r text-text-subtlest">
