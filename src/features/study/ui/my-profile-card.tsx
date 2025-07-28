@@ -18,6 +18,7 @@ interface MyProfileCardProps {
   subject?: string;
   time?: string;
   techStacks?: string;
+  studyApplied?: boolean;
 }
 
 export default function MyProfileCard({
@@ -28,6 +29,7 @@ export default function MyProfileCard({
   subject,
   time,
   techStacks,
+  studyApplied,
 }: MyProfileCardProps) {
   const [enabled, setEnabled] = useState(matching);
 
@@ -35,6 +37,8 @@ export default function MyProfileCard({
     usePatchAutoMatchingMutation();
 
   const handleToggleChange = (checked: boolean) => {
+    if (!studyApplied) return;
+
     setEnabled(checked);
 
     patchAutoMatching(
@@ -69,7 +73,7 @@ export default function MyProfileCard({
               size="md"
               checked={enabled}
               onCheckedChange={handleToggleChange}
-              disabled={isPending}
+              disabled={isPending || !studyApplied}
             />
           </div>
         </div>
