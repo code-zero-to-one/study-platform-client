@@ -11,6 +11,7 @@ import {
   DialogOverlay,
   DialogPortal,
   DialogTitle,
+  DialogDescription,
 } from '@/shared/shadcn/ui/dialog';
 
 function ModalRoot({
@@ -71,9 +72,11 @@ function ModalOverlay({
 function ModalContent({
   className,
   children,
+  description = '',
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   size?: 'small' | 'medium' | 'large';
+  description?: string;
 }) {
   const { size = 'small', ...rest } = props;
 
@@ -104,6 +107,7 @@ function ModalContent({
       {...rest}
     >
       <div className="flex max-h-[90vh] flex-col">{children}</div>
+      <DialogDescription className="sr-only">{description}</DialogDescription>
     </DialogPrimitive.Content>
   );
 }
