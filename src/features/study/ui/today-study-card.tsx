@@ -26,15 +26,15 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
   const isInterviewee = memberId === todayStudyData.intervieweeId;
 
   const matchedUserId = isInterviewee
-    ? todayStudyData?.interviewerId
+    ? todayStudyData.interviewerId
     : todayStudyData.intervieweeId;
 
   const matchedUserImage = isInterviewee
-    ? todayStudyData?.interviewerImage
+    ? todayStudyData.interviewerImage
     : todayStudyData.intervieweeImage;
 
   const matchedUsername = isInterviewee
-    ? todayStudyData?.interviewerName
+    ? todayStudyData.interviewerName
     : todayStudyData.intervieweeName;
 
   return (
@@ -51,7 +51,7 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
 
       <div className="mb-4 grid grid-cols-2 gap-100">
         <InfoBox label="스터디 조">
-          {`${todayStudyData?.studySpaceId} 조`}
+          {`${todayStudyData.studySpaceId} 조`}
         </InfoBox>
         <InfoBox label={isInterviewee ? '면접관' : '면접자'}>
           <UserProfileModal
@@ -66,17 +66,15 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
             }
           />
         </InfoBox>
-        <InfoBox label="오늘의 면접 주제">
-          {todayStudyData?.subject ?? 'asdf'}
-        </InfoBox>
+        <InfoBox label="오늘의 면접 주제">{todayStudyData.subject}</InfoBox>
         <InfoBox label="진행 현황">
-          {getStatusBadge(todayStudyData?.progressStatus ?? 'PENDING')}
+          {getStatusBadge(todayStudyData.progressStatus ?? 'PENDING')}
         </InfoBox>
       </div>
 
       <div className="rounded-100 bg-background-alternative flex flex-col gap-150 px-300 py-150">
         <div className="text-text-subtle font-designer-14r">피드백</div>
-        <p className="leading-relaxed">{todayStudyData?.feedback ?? '-'}</p>
+        <p className="leading-relaxed">{todayStudyData.feedback ?? '-'}</p>
       </div>
     </section>
   );
