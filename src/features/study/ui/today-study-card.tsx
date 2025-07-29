@@ -1,8 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import UserProfileModal from '@/features/my-page/ui/user-profile-modal';
 import { getStatusBadge } from '@/features/study/ui/status-badge-map';
 import { getCookie } from '@/shared/tanstack-query/cookie';
+// TODO: FSD 의 import 바운더리를 넘어서 import 해야하는데,
+// 해당 UI를 shared 등으로 빼던지 수정 필요
 import UserAvatar from '@/shared/ui/avatar';
 import StudyDoneModal from './study-done-modal';
 import StudyReadyModal from './study-ready-modal';
@@ -39,17 +42,41 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
           label="스터디 조"
           value={`${todayStudyData.studySpaceId} 조`}
         />
-        <InfoBox
-          label="면접자"
-          value={
-            <div className="border-border-default bg-background-default flex items-center gap-100 rounded-full border px-100 py-50">
-              <UserAvatar image={todayStudyData.interviewerImage} />
-              <span className="font-designer-14m">
-                {todayStudyData.interviewerName}
-              </span>
-            </div>
-          }
-        />
+        {isInterviewee ? (
+          <InfoBox
+            label="면접관"
+            value={
+              <div className="border-border-default bg-background-default flex items-center gap-100 rounded-full border px-100 py-50">
+                <UserProfileModal
+                  memberId={todayStudyData.interviewerId}
+                  trigger={
+                    <UserAvatar image={todayStudyData.interviewerImage} />
+                  }
+                />
+                <span className="font-designer-14m">
+                  {todayStudyData.interviewerName}
+                </span>
+              </div>
+            }
+          />
+        ) : (
+          <InfoBox
+            label="면접자"
+            value={
+              <div className="border-border-default bg-background-default flex items-center gap-100 rounded-full border px-100 py-50">
+                <UserProfileModal
+                  memberId={todayStudyData.intervieweeId}
+                  trigger={
+                    <UserAvatar image={todayStudyData.intervieweeImage} />
+                  }
+                />
+                <span className="font-designer-14m">
+                  {todayStudyData.interviewerName}
+                </span>
+              </div>
+            }
+          />
+        )}
         <InfoBox label="오늘의 면접 주제" value={todayStudyData.subject} />
         <InfoBox
           label="진행 현황"

@@ -1,5 +1,6 @@
 'use client';
 
+import { forwardRef } from 'react';
 import { Avatar, AvatarImage } from '@/shared/shadcn/ui/avatar';
 
 interface UserAvatarProps {
@@ -8,18 +9,27 @@ interface UserAvatarProps {
   size?: number;
 }
 
-export default function UserAvatar({
-  image,
-  alt = 'user image',
-  size = 32,
-}: UserAvatarProps) {
-  return (
-    <Avatar style={{ width: size, height: size }}>
-      {image ? (
-        <AvatarImage src={image} alt={alt} />
-      ) : (
-        <AvatarImage src={'/profile-default.svg'} alt={alt} />
-      )}
-    </Avatar>
-  );
-}
+const UserAvatar = forwardRef<HTMLSpanElement, UserAvatarProps>(
+  (
+    { image, alt = 'user profile', size = 32, ...props }: UserAvatarProps,
+    forwardedRef,
+  ) => {
+    return (
+      <Avatar
+        {...props}
+        ref={forwardedRef}
+        style={{ width: size, height: size }}
+      >
+        {image ? (
+          <AvatarImage src={image} alt={alt} />
+        ) : (
+          <AvatarImage src={'/profile-default.svg'} alt={alt} />
+        )}
+      </Avatar>
+    );
+  },
+);
+
+UserAvatar.displayName = 'UserAvatar';
+
+export default UserAvatar;
