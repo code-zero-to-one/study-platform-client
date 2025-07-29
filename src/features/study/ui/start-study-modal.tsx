@@ -3,7 +3,7 @@
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
@@ -78,73 +78,14 @@ export function LabeledField({
   );
 }
 
+type JoinStudyFormError = {
+  [K in keyof Omit<
+    JoinStudyRequest,
+    'memberId' | 'githubLink' | 'blogOrSnsLink'
+  >]: boolean;
+};
+
 export default function StartStudyModal({ memberId }: StartStudyModalProps) {
-  const [form, setForm] = useState<Omit<JoinStudyRequest, 'memberId'>>({
-    selfIntroduction: '',
-    studyPlan: '',
-    tel: '',
-    githubLink: '',
-    blogOrSnsLink: '',
-    preferredStudySubjectId: undefined,
-    availableStudyTimeIds: [],
-    techStackIds: [],
-  });
-  const {
-    selfIntroduction,
-    studyPlan,
-    tel,
-    githubLink,
-    blogOrSnsLink,
-    preferredStudySubjectId,
-    availableStudyTimeIds,
-    techStackIds,
-  } = form;
-
-  const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
-  const { data: studySubjects } = useStudySubjectsQuery();
-  const { data: techStacks } = useTechStacksQuery();
-  const router = useRouter();
-
-  const { mutate: joinStudy } = useJoinStudyMutation();
-
-  const toggleTimeSlot = (id: number) => {
-    setForm((prev) =>
-      prev.availableStudyTimeIds.includes(id)
-        ? {
-            ...prev,
-            availableStudyTimeIds: prev.availableStudyTimeIds.filter(
-              (item) => item !== id,
-            ),
-          }
-        : {
-            ...prev,
-            availableStudyTimeIds: [...prev.availableStudyTimeIds, id],
-          },
-    );
-  };
-
-  const isFormValid =
-    selfIntroduction.trim() !== '' &&
-    studyPlan.trim() !== '' &&
-    tel.trim() !== '' &&
-    preferredStudySubjectId !== undefined &&
-    availableStudyTimeIds.length > 0 &&
-    techStackIds.length > 0;
-
-  const getMissingFields = () => {
-    const missing: string[] = [];
-
-    if (selfIntroduction.trim() === '') missing.push('자기소개');
-    if (studyPlan.trim() === '') missing.push('공부 주제 및 계획');
-    if (preferredStudySubjectId === undefined)
-      missing.push('선호하는 스터디 주제');
-    if (availableStudyTimeIds.length === 0) missing.push('가능 시간대');
-    if (techStackIds.length === 0) missing.push('사용 가능한 기술 스택');
-    if (tel.trim() === '') missing.push('연락처');
-
-    return missing;
-  };
-
   return (
     <Modal.Root>
       <Modal.Trigger>
@@ -169,225 +110,298 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
             </Modal.Close>
           </Modal.Header>
 
-          <Modal.Body className="flex flex-col gap-500">
-            <div className="font-designer-18b">CS 스터디 진행 방법</div>
-            {studySteps.map((step, idx) => (
-              <NumberedBulletSection
-                key={idx}
-                title={step.title}
-                items={step.items}
-              />
-            ))}
-
-            <div className="border-border-default border-t" />
-
-            <div className="flex flex-col gap-400">
-              <LabeledField
-                label="자기 소개"
-                required
-                description="간단한 자기소개를 입력해 주세요."
-              >
-                <BaseInput
-                  className="border-border-default rounded-100 border p-150"
-                  placeholder="신입 프론트엔드 개발자입니다. 리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
-                  value={selfIntroduction}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      selfIntroduction: e.target.value,
-                    }))
-                  }
-                />
-              </LabeledField>
-
-              <LabeledField
-                label="공부 주제 및 계획"
-                required
-                description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
-              >
-                <BaseInput
-                  className="border-border-default rounded-100 border p-150"
-                  placeholder="CS 기본기를 탄탄하게 다지는 것이 목표입니다. 각자 맡은 주제를 정리하고 공유하는 방식으로 진행하고 싶어요."
-                  value={studyPlan}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      studyPlan: e.target.value,
-                    }))
-                  }
-                />
-              </LabeledField>
-
-              <LabeledField
-                label="선호하는 스터디 주제"
-                required
-                description="관심 있는 스터디 유형을 선택해 주세요."
-              >
-                <SingleDropdown
-                  defaultValue={preferredStudySubjectId}
-                  options={(studySubjects ?? []).map(
-                    ({ studySubjectId, name }) => ({
-                      value: studySubjectId,
-                      label: name,
-                    }),
-                  )}
-                  placeholder="선택하세요"
-                  onChange={(value) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      preferredStudySubjectId: value.toString(),
-                    }))
-                  }
-                />
-              </LabeledField>
-
-              <LabeledField
-                label="가능 시간대"
-                required
-                description="스터디 참여가 가능한 시간대를 모두 선택해 주세요."
-              >
-                <div className="grid grid-cols-5 gap-100">
-                  {(availableStudyTimes ?? []).map(
-                    ({ availableTimeId, display }) => (
-                      <ToggleButton
-                        key={availableTimeId}
-                        pressed={availableStudyTimeIds.includes(
-                          availableTimeId,
-                        )}
-                        onPressedChange={() => toggleTimeSlot(availableTimeId)}
-                      >
-                        {display}
-                      </ToggleButton>
-                    ),
-                  )}
-                </div>
-              </LabeledField>
-
-              <LabeledField
-                label="사용 가능한 기술 스택"
-                required
-                description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
-              >
-                <MultiDropdown
-                  options={(techStacks ?? []).map(
-                    ({ techStackId, techStackName }) => ({
-                      value: techStackId,
-                      label: techStackName,
-                    }),
-                  )}
-                  onChange={(newSelected) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      techStackIds: newSelected as number[],
-                    }))
-                  }
-                  placeholder="기술을 선택해주세요"
-                />
-              </LabeledField>
-
-              <LabeledField
-                label="연락처"
-                required
-                description="스터디 진행을 위해 연락 가능한 정보를 입력해 주세요. 입력하신 정보는 매칭된 스터디원에게만 제공되며, 외부에는 노출되지 않습니다."
-              >
-                <BaseInput
-                  className="border-border-default rounded-100 border p-150"
-                  placeholder="010-1234-5678"
-                  value={tel}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      tel: e.target.value,
-                    }))
-                  }
-                />
-              </LabeledField>
-
-              <LabeledField
-                label="GitHub"
-                description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
-              >
-                <BaseInput
-                  className="border-border-default rounded-100 border p-150"
-                  placeholder="https://github.com/@zero-one"
-                  value={githubLink}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, githubLink: e.target.value }))
-                  }
-                />
-              </LabeledField>
-
-              <LabeledField
-                label="블로그/SNS 등 링크"
-                description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
-              >
-                <BaseInput
-                  className="border-border-default rounded-100 border p-150"
-                  placeholder="https://velog.io/@zero-one"
-                  value={blogOrSnsLink}
-                  onChange={(e) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      blogOrSnsLink: e.target.value,
-                    }))
-                  }
-                />
-              </LabeledField>
-            </div>
-          </Modal.Body>
-
-          <Modal.Footer className="flex justify-end gap-100">
-            <Modal.Close asChild>
-              <Button color="secondary" size="large">
-                취소
-              </Button>
-            </Modal.Close>
-            <Modal.Close asChild>
-              <Button
-                size="large"
-                color={isFormValid ? 'primary' : 'secondary'}
-                className={cn(!isFormValid && 'cursor-not-allowed')}
-                onClick={(e) => {
-                  if (!isFormValid) {
-                    e.preventDefault();
-                    const missing = getMissingFields();
-                    alert(`다음 항목을 입력해 주세요: ${missing.join(', ')}`);
-
-                    return;
-                  }
-
-                  joinStudy(
-                    {
-                      memberId,
-                      selfIntroduction,
-                      studyPlan,
-                      preferredStudySubjectId,
-                      availableStudyTimeIds,
-                      techStackIds,
-                      tel,
-                      githubLink: githubLink.trim() || undefined,
-                      blogOrSnsLink: blogOrSnsLink.trim() || undefined,
-                    },
-                    {
-                      onSuccess: () => {
-                        alert('스터디 신청이 완료되었습니다!');
-                        router.refresh();
-                      },
-                      onError: () => {
-                        alert(
-                          '스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.',
-                        );
-                      },
-                    },
-                  );
-                }}
-              >
-                신청 완료
-              </Button>
-            </Modal.Close>
-          </Modal.Footer>
+          <StartStudyForm memberId={memberId} />
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
+  );
+}
+
+function StartStudyForm({ memberId }: StartStudyModalProps) {
+  const [form, setForm] = useState<Omit<JoinStudyRequest, 'memberId'>>({
+    selfIntroduction: '',
+    studyPlan: '',
+    tel: '',
+    githubLink: '',
+    blogOrSnsLink: '',
+    preferredStudySubjectId: undefined,
+    availableStudyTimeIds: [],
+    techStackIds: [],
+  });
+
+  const [error, setError] = useState<JoinStudyFormError>({
+    selfIntroduction: false,
+    studyPlan: false,
+    tel: false,
+    preferredStudySubjectId: false,
+    availableStudyTimeIds: false,
+    techStackIds: false,
+  });
+
+  const {
+    selfIntroduction,
+    studyPlan,
+    tel,
+    githubLink,
+    blogOrSnsLink,
+    preferredStudySubjectId,
+    availableStudyTimeIds,
+    techStackIds,
+  } = form;
+
+  const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
+  const { data: studySubjects } = useStudySubjectsQuery();
+  const { data: techStacks } = useTechStacksQuery();
+  const router = useRouter();
+
+  const { mutate: joinStudy } = useJoinStudyMutation();
+
+  const toggleStudyTime = (id: number) => {
+    setForm((prev) =>
+      prev.availableStudyTimeIds.includes(id)
+        ? {
+            ...prev,
+            availableStudyTimeIds: prev.availableStudyTimeIds.filter(
+              (item) => item !== id,
+            ),
+          }
+        : {
+            ...prev,
+            availableStudyTimeIds: [...prev.availableStudyTimeIds, id],
+          },
+    );
+  };
+
+  const handleSubmit = () => {
+    const isValidSelfIntroduction = selfIntroduction.trim() !== '';
+    const isValidStudyPlan = studyPlan.trim() !== '';
+    const isValidTel = tel.trim() !== '';
+    const isValidPreferredStudySubjectId =
+      preferredStudySubjectId !== undefined;
+    const isValidAvailableStudyTimeIds = availableStudyTimeIds.length > 0;
+    const isValidTechStackIds = techStackIds.length > 0;
+
+    if (
+      !isValidSelfIntroduction ||
+      !isValidStudyPlan ||
+      !isValidTel ||
+      !isValidPreferredStudySubjectId ||
+      !isValidAvailableStudyTimeIds ||
+      !isValidTechStackIds
+    ) {
+      setError({
+        selfIntroduction: !isValidSelfIntroduction,
+        studyPlan: !isValidStudyPlan,
+        tel: !isValidTel,
+        preferredStudySubjectId: !isValidPreferredStudySubjectId,
+        availableStudyTimeIds: !isValidAvailableStudyTimeIds,
+        techStackIds: !isValidTechStackIds,
+      });
+
+      return;
+    }
+
+    joinStudy(
+      {
+        ...form,
+        memberId,
+        githubLink: githubLink.trim() || undefined,
+        blogOrSnsLink: blogOrSnsLink.trim() || undefined,
+      },
+      {
+        onSuccess: () => {
+          alert('스터디 신청이 완료되었습니다!');
+          router.refresh();
+        },
+        onError: () => {
+          alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        },
+      },
+    );
+  };
+
+  return (
+    <>
+      <Modal.Body className="flex flex-col gap-500">
+        <div className="font-designer-18b">CS 스터디 진행 방법</div>
+        {studySteps.map((step, idx) => (
+          <NumberedBulletSection
+            key={idx}
+            title={step.title}
+            items={step.items}
+          />
+        ))}
+
+        <div className="border-border-default border-t" />
+
+        <div className="flex flex-col gap-400">
+          <LabeledField
+            label="자기 소개"
+            required
+            description="간단한 자기소개를 입력해 주세요."
+          >
+            <BaseInput
+              className="border-border-default rounded-100 border p-150"
+              placeholder="신입 프론트엔드 개발자입니다. 리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
+              value={selfIntroduction}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  selfIntroduction: e.target.value,
+                }))
+              }
+            />
+          </LabeledField>
+
+          <LabeledField
+            label="공부 주제 및 계획"
+            required
+            description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
+          >
+            <BaseInput
+              className="border-border-default rounded-100 border p-150"
+              placeholder="CS 기본기를 탄탄하게 다지는 것이 목표입니다. 각자 맡은 주제를 정리하고 공유하는 방식으로 진행하고 싶어요."
+              value={studyPlan}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  studyPlan: e.target.value,
+                }))
+              }
+            />
+          </LabeledField>
+
+          <LabeledField
+            label="선호하는 스터디 주제"
+            required
+            description="관심 있는 스터디 유형을 선택해 주세요."
+          >
+            <SingleDropdown
+              defaultValue={preferredStudySubjectId}
+              options={(studySubjects ?? []).map(
+                ({ studySubjectId, name }) => ({
+                  value: studySubjectId,
+                  label: name,
+                }),
+              )}
+              placeholder="선택하세요"
+              onChange={(value) =>
+                setForm((prev) => ({
+                  ...prev,
+                  preferredStudySubjectId: value.toString(),
+                }))
+              }
+            />
+          </LabeledField>
+
+          <LabeledField
+            label="가능 시간대"
+            required
+            description="스터디 참여가 가능한 시간대를 모두 선택해 주세요."
+          >
+            <div className="grid grid-cols-5 gap-100">
+              {(availableStudyTimes ?? []).map(
+                ({ availableTimeId, display }) => (
+                  <ToggleButton
+                    key={availableTimeId}
+                    pressed={availableStudyTimeIds.includes(availableTimeId)}
+                    onPressedChange={() => toggleStudyTime(availableTimeId)}
+                  >
+                    {display}
+                  </ToggleButton>
+                ),
+              )}
+            </div>
+          </LabeledField>
+
+          <LabeledField
+            label="사용 가능한 기술 스택"
+            required
+            description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
+          >
+            <MultiDropdown
+              options={(techStacks ?? []).map(
+                ({ techStackId, techStackName }) => ({
+                  value: techStackId,
+                  label: techStackName,
+                }),
+              )}
+              onChange={(newSelected) => {
+                setForm((prev) => ({
+                  ...prev,
+                  techStackIds: newSelected as number[],
+                }));
+              }}
+              placeholder="기술을 선택해주세요"
+            />
+          </LabeledField>
+
+          <LabeledField
+            label="연락처"
+            required
+            description="스터디 진행을 위해 연락 가능한 정보를 입력해 주세요. 입력하신 정보는 매칭된 스터디원에게만 제공되며, 외부에는 노출되지 않습니다."
+          >
+            <BaseInput
+              className="border-border-default rounded-100 border p-150"
+              placeholder="010-1234-5678"
+              value={tel}
+              onChange={(e) => {
+                setForm((prev) => ({
+                  ...prev,
+                  tel: e.target.value,
+                }));
+              }}
+            />
+          </LabeledField>
+
+          <LabeledField
+            label="GitHub"
+            description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
+          >
+            <BaseInput
+              className="border-border-default rounded-100 border p-150"
+              placeholder="https://github.com/@zero-one"
+              value={githubLink}
+              onChange={(e) =>
+                setForm((prev) => ({ ...prev, githubLink: e.target.value }))
+              }
+            />
+          </LabeledField>
+
+          <LabeledField
+            label="블로그/SNS 등 링크"
+            description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
+          >
+            <BaseInput
+              className="border-border-default rounded-100 border p-150"
+              placeholder="https://velog.io/@zero-one"
+              value={blogOrSnsLink}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  blogOrSnsLink: e.target.value,
+                }))
+              }
+            />
+          </LabeledField>
+        </div>
+      </Modal.Body>
+
+      <Modal.Footer className="flex justify-end gap-100">
+        <Modal.Close asChild>
+          <Button color="secondary" size="large">
+            취소
+          </Button>
+        </Modal.Close>
+        <Button
+          size="large"
+          color="primary"
+          onClick={handleSubmit}
+          disabled={Object.values(error).some(Boolean)}
+        >
+          신청 완료
+        </Button>
+      </Modal.Footer>
+    </>
   );
 }
