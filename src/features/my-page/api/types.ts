@@ -1,6 +1,7 @@
 export interface UpdateUserProfileRequest {
   name: string;
   tel: string;
+  birthDate?: string;
   githubLink?: string;
   blogOrSnsLink?: string;
   simpleIntroduction?: string;
