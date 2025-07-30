@@ -3,7 +3,7 @@
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
@@ -146,7 +146,6 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
     blogOrSnsLink,
     preferredStudySubjectId,
     availableStudyTimeIds,
-    techStackIds,
   } = form;
 
   const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
@@ -173,30 +172,17 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
   };
 
   const handleSubmit = () => {
-    const isValidSelfIntroduction = selfIntroduction.trim() !== '';
-    const isValidStudyPlan = studyPlan.trim() !== '';
-    const isValidTel = tel.trim() !== '';
-    const isValidPreferredStudySubjectId =
-      preferredStudySubjectId !== undefined;
-    const isValidAvailableStudyTimeIds = availableStudyTimeIds.length > 0;
-    const isValidTechStackIds = techStackIds.length > 0;
+    const newError: JoinStudyFormError = {
+      selfIntroduction: selfIntroduction.trim() === '',
+      studyPlan: studyPlan.trim() === '',
+      tel: !/^\d{2,3}-\d{3,4}-\d{4}$/.test(tel),
+      preferredStudySubjectId: preferredStudySubjectId === undefined,
+      availableStudyTimeIds: availableStudyTimeIds.length === 0,
+      techStackIds: form.techStackIds.length === 0,
+    };
 
-    if (
-      !isValidSelfIntroduction ||
-      !isValidStudyPlan ||
-      !isValidTel ||
-      !isValidPreferredStudySubjectId ||
-      !isValidAvailableStudyTimeIds ||
-      !isValidTechStackIds
-    ) {
-      setError({
-        selfIntroduction: !isValidSelfIntroduction,
-        studyPlan: !isValidStudyPlan,
-        tel: !isValidTel,
-        preferredStudySubjectId: !isValidPreferredStudySubjectId,
-        availableStudyTimeIds: !isValidAvailableStudyTimeIds,
-        techStackIds: !isValidTechStackIds,
-      });
+    if (Object.values(newError).some(Boolean)) {
+      setError(newError);
 
       return;
     }
@@ -241,15 +227,19 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             description="간단한 자기소개를 입력해 주세요."
           >
             <BaseInput
-              className="border-border-default rounded-100 border p-150"
               placeholder="신입 프론트엔드 개발자입니다. 리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
               value={selfIntroduction}
-              onChange={(e) =>
+              color={error.selfIntroduction ? 'error' : 'default'}
+              onChange={(e) => {
                 setForm((prev) => ({
                   ...prev,
                   selfIntroduction: e.target.value,
-                }))
-              }
+                }));
+                setError((prev) => ({
+                  ...prev,
+                  selfIntroduction: e.target.value.trim() === '',
+                }));
+              }}
             />
           </LabeledField>
 
@@ -259,15 +249,19 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
           >
             <BaseInput
-              className="border-border-default rounded-100 border p-150"
+              color={error.studyPlan ? 'error' : 'default'}
               placeholder="CS 기본기를 탄탄하게 다지는 것이 목표입니다. 각자 맡은 주제를 정리하고 공유하는 방식으로 진행하고 싶어요."
               value={studyPlan}
-              onChange={(e) =>
+              onChange={(e) => {
                 setForm((prev) => ({
                   ...prev,
                   studyPlan: e.target.value,
-                }))
-              }
+                }));
+                setError((prev) => ({
+                  ...prev,
+                  studyPlan: e.target.value.trim() === '',
+                }));
+              }}
             />
           </LabeledField>
 
@@ -277,6 +271,7 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             description="관심 있는 스터디 유형을 선택해 주세요."
           >
             <SingleDropdown
+              error={error.preferredStudySubjectId}
               defaultValue={preferredStudySubjectId}
               options={(studySubjects ?? []).map(
                 ({ studySubjectId, name }) => ({
@@ -285,12 +280,16 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
                 }),
               )}
               placeholder="선택하세요"
-              onChange={(value) =>
+              onChange={(value) => {
                 setForm((prev) => ({
                   ...prev,
                   preferredStudySubjectId: value.toString(),
-                }))
-              }
+                }));
+                setError((prev) => ({
+                  ...prev,
+                  preferredStudySubjectId: value === undefined,
+                }));
+              }}
             />
           </LabeledField>
 
@@ -320,6 +319,7 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
           >
             <MultiDropdown
+              error={error.techStackIds}
               options={(techStacks ?? []).map(
                 ({ techStackId, techStackName }) => ({
                   value: techStackId,
@@ -330,6 +330,10 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
                 setForm((prev) => ({
                   ...prev,
                   techStackIds: newSelected as number[],
+                }));
+                setError((prev) => ({
+                  ...prev,
+                  techStackIds: newSelected.length === 0,
                 }));
               }}
               placeholder="기술을 선택해주세요"
@@ -342,13 +346,17 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             description="스터디 진행을 위해 연락 가능한 정보를 입력해 주세요. 입력하신 정보는 매칭된 스터디원에게만 제공되며, 외부에는 노출되지 않습니다."
           >
             <BaseInput
-              className="border-border-default rounded-100 border p-150"
               placeholder="010-1234-5678"
               value={tel}
+              color={error.tel ? 'error' : 'default'}
               onChange={(e) => {
                 setForm((prev) => ({
                   ...prev,
                   tel: e.target.value,
+                }));
+                setError((prev) => ({
+                  ...prev,
+                  tel: !/^\d{2,3}-\d{3,4}-\d{4}$/.test(e.target.value),
                 }));
               }}
             />
@@ -359,7 +367,6 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
           >
             <BaseInput
-              className="border-border-default rounded-100 border p-150"
               placeholder="https://github.com/@zero-one"
               value={githubLink}
               onChange={(e) =>
@@ -373,7 +380,6 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
           >
             <BaseInput
-              className="border-border-default rounded-100 border p-150"
               placeholder="https://velog.io/@zero-one"
               value={blogOrSnsLink}
               onChange={(e) =>
@@ -393,12 +399,7 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             취소
           </Button>
         </Modal.Close>
-        <Button
-          size="large"
-          color="primary"
-          onClick={handleSubmit}
-          disabled={Object.values(error).some(Boolean)}
-        >
+        <Button size="large" color="primary" onClick={handleSubmit}>
           신청 완료
         </Button>
       </Modal.Footer>

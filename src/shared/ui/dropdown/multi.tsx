@@ -17,6 +17,7 @@ interface Option {
 interface MultiDropdownProps {
   options: Option[];
   defaultValue?: (string | number)[];
+  error?: boolean;
   onChange?: (selected: (string | number)[]) => void;
   placeholder?: string;
 }
@@ -24,6 +25,7 @@ interface MultiDropdownProps {
 function MultiDropdown({
   options,
   defaultValue = [],
+  error = false,
   onChange,
   placeholder = '선택해주세요',
 }: MultiDropdownProps) {
@@ -63,7 +65,7 @@ function MultiDropdown({
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
         <div
-          className="rounded-150 border-border-default bg-fill-neutral-subtle-default flex h-auto max-h-[120px] w-full cursor-pointer flex-wrap items-center justify-between border px-150 py-100"
+          className={`rounded-150 ${error ? 'border-border-error' : 'border-border-default'} bg-fill-neutral-subtle-default flex h-auto max-h-[120px] w-full cursor-pointer flex-wrap items-center justify-between border px-150 py-100`}
           role="button"
           tabIndex={0}
         >

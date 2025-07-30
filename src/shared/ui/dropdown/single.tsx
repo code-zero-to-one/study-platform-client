@@ -16,6 +16,7 @@ interface Props {
   options: Option[];
   defaultValue?: string | number;
   placeholder?: string;
+  error?: boolean;
   onChange: (value: string | number) => void;
 }
 
@@ -23,6 +24,7 @@ function SingleDropdown({
   placeholder,
   options,
   defaultValue,
+  error = false,
   onChange,
 }: Props) {
   const [selectedValue, setSelectedValue] = useState<
@@ -37,7 +39,9 @@ function SingleDropdown({
   return (
     <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger className="w-full focus:outline-none">
-        <div className="rounded-150 border-border-default bg-fill-neutral-subtle-default flex h-[48px] w-full items-center justify-between border px-150">
+        <div
+          className={`rounded-150 ${error ? 'border-border-error' : 'border-border-default'} bg-fill-neutral-subtle-default flex h-[48px] w-full items-center justify-between border px-150`}
+        >
           <span
             className={`font-designer-14m ${selectedOption ? 'text-text-subtle' : 'text-text-subtlest'}`}
           >
