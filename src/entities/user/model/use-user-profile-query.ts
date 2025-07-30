@@ -1,7 +1,6 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import {
-  getStudyDashboard,
   getUserProfile,
   patchAutoMatching,
 } from '@/entities/user/api/get-user-profile';
@@ -38,14 +37,5 @@ export const usePatchAutoMatchingMutation = () => {
         });
       }
     },
-  });
-};
-
-export const useStudyDashboardQuery = (memberId: number) => {
-  return useQuery({
-    queryKey: ['studyDashboard', memberId],
-    queryFn: () => getStudyDashboard(memberId),
-    enabled: !!memberId,
-    staleTime: 60 * 1000,
   });
 };

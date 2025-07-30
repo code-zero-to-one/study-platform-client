@@ -84,16 +84,3 @@ export interface PatchAutoMatchingParams {
   memberId: number;
   autoMatching: boolean;
 }
-
-export interface StudyDashboardResponse {
-  tier: string;
-  experience: number;
-  monthAttendance: number;
-  weekAttendance: number;
-  techStack: Record<string, number>;
-  mainStackCount: {
-    FE: number;
-    BE: number;
-    CS: number;
-  };
-}
