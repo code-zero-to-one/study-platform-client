@@ -34,9 +34,6 @@ const formValidations = {
     birthDate: /^\d{4}.([0][1-9]|[1][0-2]).([0][1-9]|[1-2][0-9]|[3][0-1])/,
   },
   checker: {
-    isOptional: (value: string) => {
-      return value.length === 0;
-    },
     // year 는 최소 1900년 이상 현재 년도 이하이어야 한다.
     // month 와 date 의 유효성은 생성자로 검사됨
     birthDate: (value: string) => {
