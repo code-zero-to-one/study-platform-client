@@ -2,8 +2,10 @@ import { cva } from 'class-variance-authority';
 import { cn } from '@/shared/shadcn/lib/utils';
 import { Input as ShadcnInput } from '@/shared/shadcn/ui/input';
 
-interface BaseInputProps extends React.ComponentProps<typeof ShadcnInput> {
+interface BaseInputProps
+  extends Omit<React.ComponentProps<typeof ShadcnInput>, 'size'> {
   color?: 'default' | 'error' | 'success';
+  size?: 'm' | 'l';
 }
 
 const inputVariants = cva(
@@ -15,6 +17,10 @@ const inputVariants = cva(
         error: 'border-border-error text-text-default',
         success: 'border-border-success text-text-default',
       },
+      size: {
+        m: 'py-100',
+        l: 'py-150',
+      },
     },
     defaultVariants: {
       color: 'default',
@@ -22,10 +28,15 @@ const inputVariants = cva(
   },
 );
 
-function BaseInput({ className, color = 'default', ...props }: BaseInputProps) {
+function BaseInput({
+  className,
+  color = 'default',
+  size = 'l',
+  ...props
+}: BaseInputProps) {
   return (
     <ShadcnInput
-      className={cn(inputVariants({ color }), className)}
+      className={cn(inputVariants({ color, size }), className)}
       {...props}
     />
   );
