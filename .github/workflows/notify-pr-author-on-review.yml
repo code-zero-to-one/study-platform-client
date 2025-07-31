@@ -55,4 +55,4 @@ jobs:
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
             channel: ${{ steps.extract_info.outputs.author_slack_id }}
-            text: ${{ steps.extract_info.outputs.text }}
+            text: "${{ steps.extract_info.outputs.text }}""
