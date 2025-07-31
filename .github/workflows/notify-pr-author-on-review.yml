@@ -54,5 +54,7 @@ jobs:
           method: chat.postMessage
           token: ${{ secrets.SLACK_BOT_TOKEN }}
           payload: |
-            channel: ${{ steps.extract_info.outputs.author_slack_id }}
-            text: "${{ steps.extract_info.outputs.text }}""
+            {
+              "channel": "${{ steps.extract_info.outputs.author_slack_id }}",
+              "text": "${{ steps.extract_info.outputs.text }}"
+            }
