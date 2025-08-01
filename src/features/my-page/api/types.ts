@@ -63,3 +63,20 @@ export interface TechStackResponse {
   parentId: number | undefined;
   level: number;
 }
+
+export interface StudyActivity {
+  totalParticipationDays: number;
+  sequenceParticipationWeeks: number;
+  maxSequenceParticipationWeeks: number;
+  completedStudyCount: number;
+  failureStudyCount: number;
+}
+
+export interface GrowthMetric {
+  studyCompleteness: number;
+}
+
+export interface StudyDashboardResponse {
+  studyActivity: StudyActivity;
+  growthMetric: GrowthMetric;
+}
