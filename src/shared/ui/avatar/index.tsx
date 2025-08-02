@@ -10,11 +10,13 @@ interface UserAvatarProps {
 
 export default function UserAvatar({
   image,
-  alt = 'user image',
+  alt = 'user profile',
   size = 32,
-}: UserAvatarProps) {
+  ref,
+  ...props
+}: React.RefAttributes<HTMLSpanElement> & UserAvatarProps) {
   return (
-    <Avatar style={{ width: size, height: size }}>
+    <Avatar {...props} ref={ref} style={{ width: size, height: size }}>
       {image ? (
         <AvatarImage src={image} alt={alt} />
       ) : (

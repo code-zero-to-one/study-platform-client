@@ -1,6 +1,7 @@
 export interface UpdateUserProfileRequest {
   name: string;
   tel: string;
+  birthDate?: string;
   githubLink?: string;
   blogOrSnsLink?: string;
   simpleIntroduction?: string;
@@ -61,4 +62,21 @@ export interface TechStackResponse {
   techStackName: string;
   parentId: number | undefined;
   level: number;
+}
+
+export interface StudyActivity {
+  totalParticipationDays: number;
+  sequenceParticipationWeeks: number;
+  maxSequenceParticipationWeeks: number;
+  completedStudyCount: number;
+  failureStudyCount: number;
+}
+
+export interface GrowthMetric {
+  studyCompleteness: number;
+}
+
+export interface StudyDashboardResponse {
+  studyActivity: StudyActivity;
+  growthMetric: GrowthMetric;
 }

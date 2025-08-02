@@ -24,6 +24,30 @@ interface Props {
 
 export type MbtiValue = (typeof MBTI_OPTIONS)[number]['value'];
 
+const formValidations = {
+  regex: {
+    // 이름 유효성 검사: 2~10자, 한글 또는 영문만 허용
+    username: /^[가-힣a-zA-Z]{2,10}$/,
+    // 연락처 유효성 검사: "(2~3자리 지역번호)-(3~4자리 번호)-(4자리 번호)" 형식
+    telephone: /^\d{2,3}-\d{3,4}-\d{4}$/,
+    // 생년월일 텍스트 패턴 유효성 검사 : ^(4자리 년도).(2자리 월).(2자리 일)
+    birthDate: /^\d{4}.([0][1-9]|[1][0-2]).([0][1-9]|[1-2][0-9]|[3][0-1])/,
+  },
+  checker: {
+    // year 는 최소 1900년 이상 현재 년도 이하이어야 한다.
+    // month 와 date 의 유효성은 생성자로 검사됨
+    birthDate: (value: string) => {
+      const birthDate = new Date(value);
+      const now = new Date();
+      if (birthDate.toString() === 'Invalid Date') return false;
+      const year = birthDate.getFullYear();
+      if (year < 1900 || year > now.getFullYear()) return false;
+
+      return true;
+    },
+  },
+};
+
 export default function ProfileEditModal({ memberProfile, memberId }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -66,6 +90,7 @@ function ProfileEditForm({
   const [profileForm, setProfileForm] = useState<UpdateUserProfileRequest>({
     name: memberProfile.memberName ?? '',
     tel: memberProfile.tel ?? '',
+    birthDate: memberProfile.birthDate ?? '',
     githubLink: memberProfile.githubLink?.url ?? '',
     blogOrSnsLink: memberProfile.blogOrSnsLink?.url ?? '',
     mbti: memberProfile.mbti ?? '',
@@ -78,12 +103,14 @@ function ProfileEditForm({
       DEFAULT_PROFILE_IMAGE_URL,
   );
 
-  // 이름 유효성 검사: 2~10자, 한글 또는 영문만 허용
-  const isNameValid = /^[가-힣a-zA-Z]{2,10}$/.test(profileForm.name);
-  // 연락처 유효성 검사: "(2~3자리 지역번호)-(3~4자리 번호)-(4자리 번호)" 형식
-  const isTelValid =
-    profileForm.tel.length === 0 ||
-    /^\d{2,3}-\d{3,4}-\d{4}$/.test(profileForm.tel);
+  const isNameValid = formValidations.regex.username.test(profileForm.name);
+  const isTelValid = formValidations.regex.telephone.test(profileForm.tel);
+  const isBirthDateValid =
+    profileForm.birthDate.length === 0 ||
+    (formValidations.regex.birthDate.test(profileForm.birthDate) &&
+      formValidations.checker.birthDate(profileForm.birthDate));
+
+  const isReadyToSubmit = isNameValid && isTelValid && isBirthDateValid;
 
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
@@ -104,6 +131,7 @@ function ProfileEditForm({
     const rawFormData: UpdateUserProfileRequest = {
       name: profileForm.name,
       tel: profileForm.tel,
+      birthDate: profileForm.birthDate.replace(/\./g, '-'),
       githubLink: profileForm.githubLink,
       blogOrSnsLink: profileForm.blogOrSnsLink,
       simpleIntroduction: profileForm.simpleIntroduction.trim() || undefined,
@@ -191,12 +219,13 @@ function ProfileEditForm({
           <FormField
             label="연락처"
             type="text"
-            error={!isTelValid}
+            error={!(isTelValid || profileForm.tel === '')}
             description={
-              isTelValid
+              isTelValid || profileForm.tel === ''
                 ? '스터디 진행을 위한 연락 가능한 정보를 입력해 주세요.'
                 : '연락처는 숫자와 하이픈(-)을 포함한 형식으로 입력해주세요.'
             }
+            placeholder="010-1234-5678"
             value={profileForm.tel}
             onChange={(value) => {
               // 숫자와 하이픈(-)만 입력 허용
@@ -206,9 +235,28 @@ function ProfileEditForm({
             required
           />
           <FormField
+            label="생년월일"
+            type="text"
+            description={
+              !isBirthDateValid
+                ? '잘못된 형식입니다.'
+                : '생년월일을 입력해 주세요.'
+            }
+            error={!isBirthDateValid}
+            placeholder="2000.00.00"
+            value={profileForm.birthDate}
+            onChange={(value) => {
+              setProfileForm({
+                ...profileForm,
+                birthDate: value,
+              });
+            }}
+          />
+          <FormField
             label="Github"
             type="text"
             description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
+            placeholder="https://github.com/username"
             value={profileForm.githubLink}
             onChange={(value) =>
               setProfileForm({
@@ -270,7 +318,7 @@ function ProfileEditForm({
               await handleSubmit(); // 여기서 이미지 업로드 포함
               onClose();
             }}
-            disabled={!isNameValid || !isTelValid}
+            disabled={!isReadyToSubmit}
           >
             수정 완료
           </Button>

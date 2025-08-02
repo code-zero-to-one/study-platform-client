@@ -6,6 +6,7 @@ import {
 } from '../api/types';
 import {
   getAvailableStudyTimes,
+  getStudyDashboard,
   getStudySubjects,
   getTechStacks,
   updateUserProfile,
@@ -57,5 +58,13 @@ export const useTechStacksQuery = () => {
   return useQuery({
     queryKey: ['techStacks'],
     queryFn: getTechStacks,
+  });
+};
+
+export const useStudyDashboardQuery = () => {
+  return useQuery({
+    queryKey: ['studyDashboard'],
+    queryFn: () => getStudyDashboard(),
+    staleTime: 60 * 1000,
   });
 };

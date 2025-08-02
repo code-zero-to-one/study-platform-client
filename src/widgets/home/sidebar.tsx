@@ -27,6 +27,7 @@ export default async function Sidebar() {
         techStacks={userProfile?.memberInfo.techStacks
           ?.map((t) => t.techStackName)
           .join(', ')}
+        studyApplied={userProfile?.studyApplied ?? false}
       />
       {userProfile.studyApplied ? (
         <TodoList statusList={[false, false, false]} />
