@@ -27,6 +27,9 @@ function MainProvider({ children }: ProviderProps) {
             warning: 'bg-background-danger-default',
             closeButton: '!font-thin',
           },
+          style: {
+            width: 'fit-content',
+          },
         }}
         closeButton
       />
