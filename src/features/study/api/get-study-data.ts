@@ -3,7 +3,6 @@ import type {
   DailyStudyDetail,
   GetDailyStudiesParams,
   GetDailyStudiesResponse,
-  GetDailyStudyDetailParams2,
   GetMonthlyCalendarParams,
   JoinStudyRequest,
   MonthlyCalendarResponse,
@@ -87,10 +86,10 @@ export const postJoinStudy = async (payload: JoinStudyRequest) => {
 
 // 스터디 참여 유무 확인
 export const getWeeklyParticipation = async (
-  params: GetDailyStudyDetailParams2,
+  studyDate: string,
 ): Promise<WeeklyParticipationResponse> => {
   const res = await axiosInstance.get('/study/week/participation', {
-    params,
+    params: { studyDate },
   });
 
   return res.data.content;
