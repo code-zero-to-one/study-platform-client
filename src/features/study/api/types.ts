@@ -34,12 +34,6 @@ export interface DailyStudyDetail {
   feedback: string;
 }
 
-export interface GetDailyStudyDetailParams2 {
-  year: number;
-  month: number;
-  day: number;
-}
-
 export interface GetDailyStudiesParams {
   cursor?: number;
   pageSize?: number;
