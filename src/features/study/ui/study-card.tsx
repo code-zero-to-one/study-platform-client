@@ -53,18 +53,13 @@ function getWeekly(date: Date): { month: number; week: number } {
 
 export default function StudyCard() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const params = {
-    year: selectedDate.getFullYear(),
-    month: selectedDate.getMonth() + 1,
-    day: selectedDate.getDate(),
-  };
 
   const offset = selectedDate.getTimezoneOffset() * 60000; // ms단위라 60000곱해줌
   const dateOffset = new Date(selectedDate.getTime() - offset);
 
   const studyDate = dateOffset.toISOString().split('T')[0];
 
-  const { data: participationData } = useWeeklyParticipation(params);
+  const { data: participationData } = useWeeklyParticipation(studyDate);
   const isParticipate = participationData?.isParticipate ?? false;
 
   const { month, week } = getWeekly(selectedDate);
