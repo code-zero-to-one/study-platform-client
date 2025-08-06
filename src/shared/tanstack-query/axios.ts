@@ -36,14 +36,10 @@ axiosInstanceForMultipart.interceptors.request.use(
 axiosInstance.interceptors.request.use(
   (config) => {
     const accessToken = getCookie('accessToken');
+
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
     }
-    // 로컬 테스트에서 사용시 주석 제거
-    // console.log("------------------------")
-    // console.log("✅ 요청주소", config.url);
-    // console.log("✅ 요청 Bearer", config.headers.Authorization);
-    // console.log("✅ 요청내용", config);
 
     return config;
   },
@@ -52,18 +48,10 @@ axiosInstance.interceptors.request.use(
 
 axiosInstance.interceptors.response.use(
   (response) => {
-    // 로컬 테스트에서 사용시 주석 제거
-    // console.log('------------------------');
-    // console.log('✅ 응답주소', response.request.responseURL);
-    // console.log('✅ 응답로그', response);
-
     return response;
   },
 
   async (error) => {
-    console.log('에러 확인', error);
-    console.log('에러 상태코드:', error.response?.status);
-
     const originalRequest = error.config;
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
