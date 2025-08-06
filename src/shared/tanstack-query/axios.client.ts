@@ -5,7 +5,7 @@ import { getCookie } from './cookie';
 // * 인증이 필요한 client-side axios 인스턴스
 
 // json 요청
-export const axiosInstance = axios.create({
+export const axiosClientInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
   timeout: 10000,
   headers: {
@@ -15,7 +15,7 @@ export const axiosInstance = axios.create({
 });
 
 // multipart 요청용
-export const axiosInstanceForMultipart = axios.create({
+export const axiosClientInstanceForMultipart = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
   timeout: 10000,
   headers: {
@@ -33,8 +33,8 @@ const onRequestClient = (config: InternalAxiosRequestConfig) => {
   return config;
 };
 
-axiosInstance.interceptors.request.use(onRequestClient);
-axiosInstanceForMultipart.interceptors.request.use(onRequestClient);
+axiosClientInstance.interceptors.request.use(onRequestClient);
+axiosClientInstanceForMultipart.interceptors.request.use(onRequestClient);
 
 const onResponseErrorClient = async (error: unknown) => {
   if (isAxiosError(error) && error.response) {
@@ -53,7 +53,7 @@ const onResponseErrorClient = async (error: unknown) => {
   }
 };
 
-axiosInstance.interceptors.response.use(
+axiosClientInstance.interceptors.response.use(
   (config) => config,
   onResponseErrorClient,
 );

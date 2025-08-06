@@ -11,13 +11,13 @@ import type {
   PrepareStudyRequest,
   WeeklyParticipationResponse,
 } from '@/features/study/api/types';
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosClientInstance } from '@/shared/tanstack-query/axios.client';
 
 // 스터디 상세 조회
 export const getDailyStudyDetail = async (
   params: string,
 ): Promise<DailyStudyDetail> => {
-  const res = await axiosInstance.get(`/study/daily/mine/${params}`);
+  const res = await axiosClientInstance.get(`/study/daily/mine/${params}`);
 
   return res.data.content;
 };
@@ -26,7 +26,7 @@ export const getDailyStudyDetail = async (
 export const getDailyStudies = async (
   params?: GetDailyStudiesParams,
 ): Promise<GetDailyStudiesResponse> => {
-  const res = await axiosInstance.get('/study/daily', { params });
+  const res = await axiosClientInstance.get('/study/daily', { params });
 
   return res.data.content;
 };
@@ -35,13 +35,13 @@ export const getDailyStudies = async (
 export const getMonthlyStudyCalendar = async (
   params: GetMonthlyCalendarParams,
 ): Promise<MonthlyCalendarResponse> => {
-  const res = await axiosInstance.get('/study/daily/month', { params });
+  const res = await axiosClientInstance.get('/study/daily/month', { params });
 
   return res.data.content;
 };
 
 export const postDailyRetrospect = async (body: PostDailyRetrospectRequest) => {
-  const res = await axiosInstance.post('/study/daily/retrospect', body);
+  const res = await axiosClientInstance.post('/study/daily/retrospect', body);
 
   return res.data;
 };
@@ -51,7 +51,10 @@ export const putStudyDaily = async (
   dailyId: number,
   body: PrepareStudyRequest,
 ) => {
-  const res = await axiosInstance.put(`/study/daily/${dailyId}/prepare`, body);
+  const res = await axiosClientInstance.put(
+    `/study/daily/${dailyId}/prepare`,
+    body,
+  );
 
   return res.data;
 };
@@ -61,7 +64,7 @@ export const completeStudy = async (
   dailyStudyId: number,
   body: CompleteStudyRequest,
 ) => {
-  const res = await axiosInstance.post(
+  const res = await axiosClientInstance.post(
     `/study/daily/${dailyStudyId}/complete`,
     body,
   );
@@ -80,7 +83,7 @@ export const postJoinStudy = async (payload: JoinStudyRequest) => {
     ),
   );
 
-  const res = await axiosInstance.post('/matching/apply', cleanPayload);
+  const res = await axiosClientInstance.post('/matching/apply', cleanPayload);
 
   return res.data;
 };
@@ -89,7 +92,7 @@ export const postJoinStudy = async (payload: JoinStudyRequest) => {
 export const getWeeklyParticipation = async (
   params: GetDailyStudyDetailParams2,
 ): Promise<WeeklyParticipationResponse> => {
-  const res = await axiosInstance.get('/study/week/participation', {
+  const res = await axiosClientInstance.get('/study/week/participation', {
     params,
   });
 
