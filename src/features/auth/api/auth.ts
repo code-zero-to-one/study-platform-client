@@ -34,8 +34,9 @@ export async function getMemberId() {
 }
 
 // 로그아웃 API
-export const logout = async (): Promise<number> => {
+// 성공하면, content는 빈배열로 응답
+export const logout = async (): Promise<Record<string, never>> => {
   const res = await axiosClientInstance.post('/auth/logout');
 
-  return res.data.statusCode;
+  return res.data.content;
 };
