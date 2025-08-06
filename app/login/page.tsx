@@ -9,7 +9,5 @@ export const metadata: Metadata = {
 
 // 랜딩페이지에서 로그인 모달이 뜨는 것으로 파악
 export default function LoginPage() {
-  console.log("NEXT_PUBLIC_API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL)
-  
   return <Landing isSignupPage={false} />;
 }
