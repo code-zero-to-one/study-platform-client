@@ -1,3 +1,4 @@
+import { redirect } from 'next/navigation';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 import MyProfileCard from '@/features/study/ui/my-profile-card';
 import StartStudyModal from '@/features/study/ui/start-study-modal';
@@ -7,6 +8,10 @@ import TodoList from '@/widgets/home/todo-list';
 
 export default async function Sidebar() {
   const memberId = await getLoginUserId();
+
+  if (!memberId) {
+    redirect('/login');
+  }
 
   const userProfile = await getUserProfile(memberId);
 
