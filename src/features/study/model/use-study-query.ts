@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import {
   completeStudy,
   getDailyStudies,
@@ -8,6 +9,8 @@ import {
   postJoinStudy,
   putStudyDaily,
 } from '@/features/study/api/get-study-data';
+import { isApiError } from '@/shared/tanstack-query/api-error';
+import { openToast } from '@/shared/ui/toast';
 import {
   CompleteStudyRequest,
   GetDailyStudiesParams,
@@ -60,8 +63,22 @@ export const useMonthlyStudyCalendarQuery = (
 
 // 스터디 신청 mutation
 export const useJoinStudyMutation = () => {
+  const router = useRouter();
+
   return useMutation({
     mutationFn: (payload: JoinStudyRequest) => postJoinStudy(payload),
+    onSuccess: () => {
+      alert('스터디 신청이 완료되었습니다!');
+      router.refresh();
+    },
+    onError: (error) => {
+      if (isApiError(error)) {
+        openToast({
+          type: 'danger',
+          text: '스터디 신청에 실패했습니다.',
+        });
+      }
+    },
   });
 };
 

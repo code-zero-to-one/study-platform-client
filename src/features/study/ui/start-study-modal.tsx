@@ -2,7 +2,6 @@
 
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import {
   useAvailableStudyTimesQuery,
@@ -151,7 +150,6 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
   const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
   const { data: studySubjects } = useStudySubjectsQuery();
   const { data: techStacks } = useTechStacksQuery();
-  const router = useRouter();
 
   const { mutate: joinStudy } = useJoinStudyMutation();
 
@@ -187,23 +185,12 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
       return;
     }
 
-    joinStudy(
-      {
-        ...form,
-        memberId,
-        githubLink: githubLink.trim() || undefined,
-        blogOrSnsLink: blogOrSnsLink.trim() || undefined,
-      },
-      {
-        onSuccess: () => {
-          alert('스터디 신청이 완료되었습니다!');
-          router.refresh();
-        },
-        onError: () => {
-          alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
-        },
-      },
-    );
+    joinStudy({
+      ...form,
+      memberId,
+      githubLink: githubLink.trim() || undefined,
+      blogOrSnsLink: blogOrSnsLink.trim() || undefined,
+    });
   };
 
   return (
