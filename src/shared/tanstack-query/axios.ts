@@ -1,7 +1,10 @@
-import axios from 'axios';
-import { getCookie, setCookie } from './cookie';
+import axios, { InternalAxiosRequestConfig, isAxiosError } from 'axios';
+import { ApiError, isApiError } from './api-error';
+import { getCookie } from './cookie';
 
-// json 요청용
+// * 인증이 필요한 client-side axios 인스턴스
+
+// json 요청
 export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
   timeout: 10000,
@@ -20,60 +23,37 @@ export const axiosInstanceForMultipart = axios.create({
   },
 });
 
-/*
-    accessToken 은 쿠키에 저장
-    refreshToken 은 HttpOnly 쿠키로 JS에서 접근 불가, 백엔드 서버와 쿠키로 통신
-*/
+const onRequestClient = (config: InternalAxiosRequestConfig) => {
+  const accessToken = getCookie('accessToken');
 
-// multipart 요청 로깅용
-axiosInstanceForMultipart.interceptors.request.use(
-  (config) => {
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const accessToken = getCookie('accessToken');
+  return config;
+};
 
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+axiosInstance.interceptors.request.use(onRequestClient);
+axiosInstanceForMultipart.interceptors.request.use(onRequestClient);
+
+const onResponseErrorClient = async (error: unknown) => {
+  if (isAxiosError(error) && error.response) {
+    const errorResponseBody = error.response.data;
+
+    if (isApiError(errorResponseBody)) {
+      const accessToken = getCookie('accessToken');
+
+      // 유효하지 않은 accessToken인 경우, 재발급
+      if (accessToken && errorResponseBody.errorCode === 'AUTH001') {
+        // refresh accessToken
+      }
+
+      throw new ApiError(errorResponseBody);
     }
-
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+  }
+};
 
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-
-  async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshApi = axios.create({
-          baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
-        });
-        const res = await refreshApi.get('/auth/access-token/refresh');
-        const newAccessToken = res.data.accessToken;
-
-        if (newAccessToken) {
-          setCookie('accessToken', newAccessToken);
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-          return axiosInstance(originalRequest);
-        }
-      } catch (err) {
-        // 로그인 페이지 리다이렉트 등 처리
-        return Promise.reject(err);
-      }
-    }
-
-    return Promise.reject(error);
-  },
+  (config) => config,
+  onResponseErrorClient,
 );
