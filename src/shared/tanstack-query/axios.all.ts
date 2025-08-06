@@ -8,7 +8,6 @@ export const axiosAllInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true,
 });
 
 axiosAllInstance.interceptors.response.use(
