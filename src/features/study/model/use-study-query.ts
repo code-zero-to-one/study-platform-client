@@ -14,7 +14,6 @@ import { openToast } from '@/shared/ui/toast';
 import {
   CompleteStudyRequest,
   GetDailyStudiesParams,
-  GetDailyStudyDetailParams2,
   GetMonthlyCalendarParams,
   JoinStudyRequest,
   MonthlyCalendarResponse,
@@ -22,7 +21,7 @@ import {
 } from '../api/types';
 
 // 스터디 주간 참여 유무 확인 query
-export const useWeeklyParticipation = (params: GetDailyStudyDetailParams2) => {
+export const useWeeklyParticipation = (params: string) => {
   return useQuery({
     queryKey: ['weeklyParticipation', params],
     queryFn: () => getWeeklyParticipation(params),
