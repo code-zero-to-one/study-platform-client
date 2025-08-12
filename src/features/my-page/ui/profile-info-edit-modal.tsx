@@ -1,14 +1,26 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
-import { MemberInfo } from '@/entities/user/api/types';
+import { useMemo, useState } from 'react';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
+
+import type { MemberInfo } from '@/entities/user/api/types';
 import { hashValue } from '@/shared/lib/hash';
 import Button from '@/shared/ui/button';
+import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
 import { FormField } from '@/shared/ui/form/form-field';
+import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { UpdateUserProfileInfoRequest } from '../api/types';
+import { ToggleButton } from '@/shared/ui/toggle';
+
+import {
+  ProfileInfoFormSchema,
+  type ProfileInfoFormValues,
+  buildProfileInfoDefaultValues,
+  toUpdateUserProfileInfoRequest,
+} from '../model/profile-info-form.schema';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
@@ -22,7 +34,7 @@ interface Props {
 }
 
 export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
-  const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -31,6 +43,7 @@ export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
           편집
         </div>
       </Modal.Trigger>
+
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="medium">
@@ -42,6 +55,7 @@ export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
               </Modal.Close>
             </div>
           </Modal.Header>
+
           <ProfileInfoEditForm
             memberId={memberId}
             memberInfo={memberInfo}
@@ -50,6 +64,40 @@ export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
+  );
+}
+
+function ToggleGroupField({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: string; label: string }[];
+  value?: string[];
+  onChange?: (v: string[]) => void;
+}) {
+  const selected = value ?? [];
+  const toggle = (key: string) => {
+    const next = selected.includes(key)
+      ? selected.filter((x) => x !== key)
+      : [...selected, key];
+    onChange?.(next);
+  };
+
+  return (
+    <div className="flex flex-wrap gap-100">
+      {options.map(({ value: v, label }) => (
+        <ToggleButton
+          key={v}
+          size="sm"
+          variant="square"
+          pressed={selected.includes(v)}
+          onPressedChange={() => toggle(v)}
+        >
+          {label}
+        </ToggleButton>
+      ))}
+    </div>
   );
 }
 
@@ -62,48 +110,47 @@ function ProfileInfoEditForm({
   memberInfo: MemberInfo;
   onClose: () => void;
 }) {
-  const [infoForm, setInfoForm] = useState<UpdateUserProfileInfoRequest>({
-    selfIntroduction: memberInfo.selfIntroduction ?? '',
-    studyPlan: memberInfo.studyPlan ?? '',
-    preferredStudySubjectId: memberInfo.preferredStudySubject?.studySubjectId,
-    availableStudyTimeIds: (memberInfo.availableStudyTimes ?? []).map(
-      (time) => time?.id ?? 0,
-    ),
-    techStackIds: (memberInfo.techStacks ?? []).map(
-      (tech) => tech?.techStackId ?? 0,
-    ),
-  });
-
-  const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
-  const { data: studySubjects } = useStudySubjectsQuery();
-  const { data: techStacks } = useTechStacksQuery();
+  const { data: availableStudyTimes = [] } = useAvailableStudyTimesQuery();
+  const { data: studySubjects = [] } = useStudySubjectsQuery();
+  const { data: techStacks = [] } = useTechStacksQuery();
   const { mutate: updateProfileInfo } =
     useUpdateUserProfileInfoMutation(memberId);
 
-  const handleSubmit = () => {
-    const formData: UpdateUserProfileInfoRequest = {
-      selfIntroduction: infoForm.selfIntroduction,
-      studyPlan: infoForm.studyPlan,
-      preferredStudySubjectId: infoForm.preferredStudySubjectId,
-      availableStudyTimeIds: infoForm.availableStudyTimeIds
-        .filter((id) => id)
-        .map((id) => Number(id)),
-      techStackIds: infoForm.techStackIds
-        .filter((id) => id)
-        .map((id) => Number(id)),
-    };
+  const methods = useForm<ProfileInfoFormValues>({
+    resolver: zodResolver(ProfileInfoFormSchema),
+    mode: 'onChange',
+    defaultValues: buildProfileInfoDefaultValues(memberInfo),
+  });
+
+  const {
+    handleSubmit,
+    control,
+    formState: { isValid, isSubmitting },
+  } = methods;
+
+  const { preferredStudySubjectId } = useWatch({
+    control,
+    name: ['preferredStudySubjectId'],
+  }) as Pick<ProfileInfoFormValues, 'preferredStudySubjectId'>;
+
+  const subjectOk = Boolean(preferredStudySubjectId);
+  const isDisabled = !isValid || isSubmitting || !subjectOk;
+
+  const onValidSubmit = (values: ProfileInfoFormValues) => {
+    const formData = toUpdateUserProfileInfoRequest(values);
 
     updateProfileInfo(formData, {
       onSuccess: () => {
-        const selectedSkillNames = techStacks.filter((techStack) =>
-          infoForm.techStackIds.includes(techStack.techStackId),
-        );
+        const selectedNames =
+          techStacks
+            .filter((t) => values.techStackIds?.includes(String(t.techStackId)))
+            .map((t) => t.techStackName) ?? [];
 
         sendGTMEvent({
           event: 'custom_member_card',
           dl_timestamp: new Date().toISOString(),
           dl_member_id: hashValue(String(memberId)),
-          dl_tags: selectedSkillNames,
+          dl_tags: selectedNames,
         });
 
         onClose();
@@ -111,118 +158,109 @@ function ProfileInfoEditForm({
     });
   };
 
+  const subjectOptions = useMemo(
+    () =>
+      studySubjects.map(({ studySubjectId, name }) => ({
+        value: String(studySubjectId),
+        label: name,
+      })),
+    [studySubjects],
+  );
+
+  const timeOptions = useMemo(
+    () =>
+      availableStudyTimes.map(({ availableTimeId, display }) => ({
+        value: String(availableTimeId),
+        label: display,
+      })),
+    [availableStudyTimes],
+  );
+
+  const techOptions = useMemo(
+    () =>
+      techStacks.map(({ techStackId, techStackName }) => ({
+        value: String(techStackId),
+        label: techStackName,
+      })),
+    [techStacks],
+  );
+
   return (
     <>
       <Modal.Body>
-        <div className="flex flex-col gap-300">
-          <FormField
-            label="자기소개"
-            type="textarea"
-            description="간단한 자기소개를 입력해 주세요."
-            value={infoForm.selfIntroduction}
-            onChange={(value) =>
-              setInfoForm((prev) => ({
-                ...prev,
-                selfIntroduction: value,
-              }))
-            }
-            direction="vertical"
-            maxLength={500}
-          />
-          <FormField
-            label="공부 주제 및 계획"
-            type="textarea"
-            description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
-            value={infoForm.studyPlan}
-            onChange={(value) =>
-              setInfoForm((prev) => ({
-                ...prev,
-                studyPlan: value,
-              }))
-            }
-            direction="vertical"
-            maxLength={500}
-            required
-          />
-          <FormField
-            label="선호하는 스터디 주제"
-            type="singledropdown"
-            description="관심있는 스터디 유형을 선택해주세요."
-            value={infoForm.preferredStudySubjectId}
-            onChange={(value) =>
-              setInfoForm((prev) => ({
-                ...prev,
-                preferredStudySubjectId: value,
-              }))
-            }
-            direction="vertical"
-            required
-            options={
-              studySubjects?.map(({ studySubjectId, name }) => ({
-                value: studySubjectId,
-                label: name,
-              })) ?? []
-            }
-          />
-          <FormField
-            label="가능 시간대"
-            type="togglegroup"
-            value={infoForm.availableStudyTimeIds.map(String)}
-            direction="vertical"
-            options={
-              availableStudyTimes?.map(({ availableTimeId, display }) => ({
-                value: availableTimeId.toString(),
-                label: display,
-              })) ?? []
-            }
-            onChange={(availableStudyTimeIds) =>
-              setInfoForm((prev) => ({
-                ...prev,
-                availableStudyTimeIds: availableStudyTimeIds.map(Number),
-              }))
-            }
-            required
-          />
-          <FormField
-            label="사용 가능한 기술 스택"
-            type="multidropdown"
-            description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
-            value={infoForm.techStackIds}
-            onChange={(value) =>
-              setInfoForm((prev) => ({
-                ...prev,
-                techStackIds: value,
-              }))
-            }
-            direction="vertical"
-            required
-            options={(techStacks ?? []).map(
-              ({ techStackId, techStackName }) => ({
-                value: techStackId,
-                label: techStackName,
-              }),
-            )}
-          />
-        </div>
+        <FormProvider {...methods}>
+          <form
+            id="profile-info-form"
+            className="flex flex-col gap-300"
+            onSubmit={handleSubmit(onValidSubmit)}
+          >
+            <FormField<ProfileInfoFormValues, 'selfIntroduction'>
+              name="selfIntroduction"
+              label="자기소개"
+              description="간단한 자기소개를 입력해 주세요."
+              direction="vertical"
+            >
+              <TextAreaInput maxLength={500} placeholder="입력해주세요." />
+            </FormField>
+
+            <FormField<ProfileInfoFormValues, 'studyPlan'>
+              name="studyPlan"
+              label="공부 주제 및 계획"
+              description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
+              direction="vertical"
+              required
+            >
+              <TextAreaInput maxLength={500} placeholder="입력해주세요." />
+            </FormField>
+
+            <FormField<ProfileInfoFormValues, 'preferredStudySubjectId'>
+              name="preferredStudySubjectId"
+              label="선호하는 스터디 주제"
+              description="관심있는 스터디 유형을 선택해주세요."
+              direction="vertical"
+              required
+            >
+              <SingleDropdown
+                options={subjectOptions}
+                placeholder="선택해주세요"
+              />
+            </FormField>
+
+            <FormField<ProfileInfoFormValues, 'availableStudyTimeIds', string[]>
+              name="availableStudyTimeIds"
+              label="가능 시간대"
+              direction="vertical"
+              required
+            >
+              <ToggleGroupField options={timeOptions} />
+            </FormField>
+
+            <FormField<ProfileInfoFormValues, 'techStackIds', string[]>
+              name="techStackIds"
+              label="사용 가능한 기술 스택"
+              description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
+              direction="vertical"
+              required
+            >
+              <MultiDropdown options={techOptions} placeholder="선택해주세요" />
+            </FormField>
+          </form>
+        </FormProvider>
       </Modal.Body>
+
       <Modal.Footer>
         <div className="flex justify-end gap-100">
           <Button color="secondary" size="large" onClick={onClose}>
             취소
           </Button>
-
           <Button
             color="primary"
             size="large"
-            onClick={handleSubmit}
-            disabled={
-              infoForm.studyPlan.trim() === '' ||
-              infoForm.preferredStudySubjectId === undefined ||
-              infoForm.availableStudyTimeIds.length === 0 ||
-              infoForm.techStackIds.length === 0
-            }
+            type="submit"
+            form="profile-info-form"
+            disabled={isDisabled}
           >
-            수정 완료
+            {isSubmitting ? '수정 중…' : '수정 완료'}
           </Button>
         </div>
       </Modal.Footer>
