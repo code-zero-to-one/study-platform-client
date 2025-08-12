@@ -1,157 +1,167 @@
-import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
-import { BaseInput, TextAreaInput } from '@/shared/ui/input';
-import { ToggleButton } from '@/shared/ui/toggle';
-import MultiItemSelector from './multi-item-selector';
+'use client';
 
-type InputType =
-  | 'text'
-  | 'textarea'
-  | 'singledropdown'
-  | 'multidropdown'
-  | 'togglegroup'
-  | 'userselect';
+import React, { cloneElement, isValidElement, useId } from 'react';
+import {
+  Controller,
+  useFormContext,
+  type FieldValues,
+  type Path,
+  type RegisterOptions,
+} from 'react-hook-form';
+import { cn } from '@/shared/shadcn/lib/utils';
 
-interface FormFieldProps<T> {
-  label: string;
-  description?: string;
-  placeholder?: string;
-  type: InputType;
-  maxLength?: number;
-  required?: boolean;
-  options?: { value: string | number; label: string }[];
-  value: T;
-  direction?: 'horizontal' | 'vertical';
-  onChange: (value: T) => void;
-  error?: boolean;
+type Direction = 'horizontal' | 'vertical';
+
+type EventChange = (e: React.ChangeEvent<Element>) => void;
+type ValueChange<V> = (value: V) => void;
+type ChangeHandler<V> = EventChange | ValueChange<V>;
+
+export interface ControlledChildProps<V = unknown> {
+  id?: string;
+  name?: string;
+  value?: V;
+  onChange?: ChangeHandler<V>;
+  onBlur?: () => void;
+  'aria-invalid'?: boolean;
+  'aria-describedby'?: string;
 }
 
-export function FormField<T>({
+export interface FormFieldProps<
+  T extends FieldValues,
+  N extends Path<T>,
+  V = string,
+> {
+  name: N;
+  rules?: RegisterOptions<T, N>;
+
+  label: React.ReactNode;
+  description?: React.ReactNode;
+  required?: boolean;
+  direction?: Direction;
+  id?: string;
+
+  children: React.ReactElement<ControlledChildProps<V>>;
+}
+
+export function FormField<
+  T extends FieldValues,
+  N extends Path<T>,
+  V = string,
+>({
+  name,
+  rules,
   label,
-  error = false,
   description,
-  placeholder,
-  type,
   required = false,
-  maxLength = 30,
-  options = [],
-  value,
   direction = 'horizontal',
-  onChange,
-}: FormFieldProps<T>) {
-  const renderInput = () => {
-    switch (type) {
-      case 'text':
-        return (
-          <>
-            <BaseInput
-              placeholder={placeholder || '입력해주세요.'}
-              value={value as string}
-              color={error ? 'error' : 'default'}
-              onChange={(e) => onChange(e.target.value as T)}
-            />
-            {description && (
-              <div
-                className={`font-designer-13r ${error ? 'text-text-error' : 'text-text-subtlest'}`}
-              >
-                {description}
-              </div>
-            )}
-          </>
-        );
-      case 'textarea':
-        return (
-          <TextAreaInput
-            placeholder={placeholder || '입력해주세요.'}
-            guideText={description}
-            value={value as string}
-            maxLength={maxLength}
-            onChange={(e) => onChange(e as T)}
-          />
-        );
-      case 'singledropdown':
-        return (
-          <>
-            <SingleDropdown
-              options={options}
-              defaultValue={value ? (value as string) : undefined}
-              placeholder={placeholder || '선택해주세요'}
-              onChange={(v) => onChange(v as T)}
-            />
-            {description && (
-              <div className="font-designer-13r text-text-subtlest">
-                {description}
-              </div>
-            )}
-          </>
-        );
-      case 'multidropdown':
-        return (
-          <>
-            <MultiDropdown
-              options={options}
-              defaultValue={value as string[]}
-              onChange={(v) => onChange(v as T)}
-              placeholder={placeholder || '선택해주세요.'}
-            />
-            {description && (
-              <div className="font-designer-13r text-text-subtlest">
-                {description}
-              </div>
-            )}
-          </>
-        );
-      case 'togglegroup': {
-        const toggleItem = (key: string | number) => {
-          const prev = value as (string | number)[];
-          const updated = prev.includes(key)
-            ? prev.filter((item) => item !== key)
-            : [...prev, key];
-          onChange(updated as T);
-        };
+  id,
+  children,
+}: FormFieldProps<T, N, V>) {
+  const { control } = useFormContext<T>();
+  const autoId = useId();
+  const fieldId = id ?? `field-${autoId}`;
+  const descId = description ? `${fieldId}-desc` : undefined;
 
-        return (
-          <div className="flex flex-wrap gap-100">
-            {options.map(({ value: optionValue, label }) => (
-              <ToggleButton
-                key={optionValue}
-                pressed={(value as (string | number)[])
-                  .map(String)
-                  .includes(optionValue.toString())}
-                onPressedChange={() => toggleItem(optionValue)}
-              >
-                {label}
-              </ToggleButton>
-            ))}
-          </div>
-        );
-      }
-      case 'userselect': {
-        return (
-          <MultiItemSelector
-            value={value as string[]}
-            onChange={(v) => onChange(v as T)}
-            options={options?.map((opt) => opt.label)}
-          />
-        );
-      }
-      default:
-        return null;
-    }
-  };
+  const leftCol =
+    direction === 'vertical'
+      ? 'w-full items-center gap-75'
+      : 'w-[112px] gap-100 pt-100';
 
-  return (
+  const Layout = ({
+    child,
+    errorMsg,
+  }: {
+    child: React.ReactNode;
+    errorMsg?: string;
+  }) => (
     <div
-      className={`flex ${direction === 'vertical' ? 'flex-col gap-150' : 'gap-600'}`}
+      className={cn(
+        'flex',
+        direction === 'vertical' ? 'flex-col gap-150' : 'gap-600',
+      )}
     >
-      <div
-        className={`flex ${direction === 'vertical' ? 'w-full items-center gap-75' : 'w-[112px] gap-100 pt-100'}`}
-      >
-        <div className="font-designer-14b text-text-default">{label}</div>
+      <div className={cn('flex', leftCol)}>
+        <label
+          htmlFor={fieldId}
+          className="font-designer-14b text-text-default"
+        >
+          {label}
+        </label>
         {required && (
           <div className="font-designer-13r text-text-error">필수</div>
         )}
       </div>
-      <div className="flex w-full flex-col gap-75">{renderInput()}</div>
+
+      <div className="flex w-full flex-col gap-75">
+        {child}
+
+        {description && (
+          <div
+            id={descId}
+            className={cn(
+              'font-designer-13r',
+              errorMsg ? 'text-text-error' : 'text-text-subtlest',
+            )}
+          >
+            {description}
+          </div>
+        )}
+
+        {errorMsg && (
+          <div className="font-designer-12m text-text-error">{errorMsg}</div>
+        )}
+      </div>
     </div>
   );
+
+  const isReactChangeEvent = (
+    arg: unknown,
+  ): arg is React.ChangeEvent<Element> =>
+    typeof arg === 'object' && arg !== null && 'target' in arg;
+
+  return (
+    <Controller
+      name={name}
+      control={control}
+      rules={rules}
+      render={({ field, fieldState }) => {
+        const errorMsg = fieldState.error?.message;
+
+        let injected = children;
+        if (
+          isValidElement<ControlledChildProps<V>>(children) &&
+          !Array.isArray(children)
+        ) {
+          const child = children;
+
+          const normalizedValue = (child.props.value ?? field.value) as V;
+
+          const nextOnChange: ChangeHandler<V> =
+            child.props.onChange ??
+            ((arg: V | React.ChangeEvent<Element>) => {
+              if (isReactChangeEvent(arg)) field.onChange(arg);
+              else field.onChange(arg);
+            });
+
+          const extraProps: Partial<ControlledChildProps<V>> = {
+            id: child.props.id ?? fieldId,
+            name: child.props.name ?? field.name,
+            value: normalizedValue,
+            onChange: nextOnChange,
+            onBlur: child.props.onBlur ?? field.onBlur,
+            'aria-invalid':
+              child.props['aria-invalid'] ?? (Boolean(errorMsg) || undefined),
+            'aria-describedby':
+              child.props['aria-describedby'] ?? (descId ? descId : undefined),
+          };
+
+          injected = cloneElement(child, extraProps);
+        }
+
+        return <Layout child={injected} errorMsg={errorMsg} />;
+      }}
+    />
+  );
 }
+
+export default FormField;
