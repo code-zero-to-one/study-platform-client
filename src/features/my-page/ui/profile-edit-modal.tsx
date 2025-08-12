@@ -1,52 +1,39 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+
 import { MemberProfile } from '@/entities/user/api/types';
 import { useUploadProfileImageMutation } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import Button from '@/shared/ui/button';
+import { SingleDropdown } from '@/shared/ui/dropdown';
+import { FormField } from '@/shared/ui/form/form-field';
+import MultiItemSelector from '@/shared/ui/form/multi-item-selector';
+import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { FormField } from '../../../shared/ui/form/form-field';
-import { UpdateUserProfileRequest } from '../api/types';
+
 import {
   DEFAULT_OPTIONS,
   DEFAULT_PROFILE_IMAGE_URL,
   MBTI_OPTIONS,
 } from '../consts/my-page-const';
+import {
+  ProfileFormSchema,
+  type ProfileFormInput,
+  type ProfileFormValues,
+  buildProfileDefaultValues,
+  toUpdateProfilePayload,
+} from '../model/profile-form.schema';
 import { useUpdateUserProfileMutation } from '../model/use-update-user-profile-mutation';
 
 interface Props {
   memberProfile: MemberProfile;
   memberId: number;
 }
-
-export type MbtiValue = (typeof MBTI_OPTIONS)[number]['value'];
-
-const formValidations = {
-  regex: {
-    // 이름 유효성 검사: 2~10자, 한글 또는 영문만 허용
-    username: /^[가-힣a-zA-Z]{2,10}$/,
-    // 연락처 유효성 검사: "(2~3자리 지역번호)-(3~4자리 번호)-(4자리 번호)" 형식
-    telephone: /^\d{2,3}-\d{3,4}-\d{4}$/,
-    // 생년월일 텍스트 패턴 유효성 검사 : ^(4자리 년도).(2자리 월).(2자리 일)
-    birthDate: /^\d{4}.([0][1-9]|[1][0-2]).([0][1-9]|[1-2][0-9]|[3][0-1])/,
-  },
-  checker: {
-    // year 는 최소 1900년 이상 현재 년도 이하이어야 한다.
-    // month 와 date 의 유효성은 생성자로 검사됨
-    birthDate: (value: string) => {
-      const birthDate = new Date(value);
-      const now = new Date();
-      if (birthDate.toString() === 'Invalid Date') return false;
-      const year = birthDate.getFullYear();
-      if (year < 1900 || year > now.getFullYear()) return false;
-
-      return true;
-    },
-  },
-};
 
 export default function ProfileEditModal({ memberProfile, memberId }: Props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -59,9 +46,10 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
       >
         내 프로필 수정
       </Modal.Trigger>
+
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content>
+        <Modal.Content size="medium">
           <Modal.Header className="border-border-default border-b">
             <div className="flex items-center justify-between">
               <Modal.Title>내 프로필 수정</Modal.Title>
@@ -70,6 +58,7 @@ export default function ProfileEditModal({ memberProfile, memberId }: Props) {
               </Modal.Close>
             </div>
           </Modal.Header>
+
           <ProfileEditForm
             memberProfile={memberProfile}
             memberId={memberId}
@@ -86,75 +75,47 @@ function ProfileEditForm({
   memberId,
   onClose,
 }: Props & { onClose: () => void }) {
+  const queryClient = useQueryClient();
+  const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
+  const { mutateAsync: uploadProfileImage } = useUploadProfileImageMutation();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [profileForm, setProfileForm] = useState<UpdateUserProfileRequest>({
-    name: memberProfile.memberName ?? '',
-    tel: memberProfile.tel ?? '',
-    birthDate: memberProfile.birthDate ?? '',
-    githubLink: memberProfile.githubLink?.url ?? '',
-    blogOrSnsLink: memberProfile.blogOrSnsLink?.url ?? '',
-    mbti: memberProfile.mbti ?? '',
-    simpleIntroduction: memberProfile.simpleIntroduction ?? '',
-    interests: memberProfile.interests?.map((item) => item.name) ?? [],
-  });
 
   const [image, setImage] = useState(
     memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl ??
       DEFAULT_PROFILE_IMAGE_URL,
   );
 
-  const isNameValid = formValidations.regex.username.test(profileForm.name);
-  const isTelValid = formValidations.regex.telephone.test(profileForm.tel);
-  const isBirthDateValid =
-    profileForm.birthDate.length === 0 ||
-    (formValidations.regex.birthDate.test(profileForm.birthDate) &&
-      formValidations.checker.birthDate(profileForm.birthDate));
+  const methods = useForm<ProfileFormInput>({
+    resolver: zodResolver(ProfileFormSchema),
+    mode: 'onChange',
+    defaultValues: buildProfileDefaultValues(memberProfile),
+  });
 
-  const isReadyToSubmit = isNameValid && isTelValid && isBirthDateValid;
+  const {
+    handleSubmit,
+    formState: { isValid, isSubmitting },
+  } = methods;
 
-  const queryClient = useQueryClient();
-  const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
-  const { mutateAsync: uploadProfileImage } = useUploadProfileImageMutation();
+  const onValidSubmit = async (inputValues: ProfileFormInput) => {
+    const values: ProfileFormValues = ProfileFormSchema.parse(inputValues);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImage(URL.createObjectURL(file));
-    }
-  };
-
-  const handleSubmit = async () => {
     const file = fileInputRef.current?.files?.[0];
     const profileImageExtension =
       image === DEFAULT_PROFILE_IMAGE_URL ? 'jpg' : file?.name.split('.').pop();
 
-    const rawFormData: UpdateUserProfileRequest = {
-      name: profileForm.name,
-      tel: profileForm.tel,
-      birthDate: profileForm.birthDate.replace(/\./g, '-'),
-      githubLink: profileForm.githubLink,
-      blogOrSnsLink: profileForm.blogOrSnsLink,
-      simpleIntroduction: profileForm.simpleIntroduction.trim() || undefined,
-      mbti: profileForm.mbti || undefined,
-      interests:
-        profileForm.interests.length > 0 ? profileForm.interests : undefined,
-      profileImageExtension: profileImageExtension,
-    };
+    // DTO 생성 
+    const payload = toUpdateProfilePayload(values, { profileImageExtension });
 
-    const formData = Object.fromEntries(
-      Object.entries(rawFormData).filter(([_, v]) => v !== undefined),
-    ) as UpdateUserProfileRequest;
+    const updatedProfile = await updateProfile(payload as any);
 
-    const updatedProfile = await updateProfile(formData);
-
+    // 이미지 업로드
     if (updatedProfile.profileImageUploadUrl) {
       const imageFormData = new FormData();
 
-      if (file) imageFormData.append('file', file);
-
-      // 기본 프로필 이미지를 선택할 경우, public 폴더의 profile-default.jpg로 서버 api에게 기본 프로필 이미지 전송 -> 서버 측에서 나중에 리팩토링 예정
-      // profile-default.jpg를 추가한 이유는 서버에서 프로필 이미지 확장자에 svg 파일을 고려하지 못함 -> 서버 측에서 리팩토링 예정
-      if (!file && image === DEFAULT_PROFILE_IMAGE_URL) {
+      if (file) {
+        imageFormData.append('file', file);
+      } else if (image === DEFAULT_PROFILE_IMAGE_URL) {
         const defaultProfileImage = 'profile-default.jpg';
         const response = await fetch(defaultProfileImage);
         const blob = await response.blob();
@@ -165,148 +126,133 @@ function ProfileEditForm({
       }
 
       const filename = updatedProfile.profileImageUploadUrl.split('/').pop();
-      if (!filename) return;
-
-      try {
-        await uploadProfileImage({
-          memberId,
-          filename,
-          file: imageFormData,
-        });
-      } catch (error) {
-        console.error('이미지 업로드 실패:', error);
-        alert('이미지 업로드에 실패했습니다.');
+      if (filename) {
+        try {
+          await uploadProfileImage({ memberId, filename, file: imageFormData });
+        } catch (error) {
+          console.error('이미지 업로드 실패:', error);
+          alert('이미지 업로드에 실패했습니다.');
+        }
       }
     }
 
     await queryClient.invalidateQueries({
       queryKey: ['userProfile', memberId],
     });
+    onClose();
   };
 
   return (
     <>
       <Modal.Body>
-        <div className="flex flex-col gap-300">
-          <div className="flex gap-500">
-            <div className="font-designer-14b flex w-[100px]">이미지 설정</div>
-            <SignupImageSelector
-              image={image}
-              setImage={setImage}
-              fileInputRef={fileInputRef}
-              handleImageChange={handleImageChange}
-            />
-          </div>
-          <FormField
-            label="이름 확인"
-            type="text"
-            error={!isNameValid}
-            description={
-              isNameValid
-                ? '소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요.'
-                : '이름은 2~10자의 한글 또는 영문만 허용됩니다.'
-            }
-            value={profileForm.name}
-            onChange={(value) => {
-              // 공백 입력하지 못하도록 제한
-              setProfileForm({
-                ...profileForm,
-                name: value.replace(/\s/g, ''),
-              });
-            }}
-            required
-          />
-          <FormField
-            label="연락처"
-            type="text"
-            error={!(isTelValid || profileForm.tel === '')}
-            description={
-              isTelValid || profileForm.tel === ''
-                ? '스터디 진행을 위한 연락 가능한 정보를 입력해 주세요.'
-                : '연락처는 숫자와 하이픈(-)을 포함한 형식으로 입력해주세요.'
-            }
-            placeholder="010-1234-5678"
-            value={profileForm.tel}
-            onChange={(value) => {
-              // 숫자와 하이픈(-)만 입력 허용
-              const onlyNumberAndHyphen = value.replace(/[^\d-]/g, '');
-              setProfileForm({ ...profileForm, tel: onlyNumberAndHyphen });
-            }}
-            required
-          />
-          <FormField
-            label="생년월일"
-            type="text"
-            description={
-              !isBirthDateValid
-                ? '잘못된 형식입니다.'
-                : '생년월일을 입력해 주세요.'
-            }
-            error={!isBirthDateValid}
-            placeholder="2000.00.00"
-            value={profileForm.birthDate}
-            onChange={(value) => {
-              setProfileForm({
-                ...profileForm,
-                birthDate: value,
-              });
-            }}
-          />
-          <FormField
-            label="Github"
-            type="text"
-            description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
-            placeholder="https://github.com/username"
-            value={profileForm.githubLink}
-            onChange={(value) =>
-              setProfileForm({
-                ...profileForm,
-                githubLink: value.replace(/\s/g, ''),
-              })
-            }
-          />
-          <FormField
-            label="MBTI"
-            type="singledropdown"
-            description="자신의 성격 유형을 입력해 주세요."
-            value={profileForm.mbti}
-            onChange={(value) =>
-              setProfileForm({ ...profileForm, mbti: value })
-            }
-            options={MBTI_OPTIONS}
-          />
-          <FormField
-            label="관심 태그"
-            type="userselect"
-            value={profileForm.interests}
-            onChange={(value) =>
-              setProfileForm({ ...profileForm, interests: value })
-            }
-            options={DEFAULT_OPTIONS}
-          />
-          <FormField
-            label="한마디 소개"
-            type="textarea"
-            description="본인을 간단히 소개하는 한마디를 입력해 주세요."
-            value={profileForm.simpleIntroduction}
-            onChange={(value) =>
-              setProfileForm({ ...profileForm, simpleIntroduction: value })
-            }
-          />
-          <FormField
-            label="블로그/SNS 등 링크"
-            type="text"
-            description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
-            value={profileForm.blogOrSnsLink}
-            onChange={(value) =>
-              setProfileForm({
-                ...profileForm,
-                blogOrSnsLink: value.replace(/\s/g, ''),
-              })
-            }
-          />
-        </div>
+        <FormProvider {...methods}>
+          <form
+            id="profile-edit-form"
+            className="flex flex-col gap-300"
+            onSubmit={handleSubmit(onValidSubmit)}
+          >
+            <div className="flex gap-500">
+              <div className="font-designer-14b flex w-[100px]">
+                이미지 설정
+              </div>
+              <SignupImageSelector
+                image={image}
+                setImage={setImage}
+                fileInputRef={fileInputRef}
+                handleImageChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    const file = e.target.files[0];
+                    setImage(URL.createObjectURL(file));
+                  }
+                }}
+              />
+            </div>
+
+            <FormField<ProfileFormInput, 'name'>
+              name="name"
+              label="이름 확인"
+              required
+              description="소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요."
+              rules={{
+                setValueAs: (v: string) => (v ?? '').replace(/\s/g, ''),
+              }}
+            >
+              <BaseInput placeholder="입력해주세요." />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'tel'>
+              name="tel"
+              label="연락처"
+              required
+              description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
+              rules={{
+                setValueAs: (v: string) => (v ?? '').replace(/[^\d-]/g, ''),
+              }}
+            >
+              <BaseInput placeholder="010-1234-5678" />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'birthDate'>
+              name="birthDate"
+              label="생년월일"
+              description="생년월일을 입력해 주세요."
+            >
+              <BaseInput placeholder="2000.00.00" />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'githubLink'>
+              name="githubLink"
+              label="Github"
+              description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
+              rules={{
+                setValueAs: (v: string) => (v ?? '').replace(/\s/g, ''),
+              }}
+            >
+              <BaseInput placeholder="https://github.com/username" />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'mbti'>
+              name="mbti"
+              label="MBTI"
+              description="자신의 성격 유형을 입력해 주세요."
+            >
+              <SingleDropdown
+                options={MBTI_OPTIONS}
+                placeholder="선택해주세요"
+              />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'interests'>
+              name="interests"
+              label="관심 태그"
+            >
+              <MultiItemSelector
+                options={DEFAULT_OPTIONS.map((opt) => opt.label)}
+              />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'simpleIntroduction'>
+              name="simpleIntroduction"
+              label="한마디 소개"
+              description="본인을 간단히 소개하는 한마디를 입력해 주세요."
+            >
+              <TextAreaInput placeholder="입력해주세요." maxLength={200} />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'blogOrSnsLink'>
+              name="blogOrSnsLink"
+              label="블로그/SNS 등 링크"
+              description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
+              rules={{
+                setValueAs: (v: string) => (v ?? '').replace(/\s/g, ''),
+              }}
+            >
+              <BaseInput placeholder="https://example.com" />
+            </FormField>
+          </form>
+        </FormProvider>
       </Modal.Body>
+
       <Modal.Footer>
         <div className="flex justify-end gap-[8px]">
           <Button color="secondary" size="large" onClick={onClose}>
@@ -314,13 +260,11 @@ function ProfileEditForm({
           </Button>
           <Button
             size="large"
-            onClick={async () => {
-              await handleSubmit(); // 여기서 이미지 업로드 포함
-              onClose();
-            }}
-            disabled={!isReadyToSubmit}
+            type="submit"
+            form="profile-edit-form"
+            disabled={!isValid || isSubmitting}
           >
-            수정 완료
+            {isSubmitting ? '수정 중…' : '수정 완료'}
           </Button>
         </div>
       </Modal.Footer>
