@@ -1,7 +1,7 @@
 'use client';
 
 import { XIcon, ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,107 +11,127 @@ import {
 
 interface Option {
   label: string;
-  value: string | number;
+  value: string;
 }
 
 interface MultiDropdownProps {
-  options: Option[];
-  defaultValue?: (string | number)[];
-  error?: boolean;
-  onChange?: (selected: (string | number)[]) => void;
+  options: ReadonlyArray<Option>;
+  value?: ReadonlyArray<string>;
+  onChange?: (selected: string[]) => void;
   placeholder?: string;
+  disabled?: boolean;
+  error?: boolean;
+  className?: string;
 }
 
-function MultiDropdown({
+const EMPTY: ReadonlyArray<string> = Object.freeze([]);
+
+export default function MultiDropdown({
   options,
-  defaultValue = [],
-  error = false,
+  value,
   onChange,
   placeholder = '선택해주세요',
+  disabled = false,
+  error = false,
+  className,
 }: MultiDropdownProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<(string | number)[]>(defaultValue);
+  const [open, setOpen] = useState(false);
 
-  const handleAdd = (val: string | number) => {
-    if (selected.includes(val)) return; // 중복 방지
-    const newSelected = [...selected, val];
-    setSelected(newSelected);
-    onChange?.(newSelected);
-    setQuery('');
-  };
-
-  const handleRemove = (val: string | number) => {
-    const newSelected = selected.filter((v) => v !== val);
-    setSelected(newSelected);
-    onChange?.(newSelected);
-  };
-
-  const handleClear = () => {
-    setSelected([]);
-    onChange?.([]);
-    setQuery('');
-  };
-
-  const selectedLabels = selected
-    .map((val) => options.find((opt) => opt.value === val)?.label)
-    .filter(Boolean) as string[];
-
-  const filteredOptions = options.filter(
-    (opt) => !selected.includes(opt.value),
+  const selected = useMemo<ReadonlyArray<string>>(
+    () => value ?? EMPTY,
+    [value],
   );
 
+  const selectedLabels = useMemo(() => {
+    const set = new Set(selected);
+
+    return options.filter((o) => set.has(o.value)).map((o) => o.label);
+  }, [options, selected]);
+
+  const remainingOptions = useMemo(() => {
+    const set = new Set(selected);
+
+    return options.filter((o) => !set.has(o.value));
+  }, [options, selected]);
+
+  const setNext = useCallback((next: string[]) => onChange?.(next), [onChange]);
+
+  const add = useCallback(
+    (v: string) => {
+      if (selected.includes(v)) return;
+      setNext([...selected, v]);
+    },
+    [selected, setNext],
+  );
+
+  const remove = useCallback(
+    (v: string) => {
+      setNext(selected.filter((x) => x !== v));
+    },
+    [selected, setNext],
+  );
+
+  const clear = useCallback(() => setNext([]), [setNext]);
+
   return (
-    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+    <DropdownMenu open={open} onOpenChange={(o) => !disabled && setOpen(o)}>
       <DropdownMenuTrigger asChild>
         <div
-          className={`rounded-150 ${error ? 'border-border-error' : 'border-border-default'} bg-fill-neutral-subtle-default flex h-auto max-h-[120px] w-full cursor-pointer flex-wrap items-center justify-between border px-150 py-100`}
-          role="button"
           tabIndex={0}
+          aria-expanded={open}
+          aria-haspopup="menu"
+          aria-invalid={error || undefined}
+          className={[
+            'rounded-150 flex h-auto max-h-[120px] min-h-[48px] w-full flex-wrap items-center justify-between border px-150 py-50',
+            error ? 'border-border-error' : 'border-border-default',
+            'bg-fill-neutral-subtle-default',
+            disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
+            className ?? '',
+          ].join(' ')}
         >
           <div className="scrollbar-hide flex max-h-[96px] flex-1 flex-wrap items-center gap-50 overflow-y-auto">
-            {selected.length === 0 && !query && (
-              <span className="text-text-subtlest font-designer-14r">
+            {selected.length === 0 && (
+              <span className="font-designer-14r text-text-subtlest">
                 {placeholder}
               </span>
             )}
 
             {selectedLabels.map((label, idx) => (
               <span
-                key={idx}
+                key={`${label}-${idx}`}
                 className="bg-fill-brand-default-default text-text-inverse font-designer-14m flex items-center gap-50 rounded-full px-150 py-75"
               >
                 {label}
-                <span
+                <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleRemove(selected[idx]);
+                    remove(selected[idx] as string);
                   }}
                   className="cursor-pointer"
-                  role="button"
-                  tabIndex={0}
+                  aria-label={`${label} 제거`}
                 >
                   <XIcon size={16} />
-                </span>
+                </button>
               </span>
             ))}
           </div>
 
           <div className="ml-auto flex flex-shrink-0 items-center gap-100">
             {selected.length > 0 && (
-              <span
+              <button
+                type="button"
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleClear();
+                  clear();
                 }}
-                className="bg-icon-strong flex h-200 w-200 cursor-pointer items-center justify-center rounded-full"
-                role="button"
-                tabIndex={0}
+                className="bg-icon-strong flex h-200 w-200 items-center justify-center rounded-full"
+                aria-label="선택 모두 지우기"
               >
                 <XIcon className="text-icon-inverse" size={14} />
-              </span>
+              </button>
             )}
-            {isOpen ? (
+            {open ? (
               <ChevronUp className="ml-2 size-4" />
             ) : (
               <ChevronDown className="ml-2 size-4" />
@@ -121,19 +141,21 @@ function MultiDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        onClick={() => setIsOpen(false)}
-        className="rounded-100 border-border-default bg-background-default shadow-2 flex w-full flex-col gap-50 border p-50"
+        className="shadow-2 rounded-100 border-border-default bg-background-default flex w-full flex-col gap-50 border p-50"
         style={{ width: 'var(--radix-dropdown-menu-trigger-width)' }}
       >
-        {filteredOptions.length > 0 ? (
-          filteredOptions.map((option) => (
+        {remainingOptions.length > 0 ? (
+          remainingOptions.map((o) => (
             <DropdownMenuItem
-              key={option.value}
-              onClick={() => handleAdd(option.value)}
-              className="active:bg-fill-neutral-subtle-pressed rounded-100 h-[48px] w-full cursor-pointer p-150"
+              key={o.value}
+              onSelect={(e) => {
+                e.preventDefault();
+                add(o.value);
+              }}
+              className="rounded-100 data-[highlighted]:bg-fill-neutral-subtle-pressed h-[40px] w-full p-150"
             >
               <span className="font-designer-14m text-text-subtle">
-                {option.label}
+                {o.label}
               </span>
             </DropdownMenuItem>
           ))
@@ -144,5 +166,3 @@ function MultiDropdown({
     </DropdownMenu>
   );
 }
-
-export default MultiDropdown;
