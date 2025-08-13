@@ -61,6 +61,7 @@ export function FormField<
   const autoId = useId();
   const fieldId = id ?? `field-${autoId}`;
   const descId = description ? `${fieldId}-desc` : undefined;
+  const errId = `${fieldId}-error`;
 
   const leftCol =
     direction === 'vertical'
@@ -95,20 +96,16 @@ export function FormField<
       <div className="flex w-full flex-col gap-75">
         {child}
 
-        {description && (
-          <div
-            id={descId}
-            className={cn(
-              'font-designer-13r',
-              errorMsg ? 'text-text-error' : 'text-text-subtlest',
-            )}
-          >
+        {!errorMsg && description && (
+          <div id={descId} className="font-designer-13r text-text-subtlest">
             {description}
           </div>
         )}
 
         {errorMsg && (
-          <div className="font-designer-12m text-text-error">{errorMsg}</div>
+          <div id={errId} className="font-designer-13r text-text-error">
+            {errorMsg}
+          </div>
         )}
       </div>
     </div>
@@ -143,6 +140,8 @@ export function FormField<
               else field.onChange(arg);
             });
 
+          const describedBy = errorMsg ? errId : descId ? descId : undefined;
+
           const extraProps: Partial<ControlledChildProps<V>> = {
             id: child.props.id ?? fieldId,
             name: child.props.name ?? field.name,
@@ -151,8 +150,7 @@ export function FormField<
             onBlur: child.props.onBlur ?? field.onBlur,
             'aria-invalid':
               child.props['aria-invalid'] ?? (Boolean(errorMsg) || undefined),
-            'aria-describedby':
-              child.props['aria-describedby'] ?? (descId ? descId : undefined),
+            'aria-describedby': child.props['aria-describedby'] ?? describedBy,
           };
 
           injected = cloneElement(child, extraProps);
