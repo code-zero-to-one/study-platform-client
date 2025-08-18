@@ -49,7 +49,7 @@ export default async function Sidebar() {
           </span>
         </p>
 
-        <Image src="/feedback.svg" alt="피드백" width={68} height={56} />
+        <Image src="/feedback.svg" alt="피드백" width={86} height={56} />
       </Link>
       <Calendar />
     </aside>
