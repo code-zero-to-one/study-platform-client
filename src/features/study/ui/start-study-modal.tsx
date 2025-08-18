@@ -89,14 +89,23 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
   return (
     <Modal.Root>
       <Modal.Trigger>
-        <Image
-          src="/images/start-study.png"
-          alt="스터디 시작 버튼"
-          width={0}
-          height={0}
-          sizes="100vw"
-          className="h-auto w-full"
-        />
+        <div className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300">
+          <p className="flex flex-col items-start gap-50">
+            <span className="font-designer-15b text-text-default">
+              CS 스터디를 시작해 보세요!
+            </span>
+            <span className="font-designer-12m text-text-subtlest">
+              스터디 신청하기
+            </span>
+          </p>
+
+          <Image
+            src="/apply-study.svg"
+            alt="스터디 시작 버튼"
+            width={68}
+            height={56}
+          />
+        </div>
       </Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
