@@ -29,6 +29,7 @@ export interface Participant {
   id: number;
   name: string;
   avatarUrl?: string;
+  simpleIntroduction?: string;
 }
 
 export interface WeeklyParticipationRequest {

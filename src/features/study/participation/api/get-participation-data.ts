@@ -15,6 +15,7 @@ export function mapParticipant(user: ParticipantUserItem): Participant {
     id: user.memberId,
     name: user.memberName,
     avatarUrl: original ?? null,
+    simpleIntroduction: user.simpleIntroduction,
   };
 }
 
