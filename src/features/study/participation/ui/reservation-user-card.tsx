@@ -4,15 +4,15 @@ import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import { Participant } from '../api/participation-types';
 
-interface ParticipationCardProps {
+interface ReservationCardProps {
   participant: Participant;
   isCurrentUser?: boolean;
 }
 
-export default function ParticipationCard({
+export default function ReservationCard({
   participant,
   isCurrentUser = false,
-}: ParticipationCardProps) {
+}: ReservationCardProps) {
   return (
     <div className="rounded-100 border-border-subtle flex h-[100px] items-center justify-between gap-150 border px-200 py-300">
       <UserAvatar size={48} image={participant.avatarUrl?.trim() || ''} />

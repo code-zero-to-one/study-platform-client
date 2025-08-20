@@ -1,5 +1,5 @@
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
-import MyProfileCard from '@/features/study/ui/my-profile-card';
+import MyProfileCard from '@/entities/user/ui/user-profile-card';
 import StartStudyModal from '@/features/study/ui/start-study-modal';
 import { getLoginUserId } from '@/shared/lib/get-login-user';
 import Calendar from '@/widgets/home/calendar';
