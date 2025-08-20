@@ -22,7 +22,7 @@ export default function ParticipationCard({
           {isCurrentUser && <Badge color="blue">본인</Badge>}
         </div>
         <div className="font-designer-13r truncate">
-          {participant.simpleIntroduction || '\u00A0'}
+          {participant.simpleIntroduction}
         </div>
       </div>
       <UserProfileModal
