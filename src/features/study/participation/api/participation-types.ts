@@ -1,4 +1,4 @@
-export interface ParticipantUserItem {
+export interface ReservationUserItem {
   memberId: number;
   memberName: string;
   profileImage?: {
@@ -16,12 +16,12 @@ export interface ParticipantUserItem {
   simpleIntroduction?: string;
 }
 
-export interface WeeklyParticipationResponse {
+export interface WeeklyReservationResponse {
   totalMemberCount: number;
   members: {
     nextCursor?: number;
     hasNext: boolean;
-    items: ParticipantUserItem[];
+    items: ReservationUserItem[];
   };
 }
 
@@ -32,7 +32,7 @@ export interface Participant {
   simpleIntroduction?: string;
 }
 
-export interface WeeklyParticipationRequest {
+export interface WeeklyReservationRequest {
   cursor?: number;
   pageSize?: number;
   firstMemberId?: number;

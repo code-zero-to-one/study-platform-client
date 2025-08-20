@@ -1,12 +1,12 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 import {
-  WeeklyParticipationRequest,
-  WeeklyParticipationResponse,
-  ParticipantUserItem,
+  WeeklyReservationRequest,
+  WeeklyReservationResponse,
+  ReservationUserItem,
   Participant,
 } from './participation-types';
 
-export function mapParticipant(user: ParticipantUserItem): Participant {
+export function mapReservation(user: ReservationUserItem): Participant {
   const original = user.profileImage?.resizedImages.find(
     (img) => img.imageSizeType.imageTypeName === 'ORIGINAL',
   )?.resizedImageUrl;
@@ -20,8 +20,8 @@ export function mapParticipant(user: ParticipantUserItem): Participant {
 }
 
 export const getReservationMembers = async (
-  params: WeeklyParticipationRequest,
-): Promise<WeeklyParticipationResponse> => {
+  params: WeeklyReservationRequest,
+): Promise<WeeklyReservationResponse> => {
   const { cursor, pageSize = 50, firstMemberId } = params;
 
   const res = await axiosInstance.get('/members/study-reservation', {
