@@ -192,6 +192,10 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-background-brand-default: var(--color-rose-500);
   --color-background-brand-strong: var(--color-rose-700);
 
+  --color-background-neutral-subtle: var(--color-gray-200);
+  --color-background-neutral-default: var(--color-gray-500);
+  --color-background-neutral-strong: var(--color-gray-900);
+
   --color-background-accent-blue-subtle: var(--color-blue-50);
   --color-background-accent-blue-default: var(--color-blue-100);
   --color-background-accent-blue-strong: var(--color-blue-600);
