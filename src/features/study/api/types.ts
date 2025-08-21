@@ -94,3 +94,27 @@ export interface CompleteStudyRequest {
   feedback: string;
   progressStatus: StudyProgressStatus;
 }
+
+interface EvalKeyword {
+  id: number;
+  keyword: string;
+  satisfactionId: number;
+  satisfactionLabel: string;
+}
+
+interface Partner {
+  memberId: number;
+  memberName: string;
+  profileImageUrl: string;
+}
+
+export interface StudyEvaluationResponse {
+  studySpaceId: number;
+  targetMembers: Partner[];
+  studySubject: string;
+  startDate: string; // "yyyy-MM-dd" 형식
+  endDate: string; // "yyyy-MM-dd" 형식
+  satisfiedEvalKeywords: EvalKeyword[];
+  notBadEvalKeywords: EvalKeyword[];
+  unsatisfiedEvalKeywords: EvalKeyword[];
+}
