@@ -59,7 +59,7 @@ function SingleDropdown({
       >
         <div
           className={[
-            'rounded-150 flex h-[48px] w-full items-center justify-between border px-150',
+            'rounded-100 flex h-[48px] w-full items-center justify-between border px-150',
             error ? 'border-border-error' : 'border-border-default',
             'bg-fill-neutral-subtle-default',
             disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
