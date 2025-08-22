@@ -1,5 +1,5 @@
 import React from 'react';
-import UserProfileModal from '@/features/my-page/ui/user-profile-modal';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import { Participant } from '../api/participation-types';
