@@ -10,7 +10,7 @@ import type { MemberInfo } from '@/entities/user/api/types';
 import { hashValue } from '@/shared/lib/hash';
 import Button from '@/shared/ui/button';
 import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
-import { FormField } from '@/shared/ui/form/form-field';
+import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import { ToggleButton } from '@/shared/ui/toggle';
@@ -90,7 +90,7 @@ function ToggleGroupField({
         <ToggleButton
           key={v}
           size="sm"
-          variant="square"
+          variant="round"
           pressed={selected.includes(v)}
           onPressedChange={() => toggle(v)}
         >
@@ -128,11 +128,10 @@ function ProfileInfoEditForm({
     formState: { isValid, isSubmitting },
   } = methods;
 
-  const { preferredStudySubjectId } = useWatch({
+  const preferredStudySubjectId = useWatch({
     control,
-    name: ['preferredStudySubjectId'],
-  }) as Pick<ProfileInfoFormValues, 'preferredStudySubjectId'>;
-
+    name: 'preferredStudySubjectId',
+  });
   const subjectOk = Boolean(preferredStudySubjectId);
   const isDisabled = !isValid || isSubmitting || !subjectOk;
 
@@ -199,8 +198,14 @@ function ProfileInfoEditForm({
               label="자기소개"
               description="간단한 자기소개를 입력해 주세요."
               direction="vertical"
+              showCounterRight
+              counterMax={500}
             >
-              <TextAreaInput maxLength={500} placeholder="입력해주세요." />
+              <TextAreaInput
+                maxLength={500}
+                placeholder="입력해주세요."
+                hideMeta
+              />
             </FormField>
 
             <FormField<ProfileInfoFormValues, 'studyPlan'>
@@ -208,9 +213,15 @@ function ProfileInfoEditForm({
               label="공부 주제 및 계획"
               description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
               direction="vertical"
+              showCounterRight
+              counterMax={500}
               required
             >
-              <TextAreaInput maxLength={500} placeholder="입력해주세요." />
+              <TextAreaInput
+                maxLength={500}
+                placeholder="입력해주세요."
+                hideMeta
+              />
             </FormField>
 
             <FormField<ProfileInfoFormValues, 'preferredStudySubjectId'>
@@ -229,6 +240,7 @@ function ProfileInfoEditForm({
             <FormField<ProfileInfoFormValues, 'availableStudyTimeIds', string[]>
               name="availableStudyTimeIds"
               label="가능 시간대"
+              helper="스터디 참여가 가능한 시간대를 모두 선택해 주세요."
               direction="vertical"
               required
             >
@@ -238,7 +250,7 @@ function ProfileInfoEditForm({
             <FormField<ProfileInfoFormValues, 'techStackIds', string[]>
               name="techStackIds"
               label="사용 가능한 기술 스택"
-              description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
+              helper="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
               direction="vertical"
               required
             >

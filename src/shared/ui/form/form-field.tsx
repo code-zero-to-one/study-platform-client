@@ -2,6 +2,7 @@
 
 import React, { cloneElement, isValidElement, useId } from 'react';
 import {
+  useWatch,
   Controller,
   get,
   useFormContext,
@@ -36,10 +37,14 @@ export interface FormFieldProps<
   rules?: RegisterOptions<T, N>;
 
   label: React.ReactNode;
+  helper?: React.ReactNode;
   description?: React.ReactNode;
   required?: boolean;
   direction?: Direction;
   id?: string;
+
+  showCounterRight?: boolean;
+  counterMax?: number;
 
   children: React.ReactElement<ControlledChildProps<V>>;
 }
@@ -48,21 +53,29 @@ export default function FormField<
   T extends FieldValues,
   N extends Path<T>,
   V = string,
->({
-  name,
-  rules,
-  label,
-  description,
-  required = false,
-  direction = 'horizontal',
-  id,
-  children,
-}: FormFieldProps<T, N, V>) {
+>(props: FormFieldProps<T, N, V>) {
+  const {
+    name,
+    rules,
+    label,
+    helper,
+    description,
+    required = false,
+    direction = 'horizontal',
+    id,
+    children,
+    showCounterRight = false,
+    counterMax,
+  } = props;
+
   const { control, formState } = useFormContext<T>();
   const autoId = useId();
   const fieldId = id ?? `field-${autoId}`;
   const descId = description ? `${fieldId}-desc` : undefined;
   const errId = `${fieldId}-error`;
+
+  const watched = useWatch({ control, name }) as unknown;
+  const currentLen = typeof watched === 'string' ? watched.length : 0;
 
   const leftCol =
     direction === 'vertical'
@@ -81,7 +94,7 @@ export default function FormField<
     <div
       className={cn(
         'flex',
-        direction === 'vertical' ? 'flex-col gap-150' : 'gap-600',
+        direction === 'vertical' ? 'flex-col gap-100' : 'gap-600',
       )}
     >
       <div className={cn('flex', leftCol)}>
@@ -97,6 +110,11 @@ export default function FormField<
       </div>
 
       <div className="flex w-full flex-col gap-75">
+        {helper && (
+          <div className={'text-text-subtle font-designer-14r mb-100'}>
+            {helper}
+          </div>
+        )}
         <Controller
           name={name}
           control={control}
@@ -137,17 +155,22 @@ export default function FormField<
           }}
         />
 
-        {!errorMsg && description && (
-          <div id={descId} className="font-designer-13r text-text-subtlest">
-            {description}
+        <div className="font-designer-13r flex items-center justify-between">
+          <div
+            id={errorMsg ? errId : descId}
+            className={cn(errorMsg ? 'text-text-error' : 'text-text-subtlest')}
+            role={errorMsg ? 'alert' : undefined}
+            aria-live={errorMsg ? 'polite' : undefined}
+          >
+            {errorMsg ? errorMsg : description}
           </div>
-        )}
 
-        {errorMsg && (
-          <div id={errId} className="font-designer-13r text-text-error">
-            {errorMsg}
-          </div>
-        )}
+          {showCounterRight && typeof counterMax === 'number' && (
+            <div className="text-text-subtlest">
+              {currentLen}/{counterMax}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
