@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { PencilIcon } from 'lucide-react';
-import Image from 'next/image';
+import UserAvatar from '@/shared/ui/avatar';
 
 export default function SignupImageSelector({
   image,
@@ -8,19 +8,17 @@ export default function SignupImageSelector({
   fileInputRef,
   handleImageChange,
 }: {
-  image: string;
-  setImage: (image: string) => void;
+  image?: string;
+  setImage: (image?: string) => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
   handleImageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }) {
-  const setDefaultImage = () => setImage('/profile-default.svg');
+  const setDefaultImage = () => setImage(undefined);
   const openFileFolder = () => fileInputRef.current?.click();
 
   return (
     <div className="relative">
-      <div className="relative h-[112px] w-[112px] overflow-hidden rounded-full">
-        <Image src={image} alt="프로필" fill className="object-cover" />
-      </div>
+      <UserAvatar image={image} size={112} />
       <DropdownMenu.Root>
         <DropdownMenu.Trigger asChild>
           <button
