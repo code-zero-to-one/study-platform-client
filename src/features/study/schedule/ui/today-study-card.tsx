@@ -1,94 +1,208 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useDailyStudyDetailQuery } from '@/features/study/interview/model/use-interview-query';
-import { getStatusBadge } from '@/features/study/interview/ui/status-badge-map';
-import StudyDoneModal from '@/features/study/interview/ui/study-done-modal';
-import StudyReadyModal from '@/features/study/interview/ui/study-ready-modal';
+import Image from 'next/image';
+import Link from 'next/link';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
+import Badge from '@/shared/ui/badge';
+import { DailyStudyDetail } from '../../interview/api/interview-types';
+import { useDailyStudyDetailQuery } from '../../interview/model/use-interview-query';
+import { getStatusBadge } from '../../interview/ui/status-badge-map';
+import StudyDoneModal from '../../interview/ui/study-done-modal';
+import StudyReadyModal from '../../interview/ui/study-ready-modal';
 
 export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
-  const [memberId, setMemberId] = useState<number | null>(null);
-
-  useEffect(() => {
-    const id = getCookie('memberId');
-    setMemberId(id ? Number(id) : null);
-  }, []);
+  const memberIdInCookie = getCookie('memberId');
+  const memberId = memberIdInCookie ? Number(memberIdInCookie) : null;
 
   const { data: todayStudyData } = useDailyStudyDetailQuery(studyDate);
 
   if (!todayStudyData) return null;
 
+  // 내가 피면접자(답변하는 사람)인지
   const isInterviewee = memberId === todayStudyData.intervieweeId;
 
-  const matchedUserId = isInterviewee
-    ? todayStudyData.interviewerId
-    : todayStudyData.intervieweeId;
-
-  const matchedUserImage = isInterviewee
-    ? todayStudyData.interviewerImage
-    : todayStudyData.intervieweeImage;
-
-  const matchedUsername = isInterviewee
-    ? todayStudyData.interviewerName
-    : todayStudyData.intervieweeName;
+  const partner = {
+    id: isInterviewee
+      ? todayStudyData.interviewerId
+      : todayStudyData.intervieweeId,
+    name: isInterviewee
+      ? todayStudyData.interviewerName
+      : todayStudyData.intervieweeName,
+    image: isInterviewee
+      ? todayStudyData.interviewerImage
+      : todayStudyData.intervieweeImage,
+  };
 
   return (
-    <section className="flex w-full flex-col gap-150">
+    <section className="flex w-full flex-col gap-200">
       <div className="mb-4 flex items-start justify-between">
         <h3 className="font-bold-h5 text-text-strong">오늘의 스터디</h3>
-        {memberId !== null &&
-          (isInterviewee ? (
-            <StudyReadyModal studyDate={studyDate} data={todayStudyData} />
+      </div>
+
+      <div className="rounded-100 border-border-default flex w-full rounded border">
+        <div className="border-r-border-default flex flex-1 items-center justify-between gap-150 border-r p-300">
+          <Image src="/icons/group.svg" alt="group" width={24} height={24} />
+
+          <span className="font-designer-16m text-text-default flex-1">
+            스터디 조
+          </span>
+
+          <span className="font-designer-20b text-text-default">
+            {todayStudyData.studySpaceId}조
+          </span>
+        </div>
+
+        <PartnerInfo
+          name={partner.name}
+          image={partner.image}
+          isInterviewee={!isInterviewee}
+        />
+      </div>
+
+      <div className="rounded-100 border-border-default flex flex-col justify-between gap-200 border px-300 py-250">
+        <div className="flex justify-between">
+          <div className="flex items-center gap-150">
+            <Image
+              src="/icons/book.svg"
+              alt="스터디 상세"
+              width={24}
+              height={24}
+            />
+            <span className="font-designer-16m text-text-default">
+              스터디 상세
+            </span>
+            {getStatusBadge(todayStudyData.progressStatus)}
+          </div>
+
+          {isInterviewee ? (
+            <StudyReadyModal data={todayStudyData} studyDate={studyDate} />
           ) : (
-            <StudyDoneModal studyDate={studyDate} data={todayStudyData} />
-          ))}
-      </div>
+            <StudyDoneModal data={todayStudyData} studyDate={studyDate} />
+          )}
+        </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-100">
-        <InfoBox label="스터디 조">
-          {`${todayStudyData.studySpaceId} 조`}
-        </InfoBox>
-        <InfoBox label={isInterviewee ? '면접관' : '면접자'}>
-          <UserProfileModal
-            memberId={matchedUserId}
-            trigger={
-              <div className="border-border-default bg-background-default flex items-center gap-100 rounded-full border px-100 py-50">
-                <UserAvatar image={matchedUserImage} />
-                <span id="testuuiie" className="font-designer-14m">
-                  {matchedUsername}
-                </span>
+        {todayStudyData.progressStatus === 'PENDING' && <BeforeStudy />}
+        {todayStudyData.progressStatus !== 'PENDING' && (
+          <div className="grid grid-cols-2 gap-x-150 gap-y-200">
+            <StudySubject subject={todayStudyData.subject} />
+
+            {/* 오른쪽 - 피드백 */}
+            {todayStudyData.progressStatus === 'IN_PROGRESS' ? (
+              <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+                <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+
+                <div className="flex flex-col items-center justify-center gap-[10px]">
+                  <Image
+                    src="/icons/feedback.svg"
+                    width={65}
+                    height={65}
+                    alt="스터디 시작 전"
+                  />
+                  <span className="font-designer-14r text-text-subtlest">
+                    수정하기를 눌러 피드백을 작성해주세요.
+                  </span>
+                </div>
               </div>
-            }
-          />
-        </InfoBox>
-        <InfoBox label="오늘의 면접 주제">{todayStudyData.subject}</InfoBox>
-        <InfoBox label="진행 현황">
-          {getStatusBadge(todayStudyData.progressStatus ?? 'PENDING')}
-        </InfoBox>
-      </div>
+            ) : (
+              <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+                <h3 className="font-designer-14m text-text-subtle">피드백</h3>
 
-      <div className="rounded-100 bg-background-alternative flex flex-col gap-150 px-300 py-150">
-        <div className="text-text-subtle font-designer-14r">피드백</div>
-        <p className="leading-relaxed">{todayStudyData.feedback ?? '-'}</p>
+                <p className="text-text-default font-designer-16m">
+                  {todayStudyData.feedback}
+                </p>
+              </div>
+            )}
+
+            <StudyLink link={todayStudyData.link} />
+          </div>
+        )}
       </div>
     </section>
   );
+}
 
-  function InfoBox({
-    label,
-    children,
-  }: {
-    label: string;
-    children: React.ReactNode;
-  }) {
-    return (
-      <div className="rounded-100 bg-background-alternative flex min-h-[64px] flex-row items-center justify-between gap-150 px-300 py-150">
-        <span className="font-designer-14r text-text-subtle">{label}</span>
-        <span className="font-designer-16m text-text-default">{children}</span>
+function PartnerInfo({
+  name,
+  image,
+  isInterviewee,
+}: {
+  name: string;
+  image?: string;
+  isInterviewee: boolean;
+}) {
+  return (
+    <div className="flex flex-1 items-center justify-between p-300">
+      <div className="flex gap-150">
+        <UserAvatar image={image} alt={name} size={32} />
+
+        <div className="flex items-center gap-100">
+          <span className="font-designer-16m text-text-default">{name}</span>
+          {isInterviewee ? (
+            <Badge color="blue">지원자</Badge>
+          ) : (
+            <Badge color="red">면접관</Badge>
+          )}
+        </div>
       </div>
-    );
-  }
+
+      <div className="rounded-75 border-border-subtle font-designer-14m text-text-default flex h-[44px] w-[200px] border">
+        <button className="border-r-border-subtle hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-[10px] pl-150 transition">
+          <Image src="/icons/phone.svg" alt="전화걸기" width={16} height={16} />
+          전화걸기
+        </button>
+        <button className="hover:bg-fill-neutral-subtle-hover flex-1 px-75 py-75 transition">
+          프로필 보기
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function BeforeStudy() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-75 px-300 pt-75 pb-300">
+      <Image
+        src="/icons/empty-study-case.svg"
+        width={65}
+        height={65}
+        alt="스터디 시작 전"
+      />
+      <p className="font-designer-14r text-text-subtlest flex flex-col items-center">
+        <span>스터디 시작 전입니다.</span>
+        <span>‘준비하기’ 버튼을 눌러 스터디를 시작해 주세요.</span>
+      </p>
+    </div>
+  );
+}
+
+function StudySubject({ subject }: Pick<DailyStudyDetail, 'subject'>) {
+  return (
+    <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+      <h3 className="font-designer-14m text-text-subtle">스터디 주제</h3>
+      <p className="text-text-default font-designer-16m">{subject}</p>
+    </div>
+  );
+}
+
+function StudyLink({ link }: Pick<DailyStudyDetail, 'link'>) {
+  return (
+    <div className="bg-background-alternative rounded-50 col-span-2 flex items-center gap-300 px-300 py-250">
+      <span className="text-sm text-gray-600">스터디 링크</span>
+
+      <Link href={link} target="_blank" rel="noreferrer">
+        <div className="flex cursor-pointer gap-75">
+          <Image
+            src="icons/Link.svg"
+            width={24}
+            height={24}
+            alt="스터디 링크"
+          />
+          <span className="text-text-default font-designer-14m break-all">
+            {link}
+          </span>
+        </div>
+      </Link>
+    </div>
+  );
 }
