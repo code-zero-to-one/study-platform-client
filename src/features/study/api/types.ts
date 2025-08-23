@@ -95,7 +95,7 @@ export interface CompleteStudyRequest {
   progressStatus: StudyProgressStatus;
 }
 
-interface EvalKeyword {
+export interface EvalKeyword {
   id: number;
   keyword: string;
   satisfactionId: number;
