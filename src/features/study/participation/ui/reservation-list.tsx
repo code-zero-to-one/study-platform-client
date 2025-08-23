@@ -2,9 +2,14 @@
 
 import { ChevronRight } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  usePatchAutoMatchingMutation,
+  useUserProfileQuery,
+} from '@/entities/user/model/use-user-profile-query';
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import ReservationCard from './reservation-user-card';
+import StartStudyModal from '../../ui/start-study-modal';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {
@@ -21,7 +26,9 @@ export default function ReservationList({
   week,
 }: ReservationListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const calledRef = useRef(false);
   const [memberId, setMemberId] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     const id = getCookie('memberId');
@@ -35,6 +42,29 @@ export default function ReservationList({
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
     useInfiniteReservation(firstMemberId, pageSize);
+
+  const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
+
+  const { mutate: patchAutoMatching, isPending } =
+    usePatchAutoMatchingMutation();
+
+  useEffect(() => {
+    if (!memberId || isParticipation || !userProfile) return;
+
+    const { studyApplied, autoMatching } = userProfile;
+
+    if (studyApplied && !autoMatching && !calledRef.current) {
+      calledRef.current = true;
+      patchAutoMatching(
+        { memberId, autoMatching: true },
+        {
+          onError: () => {
+            calledRef.current = false;
+          },
+        },
+      );
+    }
+  }, [memberId, isParticipation, userProfile, patchAutoMatching]);
 
   useEffect(() => {
     if (!hasNextPage) return;
@@ -59,6 +89,20 @@ export default function ReservationList({
     };
   }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  const items = data?.items ?? [];
+  const studyApplied = userProfile?.studyApplied ?? false;
+
+  const handleApplyClick = () => {
+    if (!memberId) return;
+
+    if (studyApplied) {
+      if (isPending) return;
+      patchAutoMatching({ memberId, autoMatching: true });
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="py-10 text-center text-sm text-gray-500">
@@ -66,8 +110,6 @@ export default function ReservationList({
       </div>
     );
   }
-
-  const items = data?.items ?? [];
 
   return (
     <div className="space-y-300">
@@ -84,8 +126,12 @@ export default function ReservationList({
         {items.map((p) => (
           <ReservationCard key={p.id} participant={p} />
         ))}
+
         {!isParticipation && (
-          <div className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] items-center justify-between gap-150 px-200 py-300">
+          <div
+            className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] items-center justify-between gap-150 px-200 py-300"
+            onClick={handleApplyClick}
+          >
             <ProfileDefault
               width={48}
               height={48}
@@ -111,6 +157,14 @@ export default function ReservationList({
           <div className="font-designer-13r">더 불러오는 중…</div>
         )}
       </div>
+
+      {memberId && (
+        <StartStudyModal
+          memberId={memberId}
+          open={isModalOpen}
+          onOpenChange={setIsModalOpen}
+        />
+      )}
     </div>
   );
 }

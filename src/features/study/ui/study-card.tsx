@@ -6,6 +6,7 @@ import DateSelector from './data-selector';
 import TodayStudyCard from './today-study-card';
 import StudyListSection from '../../../widgets/home/study-list-table';
 import { useWeeklyParticipation } from '../model/use-study-query';
+import ReservationList from '../participation/ui/reservation-list';
 
 // 스터디 주차 구하는 함수
 function getWeekly(date: Date): { month: number; week: number } {
@@ -66,6 +67,14 @@ export default function StudyCard() {
 
   return (
     <>
+      {true && (
+        <ReservationList
+          month={month}
+          week={week}
+          isParticipation={isParticipate}
+          pageSize={50}
+        />
+      )}
       <div className="flex flex-col gap-300">
         <div className="font-bold-h3">{`${month}월 ${week}주차 스터디`}</div>
         <DateSelector value={selectedDate} onChange={setSelectedDate} />
