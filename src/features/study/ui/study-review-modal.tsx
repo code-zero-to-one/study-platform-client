@@ -23,6 +23,48 @@ interface FormState {
 }
 
 export default function StudyReviewModal() {
+  return (
+    <Modal.Root>
+      <Modal.Trigger>
+        <div className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300">
+          <p className="flex flex-col items-start gap-50">
+            <span className="font-designer-15b text-text-default">
+              CS 스터디를 시작해 보세요!
+            </span>
+            <span className="font-designer-12m text-text-subtlest">
+              스터디 신청하기
+            </span>
+          </p>
+        </div>
+      </Modal.Trigger>
+      <Modal.Portal>
+        <Modal.Overlay />
+        <Modal.Content size="large">
+          <Modal.Header className="border-border-default flex justify-end border-b">
+            <Modal.Close>
+              <XIcon />
+            </Modal.Close>
+          </Modal.Header>
+
+          <div className="flex flex-col items-center justify-center gap-100 px-400 pt-300">
+            <Modal.Title>함께 스터디한 멤버에 대해 알려주세요</Modal.Title>
+
+            <div className="font-designer-14r text-text-subtle flex flex-col text-center">
+              <span>
+                같이 성장할 수 있는 스터디 문화를 만들기 위해 평가를 남겨주세요.
+              </span>
+              <span>평가한 내용은 성실 온도에 반영됩니다.</span>
+            </div>
+          </div>
+
+          <StudyReviewForm />
+        </Modal.Content>
+      </Modal.Portal>
+    </Modal.Root>
+  );
+}
+
+function StudyReviewForm() {
   const { data } = usePartnerStudyReviewQuery();
   const { mutate: addStudyReview } = useAddStudyReviewMutation();
 
@@ -48,117 +90,79 @@ export default function StudyReviewModal() {
   };
 
   return (
-    <Modal.Root>
-      <Modal.Trigger>
-        <div className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300">
-          <p className="flex flex-col items-start gap-50">
-            <span className="font-designer-15b text-text-default">
-              CS 스터디를 시작해 보세요!
-            </span>
-            <span className="font-designer-12m text-text-subtlest">
-              스터디 신청하기
-            </span>
-          </p>
+    <>
+      <Modal.Body className="mt-400 flex flex-col gap-400 pt-0">
+        <PartnerInfo {...data} />
+
+        <div className="flex flex-col items-center justify-center gap-100">
+          <span className="font-designer-16b text-text-default">
+            스터디 만족도
+          </span>
+
+          <div className="flex items-center justify-center gap-200">
+            <SatisfactionButton
+              label="아쉬워요"
+              isSelected={form.satisfactionId === 10}
+              imageSrc="/icons/shame-review.svg"
+              onClick={() => {
+                setForm({
+                  ...form,
+                  satisfactionId: 10,
+                  keywordIds: [],
+                  content: '',
+                });
+              }}
+            />
+
+            <SatisfactionButton
+              label="괜찮아요"
+              isSelected={form.satisfactionId === 20}
+              imageSrc="/icons/fine-review.svg"
+              onClick={() => {
+                setForm({
+                  ...form,
+                  satisfactionId: 20,
+                  keywordIds: [],
+                  content: '',
+                });
+              }}
+            />
+
+            <SatisfactionButton
+              label="좋았어요"
+              isSelected={form.satisfactionId === 30}
+              imageSrc="/icons/good-review.svg"
+              onClick={() => {
+                setForm({
+                  ...form,
+                  satisfactionId: 30,
+                  keywordIds: [],
+                  content: '',
+                });
+              }}
+            />
+          </div>
         </div>
-      </Modal.Trigger>
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content size="large">
-          <Modal.Header className="border-border-default flex justify-end border-b">
-            <Modal.Close>
-              <XIcon />
-            </Modal.Close>
-          </Modal.Header>
 
-          <Modal.Body className="flex flex-col gap-400">
-            <div className="flex flex-col items-center justify-center gap-100">
-              <Modal.Title>함께 스터디한 멤버에 대해 알려주세요</Modal.Title>
+        {form.satisfactionId === 10 && (
+          <NegativeReview data={data} form={form} onChange={setForm} />
+        )}
 
-              <div className="font-designer-14r text-text-subtle flex flex-col text-center">
-                <span>
-                  같이 성장할 수 있는 스터디 문화를 만들기 위해 평가를
-                  남겨주세요.
-                </span>
-                <span>평가한 내용은 성실 온도에 반영됩니다.</span>
-              </div>
-            </div>
-
-            <PartnerInfo {...data} />
-
-            <div className="flex flex-col items-center justify-center gap-100">
-              <span className="font-designer-16b text-text-default">
-                스터디 만족도
-              </span>
-
-              <div className="flex items-center justify-center gap-200">
-                <SatisfactionButton
-                  label="아쉬워요"
-                  isSelected={form.satisfactionId === 10}
-                  imageSrc="/icons/shame-review.svg"
-                  onClick={() => {
-                    setForm({
-                      ...form,
-                      satisfactionId: 10,
-                      keywordIds: [],
-                      content: '',
-                    });
-                  }}
-                />
-
-                <SatisfactionButton
-                  label="괜찮아요"
-                  isSelected={form.satisfactionId === 20}
-                  imageSrc="/icons/fine-review.svg"
-                  onClick={() => {
-                    setForm({
-                      ...form,
-                      satisfactionId: 20,
-                      keywordIds: [],
-                      content: '',
-                    });
-                  }}
-                />
-
-                <SatisfactionButton
-                  label="좋았어요"
-                  isSelected={form.satisfactionId === 30}
-                  imageSrc="/icons/good-review.svg"
-                  onClick={() => {
-                    setForm({
-                      ...form,
-                      satisfactionId: 30,
-                      keywordIds: [],
-                      content: '',
-                    });
-                  }}
-                />
-              </div>
-            </div>
-
-            {form.satisfactionId === 10 && (
-              <NegativeReview data={data} form={form} onChange={setForm} />
-            )}
-
-            {(form.satisfactionId === 20 || form.satisfactionId === 30) && (
-              <PositiveReview data={data} form={form} onChange={setForm} />
-            )}
-          </Modal.Body>
-          <Modal.Footer className="flex justify-end gap-100">
-            <Button color="secondary" size="large">
-              취소
-            </Button>
-            <Button
-              color="primary"
-              size="large"
-              disabled
-              onClick={handleSubmit}
-            >
-              등록하기
-            </Button>
-          </Modal.Footer>
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal.Root>
+        {(form.satisfactionId === 20 || form.satisfactionId === 30) && (
+          <PositiveReview data={data} form={form} onChange={setForm} />
+        )}
+      </Modal.Body>
+      <Modal.Footer className="flex justify-end gap-100">
+        <Modal.Close asChild>
+          <Button color="secondary" size="large">
+            취소
+          </Button>
+        </Modal.Close>
+        <Button color="primary" size="large" disabled onClick={handleSubmit}>
+          등록하기
+        </Button>
+      </Modal.Footer>
+    </>
   );
 }
 
