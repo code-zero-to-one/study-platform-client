@@ -158,7 +158,16 @@ function StudyReviewForm() {
             취소
           </Button>
         </Modal.Close>
-        <Button color="primary" size="large" disabled onClick={handleSubmit}>
+        <Button
+          color="primary"
+          size="large"
+          disabled={
+            form.keywordIds.length === 0 ||
+            form.satisfactionId === null ||
+            form.content === ''
+          }
+          onClick={handleSubmit}
+        >
           등록하기
         </Button>
       </Modal.Footer>
