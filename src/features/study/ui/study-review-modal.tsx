@@ -237,6 +237,8 @@ function PositiveReview({
             ? data.notBadEvalKeywords
             : data.satisfiedEvalKeywords
         }
+        keywordIds={form.keywordIds}
+        onChange={(keywordIds) => onChange((prev) => ({ ...prev, keywordIds }))}
       />
       <PositiveTextArea
         value={form.content}
@@ -257,7 +259,11 @@ function NegativeReview({
 }) {
   return (
     <>
-      <NegativeCheckboxList negativeKeywords={data.unsatisfiedEvalKeywords} />
+      <NegativeCheckboxList
+        negativeKeywords={data.unsatisfiedEvalKeywords}
+        keywordIds={form.keywordIds}
+        onChange={(keywordIds) => onChange((prev) => ({ ...prev, keywordIds }))}
+      />
       <NegativeTextArea
         value={form.content}
         onChange={(content) => onChange((prev) => ({ ...prev, content }))}
@@ -268,9 +274,22 @@ function NegativeReview({
 
 function PositiveCheckboxList({
   positiveKeywords,
+  keywordIds,
+  onChange,
 }: {
   positiveKeywords: EvalKeyword[];
+  keywordIds: FormState['keywordIds'];
+  onChange: (keywordIds: FormState['keywordIds']) => void;
 }) {
+  const handleToggle = (id: number) => {
+    const isChecked = keywordIds.includes(id);
+    const newKeywordIds = isChecked
+      ? keywordIds.filter((k) => k !== id)
+      : [...keywordIds, id];
+
+    onChange(newKeywordIds);
+  };
+
   return (
     <div className="flex flex-col justify-center gap-100">
       <div className="flex items-center justify-center gap-100">
@@ -283,7 +302,13 @@ function PositiveCheckboxList({
       <ul className="mx-auto">
         {positiveKeywords.map(({ id, keyword }) => (
           <ListItem key={id}>
-            <Checkbox id={`satisfaction-${id}`} />
+            <Checkbox
+              id={`satisfaction-${id}`}
+              checked={keywordIds.includes(id)}
+              onToggle={() => {
+                handleToggle(id);
+              }}
+            />
             <label htmlFor={`satisfaction-${id}`}>{keyword}</label>
           </ListItem>
         ))}
@@ -325,9 +350,22 @@ function PositiveTextArea({
 
 function NegativeCheckboxList({
   negativeKeywords,
+  keywordIds,
+  onChange,
 }: {
   negativeKeywords: StudyEvaluationResponse['unsatisfiedEvalKeywords'];
+  keywordIds: FormState['keywordIds'];
+  onChange: (keywordIds: FormState['keywordIds']) => void;
 }) {
+  const handleToggle = (id: number) => {
+    const isChecked = keywordIds.includes(id);
+    const newKeywordIds = isChecked
+      ? keywordIds.filter((k) => k !== id)
+      : [...keywordIds, id];
+
+    onChange(newKeywordIds);
+  };
+
   return (
     <div className="flex flex-col justify-center gap-100">
       <div className="flex items-center justify-center gap-100">
@@ -340,7 +378,13 @@ function NegativeCheckboxList({
       <ul className="mx-auto">
         {negativeKeywords.map(({ id, keyword }) => (
           <ListItem key={id}>
-            <Checkbox id={`bad-satisfaction-${id}`} />
+            <Checkbox
+              id={`bad-satisfaction-${id}`}
+              checked={keywordIds.includes(id)}
+              onToggle={() => {
+                handleToggle(id);
+              }}
+            />
             <label htmlFor={`bad-satisfaction-${id}`}>{keyword}</label>
           </ListItem>
         ))}
