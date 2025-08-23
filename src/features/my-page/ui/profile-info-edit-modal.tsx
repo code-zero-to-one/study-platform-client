@@ -13,7 +13,7 @@ import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
 import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { ToggleButton } from '@/shared/ui/toggle';
+import { ToggleGroup } from '@/shared/ui/toggle';
 
 import {
   ProfileInfoFormSchema,
@@ -64,40 +64,6 @@ export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
-  );
-}
-
-function ToggleGroupField({
-  options,
-  value,
-  onChange,
-}: {
-  options: { value: string; label: string }[];
-  value?: string[];
-  onChange?: (v: string[]) => void;
-}) {
-  const selected = value ?? [];
-  const toggle = (key: string) => {
-    const next = selected.includes(key)
-      ? selected.filter((x) => x !== key)
-      : [...selected, key];
-    onChange?.(next);
-  };
-
-  return (
-    <div className="flex flex-wrap gap-100">
-      {options.map(({ value: v, label }) => (
-        <ToggleButton
-          key={v}
-          size="sm"
-          variant="round"
-          pressed={selected.includes(v)}
-          onPressedChange={() => toggle(v)}
-        >
-          {label}
-        </ToggleButton>
-      ))}
-    </div>
   );
 }
 
@@ -244,7 +210,7 @@ function ProfileInfoEditForm({
               direction="vertical"
               required
             >
-              <ToggleGroupField options={timeOptions} />
+              <ToggleGroup options={timeOptions} />
             </FormField>
 
             <FormField<ProfileInfoFormValues, 'techStackIds', string[]>
