@@ -9,6 +9,7 @@ type NativeInputProps = React.ComponentProps<typeof ShadcnInput>;
 
 type Color = 'default' | 'error' | 'success';
 type Size = 'm' | 'l';
+type Appearance = 'boxed' | 'bare';
 
 export type BaseInputProps = Omit<
   NativeInputProps,
@@ -16,13 +17,14 @@ export type BaseInputProps = Omit<
 > & {
   color?: Color;
   size?: Size;
+  appearance?: Appearance;
   value?: string;
   onValueChange?: (v: string) => void;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
 };
 
 const inputVariants = cva(
-  'rounded-100 border px-150 whitespace-pre-line focus-visible:ring-0 font-designer-16m',
+  'whitespace-pre-line focus-visible:ring-0 font-designer-16m',
   {
     variants: {
       color: {
@@ -33,6 +35,10 @@ const inputVariants = cva(
       size: {
         m: 'h-[40px] py-100',
         l: 'h-[48px] py-150',
+      },
+      appearance: {
+        boxed: 'rounded-100 border px-150 border-border-default',
+        bare: 'border-0 rounded-none px-0 focus-visible:outline-none shadow-none',
       },
     },
     defaultVariants: {
@@ -48,6 +54,7 @@ export const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
       className,
       color = 'default',
       size = 'l',
+      appearance = 'boxed',
       onValueChange,
       onChange,
       ...props
@@ -57,12 +64,12 @@ export const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
     return (
       <ShadcnInput
         ref={ref}
-        className={cn(inputVariants({ color, size }), className)}
+        className={cn(inputVariants({ color, size, appearance }), className)}
+        {...props}
         onChange={(e) => {
           onChange?.(e);
           onValueChange?.(e.target.value ?? '');
         }}
-        {...props}
       />
     );
   },

@@ -11,7 +11,7 @@ import { useUploadProfileImageMutation } from '@/features/auth/model/use-auth-mu
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import Button from '@/shared/ui/button';
 import { SingleDropdown } from '@/shared/ui/dropdown';
-import { FormField } from '@/shared/ui/form/form-field';
+import FormField from '@/shared/ui/form/form-field';
 import MultiItemSelector from '@/shared/ui/form/multi-item-selector';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
@@ -104,7 +104,7 @@ function ProfileEditForm({
     const profileImageExtension =
       image === DEFAULT_PROFILE_IMAGE_URL ? 'jpg' : file?.name.split('.').pop();
 
-    // DTO 생성 
+    // DTO 생성
     const payload = toUpdateProfilePayload(values, { profileImageExtension });
 
     const updatedProfile = await updateProfile(payload as any);
@@ -170,7 +170,7 @@ function ProfileEditForm({
 
             <FormField<ProfileFormInput, 'name'>
               name="name"
-              label="이름 확인"
+              label="이름"
               required
               description="소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요."
               rules={{
@@ -208,7 +208,7 @@ function ProfileEditForm({
                 setValueAs: (v: string) => (v ?? '').replace(/\s/g, ''),
               }}
             >
-              <BaseInput placeholder="https://github.com/username" />
+              <BaseInput placeholder="https://github.com/zeroOne" />
             </FormField>
 
             <FormField<ProfileFormInput, 'mbti'>
@@ -224,7 +224,7 @@ function ProfileEditForm({
 
             <FormField<ProfileFormInput, 'interests'>
               name="interests"
-              label="관심 태그"
+              label="관심사"
             >
               <MultiItemSelector
                 options={DEFAULT_OPTIONS.map((opt) => opt.label)}
@@ -235,8 +235,14 @@ function ProfileEditForm({
               name="simpleIntroduction"
               label="한마디 소개"
               description="본인을 간단히 소개하는 한마디를 입력해 주세요."
+              showCounterRight
+              counterMax={200}
             >
-              <TextAreaInput placeholder="입력해주세요." maxLength={200} />
+              <TextAreaInput
+                placeholder="입력해주세요."
+                maxLength={200}
+                hideMeta
+              />
             </FormField>
 
             <FormField<ProfileFormInput, 'blogOrSnsLink'>
@@ -247,7 +253,7 @@ function ProfileEditForm({
                 setValueAs: (v: string) => (v ?? '').replace(/\s/g, ''),
               }}
             >
-              <BaseInput placeholder="https://example.com" />
+              <BaseInput placeholder="https://github.com/user_id " />
             </FormField>
           </form>
         </FormProvider>
