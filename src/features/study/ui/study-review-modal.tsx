@@ -9,17 +9,43 @@ import { TextAreaInput } from '@/shared/ui/input';
 import ListItem from '@/shared/ui/list-item';
 import { Modal } from '@/shared/ui/modal';
 import { EvalKeyword, StudyEvaluationResponse } from '../api/types';
-import { usePartnerStudyReviewQuery } from '../model/use-review-query';
+import {
+  useAddStudyReviewMutation,
+  usePartnerStudyReviewQuery,
+} from '../model/use-review-query';
+
+interface FormState {
+  studySpaceId: number;
+  targetMemberId: number;
+  satisfactionId: 10 | 20 | 30 | null; // 10 - "아쉬워요", 20 - "괜찮아요", 30 - "좋았어요"
+  keywordIds: number[];
+  content: string;
+}
 
 export default function StudyReviewModal() {
-  // 10 - "아쉬워요", 20 - "괜찮아요", 30 - "좋았어요"
-  const [satisfactionId, setSatisfactionId] = useState<10 | 20 | 30 | null>(
-    null,
-  );
-
   const { data } = usePartnerStudyReviewQuery();
+  const { mutate: addStudyReview } = useAddStudyReviewMutation();
+
+  const [form, setForm] = useState<FormState>({
+    studySpaceId: data?.studySpaceId,
+    targetMemberId: data?.targetMembers[0].memberId,
+    satisfactionId: null,
+    keywordIds: [],
+    content: '',
+  });
 
   if (!data) return null;
+
+  const handleSubmit = () => {
+    if (
+      form.keywordIds.length === 0 ||
+      form.satisfactionId === null ||
+      form.content === ''
+    )
+      return;
+
+    addStudyReview(form);
+  };
 
   return (
     <Modal.Root>
@@ -67,38 +93,66 @@ export default function StudyReviewModal() {
               <div className="flex items-center justify-center gap-200">
                 <SatisfactionButton
                   label="아쉬워요"
-                  isSelected={satisfactionId === 10}
+                  isSelected={form.satisfactionId === 10}
                   imageSrc="/icons/shame-review.svg"
-                  onClick={() => setSatisfactionId(10)}
+                  onClick={() => {
+                    setForm({
+                      ...form,
+                      satisfactionId: 10,
+                      keywordIds: [],
+                      content: '',
+                    });
+                  }}
                 />
 
                 <SatisfactionButton
                   label="괜찮아요"
-                  isSelected={satisfactionId === 20}
+                  isSelected={form.satisfactionId === 20}
                   imageSrc="/icons/fine-review.svg"
-                  onClick={() => setSatisfactionId(20)}
+                  onClick={() => {
+                    setForm({
+                      ...form,
+                      satisfactionId: 20,
+                      keywordIds: [],
+                      content: '',
+                    });
+                  }}
                 />
 
                 <SatisfactionButton
                   label="좋았어요"
-                  isSelected={satisfactionId === 30}
+                  isSelected={form.satisfactionId === 30}
                   imageSrc="/icons/good-review.svg"
-                  onClick={() => setSatisfactionId(30)}
+                  onClick={() => {
+                    setForm({
+                      ...form,
+                      satisfactionId: 30,
+                      keywordIds: [],
+                      content: '',
+                    });
+                  }}
                 />
               </div>
             </div>
 
-            {satisfactionId === 10 && <NegativeReview data={data} />}
+            {form.satisfactionId === 10 && (
+              <NegativeReview data={data} form={form} onChange={setForm} />
+            )}
 
-            {(satisfactionId === 20 || satisfactionId === 30) && (
-              <PositiveReview satisfactionId={satisfactionId} data={data} />
+            {(form.satisfactionId === 20 || form.satisfactionId === 30) && (
+              <PositiveReview data={data} form={form} onChange={setForm} />
             )}
           </Modal.Body>
           <Modal.Footer className="flex justify-end gap-100">
             <Button color="secondary" size="large">
               취소
             </Button>
-            <Button color="primary" size="large" disabled>
+            <Button
+              color="primary"
+              size="large"
+              disabled
+              onClick={handleSubmit}
+            >
               등록하기
             </Button>
           </Modal.Footer>
@@ -167,31 +221,47 @@ function SatisfactionButton({
 }
 
 function PositiveReview({
-  satisfactionId,
   data,
+  form,
+  onChange,
 }: {
-  satisfactionId: 20 | 30;
+  form: FormState;
   data: StudyEvaluationResponse;
+  onChange: (form: FormState | ((prev: FormState) => FormState)) => void;
 }) {
   return (
     <>
       <PositiveCheckboxList
         positiveKeywords={
-          satisfactionId === 20
+          form.satisfactionId === 20
             ? data.notBadEvalKeywords
             : data.satisfiedEvalKeywords
         }
       />
-      <PositiveTextArea />
+      <PositiveTextArea
+        value={form.content}
+        onChange={(content) => onChange((prev) => ({ ...prev, content }))}
+      />
     </>
   );
 }
 
-function NegativeReview({ data }: { data: StudyEvaluationResponse }) {
+function NegativeReview({
+  data,
+  form,
+  onChange,
+}: {
+  data: StudyEvaluationResponse;
+  form: FormState;
+  onChange: (form: FormState | ((prev: FormState) => FormState)) => void;
+}) {
   return (
     <>
       <NegativeCheckboxList negativeKeywords={data.unsatisfiedEvalKeywords} />
-      <NegativeTextArea />
+      <NegativeTextArea
+        value={form.content}
+        onChange={(content) => onChange((prev) => ({ ...prev, content }))}
+      />
     </>
   );
 }
@@ -222,7 +292,13 @@ function PositiveCheckboxList({
   );
 }
 
-function PositiveTextArea() {
+function PositiveTextArea({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (content: string) => void;
+}) {
   return (
     <div className="flex flex-col gap-100">
       <div>
@@ -238,9 +314,10 @@ function PositiveTextArea() {
       </div>
 
       <TextAreaInput
-        value={''}
+        value={value}
         maxLength={1000}
         placeholder="좋았던 점을 자세히 말해주세요"
+        onChange={onChange}
       />
     </div>
   );
@@ -272,7 +349,13 @@ function NegativeCheckboxList({
   );
 }
 
-function NegativeTextArea() {
+function NegativeTextArea({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (content: string) => void;
+}) {
   return (
     <div className="flex flex-col gap-100">
       <div>
@@ -289,7 +372,8 @@ function NegativeTextArea() {
       </div>
 
       <TextAreaInput
-        value={''}
+        value={value}
+        onChange={onChange}
         maxLength={1000}
         placeholder="아쉬웠던 점을 자세히 말해주세요"
       />
