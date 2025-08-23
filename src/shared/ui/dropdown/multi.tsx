@@ -74,7 +74,10 @@ export default function MultiDropdown({
   const clear = useCallback(() => setNext([]), [setNext]);
 
   return (
-    <DropdownMenu open={open} onOpenChange={(o) => !disabled && setOpen(o)}>
+    <DropdownMenu
+      open={open}
+      onOpenChange={(option) => !disabled && setOpen(option)}
+    >
       <DropdownMenuTrigger asChild>
         <div
           tabIndex={0}
@@ -145,17 +148,17 @@ export default function MultiDropdown({
         style={{ width: 'var(--radix-dropdown-menu-trigger-width)' }}
       >
         {remainingOptions.length > 0 ? (
-          remainingOptions.map((o) => (
+          remainingOptions.map((option) => (
             <DropdownMenuItem
-              key={o.value}
+              key={option.value}
               onSelect={(e) => {
                 e.preventDefault();
-                add(o.value);
+                add(option.value);
               }}
               className="rounded-100 data-[highlighted]:bg-fill-neutral-subtle-pressed h-[40px] w-full p-150"
             >
               <span className="font-designer-14m text-text-subtle">
-                {o.label}
+                {option.label}
               </span>
             </DropdownMenuItem>
           ))

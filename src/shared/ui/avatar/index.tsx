@@ -7,10 +7,10 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/shared/shadcn/ui/avatar';
 type ProfileImageSrc = string | undefined;
 
 function getValidImageUrl(src: ProfileImageSrc) {
-  const s = (src ?? '').trim();
-  if (!s || s.toLowerCase() === 'default') return undefined;
+  const trimedSrc = (src ?? '').trim();
+  if (!trimedSrc || trimedSrc.toLowerCase() === 'default') return undefined;
 
-  return s;
+  return trimedSrc;
 }
 
 interface UserAvatarProps {
