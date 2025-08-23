@@ -1,5 +1,5 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { StudyEvaluationResponse } from './types';
+import { AddStudyReviewRequest, StudyEvaluationResponse } from './types';
 
 export const getPartnerStudyReview =
   async (): Promise<StudyEvaluationResponse> => {
@@ -9,3 +9,9 @@ export const getPartnerStudyReview =
 
     return res.data.content;
   };
+
+export const addStudyReview = async (data: AddStudyReviewRequest) => {
+  const res = await axiosInstance.post('/study/reviews', data);
+
+  return res.data.content;
+};

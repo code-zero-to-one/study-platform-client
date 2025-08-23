@@ -118,3 +118,11 @@ export interface StudyEvaluationResponse {
   notBadEvalKeywords: EvalKeyword[];
   unsatisfiedEvalKeywords: EvalKeyword[];
 }
+
+export interface AddStudyReviewRequest {
+  studySpaceId: number;
+  targetMemberId: number;
+  satisfactionId: 10 | 20 | 30;
+  keywordIds: number[];
+  content: string;
+}
