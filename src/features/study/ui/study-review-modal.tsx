@@ -162,9 +162,7 @@ function StudyReviewForm() {
           color="primary"
           size="large"
           disabled={
-            form.keywordIds.length === 0 ||
-            form.satisfactionId === null ||
-            form.content === ''
+            form.keywordIds.length === 0 || form.satisfactionId === null
           }
           onClick={handleSubmit}
         >
