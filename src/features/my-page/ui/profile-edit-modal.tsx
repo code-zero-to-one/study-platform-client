@@ -94,20 +94,16 @@ function ProfileEditForm({
 
   const {
     handleSubmit,
-    formState: { isValid, isSubmitting },
+    formState: { isValid, isSubmitting, dirtyFields },
   } = methods;
 
-  const onValidSubmit = async (inputValues: ProfileFormInput) => {
-    const values: ProfileFormValues = ProfileFormSchema.parse(inputValues);
-
+  const onValidSubmit = async (values: ProfileFormValues) => {
     const file = fileInputRef.current?.files?.[0];
     const profileImageExtension =
       image === DEFAULT_PROFILE_IMAGE_URL ? 'jpg' : file?.name.split('.').pop();
 
-    // DTO 생성
     const payload = toUpdateProfilePayload(values, { profileImageExtension });
-
-    const updatedProfile = await updateProfile(payload as any);
+    const updatedProfile = await updateProfile(payload);
 
     // 이미지 업로드
     if (updatedProfile.profileImageUploadUrl) {
