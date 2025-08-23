@@ -1,17 +1,27 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+
 import Button from '@/shared/ui/button';
 import { SingleDropdown } from '@/shared/ui/dropdown';
+import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import {
+
+import type {
   CompleteStudyRequest,
   DailyStudyDetail,
   StudyProgressStatus,
 } from '../api/types';
 import { STUDY_PROGRESS_OPTIONS } from '../consts/study-const';
+import {
+  StudyDoneFormSchema,
+  type StudyDoneFormValues,
+  buildStudyDoneDefaults,
+} from '../model/interview.schema';
 import { useUpdateDailyStudyMutation } from '../model/use-study-query';
 
 interface StudyDoneModalProps {
@@ -56,27 +66,33 @@ export default function StudyDoneModal({
   );
 }
 
-interface StudyDoneFormProps {
+function StudyDoneForm({
+  data,
+  studyDate,
+  onClose,
+}: {
   data: DailyStudyDetail;
   studyDate: string;
   onClose: () => void;
-}
+}) {
+  const { mutate, isPending } = useUpdateDailyStudyMutation();
 
-function StudyDoneForm({ data, studyDate, onClose }: StudyDoneFormProps) {
-  const [form, setForm] = useState<CompleteStudyRequest>({
-    feedback: data.feedback ?? '',
-    progressStatus: data.progressStatus ?? 'PENDING',
+  const methods = useForm<StudyDoneFormValues>({
+    resolver: zodResolver(StudyDoneFormSchema),
+    mode: 'onChange',
+    defaultValues: buildStudyDoneDefaults(data),
   });
 
-  const { mutate, isPending } = useUpdateDailyStudyMutation();
-  const { feedback, progressStatus } = form;
+  const {
+    handleSubmit,
+    formState: { isValid, isSubmitting },
+  } = methods;
 
-  const handleChange = (key: keyof CompleteStudyRequest) => (value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSubmit = async () => {
-    if (!feedback.trim() || !progressStatus) return;
+  const onSubmit = (values: StudyDoneFormValues) => {
+    const form: CompleteStudyRequest = {
+      progressStatus: values.progressStatus as StudyProgressStatus,
+      feedback: values.feedback,
+    };
 
     mutate(
       {
@@ -98,49 +114,42 @@ function StudyDoneForm({ data, studyDate, onClose }: StudyDoneFormProps) {
   return (
     <>
       <Modal.Body className="flex flex-col gap-400">
-        <div className="flex flex-col gap-250">
-          <div className="flex flex-col gap-100">
-            <label className="font-designer-16b text-text-default">
-              진행 현황
-              <span className="font-designer-13m text-text-error pl-100">
-                필수
-              </span>
-            </label>
-            <span className="font-designer-14r text-text-subtle">
-              면접 완료 후 해당 지원자의 상태를 업데이트해 주세요.
-            </span>
-          </div>
+        <FormProvider {...methods}>
+          <form
+            id="study-done-form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-300"
+          >
+            <FormField<StudyDoneFormValues, 'progressStatus'>
+              name="progressStatus"
+              label="진행 현황"
+              helper="면접 완료 후 해당 지원자의 상태를 업데이트해 주세요."
+              required
+              direction="vertical"
+            >
+              <SingleDropdown
+                options={STUDY_PROGRESS_OPTIONS}
+                placeholder="선택해주세요"
+              />
+            </FormField>
 
-          <SingleDropdown
-            options={STUDY_PROGRESS_OPTIONS}
-            defaultValue={progressStatus}
-            placeholder="선택해주세요"
-            onChange={(value) =>
-              handleChange('progressStatus')(value as StudyProgressStatus)
-            }
-          />
-        </div>
-
-        <div className="flex flex-col gap-250">
-          <div className="flex flex-col gap-100">
-            <label className="font-designer-16b text-text-default">
-              피드백
-              <span className="font-designer-13m text-text-error pl-100">
-                필수
-              </span>
-            </label>
-            <span className="font-designer-14r text-text-subtle">
-              면접 결과에 대한 간단한 피드백을 입력해 주세요.
-            </span>
-          </div>
-
-          <TextAreaInput
-            placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
-            value={feedback}
-            maxLength={100}
-            onChange={(value) => handleChange('feedback')(value)}
-          />
-        </div>
+            <FormField<StudyDoneFormValues, 'feedback'>
+              name="feedback"
+              label="피드백"
+              helper="면접 결과에 대한 간단한 피드백을 입력해 주세요."
+              required
+              direction="vertical"
+              showCounterRight
+              counterMax={100}
+            >
+              <TextAreaInput
+                placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
+                maxLength={100}
+                hideMeta
+              />
+            </FormField>
+          </form>
+        </FormProvider>
       </Modal.Body>
 
       <Modal.Footer>
@@ -150,9 +159,10 @@ function StudyDoneForm({ data, studyDate, onClose }: StudyDoneFormProps) {
           </Button>
           <Button
             size="large"
-            color={feedback.trim() && progressStatus ? 'primary' : 'secondary'}
-            disabled={!feedback.trim() || isPending}
-            onClick={handleSubmit}
+            color="primary"
+            type="submit"
+            form="study-done-form"
+            disabled={!isValid || isSubmitting || isPending}
           >
             작성 완료
           </Button>
