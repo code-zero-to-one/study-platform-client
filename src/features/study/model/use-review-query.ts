@@ -1,8 +1,8 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
 import { addStudyReview, getPartnerStudyReview } from '../api/get-review';
 
 export const usePartnerStudyReviewQuery = () => {
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: ['partnerStudyReview'],
     queryFn: getPartnerStudyReview,
   });
