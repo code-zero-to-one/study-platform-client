@@ -22,7 +22,7 @@ const Checkbox = ({
           : { defaultChecked, onChange: onToggle })}
       />
       <div
-        className={`rounded-50 inline-flex items-center justify-center border-2 transition-all duration-200 ${checked ? 'bg-fill-success-default-default border-fill-success-default-default' : 'border-border-default bg-fill-neutral-subtle-default'}`}
+        className={`rounded-50 inline-flex items-center justify-center border transition-all duration-200 ${checked ? 'bg-fill-success-default-default border-fill-success-default-default' : 'border-border-default bg-fill-neutral-subtle-default'}`}
       >
         <Image
           src="/icons/shape.svg"
