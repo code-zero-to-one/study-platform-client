@@ -30,7 +30,6 @@ function ToggleGroup({ options, value, onChange }: ToggleGroupProps) {
       {options.map(({ value: v, label }) => (
         <ToggleButton
           key={v}
-          size="sm"
           variant="round"
           pressed={selected.includes(v)}
           onPressedChange={() => toggle(v)}
