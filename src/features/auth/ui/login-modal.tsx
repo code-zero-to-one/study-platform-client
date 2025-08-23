@@ -36,7 +36,6 @@ export default function LoginModal({
     ? '616205933420-b45d510q23togkaqo069j8igmsjhp9v0.apps.googleusercontent.com'
     : process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
-  const NAVER_LOGIN_URL = '';
   const KAKAO_LOGIN_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${API_BASE_URL}/api/v1/auth/kakao/redirect-uri&response_type=code&state=${state}`;
   const GOOGLE_LOGIN_URL = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=${API_BASE_URL}/api/v1/auth/google/redirect-uri&client_id=${GOOGLE_CLIENT_ID}&state=${state}`;
 
