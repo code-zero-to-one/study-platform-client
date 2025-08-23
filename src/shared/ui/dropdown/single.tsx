@@ -7,15 +7,15 @@ import {
   DropdownMenuTrigger,
 } from '@/shared/shadcn/ui/dropdown-menu';
 
-export interface Option {
-  label: string;
+interface Option {
   value: string;
+  label: string;
 }
 
 interface Props {
   options: ReadonlyArray<Option>;
   value?: string;
-  onChange?: (value: string) => void;
+  onChange?: (value: string | undefined) => void;
   placeholder?: string;
   error?: boolean;
   disabled?: boolean;
@@ -40,7 +40,7 @@ function SingleDropdown({
   const displayText = selected?.label ?? placeholder ?? '';
 
   const handleSelect = useCallback(
-    (v: string) => {
+    (v: string | undefined) => {
       if (v !== value) onChange?.(v);
       setIsOpen(false);
     },
