@@ -34,3 +34,11 @@ export const getReservationMembers = async (
 
   return res.data.content;
 };
+
+export type StudyStatus = 'RECRUITING' | 'STUDYING';
+
+export const getStudyStatus = async (): Promise<StudyStatus> => {
+  const res = await axiosInstance.get('/matching/system-status');
+
+  return res.data.content.status as StudyStatus;
+};

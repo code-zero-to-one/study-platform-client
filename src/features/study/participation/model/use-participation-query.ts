@@ -1,7 +1,9 @@
-import { useInfiniteQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
 import {
   getReservationMembers,
+  getStudyStatus,
   mapReservation,
+  StudyStatus,
 } from '../api/get-participation-data';
 import { WeeklyReservationResponse } from '../api/participation-types';
 
@@ -42,3 +44,11 @@ export function useInfiniteReservation(firstMemberId?: number, pageSize = 50) {
     staleTime: 60 * 1000,
   });
 }
+
+export const useStudyStatus = () => {
+  return useQuery<StudyStatus>({
+    queryKey: ['studyStatus'],
+    queryFn: getStudyStatus,
+    staleTime: 60 * 1000,
+  });
+};

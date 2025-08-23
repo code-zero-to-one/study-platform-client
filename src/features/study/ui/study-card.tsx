@@ -6,6 +6,7 @@ import DateSelector from './data-selector';
 import TodayStudyCard from './today-study-card';
 import StudyListSection from '../../../widgets/home/study-list-table';
 import { useWeeklyParticipation } from '../model/use-study-query';
+import { useStudyStatus } from '../participation/model/use-participation-query';
 import ReservationList from '../participation/ui/reservation-list';
 
 // 스터디 주차 구하는 함수
@@ -60,6 +61,8 @@ export default function StudyCard() {
 
   const studyDate = dateOffset.toISOString().split('T')[0];
 
+  const { data: status } = useStudyStatus();
+
   const { data: participationData } = useWeeklyParticipation(studyDate);
   const isParticipate = participationData?.isParticipate ?? false;
 
@@ -67,7 +70,7 @@ export default function StudyCard() {
 
   return (
     <>
-      {true && (
+      {status === 'RECRUITING' && (
         <ReservationList
           month={month}
           week={week}
@@ -75,14 +78,18 @@ export default function StudyCard() {
           pageSize={50}
         />
       )}
-      <div className="flex flex-col gap-300">
-        <div className="font-bold-h3">{`${month}월 ${week}주차 스터디`}</div>
-        <DateSelector value={selectedDate} onChange={setSelectedDate} />
-      </div>
-      <div className="border-border-default rounded-200 flex flex-col gap-500 border p-400">
-        {isParticipate && <TodayStudyCard studyDate={studyDate} />}
-        <StudyListSection studyDate={studyDate} />
-      </div>
+      {status === 'STUDYING' && (
+        <>
+          <div className="flex flex-col gap-300">
+            <div className="font-bold-h3">{`${month}월 ${week}주차 스터디`}</div>
+            <DateSelector value={selectedDate} onChange={setSelectedDate} />
+          </div>
+          <div className="border-border-default rounded-200 flex flex-col gap-500 border p-400">
+            {isParticipate && <TodayStudyCard studyDate={studyDate} />}
+            <StudyListSection studyDate={studyDate} />
+          </div>
+        </>
+      )}
     </>
   );
 }
