@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import type { MemberProfile } from '@/entities/user/api/types';
+import { UrlSchema } from '@/shared/util/zod-schema';
 
 const nameRegex = /^[가-힣a-zA-Z]{2,10}$/;
 const telRegex = /^\d{2,3}-\d{3,4}-\d{4}$/;
@@ -40,17 +41,11 @@ export const ProfileFormSchema = z.object({
     // yyyy-mm-dd 형태로 통일
     .transform((v) => (v ? v.replace(/\./g, '-') : undefined)),
 
-  githubLink: z
-    .string()
-    .trim()
-    .optional()
-    .transform((v) => (v === '' || v === undefined ? undefined : v)),
+  githubLink: UrlSchema.optional().transform((v) => (v === '' ? undefined : v)),
 
-  blogOrSnsLink: z
-    .string()
-    .trim()
-    .optional()
-    .transform((v) => (v === '' || v === undefined ? undefined : v)),
+  blogOrSnsLink: UrlSchema.optional().transform((v) =>
+    v === '' ? undefined : v,
+  ),
 
   simpleIntroduction: z
     .string()

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { UrlSchema } from '@/shared/util/zod-schema';
 import { JoinStudyRequest } from '../../api/types';
 
 export const StartStudyFormSchema = z.object({
@@ -19,8 +20,10 @@ export const StartStudyFormSchema = z.object({
       /^\d{2,3}-\d{3,4}-\d{4}$/,
       '연락처 형식이 올바르지 않습니다. (예: 010-1234-5678)',
     ),
-  githubLink: z.string().trim().optional().or(z.literal('')),
-  blogOrSnsLink: z.string().trim().optional().or(z.literal('')),
+  githubLink: UrlSchema.optional().transform((v) => (v === '' ? undefined : v)),
+  blogOrSnsLink: UrlSchema.optional().transform((v) =>
+    v === '' ? undefined : v,
+  ),
 
   preferredStudySubjectId: z
     .string()
