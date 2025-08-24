@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import KeywordReview from '@/entities/my-profile/ui/keyword-review';
 import { MyReviewItem } from '@/features/study/api/types';
 import {
   useMyNegativeKeywordsQuery,
@@ -66,7 +67,7 @@ export default function MyStudyReview() {
                 positiveKeywords.map((keyword) => (
                   <KeywordReview
                     key={keyword.id}
-                    type="positive"
+                    content={keyword.content}
                     count={keyword.count}
                   />
                 ))
@@ -96,7 +97,7 @@ export default function MyStudyReview() {
                 negativeKeywords.map((keyword) => (
                   <KeywordReview
                     key={keyword.id}
-                    type="negative"
+                    content={keyword.content}
                     count={keyword.count}
                   />
                 ))
@@ -149,24 +150,6 @@ export default function MyStudyReview() {
         </ul>
       </section>
     </>
-  );
-}
-
-function KeywordReview({
-  type,
-  count,
-}: {
-  type: 'positive' | 'negative';
-  count: number;
-}) {
-  return (
-    <li className="bg-background-accent-gray-default text-text-default rounded-50 flex justify-between px-200 py-100">
-      <span className="font-designer-14r">
-        {type === 'positive' ? '“좋았어요, 괜찮았어요”' : '“아쉬웠어요”'} 평가
-        키워드
-      </span>
-      <span className="font-designer-14b">{count}</span>
-    </li>
   );
 }
 
