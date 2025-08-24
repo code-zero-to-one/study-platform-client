@@ -22,19 +22,13 @@ export default function LoginModal({
   }
 
   const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1'); // 로컬환경 테스트용
-  localStorage.setItem('isLocal', JSON.stringify(isLocal));
 
   const API_BASE_URL = isLocal
     ? 'https://test-api.zeroone.it.kr'
     : process.env.NEXT_PUBLIC_API_BASE_URL;
 
-  const KAKAO_CLIENT_ID = isLocal
-    ? '4c946e1082820ff075aee8d65f3d4a30'
-    : process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
-
-  const GOOGLE_CLIENT_ID = isLocal
-    ? '616205933420-b45d510q23togkaqo069j8igmsjhp9v0.apps.googleusercontent.com'
-    : process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+  const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
+  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
   const KAKAO_LOGIN_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${API_BASE_URL}/api/v1/auth/kakao/redirect-uri&response_type=code&state=${state}`;
   const GOOGLE_LOGIN_URL = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=${API_BASE_URL}/api/v1/auth/google/redirect-uri&client_id=${GOOGLE_CLIENT_ID}&state=${state}`;
