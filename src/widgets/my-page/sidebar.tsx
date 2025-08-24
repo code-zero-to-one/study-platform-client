@@ -55,9 +55,9 @@ export default function Sidebar() {
       >
         스터디 리뷰
       </SidebarItem>
-      <SidebarItem onClick={() => {}} isActive={false}>
+      {/* <SidebarItem onClick={() => {}} isActive={false}>
         계정설정
-      </SidebarItem>
+      </SidebarItem> */}
       <div className="bg-border-subtlest h-[1px]" />
       <SidebarItem onClick={handleLogout} isActive={false}>
         로그아웃
