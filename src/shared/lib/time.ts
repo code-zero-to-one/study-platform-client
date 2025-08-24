@@ -24,7 +24,7 @@ export const formatKoreaRelativeTime = (targetDateStr: string): string => {
 
   const minutes = differenceInMinutes(koreaNow, koreaTarget);
 
-  if (minutes < 1) return '지금'; // 1분 미만이면 "지금"
+  if (minutes < 1) return '방금 전'; // 1분 미만이면 "방금 전"
   if (minutes < 60) return `${minutes}분 전`; // 60분 미만이면 "n분 전"
 
   const hours = differenceInHours(koreaNow, koreaTarget);
