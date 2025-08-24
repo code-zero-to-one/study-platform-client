@@ -139,8 +139,8 @@ export interface UserPositiveKeywordsRequest {
 }
 
 export interface UserPositiveKeywordsResponse {
-  totalCount: number;
-  reviewerCount: number;
+  totalCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
+  reviewerCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
   keywords: Keyword[];
 }
 
@@ -149,7 +149,7 @@ export interface MyNegativeKeywordsRequest {
 }
 
 export interface MyNegativeKeywordsResponse {
-  totalCount: number;
-  reviewerCount: number;
+  totalCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
+  reviewerCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
   keywords: Keyword[];
 }
