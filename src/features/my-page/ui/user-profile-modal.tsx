@@ -71,25 +71,22 @@ export default function UserProfileModal({
                   <div className="flex flex-col gap-100">
                     <div className="font-designer-14r text-text-subtle flex items-center gap-100">
                       <CakeIcon width={16} height={16} />
-                      {profile.memberProfile.birthDate ??
-                        '생일을 입력해주세요!'}
+                      {profile.memberProfile.birthDate ?? ''}
                     </div>
                     <div className="font-designer-14r text-text-subtle flex items-center gap-100">
                       <PhoneIcon width={16} height={16} />
-                      {profile.memberProfile.tel ?? '번호를 입력해주세요!'}
+                      {profile.memberProfile.tel ?? ''}
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-100">
                     <div className="font-designer-14r text-text-subtle flex items-center gap-100">
                       <GithubIcon width={16} height={16} />
-                      {profile.memberProfile.githubLink?.url ??
-                        '깃허브 링크를 입력해주세요!'}
+                      {profile.memberProfile.githubLink?.url ?? ''}
                     </div>
                     <div className="font-designer-14r text-text-subtle flex items-center gap-100">
                       <GlobeIcon width={16} height={16} />
-                      {profile.memberProfile.blogOrSnsLink?.url ??
-                        '블로그 링크를 입력해주세요!'}
+                      {profile.memberProfile.blogOrSnsLink?.url ?? ''}
                     </div>
                   </div>
                 </div>
@@ -121,6 +118,20 @@ export default function UserProfileModal({
                 title="공부 주제 및 계획"
                 content={profile.memberInfo.studyPlan}
               />
+            </div>
+
+            <div className="bg-border-subtle h-[2px] w-full" />
+
+            <div className="flex gap-400 px-250">
+              <span className="font-designer-16b text-text-default w-[132px] shrink-0">
+                받은 평가
+              </span>
+
+              <div className="text-text-default font-designer-14r">
+                <span>n명의 유저들이 이런 점이 좋다고 했어요.</span>
+
+                <ul />
+              </div>
             </div>
           </Modal.Body>
         </Modal.Content>
