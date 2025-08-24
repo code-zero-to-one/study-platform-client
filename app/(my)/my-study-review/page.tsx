@@ -26,6 +26,11 @@ export default function MyStudyReview() {
   const positiveKeywords = positiveKeywordsData?.keywords || [];
   const negativeKeywords = negativeKeywordsData?.keywords || [];
 
+  const positiveKeywordsCount = positiveKeywordsData?.totalCount || 0;
+  const negativeKeywordsCount = negativeKeywordsData?.totalCount || 0;
+
+  const totalKeywordsCount = positiveKeywordsCount + negativeKeywordsCount;
+
   const myReviews = myReviewsData?.reviews || [];
 
   return (
@@ -34,7 +39,9 @@ export default function MyStudyReview() {
         <div className="mb-200">
           <div className="flex items-center gap-100">
             <div className="font-designer-20b text-text-default">받은 평가</div>
-            <div className="font-designer-20b text-text-default">11</div>
+            <div className="font-designer-20b text-text-default">
+              {totalKeywordsCount}
+            </div>
           </div>
 
           <span className="font-designer-14r text-text-subtle">
