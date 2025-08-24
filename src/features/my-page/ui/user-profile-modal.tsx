@@ -1,6 +1,7 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
+import ProfileInfoCard from '@/entities/my-profile/ui/profile-info-card';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
@@ -9,7 +10,6 @@ import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import { Modal } from '@/shared/ui/modal';
-import ProfileInfoCard from '@/widgets/my-page/profileinfo-card';
 
 interface UserProfileModalProps {
   memberId: number;
