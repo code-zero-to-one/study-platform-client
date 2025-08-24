@@ -1,5 +1,6 @@
+import Image from 'next/image';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
-import MyProfileCard from '@/features/study/ui/my-profile-card';
+import MyProfileCard from '@/entities/user/ui/my-profile-card';
 import StartStudyModal from '@/features/study/ui/start-study-modal';
 import { getLoginUserId } from '@/shared/lib/get-login-user';
 import Calendar from '@/widgets/home/calendar';
@@ -32,7 +33,19 @@ export default async function Sidebar() {
       {userProfile.studyApplied ? (
         <TodoList statusList={[false, false, false]} />
       ) : (
-        <StartStudyModal memberId={memberId} />
+        <StartStudyModal
+          memberId={memberId}
+          trigger={
+            <Image
+              src="/images/start-study.png"
+              alt="스터디 시작 버튼"
+              width={0}
+              height={0}
+              sizes="100vw"
+              className="h-auto w-full"
+            />
+          }
+        />
       )}
       <Calendar />
     </aside>
