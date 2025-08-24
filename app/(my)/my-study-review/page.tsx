@@ -1,11 +1,15 @@
 'use client';
 
+import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import { useState } from 'react';
+import { MyReviewItem } from '@/features/study/api/types';
 import {
   useMyNegativeKeywordsQuery,
+  useMyReviewsInfinityQuery,
   useUserPositiveKeywordsQuery,
 } from '@/features/study/model/use-review-query';
+import { getKoreaDate } from '@/shared/lib/time';
 
 export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
@@ -14,9 +18,16 @@ export default function MyStudyReview() {
   const { data: negativeKeywordsData } = useMyNegativeKeywordsQuery({
     pageSize: 5,
   });
+  const {
+    data: myReviewsData,
+    fetchNextPage,
+    hasNextPage,
+  } = useMyReviewsInfinityQuery();
 
   const positiveKeywords = positiveKeywordsData?.keywords || [];
   const negativeKeywords = negativeKeywordsData?.keywords || [];
+
+  const myReviews = myReviewsData?.reviews || [];
 
   return (
     <>
@@ -92,14 +103,9 @@ export default function MyStudyReview() {
       <section>
         <div className="flex items-center gap-100">
           <div className="font-designer-20b text-text-default">후기</div>
-          <div className="font-designer-20b text-text-default">11</div>
-        </div>
-      </section>
-
-      <section>
-        <div className="flex items-center gap-100">
-          <div className="font-designer-20b text-text-default">후기</div>
-          <div className="font-designer-20b text-text-default">11</div>
+          <div className="font-designer-20b text-text-default">
+            {myReviewsData?.totalCount || 0}
+          </div>
         </div>
 
         <span className="font-designer-14r text-text-subtle">
@@ -107,11 +113,29 @@ export default function MyStudyReview() {
         </span>
 
         <ul>
-          <Review />
-          <Review />
-          <Review />
-          <Review />
-          <Review />
+          {myReviews.length > 0 ? (
+            myReviews.map((review) => <Review key={review.id} data={review} />)
+          ) : (
+            <div className="text-text-subtle font-designer-14r flex h-[200px] items-center justify-center text-center">
+              아직까지 받은 후기가 없습니다.
+            </div>
+          )}
+
+          {hasNextPage && (
+            <button
+              className="font-designer-14m text-text-subtle hover:bg-background-accent-gray-default rounded-50 flex w-full cursor-pointer items-center justify-center py-200"
+              onClick={() => fetchNextPage()}
+            >
+              <span>더보기</span>
+
+              <Image
+                src="/icons/arrow-down.svg"
+                width={20}
+                height={20}
+                alt="후기 더보기"
+              />
+            </button>
+          )}
         </ul>
       </section>
     </>
@@ -136,25 +160,29 @@ function KeywordReview({
   );
 }
 
-function Review() {
+function Review({ data }: { data: MyReviewItem }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
     <li className="flex flex-col gap-150 py-250">
       <div className="flex items-center gap-150">
         <Image
-          src={'/profile-default.svg'}
+          src={data.writer.profileImageUrl || '/profile-default.svg'}
           width={32}
           height={32}
-          alt="프로필 이미지"
+          alt={`${data.writer.memberName} 프로필 이미지`}
         />
 
         <div>
           <span className="font-designer-14b text-text-default mr-50">
-            김코드
+            {data.writer.memberName}
           </span>
           <span className="font-designer-14r text-text-subtle mr-50">·</span>
-          <span className="font-designer-14r text-text-subtle">1시간 전</span>
+          <span className="font-designer-14r text-text-subtle">
+            {formatDistanceToNow(getKoreaDate(new Date(data.reviewedAt)), {
+              addSuffix: true,
+            })}
+          </span>
         </div>
       </div>
 
@@ -162,12 +190,7 @@ function Review() {
         <p
           className={`text-text-default font-designer-15r ${expanded ? 'line-clamp-none' : 'line-clamp-3'}`}
         >
-          스터디에서 좋았어요~스터디에서 좋았어요~스터디에서 좋았어요~스터디에서
-          좋았어요~스터디에서 좋았어요~스터디에서 좋았어요~스터디에서
-          좋았어요~스터디에서 좋았어요~스터디에서 좋았어요~스터디에서
-          좋았어요~스터디에서 좋았어요~스터디에서 좋았어요~스터디에서
-          좋았어요~스터디에서 좋았어요~스터디에서 좋았어요~스터디에서
-          좋았어요~스터디에서 좋았어요~스터디에서 좋았어요~스터디에서 좋았어요~
+          {data.content}
         </p>
         <button
           className="font-designer-14r text-text-subtlest cursor-pointer"
@@ -180,11 +203,16 @@ function Review() {
       <div>
         <div className="text-text-subtle">
           <span className="font-designer-14b mr-100">스터디 기간</span>
-          <span className="font-designer-13r">YYYY.MM.DD ~ YYYY.MM.DD</span>
+          <span className="font-designer-13r">
+            {data.startDate.replace(/-/g, '.')} ~{' '}
+            {data.endDate.replace(/-/g, '.')}
+          </span>
         </div>
         <div className="text-text-subtle">
           <span className="font-designer-14b mr-100">스터디 주제</span>
-          <span className="font-designer-13r">Back-end Deep Dive</span>
+          <span className="font-designer-13r">
+            {data.studySubjects.join(', ')}
+          </span>
         </div>
       </div>
     </li>

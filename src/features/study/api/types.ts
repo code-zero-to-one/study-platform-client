@@ -153,3 +153,33 @@ export interface MyNegativeKeywordsResponse {
   reviewerCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
   keywords: Keyword[];
 }
+
+export interface MyReviewWriter {
+  memberId: number;
+  memberName: string;
+  profileImageUrl: string;
+}
+
+export interface MyReviewItem {
+  id: number;
+  writer: MyReviewWriter;
+  reviewedAt: string; // ISO 날짜 문자열
+  content: string;
+  studySpaceId: number;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  studySubjects: string[];
+}
+
+export interface MyReviewsRequest {
+  cursor: number | null;
+}
+
+export interface MyReviewsResponse {
+  totalCount: number;
+  reviews: {
+    items: MyReviewItem[];
+    nextCursor: number;
+    hasNext: boolean;
+  };
+}

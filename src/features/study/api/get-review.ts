@@ -6,6 +6,8 @@ import type {
   StudyEvaluationResponse,
   MyNegativeKeywordsRequest,
   MyNegativeKeywordsResponse,
+  MyReviewsResponse,
+  MyReviewsRequest,
 } from './types';
 
 export const getPartnerStudyReview =
@@ -57,6 +59,23 @@ export const getMyNegativeKeywords = async ({
     '/study/reviews/members/keywords/negative',
     { params },
   );
+
+  return res.data.content;
+};
+
+export const getMyReviews = async ({
+  cursor,
+}: MyReviewsRequest): Promise<MyReviewsResponse> => {
+  const params: Record<string, number> = {
+    'page-size': 10,
+  };
+
+  // cursor 전송하지 않는 경우 첫 데이터부터 조회
+  if (cursor) {
+    params.cursor = cursor;
+  }
+
+  const res = await axiosInstance.get('/study/reviews/members', { params });
 
   return res.data.content;
 };
