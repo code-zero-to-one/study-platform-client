@@ -22,7 +22,6 @@ export default function LoginModal({
   }
 
   const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1'); // 로컬환경 테스트용
-  localStorage.setItem('isLocal', JSON.stringify(isLocal));
 
   const API_BASE_URL = isLocal
     ? 'https://test-api.zeroone.it.kr'
