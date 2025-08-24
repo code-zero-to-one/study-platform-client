@@ -31,7 +31,7 @@ export const useUserPositiveKeywordsQuery = (
   params: UserPositiveKeywordsRequest,
 ) => {
   return useQuery({
-    queryKey: ['myPositiveKeywords', params],
+    queryKey: ['userPositiveKeywords', params],
     queryFn: ({ queryKey }) => {
       const [, requestParams] = queryKey as [
         string,
