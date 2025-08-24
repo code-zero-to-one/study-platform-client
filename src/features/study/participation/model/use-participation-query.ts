@@ -45,7 +45,7 @@ export function useInfiniteReservation(firstMemberId?: number, pageSize = 50) {
   });
 }
 
-export const useStudyStatus = () => {
+export const useStudyStatusQuery = () => {
   return useQuery<StudyStatus>({
     queryKey: ['studyStatus'],
     queryFn: getStudyStatus,

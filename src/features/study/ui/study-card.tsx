@@ -6,7 +6,7 @@ import DateSelector from './data-selector';
 import TodayStudyCard from './today-study-card';
 import StudyListSection from '../../../widgets/home/study-list-table';
 import { useWeeklyParticipation } from '../model/use-study-query';
-import { useStudyStatus } from '../participation/model/use-participation-query';
+import { useStudyStatusQuery } from '../participation/model/use-participation-query';
 import ReservationList from '../participation/ui/reservation-list';
 
 // 스터디 주차 구하는 함수
@@ -61,7 +61,7 @@ export default function StudyCard() {
 
   const studyDate = dateOffset.toISOString().split('T')[0];
 
-  const { data: status } = useStudyStatus();
+  const { data: status } = useStudyStatusQuery();
 
   const { data: participationData } = useWeeklyParticipation(studyDate);
   const isParticipate = participationData?.isParticipate ?? false;
