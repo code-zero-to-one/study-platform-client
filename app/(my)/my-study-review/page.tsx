@@ -1,6 +1,5 @@
 'use client';
 
-import { formatDistanceToNow } from 'date-fns';
 import Image from 'next/image';
 import { useState } from 'react';
 import { MyReviewItem } from '@/features/study/api/types';
@@ -9,7 +8,7 @@ import {
   useMyReviewsInfinityQuery,
   useUserPositiveKeywordsQuery,
 } from '@/features/study/model/use-review-query';
-import { getKoreaDate } from '@/shared/lib/time';
+import { formatKoreaRelativeTime } from '@/shared/lib/time';
 
 export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
@@ -48,9 +47,11 @@ export default function MyStudyReview() {
             <div className="mb-200 flex justify-between">
               <h3 className="font-designer-16b text-text-default">좋았던 점</h3>
 
-              <button className="font-designer-12m text-text-subtlest cursor-pointer">
-                더보기
-              </button>
+              {positiveKeywords.length > 5 && (
+                <button className="font-designer-12m text-text-subtlest cursor-pointer">
+                  더보기
+                </button>
+              )}
             </div>
 
             <ul className="flex flex-col gap-50">
@@ -76,9 +77,11 @@ export default function MyStudyReview() {
                 개선이 필요한 점
               </h3>
 
-              <button className="font-designer-12m text-text-subtlest cursor-pointer">
-                더보기
-              </button>
+              {negativeKeywords.length > 5 && (
+                <button className="font-designer-12m text-text-subtlest cursor-pointer">
+                  더보기
+                </button>
+              )}
             </div>
 
             <ul className="flex flex-col gap-50">
@@ -180,9 +183,7 @@ function Review({ data }: { data: MyReviewItem }) {
           </span>
           <span className="font-designer-14r text-text-subtle mr-50">·</span>
           <span className="font-designer-14r text-text-subtle">
-            {formatDistanceToNow(getKoreaDate(new Date(data.reviewedAt)), {
-              addSuffix: true,
-            })}
+            {formatKoreaRelativeTime(data.reviewedAt)}
           </span>
         </div>
       </div>
