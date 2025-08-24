@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import KeywordReview from '@/entities/my-profile/ui/keyword-review';
+import KeywordReview from '@/entities/user/ui/keyword-review';
 import { MyReviewItem } from '@/features/study/api/types';
 import {
   useMyNegativeKeywordsQuery,

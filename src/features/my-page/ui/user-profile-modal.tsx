@@ -1,9 +1,9 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
-import KeywordReview from '@/entities/my-profile/ui/keyword-review';
-import ProfileInfoCard from '@/entities/my-profile/ui/profile-info-card';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
+import KeywordReview from '@/entities/user/ui/keyword-review';
+import ProfileInfoCard from '@/entities/user/ui/profile-info-card';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';

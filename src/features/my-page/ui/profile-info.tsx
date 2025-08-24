@@ -1,7 +1,7 @@
 'use client';
 
-import ProfileInfoCard from '@/entities/my-profile/ui/profile-info-card';
 import { MemberInfo } from '@/entities/user/api/types';
+import ProfileInfoCard from '@/entities/user/ui/profile-info-card';
 import ProfileInfoEditModal from '@/features/my-page/ui/profile-info-edit-modal';
 
 interface ProfileInfoProps {
