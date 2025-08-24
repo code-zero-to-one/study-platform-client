@@ -1,157 +1,126 @@
-import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
-import { BaseInput, TextAreaInput } from '@/shared/ui/input';
-import { ToggleButton } from '@/shared/ui/toggle';
-import MultiItemSelector from './multi-item-selector';
+'use client';
 
-type InputType =
-  | 'text'
-  | 'textarea'
-  | 'singledropdown'
-  | 'multidropdown'
-  | 'togglegroup'
-  | 'userselect';
+import React, { useId } from 'react';
+import {
+  useWatch,
+  get,
+  useFormContext,
+  type FieldValues,
+  type Path,
+  type RegisterOptions,
+} from 'react-hook-form';
+import { cn } from '@/shared/shadcn/lib/utils';
+import { FieldControl, type ControlledChildProps } from './field-control';
 
-interface FormFieldProps<T> {
-  label: string;
-  description?: string;
-  placeholder?: string;
-  type: InputType;
-  maxLength?: number;
+type Direction = 'horizontal' | 'vertical';
+
+export interface FormFieldProps<
+  T extends FieldValues,
+  N extends Path<T>,
+  V = string,
+> {
+  name: N;
+  rules?: RegisterOptions<T, N>;
+
+  label: React.ReactNode;
+  helper?: React.ReactNode;
+  description?: React.ReactNode;
   required?: boolean;
-  options?: { value: string | number; label: string }[];
-  value: T;
-  direction?: 'horizontal' | 'vertical';
-  onChange: (value: T) => void;
-  error?: boolean;
+  direction?: Direction;
+  id?: string;
+
+  showCounterRight?: boolean;
+  counterMax?: number;
+
+  children: React.ReactElement<ControlledChildProps<V>>;
 }
 
-export function FormField<T>({
+export default function FormField<
+  T extends FieldValues,
+  N extends Path<T>,
+  V = string,
+>({
+  name,
+  rules,
   label,
-  error = false,
+  helper,
   description,
-  placeholder,
-  type,
   required = false,
-  maxLength = 30,
-  options = [],
-  value,
   direction = 'horizontal',
-  onChange,
-}: FormFieldProps<T>) {
-  const renderInput = () => {
-    switch (type) {
-      case 'text':
-        return (
-          <>
-            <BaseInput
-              placeholder={placeholder || '입력해주세요.'}
-              value={value as string}
-              color={error ? 'error' : 'default'}
-              onChange={(e) => onChange(e.target.value as T)}
-            />
-            {description && (
-              <div
-                className={`font-designer-13r ${error ? 'text-text-error' : 'text-text-subtlest'}`}
-              >
-                {description}
-              </div>
-            )}
-          </>
-        );
-      case 'textarea':
-        return (
-          <TextAreaInput
-            placeholder={placeholder || '입력해주세요.'}
-            guideText={description}
-            value={value as string}
-            maxLength={maxLength}
-            onChange={(e) => onChange(e as T)}
-          />
-        );
-      case 'singledropdown':
-        return (
-          <>
-            <SingleDropdown
-              options={options}
-              defaultValue={value ? (value as string) : undefined}
-              placeholder={placeholder || '선택해주세요'}
-              onChange={(v) => onChange(v as T)}
-            />
-            {description && (
-              <div className="font-designer-13r text-text-subtlest">
-                {description}
-              </div>
-            )}
-          </>
-        );
-      case 'multidropdown':
-        return (
-          <>
-            <MultiDropdown
-              options={options}
-              defaultValue={value as string[]}
-              onChange={(v) => onChange(v as T)}
-              placeholder={placeholder || '선택해주세요.'}
-            />
-            {description && (
-              <div className="font-designer-13r text-text-subtlest">
-                {description}
-              </div>
-            )}
-          </>
-        );
-      case 'togglegroup': {
-        const toggleItem = (key: string | number) => {
-          const prev = value as (string | number)[];
-          const updated = prev.includes(key)
-            ? prev.filter((item) => item !== key)
-            : [...prev, key];
-          onChange(updated as T);
-        };
+  id,
+  children,
+  showCounterRight = false,
+  counterMax,
+}: FormFieldProps<T, N, V>) {
+  const { control, formState } = useFormContext<T>();
+  const autoId = useId();
+  const fieldId = id ?? `field-${autoId}`;
+  const descId = description ? `${fieldId}-desc` : undefined;
+  const errId = `${fieldId}-error`;
 
-        return (
-          <div className="flex flex-wrap gap-100">
-            {options.map(({ value: optionValue, label }) => (
-              <ToggleButton
-                key={optionValue}
-                pressed={(value as (string | number)[])
-                  .map(String)
-                  .includes(optionValue.toString())}
-                onPressedChange={() => toggleItem(optionValue)}
-              >
-                {label}
-              </ToggleButton>
-            ))}
-          </div>
-        );
-      }
-      case 'userselect': {
-        return (
-          <MultiItemSelector
-            value={value as string[]}
-            onChange={(v) => onChange(v as T)}
-            options={options?.map((opt) => opt.label)}
-          />
-        );
-      }
-      default:
-        return null;
-    }
-  };
+  const watched = useWatch({ control, name }) as unknown;
+  const currentLen = typeof watched === 'string' ? watched.length : 0;
+
+  const error = get(formState.errors, name) as { message?: string } | undefined;
+  const errorMsg = error?.message;
+
+  const leftCol =
+    direction === 'vertical'
+      ? 'w-full items-center gap-75'
+      : 'w-[112px] gap-100 pt-100';
 
   return (
     <div
-      className={`flex ${direction === 'vertical' ? 'flex-col gap-150' : 'gap-600'}`}
+      className={cn(
+        'flex',
+        direction === 'vertical' ? 'flex-col gap-100' : 'gap-600',
+      )}
     >
-      <div
-        className={`flex ${direction === 'vertical' ? 'w-full items-center gap-75' : 'w-[112px] gap-100 pt-100'}`}
-      >
-        <div className="font-designer-14b text-text-default">{label}</div>
+      <div className={cn('flex', leftCol)}>
+        <label
+          htmlFor={fieldId}
+          className="font-designer-14b text-text-default"
+        >
+          {label}
+        </label>
         {required && (
           <div className="font-designer-13r text-text-error">필수</div>
         )}
       </div>
-      <div className="flex w-full flex-col gap-75">{renderInput()}</div>
+
+      <div className="flex w-full flex-col gap-75">
+        {helper && (
+          <div className="text-text-subtle font-designer-14r mb-100">
+            {helper}
+          </div>
+        )}
+
+        <FieldControl<T, N, V>
+          name={name}
+          rules={rules}
+          controlId={fieldId}
+          describedById={errorMsg ? errId : descId}
+        >
+          {children}
+        </FieldControl>
+
+        <div className="font-designer-13r flex items-center justify-between">
+          <div
+            id={errorMsg ? errId : descId}
+            className={cn(errorMsg ? 'text-text-error' : 'text-text-subtlest')}
+            role={errorMsg ? 'alert' : undefined}
+            aria-live={errorMsg ? 'polite' : undefined}
+          >
+            {errorMsg ? errorMsg : description}
+          </div>
+
+          {showCounterRight && typeof counterMax === 'number' && (
+            <div className="text-text-subtlest">
+              {currentLen}/{counterMax}
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

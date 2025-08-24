@@ -18,6 +18,7 @@
     "api:logs": "docker-compose -f ../study-platform-mvp/docker-compose.yml logs -f mvp-app"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.1",
     "@next/third-parties": "^15.3.3",
     "@radix-ui/react-avatar": "^1.1.9",
     "@radix-ui/react-dialog": "^1.1.10",
@@ -37,10 +38,12 @@
     "react": "^19.0.0",
     "react-day-picker": "9.4.3",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.62.0",
     "tailwind-merge": "^3.2.0",
     "tailwindcss": "^4.0.6",
     "tailwindcss-animate": "^1.0.7",
     "tw-animate-css": "^1.2.5",
+    "zod": "^4.0.17",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
-import MyProfileCard from '@/features/study/ui/my-profile-card';
+import MyProfileCard from '@/entities/user/ui/my-profile-card';
 import StartStudyModal from '@/features/study/ui/start-study-modal';
 import { getLoginUserId } from '@/shared/lib/get-login-user';
 import Calendar from '@/widgets/home/calendar';
@@ -34,7 +34,17 @@ export default async function Sidebar() {
       {userProfile.studyApplied ? (
         <TodoList statusList={[false, false, false]} />
       ) : (
-        <StartStudyModal memberId={memberId} />
+        <StartStudyModal
+          memberId={memberId}
+          trigger={
+            <Image
+              src="/apply-study.svg"
+              alt="스터디 시작 버튼"
+              width={68}
+              height={56}
+            />
+          }
+        />
       )}
       <Link
         href={''}
