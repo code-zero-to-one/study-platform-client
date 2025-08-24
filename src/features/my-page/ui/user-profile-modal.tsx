@@ -1,12 +1,14 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
+import KeywordReview from '@/entities/my-profile/ui/keyword-review';
 import ProfileInfoCard from '@/entities/my-profile/ui/profile-info-card';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
+import { useUserPositiveKeywordsQuery } from '@/features/study/model/use-review-query';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import { Modal } from '@/shared/ui/modal';
@@ -21,8 +23,13 @@ export default function UserProfileModal({
   trigger,
 }: UserProfileModalProps) {
   const { data: profile, isLoading, isError } = useUserProfileQuery(memberId);
+  const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
+    memberId,
+  });
 
-  if (isLoading || isError || !profile) return null;
+  if (isLoading || isError || !profile || !positiveKeywordsData) return null;
+
+  const positiveKeywords = positiveKeywordsData?.keywords || [];
 
   return (
     <Modal.Root>
@@ -128,9 +135,24 @@ export default function UserProfileModal({
               </span>
 
               <div className="text-text-default font-designer-14r">
-                <span>n명의 유저들이 이런 점이 좋다고 했어요.</span>
+                {/* todo: 기획 fix되면 수정 */}
+                {/* <span>n명의 유저들이 이런 점이 좋다고 했어요.</span> */}
 
-                <ul />
+                <ul className="flex flex-col gap-100">
+                  {positiveKeywords.length > 0 ? (
+                    positiveKeywords.map((keyword) => (
+                      <KeywordReview
+                        key={keyword.id}
+                        content={keyword.content}
+                        count={keyword.count}
+                      />
+                    ))
+                  ) : (
+                    <span className="text-text-subtle font-designer-14r">
+                      아직 받은 평가가 없습니다.
+                    </span>
+                  )}
+                </ul>
               </div>
             </div>
           </Modal.Body>
