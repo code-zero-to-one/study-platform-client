@@ -1,11 +1,12 @@
 import { Textarea } from '@/shared/shadcn/ui/textarea';
 
 interface Props {
-  value: string;
+  value?: string;
   placeholder?: string;
   guideText?: string;
   maxLength?: number;
-  onChange?: (value: string) => void;
+  onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  hideMeta?: boolean;
 }
 
 function TextAreaInput({
@@ -14,12 +15,15 @@ function TextAreaInput({
   guideText,
   maxLength = 30,
   onChange,
+  hideMeta = false,
 }: Props) {
+  const current = value ?? '';
+
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length > maxLength) {
-      return;
+      e.target.value = e.target.value.slice(0, maxLength);
     }
-    onChange?.(e.target.value);
+    onChange?.(e);
   };
 
   return (
@@ -27,15 +31,18 @@ function TextAreaInput({
       <Textarea
         placeholder={placeholder}
         className="rounded-100 border-border-default h-[60px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none"
-        value={value}
+        value={current}
         onChange={handleChange}
+        maxLength={maxLength}
       />
-      <div className="font-designer-13r text-text-subtlest flex justify-between">
-        <div>{guideText}</div>
-        <div>
-          {value.length}/{maxLength}
+      {!hideMeta && (
+        <div className="font-designer-13r text-text-subtlest flex justify-between">
+          <div>{guideText}</div>
+          <div>
+            {current.length}/{maxLength}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

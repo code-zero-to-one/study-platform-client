@@ -1,12 +1,12 @@
-<svg width="110" height="110" viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 110 110" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g id="default">
-<circle id="Ellipse 4411" cx="55" cy="55" r="55" fill="#F4F4F5"/>
+<circle id="Ellipse 4411" cx="55" cy="55" r="55" fill="var(--outer-color, #F4F4F5)"/>
 <g id="Mask group">
-<mask id="mask0_2492_1434" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" width="110" height="110">
+<mask id="mask0_2492_1434" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0" >
 <circle id="Ellipse 4410" cx="55" cy="55" r="55" fill="#FAFAFA"/>
 </mask>
 <g mask="url(#mask0_2492_1434)">
-<circle id="Ellipse 4409" cx="64.2792" cy="80.1098" r="52.8163" fill="#FAB0D5"/>
+<circle id="Ellipse 4409" cx="64.2792" cy="80.1098" r="52.8163" fill="currentColor"/>
 <g id="Group 2614607">
 <circle id="Ellipse 4412" cx="38.7942" cy="58.7322" r="2.94849" fill="black"/>
 <circle id="Ellipse 4413" cx="65.5383" cy="58.7322" r="2.94849" fill="black"/>

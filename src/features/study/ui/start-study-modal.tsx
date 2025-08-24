@@ -1,34 +1,39 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useMemo } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
   useTechStacksQuery,
 } from '@/features/my-page/model/use-update-user-profile-mutation';
-import { cn } from '@/shared/shadcn/lib/utils';
+
 import Button from '@/shared/ui/button';
 import { SingleDropdown, MultiDropdown } from '@/shared/ui/dropdown';
-import { BaseInput } from '@/shared/ui/input';
+import FormField from '@/shared/ui/form/form-field';
+import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { ToggleButton } from '@/shared/ui/toggle';
-import { JoinStudyRequest } from '../api/types';
+
+import { ToggleGroup } from '@/shared/ui/toggle';
 import { studySteps } from '../consts/study-const';
+
 import { useJoinStudyMutation } from '../model/use-study-query';
+import {
+  StartStudyFormSchema,
+  type StartStudyFormValues,
+  buildStartStudyDefaultValues,
+  toJoinStudyRequest,
+} from '../participation/model/start-study-form.schema';
 
 interface StartStudyModalProps {
   memberId: number;
-}
-
-interface LabeledFieldProps {
-  label: string;
-  required?: boolean;
-  description?: string;
-  children: React.ReactNode;
-  className?: string;
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 interface NumberedBulletSectionProps {
@@ -42,7 +47,7 @@ function NumberedBulletSection({ title, items }: NumberedBulletSectionProps) {
       <div className="font-designer-16b">{title}</div>
       <div className="bg-background-alternative rounded-75 px-200 py-300">
         <ul className="font-designer-15r text-text-subtle mx-250 list-outside list-disc pl-6">
-          {items.map((item: string, idx: number) => (
+          {items.map((item, idx) => (
             <li key={idx} className="mb-100 last:mb-0">
               {item}
             </li>
@@ -53,51 +58,15 @@ function NumberedBulletSection({ title, items }: NumberedBulletSectionProps) {
   );
 }
 
-export function LabeledField({
-  label,
-  required,
-  description,
-  children,
-  className,
-}: LabeledFieldProps) {
+export default function StartStudyModal({
+  memberId,
+  trigger,
+  open,
+  onOpenChange,
+}: StartStudyModalProps) {
   return (
-    <div className={cn('flex flex-col', className)}>
-      <label className="font-designer-16b text-text-default mb-100 inline-block">
-        {label}
-        {required && (
-          <span className="font-designer-13m text-text-error ml-100">필수</span>
-        )}
-      </label>
-      {description && (
-        <span className="font-designer-13m text-text-subtle mb-250">
-          {description}
-        </span>
-      )}
-      {children}
-    </div>
-  );
-}
-
-type JoinStudyFormError = {
-  [K in keyof Omit<
-    JoinStudyRequest,
-    'memberId' | 'githubLink' | 'blogOrSnsLink'
-  >]: boolean;
-};
-
-export default function StartStudyModal({ memberId }: StartStudyModalProps) {
-  return (
-    <Modal.Root>
-      <Modal.Trigger>
-        <Image
-          src="/images/start-study.png"
-          alt="스터디 시작 버튼"
-          width={0}
-          height={0}
-          sizes="100vw"
-          className="h-auto w-full"
-        />
-      </Modal.Trigger>
+    <Modal.Root open={open} onOpenChange={onOpenChange}>
+      {trigger ? <Modal.Trigger asChild>{trigger}</Modal.Trigger> : null}
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="large">
@@ -110,100 +79,77 @@ export default function StartStudyModal({ memberId }: StartStudyModalProps) {
             </Modal.Close>
           </Modal.Header>
 
-          <StartStudyForm memberId={memberId} />
+          <StartStudyForm
+            memberId={memberId}
+            onClose={() => onOpenChange?.(false)}
+          />
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
   );
 }
 
-function StartStudyForm({ memberId }: StartStudyModalProps) {
-  const [form, setForm] = useState<Omit<JoinStudyRequest, 'memberId'>>({
-    selfIntroduction: '',
-    studyPlan: '',
-    tel: '',
-    githubLink: '',
-    blogOrSnsLink: '',
-    preferredStudySubjectId: undefined,
-    availableStudyTimeIds: [],
-    techStackIds: [],
-  });
-
-  const [error, setError] = useState<JoinStudyFormError>({
-    selfIntroduction: false,
-    studyPlan: false,
-    tel: false,
-    preferredStudySubjectId: false,
-    availableStudyTimeIds: false,
-    techStackIds: false,
-  });
-
-  const {
-    selfIntroduction,
-    studyPlan,
-    tel,
-    githubLink,
-    blogOrSnsLink,
-    preferredStudySubjectId,
-    availableStudyTimeIds,
-  } = form;
-
-  const { data: availableStudyTimes } = useAvailableStudyTimesQuery();
-  const { data: studySubjects } = useStudySubjectsQuery();
-  const { data: techStacks } = useTechStacksQuery();
+function StartStudyForm({
+  memberId,
+  onClose,
+}: {
+  memberId: number;
+  onClose: () => void;
+}) {
   const router = useRouter();
-
+  const { data: availableStudyTimes = [] } = useAvailableStudyTimesQuery();
+  const { data: studySubjects = [] } = useStudySubjectsQuery();
+  const { data: techStacks = [] } = useTechStacksQuery();
   const { mutate: joinStudy } = useJoinStudyMutation();
 
-  const toggleStudyTime = (id: number) => {
-    setForm((prev) =>
-      prev.availableStudyTimeIds.includes(id)
-        ? {
-            ...prev,
-            availableStudyTimeIds: prev.availableStudyTimeIds.filter(
-              (item) => item !== id,
-            ),
-          }
-        : {
-            ...prev,
-            availableStudyTimeIds: [...prev.availableStudyTimeIds, id],
-          },
-    );
-  };
+  const methods = useForm<StartStudyFormValues>({
+    resolver: zodResolver(StartStudyFormSchema),
+    mode: 'onChange',
+    defaultValues: buildStartStudyDefaultValues(),
+  });
 
-  const handleSubmit = () => {
-    const newError: JoinStudyFormError = {
-      selfIntroduction: selfIntroduction.trim() === '',
-      studyPlan: studyPlan.trim() === '',
-      tel: !/^\d{2,3}-\d{3,4}-\d{4}$/.test(tel),
-      preferredStudySubjectId: preferredStudySubjectId === undefined,
-      availableStudyTimeIds: availableStudyTimeIds.length === 0,
-      techStackIds: form.techStackIds.length === 0,
-    };
+  const { handleSubmit } = methods;
 
-    if (Object.values(newError).some(Boolean)) {
-      setError(newError);
+  const subjectOptions = useMemo(
+    () =>
+      studySubjects.map(({ studySubjectId, name }) => ({
+        value: String(studySubjectId),
+        label: name,
+      })),
+    [studySubjects],
+  );
 
-      return;
-    }
+  const timeOptions = useMemo(
+    () =>
+      availableStudyTimes.map(({ availableTimeId, display }) => ({
+        value: String(availableTimeId),
+        label: display,
+      })),
+    [availableStudyTimes],
+  );
 
-    joinStudy(
-      {
-        ...form,
-        memberId,
-        githubLink: githubLink.trim() || undefined,
-        blogOrSnsLink: blogOrSnsLink.trim() || undefined,
+  const techOptions = useMemo(
+    () =>
+      techStacks.map(({ techStackId, techStackName }) => ({
+        value: String(techStackId),
+        label: techStackName,
+      })),
+    [techStacks],
+  );
+
+  const onValidSubmit = (values: StartStudyFormValues) => {
+    const body = toJoinStudyRequest(memberId, values);
+
+    joinStudy(body, {
+      onSuccess: () => {
+        alert('스터디 신청이 완료되었습니다!');
+        onClose();
+        router.refresh();
       },
-      {
-        onSuccess: () => {
-          alert('스터디 신청이 완료되었습니다!');
-          router.refresh();
-        },
-        onError: () => {
-          alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
-        },
+      onError: () => {
+        alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
       },
-    );
+    });
   };
 
   return (
@@ -220,177 +166,105 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
 
         <div className="border-border-default border-t" />
 
-        <div className="flex flex-col gap-400">
-          <LabeledField
-            label="자기 소개"
-            required
-            description="간단한 자기소개를 입력해 주세요."
+        <FormProvider {...methods}>
+          <form
+            id="start-study-form"
+            className="flex flex-col gap-400"
+            onSubmit={handleSubmit(onValidSubmit)}
           >
-            <BaseInput
-              placeholder="신입 프론트엔드 개발자입니다. 리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
-              value={selfIntroduction}
-              color={error.selfIntroduction ? 'error' : 'default'}
-              onChange={(e) => {
-                setForm((prev) => ({
-                  ...prev,
-                  selfIntroduction: e.target.value,
-                }));
-                setError((prev) => ({
-                  ...prev,
-                  selfIntroduction: e.target.value.trim() === '',
-                }));
-              }}
-            />
-          </LabeledField>
+            <FormField<StartStudyFormValues, 'selfIntroduction'>
+              name="selfIntroduction"
+              label="자기 소개"
+              helper="간단한 자기소개를 입력해 주세요."
+              direction="vertical"
+              required
+            >
+              <TextAreaInput
+                placeholder="신입 프론트엔드 개발자입니다.
+                  리액트를 중심으로 공부 중이고, 꾸준히 기록하는 습관을 들이고 있어요."
+                maxLength={500}
+              />
+            </FormField>
 
-          <LabeledField
-            label="공부 주제 및 계획"
-            required
-            description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
-          >
-            <BaseInput
-              color={error.studyPlan ? 'error' : 'default'}
-              placeholder="CS 기본기를 탄탄하게 다지는 것이 목표입니다. 각자 맡은 주제를 정리하고 공유하는 방식으로 진행하고 싶어요."
-              value={studyPlan}
-              onChange={(e) => {
-                setForm((prev) => ({
-                  ...prev,
-                  studyPlan: e.target.value,
-                }));
-                setError((prev) => ({
-                  ...prev,
-                  studyPlan: e.target.value.trim() === '',
-                }));
-              }}
-            />
-          </LabeledField>
+            <FormField<StartStudyFormValues, 'studyPlan'>
+              name="studyPlan"
+              label="공부 주제 및 계획"
+              helper="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
+              direction="vertical"
+              required
+            >
+              <TextAreaInput
+                placeholder="CS 기본기를 탄탄하게 다지는 것이 목표입니다.
+                  각자 맡은 주제를 정리하고 공유하는 방식으로 진행하고 싶어요."
+                maxLength={500}
+              />
+            </FormField>
 
-          <LabeledField
-            label="선호하는 스터디 주제"
-            required
-            description="관심 있는 스터디 유형을 선택해 주세요."
-          >
-            <SingleDropdown
-              error={error.preferredStudySubjectId}
-              defaultValue={preferredStudySubjectId}
-              options={(studySubjects ?? []).map(
-                ({ studySubjectId, name }) => ({
-                  value: studySubjectId,
-                  label: name,
-                }),
-              )}
-              placeholder="선택하세요"
-              onChange={(value) => {
-                setForm((prev) => ({
-                  ...prev,
-                  preferredStudySubjectId: value.toString(),
-                }));
-                setError((prev) => ({
-                  ...prev,
-                  preferredStudySubjectId: value === undefined,
-                }));
-              }}
-            />
-          </LabeledField>
+            <FormField<StartStudyFormValues, 'tel'>
+              name="tel"
+              label="연락처"
+              helper="스터디 진행을 위해 연락 가능한 정보를 입력해 주세요. 입력하신 정보는 매칭된 스터디원에게만 제공되며, 외부에는 노출되지 않습니다."
+              direction="vertical"
+              required
+            >
+              <BaseInput placeholder="010-1234-5678" />
+            </FormField>
 
-          <LabeledField
-            label="가능 시간대"
-            required
-            description="스터디 참여가 가능한 시간대를 모두 선택해 주세요."
-          >
-            <div className="grid grid-cols-5 gap-100">
-              {(availableStudyTimes ?? []).map(
-                ({ availableTimeId, display }) => (
-                  <ToggleButton
-                    key={availableTimeId}
-                    pressed={availableStudyTimeIds.includes(availableTimeId)}
-                    onPressedChange={() => toggleStudyTime(availableTimeId)}
-                  >
-                    {display}
-                  </ToggleButton>
-                ),
-              )}
-            </div>
-          </LabeledField>
+            <FormField<StartStudyFormValues, 'preferredStudySubjectId'>
+              name="preferredStudySubjectId"
+              label="선호하는 스터디 주제"
+              helper="관심 있는 스터디 유형을 선택해 주세요."
+              direction="vertical"
+              required
+            >
+              <SingleDropdown
+                options={subjectOptions}
+                placeholder="선택해주세요"
+              />
+            </FormField>
 
-          <LabeledField
-            label="사용 가능한 기술 스택"
-            required
-            description="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
-          >
-            <MultiDropdown
-              error={error.techStackIds}
-              options={(techStacks ?? []).map(
-                ({ techStackId, techStackName }) => ({
-                  value: techStackId,
-                  label: techStackName,
-                }),
-              )}
-              onChange={(newSelected) => {
-                setForm((prev) => ({
-                  ...prev,
-                  techStackIds: newSelected as number[],
-                }));
-                setError((prev) => ({
-                  ...prev,
-                  techStackIds: newSelected.length === 0,
-                }));
-              }}
-              placeholder="기술을 선택해주세요"
-            />
-          </LabeledField>
+            <FormField<StartStudyFormValues, 'availableStudyTimeIds', string[]>
+              name="availableStudyTimeIds"
+              label="가능 시간대"
+              helper="스터디 참여가 가능한 시간대를 모두 선택해 주세요."
+              direction="vertical"
+              required
+            >
+              <ToggleGroup options={timeOptions} />
+            </FormField>
 
-          <LabeledField
-            label="연락처"
-            required
-            description="스터디 진행을 위해 연락 가능한 정보를 입력해 주세요. 입력하신 정보는 매칭된 스터디원에게만 제공되며, 외부에는 노출되지 않습니다."
-          >
-            <BaseInput
-              placeholder="010-1234-5678"
-              value={tel}
-              color={error.tel ? 'error' : 'default'}
-              onChange={(e) => {
-                setForm((prev) => ({
-                  ...prev,
-                  tel: e.target.value,
-                }));
-                setError((prev) => ({
-                  ...prev,
-                  tel: !/^\d{2,3}-\d{3,4}-\d{4}$/.test(e.target.value),
-                }));
-              }}
-            />
-          </LabeledField>
+            <FormField<StartStudyFormValues, 'techStackIds', string[]>
+              name="techStackIds"
+              label="사용 가능한 기술 스택"
+              helper="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
+              direction="vertical"
+              required
+            >
+              <MultiDropdown
+                options={techOptions}
+                placeholder="기술을 선택해주세요"
+              />
+            </FormField>
 
-          <LabeledField
-            label="GitHub"
-            description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
-          >
-            <BaseInput
-              placeholder="https://github.com/@zero-one"
-              value={githubLink}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, githubLink: e.target.value }))
-              }
-            />
-          </LabeledField>
+            <FormField<StartStudyFormValues, 'githubLink'>
+              name="githubLink"
+              label="GitHub"
+              helper="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
+              direction="vertical"
+            >
+              <BaseInput placeholder="https://github.com/@zero-one" />
+            </FormField>
 
-          <LabeledField
-            label="블로그/SNS 등 링크"
-            description="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
-          >
-            <BaseInput
-              placeholder="https://velog.io/@zero-one"
-              value={blogOrSnsLink}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  blogOrSnsLink: e.target.value,
-                }))
-              }
-            />
-          </LabeledField>
-        </div>
+            <FormField<StartStudyFormValues, 'blogOrSnsLink'>
+              name="blogOrSnsLink"
+              label="블로그/SNS 등 링크"
+              helper="본인의 활동을 확인할 수 있는 외부 링크가 있다면 입력해 주세요."
+              direction="vertical"
+            >
+              <BaseInput placeholder="https://velog.io/@zero-one" />
+            </FormField>
+          </form>
+        </FormProvider>
       </Modal.Body>
 
       <Modal.Footer className="flex justify-end gap-100">
@@ -399,8 +273,16 @@ function StartStudyForm({ memberId }: StartStudyModalProps) {
             취소
           </Button>
         </Modal.Close>
-        <Button size="large" color="primary" onClick={handleSubmit}>
-          신청 완료
+        <Button
+          size="large"
+          color="primary"
+          type="submit"
+          form="start-study-form"
+          disabled={
+            !methods.formState.isValid || methods.formState.isSubmitting
+          }
+        >
+          {methods.formState.isSubmitting ? '신청 중…' : '신청 완료'}
         </Button>
       </Modal.Footer>
     </>
