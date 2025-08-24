@@ -126,3 +126,20 @@ export interface AddStudyReviewRequest {
   keywordIds: number[];
   content: string;
 }
+
+interface Keyword {
+  id: number;
+  content: string;
+  count: number;
+}
+
+export interface UserPositiveKeywordsRequest {
+  memberId?: number;
+  pageSize?: number;
+}
+
+export interface UserPositiveKeywordsResponse {
+  totalCount: number;
+  reviewerCount: number;
+  keywords: Keyword[];
+}

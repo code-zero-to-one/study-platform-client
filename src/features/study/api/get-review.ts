@@ -1,5 +1,10 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { AddStudyReviewRequest, StudyEvaluationResponse } from './types';
+import type {
+  AddStudyReviewRequest,
+  UserPositiveKeywordsResponse,
+  UserPositiveKeywordsRequest,
+  StudyEvaluationResponse,
+} from './types';
 
 export const getPartnerStudyReview =
   async (): Promise<StudyEvaluationResponse> => {
@@ -12,6 +17,27 @@ export const getPartnerStudyReview =
 
 export const addStudyReview = async (data: AddStudyReviewRequest) => {
   const res = await axiosInstance.post('/study/reviews', data);
+
+  return res.data.content;
+};
+
+export const getUserPositiveKeywords = async ({
+  memberId,
+  pageSize,
+}: UserPositiveKeywordsRequest): Promise<UserPositiveKeywordsResponse> => {
+  const params: Record<string, string | number> = {};
+
+  if (memberId) {
+    params['member-id'] = memberId;
+  }
+  if (pageSize) {
+    params['page-size'] = pageSize;
+  }
+
+  const res = await axiosInstance.get(
+    '/study/reviews/members/keywords/positive',
+    { params },
+  );
 
   return res.data.content;
 };

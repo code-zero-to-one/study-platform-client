@@ -1,5 +1,10 @@
-import { useMutation, useSuspenseQuery } from '@tanstack/react-query';
-import { addStudyReview, getPartnerStudyReview } from '../api/get-review';
+import { useMutation, useQuery, useSuspenseQuery } from '@tanstack/react-query';
+import {
+  addStudyReview,
+  getUserPositiveKeywords,
+  getPartnerStudyReview,
+} from '../api/get-review';
+import { UserPositiveKeywordsRequest } from '../api/types';
 
 export const usePartnerStudyReviewQuery = () => {
   return useSuspenseQuery({
@@ -14,6 +19,22 @@ export const useAddStudyReviewMutation = () => {
     onSuccess: () => {
       // todo: 모달로 변경
       alert('후기 작성이 완료되었습니다.');
+    },
+  });
+};
+
+export const useUserPositiveKeywordsQuery = (
+  params: UserPositiveKeywordsRequest,
+) => {
+  return useQuery({
+    queryKey: ['myPositiveKeywords', params],
+    queryFn: ({ queryKey }) => {
+      const [, requestParams] = queryKey as [
+        string,
+        UserPositiveKeywordsRequest,
+      ];
+
+      return getUserPositiveKeywords(requestParams);
     },
   });
 };

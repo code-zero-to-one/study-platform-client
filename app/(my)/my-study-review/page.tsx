@@ -2,8 +2,15 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { useUserPositiveKeywordsQuery } from '@/features/study/model/use-review-query';
 
 export default function MyStudyReview() {
+  const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
+    pageSize: 5,
+  });
+
+  const positiveKeywords = positiveKeywordsData?.keywords || [];
+
   return (
     <>
       <section>
@@ -19,7 +26,7 @@ export default function MyStudyReview() {
         </div>
 
         <div className="mb-400 grid grid-cols-2 gap-300">
-          <div className="rounded-100 border-border-subtle border p-200">
+          <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
             <div className="mb-200 flex justify-between">
               <h3 className="font-designer-16b text-text-default">좋았던 점</h3>
 
@@ -29,15 +36,23 @@ export default function MyStudyReview() {
             </div>
 
             <ul className="flex flex-col gap-50">
-              <KeywordReview type="positive" count={5} />
-              <KeywordReview type="positive" count={5} />
-              <KeywordReview type="positive" count={5} />
-              <KeywordReview type="positive" count={5} />
-              <KeywordReview type="positive" count={5} />
+              {positiveKeywords.length > 0 ? (
+                positiveKeywords.map((keyword) => (
+                  <KeywordReview
+                    key={keyword.id}
+                    type="positive"
+                    count={keyword.count}
+                  />
+                ))
+              ) : (
+                <span className="text-text-subtle font-designer-14r text-center">
+                  아직 받은 평가가 없습니다.
+                </span>
+              )}
             </ul>
           </div>
 
-          <div className="rounded-100 border-border-subtle border p-200">
+          <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
             <div className="mb-200 flex justify-between">
               <h3 className="font-designer-16b text-text-default">
                 개선이 필요한 점
