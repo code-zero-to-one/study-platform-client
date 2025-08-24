@@ -4,6 +4,8 @@ import type {
   UserPositiveKeywordsResponse,
   UserPositiveKeywordsRequest,
   StudyEvaluationResponse,
+  MyNegativeKeywordsRequest,
+  MyNegativeKeywordsResponse,
 } from './types';
 
 export const getPartnerStudyReview =
@@ -36,6 +38,23 @@ export const getUserPositiveKeywords = async ({
 
   const res = await axiosInstance.get(
     '/study/reviews/members/keywords/positive',
+    { params },
+  );
+
+  return res.data.content;
+};
+
+export const getMyNegativeKeywords = async ({
+  pageSize,
+}: MyNegativeKeywordsRequest): Promise<MyNegativeKeywordsResponse> => {
+  const params: Record<string, number> = {};
+
+  if (pageSize) {
+    params['page-size'] = pageSize;
+  }
+
+  const res = await axiosInstance.get(
+    '/study/reviews/members/keywords/negative',
     { params },
   );
 

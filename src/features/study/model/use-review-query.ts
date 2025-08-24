@@ -3,8 +3,12 @@ import {
   addStudyReview,
   getUserPositiveKeywords,
   getPartnerStudyReview,
+  getMyNegativeKeywords,
 } from '../api/get-review';
-import { UserPositiveKeywordsRequest } from '../api/types';
+import {
+  MyNegativeKeywordsRequest,
+  UserPositiveKeywordsRequest,
+} from '../api/types';
 
 export const usePartnerStudyReviewQuery = () => {
   return useSuspenseQuery({
@@ -36,5 +40,14 @@ export const useUserPositiveKeywordsQuery = (
 
       return getUserPositiveKeywords(requestParams);
     },
+  });
+};
+
+export const useMyNegativeKeywordsQuery = (
+  params: MyNegativeKeywordsRequest,
+) => {
+  return useQuery({
+    queryKey: ['myNegativeKeywords', params],
+    queryFn: () => getMyNegativeKeywords(params),
   });
 };

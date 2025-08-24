@@ -2,14 +2,21 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { useUserPositiveKeywordsQuery } from '@/features/study/model/use-review-query';
+import {
+  useMyNegativeKeywordsQuery,
+  useUserPositiveKeywordsQuery,
+} from '@/features/study/model/use-review-query';
 
 export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     pageSize: 5,
   });
+  const { data: negativeKeywordsData } = useMyNegativeKeywordsQuery({
+    pageSize: 5,
+  });
 
   const positiveKeywords = positiveKeywordsData?.keywords || [];
+  const negativeKeywords = negativeKeywordsData?.keywords || [];
 
   return (
     <>
@@ -64,13 +71,28 @@ export default function MyStudyReview() {
             </div>
 
             <ul className="flex flex-col gap-50">
-              <KeywordReview type="negative" count={5} />
-              <KeywordReview type="negative" count={5} />
-              <KeywordReview type="negative" count={5} />
-              <KeywordReview type="negative" count={5} />
-              <KeywordReview type="negative" count={5} />
+              {negativeKeywords.length > 0 ? (
+                negativeKeywords.map((keyword) => (
+                  <KeywordReview
+                    key={keyword.id}
+                    type="negative"
+                    count={keyword.count}
+                  />
+                ))
+              ) : (
+                <span className="text-text-subtle font-designer-14r text-center">
+                  아직 받은 평가가 없습니다.
+                </span>
+              )}
             </ul>
           </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center gap-100">
+          <div className="font-designer-20b text-text-default">후기</div>
+          <div className="font-designer-20b text-text-default">11</div>
         </div>
       </section>
 

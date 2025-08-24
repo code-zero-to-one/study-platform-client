@@ -143,3 +143,13 @@ export interface UserPositiveKeywordsResponse {
   reviewerCount: number;
   keywords: Keyword[];
 }
+
+export interface MyNegativeKeywordsRequest {
+  pageSize?: number;
+}
+
+export interface MyNegativeKeywordsResponse {
+  totalCount: number;
+  reviewerCount: number;
+  keywords: Keyword[];
+}
