@@ -164,13 +164,14 @@ function Review({ data }: { data: MyReviewItem }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <li className="flex flex-col gap-150 py-250">
+    <li className="border-b-border-subtle flex flex-col gap-150 border-b py-250">
       <div className="flex items-center gap-150">
         <Image
           src={data.writer.profileImageUrl || '/profile-default.svg'}
           width={32}
           height={32}
           alt={`${data.writer.memberName} 프로필 이미지`}
+          className="rounded-full"
         />
 
         <div>
