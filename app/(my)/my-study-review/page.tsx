@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import KeywordReview from '@/entities/user/ui/keyword-review';
+import MoreKeywordReviewModal from '@/entities/user/ui/more-keyword-review-modal';
 import { MyReviewItem } from '@/features/study/api/types';
 import {
   useMyNegativeKeywordsQuery,
@@ -15,6 +16,7 @@ export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     pageSize: 5,
   });
+
   const { data: negativeKeywordsData } = useMyNegativeKeywordsQuery({
     pageSize: 5,
   });
@@ -55,11 +57,7 @@ export default function MyStudyReview() {
             <div className="mb-200 flex justify-between">
               <h3 className="font-designer-16b text-text-default">좋았던 점</h3>
 
-              {positiveKeywords.length > 5 && (
-                <button className="font-designer-12m text-text-subtlest cursor-pointer">
-                  더보기
-                </button>
-              )}
+              {positiveKeywords.length > 5 && <MorePositiveKeywordsModal />}
             </div>
 
             <ul className="flex flex-col gap-50">
@@ -85,11 +83,7 @@ export default function MyStudyReview() {
                 개선이 필요한 점
               </h3>
 
-              {negativeKeywords.length > 5 && (
-                <button className="font-designer-12m text-text-subtlest cursor-pointer">
-                  더보기
-                </button>
-              )}
+              {negativeKeywords.length > 5 && <MoreNegativeKeywordsModal />}
             </div>
 
             <ul className="flex flex-col gap-50">
@@ -150,6 +144,29 @@ export default function MyStudyReview() {
         </ul>
       </section>
     </>
+  );
+}
+
+function MorePositiveKeywordsModal() {
+  const { data: allPositiveKeywordsData } = useUserPositiveKeywordsQuery({});
+
+  const allPositiveKeywords = allPositiveKeywordsData.keywords || [];
+
+  return (
+    <MoreKeywordReviewModal title="좋았던 점" keywords={allPositiveKeywords} />
+  );
+}
+
+function MoreNegativeKeywordsModal() {
+  const { data: allNegativeKeywordsData } = useMyNegativeKeywordsQuery({});
+
+  const allNegativeKeywords = allNegativeKeywordsData.keywords || [];
+
+  return (
+    <MoreKeywordReviewModal
+      title="개선이 필요한 점"
+      keywords={allNegativeKeywords}
+    />
   );
 }
 
