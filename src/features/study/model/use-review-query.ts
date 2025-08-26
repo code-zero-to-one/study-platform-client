@@ -10,6 +10,7 @@ import {
   getPartnerStudyReview,
   getMyNegativeKeywords,
   getMyReviews,
+  getWeeklyStudyReviewStatus,
 } from '../api/get-review';
 import {
   MyNegativeKeywordsRequest,
@@ -82,5 +83,12 @@ export const useMyReviewsInfinityQuery = () => {
         hasNext,
       };
     },
+  });
+};
+
+export const useWeeklyStudyReviewStatusQuery = () => {
+  return useQuery({
+    queryKey: ['weeklyStudyReviewStatus'],
+    queryFn: getWeeklyStudyReviewStatus,
   });
 };
