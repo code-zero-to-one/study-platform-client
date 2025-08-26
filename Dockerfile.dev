@@ -26,6 +26,9 @@ COPY --from=builder /app/next.config.ts ./next.config.ts
 # 런타임시점에도 .env 파일 복사
 COPY --from=builder /app/.env .env
 
+# 빌드 시 Node 힙 메모리를 4GB까지 허용 (4096 = 4GB)
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 # devDependencies는 설치하지 않고 dependencies만 설치
 RUN yarn install --production 
 
