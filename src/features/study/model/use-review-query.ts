@@ -90,5 +90,6 @@ export const useWeeklyStudyReviewStatusQuery = () => {
   return useQuery({
     queryKey: ['weeklyStudyReviewStatus'],
     queryFn: getWeeklyStudyReviewStatus,
+    refetchInterval: 1000 * 60 * 30, // 30분
   });
 };
