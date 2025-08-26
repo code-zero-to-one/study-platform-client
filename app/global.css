@@ -192,6 +192,10 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-background-brand-default: var(--color-rose-500);
   --color-background-brand-strong: var(--color-rose-700);
 
+  --color-background-neutral-subtle: var(--color-gray-200);
+  --color-background-neutral-default: var(--color-gray-500);
+  --color-background-neutral-strong: var(--color-gray-900);
+
   --color-background-accent-blue-subtle: var(--color-blue-50);
   --color-background-accent-blue-default: var(--color-blue-100);
   --color-background-accent-blue-strong: var(--color-blue-600);
@@ -225,6 +229,10 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --color-background-accent-yellow-subtle: var(--color-yellow-50);
   --color-background-accent-yellow-default: var(--color-yellow-100);
   --color-background-accent-yellow-strong: var(--color-yellow-600);
+
+  --color-background-success-subtle: var(--color-green-300);
+  --color-background-success-default: var(--color-green-500);
+  --color-background-success-strong: var(--color-green-700);
 
   --color-fill-brand-default-default: var(--color-rose-500);
   --color-fill-brand-default-hover: var(--color-rose-600);

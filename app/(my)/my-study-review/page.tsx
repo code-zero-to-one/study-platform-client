@@ -1,0 +1,212 @@
+'use client';
+
+import Image from 'next/image';
+import { useState } from 'react';
+import KeywordReview from '@/entities/user/ui/keyword-review';
+import { MyReviewItem } from '@/features/study/api/types';
+import {
+  useMyNegativeKeywordsQuery,
+  useMyReviewsInfinityQuery,
+  useUserPositiveKeywordsQuery,
+} from '@/features/study/model/use-review-query';
+import { formatKoreaRelativeTime } from '@/shared/lib/time';
+
+export default function MyStudyReview() {
+  const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
+    pageSize: 5,
+  });
+  const { data: negativeKeywordsData } = useMyNegativeKeywordsQuery({
+    pageSize: 5,
+  });
+  const {
+    data: myReviewsData,
+    fetchNextPage,
+    hasNextPage,
+  } = useMyReviewsInfinityQuery();
+
+  const positiveKeywords = positiveKeywordsData?.keywords || [];
+  const negativeKeywords = negativeKeywordsData?.keywords || [];
+
+  const positiveKeywordsCount = positiveKeywordsData?.totalCount || 0;
+  const negativeKeywordsCount = negativeKeywordsData?.totalCount || 0;
+
+  const totalKeywordsCount = positiveKeywordsCount + negativeKeywordsCount;
+
+  const myReviews = myReviewsData?.reviews || [];
+
+  return (
+    <>
+      <section>
+        <div className="mb-200">
+          <div className="flex items-center gap-100">
+            <div className="font-designer-20b text-text-default">받은 평가</div>
+            <div className="font-designer-20b text-text-default">
+              {totalKeywordsCount}
+            </div>
+          </div>
+
+          <span className="font-designer-14r text-text-subtle">
+            개선이 필요한 점은 나에게만 보여요
+          </span>
+        </div>
+
+        <div className="mb-400 grid grid-cols-2 gap-300">
+          <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
+            <div className="mb-200 flex justify-between">
+              <h3 className="font-designer-16b text-text-default">좋았던 점</h3>
+
+              {positiveKeywords.length > 5 && (
+                <button className="font-designer-12m text-text-subtlest cursor-pointer">
+                  더보기
+                </button>
+              )}
+            </div>
+
+            <ul className="flex flex-col gap-50">
+              {positiveKeywords.length > 0 ? (
+                positiveKeywords.map((keyword) => (
+                  <KeywordReview
+                    key={keyword.id}
+                    content={keyword.content}
+                    count={keyword.count}
+                  />
+                ))
+              ) : (
+                <span className="text-text-subtle font-designer-14r text-center">
+                  아직 받은 평가가 없습니다.
+                </span>
+              )}
+            </ul>
+          </div>
+
+          <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
+            <div className="mb-200 flex justify-between">
+              <h3 className="font-designer-16b text-text-default">
+                개선이 필요한 점
+              </h3>
+
+              {negativeKeywords.length > 5 && (
+                <button className="font-designer-12m text-text-subtlest cursor-pointer">
+                  더보기
+                </button>
+              )}
+            </div>
+
+            <ul className="flex flex-col gap-50">
+              {negativeKeywords.length > 0 ? (
+                negativeKeywords.map((keyword) => (
+                  <KeywordReview
+                    key={keyword.id}
+                    content={keyword.content}
+                    count={keyword.count}
+                  />
+                ))
+              ) : (
+                <span className="text-text-subtle font-designer-14r text-center">
+                  아직 받은 평가가 없습니다.
+                </span>
+              )}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center gap-100">
+          <div className="font-designer-20b text-text-default">후기</div>
+          <div className="font-designer-20b text-text-default">
+            {myReviewsData?.totalCount || 0}
+          </div>
+        </div>
+
+        <span className="font-designer-14r text-text-subtle">
+          모든 후기는 나에게만 보여요
+        </span>
+
+        <ul>
+          {myReviews.length > 0 ? (
+            myReviews.map((review) => <Review key={review.id} data={review} />)
+          ) : (
+            <div className="text-text-subtle font-designer-14r flex h-[200px] items-center justify-center text-center">
+              아직까지 받은 후기가 없습니다.
+            </div>
+          )}
+
+          {hasNextPage && (
+            <button
+              className="font-designer-14m text-text-subtle hover:bg-background-accent-gray-default rounded-50 flex w-full cursor-pointer items-center justify-center py-200"
+              onClick={() => fetchNextPage()}
+            >
+              <span>더보기</span>
+
+              <Image
+                src="/icons/arrow-down.svg"
+                width={20}
+                height={20}
+                alt="후기 더보기"
+              />
+            </button>
+          )}
+        </ul>
+      </section>
+    </>
+  );
+}
+
+function Review({ data }: { data: MyReviewItem }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <li className="border-b-border-subtle flex flex-col gap-150 border-b py-250">
+      <div className="flex items-center gap-150">
+        <Image
+          src={data.writer.profileImageUrl || '/profile-default.svg'}
+          width={32}
+          height={32}
+          alt={`${data.writer.memberName} 프로필 이미지`}
+          className="rounded-full"
+        />
+
+        <div>
+          <span className="font-designer-14b text-text-default mr-50">
+            {data.writer.memberName}
+          </span>
+          <span className="font-designer-14r text-text-subtle mr-50">·</span>
+          <span className="font-designer-14r text-text-subtle">
+            {formatKoreaRelativeTime(data.reviewedAt)}
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <p
+          className={`text-text-default font-designer-15r ${expanded ? 'line-clamp-none' : 'line-clamp-3'}`}
+        >
+          {data.content}
+        </p>
+        <button
+          className="font-designer-14r text-text-subtlest cursor-pointer"
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded ? '접기' : '더보기'}
+        </button>
+      </div>
+
+      <div>
+        <div className="text-text-subtle">
+          <span className="font-designer-14b mr-100">스터디 기간</span>
+          <span className="font-designer-13r">
+            {data.startDate.replace(/-/g, '.')} ~{' '}
+            {data.endDate.replace(/-/g, '.')}
+          </span>
+        </div>
+        <div className="text-text-subtle">
+          <span className="font-designer-14b mr-100">스터디 주제</span>
+          <span className="font-designer-13r">
+            {data.studySubjects.join(', ')}
+          </span>
+        </div>
+      </div>
+    </li>
+  );
+}
