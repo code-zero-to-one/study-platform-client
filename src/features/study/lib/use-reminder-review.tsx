@@ -4,12 +4,11 @@ import { getKoreaDate } from '@/shared/lib/time';
 import { useWeeklyStudyReviewStatusQuery } from '../model/use-review-query';
 
 export const useReviewReminder = () => {
-  const { data: reviewDone } = useWeeklyStudyReviewStatusQuery();
+  const { data: reviewDone, isFetching } = useWeeklyStudyReviewStatusQuery();
   const [shouldReview, setShouldReview] = useState(false);
 
   useEffect(() => {
-    // 이미 리뷰를 달았을 경우
-    if (reviewDone) return;
+    if (reviewDone || isFetching) return;
 
     const now = getKoreaDate();
     const dayOfWeek = now.getDay();
@@ -29,7 +28,7 @@ export const useReviewReminder = () => {
 
       localStorage.setItem('lastReviewModalShown', String(now.getTime()));
     }
-  }, [reviewDone]);
+  }, [reviewDone, isFetching]); // 30분마다 refetch하여 effect 실행하기 위해 isFetching 추가
 
   return { shouldReview, setShouldReview };
 };
