@@ -4,6 +4,7 @@ import {
   useQuery,
   useSuspenseQuery,
 } from '@tanstack/react-query';
+import { getKoreaDate } from '@/shared/lib/time';
 import {
   addStudyReview,
   getUserPositiveKeywords,
@@ -91,5 +92,12 @@ export const useWeeklyStudyReviewStatusQuery = () => {
     queryKey: ['weeklyStudyReviewStatus'],
     queryFn: getWeeklyStudyReviewStatus,
     refetchInterval: 1000 * 60 * 30, // 30분
+    enabled: () => {
+      const now = getKoreaDate();
+      const dayOfWeek = now.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // 0: 일요일, 6: 토요일
+
+      return isWeekend;
+    },
   });
 };
