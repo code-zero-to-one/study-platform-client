@@ -31,5 +31,5 @@ export const useReviewReminder = () => {
     }
   }, [reviewDone]);
 
-  return shouldReview;
+  return { shouldReview, setShouldReview };
 };

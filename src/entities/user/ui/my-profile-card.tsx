@@ -33,9 +33,7 @@ export default function MyProfileCard({
   techStacks,
   studyApplied,
 }: MyProfileCardProps) {
-  const shouldReview = useReviewReminder();
-  const [isOpenReviewModal, setIsOpenReviewModal] =
-    useState<boolean>(shouldReview);
+  const { shouldReview, setShouldReview } = useReviewReminder();
 
   const [enabled, setEnabled] = useState(matching);
 
@@ -59,10 +57,7 @@ export default function MyProfileCard({
 
   return (
     <>
-      <StudyReviewModal
-        open={isOpenReviewModal}
-        onOpenChange={setIsOpenReviewModal}
-      />
+      <StudyReviewModal open={shouldReview} onOpenChange={setShouldReview} />
       <section className="rounded-200 border-border-subtle bg-text-inverse flex flex-col items-start gap-200 border p-200">
         <div className="flex flex-row items-center gap-200">
           <div className="relative h-[64px] w-[64px] shrink-0">
