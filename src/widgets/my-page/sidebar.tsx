@@ -1,38 +1,17 @@
 'use client';
 
-import { sendGTMEvent } from '@next/third-parties/google';
-import { useQueryClient } from '@tanstack/react-query';
 import { usePathname, useRouter } from 'next/navigation';
-import { logout } from '@/features/auth/api/auth';
-import { hashValue } from '@/shared/lib/hash';
+import { useLogoutMutation } from '@/features/auth/model/use-auth-mutation';
 import { cn } from '@/shared/shadcn/lib/utils';
-import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
 
 export default function Sidebar() {
   const router = useRouter();
-  const queryClient = useQueryClient();
   const pathname = usePathname();
 
+  const { mutateAsync: logout } = useLogoutMutation();
+
   const handleLogout = async () => {
-    try {
-      await logout();
-
-      const memberId = getCookie('memberId');
-      sendGTMEvent({
-        event: 'custom_member_logout',
-        dl_timestamp: new Date().toISOString(),
-        dl_member_id: hashValue(memberId),
-      });
-
-      deleteCookie('accessToken');
-      deleteCookie('memberId');
-
-      queryClient.clear();
-      router.push('/');
-      router.refresh();
-    } catch (error) {
-      console.error('로그아웃 실패:', error);
-    }
+    await logout();
   };
 
   return (
