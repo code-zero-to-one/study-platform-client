@@ -353,7 +353,7 @@ function PositiveTextArea({
         value={value}
         maxLength={1000}
         placeholder="좋았던 점을 자세히 말해주세요"
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
       />
     </div>
   );
@@ -428,7 +428,7 @@ function NegativeTextArea({
 
       <TextAreaInput
         value={value}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
         maxLength={1000}
         placeholder="아쉬웠던 점을 자세히 말해주세요"
       />
