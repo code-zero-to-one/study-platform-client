@@ -33,7 +33,7 @@ export default function MyProfileCard({
   techStacks,
   studyApplied,
 }: MyProfileCardProps) {
-  const { shouldReview, setShouldReview } = useReviewReminder();
+  const { showReviewReminder, setShowReviewReminder } = useReviewReminder();
 
   const [enabled, setEnabled] = useState(matching);
 
@@ -57,7 +57,10 @@ export default function MyProfileCard({
 
   return (
     <>
-      <StudyReviewModal open={shouldReview} onOpenChange={setShouldReview} />
+      <StudyReviewModal
+        open={showReviewReminder}
+        onOpenChange={setShowReviewReminder}
+      />
       <section className="rounded-200 border-border-subtle bg-text-inverse flex flex-col items-start gap-200 border p-200">
         <div className="flex flex-row items-center gap-200">
           <div className="relative h-[64px] w-[64px] shrink-0">

@@ -8,7 +8,7 @@ import type {
   MyNegativeKeywordsResponse,
   MyReviewsResponse,
   MyReviewsRequest,
-  WeeklyStudyStatusResponse,
+  ShouldReviewPartnerResponse,
 } from './types';
 
 export const getPartnerStudyReview =
@@ -81,8 +81,8 @@ export const getMyReviews = async ({
   return res.data.content;
 };
 
-export const getWeeklyStudyReviewStatus =
-  async (): Promise<WeeklyStudyStatusResponse> => {
+export const getShouldReviewPartner =
+  async (): Promise<ShouldReviewPartnerResponse> => {
     const res = await axiosInstance.get('/study/reviews/this-week/is-writer');
 
     return res.data.content;

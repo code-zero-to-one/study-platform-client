@@ -11,7 +11,7 @@ import {
   getPartnerStudyReview,
   getMyNegativeKeywords,
   getMyReviews,
-  getWeeklyStudyReviewStatus,
+  getShouldReviewPartner,
 } from '../api/get-review';
 import {
   MyNegativeKeywordsRequest,
@@ -87,10 +87,10 @@ export const useMyReviewsInfinityQuery = () => {
   });
 };
 
-export const useWeeklyStudyReviewStatusQuery = () => {
+export const useShouldReviewPartnerQuery = () => {
   return useQuery({
-    queryKey: ['weeklyStudyReviewStatus'],
-    queryFn: getWeeklyStudyReviewStatus,
+    queryKey: ['shouldReviewPartner'],
+    queryFn: getShouldReviewPartner,
     refetchInterval: 1000 * 60 * 30, // 30분
     enabled: () => {
       const now = getKoreaDate();

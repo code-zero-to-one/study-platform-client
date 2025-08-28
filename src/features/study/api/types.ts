@@ -184,4 +184,4 @@ export interface MyReviewsResponse {
   };
 }
 
-export type WeeklyStudyStatusResponse = boolean;
+export type ShouldReviewPartnerResponse = boolean;

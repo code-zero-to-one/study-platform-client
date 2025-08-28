@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react';
 
 import { getKoreaDate } from '@/shared/lib/time';
-import { useWeeklyStudyReviewStatusQuery } from '../model/use-review-query';
+import { useShouldReviewPartnerQuery } from '../model/use-review-query';
 
 export const useReviewReminder = () => {
-  const { data: reviewDone, isFetching } = useWeeklyStudyReviewStatusQuery();
-  const [shouldReview, setShouldReview] = useState(false);
+  const { data: shouldReview, isFetching } = useShouldReviewPartnerQuery();
+  const [showReviewReminder, setShowReviewReminder] = useState(false);
 
   useEffect(() => {
-    if (reviewDone || isFetching) return;
+    // 이미 리뷰를 달았을 경우
+    if (!shouldReview || isFetching) return;
 
     const now = getKoreaDate();
     const dayOfWeek = now.getDay();
 
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // 0: 일요일, 6: 토요일
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // 일요일(0), 토요일(6)
 
     // 평일인 경우
     if (!isWeekend) return;
@@ -21,14 +22,17 @@ export const useReviewReminder = () => {
     const lastShown = localStorage.getItem('lastReviewModalShown');
 
     const diff = now.getTime() - Number(lastShown);
-    const THIRTY_MIN = 30 * 60 * 1000;
+    const THIRTY_MIN = 60 * 1000;
 
     if (!lastShown || diff >= THIRTY_MIN) {
-      setShouldReview(true);
+      setShowReviewReminder(true);
 
       localStorage.setItem('lastReviewModalShown', String(now.getTime()));
     }
-  }, [reviewDone, isFetching]); // 30분마다 refetch하여 effect 실행하기 위해 isFetching 추가
+  }, [shouldReview, isFetching]);
 
-  return { shouldReview, setShouldReview };
+  return {
+    showReviewReminder,
+    setShowReviewReminder,
+  };
 };
