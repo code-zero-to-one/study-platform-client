@@ -49,13 +49,13 @@ function RedirectionContent() {
     handleRedirection().catch(console.error);
   }, [searchParams, router, queryClient]); // 의존성 추가
 
-  return <div>처리중...</div>;
+  return <></>;
 }
 
 // useSearchParams() should be wrapped in a suspense boundary
 export default function RedirectionPage() {
   return (
-    <Suspense fallback={<div>로딩중...</div>}>
+    <Suspense fallback={<></>}>
       <RedirectionContent />
     </Suspense>
   );
