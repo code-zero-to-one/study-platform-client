@@ -22,7 +22,7 @@ export const useReviewReminder = () => {
     const lastShown = localStorage.getItem('lastReviewModalShown');
 
     const diff = now.getTime() - Number(lastShown);
-    const THIRTY_MIN = 60 * 1000;
+    const THIRTY_MIN = 1000 * 60 * 30; // 30분
 
     if (!lastShown || diff >= THIRTY_MIN) {
       setShowReviewReminder(true);
