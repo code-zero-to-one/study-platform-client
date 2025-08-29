@@ -183,3 +183,5 @@ export interface MyReviewsResponse {
     hasNext: boolean;
   };
 }
+
+export type ShouldReviewPartnerResponse = boolean;
