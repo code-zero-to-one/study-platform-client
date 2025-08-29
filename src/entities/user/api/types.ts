@@ -65,11 +65,17 @@ export interface MemberProfile {
   simpleIntroduction: string;
   mbti: string;
   interests: Interest[];
-  hobbies: Hobby[];
+  hobbies?: Hobby[];
   birthDate: string;
   githubLink: SocialLink | undefined;
   blogOrSnsLink: SocialLink | undefined;
   tel: string;
+}
+
+export interface SincerityTemp {
+  temperature: number;
+  levelId: number;
+  levelName: string;
 }
 
 export interface GetUserProfileResponse {
@@ -78,6 +84,7 @@ export interface GetUserProfileResponse {
   studyApplied: boolean;
   memberInfo: MemberInfo;
   memberProfile: MemberProfile;
+  sincerityTemp: SincerityTemp;
 }
 
 export interface PatchAutoMatchingParams {
