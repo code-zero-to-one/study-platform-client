@@ -1,11 +1,21 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+
 import Button from '@/shared/ui/button';
+import FormField from '@/shared/ui/form/form-field';
 import { BaseInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { DailyStudyDetail, PrepareStudyRequest } from '../api/types';
+
+import type { DailyStudyDetail, PrepareStudyRequest } from '../api/types';
+import {
+  StudyReadyFormSchema,
+  type StudyReadyFormValues,
+  buildStudyReadyDefaults,
+} from '../model/interview.schema';
 import { useUpdateDailyStudyMutation } from '../model/use-study-query';
 
 interface StudyReadyModalProps {
@@ -46,27 +56,33 @@ export default function StudyReadyModal({
   );
 }
 
-interface StudyReadyFormProps {
+function StudyReadyForm({
+  data,
+  studyDate,
+  onClose,
+}: {
   data: DailyStudyDetail;
   studyDate: string;
   onClose: () => void;
-}
+}) {
+  const { mutate, isPending } = useUpdateDailyStudyMutation();
 
-function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
-  const [form, setForm] = useState<PrepareStudyRequest>({
-    subject: data.subject ?? '',
-    link: data.link ?? '',
+  const methods = useForm<StudyReadyFormValues>({
+    resolver: zodResolver(StudyReadyFormSchema),
+    mode: 'onChange',
+    defaultValues: buildStudyReadyDefaults(data),
   });
 
-  const { mutate, isPending } = useUpdateDailyStudyMutation();
-  const { subject, link } = form;
+  const {
+    handleSubmit,
+    formState: { isValid, isSubmitting },
+  } = methods;
 
-  const handleChange = (key: keyof PrepareStudyRequest) => (value: string) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleSubmit = async () => {
-    if (!subject.trim()) return;
+  const onSubmit = (values: StudyReadyFormValues) => {
+    const form: PrepareStudyRequest = {
+      subject: values.subject,
+      link: values.link ?? undefined,
+    };
 
     mutate(
       {
@@ -88,42 +104,33 @@ function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
   return (
     <>
       <Modal.Body className="flex flex-col gap-400">
-        <div className="flex flex-col gap-250">
-          <div className="flex flex-col gap-100">
-            <label className="font-designer-16b text-text-default">
-              면접 주제
-              <span className="font-designer-13m text-text-error pl-100">
-                필수
-              </span>
-            </label>
-            <span className="font-designer-14r text-text-subtle">
-              이번 스터디에서 다룰 면접 주제를 입력하세요
-            </span>
-          </div>
+        <FormProvider {...methods}>
+          <form
+            id="study-ready-form"
+            onSubmit={handleSubmit(onSubmit)}
+            className="flex flex-col gap-300"
+          >
+            <FormField<StudyReadyFormValues, 'subject'>
+              name="subject"
+              label="면접 주제"
+              helper="이번 스터디에서 다룰 면접 주제 또는 질문 유형을 간단히 작성해 주세요."
+              required
+              direction="vertical"
+            >
+              <BaseInput placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교" />
+            </FormField>
 
-          <BaseInput
-            placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교"
-            value={subject}
-            onChange={(e) => handleChange('subject')(e.target.value)}
-          />
-        </div>
-
-        <div className="flex flex-col gap-250">
-          <div className="flex flex-col gap-100">
-            <label className="font-designer-16b text-text-default">
-              참고 자료
-            </label>
-            <span className="font-designer-14r text-text-subtle">
-              참고할 링크나 자료가 있다면 입력해 주세요
-            </span>
-          </div>
-
-          <BaseInput
-            placeholder="https://github.com"
-            value={link}
-            onChange={(e) => handleChange('link')(e.target.value)}
-          />
-        </div>
+            <FormField<StudyReadyFormValues, 'link'>
+              name="link"
+              label="참고 자료"
+              helper="함께 참고할 문서나 링크가 있다면 입력해 주세요"
+              required
+              direction="vertical"
+            >
+              <BaseInput placeholder="https://github.com/InterviewReady/network-basic" />
+            </FormField>
+          </form>
+        </FormProvider>
       </Modal.Body>
 
       <Modal.Footer>
@@ -133,9 +140,10 @@ function StudyReadyForm({ data, studyDate, onClose }: StudyReadyFormProps) {
           </Button>
           <Button
             size="large"
-            color={subject.trim() ? 'primary' : 'secondary'}
-            disabled={!subject.trim() || isPending}
-            onClick={handleSubmit}
+            color="primary"
+            type="submit"
+            form="study-ready-form"
+            disabled={!isValid || isSubmitting || isPending}
           >
             작성 완료
           </Button>

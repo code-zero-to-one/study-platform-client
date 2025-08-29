@@ -49,9 +49,15 @@ export default function Sidebar() {
       >
         마이스터디
       </SidebarItem>
-      <SidebarItem onClick={() => {}} isActive={false}>
-        계정설정
+      <SidebarItem
+        onClick={() => router.push('/my-study-review')}
+        isActive={pathname === '/my-study-review'}
+      >
+        스터디 리뷰
       </SidebarItem>
+      {/* <SidebarItem onClick={() => {}} isActive={false}>
+        계정설정
+      </SidebarItem> */}
       <div className="bg-border-subtlest h-[1px]" />
       <SidebarItem onClick={handleLogout} isActive={false}>
         로그아웃

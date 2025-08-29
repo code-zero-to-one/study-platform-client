@@ -1,7 +1,7 @@
 # 운영환경(main branch)에서 사용하는 Dockerfile
 
 # 1단계: build
-FROM node:18-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY . .
@@ -12,7 +12,7 @@ COPY .env .env
 RUN yarn install && yarn build
 
 # 2단계: production
-FROM node:18-alpine AS runner
+FROM node:20-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -25,6 +25,9 @@ COPY --from=builder /app/next.config.ts ./next.config.ts
 
 # 런타임시점에도 .env 파일 복사
 COPY --from=builder /app/.env .env
+
+# 빌드 시 Node 힙 메모리를 4GB까지 허용 (4096 = 4GB)
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # devDependencies는 설치하지 않고 dependencies만 설치
 RUN yarn install --production 

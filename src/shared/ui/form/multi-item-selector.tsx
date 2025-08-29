@@ -1,16 +1,19 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Button from '@/shared/ui/button';
 import { ToggleButton } from '@/shared/ui/toggle';
 import { BaseInput } from '../input';
 
 interface Props {
-  value: string[];
+  value?: string[];
   maxSelectable?: number;
-  onChange: (updated: string[]) => void;
+  onChange?: (updated: string[]) => void;
   options?: string[];
+  // 대소문자 구분
+  caseSensitive?: boolean;
+  allowCustom?: boolean;
 }
 
 export default function SelectableTagsInput({
@@ -18,30 +21,88 @@ export default function SelectableTagsInput({
   onChange,
   maxSelectable = 4,
   options = [],
+  caseSensitive = false,
+  allowCustom = true,
 }: Props) {
-  const [customInput, setCustomInput] = useState('');
-  const [customTags, setCustomTags] = useState<string[]>([]);
+  const selected = value ?? [];
+  const optionSet = useMemo(
+    () =>
+      new Set(caseSensitive ? options : options.map((o) => o.toLowerCase())),
+    [options, caseSensitive],
+  );
+
+  const norm = useCallback(
+    (v: string) => (caseSensitive ? v : v.toLowerCase()),
+    [caseSensitive],
+  );
+
+  const customTags = selected.filter((v) => !optionSet.has(norm(v)));
+
   const [showInput, setShowInput] = useState(false);
+  const [customInput, setCustomInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const toggleItem = (key: string) => {
-    onChange(
-      value.includes(key)
-        ? value.filter((item) => item !== key)
-        : value.length < 4
-          ? [...value, key]
-          : value,
-    );
-  };
+  const selectedSet = useMemo(
+    () => new Set(caseSensitive ? selected : selected.map(norm)),
+    [selected, caseSensitive, norm],
+  );
 
-  const removeCustomTag = (tag: string) => {
-    onChange(value.filter((item) => item !== tag));
-    setCustomTags((prev) => prev.filter((item) => item !== tag));
-  };
+  const canAddMore = selected.length < maxSelectable;
 
   useEffect(() => {
-    const customOnly = value.filter((v) => !options.includes(v));
-    setCustomTags(customOnly);
-  }, [value, options]);
+    if (showInput) inputRef.current?.focus();
+  }, [showInput]);
+
+  const emit = useCallback((next: string[]) => onChange?.(next), [onChange]);
+
+  const toggleItem = useCallback(
+    (key: string) => {
+      const k = caseSensitive ? key : key.toLowerCase();
+      if (selectedSet.has(k)) {
+        emit(selected.filter((item) => norm(item) !== k));
+      } else if (canAddMore) {
+        emit([...selected, key]);
+      }
+    },
+    [caseSensitive, selectedSet, selected, emit, canAddMore, norm],
+  );
+
+  const removeCustomTag = useCallback(
+    (tag: string) => emit(selected.filter((item) => item !== tag)),
+    [emit, selected],
+  );
+
+  const addCustom = useCallback(() => {
+    const trimmed = customInput.trim();
+    if (!allowCustom || !trimmed) return;
+
+    const key = caseSensitive ? trimmed : trimmed.toLowerCase();
+    if (selectedSet.has(key) || !canAddMore) return;
+
+    emit([...selected, trimmed]);
+    setCustomInput('');
+  }, [
+    allowCustom,
+    customInput,
+    caseSensitive,
+    selectedSet,
+    canAddMore,
+    emit,
+    selected,
+  ]);
+
+  const handleCustomKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addCustom();
+      } else if (e.key === 'Escape') {
+        setShowInput(false);
+        setCustomInput('');
+      }
+    },
+    [addCustom],
+  );
 
   return (
     <div className="flex flex-col gap-50">
@@ -51,64 +112,82 @@ export default function SelectableTagsInput({
             size="sm"
             variant="square"
             key={item}
-            pressed={value.includes(item)}
+            pressed={selectedSet.has(norm(item))}
             onPressedChange={() => toggleItem(item)}
           >
             {item}
           </ToggleButton>
         ))}
+
         {customTags.map((item) => (
           <div
             key={item}
             className="rounded-150 bg-fill-brand-default-default font-designer-13m text-text-inverse flex items-center gap-75 px-150 py-75"
           >
             {item}
-            <div onClick={() => removeCustomTag(item)}>✕</div>
+            <button
+              type="button"
+              onClick={() => removeCustomTag(item)}
+              aria-label={`${item} 제거`}
+              className="ml-50"
+            >
+              ✕
+            </button>
           </div>
         ))}
-        <Button size="small" onClick={() => setShowInput(true)}>
-          <Plus className="h-250 w-250" />
-        </Button>
+
+        {allowCustom && (
+          <Button
+            type="button"
+            size="small"
+            onClick={() => setShowInput(true)}
+            disabled={!canAddMore}
+            aria-expanded={showInput}
+            aria-controls="custom-tag-input"
+          >
+            <Plus className="h-250 w-250" />
+          </Button>
+        )}
       </div>
 
-      {showInput && (
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            const input = (e.target as HTMLFormElement).elements.namedItem(
-              'custom',
-            ) as HTMLInputElement;
-            const trimmed = input?.value.trim();
-
-            if (trimmed && !value.includes(trimmed) && value.length < 4) {
-              onChange([...value, trimmed]);
-              setCustomTags((prev) => [...prev, trimmed]);
-              setCustomInput('');
-            }
-          }}
-          className="flex items-center gap-50 pt-100"
+      {allowCustom && showInput && (
+        <div
+          id="custom-tag-input"
+          className="rounded-150 border-border-default bg-background mt-10 flex items-center gap-100 border px-150"
         >
           <BaseInput
-            name="custom"
+            ref={inputRef}
             type="text"
+            appearance="bare"
+            className="flex-1"
             placeholder={
-              value.length >= maxSelectable
-                ? `최대 ${maxSelectable}개까지 선택 가능합니다`
-                : 'IT, Back-end, AI'
+              canAddMore
+                ? 'IT, Back-end, AI'
+                : `최대 ${maxSelectable}개까지 선택 가능합니다`
             }
-            color={value.length >= maxSelectable ? 'error' : 'default'}
-            disabled={value.length >= maxSelectable}
+            color={canAddMore ? 'default' : 'error'}
+            disabled={!canAddMore}
             value={customInput}
             onChange={(e) => setCustomInput(e.target.value)}
+            onKeyDown={handleCustomKeyDown}
           />
-          <Button type="submit" disabled={value.length >= maxSelectable}>
+          <Button type="button" onClick={addCustom} disabled={!canAddMore}>
             추가
           </Button>
-        </form>
+          <Button
+            type="button"
+            onClick={() => {
+              setShowInput(false);
+              setCustomInput('');
+            }}
+          >
+            취소
+          </Button>
+        </div>
       )}
 
-      {value.length >= maxSelectable && (
-        <p className="text-text-brand font-designer-13r mt-50">
+      {!canAddMore && (
+        <p className="font-designer-13r text-text-brand mt-50">
           최대 {maxSelectable}개까지 선택 가능합니다.
         </p>
       )}

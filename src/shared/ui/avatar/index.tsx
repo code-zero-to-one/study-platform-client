@@ -1,27 +1,66 @@
 'use client';
 
-import { Avatar, AvatarImage } from '@/shared/shadcn/ui/avatar';
+import { useMemo, useState } from 'react';
+import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
+import { Avatar, AvatarImage, AvatarFallback } from '@/shared/shadcn/ui/avatar';
+
+type ProfileImageSrc = string | undefined;
+
+function getValidImageUrl(src: ProfileImageSrc) {
+  const trimedSrc = (src ?? '').trim();
+  if (!trimedSrc || trimedSrc.toLowerCase() === 'default') return undefined;
+
+  return trimedSrc;
+}
 
 interface UserAvatarProps {
-  image?: string;
+  image?: ProfileImageSrc;
   alt?: string;
   size?: number;
+  accentColor?: string;
+  className?: string;
 }
 
 export default function UserAvatar({
   image,
   alt = 'user profile',
   size = 32,
-  ref,
+  accentColor = '#FAB0D5',
+  className,
   ...props
-}: React.RefAttributes<HTMLSpanElement> & UserAvatarProps) {
+}: UserAvatarProps) {
+  const [isImageError, setImageError] = useState(false);
+
+  const resolvedImageUrl = useMemo(() => {
+    setImageError(false);
+
+    return getValidImageUrl(image);
+  }, [image]);
+
+  const showImage = !!resolvedImageUrl && !isImageError;
+
   return (
-    <Avatar {...props} ref={ref} style={{ width: size, height: size }}>
-      {image ? (
-        <AvatarImage src={image} alt={alt} />
-      ) : (
-        <AvatarImage src={'/profile-default.svg'} alt={alt} />
+    <Avatar
+      key={showImage ? resolvedImageUrl : 'fallback'}
+      {...props}
+      className={className}
+      style={{ width: size, height: size }}
+    >
+      {showImage && (
+        <AvatarImage
+          src={resolvedImageUrl!}
+          alt={alt}
+          onError={() => setImageError(true)}
+        />
       )}
+
+      <AvatarFallback>
+        <ProfileDefault
+          className="h-full w-full"
+          style={{ color: accentColor }}
+          aria-label={alt}
+        />
+      </AvatarFallback>
     </Avatar>
   );
 }

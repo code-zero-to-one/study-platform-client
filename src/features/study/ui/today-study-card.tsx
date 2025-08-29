@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import UserProfileModal from '@/features/my-page/ui/user-profile-modal';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { getStatusBadge } from '@/features/study/ui/status-badge-map';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 // TODO: FSD 의 import 바운더리를 넘어서 import 해야하는데,
