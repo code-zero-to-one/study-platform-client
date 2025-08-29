@@ -97,27 +97,27 @@ export default function UserProfileModal({
 
                 <div className="grid grid-cols-2 gap-x-250 gap-y-100">
                   <div className="flex items-center gap-100">
-                    <CakeIcon className="h-4 w-4" />
+                    <CakeIcon />
                     <span className="font-designer-14r text-text-subtle leading-none">
                       {profile.memberProfile.birthDate ?? ''}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-100">
-                    <GithubIcon className="h-4 w-4" />
+                    <GithubIcon />
                     <span className="font-designer-14r text-text-subtle leading-none">
                       {profile.memberProfile.githubLink?.url ?? ''}
                     </span>
                   </div>
                   <div className="flex items-center gap-100">
-                    <PhoneIcon className="h-4 w-4" />
+                    <PhoneIcon />
                     <span className="font-designer-14r text-text-subtle leading-none">
                       {profile.memberProfile.tel ?? ''}
                     </span>
                   </div>
 
                   <div className="flex items-center gap-100">
-                    <GlobeIcon className="h-4 w-4" />
+                    <GlobeIcon />
                     <span className="font-designer-14r text-text-subtle leading-none">
                       {profile.memberProfile.blogOrSnsLink?.url ?? ''}
                     </span>
