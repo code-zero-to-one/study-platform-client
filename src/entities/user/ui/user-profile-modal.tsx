@@ -72,13 +72,13 @@ export default function UserProfileModal({
                       </Badge>
                     ))}
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-start">
                   <div className="font-designer-28b pb-50">
                     {profile.memberProfile.memberName}
                   </div>
 
                   <span
-                    className="bg-border-default mx-150 block h-[12px] w-[2px]"
+                    className="bg-border-default mx-150 block h-[12px] w-[1px]"
                     aria-hidden="true"
                   />
 
