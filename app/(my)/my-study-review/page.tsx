@@ -11,6 +11,7 @@ import {
   useUserPositiveKeywordsQuery,
 } from '@/features/study/model/use-review-query';
 import { formatKoreaRelativeTime } from '@/shared/lib/time';
+import UserAvatar from '@/shared/ui/avatar';
 
 export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
@@ -176,12 +177,10 @@ function Review({ data }: { data: MyReviewItem }) {
   return (
     <li className="border-b-border-subtle flex flex-col gap-150 border-b py-250">
       <div className="flex items-center gap-150">
-        <Image
-          src={data.writer.profileImageUrl || '/profile-default.svg'}
-          width={32}
-          height={32}
+        <UserAvatar
+          size={32}
+          image={data.writer.profileImageUrl}
           alt={`${data.writer.memberName} 프로필 이미지`}
-          className="rounded-full"
         />
 
         <div>
