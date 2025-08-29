@@ -220,7 +220,7 @@ function Review({ data }: { data: MyReviewItem }) {
         <div className="text-text-subtle">
           <span className="font-designer-14b mr-100">스터디 주제</span>
           <span className="font-designer-13r">
-            {data.studySubjects.join(', ')}
+            {data.studySubjects.filter((subject) => subject).join(', ')}
           </span>
         </div>
       </div>
