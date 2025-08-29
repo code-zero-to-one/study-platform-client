@@ -37,7 +37,7 @@ export default function MyProfileCard({
   sincerityTemp,
 }: MyProfileCardProps) {
   const [enabled, setEnabled] = useState(matching);
-  const preset = getSincerityPresetByLevelId(sincerityTemp.levelId);
+  const temperPreset = getSincerityPresetByLevelId(sincerityTemp.levelId);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
@@ -77,8 +77,8 @@ export default function MyProfileCard({
             <div
               className={cn(
                 'font-designer-13m rounded-full px-150 py-50',
-                preset.bgClass,
-                preset.textClass,
+                temperPreset.bgClass,
+                temperPreset.textClass,
               )}
             >
               {sincerityTemp.temperature.toFixed(1)} ℃
