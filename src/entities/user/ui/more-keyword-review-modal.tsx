@@ -12,9 +12,11 @@ export default function MoreKeywordReviewModal({
   return (
     <Modal.Root>
       <Modal.Trigger asChild>
-        <button className="font-designer-12m text-text-subtlest cursor-pointer">
-          더보기
-        </button>
+        {keywords.length > 5 && (
+          <button className="font-designer-12m text-text-subtlest cursor-pointer">
+            더보기
+          </button>
+        )}
       </Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />

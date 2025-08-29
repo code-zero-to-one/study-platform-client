@@ -57,7 +57,7 @@ export default function MyStudyReview() {
             <div className="mb-200 flex justify-between">
               <h3 className="font-designer-16b text-text-default">좋았던 점</h3>
 
-              {positiveKeywords.length > 5 && <MorePositiveKeywordsModal />}
+              <MorePositiveKeywordsModal />
             </div>
 
             <ul className="flex flex-col gap-50">
@@ -83,7 +83,7 @@ export default function MyStudyReview() {
                 개선이 필요한 점
               </h3>
 
-              {negativeKeywords.length > 5 && <MoreNegativeKeywordsModal />}
+              <MoreNegativeKeywordsModal />
             </div>
 
             <ul className="flex flex-col gap-50">
@@ -150,7 +150,7 @@ export default function MyStudyReview() {
 function MorePositiveKeywordsModal() {
   const { data: allPositiveKeywordsData } = useUserPositiveKeywordsQuery({});
 
-  const allPositiveKeywords = allPositiveKeywordsData.keywords || [];
+  const allPositiveKeywords = allPositiveKeywordsData?.keywords || [];
 
   return (
     <MoreKeywordReviewModal title="좋았던 점" keywords={allPositiveKeywords} />
@@ -160,7 +160,7 @@ function MorePositiveKeywordsModal() {
 function MoreNegativeKeywordsModal() {
   const { data: allNegativeKeywordsData } = useMyNegativeKeywordsQuery({});
 
-  const allNegativeKeywords = allNegativeKeywordsData.keywords || [];
+  const allNegativeKeywords = allNegativeKeywordsData?.keywords || [];
 
   return (
     <MoreKeywordReviewModal
