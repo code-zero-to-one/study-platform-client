@@ -3,6 +3,7 @@
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { TextAreaInput } from '@/shared/ui/input';
@@ -22,26 +23,20 @@ interface FormState {
   content: string;
 }
 
-export default function StudyReviewModal() {
+export default function StudyReviewModal({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   return (
-    <Modal.Root>
-      <Modal.Trigger>
-        <div className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300">
-          <p className="flex flex-col items-start gap-50">
-            <span className="font-designer-15b text-text-default">
-              CS 스터디를 시작해 보세요!
-            </span>
-            <span className="font-designer-12m text-text-subtlest">
-              스터디 신청하기
-            </span>
-          </p>
-        </div>
-      </Modal.Trigger>
+    <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="large">
           <Modal.Header className="border-border-default flex justify-end border-b">
-            <Modal.Close>
+            <Modal.Close onClick={() => onOpenChange(false)}>
               <XIcon />
             </Modal.Close>
           </Modal.Header>
@@ -57,14 +52,14 @@ export default function StudyReviewModal() {
             </div>
           </div>
 
-          <StudyReviewForm />
+          <StudyReviewForm onClose={() => onOpenChange(false)} />
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
   );
 }
 
-function StudyReviewForm() {
+function StudyReviewForm({ onClose }: { onClose: () => void }) {
   const { data } = usePartnerStudyReviewQuery();
   const { mutate: addStudyReview } = useAddStudyReviewMutation();
 
@@ -79,14 +74,19 @@ function StudyReviewForm() {
   if (!data) return null;
 
   const handleSubmit = () => {
-    if (
-      form.keywordIds.length === 0 ||
-      form.satisfactionId === null ||
-      form.content === ''
-    )
-      return;
+    if (form.keywordIds.length === 0 || form.satisfactionId === null) return;
 
-    addStudyReview(form);
+    addStudyReview(
+      {
+        ...form,
+        content: form.content || undefined,
+      },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
   };
 
   return (
@@ -154,7 +154,7 @@ function StudyReviewForm() {
       </Modal.Body>
       <Modal.Footer className="flex justify-end gap-100">
         <Modal.Close asChild>
-          <Button color="secondary" size="large">
+          <Button color="secondary" size="large" onClick={onClose}>
             취소
           </Button>
         </Modal.Close>
@@ -178,12 +178,10 @@ function PartnerInfo(data: StudyEvaluationResponse) {
 
   return (
     <div className="flex justify-center gap-200">
-      <Image
-        src={partner.profileImageUrl || '/profile-default.svg'}
+      <UserAvatar
+        image={partner.profileImageUrl}
+        size={80}
         alt="Study Member"
-        width={80}
-        height={80}
-        className="rounded-full"
       />
 
       <div className="flex flex-col justify-center gap-50">
@@ -353,7 +351,7 @@ function PositiveTextArea({
         value={value}
         maxLength={1000}
         placeholder="좋았던 점을 자세히 말해주세요"
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
       />
     </div>
   );
@@ -428,7 +426,7 @@ function NegativeTextArea({
 
       <TextAreaInput
         value={value}
-        onChange={onChange}
+        onChange={(e) => onChange(e.target.value)}
         maxLength={1000}
         placeholder="아쉬웠던 점을 자세히 말해주세요"
       />

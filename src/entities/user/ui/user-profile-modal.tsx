@@ -127,14 +127,14 @@ export default function UserProfileModal({
               />
             </div>
 
-            <div className="bg-border-subtle h-[2px] w-full" />
+            <div className="bg-border-subtle h-[2px] w-full flex-none" />
 
-            <div className="flex gap-400 px-250">
+            <div className="flex gap-400 pl-250">
               <span className="font-designer-16b text-text-default w-[132px] shrink-0">
                 받은 평가
               </span>
 
-              <div className="text-text-default font-designer-14r">
+              <div className="text-text-default font-designer-14r grow-1">
                 {/* todo: 기획 fix되면 수정 */}
                 {/* <span>n명의 유저들이 이런 점이 좋다고 했어요.</span> */}
 

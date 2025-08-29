@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import KeywordReview from '@/entities/user/ui/keyword-review';
+import MoreKeywordReviewModal from '@/entities/user/ui/more-keyword-review-modal';
 import { MyReviewItem } from '@/features/study/api/types';
 import {
   useMyNegativeKeywordsQuery,
@@ -10,11 +11,13 @@ import {
   useUserPositiveKeywordsQuery,
 } from '@/features/study/model/use-review-query';
 import { formatKoreaRelativeTime } from '@/shared/lib/time';
+import UserAvatar from '@/shared/ui/avatar';
 
 export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     pageSize: 5,
   });
+
   const { data: negativeKeywordsData } = useMyNegativeKeywordsQuery({
     pageSize: 5,
   });
@@ -55,11 +58,7 @@ export default function MyStudyReview() {
             <div className="mb-200 flex justify-between">
               <h3 className="font-designer-16b text-text-default">좋았던 점</h3>
 
-              {positiveKeywords.length > 5 && (
-                <button className="font-designer-12m text-text-subtlest cursor-pointer">
-                  더보기
-                </button>
-              )}
+              <MorePositiveKeywordsModal />
             </div>
 
             <ul className="flex flex-col gap-50">
@@ -85,11 +84,7 @@ export default function MyStudyReview() {
                 개선이 필요한 점
               </h3>
 
-              {negativeKeywords.length > 5 && (
-                <button className="font-designer-12m text-text-subtlest cursor-pointer">
-                  더보기
-                </button>
-              )}
+              <MoreNegativeKeywordsModal />
             </div>
 
             <ul className="flex flex-col gap-50">
@@ -153,18 +148,52 @@ export default function MyStudyReview() {
   );
 }
 
+function MorePositiveKeywordsModal() {
+  const { data: allPositiveKeywordsData } = useUserPositiveKeywordsQuery({});
+
+  const allPositiveKeywords = allPositiveKeywordsData?.keywords || [];
+
+  return (
+    <MoreKeywordReviewModal title="좋았던 점" keywords={allPositiveKeywords} />
+  );
+}
+
+function MoreNegativeKeywordsModal() {
+  const { data: allNegativeKeywordsData } = useMyNegativeKeywordsQuery({});
+
+  const allNegativeKeywords = allNegativeKeywordsData?.keywords || [];
+
+  return (
+    <MoreKeywordReviewModal
+      title="개선이 필요한 점"
+      keywords={allNegativeKeywords}
+    />
+  );
+}
+
 function Review({ data }: { data: MyReviewItem }) {
   const [expanded, setExpanded] = useState(false);
+  const [showButton, setShowButton] = useState(false);
+  const contentRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const lineHeight = parseInt(
+        window.getComputedStyle(contentRef.current).lineHeight,
+        10,
+      );
+      const maxHeight = lineHeight * 3; // 3줄 기준
+      setShowButton(contentRef.current.scrollHeight > maxHeight);
+    }
+  }, [data.content]);
 
   return (
     <li className="border-b-border-subtle flex flex-col gap-150 border-b py-250">
       <div className="flex items-center gap-150">
-        <Image
-          src={data.writer.profileImageUrl || '/profile-default.svg'}
-          width={32}
-          height={32}
+        <UserAvatar
+          size={32}
+          image={data.writer.profileImageUrl}
           alt={`${data.writer.memberName} 프로필 이미지`}
-          className="rounded-full"
         />
 
         <div>
@@ -180,18 +209,23 @@ function Review({ data }: { data: MyReviewItem }) {
 
       <div>
         <p
-          className={`text-text-default font-designer-15r ${expanded ? 'line-clamp-none' : 'line-clamp-3'}`}
+          ref={contentRef}
+          className={`text-text-default font-designer-15r ${
+            expanded ? 'line-clamp-none' : 'line-clamp-3'
+          }`}
         >
           {data.content}
         </p>
-        <button
-          className="font-designer-14r text-text-subtlest cursor-pointer"
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? '접기' : '더보기'}
-        </button>
-      </div>
 
+        {showButton && (
+          <button
+            className="font-designer-14r text-text-subtlest cursor-pointer"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? '접기' : '더보기'}
+          </button>
+        )}
+      </div>
       <div>
         <div className="text-text-subtle">
           <span className="font-designer-14b mr-100">스터디 기간</span>
@@ -203,7 +237,7 @@ function Review({ data }: { data: MyReviewItem }) {
         <div className="text-text-subtle">
           <span className="font-designer-14b mr-100">스터디 주제</span>
           <span className="font-designer-13r">
-            {data.studySubjects.join(', ')}
+            {data.studySubjects.filter((subject) => subject).join(', ')}
           </span>
         </div>
       </div>
