@@ -105,19 +105,19 @@ export default function MyProfileCard({
               />
             </div>
           </div>
-          <div className="bg-background-alternative rounded-100 font-designer-15m text-text-default flex w-full flex-col gap-200 px-200 py-150">
-            <div className="flex items-center gap-100">
-              <AssignmentIcon />
-              <span>{subject?.trim() || '없음'}</span>
-            </div>
-            <div className="flex items-center gap-100">
-              <AccessTimeIcon />
-              <span>{time?.trim() || '없음'}</span>
-            </div>
-            <div className="flex items-center gap-100">
-              <CodeIcon />
-              <span>{techStacks?.trim() || '없음'}</span>
-            </div>
+        </div>
+        <div className="bg-background-alternative rounded-100 font-designer-15m text-text-default flex w-full flex-col gap-200 px-200 py-150">
+          <div className="flex items-center gap-100">
+            <AssignmentIcon />
+            <span>{subject?.trim() || '없음'}</span>
+          </div>
+          <div className="flex items-center gap-100">
+            <AccessTimeIcon />
+            <span>{time?.trim() || '없음'}</span>
+          </div>
+          <div className="flex items-center gap-100">
+            <CodeIcon />
+            <span>{techStacks?.trim() || '없음'}</span>
           </div>
         </div>
       </section>
