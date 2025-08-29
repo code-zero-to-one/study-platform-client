@@ -1,7 +1,10 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig, isAxiosError } from 'axios';
+import { isApiError } from './api-error';
 import { getCookie, setCookie } from './cookie';
 
-// json 요청용
+// * 인증이 필요한 client-side axios 인스턴스
+
+// json 요청
 export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
   timeout: 10000,
@@ -20,59 +23,51 @@ export const axiosInstanceForMultipart = axios.create({
   },
 });
 
-/*
-    accessToken 은 쿠키에 저장
-    refreshToken 은 HttpOnly 쿠키로 JS에서 접근 불가, 백엔드 서버와 쿠키로 통신
-*/
+const onRequestClient = (config: InternalAxiosRequestConfig) => {
+  const accessToken = getCookie('accessToken');
 
-// multipart 요청 로깅용
-axiosInstanceForMultipart.interceptors.request.use(
-  (config) => {
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const accessToken = getCookie('accessToken');
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
+  return config;
+};
 
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+axiosInstance.interceptors.request.use(onRequestClient);
+axiosInstanceForMultipart.interceptors.request.use(onRequestClient);
+
+const ERROR_MESSAGES = {
+  MEM001: '유효하지 않은 입력입니다.',
+  MEM002: '회원 정보가 존재하지 않습니다.',
+  MEM003: '이미 가입된 회원입니다.',
+  MEM004: '아직 스터디를 신청하지 않았습니다.',
+  MPR001: '관심사가 중복됐습니다.',
+  MPF001: '현재 프로젝트 에서 지원 하는 기능이 아닙니다.',
+};
 
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-
+  (config) => config,
   async (error) => {
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshApi = axios.create({
-          baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
-        });
-        const res = await refreshApi.get('/auth/access-token/refresh');
-        const newAccessToken = res.data.accessToken;
+    if (isAxiosError(error) && error.response) {
+      const errorResponseBody = error.response.data;
 
-        if (newAccessToken) {
-          setCookie('accessToken', newAccessToken);
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+      if (isApiError(errorResponseBody)) {
+        const accessToken = getCookie('accessToken');
 
-          return axiosInstance(originalRequest);
+        const originalRequest = error.config;
+
+        // 유효하지 않은 accessToken인 경우, 재발급
+        if (accessToken && errorResponseBody.errorCode === 'AUTH001') {
         }
-      } catch (err) {
-        // 로그인 페이지 리다이렉트 등 처리
-        return Promise.reject(err);
+
+        if (errorResponseBody.errorCode in ERROR_MESSAGES) {
+          alert(
+            ERROR_MESSAGES[
+              errorResponseBody.errorCode as keyof typeof ERROR_MESSAGES
+            ],
+          );
+        }
       }
     }
-
-    return Promise.reject(error);
   },
 );
