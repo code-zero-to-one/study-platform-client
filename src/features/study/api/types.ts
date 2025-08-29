@@ -124,7 +124,7 @@ export interface AddStudyReviewRequest {
   targetMemberId: number;
   satisfactionId: 10 | 20 | 30;
   keywordIds: number[];
-  content: string | null;
+  content?: string;
 }
 
 interface Keyword {

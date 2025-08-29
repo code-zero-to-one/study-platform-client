@@ -79,7 +79,7 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
     addStudyReview(
       {
         ...form,
-        content: form.content || null,
+        content: form.content || undefined,
       },
       {
         onSuccess: () => {
