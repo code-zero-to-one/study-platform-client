@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import KeywordReview from '@/entities/user/ui/keyword-review';
 import MoreKeywordReviewModal from '@/entities/user/ui/more-keyword-review-modal';
 import { MyReviewItem } from '@/features/study/api/types';
@@ -173,6 +173,19 @@ function MoreNegativeKeywordsModal() {
 
 function Review({ data }: { data: MyReviewItem }) {
   const [expanded, setExpanded] = useState(false);
+  const [showButton, setShowButton] = useState(false);
+  const contentRef = useRef<HTMLParagraphElement>(null);
+
+  useEffect(() => {
+    if (contentRef.current) {
+      const lineHeight = parseInt(
+        window.getComputedStyle(contentRef.current).lineHeight,
+        10,
+      );
+      const maxHeight = lineHeight * 3; // 3줄 기준
+      setShowButton(contentRef.current.scrollHeight > maxHeight);
+    }
+  }, [data.content]);
 
   return (
     <li className="border-b-border-subtle flex flex-col gap-150 border-b py-250">
@@ -196,18 +209,23 @@ function Review({ data }: { data: MyReviewItem }) {
 
       <div>
         <p
-          className={`text-text-default font-designer-15r ${expanded ? 'line-clamp-none' : 'line-clamp-3'}`}
+          ref={contentRef}
+          className={`text-text-default font-designer-15r ${
+            expanded ? 'line-clamp-none' : 'line-clamp-3'
+          }`}
         >
           {data.content}
         </p>
-        <button
-          className="font-designer-14r text-text-subtlest cursor-pointer"
-          onClick={() => setExpanded(!expanded)}
-        >
-          {expanded ? '접기' : '더보기'}
-        </button>
-      </div>
 
+        {showButton && (
+          <button
+            className="font-designer-14r text-text-subtlest cursor-pointer"
+            onClick={() => setExpanded(!expanded)}
+          >
+            {expanded ? '접기' : '더보기'}
+          </button>
+        )}
+      </div>
       <div>
         <div className="text-text-subtle">
           <span className="font-designer-14b mr-100">스터디 기간</span>
