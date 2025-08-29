@@ -76,11 +76,17 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
   const handleSubmit = () => {
     if (form.keywordIds.length === 0 || form.satisfactionId === null) return;
 
-    addStudyReview(form, {
-      onSuccess: () => {
-        onClose();
+    addStudyReview(
+      {
+        ...form,
+        content: form.content || null,
       },
-    });
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
   };
 
   return (
