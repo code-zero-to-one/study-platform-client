@@ -5,12 +5,15 @@ import React, { useState } from 'react';
 import { usePatchAutoMatchingMutation } from '@/entities/user/model/use-user-profile-query';
 import { useReviewReminder } from '@/features/study/lib/use-reminder-review';
 import StudyReviewModal from '@/features/study/ui/study-review-modal';
+import { getSincerityPresetByLevelId } from '@/shared/config/sincerity-temp-presets';
+import { cn } from '@/shared/shadcn/lib/utils';
 import UserAvatar from '@/shared/ui/avatar';
 import { ToggleSwitch } from '@/shared/ui/toggle';
 import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import CodeIcon from 'public/icons/code.svg';
 import SettingIcon from 'public/icons/setting.svg';
+import { SincerityTemp } from '../api/types';
 
 interface MyProfileCardProps {
   memberId: number;
@@ -21,6 +24,7 @@ interface MyProfileCardProps {
   time?: string;
   techStacks?: string;
   studyApplied?: boolean;
+  sincerityTemp: SincerityTemp;
 }
 
 export default function MyProfileCard({
@@ -32,10 +36,12 @@ export default function MyProfileCard({
   time,
   techStacks,
   studyApplied,
+  sincerityTemp,
 }: MyProfileCardProps) {
   const { showReviewReminder, setShowReviewReminder } = useReviewReminder();
 
   const [enabled, setEnabled] = useState(matching);
+  const temperPreset = getSincerityPresetByLevelId(sincerityTemp.levelId);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
@@ -72,9 +78,20 @@ export default function MyProfileCard({
               <SettingIcon />
             </Link>
           </div>
-          <div className="flex flex-col">
-            <div className="font-designer-18b">
-              {name?.trim() || '비회원'}님
+          <div className="flex flex-col gap-75">
+            <div className="flex flex-row items-center gap-50">
+              <div className="font-designer-18b">
+                {name?.trim() || '비회원'}님
+              </div>
+              <div
+                className={cn(
+                  'font-designer-13m rounded-full px-150 py-50',
+                  temperPreset.bgClass,
+                  temperPreset.textClass,
+                )}
+              >
+                {sincerityTemp.temperature.toFixed(1)} ℃
+              </div>
             </div>
             <div className="flex flex-row items-center gap-100">
               <span className="font-designer-14r text-gray-800">

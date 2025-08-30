@@ -15,7 +15,11 @@ export default async function MyPage() {
 
   return (
     <div className="flex flex-col gap-[26.67px]">
-      <Profile memberId={memberId} memberProfile={userProfile.memberProfile} />
+      <Profile
+        memberId={memberId}
+        memberProfile={userProfile.memberProfile}
+        sincerityTemp={userProfile.sincerityTemp}
+      />
       <ProfileInfo memberId={memberId} memberInfo={userProfile.memberInfo} />
     </div>
   );
