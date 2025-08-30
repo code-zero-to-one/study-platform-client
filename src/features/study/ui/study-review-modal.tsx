@@ -61,7 +61,7 @@ export default function StudyReviewModal({
 
 function StudyReviewForm({ onClose }: { onClose: () => void }) {
   const { data } = usePartnerStudyReviewQuery();
-  const { mutate: addStudyReview } = useAddStudyReviewMutation();
+  const { mutate: addStudyReview, isPending } = useAddStudyReviewMutation();
 
   const [form, setForm] = useState<FormState>({
     studySpaceId: data?.studySpaceId,
@@ -162,7 +162,9 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
           color="primary"
           size="large"
           disabled={
-            form.keywordIds.length === 0 || form.satisfactionId === null
+            form.keywordIds.length === 0 ||
+            form.satisfactionId === null ||
+            isPending
           }
           onClick={handleSubmit}
         >
