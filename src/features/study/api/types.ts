@@ -59,8 +59,8 @@ export interface StudyCalendarDay {
 
 export interface MonthlyCalendarResponse {
   calendar: StudyCalendarDay[];
-  monthlyCompletedCount: number;
-  totalCompletedCount: number;
+  monthlyCompletedCount?: number;
+  totalCompletedCount?: number;
 }
 
 export interface PostDailyRetrospectRequest {

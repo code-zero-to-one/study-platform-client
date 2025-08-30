@@ -79,6 +79,11 @@ const Calendar = (props: React.ComponentProps<typeof ShadcnCalendar>) => {
 
   if (isLoading) return <div>로딩 중...</div>;
 
+  const monthlyCount = data?.monthlyCompletedCount;
+  const totalCount = data?.totalCompletedCount;
+  const showFooter =
+    typeof monthlyCount === 'number' && typeof totalCount === 'number';
+
   return (
     <div
       className={cn(
@@ -111,14 +116,17 @@ const Calendar = (props: React.ComponentProps<typeof ShadcnCalendar>) => {
           day: 'text-center font-designer-14m rounded-full',
         }}
         footer={
-          <div className="flex w-full flex-col gap-75 pt-200">
-            <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
-              {month}월은 {data.monthlyCompletedCount}번의 스터디를 완료했어요.
+          showFooter ? (
+            <div className="flex w-full flex-col gap-75 pt-200">
+              <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
+                {month}월은 {data.monthlyCompletedCount}번의 스터디를
+                완료했어요.
+              </div>
+              <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
+                총 {data.totalCompletedCount}번의 스터디를 완료했어요.
+              </div>
             </div>
-            <div className="rounded-100 bg-background-alternative font-designer-14m text-text-default px-150 py-100 text-ellipsis">
-              총 {data.totalCompletedCount}번의 스터디를 완료했어요.
-            </div>
-          </div>
+          ) : undefined
         }
         {...props}
       />
