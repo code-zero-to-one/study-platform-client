@@ -38,15 +38,18 @@ export default function ReservationList({
   const { data: participation } = useWeeklyParticipation(studyDate);
   const isParticipation = participation?.isParticipate ?? false;
 
+  const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
+  const autoMatching = userProfile?.autoMatching ?? false;
+
+  const applied = autoMatching || isParticipation;
+
   const firstMemberId = useMemo(
-    () => (isParticipation && memberId !== null ? memberId : null),
-    [isParticipation, memberId],
+    () => (applied && memberId !== null ? memberId : null),
+    [applied, memberId],
   );
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
     useInfiniteReservation(firstMemberId ?? undefined, pageSize);
-
-  const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
@@ -109,10 +112,14 @@ export default function ReservationList({
 
       <div className="grid grid-cols-1 gap-200 md:grid-cols-2 lg:grid-cols-3">
         {items.map((p) => (
-          <ReservationCard key={p.id} participant={p} />
+          <ReservationCard
+            key={p.id}
+            participant={p}
+            currentMemberId={firstMemberId}
+          />
         ))}
 
-        {!isParticipation && (
+        {!applied && (
           <div
             className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] items-center justify-between gap-150 px-200 py-300"
             onClick={handleApplyClick}
