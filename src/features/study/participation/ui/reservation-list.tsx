@@ -9,7 +9,6 @@ import {
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import ReservationCard from './reservation-user-card';
-import { useWeeklyParticipation } from '../../model/use-study-query';
 import StartStudyModal from '../../ui/start-study-modal';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
@@ -35,17 +34,12 @@ export default function ReservationList({
     setMemberId(id ? Number(id) : null);
   }, []);
 
-  const { data: participation } = useWeeklyParticipation(studyDate);
-  const isParticipation = participation?.isParticipate ?? false;
-
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
   const autoMatching = userProfile?.autoMatching ?? false;
 
-  const applied = autoMatching || isParticipation;
-
   const firstMemberId = useMemo(
-    () => (applied && memberId !== null ? memberId : null),
-    [applied, memberId],
+    () => (autoMatching && memberId !== null ? memberId : null),
+    [autoMatching, memberId],
   );
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
@@ -119,7 +113,7 @@ export default function ReservationList({
           />
         ))}
 
-        {!applied && (
+        {!autoMatching && (
           <div
             className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] items-center justify-between gap-150 px-200 py-300"
             onClick={handleApplyClick}
