@@ -48,6 +48,7 @@ export const useLogoutMutation = () => {
 
       deleteCookie('accessToken');
       deleteCookie('memberId');
+      deleteCookie('socialImageURL');
 
       queryClient.clear();
 
