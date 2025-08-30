@@ -9,24 +9,24 @@ import {
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import ReservationCard from './reservation-user-card';
+import { useWeeklyParticipation } from '../../model/use-study-query';
 import StartStudyModal from '../../ui/start-study-modal';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {
-  isParticipation?: boolean;
+  studyDate?: string;
   pageSize?: number;
   month: number;
   week: number;
 }
 
 export default function ReservationList({
-  isParticipation = false,
+  studyDate,
   pageSize = 50,
   month,
   week,
 }: ReservationListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const calledRef = useRef(false);
   const [memberId, setMemberId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -35,36 +35,21 @@ export default function ReservationList({
     setMemberId(id ? Number(id) : null);
   }, []);
 
+  const { data: participation } = useWeeklyParticipation(studyDate);
+  const isParticipation = participation?.isParticipate ?? false;
+
   const firstMemberId = useMemo(
     () => (isParticipation && memberId !== null ? memberId : null),
     [isParticipation, memberId],
   );
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
-    useInfiniteReservation(firstMemberId, pageSize);
+    useInfiniteReservation(firstMemberId ?? undefined, pageSize);
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
-
-  useEffect(() => {
-    if (!memberId || isParticipation || !userProfile) return;
-
-    const { studyApplied, autoMatching } = userProfile;
-
-    if (studyApplied && !autoMatching && !calledRef.current) {
-      calledRef.current = true;
-      patchAutoMatching(
-        { memberId, autoMatching: true },
-        {
-          onError: () => {
-            calledRef.current = false;
-          },
-        },
-      );
-    }
-  }, [memberId, isParticipation, userProfile, patchAutoMatching]);
 
   useEffect(() => {
     if (!hasNextPage) return;
