@@ -30,6 +30,7 @@ export default async function Sidebar() {
           ?.map((t) => t.techStackName)
           .join(', ')}
         studyApplied={userProfile?.studyApplied ?? false}
+        sincerityTemp={userProfile.sincerityTemp}
       />
       {userProfile.studyApplied ? (
         <TodoList statusList={[false, false, false]} />
@@ -37,12 +38,23 @@ export default async function Sidebar() {
         <StartStudyModal
           memberId={memberId}
           trigger={
-            <Image
-              src="/apply-study.svg"
-              alt="스터디 시작 버튼"
-              width={68}
-              height={56}
-            />
+            <button className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300">
+              <p className="flex flex-col items-start gap-50">
+                <span className="font-designer-15b text-text-default">
+                  CS 스터디를 시작해 보세요!
+                </span>
+                <span className="font-designer-12m text-text-subtlest">
+                  스터디 신청하기
+                </span>
+              </p>
+
+              <Image
+                src="/apply-study.svg"
+                alt="스터디 시작 버튼"
+                width={68}
+                height={56}
+              />
+            </button>
           }
         />
       )}

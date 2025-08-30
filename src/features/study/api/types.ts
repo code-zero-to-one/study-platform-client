@@ -124,7 +124,7 @@ export interface AddStudyReviewRequest {
   targetMemberId: number;
   satisfactionId: 10 | 20 | 30;
   keywordIds: number[];
-  content: string;
+  content?: string;
 }
 
 interface Keyword {
@@ -183,3 +183,5 @@ export interface MyReviewsResponse {
     hasNext: boolean;
   };
 }
+
+export type ShouldReviewPartnerResponse = boolean;

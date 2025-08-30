@@ -12,18 +12,18 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'test-api.zeroone.it.kr',
-        pathname: '/profile-image/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'api.zeroone.it.kr',
-        pathname: '/profile-image/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'lh3.googleusercontent.com',
         pathname: '/**', // 구글 이미지 전체 허용
+      },
+      {
+        protocol: 'https',
+        hostname: 'test-api.zeroone.it.kr',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'www.zeroone.it.kr',
+        pathname: '/**',
       },
     ],
   },

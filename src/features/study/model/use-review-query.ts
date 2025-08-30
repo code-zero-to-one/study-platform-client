@@ -4,12 +4,14 @@ import {
   useQuery,
   useSuspenseQuery,
 } from '@tanstack/react-query';
+import { getKoreaDate } from '@/shared/lib/time';
 import {
   addStudyReview,
   getUserPositiveKeywords,
   getPartnerStudyReview,
   getMyNegativeKeywords,
   getMyReviews,
+  getShouldReviewPartner,
 } from '../api/get-review';
 import {
   MyNegativeKeywordsRequest,
@@ -81,6 +83,21 @@ export const useMyReviewsInfinityQuery = () => {
         totalCount,
         hasNext,
       };
+    },
+  });
+};
+
+export const useShouldReviewPartnerQuery = () => {
+  return useQuery({
+    queryKey: ['shouldReviewPartner'],
+    queryFn: getShouldReviewPartner,
+    refetchInterval: 1000 * 60 * 30, // 30분
+    enabled: () => {
+      const now = getKoreaDate();
+      const dayOfWeek = now.getDay();
+      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // 0: 일요일, 6: 토요일
+
+      return isWeekend;
     },
   });
 };

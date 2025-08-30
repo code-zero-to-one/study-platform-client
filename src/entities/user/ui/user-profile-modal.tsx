@@ -9,6 +9,7 @@ import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import { useUserPositiveKeywordsQuery } from '@/features/study/model/use-review-query';
+import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import { Modal } from '@/shared/ui/modal';
@@ -30,6 +31,9 @@ export default function UserProfileModal({
   if (isLoading || isError || !profile || !positiveKeywordsData) return null;
 
   const positiveKeywords = positiveKeywordsData?.keywords || [];
+  const temperPreset = getSincerityPresetByLevelName(
+    profile.sincerityTemp.levelName,
+  );
 
   return (
     <Modal.Root>
@@ -68,33 +72,55 @@ export default function UserProfileModal({
                       </Badge>
                     ))}
                 </div>
-                <div className="font-designer-28b pb-50">
-                  {profile.memberProfile.memberName}
+                <div className="flex items-center justify-start">
+                  <div className="font-designer-28b pb-50">
+                    {profile.memberProfile.memberName}
+                  </div>
+
+                  <span
+                    className="bg-border-default mx-150 block h-[12px] w-[1px]"
+                    aria-hidden="true"
+                  />
+
+                  <div className="flex items-center">
+                    <temperPreset.Icon className="h-400 w-400" />
+                    <span
+                      className={`${temperPreset.textClass} font-designer-14b pl-[2px]`}
+                    >
+                      {profile.sincerityTemp.temperature.toFixed(1)} ℃
+                    </span>
+                  </div>
                 </div>
                 <div className="font-designer-15m pb-300">
                   {profile.memberProfile.simpleIntroduction}
                 </div>
-                <div className="flex gap-250">
-                  <div className="flex flex-col gap-100">
-                    <div className="font-designer-14r text-text-subtle flex items-center gap-100">
-                      <CakeIcon width={16} height={16} />
+
+                <div className="grid grid-cols-2 gap-x-250 gap-y-100">
+                  <div className="flex items-center gap-100">
+                    <CakeIcon />
+                    <span className="font-designer-14r text-text-subtle leading-none">
                       {profile.memberProfile.birthDate ?? ''}
-                    </div>
-                    <div className="font-designer-14r text-text-subtle flex items-center gap-100">
-                      <PhoneIcon width={16} height={16} />
-                      {profile.memberProfile.tel ?? ''}
-                    </div>
+                    </span>
                   </div>
 
-                  <div className="flex flex-col gap-100">
-                    <div className="font-designer-14r text-text-subtle flex items-center gap-100">
-                      <GithubIcon width={16} height={16} />
+                  <div className="flex items-center gap-100">
+                    <GithubIcon />
+                    <span className="font-designer-14r text-text-subtle leading-none">
                       {profile.memberProfile.githubLink?.url ?? ''}
-                    </div>
-                    <div className="font-designer-14r text-text-subtle flex items-center gap-100">
-                      <GlobeIcon width={16} height={16} />
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-100">
+                    <PhoneIcon />
+                    <span className="font-designer-14r text-text-subtle leading-none">
+                      {profile.memberProfile.tel ?? ''}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-100">
+                    <GlobeIcon />
+                    <span className="font-designer-14r text-text-subtle leading-none">
                       {profile.memberProfile.blogOrSnsLink?.url ?? ''}
-                    </div>
+                    </span>
                   </div>
                 </div>
               </div>
@@ -127,14 +153,14 @@ export default function UserProfileModal({
               />
             </div>
 
-            <div className="bg-border-subtle h-[2px] w-full" />
+            <div className="bg-border-subtle h-[2px] w-full flex-none" />
 
-            <div className="flex gap-400 px-250">
+            <div className="flex gap-400 pl-250">
               <span className="font-designer-16b text-text-default w-[132px] shrink-0">
                 받은 평가
               </span>
 
-              <div className="text-text-default font-designer-14r">
+              <div className="text-text-default font-designer-14r grow-1">
                 {/* todo: 기획 fix되면 수정 */}
                 {/* <span>n명의 유저들이 이런 점이 좋다고 했어요.</span> */}
 
