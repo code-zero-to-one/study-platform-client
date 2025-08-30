@@ -1,7 +1,8 @@
 'use client';
 
-import { startOfWeek, addDays, format, isSameDay } from 'date-fns';
+import { addDays, format, isSameDay } from 'date-fns';
 import { useMemo } from 'react';
+import { getKoreaDisplayMonday } from '@/shared/lib/time';
 
 interface Props {
   value: Date;
@@ -9,12 +10,12 @@ interface Props {
 }
 
 export default function DateSelector({ value, onChange }: Props) {
-  const today = new Date();
-  const monday = startOfWeek(today, { weekStartsOn: 1 });
   const dayLabels = ['월', '화', '수', '목', '금'];
+
+  const displayMonday = useMemo(() => getKoreaDisplayMonday(), []);
   const dates = useMemo(
-    () => Array.from({ length: 5 }, (_, i) => addDays(monday, i)),
-    [monday],
+    () => Array.from({ length: 5 }, (_, i) => addDays(displayMonday, i)),
+    [displayMonday],
   );
 
   return (
