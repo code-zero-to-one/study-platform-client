@@ -1,6 +1,7 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
+import { useState } from 'react';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import KeywordReview from '@/entities/user/ui/keyword-review';
 import ProfileInfoCard from '@/entities/user/ui/profile-info-card';
@@ -23,167 +24,212 @@ export default function UserProfileModal({
   memberId,
   trigger,
 }: UserProfileModalProps) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Modal.Root open={open} onOpenChange={setOpen}>
+      <Modal.Trigger asChild>{trigger}</Modal.Trigger>
+
+      {open && (
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content size="large" className="w-full">
+            <UserProfileBody
+              memberId={memberId}
+              onClose={() => setOpen(false)}
+            />
+          </Modal.Content>
+        </Modal.Portal>
+      )}
+    </Modal.Root>
+  );
+}
+
+function UserProfileBody({
+  memberId,
+  onClose,
+}: {
+  memberId: number;
+  onClose: () => void;
+}) {
   const { data: profile, isLoading, isError } = useUserProfileQuery(memberId);
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     memberId,
   });
 
-  if (isLoading || isError || !profile || !positiveKeywordsData) return null;
+  if (isLoading) {
+    return (
+      <>
+        <Header title="프로필" onClose={onClose} />
+        <Modal.Body className="p-400">불러오는 중…</Modal.Body>
+      </>
+    );
+  }
 
-  const positiveKeywords = positiveKeywordsData?.keywords || [];
+  if (isError || !profile || !positiveKeywordsData) {
+    return (
+      <>
+        <Header title="프로필" onClose={onClose} />
+        <Modal.Body className="p-400">프로필을 불러오지 못했습니다.</Modal.Body>
+      </>
+    );
+  }
+
+  const positiveKeywords = positiveKeywordsData.keywords ?? [];
   const temperPreset = getSincerityPresetByLevelName(
     profile.sincerityTemp.levelName,
   );
 
   return (
-    <Modal.Root>
-      <Modal.Trigger asChild>{trigger}</Modal.Trigger>
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content size="large" className="w-full">
-          <Modal.Header className="border-border-default flex justify-between border-b">
-            <Modal.Title className="font-designer-20b text-text-strong">
-              {profile.memberProfile.memberName}님의 프로필
-            </Modal.Title>
-            <Modal.Close>
-              <XIcon />
-            </Modal.Close>
-          </Modal.Header>
+    <>
+      <Header
+        title={`${profile.memberProfile.memberName}님의 프로필`}
+        onClose={onClose}
+      />
 
-          <Modal.Body className="flex flex-col gap-400 p-400">
-            <div className="flex flex-row gap-300 px-200">
-              <UserAvatar
-                image={
-                  profile.memberProfile.profileImage?.resizedImages[0]
-                    .resizedImageUrl
-                }
-                size={80}
+      <Modal.Body className="flex flex-col gap-400 p-400">
+        <div className="flex flex-row gap-300 px-200">
+          <UserAvatar
+            image={
+              profile.memberProfile.profileImage?.resizedImages[0]
+                .resizedImageUrl
+            }
+            size={80}
+          />
+
+          <div>
+            <div className="flex flex-wrap gap-75 pb-75">
+              {profile.memberProfile.mbti && (
+                <Badge color="orange">{profile.memberProfile.mbti}</Badge>
+              )}
+              {profile.memberProfile.interests.slice(0, 4).map((interest) => (
+                <Badge key={interest.id} color="purple">
+                  {interest.name}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-start">
+              <div className="font-designer-28b pb-50">
+                {profile.memberProfile.memberName}
+              </div>
+
+              <span
+                className="bg-border-default mx-150 block h-[12px] w-[1px]"
+                aria-hidden="true"
               />
-              <div>
-                <div className="flex flex-wrap gap-75 pb-75">
-                  {profile.memberProfile.mbti && (
-                    <Badge color="orange">{profile.memberProfile.mbti}</Badge>
-                  )}
-                  {profile.memberProfile.interests
-                    .slice(0, 4)
-                    .map((interest) => (
-                      <Badge key={interest.id} color="purple">
-                        {interest.name}
-                      </Badge>
-                    ))}
-                </div>
-                <div className="flex items-center justify-start">
-                  <div className="font-designer-28b pb-50">
-                    {profile.memberProfile.memberName}
-                  </div>
 
-                  <span
-                    className="bg-border-default mx-150 block h-[12px] w-[1px]"
-                    aria-hidden="true"
+              <div className="flex items-center">
+                <temperPreset.Icon className="h-400 w-400" />
+                <span
+                  className={`${temperPreset.textClass} font-designer-14b pl-[2px]`}
+                >
+                  {profile.sincerityTemp.temperature.toFixed(1)} ℃
+                </span>
+              </div>
+            </div>
+
+            <div className="font-designer-15m pb-300">
+              {profile.memberProfile.simpleIntroduction}
+            </div>
+
+            <div className="grid grid-cols-2 gap-x-250 gap-y-100">
+              <Field
+                icon={<CakeIcon />}
+                value={profile.memberProfile.birthDate}
+              />
+              <Field
+                icon={<GithubIcon />}
+                value={profile.memberProfile.githubLink?.url}
+              />
+              <Field icon={<PhoneIcon />} value={profile.memberProfile.tel} />
+              <Field
+                icon={<GlobeIcon />}
+                value={profile.memberProfile.blogOrSnsLink?.url}
+              />
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-200">
+          <ProfileInfoCard
+            title="선호하는 스터디 주제"
+            content={profile.memberInfo.preferredStudySubject?.name}
+          />
+          <ProfileInfoCard
+            title="기술 스택"
+            content={profile.memberInfo.techStacks
+              .map((t) => t.techStackName)
+              .join(', ')}
+          />
+          <ProfileInfoCard
+            title="가능 시간대"
+            content={profile.memberInfo.availableStudyTimes
+              .map((t) => t.label)
+              .join(', ')}
+          />
+          <ProfileInfoCard
+            title="자기소개"
+            content={profile.memberInfo.selfIntroduction}
+          />
+          <ProfileInfoCard
+            title="공부 주제 및 계획"
+            content={profile.memberInfo.studyPlan}
+          />
+        </div>
+
+        <div className="bg-border-subtle h-[2px] w-full flex-none" />
+
+        <div className="flex gap-400 pl-250">
+          <span className="font-designer-16b text-text-default w-[132px] shrink-0">
+            받은 평가
+          </span>
+
+          <div className="text-text-default font-designer-14r grow-1">
+            {/* todo: 기획 fix되면 수정 */}
+            {/* <span>n명의 유저들이 이런 점이 좋다고 했어요.</span> */}
+            <ul className="flex flex-col gap-100">
+              {positiveKeywords.length > 0 ? (
+                positiveKeywords.map((keyword) => (
+                  <KeywordReview
+                    key={keyword.id}
+                    content={keyword.content}
+                    count={keyword.count}
                   />
+                ))
+              ) : (
+                <span className="text-text-subtle font-designer-14r">
+                  아직 받은 평가가 없습니다.
+                </span>
+              )}
+            </ul>
+          </div>
+        </div>
+      </Modal.Body>
+    </>
+  );
+}
 
-                  <div className="flex items-center">
-                    <temperPreset.Icon className="h-400 w-400" />
-                    <span
-                      className={`${temperPreset.textClass} font-designer-14b pl-[2px]`}
-                    >
-                      {profile.sincerityTemp.temperature.toFixed(1)} ℃
-                    </span>
-                  </div>
-                </div>
-                <div className="font-designer-15m pb-300">
-                  {profile.memberProfile.simpleIntroduction}
-                </div>
+function Header({ title, onClose }: { title: string; onClose: () => void }) {
+  return (
+    <Modal.Header className="border-border-default flex justify-between border-b">
+      <Modal.Title className="font-designer-20b text-text-strong">
+        {title}
+      </Modal.Title>
+      <Modal.Close onClick={onClose}>
+        <XIcon />
+      </Modal.Close>
+    </Modal.Header>
+  );
+}
 
-                <div className="grid grid-cols-2 gap-x-250 gap-y-100">
-                  <div className="flex items-center gap-100">
-                    <CakeIcon />
-                    <span className="font-designer-14r text-text-subtle leading-none">
-                      {profile.memberProfile.birthDate ?? ''}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-100">
-                    <GithubIcon />
-                    <span className="font-designer-14r text-text-subtle leading-none">
-                      {profile.memberProfile.githubLink?.url ?? ''}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-100">
-                    <PhoneIcon />
-                    <span className="font-designer-14r text-text-subtle leading-none">
-                      {profile.memberProfile.tel ?? ''}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-100">
-                    <GlobeIcon />
-                    <span className="font-designer-14r text-text-subtle leading-none">
-                      {profile.memberProfile.blogOrSnsLink?.url ?? ''}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-200">
-              <ProfileInfoCard
-                title="선호하는 스터디 주제"
-                content={profile.memberInfo.preferredStudySubject?.name}
-              />
-              <ProfileInfoCard
-                title="기술 스택"
-                content={profile.memberInfo.techStacks
-                  .map((t) => t.techStackName)
-                  .join(', ')}
-              />
-              <ProfileInfoCard
-                title="가능 시간대"
-                content={profile.memberInfo.availableStudyTimes
-                  .map((t) => t.label)
-                  .join(', ')}
-              />
-              <ProfileInfoCard
-                title="자기소개"
-                content={profile.memberInfo.selfIntroduction}
-              />
-              <ProfileInfoCard
-                title="공부 주제 및 계획"
-                content={profile.memberInfo.studyPlan}
-              />
-            </div>
-
-            <div className="bg-border-subtle h-[2px] w-full flex-none" />
-
-            <div className="flex gap-400 pl-250">
-              <span className="font-designer-16b text-text-default w-[132px] shrink-0">
-                받은 평가
-              </span>
-
-              <div className="text-text-default font-designer-14r grow-1">
-                {/* todo: 기획 fix되면 수정 */}
-                {/* <span>n명의 유저들이 이런 점이 좋다고 했어요.</span> */}
-
-                <ul className="flex flex-col gap-100">
-                  {positiveKeywords.length > 0 ? (
-                    positiveKeywords.map((keyword) => (
-                      <KeywordReview
-                        key={keyword.id}
-                        content={keyword.content}
-                        count={keyword.count}
-                      />
-                    ))
-                  ) : (
-                    <span className="text-text-subtle font-designer-14r">
-                      아직 받은 평가가 없습니다.
-                    </span>
-                  )}
-                </ul>
-              </div>
-            </div>
-          </Modal.Body>
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal.Root>
+function Field({ icon, value }: { icon: React.ReactNode; value?: string }) {
+  return (
+    <div className="flex items-center gap-100">
+      {icon}
+      <span className="font-designer-14r text-text-subtle leading-none">
+        {value ?? ''}
+      </span>
+    </div>
   );
 }
