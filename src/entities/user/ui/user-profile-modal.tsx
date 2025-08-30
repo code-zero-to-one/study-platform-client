@@ -9,7 +9,7 @@ import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import { useUserPositiveKeywordsQuery } from '@/features/study/model/use-review-query';
-import { getSincerityPresetByLevelId } from '@/shared/config/sincerity-temp-presets';
+import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import { Modal } from '@/shared/ui/modal';
@@ -31,8 +31,8 @@ export default function UserProfileModal({
   if (isLoading || isError || !profile || !positiveKeywordsData) return null;
 
   const positiveKeywords = positiveKeywordsData?.keywords || [];
-  const temperPreset = getSincerityPresetByLevelId(
-    profile.sincerityTemp.levelId,
+  const temperPreset = getSincerityPresetByLevelName(
+    profile.sincerityTemp.levelName,
   );
 
   return (
