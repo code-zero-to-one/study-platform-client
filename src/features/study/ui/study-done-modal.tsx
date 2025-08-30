@@ -5,6 +5,8 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import { patchAutoMatching } from '@/entities/user/api/get-user-profile';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import FormField from '@/shared/ui/form/form-field';
@@ -102,7 +104,16 @@ function StudyDoneForm({
         requestType: 'complete',
       },
       {
-        onSuccess: onClose,
+        onSuccess: async () => {
+          if (Number(getCookie('memberId'))) {
+            await patchAutoMatching({
+              memberId: Number(getCookie('memberId')),
+              autoMatching: true,
+            });
+          }
+
+          onClose();
+        },
         onError: (err) => {
           console.error(err);
           alert('요청 처리에 실패했습니다. 다시 시도해주세요.');

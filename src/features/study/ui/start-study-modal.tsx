@@ -1,11 +1,13 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import { patchAutoMatching } from '@/entities/user/api/get-user-profile';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
@@ -137,12 +139,19 @@ function StartStudyForm({
     [techStacks],
   );
 
+  const queryClient = useQueryClient();
+
   const onValidSubmit = (values: StartStudyFormValues) => {
     const body = toJoinStudyRequest(memberId, values);
 
     joinStudy(body, {
-      onSuccess: () => {
+      onSuccess: async () => {
         alert('스터디 신청이 완료되었습니다!');
+        // todo: usePatchAutoMatchingMutation 쓰기
+        await patchAutoMatching({ memberId, autoMatching: true });
+        await queryClient.invalidateQueries({
+          queryKey: ['weeklyReservationMembers'],
+        });
         onClose();
         router.refresh();
       },

@@ -40,26 +40,26 @@ export default function MyProfileCard({
 }: MyProfileCardProps) {
   const { showReviewReminder, setShowReviewReminder } = useReviewReminder();
 
-  const [enabled, setEnabled] = useState(matching);
+  // const [enabled, setEnabled] = useState(matching);
   const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
 
-  const { mutate: patchAutoMatching, isPending } =
-    usePatchAutoMatchingMutation();
+  // const { mutate: patchAutoMatching, isPending } =
+  //   usePatchAutoMatchingMutation();
 
-  const handleToggleChange = (checked: boolean) => {
-    if (!studyApplied) return;
+  // const handleToggleChange = (checked: boolean) => {
+  //   if (!studyApplied) return;
 
-    setEnabled(checked);
+  //   setEnabled(checked);
 
-    patchAutoMatching(
-      { memberId, autoMatching: checked },
-      {
-        onError: () => {
-          setEnabled(!checked);
-        },
-      },
-    );
-  };
+  //   patchAutoMatching(
+  //     { memberId, autoMatching: checked },
+  //     {
+  //       onError: () => {
+  //         setEnabled(!checked);
+  //       },
+  //     },
+  //   );
+  // };
 
   return (
     <>
@@ -94,15 +94,15 @@ export default function MyProfileCard({
               </div>
             </div>
             <div className="flex flex-row items-center gap-100">
-              <span className="font-designer-14r text-gray-800">
+              {/* <span className="font-designer-14r text-gray-800">
                 스터디 매칭
               </span>
               <ToggleSwitch.Root
                 size="md"
-                checked={enabled}
+                checked={matching}
                 onCheckedChange={handleToggleChange}
-                disabled={isPending || !studyApplied}
-              />
+                disabled={true}
+              /> */}
             </div>
           </div>
         </div>

@@ -45,8 +45,8 @@ export default function ReservationList({
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
 
-  const { mutate: patchAutoMatching, isPending } =
-    usePatchAutoMatchingMutation();
+  // const { mutate: patchAutoMatching, isPending } =
+  //   usePatchAutoMatchingMutation();
 
   useEffect(() => {
     if (!memberId || isParticipation || !userProfile) return;
@@ -55,16 +55,16 @@ export default function ReservationList({
 
     if (studyApplied && !autoMatching && !calledRef.current) {
       calledRef.current = true;
-      patchAutoMatching(
-        { memberId, autoMatching: true },
-        {
-          onError: () => {
-            calledRef.current = false;
-          },
-        },
-      );
+      // patchAutoMatching(
+      //   { memberId, autoMatching: true },
+      //   {
+      //     onError: () => {
+      //       calledRef.current = false;
+      //     },
+      //   },
+      // );
     }
-  }, [memberId, isParticipation, userProfile, patchAutoMatching]);
+  }, [memberId, isParticipation, userProfile]);
 
   useEffect(() => {
     if (!hasNextPage) return;
@@ -96,8 +96,8 @@ export default function ReservationList({
     if (!memberId) return;
 
     if (studyApplied) {
-      if (isPending) return;
-      patchAutoMatching({ memberId, autoMatching: true });
+      // if (isPending) return;
+      // patchAutoMatching({ memberId, autoMatching: true });
     } else {
       setIsModalOpen(true);
     }
