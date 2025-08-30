@@ -10,6 +10,7 @@ import { cn } from '@/shared/shadcn/lib/utils';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import Progress from '@/shared/ui/progress';
+import Tooltip from '@/shared/ui/tooltip';
 
 interface ProfileProps {
   memberId: number;
@@ -80,12 +81,21 @@ export default function Profile({
           <div className="flex flex-col gap-100">
             <div className="flex flex-row justify-between">
               <div className="flex flex-row items-center gap-50">
-                <span>성실 온도</span>
-                <Image
-                  src="/images/help_outline.png"
-                  alt="성실온도 설명"
-                  width={16}
-                  height={16}
+                <span className="font-designer-14m text-text-default">
+                  성실 온도
+                </span>
+                <Tooltip
+                  value="성실 온도는 스터디에서 받은 만족도를 기반으로 만든 매너 지표예요."
+                  side="right"
+                  contentClassName="rounded-150 font-designer-14r"
+                  trigger={
+                    <Image
+                      src="/images/help_outline.png"
+                      alt="성실온도 설명"
+                      width={16}
+                      height={16}
+                    />
+                  }
                 />
               </div>
               <div
