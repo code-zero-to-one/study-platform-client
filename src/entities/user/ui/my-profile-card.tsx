@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { usePatchAutoMatchingMutation } from '@/entities/user/model/use-user-profile-query';
 import { useReviewReminder } from '@/features/study/lib/use-reminder-review';
 import StudyReviewModal from '@/features/study/ui/study-review-modal';
-import { getSincerityPresetByLevelId } from '@/shared/config/sincerity-temp-presets';
+import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import UserAvatar from '@/shared/ui/avatar';
 import { ToggleSwitch } from '@/shared/ui/toggle';
@@ -41,7 +41,7 @@ export default function MyProfileCard({
   const { showReviewReminder, setShowReviewReminder } = useReviewReminder();
 
   const [enabled, setEnabled] = useState(matching);
-  const temperPreset = getSincerityPresetByLevelId(sincerityTemp.levelId);
+  const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();

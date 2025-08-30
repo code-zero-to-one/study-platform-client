@@ -5,7 +5,7 @@ import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
-import { getSincerityPresetByLevelId } from '@/shared/config/sincerity-temp-presets';
+import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
@@ -22,7 +22,7 @@ export default function Profile({
   memberProfile,
   sincerityTemp,
 }: ProfileProps) {
-  const temperPreset = getSincerityPresetByLevelId(sincerityTemp.levelId);
+  const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
 
   return (
     <div className="flex w-full max-w-[80%] gap-300 px-200">
