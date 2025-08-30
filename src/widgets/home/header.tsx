@@ -15,7 +15,7 @@ export default async function Header() {
   const userInfo = isLogin ? await getUserProfile(Number(memberId)) : null;
   const userImg = isLogin
     ? userInfo.memberProfile.profileImage?.resizedImages[0].resizedImageUrl
-    : 'profile-default.svg';
+    : undefined;
 
   return (
     <header className="w-full border-b border-[#E7E8EA] bg-white mix-blend-multiply">
