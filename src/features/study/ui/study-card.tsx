@@ -80,7 +80,7 @@ export default function StudyCard() {
         <ReservationList
           month={month}
           week={week}
-          isParticipation={isParticipate}
+          studyDate={studyDate}
           pageSize={50}
         />
       )}

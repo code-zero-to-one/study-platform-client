@@ -23,6 +23,7 @@ export const useWeeklyParticipation = (params: string) => {
     queryKey: ['weeklyParticipation', params],
     queryFn: () => getWeeklyParticipation(params),
     staleTime: 60 * 1000,
+    enabled: !!params,
   });
 };
 
