@@ -102,12 +102,12 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
           <div className="flex items-center justify-center gap-200">
             <SatisfactionButton
               label="아쉬워요"
-              isSelected={form.satisfactionId === 10}
+              isSelected={form.satisfactionId === 30}
               imageSrc="/icons/shame-review.svg"
               onClick={() => {
                 setForm({
                   ...form,
-                  satisfactionId: 10,
+                  satisfactionId: 30,
                   keywordIds: [],
                   content: '',
                 });
@@ -130,12 +130,12 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
 
             <SatisfactionButton
               label="좋았어요"
-              isSelected={form.satisfactionId === 30}
+              isSelected={form.satisfactionId === 10}
               imageSrc="/icons/good-review.svg"
               onClick={() => {
                 setForm({
                   ...form,
-                  satisfactionId: 30,
+                  satisfactionId: 10,
                   keywordIds: [],
                   content: '',
                 });
@@ -144,11 +144,11 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {form.satisfactionId === 10 && (
+        {form.satisfactionId === 30 && (
           <NegativeReview data={data} form={form} onChange={setForm} />
         )}
 
-        {(form.satisfactionId === 20 || form.satisfactionId === 30) && (
+        {(form.satisfactionId === 10 || form.satisfactionId === 20) && (
           <PositiveReview data={data} form={form} onChange={setForm} />
         )}
       </Modal.Body>
