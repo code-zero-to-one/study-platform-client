@@ -1,7 +1,12 @@
 'use client';
 
 import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+import {
+  formatKoreaYMD,
+  getKoreaDate,
+  getKoreaDisplayMonday,
+} from '@/shared/lib/time';
 import DateSelector from './data-selector';
 import TodayStudyCard from './today-study-card';
 import StudyListSection from '../../../widgets/home/study-list-table';
@@ -12,13 +17,13 @@ import ReservationList from '../participation/ui/reservation-list';
 // 스터디 주차 구하는 함수
 function getWeekly(date: Date): { month: number; week: number } {
   const weekStartsOn = 0;
-  const target = new Date(date);
-  const currentWeekStart = startOfWeek(target, { weekStartsOn });
+  const targetKST = getKoreaDate(date);
+  const currentWeekStart = startOfWeek(targetKST, { weekStartsOn });
 
   const baseMonth = getMonth(currentWeekStart);
 
   // 목요일 기준 월의 첫 주 시작일 계산
-  const firstOfMonth = new Date(target.getFullYear(), baseMonth, 1);
+  const firstOfMonth = new Date(targetKST.getFullYear(), baseMonth, 1);
   const firstWeekStart = startOfWeek(firstOfMonth, { weekStartsOn });
   const firstDayOfWeek = getDay(firstOfMonth);
   const officialFirstWeekStart =
@@ -56,17 +61,18 @@ function getWeekly(date: Date): { month: number; week: number } {
 export default function StudyCard() {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const offset = selectedDate.getTimezoneOffset() * 60000; // ms단위라 60000곱해줌
-  const dateOffset = new Date(selectedDate.getTime() - offset);
-
-  const studyDate = dateOffset.toISOString().split('T')[0];
+  const studyDate = formatKoreaYMD(selectedDate);
 
   const { data: status } = useStudyStatusQuery();
 
   const { data: participationData } = useWeeklyParticipation(studyDate);
   const isParticipate = participationData?.isParticipate ?? false;
 
-  const { month, week } = getWeekly(selectedDate);
+  const displayMonday = useMemo(
+    () => getKoreaDisplayMonday(selectedDate),
+    [selectedDate],
+  );
+  const { month, week } = getWeekly(displayMonday);
 
   return (
     <>
@@ -74,7 +80,7 @@ export default function StudyCard() {
         <ReservationList
           month={month}
           week={week}
-          isParticipation={isParticipate}
+          studyDate={studyDate}
           pageSize={50}
         />
       )}

@@ -1,10 +1,13 @@
 import {
+  addDays,
   differenceInDays,
   differenceInHours,
   differenceInMinutes,
+  format,
+  getDay,
   parseISO,
+  startOfWeek,
 } from 'date-fns';
-import { format } from 'path';
 
 export const getKoreaDate = (targetDate?: Date) => {
   const date = targetDate || new Date();
@@ -16,6 +19,9 @@ export const getKoreaDate = (targetDate?: Date) => {
 
   return koreaNow;
 };
+
+export const formatKoreaYMD = (targetDate?: Date) =>
+  format(getKoreaDate(targetDate), 'yyyy-MM-dd');
 
 export const formatKoreaRelativeTime = (targetDateStr: string): string => {
   const targetDate = parseISO(targetDateStr);
@@ -34,4 +40,12 @@ export const formatKoreaRelativeTime = (targetDateStr: string): string => {
   if (days < 30) return `${days}일 전`; // 30일 미만이면 "n일 전"
 
   return targetDateStr;
+};
+
+export const getKoreaDisplayMonday = (base?: Date) => {
+  const todayKST = getKoreaDate(base);
+  const monday = startOfWeek(todayKST, { weekStartsOn: 1 }); // 월요일 시작
+  const dow = getDay(todayKST); // 0=일, 6=토
+
+  return dow === 0 || dow === 6 ? addDays(monday, 7) : monday;
 };

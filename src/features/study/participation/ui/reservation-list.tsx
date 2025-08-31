@@ -13,20 +13,19 @@ import StartStudyModal from '../../ui/start-study-modal';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {
-  isParticipation?: boolean;
+  studyDate?: string;
   pageSize?: number;
   month: number;
   week: number;
 }
 
 export default function ReservationList({
-  isParticipation = false,
+  studyDate,
   pageSize = 50,
   month,
   week,
 }: ReservationListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const calledRef = useRef(false);
   const [memberId, setMemberId] = useState<number | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -35,36 +34,19 @@ export default function ReservationList({
     setMemberId(id ? Number(id) : null);
   }, []);
 
+  const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
+  const autoMatching = userProfile?.autoMatching ?? false;
+
   const firstMemberId = useMemo(
-    () => (isParticipation && memberId !== null ? memberId : null),
-    [isParticipation, memberId],
+    () => (autoMatching && memberId !== null ? memberId : null),
+    [autoMatching, memberId],
   );
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
-    useInfiniteReservation(firstMemberId, pageSize);
-
-  const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
+    useInfiniteReservation(firstMemberId ?? undefined, pageSize);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
-
-  useEffect(() => {
-    if (!memberId || isParticipation || !userProfile) return;
-
-    const { studyApplied, autoMatching } = userProfile;
-
-    if (studyApplied && !autoMatching && !calledRef.current) {
-      calledRef.current = true;
-      patchAutoMatching(
-        { memberId, autoMatching: true },
-        {
-          onError: () => {
-            calledRef.current = false;
-          },
-        },
-      );
-    }
-  }, [memberId, isParticipation, userProfile, patchAutoMatching]);
 
   useEffect(() => {
     if (!hasNextPage) return;
@@ -124,10 +106,14 @@ export default function ReservationList({
 
       <div className="grid grid-cols-1 gap-200 md:grid-cols-2 lg:grid-cols-3">
         {items.map((p) => (
-          <ReservationCard key={p.id} participant={p} />
+          <ReservationCard
+            key={p.id}
+            participant={p}
+            currentMemberId={firstMemberId}
+          />
         ))}
 
-        {!isParticipation && (
+        {!autoMatching && (
           <div
             className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] items-center justify-between gap-150 px-200 py-300"
             onClick={handleApplyClick}
