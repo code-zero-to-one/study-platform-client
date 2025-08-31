@@ -45,29 +45,114 @@ const ERROR_MESSAGES = {
   MPF001: '현재 프로젝트 에서 지원 하는 기능이 아닙니다.',
 };
 
+// refresh token을 사용해서 access token을 재갱신하는 함수
+const refreshAccessToken = async (): Promise<string | null> => {
+  try {
+    const response = await axios.get<{ content: { accessToken: string } }>(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/access-token/refresh`,
+      {
+        withCredentials: true,
+      },
+    );
+
+    const newAccessToken = response.data.content.accessToken;
+
+    if (newAccessToken) {
+      setCookie('accessToken', newAccessToken);
+
+      return newAccessToken;
+    }
+
+    return null;
+  } catch (error) {
+    alert('토큰 갱신에 실패했습니다. 다시 로그인해주세요');
+    window.location.href = '/login';
+
+    return null;
+  }
+};
+
 axiosInstance.interceptors.response.use(
   (config) => config,
   async (error) => {
-    if (isAxiosError(error) && error.response) {
+    if (
+      isAxiosError(error) &&
+      error.response &&
+      isApiError(error.response.data)
+    ) {
+      // 요청이 전송되었고, 서버는 2xx 외의 상태 코드로 응답
       const errorResponseBody = error.response.data;
+      const originalRequest = error.config;
 
-      if (isApiError(errorResponseBody)) {
-        const accessToken = getCookie('accessToken');
+      // 유효하지 않은 accessToken인 경우, 재발급
+      if (errorResponseBody.errorCode === 'AUTH001') {
+        const newAccessToken = await refreshAccessToken();
 
-        const originalRequest = error.config;
+        if (newAccessToken && originalRequest) {
+          // 새로운 access token으로 원래 요청 재시도
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-        // 유효하지 않은 accessToken인 경우, 재발급
-        if (accessToken && errorResponseBody.errorCode === 'AUTH001') {
-        }
+          return axiosInstance(originalRequest);
+        } else {
+          // refresh token도 만료된 경우 로그인 페이지로 리다이렉트
+          window.location.href = '/login';
 
-        if (errorResponseBody.errorCode in ERROR_MESSAGES) {
-          alert(
-            ERROR_MESSAGES[
-              errorResponseBody.errorCode as keyof typeof ERROR_MESSAGES
-            ],
-          );
+          return Promise.reject(error);
         }
       }
+
+      if (errorResponseBody.errorCode in ERROR_MESSAGES) {
+        alert(
+          ERROR_MESSAGES[
+            errorResponseBody.errorCode as keyof typeof ERROR_MESSAGES
+          ],
+        );
+      }
     }
+
+    return Promise.reject(error);
+  },
+);
+
+// multipart 요청용 인터셉터도 동일하게 적용
+axiosInstanceForMultipart.interceptors.response.use(
+  (config) => config,
+  async (error) => {
+    if (
+      isAxiosError(error) &&
+      error.response &&
+      isApiError(error.response.data)
+    ) {
+      // 요청이 전송되었고, 서버는 2xx 외의 상태 코드로 응답
+      const errorResponseBody = error.response.data;
+      const originalRequest = error.config;
+
+      // 유효하지 않은 accessToken인 경우, 재발급
+      if (errorResponseBody.errorCode === 'AUTH001') {
+        const newAccessToken = await refreshAccessToken();
+
+        if (newAccessToken && originalRequest) {
+          // 새로운 access token으로 원래 요청 재시도
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+          return axiosInstanceForMultipart(originalRequest);
+        } else {
+          // refresh token도 만료된 경우 로그인 페이지로 리다이렉트
+          window.location.href = '/login';
+
+          return Promise.reject(error);
+        }
+      }
+
+      if (errorResponseBody.errorCode in ERROR_MESSAGES) {
+        alert(
+          ERROR_MESSAGES[
+            errorResponseBody.errorCode as keyof typeof ERROR_MESSAGES
+          ],
+        );
+      }
+    }
+
+    return Promise.reject(error);
   },
 );
