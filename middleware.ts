@@ -8,6 +8,17 @@ export function middleware(request: NextRequest) {
     request.cookies.has('memberId') &&
     isNumeric(request.cookies.get('memberId')?.value);
 
+  // sign-up 페이지에서 memberId는 null (사용자 이름을 등록해야 memberId 주어짐)
+  if (request.url.endsWith('/sign-up')) {
+    if (!hasAccessToken) {
+      const loginUrl = new URL('/login', request.url);
+
+      return NextResponse.redirect(loginUrl);
+    }
+
+    return NextResponse.next();
+  }
+
   if (!hasAccessToken || !hasMemberId) {
     const loginUrl = new URL('/login', request.url);
 
