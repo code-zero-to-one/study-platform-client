@@ -72,6 +72,27 @@ const refreshAccessToken = async (): Promise<string | null> => {
   }
 };
 
+// 토큰 갱신 중인지 확인하는 플래그
+let isRefreshing = false;
+// 토큰 갱신을 기다리는 요청들 저장
+let failedQueue: Array<{
+  resolve: (value: string) => void;
+  reject: (error: any) => void;
+}> = [];
+
+// 대기 중인 요청들을 처리하는 함수
+const processFailedQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
+
 axiosInstance.interceptors.response.use(
   (config) => config,
   async (error) => {
@@ -86,27 +107,54 @@ axiosInstance.interceptors.response.use(
 
       // 유효하지 않은 accessToken인 경우, 재발급
       if (errorResponseBody.errorCode === 'AUTH001') {
-        const newAccessToken = await refreshAccessToken();
+        if (isRefreshing) {
+          // 이미 토큰 갱신 중이면 대기열에 추가
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              if (originalRequest) {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
 
-        if (newAccessToken && originalRequest) {
-          // 새로운 access token으로 원래 요청 재시도
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+                return axiosInstance(originalRequest);
+              }
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
+        }
 
-          return axiosInstance(originalRequest);
-        } else {
-          // refresh token도 만료된 경우 로그인 페이지로 리다이렉트
+        isRefreshing = true;
+
+        try {
+          const newAccessToken = await refreshAccessToken();
+
+          if (newAccessToken) {
+            processFailedQueue(null, newAccessToken);
+
+            if (originalRequest) {
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+              return axiosInstance(originalRequest);
+            }
+          } else {
+            processFailedQueue(new Error('토큰 갱신 실패'), null);
+            window.location.href = '/login';
+
+            return Promise.reject(error);
+          }
+        } catch (refreshError) {
+          processFailedQueue(refreshError, null);
           window.location.href = '/login';
 
-          return Promise.reject(error);
+          return Promise.reject(refreshError);
+        } finally {
+          // eslint-disable-next-line require-atomic-updates
+          isRefreshing = false;
         }
       }
 
       if (errorResponseBody.errorCode in ERROR_MESSAGES) {
-        alert(
-          ERROR_MESSAGES[
-            errorResponseBody.errorCode as keyof typeof ERROR_MESSAGES
-          ],
-        );
       }
     }
 
@@ -129,27 +177,9 @@ axiosInstanceForMultipart.interceptors.response.use(
 
       // 유효하지 않은 accessToken인 경우, 재발급
       if (errorResponseBody.errorCode === 'AUTH001') {
-        const newAccessToken = await refreshAccessToken();
-
-        if (newAccessToken && originalRequest) {
-          // 새로운 access token으로 원래 요청 재시도
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-          return axiosInstanceForMultipart(originalRequest);
-        } else {
-          // refresh token도 만료된 경우 로그인 페이지로 리다이렉트
-          window.location.href = '/login';
-
-          return Promise.reject(error);
-        }
       }
 
       if (errorResponseBody.errorCode in ERROR_MESSAGES) {
-        alert(
-          ERROR_MESSAGES[
-            errorResponseBody.errorCode as keyof typeof ERROR_MESSAGES
-          ],
-        );
       }
     }
 
