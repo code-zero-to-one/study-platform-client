@@ -2,14 +2,12 @@
 
 import { useEffect, useState } from 'react';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { getStatusBadge } from '@/features/study/ui/status-badge-map';
+import { useDailyStudyDetailQuery } from '@/features/study/interview/model/use-interview-query';
+import { getStatusBadge } from '@/features/study/interview/ui/status-badge-map';
+import StudyDoneModal from '@/features/study/interview/ui/study-done-modal';
+import StudyReadyModal from '@/features/study/interview/ui/study-ready-modal';
 import { getCookie } from '@/shared/tanstack-query/cookie';
-// TODO: FSD 의 import 바운더리를 넘어서 import 해야하는데,
-// 해당 UI를 shared 등으로 빼던지 수정 필요
 import UserAvatar from '@/shared/ui/avatar';
-import StudyDoneModal from './study-done-modal';
-import StudyReadyModal from './study-ready-modal';
-import { useDailyStudyDetailQuery } from '../model/use-study-query';
 
 export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
   const [memberId, setMemberId] = useState<number | null>(null);
