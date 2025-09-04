@@ -9,7 +9,7 @@ import type {
   MyReviewsResponse,
   MyReviewsRequest,
   ShouldReviewPartnerResponse,
-} from './types';
+} from '../../api/types';
 
 export const getPartnerStudyReview =
   async (): Promise<StudyEvaluationResponse> => {
