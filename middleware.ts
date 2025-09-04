@@ -16,6 +16,13 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
+    // 이미 사용자 이름을 등록했을 경우, 메인 페이지로 리다이렉트
+    if (hasMemberId) {
+      const mainUrl = new URL('/', request.url);
+
+      return NextResponse.redirect(mainUrl);
+    }
+
     return NextResponse.next();
   }
 
