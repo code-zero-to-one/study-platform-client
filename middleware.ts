@@ -62,7 +62,10 @@ export async function middleware(request: NextRequest) {
   const hasAccessToken = request.cookies.has('accessToken');
   const hasMemberId = request.cookies.has('memberId') && isNumeric(memberId);
 
-  if (!hasAccessToken) {
+  if (
+    !hasAccessToken ||
+    (request.nextUrl.pathname !== '/sign-up' && !hasMemberId) // 회원가입 페이지가 아닌 경우 memberId 체크
+  ) {
     const loginUrl = new URL('/login', request.url);
 
     return NextResponse.redirect(loginUrl);
