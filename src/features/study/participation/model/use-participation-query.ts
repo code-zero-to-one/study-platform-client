@@ -1,12 +1,22 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import {
   getReservationMembers,
-  getStudyStatus,
   mapReservation,
-  StudyStatus,
-} from '../api/get-participation-data';
-import { WeeklyReservationResponse } from '../api/participation-types';
+  postJoinStudy,
+} from '@/features/study/participation/api/get-participation-data';
+import {
+  JoinStudyRequest,
+  WeeklyReservationResponse,
+} from '@/features/study/participation/api/participation-types';
 
+// 스터디 신청 mutation
+export const useJoinStudyMutation = () => {
+  return useMutation({
+    mutationFn: (payload: JoinStudyRequest) => postJoinStudy(payload),
+  });
+};
+
+// 다음주차 스터디 신청 무한 스크롤
 export function useInfiniteReservation(firstMemberId?: number, pageSize = 50) {
   return useInfiniteQuery({
     queryKey: ['weeklyReservationMembers', { firstMemberId, pageSize }],
@@ -44,11 +54,3 @@ export function useInfiniteReservation(firstMemberId?: number, pageSize = 50) {
     staleTime: 60 * 1000,
   });
 }
-
-export const useStudyStatusQuery = () => {
-  return useQuery<StudyStatus>({
-    queryKey: ['studyStatus'],
-    queryFn: getStudyStatus,
-    staleTime: 60 * 1000,
-  });
-};
