@@ -4,20 +4,7 @@ export type StudyProgressStatus =
   | 'COMPLETE'
   | 'ABSENT';
 
-export interface DailyStudy {
-  interviewer: string;
-  interviewerImage: string;
-  interviewee: string;
-  intervieweeImage: string;
-  dailyStudyId: number;
-  subject: string;
-  description: string;
-  link: string;
-  progressStatus: StudyProgressStatus;
-  studyDate: string;
-  feedback: string | undefined;
-}
-
+// 오늘의 스터디 상세조회 관련 타입
 export interface DailyStudyDetail {
   dailyStudyId: number;
   interviewerId: number;
@@ -34,67 +21,19 @@ export interface DailyStudyDetail {
   feedback: string;
 }
 
-export interface GetDailyStudiesParams {
-  cursor?: number;
-  pageSize?: number;
-  studyDate?: string;
-}
-
-export interface GetDailyStudiesResponse {
-  items: DailyStudy[];
-  nextCursor: number;
-  hasNext: boolean;
-}
-
-export interface GetMonthlyCalendarParams {
-  year: number;
-  month: number;
-}
-
-export interface StudyCalendarDay {
-  day: number;
-  hasStudy: boolean;
-  status: StudyProgressStatus | undefined;
-}
-
-export interface MonthlyCalendarResponse {
-  calendar: StudyCalendarDay[];
-  monthlyCompletedCount?: number;
-  totalCompletedCount?: number;
-}
-
-export interface PostDailyRetrospectRequest {
-  description: string;
-  parentId: number;
-}
-
+// 스터디 면접 준비 타입
 export interface PrepareStudyRequest {
   subject: string;
   link: string;
 }
 
-export interface JoinStudyRequest {
-  memberId: number;
-  selfIntroduction?: string;
-  studyPlan?: string;
-  preferredStudySubjectId?: string;
-  availableStudyTimeIds?: number[];
-  techStackIds?: number[];
-  tel?: string;
-  githubLink?: string;
-  blogOrSnsLink?: string;
-}
-
-export interface WeeklyParticipationResponse {
-  memberId: number;
-  isParticipate: boolean;
-}
-
+// 스터디 면접 완료 타입
 export interface CompleteStudyRequest {
   feedback: string;
   progressStatus: StudyProgressStatus;
 }
 
+// 리뷰 관련 타입
 export interface EvalKeyword {
   id: number;
   keyword: string;
