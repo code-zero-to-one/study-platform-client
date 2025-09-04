@@ -7,9 +7,9 @@ import {
   useUserProfileQuery,
 } from '@/entities/user/model/use-user-profile-query';
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
+import ReservationCard from '@/features/study/participation/ui/reservation-user-card';
+import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { getCookie } from '@/shared/tanstack-query/cookie';
-import ReservationCard from './reservation-user-card';
-import StartStudyModal from '../../ui/start-study-modal';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {
