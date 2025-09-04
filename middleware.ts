@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
 
   if (
     !hasAccessToken ||
-    (request.nextUrl.pathname !== '/sign-up' && !hasMemberId) // 회원가입 페이지가 아닌 경우 memberId 체크
+    (request.nextUrl.pathname !== '/sign-up' && !hasMemberId) // 회원가입 페이지가 아닌 경우 memberId 체크 (회원가입 하지 않을 경우, memberId는 null)
   ) {
     const loginUrl = new URL('/login', request.url);
 
