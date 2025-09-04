@@ -9,11 +9,11 @@ import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
-import { useUserPositiveKeywordsQuery } from '@/features/study/model/use-review-query';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import { Modal } from '@/shared/ui/modal';
+import { useUserPositiveKeywordsQuery } from '@/features/study/interview/model/use-review-query';
 
 interface UserProfileModalProps {
   memberId: number;

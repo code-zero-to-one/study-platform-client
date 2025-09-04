@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import StudyCard from '@/features/study/ui/study-card';
+import StudyCard from '@/features/study/schedule/ui/study-card';
 import { getLoginUserId } from '@/shared/lib/get-login-user';
 import Banner from '@/widgets/home/banner';
 import Sidebar from '@/widgets/home/sidebar';

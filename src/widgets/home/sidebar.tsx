@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 import MyProfileCard from '@/entities/user/ui/my-profile-card';
-import StartStudyModal from '@/features/study/ui/start-study-modal';
+import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { getLoginUserId } from '@/shared/lib/get-login-user';
 import Calendar from '@/widgets/home/calendar';
 import TodoList from '@/widgets/home/todo-list';

@@ -4,14 +4,14 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import KeywordReview from '@/entities/user/ui/keyword-review';
 import MoreKeywordReviewModal from '@/entities/user/ui/more-keyword-review-modal';
-import { MyReviewItem } from '@/features/study/api/types';
+import { MyReviewItem } from '@/features/study/interview/api/interview-types';
+import { formatKoreaRelativeTime } from '@/shared/lib/time';
+import UserAvatar from '@/shared/ui/avatar';
 import {
   useMyNegativeKeywordsQuery,
   useMyReviewsInfinityQuery,
   useUserPositiveKeywordsQuery,
-} from '@/features/study/model/use-review-query';
-import { formatKoreaRelativeTime } from '@/shared/lib/time';
-import UserAvatar from '@/shared/ui/avatar';
+} from '@/features/study/interview/model/use-review-query';
 
 export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
