@@ -1,22 +1,13 @@
 // 매칭 결과 목록, 오늘의 스터디 상세 정보, 나의 스터디 캘린더
 import {
-  DailyStudyDetail,
   GetDailyStudiesParams,
   GetDailyStudiesResponse,
   GetMonthlyCalendarParams,
   MonthlyCalendarResponse,
+  StudyStatus,
   WeeklyParticipationResponse,
 } from '@/features/study/schedule/api/schedule-types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-
-// 스터디 상세 조회
-export const getDailyStudyDetail = async (
-  params: string,
-): Promise<DailyStudyDetail> => {
-  const res = await axiosInstance.get(`/study/daily/mine/${params}`);
-
-  return res.data.content;
-};
 
 // 스터디 전체 조회
 export const getDailyStudies = async (
@@ -45,4 +36,11 @@ export const getWeeklyParticipation = async (
   });
 
   return res.data.content;
+};
+
+// 스터디 시작/종료 유무 확인
+export const getStudyStatus = async (): Promise<StudyStatus> => {
+  const res = await axiosInstance.get('/matching/system-status');
+
+  return res.data.content.status as StudyStatus;
 };

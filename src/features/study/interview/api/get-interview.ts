@@ -1,8 +1,18 @@
 import type {
   CompleteStudyRequest,
+  DailyStudyDetail,
   PrepareStudyRequest,
 } from '@/features/study/interview/api/interview-types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
+
+// 스터디 상세 조회
+export const getDailyStudyDetail = async (
+  params: string,
+): Promise<DailyStudyDetail> => {
+  const res = await axiosInstance.get(`/study/daily/mine/${params}`);
+
+  return res.data.content;
+};
 
 // 면접 준비 시작
 export const putStudyDaily = async (
