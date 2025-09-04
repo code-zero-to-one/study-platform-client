@@ -1,5 +1,6 @@
 import axios, { InternalAxiosRequestConfig, isAxiosError } from 'axios';
 import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { ApiError, isApiError } from './api-error';
 import { getServerCookie } from '../lib/server-cookie';
 
@@ -52,7 +53,6 @@ const refreshAccessToken = async (): Promise<string | null> => {
     return null;
   } catch (error) {
     alert('토큰 갱신에 실패했습니다. 다시 로그인해주세요');
-    window.location.href = '/login';
 
     return null;
   }
@@ -125,13 +125,13 @@ axiosServerInstance.interceptors.response.use(
             }
           } else {
             processFailedQueue(new Error('토큰 갱신 실패'), null);
-            window.location.href = '/login';
+            redirect('/login');
 
             return Promise.reject(error);
           }
         } catch (refreshError) {
           processFailedQueue(refreshError, null);
-          window.location.href = '/login';
+          redirect('/login');
 
           return Promise.reject(refreshError);
         } finally {
