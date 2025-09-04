@@ -3,13 +3,16 @@
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import {
+  EvalKeyword,
+  StudyEvaluationResponse,
+} from '@/features/study/interview/api/interview-types';
 import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { TextAreaInput } from '@/shared/ui/input';
 import ListItem from '@/shared/ui/list-item';
 import { Modal } from '@/shared/ui/modal';
-import { EvalKeyword, StudyEvaluationResponse } from '../api/types';
 import {
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
