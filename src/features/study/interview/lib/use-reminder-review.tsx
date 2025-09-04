@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { getKoreaDate } from '@/shared/lib/time';
-import { useShouldReviewPartnerQuery } from '../model/use-review-query';
+import { useShouldReviewPartnerQuery } from '../../model/use-review-query';
 
 export const useReviewReminder = () => {
   const { data: shouldReview, isFetching } = useShouldReviewPartnerQuery();
