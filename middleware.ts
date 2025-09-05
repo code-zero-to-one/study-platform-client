@@ -1,4 +1,3 @@
-import axios, { isAxiosError } from 'axios';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { getServerCookie } from '@/shared/lib/server-cookie';
@@ -8,26 +7,30 @@ import { isApiError } from '@/shared/tanstack-query/api-error';
 const verifyAccessToken = async (accessToken: string) => {
   try {
     // Access token로 memberId만 반환하는 api
-    const res = await axios.get<{ content: number }>(
+    const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/me`,
       {
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       },
     );
 
-    return { state: 'valid', memberId: res.data.content }; // memberId
-  } catch (error) {
-    if (
-      isAxiosError(error) &&
-      error.response &&
-      isApiError(error.response.data) &&
-      error.response.data.errorCode === 'AUTH001'
-    ) {
-      return { state: 'invalid' };
+    if (!response.ok) {
+      const errorData = await response.json();
+
+      if (isApiError(errorData) && errorData.errorCode === 'AUTH001') {
+        return { state: 'invalid' };
+      }
+
+      return { state: 'unknownError' };
     }
 
+    const data: { content: number } = await response.json();
+
+    return { state: 'valid', memberId: data.content };
+  } catch (error) {
     return { state: 'unknownError' };
   }
 };
@@ -73,6 +76,7 @@ export async function middleware(request: NextRequest) {
 
   // access token 갱신 필요 여부 확인
   const verifyResponse = await verifyAccessToken(accessToken);
+
   const response = NextResponse.next();
 
   // access token이 유효하지 않을 경우 -> 갱신
