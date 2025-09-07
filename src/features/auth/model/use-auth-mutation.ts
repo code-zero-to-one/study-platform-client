@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
 import { hashValue } from '@/shared/lib/hash';
+import { isApiError } from '@/shared/tanstack-query/api-error';
 import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
 import { SignUpResponse } from './types';
 
@@ -16,6 +17,13 @@ export const useSignUpMutation = () => {
     { name: string; imageExtension: string }
   >({
     mutationFn: (data: any) => signUp(data),
+    onError: (error) => {
+      if (isApiError(error)) {
+        if (error.errorCode === 'DUPLICATE_MEMBER') {
+          alert('이미 가입된 회원입니다.');
+        }
+      }
+    },
   });
 };
 
