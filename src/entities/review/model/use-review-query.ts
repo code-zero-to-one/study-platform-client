@@ -9,6 +9,7 @@ import {
   UserPositiveKeywordsRequest,
 } from '@/entities/review/api/review-types';
 import { getKoreaDate } from '@/shared/lib/time';
+import { isApiError } from '@/shared/tanstack-query/api-error';
 import {
   addStudyReview,
   getUserPositiveKeywords,
@@ -31,6 +32,15 @@ export const useAddStudyReviewMutation = () => {
     onSuccess: () => {
       // todo: 모달로 변경
       alert('후기 작성이 완료되었습니다.');
+    },
+    onError: (error) => {
+      if (isApiError(error)) {
+        if (error.errorCode === 'CMM001') {
+          alert('이미 후기를 작성했습니다.');
+        } else if (error.errorCode === 'CMM003') {
+          alert('스터디 또는 스터디 멤버가 존재하지 않습니다.');
+        }
+      }
     },
   });
 };
