@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { isApiError } from '@/shared/tanstack-query/api-error';
 import {
   UpdateUserProfileInfoRequest,
   UpdateUserProfileRequest,
@@ -23,6 +24,15 @@ export const useUpdateUserProfileMutation = (memberId: number) => {
 
     onSuccess: () => {
       router.refresh();
+    },
+    onError: (error) => {
+      if (isApiError(error)) {
+        if (error.errorCode === 'MPR001') {
+          alert('관심사가 중복됐습니다.');
+        } else if (error.errorCode === 'MEM001') {
+          alert('회원 정보가 존재하지 않습니다.');
+        }
+      }
     },
   });
 };
