@@ -6,6 +6,7 @@ import {
 } from '@/entities/user/api/get-user-profile';
 import type { GetUserProfileResponse } from '@/entities/user/api/types';
 import { hashValue } from '@/shared/lib/hash';
+import { isApiError } from '@/shared/tanstack-query/api-error';
 
 export const useUserProfileQuery = (memberId: number) => {
   return useQuery<GetUserProfileResponse>({
@@ -45,9 +46,17 @@ export const usePatchAutoMatchingMutation = () => {
       return { prev };
     },
 
-    onError: (_err, { memberId }, ctx) => {
+    onError: (error, { memberId }, ctx) => {
       if (ctx?.prev) {
         qc.setQueryData(['userProfile', memberId], ctx.prev);
+      }
+
+      if (isApiError(error)) {
+        if (error.errorCode === 'MEM004') {
+          alert('아직 스터디를 신청하지 않았습니다. 먼저 스터디 신청해주세요.');
+        } else if (error.errorCode === 'MEM001') {
+          alert('회원 정보가 존재하지 않습니다.');
+        }
       }
     },
 
