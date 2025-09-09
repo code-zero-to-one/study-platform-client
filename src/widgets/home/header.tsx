@@ -1,20 +1,26 @@
 import Link from 'next/link';
-import { getUserProfile } from '@/entities/user/api/get-user-profile';
-
+import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
 import LoginModal from '@/features/auth/ui/login-modal';
 import { getServerCookie } from '@/shared/lib/server-cookie';
+import { isNumeric } from '@/shared/lib/validation';
 import Button from '@/shared/ui/button';
 
-// import NotiIcon from 'public/icons/notifications_none.svg';
-
 export default async function Header() {
-  const memberId = await getServerCookie('memberId');
-  const isLogin = /^\d+$/.test(memberId || '');
+  const memberIdStr = await getServerCookie('memberId');
+  const accessTokenStr = await getServerCookie('accessToken');
 
-  const userInfo = isLogin ? await getUserProfile(Number(memberId)) : null;
-  const userImg = isLogin
-    ? userInfo.memberProfile.profileImage?.resizedImages[0].resizedImageUrl
+  const hasMemberId = !!memberIdStr && isNumeric(memberIdStr);
+  const isLoggedIn = !!accessTokenStr && hasMemberId;
+
+  const memberId = Number(memberIdStr);
+
+  const userProfile = isLoggedIn
+    ? await getUserProfileInServer(memberId)
+    : null;
+  const userInfo = userProfile?.memberProfile;
+  const userImg = userProfile
+    ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl
     : 'profile-default.svg';
 
   return (
@@ -36,8 +42,9 @@ export default async function Header() {
             <NotiIcon />
           </div> */}
 
-          {isLogin && <HeaderUserDropdown userImg={userImg} />}
-          {!isLogin && (
+          {isLoggedIn ? (
+            <HeaderUserDropdown userImg={userImg} />
+          ) : (
             <LoginModal openTrigger={<Button>로그인 / 회원가입</Button>} />
           )}
         </div>

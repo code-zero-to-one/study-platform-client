@@ -21,11 +21,7 @@ export default function LoginModal({
     return <></>;
   }
 
-  const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1'); // 로컬환경 테스트용
-
-  const API_BASE_URL = isLocal
-    ? 'https://test-api.zeroone.it.kr'
-    : process.env.NEXT_PUBLIC_API_BASE_URL;
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
   const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
   const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;

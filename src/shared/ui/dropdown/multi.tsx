@@ -107,8 +107,11 @@ export default function MultiDropdown({
                 {item.label}
                 <button
                   type="button"
-                  onClick={(e) => {
+                  onPointerDown={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
+                  }}
+                  onClick={(e) => {
                     remove(item.value);
                   }}
                   className="cursor-pointer"
@@ -124,8 +127,11 @@ export default function MultiDropdown({
             {selected.length > 0 && (
               <button
                 type="button"
-                onClick={(e) => {
+                onPointerDown={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
+                }}
+                onClick={(e) => {
                   clear();
                 }}
                 className="bg-icon-strong flex h-200 w-200 items-center justify-center rounded-full"
