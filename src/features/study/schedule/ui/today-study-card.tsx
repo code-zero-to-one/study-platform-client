@@ -63,23 +63,20 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
         />
       </div>
 
-      <TodayStudyDetail
-        memberId={memberId}
-        studyDate={studyDate}
-        {...todayStudyData}
-      />
+      {isInterviewee ? (
+        <IntervieweeStudyDetail studyDate={studyDate} {...todayStudyData} />
+      ) : (
+        <InterviewerStudyDetail studyDate={studyDate} {...todayStudyData} />
+      )}
     </section>
   );
 }
 
-function TodayStudyDetail({
-  memberId,
+// 사용자가 면접자(질문하는 사람)이면 보여줄 컴포넌트
+function InterviewerStudyDetail({
   studyDate,
   ...todayStudyData
-}: DailyStudyDetail & { memberId: number; studyDate: string }) {
-  // 내가 피면접자(답변하는 사람)인지
-  const isInterviewee = memberId === todayStudyData.intervieweeId;
-
+}: DailyStudyDetail & { studyDate: string }) {
   return (
     <div className="rounded-100 border-border-default flex flex-col justify-between gap-200 border px-300 py-250">
       <div className="flex justify-between">
@@ -96,14 +93,13 @@ function TodayStudyDetail({
           {getStatusBadge(todayStudyData.progressStatus)}
         </div>
 
-        {isInterviewee ? (
-          <StudyReadyModal data={todayStudyData} studyDate={studyDate} />
-        ) : (
-          <StudyDoneModal data={todayStudyData} studyDate={studyDate} />
-        )}
+        <StudyDoneModal data={todayStudyData} studyDate={studyDate} />
       </div>
 
-      {todayStudyData.progressStatus === 'PENDING' && <BeforeStudy />}
+      {todayStudyData.progressStatus === 'PENDING' && (
+        <PendingStudy isInterviewee={false} />
+      )}
+
       {todayStudyData.progressStatus !== 'PENDING' && (
         <div className="grid grid-cols-2 gap-x-150 gap-y-200">
           <StudySubject subject={todayStudyData.subject} />
@@ -122,6 +118,71 @@ function TodayStudyDetail({
                 />
                 <span className="font-designer-14r text-text-subtlest">
                   수정하기를 눌러 피드백을 작성해주세요.
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+              <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+
+              <p className="text-text-default font-designer-16m">
+                {todayStudyData.feedback}
+              </p>
+            </div>
+          )}
+
+          <StudyLink link={todayStudyData.link} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+// 사용자가 피면접자(답변하는 사람)이면 보여줄 컴포넌트
+function IntervieweeStudyDetail({
+  studyDate,
+  ...todayStudyData
+}: DailyStudyDetail & { studyDate: string }) {
+  return (
+    <div className="rounded-100 border-border-default flex flex-col justify-between gap-200 border px-300 py-250">
+      <div className="flex justify-between">
+        <div className="flex items-center gap-150">
+          <Image
+            src="/icons/book.svg"
+            alt="스터디 상세"
+            width={24}
+            height={24}
+          />
+          <span className="font-designer-16m text-text-default">
+            스터디 상세
+          </span>
+          {getStatusBadge(todayStudyData.progressStatus)}
+        </div>
+
+        <StudyReadyModal data={todayStudyData} studyDate={studyDate} />
+      </div>
+
+      {todayStudyData.progressStatus === 'PENDING' && (
+        <PendingStudy isInterviewee={true} />
+      )}
+      {todayStudyData.progressStatus !== 'PENDING' && (
+        <div className="grid grid-cols-2 gap-x-150 gap-y-200">
+          <StudySubject subject={todayStudyData.subject} />
+
+          {/* 오른쪽 - 피드백 */}
+          {todayStudyData.progressStatus === 'IN_PROGRESS' ? (
+            <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+              <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+
+              <div className="flex flex-col items-center justify-center gap-[10px]">
+                <Image
+                  src="/icons/feedback.svg"
+                  width={65}
+                  height={65}
+                  alt="스터디 시작 전"
+                />
+                <span className="font-designer-14r text-text-subtlest">
+                  아직 면접관이 피드백을 작성하지 않았어요.
                 </span>
               </div>
             </div>
@@ -179,7 +240,7 @@ function PartnerInfo({
   );
 }
 
-function BeforeStudy() {
+function PendingStudy({ isInterviewee }: { isInterviewee: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center gap-75 px-300 pt-75 pb-300">
       <Image
@@ -190,7 +251,11 @@ function BeforeStudy() {
       />
       <p className="font-designer-14r text-text-subtlest flex flex-col items-center">
         <span>스터디 시작 전입니다.</span>
-        <span>‘준비하기’ 버튼을 눌러 스터디를 시작해 주세요.</span>
+        <span>
+          {isInterviewee
+            ? '‘준비하기’ 버튼을 눌러 스터디를 시작해 주세요.'
+            : '아직 지원자가 면접 준비하기를 작성하지 않았어요.'}
+        </span>
       </p>
     </div>
   );
