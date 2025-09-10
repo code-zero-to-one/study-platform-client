@@ -75,43 +75,36 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
 }
 
 const renderFeedback = (
-  progressStatus: DailyStudyDetail['progressStatus'],
   feedback: DailyStudyDetail['feedback'],
   noFeedbackMessage: string,
 ) => {
-  switch (progressStatus) {
-    case 'IN_PROGRESS': {
-      return (
-        <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
-          <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+  if (feedback) {
+    return (
+      <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+        <h3 className="font-designer-14m text-text-subtle">피드백</h3>
 
-          <div className="flex flex-col items-center justify-center gap-[10px]">
-            <Image
-              src="/icons/feedback.svg"
-              width={65}
-              height={65}
-              alt="스터디 시작 전"
-            />
-            <span className="font-designer-14r text-text-subtlest">
-              {noFeedbackMessage}
-            </span>
-          </div>
-        </div>
-      );
-    }
-    case 'ABSENT':
-    case 'COMPLETE': {
-      return (
-        <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
-          <h3 className="font-designer-14m text-text-subtle">피드백</h3>
-
-          <p className="text-text-default font-designer-16m">{feedback}</p>
-        </div>
-      );
-    }
-    default:
-      return null;
+        <p className="text-text-default font-designer-16m">{feedback}</p>
+      </div>
+    );
   }
+
+  return (
+    <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+      <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+
+      <div className="flex flex-col items-center justify-center gap-[10px]">
+        <Image
+          src="/icons/feedback.svg"
+          width={65}
+          height={65}
+          alt="스터디 시작 전"
+        />
+        <span className="font-designer-14r text-text-subtlest">
+          {noFeedbackMessage}
+        </span>
+      </div>
+    </div>
+  );
 };
 
 // 사용자가 면접자(질문하는 사람)이면 보여줄 컴포넌트
@@ -145,7 +138,6 @@ function InterviewerStudyDetail({
           <StudySubject subject={todayStudyData.subject} />
 
           {renderFeedback(
-            todayStudyData.progressStatus,
             todayStudyData.feedback,
             '완료하기를 눌러 피드백을 작성해주세요.',
           )}
@@ -188,7 +180,6 @@ function IntervieweeStudyDetail({
           <StudySubject subject={todayStudyData.subject} />
 
           {renderFeedback(
-            todayStudyData.progressStatus,
             todayStudyData.feedback,
             '아직 면접관이 피드백을 작성하지 않았어요.',
           )}
