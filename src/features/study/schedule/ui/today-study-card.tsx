@@ -147,7 +147,7 @@ function InterviewerStudyDetail({
           {renderFeedback(
             todayStudyData.progressStatus,
             todayStudyData.feedback,
-            '수정하기를 눌러 피드백을 작성해주세요.',
+            '완료하기를 눌러 피드백을 작성해주세요.',
           )}
 
           <StudyLink link={todayStudyData.link} />
