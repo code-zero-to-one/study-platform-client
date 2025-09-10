@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { isNumeric } from '@/shared/lib/validation';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
@@ -13,11 +14,13 @@ import StudyReadyModal from '../../interview/ui/study-ready-modal';
 
 export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
   const memberIdInCookie = getCookie('memberId');
-  const memberId = memberIdInCookie ? Number(memberIdInCookie) : null;
+  const memberId = isNumeric(memberIdInCookie)
+    ? Number(memberIdInCookie)
+    : null;
 
   const { data: todayStudyData } = useDailyStudyDetailQuery(studyDate);
 
-  if (!todayStudyData) return null;
+  if (!todayStudyData || memberId === null) return null;
 
   // 내가 피면접자(답변하는 사람)인지
   const isInterviewee = memberId === todayStudyData.intervieweeId;
@@ -56,69 +59,86 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
         <PartnerInfo
           name={partner.name}
           image={partner.image}
-          isInterviewee={!isInterviewee}
+          isInterviewee={partner.id === todayStudyData.intervieweeId}
         />
       </div>
 
-      <div className="rounded-100 border-border-default flex flex-col justify-between gap-200 border px-300 py-250">
-        <div className="flex justify-between">
-          <div className="flex items-center gap-150">
-            <Image
-              src="/icons/book.svg"
-              alt="스터디 상세"
-              width={24}
-              height={24}
-            />
-            <span className="font-designer-16m text-text-default">
-              스터디 상세
-            </span>
-            {getStatusBadge(todayStudyData.progressStatus)}
-          </div>
+      <TodayStudyDetail
+        memberId={memberId}
+        studyDate={studyDate}
+        {...todayStudyData}
+      />
+    </section>
+  );
+}
 
-          {isInterviewee ? (
-            <StudyReadyModal data={todayStudyData} studyDate={studyDate} />
-          ) : (
-            <StudyDoneModal data={todayStudyData} studyDate={studyDate} />
-          )}
+function TodayStudyDetail({
+  memberId,
+  studyDate,
+  ...todayStudyData
+}: DailyStudyDetail & { memberId: number; studyDate: string }) {
+  // 내가 피면접자(답변하는 사람)인지
+  const isInterviewee = memberId === todayStudyData.intervieweeId;
+
+  return (
+    <div className="rounded-100 border-border-default flex flex-col justify-between gap-200 border px-300 py-250">
+      <div className="flex justify-between">
+        <div className="flex items-center gap-150">
+          <Image
+            src="/icons/book.svg"
+            alt="스터디 상세"
+            width={24}
+            height={24}
+          />
+          <span className="font-designer-16m text-text-default">
+            스터디 상세
+          </span>
+          {getStatusBadge(todayStudyData.progressStatus)}
         </div>
 
-        {todayStudyData.progressStatus === 'PENDING' && <BeforeStudy />}
-        {todayStudyData.progressStatus !== 'PENDING' && (
-          <div className="grid grid-cols-2 gap-x-150 gap-y-200">
-            <StudySubject subject={todayStudyData.subject} />
-
-            {/* 오른쪽 - 피드백 */}
-            {todayStudyData.progressStatus === 'IN_PROGRESS' ? (
-              <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
-                <h3 className="font-designer-14m text-text-subtle">피드백</h3>
-
-                <div className="flex flex-col items-center justify-center gap-[10px]">
-                  <Image
-                    src="/icons/feedback.svg"
-                    width={65}
-                    height={65}
-                    alt="스터디 시작 전"
-                  />
-                  <span className="font-designer-14r text-text-subtlest">
-                    수정하기를 눌러 피드백을 작성해주세요.
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
-                <h3 className="font-designer-14m text-text-subtle">피드백</h3>
-
-                <p className="text-text-default font-designer-16m">
-                  {todayStudyData.feedback}
-                </p>
-              </div>
-            )}
-
-            <StudyLink link={todayStudyData.link} />
-          </div>
+        {isInterviewee ? (
+          <StudyReadyModal data={todayStudyData} studyDate={studyDate} />
+        ) : (
+          <StudyDoneModal data={todayStudyData} studyDate={studyDate} />
         )}
       </div>
-    </section>
+
+      {todayStudyData.progressStatus === 'PENDING' && <BeforeStudy />}
+      {todayStudyData.progressStatus !== 'PENDING' && (
+        <div className="grid grid-cols-2 gap-x-150 gap-y-200">
+          <StudySubject subject={todayStudyData.subject} />
+
+          {/* 오른쪽 - 피드백 */}
+          {todayStudyData.progressStatus === 'IN_PROGRESS' ? (
+            <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+              <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+
+              <div className="flex flex-col items-center justify-center gap-[10px]">
+                <Image
+                  src="/icons/feedback.svg"
+                  width={65}
+                  height={65}
+                  alt="스터디 시작 전"
+                />
+                <span className="font-designer-14r text-text-subtlest">
+                  수정하기를 눌러 피드백을 작성해주세요.
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+              <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+
+              <p className="text-text-default font-designer-16m">
+                {todayStudyData.feedback}
+              </p>
+            </div>
+          )}
+
+          <StudyLink link={todayStudyData.link} />
+        </div>
+      )}
+    </div>
   );
 }
 
