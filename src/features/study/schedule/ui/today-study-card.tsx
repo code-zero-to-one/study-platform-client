@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { isNumeric } from '@/shared/lib/validation';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
@@ -57,6 +58,7 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
         </div>
 
         <PartnerInfo
+          id={partner.id}
           name={partner.name}
           image={partner.image}
           isInterviewee={partner.id === todayStudyData.intervieweeId}
@@ -199,10 +201,12 @@ function IntervieweeStudyDetail({
 }
 
 function PartnerInfo({
+  id,
   name,
   image,
   isInterviewee,
 }: {
+  id: number;
   name: string;
   image?: string;
   isInterviewee: boolean;
@@ -227,9 +231,14 @@ function PartnerInfo({
           <Image src="/icons/phone.svg" alt="전화걸기" width={16} height={16} />
           전화걸기
         </button>
-        <button className="hover:bg-fill-neutral-subtle-hover flex-1 px-75 py-75 transition">
-          프로필 보기
-        </button>
+        <UserProfileModal
+          memberId={id}
+          trigger={
+            <button className="hover:bg-fill-neutral-subtle-hover rounded-r-75 flex-1 px-75 py-75 transition">
+              프로필 보기
+            </button>
+          }
+        />
       </div>
     </div>
   );
