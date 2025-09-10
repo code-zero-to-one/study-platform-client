@@ -72,6 +72,46 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
   );
 }
 
+const renderFeedback = (
+  progressStatus: DailyStudyDetail['progressStatus'],
+  feedback: DailyStudyDetail['feedback'],
+  noFeedbackMessage: string,
+) => {
+  switch (progressStatus) {
+    case 'IN_PROGRESS': {
+      return (
+        <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+          <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+
+          <div className="flex flex-col items-center justify-center gap-[10px]">
+            <Image
+              src="/icons/feedback.svg"
+              width={65}
+              height={65}
+              alt="스터디 시작 전"
+            />
+            <span className="font-designer-14r text-text-subtlest">
+              {noFeedbackMessage}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    case 'ABSENT':
+    case 'COMPLETE': {
+      return (
+        <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
+          <h3 className="font-designer-14m text-text-subtle">피드백</h3>
+
+          <p className="text-text-default font-designer-16m">{feedback}</p>
+        </div>
+      );
+    }
+    default:
+      return null;
+  }
+};
+
 // 사용자가 면접자(질문하는 사람)이면 보여줄 컴포넌트
 function InterviewerStudyDetail({
   studyDate,
@@ -96,39 +136,16 @@ function InterviewerStudyDetail({
         <StudyDoneModal data={todayStudyData} studyDate={studyDate} />
       </div>
 
-      {todayStudyData.progressStatus === 'PENDING' && (
-        <PendingStudy isInterviewee={false} />
-      )}
-
-      {todayStudyData.progressStatus !== 'PENDING' && (
+      {todayStudyData.progressStatus === 'PENDING' ? (
+        <BeforeStudy description="아직 지원자가 면접 준비하기를 작성하지 않았어요." />
+      ) : (
         <div className="grid grid-cols-2 gap-x-150 gap-y-200">
           <StudySubject subject={todayStudyData.subject} />
 
-          {/* 오른쪽 - 피드백 */}
-          {todayStudyData.progressStatus === 'IN_PROGRESS' ? (
-            <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
-              <h3 className="font-designer-14m text-text-subtle">피드백</h3>
-
-              <div className="flex flex-col items-center justify-center gap-[10px]">
-                <Image
-                  src="/icons/feedback.svg"
-                  width={65}
-                  height={65}
-                  alt="스터디 시작 전"
-                />
-                <span className="font-designer-14r text-text-subtlest">
-                  수정하기를 눌러 피드백을 작성해주세요.
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
-              <h3 className="font-designer-14m text-text-subtle">피드백</h3>
-
-              <p className="text-text-default font-designer-16m">
-                {todayStudyData.feedback}
-              </p>
-            </div>
+          {renderFeedback(
+            todayStudyData.progressStatus,
+            todayStudyData.feedback,
+            '수정하기를 눌러 피드백을 작성해주세요.',
           )}
 
           <StudyLink link={todayStudyData.link} />
@@ -162,38 +179,16 @@ function IntervieweeStudyDetail({
         <StudyReadyModal data={todayStudyData} studyDate={studyDate} />
       </div>
 
-      {todayStudyData.progressStatus === 'PENDING' && (
-        <PendingStudy isInterviewee={true} />
-      )}
-      {todayStudyData.progressStatus !== 'PENDING' && (
+      {todayStudyData.progressStatus === 'PENDING' ? (
+        <BeforeStudy description="‘준비하기’ 버튼을 눌러 스터디를 시작해 주세요." />
+      ) : (
         <div className="grid grid-cols-2 gap-x-150 gap-y-200">
           <StudySubject subject={todayStudyData.subject} />
 
-          {/* 오른쪽 - 피드백 */}
-          {todayStudyData.progressStatus === 'IN_PROGRESS' ? (
-            <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
-              <h3 className="font-designer-14m text-text-subtle">피드백</h3>
-
-              <div className="flex flex-col items-center justify-center gap-[10px]">
-                <Image
-                  src="/icons/feedback.svg"
-                  width={65}
-                  height={65}
-                  alt="스터디 시작 전"
-                />
-                <span className="font-designer-14r text-text-subtlest">
-                  아직 면접관이 피드백을 작성하지 않았어요.
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
-              <h3 className="font-designer-14m text-text-subtle">피드백</h3>
-
-              <p className="text-text-default font-designer-16m">
-                {todayStudyData.feedback}
-              </p>
-            </div>
+          {renderFeedback(
+            todayStudyData.progressStatus,
+            todayStudyData.feedback,
+            '아직 면접관이 피드백을 작성하지 않았어요.',
           )}
 
           <StudyLink link={todayStudyData.link} />
@@ -240,7 +235,7 @@ function PartnerInfo({
   );
 }
 
-function PendingStudy({ isInterviewee }: { isInterviewee: boolean }) {
+function BeforeStudy({ description }: { description: string }) {
   return (
     <div className="flex flex-col items-center justify-center gap-75 px-300 pt-75 pb-300">
       <Image
@@ -251,11 +246,7 @@ function PendingStudy({ isInterviewee }: { isInterviewee: boolean }) {
       />
       <p className="font-designer-14r text-text-subtlest flex flex-col items-center">
         <span>스터디 시작 전입니다.</span>
-        <span>
-          {isInterviewee
-            ? '‘준비하기’ 버튼을 눌러 스터디를 시작해 주세요.'
-            : '아직 지원자가 면접 준비하기를 작성하지 않았어요.'}
-        </span>
+        <span>{description}</span>
       </p>
     </div>
   );
