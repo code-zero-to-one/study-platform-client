@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import UserPhoneNumberCopyModal from '@/entities/user/ui/user-phone-number-copy-modal';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { isNumeric } from '@/shared/lib/validation';
 import { getCookie } from '@/shared/tanstack-query/cookie';
@@ -57,10 +58,12 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
           </span>
         </div>
 
+        {/* todo: phoneNumber 수정 */}
         <PartnerInfo
           id={partner.id}
           name={partner.name}
           image={partner.image}
+          phoneNumber="010-1234-5678"
           isInterviewee={partner.id === todayStudyData.intervieweeId}
         />
       </div>
@@ -195,11 +198,13 @@ function PartnerInfo({
   id,
   name,
   image,
+  phoneNumber,
   isInterviewee,
 }: {
   id: number;
   name: string;
   image?: string;
+  phoneNumber: string;
   isInterviewee: boolean;
 }) {
   return (
@@ -218,10 +223,20 @@ function PartnerInfo({
       </div>
 
       <div className="rounded-75 border-border-subtle font-designer-14m text-text-default flex h-[44px] w-[200px] border">
-        <button className="border-r-border-subtle hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-[10px] pl-150 transition">
-          <Image src="/icons/phone.svg" alt="전화걸기" width={16} height={16} />
-          전화걸기
-        </button>
+        <UserPhoneNumberCopyModal
+          phoneNumber={phoneNumber}
+          trigger={
+            <button className="border-r-border-subtle rounded-l-75 hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-[10px] pl-150 transition">
+              <Image
+                src="/icons/phone.svg"
+                alt="전화걸기"
+                width={16}
+                height={16}
+              />
+              전화걸기
+            </button>
+          }
+        />
         <UserProfileModal
           memberId={id}
           trigger={
