@@ -1,17 +1,13 @@
-import { redirect } from 'next/navigation';
-import { getUserProfile } from '@/entities/user/api/get-user-profile';
+import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import Profile from '@/features/my-page/ui/profile';
 import ProfileInfo from '@/features/my-page/ui/profile-info';
-import { getLoginUserId } from '@/shared/lib/get-login-user';
+import { getServerCookie } from '@/shared/lib/server-cookie';
 
 export default async function MyPage() {
-  const memberId = await getLoginUserId();
+  const memberIdStr = await getServerCookie('memberId');
+  const memberId = Number(memberIdStr);
 
-  if (!memberId) {
-    redirect('/login');
-  }
-
-  const userProfile = await getUserProfile(memberId);
+  const userProfile = await getUserProfileInServer(memberId);
 
   return (
     <div className="flex flex-col gap-[26.67px]">
