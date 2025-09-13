@@ -5,6 +5,7 @@ import LoginModal from '@/features/auth/ui/login-modal';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import { isNumeric } from '@/shared/lib/validation';
 import Button from '@/shared/ui/button';
+import Image from 'next/image';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');
@@ -24,10 +25,21 @@ export default async function Header() {
     : 'profile-default.svg';
 
   return (
-    <header className="w-full border-b border-[#E7E8EA] bg-white mix-blend-multiply">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-600 px-6 py-75">
-        <div className="font-designer-18b text-text-strong shrink-0">
-          <Link href="/">ZERO-ONE</Link>
+    <header className="w-full border-b border-[#E7E8EA] bg-white px-[48px] py-[11px] mix-blend-multiply">
+      <div className="flex w-full items-center justify-between">
+        <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
+          <Image src="icons/logo.svg" alt="Logo" width={18} height={18} />
+          <Link href="/">
+            <Image
+              src="icons/logo_title.svg"
+              alt="Logo-title"
+              width={106}
+              height={11}
+            />
+          </Link>
+          <span className="rounded-full border-[0.5px] border-[#D5D7DA] px-[5px] py-[2.5px] text-center text-[7.5px] leading-normal font-[500]">
+            BETA
+          </span>
         </div>
 
         {/* 1차 MVP에선 사용하지 않아 제외 */}
@@ -36,12 +48,11 @@ export default async function Header() {
                <Link href='/study'>마이스터디</Link>
             </nav> */}
 
-        <div className="flex shrink-0 items-center gap-150">
-          {/* 알림 기능을 구현하지 못해 주석 처리 */}
-          {/* <div>
+        {/* 알림 기능을 구현하지 못해 주석 처리 */}
+        {/* <div>
             <NotiIcon />
           </div> */}
-
+        <div>
           {isLoggedIn ? (
             <HeaderUserDropdown userImg={userImg} />
           ) : (

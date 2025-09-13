@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   return (
-    <div className="container mx-auto flex min-h-screen gap-600 py-600">
+    <div className="flex min-h-screen gap-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
         <Banner />
         <StudyCard />
