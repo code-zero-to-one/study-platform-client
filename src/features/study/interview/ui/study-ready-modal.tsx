@@ -9,17 +9,16 @@ import type {
   DailyStudyDetail,
   PrepareStudyRequest,
 } from '@/features/study/interview/api/interview-types';
-import { useUpdateDailyStudyMutation } from '@/features/study/interview/model/use-interview-query';
-import Button from '@/shared/ui/button';
-import FormField from '@/shared/ui/form/form-field';
-import { BaseInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
-
 import {
   StudyReadyFormSchema,
   type StudyReadyFormValues,
   buildStudyReadyDefaults,
 } from '@/features/study/interview/model/interview.schema';
+import { useUpdateDailyStudyMutation } from '@/features/study/interview/model/use-interview-query';
+import Button from '@/shared/ui/button';
+import FormField from '@/shared/ui/form/form-field';
+import { BaseInput } from '@/shared/ui/input';
+import { Modal } from '@/shared/ui/modal';
 
 interface StudyReadyModalProps {
   data: DailyStudyDetail;
