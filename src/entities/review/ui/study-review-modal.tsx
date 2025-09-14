@@ -6,7 +6,7 @@ import { useState } from 'react';
 import {
   EvalKeyword,
   StudyEvaluationResponse,
-} from '@/features/study/interview/api/interview-types';
+} from '@/entities/review/api/review-types';
 import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
@@ -16,7 +16,7 @@ import { Modal } from '@/shared/ui/modal';
 import {
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
-} from '../model/use-review-query';
+} from '@/entities/review/model/use-review-query';
 
 interface FormState {
   studySpaceId: number;

@@ -7,7 +7,7 @@ import {
 import {
   MyNegativeKeywordsRequest,
   UserPositiveKeywordsRequest,
-} from '@/features/study/interview/api/interview-types';
+} from '@/entities/review/api/review-types';
 import { getKoreaDate } from '@/shared/lib/time';
 import {
   addStudyReview,

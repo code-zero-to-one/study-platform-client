@@ -8,7 +8,7 @@ import type {
   MyReviewsResponse,
   MyReviewsRequest,
   ShouldReviewPartnerResponse,
-} from '@/features/study/interview/api/interview-types';
+} from '@/entities/review/api/review-types';
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 export const getPartnerStudyReview =

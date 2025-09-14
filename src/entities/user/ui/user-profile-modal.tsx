@@ -13,7 +13,7 @@ import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-pr
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import { Modal } from '@/shared/ui/modal';
-import { useUserPositiveKeywordsQuery } from '@/features/study/interview/model/use-review-query';
+import { useUserPositiveKeywordsQuery } from '@/entities/review/model/use-review-query';
 
 interface UserProfileModalProps {
   memberId: number;
