@@ -3,17 +3,20 @@
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import {
+  EvalKeyword,
+  StudyEvaluationResponse,
+} from '@/entities/review/api/review-types';
 import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { TextAreaInput } from '@/shared/ui/input';
 import ListItem from '@/shared/ui/list-item';
 import { Modal } from '@/shared/ui/modal';
-import { EvalKeyword, StudyEvaluationResponse } from '../api/types';
 import {
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
-} from '../model/use-review-query';
+} from '@/entities/review/model/use-review-query';
 
 interface FormState {
   studySpaceId: number;

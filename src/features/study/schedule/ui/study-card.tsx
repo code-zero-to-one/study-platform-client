@@ -2,17 +2,19 @@
 
 import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
 import { useMemo, useState } from 'react';
+import ReservationList from '@/features/study/participation/ui/reservation-list';
+import {
+  useStudyStatusQuery,
+  useWeeklyParticipation,
+} from '@/features/study/schedule/model/use-schedule-query';
+import DateSelector from '@/features/study/schedule/ui/data-selector';
+import TodayStudyCard from '@/features/study/schedule/ui/today-study-card';
 import {
   formatKoreaYMD,
   getKoreaDate,
   getKoreaDisplayMonday,
 } from '@/shared/lib/time';
-import DateSelector from './data-selector';
-import TodayStudyCard from './today-study-card';
-import StudyListSection from '../../../widgets/home/study-list-table';
-import { useWeeklyParticipation } from '../model/use-study-query';
-import { useStudyStatusQuery } from '../participation/model/use-participation-query';
-import ReservationList from '../participation/ui/reservation-list';
+import StudyListSection from '../../../../widgets/home/study-list-table';
 
 // 스터디 주차 구하는 함수
 function getWeekly(date: Date): { month: number; week: number } {

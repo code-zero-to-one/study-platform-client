@@ -94,7 +94,7 @@ function ProfileEditForm({
 
   const {
     handleSubmit,
-    formState: { isValid, isSubmitting, dirtyFields },
+    formState: { isValid, isSubmitting },
   } = methods;
 
   const onValidSubmit = async (values: ProfileFormValues) => {

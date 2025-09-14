@@ -12,6 +12,14 @@ import {
   useTechStacksQuery,
 } from '@/features/my-page/model/use-update-user-profile-mutation';
 
+import { studySteps } from '@/features/study/participation/const/participation-const';
+import {
+  StartStudyFormSchema,
+  type StartStudyFormValues,
+  buildStartStudyDefaultValues,
+  toJoinStudyRequest,
+} from '@/features/study/participation/model/start-study-form.schema';
+import { useJoinStudyMutation } from '@/features/study/participation/model/use-participation-query';
 import Button from '@/shared/ui/button';
 import { SingleDropdown, MultiDropdown } from '@/shared/ui/dropdown';
 import FormField from '@/shared/ui/form/form-field';
@@ -19,15 +27,6 @@ import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 
 import { ToggleGroup } from '@/shared/ui/toggle';
-import { studySteps } from '../consts/study-const';
-
-import { useJoinStudyMutation } from '../model/use-study-query';
-import {
-  StartStudyFormSchema,
-  type StartStudyFormValues,
-  buildStartStudyDefaultValues,
-  toJoinStudyRequest,
-} from '../participation/model/start-study-form.schema';
 
 interface StartStudyModalProps {
   memberId: number;

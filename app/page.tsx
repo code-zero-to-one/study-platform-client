@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import StudyCard from '@/features/study/ui/study-card';
+import StudyCard from '@/features/study/schedule/ui/study-card';
 import Banner from '@/widgets/home/banner';
 import Sidebar from '@/widgets/home/sidebar';
 

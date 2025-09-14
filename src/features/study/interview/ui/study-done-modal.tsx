@@ -5,24 +5,23 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import type {
+  CompleteStudyRequest,
+  DailyStudyDetail,
+  StudyProgressStatus,
+} from '@/features/study/interview/api/interview-types';
+import { STUDY_PROGRESS_OPTIONS } from '@/features/study/interview/const/interview-const';
+import {
+  StudyDoneFormSchema,
+  type StudyDoneFormValues,
+  buildStudyDoneDefaults,
+} from '@/features/study/interview/model/interview.schema';
+import { useUpdateDailyStudyMutation } from '@/features/study/interview/model/use-interview-query';
 import Button from '@/shared/ui/button';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-
-import type {
-  CompleteStudyRequest,
-  DailyStudyDetail,
-  StudyProgressStatus,
-} from '../api/types';
-import { STUDY_PROGRESS_OPTIONS } from '../consts/study-const';
-import {
-  StudyDoneFormSchema,
-  type StudyDoneFormValues,
-  buildStudyDoneDefaults,
-} from '../model/interview.schema';
-import { useUpdateDailyStudyMutation } from '../model/use-study-query';
 
 interface StudyDoneModalProps {
   data: DailyStudyDetail;
