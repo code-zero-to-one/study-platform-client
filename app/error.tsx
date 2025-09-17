@@ -1,5 +1,7 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { startTransition } from 'react';
 import Button from '@/shared/ui/button';
 
 export default function ErrorBoundary({
@@ -9,6 +11,8 @@ export default function ErrorBoundary({
   error: Error;
   reset: () => void;
 }) {
+  const router = useRouter();
+
   return (
     <div className="flex h-[calc(100vh-45px)] flex-col items-center justify-center gap-400">
       <div className="flex flex-col items-center justify-center gap-150">
@@ -24,7 +28,15 @@ export default function ErrorBoundary({
           </span>
         </div>
       </div>
-      <Button size="large" onClick={reset}>
+      <Button
+        size="large"
+        onClick={() => {
+          startTransition(() => {
+            router.refresh(); // 서버 컴포넌트들을 다시 렌더링
+            reset(); // 에러 상태 초기화
+          });
+        }}
+      >
         새로고침
       </Button>
     </div>
