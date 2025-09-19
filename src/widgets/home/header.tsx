@@ -6,6 +6,7 @@ import { getServerCookie } from '@/shared/lib/server-cookie';
 import { isNumeric } from '@/shared/lib/validation';
 import Button from '@/shared/ui/button';
 import Image from 'next/image';
+import clsx from 'clsx';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');
@@ -25,7 +26,12 @@ export default async function Header() {
     : 'profile-default.svg';
 
   return (
-    <header className="w-full border-b border-[#E7E8EA] bg-white px-[48px] py-[11px] mix-blend-multiply">
+    <header
+      className={clsx(
+        'w-full bg-white py-[11px] mix-blend-multiply',
+        !isLoggedIn && 'border-b border-[#E7E8EA]',
+      )}
+    >
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
           <Image src="icons/logo.svg" alt="Logo" width={18} height={18} />

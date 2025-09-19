@@ -31,13 +31,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
-      <body
-        className={clsx(pretendard.className, 'flex w-screen justify-center')}
-      >
+      <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider>
-          <div className="flex w-full max-w-[1200px] flex-col items-center overflow-x-scroll">
-            <Header />
-            <main className="w-full px-[48px]">{children}</main>
+          <div className="w-full overflow-auto">
+            {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
+            <div className="m-auto flex w-[1496px] flex-1 flex-col items-center px-600">
+              <Header />
+              <main className="w-full">{children}</main>
+            </div>
           </div>
         </MainProvider>
       </body>
