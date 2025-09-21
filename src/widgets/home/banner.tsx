@@ -13,7 +13,7 @@ const bannerImages = [
 
 export default function BannerCarousel() {
   return (
-    <Carousel.Root className="rounded-150 border-border-subtle border">
+    <Carousel.Root className="rounded-150 border-border-subtlest border">
       <Carousel.Viewport>
         {bannerImages.map((src, i) => (
           <Carousel.Slide key={i}>

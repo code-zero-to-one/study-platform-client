@@ -12,10 +12,10 @@ export default function MyLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex">
+    <div className="flex h-full">
       <Sidebar />
-      <div className="w-full px-[40px] pt-500 pb-[100px] lg:px-[150px]">
-        {children}
+      <div className="m-auto pt-500 pb-[100px]">
+        <div className="w-[780px]">{children}</div>
       </div>
     </div>
   );
