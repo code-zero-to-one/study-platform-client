@@ -37,6 +37,7 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
     image: isInterviewee
       ? todayStudyData.interviewerImage
       : todayStudyData.intervieweeImage,
+    tel: todayStudyData.partnerTel,
   };
 
   return (
@@ -63,7 +64,7 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
           id={partner.id}
           name={partner.name}
           image={partner.image}
-          phoneNumber="010-1234-5678"
+          phoneNumber={partner.tel}
           isInterviewee={partner.id === todayStudyData.intervieweeId}
         />
       </div>

@@ -13,6 +13,7 @@ export interface DailyStudyDetail {
   intervieweeId: number;
   intervieweeName: string;
   intervieweeImage: string;
+  partnerTel: string;
   studySpaceId: number;
   progressStatus: StudyProgressStatus;
   subject: string;
