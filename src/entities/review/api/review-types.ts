@@ -1,4 +1,3 @@
-// 리뷰 관련 타입
 export interface EvalKeyword {
   id: number;
   keyword: string;
