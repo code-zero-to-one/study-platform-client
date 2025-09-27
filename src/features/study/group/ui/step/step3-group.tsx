@@ -16,6 +16,7 @@ export default function Step3GroupStudy() {
         label="스터디원에게 보여줄 질문을 입력하세요"
         helper="스터디 지원자가 신청 시 작성해야 할 질문을 설정하세요. (예: 지원 동기, 경험, 기대하는 점 등)"
         direction="vertical"
+        scale="medium"
         required
       >
         <TextAreaInput placeholder="지원동기" maxLength={500} />

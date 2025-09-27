@@ -15,6 +15,7 @@ export default function Step2GroupStudy() {
         name="type"
         label="썸네일"
         direction="vertical"
+        scale="medium"
         required
       >
         {/* todo: 여기 파일 업로드 변경 */}
@@ -24,6 +25,7 @@ export default function Step2GroupStudy() {
         name="type"
         label="스터디 제목"
         direction="vertical"
+        scale="medium"
         required
       >
         <BaseInput placeholder="제목을 입력하세요." />
@@ -33,6 +35,7 @@ export default function Step2GroupStudy() {
         name="type"
         label="스터디 한 줄 소개"
         direction="vertical"
+        scale="medium"
         required
       >
         <BaseInput placeholder="목록에 노출될 스터디 요약을 입력하세요." />
@@ -42,6 +45,7 @@ export default function Step2GroupStudy() {
         name="type"
         label="스터디 소개"
         direction="vertical"
+        scale="medium"
         required
       >
         <TextAreaInput placeholder="소개를 입력하세요." maxLength={500} />
