@@ -10,9 +10,10 @@ export const TYPE_OPTIONS = [
 export const EXPERIENCE_LEVEL_OPTIONS = [
   '입문자',
   '취준생',
-  '주니어',
-  '미들',
-  '시니어',
+  '주니어 (1~3년차)',
+  '중니어 (4~6년차)',
+  '시니어 (7년차 이상)',
+  '경력 무관',
 ] as const;
 
 export const METHOD_OPTIONS = ['온라인', '오프라인', '온오프라인'] as const;
