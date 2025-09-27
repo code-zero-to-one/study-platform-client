@@ -24,21 +24,17 @@ export const Default: Story = {
 
     return (
       <div>
-        <RadioGroup className="flex flex-col gap-2.5" defaultValue="first">
+        <RadioGroup
+          className="flex flex-col gap-2.5"
+          defaultValue="first"
+          onValueChange={(value: 'first' | 'second') => setState(value)}
+        >
           <div className="flex items-center gap-100">
-            <RadioGroupItem
-              value="first"
-              id="option1"
-              onClick={() => setState('first')}
-            />
+            <RadioGroupItem value="first" id="option1" />
             <label htmlFor="option1">first</label>
           </div>
           <div className="flex items-center gap-100">
-            <RadioGroupItem
-              value="second"
-              id="option2"
-              onClick={() => setState('second')}
-            />
+            <RadioGroupItem value="second" id="option2" />
 
             <label htmlFor="option2">second</label>
           </div>
