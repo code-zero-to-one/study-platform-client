@@ -1,13 +1,10 @@
 import { sendGTMEvent } from '@next/third-parties/google';
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   getUserProfile,
   patchAutoMatching,
 } from '@/entities/user/api/get-user-profile';
-import type {
-  GetUserProfileResponse,
-  PatchAutoMatchingParams,
-} from '@/entities/user/api/types';
+import type { GetUserProfileResponse } from '@/entities/user/api/types';
 import { hashValue } from '@/shared/lib/hash';
 
 export const useUserProfileQuery = (memberId: number) => {
@@ -19,23 +16,62 @@ export const useUserProfileQuery = (memberId: number) => {
   });
 };
 
+export interface PatchAutoMatchingParams {
+  memberId: number;
+  autoMatching: boolean;
+}
+
 export const usePatchAutoMatchingMutation = () => {
-  return useMutation<void, unknown, PatchAutoMatchingParams>({
+  const qc = useQueryClient();
+
+  return useMutation<
+    void,
+    unknown,
+    PatchAutoMatchingParams,
+    { prev?: unknown }
+  >({
     mutationFn: patchAutoMatching,
-    onSuccess: (_, variables) => {
-      if (variables.autoMatching) {
-        sendGTMEvent({
-          event: 'custom_member_study_toggle_on',
-          dl_timestamp: new Date().toISOString(),
-          dl_member_id: hashValue(String(variables.memberId)),
-        });
-      } else {
-        sendGTMEvent({
-          event: 'custom_member_study_toggle_off',
-          dl_timestamp: new Date().toISOString(),
-          dl_member_id: hashValue(String(variables.memberId)),
+
+    onMutate: async ({ memberId, autoMatching }) => {
+      await qc.cancelQueries({ queryKey: ['userProfile', memberId] });
+      const prev = qc.getQueryData(['userProfile', memberId]);
+      if (prev && typeof prev === 'object') {
+        qc.setQueryData(['userProfile', memberId], {
+          ...(prev as any),
+          autoMatching,
         });
       }
+
+      return { prev };
+    },
+
+    onError: (_err, { memberId }, ctx) => {
+      if (ctx?.prev) {
+        qc.setQueryData(['userProfile', memberId], ctx.prev);
+      }
+    },
+
+    onSuccess: async (_data, { memberId, autoMatching }) => {
+      await qc.invalidateQueries({ queryKey: ['userProfile', memberId] });
+
+      await qc.invalidateQueries({
+        predicate: (q) =>
+          Array.isArray(q.queryKey) && q.queryKey[0] === 'weeklyParticipation',
+      });
+
+      await qc.invalidateQueries({
+        predicate: (q) =>
+          Array.isArray(q.queryKey) &&
+          q.queryKey[0] === 'weeklyReservationMembers',
+      });
+
+      sendGTMEvent({
+        event: autoMatching
+          ? 'custom_member_study_toggle_on'
+          : 'custom_member_study_toggle_off',
+        dl_timestamp: new Date().toISOString(),
+        dl_member_id: hashValue(String(memberId)),
+      });
     },
   });
 };

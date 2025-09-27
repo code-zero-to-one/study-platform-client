@@ -42,10 +42,10 @@ export default function MultiDropdown({
     [value],
   );
 
-  const selectedLabels = useMemo(() => {
+  const selectedItems = useMemo(() => {
     const set = new Set(selected);
 
-    return options.filter((o) => set.has(o.value)).map((o) => o.label);
+    return options.filter((o) => set.has(o.value));
   }, [options, selected]);
 
   const remainingOptions = useMemo(() => {
@@ -99,20 +99,23 @@ export default function MultiDropdown({
               </span>
             )}
 
-            {selectedLabels.map((label, idx) => (
+            {selectedItems.map((item) => (
               <span
-                key={`${label}-${idx}`}
+                key={item.value}
                 className="bg-fill-brand-default-default text-text-inverse font-designer-14m flex items-center gap-50 rounded-full px-150 py-75"
               >
-                {label}
+                {item.label}
                 <button
                   type="button"
-                  onClick={(e) => {
+                  onPointerDown={(e) => {
+                    e.preventDefault();
                     e.stopPropagation();
-                    remove(selected[idx] as string);
+                  }}
+                  onClick={(e) => {
+                    remove(item.value);
                   }}
                   className="cursor-pointer"
-                  aria-label={`${label} 제거`}
+                  aria-label={`${item.label} 제거`}
                 >
                   <XIcon size={16} />
                 </button>
@@ -124,8 +127,11 @@ export default function MultiDropdown({
             {selected.length > 0 && (
               <button
                 type="button"
-                onClick={(e) => {
+                onPointerDown={(e) => {
+                  e.preventDefault();
                   e.stopPropagation();
+                }}
+                onClick={(e) => {
                   clear();
                 }}
                 className="bg-icon-strong flex h-200 w-200 items-center justify-center rounded-full"

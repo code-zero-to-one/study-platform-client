@@ -3,17 +3,20 @@
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import {
+  EvalKeyword,
+  StudyEvaluationResponse,
+} from '@/entities/review/api/review-types';
 import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { TextAreaInput } from '@/shared/ui/input';
 import ListItem from '@/shared/ui/list-item';
 import { Modal } from '@/shared/ui/modal';
-import { EvalKeyword, StudyEvaluationResponse } from '../api/types';
 import {
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
-} from '../model/use-review-query';
+} from '@/entities/review/model/use-review-query';
 
 interface FormState {
   studySpaceId: number;
@@ -61,7 +64,7 @@ export default function StudyReviewModal({
 
 function StudyReviewForm({ onClose }: { onClose: () => void }) {
   const { data } = usePartnerStudyReviewQuery();
-  const { mutate: addStudyReview } = useAddStudyReviewMutation();
+  const { mutate: addStudyReview, isPending } = useAddStudyReviewMutation();
 
   const [form, setForm] = useState<FormState>({
     studySpaceId: data?.studySpaceId,
@@ -102,12 +105,12 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
           <div className="flex items-center justify-center gap-200">
             <SatisfactionButton
               label="아쉬워요"
-              isSelected={form.satisfactionId === 10}
+              isSelected={form.satisfactionId === 30}
               imageSrc="/icons/shame-review.svg"
               onClick={() => {
                 setForm({
                   ...form,
-                  satisfactionId: 10,
+                  satisfactionId: 30,
                   keywordIds: [],
                   content: '',
                 });
@@ -130,12 +133,12 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
 
             <SatisfactionButton
               label="좋았어요"
-              isSelected={form.satisfactionId === 30}
+              isSelected={form.satisfactionId === 10}
               imageSrc="/icons/good-review.svg"
               onClick={() => {
                 setForm({
                   ...form,
-                  satisfactionId: 30,
+                  satisfactionId: 10,
                   keywordIds: [],
                   content: '',
                 });
@@ -144,11 +147,11 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
           </div>
         </div>
 
-        {form.satisfactionId === 10 && (
+        {form.satisfactionId === 30 && (
           <NegativeReview data={data} form={form} onChange={setForm} />
         )}
 
-        {(form.satisfactionId === 20 || form.satisfactionId === 30) && (
+        {(form.satisfactionId === 10 || form.satisfactionId === 20) && (
           <PositiveReview data={data} form={form} onChange={setForm} />
         )}
       </Modal.Body>
@@ -162,7 +165,9 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
           color="primary"
           size="large"
           disabled={
-            form.keywordIds.length === 0 || form.satisfactionId === null
+            form.keywordIds.length === 0 ||
+            form.satisfactionId === null ||
+            isPending
           }
           onClick={handleSubmit}
         >

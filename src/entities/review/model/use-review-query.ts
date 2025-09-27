@@ -4,6 +4,10 @@ import {
   useQuery,
   useSuspenseQuery,
 } from '@tanstack/react-query';
+import {
+  MyNegativeKeywordsRequest,
+  UserPositiveKeywordsRequest,
+} from '@/entities/review/api/review-types';
 import { getKoreaDate } from '@/shared/lib/time';
 import {
   addStudyReview,
@@ -13,10 +17,6 @@ import {
   getMyReviews,
   getShouldReviewPartner,
 } from '../api/get-review';
-import {
-  MyNegativeKeywordsRequest,
-  UserPositiveKeywordsRequest,
-} from '../api/types';
 
 export const usePartnerStudyReviewQuery = () => {
   return useSuspenseQuery({

@@ -1,16 +1,17 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getUserProfile } from '@/entities/user/api/get-user-profile';
+import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import MyProfileCard from '@/entities/user/ui/my-profile-card';
-import StartStudyModal from '@/features/study/ui/start-study-modal';
-import { getLoginUserId } from '@/shared/lib/get-login-user';
+import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
+import { getServerCookie } from '@/shared/lib/server-cookie';
 import Calendar from '@/widgets/home/calendar';
 import TodoList from '@/widgets/home/todo-list';
 
 export default async function Sidebar() {
-  const memberId = await getLoginUserId();
+  const memberIdStr = await getServerCookie('memberId');
+  const memberId = Number(memberIdStr);
 
-  const userProfile = await getUserProfile(memberId);
+  const userProfile = await getUserProfileInServer(memberId);
 
   return (
     <aside className="flex flex-col gap-300">

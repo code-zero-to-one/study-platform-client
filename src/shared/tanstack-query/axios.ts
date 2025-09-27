@@ -1,7 +1,10 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig, isAxiosError } from 'axios';
+import { ApiError, isApiError } from './api-error';
 import { getCookie, setCookie } from './cookie';
 
-// json 요청용
+// * client-side axios 인스턴스
+
+// json 요청
 export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
   timeout: 10000,
@@ -20,70 +23,198 @@ export const axiosInstanceForMultipart = axios.create({
   },
 });
 
-/*
-    accessToken 은 쿠키에 저장
-    refreshToken 은 HttpOnly 쿠키로 JS에서 접근 불가, 백엔드 서버와 쿠키로 통신
-*/
+const onRequestClient = (config: InternalAxiosRequestConfig) => {
+  const accessToken = getCookie('accessToken');
 
-// multipart 요청 로깅용
-axiosInstanceForMultipart.interceptors.request.use(
-  (config) => {
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
 
-axiosInstance.interceptors.request.use(
-  (config) => {
-    const accessToken = getCookie('accessToken');
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+  return config;
+};
+
+axiosInstance.interceptors.request.use(onRequestClient);
+axiosInstanceForMultipart.interceptors.request.use(onRequestClient);
+
+// refresh token을 사용해서 access token을 재갱신하는 함수
+const refreshAccessToken = async (): Promise<string | null> => {
+  try {
+    const response = await axios.get<{ content: { accessToken: string } }>(
+      `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/access-token/refresh`,
+      {
+        withCredentials: true,
+      },
+    );
+
+    const newAccessToken = response.data.content.accessToken;
+
+    if (newAccessToken) {
+      setCookie('accessToken', newAccessToken);
+
+      return newAccessToken;
     }
-    // 로컬 테스트에서 사용시 주석 제거
-    // console.log("------------------------")
-    // console.log("✅ 요청주소", config.url);
-    // console.log("✅ 요청 Bearer", config.headers.Authorization);
-    // console.log("✅ 요청내용", config);
 
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
+    return null;
+  } catch (error) {
+    alert('토큰 갱신에 실패했습니다. 다시 로그인해주세요');
+    window.location.href = '/login';
+
+    return null;
+  }
+};
+
+// 토큰 갱신 중인지 확인하는 플래그
+let isRefreshing = false;
+// 토큰 갱신을 기다리는 요청들 저장
+let failedQueue: Array<{
+  resolve: (value: string) => void;
+  reject: (error: any) => void;
+}> = [];
+
+// 대기 중인 요청들을 처리하는 함수
+const processFailedQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach(({ resolve, reject }) => {
+    if (error) {
+      reject(error);
+    } else {
+      resolve(token);
+    }
+  });
+
+  failedQueue = [];
+};
 
 axiosInstance.interceptors.response.use(
-  (response) => {
-    // 로컬 테스트에서 사용시 주석 제거
-    // console.log('------------------------');
-    // console.log('✅ 응답주소', response.request.responseURL);
-    // console.log('✅ 응답로그', response);
-
-    return response;
-  },
-
+  (config) => config,
   async (error) => {
-    console.log('에러 확인', error);
-    console.log('에러 상태코드:', error.response?.status);
+    if (
+      isAxiosError(error) &&
+      error.response &&
+      isApiError(error.response.data)
+    ) {
+      // 요청이 전송되었고, 서버는 2xx 외의 상태 코드로 응답
+      const errorResponseBody = error.response.data;
+      const originalRequest = error.config;
 
-    const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      try {
-        const refreshApi = axios.create({
-          baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
-        });
-        const res = await refreshApi.get('/auth/access-token/refresh');
-        const newAccessToken = res.data.accessToken;
+      // 유효하지 않은 accessToken인 경우, 재발급
+      if (errorResponseBody.errorCode === 'AUTH001') {
+        if (isRefreshing) {
+          // 이미 토큰 갱신 중이면 대기열에 추가
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              if (originalRequest) {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
 
-        if (newAccessToken) {
-          setCookie('accessToken', newAccessToken);
-          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-
-          return axiosInstance(originalRequest);
+                return axiosInstance(originalRequest);
+              }
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
         }
-      } catch (err) {
-        // 로그인 페이지 리다이렉트 등 처리
-        return Promise.reject(err);
+
+        isRefreshing = true;
+
+        try {
+          const newAccessToken = await refreshAccessToken();
+
+          if (newAccessToken) {
+            processFailedQueue(null, newAccessToken);
+
+            if (originalRequest) {
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+              return axiosInstance(originalRequest);
+            }
+          } else {
+            processFailedQueue(new Error('토큰 갱신 실패'), null);
+            window.location.href = '/login';
+
+            return Promise.reject(error);
+          }
+        } catch (refreshError) {
+          processFailedQueue(refreshError, null);
+          window.location.href = '/login';
+
+          return Promise.reject(refreshError);
+        } finally {
+          // eslint-disable-next-line require-atomic-updates
+          isRefreshing = false;
+        }
       }
+
+      return Promise.reject(new ApiError(errorResponseBody));
+    }
+
+    return Promise.reject(error);
+  },
+);
+
+// multipart 요청용 인터셉터도 동일하게 적용
+axiosInstanceForMultipart.interceptors.response.use(
+  (config) => config,
+  async (error) => {
+    if (
+      isAxiosError(error) &&
+      error.response &&
+      isApiError(error.response.data)
+    ) {
+      // 요청이 전송되었고, 서버는 2xx 외의 상태 코드로 응답
+      const errorResponseBody = error.response.data;
+      const originalRequest = error.config;
+
+      // 유효하지 않은 accessToken인 경우, 재발급
+      if (errorResponseBody.errorCode === 'AUTH001') {
+        if (isRefreshing) {
+          // 이미 토큰 갱신 중이면 대기열에 추가
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              if (originalRequest) {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+
+                return axiosInstance(originalRequest);
+              }
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
+        }
+
+        isRefreshing = true;
+
+        try {
+          const newAccessToken = await refreshAccessToken();
+
+          if (newAccessToken) {
+            processFailedQueue(null, newAccessToken);
+
+            if (originalRequest) {
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+              return axiosInstance(originalRequest);
+            }
+          } else {
+            processFailedQueue(new Error('토큰 갱신 실패'), null);
+            window.location.href = '/login';
+
+            return Promise.reject(error);
+          }
+        } catch (refreshError) {
+          processFailedQueue(refreshError, null);
+          window.location.href = '/login';
+
+          return Promise.reject(refreshError);
+        } finally {
+          // eslint-disable-next-line require-atomic-updates
+          isRefreshing = false;
+        }
+      }
+
+      return Promise.reject(new ApiError(errorResponseBody));
     }
 
     return Promise.reject(error);

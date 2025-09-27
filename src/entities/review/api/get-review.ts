@@ -1,4 +1,3 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
 import type {
   AddStudyReviewRequest,
   UserPositiveKeywordsResponse,
@@ -9,7 +8,8 @@ import type {
   MyReviewsResponse,
   MyReviewsRequest,
   ShouldReviewPartnerResponse,
-} from './types';
+} from '@/entities/review/api/review-types';
+import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 export const getPartnerStudyReview =
   async (): Promise<StudyEvaluationResponse> => {

@@ -1,6 +1,7 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // output: 'standalone',
   /* config options here */
   // 외부 이미지 도메인 허용 설정 추가
   images: {
@@ -19,6 +20,11 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'test-api.zeroone.it.kr',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'api.zeroone.it.kr',
+        pathname: '/profile-image/**',
       },
       {
         protocol: 'https',

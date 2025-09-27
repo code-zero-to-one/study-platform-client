@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import StudyCard from '@/features/study/ui/study-card';
-import { getLoginUserId } from '@/shared/lib/get-login-user';
+import StudyCard from '@/features/study/schedule/ui/study-card';
 import Banner from '@/widgets/home/banner';
 import Sidebar from '@/widgets/home/sidebar';
 
@@ -11,14 +9,8 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const memberId = await getLoginUserId();
-
-  if (!memberId) {
-    redirect('/login');
-  }
-
   return (
-    <div className="container mx-auto flex min-h-screen gap-600 py-600">
+    <div className="flex gap-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
         <Banner />
         <StudyCard />

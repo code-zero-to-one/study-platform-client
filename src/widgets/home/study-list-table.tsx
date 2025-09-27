@@ -1,9 +1,9 @@
-import { useDailyStudiesQuery } from '@/features/study/model/use-study-query';
-import { getStatusBadge } from '@/features/study/ui/status-badge-map';
+import { getStatusBadge } from '@/features/study/interview/ui/status-badge-map';
+import { DailyStudy } from '@/features/study/schedule/api/schedule-types';
+import { useDailyStudiesQuery } from '@/features/study/schedule/model/use-schedule-query';
 import UserAvatar from '@/shared/ui/avatar';
 import TableList from '@/shared/ui/table';
 import LinkIcon from 'public/icons/Link.svg';
-import { DailyStudy } from '../../features/study/api/types';
 
 const headers = [
   '조',
