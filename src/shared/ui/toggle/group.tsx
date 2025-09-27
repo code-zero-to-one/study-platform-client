@@ -9,15 +9,26 @@ export interface ToggleGroupProps {
   options: ToggleOption[];
   value?: string[];
   onChange?: (v: string[]) => void;
+  multiple?: boolean;
 }
 
-function ToggleGroup({ options, value, onChange }: ToggleGroupProps) {
+function ToggleGroup({
+  options,
+  value,
+  onChange,
+  multiple = true,
+}: ToggleGroupProps) {
   const selected = value ?? [];
 
   const toggle = (key: string) => {
-    const next = selected.includes(key)
-      ? selected.filter((x) => x !== key)
-      : [...selected, key];
+    let next: string[];
+    if (multiple) {
+      next = selected.includes(key)
+        ? selected.filter((x) => x !== key)
+        : [...selected, key];
+    } else {
+      next = selected.includes(key) ? [] : [key];
+    }
     onChange?.(next);
   };
 
