@@ -37,7 +37,7 @@ function RadioGroupItem({
   size = 'large',
   className,
   ...props
-}: { size: 'medium' | 'large' } & React.ComponentProps<
+}: { size?: 'medium' | 'large' } & React.ComponentProps<
   typeof RadioGroupPrimitive.RadioGroupItem
 >) {
   return (
