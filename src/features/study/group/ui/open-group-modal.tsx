@@ -1,0 +1,189 @@
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { XIcon } from 'lucide-react';
+import { useState } from 'react';
+import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
+
+import Button from '@/shared/ui/button';
+import { Modal } from '@/shared/ui/modal';
+
+import {
+  OpenGroupFormSchema,
+  type OpenGroupFormValues,
+  buildOpenGroupDefaultValues,
+  toOpenGroupRequest,
+} from '../model/open-group-form.schema';
+import Step1GroupStudy from './step/step1-group';
+import Step2GroupStudy from './step/step2-group';
+import Step3GroupStudy from './step/step3-group';
+
+function Stepper({ step }: { step: 1 | 2 | 3 }) {
+  const dot = (n: 1 | 2 | 3) => {
+    const active = step === n;
+
+    return (
+      <div
+        key={n}
+        aria-current={active ? 'step' : undefined}
+        className={[
+          'font-designer-13b flex h-300 w-300 items-center justify-center rounded-full',
+          active
+            ? 'bg-background-brand-default text-text-inverse'
+            : 'bg-background-disabled text-text-disabled',
+          'font-bold',
+        ].join(' ')}
+      >
+        {n}
+      </div>
+    );
+  };
+
+  return (
+    <div className="flex items-center gap-75">
+      {[1, 2, 3].map((n) => dot(n as 1 | 2 | 3))}
+    </div>
+  );
+}
+
+interface OpenGroupStudyModalProps {
+  memberId: number;
+  trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export default function OpenGroupStudyModal({
+  memberId,
+  trigger,
+  open,
+  onOpenChange,
+}: OpenGroupStudyModalProps) {
+  return (
+    <Modal.Root open={open} onOpenChange={onOpenChange}>
+      {trigger ? <Modal.Trigger asChild>{trigger}</Modal.Trigger> : null}
+      <Modal.Portal>
+        <Modal.Overlay />
+        <Modal.Content size="large">
+          <Modal.Header className="border-border-default flex items-center justify-between border-b">
+            <Modal.Title className="font-designer-20b">
+              그룹 개설하기
+            </Modal.Title>
+            <Modal.Close>
+              <XIcon />
+            </Modal.Close>
+          </Modal.Header>
+          <OpenGroupStudyForm onClose={() => onOpenChange?.(false)} />
+        </Modal.Content>
+      </Modal.Portal>
+    </Modal.Root>
+  );
+}
+
+function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
+  const methods = useForm<OpenGroupFormValues>({
+    resolver: zodResolver(OpenGroupFormSchema),
+    mode: 'onChange',
+    defaultValues: buildOpenGroupDefaultValues(),
+  });
+  const { handleSubmit, trigger, formState } = methods;
+
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  // 스텝별 검증 필드 지정
+  const STEP_FIELDS: Record<1 | 2 | 3, (keyof OpenGroupFormValues)[]> = {
+    1: [
+      'type',
+      'targetRole',
+      'maxMembers',
+      'experienceLevel',
+      'method',
+      'regularMeeting',
+      'startDate',
+    ],
+    2: ['type'],
+    3: ['price'],
+  };
+
+  const goNext = async () => {
+    const fields = STEP_FIELDS[step];
+    const ok = await trigger(fields as any, { shouldFocus: true });
+    if (!ok) return;
+    if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
+  };
+
+  const goPrev = () => {
+    if (step > 1) setStep((s) => (s - 1) as 1 | 2 | 3);
+  };
+
+  const onSubmit: SubmitHandler<OpenGroupFormValues> = (values) => {
+    const req = toOpenGroupRequest(values);
+    console.log('[DEV] OpenGroupRequest preview:', req);
+    alert('유효성 통과! (콘솔에서 요청 페이로드 미리보기 확인)');
+    onClose();
+  };
+
+  return (
+    <>
+      <Modal.Body className="flex flex-col gap-150">
+        <Stepper step={step} />
+
+        <FormProvider<OpenGroupFormValues> {...methods}>
+          <form
+            id="open-group-form"
+            className="flex flex-col gap-400"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            {step === 1 && <Step1GroupStudy />}
+            {step === 2 && <Step2GroupStudy />}
+            {step === 3 && <Step3GroupStudy />}
+          </form>
+        </FormProvider>
+      </Modal.Body>
+
+      <Modal.Footer className="flex justify-between gap-100">
+        <div>
+          {step > 1 && (
+            <Button
+              color="secondary"
+              size="large"
+              onClick={goPrev}
+              type="button"
+            >
+              이전
+            </Button>
+          )}
+        </div>
+
+        <div className="flex gap-100">
+          <Modal.Close asChild>
+            <Button color="secondary" size="large">
+              취소
+            </Button>
+          </Modal.Close>
+          {step < 3 ? (
+            <Button
+              size="large"
+              color="primary"
+              type="button"
+              onClick={goNext}
+              disabled={formState.isSubmitting}
+            >
+              다음
+            </Button>
+          ) : (
+            <Button
+              size="large"
+              color="primary"
+              type="submit"
+              form="open-group-form"
+              disabled={!formState.isValid || formState.isSubmitting}
+            >
+              {formState.isSubmitting ? '제출 중…' : '제출'}
+            </Button>
+          )}
+        </div>
+      </Modal.Footer>
+    </>
+  );
+}
