@@ -5,6 +5,13 @@ import { RadioGroup, RadioGroupItem } from '@/shared/ui/radio';
 
 const meta: Meta<typeof RadioGroup> = {
   component: RadioGroup,
+  parameters: {
+    docs: {
+      description: {
+        story: 'RadioGroupItem 컴포넌트의 id와 label의 htmlFor을 맞춰주세요.',
+      },
+    },
+  },
   tags: ['autodocs'],
 };
 
