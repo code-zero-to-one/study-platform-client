@@ -13,11 +13,11 @@ type Story = StoryObj<typeof RadioGroup>;
 
 export const Default: Story = {
   render: () => {
-    const [state, setState] = useState('default');
+    const [state, setState] = useState<'first' | 'second'>('first');
 
     return (
       <div>
-        <RadioGroup className="flex flex-col gap-2.5" defaultValue="default">
+        <RadioGroup className="flex flex-col gap-2.5" defaultValue="first">
           <div className="flex items-center gap-100">
             <RadioGroupItem
               value="first"
