@@ -14,9 +14,9 @@ import {
   buildOpenGroupDefaultValues,
   toOpenGroupRequest,
 } from '../model/open-group-form.schema';
-import Step1GroupStudy from './step/step1-group';
-import Step2GroupStudy from './step/step2-group';
-import Step3GroupStudy from './step/step3-group';
+import Step1OpenGroupStudy from './step/step1-group';
+import Step2OpenGroupStudy from './step/step2-group';
+import Step3OpenGroupStudy from './step/step3-group';
 
 function Stepper({ step }: { step: 1 | 2 | 3 }) {
   const dot = (n: 1 | 2 | 3) => {
@@ -61,7 +61,7 @@ export default function OpenGroupStudyModal({
 }: OpenGroupStudyModalProps) {
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
-      {trigger ? <Modal.Trigger asChild>{trigger}</Modal.Trigger> : null}
+      {trigger && <Modal.Trigger asChild>{trigger}</Modal.Trigger>}
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="large">
@@ -90,25 +90,31 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
-  // 스텝별 검증 필드 지정
   const STEP_FIELDS: Record<1 | 2 | 3, (keyof OpenGroupFormValues)[]> = {
     1: [
       'type',
       'targetRole',
-      'maxMembers',
-      'experienceLevel',
+      'maxMembersCount',
+      'experienceLevels',
       'method',
+      'location',
       'regularMeeting',
       'startDate',
+      'endDate',
+      // 'price',
     ],
-    2: ['type'],
-    3: ['price'],
+    2: ['thumbnailExtension'],
+    3: ['interviewPost'],
   };
 
   const goNext = async () => {
     const fields = STEP_FIELDS[step];
     const ok = await trigger(fields as any, { shouldFocus: true });
-    if (!ok) return;
+    if (!ok) {
+      console.log('trigger failed. errors:', methods.formState.errors);
+
+      return;
+    }
     if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
   };
 
@@ -134,9 +140,9 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
             className="flex flex-col gap-400"
             onSubmit={handleSubmit(onSubmit)}
           >
-            {step === 1 && <Step1GroupStudy />}
-            {step === 2 && <Step2GroupStudy />}
-            {step === 3 && <Step3GroupStudy />}
+            {step === 1 && <Step1OpenGroupStudy />}
+            {step === 2 && <Step2OpenGroupStudy />}
+            {step === 3 && <Step3OpenGroupStudy />}
           </form>
         </FormProvider>
       </Modal.Body>

@@ -62,10 +62,6 @@ export const OpenGroupFormSchema = z.object({
     .string()
     .trim()
     .regex(ISO_DATE_REGEX, 'YYYY-MM-DD 형식의 시작일을 입력해 주세요.'),
-  durationWeeks: z
-    .string()
-    .trim()
-    .regex(/^[1-9]\d*$/, '기간은 1 이상 정수로 입력해 주세요.'),
   price: z
     .string()
     .trim()
@@ -99,7 +95,6 @@ export function buildOpenGroupDefaultValues(): OpenGroupFormValues {
     regularMeeting: '주 1회',
     startDate: '',
     endDate: '',
-    durationWeeks: '',
     price: '',
     title: '',
     description: '',
