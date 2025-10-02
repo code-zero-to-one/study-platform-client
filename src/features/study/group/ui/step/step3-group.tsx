@@ -11,15 +11,14 @@ export default function Step3OpenGroupStudy() {
       <div className="font-designer-20b text-text-default">
         지원 & 규칙 설정
       </div>
-      <FormField<OpenGroupFormValues, 'targetRole'>
-        name="targetRole"
-        label="스터디원에게 보여줄 질문을 입력하세요"
-        helper="스터디 지원자가 신청 시 작성해야 할 질문을 설정하세요. (예: 지원 동기, 경험, 기대하는 점 등)"
+      <FormField<OpenGroupFormValues, 'interviewPost'>
+        name="interviewPost"
+        label="스터디 지원 시 작성할 질문"
+        helper="스터디 지원자가 신청할 때 답변해야 하는 질문들을 작성하세요. (예: 지원 동기, 관련 경험, 기대하는 점 등)"
         direction="vertical"
         size="medium"
-        required
       >
-        <TextAreaInput placeholder="지원동기" maxLength={500} />
+        <TextAreaInput placeholder="지원 동기를 입력하세요." maxLength={1000} />
       </FormField>
 
       <div className="rounded-150 bg-background-alternative flex flex-col gap-300 px-400 py-300">
