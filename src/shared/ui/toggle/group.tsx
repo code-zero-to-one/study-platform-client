@@ -32,7 +32,7 @@ export interface ItemRendererProps {
   children: ReactNode;
 }
 
-function DefaultToggleItem({ pressed, onPress, children }: ItemRendererProps) {
+function ToggleGroup({ pressed, onPress, children }: ItemRendererProps) {
   return (
     <ToggleButton variant="round" pressed={pressed} onPressedChange={onPress}>
       {children}
@@ -40,10 +40,10 @@ function DefaultToggleItem({ pressed, onPress, children }: ItemRendererProps) {
   );
 }
 
-function ToggleGroup(props: ToggleGroupProps) {
+function GroupItems(props: ToggleGroupProps) {
   const { options } = props;
   const isMulti = props.multiple !== false;
-  const Item = props.renderItem ?? DefaultToggleItem;
+  const Item = props.renderItem ?? ToggleGroup;
 
   const selectedSet = new Set(
     isMulti ? (props.value ?? []) : props.value ? [props.value] : [],
@@ -80,4 +80,4 @@ function ToggleGroup(props: ToggleGroupProps) {
   );
 }
 
-export default ToggleGroup;
+export default GroupItems;

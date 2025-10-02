@@ -26,7 +26,7 @@ import FormField from '@/shared/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 
-import { ToggleGroup } from '@/shared/ui/toggle';
+import { GroupItems } from '@/shared/ui/toggle';
 
 interface StartStudyModalProps {
   memberId: number;
@@ -229,7 +229,7 @@ function StartStudyForm({
               direction="vertical"
               required
             >
-              <ToggleGroup options={timeOptions} />
+              <GroupItems options={timeOptions} />
             </FormField>
 
             <FormField<StartStudyFormValues, 'techStackIds', string[]>
