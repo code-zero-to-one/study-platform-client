@@ -4,7 +4,7 @@ import FormField from '@/shared/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { OpenGroupFormValues } from '../../model/open-group-form.schema';
 
-export default function Step2GroupStudy() {
+export default function Step2OpenGroupStudy() {
   // todo: 그룹 폼 필드 변경해야 함
   return (
     <>
@@ -15,7 +15,7 @@ export default function Step2GroupStudy() {
         name="type"
         label="썸네일"
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         {/* todo: 여기 파일 업로드 변경 */}
@@ -25,7 +25,7 @@ export default function Step2GroupStudy() {
         name="type"
         label="스터디 제목"
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         <BaseInput placeholder="제목을 입력하세요." />
@@ -35,7 +35,7 @@ export default function Step2GroupStudy() {
         name="type"
         label="스터디 한 줄 소개"
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         <BaseInput placeholder="목록에 노출될 스터디 요약을 입력하세요." />
@@ -45,7 +45,7 @@ export default function Step2GroupStudy() {
         name="type"
         label="스터디 소개"
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         <TextAreaInput placeholder="소개를 입력하세요." maxLength={500} />

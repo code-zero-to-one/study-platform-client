@@ -13,7 +13,7 @@ import { cn } from '@/shared/shadcn/lib/utils';
 import { FieldControl, type ControlledChildProps } from './field-control';
 
 type Direction = 'horizontal' | 'vertical';
-type Scale = 'small' | 'medium';
+type Size = 'small' | 'medium';
 
 const TYPO = {
   small: {
@@ -43,7 +43,7 @@ export interface FormFieldProps<
   description?: React.ReactNode;
   required?: boolean;
   direction?: Direction;
-  scale?: Scale;
+  size?: Size;
   id?: string;
 
   showCounterRight?: boolean;
@@ -64,7 +64,7 @@ export default function FormField<
   description,
   required = false,
   direction = 'horizontal',
-  scale = 'small',
+  size = 'small',
   id,
   children,
   showCounterRight = false,
@@ -97,7 +97,7 @@ export default function FormField<
       <div className={cn('flex', leftCol)}>
         <label
           htmlFor={fieldId}
-          className={cn(TYPO[scale].label, 'text-text-default')}
+          className={cn(TYPO[size].label, 'text-text-default')}
         >
           {label}
         </label>
@@ -108,7 +108,7 @@ export default function FormField<
 
       <div className="flex w-full flex-col gap-75">
         {helper && (
-          <div className={cn(TYPO[scale].helper, 'text-text-subtle mb-100')}>
+          <div className={cn(TYPO[size].helper, 'text-text-subtle mb-100')}>
             {helper}
           </div>
         )}
@@ -126,7 +126,7 @@ export default function FormField<
           <div
             id={errorMsg ? errId : descId}
             className={cn(
-              TYPO[scale].foot,
+              TYPO[size].foot,
               errorMsg ? 'text-text-error' : 'text-text-subtlest',
             )}
             role={errorMsg ? 'alert' : undefined}
@@ -136,7 +136,7 @@ export default function FormField<
           </div>
 
           {showCounterRight && typeof counterMax === 'number' && (
-            <div className={cn(TYPO[scale].counter, 'text-text-subtlest')}>
+            <div className={cn(TYPO[size].counter, 'text-text-subtlest')}>
               {currentLen}/{counterMax}
             </div>
           )}

@@ -31,7 +31,7 @@ const meetingOptions = REGULAR_MEETING_OPTIONS.map((v) => ({
   value: v,
 }));
 
-export default function Step1GroupStudy() {
+export default function Step1OpenGroupStudy() {
   const [method, setMethod] = useState<string | undefined>(undefined);
 
   return (
@@ -42,7 +42,7 @@ export default function Step1GroupStudy() {
         label="스터디 유형"
         helper="어떤 방식으로 진행되는 스터디인지 선택해주세요."
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         {/* todo: 여기 radio 변경 */}
@@ -54,7 +54,7 @@ export default function Step1GroupStudy() {
         label="모집 대상"
         helper="함께하고 싶은 대상(직무·관심사 등)을 선택해주세요. (복수 선택 가능)"
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         <ToggleGroup options={ROLE_OPTIONS} />
@@ -66,7 +66,7 @@ export default function Step1GroupStudy() {
         // todo: 여기 description 변경되면 수정 필요
         helper="모집 인원을 입력해 주세요."
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         <BaseInput type="number" min={1} placeholder="5" />
@@ -77,7 +77,7 @@ export default function Step1GroupStudy() {
         label="경력 여부"
         helper="함께할 구성원의 경력 레벨을 선택해 주세요."
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         <ToggleGroup options={expOptions} multiple={false} emptyValue="" />
@@ -88,7 +88,7 @@ export default function Step1GroupStudy() {
         label="진행 방식"
         helper="스터디가 진행되는 방식을 선택해주세요. (예: 온라인, 오프라인 등)"
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         <div className="flex flex-row gap-200">
@@ -107,7 +107,7 @@ export default function Step1GroupStudy() {
         label="정기 모임"
         helper="정기적으로 모일 빈도를 선택해주세요."
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         {/* todo: 여기 radio 변경 */}
@@ -119,7 +119,7 @@ export default function Step1GroupStudy() {
         label="진행 기간"
         helper="스터디가 운영될 기간을 입력해주세요."
         direction="vertical"
-        scale="medium"
+        size="medium"
         required
       >
         <div className="flex flex-row items-center justify-center gap-200">
