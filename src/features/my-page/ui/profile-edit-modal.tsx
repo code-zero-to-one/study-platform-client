@@ -16,11 +16,7 @@ import MultiItemSelector from '@/shared/ui/form/multi-item-selector';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 
-import {
-  DEFAULT_OPTIONS,
-  DEFAULT_PROFILE_IMAGE_URL,
-  MBTI_OPTIONS,
-} from '../consts/my-page-const';
+import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '../consts/my-page-const';
 import {
   ProfileFormSchema,
   type ProfileFormInput,
@@ -83,7 +79,7 @@ function ProfileEditForm({
 
   const [image, setImage] = useState(
     memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl ??
-      DEFAULT_PROFILE_IMAGE_URL,
+      undefined,
   );
 
   const methods = useForm<ProfileFormInput>({
@@ -100,7 +96,7 @@ function ProfileEditForm({
   const onValidSubmit = async (values: ProfileFormValues) => {
     const file = fileInputRef.current?.files?.[0];
     const profileImageExtension =
-      image === DEFAULT_PROFILE_IMAGE_URL ? 'jpg' : file?.name.split('.').pop();
+      image === undefined ? 'jpg' : file?.name.split('.').pop();
 
     const payload = toUpdateProfilePayload(values, { profileImageExtension });
     const updatedProfile = await updateProfile(payload);
@@ -111,7 +107,7 @@ function ProfileEditForm({
 
       if (file) {
         imageFormData.append('file', file);
-      } else if (image === DEFAULT_PROFILE_IMAGE_URL) {
+      } else if (image === undefined) {
         const defaultProfileImage = 'profile-default.jpg';
         const response = await fetch(defaultProfileImage);
         const blob = await response.blob();

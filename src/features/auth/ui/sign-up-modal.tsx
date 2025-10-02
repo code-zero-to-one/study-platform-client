@@ -21,9 +21,7 @@ export default function SignupModal({
 }) {
   const [name, setName] = useState('');
   const [checked, setChecked] = useState<boolean>(false);
-  const [image, setImage] = useState(
-    getCookie('socialImageURL') || 'profile-default.svg',
-  );
+  const [image, setImage] = useState(getCookie('socialImageURL') || undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const signUp = useSignUpMutation();

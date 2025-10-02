@@ -23,7 +23,7 @@ export default async function Header() {
   const userInfo = userProfile?.memberProfile;
   const userImg = userProfile
     ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl
-    : 'profile-default.svg';
+    : undefined;
 
   return (
     <header
