@@ -1,15 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import {
+  Controller,
+  useController,
+  useFormContext,
+  useWatch,
+} from 'react-hook-form';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import FormField from '@/shared/ui/form/form-field';
 import { BaseInput } from '@/shared/ui/input';
-import { ToggleGroup } from '@/shared/ui/toggle';
+import { RadioGroup, RadioGroupItem } from '@/shared/ui/radio';
+import { GroupItems } from '@/shared/ui/toggle';
 import {
   EXPERIENCE_LEVEL_OPTIONS,
+  STUDY_TYPES,
+  MEETING_OPTIONS,
   METHOD_OPTIONS,
-  REGULAR_MEETING_OPTIONS,
-  TYPE_OPTIONS,
 } from '../../const/group-const';
 import { OpenGroupFormValues } from '../../model/open-group-form.schema';
 
@@ -20,19 +26,33 @@ const ROLE_OPTIONS = [
   { label: 'UX/UI 디자이너', value: 'uxui-designer' },
 ];
 
-const typeOptions = TYPE_OPTIONS.map((v) => ({ label: v, value: v }));
 const expOptions = EXPERIENCE_LEVEL_OPTIONS.map((v) => ({
   label: v,
   value: v,
 }));
+
 const methodOptions = METHOD_OPTIONS.map((v) => ({ label: v, value: v }));
-const meetingOptions = REGULAR_MEETING_OPTIONS.map((v) => ({
-  label: v,
-  value: v,
-}));
+
+const memberOptions = Array.from({ length: 20 }, (_, i) => {
+  const value = (i + 1).toString();
+
+  return { label: `${value}명`, value };
+});
 
 export default function Step1OpenGroupStudy() {
-  const [method, setMethod] = useState<string | undefined>(undefined);
+  const { control, formState } = useFormContext<OpenGroupFormValues>();
+  const { field: typeField } = useController({
+    name: 'type',
+    control,
+  });
+  const { field: regularMeetingField } = useController({
+    name: 'regularMeeting',
+    control,
+  });
+  const methodValue = useWatch({
+    control,
+    name: 'method',
+  });
 
   return (
     <>
@@ -45,10 +65,24 @@ export default function Step1OpenGroupStudy() {
         size="medium"
         required
       >
-        {/* todo: 여기 radio 변경 */}
-        <SingleDropdown options={typeOptions} placeholder="선택해주세요" />
+        <RadioGroup
+          className="flex flex-row gap-300"
+          value={typeField.value}
+          onValueChange={typeField.onChange}
+        >
+          {STUDY_TYPES.map((type, index) => (
+            <div key={type} className="flex items-center gap-100">
+              <RadioGroupItem value={type} id={`option${index}`} />
+              <label
+                htmlFor={`option${index}`}
+                className="font-designer-14m text-text-default"
+              >
+                {type}
+              </label>
+            </div>
+          ))}
+        </RadioGroup>
       </FormField>
-
       <FormField<OpenGroupFormValues, 'targetRole', string[]>
         name="targetRole"
         label="모집 대상"
@@ -57,51 +91,75 @@ export default function Step1OpenGroupStudy() {
         size="medium"
         required
       >
-        <ToggleGroup options={ROLE_OPTIONS} />
+        <GroupItems options={ROLE_OPTIONS} />
       </FormField>
-
-      <FormField<OpenGroupFormValues, 'maxMembers'>
-        name="maxMembers"
+      <FormField<OpenGroupFormValues, 'maxMembersCount'>
+        name="maxMembersCount"
         label="모집 인원"
-        // todo: 여기 description 변경되면 수정 필요
-        helper="모집 인원을 입력해 주세요."
+        helper="모집할 최대 참여 인원을 선택해주세요."
         direction="vertical"
         size="medium"
         required
       >
-        <BaseInput type="number" min={1} placeholder="5" />
+        <SingleDropdown options={memberOptions} placeholder="선택해주세요" />
       </FormField>
-
-      <FormField<OpenGroupFormValues, 'experienceLevel'>
-        name="experienceLevel"
+      <FormField<OpenGroupFormValues, 'experienceLevels', string[]>
+        name="experienceLevels"
         label="경력 여부"
-        helper="함께할 구성원의 경력 레벨을 선택해 주세요."
+        helper="스터디 참여에 필요한 경력 조건을 선택해주세요.(복수 선택 가능)"
         direction="vertical"
         size="medium"
         required
       >
-        <ToggleGroup options={expOptions} multiple={false} emptyValue="" />
+        <GroupItems options={expOptions} />
       </FormField>
+      <div className="flex flex-col gap-75">
+        <div className="flex w-full flex-col gap-75">
+          <div className="flex w-full items-center gap-75">
+            <label className="font-designer-16b text-text-default">
+              진행 방식
+            </label>
+            <div className="font-designer-13r text-text-error">필수</div>
+          </div>
+          <div className="font-designer-14r text-text-subtle mb-100">
+            스터디가 진행되는 방식을 선택해주세요.
+          </div>
 
-      <FormField<OpenGroupFormValues, 'method'>
-        name="method"
-        label="진행 방식"
-        helper="스터디가 진행되는 방식을 선택해주세요. (예: 온라인, 오프라인 등)"
-        direction="vertical"
-        size="medium"
-        required
-      >
-        <div className="flex flex-row gap-200">
-          <SingleDropdown
-            options={methodOptions}
-            value={method}
-            onChange={setMethod}
-            placeholder="선택해주세요"
-          />
-          <BaseInput placeholder="위치를 입력하세요." disabled={!method} />
+          <div className="flex flex-row items-center gap-200">
+            <Controller
+              name="method"
+              control={control}
+              render={({ field }) => (
+                <SingleDropdown
+                  options={methodOptions}
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="선택해주세요"
+                />
+              )}
+            />
+            <Controller
+              name="location"
+              control={control}
+              render={({ field }) => (
+                <BaseInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  placeholder="위치를 입력하세요."
+                  disabled={!methodValue || methodValue === '온라인'}
+                />
+              )}
+            />
+          </div>
+
+          {(formState.errors.method || formState.errors.location) && (
+            <div className="font-designer-14r text-text-error" role="alert">
+              {formState.errors.method?.message ||
+                formState.errors.location?.message}
+            </div>
+          )}
         </div>
-      </FormField>
-
+      </div>
       <FormField<OpenGroupFormValues, 'regularMeeting'>
         name="regularMeeting"
         label="정기 모임"
@@ -110,24 +168,81 @@ export default function Step1OpenGroupStudy() {
         size="medium"
         required
       >
-        {/* todo: 여기 radio 변경 */}
-        <SingleDropdown options={meetingOptions} placeholder="선택해주세요" />
+        <RadioGroup
+          className="flex flex-row gap-300"
+          value={regularMeetingField.value}
+          onValueChange={regularMeetingField.onChange}
+        >
+          {MEETING_OPTIONS.map((type, index) => (
+            <div key={type} className="flex items-center gap-100">
+              <RadioGroupItem value={type} id={`option${index}`} />
+              <label
+                htmlFor={`option${index}`}
+                className="font-designer-14m text-text-default"
+              >
+                {type}
+              </label>
+            </div>
+          ))}
+        </RadioGroup>
       </FormField>
+      <div className="flex flex-col gap-75">
+        <div className="flex w-full flex-col gap-75">
+          <div className="flex w-full items-center gap-75">
+            <label className="font-designer-16b text-text-default">
+              진행 기간
+            </label>
+            <div className="font-designer-13r text-text-error">필수</div>
+          </div>
+          <div className="font-designer-14r text-text-subtle mb-100">
+            스터디 진행 시작일과 종료일을 선택해주세요.
+          </div>
 
-      <FormField<OpenGroupFormValues, 'startDate'>
-        name="startDate"
-        label="진행 기간"
-        helper="스터디가 운영될 기간을 입력해주세요."
+          <div className="flex flex-row items-center gap-200">
+            <Controller
+              name="startDate"
+              control={control}
+              render={({ field }) => (
+                <BaseInput
+                  type="date"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+            <div className="font-designer-14r text-text-subtle">~</div>
+            <Controller
+              name="endDate"
+              control={control}
+              render={({ field }) => (
+                <BaseInput
+                  type="date"
+                  value={field.value}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          </div>
+
+          {(formState.errors.startDate || formState.errors.endDate) && (
+            <div className="font-designer-14r text-text-error" role="alert">
+              {formState.errors.startDate?.message ||
+                formState.errors.endDate?.message}
+            </div>
+          )}
+        </div>
+      </div>
+      {/* API에는 있는데 디자인에는 없음. 뭐지??? */}
+      {/* <FormField<OpenGroupFormValues, 'price'>
+        name="price"
+        label="참가비"
+        helper="참가비가 있다면 입력해주세요. (0원 가능)"
         direction="vertical"
         size="medium"
         required
       >
-        <div className="flex flex-row items-center justify-center gap-200">
-          <BaseInput type="date" />
-          <div className="font-designer-14r text-icon-subtle">~</div>
-          <BaseInput type="date" />
-        </div>
-      </FormField>
+        <BaseInput type="number" min={0} placeholder="0" />
+      </FormField> */}
     </>
   );
 }
