@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { formatYYYYMMDD } from '@/shared/lib/time';
 import Badge from '@/shared/ui/badge';
 import Checkbox from '@/shared/ui/checkbox';
 import { SingleDropdown } from '@/shared/ui/dropdown';
@@ -203,10 +204,10 @@ function UserTable() {
                 {user.memberName}
               </td>
               <td className="font-designer-14r text-text-subtle px-300 text-left">
-                {user.joinedAt}
+                {formatYYYYMMDD(user.joinedAt)}
               </td>
               <td className="font-designer-14r text-text-subtle px-300 text-left">
-                {user.loginMostRecentlyAt}
+                {formatYYYYMMDD(user.loginMostRecentlyAt)}
               </td>
               <td className="font-designer-14r text-text-subtle px-300 text-left">
                 {user.role.roleId === 'ROLE_ADMIN' ? '멘토' : '일반'}
