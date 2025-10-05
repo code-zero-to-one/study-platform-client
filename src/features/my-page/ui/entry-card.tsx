@@ -2,10 +2,11 @@ import dayjs from 'dayjs';
 import Image from 'next/image';
 import React from 'react';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
+import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
 
 export default function EntryCard() {
-  const temperPreset = getSincerityPresetByLevelName('40단계');
+  const temperPreset = getSincerityPresetByLevelName('3단계');
 
   const timeAgo = (date: string | Date): string => {
     const now = dayjs();
@@ -41,9 +42,13 @@ export default function EntryCard() {
           <div className="flex items-center gap-50">
             <span className="font-designer-14b">홍길동</span>
             <span
-              className={`${temperPreset.textClass} font-designer-14b pl-[2px]`}
+              className={cn(
+                'font-designer-13r rounded-full px-150 py-50 leading-250',
+                temperPreset.bgClass,
+                temperPreset.textClass,
+              )}
             >
-              {40} ℃
+              40.0 ℃
             </span>
           </div>
 
