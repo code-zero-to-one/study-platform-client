@@ -20,6 +20,12 @@ export const getKoreaDate = (targetDate?: Date) => {
   return koreaNow;
 };
 
+export const formatYYYYMMDD = (dateString: string) => {
+  const onlyDate = new Date(dateString).toISOString().slice(0, 10);
+
+  return onlyDate;
+};
+
 export const formatKoreaYMD = (targetDate?: Date) =>
   format(getKoreaDate(targetDate), 'yyyy-MM-dd');
 

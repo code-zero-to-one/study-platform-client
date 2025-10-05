@@ -1,11 +1,10 @@
-import './global.css';
+import '../global.css';
 
 import { GoogleTagManager } from '@next/third-parties/google';
+import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import MainProvider from '@/app/provider';
-import Header from '@/widgets/home/header';
-import { clsx } from 'clsx';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -16,14 +15,14 @@ export const metadata: Metadata = {
 };
 
 const pretendard = localFont({
-  src: '../public/fonts/PretendardVariable.woff2',
+  src: '../../public/fonts/PretendardVariable.woff2',
   variable: '--font-pretendard',
   display: 'swap',
 });
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
-export default function RootLayout({
+export default function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -32,15 +31,7 @@ export default function RootLayout({
     <html lang="en">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
-        <MainProvider>
-          <div className="w-full overflow-auto">
-            {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
-            <div className="m-auto flex w-[1496px] flex-1 flex-col items-center">
-              <Header />
-              <main className="w-full p-600">{children}</main>
-            </div>
-          </div>
-        </MainProvider>
+        <MainProvider>{children}</MainProvider>
       </body>
     </html>
   );
