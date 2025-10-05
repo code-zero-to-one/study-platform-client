@@ -61,7 +61,7 @@ export default function StudyCard(props: GroupStudy) {
   ];
 
   return (
-    <div className="rounded-100 flex w-full justify-between gap-500 border border-solid border-[#D5D7DA] p-400">
+    <div className="rounded-100 flex w-full cursor-pointer justify-between gap-500 border border-solid border-[#D5D7DA] p-400">
       <div className="flex flex-col justify-between">
         <div className="flex flex-col gap-100">
           <div className="flex gap-100">

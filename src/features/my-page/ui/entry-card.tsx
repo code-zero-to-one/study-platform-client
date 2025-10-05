@@ -30,7 +30,7 @@ export default function EntryCard() {
   };
 
   return (
-    <div className="rounded-100 flex w-full flex-col gap-150 border p-300">
+    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border p-300">
       <div className="flex gap-150">
         <Image
           src="/profile-default.jpg"
