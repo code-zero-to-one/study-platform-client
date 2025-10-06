@@ -5,32 +5,9 @@ import { formatYYYYMMDD } from '@/shared/lib/time';
 import Badge from '@/shared/ui/badge';
 import Checkbox from '@/shared/ui/checkbox';
 import { SingleDropdown } from '@/shared/ui/dropdown';
-
-// todo: API 연결
-const memberList = [
-  {
-    memberId: 1,
-    memberStatus: 'ACTIVE',
-    memberName: '안유진',
-    joinedAt: '2025-09-23T16:42:01.155Z',
-    loginMostRecentlyAt: '2025-09-23T16:42:01.155Z',
-    role: {
-      roleId: 'ROLE_MEMBER',
-      roleName: '일반',
-    },
-  },
-  {
-    memberId: 2,
-    memberStatus: 'ACTIVE',
-    memberName: '이현서',
-    joinedAt: '2025-09-23T16:42:01.155Z',
-    loginMostRecentlyAt: '2025-09-23T16:42:01.155Z',
-    role: {
-      roleId: 'ROLE_ADMIN',
-      roleName: '관리자',
-    },
-  },
-];
+import Pagination from '@/shared/ui/pagination';
+import { MemberStatus, RoleId } from '../api/types';
+import { useGetMemberListQuery } from '../model/use-member-list-query';
 
 const ROLE_OPTIONS = [
   {
@@ -63,6 +40,20 @@ const MEMBER_STATUS_OPTIONS = [
 ];
 
 export default function MemberListTable() {
+  const [roleId, setRoleId] = useState<RoleId>();
+  const [memberStatus, setMemberStatus] = useState<MemberStatus>();
+  const [searchKeyword, setSearchKeyword] = useState<string>();
+  const [page, setPage] = useState<number>(1);
+
+  const { data } = useGetMemberListQuery({
+    roleId,
+    memberStatus,
+    searchKeyword,
+    page,
+  });
+
+  const memberList = data?.content || [];
+
   const [selectedIds, setSelectedIds] = useState(() => new Set());
   const headerCheckboxRef = useRef(null);
 
@@ -187,6 +178,14 @@ export default function MemberListTable() {
             </tbody>
           </table>
         </div>
+
+        <Pagination
+          className="mt-200"
+          page={page}
+          onChangePage={setPage}
+          totalPages={data?.totalPages}
+          middleButtonCount={4}
+        />
       </div>
     </>
   );
