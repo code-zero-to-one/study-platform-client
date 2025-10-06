@@ -6,7 +6,6 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import { getMemberListInServer } from '@/features/admin/api/member-list.server';
-import { GetMemberListResponse } from '@/features/admin/api/types';
 import MemberListTable from '@/features/admin/ui/member-list-table';
 
 export default async function AdminPage() {
@@ -17,15 +16,6 @@ export default async function AdminPage() {
     queryKey: ['memberList', null, null, null, 1], // memberList, roleId, memberStatus, searchKeyword, page
     queryFn: () => getMemberListInServer({}),
   });
-
-  const { totalElements: totalUserCount } =
-    queryClient.getQueryData<GetMemberListResponse>([
-      'memberList',
-      null,
-      null,
-      null,
-      1,
-    ]);
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
@@ -61,19 +51,6 @@ export default async function AdminPage() {
         </aside>
 
         <div className="flex-1 p-300">
-          <div className="flex items-center">
-            <div>
-              <h1 className="font-bold-h4">사용자 관리</h1>
-              <span className="font-designer-16r text-text-subtle">총 </span>
-              <span className="font-designer-16r text-text-information">
-                {totalUserCount}
-              </span>
-              <span className="font-designer-16r text-text-subtle">
-                명의 사용자
-              </span>
-            </div>
-          </div>
-
           <MemberListTable />
         </div>
       </div>

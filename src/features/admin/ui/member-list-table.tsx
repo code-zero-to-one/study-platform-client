@@ -36,7 +36,7 @@ const MEMBER_STATUS_OPTIONS = Object.entries(MEMBER_STATUS_MAP).map(
 export default function MemberListTable() {
   const [roleId, setRoleId] = useState<RoleId | null>(null);
   const [memberStatus, setMemberStatus] = useState<MemberStatus | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [page, setPage] = useState<number>(1);
 
   const { data } = useGetMemberListQuery({
@@ -83,6 +83,23 @@ export default function MemberListTable() {
 
   return (
     <>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-bold-h4">사용자 관리</h1>
+          <span className="font-designer-16r text-text-subtle">총 </span>
+          <span className="font-designer-16r text-text-information">
+            {data?.totalElements}
+          </span>
+          <span className="font-designer-16r text-text-subtle">
+            명의 사용자
+          </span>
+        </div>
+
+        <MemberListSearchInput
+          value={searchKeyword}
+          onChange={setSearchKeyword}
+        />
+      </div>
       <div className="mt-300 mb-200 flex items-center justify-end gap-150 py-100">
         <MemberListFilter
           roleId={roleId}
@@ -216,5 +233,22 @@ function MemberListFilter({
         />
       </div>
     </>
+  );
+}
+
+function MemberListSearchInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <input
+      type="text"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder="이름, 이메일 입력"
+    />
   );
 }
