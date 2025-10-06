@@ -254,7 +254,7 @@ function MemberListSearchInput({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className="outline-0"
-          placeholder="이름 입력"
+          placeholder="이름으로 검색"
         />
       </div>
 
