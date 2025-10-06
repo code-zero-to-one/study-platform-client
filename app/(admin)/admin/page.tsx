@@ -13,7 +13,7 @@ export default async function AdminPage() {
 
   // 서버 side에서 첫 페이지 데이터 미리 가져오기
   await queryClient.prefetchQuery({
-    queryKey: ['memberList', null, null, null, 1], // memberList, roleId, memberStatus, searchKeyword, page
+    queryKey: ['memberList', null, null, '', 1], // memberList, roleId, memberStatus, searchKeyword, page
     queryFn: () => getMemberListInServer({}),
   });
 
