@@ -7,6 +7,7 @@ import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import Pagination from '@/shared/ui/pagination';
+import FilledX from 'public/icons/filled-x.svg';
 import SearchIcon from 'public/icons/search.svg';
 import { MemberStatus, RoleId } from '../api/types';
 import { useGetMemberListQuery } from '../model/use-member-list-query';
@@ -245,15 +246,23 @@ function MemberListSearchInput({
   onChange: (v: string) => void;
 }) {
   return (
-    <div className="rounded-100 border-border-default text-text-default placeholder:text-text-subtlest font-designer-14m flex h-[40px] items-center gap-100 border px-150">
-      <SearchIcon />
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="outline-0"
-        placeholder="이름, 이메일 입력"
-      />
+    <div className="rounded-100 border-border-default text-text-default placeholder:text-text-subtlest font-designer-14m flex h-[40px] items-center justify-between border px-150">
+      <div className="flex items-center gap-100">
+        <SearchIcon />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="outline-0"
+          placeholder="이름 입력"
+        />
+      </div>
+
+      {value.length > 0 && (
+        <button className="cursor-pointer" onClick={() => onChange('')}>
+          <FilledX />
+        </button>
+      )}
     </div>
   );
 }
