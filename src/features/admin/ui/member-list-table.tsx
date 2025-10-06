@@ -3,46 +3,40 @@
 import { useEffect, useRef, useState } from 'react';
 import { formatYYYYMMDD } from '@/shared/lib/time';
 import Badge from '@/shared/ui/badge';
+import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import Pagination from '@/shared/ui/pagination';
 import { MemberStatus, RoleId } from '../api/types';
 import { useGetMemberListQuery } from '../model/use-member-list-query';
 
-const ROLE_OPTIONS = [
-  {
-    value: '일반',
-    label: '일반',
-  },
-  {
-    value: '멘토',
-    label: '멘토',
-  },
-];
+const ROLE_MAP = {
+  ROLE_MEMBER: '일반',
+  ROLE_MENTOR: '멘토',
+  ROLE_ADMIN: '관리자',
+};
+const ROLE_OPTIONS = Object.entries(ROLE_MAP).map(([key, label]) => ({
+  value: key,
+  label,
+}));
 
-const MEMBER_STATUS_OPTIONS = [
-  {
-    value: '활성',
-    label: '활성',
-  },
-  {
-    value: '일시정지',
-    label: '일시정지',
-  },
-  {
-    value: '영구정지',
-    label: '영구정지',
-  },
-  {
-    value: '휴면',
-    label: '휴면',
-  },
-];
+const MEMBER_STATUS_MAP = {
+  ACTIVE: '활성',
+  PERM_BAN: '일시정지',
+  PAUSED: '영구정지',
+  DORMANT: '휴면',
+};
+const MEMBER_STATUS_OPTIONS = Object.entries(MEMBER_STATUS_MAP).map(
+  ([key, label]) => ({
+    value: key,
+    label,
+  }),
+);
 
 export default function MemberListTable() {
-  const [roleId, setRoleId] = useState<RoleId>();
-  const [memberStatus, setMemberStatus] = useState<MemberStatus>();
-  const [searchKeyword, setSearchKeyword] = useState<string>();
+  const [roleId, setRoleId] = useState<RoleId | null>(null);
+  const [memberStatus, setMemberStatus] = useState<MemberStatus | null>(null);
+  const [searchKeyword, setSearchKeyword] = useState<string | null>(null);
   const [page, setPage] = useState<number>(1);
 
   const { data } = useGetMemberListQuery({
@@ -89,8 +83,13 @@ export default function MemberListTable() {
 
   return (
     <>
-      <div className="mt-300 mb-200 flex justify-end gap-150 py-100">
-        <MemberListFilter />
+      <div className="mt-300 mb-200 flex items-center justify-end gap-150 py-100">
+        <MemberListFilter
+          roleId={roleId}
+          memberStatus={memberStatus}
+          onSelectRoleId={setRoleId}
+          onSelectMemberStatus={setMemberStatus}
+        />
       </div>
 
       <div>
@@ -149,29 +148,15 @@ export default function MemberListTable() {
                     {formatYYYYMMDD(user.loginMostRecentlyAt)}
                   </td>
                   <td className="font-designer-14r text-text-subtle px-300 text-left">
-                    {user.role.roleId === 'ROLE_ADMIN' ? '멘토' : '일반'}
+                    {ROLE_MAP[user.role.roleId]}
                   </td>
                   <td className="pr-500 pl-300">
-                    {user.memberStatus === 'ACTIVE' && (
-                      <Badge color="green" shape="rectangle">
-                        활성
-                      </Badge>
-                    )}
-                    {user.memberStatus === 'PAUSED' && (
-                      <Badge color="gray" shape="rectangle">
-                        영구정지
-                      </Badge>
-                    )}
-                    {user.memberStatus === 'PERM_BAN' && (
-                      <Badge color="gray" shape="rectangle">
-                        일시정지
-                      </Badge>
-                    )}
-                    {user.memberStatus === 'DORMANT' && (
-                      <Badge color="gray" shape="rectangle">
-                        휴면
-                      </Badge>
-                    )}
+                    <Badge
+                      color={user.memberStatus === 'ACTIVE' ? 'green' : 'gray'}
+                      shape="rectangle"
+                    >
+                      {MEMBER_STATUS_MAP[user.memberStatus]}
+                    </Badge>
                   </td>
                 </tr>
               ))}
@@ -191,11 +176,45 @@ export default function MemberListTable() {
   );
 }
 
-function MemberListFilter() {
+function MemberListFilter({
+  roleId,
+  memberStatus,
+  onSelectRoleId,
+  onSelectMemberStatus,
+}: {
+  roleId: RoleId | null;
+  memberStatus: MemberStatus | null;
+  onSelectRoleId: (roleId: RoleId | null) => void;
+  onSelectMemberStatus: (memberStatus: MemberStatus | null) => void;
+}) {
   return (
-    <div className="flex w-[300px] gap-150">
-      <SingleDropdown options={ROLE_OPTIONS} placeholder="권한" />
-      <SingleDropdown options={MEMBER_STATUS_OPTIONS} placeholder="계정 상태" />
-    </div>
+    <>
+      {(roleId || memberStatus) && (
+        <Button
+          size="small"
+          className="h-fit"
+          onClick={() => {
+            onSelectRoleId(null);
+            onSelectMemberStatus(null);
+          }}
+        >
+          필터 제거
+        </Button>
+      )}
+      <div className="flex w-[300px] items-center gap-150">
+        <SingleDropdown
+          value={roleId}
+          onChange={onSelectRoleId}
+          options={ROLE_OPTIONS}
+          placeholder="권한"
+        />
+        <SingleDropdown
+          value={memberStatus}
+          onChange={onSelectMemberStatus}
+          options={MEMBER_STATUS_OPTIONS}
+          placeholder="계정 상태"
+        />
+      </div>
+    </>
   );
 }
