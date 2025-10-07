@@ -5,9 +5,13 @@ import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-pr
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
 
-export default function EntryCard() {
-  const temperPreset = getSincerityPresetByLevelName('3단계');
+export default function EntryCard(props: any) {
+  const { entry } = props;
+  const temperPreset = getSincerityPresetByLevelName(
+    entry.applicantInfo.sincerityTemp.levelName as string,
+  );
 
+  console.log('entry', entry);
   const timeAgo = (date: string | Date): string => {
     const now = dayjs();
     const target = dayjs(date);
@@ -30,7 +34,7 @@ export default function EntryCard() {
   };
 
   return (
-    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border p-300">
+    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-[#E9EAEB] p-300">
       <div className="flex gap-150">
         <Image
           src="/profile-default.jpg"
@@ -48,21 +52,16 @@ export default function EntryCard() {
                 temperPreset.textClass,
               )}
             >
-              40.0 ℃
+              {`${entry.applicantInfo.sincerityTemp.temperature}`} ℃
             </span>
           </div>
 
           <p className="font-designer-13r text-text-subtle">
-            {timeAgo('2023-10-01 14:23:00')}
+            {timeAgo(entry.createdAt)}
           </p>
         </div>
       </div>
-      <p className="font-designer-16r text-text-default">
-        프론트엔드 개발자로 2년째 일하고 있으며 주로 React와 TypeScript를
-        사용하고 있습니다. 최근에는 Next.js와 디자인 시스템에도 관심을 두고
-        있는데, 혼자 공부하기보다 다른 개발자들과 함께 코드 리뷰와 토론을 통해
-        깊이 있는 성장을 하고 싶어 이 스터디에 지원하게 되었습니다.
-      </p>
+      <p className="font-designer-16r text-text-default">{entry.answer}</p>
       <div className="flex w-full justify-end gap-100">
         <Button
           size="medium"

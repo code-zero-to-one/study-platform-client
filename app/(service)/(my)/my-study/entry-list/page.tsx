@@ -1,7 +1,7 @@
+import EntryList from '@/features/my-page/ui/entry-list';
 import Image from 'next/image';
-import EntryCard from '@/features/my-page/ui/entry-card';
 
-export default function EntryList() {
+export default function EntryPage() {
   return (
     <div className="w-720px flex flex-col gap-300">
       <div className="font-designer-20b flex items-center">
@@ -14,9 +14,7 @@ export default function EntryList() {
         <div className="flex-1 text-center">새로운 신청자 확인하기</div>
       </div>
 
-      <div className="flex flex-col gap-500">
-        <EntryCard />
-      </div>
+      <EntryList />
     </div>
   );
 }

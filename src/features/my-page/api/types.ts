@@ -80,3 +80,16 @@ export interface StudyDashboardResponse {
   studyActivity: StudyActivity;
   growthMetric: GrowthMetric;
 }
+
+export interface EntryListRequest {
+  groupStudyId: number;
+  page: number;
+  size: number;
+  status?: 'PENDING';
+}
+
+export interface EntryStatusRequest {
+  groupStudyId: number;
+  applyId: number;
+  status: 'APPROVED' | 'REJECTED';
+}
