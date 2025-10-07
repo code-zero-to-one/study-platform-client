@@ -1,9 +1,13 @@
-import React from 'react';
-import StudyCard, { GroupStudy } from '@/entities/study/ui/study-card';
-import Button from '@/shared/ui/button';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import StudyCard, {
+  GroupStudy,
+} from '@/features/study/group/ui/group-study-list';
+import { getGroupStudyList } from '@/features/study/group/api/get-group-study-list';
 import IconPlus from '@/shared/icons/plus.svg';
-
+import Button from '@/shared/ui/button';
 import Sidebar from '@/widgets/home/sidebar';
+import GroupStudyList from '@/features/study/group/ui/group-study-list';
+
 const groupStudies: GroupStudy[] = [
   {
     basicInfo: {
@@ -129,11 +133,7 @@ export default function Study() {
             스터디 개설하기
           </Button>
         </div>
-        <div className="flex flex-col gap-200">
-          {groupStudies.map((study) => (
-            <StudyCard key={study.basicInfo.groupStudyId} {...study} />
-          ))}
-        </div>
+        <GroupStudyList />
       </div>
       <Sidebar />
     </div>
