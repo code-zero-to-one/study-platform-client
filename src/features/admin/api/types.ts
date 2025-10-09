@@ -33,3 +33,8 @@ export interface ChangeMemberStatusRequest {
   memberId: number;
   to: MemberStatus;
 }
+
+export interface ChangeMemberRoleRequest {
+  memberId: number;
+  roleId: RoleId;
+}

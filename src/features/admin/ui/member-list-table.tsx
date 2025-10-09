@@ -10,6 +10,7 @@ import Pagination from '@/shared/ui/pagination';
 import FilledX from 'public/icons/filled-x.svg';
 import SearchIcon from 'public/icons/search.svg';
 import ChangeStatusModal from './chage-status-modal';
+import ChangeRoleModal from './change-role-modal';
 import { MemberStatus, RoleId } from '../api/types';
 import { MEMBER_STATUS_MAP, ROLE_MAP } from '../const/member';
 import { useGetMemberListQuery } from '../model/use-member-list-query';
@@ -106,9 +107,11 @@ export default function MemberListTable() {
               </p>
 
               <div className="flex items-center gap-150">
-                <Button size="small" color="secondary">
-                  권한 변경
-                </Button>
+                <ChangeRoleModal
+                  members={memberList.filter((member) =>
+                    selectedIds.has(member.memberId),
+                  )}
+                />
                 <ChangeStatusModal
                   members={memberList.filter((member) =>
                     selectedIds.has(member.memberId),
