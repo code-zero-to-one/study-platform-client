@@ -6,13 +6,8 @@ import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { RadioGroup, RadioGroupItem } from '@/shared/ui/radio';
 import { GetMemberListResponse, RoleId } from '../api/types';
-import { ROLE_MAP } from '../const/member';
+import { ROLE_OPTIONS } from '../const/member';
 import { useChangeMemberRoleMutation } from '../model/use-member-list-query';
-
-const ROLE_OPTIONS = Object.entries(ROLE_MAP).map(([key, label]) => ({
-  value: key,
-  label,
-}));
 
 interface ChangeRoleModalProps {
   members: GetMemberListResponse['content'];

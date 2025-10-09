@@ -6,15 +6,8 @@ import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
 import { RadioGroup, RadioGroupItem } from '@/shared/ui/radio';
 import { GetMemberListResponse, MemberStatus } from '../api/types';
-import { MEMBER_STATUS_MAP } from '../const/member';
+import { MEMBER_STATUS_OPTIONS } from '../const/member';
 import { useChangeMemberStatusMutation } from '../model/use-member-list-query';
-
-const MEMBER_STATUS_OPTIONS = Object.entries(MEMBER_STATUS_MAP).map(
-  ([key, label]) => ({
-    value: key,
-    label,
-  }),
-);
 
 interface ChangeStatusModalProps {
   members: GetMemberListResponse['content'];

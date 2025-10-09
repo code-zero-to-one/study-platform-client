@@ -12,20 +12,13 @@ import SearchIcon from 'public/icons/search.svg';
 import ChangeStatusModal from './chage-status-modal';
 import ChangeRoleModal from './change-role-modal';
 import { MemberStatus, RoleId } from '../api/types';
-import { MEMBER_STATUS_MAP, ROLE_MAP } from '../const/member';
+import {
+  MEMBER_STATUS_MAP,
+  MEMBER_STATUS_OPTIONS,
+  ROLE_MAP,
+  ROLE_OPTIONS,
+} from '../const/member';
 import { useGetMemberListQuery } from '../model/use-member-list-query';
-
-const ROLE_OPTIONS = Object.entries(ROLE_MAP).map(([key, label]) => ({
-  value: key,
-  label,
-}));
-
-const MEMBER_STATUS_OPTIONS = Object.entries(MEMBER_STATUS_MAP).map(
-  ([key, label]) => ({
-    value: key,
-    label,
-  }),
-);
 
 export default function MemberListTable() {
   const [roleId, setRoleId] = useState<RoleId | null>(null);
