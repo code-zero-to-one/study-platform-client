@@ -9,25 +9,16 @@ import { SingleDropdown } from '@/shared/ui/dropdown';
 import Pagination from '@/shared/ui/pagination';
 import FilledX from 'public/icons/filled-x.svg';
 import SearchIcon from 'public/icons/search.svg';
+import ChangeStatusModal from './chage-status-modal';
 import { MemberStatus, RoleId } from '../api/types';
+import { MEMBER_STATUS_MAP, ROLE_MAP } from '../const/member';
 import { useGetMemberListQuery } from '../model/use-member-list-query';
 
-const ROLE_MAP = {
-  ROLE_MEMBER: '일반',
-  ROLE_MENTOR: '멘토',
-  ROLE_ADMIN: '관리자',
-};
 const ROLE_OPTIONS = Object.entries(ROLE_MAP).map(([key, label]) => ({
   value: key,
   label,
 }));
 
-const MEMBER_STATUS_MAP = {
-  ACTIVE: '활성',
-  PERM_BAN: '일시정지',
-  PAUSED: '영구정지',
-  DORMANT: '휴면',
-};
 const MEMBER_STATUS_OPTIONS = Object.entries(MEMBER_STATUS_MAP).map(
   ([key, label]) => ({
     value: key,
@@ -118,9 +109,7 @@ export default function MemberListTable() {
                 <Button size="small" color="secondary">
                   권한 변경
                 </Button>
-                <Button size="small" color="secondary">
-                  상태 변경
-                </Button>
+                <ChangeStatusModal />
               </div>
             </div>
           )}
