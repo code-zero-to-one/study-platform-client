@@ -219,7 +219,7 @@ function MemberListFilter({
   onSelectMemberStatus: (memberStatus: MemberStatus | null) => void;
 }) {
   return (
-    <>
+    <div className="flex items-center gap-200">
       {(roleId || memberStatus) && (
         <Button
           size="small"
@@ -246,7 +246,7 @@ function MemberListFilter({
           placeholder="계정 상태"
         />
       </div>
-    </>
+    </div>
   );
 }
 
