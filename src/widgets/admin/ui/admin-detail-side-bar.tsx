@@ -36,8 +36,10 @@ export default function AdminDetailSideBar({
         </TabMenu>
       </Link>
 
-      <Link href={`/admin/detail/${memberId}/diligence`}>
-        <TabMenu active={pathname === `/admin/detail/${memberId}/diligence`}>
+      <Link href={`/admin/detail/${memberId}/sincerity-temp`}>
+        <TabMenu
+          active={pathname === `/admin/detail/${memberId}/sincerity-temp`}
+        >
           성실온도
         </TabMenu>
       </Link>
