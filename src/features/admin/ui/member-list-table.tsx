@@ -102,7 +102,30 @@ export default function MemberListTable() {
           onChange={setSearchKeyword}
         />
       </div>
-      <div className="mt-300 mb-200 flex items-center justify-end gap-150 py-100">
+
+      <div className="mt-300 mb-200 flex w-full items-center justify-between py-100">
+        <div>
+          {someSelected && (
+            <div className="border-border-default rounded-100 flex h-[56px] items-center gap-300 border px-200 py-150">
+              <p className="font-designer-14r">
+                <span className="text-text-information">
+                  {selectedIds.size}
+                </span>
+                <span className="text-text-subtle">명 선택</span>
+              </p>
+
+              <div className="flex items-center gap-150">
+                <Button size="small" color="secondary">
+                  권한 변경
+                </Button>
+                <Button size="small" color="secondary">
+                  상태 변경
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
         <MemberListFilter
           roleId={roleId}
           memberStatus={memberStatus}
