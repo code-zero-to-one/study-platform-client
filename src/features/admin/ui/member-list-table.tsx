@@ -8,6 +8,7 @@ import Checkbox from '@/shared/ui/checkbox';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import Pagination from '@/shared/ui/pagination';
 import FilledX from 'public/icons/filled-x.svg';
+import SealCheckIcon from 'public/icons/seal-check.svg';
 import SearchIcon from 'public/icons/search.svg';
 import ChangeStatusModal from './chage-status-modal';
 import ChangeRoleModal from './change-role-modal';
@@ -182,7 +183,8 @@ export default function MemberListTable() {
                   <td className="font-designer-14r text-text-subtle px-300 text-left">
                     {formatYYYYMMDD(user.loginMostRecentlyAt)}
                   </td>
-                  <td className="font-designer-14r text-text-subtle px-300 text-left">
+                  <td className="font-designer-14r text-text-subtle flex items-center px-300 text-left">
+                    {user.role.roleId === 'ROLE_MENTOR' && <SealCheckIcon />}
                     {ROLE_MAP[user.role.roleId]}
                   </td>
                   <td className="pr-500 pl-300">
