@@ -41,7 +41,7 @@ export default function MemberListTable() {
 
   const memberList = data?.content || [];
 
-  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
   const headerCheckboxRef = useRef(null);
 
   const allSelected =
@@ -109,7 +109,11 @@ export default function MemberListTable() {
                 <Button size="small" color="secondary">
                   권한 변경
                 </Button>
-                <ChangeStatusModal />
+                <ChangeStatusModal
+                  members={memberList.filter((member) =>
+                    selectedIds.has(member.memberId),
+                  )}
+                />
               </div>
             </div>
           )}
