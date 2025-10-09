@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import MyProfileCard from '@/entities/user/ui/my-profile-card';
+import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import Calendar from '@/widgets/home/calendar';
@@ -74,6 +75,11 @@ export default async function Sidebar() {
 
         <Image src="/feedback.svg" alt="피드백" width={86} height={56} />
       </Link>
+
+      <ApplyGroupStudyModal
+        title="공룡과 함께하는 운영체제 OS"
+        questions={['지원동기를 작성해주세요.', '자기소개를 작성해주세요.']}
+      />
       <Calendar />
     </aside>
   );
