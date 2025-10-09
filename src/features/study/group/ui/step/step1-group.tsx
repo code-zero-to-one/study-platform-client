@@ -11,27 +11,23 @@ import FormField from '@/shared/ui/form/form-field';
 import { BaseInput } from '@/shared/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/shared/ui/radio';
 import { GroupItems } from '@/shared/ui/toggle';
+import { TargetRole } from '../../api/group-study-types';
 import {
-  EXPERIENCE_LEVEL_OPTIONS,
   STUDY_TYPES,
-  MEETING_OPTIONS,
-  METHOD_OPTIONS,
-} from '../../const/group-const';
+  ROLE_OPTIONS_UI,
+  EXPERIENCE_LEVEL_OPTIONS_UI,
+  STUDY_METHODS,
+  STUDY_METHOD_LABELS,
+  STUDY_TYPE_LABELS,
+  REGULAR_MEETINGS,
+  REGULAR_MEETING_LABELS,
+} from '../../const/group-study-const';
 import { OpenGroupFormValues } from '../../model/open-group-form.schema';
 
-const ROLE_OPTIONS = [
-  { label: '백엔드', value: 'backend' },
-  { label: '프론트엔드', value: 'frontend' },
-  { label: '기획', value: 'planner' },
-  { label: 'UX/UI 디자이너', value: 'uxui-designer' },
-];
-
-const expOptions = EXPERIENCE_LEVEL_OPTIONS.map((v) => ({
-  label: v,
+const methodOptions = STUDY_METHODS.map((v) => ({
+  label: STUDY_METHOD_LABELS[v],
   value: v,
 }));
-
-const methodOptions = METHOD_OPTIONS.map((v) => ({ label: v, value: v }));
 
 const memberOptions = Array.from({ length: 20 }, (_, i) => {
   const value = (i + 1).toString();
@@ -77,21 +73,21 @@ export default function Step1OpenGroupStudy() {
                 htmlFor={`option${index}`}
                 className="font-designer-14m text-text-default"
               >
-                {type}
+                {STUDY_TYPE_LABELS[type]}
               </label>
             </div>
           ))}
         </RadioGroup>
       </FormField>
-      <FormField<OpenGroupFormValues, 'targetRole', string[]>
-        name="targetRole"
+      <FormField<OpenGroupFormValues, 'targetRoles', TargetRole[]>
+        name="targetRoles"
         label="모집 대상"
         helper="함께하고 싶은 대상(직무·관심사 등)을 선택해주세요. (복수 선택 가능)"
         direction="vertical"
         size="medium"
         required
       >
-        <GroupItems options={ROLE_OPTIONS} />
+        <GroupItems options={ROLE_OPTIONS_UI} />
       </FormField>
       <FormField<OpenGroupFormValues, 'maxMembersCount'>
         name="maxMembersCount"
@@ -111,7 +107,7 @@ export default function Step1OpenGroupStudy() {
         size="medium"
         required
       >
-        <GroupItems options={expOptions} />
+        <GroupItems options={EXPERIENCE_LEVEL_OPTIONS_UI} />
       </FormField>
       <div className="flex flex-col gap-75">
         <div className="flex w-full flex-col gap-75">
@@ -146,7 +142,7 @@ export default function Step1OpenGroupStudy() {
                   value={field.value}
                   onChange={field.onChange}
                   placeholder="위치를 입력하세요."
-                  disabled={!methodValue || methodValue === '온라인'}
+                  disabled={!methodValue || methodValue === 'ONLINE'}
                 />
               )}
             />
@@ -173,14 +169,14 @@ export default function Step1OpenGroupStudy() {
           value={regularMeetingField.value}
           onValueChange={regularMeetingField.onChange}
         >
-          {MEETING_OPTIONS.map((type, index) => (
+          {REGULAR_MEETINGS.map((type, index) => (
             <div key={type} className="flex items-center gap-100">
               <RadioGroupItem value={type} id={`option${index}`} />
               <label
                 htmlFor={`option${index}`}
                 className="font-designer-14m text-text-default"
               >
-                {type}
+                {REGULAR_MEETING_LABELS[type]}
               </label>
             </div>
           ))}

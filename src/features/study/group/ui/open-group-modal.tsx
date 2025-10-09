@@ -93,7 +93,7 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
   const STEP_FIELDS: Record<1 | 2 | 3, (keyof OpenGroupFormValues)[]> = {
     1: [
       'type',
-      'targetRole',
+      'targetRoles',
       'maxMembersCount',
       'experienceLevels',
       'method',
