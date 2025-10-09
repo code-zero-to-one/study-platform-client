@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import TabMenu from '@/shared/ui/tab-menu';
 
 export default function AdminSideBar() {
   return (
@@ -22,12 +23,14 @@ export default function AdminSideBar() {
       </div>
 
       <nav className="mt-200">
-        <Link
-          href="/admin"
-          className="bg-background-accent-blue-strong text-text-inverse font-designer-14m rounded-100 inline-block w-full px-200 py-150"
-        >
-          사용자 관리
-        </Link>
+        <TabMenu active={true}>
+          <Link
+            href="/admin"
+            className="bg-background-accent-blue-strong text-text-inverse font-designer-14m rounded-100 inline-block w-full px-200 py-150"
+          >
+            사용자 관리
+          </Link>
+        </TabMenu>
       </nav>
     </aside>
   );
