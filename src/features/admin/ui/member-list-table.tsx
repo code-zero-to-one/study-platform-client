@@ -163,11 +163,15 @@ export default function MemberListTable() {
               {memberList.map((user, idx) => (
                 <tr
                   key={user.memberId}
-                  className={
+                  className={`${
                     idx === memberList.length - 1
                       ? ''
                       : 'border-b-border-subtle border-b'
-                  }
+                  } ${
+                    selectedIds.has(user.memberId)
+                      ? 'bg-background-accent-blue-subtle'
+                      : ''
+                  }`}
                 >
                   <td className="flex h-[54px] w-fit justify-center pr-100 pl-300">
                     <Checkbox
