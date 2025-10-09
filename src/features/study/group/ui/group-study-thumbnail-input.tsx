@@ -15,7 +15,7 @@ export default function GroupStudyThumbnailInput({
   onChangeImage,
 }: {
   image?: string;
-  onChangeImage: (image?: string) => void;
+  onChangeImage: (file: File | null) => void;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,15 +35,12 @@ export default function GroupStudyThumbnailInput({
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('drag leave');
     setIsDragging(false);
   };
   // 영역 안에서 드래그 중일 때
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-
-    console.log('drag over');
 
     if (e.dataTransfer.files) {
       setIsDragging(true);
@@ -53,13 +50,12 @@ export default function GroupStudyThumbnailInput({
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    console.log('drop');
     setIsDragging(false);
 
     const file = e.dataTransfer.files[0]; // 1장만 허용
 
     if (file && file.type.startsWith('image/')) {
-      onChangeImage(URL.createObjectURL(file));
+      onChangeImage(file);
     }
   };
 
@@ -68,7 +64,7 @@ export default function GroupStudyThumbnailInput({
     const file = e.target.files?.[0];
 
     if (file && file.type.startsWith('image/')) {
-      onChangeImage(URL.createObjectURL(file));
+      onChangeImage(file);
     }
   };
 
@@ -118,8 +114,8 @@ export default function GroupStudyThumbnailInput({
           <Image
             src={image}
             alt="preview"
-            width={400}
-            height={300}
+            width={240}
+            height={180}
             className="rounded-lg object-cover"
           />
           <button

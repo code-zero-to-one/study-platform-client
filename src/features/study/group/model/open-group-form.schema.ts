@@ -38,14 +38,19 @@ export const OpenGroupFormSchema = z.object({
     .string()
     .trim()
     .regex(/^\d+$/, '가격은 0 이상 정수로 입력해 주세요.'),
-  title: z.string().trim(),
-  description: z.string().trim(),
-  summary: z.string().trim(),
+  title: z.string().trim().min(1, '스터디 제목을 입력해주세요.'),
+  summary: z.string().trim().min(1, '한 줄 소개를 입력해주세요.'),
+  description: z.string().trim().min(1, '스터디 소개를 입력해주세요.'),
   interviewPost: z.string().optional(),
-  thumbnailExtension: z.enum(THUMBNAIL_EXTENSION),
+  thumbnailExtension: z
+    .enum(THUMBNAIL_EXTENSION)
+    .refine((val) => val !== 'DEFAULT', '썸네일 이미지를 선택해주세요.'),
 });
 
-export type OpenGroupFormValues = z.input<typeof OpenGroupFormSchema>;
+// 사진 상태 저장을 위한 로컬용 state
+export type OpenGroupFormValues = z.input<typeof OpenGroupFormSchema> & {
+  thumbnailFile?: File | undefined;
+};
 export type OpenGroupParsedValues = z.output<typeof OpenGroupFormSchema>;
 
 export function buildOpenGroupDefaultValues(): OpenGroupFormValues {

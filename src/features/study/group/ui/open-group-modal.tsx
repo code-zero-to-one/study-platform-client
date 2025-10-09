@@ -47,14 +47,12 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
 }
 
 interface OpenGroupStudyModalProps {
-  memberId: number;
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }
 
 export default function OpenGroupStudyModal({
-  memberId,
   trigger,
   open,
   onOpenChange,
@@ -103,7 +101,7 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
       'endDate',
       // 'price',
     ],
-    2: ['thumbnailExtension'],
+    2: ['thumbnailExtension', 'title', 'description', 'summary'],
     3: ['interviewPost'],
   };
 

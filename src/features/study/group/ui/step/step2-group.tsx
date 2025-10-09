@@ -1,26 +1,52 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 import FormField from '@/shared/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
+import { THUMBNAIL_EXTENSION } from '../../const/group-study-const';
 import { OpenGroupFormValues } from '../../model/open-group-form.schema';
 import GroupStudyThumbnailInput from '../group-study-thumbnail-input';
 
-const THUMBNAIL_EXTENSIONS = [
-  { label: 'DEFAULT', value: 'DEFAULT' },
-  { label: 'JPG', value: 'JPG' },
-  { label: 'PNG', value: 'PNG' },
-  { label: 'GIF', value: 'GIF' },
-  { label: 'WEBP', value: 'WEBP' },
-  { label: 'SVG', value: 'SVG' },
-  { label: 'JPEG', value: 'JPEG' },
-];
-
 export default function Step2OpenGroupStudy() {
+  const { setValue } = useFormContext<OpenGroupFormValues>();
+
+  const thumbnailFile = useWatch<OpenGroupFormValues>({
+    name: 'thumbnailFile',
+  });
+  const thumbnailExtension = useWatch<OpenGroupFormValues>({
+    name: 'thumbnailExtension',
+  });
+
   const [image, setImage] = useState<string | undefined>(undefined);
-  const [thumbnailExt, setThumbnailExt] = useState<string | undefined>(
-    undefined,
-  );
+
+  useEffect(() => {
+    if (thumbnailFile && thumbnailFile instanceof File) {
+      setImage(URL.createObjectURL(thumbnailFile));
+    } else if (thumbnailExtension === 'DEFAULT') {
+      setImage(undefined);
+    }
+  }, [thumbnailFile, thumbnailExtension]);
+
+  const handleImageChange = (file: File | null) => {
+    if (!file) {
+      setValue('thumbnailExtension', 'DEFAULT', { shouldValidate: true });
+      setValue('thumbnailFile', null);
+      setImage(undefined);
+
+      return;
+    }
+
+    const ext = file.name.split('.').pop()?.toUpperCase();
+    const validExt =
+      ext && THUMBNAIL_EXTENSION.includes(ext as any)
+        ? (ext as OpenGroupFormValues['thumbnailExtension'])
+        : 'DEFAULT';
+
+    setValue('thumbnailExtension', validExt, { shouldValidate: true });
+    setValue('thumbnailFile', file);
+    setImage(URL.createObjectURL(file));
+  };
 
   return (
     <>
@@ -35,7 +61,10 @@ export default function Step2OpenGroupStudy() {
         size="medium"
         required
       >
-        <GroupStudyThumbnailInput image={image} onChangeImage={setImage} />
+        <GroupStudyThumbnailInput
+          image={image}
+          onChangeImage={handleImageChange}
+        />
       </FormField>
 
       <FormField<OpenGroupFormValues, 'title'>
