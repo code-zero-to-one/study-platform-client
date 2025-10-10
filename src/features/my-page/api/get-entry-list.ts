@@ -1,17 +1,18 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { EntryListRequest } from './types';
+import { EntryListRequest, GroupStudyApplyListResponse } from './types';
 
 // 그룹 스터디 리스트 조회
-export const getEntryList = async (params: EntryListRequest) => {
+export const getEntryList = async (
+  params: EntryListRequest,
+): Promise<GroupStudyApplyListResponse> => {
   const { page, size, status, groupStudyId } = params;
 
   const { data } = await axiosInstance.get(
-    `/group-studies/${groupStudyId}/applies`,
+    `/group-studies/${groupStudyId}/applies?applyStatus=${status}`,
     {
       params: {
         page,
         size,
-        status,
       },
     },
   );

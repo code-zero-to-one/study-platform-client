@@ -1,12 +1,12 @@
 'use client';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import React from 'react';
-import { getEntryList } from '../api/get-entry-list';
 import EntryCard from './entry-card';
+import { getEntryList } from '../api/get-entry-list';
 
 export default function EntryList() {
   const { data, fetchNextPage } = useInfiniteQuery({
-    queryKey: ['groupStudies'],
+    queryKey: ['entryList'],
     queryFn: async ({ pageParam }) => {
       const response = await getEntryList({
         groupStudyId: 1,
@@ -28,23 +28,17 @@ export default function EntryList() {
     maxPages: 3,
   });
 
+  console.log('data', data);
+
   return (
     <div className="flex w-full flex-col gap-500">
       {data?.pages.map((page, pageIndex) => (
         <React.Fragment key={pageIndex}>
-          {page.content.map((entry) => (
-            <EntryCard key={entry.memberId} entry={entry} />
+          {page.content.map((applicant) => (
+            <EntryCard key={applicant.applyId} data={applicant} />
           ))}
         </React.Fragment>
       ))}
-      {data?.pages[data.pages.length - 1].hasNext && (
-        <button
-          onClick={() => fetchNextPage()}
-          className="rounded-4 mt-500 bg-blue-600 px-300 py-200 text-white"
-        >
-          더 불러오기
-        </button>
-      )}
     </div>
   );
 }

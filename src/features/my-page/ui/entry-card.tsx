@@ -4,14 +4,14 @@ import React from 'react';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
+import { GroupStudyApply } from '../api/types';
 
-export default function EntryCard(props: any) {
-  const { entry } = props;
+export default function EntryCard(props: { data: GroupStudyApply }) {
+  const { data: applicant } = props;
   const temperPreset = getSincerityPresetByLevelName(
-    entry.applicantInfo.sincerityTemp.levelName as string,
+    applicant.applicantInfo.sincerityTemp.levelName as string,
   );
 
-  console.log('entry', entry);
   const timeAgo = (date: string | Date): string => {
     const now = dayjs();
     const target = dayjs(date);
@@ -33,6 +33,8 @@ export default function EntryCard(props: any) {
     return `${diffWeek}주 전`;
   };
 
+  const ApplicantStatus = () => {};
+
   return (
     <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-[#E9EAEB] p-300">
       <div className="flex gap-150">
@@ -44,7 +46,9 @@ export default function EntryCard(props: any) {
         />
         <div>
           <div className="flex items-center gap-50">
-            <span className="font-designer-14b">홍길동</span>
+            <span className="font-designer-14b">
+              {applicant.applicantInfo.memberName}
+            </span>
             <span
               className={cn(
                 'font-designer-13r rounded-full px-150 py-50 leading-250',
@@ -52,16 +56,16 @@ export default function EntryCard(props: any) {
                 temperPreset.textClass,
               )}
             >
-              {`${entry.applicantInfo.sincerityTemp.temperature}`} ℃
+              {`${applicant.applicantInfo.sincerityTemp.temperature}`} ℃
             </span>
           </div>
 
           <p className="font-designer-13r text-text-subtle">
-            {timeAgo(entry.createdAt)}
+            {timeAgo(applicant.createdAt)}
           </p>
         </div>
       </div>
-      <p className="font-designer-16r text-text-default">{entry.answer}</p>
+      <p className="font-designer-16r text-text-default">{applicant.answer}</p>
       <div className="flex w-full justify-end gap-100">
         <Button
           size="medium"
