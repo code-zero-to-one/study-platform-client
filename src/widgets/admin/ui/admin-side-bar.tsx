@@ -1,20 +1,51 @@
-import Image from 'next/image';
+import { QueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
+import { GetUserProfileResponse } from '@/entities/user/api/types';
+import LogoutButton from '@/features/admin/ui/logout-button';
+import { getServerCookie } from '@/shared/lib/server-cookie';
+import UserAvatar from '@/shared/ui/avatar';
 import TabMenu from '@/shared/ui/tab-menu';
-import LogoutIcon from 'public/icons/logout.svg';
 
-export default function AdminSideBar() {
+export default async function AdminSideBar() {
+  const queryClient = new QueryClient();
+
+  const memberIdStr = await getServerCookie('memberId');
+  const memberId = Number(memberIdStr);
+
+  if (!memberId) {
+    return null;
+  }
+
+  // 서버 side에서 첫 페이지 데이터 미리 가져오기
+  await queryClient.prefetchQuery({
+    queryKey: ['userProfile', memberId],
+    queryFn: () => getUserProfileInServer(memberId),
+  });
+
+  const profile: GetUserProfileResponse = await queryClient.getQueryData([
+    'userProfile',
+    memberId,
+  ]);
+
   return (
     <aside className="border-border-subtle h-screen w-fit border-r p-200">
       <div className="border-border-subtle flex items-center gap-150 border-b py-200">
-        {/* 사용자 프로필 이미지 */}
+        <UserAvatar
+          size={40}
+          image={
+            profile.memberProfile?.profileImage?.resizedImages[0]
+              .resizedImageUrl
+          }
+        />
 
         <div className="w-[136px]">
-          <p className="font-designer-14m text-text-default">관리자</p>
-          <p className="font-designer-12r text-text-subtle">kimkim@gmail.com</p>
+          <p className="font-designer-14m text-text-default">
+            {profile.memberProfile.memberName}
+          </p>
         </div>
 
-        <LogoutIcon />
+        <LogoutButton />
       </div>
 
       <nav className="mt-200">
