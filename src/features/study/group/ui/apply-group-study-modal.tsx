@@ -101,10 +101,6 @@ function ApplyGroupStudyForm({
   const onSubmit = (data: ApplyGroupStudyFormData) => {
     const { answer } = data;
 
-    console.log(groupStudyId, answer);
-
-    return;
-
     applyGroupStudy(
       { answer, groupStudyId },
       {
