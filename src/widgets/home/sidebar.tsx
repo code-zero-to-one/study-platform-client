@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import MyProfileCard from '@/entities/user/ui/my-profile-card';
-import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import Calendar from '@/widgets/home/calendar';
