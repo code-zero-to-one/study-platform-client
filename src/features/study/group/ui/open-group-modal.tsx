@@ -17,6 +17,7 @@ import {
 import Step1OpenGroupStudy from './step/step1-group';
 import Step2OpenGroupStudy from './step/step2-group';
 import Step3OpenGroupStudy from './step/step3-group';
+import { EXTENSION_TO_MIME } from '../api/group-study-types';
 import { useCreateGroupStudyMutation } from '../const/use-group-study-mutation';
 
 function Stepper({ step }: { step: 1 | 2 | 3 }) {
@@ -80,7 +81,7 @@ export default function OpenGroupStudyModal({
 }
 
 function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
-  const { mutate: createGroupStudy } = useCreateGroupStudyMutation();
+  const { mutateAsync: createGroupStudy } = useCreateGroupStudyMutation();
 
   const methods = useForm<OpenGroupFormValues>({
     resolver: zodResolver(OpenGroupFormSchema),
@@ -123,19 +124,30 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
     if (step > 1) setStep((s) => (s - 1) as 1 | 2 | 3);
   };
 
-  const onValidSubmit = (values: OpenGroupFormValues) => {
-    const body = toOpenGroupRequest(values);
+  const onValidSubmit = async (values: OpenGroupFormValues) => {
+    try {
+      const body = toOpenGroupRequest(values);
 
-    createGroupStudy(body, {
-      onSuccess: () => {
-        alert('그룹 스터디 개설이 완료되었습니다!');
-        onClose();
-      },
-      onError: () => {
-        alert('그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.');
-      },
-    });
-    onClose();
+      const created = await createGroupStudy(body);
+
+      const uploadUrl: string | undefined = created?.thumbnailUploadUrl;
+      const file = values.thumbnailFile;
+      const ext =
+        values.thumbnailExtension.toUpperCase() as keyof typeof EXTENSION_TO_MIME;
+      const contentType = EXTENSION_TO_MIME[ext] || 'application/octet-stream';
+
+      if (uploadUrl && file) {
+        await fetch(uploadUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': contentType },
+          body: file,
+        });
+      }
+      alert('그룹 스터디 개설이 완료되었습니다!');
+      onClose();
+    } catch (err) {
+      alert('그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    }
   };
 
   return (

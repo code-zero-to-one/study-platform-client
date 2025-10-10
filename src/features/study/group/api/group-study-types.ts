@@ -13,6 +13,18 @@ export type ExperienceLevel = (typeof EXPERIENCE_LEVEL_OPTIONS)[number];
 export type StudyMethod = (typeof STUDY_METHODS)[number];
 export type RegularMeeting = (typeof REGULAR_MEETINGS)[number];
 export type ThumbnailExtension = (typeof THUMBNAIL_EXTENSION)[number];
+export const EXTENSION_TO_MIME: Record<
+  Uppercase<(typeof THUMBNAIL_EXTENSION)[number]>,
+  string
+> = {
+  DEFAULT: 'image/jpeg',
+  JPG: 'image/jpeg',
+  JPEG: 'image/jpeg',
+  PNG: 'image/png',
+  GIF: 'image/gif',
+  WEBP: 'image/webp',
+  SVG: 'image/svg+xml',
+};
 
 export interface BasicInfo {
   type: StudyType;
