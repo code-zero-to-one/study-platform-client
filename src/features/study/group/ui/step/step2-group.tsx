@@ -44,7 +44,7 @@ export default function Step2OpenGroupStudy() {
         : 'DEFAULT';
 
     setValue('thumbnailExtension', validExt, { shouldValidate: true });
-    setValue('thumbnailFile', file);
+    setValue('thumbnailFile', file, { shouldValidate: true });
     setImage(URL.createObjectURL(file));
   };
 

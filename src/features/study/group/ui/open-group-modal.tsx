@@ -130,18 +130,23 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
 
       const created = await createGroupStudy(body);
 
-      const uploadUrl: string | undefined = created?.thumbnailUploadUrl;
-      const file = values.thumbnailFile;
-      const ext =
-        values.thumbnailExtension.toUpperCase() as keyof typeof EXTENSION_TO_MIME;
-      const contentType = EXTENSION_TO_MIME[ext] || 'application/octet-stream';
+      const uploadUrl: string = created.content.thumbnailUploadUrl;
+      const file = methods.getValues('thumbnailFile');
 
       if (uploadUrl && file) {
-        await fetch(uploadUrl, {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const res = await fetch(uploadUrl, {
           method: 'PUT',
-          headers: { 'Content-Type': contentType },
-          body: file,
+          body: formData,
         });
+
+        if (!res.ok) {
+          console.error('파일 업로드 실패:', res.status, res.statusText);
+        } else {
+          console.log('파일 업로드 성공!');
+        }
       }
       alert('그룹 스터디 개설이 완료되었습니다!');
       onClose();
