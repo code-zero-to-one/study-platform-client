@@ -8,32 +8,18 @@ import Checkbox from '@/shared/ui/checkbox';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import Pagination from '@/shared/ui/pagination';
 import FilledX from 'public/icons/filled-x.svg';
+import SealCheckIcon from 'public/icons/seal-check.svg';
 import SearchIcon from 'public/icons/search.svg';
+import ChangeStatusModal from './chage-status-modal';
+import ChangeRoleModal from './change-role-modal';
 import { MemberStatus, RoleId } from '../api/types';
+import {
+  MEMBER_STATUS_MAP,
+  MEMBER_STATUS_OPTIONS,
+  ROLE_MAP,
+  ROLE_OPTIONS,
+} from '../const/member';
 import { useGetMemberListQuery } from '../model/use-member-list-query';
-
-const ROLE_MAP = {
-  ROLE_MEMBER: '일반',
-  ROLE_MENTOR: '멘토',
-  ROLE_ADMIN: '관리자',
-};
-const ROLE_OPTIONS = Object.entries(ROLE_MAP).map(([key, label]) => ({
-  value: key,
-  label,
-}));
-
-const MEMBER_STATUS_MAP = {
-  ACTIVE: '활성',
-  PERM_BAN: '일시정지',
-  PAUSED: '영구정지',
-  DORMANT: '휴면',
-};
-const MEMBER_STATUS_OPTIONS = Object.entries(MEMBER_STATUS_MAP).map(
-  ([key, label]) => ({
-    value: key,
-    label,
-  }),
-);
 
 export default function MemberListTable() {
   const [roleId, setRoleId] = useState<RoleId | null>(null);
@@ -50,7 +36,7 @@ export default function MemberListTable() {
 
   const memberList = data?.content || [];
 
-  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
   const headerCheckboxRef = useRef(null);
 
   const allSelected =
@@ -102,7 +88,34 @@ export default function MemberListTable() {
           onChange={setSearchKeyword}
         />
       </div>
-      <div className="mt-300 mb-200 flex items-center justify-end gap-150 py-100">
+
+      <div className="mt-300 mb-200 flex w-full items-center justify-between py-100">
+        <div>
+          {someSelected && (
+            <div className="border-border-default rounded-100 flex h-[56px] items-center gap-300 border px-200 py-150">
+              <p className="font-designer-14r">
+                <span className="text-text-information">
+                  {selectedIds.size}
+                </span>
+                <span className="text-text-subtle">명 선택</span>
+              </p>
+
+              <div className="flex items-center gap-150">
+                <ChangeRoleModal
+                  members={memberList.filter((member) =>
+                    selectedIds.has(member.memberId),
+                  )}
+                />
+                <ChangeStatusModal
+                  members={memberList.filter((member) =>
+                    selectedIds.has(member.memberId),
+                  )}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
         <MemberListFilter
           roleId={roleId}
           memberStatus={memberStatus}
@@ -144,11 +157,15 @@ export default function MemberListTable() {
               {memberList.map((user, idx) => (
                 <tr
                   key={user.memberId}
-                  className={
+                  className={`${
                     idx === memberList.length - 1
                       ? ''
                       : 'border-b-border-subtle border-b'
-                  }
+                  } ${
+                    selectedIds.has(user.memberId)
+                      ? 'bg-background-accent-blue-subtle'
+                      : ''
+                  }`}
                 >
                   <td className="flex h-[54px] w-fit justify-center pr-100 pl-300">
                     <Checkbox
@@ -166,7 +183,8 @@ export default function MemberListTable() {
                   <td className="font-designer-14r text-text-subtle px-300 text-left">
                     {formatYYYYMMDD(user.loginMostRecentlyAt)}
                   </td>
-                  <td className="font-designer-14r text-text-subtle px-300 text-left">
+                  <td className="font-designer-14r text-text-subtle flex items-center px-300 text-left">
+                    {user.role.roleId === 'ROLE_MENTOR' && <SealCheckIcon />}
                     {ROLE_MAP[user.role.roleId]}
                   </td>
                   <td className="pr-500 pl-300">
@@ -207,7 +225,7 @@ function MemberListFilter({
   onSelectMemberStatus: (memberStatus: MemberStatus | null) => void;
 }) {
   return (
-    <>
+    <div className="flex items-center gap-200">
       {(roleId || memberStatus) && (
         <Button
           size="small"
@@ -234,7 +252,7 @@ function MemberListFilter({
           placeholder="계정 상태"
         />
       </div>
-    </>
+    </div>
   );
 }
 

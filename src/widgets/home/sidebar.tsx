@@ -14,7 +14,7 @@ export default async function Sidebar() {
   const userProfile = await getUserProfileInServer(memberId);
 
   return (
-    <aside className="flex flex-col gap-300">
+    <aside className="flex w-[335px] flex-col gap-300">
       <MyProfileCard
         memberId={memberId}
         name={userProfile?.memberProfile.memberName}

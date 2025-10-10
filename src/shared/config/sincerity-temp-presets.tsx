@@ -55,9 +55,15 @@ export function toLevelLabel(levelName?: string): SincerityLabel {
   return `${clamped}단계` as SincerityLabel;
 }
 
+/**
+ * @param levelName - 레벨 이름 (가능한 값: "1단계" | "2단계" | "3단계" | "4단계")
+ */
+
 // 매핑 안되는 값이 들어왔을 경우 FALLBACK
 export function getSincerityPresetByLevelName(
   levelName?: string,
 ): SincerityPreset {
-  return SINCERITY_TEMP_PRESETS[toLevelLabel(levelName)];
+  const levelLabel = levelName as SincerityLabel;
+
+  return SINCERITY_TEMP_PRESETS[levelLabel];
 }
