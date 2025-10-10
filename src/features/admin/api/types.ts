@@ -75,6 +75,7 @@ export interface GetSincerityTemperatureHistoryRequest {
 // 성실 온도 이력 조회 API 응답 타입
 export interface GetSincerityTemperatureHistoryResponse {
   currentSincerityTemperature: number;
+  sincerityTempLevel: 'FIRST' | 'SECOND' | 'THIRD' | 'FOURTH';
   sincerityTemperatureHistory: {
     content: {
       reasonType: 'STUDY_REVIEW';

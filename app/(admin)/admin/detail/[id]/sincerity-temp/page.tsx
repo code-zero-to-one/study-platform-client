@@ -6,6 +6,14 @@ import {
 import { getSincerityTemperatureHistoryInServer } from '@/features/admin/api/sincerity-temperature-history.server';
 import { GetSincerityTemperatureHistoryResponse } from '@/features/admin/api/types';
 import SincerityTempTable from '@/features/admin/ui/sincerity-temp-table';
+import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
+
+const LEVEL_NAME_MAP = {
+  FIRST: '1단계',
+  SECOND: '2단계',
+  THIRD: '3단계',
+  FOURTH: '4단계',
+};
 
 export default async function SincerityTempPage({
   params,
@@ -22,7 +30,7 @@ export default async function SincerityTempPage({
     queryKey: ['sincerityTemperatureHistory', memberId, 1], // "sincerityTemperatureHistory", memberId, page
     queryFn: () =>
       getSincerityTemperatureHistoryInServer({
-        memberId: Number(memberId),
+        memberId,
         page: 1,
       }),
   });
@@ -34,6 +42,10 @@ export default async function SincerityTempPage({
       1,
     ]);
 
+  const temperPreset = getSincerityPresetByLevelName(
+    LEVEL_NAME_MAP[data.sincerityTempLevel],
+  );
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <div className="flex flex-col gap-300">
@@ -42,8 +54,13 @@ export default async function SincerityTempPage({
             현재 성실 온도
           </span>
 
-          <div className="font-designer-14r text-text-subtle">
-            {data.currentSincerityTemperature} ℃
+          <div className="flex items-center">
+            <temperPreset.Icon className="h-400 w-400" />
+            <span
+              className={`${temperPreset.textClass} font-designer-14b pl-[2px]`}
+            >
+              {data.currentSincerityTemperature} ℃
+            </span>
           </div>
         </div>
 
