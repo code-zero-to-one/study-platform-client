@@ -61,7 +61,7 @@ export default async function Sidebar() {
         />
       )}
       {/* todo: 편하게 확인하시라고 추가했습니다. 이후 목록 추가되고 연결되면 제가 지워서 커밋 올리도록 하겠습니다. */}
-      <OpenGroupStudyModal
+      {/* <OpenGroupStudyModal
         trigger={
           <button className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300">
             <p className="flex flex-col items-start gap-50">
@@ -74,7 +74,7 @@ export default async function Sidebar() {
             </p>
           </button>
         }
-      />
+      /> */}
       <Link
         href={''}
         className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300"
