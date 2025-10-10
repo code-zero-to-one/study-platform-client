@@ -64,7 +64,7 @@ export default async function SincerityTempPage({
           </div>
         </div>
 
-        <SincerityTempTable memberId={Number(memberId)} />
+        <SincerityTempTable memberId={memberId} />
       </div>
     </HydrationBoundary>
   );
