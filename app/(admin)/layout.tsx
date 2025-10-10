@@ -5,6 +5,7 @@ import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import MainProvider from '@/app/provider';
+import AdminSideBar from '@/widgets/admin/ui/admin-side-bar';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -31,7 +32,13 @@ export default function AdminLayout({
     <html lang="en">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
-        <MainProvider>{children}</MainProvider>
+        <MainProvider>
+          <div className="flex min-w-[1200px]">
+            <AdminSideBar />
+
+            <main className="flex-1 p-300">{children}</main>
+          </div>
+        </MainProvider>
       </body>
     </html>
   );
