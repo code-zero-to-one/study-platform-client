@@ -3,6 +3,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import React, { Fragment } from 'react';
 import Badge from '@/shared/ui/badge';
 import { getGroupStudyList } from '../api/get-group-study-list';
+import { BasicInfo } from '../api/group-study-types';
+import Image from 'next/image';
 
 enum Method {
   ONLINE = '온라인',
@@ -24,28 +26,6 @@ enum Frequency {
   WEEKLY = '주 1회',
   BIWEEKLY = '주 2회',
   TRIPLE_WEEKLY_OR_MORE = '주 3회 이상',
-}
-
-export interface GroupStudy {
-  basicInfo: {
-    groupStudyId: number; // int64
-    type: Type[keyof Type];
-    targetRoles: string;
-    maxMembersCount: number; // int32
-    experienceLevels: string[];
-    method: Method[keyof Method];
-    regularMeeting: Frequency[keyof Frequency];
-    startDate: string; // date
-    durationWeeks: number; // int32
-    price: number;
-    status: string;
-    createdAt: string; // date-time
-    updatedAt: string; // date-time
-  };
-  simpleDetailInfo: {
-    title: string;
-    summary: string;
-  };
 }
 
 export default function GroupStudyList() {
@@ -71,7 +51,10 @@ export default function GroupStudyList() {
     maxPages: 3,
   });
 
-  const basicInfoItems = (basicInfo) => [
+  const basicInfoItems = (
+    basicInfo: BasicInfo,
+    currentParticipantCount: number,
+  ) => [
     {
       label: '유형',
       value: Method[basicInfo.method as keyof typeof Method],
@@ -121,7 +104,7 @@ export default function GroupStudyList() {
     },
     {
       label: '모집인원',
-      value: `/${basicInfo.maxMembersCount}`,
+      value: `${currentParticipantCount}/${basicInfo.maxMembersCount}`,
     },
     {
       label: '참가비',
@@ -134,7 +117,7 @@ export default function GroupStudyList() {
 
   return (
     <div className="flex flex-col gap-200">
-      <button onClick={() => fetchNextPage()}>더보기</button>
+      {/* <button onClick={() => fetchNextPage()}>더보기</button> */}
       {data?.pages.map((page, i) => (
         <Fragment key={i}>
           {page.content.map((study, index) => {
@@ -146,17 +129,23 @@ export default function GroupStudyList() {
                 <div className="flex flex-col justify-between">
                   <div className="flex flex-col gap-100">
                     <div className="flex gap-100">
+                      {study.basicInfo.hostType === 'ZEROONE' && (
+                        <Badge color="red">제로원 스터디</Badge>
+                      )}
+
                       <span className="font-designer-18b max-w-[673px] truncate text-[#252B37]">
                         {study.simpleDetailInfo.title}
                       </span>
-                      <Badge color="red">제로원 스터디</Badge>
                     </div>
                     <p className="font-designer-15r line-clamp-2 text-[15px] leading-[29px] text-[#535862]">
                       {study.simpleDetailInfo.summary}
                     </p>
                   </div>
                   <div className="grid grid-cols-3 grid-rows-2 gap-x-100 gap-y-50">
-                    {basicInfoItems(study.basicInfo).map((item, idx) => (
+                    {basicInfoItems(
+                      study.basicInfo,
+                      study.currentParticipantCount,
+                    ).map((item, idx) => (
                       <div key={idx} className="flex gap-50">
                         <span className="font-designer-13m leading-250 text-[#A4A7AE]">
                           {item.label}
@@ -168,7 +157,14 @@ export default function GroupStudyList() {
                     ))}
                   </div>
                 </div>
-                <div className="h-[160px] w-[240px]">img</div>
+                <Image
+                  src={
+                    'https://test-api.zeroone.it.kr/images/group-study/thumbnails/clean-code-thumbnail.png'
+                  }
+                  alt="thumbnail"
+                  width={240}
+                  height={160}
+                />
               </div>
             );
           })}

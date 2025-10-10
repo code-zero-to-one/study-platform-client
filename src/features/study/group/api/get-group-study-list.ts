@@ -1,21 +1,28 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { GroupStudyListRequest } from './group-study-types';
+import {
+  GroupStudyListRequest,
+  GroupStudyListResponse,
+} from './group-study-types';
 
 // 그룹 스터디 리스트 조회
-export const getGroupStudyList = async (params: GroupStudyListRequest) => {
+export const getGroupStudyList = async (
+  params: GroupStudyListRequest,
+): Promise<GroupStudyListResponse> => {
   const { page, size, status } = params;
 
-  const { data } = await axiosInstance.get('/group-studies', {
-    params: {
-      page,
-      size,
-      status,
-    },
-  });
+  try {
+    const { data } = await axiosInstance.get('/group-studies', {
+      params: {
+        page,
+        size,
+        status,
+      },
+    });
 
-  if (data.statusCode !== 200) {
-    throw new Error('Failed to fetch group study list');
-  }
+    if (data.statusCode !== 200) {
+      throw new Error('Failed to fetch group study list');
+    }
 
-  return data.content;
+    return data.content;
+  } catch (err) {}
 };
