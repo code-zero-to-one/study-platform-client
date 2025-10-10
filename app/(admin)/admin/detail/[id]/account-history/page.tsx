@@ -68,7 +68,7 @@ export default async function AccountHistoryPage({
           </div>
         </div>
 
-        {/* <RecentLoginHistory loginHists={data.loginHists} /> */}
+        <RecentLoginHistory loginHists={data.loginHists} />
         <RecentRoleChangeHistory roleChangeHists={data.roleChangeHists} />
         <RecentStatusChangeHistory
           memberStatusChangeHists={data.memberStatusChangeHists}
