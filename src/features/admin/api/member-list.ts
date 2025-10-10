@@ -1,6 +1,12 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { GetMemberListRequest, GetMemberListResponse } from './types';
+import {
+  ChangeMemberRoleRequest,
+  ChangeMemberStatusRequest,
+  GetMemberListRequest,
+  GetMemberListResponse,
+} from './types';
 
+// 사용자 목록 조회
 export const getMemberList = async ({
   roleId,
   memberStatus,
@@ -23,4 +29,28 @@ export const getMemberList = async ({
   const res = await axiosInstance.get(`/admin/members?${queryString}`);
 
   return res.data.content;
+};
+
+// 사용자 계정 상태 변경
+export const changeMemberStatus = async ({
+  memberId,
+  to,
+}: ChangeMemberStatusRequest) => {
+  const res = await axiosInstance.patch(
+    `/admin/members/${memberId}/status?to=${to}`,
+  );
+
+  return res.data;
+};
+
+// 사용자 권한 변경
+export const changeMemberRole = async ({
+  memberId,
+  roleId,
+}: ChangeMemberRoleRequest) => {
+  const res = await axiosInstance.patch(
+    `/admin/members/${memberId}/role?role-id=${roleId}`,
+  );
+
+  return res.data;
 };
