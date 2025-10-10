@@ -42,7 +42,6 @@ export const THUMBNAIL_EXTENSION = [
 ] as const;
 
 // UI 매칭을 위한 라벨 const
-
 export const STUDY_TYPE_LABELS = {
   PROJECT: '프로젝트',
   MENTORING: '멘토링',

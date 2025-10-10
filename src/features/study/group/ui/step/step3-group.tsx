@@ -1,24 +1,66 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import { useFormContext } from 'react-hook-form';
+import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
-import { TextAreaInput } from '@/shared/ui/input';
+import { BaseInput } from '@/shared/ui/input';
 import { OpenGroupFormValues } from '../../model/open-group-form.schema';
 
 export default function Step3OpenGroupStudy() {
-  // todo: 그룹 폼 필드 변경해야 함
+  const { setValue } = useFormContext<OpenGroupFormValues>();
+
+  const [questions, setQuestions] = useState<string[]>(['']);
+
+  useEffect(() => {
+    setValue(
+      'interviewPost',
+      questions.map((q) => q.trim()),
+      { shouldValidate: true },
+    );
+  }, [questions, setValue]);
+
+  const handleAdd = () => setQuestions((prev) => [...prev, '']);
+  const handleRemove = (index: number) =>
+    setQuestions((prev) => prev.filter((_, i) => i !== index));
+  const handleChange = (index: number, value: string) =>
+    setQuestions((prev) => prev.map((q, i) => (i === index ? value : q)));
+
   return (
     <>
       <div className="font-designer-20b text-text-default">
         지원 & 규칙 설정
       </div>
-      <FormField<OpenGroupFormValues, 'interviewPost'>
+      <FormField<OpenGroupFormValues, 'interviewPost', string[]>
         name="interviewPost"
-        label="스터디 지원 시 작성할 질문"
-        helper="스터디 지원자가 신청할 때 답변해야 하는 질문들을 작성하세요. (예: 지원 동기, 관련 경험, 기대하는 점 등)"
+        label="스터디원에게 보여줄 질문을 입력하세요"
         direction="vertical"
+        helper="스터디 지원자가 신청 시 작성해야 할 질문을 설정하세요. (예: 지원 동기, 경험, 기대하는 점 등)"
         size="medium"
+        required
       >
-        <TextAreaInput placeholder="지원 동기를 입력하세요." maxLength={1000} />
+        <div className="flex flex-col gap-100">
+          {questions.map((q, index) => (
+            <div key={index} className="flex items-center gap-100">
+              <BaseInput
+                placeholder={index === 0 ? '지원동기를 작성해주세요' : ''}
+                value={q}
+                onChange={(e) => handleChange(index, e.target.value)}
+              />
+              {index > 0 && (
+                <div
+                  className="rounded-75 border-border-default font-designer-16m text-icon-default flex h-600 w-600 cursor-pointer items-center justify-center border p-150"
+                  onClick={() => handleRemove(index)}
+                >
+                  X
+                </div>
+              )}
+            </div>
+          ))}
+          <Button color="secondary" onClick={handleAdd}>
+            질문 추가하기
+          </Button>
+        </div>
       </FormField>
 
       <div className="rounded-150 bg-background-alternative flex flex-col gap-300 px-400 py-300">
