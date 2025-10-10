@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
-import { FormProvider, useForm, type SubmitHandler } from 'react-hook-form';
+import { FormProvider, useForm } from 'react-hook-form';
 
 import Button from '@/shared/ui/button';
 import { Modal } from '@/shared/ui/modal';
@@ -17,6 +17,7 @@ import {
 import Step1OpenGroupStudy from './step/step1-group';
 import Step2OpenGroupStudy from './step/step2-group';
 import Step3OpenGroupStudy from './step/step3-group';
+import { useCreateGroupStudyMutation } from '../const/use-group-study-mutation';
 
 function Stepper({ step }: { step: 1 | 2 | 3 }) {
   const dot = (n: 1 | 2 | 3) => {
@@ -79,6 +80,8 @@ export default function OpenGroupStudyModal({
 }
 
 function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
+  const { mutate: createGroupStudy } = useCreateGroupStudyMutation();
+
   const methods = useForm<OpenGroupFormValues>({
     resolver: zodResolver(OpenGroupFormSchema),
     mode: 'onChange',
@@ -99,7 +102,6 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
       'regularMeeting',
       'startDate',
       'endDate',
-      // 'price',
     ],
     2: ['thumbnailExtension', 'title', 'description', 'summary'],
     3: ['interviewPost'],
@@ -113,6 +115,7 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
 
       return;
     }
+
     if (step < 3) setStep((s) => (s + 1) as 1 | 2 | 3);
   };
 
@@ -120,10 +123,18 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
     if (step > 1) setStep((s) => (s - 1) as 1 | 2 | 3);
   };
 
-  const onSubmit: SubmitHandler<OpenGroupFormValues> = (values) => {
-    const req = toOpenGroupRequest(values);
-    console.log('[DEV] OpenGroupRequest preview:', req);
-    alert('유효성 통과! (콘솔에서 요청 페이로드 미리보기 확인)');
+  const onValidSubmit = (values: OpenGroupFormValues) => {
+    const body = toOpenGroupRequest(values);
+
+    createGroupStudy(body, {
+      onSuccess: () => {
+        alert('그룹 스터디 개설이 완료되었습니다!');
+        onClose();
+      },
+      onError: () => {
+        alert('그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      },
+    });
     onClose();
   };
 
@@ -131,12 +142,11 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
     <>
       <Modal.Body className="flex flex-col gap-150">
         <Stepper step={step} />
-
-        <FormProvider<OpenGroupFormValues> {...methods}>
+        <FormProvider {...methods}>
           <form
             id="open-group-form"
             className="flex flex-col gap-400"
-            onSubmit={handleSubmit(onSubmit)}
+            onSubmit={handleSubmit(onValidSubmit)}
           >
             {step === 1 && <Step1OpenGroupStudy />}
             {step === 2 && <Step2OpenGroupStudy />}
@@ -165,14 +175,9 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
               취소
             </Button>
           </Modal.Close>
+
           {step < 3 ? (
-            <Button
-              size="large"
-              color="primary"
-              type="button"
-              onClick={goNext}
-              disabled={formState.isSubmitting}
-            >
+            <Button size="large" color="primary" type="button" onClick={goNext}>
               다음
             </Button>
           ) : (

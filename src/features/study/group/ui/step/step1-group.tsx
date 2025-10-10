@@ -46,8 +46,8 @@ export default function Step1OpenGroupStudy() {
     control,
   });
   const methodValue = useWatch({
-    control,
     name: 'method',
+    control,
   });
 
   return (
