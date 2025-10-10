@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import LoginModal from '@/features/auth/ui/login-modal';
 import SignupModal from '@/features/auth/ui/sign-up-modal';
+import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import Button from '@/shared/ui/button';
 
 export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
@@ -36,6 +37,16 @@ export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
         />
         <SignupModal open={signupOpen} onClose={() => setSignupOpen(false)} />
       </section>
+      {/* 테스트용 */}
+      {/* <ApplyGroupStudyModal
+        groupStudyId={1}
+        title="백엔드 스터디"
+        questions={[
+          '스터디에 참여하려는 이유는 무엇인가요?',
+          '본인이 생각하는 강점과 약점은 무엇인가요?',
+        ]}
+      /> */}
+
       <section className="aspect-[349.44/524.16] h-[524.16px] w-[349.44px] flex-shrink-0 bg-cover bg-center bg-no-repeat">
         <Image
           src="graphic-area.svg"

@@ -4,19 +4,21 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 
-import { FormProvider, useForm } from 'react-hook-form';
+import { useController, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
-import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
+import { useApplyGroupStudyMutation } from '../model/use-apply-group-study';
 
 interface ApplyGroupStudyModalProps {
+  groupStudyId: number;
   title: string;
   questions: string[];
 }
 
 export default function ApplyGroupStudyModal({
+  groupStudyId,
   title,
   questions,
 }: ApplyGroupStudyModalProps) {
@@ -41,6 +43,7 @@ export default function ApplyGroupStudyModal({
           </Modal.Header>
 
           <ApplyGroupStudyForm
+            groupStudyId={groupStudyId}
             title={title}
             questions={questions}
             onClose={() => setOpen(false)}
@@ -52,34 +55,66 @@ export default function ApplyGroupStudyModal({
 }
 
 const ApplyGroupStudyFormSchema = z.object({
-  answer: z.array(z.string().min(1, '답변을 작성해주세요.')),
+  answer: z.array(
+    z.string().min(1, '답변을 작성해주세요.'), // 각 항목에 최소 1글자 이상
+  ),
+  agree: z
+    .boolean()
+    .refine((val) => val === true, { message: '참여 규칙에 동의해야 합니다.' }),
 });
 
-type ApplyGroupStudyFormValues = z.infer<typeof ApplyGroupStudyFormSchema>;
-
-function buildApplyGroupStudyDefaultValues(): ApplyGroupStudyFormValues {
-  return {
-    answer: [],
-  };
-}
+type ApplyGroupStudyFormData = z.infer<typeof ApplyGroupStudyFormSchema>;
 
 function ApplyGroupStudyForm({
+  groupStudyId,
   title,
   questions,
   onClose,
 }: {
+  groupStudyId: number;
   title: string;
   questions: string[];
   onClose: () => void;
 }) {
-  const [checked, setChecked] = useState<boolean>(false);
-  const methods = useForm<{ answer: string[] }>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm<ApplyGroupStudyFormData>({
     resolver: zodResolver(ApplyGroupStudyFormSchema),
-    mode: 'onChange',
-    defaultValues: buildApplyGroupStudyDefaultValues(),
+    defaultValues: {
+      answer: Array(questions.length).fill(''),
+    },
   });
 
-  const handleApply = () => {};
+  // ✅ checkbox를 controller로 제어
+  const {
+    field: { value: checked, onChange: onToggle },
+  } = useController({
+    name: 'agree',
+    control,
+  });
+
+  const { mutate: applyGroupStudy } = useApplyGroupStudyMutation();
+
+  const onSubmit = (data: ApplyGroupStudyFormData) => {
+    const { answer } = data;
+
+    console.log(groupStudyId, answer);
+
+    return;
+
+    applyGroupStudy(
+      { answer, groupStudyId },
+      {
+        onSuccess: () => {
+          alert('스터디 신청이 완료되었습니다.');
+          onClose();
+        },
+      },
+    );
+  };
 
   return (
     <>
@@ -91,23 +126,36 @@ function ApplyGroupStudyForm({
             리더의 질문
           </span>
 
-          <FormProvider {...methods}>
-            <form
-              id="apply-group-study"
-              className="flex flex-col gap-300"
-              onSubmit={methods.handleSubmit(handleApply)}
-            >
-              {questions.map((question, index) => (
-                <div key={question}>
-                  <label>{`${index + 1}. ${question}`}</label>
-                  <TextAreaInput
-                    maxLength={500}
+          <form
+            id="apply-group-study"
+            className="flex flex-col gap-300"
+            onSubmit={handleSubmit(onSubmit)}
+          >
+            {questions.map((question, index) => (
+              <div key={question} className="flex flex-col gap-150">
+                <label
+                  htmlFor={`question-${index}`}
+                  className="font-designer-15b text-text-default"
+                >
+                  {`${index + 1}. ${question}`}
+                </label>
+
+                <div className="flex flex-col gap-75">
+                  <textarea
+                    id={`question-${index}`}
+                    className={`rounded-100 ${errors.answer?.[index] ? 'border-border-error' : 'border-border-default'} font-designer-16m text-text-default min-h-[150px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none`}
                     placeholder="리더의 질문에 답변을 작성해주세요."
+                    {...register(`answer.${index}`)}
                   />
+                  {errors.answer?.[index] && (
+                    <span className="text-text-error font-designer-13r">
+                      {errors.answer[index].message}
+                    </span>
+                  )}
                 </div>
-              ))}
-            </form>
-          </FormProvider>
+              </div>
+            ))}
+          </form>
         </div>
 
         <div className="text-text-default bg-background-alternative rounded-150 flex flex-col gap-300 px-400 py-300">
@@ -147,7 +195,9 @@ function ApplyGroupStudyForm({
             </li>
           </ul>
 
-          <div className="border-border-default rounded-100 flex items-center justify-between border p-300">
+          <div
+            className={`${errors.agree ? 'border-border-error' : 'border-border-default'} rounded-100 flex items-center justify-between border p-300`}
+          >
             <div className="flex items-center gap-100">
               <span className="text-text-default font-designer-16b">
                 참여 규칙을 확인하시고 동의해 주시겠습니까?
@@ -155,13 +205,7 @@ function ApplyGroupStudyForm({
               <span className="font-designer-13m text-text-error">필수</span>
             </div>
 
-            <Checkbox
-              id="agree"
-              checked={checked}
-              onToggle={() => {
-                setChecked((prev) => !prev);
-              }}
-            />
+            <Checkbox id="agree" checked={checked} onToggle={onToggle} />
           </div>
         </div>
       </Modal.Body>

@@ -76,10 +76,6 @@ export default async function Sidebar() {
         <Image src="/feedback.svg" alt="피드백" width={86} height={56} />
       </Link>
 
-      <ApplyGroupStudyModal
-        title="공룡과 함께하는 운영체제 OS"
-        questions={['지원동기를 작성해주세요.', '자기소개를 작성해주세요.']}
-      />
       <Calendar />
     </aside>
   );
