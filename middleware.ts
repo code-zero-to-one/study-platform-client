@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { decodeJwt } from '@/shared/lib/jwt';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import { isNumeric } from '@/shared/lib/validation';
 import { isApiError } from '@/shared/tanstack-query/api-error';
@@ -105,10 +106,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(mainUrl);
   }
 
+  if (request.nextUrl.pathname.startsWith('/admin')) {
+    const decodedJwt = decodeJwt(accessToken);
+
+    if (!decodedJwt || !decodedJwt.roleIds.includes('ROLE_ADMIN')) {
+      const homeUrl = new URL('/', request.url);
+
+      return NextResponse.redirect(homeUrl);
+    }
+  }
+
   return response;
 }
 
 // middleware가 적용될 경로 설정
 export const config = {
-  matcher: ['/', '/my-page', '/my-study', '/my-study-review', '/sign-up'],
+  matcher: [
+    '/',
+    '/my-page',
+    '/my-study',
+    '/my-study-review',
+    '/sign-up',
+    '/admin/:path*',
+  ],
 };

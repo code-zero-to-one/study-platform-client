@@ -42,7 +42,7 @@ export const usePatchAutoMatchingMutation = () => {
         });
       }
 
-      return { prev }; 
+      return { prev };
     },
 
     onError: (_err, { memberId }, ctx) => {

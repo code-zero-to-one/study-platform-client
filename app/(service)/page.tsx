@@ -1,0 +1,24 @@
+import { Metadata } from 'next';
+import StudyCard from '@/features/study/schedule/ui/study-card';
+import Banner from '@/widgets/home/banner';
+import Sidebar from '@/widgets/home/sidebar';
+
+export const metadata: Metadata = {
+  title: 'ZERO-ONE',
+  description: '매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼, ZERO-ONE',
+};
+
+export default async function Home() {
+  return (
+    <div className="flex gap-600 py-600">
+      <div className="flex flex-1 flex-col gap-500">
+        <Banner />
+        <StudyCard />
+      </div>
+
+      <aside className="w-[335px] shrink-0">
+        <Sidebar />
+      </aside>
+    </div>
+  );
+}

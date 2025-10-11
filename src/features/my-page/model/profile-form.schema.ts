@@ -1,4 +1,3 @@
-import { FieldNamesMarkedBoolean } from 'react-hook-form';
 import { z } from 'zod';
 import type { MemberProfile } from '@/entities/user/api/types';
 import { UrlSchema } from '@/shared/util/zod-schema';

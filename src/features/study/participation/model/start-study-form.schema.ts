@@ -1,6 +1,6 @@
 import { z } from 'zod';
+import { JoinStudyRequest } from '@/features/study/participation/api/participation-types';
 import { UrlSchema } from '@/shared/util/zod-schema';
-import { JoinStudyRequest } from '../../api/types';
 
 export const StartStudyFormSchema = z.object({
   selfIntroduction: z

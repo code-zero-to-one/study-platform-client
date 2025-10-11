@@ -1,3 +1,5 @@
+import clsx from 'clsx';
+import Image from 'next/image';
 import Link from 'next/link';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
@@ -21,27 +23,43 @@ export default async function Header() {
   const userInfo = userProfile?.memberProfile;
   const userImg = userProfile
     ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl
-    : 'profile-default.svg';
+    : undefined;
 
   return (
-    <header className="w-full border-b border-[#E7E8EA] bg-white mix-blend-multiply">
-      <div className="container mx-auto flex h-16 items-center justify-between gap-600 px-6 py-75">
-        <div className="font-designer-18b text-text-strong shrink-0">
-          <Link href="/">ZERO-ONE</Link>
+    <header
+      className={clsx(
+        'w-full bg-white px-600 py-[11px] mix-blend-multiply',
+        !isLoggedIn && 'border-b border-[#E7E8EA]',
+      )}
+    >
+      <div className="flex w-full items-center justify-between">
+        <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
+          <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
+          <Link href="/">
+            <Image
+              src="/icons/logo_title.svg"
+              alt="Logo-title"
+              width={106}
+              height={11}
+            />
+          </Link>
+          <span className="rounded-full border-[0.5px] border-[#D5D7DA] px-[5px] py-[2.5px] text-center text-[7.5px] leading-normal font-[500]">
+            BETA
+          </span>
         </div>
 
         {/* 1차 MVP에선 사용하지 않아 제외 */}
-        {/* <nav className='hidden flex-grow md:flex gap-150 font-designer-14m text-text-default'>
-               <Link href='/about'>제로원 알아보기</Link>
-               <Link href='/study'>마이스터디</Link>
-            </nav> */}
+        <nav className="font-designer-14m text-text-default flex flex-grow items-center gap-300 px-600">
+          <Link href="/">1:1 CS스터디</Link>
+          {/* <Link href="/study">스터디 둘러보기</Link>
+          <Link href="/">팀소개</Link> */}
+        </nav>
 
-        <div className="flex shrink-0 items-center gap-150">
-          {/* 알림 기능을 구현하지 못해 주석 처리 */}
-          {/* <div>
+        {/* 알림 기능을 구현하지 못해 주석 처리 */}
+        {/* <div>
             <NotiIcon />
           </div> */}
-
+        <div>
           {isLoggedIn ? (
             <HeaderUserDropdown userImg={userImg} />
           ) : (

@@ -23,6 +23,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'api.zeroone.it.kr',
+        pathname: '/profile-image/**',
+      },
+      {
+        protocol: 'https',
         hostname: 'www.zeroone.it.kr',
         pathname: '/**',
       },

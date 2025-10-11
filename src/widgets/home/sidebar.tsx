@@ -2,7 +2,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import MyProfileCard from '@/entities/user/ui/my-profile-card';
-import StartStudyModal from '@/features/study/ui/start-study-modal';
+import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
+import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import Calendar from '@/widgets/home/calendar';
 import TodoList from '@/widgets/home/todo-list';
@@ -14,7 +15,7 @@ export default async function Sidebar() {
   const userProfile = await getUserProfileInServer(memberId);
 
   return (
-    <aside className="flex flex-col gap-300">
+    <aside className="flex w-[335px] flex-col gap-300">
       <MyProfileCard
         memberId={memberId}
         name={userProfile?.memberProfile.memberName}
@@ -59,6 +60,21 @@ export default async function Sidebar() {
           }
         />
       )}
+      {/* todo: 편하게 확인하시라고 추가했습니다. 이후 목록 추가되고 연결되면 제가 지워서 커밋 올리도록 하겠습니다. */}
+      {/* <OpenGroupStudyModal
+        trigger={
+          <button className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300">
+            <p className="flex flex-col items-start gap-50">
+              <span className="font-designer-15b text-text-default">
+                그룹 스터디를 시작해 보세요!
+              </span>
+              <span className="font-designer-12m text-text-subtlest">
+                스터디 신청하기
+              </span>
+            </p>
+          </button>
+        }
+      /> */}
       <Link
         href={''}
         className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300"
