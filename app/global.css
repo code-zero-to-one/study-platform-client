@@ -714,6 +714,375 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   }
 }
 
+
+/* 자동완성이 안되는 문제가 있어 잠시 주석처리 합니다 */
+/* @layer utilities {
+  /* typography */
+  .font-display-headings1 {
+    font-size: 72px;
+    font-weight: var(--font-weight-semibold);
+    line-height: 108px;
+    letter-spacing: 0;
+  }
+
+  .font-display-headings2 {
+    font-size: 64px;
+    font-weight: var(--font-weight-bold);
+    line-height: 96px;
+    letter-spacing: 0;
+  }
+
+  .font-display-headings3 {
+    font-size: 58px;
+    font-weight: var(--font-weight-bold);
+    line-height: 88px;
+    letter-spacing: 0;
+  }
+
+  .font-display-headings4 {
+    font-size: 52px;
+    font-weight: var(--font-weight-bold);
+    line-height: 78px;
+    letter-spacing: 0;
+  }
+
+  .font-display-headings5 {
+    font-size: 48px;
+    font-weight: var(--font-weight-bold);
+    line-height: 72px;
+    letter-spacing: 0;
+  }
+
+  .font-display-headings6 {
+    font-size: 40px;
+    font-weight: var(--font-weight-bold);
+    line-height: 60px;
+    letter-spacing: 0;
+  }
+
+  .font-bold-h1 {
+    font-size: 36px;
+    font-weight: var(--font-weight-bold);
+    line-height: 54px;
+    letter-spacing: 0;
+  }
+
+  .font-bold-h2 {
+    font-size: 32px;
+    font-weight: var(--font-weight-bold);
+    line-height: 48px;
+    letter-spacing: 0;
+  }
+
+  .font-bold-h3 {
+    font-size: 28px;
+    font-weight: var(--font-weight-bold);
+    line-height: 42px;
+    letter-spacing: 0;
+  }
+
+  .font-bold-h4 {
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    line-height: 36px;
+    letter-spacing: 0;
+  }
+
+  .font-bold-h5 {
+    font-size: 20px;
+    font-weight: var(--font-weight-bold);
+    line-height: 30px;
+    letter-spacing: 0;
+  }
+
+  .font-bold-h6 {
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    line-height: 28px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-36r {
+    font-size: 36px;
+    font-weight: var(--font-weight-regular);
+    line-height: 54px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-36m {
+    font-size: 36px;
+    font-weight: var(--font-weight-medium);
+    line-height: 54px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-36b {
+    font-size: 36px;
+    font-weight: var(--font-weight-bold);
+    line-height: 54px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-32r {
+    font-size: 32px;
+    font-weight: var(--font-weight-regular);
+    line-height: 48px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-32m {
+    font-size: 32px;
+    font-weight: var(--font-weight-medium);
+    line-height: 48px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-32b {
+    font-size: 32px;
+    font-weight: var(--font-weight-bold);
+    line-height: 48px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-28r {
+    font-size: 28px;
+    font-weight: var(--font-weight-regular);
+    line-height: 42px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-28m {
+    font-size: 28px;
+    font-weight: var(--font-weight-medium);
+    line-height: 42px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-28b {
+    font-size: 28px;
+    font-weight: var(--font-weight-bold);
+    line-height: 42px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-24r {
+    font-size: 24px;
+    font-weight: var(--font-weight-regular);
+    line-height: 37px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-24m {
+    font-size: 24px;
+    font-weight: var(--font-weight-medium);
+    line-height: 37px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-24b {
+    font-size: 24px;
+    font-weight: var(--font-weight-bold);
+    line-height: 37px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-20r {
+    font-size: 20px;
+    font-weight: var(--font-weight-regular);
+    line-height: 30px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-20m {
+    font-size: 20px;
+    font-weight: var(--font-weight-medium);
+    line-height: 30px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-20b {
+    font-size: 20px;
+    font-weight: var(--font-weight-bold);
+    line-height: 30px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-18r {
+    font-size: 18px;
+    font-weight: var(--font-weight-regular);
+    line-height: 29px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-18m {
+    font-size: 18px;
+    font-weight: var(--font-weight-medium);
+    line-height: 29px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-18b {
+    font-size: 18px;
+    font-weight: var(--font-weight-bold);
+    line-height: 29px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-16r {
+    font-size: 16px;
+    font-weight: var(--font-weight-regular);
+    line-height: 25px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-16m {
+    font-size: 16px;
+    font-weight: var(--font-weight-medium);
+    line-height: 25px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-16b {
+    font-size: 16px;
+    font-weight: var(--font-weight-bold);
+    line-height: 25px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-15r {
+    font-size: 15px;
+    font-weight: var(--font-weight-regular);
+    line-height: 23px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-15m {
+    font-size: 15px;
+    font-weight: var(--font-weight-medium);
+    line-height: 23px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-15b {
+    font-size: 15px;
+    font-weight: var(--font-weight-bold);
+    line-height: 23px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-14r {
+    font-size: 14px;
+    font-weight: var(--font-weight-regular);
+    line-height: 22px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-14m {
+    font-size: 14px;
+    font-weight: var(--font-weight-medium);
+    line-height: 22px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-14b {
+    font-size: 14px;
+    font-weight: var(--font-weight-bold);
+    line-height: 22px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-13r {
+    font-size: 13px;
+    font-weight: var(--font-weight-regular);
+    line-height: 20px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-13m {
+    font-size: 13px;
+    font-weight: var(--font-weight-medium);
+    line-height: 20px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-13b {
+    font-size: 13px;
+    font-weight: var(--font-weight-bold);
+    line-height: 20px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-12r {
+    font-size: 12px;
+    font-weight: var(--font-weight-regular);
+    line-height: 19px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-12m {
+    font-size: 12px;
+    font-weight: var(--font-weight-medium);
+    line-height: 19px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-12b {
+    font-size: 12px;
+    font-weight: var(--font-weight-bold);
+    line-height: 19px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-11r {
+    font-size: 11px;
+    font-weight: var(--font-weight-regular);
+    line-height: 18px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-11m {
+    font-size: 11px;
+    font-weight: var(--font-weight-medium);
+    line-height: 18px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-11b {
+    font-size: 11px;
+    font-weight: var(--font-weight-bold);
+    line-height: 18px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-10r {
+    font-size: 10px;
+    font-weight: var(--font-weight-regular);
+    line-height: 17px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-10m {
+    font-size: 10px;
+    font-weight: var(--font-weight-medium);
+    line-height: 17px;
+    letter-spacing: 0;
+  }
+
+  .font-designer-10b {
+    font-size: 10px;
+    font-weight: var(--font-weight-bold);
+    line-height: 17px;
+    letter-spacing: 0;
+  }
+
+  .scrollbar-hide {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+    scrollbar-width: none;
+  }
+} */
+
 /* shadcn 색상 테마 */
 
 :root {

@@ -1,10 +1,10 @@
 'use client';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import React, { Fragment } from 'react';
 import Badge from '@/shared/ui/badge';
 import { getGroupStudyList } from '../api/get-group-study-list';
-import { BasicInfo } from '../api/group-study-types';
-import Image from 'next/image';
+import { DetailBasicInfo } from '../api/group-study-types';
 
 enum Method {
   ONLINE = '온라인',
@@ -52,7 +52,7 @@ export default function GroupStudyList() {
   });
 
   const basicInfoItems = (
-    basicInfo: BasicInfo,
+    basicInfo: DetailBasicInfo,
     currentParticipantCount: number,
   ) => [
     {
