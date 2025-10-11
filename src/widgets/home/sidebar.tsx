@@ -90,7 +90,6 @@ export default async function Sidebar() {
 
         <Image src="/feedback.svg" alt="피드백" width={86} height={56} />
       </Link>
-
       <Calendar />
     </aside>
   );
