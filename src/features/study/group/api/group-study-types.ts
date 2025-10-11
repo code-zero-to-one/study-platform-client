@@ -77,6 +77,7 @@ export interface OpenGroupStudyRequest {
   thumbnailExtension: ThumbnailExtension;
 }
 
+// 그룹 리스트 타입
 export interface GroupStudyListRequest {
   page: number;
   size: number;
