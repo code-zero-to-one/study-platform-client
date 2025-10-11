@@ -17,7 +17,7 @@ const badgeVariants = cva(
         blue: 'bg-background-accent-blue-subtle text-text-information border-background-accent-blue-subtle',
         orange:
           'bg-background-accent-orange-subtle text-background-accent-orange-strong',
-        gray: 'bg-background-accent-gray-subtle text-background-accent-gray-strong',
+        gray: 'bg-background-accent-gray-subtle text-background-accent-gray-strong border-0',
         purple:
           'bg-background-accent-purple-subtle text-background-accent-purple-strong',
       },
