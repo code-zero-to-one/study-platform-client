@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { formatYYYYMMDD } from '@/shared/lib/time';
 import Badge from '@/shared/ui/badge';
@@ -68,6 +69,8 @@ export default function MemberListTable() {
       return next;
     });
   };
+
+  const router = useRouter();
 
   return (
     <>
@@ -165,9 +168,17 @@ export default function MemberListTable() {
                     selectedIds.has(user.memberId)
                       ? 'bg-background-accent-blue-subtle'
                       : ''
-                  }`}
+                  } hover:bg-background-accent-blue-subtle`}
+                  onClick={() => {
+                    router.push(`/admin/detail/${user.memberId}/profile`);
+                  }}
                 >
-                  <td className="flex h-[54px] w-fit justify-center pr-100 pl-300">
+                  <td
+                    className="flex h-[54px] w-fit justify-center pr-100 pl-300"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
                     <Checkbox
                       id={user.memberId.toString()}
                       onToggle={() => toggleRow(user.memberId)}
