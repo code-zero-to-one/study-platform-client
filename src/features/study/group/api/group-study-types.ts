@@ -78,3 +78,62 @@ export interface GroupStudyListResponse {
   hasNext: boolean;
   hasPrevious: boolean;
 }
+
+export interface GroupStudyDetailRequest {
+  groupStudyId: number;
+}
+
+export interface GroupStudyDetail {
+  basicInfo: BasicInfo;
+  detailInfo: DetailInfo;
+  interviewPost: InterviewPost;
+}
+
+export interface ExtendedBasicInfoDetail
+  extends Omit<
+    BasicInfo,
+    | 'type'
+    | 'hostType'
+    | 'targetRoles'
+    | 'experienceLevels'
+    | 'method'
+    | 'regularMeeting'
+    | 'status'
+  > {
+  type: 'PROJECT' | 'STUDY' | string;
+  hostType: 'GENERAL' | 'ADMIN' | string;
+  targetRoles: ('PLANNER' | 'BACKEND' | 'FRONTEND' | string)[];
+  experienceLevels: ('JUNIOR' | 'MIDDLE' | 'SENIOR' | string)[];
+  method: 'ONLINE' | 'OFFLINE' | 'HYBRID' | string;
+  regularMeeting: 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | string;
+  status: 'RECRUITING' | 'CLOSED' | 'COMPLETED' | string;
+}
+
+export interface DetailInfo {
+  image: Image;
+  title: string;
+  description: string;
+  summary: string;
+  thumbnailUploadUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface Image {
+  imageId: number;
+  resizedImages: ResizedImage[];
+}
+
+export interface ResizedImage {
+  resizedImageId: number;
+  resizedImageUrl: string;
+  imageSizeType: ImageSizeType;
+}
+
+export interface InterviewPost {
+  interviewPost: string[];
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}

@@ -85,7 +85,7 @@ export interface EntryListRequest {
   groupStudyId: number;
   page: number;
   size: number;
-  status?: 'PENDING';
+  status?: ApplyStatus;
 }
 
 export interface EntryStatusRequest {

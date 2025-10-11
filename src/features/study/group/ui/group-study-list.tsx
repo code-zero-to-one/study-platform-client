@@ -1,18 +1,19 @@
 'use client';
 import { useInfiniteQuery } from '@tanstack/react-query';
+import Image from 'next/image';
 import React, { Fragment } from 'react';
 import Badge from '@/shared/ui/badge';
 import { getGroupStudyList } from '../api/get-group-study-list';
 import { BasicInfo } from '../api/group-study-types';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 
-enum Method {
+export enum Method {
   ONLINE = '온라인',
   OFFLINE = '오프라인',
   HYBRID = '혼합',
 }
 
-enum Type {
+export enum Type {
   PROJECT = '프로젝트',
   MENTORING = '멘토링',
   SEMINAR = '세미나',
@@ -21,7 +22,7 @@ enum Type {
   LECTURE_STUDY = '강의 스터디',
 }
 
-enum Frequency {
+export enum Frequency {
   NONE = '없음',
   WEEKLY = '주 1회',
   BIWEEKLY = '주 2회',
@@ -29,6 +30,7 @@ enum Frequency {
 }
 
 export default function GroupStudyList() {
+  const router = useRouter();
   const { data, fetchNextPage } = useInfiniteQuery({
     queryKey: ['groupStudies'],
     queryFn: async ({ pageParam }) => {
@@ -57,7 +59,7 @@ export default function GroupStudyList() {
   ) => [
     {
       label: '유형',
-      value: Method[basicInfo.method as keyof typeof Method],
+      value: Type[basicInfo.type as keyof typeof Type],
     },
     {
       label: '주제',
@@ -117,7 +119,6 @@ export default function GroupStudyList() {
 
   return (
     <div className="flex flex-col gap-200">
-      {/* <button onClick={() => fetchNextPage()}>더보기</button> */}
       {data?.pages.map((page, i) => (
         <Fragment key={i}>
           {page.content.map((study, index) => {
@@ -125,6 +126,9 @@ export default function GroupStudyList() {
               <div
                 className="rounded-100 flex w-full cursor-pointer justify-between gap-500 border border-solid border-[#D5D7DA] p-400"
                 key={index}
+                onClick={() =>
+                  router.push(`study/${study.basicInfo.groupStudyId}`)
+                }
               >
                 <div className="flex flex-col justify-between">
                   <div className="flex flex-col gap-100">

@@ -1,7 +1,7 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 import { EntryListRequest, GroupStudyApplyListResponse } from './types';
 
-// 그룹 스터디 리스트 조회
+// 스터디 신청자 리스트 조회
 export const getEntryList = async (
   params: EntryListRequest,
 ): Promise<GroupStudyApplyListResponse> => {
