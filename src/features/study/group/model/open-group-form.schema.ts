@@ -34,7 +34,7 @@ export const OpenGroupFormSchema = z.object({
     .string()
     .trim()
     .regex(ISO_DATE_REGEX, 'YYYY-MM-DD 형식의 종료일을 입력해 주세요.'),
-  price: z.string().trim().optional(),
+  price: z.int().optional(),
   title: z.string().trim().min(1, '스터디 제목을 입력해주세요.'),
   summary: z.string().trim().min(1, '한 줄 소개를 입력해주세요.'),
   description: z.string().trim().min(1, '스터디 소개를 입력해주세요.'),
@@ -57,23 +57,25 @@ export type OpenGroupFormValues = z.input<typeof OpenGroupFormSchema> & {
 };
 export type OpenGroupParsedValues = z.output<typeof OpenGroupFormSchema>;
 
-export function buildOpenGroupDefaultValues(): OpenGroupFormValues {
+export function buildOpenGroupDefaultValues(
+  studyInfo?: OpenGroupStudyRequest,
+): OpenGroupFormValues {
   return {
-    type: 'PROJECT',
-    targetRoles: [],
-    maxMembersCount: '',
-    experienceLevels: [],
-    method: 'ONLINE',
-    location: '',
-    regularMeeting: 'NONE',
-    startDate: '',
-    endDate: '',
-    price: '',
-    title: '',
-    description: '',
-    summary: '',
-    interviewPost: [''],
-    thumbnailExtension: 'DEFAULT',
+    type: studyInfo?.basicInfo.type ?? 'PROJECT',
+    targetRoles: studyInfo?.basicInfo.targetRoles ?? [],
+    maxMembersCount: studyInfo?.basicInfo.maxMembersCount.toString() ?? '',
+    experienceLevels: studyInfo?.basicInfo.experienceLevels ?? [],
+    method: studyInfo?.basicInfo.method ?? 'ONLINE',
+    location: studyInfo?.basicInfo.location ?? '',
+    regularMeeting: studyInfo?.basicInfo.regularMeeting ?? 'NONE',
+    startDate: studyInfo?.basicInfo.startDate ?? '',
+    endDate: studyInfo?.basicInfo.endDate ?? '',
+    price: studyInfo?.basicInfo.price ?? 0,
+    title: studyInfo?.detailInfo.title ?? '',
+    description: studyInfo?.detailInfo.description ?? '',
+    summary: studyInfo?.detailInfo.summary ?? '',
+    interviewPost: studyInfo?.interviewPost.interviewPost ?? [''],
+    thumbnailExtension: studyInfo?.detailInfo.thumbnailExtension ?? 'DEFAULT',
   };
 }
 
@@ -91,7 +93,7 @@ export function toOpenGroupRequest(
       location: v.location.trim(),
       startDate: v.startDate.trim(),
       endDate: v.endDate.trim(),
-      price: Number(v.price),
+      price: v.price,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },
