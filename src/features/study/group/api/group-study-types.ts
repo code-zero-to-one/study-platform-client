@@ -7,6 +7,24 @@ import {
   THUMBNAIL_EXTENSION,
 } from '../const/group-study-const';
 
+// 그룹 스터디 신청 상태
+type ApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'KICKED';
+
+// 그룹 스터디 신청 Request 타입
+export interface ApplyGroupStudyRequest {
+  groupStudyId: number;
+  answer: string[];
+}
+
+// 그룹 스터디 신청 Response 타입
+export interface ApplyGroupStudyResponse {
+  applyId: number;
+  applicantId: number;
+  groupStudyId: number;
+  status: ApplicationStatus;
+  createdAt: string;
+}
+
 export type StudyType = (typeof STUDY_TYPES)[number];
 export type TargetRole = (typeof TARGET_ROLE_OPTIONS)[number];
 export type ExperienceLevel = (typeof EXPERIENCE_LEVEL_OPTIONS)[number];
