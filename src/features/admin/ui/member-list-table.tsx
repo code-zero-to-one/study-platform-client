@@ -192,7 +192,9 @@ export default function MemberListTable() {
                     {formatYYYYMMDD(user.joinedAt)}
                   </td>
                   <td className="font-designer-14r text-text-subtle px-300 text-left">
-                    {formatYYYYMMDD(user.loginMostRecentlyAt)}
+                    {user.loginMostRecentlyAt
+                      ? formatYYYYMMDD(user.loginMostRecentlyAt)
+                      : '-'}
                   </td>
                   <td className="font-designer-14r text-text-subtle flex items-center px-300 text-left">
                     {user.role.roleId === 'ROLE_MENTOR' && <SealCheckIcon />}
