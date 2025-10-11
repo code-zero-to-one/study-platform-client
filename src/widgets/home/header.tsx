@@ -51,8 +51,8 @@ export default async function Header() {
         {/* 1차 MVP에선 사용하지 않아 제외 */}
         <nav className="font-designer-14m text-text-default flex flex-grow items-center gap-300 px-600">
           <Link href="/">1:1 CS스터디</Link>
-          <Link href="/study">스터디 둘러보기</Link>
-          <Link href="/">팀소개</Link>
+          {/* <Link href="/study">스터디 둘러보기</Link>
+          <Link href="/">팀소개</Link> */}
         </nav>
 
         {/* 알림 기능을 구현하지 못해 주석 처리 */}
