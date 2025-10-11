@@ -1,22 +1,43 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { decodeJwt } from '@/shared/lib/jwt';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/shared/shadcn/ui/dropdown-menu';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import { useLogoutMutation } from '../model/use-auth-mutation';
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   const { mutateAsync: logout } = useLogoutMutation();
+
+  const jwt = getCookie('accessToken');
+  const decodedJwt = decodeJwt(jwt);
+
+  const hasAdminRole = decodedJwt && decodedJwt?.roleIds.includes('ROLE_ADMIN');
+
   const router = useRouter();
 
   const handleLogout = async () => {
     await logout();
   };
+
+  const baseOptions = [
+    {
+      label: '내 정보 수정',
+      value: '/my-page',
+      onMenuClick: () => router.push('/my-page'),
+    },
+    {
+      label: '로그아웃',
+      value: 'logout',
+      onMenuClick: handleLogout,
+    },
+  ];
 
   return (
     <DropdownMenu>
@@ -27,18 +48,17 @@ export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="rounded-100 border-border-default bg-background-default shadow-2 flex w-full flex-col gap-50 border p-50">
-        {[
-          {
-            label: '내 정보 수정',
-            value: '/my-page',
-            onMenuClick: () => router.push('/my-page'),
-          },
-          {
-            label: '로그아웃',
-            value: 'logout',
-            onMenuClick: handleLogout,
-          },
-        ].map((option) => (
+        {(hasAdminRole
+          ? [
+              ...baseOptions,
+              {
+                label: '서비스 관리',
+                value: '/admin',
+                onMenuClick: () => router.push('/admin'),
+              },
+            ]
+          : baseOptions
+        ).map((option) => (
           <DropdownMenuItem
             key={option.value}
             onClick={option.onMenuClick}
