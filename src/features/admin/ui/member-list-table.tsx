@@ -88,7 +88,10 @@ export default function MemberListTable() {
 
         <MemberListSearchInput
           value={searchKeyword}
-          onChange={setSearchKeyword}
+          onChange={(keyword) => {
+            setPage(1);
+            setSearchKeyword(keyword);
+          }}
         />
       </div>
 
