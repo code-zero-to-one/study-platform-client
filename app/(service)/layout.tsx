@@ -30,7 +30,9 @@ export default function ServiceLayout({
 }>) {
   return (
     <html lang="en">
-      <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
+      <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+      </head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider>
           <div className="w-full overflow-auto">
