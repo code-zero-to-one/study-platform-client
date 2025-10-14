@@ -22,8 +22,9 @@ type Story = StoryObj<typeof GroupStudyThumbnailInput>;
 
 export const Default: Story = {
   render: () => {
-    const [image, setImage] = useState<string | undefined>(undefined);
+    const [file, setFile] = useState<File | null>(null);
+    const image = file ? URL.createObjectURL(file) : undefined;
 
-    return <GroupStudyThumbnailInput image={image} onChangeImage={setImage} />;
+    return <GroupStudyThumbnailInput image={image} onChangeImage={setFile} />;
   },
 };

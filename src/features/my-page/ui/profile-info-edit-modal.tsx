@@ -13,7 +13,7 @@ import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
 import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
-import { ToggleGroup } from '@/shared/ui/toggle';
+import { GroupItems } from '@/shared/ui/toggle';
 
 import {
   ProfileInfoFormSchema,
@@ -210,7 +210,7 @@ function ProfileInfoEditForm({
               direction="vertical"
               required
             >
-              <ToggleGroup options={timeOptions} />
+              <GroupItems options={timeOptions} />
             </FormField>
 
             <FormField<ProfileInfoFormValues, 'techStackIds', string[]>

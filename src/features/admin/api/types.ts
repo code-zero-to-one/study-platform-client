@@ -28,3 +28,34 @@ export interface GetMemberListResponse {
     };
   }[];
 }
+
+export interface GetAccountHistoriesRequest {
+  memberId: number;
+}
+
+export interface GetAccountHistoriesResponse {
+  memberId: number;
+  joinedAt: string;
+  loginMostRecentlyAt: string;
+  loginHists: string[];
+  roleChangeHists: {
+    changedAt: string;
+    from: string;
+    to: string;
+  }[];
+  memberStatusChangeHists: {
+    changedAt: string;
+    from: string;
+    to: string;
+  }[];
+}
+
+export interface ChangeMemberStatusRequest {
+  memberId: number;
+  to: MemberStatus;
+}
+
+export interface ChangeMemberRoleRequest {
+  memberId: number;
+  roleId: RoleId;
+}

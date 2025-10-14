@@ -40,6 +40,9 @@ const inputVariants = cva(
         boxed: 'rounded-100 border px-150 border-border-default',
         bare: 'border-0 rounded-none px-0 focus-visible:outline-none shadow-none',
       },
+      disabled: {
+        true: 'bg-background-disabled text-text-disabled border-border-disabled cursor-not-allowed',
+      },
     },
     defaultVariants: {
       color: 'default',
@@ -64,7 +67,16 @@ export const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
     return (
       <ShadcnInput
         ref={ref}
-        className={cn(inputVariants({ color, size, appearance }), className)}
+        disabled={props.disabled}
+        className={cn(
+          inputVariants({
+            color,
+            size,
+            appearance,
+            disabled: props.disabled ? true : undefined,
+          }),
+          className,
+        )}
         {...props}
         onChange={(e) => {
           onChange?.(e);

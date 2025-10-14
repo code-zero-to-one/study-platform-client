@@ -4,7 +4,7 @@ import Image from 'next/image';
 import React, { Fragment } from 'react';
 import Badge from '@/shared/ui/badge';
 import { getGroupStudyList } from '../api/get-group-study-list';
-import { BasicInfo } from '../api/group-study-types';
+import { DetailBasicInfo } from '../api/group-study-types';
 import { useRouter } from 'next/navigation';
 
 export enum Method {
@@ -54,7 +54,7 @@ export default function GroupStudyList() {
   });
 
   const basicInfoItems = (
-    basicInfo: BasicInfo,
+    basicInfo: DetailBasicInfo,
     currentParticipantCount: number,
   ) => [
     {

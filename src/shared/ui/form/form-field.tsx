@@ -13,6 +13,22 @@ import { cn } from '@/shared/shadcn/lib/utils';
 import { FieldControl, type ControlledChildProps } from './field-control';
 
 type Direction = 'horizontal' | 'vertical';
+type Size = 'small' | 'medium';
+
+const TYPO = {
+  small: {
+    label: 'font-designer-14b',
+    helper: 'font-designer-14r',
+    foot: 'font-designer-13r',
+    counter: 'font-designer-13r',
+  },
+  medium: {
+    label: 'font-designer-16b',
+    helper: 'font-designer-14r',
+    foot: 'font-designer-14r',
+    counter: 'font-designer-13r',
+  },
+} as const;
 
 export interface FormFieldProps<
   T extends FieldValues,
@@ -27,6 +43,7 @@ export interface FormFieldProps<
   description?: React.ReactNode;
   required?: boolean;
   direction?: Direction;
+  size?: Size;
   id?: string;
 
   showCounterRight?: boolean;
@@ -47,6 +64,7 @@ export default function FormField<
   description,
   required = false,
   direction = 'horizontal',
+  size = 'small',
   id,
   children,
   showCounterRight = false,
@@ -79,7 +97,7 @@ export default function FormField<
       <div className={cn('flex', leftCol)}>
         <label
           htmlFor={fieldId}
-          className="font-designer-14b text-text-default"
+          className={cn(TYPO[size].label, 'text-text-default')}
         >
           {label}
         </label>
@@ -90,7 +108,7 @@ export default function FormField<
 
       <div className="flex w-full flex-col gap-75">
         {helper && (
-          <div className="text-text-subtle font-designer-14r mb-100">
+          <div className={cn(TYPO[size].helper, 'text-text-subtle mb-100')}>
             {helper}
           </div>
         )}
@@ -104,10 +122,13 @@ export default function FormField<
           {children}
         </FieldControl>
 
-        <div className="font-designer-13r flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <div
             id={errorMsg ? errId : descId}
-            className={cn(errorMsg ? 'text-text-error' : 'text-text-subtlest')}
+            className={cn(
+              TYPO[size].foot,
+              errorMsg ? 'text-text-error' : 'text-text-subtlest',
+            )}
             role={errorMsg ? 'alert' : undefined}
             aria-live={errorMsg ? 'polite' : undefined}
           >
@@ -115,7 +136,7 @@ export default function FormField<
           </div>
 
           {showCounterRight && typeof counterMax === 'number' && (
-            <div className="text-text-subtlest">
+            <div className={cn(TYPO[size].counter, 'text-text-subtlest')}>
               {currentLen}/{counterMax}
             </div>
           )}
