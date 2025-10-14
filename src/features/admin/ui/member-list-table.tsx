@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useDebounce } from '@/shared/lib/debounce';
 import { formatYYYYMMDD } from '@/shared/lib/time';
 import Badge from '@/shared/ui/badge';
 import Button from '@/shared/ui/button';
@@ -25,13 +26,14 @@ import { useGetMemberListQuery } from '../model/use-member-list-query';
 export default function MemberListTable() {
   const [roleId, setRoleId] = useState<RoleId | null>(null);
   const [memberStatus, setMemberStatus] = useState<MemberStatus | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [page, setPage] = useState<number>(1);
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const debouncedSearchKeyword = useDebounce(searchKeyword, 500);
 
   const { data } = useGetMemberListQuery({
     roleId,
     memberStatus,
-    searchKeyword,
+    searchKeyword: debouncedSearchKeyword,
     page,
   });
 
@@ -88,7 +90,10 @@ export default function MemberListTable() {
 
         <MemberListSearchInput
           value={searchKeyword}
-          onChange={setSearchKeyword}
+          onChange={(keyword) => {
+            setPage(1);
+            setSearchKeyword(keyword);
+          }}
         />
       </div>
 
