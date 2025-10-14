@@ -99,7 +99,7 @@ export default function MemberListTable() {
 
       <div className="mt-300 mb-200 flex w-full items-center justify-between py-100">
         <div>
-          {someSelected && (
+          {(someSelected || allSelected) && (
             <div className="border-border-default rounded-100 flex h-[56px] items-center gap-300 border px-200 py-150">
               <p className="font-designer-14r">
                 <span className="text-text-information">
