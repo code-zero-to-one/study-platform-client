@@ -9,7 +9,6 @@ import {
 
 // 그룹 스터디 신청 상태
 type ApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'KICKED';
-
 export type GroupStudyStatus = 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
 export type GroupStudyType = 'PROJECT' | 'STUDY';
 export type HostType = 'ZEROONE' | 'GENERAL' | 'METOR';
