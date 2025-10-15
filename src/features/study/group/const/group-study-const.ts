@@ -51,6 +51,27 @@ export const STUDY_TYPE_LABELS = {
   LECTURE_STUDY: '강의 스터디',
 } as const;
 
+export const ROLE_LABELS = {
+  BACKEND: '백엔드',
+  FRONTEND: '프론트엔드',
+  PLANNER: '기획',
+  DESIGNER: '디자이너',
+} as const;
+
+export const EXPERIENCE_LEVEL_LABELS = {
+  BEGINNER: '입문자',
+  JOB_SEEKER: '취준생',
+  JUNIOR: '주니어',
+  MIDDLE: '미들',
+  SENIOR: '시니어',
+} as const;
+
+export const STUDY_STATUS_LABELS = {
+  RECRUITING: '모집 중',
+  IN_PROGRESS: '진행 중',
+  COMPLETED: '모집 완료',
+} as const;
+
 export const ROLE_OPTIONS_UI = [
   { label: '백엔드', value: 'BACKEND' },
   { label: '프론트엔드', value: 'FRONTEND' },

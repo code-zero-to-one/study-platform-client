@@ -1,10 +1,13 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { GroupStudyDetail, GroupStudyDetailRequest } from './group-study-types';
+import {
+  GroupStudyDetailRequest,
+  GroupStudyDetailResponse,
+} from './group-study-types';
 
 // 그룹 스터디 리스트 조회
 export const getGroupStudyDetail = async (
   params: GroupStudyDetailRequest,
-): Promise<GroupStudyDetail> => {
+): Promise<GroupStudyDetailResponse> => {
   const { groupStudyId } = params;
 
   console.log('groupStudyId', groupStudyId);

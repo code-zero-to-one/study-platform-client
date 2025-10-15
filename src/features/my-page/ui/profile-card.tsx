@@ -4,9 +4,9 @@ import React from 'react';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
-import { GroupStudyApply } from '../api/types';
+import { GroupStudyApply } from '@/features/application/api/type';
 
-export default function EntryCard(props: { data: GroupStudyApply }) {
+export default function ProfileCard(props: { data: GroupStudyApply }) {
   const { data: applicant } = props;
   const temperPreset = getSincerityPresetByLevelName(
     applicant.applicantInfo.sincerityTemp.levelName as string,
@@ -32,8 +32,6 @@ export default function EntryCard(props: { data: GroupStudyApply }) {
 
     return `${diffWeek}주 전`;
   };
-
-  const ApplicantStatus = () => {};
 
   return (
     <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-[#E9EAEB] p-300">
