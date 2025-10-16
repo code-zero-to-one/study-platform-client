@@ -173,7 +173,7 @@ export default function MemberListTable() {
                     selectedIds.has(user.memberId)
                       ? 'bg-background-accent-blue-subtle'
                       : ''
-                  } hover:bg-background-accent-blue-subtle`}
+                  } hover:bg-fill-neutral-subtle-hover active:bg-fill-neutral-subtle-pressed`}
                   onClick={() => {
                     router.push(`/admin/detail/${user.memberId}/profile`);
                   }}
