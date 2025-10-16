@@ -9,21 +9,10 @@ import {
 
 // 그룹 스터디 신청 상태
 type ApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'KICKED';
-
-// 그룹 스터디 신청 Request 타입
-export interface ApplyGroupStudyRequest {
-  groupStudyId: number;
-  answer: string[];
-}
-
-// 그룹 스터디 신청 Response 타입
-export interface ApplyGroupStudyResponse {
-  applyId: number;
-  applicantId: number;
-  groupStudyId: number;
-  status: ApplicationStatus;
-  createdAt: string;
-}
+export type GroupStudyStatus = 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
+export type GroupStudyType = 'PROJECT' | 'STUDY';
+export type HostType = 'ZEROONE' | 'GENERAL' | 'METOR';
+export type Method = 'ONLINE' | 'OFFLINE';
 
 export type StudyType = (typeof STUDY_TYPES)[number];
 export type TargetRole = (typeof TARGET_ROLE_OPTIONS)[number];
@@ -59,6 +48,17 @@ export interface BasicInfo {
   updatedAt: string;
 }
 
+export interface BasicInfoDetail extends BasicInfo {
+  groupStudyId: number;
+  hostType: HostType;
+  status: GroupStudyStatus;
+  pendingCount: number;
+  approvedCount: number;
+  rejectedCount: number;
+  kickedCount: number;
+  deletedAt: string | null;
+}
+
 export interface DetailInfo {
   title: string;
   description: string;
@@ -66,8 +66,68 @@ export interface DetailInfo {
   thumbnailExtension: ThumbnailExtension;
 }
 
+export interface SimpleDetailInfo {
+  thumbnail: Thumbnail;
+  title: string;
+  summary: string;
+}
+
+export interface Thumbnail {
+  imageId: number;
+  resizedImages: ResizedImage[];
+}
+
+export interface ResizedImage {
+  resizedImageId: number;
+  resizedImageUrl: string;
+  imageSizeType: ImageSizeType;
+}
+
+export interface ImageSizeType {
+  imageTypeName: 'ORIGINAL' | 'SMALL' | 'MEDIUM' | 'LARGE';
+  width: number | null;
+  height: number | null;
+}
+
+export interface GroupStudyData {
+  basicInfo: BasicInfoDetail;
+  simpleDetailInfo: SimpleDetailInfo;
+}
+
 export interface InterviewPost {
   interviewPost: string[];
+}
+
+// 그룹 스터디 신청 Request 타입
+export interface ApplyGroupStudyRequest {
+  groupStudyId: number;
+  answer: string[];
+}
+
+export interface Timestamps {
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
+}
+
+/** 상세 화면용 DetailInfo (기존 DetailInfo 확장) */
+export interface DetailInfoDetail extends DetailInfo, Timestamps {
+  /** 서버가 내려주는 원본/대표 이미지 경로 (없을 수 있음) */
+  image: string | null;
+  /** 썸네일 업로드용 URL (없을 수 있음) */
+  thumbnailUploadUrl: string | null;
+}
+
+/** 상세 화면용 InterviewPost (기존 InterviewPost 확장) */
+export interface InterviewPostDetail extends InterviewPost, Timestamps {}
+
+// 그룹 스터디 신청 Response 타입
+export interface ApplyGroupStudyResponse {
+  applyId: number;
+  applicantId: number;
+  groupStudyId: number;
+  status: ApplicationStatus;
+  createdAt: string;
 }
 
 export interface OpenGroupStudyRequest {
@@ -84,59 +144,6 @@ export interface GroupStudyListRequest {
   status: GroupStudyStatus;
 }
 
-export interface ImageSizeType {
-  imageTypeName: 'ORIGINAL' | 'SMALL' | 'MEDIUM' | 'LARGE';
-  width: number | null;
-  height: number | null;
-}
-
-export interface ResizedImage {
-  resizedImageId: number;
-  resizedImageUrl: string;
-  imageSizeType: ImageSizeType;
-}
-
-export interface Thumbnail {
-  imageId: number;
-  resizedImages: ResizedImage[];
-}
-
-export interface SimpleDetailInfo {
-  thumbnail: Thumbnail;
-  title: string;
-  summary: string;
-}
-
-export type GroupStudyStatus = 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
-export type GroupStudyType = 'PROJECT' | 'STUDY';
-export type HostType = 'ZEROONE' | 'GENERAL' | 'METOR';
-export type Method = 'ONLINE' | 'OFFLINE';
-
-export interface DetailBasicInfo {
-  groupStudyId: number;
-  type: GroupStudyType;
-  hostType: HostType;
-  targetRoles: TargetRole[];
-  maxMembersCount: number;
-  experienceLevels: ExperienceLevel[];
-  method: Method;
-  regularMeeting: RegularMeeting;
-  location: string;
-  startDate: string;
-  endDate: string;
-  price: number;
-  status: GroupStudyStatus;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-}
-
-export interface GroupStudyData {
-  basicInfo: DetailBasicInfo;
-  simpleDetailInfo: SimpleDetailInfo;
-  currentParticipantCount: number;
-}
-
 export interface GroupStudyListResponse {
   content: GroupStudyData[];
   page: number;
@@ -145,4 +152,13 @@ export interface GroupStudyListResponse {
   totalPages: number;
   hasNext: boolean;
   hasPrevious: boolean;
+}
+
+export interface GroupStudyDetailRequest {
+  groupStudyId: number;
+}
+export interface GroupStudyDetailResponse {
+  basicInfo: BasicInfoDetail; // 이미 상세용으로 확장된 타입
+  detailInfo: DetailInfoDetail; // DetailInfo 확장
+  interviewPost: InterviewPostDetail; // InterviewPost 확장
 }

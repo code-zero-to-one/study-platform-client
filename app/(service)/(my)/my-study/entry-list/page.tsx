@@ -1,5 +1,5 @@
-import EntryList from '@/features/my-page/ui/entry-list';
 import Image from 'next/image';
+import ApplicantList from '@/features/my-page/ui/applicant-list';
 
 export default function EntryPage() {
   return (
@@ -14,7 +14,7 @@ export default function EntryPage() {
         <div className="flex-1 text-center">새로운 신청자 확인하기</div>
       </div>
 
-      <EntryList />
+      <ApplicantList />
     </div>
   );
 }

@@ -1,10 +1,13 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { EntryListRequest, GroupStudyApplyListResponse } from './types';
+import {
+  getApplicantsByStatusRequest,
+  getApplicantsByStatusResponse,
+} from './type';
 
-// 그룹 스터디 리스트 조회
-export const getEntryList = async (
-  params: EntryListRequest,
-): Promise<GroupStudyApplyListResponse> => {
+// 상태별 스터디 신청자 조회
+export const getApplicantsByStatus = async (
+  params: getApplicantsByStatusRequest,
+): Promise<getApplicantsByStatusResponse> => {
   const { page, size, status, groupStudyId } = params;
 
   const { data } = await axiosInstance.get(

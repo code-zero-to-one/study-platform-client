@@ -16,7 +16,7 @@ import MultiItemSelector from '@/shared/ui/form/multi-item-selector';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 
-import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '../consts/my-page-const';
+import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '../const/my-page-const';
 import {
   ProfileFormSchema,
   type ProfileFormInput,
