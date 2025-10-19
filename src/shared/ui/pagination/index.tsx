@@ -4,7 +4,7 @@ import ArrowForwardIcon from 'public/icons/keyboard-arrow-right.svg';
 import MoreIcon from 'public/icons/more.svg';
 
 // 보이는 중간 페이지
-// 1) 1~4 페이지: 앞에서부터 5개 페이지 표시 (1,2,3,4,5)
+// 1) 1~4 페이지: 앞에서부터 5개 페이지 표시 (1,2,3,4,5, ... , totalPages)
 // 2) 5페이지부터: 현재 페이지를 중심으로 앞뒤 1개씩 포함한 3개 페이지 표시 (1 ... page-1, page, page+1 ... totalPages)
 // 3) 마지막에서 4번째 페이지(= totalPages - 3)부터: 마지막 5개 페이지 표시 (1 ... totalPages-4, totalPages-3, totalPages-2, totalPages-1, totalPages)
 // 반환 값은 첫 페이지(1)와 마지막 페이지(totalPages)를 제외한 중간 페이지들만 포함
