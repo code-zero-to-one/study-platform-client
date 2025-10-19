@@ -3,48 +3,60 @@ import ArrowBackIcon from 'public/icons/keyboard-arrow-left.svg';
 import ArrowForwardIcon from 'public/icons/keyboard-arrow-right.svg';
 import MoreIcon from 'public/icons/more.svg';
 
-// 현재 페이지를 중심으로 표시할 중간 페이지 범위 계산 (첫 페이지와 마지막 페이지 제외)
+// 보이는 중간 페이지
+// 1) 1~4 페이지: 앞에서부터 5개 페이지 표시 (1,2,3,4,5)
+// 2) 5페이지부터: 현재 페이지를 중심으로 앞뒤 1개씩 포함한 3개 페이지 표시 (1 ... page-1, page, page+1 ... totalPages)
+// 3) 마지막에서 4번째 페이지(= totalPages - 3)부터: 마지막 5개 페이지 표시 (1 ... totalPages-4, totalPages-3, totalPages-2, totalPages-1, totalPages)
+// 반환 값은 첫 페이지(1)와 마지막 페이지(totalPages)를 제외한 중간 페이지들만 포함
 const getVisibleMiddlePages = ({
   totalPages,
   page,
-  middleButtonCount,
 }: {
   totalPages: number;
   page: number;
-  middleButtonCount: number;
 }) => {
-  // 전체 페이지가 적으면 모든 페이지 표시
-  // 예를들면 totalPages가 5이고 middleButtonCount가 3이면, 모든 페이지 표시
-  if (totalPages <= middleButtonCount + 2) {
+  // 총 페이지가 5이하일 경우: 1~totalPages 모두 보여주기
+  if (totalPages <= 5) {
     return Array.from({ length: totalPages }, (_, i) => i + 1).filter(
-      (page) => page !== 1 && page !== totalPages,
+      (p) => p !== 1 && p !== totalPages,
     );
   }
 
-  // 현재 페이지를 중심으로 middleButtonCount개의 페이지 계산
-  let start = Math.max(2, page - Math.floor(middleButtonCount / 2));
-  const end = Math.min(totalPages - 1, start + middleButtonCount - 1);
+  // page가 1~4일 때: 앞에서부터 5개 (1,2,3,4,5, ... , totalPages)
+  if (page <= 4) {
+    const start = 2;
+    const end = Math.min(5, totalPages - 1);
+    const pages: number[] = [];
 
-  // 끝 부분에 맞춰서 시작점 조정
-  // 예를들면 totalPages 10 / middleButtonCount 3 / page 9이면, start가 8 end가 9이므로 start를 7로 조정
-  if (end - start + 1 < middleButtonCount) {
-    start = Math.max(2, end - middleButtonCount + 1);
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    return pages;
   }
 
-  const pages = [];
+  // 마지막에서 4번째 페이지(즉 page >= totalPages - 3)부터: 마지막 5개 (1, ... , totalPages-4, totalPages-3, totalPages-2, totalPages-1, totalPages)
+  if (page >= totalPages - 3) {
+    const start = Math.max(2, totalPages - 4);
+    const end = totalPages - 1;
+    const pages: number[] = [];
 
-  for (let i = start; i <= end; i++) {
-    pages.push(i);
+    for (let i = start; i <= end; i++) pages.push(i);
+
+    return pages;
   }
 
-  return pages.filter((page) => page !== 1 && page !== totalPages);
+  // 그 외(중간 구간): 현재 페이지를 중심으로 앞뒤 1개씩 (page-1, page, page+1)
+  const middleStart = Math.max(2, page - 1);
+  const middleEnd = Math.min(totalPages - 1, page + 1);
+  const pages: number[] = [];
+  for (let i = middleStart; i <= middleEnd; i++) pages.push(i);
+
+  return pages;
 };
 
 interface PaginationProps {
   page: number;
   totalPages: number;
   onChangePage: (page: number) => void;
-  middleButtonCount: number;
   className?: string;
 }
 
@@ -69,13 +81,11 @@ export default function Pagination({
   page: currentPage,
   totalPages,
   onChangePage,
-  middleButtonCount,
   className,
 }: PaginationProps) {
   const visibleMiddlePages = getVisibleMiddlePages({
     totalPages,
     page: currentPage,
-    middleButtonCount,
   });
   const showFirstEllipsis = visibleMiddlePages[0] > 2; // 첫 페이지 다음에 생략 표시
   const showLastEllipsis =
