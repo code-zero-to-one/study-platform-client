@@ -202,7 +202,13 @@ export default function MemberListTable() {
                       : '-'}
                   </td>
                   <td className="font-designer-14r text-text-subtle flex items-center px-300 text-left">
-                    {user.role.roleId === 'ROLE_MENTOR' && <SealCheckIcon />}
+                    {user.role.roleId === 'ROLE_MENTOR' && (
+                      <SealCheckIcon
+                        className="text-fill-brand-default-default"
+                        width={20}
+                        height={20}
+                      />
+                    )}
                     {ROLE_MAP[user.role.roleId]}
                   </td>
                   <td className="pr-500 pl-300">
