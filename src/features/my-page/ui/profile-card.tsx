@@ -4,7 +4,7 @@ import React from 'react';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
-import { GroupStudyApply } from '@/features/application/api/type';
+import { GroupStudyApply } from '@/features/study/application/api/type';
 
 export default function ProfileCard(props: { data: GroupStudyApply }) {
   const { data: applicant } = props;
