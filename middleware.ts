@@ -66,13 +66,18 @@ export async function middleware(request: NextRequest) {
   const hasAccessToken = request.cookies.has('accessToken');
   const hasMemberId = request.cookies.has('memberId') && isNumeric(memberId);
 
+  // 랜딩페이지는 인증 없이 접근 가능
+  if (request.nextUrl.pathname === '/') {
+    return NextResponse.next();
+  }
+
   if (
     !hasAccessToken ||
-    (request.nextUrl.pathname !== '/sign-up' && !hasMemberId) // 회원가입 페이지가 아닌 경우 memberId 체크 (회원가입 하지 않을 경우, memberId는 null)
+    ((request.nextUrl.pathname !== '/sign-up' || '/') && !hasMemberId) // 회원가입 페이지가 아닌 경우 memberId 체크 (회원가입 하지 않을 경우, memberId는 null)
   ) {
-    const loginUrl = new URL('/login', request.url);
+    const landingUrl = new URL('/', request.url);
 
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(landingUrl);
   }
 
   // access token 갱신 필요 여부 확인
@@ -89,19 +94,19 @@ export async function middleware(request: NextRequest) {
       response.cookies.set('accessToken', newAccessToken, {
         secure: true,
         sameSite: 'strict',
-        path: '/',
+        path: '/home',
       });
     } else {
       // 갱신 실패
-      const loginUrl = new URL('/login', request.url);
+      const loginUrl = new URL('/', request.url);
 
       return NextResponse.redirect(loginUrl);
     }
   }
 
-  // 이미 회원가입 완료 했는데, sign-up 페이지에 진입할 경우 메인 페이지로 리다이렉트
-  if (request.nextUrl.pathname === '/sign-up' && hasMemberId) {
-    const mainUrl = new URL('/', request.url);
+  // 이미 회원가입 완료 했는데, sign-up 페이지나 랜딩 페이지 진입할 경우 메인 페이지로 리다이렉트
+  if ((request.nextUrl.pathname === '/sign-up' || '/') && hasMemberId) {
+    const mainUrl = new URL('/home', request.url);
 
     return NextResponse.redirect(mainUrl);
   }
@@ -123,6 +128,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/',
+    '/home',
     '/my-page',
     '/my-study',
     '/my-study-review',

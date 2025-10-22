@@ -52,7 +52,7 @@ export const useLogoutMutation = () => {
 
       queryClient.clear();
 
-      router.push('/login');
+      router.push('/');
       router.refresh();
     },
   });
