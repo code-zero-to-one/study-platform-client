@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import Header from '@/widgets/landing/header';
 import backgroundImg from '../../public/images/landing_page.png';
 import Button from '@/shared/ui/button';
+import LandingForm from '@/widgets/landing/form';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -26,6 +27,9 @@ export default async function Landing() {
         <Button color="primary" className="w-[190px] py-[12px]">
           제로원 시작하기
         </Button>
+      </div>
+      <div className="absolute right-[7%] bottom-[5.5%]">
+        <LandingForm />
       </div>
     </div>
   );
