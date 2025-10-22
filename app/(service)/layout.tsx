@@ -4,6 +4,7 @@ import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import Clarity from '@microsoft/clarity';
 import MainProvider from '@/app/provider';
 import Header from '@/widgets/home/header';
 
@@ -22,12 +23,17 @@ const pretendard = localFont({
 });
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
 export default function ServiceLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
+    Clarity.init(CLARITY_PROJECT_ID);
+  }
+
   return (
     <html lang="en">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
