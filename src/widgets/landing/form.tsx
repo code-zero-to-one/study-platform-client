@@ -116,7 +116,7 @@ export default function LandingForm() {
           </div>
           <textarea
             placeholder="Ex) 외주 프로젝트에 참여하고 싶은데 제로 베이스라 어디서부터 시작해야할지 잘 모르겠어요."
-            className="h-[120px] w-full resize-none rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
+            className="h-[120px] w-full resize-none rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] text-[16px] placeholder:text-[#999999]"
           />
           <div className="mt-[24px] flex flex-row gap-[11px]">
             <Checkbox
@@ -138,7 +138,7 @@ export default function LandingForm() {
           </div>
           <Button
             color="primary"
-            className="mt-[60px] h-[60px] w-full rounded-[16px] py-[16px]"
+            className="mt-[60px] h-[60px] w-full rounded-[16px] py-[16px] text-[18px]"
           >
             오픈 알림 신청하기
           </Button>

@@ -25,7 +25,7 @@ export default async function Landing() {
     >
       <Header />
       <div className="absolute top-[5.5%] left-[50%] flex translate-x-[-50%] justify-center">
-        <Button color="primary" className="w-[190px] py-[12px]">
+        <Button color="primary" className="w-[190px] py-[12px] text-[20px]">
           제로원 시작하기
         </Button>
       </div>
