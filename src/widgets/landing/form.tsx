@@ -10,20 +10,20 @@ export default function LandingForm() {
   return (
     <div className="h-[768px] w-[720px] rounded-[24px] p-[48px] shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
       <form>
-        <div className="flex w-full flex-col gap-75">
+        <div className="flex w-full flex-col">
           <div className="mb-[12px] text-[#444444]">
             연락 받을 이메일 주소를 입력해주세요.
           </div>
           <input
             type="text"
             placeholder="zeroone@email.com"
-            className="w-full rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
+            className="h-[60px] w-full rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
           />
           <div className="mt-[32px] mb-[12px] text-[#444444]">
             어느 분야에서 활동하고 계신가요?
           </div>
           <select
-            className={`w-full appearance-none rounded-[16px] bg-[#F2F2F2] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTcgMTBMMTIgMTVMMTcgMTAiIHN0cm9rZT0iIzY2NjY2NiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+')] bg-no-repeat py-[18px] pr-[50px] pl-[24px] ${
+            className={`h-[60px] w-full appearance-none rounded-[16px] bg-[#F2F2F2] bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTcgMTBMMTIgMTVMMTcgMTAiIHN0cm9rZT0iIzY2NjY2NiIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiLz4KPC9zdmc+')] bg-no-repeat py-[18px] pr-[50px] pl-[24px] ${
               type === 'NONE' ? 'text-[#999999]' : 'text-[#111111]'
             }`}
             style={{ backgroundPosition: 'calc(100% - 12px) center' }}
@@ -116,7 +116,7 @@ export default function LandingForm() {
           </div>
           <textarea
             placeholder="Ex) 외주 프로젝트에 참여하고 싶은데 제로 베이스라 어디서부터 시작해야할지 잘 모르겠어요."
-            className="h-[100px] w-full resize-none rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
+            className="h-[120px] w-full resize-none rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
           />
           <div className="mt-[24px] flex flex-row gap-[11px]">
             <Checkbox
@@ -138,7 +138,7 @@ export default function LandingForm() {
           </div>
           <Button
             color="primary"
-            className="mt-[60px] w-full rounded-[16px] py-[16px]"
+            className="mt-[60px] h-[60px] w-full rounded-[16px] py-[16px]"
           >
             오픈 알림 신청하기
           </Button>
