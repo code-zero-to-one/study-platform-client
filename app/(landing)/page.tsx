@@ -1,4 +1,7 @@
 import { Metadata } from 'next';
+import Header from '@/widgets/landing/header';
+import backgroundImg from '../../public/images/landing_page.png';
+import Button from '@/shared/ui/button';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -6,5 +9,24 @@ export const metadata: Metadata = {
 };
 
 export default async function Landing() {
-  return <div className="flex gap-600 py-600"></div>;
+  return (
+    <div
+      className="bg-cover bg-center bg-no-repeat"
+      style={{
+        backgroundImage: `url(${backgroundImg.src})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        height: '9972px',
+        position: 'relative',
+      }}
+    >
+      <Header />
+      <div className="absolute top-[5.5%] left-[50%] flex translate-x-[-50%] justify-center">
+        <Button color="primary" className="w-[190px] py-[12px]">
+          제로원 시작하기
+        </Button>
+      </div>
+    </div>
+  );
 }
