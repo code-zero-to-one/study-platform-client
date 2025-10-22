@@ -75,7 +75,6 @@ export default function SincerityTempTable({
         page={page}
         onChangePage={setPage}
         totalPages={data?.sincerityTemperatureHistory.totalPages || 1}
-        middleButtonCount={4}
       />
     </>
   );
