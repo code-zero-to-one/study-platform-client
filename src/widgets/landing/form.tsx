@@ -56,6 +56,7 @@ export default function LandingForm() {
                       : [...checked, 'STUDY'],
                   );
                 }}
+                themeColor="#F63D68"
               />
               <label htmlFor="STUDY" className="text-[#767676]">
                 1:1 개인 스터디
@@ -72,6 +73,7 @@ export default function LandingForm() {
                       : [...checked, 'GROUP_STUDY'],
                   );
                 }}
+                themeColor="#F63D68"
               />
               <label htmlFor="GROUP_STUDY" className="text-[#767676]">
                 단체 스터디 그룹
@@ -88,6 +90,7 @@ export default function LandingForm() {
                       : [...checked, 'OUTSOURCING'],
                   );
                 }}
+                themeColor="#F63D68"
               />
               <label htmlFor="OUTSOURCING" className="text-[#767676]">
                 외주 프로젝트
@@ -104,6 +107,7 @@ export default function LandingForm() {
                       : [...checked, 'EXPERT_ANSWER'],
                   );
                 }}
+                themeColor="#F63D68"
               />
               <label htmlFor="EXPERT_ANSWER" className="text-[#767676]">
                 전문가 답변 서비스
@@ -131,7 +135,9 @@ export default function LandingForm() {
                     : [...checked, 'AGREE_TERMS_OF_SERVICE'],
                 );
               }}
+              themeColor="#F63D68"
             />
+
             <label htmlFor="AGREE_TERMS_OF_SERVICE" className="text-[#444444]">
               개인정보 보호정책에 동의합니다.
             </label>
