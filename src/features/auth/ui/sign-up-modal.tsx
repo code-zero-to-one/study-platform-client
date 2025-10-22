@@ -76,7 +76,7 @@ export default function SignupModal({
             }
 
             // 성공 후 홈페이지로 이동
-            window.location.href = '/';
+            window.location.href = '/home';
           }
         },
         onError: (error) => {

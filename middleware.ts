@@ -73,7 +73,9 @@ export async function middleware(request: NextRequest) {
 
   if (
     !hasAccessToken ||
-    ((request.nextUrl.pathname !== '/sign-up' || '/') && !hasMemberId) // 회원가입 페이지가 아닌 경우 memberId 체크 (회원가입 하지 않을 경우, memberId는 null)
+    (request.nextUrl.pathname !== '/sign-up' &&
+      request.nextUrl.pathname !== '/' &&
+      !hasMemberId) // 회원가입 페이지나 랜딩 페이지가 아닌 경우 memberId 체크 (회원가입 하지 않을 경우, memberId는 null)
   ) {
     const landingUrl = new URL('/', request.url);
 
@@ -105,7 +107,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // 이미 회원가입 완료 했는데, sign-up 페이지나 랜딩 페이지 진입할 경우 메인 페이지로 리다이렉트
-  if ((request.nextUrl.pathname === '/sign-up' || '/') && hasMemberId) {
+  if (
+    (request.nextUrl.pathname === '/sign-up' ||
+      request.nextUrl.pathname === '/') &&
+    hasMemberId
+  ) {
     const mainUrl = new URL('/home', request.url);
 
     return NextResponse.redirect(mainUrl);
