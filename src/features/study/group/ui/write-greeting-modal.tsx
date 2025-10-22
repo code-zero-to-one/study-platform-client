@@ -1,6 +1,10 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import { FormProvider, useForm } from 'react-hook-form';
+import { z } from 'zod';
 import Button from '@/shared/ui/button';
+import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 
@@ -32,25 +36,51 @@ export default function WriteGreetingModal() {
   );
 }
 
-function WriteGreetingForm({ onClose }: { onClose: () => void }) {
-  return (
-    <>
-      <Modal.Body className="flex flex-col gap-400 px-400 py-300">
-        <form id="write-greeting" className="flex flex-col gap-150">
-          <label
-            htmlFor="greeting"
-            className="text-text-default font-designer-15b"
-          >
-            나에 대한 소개 혹은 지원동기를 작성해주세요.
-          </label>
+const WriteGreetingFormSchema = z.object({
+  greeting: z
+    .string()
+    .min(20, '최소 20자 이상 입력해주세요.')
+    .max(500, '최대 500자까지 입력 가능합니다.'),
+});
 
-          <TextAreaInput
-            id="greeting"
-            placeholder="안녕하세요. 함께 성장하고 싶은 마음으로 스터디에 참여하게 되었습니다.&#13;&#10;혼자 공부할 때보다 서로의 경험과 피드백을 나누며 더 깊이 배우고 싶어요. 잘 부탁드립니다 :)"
-            minLength={20}
-            maxLength={500}
-            className="h-[216px]"
-          />
+type WriteGreetingFormValues = z.infer<typeof WriteGreetingFormSchema>;
+
+function WriteGreetingForm({ onClose }: { onClose: () => void }) {
+  const methods = useForm<WriteGreetingFormValues>({
+    resolver: zodResolver(WriteGreetingFormSchema),
+    mode: 'onChange',
+    defaultValues: { greeting: '' },
+  });
+
+  const { handleSubmit, formState } = methods;
+
+  const onValidSubmit = (values: WriteGreetingFormValues) => {
+    // TODO: 서버 전송 로직 추가
+    onClose();
+  };
+
+  return (
+    <FormProvider {...methods}>
+      <Modal.Body className="flex flex-col gap-400 px-400 py-300">
+        <form
+          id="write-greeting"
+          className="flex flex-col gap-150"
+          onSubmit={handleSubmit(onValidSubmit)}
+        >
+          <FormField<WriteGreetingFormValues, 'greeting'>
+            name="greeting"
+            label="나에 대한 소개 혹은 지원동기를 작성해주세요."
+            direction="vertical"
+            required
+          >
+            <TextAreaInput
+              id="greeting"
+              placeholder="안녕하세요. 함께 성장하고 싶은 마음으로 스터디에 참여하게 되었습니다.&#13;&#10;혼자 공부할 때보다 서로의 경험과 피드백을 나누며 더 깊이 배우고 싶어요. 잘 부탁드립니다 :)"
+              minLength={20}
+              maxLength={500}
+              className="h-[216px]"
+            />
+          </FormField>
         </form>
       </Modal.Body>
 
@@ -65,10 +95,11 @@ function WriteGreetingForm({ onClose }: { onClose: () => void }) {
           size="large"
           type="submit"
           form="write-greeting"
+          disabled={!formState.isValid || formState.isSubmitting}
         >
           완료
         </Button>
       </Modal.Footer>
-    </>
+    </FormProvider>
   );
 }
