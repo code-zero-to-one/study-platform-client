@@ -7,14 +7,15 @@ import {
   formatYYYYMMDD,
 } from '@/shared/lib/time';
 import { getCookie } from '@/shared/tanstack-query/cookie';
+
 import UserAvatar from '@/shared/ui/avatar';
-import Button from '@/shared/ui/button';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
 import GoldRankIcon from 'public/icons/gold-rank.svg';
 import SealCheckIcon from 'public/icons/seal-check.svg';
 import SilverRankIcon from 'public/icons/silver-rank.svg';
+import WriteGreetingModal from './write-greeting-modal';
 import {
   GroupStudyMember,
   ProgressHistoryItem,
@@ -208,7 +209,7 @@ function GreetingBox({
   if (isMe) {
     return (
       <div className="rounded-100 bg-background-alternative border-border-default flex h-[130px] w-full items-center justify-center border-[1.5px] border-dashed">
-        <Button>작성하기</Button>
+        <WriteGreetingModal />
       </div>
     );
   }
