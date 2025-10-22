@@ -7,6 +7,7 @@ import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
+import { useUpdateGreetingMutation } from '../model/use-write-greeting-mutation';
 
 export default function WriteGreetingModal() {
   const [open, setOpen] = useState<boolean>(false);
@@ -54,9 +55,19 @@ function WriteGreetingForm({ onClose }: { onClose: () => void }) {
 
   const { handleSubmit, formState } = methods;
 
+  // todo: groupStudyId 1로 우선 고정. 수정해야함
+  const { mutate: updateGreeting } = useUpdateGreetingMutation(1);
+
   const onValidSubmit = (values: WriteGreetingFormValues) => {
-    // TODO: 서버 전송 로직 추가
-    onClose();
+    updateGreeting(
+      { content: values.greeting },
+      {
+        onSuccess: () => {
+          alert('가입인사를 작성하였습니다!');
+          onClose();
+        },
+      },
+    );
   };
 
   return (
