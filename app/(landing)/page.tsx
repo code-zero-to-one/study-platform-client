@@ -20,6 +20,7 @@ export default async function Landing() {
         backgroundRepeat: 'no-repeat',
         height: '9972px',
         position: 'relative',
+        width: '100%',
       }}
     >
       <Header />
@@ -28,7 +29,7 @@ export default async function Landing() {
           제로원 시작하기
         </Button>
       </div>
-      <div className="absolute right-[7%] bottom-[5.5%]">
+      <div className="absolute right-[240px] bottom-[825px]">
         <LandingForm />
       </div>
     </div>
