@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-import { useApplicantsByStatusQuery } from '@/features/study/application/model/use-applicant-qeury';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import ProfileCard from './profile-card';
 
 export default function ApplicantList() {

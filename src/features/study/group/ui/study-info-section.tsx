@@ -1,26 +1,4 @@
-import React from 'react';
-import {
-  BasicInfoDetail,
-  GroupStudyDetailResponse,
-} from '../api/group-study-types';
-import { getApplicantsByStatusResponse } from '../../application/api/type';
-
-import Image from 'next/image';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import SummaryStudyInfo from './summary-study-info';
-import UserAvatar from '@/shared/ui/avatar';
-import InfoCard from '@/widgets/study/group/ui/group-detail/InfoCard';
-import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
-import { cn } from '@/shared/shadcn/lib/utils';
-import {
-  EXPERIENCE_LEVEL_LABELS,
-  REGULAR_MEETING_LABELS,
-  ROLE_LABELS,
-  STUDY_METHOD_LABELS,
-  STUDY_STATUS_LABELS,
-  STUDY_TYPE_LABELS,
-} from '../const/group-study-const';
-
+import dayjs from 'dayjs';
 import {
   Calendar,
   Clock,
@@ -33,17 +11,44 @@ import {
   UserCheck,
   Users,
 } from 'lucide-react';
-import dayjs from 'dayjs';
+import Image from 'next/image';
+import React from 'react';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
+import { cn } from '@/shared/shadcn/lib/utils';
+import UserAvatar from '@/shared/ui/avatar';
+import InfoCard from '@/widgets/study/group/ui/group-detail/Info-card';
+import SummaryStudyInfo from './summary-study-info';
+
+import {
+  BasicInfoDetail,
+  GroupStudyDetailResponse,
+} from '../api/group-study-types';
+
+import { useApplicantsByStatusQuery } from '../application/model/use-applicant-qeury';
+import {
+  EXPERIENCE_LEVEL_LABELS,
+  REGULAR_MEETING_LABELS,
+  ROLE_LABELS,
+  STUDY_METHOD_LABELS,
+  STUDY_STATUS_LABELS,
+  STUDY_TYPE_LABELS,
+} from '../const/group-study-const';
 
 interface StudyInfoSectionProps {
   study: GroupStudyDetailResponse;
-  applicants: getApplicantsByStatusResponse;
+  groupStudyId: number;
 }
 
 export default function StudyInfoSection({
   study: studyDetail,
-  applicants,
+  groupStudyId,
 }: StudyInfoSectionProps) {
+  const { data: applicants } = useApplicantsByStatusQuery({
+    groupStudyId,
+    status: 'APPROVED',
+  });
+
   const basicInfoItems = (basicInfo: BasicInfoDetail) => {
     const getDurationText = (startDate: string, endDate: string): string => {
       const start = new Date(startDate);
@@ -155,7 +160,7 @@ export default function StudyInfoSection({
       },
       {
         label: '모집인원',
-        value: `${basicInfo.maxMembersCount}`,
+        value: `${basicInfo.maxMembersCount}명`,
         icon: <Users size={24} color="#A4A7AE" />,
       },
     ];
@@ -198,46 +203,48 @@ export default function StudyInfoSection({
               <span>실시간 신청자 목록</span>
               <span className="text-[#A4A7AE]">{`${studyDetail.basicInfo.approvedCount}명`}</span>
             </div>
+            {applicants?.pages.map((applicant, i) => (
+              <React.Fragment key={i}>
+                {applicant.content.map((data) => {
+                  const temperPreset = getSincerityPresetByLevelName(
+                    data.applicantInfo.sincerityTemp.levelName as string,
+                  );
 
-            {applicants.content.map((applicant) => {
-              const temperPreset = getSincerityPresetByLevelName(
-                applicant.applicantInfo.sincerityTemp.levelName as string,
-              );
-
-              return (
-                <div
-                  key={applicant.applyId}
-                  className="rounded-100 border-border-subtle flex h-[100px] w-[382px] items-center justify-between gap-150 border px-200 py-300"
-                >
-                  <UserAvatar size={48} image={undefined} />
-                  <div className="flex min-w-0 flex-1 flex-col">
-                    <div className="flex flex-row items-center gap-50">
-                      <div className="font-designer-16b">
-                        {applicant.applicantInfo.memberName}
+                  return (
+                    <div
+                      key={data.applyId}
+                      className="rounded-100 border-border-subtle flex h-[100px] w-[382px] items-center justify-between gap-150 border px-200 py-300"
+                    >
+                      <UserAvatar size={48} image={undefined} />
+                      <div className="flex min-w-0 flex-1 flex-col">
+                        <div className="flex flex-row items-center gap-50">
+                          <div className="font-designer-16b">
+                            {data.applicantInfo.memberName}
+                          </div>
+                          <span
+                            className={cn(
+                              'font-designer-13r rounded-full px-150 py-50 leading-250',
+                              temperPreset.bgClass,
+                              temperPreset.textClass,
+                            )}
+                          >
+                            {`${data.applicantInfo.sincerityTemp.temperature}`}℃
+                          </span>
+                        </div>
                       </div>
-                      <span
-                        className={cn(
-                          'font-designer-13r rounded-full px-150 py-50 leading-250',
-                          temperPreset.bgClass,
-                          temperPreset.textClass,
-                        )}
-                      >
-                        {`${applicant.applicantInfo.sincerityTemp.temperature}`}{' '}
-                        ℃
-                      </span>
+                      <UserProfileModal
+                        memberId={1}
+                        trigger={
+                          <div className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50">
+                            프로필
+                          </div>
+                        }
+                      />
                     </div>
-                  </div>
-                  <UserProfileModal
-                    memberId={1}
-                    trigger={
-                      <div className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50">
-                        프로필
-                      </div>
-                    }
-                  />
-                </div>
-              );
-            })}
+                  );
+                })}
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </div>

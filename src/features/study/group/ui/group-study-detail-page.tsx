@@ -1,12 +1,11 @@
 'use client';
 
-import { useApplicantsByStatusQuery } from '@/features/study/application/model/use-applicant-qeury';
 import { useState } from 'react';
 
-import MoreMenu from '@/shared/ui/dropdown/moreMenu';
+import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import Tabs from '@/shared/ui/tabs';
-import { useGroupStudyDetailQuery } from '../model/use-study-query';
 import StudyInfoSection from './study-info-section';
+import { useGroupStudyDetailQuery } from '../model/use-study-query';
 
 export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
   const [active, setActive] = useState('intro');
@@ -19,11 +18,6 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
-
-  const { data: applicants } = useApplicantsByStatusQuery({
-    groupStudyId,
-    status: 'APPROVED',
-  });
 
   if (isLoading) return;
 
@@ -49,10 +43,7 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
       {/** 탭리스트 */}
       <Tabs tabs={tabs} activeTab={active} onChange={setActive} />
       {active === 'intro' && (
-        <StudyInfoSection
-          study={studyDetail!}
-          applicants={applicants.pages[0]}
-        />
+        <StudyInfoSection study={studyDetail!} groupStudyId={groupStudyId} />
       )}
       {active === 'members' && <div>참가자 목록</div>}
       {active === 'channel' && <div>채널 내용</div>}

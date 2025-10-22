@@ -54,14 +54,14 @@ export interface ImageSizeType {
 }
 
 // api DTO
-export interface getApplicantsByStatusRequest {
+export interface GetApplicantsByStatusRequest {
   groupStudyId: number;
   page: number;
   size: number;
   status: ApplyStatus;
 }
 
-export interface getApplicantsByStatusResponse {
+export interface GetApplicantsByStatusResponse {
   content: GroupStudyApply[];
   page: number;
   size: number;
@@ -71,7 +71,7 @@ export interface getApplicantsByStatusResponse {
   hasPrevious: boolean;
 }
 
-export interface updateApplicantByStatusRequest {
+export interface UpdateApplicantByStatusRequest {
   applyId: number;
   groupStudyId: number;
   status?: ApplyStatus;

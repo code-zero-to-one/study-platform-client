@@ -1,11 +1,11 @@
 'use client';
 import { useInfiniteQuery } from '@tanstack/react-query';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import React, { Fragment } from 'react';
 import Badge from '@/shared/ui/badge';
 import { getGroupStudyList } from '../api/get-group-study-list';
 
-import { useRouter } from 'next/navigation';
 import { BasicInfoDetail } from '../api/group-study-types';
 import {
   EXPERIENCE_LEVEL_LABELS,
@@ -16,7 +16,7 @@ import {
 
 export default function GroupStudyList() {
   const router = useRouter();
-  const { data, fetchNextPage } = useInfiniteQuery({
+  const { data } = useInfiniteQuery({
     queryKey: ['groupStudies'],
     queryFn: async ({ pageParam }) => {
       const response = await getGroupStudyList({

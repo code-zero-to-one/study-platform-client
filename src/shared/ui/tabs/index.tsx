@@ -1,5 +1,5 @@
-import { cn } from '@/shared/shadcn/lib/utils';
 import React from 'react';
+import { cn } from '@/shared/shadcn/lib/utils';
 
 interface TabItem {
   label: string;
@@ -26,7 +26,7 @@ export default function Tabs({
   return (
     <div
       className={cn(
-        'border-border-subtle flex w-full gap-200 border-b-[1px]',
+        'border-border-subtle flex w-full cursor-pointer gap-200 border-b-[1px]',
         className,
       )}
     >
@@ -36,7 +36,7 @@ export default function Tabs({
           type="button"
           onClick={() => onChange(tab.value)}
           className={cn(
-            'font-designer-16b transition-color cursor-pointer border-b-2 p-150',
+            'font-designer-16b transition-color border-b-2 p-150',
             activeTab === tab.value
               ? 'border-primary text-primary text-[#181D27]'
               : 'border-transparent text-[#D5D7DA] hover:text-[#535862]',
