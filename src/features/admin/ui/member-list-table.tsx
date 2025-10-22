@@ -223,8 +223,7 @@ export default function MemberListTable() {
           className="mt-200"
           page={page}
           onChangePage={setPage}
-          totalPages={data?.totalPages}
-          middleButtonCount={4}
+          totalPages={data?.totalPages || 1}
         />
       </div>
     </>
