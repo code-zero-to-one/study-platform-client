@@ -162,3 +162,48 @@ export interface GroupStudyDetailResponse {
   detailInfo: DetailInfoDetail; // DetailInfo 확장
   interviewPost: InterviewPostDetail; // InterviewPost 확장
 }
+
+// 그룹 스터디 참여자 목록 API 타입
+export interface GroupStudyMembersRequest {
+  id: number;
+  pageNumber?: number;
+  pageSize?: number;
+}
+
+export interface GroupStudyMembersResponse {
+  pageSize: number;
+  pageNumber: number;
+  totalCount: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+  members: GroupStudyMember[];
+}
+
+export interface GroupStudyMember {
+  id: number;
+  profileImageUrl: string | null;
+  memberName: string;
+  progress: MemberProgress;
+  ranking: number;
+  greeting: string | null;
+  lastAccessedAt: string; // ISO datetime string
+}
+
+export interface MemberProgress {
+  score: number;
+  progressHistory: ProgressHistoryItem[];
+}
+
+export interface ProgressHistoryItem {
+  id: number;
+  acquiredAt: string; // ISO datetime string
+  grade: Grade;
+  reason: string;
+}
+
+export interface Grade {
+  id: number;
+  code: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
+  name: string; // e.g. "Great", "Cheer up"
+  score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
+}

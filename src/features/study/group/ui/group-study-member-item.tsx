@@ -15,45 +15,10 @@ import CaretUpIcon from 'public/icons/caret-up.svg';
 import GoldRankIcon from 'public/icons/gold-rank.svg';
 import SealCheckIcon from 'public/icons/seal-check.svg';
 import SilverRankIcon from 'public/icons/silver-rank.svg';
-
-// todo API 폴더 쪽으로 이동
-export interface GroupStudyMembersResponse {
-  pageSize: number;
-  pageNumber: number;
-  totalCount: number;
-  hasPrevious: boolean;
-  hasNext: boolean;
-  members: GroupStudyMember[];
-}
-
-export interface GroupStudyMember {
-  id: number;
-  profileImageUrl: string | null;
-  memberName: string;
-  progress: MemberProgress;
-  ranking: number;
-  greeting: string | null;
-  lastAccessedAt: string; // ISO datetime string
-}
-
-export interface MemberProgress {
-  score: number;
-  progressHistory: ProgressHistoryItem[];
-}
-
-export interface ProgressHistoryItem {
-  id: number;
-  acquiredAt: string; // ISO datetime string
-  grade: Grade;
-  reason: string;
-}
-
-export interface Grade {
-  id: number;
-  code: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
-  name: string; // e.g. "Great", "Cheer up"
-  score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
-}
+import {
+  GroupStudyMember,
+  ProgressHistoryItem,
+} from '../api/group-study-types';
 
 export default function GroupStudyMemberItem(member: GroupStudyMember) {
   const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
