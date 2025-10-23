@@ -2,11 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
+import {
+  DeleteGroupStudyMemberFormSchema,
+  DeleteGroupStudyMemberFormValues,
+} from '../model/delete-group-study-member-form.schema';
 import { useDeleteGroupStudyMemberMutation } from '../model/use-delete-group-study-member';
 
 interface DeleteGroupStudyMemberModalProps {
@@ -48,14 +51,6 @@ export default function DeleteGroupStudyMemberModal({
     </Modal.Root>
   );
 }
-
-const DeleteGroupStudyMemberFormSchema = z.object({
-  reason: z.string().nonempty('내보내는 사유를 작성해 주세요.'),
-});
-
-type DeleteGroupStudyMemberFormValues = z.infer<
-  typeof DeleteGroupStudyMemberFormSchema
->;
 
 function DeleteGroupStudyMemberForm({
   groupStudyId,
