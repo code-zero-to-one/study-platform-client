@@ -159,6 +159,8 @@ const renderGradeIcon = (code: ProgressHistoryItem['grade']['code']) => {
           <SealCheckIcon className="text-text-inverse" width={24} height={24} />
         </div>
       );
+    default:
+      return null;
   }
 };
 
