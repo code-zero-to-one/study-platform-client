@@ -24,6 +24,10 @@ export default function SubComments({
           <p>{subComment.content}</p>
         </div>
       ))}
+      <input />
+      {/**
+       * 여기서 댓글 작성하면 create만들면 useThreadsQuery refetch
+       */}
     </div>
   );
 }

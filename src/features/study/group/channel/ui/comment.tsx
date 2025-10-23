@@ -12,7 +12,6 @@ export default function Comments({ groupStudyId }: CommentProps) {
   if (isLoading) {
     return;
   }
-  console.log('data', data);
 
   return (
     <div>
@@ -25,6 +24,11 @@ export default function Comments({ groupStudyId }: CommentProps) {
           />
         </div>
       ))}
+
+      <input />
+      {/**
+       * 여기서 댓글 작성하면 create만들면 useThreadsQuery refetch
+       */}
     </div>
   );
 }
