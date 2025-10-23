@@ -9,6 +9,10 @@ import { z } from 'zod';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { Modal } from '@/shared/ui/modal';
+import {
+  ApplyGroupStudyFormData,
+  ApplyGroupStudyFormSchema,
+} from '../model/apply-group-study-form.schema';
 import { useApplyGroupStudyMutation } from '../model/use-apply-group-study';
 
 interface ApplyGroupStudyModalProps {
@@ -53,17 +57,6 @@ export default function ApplyGroupStudyModal({
     </Modal.Root>
   );
 }
-
-const ApplyGroupStudyFormSchema = z.object({
-  answer: z.array(
-    z.string().min(1, '답변을 작성해주세요.'), // 각 항목에 최소 1글자 이상
-  ),
-  agree: z
-    .boolean()
-    .refine((val) => val === true, { message: '참여 규칙에 동의해야 합니다.' }),
-});
-
-type ApplyGroupStudyFormData = z.infer<typeof ApplyGroupStudyFormSchema>;
 
 function ApplyGroupStudyForm({
   groupStudyId,
