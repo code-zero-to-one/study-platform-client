@@ -30,7 +30,7 @@ export default function SummaryStudyInfo({
             className="flex items-center gap-100 border-[#E7E8EA]"
           >
             <div className="flex items-center">{item.icon}</div>
-            <span className="text-400 font-designer-15m truncate overflow-hidden text-ellipsis whitespace-nowrap">
+            <span className="font-designer-15m text-text-subtle truncate overflow-hidden text-ellipsis whitespace-nowrap">
               {item.value}
             </span>
           </div>
