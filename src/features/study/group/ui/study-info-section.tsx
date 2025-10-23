@@ -17,7 +17,8 @@ import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import UserAvatar from '@/shared/ui/avatar';
-import InfoCard from '@/widgets/study/group/ui/group-detail/Info-card';
+
+import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
 import SummaryStudyInfo from './summary-study-info';
 
 import {
