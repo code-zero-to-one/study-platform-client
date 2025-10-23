@@ -27,7 +27,7 @@ export default function GroupStudyMemberItem(member: GroupStudyMember) {
   const isMe = member.id === Number(getCookie('memberId'));
 
   return (
-    <div className="border-border-default rounded-150 flex border">
+    <li className="border-border-default rounded-150 flex border">
       <div
         className={`border-r-border-default flex flex-col items-center gap-200 border-r p-400 ${isMe ? 'bg-background-accent-rose-subtle' : 'bg-background-alternative'} rounded-tl-150 rounded-bl-150 w-[240px] shrink-0`}
       >
@@ -104,7 +104,7 @@ export default function GroupStudyMemberItem(member: GroupStudyMember) {
           )}
         </div>
       </div>
-    </div>
+    </li>
   );
 }
 
