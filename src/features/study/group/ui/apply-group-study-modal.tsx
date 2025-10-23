@@ -5,7 +5,6 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { useController, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { Modal } from '@/shared/ui/modal';
@@ -73,7 +72,7 @@ function ApplyGroupStudyForm({
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isValid, isSubmitting },
   } = useForm<ApplyGroupStudyFormData>({
     resolver: zodResolver(ApplyGroupStudyFormSchema),
     defaultValues: {
@@ -210,6 +209,7 @@ function ApplyGroupStudyForm({
           size="large"
           type="submit"
           form="apply-group-study"
+          disabled={!isValid || isSubmitting}
         >
           신청하기
         </Button>
