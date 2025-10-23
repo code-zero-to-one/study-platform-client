@@ -10,8 +10,6 @@ export const getGroupStudyDetail = async (
 ): Promise<GroupStudyDetailResponse> => {
   const { groupStudyId } = params;
 
-  console.log('groupStudyId', groupStudyId);
-
   try {
     const { data } = await axiosInstance.get(`/group-studies/${groupStudyId}`);
 
@@ -19,8 +17,9 @@ export const getGroupStudyDetail = async (
       throw new Error('Failed to fetch group study list');
     }
 
-    console.log('data', data);
-
     return data.content;
-  } catch (err) {}
+  } catch (err) {
+    console.error('Error in getGroupStudyDetail:', err);
+    throw err;
+  }
 };

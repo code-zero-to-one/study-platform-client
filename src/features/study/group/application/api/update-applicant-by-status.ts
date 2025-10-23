@@ -1,9 +1,9 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { updateApplicantByStatusRequest } from './type';
+import { UpdateApplicantByStatusRequest } from './type';
 
 // 스터디 신청자 상태 변경
 export const updateApplicantByStatus = async (
-  params: updateApplicantByStatusRequest,
+  params: UpdateApplicantByStatusRequest,
 ) => {
   const { status, groupStudyId, applyId } = params;
 
