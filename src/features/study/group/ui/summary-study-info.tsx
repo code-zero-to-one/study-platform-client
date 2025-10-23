@@ -19,9 +19,9 @@ export default function SummaryStudyInfo({
       <p className="font-designer-18b">{title}</p>
       <div className="my-300 h-[1px] w-full bg-[#D5D7DA]" />
       <div className="grid grid-cols-2 grid-rows-2 gap-200">
-        {data.map((item, index) => (
+        {data.map((item) => (
           <div
-            key={index}
+            key={item.label}
             className="flex items-center gap-100 border-[#E7E8EA]"
           >
             <div className="flex items-center">{item.icon}</div>
