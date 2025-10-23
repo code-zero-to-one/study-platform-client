@@ -10,7 +10,7 @@ export const getGroupStudyMemberList = async ({
   pageNumber,
   pageSize,
 }: GroupStudyMembersRequest): Promise<GroupStudyMembersResponse> => {
-  const isPaging = pageNumber && pageSize ? true : false;
+  const isPaging = !!(pageNumber && pageSize);
   const res = await axiosInstance.get(`/group-studies/${id}/members`, {
     params: isPaging ? { pageNumber, pageSize, isPaging } : { isPaging },
   });
