@@ -186,10 +186,10 @@ export default function StudyInfoSection({
             <p className="font-designer-20b">기본 정보</p>
             {/* <div>프로필박스</div> */}
             <div className="grid grid-cols-4 grid-rows-3 gap-150">
-              {basicInfoItems(studyDetail?.basicInfo).map((item, index) => {
+              {basicInfoItems(studyDetail?.basicInfo).map((item) => {
                 return (
                   <InfoCard
-                    key={index}
+                    key={`${item.label}-${item.value}`}
                     title={item.label}
                     value={item.value}
                     icon={item.icon}
