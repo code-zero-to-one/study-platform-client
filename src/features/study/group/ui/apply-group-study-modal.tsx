@@ -15,20 +15,20 @@ interface ApplyGroupStudyModalProps {
   groupStudyId: number;
   title: string;
   questions: string[];
+  trigger: React.ReactNode;
 }
 
 export default function ApplyGroupStudyModal({
   groupStudyId,
   title,
   questions,
+  trigger,
 }: ApplyGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
-      <Modal.Trigger asChild>
-        <Button size="large">신청하기</Button>
-      </Modal.Trigger>
+      <Modal.Trigger asChild>{trigger}</Modal.Trigger>
 
       <Modal.Portal>
         <Modal.Overlay />

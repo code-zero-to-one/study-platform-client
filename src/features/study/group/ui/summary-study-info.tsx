@@ -1,5 +1,6 @@
 import React from 'react';
 import Button from '@/shared/ui/button';
+import ApplyGroupStudyModal from './apply-group-study-modal';
 
 interface SummaryStudyInfoProps {
   data: {
@@ -8,11 +9,15 @@ interface SummaryStudyInfoProps {
     icon: React.ReactNode;
   }[];
   title: string;
+  groupStudyId: number;
+  questions: string[];
 }
 
 export default function SummaryStudyInfo({
   data,
   title,
+  groupStudyId,
+  questions,
 }: SummaryStudyInfoProps) {
   return (
     <div className="rounded-150 flex w-[335px] flex-col self-start border-[1px] border-[#D5D7DA] p-300">
@@ -33,9 +38,17 @@ export default function SummaryStudyInfo({
       </div>
 
       <div className="mt-500 flex flex-col gap-100">
-        <Button size="large" color="primary" className="h-[48px]">
-          신청하기
-        </Button>
+        <ApplyGroupStudyModal
+          groupStudyId={groupStudyId}
+          title={title}
+          questions={questions}
+          trigger={
+            <Button size="large" color="primary" className="h-[48px]">
+              신청하기
+            </Button>
+          }
+        />
+
         <Button
           color="secondary"
           size="large"
