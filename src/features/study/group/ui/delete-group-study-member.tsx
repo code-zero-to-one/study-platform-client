@@ -52,15 +52,17 @@ export default function DeleteGroupStudyMemberModal({
   );
 }
 
+interface DeleteGroupStudyMemberFormProps {
+  groupStudyId: number;
+  targetMemberId: number;
+  onClose: () => void;
+}
+
 function DeleteGroupStudyMemberForm({
   groupStudyId,
   targetMemberId,
   onClose,
-}: {
-  groupStudyId: number;
-  targetMemberId: number;
-  onClose: () => void;
-}) {
+}: DeleteGroupStudyMemberFormProps) {
   const methods = useForm<DeleteGroupStudyMemberFormValues>({
     resolver: zodResolver(DeleteGroupStudyMemberFormSchema),
     mode: 'onChange',
