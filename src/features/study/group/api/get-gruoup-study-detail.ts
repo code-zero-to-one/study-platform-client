@@ -18,5 +18,8 @@ export const getGroupStudyDetail = async (
     }
 
     return data.content;
-  } catch (err) {}
+  } catch (err) {
+    console.error('Error in getGroupStudyDetail:', err);
+    throw err;
+  }
 };
