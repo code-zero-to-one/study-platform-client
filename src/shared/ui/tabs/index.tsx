@@ -36,7 +36,7 @@ export default function Tabs({
           type="button"
           onClick={() => onChange(tab.value)}
           className={cn(
-            'font-designer-16b transition-color border-b-2 p-150',
+            'font-designer-16b transition-colors border-b-2 p-150',
             activeTab === tab.value
               ? 'border-primary text-primary text-[#181D27]'
               : 'border-transparent text-[#D5D7DA] hover:text-[#535862]',
