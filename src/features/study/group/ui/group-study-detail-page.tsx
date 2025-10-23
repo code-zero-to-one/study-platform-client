@@ -7,8 +7,10 @@ import Tabs from '@/shared/ui/tabs';
 import StudyInfoSection from './study-info-section';
 import { useGroupStudyDetailQuery } from '../model/use-study-query';
 
+type ActiveTab = 'intro' | 'members' | 'channel';
+
 export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
-  const [active, setActive] = useState('intro');
+  const [active, setActive] = useState<ActiveTab>('intro');
 
   const tabs = [
     { label: '스터디 소개', value: 'intro' },
@@ -41,7 +43,11 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
       </div>
 
       {/** 탭리스트 */}
-      <Tabs tabs={tabs} activeTab={active} onChange={setActive} />
+      <Tabs
+        tabs={tabs}
+        activeTab={active}
+        onChange={(value: ActiveTab) => setActive(value)}
+      />
       {active === 'intro' && (
         <StudyInfoSection study={studyDetail!} groupStudyId={groupStudyId} />
       )}
