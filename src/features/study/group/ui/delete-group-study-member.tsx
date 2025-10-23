@@ -7,12 +7,19 @@ import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
+import { useDeleteGroupStudyMemberMutation } from '../model/use-delete-group-study-member';
+
+interface DeleteGroupStudyMemberModalProps {
+  groupStudyId: number;
+  targetMemberId: number;
+  trigger: React.ReactNode;
+}
 
 export default function DeleteGroupStudyMemberModal({
+  groupStudyId,
+  targetMemberId,
   trigger,
-}: {
-  trigger: React.ReactNode;
-}) {
+}: DeleteGroupStudyMemberModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
@@ -31,7 +38,11 @@ export default function DeleteGroupStudyMemberModal({
             </Modal.Close>
           </Modal.Header>
 
-          <DeleteGroupStudyMemberForm onClose={() => setOpen(false)} />
+          <DeleteGroupStudyMemberForm
+            groupStudyId={groupStudyId}
+            targetMemberId={targetMemberId}
+            onClose={() => setOpen(false)}
+          />
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
@@ -46,7 +57,15 @@ type DeleteGroupStudyMemberFormValues = z.infer<
   typeof DeleteGroupStudyMemberFormSchema
 >;
 
-function DeleteGroupStudyMemberForm({ onClose }: { onClose: () => void }) {
+function DeleteGroupStudyMemberForm({
+  groupStudyId,
+  targetMemberId,
+  onClose,
+}: {
+  groupStudyId: number;
+  targetMemberId: number;
+  onClose: () => void;
+}) {
   const methods = useForm<DeleteGroupStudyMemberFormValues>({
     resolver: zodResolver(DeleteGroupStudyMemberFormSchema),
     mode: 'onChange',
@@ -55,8 +74,14 @@ function DeleteGroupStudyMemberForm({ onClose }: { onClose: () => void }) {
 
   const { handleSubmit, formState } = methods;
 
+  const { mutate: deleteGroupStudyMember } =
+    useDeleteGroupStudyMemberMutation(groupStudyId);
+
   const onValidSubmit = (values: DeleteGroupStudyMemberFormValues) => {
-    // TODO: 서버 전송 로직 추가
+    deleteGroupStudyMember({
+      reason: values.reason,
+      targetMemberId: targetMemberId,
+    });
     onClose();
   };
 
