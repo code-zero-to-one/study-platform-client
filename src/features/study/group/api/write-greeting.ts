@@ -6,7 +6,7 @@ export const updateMemberGreeting = async ({
   content,
 }: UpdateGreetingRequest) => {
   const res = await axiosInstance.put(
-    `/api/v1/group-studies/${groupStudyId}/members/greeting`,
+    `/group-studies/${groupStudyId}/members/greeting`,
     {
       content,
     },
