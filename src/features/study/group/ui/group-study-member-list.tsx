@@ -28,8 +28,8 @@ export default function GroupStudyMemberList({
       <span className="font-designer-20b text-text-default">스터디 참가자</span>
 
       <ul className="flex flex-col gap-200">
-        {memberList.map((member) => (
-          <GroupStudyMemberItem key={member.id} {...member} />
+        {memberList.map((member, idx) => (
+          <GroupStudyMemberItem key={`${member.id}-${idx}`} {...member} />
         ))}
       </ul>
 
