@@ -21,7 +21,7 @@ export default function GroupStudyMemberList({
 
   const memberList = data?.members || [];
 
-  const totalPages = Math.ceil((data?.totalCount || 0) / PAGE_SIZE);
+  const totalPages = Math.ceil((data?.totalCount || 0) / PAGE_SIZE) || 1;
 
   return (
     <section className="flex flex-col gap-300">
