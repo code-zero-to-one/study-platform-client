@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import {
   formatHHMM,
@@ -8,6 +7,7 @@ import {
   formatYYYYMMDD,
 } from '@/shared/lib/time';
 import { getCookie } from '@/shared/tanstack-query/cookie';
+import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
@@ -33,11 +33,10 @@ export default function GroupStudyMemberItem(member: GroupStudyMember) {
       >
         {/* 사용자 프로필 */}
         <div className="relative inline-block">
-          <Image
-            src={member.profileImageUrl}
+          <UserAvatar
+            image={member.profileImageUrl}
             alt={`${member.memberName} 프로필 이미지`}
-            width={100}
-            height={100}
+            size={100}
             className="border-border-default bg-background-default rounded-full border object-cover"
           />
 
