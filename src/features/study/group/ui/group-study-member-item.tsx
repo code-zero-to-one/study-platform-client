@@ -61,7 +61,7 @@ export default function GroupStudyMemberItem(member: GroupStudyMember) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-300 p-400">
+      <div className="flex flex-1 flex-col gap-300 p-400">
         <div className="text-text-default flex flex-col gap-150">
           <span className="font-designer-16b">가입 인사</span>
 
