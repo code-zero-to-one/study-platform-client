@@ -7,17 +7,86 @@ import { useState } from 'react';
 export default function LandingForm() {
   const [checked, setChecked] = useState<string[]>([]);
   const [type, setType] = useState<string>('NONE');
+  const [email, setEmail] = useState<string>('');
+  const [consultation, setConsultation] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  // 폼 제출 핸들러
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // 유효성 검사
+      if (!email.trim()) {
+        alert('이메일을 입력해주세요.');
+        return;
+      }
+
+      if (type === 'NONE') {
+        alert('직무 유형을 선택해주세요.');
+        return;
+      }
+
+      if (checked.length === 0) {
+        alert('관심 기능을 하나 이상 선택해주세요.');
+        return;
+      }
+
+      if (!checked.includes('AGREE_TERMS_OF_SERVICE')) {
+        alert('개인정보 보호정책에 동의해주세요.');
+        return;
+      }
+
+      // API 호출
+      const response = await fetch('/api/submit-form', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          type,
+          features: checked.filter((item) => item !== 'AGREE_TERMS_OF_SERVICE'),
+          consultation: consultation.trim(),
+          agreeTerms: checked.includes('AGREE_TERMS_OF_SERVICE'),
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('신청이 성공적으로 제출되었습니다!');
+        // 폼 초기화
+        setEmail('');
+        setType('NONE');
+        setChecked([]);
+        setConsultation('');
+      } else {
+        alert(result.error || '오류가 발생했습니다.');
+      }
+    } catch (error) {
+      console.error('폼 제출 오류:', error);
+      alert('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="h-[768px] w-[720px] rounded-[24px] p-[48px] shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className="flex w-full flex-col">
           <div className="mb-[12px] text-[#444444]">
             연락 받을 이메일 주소를 입력해주세요.
           </div>
           <input
-            type="text"
+            type="email"
             placeholder="zeroone@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="h-[60px] w-full rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
+            required
           />
           <div className="mt-[32px] mb-[12px] text-[#444444]">
             어느 분야에서 활동하고 계신가요?
@@ -120,6 +189,8 @@ export default function LandingForm() {
           </div>
           <textarea
             placeholder="Ex) 외주 프로젝트에 참여하고 싶은데 제로 베이스라 어디서부터 시작해야할지 잘 모르겠어요."
+            value={consultation}
+            onChange={(e) => setConsultation(e.target.value)}
             className="h-[120px] w-full resize-none rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] text-[16px] placeholder:text-[#999999]"
           />
           <div className="mt-[24px] flex flex-row gap-[11px]">
@@ -142,9 +213,12 @@ export default function LandingForm() {
               개인정보 보호정책에 동의합니다.
             </label>
           </div>
+
           <Button
+            type="submit"
             color="primary"
             className="mt-[60px] h-[60px] w-full rounded-[16px] py-[16px] text-[18px]"
+            disabled={isSubmitting}
           >
             오픈 알림 신청하기
           </Button>

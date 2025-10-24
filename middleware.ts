@@ -60,6 +60,11 @@ const refreshAccessToken = async () => {
 };
 
 export async function middleware(request: NextRequest) {
+  // API 라우트는 미들웨어를 건너뛰기
+  if (request.nextUrl.pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
   const accessToken = request.cookies.get('accessToken')?.value;
   const memberId = request.cookies.get('memberId')?.value;
 
