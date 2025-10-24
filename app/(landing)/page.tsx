@@ -4,6 +4,8 @@ import backgroundImg from '../../public/images/landing_page.png';
 import Button from '@/shared/ui/button';
 import LandingForm from '@/widgets/landing/form';
 import LoginModal from '@/features/auth/ui/login-modal';
+import Image from 'next/image';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -36,6 +38,39 @@ export default async function Landing() {
       </div>
       <div className="absolute right-[240px] bottom-[825px]">
         <LandingForm />
+      </div>
+      <div className="absolute bottom-[128px] left-[50%] flex translate-x-[-50%] items-center gap-[24px]">
+        <Link
+          href="https://www.threads.net/@code_zero_to_one"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Image src="/icons/thread.svg" alt="thread" width={40} height={40} />
+        </Link>
+        <Link
+          href="https://www.instagram.com/code_zero_to_one/"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Image
+            src="/icons/instagram.svg"
+            alt="instagram"
+            width={40}
+            height={40}
+          />
+        </Link>
+        <Link
+          href="https://www.youtube.com/@코드제로투원"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <Image
+            src="/icons/youtube.svg"
+            alt="youtube"
+            width={40}
+            height={40}
+          />
+        </Link>
       </div>
     </div>
   );
