@@ -21,7 +21,14 @@ import {
   ProgressHistoryItem,
 } from '../api/group-study-types';
 
-export default function GroupStudyMemberItem(member: GroupStudyMember) {
+type GroupStudyMemberItemProps = GroupStudyMember & {
+  groupStudyId: number;
+};
+
+export default function GroupStudyMemberItem({
+  groupStudyId,
+  ...member
+}: GroupStudyMemberItemProps) {
   const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
     useState<boolean>(false);
 
@@ -65,7 +72,11 @@ export default function GroupStudyMemberItem(member: GroupStudyMember) {
         <div className="text-text-default flex flex-col gap-150">
           <span className="font-designer-16b">가입 인사</span>
 
-          <GreetingBox id={member.id} greeting={member.greeting} />
+          <GreetingBox
+            id={member.id}
+            greeting={member.greeting}
+            groupStudyId={groupStudyId}
+          />
         </div>
 
         <div className="bg-border-subtle h-[1px] w-full" />
@@ -197,7 +208,10 @@ function ProgressScoreItem({
 function GreetingBox({
   id,
   greeting,
-}: Pick<GroupStudyMember, 'id' | 'greeting'>) {
+  groupStudyId,
+}: Pick<GroupStudyMember, 'id' | 'greeting'> & {
+  groupStudyId: number;
+}) {
   // 가입인사를 작성한 경우
   if (greeting) {
     return <p className="font-designer-15r min-h-[64px]">{greeting}</p>;
@@ -209,7 +223,7 @@ function GreetingBox({
   if (isMe) {
     return (
       <div className="rounded-100 bg-background-alternative border-border-default flex h-[130px] w-full items-center justify-center border-[1.5px] border-dashed">
-        <WriteGreetingModal />
+        <WriteGreetingModal groupStudyId={groupStudyId} />
       </div>
     );
   }

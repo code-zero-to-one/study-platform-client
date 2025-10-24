@@ -29,7 +29,11 @@ export default function GroupStudyMemberList({
 
       <ul className="flex flex-col gap-200">
         {memberList.map((member, idx) => (
-          <GroupStudyMemberItem key={`${member.id}-${idx}`} {...member} />
+          <GroupStudyMemberItem
+            key={`${member.id}-${idx}`}
+            groupStudyId={groupStudyId}
+            {...member}
+          />
         ))}
       </ul>
 

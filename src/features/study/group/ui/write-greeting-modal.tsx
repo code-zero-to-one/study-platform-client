@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
@@ -13,7 +12,13 @@ import {
   WriteGreetingFormValues,
 } from '../model/write-greeting-form.schema';
 
-export default function WriteGreetingModal() {
+interface WriteGreetingModalProps {
+  groupStudyId: number;
+}
+
+export default function WriteGreetingModal({
+  groupStudyId,
+}: WriteGreetingModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
@@ -34,14 +39,22 @@ export default function WriteGreetingModal() {
             </Modal.Close>
           </Modal.Header>
 
-          <WriteGreetingForm onClose={() => setOpen(false)} />
+          <WriteGreetingForm
+            groupStudyId={groupStudyId}
+            onClose={() => setOpen(false)}
+          />
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
   );
 }
 
-function WriteGreetingForm({ onClose }: { onClose: () => void }) {
+interface WriteGreetingFormProps {
+  groupStudyId: number;
+  onClose: () => void;
+}
+
+function WriteGreetingForm({ onClose, groupStudyId }: WriteGreetingFormProps) {
   const methods = useForm<WriteGreetingFormValues>({
     resolver: zodResolver(WriteGreetingFormSchema),
     mode: 'onChange',
@@ -50,8 +63,7 @@ function WriteGreetingForm({ onClose }: { onClose: () => void }) {
 
   const { handleSubmit, formState } = methods;
 
-  // todo: groupStudyId 1로 우선 고정. 수정해야함
-  const { mutate: updateGreeting } = useUpdateGreetingMutation(1);
+  const { mutate: updateGreeting } = useUpdateGreetingMutation(groupStudyId);
 
   const onValidSubmit = (values: WriteGreetingFormValues) => {
     updateGreeting(
@@ -83,7 +95,7 @@ function WriteGreetingForm({ onClose }: { onClose: () => void }) {
               id="greeting"
               placeholder="안녕하세요. 함께 성장하고 싶은 마음으로 스터디에 참여하게 되었습니다.&#13;&#10;혼자 공부할 때보다 서로의 경험과 피드백을 나누며 더 깊이 배우고 싶어요. 잘 부탁드립니다 :)"
               minLength={20}
-              maxLength={500}
+              maxLength={100}
               className="h-[216px]"
             />
           </FormField>
