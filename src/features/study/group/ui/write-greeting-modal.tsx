@@ -8,6 +8,10 @@ import FormField from '@/shared/ui/form/form-field';
 import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import { useUpdateGreetingMutation } from '../model/use-write-greeting-mutation';
+import {
+  WriteGreetingFormSchema,
+  WriteGreetingFormValues,
+} from '../model/write-greeting-form.schema';
 
 export default function WriteGreetingModal() {
   const [open, setOpen] = useState<boolean>(false);
@@ -36,15 +40,6 @@ export default function WriteGreetingModal() {
     </Modal.Root>
   );
 }
-
-const WriteGreetingFormSchema = z.object({
-  greeting: z
-    .string()
-    .min(20, '최소 20자 이상 입력해주세요.')
-    .max(500, '최대 500자까지 입력 가능합니다.'),
-});
-
-type WriteGreetingFormValues = z.infer<typeof WriteGreetingFormSchema>;
 
 function WriteGreetingForm({ onClose }: { onClose: () => void }) {
   const methods = useForm<WriteGreetingFormValues>({
