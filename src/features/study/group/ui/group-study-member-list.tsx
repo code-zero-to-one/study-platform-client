@@ -11,14 +11,17 @@ export default function GroupStudyMemberList({
   groupStudyId,
 }: GroupStudyMemberListProps) {
   const [pageNumber, setPageNumber] = useState<number>(1);
+  const PAGE_SIZE = 10;
 
   const { data } = useGroupStudyMemberListQuery({
     id: groupStudyId,
     pageNumber: pageNumber,
-    pageSize: 10,
+    pageSize: PAGE_SIZE,
   });
 
   const memberList = data?.members || [];
+
+  const totalPages = Math.ceil((data?.totalCount || 0) / PAGE_SIZE);
 
   return (
     <section className="flex flex-col gap-300">
@@ -33,7 +36,7 @@ export default function GroupStudyMemberList({
       <Pagination
         page={pageNumber}
         onChangePage={setPageNumber}
-        totalPages={10} // todo: api에서 총 페이지 수 받아오기 (현재는 임시로 설정)
+        totalPages={totalPages}
       />
     </section>
   );
