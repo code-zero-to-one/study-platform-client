@@ -221,3 +221,8 @@ export interface UpdateProgressScoreRequest {
   gradeId: number;
   reason: string;
 }
+
+// 진행점수 등급 목록 조회 API 타입
+export interface ProgressGradesResponse {
+  grades: Grade[];
+}
