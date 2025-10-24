@@ -213,3 +213,11 @@ export interface UpdateGreetingRequest {
   groupStudyId: number; // 그룹 스터디 ID
   content: string; // 20~100자 문자열
 }
+
+// 진행점수 부여/수정 API 타입
+export interface UpdateProgressScoreRequest {
+  groupStudyId: number;
+  targetMemberId: number;
+  gradeId: number;
+  reason: string;
+}
