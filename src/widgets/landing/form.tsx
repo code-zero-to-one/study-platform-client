@@ -77,7 +77,7 @@ export default function LandingForm() {
     <div className="h-[768px] w-[720px] rounded-[24px] p-[48px] shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
       <form onSubmit={handleSubmit}>
         <div className="flex w-full flex-col">
-          <div className="mb-[12px] text-[#444444]">
+          <div className="font-designer-16m mb-[12px] text-[#444444]">
             연락 받을 이메일 주소를 입력해주세요.
           </div>
           <input
@@ -85,10 +85,10 @@ export default function LandingForm() {
             placeholder="zeroone@email.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="h-[60px] w-full rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
+            className="placeholder:font-designer-16m h-[60px] w-full rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
             required
           />
-          <div className="mt-[32px] mb-[12px] text-[#444444]">
+          <div className="font-designer-16m mt-[32px] mb-[12px] text-[#444444]">
             어느 분야에서 활동하고 계신가요?
           </div>
           <select
@@ -108,9 +108,11 @@ export default function LandingForm() {
             <option value="DESIGNER">프로덕트 디자이너</option>
             <option value="UX_DESIGNER">UX 디자이너</option>
           </select>
-          <div className="mt-[32px] mb-[12px] text-[#444444]">
+          <div className="font-designer-16m mt-[32px] mb-[12px] text-[#444444]">
             제로원에서 사용해보고 싶은 기능은 무엇인가요?
-            <span className="text-[#FF4C4F]"> *복수선택가능</span>
+            <span className="font-designer-14m text-[#FF4C4F]">
+              *복수선택가능
+            </span>
           </div>
 
           <div className="flex flex-row gap-[16px]">
@@ -127,7 +129,10 @@ export default function LandingForm() {
                 }}
                 themeColor="#F63D68"
               />
-              <label htmlFor="STUDY" className="text-[#767676]">
+              <label
+                htmlFor="STUDY"
+                className="font-designer-16m text-[#767676]"
+              >
                 1:1 개인 스터디
               </label>
             </div>
@@ -144,7 +149,10 @@ export default function LandingForm() {
                 }}
                 themeColor="#F63D68"
               />
-              <label htmlFor="GROUP_STUDY" className="text-[#767676]">
+              <label
+                htmlFor="GROUP_STUDY"
+                className="font-designer-16m text-[#767676]"
+              >
                 단체 스터디 그룹
               </label>
             </div>
@@ -161,7 +169,10 @@ export default function LandingForm() {
                 }}
                 themeColor="#F63D68"
               />
-              <label htmlFor="OUTSOURCING" className="text-[#767676]">
+              <label
+                htmlFor="OUTSOURCING"
+                className="font-designer-16m text-[#767676]"
+              >
                 외주 프로젝트
               </label>
             </div>
@@ -178,20 +189,23 @@ export default function LandingForm() {
                 }}
                 themeColor="#F63D68"
               />
-              <label htmlFor="EXPERT_ANSWER" className="text-[#767676]">
+              <label
+                htmlFor="EXPERT_ANSWER"
+                className="font-designer-16m text-[#767676]"
+              >
                 전문가 답변 서비스
               </label>
             </div>
           </div>
 
-          <div className="mt-[32px] mb-[12px] text-[#444444]">
+          <div className="font-designer-16m mt-[32px] mb-[12px] text-[#444444]">
             전문가에게 상담받고 싶은 고민거리가 있으시다면 자유롭게 적어주세요.
           </div>
           <textarea
             placeholder="Ex) 외주 프로젝트에 참여하고 싶은데 제로 베이스라 어디서부터 시작해야할지 잘 모르겠어요."
             value={consultation}
             onChange={(e) => setConsultation(e.target.value)}
-            className="h-[120px] w-full resize-none rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] text-[16px] placeholder:text-[#999999]"
+            className="placeholder:font-designer-16m h-[120px] w-full resize-none rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
           />
           <div className="mt-[24px] flex flex-row gap-[11px]">
             <Checkbox
@@ -209,7 +223,10 @@ export default function LandingForm() {
               themeColor="#F63D68"
             />
 
-            <label htmlFor="AGREE_TERMS_OF_SERVICE" className="text-[#444444]">
+            <label
+              htmlFor="AGREE_TERMS_OF_SERVICE"
+              className="font-designer-14m text-[#444444]"
+            >
               개인정보 보호정책에 동의합니다.
             </label>
           </div>
@@ -217,7 +234,7 @@ export default function LandingForm() {
           <Button
             type="submit"
             color="primary"
-            className="mt-[60px] h-[60px] w-full rounded-[16px] py-[16px] text-[18px]"
+            className="text-font-designer-18m mt-[60px] h-[60px] w-full rounded-[16px] py-[16px]"
             disabled={isSubmitting}
           >
             오픈 알림 신청하기
