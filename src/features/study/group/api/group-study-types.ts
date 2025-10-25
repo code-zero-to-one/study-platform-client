@@ -224,3 +224,13 @@ export interface UpdateGreetingRequest {
   groupStudyId: number; // 그룹 스터디 ID
   content: string; // 20~100자 문자열
 }
+
+// 그룹 스터디 내 상태 조회 API 타입
+export interface GroupStudyMyStatusRequest {
+  groupStudyId: number;
+}
+
+export interface GroupStudyMyStatusResponse {
+  status: ApplicationStatus;
+  reason: string;
+}
