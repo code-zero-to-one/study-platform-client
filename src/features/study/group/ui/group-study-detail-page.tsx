@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import Tabs from '@/shared/ui/tabs';
 import GroupStudyMemberList from './group-study-member-list';
@@ -24,6 +25,10 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
 
   if (isLoading) return;
 
+  // 참가자, 채널 탭 접근 가능 여부 = 스터디 참가자 또는 방장만 가능
+  const isLeader =
+    studyDetail.basicInfo.leader.memberId === Number(getCookie('memberId'));
+
   return (
     <div className="m-auto flex w-full max-w-[1164px] flex-col gap-400 py-500">
       <div className="flex w-full items-start justify-between">
@@ -45,7 +50,7 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
 
       {/** 탭리스트 */}
       <Tabs
-        tabs={tabs}
+        tabs={tabs.filter((tab) => tab.value === 'intro' || isLeader)}
         activeTab={active}
         onChange={(value: ActiveTab) => setActive(value)}
       />
