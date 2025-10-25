@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import React from 'react';
 import UserAvatar from '@/shared/ui/avatar';
+import { Leader } from '../../api/group-study-types';
 
 interface PostProps {
   data: {
@@ -9,8 +10,9 @@ interface PostProps {
     noticeContent: string;
     updatedAt: string;
   };
+  leader: Leader;
 }
-export default function Post({ data }: PostProps) {
+export default function Post({ data, leader }: PostProps) {
   return (
     <div className="flex flex-col border-b-[1px] border-[#D5D7DA]">
       <div className="mb-500 flex flex-col gap-250">
@@ -19,10 +21,13 @@ export default function Post({ data }: PostProps) {
         </p>
 
         <div className="flex gap-150">
-          <UserAvatar size={48} image={undefined} />
+          <UserAvatar
+            size={48}
+            image={leader.profileImage.resizedImages[0].resizedImageUrl}
+          />
           <div className="flex flex-col gap-50">
             <div className="flex gap-50">
-              <span className="font-designer-15b">리더 이름</span>
+              <span className="font-designer-15b">{leader.memberName}</span>
               <div className="text-text-brand font-designer-12m bg-fill-brand-subtle-default rounded-[3px] px-[6px] py-[2.5px]">
                 스터디 리더
               </div>

@@ -1,7 +1,9 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { GetThreadsRequest } from './types';
+import { GetThreadsRequest, GetThreadsResponse } from './types';
 
-export const getThreads = async (param: GetThreadsRequest) => {
+export const getThreads = async (
+  param: GetThreadsRequest,
+): Promise<GetThreadsResponse[]> => {
   const { groupStudyId } = param;
 
   try {
@@ -13,7 +15,7 @@ export const getThreads = async (param: GetThreadsRequest) => {
       throw new Error('Failed to fetch post');
     }
 
-    return data.content;
+    return data.content.content;
   } catch (err) {
     console.error('Error fetching post:', err);
     throw err;

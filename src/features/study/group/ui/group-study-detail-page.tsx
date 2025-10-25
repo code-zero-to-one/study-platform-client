@@ -22,6 +22,8 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
+  console.log('data', studyDetail);
+
   if (isLoading) return;
 
   return (
@@ -53,7 +55,12 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
         <StudyInfoSection study={studyDetail!} groupStudyId={groupStudyId} />
       )}
       {active === 'members' && <div>참가자 목록</div>}
-      {active === 'channel' && <ChannelSection groupStudyId={groupStudyId} />}
+      {active === 'channel' && (
+        <ChannelSection
+          groupStudyId={groupStudyId}
+          leader={studyDetail.basicInfo.leader}
+        />
+      )}
     </div>
   );
 }

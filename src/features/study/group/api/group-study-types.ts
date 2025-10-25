@@ -57,6 +57,25 @@ export interface BasicInfoDetail extends BasicInfo {
   rejectedCount: number;
   kickedCount: number;
   deletedAt: string | null;
+  leader: Leader;
+}
+
+export interface Leader {
+  memberId: number;
+  memberName: string;
+  profileImage: ProfileImage | null;
+  simpleIntroduction: string | null;
+}
+
+export interface ProfileImage {
+  imageId: number;
+  resizedImages: ResizedImage[];
+}
+
+export interface ResizedImage {
+  resizedImageId: number;
+  resizedImageUrl: string;
+  imageSizeType: ImageSizeType;
 }
 
 export interface DetailInfo {
