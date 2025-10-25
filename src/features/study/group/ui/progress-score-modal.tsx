@@ -126,11 +126,12 @@ function ProgressScoreForm({
             helper="진행점수 부여 사유를 작성해 주세요."
             direction="vertical"
             size="medium"
-            counterMax={500}
+            counterMax={100}
+            required
           >
             <TextAreaInput
               placeholder="진행점수 부여 사유를 작성해 주세요."
-              maxLength={500}
+              maxLength={100}
               className="h-[136px]"
             />
           </FormField>
