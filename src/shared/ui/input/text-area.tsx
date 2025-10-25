@@ -1,21 +1,28 @@
+import { cn } from '@/shared/shadcn/lib/utils';
 import { Textarea } from '@/shared/shadcn/ui/textarea';
 
 interface Props {
+  id?: string;
   value?: string;
   placeholder?: string;
   guideText?: string;
+  minLength?: number;
   maxLength?: number;
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   hideMeta?: boolean;
+  className?: string;
 }
 
 function TextAreaInput({
+  id,
   value,
   placeholder,
   guideText,
+  minLength = 0,
   maxLength = 30,
   onChange,
   hideMeta = false,
+  className,
 }: Props) {
   const current = value ?? '';
 
@@ -29,10 +36,15 @@ function TextAreaInput({
   return (
     <div className="flex flex-col gap-75">
       <Textarea
+        id={id}
         placeholder={placeholder}
-        className="rounded-100 border-border-default h-[60px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none"
+        className={cn(
+          'rounded-100 border-border-default h-[60px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none',
+          className,
+        )}
         value={current}
         onChange={handleChange}
+        minLength={minLength}
         maxLength={maxLength}
       />
       {!hideMeta && (

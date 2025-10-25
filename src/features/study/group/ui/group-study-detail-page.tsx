@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import Tabs from '@/shared/ui/tabs';
+import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
 import { useGroupStudyDetailQuery } from '../model/use-study-query';
 
@@ -51,7 +52,9 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
       {active === 'intro' && (
         <StudyInfoSection study={studyDetail!} groupStudyId={groupStudyId} />
       )}
-      {active === 'members' && <div>참가자 목록</div>}
+      {active === 'members' && (
+        <GroupStudyMemberList groupStudyId={groupStudyId} />
+      )}
       {active === 'channel' && <div>채널 내용</div>}
     </div>
   );

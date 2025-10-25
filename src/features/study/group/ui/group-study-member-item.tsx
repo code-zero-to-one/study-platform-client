@@ -1,6 +1,5 @@
 'use client';
 
-import Image from 'next/image';
 import { useState } from 'react';
 import {
   formatHHMM,
@@ -8,36 +7,44 @@ import {
   formatYYYYMMDD,
 } from '@/shared/lib/time';
 import { getCookie } from '@/shared/tanstack-query/cookie';
-import Button from '@/shared/ui/button';
+
+import UserAvatar from '@/shared/ui/avatar';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
 import GoldRankIcon from 'public/icons/gold-rank.svg';
 import SealCheckIcon from 'public/icons/seal-check.svg';
 import SilverRankIcon from 'public/icons/silver-rank.svg';
+import WriteGreetingModal from './write-greeting-modal';
 import {
   GroupStudyMember,
   ProgressHistoryItem,
 } from '../api/group-study-types';
 
-export default function GroupStudyMemberItem(member: GroupStudyMember) {
+type GroupStudyMemberItemProps = GroupStudyMember & {
+  groupStudyId: number;
+};
+
+export default function GroupStudyMemberItem({
+  groupStudyId,
+  ...member
+}: GroupStudyMemberItemProps) {
   const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
     useState<boolean>(false);
 
   const isMe = member.id === Number(getCookie('memberId'));
 
   return (
-    <div className="border-border-default rounded-150 flex border">
+    <li className="border-border-default rounded-150 flex border">
       <div
         className={`border-r-border-default flex flex-col items-center gap-200 border-r p-400 ${isMe ? 'bg-background-accent-rose-subtle' : 'bg-background-alternative'} rounded-tl-150 rounded-bl-150 w-[240px] shrink-0`}
       >
         {/* 사용자 프로필 */}
         <div className="relative inline-block">
-          <Image
-            src={member.profileImageUrl}
+          <UserAvatar
+            image={member.profileImageUrl}
             alt={`${member.memberName} 프로필 이미지`}
-            width={100}
-            height={100}
+            size={100}
             className="border-border-default bg-background-default rounded-full border object-cover"
           />
 
@@ -61,11 +68,15 @@ export default function GroupStudyMemberItem(member: GroupStudyMember) {
         </div>
       </div>
 
-      <div className="flex flex-col gap-300 p-400">
+      <div className="flex flex-1 flex-col gap-300 p-400">
         <div className="text-text-default flex flex-col gap-150">
           <span className="font-designer-16b">가입 인사</span>
 
-          <GreetingBox id={member.id} greeting={member.greeting} />
+          <GreetingBox
+            id={member.id}
+            greeting={member.greeting}
+            groupStudyId={groupStudyId}
+          />
         </div>
 
         <div className="bg-border-subtle h-[1px] w-full" />
@@ -104,7 +115,7 @@ export default function GroupStudyMemberItem(member: GroupStudyMember) {
           )}
         </div>
       </div>
-    </div>
+    </li>
   );
 }
 
@@ -197,7 +208,10 @@ function ProgressScoreItem({
 function GreetingBox({
   id,
   greeting,
-}: Pick<GroupStudyMember, 'id' | 'greeting'>) {
+  groupStudyId,
+}: Pick<GroupStudyMember, 'id' | 'greeting'> & {
+  groupStudyId: number;
+}) {
   // 가입인사를 작성한 경우
   if (greeting) {
     return <p className="font-designer-15r min-h-[64px]">{greeting}</p>;
@@ -209,7 +223,7 @@ function GreetingBox({
   if (isMe) {
     return (
       <div className="rounded-100 bg-background-alternative border-border-default flex h-[130px] w-full items-center justify-center border-[1.5px] border-dashed">
-        <Button>작성하기</Button>
+        <WriteGreetingModal groupStudyId={groupStudyId} />
       </div>
     );
   }

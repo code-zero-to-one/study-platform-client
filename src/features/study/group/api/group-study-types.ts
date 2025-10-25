@@ -207,3 +207,9 @@ export interface Grade {
   name: string; // e.g. "Great", "Cheer up"
   score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
 }
+
+// 가입인사 작성&수정 API 타입
+export interface UpdateGreetingRequest {
+  groupStudyId: number; // 그룹 스터디 ID
+  content: string; // 20~100자 문자열
+}

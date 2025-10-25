@@ -15,5 +15,5 @@ export const getGroupStudyMemberList = async ({
     params: isPaging ? { pageNumber, pageSize, isPaging } : { isPaging },
   });
 
-  return res.data;
+  return res.data.content;
 };
