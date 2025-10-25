@@ -229,7 +229,7 @@ function ProgressScoreItem({
 
           <div className="bg-border-subtle h-[12px] w-[1px]" />
 
-          <span>{reason}</span>
+          <p className="break-all">{reason}</p>
         </div>
 
         <span className="font-designer-13r text-text-subtlest">{`${formatYYYYMMDD(acquiredAt, 'dot')} ${formatHHMM(acquiredAt)}`}</span>
