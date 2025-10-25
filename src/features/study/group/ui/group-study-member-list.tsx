@@ -5,10 +5,12 @@ import { useGroupStudyMemberListQuery } from '../model/use-group-study-member-li
 
 interface GroupStudyMemberListProps {
   groupStudyId: number;
+  leaderId: number;
 }
 
 export default function GroupStudyMemberList({
   groupStudyId,
+  leaderId,
 }: GroupStudyMemberListProps) {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const PAGE_SIZE = 10;
@@ -32,6 +34,7 @@ export default function GroupStudyMemberList({
           <GroupStudyMemberItem
             key={`${member.id}-${idx}`}
             groupStudyId={groupStudyId}
+            leaderId={leaderId}
             {...member}
           />
         ))}

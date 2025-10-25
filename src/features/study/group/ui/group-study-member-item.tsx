@@ -25,10 +25,12 @@ import {
 
 type GroupStudyMemberItemProps = GroupStudyMember & {
   groupStudyId: number;
+  leaderId: number;
 };
 
 export default function GroupStudyMemberItem({
   groupStudyId,
+  leaderId,
   ...member
 }: GroupStudyMemberItemProps) {
   const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
@@ -37,7 +39,9 @@ export default function GroupStudyMemberItem({
   const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
     useState<boolean>(false);
 
-  const isMe = member.id === Number(getCookie('memberId'));
+  const myId = Number(getCookie('memberId'));
+  const isMe = member.id === myId;
+  const isLeader = leaderId === myId;
 
   return (
     <li className="border-border-default rounded-150 flex border">
@@ -77,24 +81,28 @@ export default function GroupStudyMemberItem({
         <div className="text-text-default flex flex-col gap-150">
           <div className="flex items-center justify-between">
             <span className="font-designer-16b">가입 인사</span>
-            <MoreMenu
-              iconSize={24}
-              options={[
-                {
-                  label: '평가하기',
-                  value: 'edit',
-                  onMenuClick: () => {
-                    setIsProgressScoreModalOpen(true);
-                  },
-                },
-              ]}
-            />
-            <ProgressScoreModal
-              isOpen={isProgressScoreModalOpen}
-              setIsOpen={setIsProgressScoreModalOpen}
-              groupStudyId={groupStudyId}
-              targetMemberId={member.id}
-            />
+            {isLeader && (
+              <>
+                <MoreMenu
+                  iconSize={24}
+                  options={[
+                    {
+                      label: '평가하기',
+                      value: 'edit',
+                      onMenuClick: () => {
+                        setIsProgressScoreModalOpen(true);
+                      },
+                    },
+                  ]}
+                />
+                <ProgressScoreModal
+                  isOpen={isProgressScoreModalOpen}
+                  setIsOpen={setIsProgressScoreModalOpen}
+                  groupStudyId={groupStudyId}
+                  targetMemberId={member.id}
+                />
+              </>
+            )}
           </div>
 
           <GreetingBox

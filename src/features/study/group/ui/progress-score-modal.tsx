@@ -7,7 +7,7 @@ import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
-import { BaseInput, TextAreaInput } from '@/shared/ui/input';
+import { TextAreaInput } from '@/shared/ui/input';
 import { Modal } from '@/shared/ui/modal';
 import { GroupItems } from '@/shared/ui/toggle';
 import { Grade, UpdateProgressScoreRequest } from '../api/group-study-types';
@@ -16,6 +16,7 @@ import {
   ProgressScoreFormValues,
 } from '../model/progress-score-form.schema';
 import { useProgressGradesQuery } from '../model/use-progress-grades-query';
+import { useUpdateProgressScoreMutation } from '../model/use-update-progress-score';
 
 interface ProgressScoreModalModalProps
   extends Pick<UpdateProgressScoreRequest, 'targetMemberId' | 'groupStudyId'> {
@@ -78,10 +79,18 @@ function ProgressScoreForm({
   });
   const { handleSubmit, formState } = methods;
 
+  const { mutate: grantProgressScore } =
+    useUpdateProgressScoreMutation(groupStudyId);
+
   const onSubmit = (values: ProgressScoreFormValues) => {
-    // TODO: 서버에 gradeId와 reason을 전송하는 API 호출
-    // 예시: await grantProgressScore({ groupStudyId, ...values })
-    onClose();
+    grantProgressScore(
+      { groupStudyId, targetMemberId, ...values },
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      },
+    );
   };
 
   const gradeOptions = (data?.grades ?? []).map((grade: Grade) => ({
