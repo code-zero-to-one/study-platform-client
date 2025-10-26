@@ -2,12 +2,16 @@
 
 import { useState } from 'react';
 
+import { useUser } from '@/features/auth/model/use-user';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import Tabs from '@/shared/ui/tabs';
 import ConfirmDeleteModal from './confirm-delete-modal';
 import StudyInfoSection from './study-info-section';
 import ChannelSection from '../channel/ui/channel-section';
-import { useGroupStudyDetailQuery } from '../model/use-study-query';
+import {
+  useDeleteGroupStudyMutation,
+  useGroupStudyDetailQuery,
+} from '../model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
 
@@ -17,6 +21,7 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
   const [active, setActive] = useState<ActiveTab>('intro');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
+  const { userId } = useUser();
 
   const tabs = [
     { label: '스터디 소개', value: 'intro' },
@@ -24,8 +29,12 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
     { label: '채널', value: 'channel' },
   ];
 
+  const { mutate: deleteGroupStduy } = useDeleteGroupStudyMutation();
+
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
+
+  console.log('studyDetail', studyDetail);
 
   if (isLoading) return;
 
@@ -55,7 +64,10 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
       ),
       confirmText: '스터디 삭제',
       onConfirm: () => {
-        // deleteStudy({ groupStudyId }, { onSuccess: () => setShowModal(false) });
+        deleteGroupStduy(
+          { groupStudyId },
+          { onSuccess: () => setShowModal(false) },
+        );
         console.log('스터디 삭제 요청:', groupStudyId);
         setShowModal(false);
       },
@@ -82,28 +94,34 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
             {studyDetail?.detailInfo.summary}
           </p>
         </div>
-        <MoreMenu
-          options={[
-            { label: '스터디 수정하기', value: 'edit', onMenuClick: () => {} },
-            {
-              label: '스터디 종료',
-              value: 'end',
-              onMenuClick: () => {
-                setAction('end');
-                setShowModal(true);
+        {userId === studyDetail.basicInfo.leader.memberId && (
+          <MoreMenu
+            options={[
+              {
+                label: '스터디 수정하기',
+                value: 'edit',
+                onMenuClick: () => {},
               },
-            },
-            {
-              label: '스터디 삭제',
-              value: 'delete',
-              onMenuClick: () => {
-                setAction('delete');
-                setShowModal(true);
+              {
+                label: '스터디 종료',
+                value: 'end',
+                onMenuClick: () => {
+                  setAction('end');
+                  setShowModal(true);
+                },
               },
-            },
-          ]}
-          size={35}
-        />
+              {
+                label: '스터디 삭제',
+                value: 'delete',
+                onMenuClick: () => {
+                  setAction('delete');
+                  setShowModal(true);
+                },
+              },
+            ]}
+            size={35}
+          />
+        )}
       </div>
 
       {/** 탭리스트 */}

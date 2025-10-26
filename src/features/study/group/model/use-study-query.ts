@@ -1,5 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { deleteGroupStudy } from '../api/delete-group-study';
 import { getGroupStudyDetail } from '../api/get-gruoup-study-detail';
+import { DeleteGroupStudyRequest } from '../api/group-study-types';
 
 // study-detail
 export const useGroupStudyDetailQuery = (groupStudyId: number) => {
@@ -7,5 +9,12 @@ export const useGroupStudyDetailQuery = (groupStudyId: number) => {
     queryKey: ['groupStudyDetail', groupStudyId],
     queryFn: () => getGroupStudyDetail({ groupStudyId }),
     enabled: !!groupStudyId, // id가 존재할 때만 실행
+  });
+};
+
+//study-delete
+export const useDeleteGroupStudyMutation = () => {
+  return useMutation({
+    mutationFn: (param: DeleteGroupStudyRequest) => deleteGroupStudy(param),
   });
 };

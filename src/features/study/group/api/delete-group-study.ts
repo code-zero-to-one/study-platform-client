@@ -1,12 +1,12 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { GetPostRequest } from './types';
+import { DeleteGroupStudyRequest } from './group-study-types';
 
-export const getPost = async (param: GetPostRequest) => {
+export const deleteGroupStudy = async (param: DeleteGroupStudyRequest) => {
   const { groupStudyId } = param;
 
   try {
-    const { data } = await axiosInstance.get(
-      `group-studies/${groupStudyId}/notice`,
+    const { data } = await axiosInstance.delete(
+      `group-studies/${groupStudyId}`,
     );
 
     if (data.statusCode !== 200) {

@@ -31,7 +31,6 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
       {
         onSuccess: async () => {
           await threadRefetch();
-          console.log('성공');
           // 폼 리셋/알림 등
         },
         onError: (err) => {
@@ -61,7 +60,11 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
             className="border-b-[1px] border-[#D5D7DA] pb-300"
           >
             <div className="flex flex-col gap-200">
-              <Comment data={comment} groupStudyId={groupStudyId} />
+              <Comment
+                mode="thread"
+                data={comment}
+                groupStudyId={groupStudyId}
+              />
               <div className="flex gap-150">
                 <Reaction
                   likesCount={comment.likesCount}

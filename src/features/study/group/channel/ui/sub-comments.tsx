@@ -27,8 +27,6 @@ export default function SubComments({
     refetch: commentsRefetch,
   } = useCommentsQuery(groupStudyId, threadId);
 
-  console.log('data', data);
-
   const [commentText, setCommentText] = useState('');
 
   const { mutate: createComment } = usePostCommentMutation();
@@ -39,7 +37,6 @@ export default function SubComments({
       {
         onSuccess: async () => {
           await commentsRefetch();
-          console.log('성공');
           // 폼 리셋/알림 등
         },
         onError: (err) => {

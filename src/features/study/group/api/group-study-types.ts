@@ -181,3 +181,5 @@ export interface GroupStudyDetailResponse {
   detailInfo: DetailInfoDetail; // DetailInfo 확장
   interviewPost: InterviewPostDetail; // InterviewPost 확장
 }
+
+export type DeleteGroupStudyRequest = GroupStudyDetailRequest;
