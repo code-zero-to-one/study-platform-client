@@ -1,12 +1,12 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { PostCommentRequest } from './types';
+import { PutThreadRequest } from './types';
 
-export const postComment = async (param: PostCommentRequest) => {
-  const { groupStudyId, content, threadId } = param;
+export const putThread = async (param: PutThreadRequest) => {
+  const { groupStudyId, threadId, content } = param;
 
   try {
-    const { data } = await axiosInstance.post(
-      `group-studies/${groupStudyId}/threads/${threadId}/comments`,
+    const { data } = await axiosInstance.put(
+      `group-studies/${groupStudyId}/threads/${threadId}`,
       {
         content,
       },

@@ -4,11 +4,33 @@ interface GroupStudyIdParam {
 
 export type GetPostRequest = GroupStudyIdParam;
 
+export interface GetCommentsRequest extends GroupStudyIdParam {
+  threadId: number;
+}
+
+export interface PostCommentRequest extends GetCommentsRequest {
+  content: string;
+}
+
+export interface PutCommentRequest extends PostCommentRequest {
+  commentId: number;
+}
+
+export interface DeleteCommentRequest extends GetCommentsRequest {
+  commentId: number;
+}
+
 export type GetThreadsRequest = GroupStudyIdParam;
 
-export type PostThreadRequest = GroupStudyIdParam;
+export interface PostThreadRequest extends GroupStudyIdParam {
+  content: string;
+}
 
-export interface GetCommentsRequest extends GroupStudyIdParam {
+export interface PutThreadRequest extends PostThreadRequest {
+  threadId: number;
+}
+
+export interface DeleteThreadReqeust extends GroupStudyIdParam {
   threadId: number;
 }
 

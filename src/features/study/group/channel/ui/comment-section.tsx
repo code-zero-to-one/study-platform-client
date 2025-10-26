@@ -1,20 +1,45 @@
 import { MessageCircle } from 'lucide-react';
 import { useState } from 'react';
-import { useUser } from '@/features/auth/model/use-user';
 import Comment from './comment';
 import CommentInput from './comment-input';
 import Reaction from './reaction';
 import SubComments from './sub-comments';
-import { useThreadsQuery } from '../model/use-channel-query';
+import {
+  usePostThreadMutation,
+  useThreadsQuery,
+} from '../model/use-channel-query';
 
 interface CommentProps {
   groupStudyId: number;
 }
 
 export default function CommentSection({ groupStudyId }: CommentProps) {
-  const { data, isLoading } = useThreadsQuery(groupStudyId);
+  const {
+    data,
+    isLoading,
+    refetch: threadRefetch,
+  } = useThreadsQuery(groupStudyId);
+  const [threadText, setThreadText] = useState('');
 
-  const [showSubComment, setShowSubComment] = useState(false);
+  const [showSubCommentInput, setShowSubCommentInput] = useState(false);
+
+  const { mutate: createThread } = usePostThreadMutation();
+
+  const handleThreadSubmit = (groupStudyId: number, content: string) => {
+    createThread(
+      { groupStudyId, content },
+      {
+        onSuccess: async () => {
+          await threadRefetch();
+          console.log('성공');
+          // 폼 리셋/알림 등
+        },
+        onError: (err) => {
+          console.error(err);
+        },
+      },
+    );
+  };
 
   if (isLoading) {
     return;
@@ -36,14 +61,16 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
             className="border-b-[1px] border-[#D5D7DA] pb-300"
           >
             <div className="flex flex-col gap-200">
-              <Comment data={comment} />
+              <Comment data={comment} groupStudyId={groupStudyId} />
               <div className="flex gap-150">
                 <Reaction
                   likesCount={comment.likesCount}
                   dislikesCount={comment.dislikesCount}
                   myReaction={comment.myReaction}
                 />
-                <span onClick={() => setShowSubComment(!showSubComment)}>
+                <span
+                  onClick={() => setShowSubCommentInput(!showSubCommentInput)}
+                >
                   답글쓰기
                 </span>
               </div>
@@ -53,13 +80,25 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
               <SubComments
                 threadId={comment.threadId}
                 groupStudyId={groupStudyId}
+                showInput={showSubCommentInput}
+                handleShowInput={() =>
+                  setShowSubCommentInput(!showSubCommentInput)
+                }
               />
-              {showSubComment && <CommentInput />}
             </div>
           </div>
         ))}
 
-        <CommentInput />
+        <CommentInput
+          mode="save"
+          content={threadText}
+          onChange={(value) => setThreadText(value)}
+          onConfirm={() => {
+            handleThreadSubmit(groupStudyId, threadText);
+            setThreadText('');
+          }}
+          onCancel={() => setThreadText('')}
+        />
       </div>
     </div>
   );
