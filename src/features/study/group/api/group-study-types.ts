@@ -62,12 +62,32 @@ export interface BasicInfoDetail extends BasicInfo {
   rejectedCount: number;
   kickedCount: number;
   deletedAt: string | null;
+  leader: Leader;
+}
+
+export interface Leader {
+  memberId: number;
+  memberName: string;
+  profileImage: ProfileImage | null;
+  simpleIntroduction: string | null;
+}
+
+export interface ProfileImage {
+  imageId: number;
+  resizedImages: ResizedImage[];
+}
+
+export interface ResizedImage {
+  resizedImageId: number;
+  resizedImageUrl: string;
+  imageSizeType: ImageSizeType;
   leader: {
     memberId: number;
     memberName: string;
     profileImage: string | null;
     simpleIntroduction: string | null;
   };
+
 }
 
 export interface DetailInfo {
@@ -173,6 +193,8 @@ export interface GroupStudyDetailResponse {
   detailInfo: DetailInfoDetail; // DetailInfo 확장
   interviewPost: InterviewPostDetail; // InterviewPost 확장
 }
+
+export type DeleteGroupStudyRequest = GroupStudyDetailRequest;
 
 // 그룹 스터디 참여자 목록 API 타입
 export interface GroupStudyMembersRequest {

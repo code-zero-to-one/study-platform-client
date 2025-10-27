@@ -1,0 +1,24 @@
+import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { PostThreadRequest } from './types';
+
+export const postThread = async (param: PostThreadRequest) => {
+  const { groupStudyId, content } = param;
+
+  try {
+    const { data } = await axiosInstance.post(
+      `group-studies/${groupStudyId}/threads`,
+      {
+        content,
+      },
+    );
+
+    if (data.statusCode !== 200) {
+      throw new Error('Failed to fetch post');
+    }
+
+    return data.content;
+  } catch (err) {
+    console.error('Error fetching post:', err);
+    throw err;
+  }
+};

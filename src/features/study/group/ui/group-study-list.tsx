@@ -126,9 +126,10 @@ export default function GroupStudyList() {
                 </div>
                 <Image
                   src={
-                    'https://test-api.zeroone.it.kr/images/group-study/thumbnails/clean-code-thumbnail.png'
+                    'https://test-api.zeroone.it.kr/images/group-study-thumbnail/a22531ec-7a78-43e7-a9a9-89ef1d1bc72e_1760112290682.jpg'
                   }
                   alt="thumbnail"
+                  className="h-[160px] w-[240px] object-cover"
                   width={240}
                   height={160}
                 />
