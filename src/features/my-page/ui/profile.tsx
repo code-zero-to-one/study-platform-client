@@ -7,7 +7,6 @@ import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
-import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 import Progress from '@/shared/ui/progress';
 import Tooltip from '@/shared/ui/tooltip';
@@ -27,9 +26,12 @@ export default function Profile({
 
   return (
     <div className="flex w-full max-w-[80%] gap-300 px-200">
-      <UserAvatar
-        image={memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl}
-        size={90}
+      <Image
+        src={memberProfile.profileImage?.resizedImages?.[0]?.resizedImageUrl}
+        alt="Profile Image"
+        width={90}
+        height={90}
+        className="h-[90px] w-[90px] rounded-full object-cover"
       />
       <div className="flex flex-grow flex-col gap-400">
         <div className="flex flex-col gap-300">
