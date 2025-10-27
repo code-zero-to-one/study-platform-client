@@ -2,19 +2,18 @@
 
 import { useState } from 'react';
 import { useUser } from '@/features/auth/model/use-user';
+import { getCookie } from '@/shared/tanstack-query/cookie';
+import MoreMenu from '@/shared/ui/dropdown/more-menu';
+import Tabs from '@/shared/ui/tabs';
 import ConfirmDeleteModal from './confirm-delete-modal';
+import GroupStudyMemberList from './group-study-member-list';
+import StudyInfoSection from './study-info-section';
 import ChannelSection from '../channel/ui/channel-section';
+import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 import {
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
 } from '../model/use-study-query';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import MoreMenu from '@/shared/ui/dropdown/more-menu';
-import Tabs from '@/shared/ui/tabs';
-import GroupStudyMemberList from './group-study-member-list';
-import StudyInfoSection from './study-info-section';
-import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
-import { useGroupStudyDetailQuery } from '../model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
 
@@ -41,7 +40,6 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
   console.log('studyDetail', studyDetail);
 
   if (isLoading) return;
-
 
   const ModalContent = {
     end: {
@@ -130,7 +128,7 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
                 },
               },
             ]}
-            size={35}
+            iconSize={35}
           />
         )}
       </div>
@@ -146,7 +144,7 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
       {active === 'intro' && (
         <StudyInfoSection study={studyDetail!} groupStudyId={groupStudyId} />
       )}
-   {active === 'members' && (
+      {active === 'members' && (
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
