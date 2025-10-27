@@ -94,11 +94,13 @@ function DeleteGroupStudyMemberForm({
             label="스터디원을 내보내는 사유를 작성해 주세요."
             direction="vertical"
             required
+            counterMax={300}
           >
             <TextAreaInput
               id="reason"
               placeholder="내보내는 이유나 상황을 간단히 작성해주세요."
               className="h-[216px]"
+              maxLength={300}
             />
           </FormField>
         </form>
