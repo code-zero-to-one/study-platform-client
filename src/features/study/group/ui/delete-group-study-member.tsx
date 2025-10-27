@@ -1,6 +1,7 @@
+'use client';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
@@ -15,20 +16,18 @@ import { useDeleteGroupStudyMemberMutation } from '../model/use-delete-group-stu
 interface DeleteGroupStudyMemberModalProps {
   groupStudyId: number;
   targetMemberId: number;
-  trigger: React.ReactNode;
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
 }
 
 export default function DeleteGroupStudyMemberModal({
   groupStudyId,
   targetMemberId,
-  trigger,
+  isOpen,
+  setIsOpen,
 }: DeleteGroupStudyMemberModalProps) {
-  const [open, setOpen] = useState<boolean>(false);
-
   return (
-    <Modal.Root open={open} onOpenChange={setOpen}>
-      <Modal.Trigger asChild>{trigger}</Modal.Trigger>
-
+    <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content className="w-[840px]">
@@ -36,7 +35,7 @@ export default function DeleteGroupStudyMemberModal({
             <Modal.Title className="font-designer-20b text-text-strong">
               내보내기
             </Modal.Title>
-            <Modal.Close onClick={() => setOpen(false)}>
+            <Modal.Close onClick={() => setIsOpen(false)}>
               <XIcon />
             </Modal.Close>
           </Modal.Header>
@@ -44,7 +43,7 @@ export default function DeleteGroupStudyMemberModal({
           <DeleteGroupStudyMemberForm
             groupStudyId={groupStudyId}
             targetMemberId={targetMemberId}
-            onClose={() => setOpen(false)}
+            onClose={() => setIsOpen(false)}
           />
         </Modal.Content>
       </Modal.Portal>
