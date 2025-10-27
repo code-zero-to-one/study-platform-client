@@ -1,17 +1,20 @@
 'use client';
 
 import { useState } from 'react';
-
 import { useUser } from '@/features/auth/model/use-user';
-import MoreMenu from '@/shared/ui/dropdown/more-menu';
-import Tabs from '@/shared/ui/tabs';
 import ConfirmDeleteModal from './confirm-delete-modal';
-import StudyInfoSection from './study-info-section';
 import ChannelSection from '../channel/ui/channel-section';
 import {
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
 } from '../model/use-study-query';
+import { getCookie } from '@/shared/tanstack-query/cookie';
+import MoreMenu from '@/shared/ui/dropdown/more-menu';
+import Tabs from '@/shared/ui/tabs';
+import GroupStudyMemberList from './group-study-member-list';
+import StudyInfoSection from './study-info-section';
+import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
+import { useGroupStudyDetailQuery } from '../model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
 
@@ -33,10 +36,12 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
+  const { data: myStatus } = useGroupStudyMyStatusQuery(groupStudyId);
 
   console.log('studyDetail', studyDetail);
 
   if (isLoading) return;
+
 
   const ModalContent = {
     end: {
@@ -73,6 +78,12 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
       },
     },
   };
+
+  // 참가자, 채널 탭 접근 가능 여부 = 스터디 참가자 또는 방장만 가능
+  const isLeader =
+    studyDetail.basicInfo.leader.memberId === Number(getCookie('memberId'));
+  const isMember =
+    myStatus?.status === 'APPROVED' || myStatus?.status === 'KICKED';
 
   return (
     <div className="m-auto flex w-full max-w-[1164px] flex-col gap-400 py-500">
@@ -126,14 +137,21 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
 
       {/** 탭리스트 */}
       <Tabs
-        tabs={tabs}
+        tabs={tabs.filter(
+          (tab) => tab.value === 'intro' || isLeader || isMember,
+        )}
         activeTab={active}
         onChange={(value: ActiveTab) => setActive(value)}
       />
       {active === 'intro' && (
         <StudyInfoSection study={studyDetail!} groupStudyId={groupStudyId} />
       )}
-      {active === 'members' && <div>참가자 목록</div>}
+   {active === 'members' && (
+        <GroupStudyMemberList
+          groupStudyId={groupStudyId}
+          leaderId={studyDetail.basicInfo.leader.memberId}
+        />
+      )}
       {active === 'channel' && (
         <ChannelSection
           groupStudyId={groupStudyId}

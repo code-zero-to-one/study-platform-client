@@ -253,8 +253,10 @@ export default function StudyInfoSection({
         </div>
       </div>
       <SummaryStudyInfo
+        groupStudyId={groupStudyId}
         data={summaryBasicInfoItems(studyDetail.basicInfo)}
         title={studyDetail.detailInfo.title}
+        questions={studyDetail.interviewPost.interviewPost}
       />
     </div>
   );

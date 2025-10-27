@@ -19,7 +19,7 @@ export async function uploadProfileImage(
   file: FormData,
 ) {
   const res = await axiosInstanceForMultipart.put(
-    `/files/members/${memberId}/profile/image/${filename}`,
+    `/files/images/profile-image/${filename}`,
     file,
   );
 

@@ -21,7 +21,7 @@ export default function GroupStudyList() {
     queryFn: async ({ pageParam }) => {
       const response = await getGroupStudyList({
         page: pageParam,
-        size: 20,
+        size: 100,
         status: 'RECRUITING',
       });
 

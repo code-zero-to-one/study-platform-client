@@ -13,14 +13,15 @@ interface MoreMenuOption {
     value: string;
     onMenuClick: () => void;
   }[];
-  size: number;
+  iconSize: number;
 }
 
 export default function MoreMenu({ options, size }: MoreMenuOption) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="cursor-pointer focus:outline-none">
-        <Ellipsis size={size} />
+      <Ellipsis size={iconSize} className="fill-icon-default" />
+}
       </DropdownMenuTrigger>
       <DropdownMenuContent className="rounded-100 border-border-default bg-background-default shadow-2 flex w-full flex-col gap-50 border p-50">
         {options.map((option) => (
