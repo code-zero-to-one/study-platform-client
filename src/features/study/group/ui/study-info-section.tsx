@@ -19,6 +19,7 @@ import { cn } from '@/shared/shadcn/lib/utils';
 import UserAvatar from '@/shared/ui/avatar';
 
 import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
+import GroupStudyNoticeModal from './group-notice-modal';
 import SummaryStudyInfo from './summary-study-info';
 
 import {
@@ -168,6 +169,8 @@ export default function StudyInfoSection({
   };
 
   return (
+    // todo: 스터디 공지 모달 추가
+    // <GroupStudyNoticeModal groupStudyId={groupStudyId} />
     <div className="flex w-full gap-600">
       <div className="flex flex-1 flex-col gap-500">
         <Image
