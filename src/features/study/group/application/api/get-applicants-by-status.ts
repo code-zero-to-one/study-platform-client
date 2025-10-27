@@ -15,7 +15,7 @@ export const getApplicantsByStatus = async (
     {
       params: {
         page,
-        size,
+        'page-size': size,
       },
     },
   );

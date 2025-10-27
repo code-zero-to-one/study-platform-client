@@ -1,6 +1,7 @@
 'use client';
 import React from 'react';
 
+import { ApplyStatus } from '@/features/study/group/application/api/type';
 import {
   useApplicantsByStatusQuery,
   useUpdateApplicantByStatusMutation,
@@ -19,17 +20,20 @@ export default function ApplicantList(props: ApplicantListProps) {
 
   const { mutate, isPending } = useUpdateApplicantByStatusMutation();
 
-  const handleApprove = (studyId: number, applyId: number) => {
+  const handleApprove = (
+    studyId: number,
+    applyId: number,
+    status: ApplyStatus,
+  ) => {
     mutate(
       {
         groupStudyId: studyId,
         applyId: applyId,
-        status: 'APPROVED',
+        status: status,
       },
       {
         onSuccess: async () => {
-          console.log('승인완료');
-          alert('승인이 완료되었습니다.');
+          alert('적용되었습니다.');
           await refetch();
         },
         onError: (err) => console.log(err),
@@ -45,8 +49,8 @@ export default function ApplicantList(props: ApplicantListProps) {
             <ProfileCard
               key={applicant.applyId}
               data={applicant}
-              onClick={() =>
-                handleApprove(Number(props.studyId), applicant.applyId)
+              onClick={(status: ApplyStatus) =>
+                handleApprove(Number(props.studyId), applicant.applyId, status)
               }
             />
           ))}

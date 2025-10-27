@@ -1,13 +1,16 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import { GroupStudyApply } from '@/features/study/group/application/api/type';
+import {
+  ApplyStatus,
+  GroupStudyApply,
+} from '@/features/study/group/application/api/type';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
 
 interface ProfileCardProps {
   data: GroupStudyApply;
-  onClick: () => void;
+  onClick: (value: ApplyStatus) => void;
 }
 
 export default function ProfileCard(props: ProfileCardProps) {
@@ -74,6 +77,7 @@ export default function ProfileCard(props: ProfileCardProps) {
           type="button"
           color="secondary"
           className="w-[120px]"
+          onClick={() => onClick('REJECTED')}
         >
           반려
         </Button>
@@ -82,7 +86,7 @@ export default function ProfileCard(props: ProfileCardProps) {
           type="button"
           color="primary"
           className="w-[120px]"
-          onClick={onClick}
+          onClick={() => onClick('APPROVED')}
         >
           승인
         </Button>
