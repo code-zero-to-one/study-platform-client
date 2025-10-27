@@ -213,7 +213,7 @@ export interface ProgressHistoryItem {
 }
 
 export interface Grade {
-  id: number;
+  id: 1 | 2 | 3 | 4 | 5 | 6 | 7;
   code: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
   name: string; // e.g. "Great", "Cheer up"
   score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
@@ -223,6 +223,19 @@ export interface Grade {
 export interface UpdateGreetingRequest {
   groupStudyId: number; // 그룹 스터디 ID
   content: string; // 20~100자 문자열
+}
+
+// 진행점수 부여/수정 API 타입
+export interface UpdateProgressScoreRequest {
+  groupStudyId: number;
+  targetMemberId: number;
+  gradeId: number;
+  reason: string;
+}
+
+// 진행점수 등급 목록 조회 API 타입
+export interface ProgressGradesResponse {
+  grades: Grade[];
 }
 
 // 그룹 스터디 내 상태 조회 API 타입

@@ -64,7 +64,10 @@ export default function StudyDetailPage({ id: groupStudyId }: { id: number }) {
         <StudyInfoSection study={studyDetail!} groupStudyId={groupStudyId} />
       )}
       {active === 'members' && (
-        <GroupStudyMemberList groupStudyId={groupStudyId} />
+        <GroupStudyMemberList
+          groupStudyId={groupStudyId}
+          leaderId={studyDetail.basicInfo.leader.memberId}
+        />
       )}
       {active === 'channel' && <div>채널 내용</div>}
     </div>

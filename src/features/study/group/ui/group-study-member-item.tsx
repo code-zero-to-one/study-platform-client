@@ -9,12 +9,14 @@ import {
 import { getCookie } from '@/shared/tanstack-query/cookie';
 
 import UserAvatar from '@/shared/ui/avatar';
+import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
 import GoldRankIcon from 'public/icons/gold-rank.svg';
 import SealCheckIcon from 'public/icons/seal-check.svg';
 import SilverRankIcon from 'public/icons/silver-rank.svg';
+import ProgressScoreModal from './progress-score-modal';
 import WriteGreetingModal from './write-greeting-modal';
 import {
   GroupStudyMember,
@@ -23,16 +25,23 @@ import {
 
 type GroupStudyMemberItemProps = GroupStudyMember & {
   groupStudyId: number;
+  leaderId: number;
 };
 
 export default function GroupStudyMemberItem({
   groupStudyId,
+  leaderId,
   ...member
 }: GroupStudyMemberItemProps) {
+  const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
+    useState<boolean>(false);
+
   const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
     useState<boolean>(false);
 
-  const isMe = member.id === Number(getCookie('memberId'));
+  const myId = Number(getCookie('memberId'));
+  const isMe = member.id === myId;
+  const isLeader = leaderId === myId;
 
   return (
     <li className="border-border-default rounded-150 flex border">
@@ -70,7 +79,31 @@ export default function GroupStudyMemberItem({
 
       <div className="flex flex-1 flex-col gap-300 p-400">
         <div className="text-text-default flex flex-col gap-150">
-          <span className="font-designer-16b">가입 인사</span>
+          <div className="flex items-center justify-between">
+            <span className="font-designer-16b">가입 인사</span>
+            {isLeader && (
+              <>
+                <MoreMenu
+                  iconSize={24}
+                  options={[
+                    {
+                      label: '평가하기',
+                      value: 'edit',
+                      onMenuClick: () => {
+                        setIsProgressScoreModalOpen(true);
+                      },
+                    },
+                  ]}
+                />
+                <ProgressScoreModal
+                  isOpen={isProgressScoreModalOpen}
+                  setIsOpen={setIsProgressScoreModalOpen}
+                  groupStudyId={groupStudyId}
+                  targetMemberId={member.id}
+                />
+              </>
+            )}
+          </div>
 
           <GreetingBox
             id={member.id}
@@ -196,7 +229,7 @@ function ProgressScoreItem({
 
           <div className="bg-border-subtle h-[12px] w-[1px]" />
 
-          <span>{reason}</span>
+          <p className="break-all">{reason}</p>
         </div>
 
         <span className="font-designer-13r text-text-subtlest">{`${formatYYYYMMDD(acquiredAt, 'dot')} ${formatHHMM(acquiredAt)}`}</span>
