@@ -4,9 +4,13 @@ import React from 'react';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import ProfileCard from './profile-card';
 
-export default function ApplicantList() {
+interface ApplicantListProps {
+  studyId: string;
+}
+
+export default function ApplicantList(props: ApplicantListProps) {
   const { data } = useApplicantsByStatusQuery({
-    groupStudyId: 1,
+    groupStudyId: Number(props.studyId),
     status: 'PENDING',
   });
 
@@ -15,7 +19,11 @@ export default function ApplicantList() {
       {data?.pages.map((page, pageIndex) => (
         <React.Fragment key={pageIndex}>
           {page.content.map((applicant) => (
-            <ProfileCard key={applicant.applyId} data={applicant} />
+            <ProfileCard
+              key={applicant.applyId}
+              data={applicant}
+              studyId={Number(props.studyId)}
+            />
           ))}
         </React.Fragment>
       ))}
