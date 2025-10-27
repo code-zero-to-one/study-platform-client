@@ -8,7 +8,12 @@ import {
 } from '../const/group-study-const';
 
 // 그룹 스터디 신청 상태
-type ApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'KICKED';
+export type ApplicationStatus =
+  | 'PENDING' // 승인 대기
+  | 'APPROVED' // 승인 수락
+  | 'REJECTED' // 승인 거절
+  | 'KICKED' // 강퇴
+  | 'EXIT'; // 탈퇴
 export type GroupStudyStatus = 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
 export type GroupStudyType = 'PROJECT' | 'STUDY';
 export type HostType = 'ZEROONE' | 'GENERAL' | 'METOR';
@@ -231,4 +236,14 @@ export interface UpdateProgressScoreRequest {
 // 진행점수 등급 목록 조회 API 타입
 export interface ProgressGradesResponse {
   grades: Grade[];
+}
+
+// 그룹 스터디 내 상태 조회 API 타입
+export interface GroupStudyMyStatusRequest {
+  groupStudyId: number;
+}
+
+export interface GroupStudyMyStatusResponse {
+  status: ApplicationStatus;
+  reason: string;
 }
