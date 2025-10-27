@@ -3,7 +3,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
-
 import { useController, useForm } from 'react-hook-form';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
@@ -88,7 +87,7 @@ function ApplyGroupStudyForm({
     control,
   });
 
-  const { mutate: applyGroupStudy } = useApplyGroupStudyMutation();
+  const { mutate: applyGroupStudy } = useApplyGroupStudyMutation(groupStudyId);
 
   const onSubmit = (data: ApplyGroupStudyFormData) => {
     const { answer } = data;
@@ -96,7 +95,7 @@ function ApplyGroupStudyForm({
     applyGroupStudy(
       { answer, groupStudyId },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           alert('스터디 신청이 완료되었습니다.');
           onClose();
         },

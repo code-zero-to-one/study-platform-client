@@ -39,11 +39,13 @@ import {
 interface StudyInfoSectionProps {
   study: GroupStudyDetailResponse;
   groupStudyId: number;
+  isLeader: boolean;
 }
 
 export default function StudyInfoSection({
   study: studyDetail,
   groupStudyId,
+  isLeader,
 }: StudyInfoSectionProps) {
   const { data: applicants } = useApplicantsByStatusQuery({
     groupStudyId,
@@ -254,6 +256,8 @@ export default function StudyInfoSection({
       </div>
       <SummaryStudyInfo
         groupStudyId={groupStudyId}
+        isLeader={isLeader}
+        groupStudyStatus={studyDetail.basicInfo.status}
         data={summaryBasicInfoItems(studyDetail.basicInfo)}
         title={studyDetail.detailInfo.title}
         questions={studyDetail.interviewPost.interviewPost}
