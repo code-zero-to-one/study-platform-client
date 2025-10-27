@@ -16,18 +16,18 @@ import { useDeleteGroupStudyMemberMutation } from '../model/use-delete-group-stu
 interface DeleteGroupStudyMemberModalProps {
   groupStudyId: number;
   targetMemberId: number;
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  open: boolean;
+  onChangeOpen: (open: boolean) => void;
 }
 
 export default function DeleteGroupStudyMemberModal({
   groupStudyId,
   targetMemberId,
-  isOpen,
-  setIsOpen,
+  open,
+  onChangeOpen,
 }: DeleteGroupStudyMemberModalProps) {
   return (
-    <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Modal.Root open={open} onOpenChange={onChangeOpen}>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content className="w-[840px]">
@@ -35,7 +35,7 @@ export default function DeleteGroupStudyMemberModal({
             <Modal.Title className="font-designer-20b text-text-strong">
               내보내기
             </Modal.Title>
-            <Modal.Close onClick={() => setIsOpen(false)}>
+            <Modal.Close onClick={() => onChangeOpen(false)}>
               <XIcon />
             </Modal.Close>
           </Modal.Header>
@@ -43,7 +43,7 @@ export default function DeleteGroupStudyMemberModal({
           <DeleteGroupStudyMemberForm
             groupStudyId={groupStudyId}
             targetMemberId={targetMemberId}
-            onClose={() => setIsOpen(false)}
+            onClose={() => onChangeOpen(false)}
           />
         </Modal.Content>
       </Modal.Portal>

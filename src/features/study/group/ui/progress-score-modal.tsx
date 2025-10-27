@@ -20,18 +20,18 @@ import { useUpdateProgressScoreMutation } from '../model/use-update-progress-sco
 
 interface ProgressScoreModalModalProps
   extends Pick<UpdateProgressScoreRequest, 'targetMemberId' | 'groupStudyId'> {
-  isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  open: boolean;
+  onChangeOpen: (open: boolean) => void;
 }
 
 export default function ProgressScoreModal({
-  isOpen,
-  setIsOpen,
+  open,
+  onChangeOpen,
   groupStudyId,
   targetMemberId,
 }: ProgressScoreModalModalProps) {
   return (
-    <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
+    <Modal.Root open={open} onOpenChange={onChangeOpen}>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content className="w-[840px]">
@@ -39,14 +39,14 @@ export default function ProgressScoreModal({
             <Modal.Title className="font-designer-20b text-text-strong">
               진행점수 부여하기
             </Modal.Title>
-            <Modal.Close onClick={() => setIsOpen(false)}>
+            <Modal.Close onClick={() => onChangeOpen(false)}>
               <XIcon />
             </Modal.Close>
           </Modal.Header>
 
           <ProgressScoreForm
             groupStudyId={groupStudyId}
-            onClose={() => setIsOpen(false)}
+            onClose={() => onChangeOpen(false)}
             targetMemberId={targetMemberId}
           />
         </Modal.Content>

@@ -106,14 +106,14 @@ export default function GroupStudyMemberItem({
                   ]}
                 />
                 <ProgressScoreModal
-                  isOpen={isProgressScoreModalOpen}
-                  setIsOpen={setIsProgressScoreModalOpen}
+                  open={isProgressScoreModalOpen}
+                  onChangeOpen={setIsProgressScoreModalOpen}
                   groupStudyId={groupStudyId}
                   targetMemberId={member.id}
                 />
                 <DeleteGroupStudyMemberModal
-                  isOpen={isDeleteMemberModalOpen}
-                  setIsOpen={setIsDeleteMemberModalOpen}
+                  open={isDeleteMemberModalOpen}
+                  onChangeOpen={setIsDeleteMemberModalOpen}
                   groupStudyId={groupStudyId}
                   targetMemberId={member.id}
                 />
