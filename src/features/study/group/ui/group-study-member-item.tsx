@@ -16,6 +16,7 @@ import CaretUpIcon from 'public/icons/caret-up.svg';
 import GoldRankIcon from 'public/icons/gold-rank.svg';
 import SealCheckIcon from 'public/icons/seal-check.svg';
 import SilverRankIcon from 'public/icons/silver-rank.svg';
+import DeleteGroupStudyMemberModal from './delete-group-study-member';
 import ProgressScoreModal from './progress-score-modal';
 import WriteGreetingModal from './write-greeting-modal';
 import {
@@ -34,6 +35,8 @@ export default function GroupStudyMemberItem({
   ...member
 }: GroupStudyMemberItemProps) {
   const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
+    useState<boolean>(false);
+  const [isDeleteMemberModalOpen, setIsDeleteMemberModalOpen] =
     useState<boolean>(false);
 
   const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
@@ -93,11 +96,24 @@ export default function GroupStudyMemberItem({
                         setIsProgressScoreModalOpen(true);
                       },
                     },
+                    {
+                      label: '내보내기',
+                      value: 'delete-member',
+                      onMenuClick: () => {
+                        setIsDeleteMemberModalOpen(true);
+                      },
+                    },
                   ]}
                 />
                 <ProgressScoreModal
-                  isOpen={isProgressScoreModalOpen}
-                  setIsOpen={setIsProgressScoreModalOpen}
+                  open={isProgressScoreModalOpen}
+                  onChangeOpen={setIsProgressScoreModalOpen}
+                  groupStudyId={groupStudyId}
+                  targetMemberId={member.id}
+                />
+                <DeleteGroupStudyMemberModal
+                  open={isDeleteMemberModalOpen}
+                  onChangeOpen={setIsDeleteMemberModalOpen}
                   groupStudyId={groupStudyId}
                   targetMemberId={member.id}
                 />

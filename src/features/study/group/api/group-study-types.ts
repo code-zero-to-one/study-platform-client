@@ -267,5 +267,11 @@ export interface GroupStudyMyStatusRequest {
 
 export interface GroupStudyMyStatusResponse {
   status: ApplicationStatus;
+}
+
+// 그룹스터디 참여자 추방 API 타입
+export interface DeleteGroupStudyMemberRequest {
+  groupStudyId: number;
+  targetMemberId: number;
   reason: string;
 }
