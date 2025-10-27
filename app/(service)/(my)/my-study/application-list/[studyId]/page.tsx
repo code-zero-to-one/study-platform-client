@@ -1,7 +1,13 @@
 import Image from 'next/image';
 import ApplicantList from '@/features/my-page/ui/applicant-list';
 
-export default function EntryPage() {
+export default async function ApplicationListPage({
+  params,
+}: {
+  params: Promise<{ studyId: string }>;
+}) {
+  const { studyId } = await params;
+
   return (
     <div className="w-720px flex flex-col gap-300">
       <div className="font-designer-20b flex items-center">
@@ -14,7 +20,7 @@ export default function EntryPage() {
         <div className="flex-1 text-center">새로운 신청자 확인하기</div>
       </div>
 
-      <ApplicantList />
+      <ApplicantList studyId={studyId} />
     </div>
   );
 }

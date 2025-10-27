@@ -10,9 +10,7 @@ export const updateApplicantByStatus = async (
   const { data } = await axiosInstance.patch(
     `/group-studies/${groupStudyId}/apply/${applyId}/process`,
     {
-      params: {
-        status,
-      },
+      status,
     },
   );
 
