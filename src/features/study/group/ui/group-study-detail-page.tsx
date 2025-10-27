@@ -43,7 +43,7 @@ export default function StudyDetailPage({
     { label: '채널', value: 'channel' },
   ];
 
-  const { mutate: deleteGroupStduy } = useDeleteGroupStudyMutation();
+  const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
 
   const ModalContent = {
     end: {
@@ -71,7 +71,7 @@ export default function StudyDetailPage({
       ),
       confirmText: '스터디 삭제',
       onConfirm: () => {
-        deleteGroupStduy(
+        deleteGroupStudy(
           { groupStudyId },
           { onSuccess: () => setShowModal(false) },
         );
