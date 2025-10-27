@@ -8,7 +8,12 @@ import {
 } from '../const/group-study-const';
 
 // 그룹 스터디 신청 상태
-type ApplicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'KICKED';
+export type ApplicationStatus =
+  | 'PENDING' // 승인 대기
+  | 'APPROVED' // 승인 수락
+  | 'REJECTED' // 승인 거절
+  | 'KICKED' // 강퇴
+  | 'EXIT'; // 탈퇴
 export type GroupStudyStatus = 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
 export type GroupStudyType = 'PROJECT' | 'STUDY';
 export type HostType = 'ZEROONE' | 'GENERAL' | 'METOR';
@@ -57,6 +62,12 @@ export interface BasicInfoDetail extends BasicInfo {
   rejectedCount: number;
   kickedCount: number;
   deletedAt: string | null;
+  leader: {
+    memberId: number;
+    memberName: string;
+    profileImage: string | null;
+    simpleIntroduction: string | null;
+  };
 }
 
 export interface DetailInfo {
@@ -212,4 +223,14 @@ export interface Grade {
 export interface UpdateGreetingRequest {
   groupStudyId: number; // 그룹 스터디 ID
   content: string; // 20~100자 문자열
+}
+
+// 그룹 스터디 내 상태 조회 API 타입
+export interface GroupStudyMyStatusRequest {
+  groupStudyId: number;
+}
+
+export interface GroupStudyMyStatusResponse {
+  status: ApplicationStatus;
+  reason: string;
 }
