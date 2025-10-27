@@ -1,40 +1,20 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import React from 'react';
 import { GroupStudyApply } from '@/features/study/group/application/api/type';
-import { useUpdateApplicantByStatusMutation } from '@/features/study/group/application/model/use-applicant-qeury';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
 
 interface ProfileCardProps {
   data: GroupStudyApply;
-  studyId: number;
+  onClick: () => void;
 }
 
 export default function ProfileCard(props: ProfileCardProps) {
-  const { data: applicant, studyId } = props;
+  const { data: applicant, onClick } = props;
   const temperPreset = getSincerityPresetByLevelName(
     applicant.applicantInfo.sincerityTemp.levelName as string,
   );
-
-  const { mutate, isPending } = useUpdateApplicantByStatusMutation();
-
-  const handleApprove = () => {
-    mutate(
-      {
-        groupStudyId: studyId,
-        applyId: applicant.applyId,
-        status: 'APPROVED',
-      },
-      {
-        onSuccess: () => {
-          console.log('승인완료');
-        },
-        onError: (err) => console.log(err),
-      },
-    );
-  };
 
   const timeAgo = (date: string | Date): string => {
     const now = dayjs();
@@ -102,7 +82,7 @@ export default function ProfileCard(props: ProfileCardProps) {
           type="button"
           color="primary"
           className="w-[120px]"
-          onClick={handleApprove}
+          onClick={onClick}
         >
           승인
         </Button>

@@ -20,8 +20,7 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
     refetch: threadRefetch,
   } = useThreadsQuery(groupStudyId);
   const [threadText, setThreadText] = useState('');
-
-  const [showSubCommentInput, setShowSubCommentInput] = useState(false);
+  const [openThreadId, setOpenThreadId] = useState<number | null>(null); // 👈 변경
 
   const { mutate: createThread } = usePostThreadMutation();
 
@@ -31,18 +30,14 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
       {
         onSuccess: async () => {
           await threadRefetch();
-          // 폼 리셋/알림 등
+          setThreadText('');
         },
-        onError: (err) => {
-          console.error(err);
-        },
+        onError: console.error,
       },
     );
   };
 
-  if (isLoading) {
-    return;
-  }
+  if (isLoading) return null; // 👈 안전 반환
 
   return (
     <div className="flex flex-col gap-400">
@@ -50,56 +45,56 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
         <MessageCircle className="mr-100 inline-block" size={24} />
         <span className="font-designer-16b text-text-strong mr-50">댓글</span>
         <span className="font-designer-16b text-text-subtlest">
-          {data.length}개
+          {data?.length ?? 0}개
         </span>
       </div>
+
       <div className="flex flex-col gap-300">
-        {data.map((comment) => (
-          <div
-            key={comment.threadId}
-            className="border-b-[1px] border-[#D5D7DA] pb-300"
-          >
-            <div className="flex flex-col gap-200">
-              <Comment
-                mode="thread"
-                data={comment}
-                groupStudyId={groupStudyId}
-              />
-              <div className="flex gap-150">
-                <Reaction
-                  likesCount={comment.likesCount}
-                  dislikesCount={comment.dislikesCount}
-                  myReaction={comment.myReaction}
+        {data?.map((comment) => {
+          const isOpen = openThreadId === comment.threadId;
+          const toggle = () =>
+            setOpenThreadId((prev) =>
+              prev === comment.threadId ? null : comment.threadId,
+            );
+
+          return (
+            <div
+              key={comment.threadId}
+              className="border-b-[1px] border-[#D5D7DA] pb-300"
+            >
+              <div className="flex flex-col gap-200">
+                <Comment
+                  mode="thread"
+                  data={comment}
+                  groupStudyId={groupStudyId}
                 />
-                <span
-                  onClick={() => setShowSubCommentInput(!showSubCommentInput)}
-                >
-                  답글쓰기
-                </span>
+                <div className="flex gap-150">
+                  <Reaction
+                    likesCount={comment.likesCount}
+                    dislikesCount={comment.dislikesCount}
+                    myReaction={comment.myReaction}
+                  />
+                  <span onClick={toggle}>답글쓰기</span>
+                </div>
+              </div>
+
+              <div className="ml-[52px] flex flex-col">
+                <SubComments
+                  threadId={comment.threadId}
+                  groupStudyId={groupStudyId}
+                  showInput={isOpen} // 👈 스레드별
+                  handleShowInput={toggle} // 👈 스레드별
+                />
               </div>
             </div>
-
-            <div className="ml-[52px] flex flex-col">
-              <SubComments
-                threadId={comment.threadId}
-                groupStudyId={groupStudyId}
-                showInput={showSubCommentInput}
-                handleShowInput={() =>
-                  setShowSubCommentInput(!showSubCommentInput)
-                }
-              />
-            </div>
-          </div>
-        ))}
+          );
+        })}
 
         <CommentInput
           mode="save"
           content={threadText}
-          onChange={(value) => setThreadText(value)}
-          onConfirm={() => {
-            handleThreadSubmit(groupStudyId, threadText);
-            setThreadText('');
-          }}
+          onChange={setThreadText}
+          onConfirm={() => handleThreadSubmit(groupStudyId, threadText)}
           onCancel={() => setThreadText('')}
         />
       </div>

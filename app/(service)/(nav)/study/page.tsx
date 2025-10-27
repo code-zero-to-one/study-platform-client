@@ -5,6 +5,7 @@ import Button from '@/shared/ui/button';
 import Sidebar from '@/widgets/home/sidebar';
 
 export default function Study() {
+  // 스터디 개설 후 스터디그룹리스트 refetch 필요
   return (
     <div className="flex w-full gap-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
