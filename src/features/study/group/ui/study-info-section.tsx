@@ -22,7 +22,6 @@ import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
 import SummaryStudyInfo from './summary-study-info';
 
 import {
-  ApplicationStatus,
   BasicInfoDetail,
   GroupStudyDetailResponse,
 } from '../api/group-study-types';
@@ -41,14 +40,12 @@ interface StudyInfoSectionProps {
   study: GroupStudyDetailResponse;
   groupStudyId: number;
   isLeader: boolean;
-  myApplicationStatus?: ApplicationStatus;
 }
 
 export default function StudyInfoSection({
   study: studyDetail,
   groupStudyId,
   isLeader,
-  myApplicationStatus,
 }: StudyInfoSectionProps) {
   const { data: applicants } = useApplicantsByStatusQuery({
     groupStudyId,
@@ -260,7 +257,6 @@ export default function StudyInfoSection({
       <SummaryStudyInfo
         groupStudyId={groupStudyId}
         isLeader={isLeader}
-        myApplicationStatus={myApplicationStatus}
         groupStudyStatus={studyDetail.basicInfo.status}
         data={summaryBasicInfoItems(studyDetail.basicInfo)}
         title={studyDetail.detailInfo.title}

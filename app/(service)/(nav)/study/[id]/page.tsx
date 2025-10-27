@@ -5,10 +5,7 @@ import {
 } from '@tanstack/react-query';
 import { getGroupStudyDetailInServer } from '@/features/study/group/api/get-group-study-detail.server';
 import { getGroupStudyMyStatusInServer } from '@/features/study/group/api/get-group-study-my-status.server';
-import {
-  GroupStudyDetailResponse,
-  GroupStudyMyStatusResponse,
-} from '@/features/study/group/api/group-study-types';
+import { GroupStudyDetailResponse } from '@/features/study/group/api/group-study-types';
 import StudyDetailPage from '@/features/study/group/ui/group-study-detail-page';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 
@@ -46,9 +43,6 @@ export default async function Page({
     });
   }
 
-  const myApplicationStatus: GroupStudyMyStatusResponse | undefined =
-    queryClient.getQueryData(['groupStudyMyStatus', Number(id)]);
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <StudyDetailPage
@@ -56,7 +50,6 @@ export default async function Page({
         groupStudyId={Number(id)}
         studyDetail={data}
         isLeader={isLeader}
-        myApplicationStatus={myApplicationStatus?.status}
       />
     </HydrationBoundary>
   );

@@ -6,12 +6,9 @@ import Tabs from '@/shared/ui/tabs';
 import ConfirmDeleteModal from './confirm-delete-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
-import {
-  ApplicationStatus,
-  GroupStudyDetailResponse,
-} from '../api/group-study-types';
-
+import { GroupStudyDetailResponse } from '../api/group-study-types';
 import ChannelSection from '../channel/ui/channel-section';
+import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 import { useDeleteGroupStudyMutation } from '../model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
@@ -22,7 +19,6 @@ interface StudyDetailPageProps {
   groupStudyId: number;
   studyDetail: GroupStudyDetailResponse;
   isLeader: boolean;
-  myApplicationStatus?: ApplicationStatus;
   memberId: number;
 }
 
@@ -30,12 +26,16 @@ export default function StudyDetailPage({
   groupStudyId,
   studyDetail,
   isLeader,
-  myApplicationStatus,
-  memberId: userId,
+  memberId,
 }: StudyDetailPageProps) {
   const [active, setActive] = useState<ActiveTab>('intro');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
+
+  const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
+    groupStudyId,
+    isLeader,
+  });
 
   const tabs = [
     { label: '스터디 소개', value: 'intro' },
@@ -83,7 +83,8 @@ export default function StudyDetailPage({
 
   // 참가자, 채널 탭 접근 가능 여부 = 스터디 참가자 또는 방장만 가능
   const isMember =
-    myApplicationStatus === 'APPROVED' || myApplicationStatus === 'KICKED';
+    myApplicationStatus?.status === 'APPROVED' ||
+    myApplicationStatus?.status === 'KICKED';
 
   return (
     <div className="m-auto flex w-full max-w-[1164px] flex-col gap-400 py-500">
@@ -105,7 +106,7 @@ export default function StudyDetailPage({
             {studyDetail?.detailInfo.summary}
           </p>
         </div>
-        {userId === studyDetail.basicInfo.leader.memberId && (
+        {memberId === studyDetail.basicInfo.leader.memberId && (
           <MoreMenu
             options={[
               {
@@ -148,7 +149,6 @@ export default function StudyDetailPage({
           study={studyDetail}
           groupStudyId={groupStudyId}
           isLeader={isLeader}
-          myApplicationStatus={myApplicationStatus}
         />
       )}
       {active === 'members' && (

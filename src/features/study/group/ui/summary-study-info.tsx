@@ -1,7 +1,8 @@
 import React from 'react';
 import Button from '@/shared/ui/button';
 import ApplyGroupStudyModal from './apply-group-study-modal';
-import { ApplicationStatus, GroupStudyStatus } from '../api/group-study-types';
+import { GroupStudyStatus } from '../api/group-study-types';
+import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 
 interface SummaryStudyInfoProps {
   data: {
@@ -13,7 +14,6 @@ interface SummaryStudyInfoProps {
   groupStudyId: number;
   questions: string[];
   isLeader: boolean;
-  myApplicationStatus?: ApplicationStatus;
   groupStudyStatus: GroupStudyStatus;
 }
 
@@ -23,9 +23,13 @@ export default function SummaryStudyInfo({
   groupStudyId,
   questions,
   isLeader,
-  myApplicationStatus,
   groupStudyStatus,
 }: SummaryStudyInfoProps) {
+  const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
+    groupStudyId,
+    isLeader,
+  });
+
   return (
     <div className="rounded-150 flex w-[335px] flex-col self-start border-[1px] border-[#D5D7DA] p-300">
       <p className="font-designer-18b">{title}</p>
@@ -65,7 +69,7 @@ export default function SummaryStudyInfo({
                   !!myApplicationStatus || groupStudyStatus === 'IN_PROGRESS'
                 }
               >
-                {myApplicationStatus === 'APPROVED' ||
+                {myApplicationStatus?.status === 'APPROVED' ||
                 groupStudyStatus === 'IN_PROGRESS'
                   ? '참여 중인 스터디'
                   : '신청하기'}
