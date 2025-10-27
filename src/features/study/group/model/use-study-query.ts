@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { deleteGroupStudy } from '../api/delete-group-study';
-import { getGroupStudyDetail } from '../api/get-gruoup-study-detail';
+import { getGroupStudyDetail } from '../api/get-group-study-detail';
 import { DeleteGroupStudyRequest } from '../api/group-study-types';
 
 // study-detail
