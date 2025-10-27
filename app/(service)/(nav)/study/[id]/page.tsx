@@ -22,7 +22,7 @@ export default async function Page({
   const queryClient = new QueryClient();
 
   // 그룹 스터디 상세 정보 미리 가져오기
-  await queryClient.prefetchQuery({
+  await queryClient.fetchQuery({
     queryKey: ['groupStudyDetail', Number(id)],
     queryFn: () => getGroupStudyDetailInServer({ groupStudyId: Number(id) }),
   });
