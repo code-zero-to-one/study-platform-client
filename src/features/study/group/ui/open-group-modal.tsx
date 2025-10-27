@@ -17,7 +17,6 @@ import {
 import Step1OpenGroupStudy from './step/step1-group';
 import Step2OpenGroupStudy from './step/step2-group';
 import Step3OpenGroupStudy from './step/step3-group';
-import { EXTENSION_TO_MIME } from '../api/group-study-types';
 import { useCreateGroupStudyMutation } from '../const/use-group-study-mutation';
 
 function Stepper({ step }: { step: 1 | 2 | 3 }) {
@@ -56,11 +55,11 @@ interface OpenGroupStudyModalProps {
 
 export default function OpenGroupStudyModal({
   trigger,
-  open,
-  onOpenChange,
 }: OpenGroupStudyModalProps) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Modal.Root open={open} onOpenChange={onOpenChange}>
+    <Modal.Root open={open} onOpenChange={setOpen}>
       {trigger && <Modal.Trigger asChild>{trigger}</Modal.Trigger>}
       <Modal.Portal>
         <Modal.Overlay />
@@ -73,7 +72,7 @@ export default function OpenGroupStudyModal({
               <XIcon />
             </Modal.Close>
           </Modal.Header>
-          <OpenGroupStudyForm onClose={() => onOpenChange?.(false)} />
+          <OpenGroupStudyForm onClose={() => setOpen(false)} />
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
