@@ -56,7 +56,7 @@ interface OpenGroupStudyModalProps {
 export default function OpenGroupStudyModal({
   trigger,
 }: OpenGroupStudyModalProps) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
