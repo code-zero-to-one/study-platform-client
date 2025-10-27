@@ -192,7 +192,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
       </div>
       <div className="ml-150">
         {getMenuOptions().length > 0 && (
-          <MoreMenu options={getMenuOptions()} size={24} />
+          <MoreMenu options={getMenuOptions()} iconSize={24} />
         )}
       </div>
     </div>
