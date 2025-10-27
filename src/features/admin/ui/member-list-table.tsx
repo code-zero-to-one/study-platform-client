@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
+import { useDebounce } from '@/shared/lib/debounce';
 import { formatYYYYMMDD } from '@/shared/lib/time';
 import Badge from '@/shared/ui/badge';
 import Button from '@/shared/ui/button';
@@ -25,13 +26,14 @@ import { useGetMemberListQuery } from '../model/use-member-list-query';
 export default function MemberListTable() {
   const [roleId, setRoleId] = useState<RoleId | null>(null);
   const [memberStatus, setMemberStatus] = useState<MemberStatus | null>(null);
-  const [searchKeyword, setSearchKeyword] = useState<string>('');
   const [page, setPage] = useState<number>(1);
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const debouncedSearchKeyword = useDebounce(searchKeyword, 500);
 
   const { data } = useGetMemberListQuery({
     roleId,
     memberStatus,
-    searchKeyword,
+    searchKeyword: debouncedSearchKeyword,
     page,
   });
 
@@ -88,13 +90,16 @@ export default function MemberListTable() {
 
         <MemberListSearchInput
           value={searchKeyword}
-          onChange={setSearchKeyword}
+          onChange={(keyword) => {
+            setPage(1);
+            setSearchKeyword(keyword);
+          }}
         />
       </div>
 
       <div className="mt-300 mb-200 flex w-full items-center justify-between py-100">
         <div>
-          {someSelected && (
+          {(someSelected || allSelected) && (
             <div className="border-border-default rounded-100 flex h-[56px] items-center gap-300 border px-200 py-150">
               <p className="font-designer-14r">
                 <span className="text-text-information">
@@ -168,7 +173,7 @@ export default function MemberListTable() {
                     selectedIds.has(user.memberId)
                       ? 'bg-background-accent-blue-subtle'
                       : ''
-                  } hover:bg-background-accent-blue-subtle`}
+                  } hover:bg-fill-neutral-subtle-hover active:bg-fill-neutral-subtle-pressed`}
                   onClick={() => {
                     router.push(`/admin/detail/${user.memberId}/profile`);
                   }}
@@ -192,10 +197,18 @@ export default function MemberListTable() {
                     {formatYYYYMMDD(user.joinedAt)}
                   </td>
                   <td className="font-designer-14r text-text-subtle px-300 text-left">
-                    {formatYYYYMMDD(user.loginMostRecentlyAt)}
+                    {user.loginMostRecentlyAt
+                      ? formatYYYYMMDD(user.loginMostRecentlyAt)
+                      : '-'}
                   </td>
                   <td className="font-designer-14r text-text-subtle flex items-center px-300 text-left">
-                    {user.role.roleId === 'ROLE_MENTOR' && <SealCheckIcon />}
+                    {user.role.roleId === 'ROLE_MENTOR' && (
+                      <SealCheckIcon
+                        className="text-fill-brand-default-default"
+                        width={20}
+                        height={20}
+                      />
+                    )}
                     {ROLE_MAP[user.role.roleId]}
                   </td>
                   <td className="pr-500 pl-300">
@@ -216,8 +229,7 @@ export default function MemberListTable() {
           className="mt-200"
           page={page}
           onChangePage={setPage}
-          totalPages={data?.totalPages}
-          middleButtonCount={4}
+          totalPages={data?.totalPages || 1}
         />
       </div>
     </>

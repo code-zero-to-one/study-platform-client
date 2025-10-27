@@ -14,7 +14,7 @@ export const getGroupStudyList = async (
     const { data } = await axiosInstance.get('/group-studies', {
       params: {
         page,
-        size,
+        'page-size': size,
         status,
       },
     });

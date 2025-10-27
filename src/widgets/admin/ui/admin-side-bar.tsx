@@ -2,10 +2,10 @@ import { QueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import { GetUserProfileResponse } from '@/entities/user/api/types';
-import LogoutButton from '@/features/admin/ui/logout-button';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import UserAvatar from '@/shared/ui/avatar';
 import TabMenu from '@/shared/ui/tab-menu';
+import OutIcon from 'public/icons/out.svg';
 
 export default async function AdminSideBar() {
   const queryClient = new QueryClient();
@@ -45,7 +45,9 @@ export default async function AdminSideBar() {
           </p>
         </div>
 
-        <LogoutButton />
+        <Link href="/">
+          <OutIcon />
+        </Link>
       </div>
 
       <nav className="mt-200">

@@ -20,10 +20,13 @@ export const getKoreaDate = (targetDate?: Date) => {
   return koreaNow;
 };
 
-export const formatYYYYMMDD = (dateString: string) => {
+export const formatYYYYMMDD = (
+  dateString: string,
+  separator: 'dash' | 'dot' = 'dash',
+) => {
   const onlyDate = new Date(dateString).toISOString().slice(0, 10);
 
-  return onlyDate;
+  return onlyDate.replace(/-/g, separator === 'dash' ? '-' : '.');
 };
 
 export const formatHHMM = (dateString: string) => {

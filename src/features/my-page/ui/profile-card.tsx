@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import React from 'react';
+import { GroupStudyApply } from '@/features/study/group/application/api/type';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
-import { GroupStudyApply } from '../api/types';
 
-export default function EntryCard(props: { data: GroupStudyApply }) {
+export default function ProfileCard(props: { data: GroupStudyApply }) {
   const { data: applicant } = props;
   const temperPreset = getSincerityPresetByLevelName(
     applicant.applicantInfo.sincerityTemp.levelName as string,
@@ -32,8 +32,6 @@ export default function EntryCard(props: { data: GroupStudyApply }) {
 
     return `${diffWeek}주 전`;
   };
-
-  const ApplicantStatus = () => {};
 
   return (
     <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-[#E9EAEB] p-300">
