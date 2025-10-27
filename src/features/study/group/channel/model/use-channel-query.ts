@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { deleteComment } from '../api/delete-comment';
-import { deletePost } from '../api/delete-post';
+import { deleteThread } from '../api/delete-thread';
 import { getComments } from '../api/get-comments';
 import { getPost } from '../api/get-post';
 import { getThreads } from '../api/get-threads';
@@ -49,7 +49,7 @@ export const useUpdateThreadMutation = () => {
 
 export const useDeleteThreadMutation = () => {
   return useMutation({
-    mutationFn: (param: DeleteThreadReqeust) => deletePost(param),
+    mutationFn: (param: DeleteThreadReqeust) => deleteThread(param),
   });
 };
 

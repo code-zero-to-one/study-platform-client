@@ -48,6 +48,7 @@ export default function ConfirmDeleteModal({
             <Button
               color="primary"
               className="font-designer-16b h-[48px] px-200"
+              onClick={onConfirm}
             >
               {confirmText}
             </Button>

@@ -1,7 +1,7 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
 import { DeleteThreadReqeust } from './types';
 
-export const deletePost = async (param: DeleteThreadReqeust) => {
+export const deleteThread = async (param: DeleteThreadReqeust) => {
   const { groupStudyId, threadId } = param;
 
   try {

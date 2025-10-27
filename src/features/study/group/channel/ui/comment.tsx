@@ -34,6 +34,8 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(data.content);
 
+  const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
+
   const { mutate: updateThread } = useUpdateThreadMutation();
 
   const { mutate: updateComment } = useUpdateCommentMutation();
@@ -79,6 +81,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   };
 
   const handleDelete = (threadId: number, commentId: number) => {
+    console.log(threadId, commentId);
     const base = { groupStudyId, threadId };
 
     const options = {
@@ -86,6 +89,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
         console.log(
           mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!',
         );
+        setShowConfirmModal(false);
       },
       onError: (err: unknown) => {
         console.error(
@@ -121,7 +125,13 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
             setIsEditing(true);
           },
         },
-        { label: '삭제하기', value: 'remove', onMenuClick: () => {} },
+        {
+          label: '삭제하기',
+          value: 'remove',
+          onMenuClick: () => {
+            setShowConfirmModal(true);
+          },
+        },
       ];
     }
 
@@ -138,6 +148,21 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
 
   return (
     <div className="flex w-full items-start">
+      <ConfirmDeleteModal
+        open={showConfirmModal}
+        onOpenChange={() => setShowConfirmModal(false)}
+        title={'댓글을 삭제하시겠습니까?'}
+        content={
+          <>
+            삭제 시 모든 데이터가 영구적으로 제거됩니다.
+            <br />이 동작은 되돌릴 수 없습니다.
+          </>
+        }
+        confirmText={'댓글 삭제'}
+        onConfirm={() => {
+          handleDelete(data.threadId, data.commentId);
+        }}
+      />
       <div className="flex flex-1 items-start gap-150">
         <UserAvatar size={40} image={undefined} />
         {isEditing ? (
