@@ -5,6 +5,8 @@ import UserAvatar from '@/shared/ui/avatar';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import CommentInput from './comment-input';
 import ConfirmDeleteModal from '../../ui/confirm-delete-modal';
+import DeleteGroupStudyMemberModal from '../../ui/delete-group-study-member';
+import ProgressScoreModal from '../../ui/progress-score-modal';
 import {
   useDeleteCommentMutation,
   useDeleteThreadMutation,
@@ -31,6 +33,11 @@ interface CommentProps {
 export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const { userId, userName } = useUser();
 
+  const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
+    useState<boolean>(false);
+  const [isDeleteMemberModalOpen, setIsDeleteMemberModalOpen] =
+    useState<boolean>(false);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(data.content);
 
@@ -56,14 +63,9 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
 
     const options = {
       onSuccess: () =>
-        console.log(
-          mode === 'thread' ? '스레드 수정 성공!' : '댓글 수정 성공!',
-        ),
+        alert(mode === 'thread' ? '스레드 수정 성공!' : '댓글 수정 성공!'),
       onError: (err: unknown) =>
-        console.error(
-          mode === 'thread' ? '스레드 수정 실패:' : '댓글 수정 실패:',
-          err,
-        ),
+        alert(mode === 'thread' ? '스레드 수정 실패:' : '댓글 수정 실패:'),
     };
 
     if (mode === 'thread') {
@@ -81,21 +83,15 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   };
 
   const handleDelete = (threadId: number, commentId: number) => {
-    console.log(threadId, commentId);
     const base = { groupStudyId, threadId };
 
     const options = {
       onSuccess: () => {
-        console.log(
-          mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!',
-        );
+        alert(mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!');
         setShowConfirmModal(false);
       },
       onError: (err: unknown) => {
-        console.error(
-          mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:',
-          err,
-        );
+        alert(mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:');
       },
     };
 
@@ -138,8 +134,20 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     // 여기는 수아님과 동일한 기능
     if (data.authorId !== userId && data.isLeader) {
       return [
-        { label: '평가하기', value: 'edit', onMenuClick: () => {} },
-        { label: '내보내기', value: 'remove', onMenuClick: () => {} },
+        {
+          label: '평가하기',
+          value: 'edit',
+          onMenuClick: () => {
+            setIsProgressScoreModalOpen(true);
+          },
+        },
+        {
+          label: '내보내기',
+          value: 'remove',
+          onMenuClick: () => {
+            setIsDeleteMemberModalOpen(true);
+          },
+        },
       ];
     }
 
@@ -195,6 +203,18 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
           <MoreMenu options={getMenuOptions()} iconSize={24} />
         )}
       </div>
+      <ProgressScoreModal
+        open={isProgressScoreModalOpen}
+        onChangeOpen={setIsProgressScoreModalOpen}
+        groupStudyId={groupStudyId}
+        targetMemberId={data.authorId}
+      />
+      <DeleteGroupStudyMemberModal
+        open={isDeleteMemberModalOpen}
+        onChangeOpen={setIsDeleteMemberModalOpen}
+        groupStudyId={groupStudyId}
+        targetMemberId={data.authorId}
+      />
     </div>
   );
 }
