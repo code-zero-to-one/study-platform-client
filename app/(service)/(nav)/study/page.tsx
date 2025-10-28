@@ -1,11 +1,14 @@
 import GroupStudyList from '@/features/study/group/ui/group-study-list';
 import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
 import IconPlus from '@/shared/icons/plus.svg';
+import { getServerCookie } from '@/shared/lib/server-cookie';
 import Button from '@/shared/ui/button';
 import Sidebar from '@/widgets/home/sidebar';
 
-export default function Study() {
-  // 스터디 개설 후 스터디그룹리스트 refetch 필요
+export default async function Study() {
+  const memberIdStr = await getServerCookie('memberId');
+  const isLoggedIn = !!memberIdStr;
+
   return (
     <div className="flex w-full gap-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
@@ -26,9 +29,9 @@ export default function Study() {
             }
           />
         </div>
-        <GroupStudyList />
+        <GroupStudyList isLoggedIn={isLoggedIn} />
       </div>
-      <Sidebar />
+      {isLoggedIn && <Sidebar />}
     </div>
   );
 }
