@@ -7,7 +7,7 @@ export const deleteGroupStudyMember = async ({
   reason,
 }: DeleteGroupStudyMemberRequest) => {
   const res = await axiosInstance.delete(
-    `/api/v1/group-studies/${groupStudyId}/members`,
+    `/group-studies/${groupStudyId}/members`,
     { params: { targetMemberId, reason } },
   );
 
