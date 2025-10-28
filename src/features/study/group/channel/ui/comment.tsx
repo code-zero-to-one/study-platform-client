@@ -97,19 +97,17 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     if (mode === 'thread') {
       deleteThread(base, {
         onSuccess: async () => {
-          console.log(
-            mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!',
-          );
-          setShowConfirmModal(false);
+          alert(mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!');
+
           await qc.invalidateQueries({
             queryKey: ['get-threads', groupStudyId],
           });
         },
         onError: (err: unknown) => {
-          console.error(
-            mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:',
-            err,
-          );
+          alert(mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:');
+        },
+        onSettled: () => {
+          setShowConfirmModal(false);
         },
       });
 
@@ -127,13 +125,15 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
       { ...base, commentId },
       {
         onSuccess: async () => {
-          setShowConfirmModal(false);
           await qc.invalidateQueries({
             queryKey: ['comments', groupStudyId, threadId],
           });
         },
         onError: (err: unknown) => {
           console.error(err);
+        },
+        onSettled: () => {
+          setShowConfirmModal(false);
         },
       },
     );

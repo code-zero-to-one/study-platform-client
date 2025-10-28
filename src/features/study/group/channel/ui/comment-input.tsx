@@ -17,8 +17,8 @@ export default function CommentInput({
   onConfirm,
   onChange,
 }: CommentInputProps) {
-  const { userId, userName } = useUser();
-  const [text, setText] = useState(content ?? '');
+  const { userName } = useUser();
+  const [text, setText] = useState<string>(content ?? '');
 
   const [isActive, setIsActive] = useState(false);
 

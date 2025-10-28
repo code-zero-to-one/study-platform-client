@@ -19,7 +19,7 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
     isLoading,
     refetch: threadRefetch,
   } = useThreadsQuery(groupStudyId);
-  const [threadText, setThreadText] = useState('');
+  const [threadText, setThreadText] = useState<string>('');
   const [openThreadId, setOpenThreadId] = useState<number | null>(null); // 👈 변경
 
   const { mutate: createThread } = usePostThreadMutation();

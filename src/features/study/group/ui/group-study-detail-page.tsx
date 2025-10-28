@@ -60,7 +60,6 @@ export default function StudyDetailPage({
       confirmText: '스터디 종료',
       onConfirm: () => {
         // endStudy({ groupStudyId }, { onSuccess: () => setShowModal(false) });
-        console.log('스터디 종료 요청:', groupStudyId);
         setShowModal(false);
       },
     },
@@ -78,13 +77,18 @@ export default function StudyDetailPage({
           { groupStudyId },
           {
             onSuccess: () => {
-              setShowModal(false);
               alert('스터디가 삭제되었습니다.');
               router.push('/study');
             },
+            onError: () => {
+              alert('스터디 삭제에 실패하였습니다.');
+            },
+            onSettled: () => {
+              router.push('/study');
+              setShowModal(false);
+            },
           },
         );
-        setShowModal(false);
       },
     },
   };
