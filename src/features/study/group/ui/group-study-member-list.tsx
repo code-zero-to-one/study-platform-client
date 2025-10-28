@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { useState } from 'react';
 import Pagination from '@/shared/ui/pagination';
 import GroupStudyMemberItem from './group-study-member-item';
@@ -29,16 +30,30 @@ export default function GroupStudyMemberList({
     <section className="flex flex-col gap-300">
       <span className="font-designer-20b text-text-default">스터디 참가자</span>
 
-      <ul className="flex flex-col gap-200">
-        {memberList.map((member, idx) => (
-          <GroupStudyMemberItem
-            key={`${member.id}-${idx}`}
-            groupStudyId={groupStudyId}
-            leaderId={leaderId}
-            {...member}
+      {memberList.length > 0 ? (
+        <ul className="flex flex-col gap-200">
+          {memberList.map((member, idx) => (
+            <GroupStudyMemberItem
+              key={`${member.id}-${idx}`}
+              groupStudyId={groupStudyId}
+              leaderId={leaderId}
+              {...member}
+            />
+          ))}
+        </ul>
+      ) : (
+        <div className="bg-background-alternative rounded-100 flex h-[640px] flex-col items-center justify-center gap-200">
+          <Image
+            src="/images/no-group-study-member.svg"
+            alt="no-group-study-member"
+            width={160}
+            height={160}
           />
-        ))}
-      </ul>
+          <p className="text-text-default font-bold-h5">
+            아직 <span className="text-text-brand">참여한 멤버</span>가 없습니다
+          </p>
+        </div>
+      )}
 
       <Pagination
         page={pageNumber}
