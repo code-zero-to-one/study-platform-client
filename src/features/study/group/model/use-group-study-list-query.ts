@@ -7,7 +7,7 @@ export const useGroupStudyListQuery = () => {
     queryFn: async ({ pageParam }) => {
       const response = await getGroupStudyList({
         page: pageParam,
-        size: 100,
+        size: 20,
         status: 'RECRUITING',
       });
 
