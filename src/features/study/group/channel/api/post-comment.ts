@@ -12,7 +12,7 @@ export const postComment = async (param: PostCommentRequest) => {
       },
     );
 
-    if (data.statusCode !== 200) {
+    if (data.statusCode !== 201) {
       throw new Error('Failed to fetch post');
     }
 

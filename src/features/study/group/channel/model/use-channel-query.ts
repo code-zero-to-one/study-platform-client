@@ -6,6 +6,7 @@ import { getPost } from '../api/get-post';
 import { getThreads } from '../api/get-threads';
 import { postComment } from '../api/post-comment';
 import { postThread } from '../api/post-thread';
+import { putComment } from '../api/put-comment';
 import { putThread } from '../api/put-thread';
 import {
   DeleteCommentRequest,
@@ -70,7 +71,7 @@ export const usePostCommentMutation = () => {
 
 export const useUpdateCommentMutation = () => {
   return useMutation({
-    mutationFn: (param: PutCommentRequest) => putThread(param),
+    mutationFn: (param: PutCommentRequest) => putComment(param),
   });
 };
 

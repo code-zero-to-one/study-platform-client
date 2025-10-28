@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -80,6 +81,7 @@ export default function OpenGroupStudyModal({
 }
 
 function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient();
   const { mutateAsync: createGroupStudy } = useCreateGroupStudyMutation();
 
   const methods = useForm<OpenGroupFormValues>({
@@ -148,7 +150,11 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
         }
       }
       alert('그룹 스터디 개설이 완료되었습니다!');
+
       onClose();
+      await qc.invalidateQueries({
+        queryKey: ['groupStudies'],
+      });
     } catch (err) {
       alert('그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.');
     }
