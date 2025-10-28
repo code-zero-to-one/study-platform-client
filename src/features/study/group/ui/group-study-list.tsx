@@ -1,5 +1,6 @@
 'use client';
 
+import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Badge from '@/shared/ui/badge';
@@ -15,7 +16,7 @@ import { useGroupStudyListQuery } from '../model/use-group-study-list-query';
 
 export default function GroupStudyList() {
   const router = useRouter();
-  const { data } = useGroupStudyListQuery();
+  const { data, isLoading } = useGroupStudyListQuery();
 
   const groupStudyList = data?.pages.flatMap((page) => page.content) || [];
 
@@ -63,6 +64,14 @@ export default function GroupStudyList() {
       { label: '참가비', value: priceLabel },
     ];
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex h-[500px] items-center justify-center">
+        <Loader2 className="text-background-brand-default h-[100px] w-[100px] animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-200">
