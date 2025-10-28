@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import Tabs from '@/shared/ui/tabs';
@@ -37,6 +38,8 @@ export default function StudyDetailPage({
     isLeader,
   });
 
+  const router = useRouter();
+
   const tabs = [
     { label: '스터디 소개', value: 'intro' },
     { label: '참가자', value: 'members' },
@@ -57,7 +60,6 @@ export default function StudyDetailPage({
       confirmText: '스터디 종료',
       onConfirm: () => {
         // endStudy({ groupStudyId }, { onSuccess: () => setShowModal(false) });
-        console.log('스터디 종료 요청:', groupStudyId);
         setShowModal(false);
       },
     },
@@ -73,10 +75,20 @@ export default function StudyDetailPage({
       onConfirm: () => {
         deleteGroupStudy(
           { groupStudyId },
-          { onSuccess: () => setShowModal(false) },
+          {
+            onSuccess: () => {
+              alert('스터디가 삭제되었습니다.');
+              router.push('/study');
+            },
+            onError: () => {
+              alert('스터디 삭제에 실패하였습니다.');
+            },
+            onSettled: () => {
+              router.push('/study');
+              setShowModal(false);
+            },
+          },
         );
-        console.log('스터디 삭제 요청:', groupStudyId);
-        setShowModal(false);
       },
     },
   };

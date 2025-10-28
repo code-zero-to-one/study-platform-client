@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useUser } from '@/features/auth/model/use-user';
@@ -32,6 +33,7 @@ interface CommentProps {
 // 스레드용이냐 커맨트용이냐에 따라서 호출하는 함수가 달라짐
 export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const { userId, userName } = useUser();
+  const qc = useQueryClient();
 
   const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
     useState<boolean>(false);
@@ -60,16 +62,17 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     }
 
     const base = { groupStudyId, threadId, content: value };
-
-    const options = {
-      onSuccess: () =>
-        alert(mode === 'thread' ? '스레드 수정 성공!' : '댓글 수정 성공!'),
-      onError: (err: unknown) =>
-        alert(mode === 'thread' ? '스레드 수정 실패:' : '댓글 수정 실패:'),
-    };
-
     if (mode === 'thread') {
-      updateThread(base, options);
+      updateThread(base, {
+        onSuccess: async () => {
+          setIsEditing(false);
+          await qc.invalidateQueries({
+            queryKey: ['get-threads', groupStudyId],
+          });
+        },
+
+        onError: (err: unknown) => console.error('스레드 수정 실패', err),
+      });
 
       return;
     }
@@ -79,24 +82,39 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
 
       return;
     }
-    updateComment({ ...base, commentId }, options);
+    updateComment(
+      { ...base, commentId },
+      {
+        onSuccess: async () => {
+          setIsEditing(false);
+          await qc.invalidateQueries({
+            queryKey: ['comments', groupStudyId, threadId],
+          });
+        },
+
+        onError: (err: unknown) => console.error(err),
+      },
+    );
   };
 
   const handleDelete = (threadId: number, commentId: number) => {
     const base = { groupStudyId, threadId };
-
-    const options = {
-      onSuccess: () => {
-        alert(mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!');
-        setShowConfirmModal(false);
-      },
-      onError: (err: unknown) => {
-        alert(mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:');
-      },
-    };
-
     if (mode === 'thread') {
-      deleteThread(base, options);
+      deleteThread(base, {
+        onSuccess: async () => {
+          alert(mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!');
+
+          await qc.invalidateQueries({
+            queryKey: ['get-threads', groupStudyId],
+          });
+        },
+        onError: (err: unknown) => {
+          alert(mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:');
+        },
+        onSettled: () => {
+          setShowConfirmModal(false);
+        },
+      });
 
       return;
     }
@@ -108,7 +126,22 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
       return;
     }
 
-    deleteComment({ ...base, commentId }, options);
+    deleteComment(
+      { ...base, commentId },
+      {
+        onSuccess: async () => {
+          await qc.invalidateQueries({
+            queryKey: ['comments', groupStudyId, threadId],
+          });
+        },
+        onError: (err: unknown) => {
+          console.error(err);
+        },
+        onSettled: () => {
+          setShowConfirmModal(false);
+        },
+      },
+    );
   };
 
   const getMenuOptions = () => {
@@ -179,7 +212,9 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
             content={data.content}
             onChange={(value) => setEditValue(value)}
             onCancel={() => setIsEditing(false)}
-            onConfirm={() => handleUpdate(data.threadId, data.commentId)}
+            onConfirm={async () => {
+              handleUpdate(data.threadId, data.commentId);
+            }}
           />
         ) : (
           <div className="flex flex-1 flex-col gap-100">

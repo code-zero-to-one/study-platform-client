@@ -155,13 +155,23 @@ export default function GroupStudyMemberItem({
 
           <ProgressBar value={member.progress.score} className="mt-200" />
 
-          {isProgressHistoryOpen && (
-            <ul className="mt-300 flex flex-col gap-300">
-              {member.progress.progressHistory.map((history) => (
-                <ProgressScoreItem key={history.id} {...history} />
-              ))}
-            </ul>
-          )}
+          {isProgressHistoryOpen &&
+            (member.progress.progressHistory.length > 0 ? (
+              <ul className="mt-300 flex flex-col gap-300">
+                {member.progress.progressHistory.map((history) => (
+                  <ProgressScoreItem key={history.id} {...history} />
+                ))}
+              </ul>
+            ) : (
+              <div className="rounded-100 bg-background-alternative mt-300 flex h-[130px] flex-col items-center justify-center gap-100">
+                <span className="font-designer-14b text-text-subtle">
+                  진행한 스터디가 없습니다.
+                </span>
+                <span className="font-designer-13m text-text-subtlest">
+                  스터디를 시작하고 활동 내역을 쌓아보세요.
+                </span>
+              </div>
+            ))}
         </div>
       </div>
     </li>
