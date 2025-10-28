@@ -34,6 +34,10 @@ export interface DeleteThreadReqeust extends GroupStudyIdParam {
   threadId: number;
 }
 
+export interface PostThreadReactionReqeust extends PutThreadRequest {
+  type: string;
+}
+
 export interface GetThreadsResponse {
   threadId: number;
   groupStudyId: number;
@@ -44,11 +48,17 @@ export interface GetThreadsResponse {
   isLeader: boolean;
   likesCount: number;
   dislikesCount: number;
-  myReaction: string | null;
+  myReaction: 'LIKE' | 'DISLIKE' | 'NONE';
   createdAt: string; // ISO 날짜 문자열
   updatedAt: string;
 }
 
+export interface GetPostResponse {
+  groupStudyId: number;
+  noticeTitle: string;
+  noticeContent: string;
+  updatedAt: string; // ISO 날짜 문자열
+}
 export interface GetCommentsResponse extends GetThreadsResponse {
   commentId: number;
 }

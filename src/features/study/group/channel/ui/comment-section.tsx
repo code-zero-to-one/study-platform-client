@@ -6,6 +6,7 @@ import Reaction from './reaction';
 import SubComments from './sub-comments';
 import {
   usePostThreadMutation,
+  usePostThreadReactionMutation,
   useThreadsQuery,
 } from '../model/use-channel-query';
 
@@ -19,6 +20,10 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
     isLoading,
     refetch: threadRefetch,
   } = useThreadsQuery(groupStudyId);
+
+  const { mutateAsync: postLikeStatus } = usePostThreadReactionMutation();
+
+  const [showSubCommentInput, setShowSubCommentInput] = useState(false);
   const [threadText, setThreadText] = useState<string>('');
   const [openThreadId, setOpenThreadId] = useState<number | null>(null); // 👈 변경
 

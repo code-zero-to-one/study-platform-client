@@ -173,6 +173,7 @@ export default function StudyDetailPage({
         <ChannelSection
           groupStudyId={groupStudyId}
           leader={studyDetail.basicInfo.leader}
+          memberId={memberId}
         />
       )}
     </div>

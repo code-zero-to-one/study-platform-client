@@ -27,7 +27,7 @@ export default function Reaction({
     const prev = { ...active };
     const nextActive = {
       like: !prev.like,
-      dislike: prev.like ? prev.dislike : false, // 좋아요 누르면 싫어요 해제
+      dislike: prev.like ? prev.dislike : false, // 이전 값이 true이면
     };
 
     let newLikes = counts.likes;
