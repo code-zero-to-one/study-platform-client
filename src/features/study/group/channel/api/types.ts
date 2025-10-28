@@ -49,4 +49,6 @@ export interface GetThreadsResponse {
   updatedAt: string;
 }
 
-export type GetCommentsResponse = GetThreadsResponse;
+export interface GetCommentsResponse extends GetThreadsResponse {
+  commentId: number;
+}

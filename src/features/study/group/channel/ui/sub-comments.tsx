@@ -1,4 +1,3 @@
-import { set } from 'date-fns';
 import { useState } from 'react';
 import Comment from './comment';
 import CommentInput from './comment-input';
@@ -46,12 +45,15 @@ export default function SubComments({
     );
   };
 
-  if (isLoading) return;
+  if (isLoading) return null;
 
   return (
-    <div className="flex flex-col gap-300 py-300">
+    <div className="flex flex-col gap-300">
       {data.map((subComment) => (
-        <div key={subComment.authorId} className="flex flex-col gap-200">
+        <div
+          key={subComment.commentId}
+          className="flex flex-col gap-200 pt-300"
+        >
           <Comment
             data={subComment}
             groupStudyId={groupStudyId}
@@ -64,20 +66,24 @@ export default function SubComments({
           />
         </div>
       ))}
+
       {showInput && (
-        <CommentInput
-          mode="save"
-          content={commentText}
-          onChange={(value) => setCommentText(value)}
-          onCancel={() => {
-            setCommentText('');
-            handleShowInput();
-          }}
-          onConfirm={() => {
-            handleCommentSubmit(groupStudyId, commentText);
-            setCommentText('');
-          }}
-        />
+        <div className="py-300">
+          <CommentInput
+            mode="save"
+            content={commentText}
+            onChange={(value) => setCommentText(value)}
+            onCancel={() => {
+              setCommentText('');
+              handleShowInput();
+            }}
+            onConfirm={() => {
+              handleCommentSubmit(groupStudyId, commentText);
+              setCommentText('');
+              handleShowInput();
+            }}
+          />
+        </div>
       )}
     </div>
   );
