@@ -66,53 +66,75 @@ export default function GroupStudyList() {
 
   return (
     <div className="flex flex-col gap-200">
-      {groupStudyList.map((study, index) => {
-        return (
-          <div
-            className="rounded-100 flex w-full cursor-pointer justify-between gap-500 border border-solid border-[#D5D7DA] p-400"
-            key={index}
-            onClick={() => router.push(`study/${study.basicInfo.groupStudyId}`)}
-          >
-            <div className="flex flex-col justify-between">
-              <div className="flex flex-col gap-100">
-                <div className="flex gap-100">
-                  {study.basicInfo.hostType === 'ZEROONE' && (
-                    <Badge color="red">제로원 스터디</Badge>
-                  )}
+      {groupStudyList.length > 0 ? (
+        groupStudyList.map((study, index) => {
+          return (
+            <div
+              className="rounded-100 flex w-full cursor-pointer justify-between gap-500 border border-solid border-[#D5D7DA] p-400"
+              key={index}
+              onClick={() =>
+                router.push(`study/${study.basicInfo.groupStudyId}`)
+              }
+            >
+              <div className="flex flex-col justify-between">
+                <div className="flex flex-col gap-100">
+                  <div className="flex gap-100">
+                    {study.basicInfo.hostType === 'ZEROONE' && (
+                      <Badge color="red">제로원 스터디</Badge>
+                    )}
 
-                  <span className="font-designer-18b max-w-[673px] truncate text-[#252B37]">
-                    {study.simpleDetailInfo.title}
-                  </span>
-                </div>
-                <p className="font-designer-15r line-clamp-2 text-[15px] leading-[29px] text-[#535862]">
-                  {study.simpleDetailInfo.summary}
-                </p>
-              </div>
-              <div className="grid grid-cols-3 grid-rows-2 gap-x-100 gap-y-50">
-                {basicInfoItems(study.basicInfo).map((item, idx) => (
-                  <div key={idx} className="flex gap-50">
-                    <span className="font-designer-13m leading-250 text-[#A4A7AE]">
-                      {item.label}
-                    </span>
-                    <span className="font-designer-13m text-[#535862]">
-                      {item.value}
+                    <span className="font-designer-18b max-w-[673px] truncate text-[#252B37]">
+                      {study.simpleDetailInfo.title}
                     </span>
                   </div>
-                ))}
+                  <p className="font-designer-15r line-clamp-2 text-[15px] leading-[29px] text-[#535862]">
+                    {study.simpleDetailInfo.summary}
+                  </p>
+                </div>
+                <div className="grid grid-cols-3 grid-rows-2 gap-x-100 gap-y-50">
+                  {basicInfoItems(study.basicInfo).map((item, idx) => (
+                    <div key={idx} className="flex gap-50">
+                      <span className="font-designer-13m leading-250 text-[#A4A7AE]">
+                        {item.label}
+                      </span>
+                      <span className="font-designer-13m text-[#535862]">
+                        {item.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
+              <Image
+                src={
+                  'https://test-api.zeroone.it.kr/images/group-study-thumbnail/a22531ec-7a78-43e7-a9a9-89ef1d1bc72e_1760112290682.jpg'
+                }
+                alt="thumbnail"
+                className="h-[160px] w-[240px] object-cover"
+                width={240}
+                height={160}
+              />
             </div>
-            <Image
-              src={
-                'https://test-api.zeroone.it.kr/images/group-study-thumbnail/a22531ec-7a78-43e7-a9a9-89ef1d1bc72e_1760112290682.jpg'
-              }
-              alt="thumbnail"
-              className="h-[160px] w-[240px] object-cover"
-              width={240}
-              height={160}
-            />
+          );
+        })
+      ) : (
+        <div className="bg-background-alternative rounded-100 flex h-[640px] flex-col items-center justify-center gap-300">
+          <Image
+            src="/icons/empty-study-case.svg"
+            alt="현재 그룹 스터디가 없습니다."
+            width={88}
+            height={88}
+          />
+
+          <div className="flex flex-col items-center justify-center gap-100">
+            <span className="text-text-subtle font-designer-20b">
+              스터디가 아직 준비되지 않았습니다.
+            </span>
+            <span className="text-text-subtlest font-designer-16r">
+              원하는 주제로 스터디를 개설해 첫 번째 참여자가 되어보세요.
+            </span>
           </div>
-        );
-      })}
+        </div>
+      )}
     </div>
   );
 }
