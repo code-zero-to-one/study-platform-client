@@ -6,6 +6,8 @@ import UserAvatar from '@/shared/ui/avatar';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import CommentInput from './comment-input';
 import ConfirmDeleteModal from '../../ui/confirm-delete-modal';
+import DeleteGroupStudyMemberModal from '../../ui/delete-group-study-member';
+import ProgressScoreModal from '../../ui/progress-score-modal';
 import {
   useDeleteCommentMutation,
   useDeleteThreadMutation,
@@ -33,6 +35,11 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const { userId, userName } = useUser();
   const qc = useQueryClient();
 
+  const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
+    useState<boolean>(false);
+  const [isDeleteMemberModalOpen, setIsDeleteMemberModalOpen] =
+    useState<boolean>(false);
+
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(data.content);
 
@@ -55,7 +62,6 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     }
 
     const base = { groupStudyId, threadId, content: value };
-
     if (mode === 'thread') {
       updateThread(base, {
         onSuccess: async () => {
@@ -93,7 +99,6 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
 
   const handleDelete = (threadId: number, commentId: number) => {
     const base = { groupStudyId, threadId };
-
     if (mode === 'thread') {
       deleteThread(base, {
         onSuccess: async () => {
@@ -162,8 +167,20 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     // 여기는 수아님과 동일한 기능
     if (data.authorId !== userId && data.isLeader) {
       return [
-        { label: '평가하기', value: 'edit', onMenuClick: () => {} },
-        { label: '내보내기', value: 'remove', onMenuClick: () => {} },
+        {
+          label: '평가하기',
+          value: 'edit',
+          onMenuClick: () => {
+            setIsProgressScoreModalOpen(true);
+          },
+        },
+        {
+          label: '내보내기',
+          value: 'remove',
+          onMenuClick: () => {
+            setIsDeleteMemberModalOpen(true);
+          },
+        },
       ];
     }
 
@@ -221,6 +238,18 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
           <MoreMenu options={getMenuOptions()} iconSize={24} />
         )}
       </div>
+      <ProgressScoreModal
+        open={isProgressScoreModalOpen}
+        onChangeOpen={setIsProgressScoreModalOpen}
+        groupStudyId={groupStudyId}
+        targetMemberId={data.authorId}
+      />
+      <DeleteGroupStudyMemberModal
+        open={isDeleteMemberModalOpen}
+        onChangeOpen={setIsDeleteMemberModalOpen}
+        groupStudyId={groupStudyId}
+        targetMemberId={data.authorId}
+      />
     </div>
   );
 }

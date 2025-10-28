@@ -12,12 +12,14 @@ import {
   Users,
 } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import UserAvatar from '@/shared/ui/avatar';
 
+import Button from '@/shared/ui/button';
 import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
 import SummaryStudyInfo from './summary-study-info';
 
@@ -47,6 +49,7 @@ export default function StudyInfoSection({
   groupStudyId,
   isLeader,
 }: StudyInfoSectionProps) {
+  const router = useRouter();
   const { data: applicants } = useApplicantsByStatusQuery({
     groupStudyId,
     status: 'APPROVED',
@@ -205,12 +208,28 @@ export default function StudyInfoSection({
             </div>
           </div>
           <div className="flex flex-col gap-200">
-            <div className="font-designer-20b flex gap-100">
-              <span>실시간 신청자 목록</span>
-              <span className="text-[#A4A7AE]">{`${studyDetail.basicInfo.approvedCount}명`}</span>
+            <div className="flex items-center justify-between">
+              <div className="font-designer-20b flex gap-100">
+                <span>실시간 신청자 목록</span>
+                <span className="text-[#A4A7AE]">{`${studyDetail.basicInfo.approvedCount}명`}</span>
+              </div>
+              {isLeader && (
+                <Button
+                  className="h-[40px] w-[80px] text-[16px] font-bold"
+                  onClick={() =>
+                    router.push(`application-list/${groupStudyId}`)
+                  }
+                >
+                  관리하기
+                </Button>
+              )}
             </div>
-            {applicants?.pages.map((applicant, i) => (
-              <React.Fragment key={i}>
+
+            {applicants?.pages.map((applicant) => (
+              <div
+                key={applicant.page}
+                className="grid grid-cols-2 grid-rows-2 gap-200"
+              >
                 {applicant.content.map((data) => {
                   const temperPreset = getSincerityPresetByLevelName(
                     data.applicantInfo.sincerityTemp.levelName as string,
@@ -249,7 +268,7 @@ export default function StudyInfoSection({
                     </div>
                   );
                 })}
-              </React.Fragment>
+              </div>
             ))}
           </div>
         </div>
