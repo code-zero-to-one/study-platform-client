@@ -1,7 +1,6 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import LoginModal from '@/features/auth/ui/login-modal';
 import Badge from '@/shared/ui/badge';
 import Button from '@/shared/ui/button';
 import LandingForm from '@/widgets/landing/form';
@@ -38,6 +37,37 @@ const SOLUTION_INFO_LIST = [
   },
 ];
 
+// todo imageSrc 수정
+const SUGGESTION_INFO_LIST = [
+  {
+    badge: '현직 전문가 멘토링',
+    title: ['어떻게 시작해야할지 모르겠다면?'],
+    description: [
+      '실무자와 함께 당신의 수준과 목표에 맞는 성장 로드맵을 구성해보세요.',
+      '1:1 멘토링 과정을 통해 구체적인 방향을 제시해드릴게요.',
+    ],
+    imageSrc: '/images/one-by-one-study.png',
+  },
+  {
+    badge: '그룹 스터디',
+    title: ['협업 경험을 쌓고 성장해보세요'],
+    description: [
+      '나와 비슷한 사람들이 함께 모여 스터디를 진행하면서',
+      '서로에게 성장 자극을 줄 수 있도록 만들어요.',
+    ],
+    imageSrc: '/images/one-by-one-study.png',
+  },
+  {
+    badge: '성실 온도 시스템',
+    title: ['프로젝트를 더 자주 빠르게', '제안 받을 수 있는'],
+    description: [
+      '제로원에서 적극적으로 활동해서 성실 온도가 올라갈수록',
+      '외주 프로젝트, 채용 제안을 적극적으로 받을 기회가 늘어나요.',
+    ],
+    imageSrc: '/images/one-by-one-study.png',
+  },
+];
+
 export default async function Landing() {
   return (
     <>
@@ -63,16 +93,14 @@ export default async function Landing() {
                 </span>
               </p>
             </div>
-            <LoginModal
-              openTrigger={
-                <Button
-                  color="primary"
-                  className="w-[190px] py-[12px] text-[20px]"
-                >
-                  제로원 시작하기
-                </Button>
-              }
-            />
+            <Link href="/login">
+              <Button
+                color="primary"
+                className="w-[190px] py-[12px] text-[20px]"
+              >
+                제로원 시작하기
+              </Button>
+            </Link>
           </div>
 
           <div className="relative h-[591px] w-[1000px]">
@@ -131,9 +159,42 @@ export default async function Landing() {
           </ul>
         </section>
 
-        {/* 현직 전문가 멘토링 */}
-        {/* 그룹 스터디 */}
-        {/* 성실 온도 시스템 */}
+        {/* 현직 전문가 멘토링, 그룹 스터디, 성실 온도 시스템 */}
+        {SUGGESTION_INFO_LIST.map((suggestion) => (
+          <section
+            key={suggestion.badge}
+            className="mx-auto flex w-[1160px] max-w-7xl items-center justify-between gap-8 gap-400 py-[120px]"
+          >
+            {/* 왼쪽 컨텐츠 */}
+            <div className="flex-1">
+              <Badge className="rounded-200 w-fit">{suggestion.badge}</Badge>
+
+              <div className="mt-200 flex flex-col gap-300">
+                <p className="font-bold-h2 text-text-strong flex flex-col">
+                  {suggestion.title.map((t) => (
+                    <span key={t}>{t}</span>
+                  ))}
+                </p>
+
+                <p className="text-text-subtle font-designer-16m flex flex-col">
+                  {suggestion.description.map((des) => (
+                    <span key={des}>{des}</span>
+                  ))}
+                </p>
+              </div>
+            </div>
+
+            {/* todo border 삭제 */}
+            <Image
+              src={suggestion.imageSrc}
+              alt={suggestion.badge}
+              width={600}
+              height={400}
+              className="rounded-200 border-border-default border"
+            />
+          </section>
+        ))}
+
         {/* 우리는 증명합니다 */}
         {/* 전문가 멘토진 */}
         {/* 다양한 스터디 */}
