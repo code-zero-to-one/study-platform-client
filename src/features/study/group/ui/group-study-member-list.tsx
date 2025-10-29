@@ -2,16 +2,20 @@ import Image from 'next/image';
 import { useState } from 'react';
 import Pagination from '@/shared/ui/pagination';
 import GroupStudyMemberItem from './group-study-member-item';
+import KickedReasonModal from './kicked-reason-modal';
+import { GroupStudyMyStatusResponse } from '../api/group-study-types';
 import { useGroupStudyMemberListQuery } from '../model/use-group-study-member-list-query';
 
 interface GroupStudyMemberListProps {
   groupStudyId: number;
   leaderId: number;
+  myApplicationStatus?: GroupStudyMyStatusResponse;
 }
 
 export default function GroupStudyMemberList({
   groupStudyId,
   leaderId,
+  myApplicationStatus,
 }: GroupStudyMemberListProps) {
   const [pageNumber, setPageNumber] = useState<number>(1);
   const PAGE_SIZE = 10;
@@ -53,6 +57,10 @@ export default function GroupStudyMemberList({
             아직 <span className="text-text-brand">참여한 멤버</span>가 없습니다
           </p>
         </div>
+      )}
+
+      {myApplicationStatus?.status === 'KICKED' && (
+        <KickedReasonModal reason={myApplicationStatus.reason} />
       )}
 
       <Pagination
