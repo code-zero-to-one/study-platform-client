@@ -138,7 +138,33 @@ export default async function Landing() {
         {/* 전문가 멘토진 */}
         {/* 다양한 스터디 */}
         {/* 오픈 알림 폼  */}
-        <LandingForm />
+        <section className="mx-auto flex max-w-7xl items-center justify-between gap-8 py-[120px]">
+          {/* 왼쪽 컨텐츠 */}
+          <div className="flex-1">
+            <Badge className="rounded-200 w-fit">
+              마감까지 얼마 남지 않았어요
+            </Badge>
+
+            <div className="mt-200 flex flex-col gap-300">
+              <p className="font-bold-h2 text-text-strong flex flex-col">
+                <span>사전 등록하고</span>
+                <span>패키지 혜택을 받아보세요</span>
+              </p>
+
+              <p className="text-text-subtle font-designer-16m flex flex-col">
+                <span>사전 등록 이용자 한정으로 특별한 선물을 준비했어요.</span>
+                <span>
+                  오픈 알림을 신청하시면 멘토링, 스터디, 외주 프로젝트 개설에
+                  대한
+                </span>
+                <span>정보를 가장 먼저 알려드릴게요.</span>
+              </p>
+            </div>
+          </div>
+
+          {/* 오른쪽 컨텐츠 */}
+          <LandingForm />
+        </section>
       </div>
 
       <footer className="bg-background-neutral-strong flex flex-col items-center gap-500 px-[80px] py-[64px]">
