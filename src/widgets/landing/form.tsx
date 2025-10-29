@@ -78,7 +78,7 @@ export default function LandingForm() {
   };
 
   return (
-    <div className="h-[768px] w-[720px] rounded-[24px] p-[48px] shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+    <div className="h-[768px] w-[680px] rounded-[24px] p-[48px] shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
       <form onSubmit={handleSubmit}>
         <div className="flex w-full flex-col">
           <div className="font-designer-16m mb-[12px] text-[#444444]">

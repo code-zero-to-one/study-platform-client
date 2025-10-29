@@ -199,7 +199,7 @@ export default async function Landing() {
         {/* 전문가 멘토진 */}
         {/* 다양한 스터디 */}
         {/* 오픈 알림 폼  */}
-        <section className="mx-auto flex max-w-7xl items-center justify-between gap-8 py-[120px]">
+        <section className="mx-auto flex w-[1160px] max-w-7xl items-center justify-between gap-8 gap-400 py-[120px]">
           {/* 왼쪽 컨텐츠 */}
           <div className="flex-1">
             <Badge className="rounded-200 w-fit">
