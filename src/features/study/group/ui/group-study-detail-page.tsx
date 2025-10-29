@@ -167,12 +167,14 @@ export default function StudyDetailPage({
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
+          myApplicationStatus={myApplicationStatus}
         />
       )}
       {active === 'channel' && (
         <ChannelSection
           groupStudyId={groupStudyId}
           leader={studyDetail.basicInfo.leader}
+          myApplicationStatus={myApplicationStatus}
         />
       )}
     </div>
