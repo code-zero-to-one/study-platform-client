@@ -167,6 +167,7 @@ export default function StudyDetailPage({
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
+          myApplicationStatus={myApplicationStatus}
         />
       )}
       {active === 'channel' && (
