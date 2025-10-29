@@ -81,12 +81,6 @@ export interface ResizedImage {
   resizedImageId: number;
   resizedImageUrl: string;
   imageSizeType: ImageSizeType;
-  leader: {
-    memberId: number;
-    memberName: string;
-    profileImage: string | null;
-    simpleIntroduction: string | null;
-  };
 }
 
 export interface DetailInfo {
@@ -274,4 +268,37 @@ export interface DeleteGroupStudyMemberRequest {
   groupStudyId: number;
   targetMemberId: number;
   reason: string;
+}
+
+// 회원의 스터디 리스트 조회 API 타입
+export interface MemberStudyListRequest {
+  memberId: number;
+  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY';
+  studyStatus?: 'BOTH' | 'NOT_COMPLETED' | 'COMPLETED';
+  inProgressPage?: number;
+  inProgressPageSize?: number;
+  completedPage?: number;
+  completedPageSize?: number;
+}
+
+export interface Thumbnail {
+  imageId: number;
+  resizedImages: ResizedImage[];
+}
+
+export interface StudyItem {
+  studyId: number;
+  thumbnail: Thumbnail;
+  maxMembersCount: number;
+  participantsCount: number;
+  startTime: string;
+  endTime: string;
+  studyRole: string;
+  status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
+  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY';
+}
+
+export interface MemberStudyListResponse {
+  notCompleted: StudyItem[];
+  completed: StudyItem[];
 }
