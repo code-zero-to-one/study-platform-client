@@ -1,11 +1,10 @@
 import { Metadata } from 'next';
-import Header from '@/widgets/landing/header';
-import backgroundImg from '../../public/images/landing_page.png';
-import Button from '@/shared/ui/button';
-import LandingForm from '@/widgets/landing/form';
-import LoginModal from '@/features/auth/ui/login-modal';
 import Image from 'next/image';
 import Link from 'next/link';
+import LoginModal from '@/features/auth/ui/login-modal';
+import Button from '@/shared/ui/button';
+import LandingForm from '@/widgets/landing/form';
+import backgroundImg from '../../public/images/landing_page.png';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -26,7 +25,6 @@ export default async function Landing() {
         width: '100%',
       }}
     >
-      <Header />
       <div className="absolute top-[5.5%] left-[50%] flex translate-x-[-50%] justify-center">
         <LoginModal
           openTrigger={

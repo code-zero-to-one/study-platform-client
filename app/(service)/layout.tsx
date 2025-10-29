@@ -1,10 +1,10 @@
 import '../global.css';
 
+import Clarity from '@microsoft/clarity';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import Clarity from '@microsoft/clarity';
 import MainProvider from '@/app/provider';
 import Header from '@/widgets/home/header';
 
