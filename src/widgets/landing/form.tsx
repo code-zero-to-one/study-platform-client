@@ -1,8 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
-import { useState } from 'react';
 
 export default function LandingForm() {
   const [checked, setChecked] = useState<string[]>([]);
@@ -20,26 +20,30 @@ export default function LandingForm() {
       // 유효성 검사
       if (!email.trim()) {
         alert('이메일을 입력해주세요.');
+
         return;
       }
 
       if (type === 'NONE') {
         alert('직무 유형을 선택해주세요.');
+
         return;
       }
 
       if (checked.length === 0) {
         alert('관심 기능을 하나 이상 선택해주세요.');
+
         return;
       }
 
       if (!checked.includes('AGREE_TERMS_OF_SERVICE')) {
         alert('개인정보 보호정책에 동의해주세요.');
+
         return;
       }
 
       // API 호출
-      const response = await fetch('/api/submit-form', {
+      const response = await fetch('/api/notify-user-by-email', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
