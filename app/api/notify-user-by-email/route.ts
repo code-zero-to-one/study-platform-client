@@ -49,13 +49,19 @@ export async function POST(request: NextRequest) {
     };
 
     // Google Sheets API 설정이 있는 경우에만 실행
-    if (process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID && process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL) {
+    if (
+      process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID &&
+      process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL
+    ) {
       try {
         await addToGoogleSheets(formData);
       } catch (sheetsError) {
         console.error('Google Sheets 저장 실패:', sheetsError);
         // Google Sheets 저장 실패해도 폼 제출은 성공으로 처리
-        console.log('폼 데이터 (Google Sheets 저장 실패, 로그만 기록):', formData);
+        console.log(
+          '폼 데이터 (Google Sheets 저장 실패, 로그만 기록):',
+          formData,
+        );
       }
     } else {
       // 환경 변수가 설정되지 않은 경우 콘솔에 로그만 출력
@@ -68,11 +74,11 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error('폼 제출 오류:', error);
-    console.error('오류 상세:', error instanceof Error ? error.message : error);
+
     return NextResponse.json(
-      { 
+      {
         error: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 },
     );
