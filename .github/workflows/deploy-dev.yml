@@ -1,4 +1,5 @@
 # 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.10.30 이후)
+#
 
 name: Front Test Server (Develop)
 
@@ -36,6 +37,11 @@ jobs:
           docker build -f Dockerfile.dev -t zerooneitkr/frontend:develop .
           docker push zerooneitkr/frontend:develop
 
+  deploy-image-to-server: # 도커 허브 pull 후 서버에 배포
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+
+    steps:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
@@ -43,12 +49,7 @@ jobs:
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H ${{ secrets.LIGHTSAIL_HOST }} >> ~/.ssh/known_hosts
           echo "SSH 설정 완료"
-
-  deploy-image-to-server: # 도커 허브 pull 후 서버에 배포
-    runs-on: ubuntu-latest
-    needs: build-and-push-image
-
-    steps:
+          
       - name : 서버 배포
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }} << EOF
