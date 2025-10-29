@@ -5,7 +5,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { FaPlus } from 'react-icons/fa6';
 import MyStudyInfoCard, {
   MyStudyInfoProps,
-} from '@/features/my-study/ui/my-study-info-card';
+} from '@/features/my-page/ui/my-study-info-card';
 import Button from '@/shared/ui/button';
 
 const studyList = [
