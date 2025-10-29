@@ -41,9 +41,9 @@ export default function ServiceLayout({
         <MainProvider>
           <div className="w-full overflow-auto">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
-            <div className="m-auto flex w-[1496px] flex-1 flex-col items-center">
+            <div className="m-auto flex min-w-[1496px] flex-1 flex-col items-center">
               <Header />
-              <main className="w-full px-600">{children}</main>
+              <main className="w-full">{children}</main>
             </div>
           </div>
         </MainProvider>
