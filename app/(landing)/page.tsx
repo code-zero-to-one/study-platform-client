@@ -80,8 +80,8 @@ export default async function Landing() {
           <div className="relative z-10 flex flex-col items-center justify-center gap-400">
             <div>
               <p className="font-bold-h1 text-text-strong flex flex-col items-center">
-                <span>기획자, 개발자 디자이너를 위한</span>
-                <span>프리미엄 멤버십 플랫폼</span>
+                <span>IT 업계 선배들이 진행하는</span>
+                <span>프리미엄 실전 스터디/외주 플랫폼</span>
               </p>
 
               <p className="text-text-subtle font-designer-16m mt-200 flex flex-col items-center">
@@ -208,17 +208,22 @@ export default async function Landing() {
 
             <div className="mt-200 flex flex-col gap-300">
               <p className="font-bold-h2 text-text-strong flex flex-col">
-                <span>사전 등록하고</span>
-                <span>패키지 혜택을 받아보세요</span>
+                <span>당신을 위한 스터디가 준비중입니다!</span>
+                {/* <span>연락드릴게요!</span> */}
               </p>
 
               <p className="text-text-subtle font-designer-16m flex flex-col">
-                <span>사전 등록 이용자 한정으로 특별한 선물을 준비했어요.</span>
+                <span>현재 멘토님들이 스터디 개설을 준비하고 있어요.</span>
+                <br />
                 <span>
-                  오픈 알림을 신청하시면 멘토링, 스터디, 외주 프로젝트 개설에
-                  대한
+                  알림을 신청하시면 나의 관심분야에 대한 
                 </span>
-                <span>정보를 가장 먼저 알려드릴게요.</span>
+                <span>
+                  오픈 정보를 가장 먼저 알려드릴게요.
+                </span>
+                {/* <span>정보를 가장 먼저 알려드릴게요.</span> */}
+                <br />
+                <span>(선착순 모집 마감시에는 알림이 발송되지 않을 수 있습니다)</span>
               </p>
             </div>
           </div>

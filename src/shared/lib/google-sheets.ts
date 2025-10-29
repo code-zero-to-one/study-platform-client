@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 // Google Sheets API 설정
 const SCOPES = ['https://www.googleapis.com/auth/spreadsheets'];
 const SPREADSHEET_ID = process.env.NEXT_PUBLIC_GOOGLE_SHEETS_ID || '';
-const RANGE = 'A:F'; // A부터 F열까지 사용 (시트 이름 없이)
+const RANGE = 'A:G'; // A부터 G열까지 사용 (시트 이름 없이)
 
 // Google Sheets API 클라이언트 초기화
 async function getSheetsClient() {
@@ -23,6 +23,7 @@ async function getSheetsClient() {
 export interface LandingFormData {
   email: string;
   type: string;
+  experience: string;
   features: string[];
   consultation: string;
   agreeTerms: boolean;
@@ -35,11 +36,12 @@ export async function addToGoogleSheets(data: LandingFormData): Promise<void> {
     const sheets = await getSheetsClient();
 
     // 헤더가 없는 경우 헤더 추가
-    const headerRange = 'A1:F1';
+    const headerRange = 'A1:G1';
     const headerValues = [
       [
         '이메일',
         '직무 유형',
+        '경력',
         '관심 기능',
         '상담 내용',
         '개인정보 동의',
@@ -61,6 +63,7 @@ export async function addToGoogleSheets(data: LandingFormData): Promise<void> {
       [
         data.email,
         data.type,
+        data.experience,
         data.features.join(', '),
         data.consultation,
         data.agreeTerms ? '동의' : '비동의',

@@ -6,11 +6,12 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // 폼 데이터 유효성 검사
-    const { email, type, features, consultation, agreeTerms } = body;
+    const { email, type, experience, features, consultation, agreeTerms } = body;
 
     if (
       !email ||
       !type ||
+      !experience ||
       !features ||
       !Array.isArray(features) ||
       agreeTerms === undefined
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
     const formData: LandingFormData = {
       email,
       type,
+      experience,
       features,
       consultation: consultation || '',
       agreeTerms,
