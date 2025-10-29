@@ -10,11 +10,15 @@ export default function KickedReasonModal({ reason }: KickedReasonModalProps) {
   if (!reason) return null;
 
   return (
-    <Modal.Root defaultOpen>
+    <Modal.Root defaultOpen open>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content
           onPointerDownOutside={(e) => {
+            // 모달 바깥 클릭 방지
+            e.preventDefault();
+          }}
+          onInteractOutside={(e) => {
             // 모달 바깥 클릭 방지
             e.preventDefault();
           }}
