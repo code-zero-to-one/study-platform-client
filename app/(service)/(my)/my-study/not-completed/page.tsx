@@ -5,6 +5,7 @@ import React from 'react';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
+import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
 import Button from '@/shared/ui/button';
 
 interface MemberGroupStudyList extends MemberStudyItem {
@@ -31,9 +32,13 @@ export default function NotCompletedPage() {
     <div className="flex flex-col gap-300">
       <div className="flex flex-row items-center justify-between">
         <h1 className="font-designer-20b">마이스터디</h1>
-        <Button icon={<Plus className="text-text-inverse" />} size="medium">
-          스터디 개설하기
-        </Button>
+        <OpenGroupStudyModal
+          trigger={
+            <Button icon={<Plus className="text-text-inverse" />} size="medium">
+              스터디 개설하기
+            </Button>
+          }
+        />
       </div>
 
       <div className="flex flex-col gap-600">
