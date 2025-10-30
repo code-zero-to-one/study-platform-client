@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import ApplicantList from '@/features/my-page/ui/applicant-list';
+import ApplicantPage from '@/features/my-page/ui/applicant-page';
 
 export default async function ApplicationListPage({
   params,
@@ -9,18 +8,8 @@ export default async function ApplicationListPage({
   const { studyId } = await params;
 
   return (
-    <div className="w-720px flex flex-col gap-300">
-      <div className="font-designer-20b flex items-center">
-        <Image
-          src="/icons/arrow-left-line.svg"
-          alt="arrow-left"
-          width={40}
-          height={40}
-        />
-        <div className="flex-1 text-center">새로운 신청자 확인하기</div>
-      </div>
-
-      <ApplicantList studyId={studyId} />
-    </div>
+    <>
+      <ApplicantPage studyId={studyId} />
+    </>
   );
 }
