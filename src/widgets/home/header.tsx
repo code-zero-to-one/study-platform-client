@@ -30,7 +30,7 @@ export default async function Header() {
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
-          <Link href="/home">
+          <Link href="/">
             <Image
               src="/icons/logo_title.svg"
               alt="Logo-title"
