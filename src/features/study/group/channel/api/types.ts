@@ -8,6 +8,12 @@ export interface GetCommentsRequest extends GroupStudyIdParam {
   threadId: number;
 }
 
+export interface PostCommentReactionRequest {
+  threadId: number;
+  commentId: number;
+  type: string;
+}
+
 export interface PostCommentRequest extends GetCommentsRequest {
   content: string;
 }
@@ -34,8 +40,10 @@ export interface DeleteThreadReqeust extends GroupStudyIdParam {
   threadId: number;
 }
 
-export interface PostThreadReactionReqeust extends PutThreadRequest {
-  type: string;
+export type REACTION = 'LIKE' | 'DISLIKE' | 'NONE';
+
+export interface PostThreadReactionRequest extends DeleteThreadReqeust {
+  type: REACTION;
 }
 
 export interface GetThreadsResponse {
@@ -48,7 +56,7 @@ export interface GetThreadsResponse {
   isLeader: boolean;
   likesCount: number;
   dislikesCount: number;
-  myReaction: 'LIKE' | 'DISLIKE' | 'NONE';
+  myReaction: REACTION;
   createdAt: string; // ISO 날짜 문자열
   updatedAt: string;
 }

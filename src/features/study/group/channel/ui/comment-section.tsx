@@ -2,8 +2,8 @@ import { MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import Comment from './comment';
 import CommentInput from './comment-input';
-import Reaction from './reaction';
 import SubComments from './sub-comments';
+import { ThreadReaction } from './thread-reaction';
 import {
   usePostThreadMutation,
   usePostThreadReactionMutation,
@@ -74,10 +74,14 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
                   groupStudyId={groupStudyId}
                 />
                 <div className="flex gap-150">
-                  <Reaction
-                    likesCount={comment.likesCount}
-                    dislikesCount={comment.dislikesCount}
-                    myReaction={comment.myReaction}
+                  <ThreadReaction
+                    groupStudyId={groupStudyId}
+                    threadId={comment.threadId}
+                    initialReaction={comment.myReaction}
+                    initialCounts={{
+                      likes: comment.likesCount,
+                      dislikes: comment.dislikesCount,
+                    }}
                   />
                   <span onClick={toggle}>답글쓰기</span>
                 </div>
