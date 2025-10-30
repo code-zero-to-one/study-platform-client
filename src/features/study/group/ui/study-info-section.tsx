@@ -220,7 +220,7 @@ export default function StudyInfoSection({
                 <Button
                   className="h-[40px] w-[80px] text-[16px] font-bold"
                   onClick={() =>
-                    router.push(`application-list/${groupStudyId}`)
+                    router.push(`/application-list/${groupStudyId}`)
                   }
                 >
                   관리하기
