@@ -319,3 +319,9 @@ export interface MemberStudyListResponse {
     hasPrevious: boolean;
   };
 }
+
+// 그룹 스터디 공지
+export interface GroupStudyNoticeRequest {
+  noticeTitle: string;
+  noticeContent: string;
+}

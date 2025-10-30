@@ -24,5 +24,7 @@ export const getGroupStudyList = async (
     }
 
     return data.content;
-  } catch (err) {}
+  } catch (err) {
+    console.error(err);
+  }
 };

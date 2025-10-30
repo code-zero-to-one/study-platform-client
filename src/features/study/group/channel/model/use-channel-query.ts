@@ -5,13 +5,17 @@ import { getComments } from '../api/get-comments';
 import { getPost } from '../api/get-post';
 import { getThreads } from '../api/get-threads';
 import { postComment } from '../api/post-comment';
+import { postCommentReaction } from '../api/post-comment-reaction';
 import { postThread } from '../api/post-thread';
+import { postThreadReaction } from '../api/post-thread-reaction';
 import { putComment } from '../api/put-comment';
 import { putThread } from '../api/put-thread';
 import {
   DeleteCommentRequest,
   DeleteThreadReqeust,
+  PostCommentReactionRequest,
   PostCommentRequest,
+  PostThreadReactionRequest,
   PostThreadRequest,
   PutCommentRequest,
   PutThreadRequest,
@@ -78,5 +82,18 @@ export const useUpdateCommentMutation = () => {
 export const useDeleteCommentMutation = () => {
   return useMutation({
     mutationFn: (param: DeleteCommentRequest) => deleteComment(param),
+  });
+};
+
+export const usePostThreadReactionMutation = () => {
+  return useMutation({
+    mutationFn: (param: PostThreadReactionRequest) => postThreadReaction(param),
+  });
+};
+
+export const usePostCommentReactionMutation = () => {
+  return useMutation({
+    mutationFn: (param: PostCommentReactionRequest) =>
+      postCommentReaction(param),
   });
 };
