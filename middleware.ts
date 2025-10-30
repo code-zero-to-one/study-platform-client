@@ -66,13 +66,42 @@ export async function middleware(request: NextRequest) {
   const hasAccessToken = request.cookies.has('accessToken');
   const hasMemberId = request.cookies.has('memberId') && isNumeric(memberId);
 
-  if (
-    !hasAccessToken ||
-    (request.nextUrl.pathname !== '/sign-up' && !hasMemberId) // 회원가입 페이지가 아닌 경우 memberId 체크 (회원가입 하지 않을 경우, memberId는 null)
-  ) {
-    const loginUrl = new URL('/login', request.url);
+  // 랜딩 페이지(/)는 인증 체크를 하지 않음
+  if (request.nextUrl.pathname === '/') {
+    // 이미 로그인된 사용자가 랜딩 페이지에 접근하면 홈으로 리디렉션
+    if (hasAccessToken && hasMemberId) {
+      const mainUrl = new URL('/home', request.url);
 
-    return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(mainUrl);
+    }
+
+    // 로그인되지 않은 사용자는 랜딩 페이지에 그대로 머물 수 있음
+    return NextResponse.next();
+  }
+
+  // 회원가입 페이지는 accessToken만 체크 (memberId는 회원가입 후에 생성됨)
+  if (request.nextUrl.pathname === '/sign-up') {
+    if (hasAccessToken && hasMemberId) {
+      // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
+      const mainUrl = new URL('/home', request.url);
+
+      return NextResponse.redirect(mainUrl);
+    }
+    // accessToken이 없으면 랜딩 페이지로 리디렉션
+    if (!hasAccessToken) {
+      const landingUrl = new URL('/', request.url);
+
+      return NextResponse.redirect(landingUrl);
+    }
+
+    return NextResponse.next();
+  }
+
+  // 다른 모든 페이지는 인증이 필요함
+  if (!hasAccessToken || !hasMemberId) {
+    const landingUrl = new URL('/', request.url);
+
+    return NextResponse.redirect(landingUrl);
   }
 
   // access token 갱신 필요 여부 확인
@@ -92,25 +121,21 @@ export async function middleware(request: NextRequest) {
         path: '/',
       });
     } else {
-      // 갱신 실패
-      const loginUrl = new URL('/login', request.url);
+      // 갱신 실패 - 쿠키 삭제 후 랜딩 페이지로 리디렉션
+      response.cookies.delete('accessToken');
+      response.cookies.delete('memberId');
+      const landingUrl = new URL('/', request.url);
 
-      return NextResponse.redirect(loginUrl);
+      return NextResponse.redirect(landingUrl);
     }
   }
 
-  // 이미 회원가입 완료 했는데, sign-up 페이지에 진입할 경우 메인 페이지로 리다이렉트
-  if (request.nextUrl.pathname === '/sign-up' && hasMemberId) {
-    const mainUrl = new URL('/', request.url);
-
-    return NextResponse.redirect(mainUrl);
-  }
-
+  // 관리자 페이지 권한 체크
   if (request.nextUrl.pathname.startsWith('/admin')) {
     const decodedJwt = decodeJwt(accessToken);
 
     if (!decodedJwt || !decodedJwt.roleIds.includes('ROLE_ADMIN')) {
-      const homeUrl = new URL('/', request.url);
+      const homeUrl = new URL('/home', request.url);
 
       return NextResponse.redirect(homeUrl);
     }
@@ -123,6 +148,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/',
+    '/home',
     '/my-page',
     '/my-study',
     '/my-study-review',

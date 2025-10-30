@@ -32,7 +32,7 @@ function RedirectionContent() {
         if (isGuest === 'true') {
           router.push('/sign-up');
         } else {
-          router.push('/');
+          router.push('/home');
           router.refresh();
           sendGTMEvent({
             event: 'custom_member_login',
