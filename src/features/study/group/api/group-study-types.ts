@@ -87,7 +87,6 @@ export interface ResizedImage {
     profileImage: string | null;
     simpleIntroduction: string | null;
   };
-
 }
 
 export interface DetailInfo {
@@ -274,4 +273,10 @@ export interface DeleteGroupStudyMemberRequest {
   groupStudyId: number;
   targetMemberId: number;
   reason: string;
+}
+
+// 그룹 스터디 공지
+export interface GroupStudyNoticeRequest {
+  noticeTitle: string;
+  noticeContent: string;
 }
