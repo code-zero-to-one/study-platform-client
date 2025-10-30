@@ -286,19 +286,20 @@ export interface Thumbnail {
   resizedImages: ResizedImage[];
 }
 
-export interface StudyItem {
+export interface MemberStudyItem {
+  title: string;
   studyId: number;
   thumbnail: Thumbnail;
   maxMembersCount: number;
   participantsCount: number;
   startTime: string;
   endTime: string;
-  studyRole: string;
+  studyRole: 'PARTICIPANT' | 'LEADER';
   status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
   type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY';
 }
 
 export interface MemberStudyListResponse {
-  notCompleted: StudyItem[];
-  completed: StudyItem[];
+  notCompleted: MemberStudyItem[];
+  completed: MemberStudyItem[];
 }
