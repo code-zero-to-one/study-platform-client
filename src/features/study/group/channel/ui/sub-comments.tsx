@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import Comment from './comment';
 import CommentInput from './comment-input';
-import Reaction from './reaction';
+
+import { CommentReaction } from './comment-reaction';
 import {
   useCommentsQuery,
   usePostCommentMutation,
@@ -59,10 +60,14 @@ export default function SubComments({
             groupStudyId={groupStudyId}
             mode="comment"
           />
-          <Reaction
-            likesCount={subComment.likesCount}
-            dislikesCount={subComment.dislikesCount}
-            myReaction={subComment.myReaction}
+          <CommentReaction
+            threadId={threadId}
+            commentId={subComment.commentId}
+            initialReaction={subComment.myReaction}
+            initialCounts={{
+              likes: subComment.likesCount,
+              dislikes: subComment.dislikesCount,
+            }}
           />
         </div>
       ))}
