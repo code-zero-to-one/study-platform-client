@@ -2,9 +2,10 @@
 
 import { Plus } from 'lucide-react';
 import React from 'react';
-import MyStudyInfoCard from '@/features/my-page/ui/my-study-info-card';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
+import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
+import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
 import Button from '@/shared/ui/button';
 
 interface MemberGroupStudyList extends MemberStudyItem {
@@ -18,8 +19,11 @@ export default function MyStudy() {
     studyStatus: 'BOTH',
   });
 
-  const inProgressStudyList = (data?.notCompleted ||
+  // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록
+  const notCompletedStudyList = (data?.notCompleted ||
     []) as MemberGroupStudyList[];
+
+  // status가 "COMPLETED"인 스터디 목록
   const completedStudyList = (data?.completed || []) as MemberGroupStudyList[];
 
   if (isLoading) {
@@ -36,82 +40,41 @@ export default function MyStudy() {
       </div>
 
       <div className="flex flex-col gap-600">
-        <InProgressStudyList studyList={inProgressStudyList} />
-        <CompletedStudyList studyList={completedStudyList} />
-      </div>
-    </div>
-  );
-}
+        <div>
+          <div className="mb-200 flex flex-row justify-between">
+            <h2 className="font-designer-16b text-text-default">
+              참여 중인 스터디
+            </h2>
 
-function InProgressStudyList({
-  studyList,
-}: {
-  studyList: MemberGroupStudyList[];
-}) {
-  return (
-    <div>
-      <div className="mb-200 flex flex-row justify-between">
-        <h2 className="font-designer-16b text-text-default">
-          참여 중인 스터디
-        </h2>
+            {notCompletedStudyList.length > 9 && (
+              <button className="font-designer-14m text-text-subtlest">
+                전체보기
+              </button>
+            )}
+          </div>
 
-        {studyList.length > 9 && (
-          <button className="font-designer-14m text-text-subtlest">
-            전체보기
-          </button>
-        )}
-      </div>
-
-      {studyList.length > 0 ? (
-        <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
-          {studyList.map((study) => (
-            <MyStudyInfoCard key={study.studyId} {...study} />
-          ))}
-        </ul>
-      ) : (
-        <div className="flex flex-col items-center justify-center">
-          <span className="font-designer-20b text-text-default">
-            참여하는 스터디가 없습니다.
-          </span>
-          <span className="font-designer-15r text-text-subtlest">
-            원하는 스터디를 찾아보세요!
-          </span>
+          <NotCompletedGroupStudyList
+            studyList={notCompletedStudyList.filter((study, idx) => idx < 9)}
+          />
         </div>
-      )}
-    </div>
-  );
-}
 
-function CompletedStudyList({
-  studyList,
-}: {
-  studyList: MemberGroupStudyList[];
-}) {
-  return (
-    <div>
-      <div className="mb-200 flex flex-row justify-between">
-        <h2 className="font-designer-16b text-text-default">종료된 스터디</h2>
+        <div>
+          <div className="mb-200 flex flex-row justify-between">
+            <h2 className="font-designer-16b text-text-default">
+              종료된 스터디
+            </h2>
 
-        {studyList.length > 9 && (
-          <button className="font-designer-14m text-text-subtlest">
-            전체보기
-          </button>
-        )}
-      </div>
-
-      {studyList.length > 0 ? (
-        <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
-          {studyList.map((study) => (
-            <MyStudyInfoCard key={study.studyId} {...study} />
-          ))}
-        </ul>
-      ) : (
-        <div className="flex items-center justify-center">
-          <span className="font-designer-15r text-text-subtlest">
-            종료된 스터디가 없습니다.
-          </span>
+            {completedStudyList.length > 9 && (
+              <button className="font-designer-14m text-text-subtlest">
+                전체보기
+              </button>
+            )}
+          </div>
+          <CompletedGroupStudyList
+            studyList={completedStudyList.filter((study, idx) => idx < 9)}
+          />
         </div>
-      )}
+      </div>
     </div>
   );
 }
