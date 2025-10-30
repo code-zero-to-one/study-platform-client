@@ -6,7 +6,7 @@ export const postGroupStudyNotice = async (
   groupStudyId: number,
   body: GroupStudyNoticeRequest,
 ) => {
-  const res = await axiosInstance.post(
+  const res = await axiosInstance.put(
     `/group-studies/${groupStudyId}/notice`,
     body,
   );

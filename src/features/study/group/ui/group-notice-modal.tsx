@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -27,7 +28,9 @@ export default function GroupStudyNoticeModal({
   return (
     <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
       <Modal.Trigger asChild>
-        <Button size="medium">작성하기</Button>
+        <Button size="medium" className="mt-300 h-600 w-[88px] self-center">
+          작성하기
+        </Button>
       </Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
@@ -56,6 +59,7 @@ function GroupStudyNoticeForm({
   groupStudyId: number;
   onClose: () => void;
 }) {
+  const qc = useQueryClient();
   const { mutate: groupStudyNotice, isPending } = useGroupStudyNoticeMutation();
 
   const methods = useForm<GroupStudyNoticeFormValues>({
@@ -78,9 +82,12 @@ function GroupStudyNoticeForm({
     groupStudyNotice(
       { groupStudyId, payload: form },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           alert('스터디 공지가 등록되었습니다!');
           onClose();
+          await qc.invalidateQueries({
+            queryKey: ['post', groupStudyId],
+          });
         },
         onError: () => {
           alert('공지 등록 중 오류가 발생했습니다. 다시 시도해 주세요.');

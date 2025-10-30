@@ -1,6 +1,10 @@
-import React from 'react';
+import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
-export default function CreatePost() {
+interface CreatePostProps {
+  groupStudyId: number;
+}
+
+export default function CreatePost({ groupStudyId }: CreatePostProps) {
   return (
     <div className="bg-background-alternative rounded-100 flex h-[640px] w-full items-center justify-center border-2 border-dashed border-[#D5D7DA]">
       <div className="flex flex-col gap-200 text-center">
@@ -10,6 +14,8 @@ export default function CreatePost() {
           <br />
           모든 멤버가 한눈에 확인할 수 있도록 중요한 내용을 정리해주세요.
         </div>
+
+        <GroupStudyNoticeModal groupStudyId={groupStudyId} />
       </div>
     </div>
   );
