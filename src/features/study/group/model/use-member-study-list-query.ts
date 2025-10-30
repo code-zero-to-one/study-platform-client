@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { getMemberStudyList } from '../api/get-member-study-list';
 import { MemberStudyListRequest } from '../api/group-study-types';
 
-export const useMemberStudiesQuery = ({
+export const useMemberStudyListQuery = ({
   memberId,
   studyType,
   studyStatus,
