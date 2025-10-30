@@ -18,9 +18,11 @@ export default function ChannelSection({
 }: ChannelSectionProps) {
   const { data, isLoading } = usePostQuery(groupStudyId);
 
+  console.log('data', data);
+
   if (isLoading) return;
 
-  return data.noticeTitle.length === 0 ? (
+  return !data.isRegistered ? (
     memberId === leader.memberId ? (
       <CreatePost />
     ) : (

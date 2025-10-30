@@ -57,6 +57,7 @@ export interface GetPostResponse {
   groupStudyId: number;
   noticeTitle: string;
   noticeContent: string;
+  isRegistered: boolean;
   updatedAt: string; // ISO 날짜 문자열
 }
 export interface GetCommentsResponse extends GetThreadsResponse {
