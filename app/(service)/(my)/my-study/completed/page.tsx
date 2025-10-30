@@ -7,6 +7,7 @@ import { useMemberStudyListQuery } from '@/features/study/group/model/use-member
 import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
 import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
 import Button from '@/shared/ui/button';
+import Pagination from '@/shared/ui/pagination';
 
 interface MemberGroupStudyList extends MemberStudyItem {
   type: 'GROUP_STUDY';
@@ -19,10 +20,12 @@ export default function CompletedPage() {
     memberId: 1,
     studyType: 'GROUP_STUDY',
     studyStatus: 'COMPLETED',
+    completedPage: page,
   });
 
   // status가 "COMPLETED"인 스터디 목록
-  const completedStudyList = (data?.completed || []) as MemberGroupStudyList[];
+  const completedStudyList = (data?.completed.content ||
+    []) as MemberGroupStudyList[];
 
   if (isLoading) {
     return null;
@@ -50,6 +53,12 @@ export default function CompletedPage() {
           </div>
           <CompletedGroupStudyList studyList={completedStudyList} />
         </div>
+
+        <Pagination
+          page={page}
+          onChangePage={setPage}
+          totalPages={data?.completed.totalPages || 1}
+        />
       </div>
     </div>
   );

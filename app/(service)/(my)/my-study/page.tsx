@@ -22,11 +22,12 @@ export default function MyStudy() {
   });
 
   // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록
-  const notCompletedStudyList = (data?.notCompleted ||
+  const notCompletedStudyList = (data?.notCompleted.content ||
     []) as MemberGroupStudyList[];
 
   // status가 "COMPLETED"인 스터디 목록
-  const completedStudyList = (data?.completed || []) as MemberGroupStudyList[];
+  const completedStudyList = (data?.completed.content ||
+    []) as MemberGroupStudyList[];
 
   if (isLoading) {
     return null;

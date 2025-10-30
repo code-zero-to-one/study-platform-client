@@ -1,12 +1,13 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
 import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
 import Button from '@/shared/ui/button';
+import Pagination from '@/shared/ui/pagination';
 
 interface MemberGroupStudyList extends MemberStudyItem {
   type: 'GROUP_STUDY';
@@ -14,14 +15,16 @@ interface MemberGroupStudyList extends MemberStudyItem {
 }
 
 export default function NotCompletedPage() {
+  const [page, setPage] = useState<number>(1);
   const { data, isLoading } = useMemberStudyListQuery({
     memberId: 1,
     studyType: 'GROUP_STUDY',
     studyStatus: 'NOT_COMPLETED',
+    inProgressPage: page,
   });
 
   // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록
-  const notCompletedStudyList = (data?.notCompleted ||
+  const notCompletedStudyList = (data?.notCompleted.content ||
     []) as MemberGroupStudyList[];
 
   if (isLoading) {
@@ -51,6 +54,12 @@ export default function NotCompletedPage() {
 
           <NotCompletedGroupStudyList studyList={notCompletedStudyList} />
         </div>
+
+        <Pagination
+          page={page}
+          onChangePage={setPage}
+          totalPages={data?.notCompleted.totalPages || 1}
+        />
       </div>
     </div>
   );

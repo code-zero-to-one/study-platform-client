@@ -300,6 +300,22 @@ export interface MemberStudyItem {
 }
 
 export interface MemberStudyListResponse {
-  notCompleted: MemberStudyItem[];
-  completed: MemberStudyItem[];
+  notCompleted: {
+    content: MemberStudyItem[];
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
+  completed: {
+    content: MemberStudyItem[];
+    page: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
+  };
 }
