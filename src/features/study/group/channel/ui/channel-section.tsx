@@ -1,26 +1,39 @@
 import Comments from './comment-section';
 import CreatePost from './create-post';
 import Post from './post';
+
 import PostNotFound from './post-not-found';
-import { Leader } from '../../api/group-study-types';
+import {
+  GroupStudyMyStatusResponse,
+  Leader,
+} from '../../api/group-study-types';
+import KickedReasonModal from '../../ui/kicked-reason-modal';
+
 import { usePostQuery } from '../model/use-channel-query';
 
 interface ChannelSectionProps {
   groupStudyId: number;
   leader: Leader;
+
   memberId: number;
+
+  myApplicationStatus?: GroupStudyMyStatusResponse;
+
 }
 
 export default function ChannelSection({
   groupStudyId,
   leader,
   memberId,
+  myApplicationStatus,
+
 }: ChannelSectionProps) {
   const { data, isLoading } = usePostQuery(groupStudyId);
 
   console.log('data', data);
 
   if (isLoading) return;
+
 
   return !data.isRegistered ? (
     memberId === leader.memberId ? (
@@ -33,7 +46,19 @@ export default function ChannelSection({
       <Post data={data!} leader={leader} />
       <div>
         <Comments groupStudyId={groupStudyId} />
+
+  return (
+    <>
+      <div className="flex flex-col gap-500">
+        <Post data={data!} leader={leader} />
+        <div>
+          <Comments groupStudyId={groupStudyId} />
+        </div>
       </div>
-    </div>
+
+      {myApplicationStatus?.status === 'KICKED' && (
+        <KickedReasonModal reason={myApplicationStatus.reason} />
+      )}
+    </>
   );
 }

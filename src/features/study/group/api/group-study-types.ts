@@ -87,7 +87,6 @@ export interface ResizedImage {
     profileImage: string | null;
     simpleIntroduction: string | null;
   };
-
 }
 
 export interface DetailInfo {
@@ -267,6 +266,7 @@ export interface GroupStudyMyStatusRequest {
 
 export interface GroupStudyMyStatusResponse {
   status: ApplicationStatus;
+  reason: string;
 }
 
 // 그룹스터디 참여자 추방 API 타입

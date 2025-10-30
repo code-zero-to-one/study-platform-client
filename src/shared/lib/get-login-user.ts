@@ -56,12 +56,12 @@ export async function getLoginUserId(): Promise<number | undefined> {
 
         return memberId;
       } catch (refreshError) {
-        // 갱신 실패 → 로그인 페이지로 리다이렉트
-        redirect('/login');
+        // 갱신 실패 → 랜딩 페이지로 리다이렉트
+        redirect('/');
       }
     } else {
-      // 기타 에러 → 로그인 페이지로 리다이렉트
-      redirect('/login');
+      // 기타 에러 → 랜딩 페이지로 리다이렉트
+      redirect('/');
     }
   }
 }

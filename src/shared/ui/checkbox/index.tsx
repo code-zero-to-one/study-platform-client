@@ -5,12 +5,40 @@ const Checkbox = ({
   defaultChecked = false,
   checked = false,
   onToggle,
+  themeColor = 'fill-success-default-default',
 }: {
   id: string;
   defaultChecked?: boolean;
   checked?: boolean;
   onToggle: () => void;
+  themeColor?: string;
 }) => {
+  // Check if themeColor is a hex color (starts with #)
+  const isHexColor = themeColor.startsWith('#');
+
+  // Get the appropriate className or style
+  const getThemeStyles = () => {
+    if (isHexColor) {
+      return {
+        style: checked
+          ? { borderColor: themeColor, backgroundColor: themeColor }
+          : undefined,
+        className: checked
+          ? 'border-2'
+          : 'border-border-default bg-fill-neutral-subtle-default border-2',
+      };
+    } else {
+      return {
+        style: undefined,
+        className: checked
+          ? `border-${themeColor} bg-${themeColor} border-2`
+          : 'border-border-default bg-fill-neutral-subtle-default border-2',
+      };
+    }
+  };
+
+  const { style, className } = getThemeStyles();
+
   return (
     <label htmlFor={id} className="inline-flex cursor-pointer items-center">
       <input
@@ -22,7 +50,8 @@ const Checkbox = ({
           : { defaultChecked, onChange: onToggle })}
       />
       <div
-        className={`rounded-50 inline-flex items-center justify-center border transition-all duration-200 ${checked ? 'bg-fill-success-default-default border-fill-success-default-default' : 'border-border-default bg-fill-neutral-subtle-default'}`}
+        className={`rounded-50 inline-flex items-center justify-center transition-all duration-200 ${className}`}
+        style={style}
       >
         <Image
           src="/icons/shape.svg"
