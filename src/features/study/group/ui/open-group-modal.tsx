@@ -155,6 +155,9 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
       await qc.invalidateQueries({
         queryKey: ['groupStudies'],
       });
+      await qc.invalidateQueries({
+        queryKey: ['memberStudies'],
+      });
     } catch (err) {
       alert('그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.');
     }
