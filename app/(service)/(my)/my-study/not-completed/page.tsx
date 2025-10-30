@@ -47,12 +47,6 @@ export default function NotCompletedPage() {
             <h2 className="font-designer-16b text-text-default">
               참여 중인 스터디
             </h2>
-
-            {notCompletedStudyList.length > 9 && (
-              <button className="font-designer-14m text-text-subtlest">
-                전체보기
-              </button>
-            )}
           </div>
 
           <NotCompletedGroupStudyList studyList={notCompletedStudyList} />

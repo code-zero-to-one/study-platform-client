@@ -52,14 +52,12 @@ export default function MyStudy() {
               참여 중인 스터디
             </h2>
 
-            {notCompletedStudyList.length > 9 && (
-              <Link
-                href="/my-study/not-completed"
-                className="font-designer-14m text-text-subtlest"
-              >
-                전체보기
-              </Link>
-            )}
+            <Link
+              href="/my-study/not-completed"
+              className="font-designer-14m text-text-subtlest"
+            >
+              전체보기
+            </Link>
           </div>
 
           <NotCompletedGroupStudyList
@@ -73,14 +71,12 @@ export default function MyStudy() {
               종료된 스터디
             </h2>
 
-            {completedStudyList.length > 9 && (
-              <Link
-                href="/my-study/completed"
-                className="font-designer-14m text-text-subtlest"
-              >
-                전체보기
-              </Link>
-            )}
+            <Link
+              href="/my-study/completed"
+              className="font-designer-14m text-text-subtlest"
+            >
+              전체보기
+            </Link>
           </div>
           <CompletedGroupStudyList
             studyList={completedStudyList.filter((study, idx) => idx < 9)}

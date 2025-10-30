@@ -1,7 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
@@ -14,6 +14,7 @@ interface MemberGroupStudyList extends MemberStudyItem {
 }
 
 export default function CompletedPage() {
+  const [page, setPage] = useState<number>(1);
   const { data, isLoading } = useMemberStudyListQuery({
     memberId: 1,
     studyType: 'GROUP_STUDY',
