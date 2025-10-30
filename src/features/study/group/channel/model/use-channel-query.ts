@@ -6,12 +6,14 @@ import { getPost } from '../api/get-post';
 import { getThreads } from '../api/get-threads';
 import { postComment } from '../api/post-comment';
 import { postThread } from '../api/post-thread';
+import { postThreadReaction } from '../api/post-thread-reaction';
 import { putComment } from '../api/put-comment';
 import { putThread } from '../api/put-thread';
 import {
   DeleteCommentRequest,
   DeleteThreadReqeust,
   PostCommentRequest,
+  PostThreadReactionReqeust,
   PostThreadRequest,
   PutCommentRequest,
   PutThreadRequest,
@@ -51,6 +53,12 @@ export const useUpdateThreadMutation = () => {
 export const useDeleteThreadMutation = () => {
   return useMutation({
     mutationFn: (param: DeleteThreadReqeust) => deleteThread(param),
+  });
+};
+
+export const usePostThreadReactionMutation = () => {
+  return useMutation({
+    mutationFn: (param: PostThreadReactionReqeust) => postThreadReaction(param),
   });
 };
 

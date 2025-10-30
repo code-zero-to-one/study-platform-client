@@ -275,3 +275,9 @@ export interface DeleteGroupStudyMemberRequest {
   targetMemberId: number;
   reason: string;
 }
+
+// 그룹 스터디 공지
+export interface GroupStudyNoticeRequest {
+  noticeTitle: string;
+  noticeContent: string;
+}
