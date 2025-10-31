@@ -68,14 +68,15 @@ export async function middleware(request: NextRequest) {
 
   // 랜딩 페이지(/)는 인증 체크를 하지 않음
   if (request.nextUrl.pathname === '/') {
-    // 이미 로그인된 사용자가 랜딩 페이지에 접근하면 홈으로 리디렉션
-    if (hasAccessToken && hasMemberId) {
-      const mainUrl = new URL('/home', request.url);
+    // 이미 로그인된 사용자가 랜딩 페이지에 접근하면 1:1 스터디 화면인 /home 으로 리디렉션시키는 코드 
 
-      return NextResponse.redirect(mainUrl);
-    }
+    // if (hasAccessToken && hasMemberId) {
+    //   const mainUrl = new URL('/home', request.url);
 
-    // 로그인되지 않은 사용자는 랜딩 페이지에 그대로 머물 수 있음
+    //   return NextResponse.redirect(mainUrl);
+    // }
+
+    // 모든 사용자는 '/' 주소로 접근시 랜딩 페이지에 진입
     return NextResponse.next();
   }
 

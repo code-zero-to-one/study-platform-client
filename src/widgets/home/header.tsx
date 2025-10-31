@@ -30,7 +30,7 @@ export default async function Header() {
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
-          <Link href="/home">
+          <Link href="/">
             <Image
               src="/icons/logo_title.svg"
               alt="Logo-title"
@@ -46,8 +46,8 @@ export default async function Header() {
         {/* 1차 MVP에선 사용하지 않아 제외 */}
         <nav className="font-designer-14m text-text-default flex flex-grow items-center gap-300 px-600">
           <Link href={isLoggedIn ? '/home' : '/login'}>1:1 CS스터디</Link>
-          <Link href="/study">스터디 목록</Link>
-          {/* <Link href="/">팀소개</Link> */}
+          <Link href="/study">스터디 둘러보기</Link>
+          {/* <Link href="/">팀소개하기로 했었구나</Link> */}
         </nav>
 
         {/* 알림 기능을 구현하지 못해 주석 처리 */}
