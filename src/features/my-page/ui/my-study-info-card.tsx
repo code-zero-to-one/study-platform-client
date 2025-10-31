@@ -79,7 +79,9 @@ export default function MyStudyInfoCard({
       {(status === 'RECRUITING' || status === 'IN_PROGRESS') &&
         participantsCount < maxMembersCount &&
         studyRole === 'LEADER' && (
-          <Button color="secondary">신청자 N명 확인하기</Button>
+          <Link href={`/application-list/${studyId}`}>
+            <Button color="secondary">신청자 N명 확인하기</Button>
+          </Link>
         )}
     </li>
   );
