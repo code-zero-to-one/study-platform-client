@@ -188,6 +188,7 @@ export interface GroupStudyDetailResponse {
 }
 
 export type DeleteGroupStudyRequest = GroupStudyDetailRequest;
+export type CompleteGroupStudyRequest = GroupStudyDetailRequest;
 
 // 그룹 스터디 참여자 목록 API 타입
 export interface GroupStudyMembersRequest {

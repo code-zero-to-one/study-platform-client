@@ -15,7 +15,7 @@ export const getGroupStudyList = async (
       params: {
         page,
         'page-size': size,
-        status,
+        groupStudyStatus: status,
       },
     });
 

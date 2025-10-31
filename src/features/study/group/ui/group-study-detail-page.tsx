@@ -7,10 +7,14 @@ import Tabs from '@/shared/ui/tabs';
 import ConfirmDeleteModal from './confirm-delete-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
+import { completeStudy } from '../../interview/api/get-interview';
 import { GroupStudyDetailResponse } from '../api/group-study-types';
 import ChannelSection from '../channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
-import { useDeleteGroupStudyMutation } from '../model/use-study-query';
+import {
+  useCompleteGroupStudyMutation,
+  useDeleteGroupStudyMutation,
+} from '../model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
 
@@ -47,6 +51,7 @@ export default function StudyDetailPage({
   ];
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
+  const { mutate: completeStudy } = useCompleteGroupStudyMutation();
 
   const ModalContent = {
     end: {
@@ -59,8 +64,16 @@ export default function StudyDetailPage({
       ),
       confirmText: '스터디 종료',
       onConfirm: () => {
-        // endStudy({ groupStudyId }, { onSuccess: () => setShowModal(false) });
-        setShowModal(false);
+        completeStudy(
+          { groupStudyId },
+          {
+            onSuccess: () => alert('스터디가 종료되었습니다.'),
+            onSettled: () => {
+              setShowModal(false);
+              router.push('/study');
+            },
+          },
+        );
       },
     },
     delete: {
@@ -78,7 +91,6 @@ export default function StudyDetailPage({
           {
             onSuccess: () => {
               alert('스터디가 삭제되었습니다.');
-              router.push('/study');
             },
             onError: () => {
               alert('스터디 삭제에 실패하였습니다.');
@@ -176,7 +188,6 @@ export default function StudyDetailPage({
           leader={studyDetail.basicInfo.leader}
           memberId={memberId}
           myApplicationStatus={myApplicationStatus}
-
         />
       )}
     </div>
