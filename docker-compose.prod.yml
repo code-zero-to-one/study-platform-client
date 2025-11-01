@@ -5,9 +5,11 @@ version: '3.8'
 services:
   frontend:
     container_name: frontend-prod
-    build:
-      context: .
-      dockerfile: Dockerfile.prod
+    image: zerooneitkr/frontend:prod
+    # 도커허브에서 이미지 받아오니까 빌드과정은 빠짐
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile.prod
     ports:
       - '3000:3000'
     env_file:
