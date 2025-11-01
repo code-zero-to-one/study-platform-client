@@ -51,9 +51,13 @@ export default function StudyInfoSection({
   isLeader,
 }: StudyInfoSectionProps) {
   const router = useRouter();
-  const { data: applicants } = useApplicantsByStatusQuery({
+  const { data: approvedApplicants } = useApplicantsByStatusQuery({
     groupStudyId,
     status: 'APPROVED',
+  });
+  const { data: pendingApplicants } = useApplicantsByStatusQuery({
+    groupStudyId,
+    status: 'PENDING',
   });
 
   const basicInfoItems = (basicInfo: BasicInfoDetail) => {
@@ -212,7 +216,7 @@ export default function StudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>실시간 신청자 목록</span>
-                <span className="text-[#A4A7AE]">{`${studyDetail.basicInfo.approvedCount}명`}</span>
+                <span className="text-[#A4A7AE]">{`${studyDetail.basicInfo.approvedCount + studyDetail.basicInfo.pendingCount}명`}</span>
               </div>
               {isLeader && (
                 <Button
@@ -226,7 +230,10 @@ export default function StudyInfoSection({
               )}
             </div>
 
-            {applicants?.pages.map((applicant) => (
+            {[
+              ...(approvedApplicants?.pages || []),
+              ...(pendingApplicants?.pages || []),
+            ].map((applicant) => (
               <div
                 key={applicant.page}
                 className="grid grid-cols-2 grid-rows-2 gap-200"
