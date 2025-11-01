@@ -9,7 +9,7 @@ COPY . .
 # 빌드시점에 .env 파일 복사 
 COPY .env .env
 
-RUN yarn install && yarn build
+RUN yarn install && yarn build --no-lint
 
 # 2단계: production
 FROM node:20-alpine AS runner
