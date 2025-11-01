@@ -28,7 +28,7 @@ export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
 
   const baseOptions = [
     {
-      label: '내 정보 수정',
+      label: '마이페이지',
       value: '/my-page',
       onMenuClick: () => router.push('/my-page'),
     },
