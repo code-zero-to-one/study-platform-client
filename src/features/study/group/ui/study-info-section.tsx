@@ -1,3 +1,4 @@
+import { sendGTMEvent } from '@next/third-parties/google';
 import dayjs from 'dayjs';
 import {
   Calendar,
@@ -14,6 +15,8 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { hashValue } from '@/shared/lib/hash';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
@@ -266,7 +269,19 @@ export default function StudyInfoSection({
                     <UserProfileModal
                       memberId={data.applicantInfo.memberId}
                       trigger={
-                        <div className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50">
+                        <div
+                          className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50"
+                          onClick={() => {
+                            const memberId = getCookie('memberId');
+                            sendGTMEvent({
+                              event: 'group_study_member_profile_click',
+                              dl_timestamp: new Date().toISOString(),
+                              ...(memberId && { dl_member_id: hashValue(memberId) }),
+                              dl_target_member_id: String(data.applicantInfo.memberId),
+                              dl_group_study_id: String(groupStudyId),
+                            });
+                          }}
+                        >
                           프로필
                         </div>
                       }
