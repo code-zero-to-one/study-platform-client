@@ -51,10 +51,19 @@ export default function StudyInfoSection({
   isLeader,
 }: StudyInfoSectionProps) {
   const router = useRouter();
-  const { data: applicants } = useApplicantsByStatusQuery({
+  const { data: approvedApplicants } = useApplicantsByStatusQuery({
     groupStudyId,
     status: 'APPROVED',
   });
+  const { data: pendingApplicants } = useApplicantsByStatusQuery({
+    groupStudyId,
+    status: 'PENDING',
+  });
+
+  const applicants = [
+    ...(approvedApplicants?.pages.flatMap(({ content }) => content) || []),
+    ...(pendingApplicants?.pages.flatMap(({ content }) => content) || []),
+  ];
 
   const basicInfoItems = (basicInfo: BasicInfoDetail) => {
     const getDurationText = (startDate: string, endDate: string): string => {
@@ -212,7 +221,7 @@ export default function StudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>실시간 신청자 목록</span>
-                <span className="text-[#A4A7AE]">{`${studyDetail.basicInfo.approvedCount}명`}</span>
+                <span className="text-[#A4A7AE]">{`${studyDetail.basicInfo.approvedCount + studyDetail.basicInfo.pendingCount}명`}</span>
               </div>
               {isLeader && (
                 <Button
@@ -226,51 +235,46 @@ export default function StudyInfoSection({
               )}
             </div>
 
-            {applicants?.pages.map((applicant) => (
-              <div
-                key={applicant.page}
-                className="grid grid-cols-2 grid-rows-2 gap-200"
-              >
-                {applicant.content.map((data) => {
-                  const temperPreset = getSincerityPresetByLevelName(
-                    data.applicantInfo.sincerityTemp.levelName as string,
-                  );
+            <div className="grid grid-cols-2 grid-rows-2 gap-200">
+              {applicants.map((data) => {
+                const temperPreset = getSincerityPresetByLevelName(
+                  data.applicantInfo.sincerityTemp.levelName as string,
+                );
 
-                  return (
-                    <div
-                      key={data.applyId}
-                      className="rounded-100 border-border-subtle flex h-[100px] w-[382px] items-center justify-between gap-150 border px-200 py-300"
-                    >
-                      <UserAvatar size={48} image={undefined} />
-                      <div className="flex min-w-0 flex-1 flex-col">
-                        <div className="flex flex-row items-center gap-50">
-                          <div className="font-designer-16b">
-                            {data.applicantInfo.memberName}
-                          </div>
-                          <span
-                            className={cn(
-                              'font-designer-13r rounded-full px-150 py-50 leading-250',
-                              temperPreset.bgClass,
-                              temperPreset.textClass,
-                            )}
-                          >
-                            {`${data.applicantInfo.sincerityTemp.temperature}`}℃
-                          </span>
+                return (
+                  <div
+                    key={data.applyId}
+                    className="rounded-100 border-border-subtle flex h-[100px] w-[382px] items-center justify-between gap-150 border px-200 py-300"
+                  >
+                    <UserAvatar size={48} image={undefined} />
+                    <div className="flex min-w-0 flex-1 flex-col">
+                      <div className="flex flex-row items-center gap-50">
+                        <div className="font-designer-16b">
+                          {data.applicantInfo.memberName}
                         </div>
+                        <span
+                          className={cn(
+                            'font-designer-13r rounded-full px-150 py-50 leading-250',
+                            temperPreset.bgClass,
+                            temperPreset.textClass,
+                          )}
+                        >
+                          {`${data.applicantInfo.sincerityTemp.temperature}`}℃
+                        </span>
                       </div>
-                      <UserProfileModal
-                        memberId={1}
-                        trigger={
-                          <div className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50">
-                            프로필
-                          </div>
-                        }
-                      />
                     </div>
-                  );
-                })}
-              </div>
-            ))}
+                    <UserProfileModal
+                      memberId={data.applicantInfo.memberId}
+                      trigger={
+                        <div className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50">
+                          프로필
+                        </div>
+                      }
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
