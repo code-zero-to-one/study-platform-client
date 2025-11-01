@@ -1,4 +1,4 @@
-# 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.11.1 이후)
+# 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.11.1 배포)
 
 name: Front Production Server (Main)
 
