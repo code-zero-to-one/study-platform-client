@@ -8,6 +8,7 @@ import { useMemberStudyListQuery } from '@/features/study/group/model/use-member
 import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
 import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
 import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 
 interface MemberGroupStudyList extends MemberStudyItem {
@@ -15,8 +16,10 @@ interface MemberGroupStudyList extends MemberStudyItem {
 }
 
 export default function MyStudy() {
+  const memberIdStr = getCookie('memberId');
+
   const { data, isLoading } = useMemberStudyListQuery({
-    memberId: 1,
+    memberId: Number(memberIdStr),
     studyType: 'GROUP_STUDY',
     studyStatus: 'BOTH',
   });
