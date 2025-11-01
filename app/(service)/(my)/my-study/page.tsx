@@ -1,71 +1,89 @@
 'use client';
 
-import Image from 'next/image';
-import { useStudyDashboardQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
-import MyStudyCard from '@/widgets/my-study/my-study-card';
+import { Plus } from 'lucide-react';
+import Link from 'next/link';
+import React from 'react';
+import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
+import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
+import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
+import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
+import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
+import { getCookie } from '@/shared/tanstack-query/cookie';
+import Button from '@/shared/ui/button';
+
+interface MemberGroupStudyList extends MemberStudyItem {
+  type: 'GROUP_STUDY';
+}
 
 export default function MyStudy() {
-  const { data: dashboard, isLoading, isError } = useStudyDashboardQuery();
+  const memberIdStr = getCookie('memberId');
 
-  if (isLoading) return <div>로딩 중...</div>;
-  if (isError || !dashboard) return <div>에러가 발생했습니다.</div>;
+  const { data, isLoading } = useMemberStudyListQuery({
+    memberId: Number(memberIdStr),
+    studyType: 'GROUP_STUDY',
+    studyStatus: 'BOTH',
+  });
+
+  // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록
+  const notCompletedStudyList = (data?.notCompleted.content ||
+    []) as MemberGroupStudyList[];
+
+  // status가 "COMPLETED"인 스터디 목록
+  const completedStudyList = (data?.completed.content ||
+    []) as MemberGroupStudyList[];
+
+  if (isLoading) {
+    return null;
+  }
 
   return (
-    <div className="flex flex-col gap-400">
-      <div className="flex flex-col gap-200">
-        <div className="flex items-center gap-75">
-          <Image src="icons/file_icon.svg" alt="file" width={40} height={40} />
-          <div className="font-designer-20b text-text-default">내 활동</div>
-        </div>
-
-        <div className="flex gap-200">
-          <MyStudyCard
-            title="총 참여"
-            value={dashboard.studyActivity.totalParticipationDays}
-          />
-          <MyStudyCard
-            title="연속 참여"
-            value={dashboard.studyActivity.sequenceParticipationWeeks}
-            unit="주"
-          />
-          <MyStudyCard
-            title="완료"
-            value={dashboard.studyActivity.completedStudyCount}
-            unit="회"
-          />
-        </div>
-
-        <div className="flex gap-200">
-          <MyStudyCard
-            title="최대 연속 참여"
-            value={dashboard.studyActivity.maxSequenceParticipationWeeks}
-            unit="주"
-          />
-          <MyStudyCard
-            title="실패"
-            value={dashboard.studyActivity.failureStudyCount}
-            unit="회"
-          />
-        </div>
+    <div className="flex flex-col gap-300">
+      <div className="flex flex-row items-center justify-between">
+        <h1 className="font-designer-20b">마이스터디</h1>
+        <OpenGroupStudyModal
+          trigger={
+            <Button icon={<Plus className="text-text-inverse" />} size="medium">
+              스터디 개설하기
+            </Button>
+          }
+        />
       </div>
 
-      <div className="flex flex-col gap-200">
-        <div className="flex items-center gap-75">
-          <Image src="icons/graph_icon.svg" alt="file" width={32} height={24} />
-          <div className="font-designer-20b text-text-default">성장 지표</div>
+      <div className="flex flex-col gap-600">
+        <div>
+          <div className="mb-200 flex flex-row justify-between">
+            <h2 className="font-designer-16b text-text-default">
+              참여 중인 스터디
+            </h2>
+
+            <Link
+              href="/my-study/not-completed"
+              className="font-designer-14m text-text-subtlest"
+            >
+              전체보기
+            </Link>
+          </div>
+
+          <NotCompletedGroupStudyList
+            studyList={notCompletedStudyList.filter((study, idx) => idx < 9)}
+          />
         </div>
 
-        <div className="flex gap-200">
-          <MyStudyCard
-            title="스터디 완료율"
-            value={dashboard.growthMetric.studyCompleteness}
-            unit="%"
-          />
-          <MyStudyCard title="등급" value="S" unit="등급" />
-          <MyStudyCard
-            title="최대 연속 참여"
-            value={dashboard.studyActivity.maxSequenceParticipationWeeks}
-            unit="주"
+        <div>
+          <div className="mb-200 flex flex-row justify-between">
+            <h2 className="font-designer-16b text-text-default">
+              종료된 스터디
+            </h2>
+
+            <Link
+              href="/my-study/completed"
+              className="font-designer-14m text-text-subtlest"
+            >
+              전체보기
+            </Link>
+          </div>
+          <CompletedGroupStudyList
+            studyList={completedStudyList.filter((study, idx) => idx < 9)}
           />
         </div>
       </div>

@@ -1,3 +1,5 @@
+# EC2 내부에서 빌드하던 방식 (25.10.30 이전)
+
 name: Front Test Server (Develop)
 
 on:
@@ -30,12 +32,12 @@ jobs:
             sudo docker system prune -a -f
 
             # 디렉토리 없으면 생성
-            if [ ! -d "$HOME/ubuntu/front/study-platform-client-prod" ]; then
-              mkdir -p "$HOME/ubuntu/front/study-platform-client-prod"
+            if [ ! -d "/home/ubuntu/front/study-platform-client-dev" ]; then
+              mkdir -p "/home/ubuntu/front/study-platform-client-dev"
               echo "디렉토리 생성 완료"
             fi
             
-            cd ~/front/study-platform-client-prod
+            cd ~/front/study-platform-client-dev
 
             # git 저장소 없으면 clone, 있으면 fetch + reset (덮어쓰기)
             if [ ! -d ".git" ]; then
@@ -53,14 +55,17 @@ jobs:
 
             echo ".env 파일 생성"
             echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > .env
-            echo "NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}" >> .env
             echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}" >> .env
             echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env
+            echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}" >> .env
+            echo "NEXT_PUBLIC_GOOGLE_SHEETS_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}" >> .env
+            echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" >> .env
+            echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
 
             echo "도커 컴포즈 재시작"
-            sudo docker stop study-platform-client-prod-frontend-1
-            sudo docker rm study-platform-client-prod-frontend-1
-            sudo docker compose up -d --build
+            sudo docker stop frontend-dev
+            sudo docker rm frontend-dev
+            sudo docker compose -f docker-compose.dev.yml up -d --build
 
             echo "운영 서버 배포 완료"
           EOF

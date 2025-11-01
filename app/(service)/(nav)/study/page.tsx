@@ -1,9 +1,14 @@
 import GroupStudyList from '@/features/study/group/ui/group-study-list';
+import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
 import IconPlus from '@/shared/icons/plus.svg';
+import { getServerCookie } from '@/shared/lib/server-cookie';
 import Button from '@/shared/ui/button';
 import Sidebar from '@/widgets/home/sidebar';
 
-export default function Study() {
+export default async function Study() {
+  const memberIdStr = await getServerCookie('memberId');
+  const isLoggedIn = !!memberIdStr;
+
   return (
     <div className="flex w-full gap-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
@@ -11,18 +16,22 @@ export default function Study() {
           <span className="font-designer-28b text-[#181D27]">
             스터디 둘러보기
           </span>
-          <Button
-            color="primary"
-            size="large"
-            iconPosition="left"
-            icon={<IconPlus />}
-          >
-            스터디 개설하기
-          </Button>
+          <OpenGroupStudyModal
+            trigger={
+              <Button
+                color="primary"
+                size="large"
+                iconPosition="left"
+                icon={<IconPlus />}
+              >
+                스터디 개설하기
+              </Button>
+            }
+          />
         </div>
-        <GroupStudyList />
+        <GroupStudyList isLoggedIn={isLoggedIn} />
       </div>
-      <Sidebar />
+      {isLoggedIn && <Sidebar />}
     </div>
   );
 }

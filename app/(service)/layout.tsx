@@ -1,5 +1,6 @@
 import '../global.css';
 
+import Clarity from '@microsoft/clarity';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
@@ -22,12 +23,17 @@ const pretendard = localFont({
 });
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
+const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
 export default function ServiceLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
+    Clarity.init(CLARITY_PROJECT_ID);
+  }
+
   return (
     <html lang="en">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
@@ -37,7 +43,7 @@ export default function ServiceLayout({
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
             <div className="m-auto flex w-[1496px] flex-1 flex-col items-center">
               <Header />
-              <main className="w-full p-600">{children}</main>
+              <main className="w-full px-600">{children}</main>
             </div>
           </div>
         </MainProvider>

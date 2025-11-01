@@ -1,13 +1,20 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import React from 'react';
+import {
+  ApplyStatus,
+  GroupStudyApply,
+} from '@/features/study/group/application/api/type';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Button from '@/shared/ui/button';
-import { GroupStudyApply } from '../api/types';
 
-export default function EntryCard(props: { data: GroupStudyApply }) {
-  const { data: applicant } = props;
+interface ProfileCardProps {
+  data: GroupStudyApply;
+  onClick: (value: ApplyStatus) => void;
+}
+
+export default function ProfileCard(props: ProfileCardProps) {
+  const { data: applicant, onClick } = props;
   const temperPreset = getSincerityPresetByLevelName(
     applicant.applicantInfo.sincerityTemp.levelName as string,
   );
@@ -32,8 +39,6 @@ export default function EntryCard(props: { data: GroupStudyApply }) {
 
     return `${diffWeek}주 전`;
   };
-
-  const ApplicantStatus = () => {};
 
   return (
     <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-[#E9EAEB] p-300">
@@ -72,6 +77,7 @@ export default function EntryCard(props: { data: GroupStudyApply }) {
           type="button"
           color="secondary"
           className="w-[120px]"
+          onClick={() => onClick('REJECTED')}
         >
           반려
         </Button>
@@ -80,6 +86,7 @@ export default function EntryCard(props: { data: GroupStudyApply }) {
           type="button"
           color="primary"
           className="w-[120px]"
+          onClick={() => onClick('APPROVED')}
         >
           승인
         </Button>

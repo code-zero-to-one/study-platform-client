@@ -19,7 +19,7 @@ export async function uploadProfileImage(
   file: FormData,
 ) {
   const res = await axiosInstanceForMultipart.put(
-    `/files/members/${memberId}/profile/image/${filename}`,
+    `/files/images/profile-image/${filename}`,
     file,
   );
 
@@ -30,7 +30,7 @@ export async function uploadProfileImage(
 export async function getMemberId() {
   const res = await axiosInstance.get(`/auth/me`);
 
-  return res.data;
+  return res.data.content;
 }
 
 // 로그아웃 API

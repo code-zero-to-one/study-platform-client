@@ -23,6 +23,12 @@ export default function Sidebar() {
         프로필
       </SidebarItem>
       <SidebarItem
+        onClick={() => router.push('/my-activity')}
+        isActive={pathname === '/my-activity'}
+      >
+        내 활동
+      </SidebarItem>
+      <SidebarItem
         onClick={() => router.push('/my-study')}
         isActive={pathname === '/my-study'}
       >
@@ -32,7 +38,7 @@ export default function Sidebar() {
         onClick={() => router.push('/my-study-review')}
         isActive={pathname === '/my-study-review'}
       >
-        스터디 리뷰
+        스터디 후기
       </SidebarItem>
       {/* <SidebarItem onClick={() => {}} isActive={false}>
         계정설정

@@ -3,32 +3,34 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
-
 import { useController, useForm } from 'react-hook-form';
-import { z } from 'zod';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { Modal } from '@/shared/ui/modal';
+import {
+  ApplyGroupStudyFormData,
+  ApplyGroupStudyFormSchema,
+} from '../model/apply-group-study-form.schema';
 import { useApplyGroupStudyMutation } from '../model/use-apply-group-study';
 
 interface ApplyGroupStudyModalProps {
   groupStudyId: number;
   title: string;
   questions: string[];
+  trigger: React.ReactNode;
 }
 
 export default function ApplyGroupStudyModal({
   groupStudyId,
   title,
   questions,
+  trigger,
 }: ApplyGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
-      <Modal.Trigger asChild>
-        <Button size="large">신청하기</Button>
-      </Modal.Trigger>
+      <Modal.Trigger asChild>{trigger}</Modal.Trigger>
 
       <Modal.Portal>
         <Modal.Overlay />
@@ -54,17 +56,6 @@ export default function ApplyGroupStudyModal({
   );
 }
 
-const ApplyGroupStudyFormSchema = z.object({
-  answer: z.array(
-    z.string().min(1, '답변을 작성해주세요.'), // 각 항목에 최소 1글자 이상
-  ),
-  agree: z
-    .boolean()
-    .refine((val) => val === true, { message: '참여 규칙에 동의해야 합니다.' }),
-});
-
-type ApplyGroupStudyFormData = z.infer<typeof ApplyGroupStudyFormSchema>;
-
 function ApplyGroupStudyForm({
   groupStudyId,
   title,
@@ -80,7 +71,7 @@ function ApplyGroupStudyForm({
     register,
     handleSubmit,
     control,
-    formState: { errors },
+    formState: { errors, isValid, isSubmitting },
   } = useForm<ApplyGroupStudyFormData>({
     resolver: zodResolver(ApplyGroupStudyFormSchema),
     defaultValues: {
@@ -96,7 +87,7 @@ function ApplyGroupStudyForm({
     control,
   });
 
-  const { mutate: applyGroupStudy } = useApplyGroupStudyMutation();
+  const { mutate: applyGroupStudy } = useApplyGroupStudyMutation(groupStudyId);
 
   const onSubmit = (data: ApplyGroupStudyFormData) => {
     const { answer } = data;
@@ -104,7 +95,7 @@ function ApplyGroupStudyForm({
     applyGroupStudy(
       { answer, groupStudyId },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           alert('스터디 신청이 완료되었습니다.');
           onClose();
         },
@@ -217,6 +208,7 @@ function ApplyGroupStudyForm({
           size="large"
           type="submit"
           form="apply-group-study"
+          disabled={!isValid || isSubmitting}
         >
           신청하기
         </Button>
