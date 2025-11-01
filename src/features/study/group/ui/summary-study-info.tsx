@@ -1,4 +1,5 @@
 import React from 'react';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import ApplyGroupStudyModal from './apply-group-study-modal';
 import { GroupStudyStatus } from '../api/group-study-types';
@@ -66,7 +67,9 @@ export default function SummaryStudyInfo({
                 color="primary"
                 className="h-[48px]"
                 disabled={
-                  !!myApplicationStatus || groupStudyStatus === 'IN_PROGRESS'
+                  !!myApplicationStatus ||
+                  groupStudyStatus === 'IN_PROGRESS' ||
+                  !getCookie('memberId')
                 }
               >
                 {myApplicationStatus?.status === 'APPROVED' ||
