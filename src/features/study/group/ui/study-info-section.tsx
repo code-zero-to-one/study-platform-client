@@ -266,7 +266,7 @@ export default function StudyInfoSection({
                         </div>
                       </div>
                       <UserProfileModal
-                        memberId={1}
+                        memberId={data.applicantInfo.memberId}
                         trigger={
                           <div className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50">
                             프로필
