@@ -1,4 +1,6 @@
-name: Front Production Server (main)
+# 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.11.1 이후)
+
+name: Front Production Server (Main)
 
 on:
   push:
@@ -6,60 +8,63 @@ on:
       - main # main 브랜치에 push가 발생하면 실행
 
 jobs:
-  deploy:
+  build-and-push-image: # 도커 이미지 빌드 및 도커 허브 push
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
+      - name: ENV 파일 생성
+        run: |
+          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > .env
+          echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}" >> .env
+          echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env
+          echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}" >> .env
+          echo "NEXT_PUBLIC_GOOGLE_SHEETS_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}" >> .env
+          echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" >> .env
+          echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
+      
+      - name: DockerHub 로그인
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+
+      - name: Docker 이미지 빌드 및 push
+        run: |
+          docker build -f Dockerfile.dev -t zerooneitkr/frontend:prod .
+          docker push zerooneitkr/frontend:prod
+
+  deploy-image-to-server: # 도커 허브 pull 후 서버에 배포
+    runs-on: ubuntu-latest
+    needs: build-and-push-image
+
+    steps:
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_PROD_SSH_KEY }}" > ~/.ssh/id_ed25519
+          echo "${{ secrets.LIGHTSAIL_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.LIGHTSAIL_PROD_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.LIGHTSAIL_HOST }} >> ~/.ssh/known_hosts
           echo "SSH 설정 완료"
-
-      - name: Deploy to server
+          
+      - name: 서버 배포
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_PROD_USER }}@${{ secrets.LIGHTSAIL_PROD_HOST }} << EOF
+          ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }} << EOF
             
-            # 용량 확보를 위해 도커 컨테이너, 이미지 먼저 정리
             echo "사용하지 않는 컨테이너, 이미지, 네트워크 정리 중 (볼륨제외)..."
+            sudo docker stop frontend-prod || true
+            sudo docker rm frontend-prod || true
             sudo docker system prune -a -f
-
-            # 디렉토리 없으면 생성
-            if [ ! -d "/home/ubuntu/front/study-platform-client-prod" ]; then
-              mkdir -p "/home/ubuntu/front/study-platform-client-prod"
-              echo "디렉토리 생성 완료"
-            fi
             
+            # 여기다 도커 컴포즈 파일 갖다놓았기 때문임
             cd ~/front/study-platform-client-prod
 
-            # git 저장소 없으면 clone, 있으면 fetch + reset (덮어쓰기)
-            if [ ! -d ".git" ]; then
-              git clone git@github.com:code-zero-to-one/study-platform-client.git .
-              echo "Git clone 완료"
-            else
-              git fetch origin
-              git reset --hard origin/main
-              echo "Git fetch & reset 완료"
-            fi
-            
-            git fetch origin
-            git checkout main
-            git pull origin main
-
-            echo ".env 파일 생성"
-            echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_PROD_BASE_URL }}" > .env
-            echo "NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}" >> .env
-            echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_KAKAO_CLIENT_ID }}" >> .env
-            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_GOOGLE_CLIENT_ID }}" >> .env
+            echo "도커 이미지 pull"
+            sudo docker pull zerooneitkr/frontend:prod
 
             echo "도커 컴포즈 재시작"
-            sudo docker stop frontend-prod
-            sudo docker rm frontend-prod
             sudo docker compose -f docker-compose.prod.yml up -d --build
 
             echo "운영 서버 배포 완료"
