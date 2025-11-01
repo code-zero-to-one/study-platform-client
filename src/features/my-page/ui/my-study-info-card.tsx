@@ -80,7 +80,9 @@ export default function MyStudyInfoCard({
         participantsCount < maxMembersCount &&
         studyRole === 'LEADER' && (
           <Link href={`/application-list/${studyId}`}>
-            <Button color="secondary">신청자 N명 확인하기</Button>
+            <Button color="secondary" className="w-full">
+              신청자 N명 확인하기
+            </Button>
           </Link>
         )}
     </li>
