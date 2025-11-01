@@ -21,7 +21,7 @@ export const getGroupStudyDetailInServer = async ({
       isAxiosError(error) &&
       error.response &&
       isApiError(error.response.data) &&
-      error?.response?.data?.errorCode === 'CMM002'
+      error?.response?.data?.errorCode === 'GSM001'
     ) {
       notFound();
     }
