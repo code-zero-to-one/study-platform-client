@@ -43,7 +43,7 @@ export default async function AccountHistoryPage({
 
           <div className="flex items-center gap-150">
             <span className="font-designer-16b text-text-default w-[73px]">
-              최근 로그인
+              최근 접속
             </span>
             <div className="font-designer-14r text-text-subtle">
               {data.loginMostRecentlyAt
