@@ -1,3 +1,4 @@
+import Button from '@/shared/ui/button';
 import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
 interface CreatePostProps {
@@ -15,7 +16,14 @@ export default function CreatePost({ groupStudyId }: CreatePostProps) {
           모든 멤버가 한눈에 확인할 수 있도록 중요한 내용을 정리해주세요.
         </div>
 
-        <GroupStudyNoticeModal groupStudyId={groupStudyId} />
+        <GroupStudyNoticeModal
+          trigger={
+            <Button size="medium" className="mt-300 h-600 w-[88px] self-center">
+              작성하기
+            </Button>
+          }
+          groupStudyId={groupStudyId}
+        />
       </div>
     </div>
   );

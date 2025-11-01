@@ -11,5 +11,5 @@ export const postGroupStudyNotice = async (
     body,
   );
 
-  return res.data;
+  return res.data.content;
 };

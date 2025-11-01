@@ -100,7 +100,7 @@ export default function StudyInfoSection({
       },
       {
         label: '진행 방식',
-        value: `${STUDY_METHOD_LABELS[basicInfo.method]}, ${basicInfo.location}`,
+        value: `${STUDY_METHOD_LABELS[basicInfo.method]}${basicInfo.location ? `, ${basicInfo.location}` : ''}`,
         icon: <Globe size={24} color="#A4A7AE" />,
       },
       {

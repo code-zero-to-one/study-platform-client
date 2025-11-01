@@ -1,7 +1,9 @@
 import dayjs from 'dayjs';
 import React from 'react';
 import UserAvatar from '@/shared/ui/avatar';
+import Button from '@/shared/ui/button';
 import { Leader } from '../../api/group-study-types';
+import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
 interface PostProps {
   data: {
@@ -16,9 +18,20 @@ export default function Post({ data, leader }: PostProps) {
   return (
     <div className="flex flex-col border-b-[1px] border-[#D5D7DA]">
       <div className="mb-500 flex flex-col gap-250">
-        <p className="font-designer-32b text-text-strong">
-          {data?.noticeTitle}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="font-designer-32b text-text-strong">
+            {data?.noticeTitle}
+          </p>
+
+          <GroupStudyNoticeModal
+            trigger={<Button size="medium">공지 수정하기</Button>}
+            groupStudyId={data.groupStudyId}
+            defaultValues={{
+              noticeTitle: data.noticeTitle,
+              noticeContent: data.noticeContent,
+            }}
+          />
+        </div>
 
         <div className="flex gap-150">
           <UserAvatar

@@ -18,20 +18,22 @@ import {
 } from '../model/group-study-notice.schema';
 import { useGroupStudyNoticeMutation } from '../model/use-group-study-notice-query';
 
-export default function GroupStudyNoticeModal({
-  groupStudyId,
-}: {
+interface GroupStudyNoticeModalProps {
+  trigger: React.ReactNode;
   groupStudyId: number;
-}) {
+  defaultValues?: GroupStudyNoticeFormValues;
+}
+
+export default function GroupStudyNoticeModal({
+  trigger,
+  groupStudyId,
+  defaultValues,
+}: GroupStudyNoticeModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Modal.Trigger asChild>
-        <Button size="medium" className="mt-300 h-600 w-[88px] self-center">
-          작성하기
-        </Button>
-      </Modal.Trigger>
+      <Modal.Trigger asChild>{trigger}</Modal.Trigger>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content>
@@ -45,6 +47,7 @@ export default function GroupStudyNoticeModal({
           <GroupStudyNoticeForm
             groupStudyId={groupStudyId}
             onClose={() => setIsOpen(false)}
+            defaultValues={defaultValues}
           />
         </Modal.Content>
       </Modal.Portal>
@@ -55,9 +58,11 @@ export default function GroupStudyNoticeModal({
 function GroupStudyNoticeForm({
   groupStudyId,
   onClose,
+  defaultValues,
 }: {
   groupStudyId: number;
   onClose: () => void;
+  defaultValues?: GroupStudyNoticeFormValues;
 }) {
   const qc = useQueryClient();
   const { mutate: groupStudyNotice, isPending } = useGroupStudyNoticeMutation();
@@ -65,8 +70,10 @@ function GroupStudyNoticeForm({
   const methods = useForm<GroupStudyNoticeFormValues>({
     resolver: zodResolver(GroupStudyNoticeFormSchema),
     mode: 'onChange',
-    defaultValues: buildGroupStudyNoticeDefaults(),
+    defaultValues: defaultValues ?? buildGroupStudyNoticeDefaults(),
   });
+
+  const type: 'add' | 'edit' = defaultValues ? 'edit' : 'add';
 
   const {
     handleSubmit,
@@ -83,14 +90,16 @@ function GroupStudyNoticeForm({
       { groupStudyId, payload: form },
       {
         onSuccess: async () => {
-          alert('스터디 공지가 등록되었습니다!');
+          alert(`스터디 공지가 ${type === 'add' ? '등록' : '수정'}되었습니다!`);
           onClose();
           await qc.invalidateQueries({
             queryKey: ['post', groupStudyId],
           });
         },
         onError: () => {
-          alert('공지 등록 중 오류가 발생했습니다. 다시 시도해 주세요.');
+          alert(
+            `공지 ${type === 'add' ? '등록' : '수정'} 중 오류가 발생했습니다. 다시 시도해 주세요.`,
+          );
         },
       },
     );
