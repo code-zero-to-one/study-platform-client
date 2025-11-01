@@ -138,7 +138,8 @@ export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
                   </div>
                   <Image
                     src={
-                      'https://test-api.zeroone.it.kr/images/group-study-thumbnail/a22531ec-7a78-43e7-a9a9-89ef1d1bc72e_1760112290682.jpg'
+                      study.simpleDetailInfo.thumbnail.resizedImages[0]
+                        .resizedImageUrl
                     }
                     alt="thumbnail"
                     className="h-[160px] w-[240px] object-cover"

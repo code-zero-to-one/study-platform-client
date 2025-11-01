@@ -179,9 +179,7 @@ export default function StudyInfoSection({
     <div className="flex w-full gap-600">
       <div className="flex flex-1 flex-col gap-500">
         <Image
-          src={
-            'https://test-api.zeroone.it.kr/images/group-study-thumbnail/a22531ec-7a78-43e7-a9a9-89ef1d1bc72e_1760112290682.jpg'
-          }
+          src={studyDetail?.detailInfo.image.resizedImages[0].resizedImageUrl}
           alt="썸네일"
           className="h-[439px] w-[781px] object-cover"
           width={781}
