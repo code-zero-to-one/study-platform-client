@@ -60,6 +60,8 @@ export default function StudyInfoSection({
     status: 'PENDING',
   });
 
+  console.log(studyDetail.basicInfo);
+
   const basicInfoItems = (basicInfo: BasicInfoDetail) => {
     const getDurationText = (startDate: string, endDate: string): string => {
       const start = new Date(startDate);
