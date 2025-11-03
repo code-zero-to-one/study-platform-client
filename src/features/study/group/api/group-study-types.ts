@@ -9,6 +9,7 @@ import {
 
 // 그룹 스터디 신청 상태
 export type ApplicationStatus =
+  | 'NONE' // 신청 안함
   | 'PENDING' // 승인 대기
   | 'APPROVED' // 승인 수락
   | 'REJECTED' // 승인 거절
