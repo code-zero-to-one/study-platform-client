@@ -170,6 +170,7 @@ export default function StudyDetailPage({
       {active === 'intro' && (
         <StudyInfoSection
           study={studyDetail}
+          memberId={memberId}
           groupStudyId={groupStudyId}
           isLeader={isLeader}
         />

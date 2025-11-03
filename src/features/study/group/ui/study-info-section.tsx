@@ -15,11 +15,11 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { hashValue } from '@/shared/lib/hash';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
+import { hashValue } from '@/shared/lib/hash';
 import { cn } from '@/shared/shadcn/lib/utils';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import UserAvatar from '@/shared/ui/avatar';
 
 import Button from '@/shared/ui/button';
@@ -46,12 +46,14 @@ interface StudyInfoSectionProps {
   study: GroupStudyDetailResponse;
   groupStudyId: number;
   isLeader: boolean;
+  memberId?: number;
 }
 
 export default function StudyInfoSection({
   study: studyDetail,
   groupStudyId,
   isLeader,
+  memberId,
 }: StudyInfoSectionProps) {
   const router = useRouter();
   const { data: approvedApplicants } = useApplicantsByStatusQuery({
@@ -276,8 +278,12 @@ export default function StudyInfoSection({
                             sendGTMEvent({
                               event: 'group_study_member_profile_click',
                               dl_timestamp: new Date().toISOString(),
-                              ...(memberId && { dl_member_id: hashValue(memberId) }),
-                              dl_target_member_id: String(data.applicantInfo.memberId),
+                              ...(memberId && {
+                                dl_member_id: hashValue(memberId),
+                              }),
+                              dl_target_member_id: String(
+                                data.applicantInfo.memberId,
+                              ),
                               dl_group_study_id: String(groupStudyId),
                             });
                           }}
@@ -295,6 +301,7 @@ export default function StudyInfoSection({
       </div>
       <SummaryStudyInfo
         groupStudyId={groupStudyId}
+        memberId={memberId}
         isLeader={isLeader}
         groupStudyStatus={studyDetail.basicInfo.status}
         data={summaryBasicInfoItems(studyDetail.basicInfo)}
