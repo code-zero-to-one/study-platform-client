@@ -1,5 +1,6 @@
+'use client';
+
 import React from 'react';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 import ApplyGroupStudyModal from './apply-group-study-modal';
 import { GroupStudyStatus } from '../api/group-study-types';
@@ -16,6 +17,7 @@ interface SummaryStudyInfoProps {
   questions: string[];
   isLeader: boolean;
   groupStudyStatus: GroupStudyStatus;
+  memberId?: number;
 }
 
 export default function SummaryStudyInfo({
@@ -25,11 +27,14 @@ export default function SummaryStudyInfo({
   questions,
   isLeader,
   groupStudyStatus,
+  memberId,
 }: SummaryStudyInfoProps) {
   const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
     groupStudyId,
     isLeader,
   });
+
+  const isLoggedIn = typeof memberId === 'number';
 
   return (
     <div className="rounded-150 flex w-[335px] flex-col self-start border-[1px] border-[#D5D7DA] p-300">
@@ -67,9 +72,9 @@ export default function SummaryStudyInfo({
                 color="primary"
                 className="h-[48px]"
                 disabled={
-                  !!myApplicationStatus ||
+                  myApplicationStatus?.status !== 'NONE' ||
                   groupStudyStatus === 'IN_PROGRESS' ||
-                  !getCookie('memberId')
+                  !isLoggedIn
                 }
               >
                 {myApplicationStatus?.status === 'APPROVED' ||

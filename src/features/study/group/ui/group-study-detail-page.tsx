@@ -7,7 +7,6 @@ import Tabs from '@/shared/ui/tabs';
 import ConfirmDeleteModal from './confirm-delete-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
-import { completeStudy } from '../../interview/api/get-interview';
 import { GroupStudyDetailResponse } from '../api/group-study-types';
 import ChannelSection from '../channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
@@ -171,6 +170,7 @@ export default function StudyDetailPage({
       {active === 'intro' && (
         <StudyInfoSection
           study={studyDetail}
+          memberId={memberId}
           groupStudyId={groupStudyId}
           isLeader={isLeader}
         />
