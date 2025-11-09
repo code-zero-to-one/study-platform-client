@@ -192,13 +192,15 @@ export default function StudyInfoSection({
     // <GroupStudyNoticeModal groupStudyId={groupStudyId} />
     <div className="flex w-full gap-600">
       <div className="flex flex-1 flex-col gap-500">
-        <Image
-          src={studyDetail?.detailInfo.image.resizedImages[0].resizedImageUrl}
-          alt="썸네일"
-          className="h-[439px] w-[781px] object-cover"
-          width={781}
-          height={439}
-        />
+        <div className="relative h-[430px] w-full">
+          <Image
+            src={studyDetail?.detailInfo.image.resizedImages[0].resizedImageUrl}
+            alt="썸네일"
+            fill
+            className="object-contain"
+          />
+        </div>
+
         <div className="flex flex-col gap-600">
           <div className="flex flex-col gap-200">
             <p className="font-designer-20b">스터디 소개</p>

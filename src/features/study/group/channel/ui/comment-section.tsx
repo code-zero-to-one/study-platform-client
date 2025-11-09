@@ -83,7 +83,9 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
                       dislikes: comment.dislikesCount,
                     }}
                   />
-                  <span onClick={toggle}>답글쓰기</span>
+                  <span className="cursor-pointer" onClick={toggle}>
+                    답글쓰기
+                  </span>
                 </div>
               </div>
 
