@@ -88,8 +88,6 @@ function ApplyGroupStudyForm({
     control,
   });
 
-  console.log(questions);
-
   const { mutate: applyGroupStudy } = useApplyGroupStudyMutation(groupStudyId);
 
   const onSubmit = (data: ApplyGroupStudyFormData) => {
