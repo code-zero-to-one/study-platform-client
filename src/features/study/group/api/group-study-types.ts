@@ -119,10 +119,6 @@ export interface GroupStudyData {
   simpleDetailInfo: SimpleDetailInfo;
 }
 
-export interface InterviewPost {
-  interviewPost: { question: string; id: number }[];
-}
-
 // 그룹 스터디 신청 Request 타입
 export interface ApplyGroupStudyRequest {
   groupStudyId: number;
@@ -146,8 +142,10 @@ export interface DetailInfoDetail extends DetailInfo, Timestamps {
   thumbnailUploadUrl: string | null;
 }
 
-/** 상세 화면용 InterviewPost (기존 InterviewPost 확장) */
-export interface InterviewPostDetail extends InterviewPost, Timestamps {}
+/** 상세 화면용 InterviewPost */
+export interface InterviewPostDetail extends Timestamps {
+  interviewPost: { question: string; id: number }[];
+}
 
 // 그룹 스터디 신청 Response 타입
 export interface ApplyGroupStudyResponse {
@@ -161,7 +159,9 @@ export interface ApplyGroupStudyResponse {
 export interface OpenGroupStudyRequest {
   basicInfo: BasicInfo;
   detailInfo: DetailInfo;
-  interviewPost: InterviewPost;
+  interviewPost: {
+    interviewPost: string[];
+  };
   thumbnailExtension: ThumbnailExtension;
 }
 
