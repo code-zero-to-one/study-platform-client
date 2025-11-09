@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import {
   formatHHMM,
   formatKoreaRelativeTime,
@@ -53,11 +54,16 @@ export default function GroupStudyMemberItem({
       >
         {/* 사용자 프로필 */}
         <div className="relative inline-block">
-          <UserAvatar
-            image={member.profileImageUrl}
-            alt={`${member.memberName} 프로필 이미지`}
-            size={100}
-            className="border-border-default bg-background-default rounded-full border object-cover"
+          <UserProfileModal
+            memberId={member.id}
+            trigger={
+              <UserAvatar
+                image={member.profileImageUrl}
+                alt={`${member.memberName} 프로필 이미지`}
+                size={100}
+                className="border-border-default bg-background-default rounded-full border object-cover"
+              />
+            }
           />
 
           {/* 랭크 아이콘 */}
