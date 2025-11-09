@@ -7,6 +7,7 @@ import { useController, useForm } from 'react-hook-form';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
 import { Modal } from '@/shared/ui/modal';
+import { GroupStudyDetailResponse } from '../api/group-study-types';
 import {
   ApplyGroupStudyFormData,
   ApplyGroupStudyFormSchema,
@@ -16,7 +17,7 @@ import { useApplyGroupStudyMutation } from '../model/use-apply-group-study';
 interface ApplyGroupStudyModalProps {
   groupStudyId: number;
   title: string;
-  questions: string[];
+  questions: GroupStudyDetailResponse['interviewPost']['interviewPost'];
   trigger: React.ReactNode;
 }
 
@@ -64,7 +65,7 @@ function ApplyGroupStudyForm({
 }: {
   groupStudyId: number;
   title: string;
-  questions: string[];
+  questions: { question: string; id: number }[];
   onClose: () => void;
 }) {
   const {
@@ -86,6 +87,8 @@ function ApplyGroupStudyForm({
     name: 'agree',
     control,
   });
+
+  console.log(questions);
 
   const { mutate: applyGroupStudy } = useApplyGroupStudyMutation(groupStudyId);
 
@@ -118,8 +121,8 @@ function ApplyGroupStudyForm({
             className="flex flex-col gap-300"
             onSubmit={handleSubmit(onSubmit)}
           >
-            {questions.map((question, index) => (
-              <div key={question} className="flex flex-col gap-150">
+            {questions.map(({ question, id }, index) => (
+              <div key={id} className="flex flex-col gap-150">
                 <label
                   htmlFor={`question-${index}`}
                   className="font-designer-15b text-text-default"

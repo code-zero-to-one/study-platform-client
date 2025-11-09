@@ -304,6 +304,8 @@ export default function StudyInfoSection({
         memberId={memberId}
         isLeader={isLeader}
         groupStudyStatus={studyDetail.basicInfo.status}
+        approvedCount={studyDetail.basicInfo.approvedCount}
+        maxMembersCount={studyDetail.basicInfo.maxMembersCount}
         data={summaryBasicInfoItems(studyDetail.basicInfo)}
         title={studyDetail.detailInfo.title}
         questions={studyDetail.interviewPost.interviewPost}

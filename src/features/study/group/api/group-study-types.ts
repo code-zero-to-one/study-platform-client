@@ -120,7 +120,7 @@ export interface GroupStudyData {
 }
 
 export interface InterviewPost {
-  interviewPost: string[];
+  interviewPost: { question: string; id: number }[];
 }
 
 // 그룹 스터디 신청 Request 타입
