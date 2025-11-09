@@ -3,7 +3,10 @@
 import React from 'react';
 import Button from '@/shared/ui/button';
 import ApplyGroupStudyModal from './apply-group-study-modal';
-import { GroupStudyStatus } from '../api/group-study-types';
+import {
+  GroupStudyDetailResponse,
+  GroupStudyStatus,
+} from '../api/group-study-types';
 import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 
 interface SummaryStudyInfoProps {
@@ -14,9 +17,11 @@ interface SummaryStudyInfoProps {
   }[];
   title: string;
   groupStudyId: number;
-  questions: string[];
+  questions: GroupStudyDetailResponse['interviewPost']['interviewPost'];
   isLeader: boolean;
   groupStudyStatus: GroupStudyStatus;
+  approvedCount: GroupStudyDetailResponse['basicInfo']['approvedCount'];
+  maxMembersCount: GroupStudyDetailResponse['basicInfo']['maxMembersCount'];
   memberId?: number;
 }
 
@@ -27,6 +32,8 @@ export default function SummaryStudyInfo({
   questions,
   isLeader,
   groupStudyStatus,
+  approvedCount,
+  maxMembersCount,
   memberId,
 }: SummaryStudyInfoProps) {
   const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
@@ -74,6 +81,7 @@ export default function SummaryStudyInfo({
                 disabled={
                   myApplicationStatus?.status !== 'NONE' ||
                   groupStudyStatus === 'IN_PROGRESS' ||
+                  approvedCount >= maxMembersCount ||
                   !isLoggedIn
                 }
               >

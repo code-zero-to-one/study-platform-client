@@ -9,12 +9,13 @@ export interface GroupStudyApply {
   progressScore: number;
   role: ApplyRole;
   lastAccessed: string;
-  answer: string[];
+  answer: { id: number; answer: string }[];
   status: ApplyStatus;
   processedAt: string | null;
   reason: string | null;
   createdAt: string;
   updatedAt: string;
+  interviewPost: { id: number; question: string }[];
 }
 
 export interface Applicant {

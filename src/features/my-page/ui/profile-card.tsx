@@ -70,7 +70,22 @@ export default function ProfileCard(props: ProfileCardProps) {
           </p>
         </div>
       </div>
-      <p className="font-designer-16r text-text-default">{applicant.answer}</p>
+      {applicant.interviewPost.map((q) => {
+        const matchedAnswer = applicant.answer.find((a) => a.id === q.id);
+
+        return (
+          <div key={q.id} className="mb-4">
+            <p className="font-designer-16b text-text-default">
+              {q.id}. {q.question}
+            </p>
+
+            <p className="font-designer-16r text-text-default">
+              {matchedAnswer?.answer ?? '—'}
+            </p>
+          </div>
+        );
+      })}
+
       <div className="flex w-full justify-end gap-100">
         <Button
           size="medium"
