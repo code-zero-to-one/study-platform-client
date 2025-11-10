@@ -5,6 +5,7 @@ import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import MainProvider from '@/app/provider';
+import PageViewTracker from '@/shared/lib/page-view-tracker';
 import AdminSideBar from '@/widgets/admin/ui/admin-side-bar';
 
 export const metadata: Metadata = {
@@ -33,6 +34,7 @@ export default function AdminLayout({
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider>
+          <PageViewTracker />
           <div className="flex min-w-[1200px]">
             <AdminSideBar />
 

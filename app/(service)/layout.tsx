@@ -6,6 +6,7 @@ import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import MainProvider from '@/app/provider';
+import PageViewTracker from '@/shared/lib/page-view-tracker';
 import Header from '@/widgets/home/header';
 
 export const metadata: Metadata = {
@@ -39,6 +40,7 @@ export default function ServiceLayout({
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider>
+          <PageViewTracker />
           <div className="w-full overflow-auto">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
             <div className="m-auto flex w-[1496px] flex-1 flex-col items-center">
