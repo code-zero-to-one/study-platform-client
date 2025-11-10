@@ -1,9 +1,10 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import Button from '@/shared/ui/button';
@@ -58,6 +59,14 @@ export default function OpenGroupStudyModal({
   trigger,
 }: OpenGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (open) {
+      sendGTMEvent({
+        event: 'group_study_create_modal_open',
+      });
+    }
+  }, [open]);
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -149,6 +158,10 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
           console.log('파일 업로드 성공!');
         }
       }
+      sendGTMEvent({
+        event: 'group_study_create_success',
+        group_study_id: String(created.content.groupStudyId),
+      });
       alert('그룹 스터디 개설이 완료되었습니다!');
 
       onClose();
@@ -159,6 +172,9 @@ function OpenGroupStudyForm({ onClose }: { onClose: () => void }) {
         queryKey: ['memberStudies'],
       });
     } catch (err) {
+      sendGTMEvent({
+        event: 'group_study_create_error',
+      });
       alert('그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.');
     }
   };

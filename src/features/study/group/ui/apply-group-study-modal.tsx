@@ -1,8 +1,9 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 import Button from '@/shared/ui/button';
 import Checkbox from '@/shared/ui/checkbox';
@@ -28,6 +29,16 @@ export default function ApplyGroupStudyModal({
   trigger,
 }: ApplyGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (open) {
+      sendGTMEvent({
+        event: 'group_study_apply_modal_open',
+        group_study_id: String(groupStudyId),
+        group_study_title: title,
+      });
+    }
+  }, [open, groupStudyId, title]);
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -97,8 +108,19 @@ function ApplyGroupStudyForm({
       { answer, groupStudyId },
       {
         onSuccess: async () => {
+          sendGTMEvent({
+            event: 'group_study_apply_success',
+            group_study_id: String(groupStudyId),
+            group_study_title: title,
+          });
           alert('스터디 신청이 완료되었습니다.');
           onClose();
+        },
+        onError: () => {
+          sendGTMEvent({
+            event: 'group_study_apply_error',
+            group_study_id: String(groupStudyId),
+          });
         },
       },
     );

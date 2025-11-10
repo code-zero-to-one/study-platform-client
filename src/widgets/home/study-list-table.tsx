@@ -1,3 +1,6 @@
+'use client';
+
+import { sendGTMEvent } from '@next/third-parties/google';
 import { getStatusBadge } from '@/features/study/interview/ui/status-badge-map';
 import { DailyStudy } from '@/features/study/schedule/api/schedule-types';
 import { useDailyStudiesQuery } from '@/features/study/schedule/model/use-schedule-query';
@@ -42,7 +45,19 @@ function mapDailyStudyToDisplayData(
     피드백: row.feedback || '-',
     '진행 상태': getStatusBadge(row.progressStatus),
     '참고 자료': row.link ? (
-      <a href={row.link} target="_blank" rel="noopener noreferrer">
+      <a
+        href={row.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        onClick={() => {
+          sendGTMEvent({
+            event: 'study_reference_link_click',
+            study_date: row.studyDate || '',
+            interviewee: row.interviewee,
+            location: 'home',
+          });
+        }}
+      >
         <LinkIcon className="h-4 w-4" />
       </a>
     ) : (
