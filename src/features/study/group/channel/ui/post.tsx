@@ -52,7 +52,7 @@ export default function Post({ data, leader }: PostProps) {
           </div>
         </div>
       </div>
-      <div className="mb-500">{data.noticeContent}</div>
+      <div className="mb-500 whitespace-pre-line">{data.noticeContent}</div>
     </div>
   );
 }
