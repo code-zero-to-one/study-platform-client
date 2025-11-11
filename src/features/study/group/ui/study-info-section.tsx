@@ -204,7 +204,7 @@ export default function StudyInfoSection({
         <div className="flex flex-col gap-600">
           <div className="flex flex-col gap-200">
             <p className="font-designer-20b">스터디 소개</p>
-            <div className="font-designer-16r text-[#535862]">
+            <div className="font-designer-16r whitespace-pre-line text-[#535862]">
               {studyDetail?.detailInfo.description}
             </div>
           </div>
