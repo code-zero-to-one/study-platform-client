@@ -36,7 +36,7 @@ export default function Post({ data, leader }: PostProps) {
         <div className="flex gap-150">
           <UserAvatar
             size={48}
-            image={leader.profileImage.resizedImages[0].resizedImageUrl}
+            image={leader.profileImage?.resizedImages[0].resizedImageUrl}
           />
           <div className="flex flex-col gap-50">
             <div className="flex gap-50">
@@ -52,7 +52,7 @@ export default function Post({ data, leader }: PostProps) {
           </div>
         </div>
       </div>
-      <div className="mb-500">{data.noticeContent}</div>
+      <div className="mb-500 whitespace-pre-line">{data.noticeContent}</div>
     </div>
   );
 }
