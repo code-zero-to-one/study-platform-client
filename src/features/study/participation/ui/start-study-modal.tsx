@@ -1,5 +1,6 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -63,8 +64,18 @@ export default function StartStudyModal({
   open,
   onOpenChange,
 }: StartStudyModalProps) {
+  const handleOpenChange = (isOpen: boolean) => {
+    onOpenChange?.(isOpen);
+    if (isOpen) {
+      sendGTMEvent({
+        event: 'study_apply_modal_open',
+        location: 'home',
+      });
+    }
+  };
+
   return (
-    <Modal.Root open={open} onOpenChange={onOpenChange}>
+    <Modal.Root open={open} onOpenChange={handleOpenChange}>
       {trigger ? <Modal.Trigger asChild>{trigger}</Modal.Trigger> : null}
       <Modal.Portal>
         <Modal.Overlay />
@@ -141,11 +152,22 @@ function StartStudyForm({
 
     joinStudy(body, {
       onSuccess: () => {
+        sendGTMEvent({
+          event: 'study_apply_success',
+          location: 'home',
+          preferred_subject: values.preferredStudySubjectId,
+          available_times_count: values.availableStudyTimeIds.length,
+          tech_stacks_count: values.techStackIds.length,
+        });
         alert('스터디 신청이 완료되었습니다!');
         onClose();
         router.refresh();
       },
       onError: () => {
+        sendGTMEvent({
+          event: 'study_apply_error',
+          location: 'home',
+        });
         alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
       },
     });

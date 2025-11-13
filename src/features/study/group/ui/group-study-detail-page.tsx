@@ -1,5 +1,6 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
@@ -66,7 +67,13 @@ export default function StudyDetailPage({
         completeStudy(
           { groupStudyId },
           {
-            onSuccess: () => alert('스터디가 종료되었습니다.'),
+            onSuccess: () => {
+              sendGTMEvent({
+                event: 'group_study_end',
+                group_study_id: String(groupStudyId),
+              });
+              alert('스터디가 종료되었습니다.');
+            },
             onSettled: () => {
               setShowModal(false);
               router.push('/study');
@@ -89,6 +96,10 @@ export default function StudyDetailPage({
           { groupStudyId },
           {
             onSuccess: () => {
+              sendGTMEvent({
+                event: 'group_study_delete',
+                group_study_id: String(groupStudyId),
+              });
               alert('스터디가 삭제되었습니다.');
             },
             onError: () => {
@@ -165,7 +176,14 @@ export default function StudyDetailPage({
           (tab) => tab.value === 'intro' || isLeader || isMember,
         )}
         activeTab={active}
-        onChange={(value: ActiveTab) => setActive(value)}
+        onChange={(value: ActiveTab) => {
+          setActive(value);
+          sendGTMEvent({
+            event: 'group_study_tab_change',
+            group_study_id: String(groupStudyId),
+            tab: value,
+          });
+        }}
       />
       {active === 'intro' && (
         <StudyInfoSection

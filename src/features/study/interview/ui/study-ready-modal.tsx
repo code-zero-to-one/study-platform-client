@@ -1,8 +1,9 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import type {
@@ -30,6 +31,15 @@ export default function StudyReadyModal({
   studyDate,
 }: StudyReadyModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      sendGTMEvent({
+        event: 'study_ready_modal_open',
+        study_date: studyDate,
+      });
+    }
+  }, [isOpen, studyDate]);
 
   return (
     <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
@@ -94,9 +104,19 @@ function StudyReadyForm({
         requestType: 'prepare',
       },
       {
-        onSuccess: onClose,
+        onSuccess: () => {
+          sendGTMEvent({
+            event: 'study_ready_success',
+            study_date: studyDate,
+          });
+          onClose();
+        },
         onError: (err) => {
           console.error(err);
+          sendGTMEvent({
+            event: 'study_ready_error',
+            study_date: studyDate,
+          });
           alert('요청 처리에 실패했습니다. 다시 시도해주세요.');
         },
       },

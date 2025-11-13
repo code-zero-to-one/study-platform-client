@@ -1,6 +1,6 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
@@ -26,6 +26,14 @@ export default function SignupModal({
 
   const signUp = useSignUpMutation();
   const uploadProfileImage = useUploadProfileImageMutation();
+
+  useEffect(() => {
+    if (open) {
+      sendGTMEvent({
+        event: 'signup_modal_open',
+      });
+    }
+  }, [open]);
 
   const isValidName = /^[가-힣a-zA-Z]{2,10}$/.test(name);
 

@@ -1,5 +1,6 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { addDays, format, isSameDay } from 'date-fns';
 import { useMemo } from 'react';
 import { getKoreaDisplayMonday } from '@/shared/lib/time';
@@ -18,6 +19,16 @@ export default function DateSelector({ value, onChange }: Props) {
     [displayMonday],
   );
 
+  const handleDateChange = (date: Date, dayLabel: string) => {
+    onChange(date);
+    sendGTMEvent({
+      event: 'date_selector_change',
+      selected_date: format(date, 'yyyy-MM-dd'),
+      day_of_week: dayLabel,
+      location: 'home',
+    });
+  };
+
   return (
     <div className="flex w-full gap-50">
       {dates.map((date, index) => {
@@ -28,7 +39,7 @@ export default function DateSelector({ value, onChange }: Props) {
         return (
           <button
             key={index}
-            onClick={() => onChange(date)}
+            onClick={() => handleDateChange(date, dayLabel)}
             className={`rounded-150 border-border-default flex flex-1 flex-col items-center border py-300 transition ${
               isSelected
                 ? 'bg-fill-brand-default-default border-transparent'
