@@ -126,11 +126,11 @@ export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
                           <Badge color="red">제로원 스터디</Badge>
                         )}
 
-                        <span className="font-designer-18b max-w-[673px] truncate text-[#252B37]">
+                        <span className="font-designer-18b max-w-[346px] truncate text-[#252B37]">
                           {study.simpleDetailInfo.title}
                         </span>
                       </div>
-                      <p className="font-designer-15r line-clamp-2 text-[15px] leading-[29px] text-[#535862]">
+                      <p className="font-designer-15r line-clamp-2 max-w-[346px] text-[#535862]">
                         {study.simpleDetailInfo.summary}
                       </p>
                     </div>
