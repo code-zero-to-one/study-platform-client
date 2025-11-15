@@ -45,6 +45,11 @@ export default function SummaryStudyInfo({
 
   const isLoggedIn = typeof memberId === 'number';
 
+  const handleCopyURL = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    alert('스터디 링크가 복사되었습니다!');
+  };
+
   return (
     <div className="rounded-150 flex w-[335px] flex-col self-start border-[1px] border-[#D5D7DA] p-300">
       <p className="font-designer-18b">{title}</p>
@@ -118,7 +123,7 @@ export default function SummaryStudyInfo({
           color="secondary"
           size="large"
           className="font-designer-16b h-[48px]"
-          disabled
+          onClick={handleCopyURL}
         >
           공유하기
         </Button>
