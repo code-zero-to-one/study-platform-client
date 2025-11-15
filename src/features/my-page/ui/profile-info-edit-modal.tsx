@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import type { MemberInfo } from '@/entities/user/api/types';
@@ -35,6 +35,14 @@ interface Props {
 
 export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      sendGTMEvent({
+        event: 'profile_edit_modal_open',
+      });
+    }
+  }, [isOpen]);
 
   return (
     <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
