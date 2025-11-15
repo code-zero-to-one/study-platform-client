@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import Button from '@/shared/ui/button';
 import ApplyGroupStudyModal from './apply-group-study-modal';
@@ -36,6 +37,7 @@ export default function SummaryStudyInfo({
   maxMembersCount,
   memberId,
 }: SummaryStudyInfoProps) {
+  const router = useRouter();
   const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
     groupStudyId,
     isLeader,
@@ -68,7 +70,7 @@ export default function SummaryStudyInfo({
         {/* 스터디 진행중 => "참여 중인 스터디" disabled */}
         {/* 스터디 종료 => "신청하기" disabled */}
         {/* 스터디 강퇴 => "신청하기" disabled */}
-        {!isLeader && (
+        {!isLeader && isLoggedIn && (
           <ApplyGroupStudyModal
             groupStudyId={groupStudyId}
             title={title}
@@ -92,6 +94,24 @@ export default function SummaryStudyInfo({
               </Button>
             }
           />
+        )}
+        {!isLoggedIn && (
+          <Button
+            size="large"
+            color="primary"
+            className="h-[48px]"
+            disabled={
+              groupStudyStatus === 'IN_PROGRESS' ||
+              approvedCount >= maxMembersCount
+            }
+            onClick={() => {
+              router.push('/login');
+            }}
+          >
+            {groupStudyStatus === 'IN_PROGRESS'
+              ? '참여 중인 스터디'
+              : '신청하기'}
+          </Button>
         )}
 
         <Button

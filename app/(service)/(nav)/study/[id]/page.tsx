@@ -30,7 +30,7 @@ export default async function Page({
   ]);
 
   const memberIdStr = await getServerCookie('memberId');
-  const memberId = Number(memberIdStr);
+  const memberId = memberIdStr ? Number(memberIdStr) : undefined;
 
   const isLeader = data.basicInfo.leader.memberId === memberId;
 

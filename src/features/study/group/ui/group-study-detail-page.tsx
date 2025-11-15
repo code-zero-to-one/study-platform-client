@@ -24,7 +24,7 @@ interface StudyDetailPageProps {
   groupStudyId: number;
   studyDetail: GroupStudyDetailResponse;
   isLeader: boolean;
-  memberId: number;
+  memberId?: number;
 }
 
 export default function StudyDetailPage({
