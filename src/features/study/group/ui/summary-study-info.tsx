@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import React from 'react';
 import Button from '@/shared/ui/button';
 import ApplyGroupStudyModal from './apply-group-study-modal';
@@ -36,12 +37,18 @@ export default function SummaryStudyInfo({
   maxMembersCount,
   memberId,
 }: SummaryStudyInfoProps) {
+  const router = useRouter();
   const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
     groupStudyId,
     isLeader,
   });
 
   const isLoggedIn = typeof memberId === 'number';
+
+  const handleCopyURL = async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    alert('스터디 링크가 복사되었습니다!');
+  };
 
   return (
     <div className="rounded-150 flex w-[335px] flex-col self-start border-[1px] border-[#D5D7DA] p-300">
@@ -68,7 +75,7 @@ export default function SummaryStudyInfo({
         {/* 스터디 진행중 => "참여 중인 스터디" disabled */}
         {/* 스터디 종료 => "신청하기" disabled */}
         {/* 스터디 강퇴 => "신청하기" disabled */}
-        {!isLeader && (
+        {!isLeader && isLoggedIn && (
           <ApplyGroupStudyModal
             groupStudyId={groupStudyId}
             title={title}
@@ -93,12 +100,30 @@ export default function SummaryStudyInfo({
             }
           />
         )}
+        {!isLoggedIn && (
+          <Button
+            size="large"
+            color="primary"
+            className="h-[48px]"
+            disabled={
+              groupStudyStatus === 'IN_PROGRESS' ||
+              approvedCount >= maxMembersCount
+            }
+            onClick={() => {
+              router.push('/login');
+            }}
+          >
+            {groupStudyStatus === 'IN_PROGRESS'
+              ? '참여 중인 스터디'
+              : '신청하기'}
+          </Button>
+        )}
 
         <Button
           color="secondary"
           size="large"
           className="font-designer-16b h-[48px]"
-          disabled
+          onClick={handleCopyURL}
         >
           공유하기
         </Button>
