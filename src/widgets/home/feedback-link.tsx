@@ -2,10 +2,13 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
-import Link from 'next/link';
 
 export default function FeedbackLink() {
   const handleClick = () => {
+    window.open(
+      'https://docs.google.com/forms/d/e/1FAIpQLSf84V4Bp9XSQ5FADF3U3F31RIp_64R_79bqhFBZIK0ovxibzg/viewform?usp=header',
+      '_blank',
+    );
     sendGTMEvent({
       event: 'feedback_link_click',
       location: 'home_sidebar',
@@ -13,10 +16,9 @@ export default function FeedbackLink() {
   };
 
   return (
-    <Link
-      href={''}
+    <button
       onClick={handleClick}
-      className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300"
+      className="bg-background-alternative rounded-100 flex cursor-pointer items-center justify-between px-250 py-300"
     >
       <p className="flex flex-col items-start gap-50">
         <span className="font-designer-15b text-text-default">
@@ -28,6 +30,6 @@ export default function FeedbackLink() {
       </p>
 
       <Image src="/feedback.svg" alt="피드백" width={86} height={56} />
-    </Link>
+    </button>
   );
 }
