@@ -1,30 +1,27 @@
+import { useLeaderStore } from '@/shared/stores/useLeaderStore';
 import Comments from './comment-section';
 import CreatePost from './create-post';
 import Post from './post';
 import PostNotFound from './post-not-found';
 
-import {
-  GroupStudyMyStatusResponse,
-  Leader,
-} from '../../api/group-study-types';
+import { GroupStudyMyStatusResponse } from '../../api/group-study-types';
 import KickedReasonModal from '../../ui/kicked-reason-modal';
 
 import { usePostQuery } from '../model/use-channel-query';
 
 interface ChannelSectionProps {
   groupStudyId: number;
-  leader: Leader;
   memberId: number;
   myApplicationStatus?: GroupStudyMyStatusResponse;
 }
 
 export default function ChannelSection({
   groupStudyId,
-  leader,
   memberId,
   myApplicationStatus,
 }: ChannelSectionProps) {
   const { data, isLoading } = usePostQuery(groupStudyId);
+  const leader = useLeaderStore((state) => state.leaderInfo);
 
   if (isLoading) return null;
 
@@ -41,7 +38,7 @@ export default function ChannelSection({
   return (
     <>
       <div className="flex flex-col gap-500">
-        <Post data={data} leader={leader} />
+        <Post data={data} />
         <Comments groupStudyId={groupStudyId} />
       </div>
 

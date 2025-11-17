@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useUser } from '@/features/auth/model/use-user';
+import { useLeaderStore } from '@/shared/stores/useLeaderStore';
 import UserAvatar from '@/shared/ui/avatar';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import CommentInput from './comment-input';
@@ -33,6 +34,10 @@ interface CommentProps {
 // 스레드용이냐 커맨트용이냐에 따라서 호출하는 함수가 달라짐
 export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const { userId, userName } = useUser();
+  const leader = useLeaderStore((state) => state.leaderInfo);
+
+  console.log('data', data);
+
   const qc = useQueryClient();
 
   const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
@@ -165,7 +170,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     }
 
     // 여기는 수아님과 동일한 기능
-    if (data.authorId !== userId && data.isLeader) {
+    if (data.authorId !== userId && leader.memberId === userId) {
       return [
         {
           label: '평가하기',

@@ -49,7 +49,7 @@ export default async function Page({
         memberId={memberId}
         groupStudyId={Number(id)}
         studyDetail={data}
-        isLeader={isLeader}
+        leader={data.basicInfo.leader}
       />
     </HydrationBoundary>
   );

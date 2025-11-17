@@ -2,13 +2,14 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLeaderStore } from '@/shared/stores/useLeaderStore';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import Tabs from '@/shared/ui/tabs';
 import ConfirmDeleteModal from './confirm-delete-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
-import { GroupStudyDetailResponse } from '../api/group-study-types';
+import { GroupStudyDetailResponse, Leader } from '../api/group-study-types';
 import ChannelSection from '../channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 import {
@@ -23,32 +24,40 @@ type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 interface StudyDetailPageProps {
   groupStudyId: number;
   studyDetail: GroupStudyDetailResponse;
-  isLeader: boolean;
+  leader: Leader;
   memberId?: number;
 }
+
+const TABS = [
+  { label: '스터디 소개', value: 'intro' },
+  { label: '참가자', value: 'members' },
+  { label: '채널', value: 'channel' },
+];
 
 export default function StudyDetailPage({
   groupStudyId,
   studyDetail,
-  isLeader,
+  leader,
   memberId,
 }: StudyDetailPageProps) {
+  const router = useRouter();
+
+  const isLeader = leader.memberId === memberId;
+
   const [active, setActive] = useState<ActiveTab>('intro');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
+
+  const setLeaderInfo = useLeaderStore((s) => s.setLeaderInfo);
 
   const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
     groupStudyId,
     isLeader,
   });
 
-  const router = useRouter();
-
-  const tabs = [
-    { label: '스터디 소개', value: 'intro' },
-    { label: '참가자', value: 'members' },
-    { label: '채널', value: 'channel' },
-  ];
+  useEffect(() => {
+    setLeaderInfo(leader);
+  }, [leader, setLeaderInfo]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -172,7 +181,7 @@ export default function StudyDetailPage({
 
       {/** 탭리스트 */}
       <Tabs
-        tabs={tabs.filter(
+        tabs={TABS.filter(
           (tab) => tab.value === 'intro' || isLeader || isMember,
         )}
         activeTab={active}
@@ -203,7 +212,6 @@ export default function StudyDetailPage({
       {active === 'channel' && (
         <ChannelSection
           groupStudyId={groupStudyId}
-          leader={studyDetail.basicInfo.leader}
           memberId={memberId}
           myApplicationStatus={myApplicationStatus}
         />
