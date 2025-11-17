@@ -1,5 +1,15 @@
 import { cn } from '@/shared/shadcn/lib/utils';
 
+const List = ({
+  className = '',
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) => {
+  return <ul className={className}>{children}</ul>;
+};
+
 const ListItem = ({
   className = '',
   children,
@@ -19,4 +29,6 @@ const ListItem = ({
   );
 };
 
-export default ListItem;
+List.Item = ListItem;
+
+export default List;
