@@ -15,6 +15,8 @@ interface PostProps {
 export default function Post({ data }: PostProps) {
   const leader = useLeaderStore((state) => state.leaderInfo);
 
+  console.log('leader', leader);
+
   return (
     <div className="flex flex-col border-b-[1px] border-[#D5D7DA]">
       <div className="mb-500 flex flex-col gap-250">

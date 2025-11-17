@@ -6,6 +6,7 @@ import { useLeaderStore } from '@/shared/stores/useLeaderStore';
 import UserAvatar from '@/shared/ui/avatar';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import CommentInput from './comment-input';
+import { ResizedImage } from '../../api/group-study-types';
 import ConfirmDeleteModal from '../../ui/confirm-delete-modal';
 import DeleteGroupStudyMemberModal from '../../ui/delete-group-study-member';
 import ProgressScoreModal from '../../ui/progress-score-modal';
@@ -25,7 +26,10 @@ interface CommentProps {
     isLeader: boolean;
     updatedAt: string;
     content: string;
-    imageLocation: string;
+    image: {
+      imageId: number;
+      resizedImages: ResizedImage;
+    };
   };
   groupStudyId: number;
   mode: 'thread' | 'comment';
@@ -37,6 +41,11 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const leader = useLeaderStore((state) => state.leaderInfo);
 
   console.log('data', data);
+
+  console.log(
+    'data.image?.resizedImages.resizedImageUrl',
+    data.image?.resizedImages.resizedImageUrl,
+  );
 
   const qc = useQueryClient();
 
@@ -210,7 +219,10 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
         }}
       />
       <div className="flex flex-1 items-start gap-150">
-        <UserAvatar size={40} image={undefined} />
+        <UserAvatar
+          size={40}
+          image={data.image?.resizedImages.resizedImageUrl}
+        />
         {isEditing ? (
           <CommentInput
             mode={'edit'}

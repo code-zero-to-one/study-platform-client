@@ -1,3 +1,5 @@
+import { ResizedImage } from '../../api/group-study-types';
+
 interface GroupStudyIdParam {
   groupStudyId: number;
 }
@@ -52,7 +54,10 @@ export interface GetThreadsResponse {
   authorId: number;
   content: string;
   authorName: string;
-  imageLocation: string | null;
+  image: {
+    imageId: number;
+    resizedImages: ResizedImage;
+  };
   isLeader: boolean;
   likesCount: number;
   dislikesCount: number;
