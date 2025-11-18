@@ -77,7 +77,7 @@ const pageButtonVariants = cva(
   },
 );
 
-export default function Pagination({
+function Pagination({
   page: currentPage,
   totalPages,
   onChangePage,
@@ -158,3 +158,5 @@ export default function Pagination({
     </div>
   );
 }
+
+export default Pagination;
