@@ -1,4 +1,5 @@
 import Image from 'next/image';
+import Progress from '@/components/ui/progress';
 import { MemberProfile, SincerityTemp } from '@/entities/user/api/types';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
@@ -8,7 +9,6 @@ import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
 import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { cn } from '@/shared/shadcn/lib/utils';
 import Badge from '@/shared/ui/badge';
-import Progress from '@/shared/ui/progress';
 import Tooltip from '@/shared/ui/tooltip';
 
 interface ProfileProps {
