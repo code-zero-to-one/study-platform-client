@@ -5,13 +5,10 @@ import * as React from 'react';
 
 interface ProgressProps {
   value: number;
-  indicatorColor?: string;
+  indicatorColor: string;
 }
 
-const Progress: React.FC<ProgressProps> = ({
-  value,
-  indicatorColor = 'bg-white',
-}) => {
+const Progress: React.FC<ProgressProps> = ({ value, indicatorColor }) => {
   return (
     <RadixProgress.Root
       className="bg-background-accent-gray-subtle relative h-100 w-full overflow-hidden rounded-full"
