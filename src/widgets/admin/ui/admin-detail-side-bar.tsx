@@ -3,7 +3,7 @@
 import Link from 'next/link';
 
 import { usePathname } from 'next/navigation';
-import TabMenu from '@/shared/ui/tab-menu';
+import TabMenu from '@/components/ui/tab-menu';
 
 interface AdminDetailSideBarProps {
   memberId: string;
