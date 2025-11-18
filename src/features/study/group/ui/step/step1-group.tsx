@@ -6,10 +6,10 @@ import {
   useFormContext,
   useWatch,
 } from 'react-hook-form';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio';
 import { SingleDropdown } from '@/shared/ui/dropdown';
 import FormField from '@/shared/ui/form/form-field';
 import { BaseInput } from '@/shared/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/shared/ui/radio';
 import { GroupItems } from '@/shared/ui/toggle';
 import { TargetRole } from '../../api/group-study-types';
 import {
