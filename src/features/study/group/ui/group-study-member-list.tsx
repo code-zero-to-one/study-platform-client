@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import { useState } from 'react';
-import Pagination from '@/shared/ui/pagination';
+import Pagination from '@/components/ui/pagination';
 import GroupStudyMemberItem from './group-study-member-item';
 import KickedReasonModal from './kicked-reason-modal';
 import { GroupStudyMyStatusResponse } from '../api/group-study-types';
