@@ -28,7 +28,7 @@ interface CommentProps {
     content: string;
     image: {
       imageId: number;
-      resizedImages: ResizedImage;
+      resizedImages: ResizedImage[];
     };
   };
   groupStudyId: number;
@@ -39,13 +39,6 @@ interface CommentProps {
 export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const { userId, userName } = useUser();
   const leader = useLeaderStore((state) => state.leaderInfo);
-
-  console.log('data', data);
-
-  console.log(
-    'data.image?.resizedImages.resizedImageUrl',
-    data.image?.resizedImages.resizedImageUrl,
-  );
 
   const qc = useQueryClient();
 
@@ -221,7 +214,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
       <div className="flex flex-1 items-start gap-150">
         <UserAvatar
           size={40}
-          image={data.image?.resizedImages.resizedImageUrl}
+          image={data.image?.resizedImages[0].resizedImageUrl}
         />
         {isEditing ? (
           <CommentInput

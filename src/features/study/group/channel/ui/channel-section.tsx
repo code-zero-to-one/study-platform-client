@@ -23,8 +23,6 @@ export default function ChannelSection({
   const { data, isLoading } = usePostQuery(groupStudyId);
   const leader = useLeaderStore((state) => state.leaderInfo);
 
-  console.log('data', data);
-
   if (isLoading) return null;
 
   // 등록되지 않은 경우

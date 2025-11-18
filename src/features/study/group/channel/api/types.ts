@@ -56,7 +56,7 @@ export interface GetThreadsResponse {
   authorName: string;
   image: {
     imageId: number;
-    resizedImages: ResizedImage;
+    resizedImages: ResizedImage[];
   };
   isLeader: boolean;
   likesCount: number;
