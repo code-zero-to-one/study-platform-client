@@ -1,10 +1,10 @@
 import { QueryClient } from '@tanstack/react-query';
 import Link from 'next/link';
+import TabMenu from '@/components/ui/tab-menu';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import { GetUserProfileResponse } from '@/entities/user/api/types';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import UserAvatar from '@/shared/ui/avatar';
-import TabMenu from '@/shared/ui/tab-menu';
 import OutIcon from 'public/icons/out.svg';
 
 export default async function AdminSideBar() {
