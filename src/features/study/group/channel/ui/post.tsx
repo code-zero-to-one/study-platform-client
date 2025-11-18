@@ -1,8 +1,7 @@
 import dayjs from 'dayjs';
-import React from 'react';
+import { useLeaderStore } from '@/shared/stores/useLeaderStore';
 import UserAvatar from '@/shared/ui/avatar';
 import Button from '@/shared/ui/button';
-import { Leader } from '../../api/group-study-types';
 import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
 interface PostProps {
@@ -12,9 +11,10 @@ interface PostProps {
     noticeContent: string;
     updatedAt: string;
   };
-  leader: Leader;
 }
-export default function Post({ data, leader }: PostProps) {
+export default function Post({ data }: PostProps) {
+  const leader = useLeaderStore((state) => state.leaderInfo);
+
   return (
     <div className="flex flex-col border-b-[1px] border-[#D5D7DA]">
       <div className="mb-500 flex flex-col gap-250">

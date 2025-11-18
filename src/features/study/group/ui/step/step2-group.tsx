@@ -37,6 +37,13 @@ export default function Step2OpenGroupStudy() {
       return;
     }
 
+    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
+    if (file.size > MAX_SIZE) {
+      alert('이미지 용량은 5MB 이하만 업로드할 수 있어요.');
+
+      return;
+    }
+
     const ext = file.name.split('.').pop()?.toUpperCase();
     const validExt =
       ext && THUMBNAIL_EXTENSION.includes(ext as any)
