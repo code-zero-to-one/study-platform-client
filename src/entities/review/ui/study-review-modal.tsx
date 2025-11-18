@@ -3,20 +3,20 @@
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import List from '@/components/ui/list';
 import {
   EvalKeyword,
   StudyEvaluationResponse,
 } from '@/entities/review/api/review-types';
-import UserAvatar from '@/shared/ui/avatar';
-import Button from '@/shared/ui/button';
-import Checkbox from '@/shared/ui/checkbox';
-import { TextAreaInput } from '@/shared/ui/input';
-import ListItem from '@/shared/ui/list-item';
-import { Modal } from '@/shared/ui/modal';
 import {
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
 } from '@/entities/review/model/use-review-query';
+import UserAvatar from '@/shared/ui/avatar';
+import Button from '@/shared/ui/button';
+import Checkbox from '@/shared/ui/checkbox';
+import { TextAreaInput } from '@/shared/ui/input';
+import { Modal } from '@/shared/ui/modal';
 
 interface FormState {
   studySpaceId: number;
@@ -313,9 +313,9 @@ function PositiveCheckboxList({
         <span className="font-designer-13m text-text-error">필수</span>
       </div>
 
-      <ul className="mx-auto">
+      <List className="mx-auto">
         {positiveKeywords.map(({ id, keyword }) => (
-          <ListItem key={id}>
+          <List.Item key={id}>
             <Checkbox
               id={`satisfaction-${id}`}
               checked={keywordIds.includes(id)}
@@ -324,9 +324,9 @@ function PositiveCheckboxList({
               }}
             />
             <label htmlFor={`satisfaction-${id}`}>{keyword}</label>
-          </ListItem>
+          </List.Item>
         ))}
-      </ul>
+      </List>
     </div>
   );
 }
@@ -389,9 +389,9 @@ function NegativeCheckboxList({
         <span className="font-designer-13m text-text-error">필수</span>
       </div>
 
-      <ul className="mx-auto">
+      <List className="mx-auto">
         {negativeKeywords.map(({ id, keyword }) => (
-          <ListItem key={id}>
+          <List.Item key={id}>
             <Checkbox
               id={`bad-satisfaction-${id}`}
               checked={keywordIds.includes(id)}
@@ -400,9 +400,9 @@ function NegativeCheckboxList({
               }}
             />
             <label htmlFor={`bad-satisfaction-${id}`}>{keyword}</label>
-          </ListItem>
+          </List.Item>
         ))}
-      </ul>
+      </List>
     </div>
   );
 }
