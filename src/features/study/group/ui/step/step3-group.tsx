@@ -5,7 +5,7 @@ import { useFormContext } from 'react-hook-form';
 import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
 import { BaseInput } from '@/shared/ui/input';
-import { OpenGroupFormValues } from '../../model/open-group-form.schema';
+import { OpenGroupFormValues } from '../../model/group-study-form.schema.js';
 
 export default function Step3OpenGroupStudy() {
   const { setValue } = useFormContext<OpenGroupFormValues>();

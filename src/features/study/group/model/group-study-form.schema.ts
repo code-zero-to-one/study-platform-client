@@ -11,7 +11,7 @@ import {
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
-export const OpenGroupFormSchema = z.object({
+export const GroupStudyFormSchema = z.object({
   type: z.enum(STUDY_TYPES),
   targetRoles: z
     .array(z.enum(TARGET_ROLE_OPTIONS))
@@ -52,12 +52,12 @@ export const OpenGroupFormSchema = z.object({
 });
 
 // 사진 상태 저장을 위한 로컬용 state
-export type OpenGroupFormValues = z.input<typeof OpenGroupFormSchema> & {
+export type GroupStudyFormValues = z.input<typeof GroupStudyFormSchema> & {
   thumbnailFile?: File | undefined;
 };
-export type OpenGroupParsedValues = z.output<typeof OpenGroupFormSchema>;
+export type OpenGroupParsedValues = z.output<typeof GroupStudyFormSchema>;
 
-export function buildOpenGroupDefaultValues(): OpenGroupFormValues {
+export function buildOpenGroupDefaultValues(): GroupStudyFormValues {
   return {
     type: 'PROJECT',
     targetRoles: [],

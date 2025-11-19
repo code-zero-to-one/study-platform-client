@@ -5,7 +5,7 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import FormField from '@/shared/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { THUMBNAIL_EXTENSION } from '../../const/group-study-const';
-import { OpenGroupFormValues } from '../../model/open-group-form.schema';
+import { OpenGroupFormValues } from '../../model/group-study-form.schema';
 import GroupStudyThumbnailInput from '../group-study-thumbnail-input';
 
 export default function Step2OpenGroupStudy() {

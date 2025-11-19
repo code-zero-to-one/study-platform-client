@@ -7,6 +7,7 @@ import { useLeaderStore } from '@/shared/stores/useLeaderStore';
 import MoreMenu from '@/shared/ui/dropdown/more-menu';
 import Tabs from '@/shared/ui/tabs';
 import ConfirmDeleteModal from './confirm-delete-modal';
+import GroupStudyFormModal from './group-study-form-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
 import { GroupStudyDetailResponse, Leader } from '../api/group-study-types';
@@ -47,6 +48,7 @@ export default function StudyDetailPage({
   const [active, setActive] = useState<ActiveTab>('intro');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
+  const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
   const setLeaderInfo = useLeaderStore((s) => s.setLeaderInfo);
 
@@ -139,6 +141,12 @@ export default function StudyDetailPage({
         confirmText={ModalContent[action]?.confirmText}
         onConfirm={ModalContent[action]?.onConfirm}
       />
+      <GroupStudyFormModal
+        open={showStudyFormModal}
+        mode="edit"
+        groupStudyId={groupStudyId}
+        onOpenChange={() => setShowStudyFormModal(false)}
+      />
 
       <div className="flex w-full items-start justify-between">
         <div className="flex w-full flex-col gap-150">
@@ -155,7 +163,9 @@ export default function StudyDetailPage({
               {
                 label: '스터디 수정하기',
                 value: 'edit',
-                onMenuClick: () => {},
+                onMenuClick: () => {
+                  setShowStudyFormModal(true);
+                },
               },
               {
                 label: '스터디 종료',

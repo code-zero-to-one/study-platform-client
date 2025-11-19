@@ -22,7 +22,7 @@ import {
   REGULAR_MEETINGS,
   REGULAR_MEETING_LABELS,
 } from '../../const/group-study-const';
-import { OpenGroupFormValues } from '../../model/open-group-form.schema';
+import { GroupStudyFormValues } from '../../model/group-study-form.schema';
 
 const methodOptions = STUDY_METHODS.map((v) => ({
   label: STUDY_METHOD_LABELS[v],
@@ -36,7 +36,7 @@ const memberOptions = Array.from({ length: 20 }, (_, i) => {
 });
 
 export default function Step1OpenGroupStudy() {
-  const { control, formState } = useFormContext<OpenGroupFormValues>();
+  const { control, formState } = useFormContext<GroupStudyFormValues>();
   const { field: typeField } = useController({
     name: 'type',
     control,
@@ -53,7 +53,7 @@ export default function Step1OpenGroupStudy() {
   return (
     <>
       <div className="font-designer-20b text-text-default">기본 정보 설정</div>
-      <FormField<OpenGroupFormValues, 'type'>
+      <FormField<GroupStudyFormValues, 'type'>
         name="type"
         label="스터디 유형"
         helper="어떤 방식으로 진행되는 스터디인지 선택해주세요."
@@ -79,7 +79,7 @@ export default function Step1OpenGroupStudy() {
           ))}
         </RadioGroup>
       </FormField>
-      <FormField<OpenGroupFormValues, 'targetRoles', TargetRole[]>
+      <FormField<GroupStudyFormValues, 'targetRoles', TargetRole[]>
         name="targetRoles"
         label="모집 대상"
         helper="함께하고 싶은 대상(직무·관심사 등)을 선택해주세요. (복수 선택 가능)"
@@ -89,7 +89,7 @@ export default function Step1OpenGroupStudy() {
       >
         <GroupItems options={ROLE_OPTIONS_UI} />
       </FormField>
-      <FormField<OpenGroupFormValues, 'maxMembersCount'>
+      <FormField<GroupStudyFormValues, 'maxMembersCount'>
         name="maxMembersCount"
         label="모집 인원"
         helper="모집할 최대 참여 인원을 선택해주세요."
@@ -99,7 +99,7 @@ export default function Step1OpenGroupStudy() {
       >
         <SingleDropdown options={memberOptions} placeholder="선택해주세요" />
       </FormField>
-      <FormField<OpenGroupFormValues, 'experienceLevels', string[]>
+      <FormField<GroupStudyFormValues, 'experienceLevels', string[]>
         name="experienceLevels"
         label="경력 여부"
         helper="스터디 참여에 필요한 경력 조건을 선택해주세요.(복수 선택 가능)"
@@ -156,7 +156,7 @@ export default function Step1OpenGroupStudy() {
           )}
         </div>
       </div>
-      <FormField<OpenGroupFormValues, 'regularMeeting'>
+      <FormField<GroupStudyFormValues, 'regularMeeting'>
         name="regularMeeting"
         label="정기 모임"
         helper="정기적으로 모일 빈도를 선택해주세요."

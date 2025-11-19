@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
-import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
+import OpenGroupStudyModal from '@/features/study/group/ui/group-study-form-modal';
 import Button from '@/shared/ui/button';
 import Pagination from '@/shared/ui/pagination';
 
