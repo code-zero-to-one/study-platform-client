@@ -36,7 +36,7 @@ const memberOptions = Array.from({ length: 20 }, (_, i) => {
 });
 
 export default function Step1OpenGroupStudy() {
-  const { control, formState } = useFormContext<GroupStudyFormValues>();
+  const { control, formState, watch } = useFormContext<GroupStudyFormValues>();
   const { field: typeField } = useController({
     name: 'type',
     control,
@@ -203,6 +203,8 @@ export default function Step1OpenGroupStudy() {
                   type="date"
                   value={field.value}
                   onChange={field.onChange}
+                  min={new Date().toISOString().split('T')[0]}
+                  max={watch('endDate') || undefined}
                 />
               )}
             />
@@ -215,6 +217,9 @@ export default function Step1OpenGroupStudy() {
                   type="date"
                   value={field.value}
                   onChange={field.onChange}
+                  min={
+                    watch('startDate') || new Date().toISOString().split('T')[0]
+                  }
                 />
               )}
             />
