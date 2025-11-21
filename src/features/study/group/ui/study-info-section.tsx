@@ -15,8 +15,8 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import { hashValue } from '@/shared/lib/hash';
 import { cn } from '@/shared/shadcn/lib/utils';
 import { getCookie } from '@/shared/tanstack-query/cookie';
@@ -24,7 +24,6 @@ import UserAvatar from '@/shared/ui/avatar';
 
 import Button from '@/shared/ui/button';
 import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
-import GroupStudyNoticeModal from './group-notice-modal';
 import SummaryStudyInfo from './summary-study-info';
 
 import {

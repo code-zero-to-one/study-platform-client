@@ -1,13 +1,12 @@
 import '../global.css';
 
-import Clarity from '@microsoft/clarity';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import MainProvider from '@/app/provider';
+import MainProvider from '@/providers';
 import PageViewTracker from '@/shared/lib/page-view-tracker';
-import Header from '@/widgets/home/header';
+import AdminSideBar from '@/widgets/admin/ui/admin-side-bar';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -18,35 +17,28 @@ export const metadata: Metadata = {
 };
 
 const pretendard = localFont({
-  src: '../../public/fonts/PretendardVariable.woff2',
+  src: '../../../public/fonts/PretendardVariable.woff2',
   variable: '--font-pretendard',
   display: 'swap',
 });
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
-const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
-export default function ServiceLayout({
+export default function AdminLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
-    Clarity.init(CLARITY_PROJECT_ID);
-  }
-
   return (
     <html lang="en">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider>
           <PageViewTracker />
-          <div className="w-full overflow-auto">
-            {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
-            <div className="m-auto flex w-[1496px] flex-1 flex-col items-center">
-              <Header />
-              <main className="w-full px-600">{children}</main>
-            </div>
+          <div className="flex min-w-[1200px]">
+            <AdminSideBar />
+
+            <main className="flex-1 p-300">{children}</main>
           </div>
         </MainProvider>
       </body>

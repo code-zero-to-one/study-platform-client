@@ -3,10 +3,10 @@ import {
   HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query';
+import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { getSincerityTemperatureHistoryInServer } from '@/features/admin/api/sincerity-temperature-history.server';
 import { GetSincerityTemperatureHistoryResponse } from '@/features/admin/api/types';
 import SincerityTempTable from '@/features/admin/ui/sincerity-temp-table';
-import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 
 const LEVEL_NAME_MAP = {
   FIRST: '1단계',

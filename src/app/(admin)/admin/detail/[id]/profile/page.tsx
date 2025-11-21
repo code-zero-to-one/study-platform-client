@@ -1,4 +1,5 @@
 import { QueryClient } from '@tanstack/react-query';
+import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import { GetUserProfileResponse } from '@/entities/user/api/types';
 import ProfileInfoCard from '@/entities/user/ui/profile-info-card';
@@ -6,7 +7,6 @@ import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
-import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
 import UserAvatar from '@/shared/ui/avatar';
 import Badge from '@/shared/ui/badge';
 
