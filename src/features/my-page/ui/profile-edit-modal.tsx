@@ -6,15 +6,15 @@ import { XIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import Button from '@/components/ui/button';
+import { SingleDropdown } from '@/components/ui/dropdown';
+import FormField from '@/components/ui/form/form-field';
+import MultiItemSelector from '@/components/ui/form/multi-item-selector';
+import { BaseInput, TextAreaInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import { MemberProfile } from '@/entities/user/api/types';
 import { useUploadProfileImageMutation } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
-import Button from '@/shared/ui/button';
-import { SingleDropdown } from '@/shared/ui/dropdown';
-import FormField from '@/shared/ui/form/form-field';
-import MultiItemSelector from '@/shared/ui/form/multi-item-selector';
-import { BaseInput, TextAreaInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
 
 import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '../const/my-page-const';
 import {

@@ -1,8 +1,8 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { useLogoutMutation } from '@/features/auth/model/use-auth-mutation';
-import { cn } from '@/shared/shadcn/lib/utils';
 
 export default function Sidebar() {
   const router = useRouter();

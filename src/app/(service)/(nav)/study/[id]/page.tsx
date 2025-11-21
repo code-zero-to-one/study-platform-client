@@ -7,7 +7,7 @@ import { getGroupStudyDetailInServer } from '@/features/study/group/api/get-grou
 import { getGroupStudyMyStatusInServer } from '@/features/study/group/api/get-group-study-my-status.server';
 import { GroupStudyDetailResponse } from '@/features/study/group/api/group-study-types';
 import StudyDetailPage from '@/features/study/group/ui/group-study-detail-page';
-import { getServerCookie } from '@/shared/lib/server-cookie';
+import { getServerCookie } from '@/utils/server-cookie';
 
 export default async function Page({
   params,

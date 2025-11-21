@@ -4,7 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { ReactNode, useEffect, useState } from 'react';
-import { Modal } from '../../../shared/ui/modal';
+import { Modal } from '../../../components/ui/modal';
 
 export default function LoginModal({
   openTrigger,

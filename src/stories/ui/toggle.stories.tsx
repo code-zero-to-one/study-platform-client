@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { useState, ComponentProps } from 'react';
-import { ToggleSwitch } from '@/shared/ui/toggle/switch';
+import { ToggleSwitch } from '@/components/ui/toggle/switch';
 
 type ToggleSwitchProviderProps = ComponentProps<typeof ToggleSwitch.Root>;
 

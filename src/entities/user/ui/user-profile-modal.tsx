@@ -2,6 +2,9 @@
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import UserAvatar from '@/components/ui/avatar';
+import Badge from '@/components/ui/badge';
+import { Modal } from '@/components/ui/modal';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { useUserPositiveKeywordsQuery } from '@/entities/review/model/use-review-query';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
@@ -11,9 +14,6 @@ import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
-import UserAvatar from '@/shared/ui/avatar';
-import Badge from '@/shared/ui/badge';
-import { Modal } from '@/shared/ui/modal';
 
 interface UserProfileModalProps {
   memberId: number;

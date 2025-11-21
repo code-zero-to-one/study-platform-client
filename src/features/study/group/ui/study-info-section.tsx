@@ -15,14 +15,14 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { getCookie } from '@/api/client/cookie';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
+
+import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { hashValue } from '@/shared/lib/hash';
-import { cn } from '@/shared/shadcn/lib/utils';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import UserAvatar from '@/shared/ui/avatar';
-
-import Button from '@/shared/ui/button';
+import { hashValue } from '@/utils/hash';
 import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
 import SummaryStudyInfo from './summary-study-info';
 

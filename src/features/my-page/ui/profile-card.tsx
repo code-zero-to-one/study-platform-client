@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import {
   ApplyStatus,
   GroupStudyApply,
 } from '@/features/study/group/application/api/type';
-import { cn } from '@/shared/shadcn/lib/utils';
-import Button from '@/shared/ui/button';
 
 interface ProfileCardProps {
   data: GroupStudyApply;

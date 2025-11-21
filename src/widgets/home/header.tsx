@@ -1,12 +1,12 @@
 import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
+import Button from '@/components/ui/button';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
 import LoginModal from '@/features/auth/ui/login-modal';
-import { getServerCookie } from '@/shared/lib/server-cookie';
-import { isNumeric } from '@/shared/lib/validation';
-import Button from '@/shared/ui/button';
+import { getServerCookie } from '@/utils/server-cookie';
+import { isNumeric } from '@/utils/validation';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');

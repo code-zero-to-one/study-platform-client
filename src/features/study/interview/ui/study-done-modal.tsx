@@ -1,11 +1,16 @@
 'use client';
 
-import { sendGTMEvent } from '@next/third-parties/google';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import Button from '@/components/ui/button';
+import { SingleDropdown } from '@/components/ui/dropdown';
+import FormField from '@/components/ui/form/form-field';
+import { TextAreaInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import type {
   CompleteStudyRequest,
   DailyStudyDetail,
@@ -18,11 +23,6 @@ import {
   buildStudyDoneDefaults,
 } from '@/features/study/interview/model/interview.schema';
 import { useUpdateDailyStudyMutation } from '@/features/study/interview/model/use-interview-query';
-import Button from '@/shared/ui/button';
-import { SingleDropdown } from '@/shared/ui/dropdown';
-import FormField from '@/shared/ui/form/form-field';
-import { TextAreaInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
 
 interface StudyDoneModalProps {
   data: DailyStudyDetail;

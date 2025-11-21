@@ -1,8 +1,8 @@
+import Button from '@/components/ui/button';
 import GroupStudyList from '@/features/study/group/ui/group-study-list';
 import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
 import IconPlus from '@/shared/icons/plus.svg';
-import { getServerCookie } from '@/shared/lib/server-cookie';
-import Button from '@/shared/ui/button';
+import { getServerCookie } from '@/utils/server-cookie';
 import Sidebar from '@/widgets/home/sidebar';
 
 export default async function Study() {

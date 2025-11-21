@@ -2,12 +2,12 @@
 
 import { Plus } from 'lucide-react';
 import React, { useState } from 'react';
+import Button from '@/components/ui/button';
 import Pagination from '@/components/ui/pagination';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
 import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
-import Button from '@/shared/ui/button';
 
 interface MemberGroupStudyList extends MemberStudyItem {
   type: 'GROUP_STUDY';

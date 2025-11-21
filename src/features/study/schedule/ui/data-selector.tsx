@@ -3,7 +3,7 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { addDays, format, isSameDay } from 'date-fns';
 import { useMemo } from 'react';
-import { getKoreaDisplayMonday } from '@/shared/lib/time';
+import { getKoreaDisplayMonday } from '@/utils/time';
 
 interface Props {
   value: Date;

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState, DragEvent, ChangeEvent, useRef } from 'react';
-import Button from '@/shared/ui/button';
+import Button from '@/components/ui/button';
 
 const inputStyles = {
   base: 'rounded-100 flex w-full flex-col items-center justify-center rounded-lg border-2 p-500',

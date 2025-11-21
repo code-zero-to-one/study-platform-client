@@ -3,13 +3,13 @@
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
+import { getCookie } from '@/api/client/cookie';
+import Button from '@/components/ui/button';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
 import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
 import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import Button from '@/shared/ui/button';
 
 interface MemberGroupStudyList extends MemberStudyItem {
   type: 'GROUP_STUDY';

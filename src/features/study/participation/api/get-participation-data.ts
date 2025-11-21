@@ -1,3 +1,4 @@
+import { axiosInstance } from '@/api/client/axios';
 import {
   WeeklyReservationRequest,
   WeeklyReservationResponse,
@@ -5,7 +6,6 @@ import {
   Participant,
   JoinStudyRequest,
 } from '@/features/study/participation/api/participation-types';
-import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 // 스터디 신청 목록 서버데이터 -> UI 매핑 함수
 export function mapReservation(user: ReservationUserItem): Participant {

@@ -1,10 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import UserAvatar from '@/components/ui/avatar';
+import MoreMenu from '@/components/ui/dropdown/more-menu';
 import { useUser } from '@/features/auth/model/use-user';
-import { useLeaderStore } from '@/shared/stores/useLeaderStore';
-import UserAvatar from '@/shared/ui/avatar';
-import MoreMenu from '@/shared/ui/dropdown/more-menu';
+import { useLeaderStore } from '@/stores/useLeaderStore';
 import CommentInput from './comment-input';
 import { ResizedImage } from '../../api/group-study-types';
 import ConfirmDeleteModal from '../../ui/confirm-delete-modal';

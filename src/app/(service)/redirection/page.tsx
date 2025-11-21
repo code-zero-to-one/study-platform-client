@@ -4,8 +4,8 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, Suspense } from 'react';
-import { hashValue } from '@/shared/lib/hash';
-import { setCookie } from '@/shared/tanstack-query/cookie';
+import { setCookie } from '@/api/client/cookie';
+import { hashValue } from '@/utils/hash';
 
 function RedirectionContent() {
   const searchParams = useSearchParams();

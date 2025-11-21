@@ -4,8 +4,8 @@ import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import PageViewTracker from '@/components/analytics/page-view-tracker';
 import MainProvider from '@/providers';
-import PageViewTracker from '@/shared/lib/page-view-tracker';
 import AdminSideBar from '@/widgets/admin/ui/admin-side-bar';
 
 export const metadata: Metadata = {

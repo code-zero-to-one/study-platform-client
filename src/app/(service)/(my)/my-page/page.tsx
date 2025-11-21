@@ -7,7 +7,7 @@ import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.ser
 import { GetUserProfileResponse } from '@/entities/user/api/types';
 import Profile from '@/features/my-page/ui/profile';
 import ProfileInfo from '@/features/my-page/ui/profile-info';
-import { getServerCookie } from '@/shared/lib/server-cookie';
+import { getServerCookie } from '@/utils/server-cookie';
 
 export default async function MyPage() {
   const memberIdStr = await getServerCookie('memberId');

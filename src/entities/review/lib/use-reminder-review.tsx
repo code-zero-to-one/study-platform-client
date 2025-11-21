@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { getKoreaDate } from '@/shared/lib/time';
+import { getKoreaDate } from '@/utils/time';
 import { useShouldReviewPartnerQuery } from '../model/use-review-query';
 
 export const useReviewReminder = () => {

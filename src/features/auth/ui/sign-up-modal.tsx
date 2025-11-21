@@ -1,16 +1,16 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
+import { getCookie, setCookie } from '@/api/client/cookie';
+import Button from '@/components/ui/button';
+import { BaseInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
-import { hashValue } from '@/shared/lib/hash';
-import { getCookie, setCookie } from '@/shared/tanstack-query/cookie';
-import Button from '@/shared/ui/button';
-import { BaseInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
+import { hashValue } from '@/utils/hash';
 
 export default function SignupModal({
   open,

@@ -4,10 +4,10 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { hashValue } from '@/shared/lib/hash';
-import { useIntersectionObserver } from '@/shared/lib/intersection-observer';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import Badge from '@/shared/ui/badge';
+import { getCookie } from '@/api/client/cookie';
+import Badge from '@/components/ui/badge';
+import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
+import { hashValue } from '@/utils/hash';
 
 import { BasicInfoDetail } from '../api/group-study-types';
 import {

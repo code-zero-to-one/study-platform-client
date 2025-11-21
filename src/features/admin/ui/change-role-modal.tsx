@@ -2,9 +2,9 @@
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import Button from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio';
-import Button from '@/shared/ui/button';
-import { Modal } from '@/shared/ui/modal';
 import { GetMemberListResponse, RoleId } from '../api/types';
 import { ROLE_OPTIONS } from '../const/member';
 import { useChangeMemberRoleMutation } from '../model/use-member-list-query';

@@ -1,15 +1,15 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { decodeJwt } from '@/shared/lib/jwt';
+import { getCookie } from '@/api/client/cookie';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/shared/shadcn/ui/dropdown-menu';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import UserAvatar from '@/shared/ui/avatar';
+} from '@/components/ui/(shadcn)/ui/dropdown-menu';
+import UserAvatar from '@/components/ui/avatar';
+import { decodeJwt } from '@/utils/jwt';
 import { useLogoutMutation } from '../model/use-auth-mutation';
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {

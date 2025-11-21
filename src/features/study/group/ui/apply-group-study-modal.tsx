@@ -1,13 +1,13 @@
 'use client';
 
-import { sendGTMEvent } from '@next/third-parties/google';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
-import Button from '@/shared/ui/button';
-import Checkbox from '@/shared/ui/checkbox';
-import { Modal } from '@/shared/ui/modal';
+import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
+import { Modal } from '@/components/ui/modal';
 import { GroupStudyDetailResponse } from '../api/group-study-types';
 import {
   ApplyGroupStudyFormData,

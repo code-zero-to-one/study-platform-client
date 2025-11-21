@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
+import Badge from '@/components/ui/badge';
 import { StudyProgressStatus } from '@/features/study/interview/api/interview-types';
-import Badge from '@/shared/ui/badge';
 
 export function getStatusBadge(status: StudyProgressStatus): ReactNode {
   switch (status) {

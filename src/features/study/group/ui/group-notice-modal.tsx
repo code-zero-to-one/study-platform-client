@@ -6,10 +6,10 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import Button from '@/shared/ui/button';
-import FormField from '@/shared/ui/form/form-field';
-import { BaseInput, TextAreaInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
+import Button from '@/components/ui/button';
+import FormField from '@/components/ui/form/form-field';
+import { BaseInput, TextAreaInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import { GroupStudyNoticeRequest } from '../api/group-study-types';
 import {
   buildGroupStudyNoticeDefaults,

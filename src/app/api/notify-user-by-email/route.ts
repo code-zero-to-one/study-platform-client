@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { addToGoogleSheets, LandingFormData } from '@/shared/lib/google-sheets';
+import { addToGoogleSheets, LandingFormData } from '@/api/client/google-sheets';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
     // 폼 데이터 유효성 검사
-    const { email, type, experience, features, consultation, agreeTerms } = body;
+    const { email, type, experience, features, consultation, agreeTerms } =
+      body;
 
     if (
       !email ||

@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosInstance } from '@/api/client/axios';
 import { PostCommentRequest } from './types';
 
 export const postComment = async (param: PostCommentRequest) => {

@@ -3,9 +3,9 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useLeaderStore } from '@/shared/stores/useLeaderStore';
-import MoreMenu from '@/shared/ui/dropdown/more-menu';
-import Tabs from '@/shared/ui/tabs';
+import MoreMenu from '@/components/ui/dropdown/more-menu';
+import Tabs from '@/components/ui/tabs';
+import { useLeaderStore } from '@/stores/useLeaderStore';
 import ConfirmDeleteModal from './confirm-delete-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';

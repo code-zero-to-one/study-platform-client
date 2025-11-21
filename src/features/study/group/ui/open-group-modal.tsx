@@ -1,14 +1,14 @@
 'use client';
 
-import { sendGTMEvent } from '@next/third-parties/google';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import Button from '@/shared/ui/button';
-import { Modal } from '@/shared/ui/modal';
+import Button from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 
 import {
   OpenGroupFormSchema,

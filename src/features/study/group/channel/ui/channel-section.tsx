@@ -1,4 +1,4 @@
-import { useLeaderStore } from '@/shared/stores/useLeaderStore';
+import { useLeaderStore } from '@/stores/useLeaderStore';
 import Comments from './comment-section';
 import CreatePost from './create-post';
 import Post from './post';

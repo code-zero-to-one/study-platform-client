@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Pagination from '@/components/ui/pagination';
-import { formatYYYYMMDD } from '@/shared/lib/time';
+import { formatYYYYMMDD } from '@/utils/time';
 import TrendingDown from 'public/icons/trending-down.svg';
 import TrendingUp from 'public/icons/trending-up.svg';
 import { useGetSincerityTemperatureHistoryQuery } from '../model/use-sincerity-temperature-history-query';

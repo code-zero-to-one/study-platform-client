@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import Badge from '@/shared/ui/badge';
-import Button from '@/shared/ui/button';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import LandingForm from '@/widgets/landing/form';
 
 export const metadata: Metadata = {
@@ -215,15 +215,13 @@ export default async function Landing() {
               <p className="text-text-subtle font-designer-16m flex flex-col">
                 <span>현재 멘토님들이 스터디 개설을 준비하고 있어요.</span>
                 <br />
-                <span>
-                  알림을 신청하시면 나의 관심분야에 대한 
-                </span>
-                <span>
-                  오픈 정보를 가장 먼저 알려드릴게요.
-                </span>
+                <span>알림을 신청하시면 나의 관심분야에 대한</span>
+                <span>오픈 정보를 가장 먼저 알려드릴게요.</span>
                 {/* <span>정보를 가장 먼저 알려드릴게요.</span> */}
                 <br />
-                <span>(선착순 모집 마감시에는 알림이 발송되지 않을 수 있습니다)</span>
+                <span>
+                  (선착순 모집 마감시에는 알림이 발송되지 않을 수 있습니다)
+                </span>
               </p>
             </div>
           </div>

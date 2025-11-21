@@ -1,3 +1,4 @@
+import { axiosInstance } from '@/api/client/axios';
 import type {
   AvailableStudyTimeResponse,
   StudyDashboardResponse,
@@ -8,7 +9,6 @@ import type {
   UpdateUserProfileRequest,
   UpdateUserProfileResponse,
 } from '@/features/my-page/api/types';
-import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 export const updateUserProfile = async (
   memberId: number,
