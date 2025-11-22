@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosInstance } from '@/api/client/axios';
 import { CompleteGroupStudyRequest } from './group-study-types';
 
 export const patchGroupStudyComplete = async (

@@ -2,6 +2,7 @@
 
 import { ChevronRight } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { getCookie } from '@/api/client/cookie';
 import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
@@ -9,7 +10,6 @@ import {
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
 import ReservationCard from '@/features/study/participation/ui/reservation-user-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {

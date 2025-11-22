@@ -1,4 +1,4 @@
-import { cn } from '@/shared/shadcn/lib/utils';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 const List = ({
   className = '',

@@ -1,16 +1,16 @@
 'use client';
 
 import { useState } from 'react';
+import { getCookie } from '@/api/client/cookie';
+
+import UserAvatar from '@/components/ui/avatar';
+import MoreMenu from '@/components/ui/dropdown/more-menu';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import {
   formatHHMM,
   formatKoreaRelativeTime,
   formatYYYYMMDD,
-} from '@/shared/lib/time';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-
-import UserAvatar from '@/shared/ui/avatar';
-import MoreMenu from '@/shared/ui/dropdown/more-menu';
+} from '@/utils/time';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';

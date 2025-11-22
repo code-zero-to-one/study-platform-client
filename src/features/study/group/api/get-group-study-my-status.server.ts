@@ -1,4 +1,4 @@
-import { axiosServerInstance } from '@/shared/tanstack-query/axios.server';
+import { axiosServerInstance } from '@/api/client/axios.server';
 import {
   GroupStudyMyStatusRequest,
   GroupStudyMyStatusResponse,

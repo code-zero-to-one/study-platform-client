@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
-import { useLeaderStore } from '@/shared/stores/useLeaderStore';
-import UserAvatar from '@/shared/ui/avatar';
-import Button from '@/shared/ui/button';
+import UserAvatar from '@/components/ui/avatar';
+import Button from '@/components/ui/button';
+import { useLeaderStore } from '@/stores/useLeaderStore';
 import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
 interface PostProps {

@@ -3,9 +3,9 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { deleteCookie, getCookie } from '@/api/client/cookie';
 import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
-import { hashValue } from '@/shared/lib/hash';
-import { deleteCookie, getCookie } from '@/shared/tanstack-query/cookie';
+import { hashValue } from '@/utils/hash';
 import { SignUpResponse } from './types';
 
 // 회원가입 요청 커스텀 훅

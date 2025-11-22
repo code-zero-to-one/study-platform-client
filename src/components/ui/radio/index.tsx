@@ -3,7 +3,7 @@
 import * as RadioGroupPrimitive from '@radix-ui/react-radio-group';
 import { cva } from 'class-variance-authority';
 import * as React from 'react';
-import { cn } from '@/shared/shadcn/lib/utils';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 function RadioGroup({
   className,

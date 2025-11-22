@@ -13,7 +13,7 @@ import {
   formatKoreaYMD,
   getKoreaDate,
   getKoreaDisplayMonday,
-} from '@/shared/lib/time';
+} from '@/utils/time';
 import StudyListSection from '../../../../widgets/home/study-list-table';
 
 // 스터디 주차 구하는 함수

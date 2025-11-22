@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { decodeJwt } from '@/shared/lib/jwt';
-import { getServerCookie } from '@/shared/lib/server-cookie';
-import { isNumeric } from '@/shared/lib/validation';
-import { isApiError } from '@/shared/tanstack-query/api-error';
+import { isApiError } from '@/api/client/api-error';
+import { decodeJwt } from '@/utils/jwt';
+import { getServerCookie } from '@/utils/server-cookie';
+import { isNumeric } from '@/utils/validation';
 
 const verifyAccessToken = async (accessToken: string) => {
   try {
@@ -68,7 +68,7 @@ export async function middleware(request: NextRequest) {
 
   // 랜딩 페이지(/)는 인증 체크를 하지 않음
   if (request.nextUrl.pathname === '/') {
-    // 이미 로그인된 사용자가 랜딩 페이지에 접근하면 1:1 스터디 화면인 /home 으로 리디렉션시키는 코드 
+    // 이미 로그인된 사용자가 랜딩 페이지에 접근하면 1:1 스터디 화면인 /home 으로 리디렉션시키는 코드
 
     // if (hasAccessToken && hasMemberId) {
     //   const mainUrl = new URL('/home', request.url);

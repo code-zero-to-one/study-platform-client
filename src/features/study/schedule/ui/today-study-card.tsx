@@ -2,12 +2,12 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import { getCookie } from '@/api/client/cookie';
+import UserAvatar from '@/components/ui/avatar';
+import Badge from '@/components/ui/badge';
 import UserPhoneNumberCopyModal from '@/entities/user/ui/user-phone-number-copy-modal';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { isNumeric } from '@/shared/lib/validation';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import UserAvatar from '@/shared/ui/avatar';
-import Badge from '@/shared/ui/badge';
+import { isNumeric } from '@/utils/validation';
 import { DailyStudyDetail } from '../../interview/api/interview-types';
 import { useDailyStudyDetailQuery } from '../../interview/model/use-interview-query';
 import { getStatusBadge } from '../../interview/ui/status-badge-map';

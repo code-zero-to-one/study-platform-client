@@ -1,5 +1,5 @@
 import { cva } from 'class-variance-authority';
-import { cn } from '@/shared/shadcn/lib/utils';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface TabMenuProps {
   active?: boolean;

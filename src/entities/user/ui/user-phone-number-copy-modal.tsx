@@ -1,6 +1,6 @@
 import { XIcon } from 'lucide-react';
-import Button from '@/shared/ui/button';
-import { Modal } from '@/shared/ui/modal';
+import Button from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 
 export default function UserPhoneNumberCopyModal({
   trigger,

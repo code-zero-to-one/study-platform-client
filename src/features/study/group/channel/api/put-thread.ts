@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosInstance } from '@/api/client/axios';
 import { PutThreadRequest } from './types';
 
 export const putThread = async (param: PutThreadRequest) => {

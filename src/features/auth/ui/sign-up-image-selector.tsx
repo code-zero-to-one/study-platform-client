@@ -1,6 +1,6 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { PencilIcon } from 'lucide-react';
-import UserAvatar from '@/shared/ui/avatar';
+import UserAvatar from '@/components/ui/avatar';
 
 export default function SignupImageSelector({
   image,

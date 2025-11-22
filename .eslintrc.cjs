@@ -5,7 +5,18 @@ module.exports = {
   // 환경 설정: 브라우저 및 최신 ECMAScript 기능을 사용 가능하게 설정
   env: { browser: true, es2020: true },
 
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:react/recommended', 'plugin:react-hooks/recommended', 'plugin:@tanstack/eslint-plugin-query/recommended', 'next/core-web-vitals', '@rushstack/eslint-config/profile/web-app', '@rushstack/eslint-config/mixins/react', 'prettier', 'plugin:storybook/recommended'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended',
+    'plugin:@tanstack/eslint-plugin-query/recommended',
+    'next/core-web-vitals',
+    '@rushstack/eslint-config/profile/web-app',
+    '@rushstack/eslint-config/mixins/react',
+    'prettier',
+    'plugin:storybook/recommended',
+  ],
 
   // TypeScript의 tsconfig.json 위치 지정
   parserOptions: { tsconfigRootDir: __dirname },

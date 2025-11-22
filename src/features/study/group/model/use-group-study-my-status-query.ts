@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getCookie } from '@/shared/tanstack-query/cookie';
+import { getCookie } from '@/api/client/cookie';
 import { getGroupStudyMyStatus } from '../api/get-group-study-my-status';
 import { GroupStudyMyStatusRequest } from '../api/group-study-types';
 

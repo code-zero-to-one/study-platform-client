@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import Button from '@/shared/ui/button';
-import FormField from '@/shared/ui/form/form-field';
-import { BaseInput } from '@/shared/ui/input';
+import Button from '@/components/ui/button';
+import FormField from '@/components/ui/form/form-field';
+import { BaseInput } from '@/components/ui/input';
 import { OpenGroupFormValues } from '../../model/open-group-form.schema';
 
 export default function Step3OpenGroupStudy() {

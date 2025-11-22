@@ -1,18 +1,25 @@
 'use client';
 
-import { sendGTMEvent } from '@next/third-parties/google';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+
+import Button from '@/components/ui/button';
+import { SingleDropdown, MultiDropdown } from '@/components/ui/dropdown';
+import FormField from '@/components/ui/form/form-field';
+import { BaseInput, TextAreaInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
+
+import { GroupItems } from '@/components/ui/toggle';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
   useTechStacksQuery,
 } from '@/features/my-page/model/use-update-user-profile-mutation';
-
 import { studySteps } from '@/features/study/participation/const/participation-const';
 import {
   StartStudyFormSchema,
@@ -21,13 +28,6 @@ import {
   toJoinStudyRequest,
 } from '@/features/study/participation/model/start-study-form.schema';
 import { useJoinStudyMutation } from '@/features/study/participation/model/use-participation-query';
-import Button from '@/shared/ui/button';
-import { SingleDropdown, MultiDropdown } from '@/shared/ui/dropdown';
-import FormField from '@/shared/ui/form/form-field';
-import { BaseInput, TextAreaInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
-
-import { GroupItems } from '@/shared/ui/toggle';
 
 interface StartStudyModalProps {
   memberId: number;

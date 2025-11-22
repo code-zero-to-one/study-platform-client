@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Button from '@/shared/ui/button';
-import Checkbox from '@/shared/ui/checkbox';
+import { useState } from 'react';
+import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
 
 export default function LandingForm() {
   const router = useRouter();
@@ -277,7 +277,8 @@ export default function LandingForm() {
           </div>
 
           <div className="font-designer-16m mt-[32px] mb-[12px] text-[#444444]">
-            요즘 계속 생각나는 고민(질문)이 있으시다면 자유롭게 적어주세요. 진심을 다해 돕겠습니다.
+            요즘 계속 생각나는 고민(질문)이 있으시다면 자유롭게 적어주세요.
+            진심을 다해 돕겠습니다.
           </div>
           <textarea
             placeholder="Ex) 3년차 프론트엔드 개발자고 외주를 하고 싶은데 어디서부터 시작해야할지 잘 모르겠어요. 그럴 실력이 되는지도 모르겠고... 팀을 찾고 같이 하면 좋을 것 같아요"
@@ -307,10 +308,15 @@ export default function LandingForm() {
             >
               개인정보 보호정책에 동의합니다.
             </label>
-            
+
             <button
               type="button"
-              onClick={() => window.open('https://www.notion.so/gaan/13efbb391d7980cea50fc6864d60f4f7?p=29bfbb391d7980fba669f8d4de741021&pm=s', '_blank')}
+              onClick={() =>
+                window.open(
+                  'https://www.notion.so/gaan/13efbb391d7980cea50fc6864d60f4f7?p=29bfbb391d7980fba669f8d4de741021&pm=s',
+                  '_blank',
+                )
+              }
               className="font-designer-14m text-[#F63D68] underline hover:text-[#E5353A]"
             >
               보기
