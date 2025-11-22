@@ -6,7 +6,10 @@ import { getCookie } from '@/shared/tanstack-query/cookie';
 import Pagination from '@/shared/ui/pagination';
 import GroupStudyMemberItem from './group-study-member-item';
 import KickedReasonModal from './kicked-reason-modal';
-import { GroupStudyMyStatusResponse } from '../api/group-study-types';
+import {
+  GroupStudyMember,
+  GroupStudyMyStatusResponse,
+} from '../api/group-study-types';
 import { useGroupStudyMemberListQuery } from '../model/use-group-study-member-list-query';
 
 interface GroupStudyMemberListProps {
@@ -44,15 +47,11 @@ export default function GroupStudyMemberList({
   return (
     <section className="flex flex-col gap-300">
       {/* 리더가 아닌 참가자에게 내 정보 상단에 노출 */}
-      {!isLeader && data?.totalMemberCount > 0 && (
-        <span className="font-designer-20b text-text-default">내 정보</span>
-      )}
-
-      {!isLeader && data?.totalMemberCount > 0 && (
-        <GroupStudyMemberItem
+      {!isLeader && (
+        <SelfMemberInfo
           groupStudyId={groupStudyId}
           leaderId={leaderId}
-          {...myInfo}
+          myInfo={myInfo}
         />
       )}
 
@@ -105,5 +104,27 @@ export default function GroupStudyMemberList({
         totalPages={totalPages}
       />
     </section>
+  );
+}
+
+function SelfMemberInfo({
+  groupStudyId,
+  leaderId,
+  myInfo,
+}: {
+  groupStudyId: number;
+  leaderId: number;
+  myInfo: GroupStudyMember;
+}) {
+  return (
+    <>
+      <span className="font-designer-20b text-text-default">내 정보</span>
+
+      <GroupStudyMemberItem
+        groupStudyId={groupStudyId}
+        leaderId={leaderId}
+        {...myInfo}
+      />
+    </>
   );
 }
