@@ -204,7 +204,8 @@ export interface GroupStudyMembersRequest {
 export interface GroupStudyMembersResponse {
   pageSize: number;
   pageNumber: number;
-  totalCount: number;
+  totalElements: number;
+  totalMemberCount: number;
   hasPrevious: boolean;
   hasNext: boolean;
   members: GroupStudyMember[];
