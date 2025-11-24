@@ -1,6 +1,7 @@
 'use client';
 
 import { cva } from 'class-variance-authority';
+import { get } from 'http';
 import * as React from 'react';
 import { cn } from '@/shared/shadcn/lib/utils';
 import { Input as ShadcnInput } from '@/shared/shadcn/ui/input';
@@ -21,6 +22,8 @@ export type BaseInputProps = Omit<
   value?: string;
   onValueChange?: (v: string) => void;
   onChange?: React.ChangeEventHandler<HTMLInputElement>;
+  hideMeta?: boolean;
+  guideText?: string;
 };
 
 const inputVariants = cva(
@@ -60,29 +63,52 @@ export const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
       appearance = 'boxed',
       onValueChange,
       onChange,
+      maxLength = 50,
+      minLength = 0,
+      hideMeta = true,
+      guideText,
+      value,
       ...props
     },
     ref,
   ) => {
+    const current = value ?? '';
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.value.length > maxLength) {
+        e.target.value = e.target.value.slice(0, maxLength);
+      }
+      onChange?.(e);
+      onValueChange?.(e.target.value ?? '');
+    };
+
     return (
-      <ShadcnInput
-        ref={ref}
-        disabled={props.disabled}
-        className={cn(
-          inputVariants({
-            color,
-            size,
-            appearance,
-            disabled: props.disabled ? true : undefined,
-          }),
-          className,
+      <div className="flex w-full flex-col gap-75">
+        <ShadcnInput
+          ref={ref}
+          disabled={props.disabled}
+          className={cn(
+            inputVariants({
+              color,
+              size,
+              appearance,
+              disabled: props.disabled ? true : undefined,
+            }),
+            className,
+          )}
+          {...props}
+          value={current}
+          onChange={handleChange}
+        />
+        {!hideMeta && (
+          <div className="font-designer-13r text-text-subtlest flex justify-between">
+            <div>{guideText}</div>
+            <div>
+              {current.length}/{maxLength}
+            </div>
+          </div>
         )}
-        {...props}
-        onChange={(e) => {
-          onChange?.(e);
-          onValueChange?.(e.target.value ?? '');
-        }}
-      />
+      </div>
     );
   },
 );

@@ -5,12 +5,14 @@ import { useFormContext } from 'react-hook-form';
 import Button from '@/shared/ui/button';
 import FormField from '@/shared/ui/form/form-field';
 import { BaseInput } from '@/shared/ui/input';
-import { OpenGroupFormValues } from '../../model/group-study-form.schema.js';
+import { GroupStudyFormValues } from '../../model/group-study-form.schema';
 
 export default function Step3OpenGroupStudy() {
-  const { setValue } = useFormContext<OpenGroupFormValues>();
+  const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
 
-  const [questions, setQuestions] = useState<string[]>(['']);
+  const initQuestions = getValues('interviewPost');
+
+  const [questions, setQuestions] = useState<string[]>(initQuestions);
 
   useEffect(() => {
     setValue(
@@ -18,7 +20,7 @@ export default function Step3OpenGroupStudy() {
       questions.map((q) => q.trim()),
       { shouldValidate: true },
     );
-  }, [questions, setValue]);
+  }, [questions]);
 
   const handleAdd = () => setQuestions((prev) => [...prev, '']);
   const handleRemove = (index: number) =>
@@ -31,7 +33,7 @@ export default function Step3OpenGroupStudy() {
       <div className="font-designer-20b text-text-default">
         지원 & 규칙 설정
       </div>
-      <FormField<OpenGroupFormValues, 'interviewPost', string[]>
+      <FormField<GroupStudyFormValues, 'interviewPost', string[]>
         name="interviewPost"
         label="스터디원에게 보여줄 질문을 입력하세요"
         direction="vertical"
@@ -57,7 +59,7 @@ export default function Step3OpenGroupStudy() {
               )}
             </div>
           ))}
-          <Button color="secondary" onClick={handleAdd}>
+          <Button color="secondary" onClick={handleAdd} type="button">
             질문 추가하기
           </Button>
         </div>

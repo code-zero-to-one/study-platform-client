@@ -49,11 +49,14 @@ export const GroupStudyFormSchema = z.object({
   thumbnailExtension: z
     .enum(THUMBNAIL_EXTENSION)
     .refine((val) => val !== 'DEFAULT', '썸네일 이미지를 선택해주세요.'),
+  thumbnailFile: z.instanceof(File).nullable().optional(),
+  thumbnailUrl: z.string().nullable().optional(),
 });
 
 // 사진 상태 저장을 위한 로컬용 state
 export type GroupStudyFormValues = z.input<typeof GroupStudyFormSchema> & {
   thumbnailFile?: File | undefined;
+  thumbnailUrl?: string | undefined;
 };
 export type OpenGroupParsedValues = z.output<typeof GroupStudyFormSchema>;
 

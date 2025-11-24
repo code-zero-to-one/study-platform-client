@@ -5,20 +5,25 @@ import { useFormContext, useWatch } from 'react-hook-form';
 import FormField from '@/shared/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/shared/ui/input';
 import { THUMBNAIL_EXTENSION } from '../../const/group-study-const';
-import { OpenGroupFormValues } from '../../model/group-study-form.schema';
+
+import { GroupStudyFormValues } from '../../model/group-study-form.schema';
 import GroupStudyThumbnailInput from '../group-study-thumbnail-input';
 
 export default function Step2OpenGroupStudy() {
-  const { setValue } = useFormContext<OpenGroupFormValues>();
+  const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
 
-  const thumbnailFile = useWatch<OpenGroupFormValues>({
+  const thumbnailFile = useWatch<GroupStudyFormValues>({
     name: 'thumbnailFile',
   });
-  const thumbnailExtension = useWatch<OpenGroupFormValues>({
+  const thumbnailExtension = useWatch<GroupStudyFormValues>({
     name: 'thumbnailExtension',
   });
 
-  const [image, setImage] = useState<string | undefined>(undefined);
+  console.log('thumbnailExtension', thumbnailExtension);
+
+  const [image, setImage] = useState<string | undefined>(
+    getValues('thumbnailUrl') || undefined,
+  );
 
   useEffect(() => {
     if (thumbnailFile && thumbnailFile instanceof File) {
@@ -47,7 +52,7 @@ export default function Step2OpenGroupStudy() {
     const ext = file.name.split('.').pop()?.toUpperCase();
     const validExt =
       ext && THUMBNAIL_EXTENSION.includes(ext as any)
-        ? (ext as OpenGroupFormValues['thumbnailExtension'])
+        ? (ext as GroupStudyFormValues['thumbnailExtension'])
         : 'DEFAULT';
 
     setValue('thumbnailExtension', validExt, { shouldValidate: true });
@@ -61,7 +66,7 @@ export default function Step2OpenGroupStudy() {
         스터디 소개 작성
       </div>
 
-      <FormField<OpenGroupFormValues, 'thumbnailExtension'>
+      <FormField<GroupStudyFormValues, 'thumbnailExtension'>
         name="thumbnailExtension"
         label="썸네일"
         direction="vertical"
@@ -74,27 +79,30 @@ export default function Step2OpenGroupStudy() {
         />
       </FormField>
 
-      <FormField<OpenGroupFormValues, 'title'>
+      <FormField<GroupStudyFormValues, 'title'>
         name="title"
         label="스터디 제목"
         direction="vertical"
         size="medium"
         required
       >
-        <BaseInput placeholder="제목을 입력하세요." />
+        <BaseInput placeholder="제목을 입력하세요." hideMeta={false} />
       </FormField>
 
-      <FormField<OpenGroupFormValues, 'summary'>
+      <FormField<GroupStudyFormValues, 'summary'>
         name="summary"
         label="스터디 한 줄 소개"
         direction="vertical"
         size="medium"
         required
       >
-        <BaseInput placeholder="목록에 노출될 스터디 요약을 입력하세요." />
+        <BaseInput
+          placeholder="목록에 노출될 스터디 요약을 입력하세요."
+          hideMeta={false}
+        />
       </FormField>
 
-      <FormField<OpenGroupFormValues, 'description'>
+      <FormField<GroupStudyFormValues, 'description'>
         name="description"
         label="스터디 소개"
         direction="vertical"

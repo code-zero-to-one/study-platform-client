@@ -132,8 +132,9 @@ export interface Timestamps {
 }
 
 /** 상세 화면용 DetailInfo (기존 DetailInfo 확장) */
-export interface DetailInfoDetail extends DetailInfo, Timestamps {
+export interface DetailInfoDetail extends SimpleDetailInfo, Timestamps {
   /** 서버가 내려주는 원본/대표 이미지 경로 (없을 수 있음) */
+  description: string;
   image: {
     imageId: number;
     resizedImages: ResizedImage[];

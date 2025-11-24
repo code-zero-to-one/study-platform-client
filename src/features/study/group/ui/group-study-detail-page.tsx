@@ -145,7 +145,7 @@ export default function StudyDetailPage({
         open={showStudyFormModal}
         mode="edit"
         groupStudyId={groupStudyId}
-        onOpenChange={() => setShowStudyFormModal(false)}
+        onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
 
       <div className="flex w-full items-start justify-between">

@@ -1,5 +1,5 @@
 import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
-import OpenGroupStudyModal from '@/features/study/group/ui/group-study-form-modal';
+
 import GroupStudyList from '@/features/study/group/ui/group-study-list';
 import IconPlus from '@/shared/icons/plus.svg';
 import { getServerCookie } from '@/shared/lib/server-cookie';
