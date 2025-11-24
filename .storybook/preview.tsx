@@ -1,9 +1,6 @@
-import '../app/global.css';
+import '../src/app/global.css';
 
-import React from 'react';
-import '../app/global.css';
-
-import QueryProvider from '../src/app/provider/query-provider';
+import QueryProvider from '../src/providers/query-provider';
 
 import type { Preview } from '@storybook/react';
 
