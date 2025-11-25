@@ -1,5 +1,6 @@
+import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
+
 import GroupStudyList from '@/features/study/group/ui/group-study-list';
-import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
 import IconPlus from '@/shared/icons/plus.svg';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import Button from '@/shared/ui/button';
@@ -16,7 +17,8 @@ export default async function Study() {
           <span className="font-designer-28b text-[#181D27]">
             스터디 둘러보기
           </span>
-          <OpenGroupStudyModal
+          <GroupStudyFormModal
+            mode="create"
             trigger={
               <Button
                 color="primary"

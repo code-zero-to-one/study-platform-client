@@ -2,12 +2,11 @@
 
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import React from 'react';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
+import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
 import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
-import OpenGroupStudyModal from '@/features/study/group/ui/open-group-modal';
 import { getCookie } from '@/shared/tanstack-query/cookie';
 import Button from '@/shared/ui/button';
 
@@ -40,7 +39,8 @@ export default function MyStudy() {
     <div className="flex flex-col gap-300">
       <div className="flex flex-row items-center justify-between">
         <h1 className="font-designer-20b">마이스터디</h1>
-        <OpenGroupStudyModal
+        <GroupStudyFormModal
+          mode="create"
           trigger={
             <Button icon={<Plus className="text-text-inverse" />} size="medium">
               스터디 개설하기
