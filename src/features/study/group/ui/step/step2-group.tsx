@@ -19,8 +19,6 @@ export default function Step2OpenGroupStudy() {
     name: 'thumbnailExtension',
   });
 
-  console.log('thumbnailExtension', thumbnailExtension);
-
   const [image, setImage] = useState<string | undefined>(
     getValues('thumbnailUrl') || undefined,
   );

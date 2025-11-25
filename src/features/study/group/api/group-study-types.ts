@@ -157,7 +157,7 @@ export interface ApplyGroupStudyResponse {
   createdAt: string;
 }
 
-export interface OpenGroupStudyRequest {
+export interface GroupStudyFormRequest {
   basicInfo: BasicInfo;
   detailInfo: DetailInfo;
   interviewPost: {

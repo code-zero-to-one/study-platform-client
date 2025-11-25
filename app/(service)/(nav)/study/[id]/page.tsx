@@ -48,8 +48,8 @@ export default async function Page({
       <StudyDetailPage
         memberId={memberId}
         groupStudyId={Number(id)}
-        studyDetail={data}
-        leader={data.basicInfo.leader}
+        // studyDetail={data}
+        // leader={data.basicInfo.leader}
       />
     </HydrationBoundary>
   );

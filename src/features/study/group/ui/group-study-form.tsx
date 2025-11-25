@@ -42,7 +42,6 @@ export default function GroupStudyForm({
     defaultValues: defaultValues,
   });
 
-  console.log('defaultValues', defaultValues);
   const { handleSubmit, trigger, formState } = methods;
 
   const [step, setStep] = useState<1 | 2 | 3>(1);

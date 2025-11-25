@@ -43,9 +43,11 @@ export default function GroupStudyFormModal({
   const { mutateAsync: updateGroupStudy } = useUpdateGroupStudyMutation(
     groupStudyId!,
   );
-  const { data: groupStudyInfo, isLoading } = useGroupStudyDetailQuery(
-    groupStudyId!,
-  );
+  const {
+    data: groupStudyInfo,
+    isLoading,
+    refetch: refetchGroupStudyInfo,
+  } = useGroupStudyDetailQuery(groupStudyId!);
 
   const refineStudyDetail = (value: GroupStudyDetailResponse) => {
     if (isLoading) return;
@@ -74,12 +76,12 @@ export default function GroupStudyFormModal({
     };
   };
 
-  const uploadThumbnail = async (
-    uploadUrl: string,
-    file: File | null | undefined,
-  ) => {
-    if (!uploadUrl || !file) return;
+  const invalidateGroupStudyQueries = async () => {
+    await qc.invalidateQueries({ queryKey: ['groupStudies'] });
+    await qc.invalidateQueries({ queryKey: ['memberStudies'] });
+  };
 
+  const uploadThumbnail = async (uploadUrl: string, file: File) => {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -88,18 +90,11 @@ export default function GroupStudyFormModal({
       body: formData,
     });
 
-    console.log('res', res);
-
     if (!res.ok) {
-      console.error('파일 업로드 실패:', res.status, res.statusText);
-    } else {
-      console.log('파일 업로드 성공!');
+      throw new Error(
+        `파일 업로드 실패 (status: ${res.status}, message: ${res.statusText})`,
+      );
     }
-  };
-
-  const invalidateGroupStudyQueries = async () => {
-    await qc.invalidateQueries({ queryKey: ['groupStudies'] });
-    await qc.invalidateQueries({ queryKey: ['memberStudies'] });
   };
 
   const handleCreate = async (values: GroupStudyFormValues) => {
@@ -107,16 +102,24 @@ export default function GroupStudyFormModal({
       const body = toOpenGroupRequest(values);
       const created = await createGroupStudy(body);
 
-      await uploadThumbnail(
-        created.content.thumbnailUploadUrl,
-        values.thumbnailFile,
-      );
-      alert('그룹 스터디 개설이 완료되었습니다!');
+      if (values.thumbnailFile) {
+        if (!created.content.thumbnailUploadUrl) {
+          throw new Error('썸네일 업로드 URL이 없습니다.');
+        }
+
+        await uploadThumbnail(
+          created.content.thumbnailUploadUrl,
+          values.thumbnailFile,
+        );
+      }
 
       await invalidateGroupStudyQueries();
+      alert('그룹 스터디 개설이 완료되었습니다!');
     } catch (err) {
-      console.error(err);
+      console.error('[handleCreate] 그룹 스터디 개설 실패:', err);
       alert('그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    } finally {
+      setOpen(false);
     }
   };
 
@@ -125,18 +128,23 @@ export default function GroupStudyFormModal({
       const body = toOpenGroupRequest(values);
       const updated = await updateGroupStudy(body);
 
-      await uploadThumbnail(
-        updated.content.thumbnailUploadUrl,
-        values.thumbnailFile,
-      );
+      if (values.thumbnailFile) {
+        if (!updated.content.thumbnailUploadUrl) {
+          throw new Error('썸네일 업로드 URL이 없습니다.');
+        }
 
-      console.log('edited values', values);
+        await uploadThumbnail(
+          updated.content.thumbnailUploadUrl,
+          values.thumbnailFile,
+        );
+      }
 
+      await refetchGroupStudyInfo();
       alert('그룹 스터디 수정이 완료되었습니다!');
-
-      await invalidateGroupStudyQueries();
     } catch (err) {
       alert('그룹 스터디 수정 중 오류가 발생했습니다. 다시 시도해 주세요.');
+    } finally {
+      onControlledOpen();
     }
   };
 
@@ -149,12 +157,12 @@ export default function GroupStudyFormModal({
   };
 
   useEffect(() => {
-    if (open) {
+    if (open && mode === 'create') {
       sendGTMEvent({
         event: 'group_study_create_modal_open',
       });
     }
-  }, [open]);
+  }, [open, mode]);
 
   return (
     <Modal.Root

@@ -43,7 +43,7 @@ export default function Step3OpenGroupStudy() {
       >
         <div className="flex flex-col gap-100">
           {questions.map((q, index) => (
-            <div key={index} className="flex items-center gap-100">
+            <div key={index} className="flex items-start gap-100">
               <BaseInput
                 placeholder={index === 0 ? '지원동기를 작성해주세요' : ''}
                 value={q}

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OpenGroupStudyRequest } from '../api/group-study-types';
+import { GroupStudyFormRequest } from '../api/group-study-types';
 import {
   STUDY_TYPES,
   TARGET_ROLE_OPTIONS,
@@ -82,7 +82,7 @@ export function buildOpenGroupDefaultValues(): GroupStudyFormValues {
 
 export function toOpenGroupRequest(
   v: OpenGroupParsedValues,
-): OpenGroupStudyRequest {
+): GroupStudyFormRequest {
   return {
     basicInfo: {
       type: v.type,

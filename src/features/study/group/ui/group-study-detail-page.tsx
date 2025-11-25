@@ -10,12 +10,12 @@ import ConfirmDeleteModal from './confirm-delete-modal';
 import GroupStudyFormModal from './group-study-form-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
-import { GroupStudyDetailResponse, Leader } from '../api/group-study-types';
 import ChannelSection from '../channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
+  useGroupStudyDetailQuery,
 } from '../model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
@@ -24,8 +24,6 @@ type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
 interface StudyDetailPageProps {
   groupStudyId: number;
-  studyDetail: GroupStudyDetailResponse;
-  leader: Leader;
   memberId?: number;
 }
 
@@ -37,13 +35,16 @@ const TABS = [
 
 export default function StudyDetailPage({
   groupStudyId,
-  studyDetail,
-  leader,
   memberId,
 }: StudyDetailPageProps) {
   const router = useRouter();
 
-  const isLeader = leader.memberId === memberId;
+  const { data: studyDetail, isLoading } =
+    useGroupStudyDetailQuery(groupStudyId);
+
+  const leaderId = studyDetail?.basicInfo.leader.memberId;
+
+  const isLeader = leaderId === memberId;
 
   const [active, setActive] = useState<ActiveTab>('intro');
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -58,8 +59,9 @@ export default function StudyDetailPage({
   });
 
   useEffect(() => {
+    const leader = studyDetail.basicInfo.leader;
     setLeaderInfo(leader);
-  }, [leader, setLeaderInfo]);
+  }, [studyDetail, setLeaderInfo]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -130,6 +132,10 @@ export default function StudyDetailPage({
   const isMember =
     myApplicationStatus?.status === 'APPROVED' ||
     myApplicationStatus?.status === 'KICKED';
+
+  if (isLoading || !studyDetail) {
+    return <div>로딩중...</div>;
+  }
 
   return (
     <div className="m-auto flex w-full max-w-[1164px] flex-col gap-400 py-500">

@@ -1,14 +1,14 @@
 import { axiosInstance } from '@/shared/tanstack-query/axios';
-import { OpenGroupStudyRequest } from './group-study-types';
+import { GroupStudyFormRequest } from './group-study-types';
 
 // CS 스터디 매칭 신청
 export const updateGroupStudy = async (
-  studyGroupId: number,
-  payload: OpenGroupStudyRequest,
+  groupStudyId: number,
+  payload: GroupStudyFormRequest,
 ) => {
   try {
     const res = await axiosInstance.put(
-      `/group-studies/${studyGroupId}`,
+      `/group-studies/${groupStudyId}`,
       payload,
     );
 
