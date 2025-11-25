@@ -4,6 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { ReactNode, useEffect, useState } from 'react';
+import { getAttributionParams } from '@/shared/lib/attribution-tracker';
 import { Modal } from '../../../shared/ui/modal';
 
 export default function LoginModal({
@@ -21,8 +22,11 @@ export default function LoginModal({
 
   useEffect(() => {
     if (isOpen) {
+      const attributionParams = getAttributionParams();
+
       sendGTMEvent({
         event: 'login_modal_open',
+        ...attributionParams,
       });
     }
   }, [isOpen]);

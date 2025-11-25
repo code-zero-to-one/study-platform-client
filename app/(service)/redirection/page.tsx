@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, Suspense } from 'react';
 import { hashValue } from '@/shared/lib/hash';
 import { setCookie } from '@/shared/tanstack-query/cookie';
+import { getAttributionParams } from '@/shared/lib/attribution-tracker';
 
 function RedirectionContent() {
   const searchParams = useSearchParams();
@@ -34,11 +35,15 @@ function RedirectionContent() {
         } else {
           router.push('/home');
           router.refresh();
+          
+          const attributionParams = getAttributionParams();
+          
           sendGTMEvent({
             event: 'custom_member_login',
             dl_timestamp: new Date().toISOString(),
             dl_member_id: hashValue(memberId),
             dl_login_method: authVendor || '',
+            ...attributionParams,
           });
         }
       } catch (error) {
