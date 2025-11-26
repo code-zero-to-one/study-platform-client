@@ -1,70 +1,62 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from '@/components/ui/(shadcn)/ui/avatar';
-import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
-
-type ProfileImageSrc = string | undefined;
-
-function getValidImageUrl(src: ProfileImageSrc) {
-  const trimedSrc = (src ?? '').trim();
-  if (!trimedSrc || trimedSrc.toLowerCase() === 'default') return undefined;
-
-  return trimedSrc;
-}
+  Avatar as RadixAvatar,
+  AvatarFallback as RadixAvatarFallback,
+  AvatarImage as RadixAvatarImage,
+} from '@radix-ui/react-avatar';
+import Image from 'next/image';
+import { useState } from 'react';
+import { cn } from '../(shadcn)/lib/utils';
 
 interface UserAvatarProps {
-  image?: ProfileImageSrc;
+  image: string | undefined;
   alt?: string;
   size?: number;
-  accentColor?: string;
   className?: string;
 }
 
-export default function UserAvatar({
+export default function Avatar({
   image,
-  alt = 'user profile',
+  alt = 'profile-image',
   size = 32,
-  accentColor = '#FAB0D5',
   className,
   ...props
 }: UserAvatarProps) {
-  const [isImageError, setImageError] = useState(false);
+  const [isError, setIsError] = useState(false);
 
-  const resolvedImageUrl = useMemo(() => {
-    setImageError(false);
-
-    return getValidImageUrl(image);
-  }, [image]);
-
-  const showImage = !!resolvedImageUrl && !isImageError;
+  const showImage = !!image && !isError;
 
   return (
-    <Avatar
-      key={showImage ? resolvedImageUrl : 'fallback'}
+    <RadixAvatar
       {...props}
-      className={className}
-      style={{ width: size, height: size }}
+      className={cn(
+        'inline-flex items-center justify-center overflow-hidden rounded-full',
+        className,
+      )}
+      style={{
+        width: size,
+        height: size,
+      }}
     >
       {showImage && (
-        <AvatarImage
-          src={resolvedImageUrl!}
+        <RadixAvatarImage
+          className="h-full w-full object-cover"
+          src={image}
           alt={alt}
-          onError={() => setImageError(true)}
+          onError={() => setIsError(true)}
         />
       )}
 
-      <AvatarFallback>
-        <ProfileDefault
-          className="h-full w-full"
-          style={{ color: accentColor }}
-          aria-label={alt}
+      <RadixAvatarFallback>
+        <Image
+          src="/profile-default.svg"
+          alt="error-image"
+          width={size}
+          height={size}
+          className="h-full w-full object-cover"
         />
-      </AvatarFallback>
-    </Avatar>
+      </RadixAvatarFallback>
+    </RadixAvatar>
   );
 }
