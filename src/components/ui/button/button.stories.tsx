@@ -22,6 +22,9 @@ const meta: Meta<typeof Button> = {
     icon: {
       control: false,
     },
+    asChild: {
+      control: 'boolean',
+    },
     onClick: { action: 'clicked' },
   },
 };
@@ -47,17 +50,31 @@ export const Secondary: Story = {
 
 export const Sizes: Story = {
   args: {
-    children: '사이즈 예시',
     color: 'primary',
-    size: 'medium',
   },
   parameters: {
     docs: {
       description: {
-        story: '각 size variant를 확인하기 위한 예시입니다.',
+        story: '각 size variant를 한 번에 확인할 수 있는 예시입니다.',
       },
     },
   },
+  render: (args) => (
+    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+      <Button {...args} size="xsmall">
+        XSmall
+      </Button>
+      <Button {...args} size="small">
+        Small
+      </Button>
+      <Button {...args} size="medium">
+        Medium
+      </Button>
+      <Button {...args} size="large">
+        Large
+      </Button>
+    </div>
+  ),
 };
 
 export const WithLeftIcon: Story = {
@@ -86,5 +103,22 @@ export const Disabled: Story = {
     color: 'primary',
     size: 'medium',
     disabled: true,
+  },
+};
+
+export const AsChildLink: Story = {
+  args: {
+    asChild: true,
+    color: 'primary',
+    size: 'medium',
+    children: <a href="#as-child-link">링크 형태 버튼 (asChild)</a>,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          '`asChild`를 사용해 실제 DOM 엘리먼트를 교체하는 예시입니다. Slot을 통해 className과 props가 자식 엘리먼트로 전달됩니다.',
+      },
+    },
   },
 };

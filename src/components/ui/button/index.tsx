@@ -1,12 +1,6 @@
-import { cva } from 'class-variance-authority';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, VariantProps } from 'class-variance-authority';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-
-interface ButtonProps extends React.ComponentProps<'button'> {
-  color?: 'primary' | 'secondary';
-  size?: 'xsmall' | 'small' | 'medium' | 'large';
-  icon?: React.ReactNode;
-  iconPosition?: 'left' | 'right';
-}
 
 const buttonVariants = cva(
   'flex items-center justify-center cursor-pointer py-0',
@@ -33,28 +27,51 @@ const buttonVariants = cva(
 );
 
 function Button({
-  color = 'primary',
-  size = 'medium',
-  icon,
-  iconPosition = 'left',
+  color,
+  size,
   className,
   children,
-  ...rest
-}: ButtonProps) {
-  return (
-    <button
+  icon,
+  iconPosition = 'left',
+  asChild = false,
+  ...props
+}: React.ComponentPropsWithoutRef<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    icon?: React.ReactNode;
+    iconPosition?: 'left' | 'right';
+  }) {
+  const Comp = asChild ? Slot : 'button';
+
+  const content = (
+    <span className="flex items-center gap-50">
+      {icon && iconPosition === 'left' && (
+        <span className="flex items-center">{icon}</span>
+      )}
+      {children}
+      {icon && iconPosition === 'right' && (
+        <span className="flex items-center">{icon}</span>
+      )}
+    </span>
+  );
+
+  return asChild ? (
+    // asChild 모드 → Slot은 children 하나만 받아야 함
+    <Comp
+      data-slot="button"
       className={cn(buttonVariants({ color, size }), className)}
-      {...rest}
+      {...props}
     >
-      <span className="flex items-center gap-50">
-        {icon && iconPosition === 'left' && (
-          <span className="flex items-center">{icon}</span>
-        )}
-        {children}
-        {icon && iconPosition === 'right' && (
-          <span className="flex items-center">{icon}</span>
-        )}
-      </span>
+      {children}
+    </Comp>
+  ) : (
+    // 기본 모드 → 내부 UI 구성 가능
+    <button
+      data-slot="button"
+      className={cn(buttonVariants({ color, size }), className)}
+      {...props}
+    >
+      {content}
     </button>
   );
 }
