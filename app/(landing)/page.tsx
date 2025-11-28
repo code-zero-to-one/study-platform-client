@@ -281,16 +281,16 @@ export default async function Landing() {
         {/* 사업자 정보 */}
         <div className="text-text-inverse font-designer-12m flex flex-col items-center gap-100 border-t border-white/20 pt-400 mt-400 w-full">
           <div className="flex flex-wrap items-center justify-center gap-200">
-            <span>회사명: (주)제로원</span>
+            <span>상호명: 정성컴퍼니</span>
             <span className="text-white/60">|</span>
-            <span>대표자: 홍길동</span>
+            <span>대표자명: 조성진</span>
             <span className="text-white/60">|</span>
-            <span>사업자등록번호: 000-00-00000</span>
+            <span>사업자번호: 798-31-01774</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-200">
-            <span>주소: 서울특별시 강남구 테헤란로 000</span>
+            <span>사업장 주소: 서울시 강남구 역삼동 620-17 203호</span>
             <span className="text-white/60">|</span>
-            <span>이메일: contact@zero-one.co.kr</span>
+            <span>전화번호: 010-6856-6609</span>
           </div>
           <div className="text-text-inverse font-designer-11m text-white/80 mt-100">
             © 2024 ZERO-ONE. All rights reserved.
