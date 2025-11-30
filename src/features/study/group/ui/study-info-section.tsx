@@ -1,3 +1,5 @@
+'use client';
+
 import { sendGTMEvent } from '@next/third-parties/google';
 import dayjs from 'dayjs';
 import {
@@ -15,13 +17,12 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import { getCookie } from '@/api/client/cookie';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
-
 import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
 import SummaryStudyInfo from './summary-study-info';
@@ -55,6 +56,8 @@ export default function StudyInfoSection({
   memberId,
 }: StudyInfoSectionProps) {
   const router = useRouter();
+  const { data: authData } = useAuth();
+
   const { data: approvedApplicants } = useApplicantsByStatusQuery({
     groupStudyId,
     status: 'APPROVED',
@@ -275,12 +278,13 @@ export default function StudyInfoSection({
                         <div
                           className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50"
                           onClick={() => {
-                            const memberId = getCookie('memberId');
                             sendGTMEvent({
                               event: 'group_study_member_profile_click',
                               dl_timestamp: new Date().toISOString(),
-                              ...(memberId && {
-                                dl_member_id: hashValue(memberId),
+                              ...(authData?.memberId && {
+                                dl_member_id: hashValue(
+                                  String(authData.memberId),
+                                ),
                               }),
                               dl_target_member_id: String(
                                 data.applicantInfo.memberId,
