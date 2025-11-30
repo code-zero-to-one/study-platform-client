@@ -26,7 +26,7 @@ const pretendard = localFont({
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
-export default function ServiceLayout({
+export default function LandingPageLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -36,7 +36,7 @@ export default function ServiceLayout({
   }
 
   return (
-    <html lang="en">
+    <html lang="ko">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider>

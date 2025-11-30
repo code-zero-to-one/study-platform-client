@@ -30,7 +30,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider>

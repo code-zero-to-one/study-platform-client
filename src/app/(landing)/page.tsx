@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import LandingForm from '@/widgets/landing/form';
+import LandingForm from '@/components/ui/form/landing-form';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
