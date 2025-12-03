@@ -172,18 +172,6 @@ function ProfileEditForm({
               <BaseInput placeholder="입력해주세요." />
             </FormField>
 
-            <FormField<ProfileFormInput, 'tel'>
-              name="tel"
-              label="연락처"
-              required
-              description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
-              rules={{
-                setValueAs: (v: string) => (v ?? '').replace(/[^\d-]/g, ''),
-              }}
-            >
-              <BaseInput placeholder="010-1234-5678" />
-            </FormField>
-
             <FormField<ProfileFormInput, 'birthDate'>
               name="birthDate"
               label="생년월일"

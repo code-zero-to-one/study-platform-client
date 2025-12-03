@@ -4,6 +4,40 @@
 /*
 ---break--- */
 @plugin 'tailwindcss-animate';
+
+@layer base {
+  *, ::before, ::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: #e5e7eb;
+  }
+  input, button, select, textarea {
+    font-family: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+  }
+  button, input, optgroup, select, textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+  }
+  button, select {
+    text-transform: none;
+  }
+  button, [type='button'], [type='reset'], [type='submit'] {
+    -webkit-appearance: button;
+    background-color: transparent;
+    background-image: none;
+  }
+}
 /*
 ---break--- */
 @custom-variant dark (&:is(.dark *));

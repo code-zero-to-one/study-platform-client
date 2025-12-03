@@ -18,11 +18,13 @@ import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 interface UserProfileModalProps {
   memberId: number;
   trigger: React.ReactNode;
+  hidePhoneNumber?: boolean; // 전화번호 숨김 옵션 추가
 }
 
 export default function UserProfileModal({
   memberId,
   trigger,
+  hidePhoneNumber = false,
 }: UserProfileModalProps) {
   const [open, setOpen] = useState(false);
 
@@ -37,6 +39,7 @@ export default function UserProfileModal({
             <UserProfileBody
               memberId={memberId}
               onClose={() => setOpen(false)}
+              hidePhoneNumber={hidePhoneNumber}
             />
           </Modal.Content>
         </Modal.Portal>
@@ -48,9 +51,11 @@ export default function UserProfileModal({
 function UserProfileBody({
   memberId,
   onClose,
+  hidePhoneNumber,
 }: {
   memberId: number;
   onClose: () => void;
+  hidePhoneNumber: boolean;
 }) {
   const { data: profile, isLoading, isError } = useUserProfileQuery(memberId);
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
@@ -142,7 +147,9 @@ function UserProfileBody({
                 icon={<GithubIcon />}
                 value={profile.memberProfile.githubLink?.url}
               />
-              <Field icon={<PhoneIcon />} value={profile.memberProfile.tel} />
+              {!hidePhoneNumber && (
+                <Field icon={<PhoneIcon />} value={profile.memberProfile.tel} />
+              )}
               <Field
                 icon={<GlobeIcon />}
                 value={profile.memberProfile.blogOrSnsLink?.url}

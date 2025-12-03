@@ -274,6 +274,7 @@ export default function StudyInfoSection({
                     </div>
                     <UserProfileModal
                       memberId={data.applicantInfo.memberId}
+                      hidePhoneNumber={true} // 공개된 신청자 목록에서는 전화번호 숨김
                       trigger={
                         <div
                           className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50"

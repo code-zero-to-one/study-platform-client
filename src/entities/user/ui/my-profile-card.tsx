@@ -9,6 +9,7 @@ import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { useReviewReminder } from '@/entities/review/lib/use-reminder-review';
 import StudyReviewModal from '@/entities/review/ui/study-review-modal';
 import { usePatchAutoMatchingMutation } from '@/entities/user/model/use-user-profile-query';
+import StartStudyModal from '@/features/study/participation/ui/start-study-modal'; // 추가
 import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import CodeIcon from 'public/icons/code.svg';
@@ -41,13 +42,19 @@ export default function MyProfileCard({
   const { showReviewReminder, setShowReviewReminder } = useReviewReminder();
 
   const [enabled, setEnabled] = useState(matching);
+  const [isStartStudyModalOpen, setIsStartStudyModalOpen] = useState(false); // 모달 상태 추가
   const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
 
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
 
   const handleToggleChange = (checked: boolean) => {
-    if (!studyApplied) return;
+    // 스터디 신청 안 했을 때 -> 신청 모달 열기 (여기서 본인인증 체크도 자동으로 됨)
+    if (!studyApplied) {
+      setIsStartStudyModalOpen(true);
+      // 토글 상태는 바꾸지 않음 (신청 완료 후 바뀌도록 유도하거나 사용자가 다시 켜야 함)
+      return;
+    }
 
     setEnabled(checked);
 
@@ -67,6 +74,13 @@ export default function MyProfileCard({
         open={showReviewReminder}
         onOpenChange={setShowReviewReminder}
       />
+      {/* 스터디 신청 모달 (토글 클릭 시 실행됨) */}
+      <StartStudyModal
+        memberId={memberId}
+        open={isStartStudyModalOpen}
+        onOpenChange={setIsStartStudyModalOpen}
+      />
+      
       <section className="rounded-200 border-border-subtle bg-text-inverse flex flex-col items-start gap-200 border p-200">
         <div className="flex flex-row items-center gap-200">
           <div className="relative h-[64px] w-[64px] shrink-0">
@@ -101,7 +115,7 @@ export default function MyProfileCard({
                 size="md"
                 checked={enabled}
                 onCheckedChange={handleToggleChange}
-                disabled={isPending || !studyApplied}
+                disabled={isPending} // !studyApplied 제거
               />
             </div>
           </div>
