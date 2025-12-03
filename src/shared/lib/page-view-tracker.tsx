@@ -3,13 +3,12 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
-import {
-  trackAttribution,
-  getAttributionParams,
-} from './attribution-tracker';
+import { trackAttribution, getAttributionParams } from './attribution-tracker';
+import { useAmplitude } from 'react-amplitude-provider/dist/use-amplitude';
 
 export default function PageViewTracker(): null {
   const pathname = usePathname();
+  const { trackPageView } = useAmplitude();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -27,6 +26,7 @@ export default function PageViewTracker(): null {
       page_path: pathname,
       ...attributionParams,
     });
+    trackPageView(pathname);
   }, [pathname]);
 
   return null;

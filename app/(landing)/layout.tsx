@@ -8,6 +8,7 @@ import localFont from 'next/font/local';
 import MainProvider from '@/app/provider';
 import PageViewTracker from '@/shared/lib/page-view-tracker';
 import Header from '@/widgets/home/header';
+import { AmplitudeProvider } from 'react-amplitude-provider/dist/amplitude-provider';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -37,19 +38,24 @@ export default function ServiceLayout({
 
   return (
     <html lang="en">
-      <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
-      <body className={clsx(pretendard.className, 'h-screen w-screen')}>
-        <MainProvider>
-          <PageViewTracker />
-          <div className="w-full overflow-auto">
-            {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
-            <div className="m-auto flex min-w-[1496px] flex-1 flex-col items-center">
-              <Header />
-              <main className="w-full">{children}</main>
+      <AmplitudeProvider
+        apiKey="acdc4c80bbcd99c33dee81367af95a82"
+        isTrackingEnabled={true}
+      >
+        <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
+        <body className={clsx(pretendard.className, 'h-screen w-screen')}>
+          <MainProvider>
+            <PageViewTracker />
+            <div className="w-full overflow-auto">
+              {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
+              <div className="m-auto flex min-w-[1496px] flex-1 flex-col items-center">
+                <Header />
+                <main className="w-full">{children}</main>
+              </div>
             </div>
-          </div>
-        </MainProvider>
-      </body>
+          </MainProvider>
+        </body>
+      </AmplitudeProvider>
     </html>
   );
 }

@@ -42,6 +42,7 @@
     "next": "15.1.7",
     "postcss": "^8.5.2",
     "react": "^19.0.0",
+    "react-amplitude-provider": "^1.0.7",
     "react-day-picker": "9.4.3",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.62.0",
