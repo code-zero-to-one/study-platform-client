@@ -5,82 +5,22 @@ import {
 } from './common-strapi-fetch';
 
 // Media 타입
-export interface Media {
+interface Media {
   id: number;
   documentId: string;
   name: string;
   url: string;
   mime: string;
-  formats?: Record<string, unknown>;
+  formats?: any;
 }
 
-// Author 타입
-export interface Author {
-  id: number;
-  documentId: string;
-  name: string;
-}
-
-// Category 타입
-export interface Category {
-  id: number;
-  documentId: string;
-  name: string;
-  slug?: string;
-}
-
-// Rich Text 블록의 자식 요소
-export interface RichTextChild {
-  text: string;
-  bold?: boolean;
-  italic?: boolean;
-  underline?: boolean;
-  strikethrough?: boolean;
-  code?: boolean;
-}
-
-// Rich Text 블록의 항목
-export interface RichTextItem {
-  type: 'paragraph' | 'heading' | 'list' | 'quote' | 'code';
-  level?: number; // heading level (1-6)
-  format?: 'ordered' | 'unordered';
-  children?: RichTextChild[];
-  items?: RichTextItem[]; // for list items
-}
-
-// 블록 타입 정의
-export interface RichTextBlock {
-  __component: 'blocks.rich-text';
-  body: RichTextItem[];
-}
-
-export interface QuoteBlock {
-  __component: 'blocks.quote';
-  title?: string;
-  body: string;
-}
-
-export interface MediaBlock {
-  __component: 'blocks.media';
-  file: Media;
-}
-
-export interface SliderBlock {
-  __component: 'blocks.slider';
-  files: Media[];
-}
-
-export type Block = RichTextBlock | QuoteBlock | MediaBlock | SliderBlock;
-
-// Strapi Article 응답
+// Strapi Article 응답 타입
 export interface Article {
   title: string;
   slug: string;
   description: string;
   cover?: Media;
-  author?: Author;
-  category?: Category;
-  blocks?: Block[];
+  blocks?: any[];
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
@@ -88,25 +28,38 @@ export interface Article {
 
 // 전체 아티클 목록 조회
 export async function fetchArticles() {
-  // Strapi 5 형식: populate=*로 모든 관계 가져오기 (이미지 포함되지만 클라이언트에서 필터링)
-  const query = new URLSearchParams();
-  query.append('populate', '*');
-  query.append('sort[0]', 'publishedAt:desc');
-
   return strapiFetch<StrapiCollectionResponse<Article>>(
-    `/api/articles?${query.toString()}`,
+    '/api/articles?populate=*',
   );
 }
 
-// 특정 slug로 아티클 조회 - Dynamic Zone blocks를 명시적으로 populate
+// 특정 slug로 아티클 조회
 export async function fetchArticleBySlug(slug: string) {
-  // Strapi 5에서 Dynamic Zone을 populate하는 방법
   const query = new URLSearchParams();
+
+  // 1. 슬러그 필터
   query.append('filters[slug][$eq]', slug);
-  // populate 없이 기본 필드만 가져오기
+
+  // 2. Populate 설정
+  // 현재 cover를 따로 명시하지 않습니다.
+  // 대신 'populate=*'를 사용하면 최상위 관계(blocks 포함)를 자동으로 가져옵니다.
   query.append('populate', '*');
 
-  return strapiFetch<StrapiSingleResponse<Article>>(
+  // 만약 위 설정으로 블록 내부(이미지 등)가 안 보인다면,
+  // 나중에 아래 주석을 풀어서 단계적으로 시도해봐야 합니다.
+  // query.append('populate[blocks][populate]', '*');
+
+  console.log(`Fetching slug: ${slug}, Query: ${query.toString()}`); // 디버깅용 로그
+
+  const response = await strapiFetch<StrapiCollectionResponse<Article>>(
     `/api/articles?${query.toString()}`,
   );
+
+  const singleData =
+    response.data && response.data.length > 0 ? response.data[0] : null;
+
+  return {
+    data: singleData,
+    meta: response.meta,
+  };
 }
