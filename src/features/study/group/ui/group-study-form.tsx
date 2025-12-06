@@ -1,8 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Button from '@/shared/ui/button';
-import { Modal } from '@/shared/ui/modal';
+import Button from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 import {
   GroupStudyFormSchema,
   GroupStudyFormValues,

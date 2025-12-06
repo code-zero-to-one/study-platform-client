@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import Button from '@/shared/ui/button';
-import { Modal } from '@/shared/ui/modal';
+import Button from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 
 interface KickedReasonModalProps {
   reason: string;

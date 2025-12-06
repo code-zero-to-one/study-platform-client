@@ -2,10 +2,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { IoMdPeople } from 'react-icons/io';
 import { LuDot } from 'react-icons/lu';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
-import { formatYYYYMMDD } from '@/shared/lib/time';
-import Badge from '@/shared/ui/badge';
-import Button from '@/shared/ui/button';
+import { formatYYYYMMDD } from '@/utils/time';
 
 interface MyStudyInfoCardProps extends MemberStudyItem {
   type: 'GROUP_STUDY';

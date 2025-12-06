@@ -1,17 +1,17 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
+import { getCookie, setCookie } from '@/api/client/cookie';
+import Button from '@/components/ui/button';
+import { BaseInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
-import { hashValue } from '@/shared/lib/hash';
-import { getCookie, setCookie } from '@/shared/tanstack-query/cookie';
-import { getAttributionParams } from '@/shared/lib/attribution-tracker';
-import Button from '@/shared/ui/button';
-import { BaseInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
+import { getAttributionParams } from '@/utils/attribution-tracker';
+import { hashValue } from '@/utils/hash';
 
 export default function SignupModal({
   open,
@@ -31,7 +31,7 @@ export default function SignupModal({
   useEffect(() => {
     if (open) {
       const attributionParams = getAttributionParams();
-      
+
       sendGTMEvent({
         event: 'signup_modal_open',
         ...attributionParams,
@@ -69,7 +69,7 @@ export default function SignupModal({
 
             // 회원가입 GA 이벤트 전송
             const attributionParams = getAttributionParams();
-            
+
             sendGTMEvent({
               event: 'custom_member_join',
               dl_timestamp: new Date().toISOString(),

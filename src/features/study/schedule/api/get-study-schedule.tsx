@@ -1,4 +1,5 @@
 // 매칭 결과 목록, 오늘의 스터디 상세 정보, 나의 스터디 캘린더
+import { axiosInstance } from '@/api/client/axios';
 import {
   GetDailyStudiesParams,
   GetDailyStudiesResponse,
@@ -7,7 +8,6 @@ import {
   StudyStatus,
   WeeklyParticipationResponse,
 } from '@/features/study/schedule/api/schedule-types';
-import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 // 스터디 전체 조회
 export const getDailyStudies = async (

@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosInstance } from '@/api/client/axios';
 import { UpdateProgressScoreRequest } from './group-study-types';
 
 // 진행점수 부여/수정 API

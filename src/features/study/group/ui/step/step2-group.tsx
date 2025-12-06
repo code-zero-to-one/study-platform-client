@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import FormField from '@/shared/ui/form/form-field';
-import { BaseInput, TextAreaInput } from '@/shared/ui/input';
+import FormField from '@/components/ui/form/form-field';
+import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { THUMBNAIL_EXTENSION } from '../../const/group-study-const';
 
 import { GroupStudyFormValues } from '../../model/group-study-form.schema';

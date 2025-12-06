@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosInstance } from '@/api/client/axios';
 import { GroupStudyFormRequest } from './group-study-types';
 
 // CS 스터디 매칭 신청

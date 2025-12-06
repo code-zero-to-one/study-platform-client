@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { formatYYYYMMDD } from '@/shared/lib/time';
-import Pagination from '@/shared/ui/pagination';
+import Pagination from '@/components/ui/pagination';
+import { formatYYYYMMDD } from '@/utils/time';
 import TrendingDown from 'public/icons/trending-down.svg';
 import TrendingUp from 'public/icons/trending-up.svg';
 import { useGetSincerityTemperatureHistoryQuery } from '../model/use-sincerity-temperature-history-query';

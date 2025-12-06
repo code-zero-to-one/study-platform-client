@@ -5,8 +5,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
-import { Modal } from '@/shared/ui/modal';
-
+import { Modal } from '@/components/ui/modal';
 import GroupStudyForm from './group-study-form';
 
 import { GroupStudyDetailResponse } from '../api/group-study-types';

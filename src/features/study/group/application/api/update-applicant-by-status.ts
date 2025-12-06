@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosInstance } from '@/api/client/axios';
 import { UpdateApplicantByStatusRequest } from './type';
 
 // 스터디 신청자 상태 변경

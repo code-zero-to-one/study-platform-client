@@ -5,7 +5,7 @@ import {
   patchAutoMatching,
 } from '@/entities/user/api/get-user-profile';
 import type { GetUserProfileResponse } from '@/entities/user/api/types';
-import { hashValue } from '@/shared/lib/hash';
+import { hashValue } from '@/utils/hash';
 
 export const useUserProfileQuery = (memberId: number) => {
   return useQuery<GetUserProfileResponse>({

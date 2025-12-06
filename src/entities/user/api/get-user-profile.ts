@@ -1,8 +1,8 @@
+import { axiosInstance } from '@/api/client/axios';
 import type {
   GetUserProfileResponse,
   PatchAutoMatchingParams,
 } from '@/entities/user/api/types';
-import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 export const getUserProfile = async (
   memberId: number,

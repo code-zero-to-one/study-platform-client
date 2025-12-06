@@ -6,14 +6,14 @@ import { XIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
+import Button from '@/components/ui/button';
+import { MultiDropdown, SingleDropdown } from '@/components/ui/dropdown';
+import FormField from '@/components/ui/form/form-field';
+import { TextAreaInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
+import { GroupItems } from '@/components/ui/toggle';
 import type { MemberInfo } from '@/entities/user/api/types';
-import { hashValue } from '@/shared/lib/hash';
-import Button from '@/shared/ui/button';
-import { MultiDropdown, SingleDropdown } from '@/shared/ui/dropdown';
-import FormField from '@/shared/ui/form/form-field';
-import { TextAreaInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
-import { GroupItems } from '@/shared/ui/toggle';
+import { hashValue } from '@/utils/hash';
 
 import {
   ProfileInfoFormSchema,

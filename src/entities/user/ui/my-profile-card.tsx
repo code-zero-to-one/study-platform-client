@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import React, { useState } from 'react';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
+import { ToggleSwitch } from '@/components/ui/toggle';
+import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { useReviewReminder } from '@/entities/review/lib/use-reminder-review';
 import StudyReviewModal from '@/entities/review/ui/study-review-modal';
 import { usePatchAutoMatchingMutation } from '@/entities/user/model/use-user-profile-query';
-import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
-import { cn } from '@/shared/shadcn/lib/utils';
-import UserAvatar from '@/shared/ui/avatar';
-import { ToggleSwitch } from '@/shared/ui/toggle';
 import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import CodeIcon from 'public/icons/code.svg';

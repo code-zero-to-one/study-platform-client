@@ -1,16 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import UserAvatar from '@/components/ui/avatar';
+import MoreMenu from '@/components/ui/dropdown/more-menu';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { useAuth } from '@/hooks/use-auth';
 import {
   formatHHMM,
   formatKoreaRelativeTime,
   formatYYYYMMDD,
-} from '@/shared/lib/time';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-
-import UserAvatar from '@/shared/ui/avatar';
-import MoreMenu from '@/shared/ui/dropdown/more-menu';
+} from '@/utils/time';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
@@ -35,6 +34,9 @@ export default function GroupStudyMemberItem({
   leaderId,
   ...member
 }: GroupStudyMemberItemProps) {
+  const { data: authData } = useAuth();
+  const myId = authData?.memberId;
+
   const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
     useState<boolean>(false);
   const [isDeleteMemberModalOpen, setIsDeleteMemberModalOpen] =
@@ -43,7 +45,6 @@ export default function GroupStudyMemberItem({
   const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
     useState<boolean>(false);
 
-  const myId = Number(getCookie('memberId'));
   const isMe = member.id === myId;
   const isLeader = leaderId === myId;
 
@@ -277,13 +278,15 @@ function GreetingBox({
 }: Pick<GroupStudyMember, 'id' | 'greeting'> & {
   groupStudyId: number;
 }) {
+  const { data: authData } = useAuth();
+
   // 가입인사를 작성한 경우
   if (greeting) {
     return <p className="font-designer-15r min-h-[64px]">{greeting}</p>;
   }
 
   // 가입인사를 작성하지 못한 경우
-  const isMe = id === Number(getCookie('memberId'));
+  const isMe = id === authData?.memberId;
 
   if (isMe) {
     return (

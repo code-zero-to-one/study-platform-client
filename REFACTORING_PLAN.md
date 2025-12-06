@@ -345,7 +345,6 @@ export default function Calendar() {
 **컴포넌트를 어디에 둘지 고민될 때:**
 
 1. **UI 형태 먼저 판단**
-
    - 카드 형태? → `cards/`
    - 모달/다이얼로그? → `modals/`
    - 폼 입력? → `forms/`
@@ -353,7 +352,6 @@ export default function Calendar() {
    - 캘린더? → `calendars/`
 
 2. **특수한 경우**
-
    - shadcn 기본 컴포넌트? → `ui/`
    - 레이아웃 구조? → `layout/`
    - 관리자 전용? → `admin/`

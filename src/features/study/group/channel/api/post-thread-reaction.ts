@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosInstance } from '@/api/client/axios';
 import { PostThreadReactionRequest } from './types';
 
 export const postThreadReaction = async (params: PostThreadReactionRequest) => {

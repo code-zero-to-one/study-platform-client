@@ -8,7 +8,7 @@ import {
   MyNegativeKeywordsRequest,
   UserPositiveKeywordsRequest,
 } from '@/entities/review/api/review-types';
-import { getKoreaDate } from '@/shared/lib/time';
+import { getKoreaDate } from '@/utils/time';
 import {
   addStudyReview,
   getUserPositiveKeywords,

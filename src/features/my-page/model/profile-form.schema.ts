@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import type { MemberProfile } from '@/entities/user/api/types';
-import { UrlSchema } from '@/shared/util/zod-schema';
+import { UrlSchema } from '@/types/schemas/zod-schema';
 import { UpdateUserProfileRequest } from '../api/types';
 
 const nameRegex = /^[가-힣a-zA-Z]{2,10}$/;
