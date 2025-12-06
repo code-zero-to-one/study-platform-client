@@ -1,4 +1,3 @@
-import clsx from 'clsx';
 import Image from 'next/image';
 import Link from 'next/link';
 import Button from '@/components/ui/button';
@@ -58,7 +57,13 @@ export default async function Header() {
           {isLoggedIn ? (
             <HeaderUserDropdown userImg={userImg} />
           ) : (
-            <LoginModal openTrigger={<Button>로그인 / 회원가입</Button>} />
+            <LoginModal
+              openTrigger={
+                <Button size="small" className="font-designer-14m">
+                  로그인 / 회원가입
+                </Button>
+              }
+            />
           )}
         </div>
       </div>

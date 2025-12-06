@@ -7,7 +7,7 @@ import { ArrowLeft, ArrowRight } from 'lucide-react';
 import * as React from 'react';
 
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { Button } from '@/components/ui/(shadcn)/ui/button';
+import Button from '../../button';
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
@@ -173,8 +173,6 @@ function CarouselItem({ className, ...props }: React.ComponentProps<'div'>) {
 
 function CarouselPrevious({
   className,
-  variant = 'outline',
-  size = 'icon',
   icon,
   ...props
 }: React.ComponentProps<typeof Button> & {
@@ -185,8 +183,7 @@ function CarouselPrevious({
   return (
     <Button
       data-slot="carousel-previous"
-      variant={variant}
-      size={size}
+      color="secondary"
       className={cn(
         'absolute size-8 rounded-full',
         orientation === 'horizontal'
@@ -206,8 +203,6 @@ function CarouselPrevious({
 
 function CarouselNext({
   className,
-  variant = 'outline',
-  size = 'icon',
   icon,
   ...props
 }: React.ComponentProps<typeof Button> & {
@@ -218,8 +213,7 @@ function CarouselNext({
   return (
     <Button
       data-slot="carousel-next"
-      variant={variant}
-      size={size}
+      color="secondary"
       className={cn(
         'absolute size-8 rounded-full',
         orientation === 'horizontal'
