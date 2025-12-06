@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { getCookie } from '@/api/client/cookie';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,16 +8,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/(shadcn)/ui/dropdown-menu';
 import UserAvatar from '@/components/ui/avatar';
-import { decodeJwt } from '@/utils/jwt';
+import { useAuth } from '@/hooks/use-auth';
 import { useLogoutMutation } from '../model/use-auth-mutation';
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   const { mutateAsync: logout } = useLogoutMutation();
+  const { data: authData } = useAuth();
 
-  const jwt = getCookie('accessToken');
-  const decodedJwt = decodeJwt(jwt);
-
-  const hasAdminRole = decodedJwt && decodedJwt?.roleIds.includes('ROLE_ADMIN');
+  const hasAdminRole = authData?.roleIds.includes('ROLE_ADMIN');
 
   const router = useRouter();
 

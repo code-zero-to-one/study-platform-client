@@ -2,7 +2,6 @@
 
 import { ChevronRight } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { getCookie } from '@/api/client/cookie';
 import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
@@ -10,6 +9,7 @@ import {
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
 import ReservationCard from '@/features/study/participation/ui/reservation-user-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
+import { useAuth } from '@/hooks/use-auth';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {
@@ -26,13 +26,9 @@ export default function ReservationList({
   week,
 }: ReservationListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const [memberId, setMemberId] = useState<number | null>(null);
+  const { data: authData } = useAuth();
+  const memberId = authData?.memberId ?? null;
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    const id = getCookie('memberId');
-    setMemberId(id ? Number(id) : null);
-  }, []);
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
   const autoMatching = userProfile?.autoMatching ?? false;
