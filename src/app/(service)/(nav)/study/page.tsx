@@ -20,7 +20,7 @@ export default async function Study() {
             trigger={
               <Button
                 color="primary"
-                size="large"
+                size="medium"
                 iconPosition="left"
                 icon={<IconPlus />}
               >

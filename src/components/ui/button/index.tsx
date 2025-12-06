@@ -1,59 +1,78 @@
-import { cva } from 'class-variance-authority';
+import { Slot } from '@radix-ui/react-slot';
+import { cva, VariantProps } from 'class-variance-authority';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { Button as ButtonShadcn } from '@/components/ui/(shadcn)/ui/button';
 
-interface ButtonProps extends React.ComponentProps<'button'> {
-  color?: 'primary' | 'secondary';
-  size?: 'xsmall' | 'small' | 'medium' | 'large';
-  icon?: React.ReactNode;
-  iconPosition?: 'left' | 'right';
-}
-
-const buttonVariants = cva('flex items-center justify-center cursor-pointer', {
-  variants: {
-    color: {
-      primary:
-        'bg-fill-brand-default-default text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed disabled:bg-background-disabled disabled:text-text-disabled',
-      secondary:
-        'bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed disabled:bg-background-disabled disabled:text-text-disabled',
+const buttonVariants = cva(
+  'flex items-center justify-center cursor-pointer py-0',
+  {
+    variants: {
+      color: {
+        primary:
+          'bg-fill-brand-default-default text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed disabled:bg-background-disabled disabled:text-text-disabled',
+        secondary:
+          'bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed disabled:bg-background-disabled disabled:text-text-disabled',
+      },
+      size: {
+        xsmall: 'px-100 font-designer-13b rounded-75 h-350',
+        small: 'px-100 font-designer-14b rounded-75 h-400',
+        medium: 'px-150 font-designer-16b rounded-100 h-500',
+        large: 'px-200 font-designer-16b rounded-100 h-600',
+      },
     },
-    size: {
-      xsmall: 'px-75 py-25 font-designer-13b rounded-75',
-      small: 'px-75 py-50 font-designer-14b rounded-75',
-      medium: 'px-100 py-75 font-designer-16b rounded-100',
-      large: 'px-150 py-100 font-designer-16b rounded-100',
+    defaultVariants: {
+      color: 'primary',
+      size: 'medium',
     },
   },
-  defaultVariants: {
-    color: 'primary',
-    size: 'medium',
-  },
-});
+);
 
 function Button({
-  color = 'primary',
-  size = 'medium',
-  icon,
-  iconPosition = 'left',
+  color,
+  size,
   className,
   children,
-  ...rest
-}: ButtonProps) {
-  return (
-    <ButtonShadcn
+  icon,
+  iconPosition = 'left',
+  asChild = false,
+  ...props
+}: React.ComponentPropsWithoutRef<'button'> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    icon?: React.ReactNode;
+    iconPosition?: 'left' | 'right';
+  }) {
+  const Comp = asChild ? Slot : 'button';
+
+  const content = (
+    <span className="flex items-center gap-50">
+      {icon && iconPosition === 'left' && (
+        <span className="flex items-center">{icon}</span>
+      )}
+      {children}
+      {icon && iconPosition === 'right' && (
+        <span className="flex items-center">{icon}</span>
+      )}
+    </span>
+  );
+
+  return asChild ? (
+    // asChild 모드 → Slot은 children 하나만 받아야 함
+    <Comp
+      data-slot="button"
       className={cn(buttonVariants({ color, size }), className)}
-      {...rest}
+      {...props}
     >
-      <span className="flex items-center gap-50">
-        {icon && iconPosition === 'left' && (
-          <span className="flex items-center">{icon}</span>
-        )}
-        {children}
-        {icon && iconPosition === 'right' && (
-          <span className="flex items-center">{icon}</span>
-        )}
-      </span>
-    </ButtonShadcn>
+      {children}
+    </Comp>
+  ) : (
+    // 기본 모드 → 내부 UI 구성 가능
+    <button
+      data-slot="button"
+      className={cn(buttonVariants({ color, size }), className)}
+      {...props}
+    >
+      {content}
+    </button>
   );
 }
 

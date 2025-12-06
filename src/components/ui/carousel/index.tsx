@@ -44,7 +44,6 @@ function CarouselButtonPrevious({
 } & React.ComponentProps<typeof CarouselPrevious>) {
   return (
     <CarouselPrevious
-      variant="default"
       icon={icon}
       className={cn(
         'border-border-default bg-fill-neutral-subtle-default top-1/2 -left-200 -translate-y-1/2 cursor-pointer border p-100',
@@ -64,7 +63,6 @@ function CarouselButtonNext({
 } & React.ComponentProps<typeof CarouselNext>) {
   return (
     <CarouselNext
-      variant="default"
       icon={icon}
       className={cn(
         'border-border-default bg-fill-neutral-subtle-default top-1/2 -right-200 -translate-y-1/2 cursor-pointer border p-100',
