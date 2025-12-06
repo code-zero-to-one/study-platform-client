@@ -7,14 +7,15 @@ import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import ConfirmDeleteModal from './confirm-delete-modal';
+import GroupStudyFormModal from './group-study-form-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
-import { GroupStudyDetailResponse, Leader } from '../api/group-study-types';
 import ChannelSection from '../channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
+  useGroupStudyDetailQuery,
 } from '../model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
@@ -23,8 +24,6 @@ type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
 interface StudyDetailPageProps {
   groupStudyId: number;
-  studyDetail: GroupStudyDetailResponse;
-  leader: Leader;
   memberId?: number;
 }
 
@@ -36,17 +35,21 @@ const TABS = [
 
 export default function StudyDetailPage({
   groupStudyId,
-  studyDetail,
-  leader,
   memberId,
 }: StudyDetailPageProps) {
   const router = useRouter();
 
-  const isLeader = leader.memberId === memberId;
+  const { data: studyDetail, isLoading } =
+    useGroupStudyDetailQuery(groupStudyId);
+
+  const leaderId = studyDetail?.basicInfo.leader.memberId;
+
+  const isLeader = leaderId === memberId;
 
   const [active, setActive] = useState<ActiveTab>('intro');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
+  const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
   const setLeaderInfo = useLeaderStore((s) => s.setLeaderInfo);
 
@@ -56,8 +59,9 @@ export default function StudyDetailPage({
   });
 
   useEffect(() => {
+    const leader = studyDetail.basicInfo.leader;
     setLeaderInfo(leader);
-  }, [leader, setLeaderInfo]);
+  }, [studyDetail, setLeaderInfo]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -129,6 +133,10 @@ export default function StudyDetailPage({
     myApplicationStatus?.status === 'APPROVED' ||
     myApplicationStatus?.status === 'KICKED';
 
+  if (isLoading || !studyDetail) {
+    return <div>로딩중...</div>;
+  }
+
   return (
     <div className="m-auto flex w-full max-w-[1164px] flex-col gap-400 py-500">
       <ConfirmDeleteModal
@@ -138,6 +146,12 @@ export default function StudyDetailPage({
         content={ModalContent[action]?.content}
         confirmText={ModalContent[action]?.confirmText}
         onConfirm={ModalContent[action]?.onConfirm}
+      />
+      <GroupStudyFormModal
+        open={showStudyFormModal}
+        mode="edit"
+        groupStudyId={groupStudyId}
+        onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
 
       <div className="flex w-full items-start justify-between">
@@ -155,7 +169,9 @@ export default function StudyDetailPage({
               {
                 label: '스터디 수정하기',
                 value: 'edit',
-                onMenuClick: () => {},
+                onMenuClick: () => {
+                  setShowStudyFormModal(true);
+                },
               },
               {
                 label: '스터디 종료',

@@ -1,9 +1,15 @@
+'use client';
+
 import Image from 'next/image';
 import { useState } from 'react';
 import Pagination from '@/components/ui/pagination';
+import { useAuth } from '@/hooks/use-auth';
 import GroupStudyMemberItem from './group-study-member-item';
 import KickedReasonModal from './kicked-reason-modal';
-import { GroupStudyMyStatusResponse } from '../api/group-study-types';
+import {
+  GroupStudyMember,
+  GroupStudyMyStatusResponse,
+} from '../api/group-study-types';
 import { useGroupStudyMemberListQuery } from '../model/use-group-study-member-list-query';
 
 interface GroupStudyMemberListProps {
@@ -20,30 +26,60 @@ export default function GroupStudyMemberList({
   const [pageNumber, setPageNumber] = useState<number>(1);
   const PAGE_SIZE = 10;
 
-  const { data } = useGroupStudyMemberListQuery({
+  const { data, isLoading } = useGroupStudyMemberListQuery({
     id: groupStudyId,
     pageNumber: pageNumber,
     pageSize: PAGE_SIZE,
   });
+  const { data: authData } = useAuth();
 
+  if (isLoading) {
+    return null;
+  }
+
+  // 리더는 memberList에 포함 x
   const memberList = data?.members || [];
 
-  const totalPages = Math.ceil((data?.totalCount || 0) / PAGE_SIZE) || 1;
+  // memberList의 첫 번째 요소는 내 정보
+  const myInfo = memberList[0];
+  const isLeader = leaderId === authData?.memberId;
+  const totalPages = Math.ceil((data?.totalMemberCount || 0) / PAGE_SIZE) || 1;
 
   return (
     <section className="flex flex-col gap-300">
-      <span className="font-designer-20b text-text-default">스터디 참가자</span>
+      {/* 리더가 아닌 참가자에게 내 정보 상단에 노출 */}
+      {!isLeader && (
+        <SelfMemberInfo
+          groupStudyId={groupStudyId}
+          leaderId={leaderId}
+          myInfo={myInfo}
+        />
+      )}
+
+      <div className="flex items-center gap-100">
+        <span className="font-designer-20b text-text-default">
+          스터디 참가자
+        </span>
+        <span className="text-text-subtlest font-designer-20b">
+          {data?.totalMemberCount}명
+        </span>
+      </div>
 
       {memberList.length > 0 ? (
         <ul className="flex flex-col gap-200">
-          {memberList.map((member, idx) => (
-            <GroupStudyMemberItem
-              key={`${member.id}-${idx}`}
-              groupStudyId={groupStudyId}
-              leaderId={leaderId}
-              {...member}
-            />
-          ))}
+          {memberList.map((member, idx) => {
+            // 리더가 아닌 참가자는 이미 내 정보가 위에 노출되어 있으므로 제외
+            if (idx === 0 && !isLeader) return null;
+
+            return (
+              <GroupStudyMemberItem
+                key={`${member.id}-${idx}`}
+                groupStudyId={groupStudyId}
+                leaderId={leaderId}
+                {...member}
+              />
+            );
+          })}
         </ul>
       ) : (
         <div className="bg-background-alternative rounded-100 flex h-[640px] flex-col items-center justify-center gap-200">
@@ -69,5 +105,27 @@ export default function GroupStudyMemberList({
         totalPages={totalPages}
       />
     </section>
+  );
+}
+
+function SelfMemberInfo({
+  groupStudyId,
+  leaderId,
+  myInfo,
+}: {
+  groupStudyId: number;
+  leaderId: number;
+  myInfo: GroupStudyMember;
+}) {
+  return (
+    <>
+      <span className="font-designer-20b text-text-default">내 정보</span>
+
+      <GroupStudyMemberItem
+        groupStudyId={groupStudyId}
+        leaderId={leaderId}
+        {...myInfo}
+      />
+    </>
   );
 }

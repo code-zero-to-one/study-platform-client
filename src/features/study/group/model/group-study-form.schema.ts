@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { OpenGroupStudyRequest } from '../api/group-study-types';
+import { GroupStudyFormRequest } from '../api/group-study-types';
 import {
   STUDY_TYPES,
   TARGET_ROLE_OPTIONS,
@@ -11,7 +11,7 @@ import {
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
-export const OpenGroupFormSchema = z.object({
+export const GroupStudyFormSchema = z.object({
   type: z.enum(STUDY_TYPES),
   targetRoles: z
     .array(z.enum(TARGET_ROLE_OPTIONS))
@@ -49,15 +49,18 @@ export const OpenGroupFormSchema = z.object({
   thumbnailExtension: z
     .enum(THUMBNAIL_EXTENSION)
     .refine((val) => val !== 'DEFAULT', '썸네일 이미지를 선택해주세요.'),
+  thumbnailFile: z.instanceof(File).nullable().optional(),
+  thumbnailUrl: z.string().nullable().optional(),
 });
 
 // 사진 상태 저장을 위한 로컬용 state
-export type OpenGroupFormValues = z.input<typeof OpenGroupFormSchema> & {
+export type GroupStudyFormValues = z.input<typeof GroupStudyFormSchema> & {
   thumbnailFile?: File | undefined;
+  thumbnailUrl?: string | undefined;
 };
-export type OpenGroupParsedValues = z.output<typeof OpenGroupFormSchema>;
+export type OpenGroupParsedValues = z.output<typeof GroupStudyFormSchema>;
 
-export function buildOpenGroupDefaultValues(): OpenGroupFormValues {
+export function buildOpenGroupDefaultValues(): GroupStudyFormValues {
   return {
     type: 'PROJECT',
     targetRoles: [],
@@ -79,7 +82,7 @@ export function buildOpenGroupDefaultValues(): OpenGroupFormValues {
 
 export function toOpenGroupRequest(
   v: OpenGroupParsedValues,
-): OpenGroupStudyRequest {
+): GroupStudyFormRequest {
   return {
     basicInfo: {
       type: v.type,

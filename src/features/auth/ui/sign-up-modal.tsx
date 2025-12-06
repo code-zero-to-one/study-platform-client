@@ -10,6 +10,7 @@ import {
   useUploadProfileImageMutation,
 } from '@/features/auth/model/use-auth-mutation';
 import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
+import { getAttributionParams } from '@/utils/attribution-tracker';
 import { hashValue } from '@/utils/hash';
 
 export default function SignupModal({
@@ -29,8 +30,11 @@ export default function SignupModal({
 
   useEffect(() => {
     if (open) {
+      const attributionParams = getAttributionParams();
+
       sendGTMEvent({
         event: 'signup_modal_open',
+        ...attributionParams,
       });
     }
   }, [open]);
@@ -64,10 +68,13 @@ export default function SignupModal({
             setCookie('memberId', memberId);
 
             // 회원가입 GA 이벤트 전송
+            const attributionParams = getAttributionParams();
+
             sendGTMEvent({
               event: 'custom_member_join',
               dl_timestamp: new Date().toISOString(),
               dl_member_id: hashValue(memberId),
+              ...attributionParams,
             });
 
             const formData = new FormData();

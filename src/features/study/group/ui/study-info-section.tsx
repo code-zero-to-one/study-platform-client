@@ -136,7 +136,7 @@ export default function StudyInfoSection({
       },
       {
         label: '시작일자',
-        value: dayjs(basicInfo.createdAt).format('YYYY.MM.DD'),
+        value: dayjs(basicInfo.startDate).format('YYYY.MM.DD'),
         icon: <Clock size={24} color="#A4A7AE" />,
       },
       {
