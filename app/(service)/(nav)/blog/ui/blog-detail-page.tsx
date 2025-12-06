@@ -8,7 +8,7 @@ import { STRAPI_URL } from '@/shared/strapi/api/common-strapi-fetch';
 import { Article } from '@/shared/strapi/api/fetch-articles';
 
 interface BlogDetailPageProps {
-  article: Article & { id: number; documentId: string };
+  article: Article;
   memberId?: number;
 }
 

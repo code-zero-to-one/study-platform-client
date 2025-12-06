@@ -3,7 +3,7 @@ const STRAPI_URL =
 
 // 공통 응답 타입 (flat 구조용)
 export interface StrapiCollectionResponse<T> {
-  data: (T & { id: number; documentId: string })[]; // documentId 추가
+  data: T[]; // documentId 추가
   meta: {
     pagination: {
       page: number;
@@ -16,7 +16,7 @@ export interface StrapiCollectionResponse<T> {
 
 // 단일 아이템 응답 타입
 export interface StrapiSingleResponse<T> {
-  data: (T & { id: number; documentId: string }) | null;
+  data: T | null;
   meta: object;
 }
 

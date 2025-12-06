@@ -24,6 +24,8 @@ export interface Article {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
+  id: number;
+  documentId: string;
 }
 
 // 전체 아티클 목록 조회
