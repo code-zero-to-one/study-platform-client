@@ -24,11 +24,11 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { GroupStudyApplyCreationRequestDto } from '../models';
 // @ts-ignore
-import type { GroupStudyApplyCreationResponseDto } from '../models';
-// @ts-ignore
 import type { GroupStudyApplyProcessRequestDto } from '../models';
 // @ts-ignore
 import type { GroupStudyApplyProcessResponseDto } from '../models';
+// @ts-ignore
+import type { GroupStudyApplyResponse } from '../models';
 // @ts-ignore
 import type { GroupStudyApplyResponseDto } from '../models';
 // @ts-ignore
@@ -332,7 +332,7 @@ export const GroupStudyApplyApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async applyGroupStudy(groupStudyId: number, groupStudyApplyCreationRequestDto: GroupStudyApplyCreationRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyApplyCreationResponseDto>> {
+        async applyGroupStudy(groupStudyId: number, groupStudyApplyCreationRequestDto: GroupStudyApplyCreationRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyApplyResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.applyGroupStudy(groupStudyId, groupStudyApplyCreationRequestDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyApplyApi.applyGroupStudy']?.[localVarOperationServerIndex]?.url;
@@ -428,7 +428,7 @@ export const GroupStudyApplyApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        applyGroupStudy(groupStudyId: number, groupStudyApplyCreationRequestDto: GroupStudyApplyCreationRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyApplyCreationResponseDto> {
+        applyGroupStudy(groupStudyId: number, groupStudyApplyCreationRequestDto: GroupStudyApplyCreationRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyApplyResponse> {
             return localVarFp.applyGroupStudy(groupStudyId, groupStudyApplyCreationRequestDto, options).then((request) => request(axios, basePath));
         },
         /**

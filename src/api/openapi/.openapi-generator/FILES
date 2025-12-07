@@ -88,9 +88,9 @@ docs/GetTodayMyDailyStudyResponseSchema.md
 docs/GrantedTokenInfo.md
 docs/GroupStudyApplyApi.md
 docs/GroupStudyApplyCreationRequestDto.md
-docs/GroupStudyApplyCreationResponseDto.md
 docs/GroupStudyApplyProcessRequestDto.md
 docs/GroupStudyApplyProcessResponseDto.md
+docs/GroupStudyApplyResponse.md
 docs/GroupStudyApplyResponseDto.md
 docs/GroupStudyApplyUpdateRequestDto.md
 docs/GroupStudyApplyUpdateResponseDto.md
@@ -263,10 +263,10 @@ models/get-study-spaces-response-schema.ts
 models/get-today-my-daily-study-response-schema.ts
 models/granted-token-info.ts
 models/group-study-apply-creation-request-dto.ts
-models/group-study-apply-creation-response-dto.ts
 models/group-study-apply-process-request-dto.ts
 models/group-study-apply-process-response-dto.ts
 models/group-study-apply-response-dto.ts
+models/group-study-apply-response.ts
 models/group-study-apply-update-request-dto.ts
 models/group-study-apply-update-response-dto.ts
 models/group-study-basic-info-request-dto.ts
