@@ -16,7 +16,6 @@
     "api:on": "sh ./scripts/setup-backend.sh",
     "api:off": "docker-compose -f ../study-platform-mvp/docker-compose.yml down",
     "api:logs": "docker-compose -f ../study-platform-mvp/docker-compose.yml logs -f mvp-app",
-    "api:swagger": "node scripts/swagger-server.js",
     "api:docs": "npx http-server ./src/api/openapi/docs -p 3001 -o index.html"
   },
   "dependencies": {
@@ -88,14 +87,11 @@
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
     "eslint-plugin-storybook": "^0.12.0",
-    "http-server": "^14.1.1",
     "playwright": "^1.51.1",
     "prettier": "^3.5.1",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "shadcn": "^2.4.0-canary.6",
     "storybook": "^8.6.12",
-    "swagger-ui": "^5.30.3",
-    "swagger-ui-dist": "^5.30.3",
     "typescript": "^5",
     "typescript-eslint": "^8.24.0",
     "vitest": "^3.1.1"
