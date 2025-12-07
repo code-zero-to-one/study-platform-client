@@ -14,6 +14,7 @@ export default async function Page({
 
   // Strapi API에서 데이터 가져오기
   const res = await fetchArticleBySlug(slug);
+  console.log(res);
 
   if (!res.data) {
     notFound();

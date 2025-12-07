@@ -55,20 +55,13 @@ export async function fetchArticles() {
 // 특정 slug로 아티클 조회
 export async function fetchArticleBySlug(slug: string) {
   const query = new URLSearchParams();
-
   // 1. 슬러그 필터
   query.append('filters[slug][$eq]', slug);
 
-  // 2. Populate 설정
-  // 현재 cover를 따로 명시하지 않습니다.
-  // 대신 'populate=*'를 사용하면 최상위 관계(blocks 포함)를 자동으로 가져옵니다.
-  query.append('populate', '*');
+  // 2. Populate 설정: 문제가 되는 blocks만 확인
+  query.append('populate[blocks][populate]', '*'); // 다른 필드 제거 후 테스트
 
-  // 만약 위 설정으로 블록 내부(이미지 등)가 안 보인다면,
-  // 나중에 아래 주석을 풀어서 단계적으로 시도해봐야 합니다.
-  // query.append('populate[blocks][populate]', '*');
-
-  console.log(`Fetching slug: ${slug}, Query: ${query.toString()}`); // 디버깅용 로그
+  console.log(`Fetching slug: ${slug}, Query: ${query.toString()}`);
 
   const response = await strapiFetch<StrapiCollectionResponse<Article>>(
     `/api/articles?${query.toString()}`,
