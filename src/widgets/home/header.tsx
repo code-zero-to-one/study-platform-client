@@ -48,7 +48,7 @@ export default async function Header() {
           <Link href={isLoggedIn ? '/home' : '/login'}>1:1 스터디</Link>
           <Link href="/study">그룹스터디</Link>
           {/* <Link href="/">팀소개하기로 했었구나</Link> */}
-          <Link href="/blog">블로그</Link>
+          <Link href="/insights">인사이트</Link>
         </nav>
 
         {/* 알림 기능을 구현하지 못해 주석 처리 */}

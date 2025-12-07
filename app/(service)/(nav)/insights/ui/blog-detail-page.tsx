@@ -207,7 +207,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
         {/* 목록으로 돌아가기 버튼 */}
         <div className="mb-8">
           <Link
-            href="/blog"
+            href="/insights"
             className="font-designer-16r inline-flex items-center gap-2 text-[#4F46E5] transition-colors hover:text-[#4338CA]"
           >
             ← 목록으로 돌아가기

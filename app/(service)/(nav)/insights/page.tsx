@@ -17,7 +17,7 @@ export default async function BlogPage() {
       <div className="flex flex-1 flex-col gap-500">
         <div className="flex justify-between">
           <span className="font-designer-28b text-[#181D27]">
-            ZERO-ONE 블로그
+            ZERO-ONE 인사이트
           </span>
         </div>
 
@@ -28,7 +28,7 @@ export default async function BlogPage() {
             {articles.map((item) => (
               <li key={item.id}>
                 <Link
-                  href={`/blog/${item.slug}`}
+                  href={`/insights/${item.slug}`}
                   className="rounded-100 flex w-full cursor-pointer justify-between gap-500 border border-solid border-[#D5D7DA] p-400 transition-colors hover:border-[#9CA3AF]"
                 >
                   <div className="flex flex-col justify-between">
