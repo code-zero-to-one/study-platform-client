@@ -16,6 +16,25 @@ interface Media {
 
 // Strapi Article 응답 타입
 export interface Article {
+  category: {
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+    id: number;
+    slug: string;
+    documentId: string;
+    description: string;
+  };
+  author: {
+    name: string;
+    createdAt: string;
+    updatedAt: string;
+    publishedAt: string;
+    id: number;
+    email: string;
+    documentId: string;
+  };
   title: string;
   slug: string;
   description: string;

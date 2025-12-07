@@ -223,6 +223,16 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             {article.description}
           </p>
         )}
+        {article.author && (
+          <p className="font-designer-18r mb-6 text-[#535862]">
+            {article.author.name}
+          </p>
+        )}
+        {article.category && (
+          <p className="font-designer-18r mb-6 text-[#535862]">
+            {article.category.name}
+          </p>
+        )}
 
         <time className="font-designer-14r mb-8 block text-[#9CA3AF]">
           {new Date(article.publishedAt).toLocaleDateString('ko-KR', {
