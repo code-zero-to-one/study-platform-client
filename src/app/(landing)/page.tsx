@@ -115,7 +115,6 @@ export default async function Landing() {
             <div className="pointer-events-none absolute bottom-0 left-0 h-[120px] w-full bg-gradient-to-t from-[#ffffff] to-transparent" />
           </div>
         </section>
-
         {/* 제로원 솔루션 소개 */}
         <section className="flex flex-col items-center gap-500 py-[120px]">
           <Badge className="rounded-200 w-fit">제로원 솔루션</Badge>
@@ -158,7 +157,6 @@ export default async function Landing() {
             ))}
           </ul>
         </section>
-
         {/* 현직 전문가 멘토링, 그룹 스터디, 성실 온도 시스템 */}
         {SUGGESTION_INFO_LIST.map((suggestion) => (
           <section
@@ -194,7 +192,6 @@ export default async function Landing() {
             />
           </section>
         ))}
-
         {/* 우리는 증명합니다 */}
         {/* 전문가 멘토진 */}
         {/* 다양한 스터디 */}
@@ -277,7 +274,7 @@ export default async function Landing() {
         </div>
 
         {/* 사업자 정보 */}
-        <div className="text-text-inverse font-designer-12m flex flex-col items-center gap-100 border-t border-white/20 pt-400 mt-400 w-full">
+        <div className="text-text-inverse font-designer-12m mt-400 flex w-full flex-col items-center gap-100 border-t border-white/20 pt-400">
           <div className="flex flex-wrap items-center justify-center gap-200">
             <span>상호명: 정성컴퍼니</span>
             <span className="text-white/60">|</span>
@@ -290,7 +287,7 @@ export default async function Landing() {
             <span className="text-white/60">|</span>
             <span>사업장 주소: 서울시 강남구 역삼동 620-17 203호</span>
           </div>
-          <div className="text-text-inverse font-designer-11m text-white/80 mt-100">
+          <div className="text-text-inverse font-designer-11m mt-100 text-white/80">
             © 2024 ZERO-ONE. All rights reserved.
           </div>
         </div>
