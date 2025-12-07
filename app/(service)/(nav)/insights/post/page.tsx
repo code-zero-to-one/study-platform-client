@@ -97,7 +97,7 @@ export default function CreateArticlePage() {
   const addQuote = () => {
     setBlocks((prev) => [
       ...prev,
-      { __component: 'shared.quote', quote: '', quoteAuthor: '' },
+      { __component: 'shared.quote', title: '', body: '' },
     ]);
   };
 
@@ -339,30 +339,29 @@ export default function CreateArticlePage() {
                 />
               )}
 
-              {/* Quote */}
               {block.__component === 'shared.quote' && (
                 <>
                   <input
                     className="w-full border p-2"
-                    placeholder="Quote"
-                    value={block.quote}
+                    placeholder="Quote Title"
+                    value={block.title}
                     onChange={(e) =>
                       setBlocks((prev) =>
                         prev.map((b, idx) =>
-                          idx === i ? { ...b, quote: e.target.value } : b,
+                          idx === i ? { ...b, title: e.target.value } : b,
                         ),
                       )
                     }
                   />
 
-                  <input
+                  <textarea
                     className="w-full border p-2"
-                    placeholder="Quote Author"
-                    value={block.quoteAuthor}
+                    placeholder="Quote Body"
+                    value={block.body}
                     onChange={(e) =>
                       setBlocks((prev) =>
                         prev.map((b, idx) =>
-                          idx === i ? { ...b, quoteAuthor: e.target.value } : b,
+                          idx === i ? { ...b, body: e.target.value } : b,
                         ),
                       )
                     }
