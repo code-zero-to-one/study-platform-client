@@ -9,7 +9,7 @@ npm run api:swagger
 ```
 
 - 포트: http://localhost:3001
-- 기능: 
+- 기능:
   - 🔍 API 엔드포인트 검색
   - 📝 Request/Response 예제 확인
   - 🧪 API 테스트 (백엔드 서버 필요)
@@ -29,10 +29,12 @@ npm run api:docs
 ## 방법 3️⃣: VSCode에서 바로 보기
 
 **확장 프로그램 설치:**
+
 - `OpenAPI (Swagger) Editor` - VSCode Extension
 - `ReDoc` - VSCode Extension
 
 **사용:**
+
 ```bash
 # .vscode/extensions.json에 추천
 {
@@ -52,6 +54,7 @@ npm run api:on  # 백엔드 Docker 시작
 ```
 
 그 후 백엔드 Swagger UI 접속:
+
 - `http://localhost:8080/swagger-ui.html` (Spring Boot)
 
 ---
@@ -69,17 +72,20 @@ npm run api:on  # 백엔드 Docker 시작
 ## 🔧 개발 팁
 
 ### API 타입 확인
+
 ```typescript
 // IDE에서 자동완성 지원
 import { AdminApi, StudyApi } from '@/api/openapi';
 ```
 
 ### 모델/DTO 타입 확인
+
 ```typescript
 import type { GroupStudyBasicInfoResponseDto } from '@/api/openapi/models';
 ```
 
 ### 가용 시간 조회
+
 ```typescript
 import type { AvailableStudyTimeDto } from '@/api/openapi/models';
 ```
