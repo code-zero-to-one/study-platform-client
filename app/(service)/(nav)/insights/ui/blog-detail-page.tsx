@@ -6,6 +6,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { STRAPI_URL } from '@/shared/strapi/api/common-strapi-fetch';
 import { Article } from '@/shared/strapi/api/fetch-articles';
+import rehypeRaw from 'rehype-raw';
 
 interface BlogDetailPageProps {
   article: Article & { id: number; documentId: string };
@@ -118,9 +119,12 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       // Case B: 문자열 데이터 (Markdown)
       return (
         <div key={index} className="blog-content-markdown">
-          {/* ReactMarkdown 안에서 에러가 나지 않도록 데이터가 있을 때만 렌더링 */}
           {block.body ? (
-            <ReactMarkdown components={MarkdownComponents}>
+            <ReactMarkdown
+              components={MarkdownComponents}
+              // Markdown 내부에 있는 <u>, <span>, <br> 등의 HTML 태그를 파싱하고 렌더링하도록 허용
+              rehypePlugins={[rehypeRaw]}
+            >
               {block.body}
             </ReactMarkdown>
           ) : null}
