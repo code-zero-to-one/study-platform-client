@@ -84,15 +84,13 @@ export default function SignupModal({
   };
 
   const handleComplete = () => {
-    // console.log('Signup Completed:', signupData);
-
     const imageExtension = signupData.file?.name.split('.').pop()?.toUpperCase() || 'JPG';
     
-    // API 스펙에 맞게 enum 값으로 변환
-    const jobEnum = signupData.job ? JOB_OPTIONS.find((option) => option.value === signupData.job)?.label : undefined;
-    const careerEnum = signupData.career ? CAREER_OPTIONS.find((option) => option.value === signupData.career)?.label : undefined;
+    // API 스펙에 맞게 enum 값으로 변환 (이미 enum 값이므로 그대로 사용)
+    const jobEnum = signupData.job; // 이미 enum 값
+    const careerEnum = signupData.career; // 이미 enum 값
     const studyFormatTypes = signupData.studyFormatTypes.length > 0
-      ? signupData.studyFormatTypes.map((type: string) => STUDY_FORMAT_TYPES_OPTIONS.find((option) => option.value === type)?.value).filter(Boolean)
+      ? signupData.studyFormatTypes // 이미 enum 값 배열
       : undefined;
 
     const signUpPayload: SignUpRequest = {
