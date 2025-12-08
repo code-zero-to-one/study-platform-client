@@ -25,10 +25,10 @@ export const CAREER_OPTIONS = [
   { label: '시니어', value: '시니어' },
 ];
 
-export const STUDY_TYPE_OPTIONS = [
-  '프로젝트',
-  '멘토링',
-  '세미나',
-  '챌린지',
-  '책/강의',
+export const STUDY_FORMAT_TYPES_OPTIONS = [
+  { label: '프로젝트', value: 'PROJECT' },
+  { label: '멘토링', value: 'MENTORING' },
+  { label: '세미나', value: 'SEMINAR' },
+  { label: '챌린지', value: 'CHALLENGE' },
+  { label: '책/강의', value: 'BOOK_STUDY' },
 ];
