@@ -2,6 +2,9 @@ import Link from 'next/link';
 import { getServerCookie } from '@/shared/lib/server-cookie';
 import { fetchArticles } from '@/shared/strapi/api/fetch-articles';
 import Sidebar from '@/widgets/home/sidebar';
+import Image from 'next/image';
+
+import { STRAPI_URL } from '@/shared/strapi/api/common-strapi-fetch';
 
 export const revalidate = 60;
 
@@ -11,6 +14,7 @@ export default async function BlogPage() {
 
   const res = await fetchArticles();
   const articles = res.data ?? [];
+  console.log(articles);
 
   return (
     <div className="flex w-full gap-600 py-600">
@@ -33,6 +37,14 @@ export default async function BlogPage() {
                 >
                   <div className="flex flex-col justify-between">
                     <div className="flex flex-col gap-100">
+                      {item.cover?.url && (
+                        <Image
+                          src={`${STRAPI_URL}${item.cover?.url}`}
+                          alt={item.title}
+                          width={100}
+                          height={100}
+                        />
+                      )}
                       <span className="font-designer-18b max-w-[346px] truncate text-[#252B37]">
                         {item.title}
                       </span>
