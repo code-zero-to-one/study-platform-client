@@ -30,6 +30,7 @@ export interface Article {
     id: number;
     email: string;
     documentId: string;
+    avatar?: Media;
   };
   title: string;
   slug: string;
@@ -77,13 +78,14 @@ export async function fetchCategories() {
 // 특정 slug로 아티클 조회
 export async function fetchArticleBySlug(slug: string) {
   const query = new URLSearchParams();
-  // 1. 슬러그 필터
+  // 슬러그 필터
   query.append('filters[slug][$eq]', slug);
-
-  // 2. Populate 설정: 문제가 되는 blocks만 확인
-  query.append('populate[blocks][populate]', '*'); // 다른 필드 제거 후 테스트
-
-  console.log(`Fetching slug: ${slug}, Query: ${query.toString()}`);
+  // 전체 필드 populate (category, author, cover, blocks 모두 포함)
+  query.append('populate[0]', 'category');
+  query.append('populate[1]', 'cover');
+  query.append('populate[2]', 'blocks');
+  query.append('populate[3]', 'author');
+  query.append('populate[4]', 'author.avatar');
 
   const response = await strapiFetch<StrapiCollectionResponse<Article>>(
     `/api/articles?${query.toString()}`,

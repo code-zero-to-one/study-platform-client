@@ -79,15 +79,15 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {articles.length === 0 ? (
           <p className="text-gray-500">아직 등록된 글이 없습니다.</p>
         ) : (
-          <ul className="space-y-400">
+          <ul className="space-y-200">
             {articles.map((item) => (
               <li key={item.id}>
                 <Link
                   href={`/insights/${item.slug}`}
-                  className="rounded-100 flex w-full cursor-pointer gap-500 border border-solid border-[#D5D7DA] p-400 transition-colors hover:border-[#9CA3AF]"
+                  className="rounded-100 flex w-full cursor-pointer gap-400 border border-solid border-[#D5D7DA] p-300 transition-colors hover:border-[#9CA3AF]"
                 >
                   {/* 왼쪽: 텍스트 콘텐츠 */}
-                  <div className="flex flex-1 flex-col justify-between gap-200">
+                  <div className="flex flex-1 flex-col justify-between gap-150">
                     {/* 카테고리 */}
                     {item.category && (
                       <span className="font-designer-13r text-[#9CA3AF]">
