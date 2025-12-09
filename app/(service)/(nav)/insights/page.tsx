@@ -1,20 +1,43 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { getServerCookie } from '@/shared/lib/server-cookie';
-import { fetchArticles } from '@/shared/strapi/api/fetch-articles';
-import Sidebar from '@/widgets/home/sidebar';
-import Image from 'next/image';
-
 import { STRAPI_URL } from '@/shared/strapi/api/common-strapi-fetch';
+import {
+  fetchArticles,
+  fetchCategories,
+} from '@/shared/strapi/api/fetch-articles';
+import Sidebar from '@/widgets/home/sidebar';
 
 export const revalidate = 60;
 
-export default async function BlogPage() {
+// 날짜 포맷팅 함수
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}.${month}.${day}`;
+}
+
+interface BlogPageProps {
+  searchParams: Promise<{ category?: string }>;
+}
+
+export default async function BlogPage({ searchParams }: BlogPageProps) {
   const memberIdStr = await getServerCookie('memberId');
   const isLoggedIn = !!memberIdStr;
 
-  const res = await fetchArticles();
-  const articles = res.data ?? [];
-  console.log(articles);
+  const { category: selectedCategorySlug } = await searchParams;
+
+  // 카테고리 목록과 아티클 목록을 병렬로 가져오기
+  const [categoriesRes, articlesRes] = await Promise.all([
+    fetchCategories(),
+    fetchArticles(selectedCategorySlug),
+  ]);
+
+  const categories = categoriesRes.data ?? [];
+  const articles = articlesRes.data ?? [];
 
   return (
     <div className="flex w-full gap-600 py-600">
@@ -25,34 +48,77 @@ export default async function BlogPage() {
           </span>
         </div>
 
+        {/* 카테고리 탭 */}
+        <div className="flex gap-200 border-b border-[#D5D7DA]">
+          <Link
+            href="/insights"
+            className={`px-300 pb-200 transition-colors ${
+              !selectedCategorySlug
+                ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
+                : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
+            }`}
+          >
+            전체
+          </Link>
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/insights?category=${category.slug}`}
+              className={`px-300 pb-200 transition-colors ${
+                selectedCategorySlug === category.slug
+                  ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
+                  : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
+              }`}
+            >
+              {category.name}
+            </Link>
+          ))}
+        </div>
+
+        {/* 아티클 목록 */}
         {articles.length === 0 ? (
           <p className="text-gray-500">아직 등록된 글이 없습니다.</p>
         ) : (
-          <ul className="space-y-4">
+          <ul className="space-y-400">
             {articles.map((item) => (
               <li key={item.id}>
                 <Link
                   href={`/insights/${item.slug}`}
-                  className="rounded-100 flex w-full cursor-pointer justify-between gap-500 border border-solid border-[#D5D7DA] p-400 transition-colors hover:border-[#9CA3AF]"
+                  className="rounded-100 flex w-full cursor-pointer gap-500 border border-solid border-[#D5D7DA] p-400 transition-colors hover:border-[#9CA3AF]"
                 >
-                  <div className="flex flex-col justify-between">
-                    <div className="flex flex-col gap-100">
-                      {item.cover?.url && (
-                        <Image
-                          src={`${STRAPI_URL}${item.cover?.url}`}
-                          alt={item.title}
-                          width={100}
-                          height={100}
-                        />
-                      )}
-                      <span className="font-designer-18b max-w-[346px] truncate text-[#252B37]">
-                        {item.title}
+                  {/* 왼쪽: 텍스트 콘텐츠 */}
+                  <div className="flex flex-1 flex-col justify-between gap-200">
+                    {/* 카테고리 */}
+                    {item.category && (
+                      <span className="font-designer-13r text-[#9CA3AF]">
+                        {item.category.name}
                       </span>
-                      <p className="font-designer-15r line-clamp-2 max-w-[346px] text-[#535862]">
-                        {item.description}
-                      </p>
-                    </div>
+                    )}
+                    {/* 제목 */}
+                    <span className="font-designer-18b text-[#252B37]">
+                      {item.title}
+                    </span>
+                    {/* Description */}
+                    <p className="font-designer-15r line-clamp-2 text-[#535862]">
+                      {item.description}
+                    </p>
+                    {/* 생성일 */}
+                    <span className="font-designer-13r text-[#9CA3AF]">
+                      {formatDate(item.createdAt)}
+                    </span>
                   </div>
+
+                  {/* 오른쪽: 커버 이미지 */}
+                  {item.cover?.url && (
+                    <div className="rounded-100 relative h-[120px] w-[120px] flex-shrink-0 overflow-hidden">
+                      <Image
+                        src={`${STRAPI_URL}${item.cover.url}`}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
                 </Link>
               </li>
             ))}

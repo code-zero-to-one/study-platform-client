@@ -1,8 +1,4 @@
-import {
-  StrapiCollectionResponse,
-  StrapiSingleResponse,
-  strapiFetch,
-} from './common-strapi-fetch';
+import { StrapiCollectionResponse, strapiFetch } from './common-strapi-fetch';
 
 // Media 타입
 interface Media {
@@ -45,10 +41,36 @@ export interface Article {
   publishedAt: string;
 }
 
+// Category 타입
+export interface Category {
+  id: number;
+  documentId: string;
+  name: string;
+  slug: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+}
+
 // 전체 아티클 목록 조회
-export async function fetchArticles() {
+export async function fetchArticles(categorySlug?: string) {
+  const query = new URLSearchParams();
+  query.append('populate', '*');
+
+  if (categorySlug) {
+    query.append('filters[category][slug][$eq]', categorySlug);
+  }
+
   return strapiFetch<StrapiCollectionResponse<Article>>(
-    '/api/articles?populate=*',
+    `/api/articles?${query.toString()}`,
+  );
+}
+
+// 카테고리 목록 조회
+export async function fetchCategories() {
+  return strapiFetch<StrapiCollectionResponse<Category>>(
+    '/api/categories?populate=*',
   );
 }
 
