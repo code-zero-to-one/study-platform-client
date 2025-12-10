@@ -1,5 +1,4 @@
 # 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.10.30 이후)
-#
 
 name: Front Test Server (Develop)
 
@@ -52,7 +51,7 @@ jobs:
 
       - name: 서버 배포
         run: |
-          ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }} << EOF
+          ssh -p 9822 -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_USER }}@${{ secrets.LIGHTSAIL_HOST }} << EOF
             
             echo "사용하지 않는 컨테이너, 이미지, 네트워크 정리 중 (볼륨제외)..."
             sudo docker stop frontend-dev || true
