@@ -38,7 +38,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       const imageUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
 
       return (
-        <span className="my-10 flex justify-center">
+        <span className="my-200 flex justify-center">
           <Image
             src={imageUrl}
             alt={alt || 'Article Content Image'}
@@ -51,33 +51,33 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
     },
     // 문단 (p)
     p: ({ children }: any) => (
-      <p className="font-designer-16r mb-6 leading-8 text-[#333D4B]">
+      <p className="font-designer-16r mb-400 leading-8 text-[#333D4B]">
         {children}
       </p>
     ),
     // 제목 (h1 ~ h5)
     h1: ({ children }: any) => (
-      <h1 className="mt-16 mb-6 text-3xl leading-tight font-bold text-[#181D27]">
+      <h1 className="mt-16 mb-200 text-3xl leading-tight font-bold text-[#181D27]">
         {children}
       </h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="mt-14 mb-5 text-2xl leading-tight font-bold text-[#181D27]">
+      <h2 className="mt-14 mb-200 text-2xl leading-tight font-bold text-[#181D27]">
         {children}
       </h2>
     ),
     h3: ({ children }: any) => (
-      <h3 className="mt-12 mb-4 text-xl leading-tight font-bold text-[#181D27]">
+      <h3 className="mt-12 mb-200 text-xl leading-tight font-bold text-[#181D27]">
         {children}
       </h3>
     ),
     h4: ({ children }: any) => (
-      <h4 className="mt-10 mb-4 text-lg leading-tight font-bold text-[#181D27]">
+      <h4 className="mt-10 mb-200 text-lg leading-tight font-bold text-[#181D27]">
         {children}
       </h4>
     ),
     h5: ({ children }: any) => (
-      <h5 className="mt-8 mb-3 text-base leading-tight font-bold text-[#181D27]">
+      <h5 className="mt-8 mb-200 text-base leading-tight font-bold text-[#181D27]">
         {children}
       </h5>
     ),
@@ -95,7 +95,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
     ),
     // 인용구
     blockquote: ({ children }: any) => (
-      <blockquote className="my-8 border-l-4 border-[#4F46E5] bg-[#F5F3FF] p-6 leading-8 text-[#535862] italic">
+      <blockquote className="my-8 border-l-4 border-[var(--color-rose-500)] bg-[var(--color-rose-200)] p-6 leading-8 text-[#535862] italic">
         {children}
       </blockquote>
     ),
@@ -105,7 +105,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-blue-600 hover:underline"
+        className="text-[var(--color-rose-500)] hover:underline"
       >
         {children}
       </a>
@@ -162,7 +162,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       return (
         <blockquote
           key={index}
-          className="my-8 rounded-r-lg border-l-4 border-[#4F46E5] bg-[#F5F3FF] p-6"
+          className="my-8 rounded-r-lg border-l-4 border-[var(--color-rose-500)] bg-[var(--color-rose-100)] p-6"
         >
           {block.title && (
             <p className="font-designer-18b mb-3 leading-8 text-[#333D4B]">
@@ -295,7 +295,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
           <div className="p-300">
             {/* 카테고리 버튼 */}
             {article.category && (
-              <div className="mb-2.5">
+              <div className="mb-100">
                 <Link
                   href={`/insights?category=${article.category.slug}`}
                   className="font-designer-15b inline-flex h-8 items-center justify-center gap-2 rounded-full bg-transparent px-3 text-[#535862] transition-colors hover:bg-[#F3F4F6]"
@@ -306,7 +306,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             )}
 
             {/* 제목 */}
-            <h1 className="font-designer-32b mb-2.5 leading-tight text-[#181D27]">
+            <h1 className="font-designer-32b mb-100 leading-tight text-[#181D27]">
               {article.title}
             </h1>
 
