@@ -339,8 +339,19 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
         {/* 저자 영역 카드 */}
         {article.author && (
-          <div className="rounded-100 flex items-center justify-between border border-solid border-[#D5D7DA] p-300">
-            <div className="flex flex-col gap-1">
+          <div className="rounded-100 flex items-center border border-solid border-[#D5D7DA] p-300">
+            {article.author.avatar?.url && (
+              <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full">
+                <Image
+                  src={`${STRAPI_URL}${article.author.avatar.url}`}
+                  alt={article.author.name || ''}
+                  width={80}
+                  height={80}
+                  className="object-cover"
+                />
+              </div>
+            )}
+            <div className="ml-100 flex flex-col gap-1">
               <span className="font-designer-20b text-[#181D27]">
                 {article.author.name}
               </span>
@@ -350,16 +361,6 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
                 </span>
               )}
             </div>
-            {article.author.avatar?.url && (
-              <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full">
-                <Image
-                  src={`${STRAPI_URL}${article.author.avatar.url}`}
-                  alt={article.author.name || ''}
-                  fill
-                  className="object-cover"
-                />
-              </div>
-            )}
           </div>
         )}
       </article>
