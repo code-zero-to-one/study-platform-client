@@ -80,12 +80,10 @@ export async function fetchArticleBySlug(slug: string) {
   const query = new URLSearchParams();
   // 슬러그 필터
   query.append('filters[slug][$eq]', slug);
-  // 전체 필드 populate (category, author, cover, blocks 모두 포함)
-  query.append('populate[0]', 'category');
-  query.append('populate[1]', 'cover');
-  query.append('populate[2]', 'blocks');
-  query.append('populate[3]', 'author');
-  query.append('populate[4]', 'author.avatar');
+  query.append('populate[category][populate]', '*');
+  query.append('populate[cover][populate]', '*');
+  query.append('populate[blocks][populate]', '*');
+  query.append('populate[author][populate]', '*');
 
   const response = await strapiFetch<StrapiCollectionResponse<Article>>(
     `/api/articles?${query.toString()}`,
