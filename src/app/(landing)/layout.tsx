@@ -7,44 +7,31 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
 import MainProvider from '@/providers';
-import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
+import {
+  generateMetadata as generateSEOMetadata,
+  getOrganizationSchema,
+  getWebsiteSchema,
+} from '@/utils/seo';
 import Header from '@/widgets/home/header';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = generateSEOMetadata({
   title: 'ZERO-ONE - 1:1 기상 스터디 플랫폼',
   description:
-    '매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼. 현직 멘토와 함께 성장하세요.',
-  keywords: ['스터디', '기상', '멘토링', '1:1 스터디', '개발자', '면접 준비'],
-  icons: {
-    icon: '/favicon.ico',
-  },
-  robots: {
-    index: true,
-    follow: true,
-    'max-image-preview': 'large',
-    'max-snippet': -1,
-    'max-video-preview': -1,
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'ko_KR',
-    url: 'https://www.zeroone.it.kr',
-    siteName: 'ZERO-ONE',
-    title: 'ZERO-ONE - 1:1 기상 스터디 플랫폼',
-    description: '매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼',
-    images: [
-      {
-        url: 'https://www.zeroone.it.kr/images/banner.png',
-        width: 1200,
-        height: 630,
-        alt: 'ZERO-ONE',
-      },
-    ],
-  },
-  alternates: {
-    canonical: 'https://www.zeroone.it.kr',
-  },
-};
+    '매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼. 현직 멘토와 함께 성장 로드맵을 구성하고, 그룹 스터디로 협업 경험을 쌓으세요.',
+  path: '/',
+  ogImage: 'https://www.zeroone.it.kr/images/og-image.png',
+  keywords: [
+    '스터디',
+    '기상',
+    '멘토링',
+    '1:1 스터디',
+    '개발자',
+    '면접 준비',
+    '개발자 커뮤니티',
+    '성장',
+  ],
+  canonicalUrl: 'https://www.zeroone.it.kr/',
+});
 
 const pretendard = localFont({
   src: '../../../public/fonts/PretendardVariable.woff2',
