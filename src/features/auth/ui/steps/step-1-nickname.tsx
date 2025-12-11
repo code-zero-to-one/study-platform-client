@@ -77,7 +77,10 @@ export function NicknameStep({ data, updateData, onNext }: any) {
                 이용약관 및 개인정보 처리방침 동의
               </span>
               <button
-                onClick={() => window.open('https://www.notion.so/gaan/29bfbb391d7980fba669f8d4de741021', '_blank')}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    window.open('https://www.notion.so/gaan/29bfbb391d7980fba669f8d4de741021', '_blank');
+                }}
                 className="font-designer-14m text-text-subtlest hover:text-text-subtle underline underline-offset-4 py-100 transition-colors"
               >
                 보기

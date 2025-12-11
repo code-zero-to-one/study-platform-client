@@ -1,8 +1,8 @@
 export const JOB_OPTIONS = [
-  { label: 'IT 노베이스 - 비지니스/창업', value: 'IT_NOBASE_BUSINESS' },
+  { label: 'IT 노베이스 - 비지니스/창업', value: 'IT_NOBASE_STARTUP' },
   { label: 'IT 노베이스 - 업무 자동화', value: 'IT_NOBASE_AUTOMATION' },
   { label: 'IT 노베이스 - 내 서비스 개발', value: 'IT_NOBASE_MY_SERVICE' },
-  { label: 'IT 실무자 - PM/PO/기획', value: 'IT_PRACTITIONER_PM_PO_PLANNER' },
+  { label: 'IT 실무자 - PM/PO/기획', value: 'IT_PRACTITIONER_PM_PO_PLANNING' },
   { label: 'IT 실무자 - 프론트엔드', value: 'IT_PRACTITIONER_FRONTEND' },
   { label: 'IT 실무자 - 백엔드', value: 'IT_PRACTITIONER_BACKEND' },
   { label: 'IT 실무자 - AI/머신러닝', value: 'IT_PRACTITIONER_AI_ML' },
