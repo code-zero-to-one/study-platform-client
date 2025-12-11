@@ -175,6 +175,12 @@ npm run prettier:fix
 
 ## 🔧 개발 가이드
 
+### OpenAPI 사용 가이드
+
+OpenAPI Generator로 생성된 클라이언트 사용법과 환경변수 설정은 다음 문서를 참고하세요:
+
+- [docs/openapi-usage.md](docs/openapi-usage.md)
+
 ### 새로운 컴포넌트 추가
 
 1. **적절한 분류 선택** (ui / layout / common / features / admin)
