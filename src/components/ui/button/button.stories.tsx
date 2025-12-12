@@ -9,7 +9,7 @@ const meta: Meta<typeof Button> = {
   argTypes: {
     color: {
       control: { type: 'select' },
-      options: ['primary', 'secondary'],
+      options: ['primary', 'secondary', 'outlined'],
     },
     size: {
       control: { type: 'select' },
@@ -44,6 +44,14 @@ export const Secondary: Story = {
   args: {
     children: 'Secondary 버튼',
     color: 'secondary',
+    size: 'medium',
+  },
+};
+
+export const Outlined: Story = {
+  args: {
+    children: 'Outlined 버튼',
+    color: 'outlined',
     size: 'medium',
   },
 };
