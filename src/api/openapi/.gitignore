@@ -8,6 +8,4 @@ dist
 .openapi-generator-ignore
 git_push.sh
 
-# 자동생성된 메인 API 파일 (api/ 폴더의 파일들로 대체됨)
-api.ts
 
