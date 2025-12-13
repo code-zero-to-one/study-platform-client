@@ -175,6 +175,12 @@ npm run prettier:fix
 
 ## 🔧 개발 가이드
 
+### OpenAPI 사용 가이드
+
+OpenAPI Generator로 생성된 클라이언트 사용법과 환경변수 설정은 다음 문서를 참고하세요:
+
+- [docs/openapi-usage.md](docs/openapi-usage.md)
+
 ### 새로운 컴포넌트 추가
 
 1. **적절한 분류 선택** (ui / layout / common / features / admin)
@@ -382,3 +388,41 @@ npm run build-storybook
 # Chromatic 배포
 npm run chromatic
 ```
+
+---
+
+## 🔗 주요 리소스 및 링크
+
+### 📌 커뮤니케이션 & 협업
+
+| 플랫폼      | 링크                                                                                                         | 용도                              |
+| ----------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------- |
+| **Discord** | [온라인 회의 채널](https://discord.com/channels/1139603309246828554/1384082110947655782)                     | 온라인 회의 장소 (전체)           |
+| **Slack**   | [초대 링크](https://join.slack.com/t/goodmorning-cs-study/shared_invite/zt-376x9ja4h-Ww6vbT3SfvsEZF~OPynswg) | 커뮤니케이션 전반, 회의 요약 공유 |
+| **Jira**    | [작업 관리](https://code-zero-to-one.atlassian.net/jira/software/projects/QNRR/boards/4/timeline)            | 작업 일정 및 이슈 관리            |
+
+### 💻 개발 리소스
+
+| 리소스                  | 링크                                                                                                               | 용도                       |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------- |
+| **Github (프론트엔드)** | [study-platform-client](https://github.com/code-zero-to-one/study-platform-client/discussions)                     | 코드 저장소, PR, 코드리뷰  |
+| **Github (백엔드)**     | [study-platform-mvp](https://github.com/code-zero-to-one/study-platform-mvp/discussions)                           | 백엔드 API 저장소          |
+| **Notion (설계문서)**   | [기획 & 설계](https://www.notion.so/gaan/13efbb391d7980cea50fc6864d60f4f7?p=1f4fbb391d79803e8ebbf4cc69e676b2&pm=s) | 화면정의, 기능명세, ERD 등 |
+| **Backend 개발문서**    | [Notion](https://www.notion.so/gaan/1c8d60669f1a47568edc8f960c6f8ac7?pvs=4)                                        | API 문서 / 개발 가이드     |
+
+### 🎨 디자인 & UI
+
+| 리소스        | 링크                                                                                                                                   | 용도                         |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| **Figma**     | [Design System & Ready for Dev](https://www.figma.com/files/team/1484794295279518167/project/355437950/zeros?fuid=1310644189038769508) | 디자인 시스템, 개발용 가이드 |
+| **Storybook** | [Chromatic](https://www.chromatic.com/builds?appId=67fe01503649b6b099af8e4e)                                                           | 프론트 컴포넌트 확인 페이지  |
+
+### 🚀 배포 & 테스트 서버
+
+| 환경              | 링크                                                              | 상태                     |
+| ----------------- | ----------------------------------------------------------------- | ------------------------ |
+| **프론트 테스트** | [test.zeroone.it.kr](https://test.zeroone.it.kr)                  | develop 브랜치 자동 배포 |
+| **프론트 운영**   | https://www.zeroone.it.kr                                         | 예정                     |
+| **백엔드 테스트** | [test-api.zeroone.it.kr](https://test-api.zeroone.it.kr)          | dev 브랜치 자동 배포     |
+| **백엔드 운영**   | https://api.zeroone.it.kr                                         | main 브랜치 자동 배포    |
+| **API 문서**      | [Swagger UI](http://test-api.zeroone.it.kr/swagger-ui/index.html) | 백엔드 API 명세서        |
