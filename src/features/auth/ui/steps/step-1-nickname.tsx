@@ -1,25 +1,40 @@
 // 1. 닉네임 입력 단계
 import { useState, useRef, useEffect } from 'react';
 import { StepHeader } from './step-header';
-import { Hand, Check } from 'lucide-react';
+import { Hand, Check, Loader2 } from 'lucide-react';
 import { cn } from '@/shared/shadcn/lib/utils';
 import { BaseInput } from '@/shared/ui/input';
+import { useDebounce } from '@/shared/lib/debounce';
+import { useNicknameCheckQuery } from '../../model/use-nickname-check';
 import SignupImageSelector from '../sign-up-image-selector';
 
 export function NicknameStep({ data, updateData, onNext }: any) {
     const [checked, setChecked] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const isValidName = /^[가-힣a-zA-Z]{2,10}$/.test(data.nickname);
+    
+    // 닉네임 debounce (500ms)
+    const debouncedNickname = useDebounce(data.nickname, 500);
+    
+    // 닉네임 중복 체크 (유효한 형식일 때만)
+    const { data: nicknameCheck, isLoading: isCheckingNickname } = useNicknameCheckQuery(
+      debouncedNickname,
+      isValidName && debouncedNickname.length >= 2
+    );
+    
+    // 닉네임 사용 가능 여부
+    const isNicknameAvailable = nicknameCheck?.available ?? true;
+    const showNicknameError = isValidName && debouncedNickname === data.nickname && nicknameCheck && !isNicknameAvailable;
   
     useEffect(() => {
-      if (isValidName && checked) {
+      if (isValidName && checked && isNicknameAvailable && !isCheckingNickname) {
         const timer = setTimeout(() => {
           onNext();
         }, 300);
 
         return () => clearTimeout(timer);
       }
-    }, [isValidName, checked, onNext]);
+    }, [isValidName, checked, isNicknameAvailable, isCheckingNickname, onNext]);
   
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files && e.target.files[0]) {
@@ -46,21 +61,44 @@ export function NicknameStep({ data, updateData, onNext }: any) {
   
           <div className="w-full max-w-[320px] flex flex-col gap-200">
             <div className="flex flex-col gap-75">
-              <BaseInput
-                autoFocus
-                type="text"
-                value={data.nickname}
-                onChange={(e) => updateData('nickname', e.target.value)}
-                placeholder="닉네임을 입력해주세요"
-                className="text-center"
-                maxLength={10}
-                color={isValidName || !data.nickname ? 'default' : 'error'}
-              />
+              <div className="relative">
+                <BaseInput
+                  autoFocus
+                  type="text"
+                  value={data.nickname}
+                  onChange={(e) => updateData('nickname', e.target.value)}
+                  placeholder="닉네임을 입력해주세요"
+                  className="text-center"
+                  maxLength={10}
+                  color={
+                    showNicknameError
+                      ? 'error'
+                      : isValidName || !data.nickname
+                        ? 'default'
+                        : 'error'
+                  }
+                />
+                {isValidName && data.nickname && isCheckingNickname && (
+                  <div className="absolute right-100 top-1/2 -translate-y-1/2">
+                    <Loader2 className="text-text-subtle animate-spin" size={16} />
+                  </div>
+                )}
+              </div>
               <p className={cn(
-                "font-designer-13r text-center transition-all h-[20px]",
-                isValidName || !data.nickname ? "text-text-subtlest" : "text-text-error"
+                "font-designer-13r text-center transition-all min-h-[20px]",
+                showNicknameError || (!isValidName && data.nickname)
+                  ? "text-text-error"
+                  : isValidName && isNicknameAvailable && !isCheckingNickname
+                    ? "text-text-success"
+                    : "text-text-subtlest"
               )}>
-                {(!isValidName && data.nickname) ? "2~10자 이내의 한글/영문만 가능해요" : "2~10자 이내의 한글/영문"}
+                {showNicknameError
+                  ? "이미 사용 중인 닉네임이에요"
+                  : (!isValidName && data.nickname)
+                    ? "2~10자 이내의 한글/영문만 가능해요"
+                    : isValidName && isNicknameAvailable && !isCheckingNickname && data.nickname
+                      ? "사용 가능한 닉네임이에요"
+                      : "2~10자 이내의 한글/영문"}
               </p>
             </div>
   
