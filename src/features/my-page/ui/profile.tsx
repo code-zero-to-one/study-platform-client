@@ -13,6 +13,7 @@ import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
+import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
 import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
@@ -32,17 +33,22 @@ export default function Profile({
 }: ProfileProps) {
   const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
 
-  // Zustand 스토어 사용 (기능 복구)
-  const { isVerified, phoneNumber, setVerified } = usePhoneVerificationStore();
+  // Zustand 스토어 사용 
+  const { isVerified, phoneNumber, setVerified, reset } = usePhoneVerificationStore();
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
-  // 초기 데이터가 있다면 상태 업데이트 (실제 환경에서는 서버 데이터 우선)
+  // 서버 데이터를 우선시: 서버에 전화번호가 있으면 인증된 것으로 간주, 없으면 스토어 초기화
   useEffect(() => {
-    if (memberProfile.tel && !isVerified) {
+    if (memberProfile.tel) {
       // 서버에 전화번호가 있으면 인증된 것으로 간주
-      setVerified(memberProfile.tel);
+      if (!isVerified || phoneNumber !== memberProfile.tel) {
+        setVerified(memberProfile.tel);
+      }
+    } else {
+      // 서버에 전화번호가 없으면 스토어 초기화 (로컬 스토리지에 남아있는 이전 값 제거)
+      reset();
     }
-  }, [memberProfile.tel, isVerified, setVerified]);
+  }, [memberProfile.tel, isVerified, phoneNumber, setVerified, reset]);
 
   const handleVerificationComplete = (phone: string) => {
     setVerified(phone);
@@ -76,7 +82,13 @@ export default function Profile({
                 ))}
               </div>
               <div className="font-designer-28b flex flex-row items-end justify-between gap-100">
-                {memberProfile.nickname ?? '닉네임을 입력해주세요'}
+                <div className="flex items-center gap-50">
+                  {memberProfile.nickname ?? '닉네임을 입력해주세요'}
+                  {/* 본인 인증 배지 (트위터 스타일) */}
+                  {!hidePhoneNumber && (isVerified || !!memberProfile.tel) && (
+                    <VerifiedCheckIcon className="shrink-0" />
+                  )}
+                </div>
                 {/* 전화번호 - 인증 완료 시에만 표시 (hidePhoneNumber가 true면 숨김) */}
                 {!hidePhoneNumber && isVerified && phoneNumber && (
                   <div className="flex flex-col items-end">

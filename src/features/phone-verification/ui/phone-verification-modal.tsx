@@ -2,6 +2,10 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import {
+  useSendPhoneVerificationCodeMutation,
+  useVerifyPhoneCodeMutation,
+} from '../model/use-phone-auth-mutation';
 
 type Step = 'input' | 'verify' | 'complete';
 
@@ -9,12 +13,14 @@ interface PhoneVerificationModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onVerificationComplete?: (phoneNumber: string) => void;
+  memberId?: number; // 프로필 정보 갱신을 위한 memberId (optional)
 }
 
 export default function PhoneVerificationModal({
   open,
   onOpenChange,
   onVerificationComplete,
+  memberId,
 }: PhoneVerificationModalProps) {
   const [step, setStep] = useState<Step>('input');
   const [name, setName] = useState(''); // 이름 상태 추가
@@ -28,6 +34,12 @@ export default function PhoneVerificationModal({
   const [failCount, setFailCount] = useState(0);
   const [isShaking, setIsShaking] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // API Mutation 훅
+  const { mutate: sendCode, isPending: isSendingCode } =
+    useSendPhoneVerificationCodeMutation();
+  const { mutate: verifyCode, isPending: isVerifying } =
+    useVerifyPhoneCodeMutation(memberId);
 
   // 클라이언트 마운트 확인 (Portal용)
   useEffect(() => {
@@ -117,9 +129,27 @@ export default function PhoneVerificationModal({
 
       return;
     }
-    setStep('verify');
-    setTimer(180);
-    setError(null);
+
+    // API 호출: 인증번호 발송
+    sendCode(
+      {
+        realName: name.trim(),
+        phoneNumber,
+      },
+      {
+        onSuccess: () => {
+          setStep('verify');
+          setTimer(180);
+          setError(null);
+        },
+        onError: (error: any) => {
+          setError(
+            error?.response?.data?.message ||
+              '인증번호 발송에 실패했습니다. 다시 시도해주세요.',
+          );
+        },
+      },
+    );
   };
 
   const handleVerifyCode = () => {
@@ -129,37 +159,92 @@ export default function PhoneVerificationModal({
 
       return;
     }
-    // 데모용: '000000' 입력 시 에러 테스트
-    if (code === '000000') {
-      const newFailCount = failCount + 1;
-      setFailCount(newFailCount);
-      triggerShake();
-      
-      if (newFailCount >= 5) {
-        setError('인증번호를 5회 틀렸어요. 새 인증번호를 받아주세요.');
-        setCode('');
-      } else {
-        setError(`인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`);
-        setCode(''); // 입력값 초기화
-      }
 
-      return;
-    }
-    setStep('complete');
-    onVerificationComplete?.(phoneNumber);
+    // API 호출: 인증번호 검증
+    verifyCode(
+      {
+        realName: name.trim(),
+        phoneNumber,
+        code,
+      },
+      {
+        onSuccess: (data) => {
+          if (data.success) {
+            setStep('complete');
+            onVerificationComplete?.(phoneNumber);
+          } else {
+            const newFailCount = failCount + 1;
+            setFailCount(newFailCount);
+            triggerShake();
+
+            if (newFailCount >= 5) {
+              setError('인증번호를 5회 틀렸어요. 새 인증번호를 받아주세요.');
+              setCode('');
+            } else {
+              setError(
+                data.message ||
+                  `인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`,
+              );
+              setCode('');
+            }
+          }
+        },
+        onError: (error: any) => {
+          const newFailCount = failCount + 1;
+          setFailCount(newFailCount);
+          triggerShake();
+
+          if (newFailCount >= 5) {
+            setError('인증번호를 5회 틀렸어요. 새 인증번호를 받아주세요.');
+            setCode('');
+          } else {
+            setError(
+              error?.response?.data?.message ||
+                `인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`,
+            );
+            setCode('');
+          }
+        },
+      },
+    );
   };
 
   const handleResend = () => {
+    if (name.trim().length < 2 || phoneNumber.length < 10) {
+      setError('이름과 전화번호를 입력해주세요.');
+
+      return;
+    }
+
     setIsResending(true);
-    setTimer(180);
     setFailCount(0); // 재전송 시 실패 횟수 초기화
     setError(null);
     setCode('');
-    setResendMessage('인증번호를 다시 보냈어요');
-    setTimeout(() => {
-      setResendMessage(null);
-      setIsResending(false);
-    }, 3000);
+
+    // API 호출: 인증번호 재발송
+    sendCode(
+      {
+        realName: name.trim(),
+        phoneNumber,
+      },
+      {
+        onSuccess: () => {
+          setTimer(180);
+          setResendMessage('인증번호를 다시 보냈어요');
+          setTimeout(() => {
+            setResendMessage(null);
+            setIsResending(false);
+          }, 3000);
+        },
+        onError: (error: any) => {
+          setError(
+            error?.response?.data?.message ||
+              '인증번호 발송에 실패했습니다. 다시 시도해주세요.',
+          );
+          setIsResending(false);
+        },
+      },
+    );
   };
 
   if (!mounted || !open) return null;
@@ -300,21 +385,35 @@ export default function PhoneVerificationModal({
 
               <button
                 onClick={handleRequestCode}
-                disabled={phoneNumber.length < 10 || name.trim().length < 2}
+                disabled={
+                  phoneNumber.length < 10 ||
+                  name.trim().length < 2 ||
+                  isSendingCode
+                }
                 style={{
                   width: '100%',
                   padding: '16px',
                   fontSize: '18px',
                   fontWeight: 700,
                   color: '#ffffff',
-                  backgroundColor: (phoneNumber.length >= 10 && name.trim().length >= 2) ? '#111827' : '#d1d5db',
+                  backgroundColor:
+                    phoneNumber.length >= 10 &&
+                    name.trim().length >= 2 &&
+                    !isSendingCode
+                      ? '#111827'
+                      : '#d1d5db',
                   border: 'none',
                   borderRadius: '12px',
-                  cursor: (phoneNumber.length >= 10 && name.trim().length >= 2) ? 'pointer' : 'not-allowed',
+                  cursor:
+                    phoneNumber.length >= 10 &&
+                    name.trim().length >= 2 &&
+                    !isSendingCode
+                      ? 'pointer'
+                      : 'not-allowed',
                   transition: 'background-color 0.2s',
                 }}
               >
-                인증번호 받기
+                {isSendingCode ? '발송 중...' : '인증번호 받기'}
               </button>
             </div>
           </div>
@@ -493,21 +592,27 @@ export default function PhoneVerificationModal({
 
               <button
                 onClick={handleVerifyCode}
-                disabled={code.length !== 6 || timer === 0}
+                disabled={code.length !== 6 || timer === 0 || isVerifying}
                 style={{
                   width: '100%',
                   padding: '16px',
                   fontSize: '18px',
                   fontWeight: 700,
                   color: '#ffffff',
-                  backgroundColor: code.length === 6 && timer > 0 ? '#111827' : '#d1d5db',
+                  backgroundColor:
+                    code.length === 6 && timer > 0 && !isVerifying
+                      ? '#111827'
+                      : '#d1d5db',
                   border: 'none',
                   borderRadius: '12px',
-                  cursor: code.length === 6 && timer > 0 ? 'pointer' : 'not-allowed',
+                  cursor:
+                    code.length === 6 && timer > 0 && !isVerifying
+                      ? 'pointer'
+                      : 'not-allowed',
                   transition: 'background-color 0.2s',
                 }}
               >
-                확인
+                {isVerifying ? '확인 중...' : '확인'}
               </button>
             </div>
           </div>

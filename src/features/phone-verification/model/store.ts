@@ -13,8 +13,8 @@ export const usePhoneVerificationStore = create<PhoneVerificationState>()(
   persist(
     (set) => ({
       isVerified: false,
-      phoneNumber: null,
-      verifiedAt: null,
+      phoneNumber: '',
+      verifiedAt: new Date(),
       setVerified: (phoneNumber) =>
         set({
           isVerified: true,

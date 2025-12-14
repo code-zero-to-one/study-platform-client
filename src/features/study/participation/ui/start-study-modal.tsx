@@ -166,6 +166,7 @@ export default function StartStudyModal({
         open={isVerificationModalOpen}
         onOpenChange={setIsVerificationModalOpen}
         onVerificationComplete={handleVerificationComplete}
+        memberId={memberId}
       />
     </>
   );
