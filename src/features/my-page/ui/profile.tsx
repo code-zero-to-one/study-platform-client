@@ -7,12 +7,12 @@ import Progress from '@/components/ui/progress';
 import Tooltip from '@/components/ui/tooltip';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { useState, useEffect } from 'react';
-import { AlertTriangle } from 'lucide-react';
 import { MemberProfile, SincerityTemp } from '@/entities/user/api/types';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
+import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
 import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
@@ -75,11 +75,34 @@ export default function Profile({
                   </Badge>
                 ))}
               </div>
-              <div className="font-designer-28b">
-                {memberProfile.memberName}
+              <div className="font-designer-28b flex flex-row items-end justify-between gap-100">
+                {memberProfile.nickname ?? '닉네임을 입력해주세요'}
+                {/* 전화번호 - 인증 완료 시에만 표시 (hidePhoneNumber가 true면 숨김) */}
+                {!hidePhoneNumber && isVerified && phoneNumber && (
+                  <div className="flex flex-col items-end">
+                    <div className="font-designer-14r text-text-subtle leading-none">
+                        {memberProfile.memberName}
+                    </div>
+                    <div className="flex flex-row items-center gap-100">
+                      <PhoneIcon />
+                      <span className="font-designer-14r text-text-subtle leading-none">
+                        {phoneNumber}
+                      </span>
+                      <Badge color="green" shape="rectangle">
+                        인증완료
+                      </Badge>
+                      <button
+                        className="font-designer-13r text-text-subtlest underline hover:text-text-subtle"
+                        onClick={() => setIsVerificationModalOpen(true)}
+                      >
+                        변경
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               <p className="font-designer-15m text-text-default">
-                {memberProfile.simpleIntroduction ?? '자기소개를 입력해주세요.'}
+                {memberProfile.simpleIntroduction ?? '나를 나타낼 수 있는 한마디소개를 입력해주세요.'}
               </p>
             </div>
 
@@ -90,6 +113,14 @@ export default function Profile({
                   {memberProfile.birthDate ?? '생일을 입력해주세요!'}
                 </span>
               </div>
+
+              <div className="flex items-center gap-100">
+                <TechStackIcon />
+                <span className="font-designer-14r text-text-subtle leading-none">
+                  {memberProfile.techStacks?.map((tech) => tech.techStackName).join(', ') ?? '(아이콘) 기술 스택을 선택해주세요!'}
+                </span>
+              </div>
+
               <div className="flex items-center gap-100">
                 <GithubIcon />
                 <span className="font-designer-14r text-text-subtle leading-none">
@@ -98,24 +129,6 @@ export default function Profile({
                 </span>
               </div>
 
-              {/* 전화번호 - 인증 완료 시에만 표시 (hidePhoneNumber가 true면 숨김) */}
-              {!hidePhoneNumber && isVerified && phoneNumber && (
-                <div className="flex items-center gap-100">
-                  <PhoneIcon />
-                  <span className="font-designer-14r text-text-subtle leading-none">
-                    {phoneNumber.replace(/(\d{3})(\d{4})(\d{4})/, '$1-$2-$3')}
-                  </span>
-                  <Badge color="green" shape="rectangle">
-                    인증완료
-                  </Badge>
-                  <button
-                    className="font-designer-13r text-text-subtlest underline hover:text-text-subtle"
-                    onClick={() => setIsVerificationModalOpen(true)}
-                  >
-                    변경
-                  </button>
-                </div>
-              )}
               <div className="flex items-center gap-100">
                 <GlobeIcon />
                 <span className="font-designer-14r text-text-subtle leading-none">

@@ -16,6 +16,7 @@ export function NicknameStep({ data, updateData, onNext }: any) {
         const timer = setTimeout(() => {
           onNext();
         }, 300);
+
         return () => clearTimeout(timer);
       }
     }, [isValidName, checked, onNext]);

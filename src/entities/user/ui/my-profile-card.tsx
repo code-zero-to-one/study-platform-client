@@ -53,6 +53,7 @@ export default function MyProfileCard({
     if (!studyApplied) {
       setIsStartStudyModalOpen(true);
       // 토글 상태는 바꾸지 않음 (신청 완료 후 바뀌도록 유도하거나 사용자가 다시 켜야 함)
+
       return;
     }
 

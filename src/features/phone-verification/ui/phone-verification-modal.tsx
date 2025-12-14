@@ -59,6 +59,7 @@ export default function PhoneVerificationModal({
   useEffect(() => {
     if (step === 'verify' && timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
+
       return () => clearInterval(interval);
     }
   }, [step, timer]);
@@ -72,6 +73,7 @@ export default function PhoneVerificationModal({
       document.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden';
     }
+
     return () => {
       document.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = '';
@@ -82,6 +84,7 @@ export default function PhoneVerificationModal({
     const numbers = value.replace(/[^0-9]/g, '');
     if (numbers.length <= 3) return numbers;
     if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+
     return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
   };
 
@@ -98,13 +101,20 @@ export default function PhoneVerificationModal({
     }
   };
 
+  const triggerShake = () => {
+    setIsShaking(true);
+    setTimeout(() => setIsShaking(false), 500);
+  };
+
   const handleRequestCode = () => {
     if (name.trim().length < 2) {
       setError('이름을 정확히 입력해주세요.');
+
       return;
     }
     if (phoneNumber.length < 10) {
       setError('올바른 휴대폰 번호를 입력해주세요.');
+
       return;
     }
     setStep('verify');
@@ -116,6 +126,7 @@ export default function PhoneVerificationModal({
     if (code.length !== 6) {
       setError('인증번호 6자리를 입력해주세요.');
       triggerShake();
+
       return;
     }
     // 데모용: '000000' 입력 시 에러 테스트
@@ -131,15 +142,11 @@ export default function PhoneVerificationModal({
         setError(`인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`);
         setCode(''); // 입력값 초기화
       }
+
       return;
     }
     setStep('complete');
     onVerificationComplete?.(phoneNumber);
-  };
-
-  const triggerShake = () => {
-    setIsShaking(true);
-    setTimeout(() => setIsShaking(false), 500);
   };
 
   const handleResend = () => {

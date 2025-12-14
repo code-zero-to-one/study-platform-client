@@ -38,6 +38,7 @@ export default function ApplyGroupStudyModal({
     if (isOpen && !isVerified) {
       setIsVerificationModalOpen(true);
       setOpen(false);
+
       return;
     }
     setOpen(isOpen);

@@ -66,6 +66,7 @@ export default function GroupStudyFormModal({
     if (isOpen && mode === 'create' && !isVerified) {
       setIsVerificationModalOpen(true);
       setOpen(false); // 스터디 모달은 닫힘 유지
+
       return;
     }
 

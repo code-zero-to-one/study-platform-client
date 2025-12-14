@@ -163,9 +163,10 @@ function UserProfileBody({
             title="선호하는 스터디 주제"
             content={profile.memberInfo.preferredStudySubject?.name}
           />
+          {/* TODO : 상단으로 이동 필요 */}
           <ProfileInfoCard
             title="기술 스택"
-            content={profile.memberInfo.techStacks
+            content={profile.memberProfile.techStacks
               .map((t) => t.techStackName)
               .join(', ')}
           />

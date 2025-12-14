@@ -97,6 +97,7 @@ export default function StartStudyModal({
       setIsVerificationModalOpen(true);
       if (onOpenChange) onOpenChange(false);
       setInternalOpen(false);
+
       return;
     }
 

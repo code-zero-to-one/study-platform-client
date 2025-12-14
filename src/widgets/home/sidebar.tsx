@@ -27,7 +27,7 @@ export default async function Sidebar() {
         time={userProfile?.memberInfo.availableStudyTimes
           ?.map((t) => t.label)
           .join(', ')}
-        techStacks={userProfile?.memberInfo.techStacks
+        techStacks={userProfile?.memberProfile.techStacks
           ?.map((t) => t.techStackName)
           .join(', ')}
         studyApplied={userProfile?.studyApplied ?? false}

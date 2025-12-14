@@ -63,38 +63,17 @@ export default function SignupModal({
     }
   }, [open]);
 
-  const handleNext = () => {
-    const currentIndex = STEPS.indexOf(currentStep);
-    if (currentIndex < STEPS.length - 1) {
-      setCurrentStep(STEPS[currentIndex + 1]);
-    } else {
-      handleComplete();
-    }
-  };
-
-  const handleBack = () => {
-    const currentIndex = STEPS.indexOf(currentStep);
-    if (currentIndex > 0) {
-      setCurrentStep(STEPS[currentIndex - 1]);
-    }
-  };
-
-  const updateData = (key: string, value: any) => {
-    setSignupData((prev) => ({ ...prev, [key]: value }));
-  };
-
   const handleComplete = () => {
     const imageExtension = signupData.file?.name.split('.').pop()?.toUpperCase() || 'JPG';
     
-    // API 스펙에 맞게 enum 값으로 변환 (이미 enum 값이므로 그대로 사용)
-    const jobEnum = signupData.job; // 이미 enum 값
-    const careerEnum = signupData.career; // 이미 enum 값
+    const jobEnum = signupData.job;
+    const careerEnum = signupData.career;
     const studyFormatTypes = signupData.studyFormatTypes.length > 0
-      ? signupData.studyFormatTypes // 이미 enum 값 배열
+      ? signupData.studyFormatTypes
       : undefined;
 
     const signUpPayload: SignUpRequest = {
-      nickname: signupData.nickname, // API 스펙에 따르면 nickname
+      nickname: signupData.nickname,
       imageExtension: imageExtension as 'JPG' | 'PNG' | 'GIF' | 'WEBP' | 'SVG' | 'JPEG' | 'DEFAULT',
       ...(jobEnum && { job: jobEnum }),
       ...(careerEnum && { career: careerEnum }),
@@ -139,6 +118,26 @@ export default function SignupModal({
         }
       }
     );
+  };
+
+  const handleNext = () => {
+    const currentIndex = STEPS.indexOf(currentStep);
+    if (currentIndex < STEPS.length - 1) {
+      setCurrentStep(STEPS[currentIndex + 1]);
+    } else {
+      handleComplete();
+    }
+  };
+
+  const handleBack = () => {
+    const currentIndex = STEPS.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(STEPS[currentIndex - 1]);
+    }
+  };
+
+  const updateData = (key: string, value: any) => {
+    setSignupData((prev) => ({ ...prev, [key]: value }));
   };
 
   const renderStep = () => {

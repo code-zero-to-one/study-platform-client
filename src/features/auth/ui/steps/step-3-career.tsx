@@ -1,10 +1,14 @@
 // 3. 경력 선택 단계
 import { StepHeader } from './step-header';
 import { cn } from "@/shared/shadcn/lib/utils";
-import { CAREER_OPTIONS } from '@/features/auth/const/signup-options';
 import { ArrowLeft, TrendingUp } from 'lucide-react';
+import { useCareersQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
+import type { CareerResponse } from '@/features/my-page/api/types';
 
 export function CareerStep({ data, updateData, onNext }: any) {
+    const { data: careers = [] } = useCareersQuery();
+
+    // CareerResponse: { "career": "BEGINNER", "description": "입문자" }
     const handleSelect = (value: string) => {
       updateData('career', value);
       setTimeout(onNext, 200);
@@ -18,27 +22,27 @@ export function CareerStep({ data, updateData, onNext }: any) {
            </div>
           <StepHeader 
             icon={TrendingUp}
-            title={<>경력은 어느 정도<br/>되시나요?</>}
-            subtitle="비슷한 단계의 분들과 매칭해드려요"
+            title={<>업무 경력은 어느 정도 되시나요?</>}
+            subtitle="비슷한 단계의 분들과 스터디를 추천해드릴게요"
           />
         </div>
   
         <div className="flex-1 flex flex-col gap-150 max-w-[400px] mx-auto w-full pb-200">
-          {CAREER_OPTIONS.map((option) => (
+          {careers.map((careerResponse: CareerResponse) => (
             <button
-              key={option.value}
-              onClick={() => handleSelect(option.value)}
+              key={careerResponse.career}
+              onClick={() => handleSelect(careerResponse.career)}
               className={cn(
                 "w-full p-200 rounded-100 text-left font-designer-16m border flex items-center justify-between group transition-all duration-200",
-                data.career === option.value
+                data.career === careerResponse.career
                   ? "border-border-brand bg-fill-brand-subtle-default text-text-brand shadow-md scale-[1.02]"
                   : "border-border-default bg-background-default text-text-default hover:border-border-brand hover:bg-fill-brand-subtle-default hover:shadow-sm hover:scale-[1.01]"
               )}
             >
-              <span>{option.label}</span>
+              <span>{careerResponse.description}</span>
               <ArrowLeft className={cn(
                 "w-[16px] h-[16px] rotate-180 transition-all duration-300",
-                data.career === option.value 
+                data.career === careerResponse.career 
                   ? "opacity-100 text-text-brand translate-x-0" 
                   : "opacity-0 group-hover:opacity-50 -translate-x-100 group-hover:translate-x-0"
               )} />
