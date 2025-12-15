@@ -14,17 +14,17 @@ import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
+import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
+import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
 
 interface UserProfileModalProps {
   memberId: number;
   trigger: React.ReactNode;
-  hidePhoneNumber?: boolean; // 전화번호 숨김 옵션 추가
 }
 
 export default function UserProfileModal({
   memberId,
   trigger,
-  hidePhoneNumber = false,
 }: UserProfileModalProps) {
   const [open, setOpen] = useState(false);
 
@@ -39,7 +39,6 @@ export default function UserProfileModal({
             <UserProfileBody
               memberId={memberId}
               onClose={() => setOpen(false)}
-              hidePhoneNumber={hidePhoneNumber}
             />
           </Modal.Content>
         </Modal.Portal>
@@ -51,11 +50,9 @@ export default function UserProfileModal({
 function UserProfileBody({
   memberId,
   onClose,
-  hidePhoneNumber,
 }: {
   memberId: number;
   onClose: () => void;
-  hidePhoneNumber: boolean;
 }) {
   const { data: profile, isLoading, isError } = useUserProfileQuery(memberId);
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
@@ -88,7 +85,7 @@ function UserProfileBody({
   return (
     <>
       <Header
-        title={`${profile.memberProfile.memberName}님의 프로필`}
+        title={`${profile.memberProfile.nickname ?? '익명'}님의 프로필`}
         onClose={onClose}
       />
 
@@ -115,8 +112,12 @@ function UserProfileBody({
             </div>
 
             <div className="flex items-center justify-start">
-              <div className="font-designer-28b pb-50">
-                {profile.memberProfile.memberName}
+              <div className="flex items-center gap-50 font-designer-28b pb-50">
+                {profile.memberProfile.nickname}
+                {/* 본인 인증 배지 (인증된 경우에만 표시) */}
+                {profile.memberProfile.tel && (
+                  <VerifiedCheckIcon className="shrink-0" />
+                )}
               </div>
 
               <span
@@ -144,45 +145,93 @@ function UserProfileBody({
                 value={profile.memberProfile.birthDate}
               />
               <Field
-                icon={<GithubIcon />}
-                value={profile.memberProfile.githubLink?.url}
+                icon={<TechStackIcon />}
+                value={
+                  profile.memberProfile.techStacks?.length > 0
+                    ? profile.memberProfile.techStacks
+                        .map((tech) => tech.techStackName)
+                        .join(', ')
+                    : '-'
+                }
               />
-              {!hidePhoneNumber && (
-                <Field icon={<PhoneIcon />} value={profile.memberProfile.tel} />
-              )}
+              <Field
+                icon={<GithubIcon />}
+                value={profile.memberProfile.githubLink?.url ?? '-'}
+              />
               <Field
                 icon={<GlobeIcon />}
-                value={profile.memberProfile.blogOrSnsLink?.url}
+                value={profile.memberProfile.blogOrSnsLink?.url ?? '-'}
               />
+              {profile.memberProfile.tel && (
+                <Field icon={<PhoneIcon />} value={profile.memberProfile.tel} />
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-200">
           <ProfileInfoCard
-            title="선호하는 스터디 주제"
-            content={profile.memberInfo.preferredStudySubject?.name}
-          />
-          {/* TODO : 상단으로 이동 필요 */}
-          <ProfileInfoCard
-            title="기술 스택"
-            content={profile.memberProfile.techStacks
-              .map((t) => t.techStackName)
-              .join(', ')}
-          />
-          <ProfileInfoCard
-            title="가능 시간대"
-            content={profile.memberInfo.availableStudyTimes
-              .map((t) => t.label)
-              .join(', ')}
-          />
-          <ProfileInfoCard
             title="자기소개"
-            content={profile.memberInfo.selfIntroduction}
+            content={profile.memberInfo.selfIntroduction ?? '없음'}
           />
           <ProfileInfoCard
             title="공부 주제 및 계획"
-            content={profile.memberInfo.studyPlan}
+            content={profile.memberInfo.studyPlan ?? '없음'}
+          />
+          <ProfileInfoCard
+            title="선호하는 스터디 주제"
+            content={profile.memberInfo.preferredStudySubject?.name ?? '없음'}
+          />
+          <ProfileInfoCard
+            title="가능 시간대"
+            content={
+              profile.memberInfo.availableStudyTimes &&
+              profile.memberInfo.availableStudyTimes.length > 0
+                ? profile.memberInfo.availableStudyTimes
+                    .map((time) => time.fullLabel)
+                    .join(', ')
+                : '없음'
+            }
+          />
+          <ProfileInfoCard
+            title="직무"
+            content={
+              profile.memberInfo.jobs && profile.memberInfo.jobs.length > 0
+                ? profile.memberInfo.jobs
+                    .map((job) => job.description || job.job || '')
+                    .filter(Boolean)
+                    .join(', ')
+                : '없음'
+            }
+          />
+          <ProfileInfoCard
+            title="경력"
+            content={
+              profile.memberInfo.career
+                ? profile.memberInfo.career.description ||
+                  profile.memberInfo.career.career ||
+                  '없음'
+                : '없음'
+            }
+          />
+          <ProfileInfoCard
+            title="스터디 형태"
+            content={
+              profile.memberInfo.studyFormatTypes &&
+              profile.memberInfo.studyFormatTypes.length > 0
+                ? profile.memberInfo.studyFormatTypes
+                    .map(
+                      (studyFormatType) =>
+                        studyFormatType.description ||
+                        studyFormatType.studyFormatType,
+                    )
+                    .join(', ')
+                : '없음'
+            }
+          />
+          <ProfileInfoCard
+            title="스터디 목표"
+            content={profile.memberInfo.goal ?? '없음'}
           />
         </div>
 
