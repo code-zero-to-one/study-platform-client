@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 import {
   sendPhoneVerificationCode,
   verifyPhoneCode,
@@ -9,7 +10,6 @@ import type {
   VerifyPhoneCodeRequest,
 } from '../api/types';
 import { usePhoneVerificationStore } from './store';
-import { getCookie } from '@/shared/tanstack-query/cookie';
 
 /**
  * SMS 인증번호 발송 Mutation

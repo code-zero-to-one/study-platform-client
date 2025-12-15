@@ -1,6 +1,7 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
+import { useParams } from 'next/navigation';
 import { useState, useMemo } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
@@ -10,14 +11,13 @@ import { useUserPositiveKeywordsQuery } from '@/entities/review/model/use-review
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import KeywordReview from '@/entities/user/ui/keyword-review';
 import ProfileInfoCard from '@/entities/user/ui/profile-info-card';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
-import { useParams } from 'next/navigation';
-import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import { getCookie } from '@/api/client/cookie';
 import { decodeJwt } from '@/utils/jwt';
 import { formatPhoneNumber } from '@/utils/format';

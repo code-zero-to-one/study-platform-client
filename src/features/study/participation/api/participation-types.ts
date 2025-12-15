@@ -29,7 +29,7 @@ export interface WeeklyReservationResponse {
 
 export interface Participant {
   id: number;
-  memberNickname?: string;
+  nickname?: string;
   name: string;
   avatarUrl?: string;
   simpleIntroduction?: string;

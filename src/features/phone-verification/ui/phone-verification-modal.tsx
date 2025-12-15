@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { formatPhoneNumber } from '@/shared/lib/format';
 import {
   useSendPhoneVerificationCodeMutation,
   useVerifyPhoneCodeMutation,
 } from '../model/use-phone-auth-mutation';
-import { formatPhoneNumber } from '@/shared/lib/format';
 
 type Step = 'input' | 'verify' | 'complete';
 
