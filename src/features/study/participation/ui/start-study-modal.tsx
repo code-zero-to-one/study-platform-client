@@ -19,6 +19,8 @@ import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
   useTechStacksQuery,
+  useUpdateUserProfileMutation,
+  useUpdateUserProfileInfoMutation,
 } from '@/features/my-page/model/use-update-user-profile-mutation';
 import { studySteps } from '@/features/study/participation/const/participation-const';
 
@@ -32,6 +34,7 @@ import {
   toJoinStudyRequest,
 } from '@/features/study/participation/model/start-study-form.schema';
 import { useJoinStudyMutation } from '@/features/study/participation/model/use-participation-query';
+import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 
 interface StartStudyModalProps {
   memberId: number;
@@ -184,23 +187,38 @@ function StartStudyForm({
   const { data: studySubjects = [] } = useStudySubjectsQuery();
   const { data: techStacks = [] } = useTechStacksQuery();
   const { mutate: joinStudy } = useJoinStudyMutation();
+  const { mutate: updateProfile } = useUpdateUserProfileMutation(memberId);
+  const { mutate: updateProfileInfo } = useUpdateUserProfileInfoMutation(memberId);
 
   const { isVerified, phoneNumber } = usePhoneVerificationStore();
+  const { data: profile } = useUserProfileQuery(memberId);
 
   const methods = useForm<StartStudyFormValues>({
     resolver: zodResolver(StartStudyFormSchema),
     mode: 'onChange',
-    defaultValues: buildStartStudyDefaultValues(),
+    defaultValues: buildStartStudyDefaultValues(profile),
   });
 
-  const { handleSubmit, setValue } = methods;
+  const { handleSubmit, setValue, reset } = methods;
 
-  // 인증된 전화번호 자동 입력 (화면엔 안 보임)
+  // 프로필 정보가 로드되면 폼 기본값 업데이트
   useEffect(() => {
-    if (isVerified && phoneNumber) {
+    if (profile) {
+      const defaultValues = buildStartStudyDefaultValues(profile);
+      reset(defaultValues);
+    }
+  }, [profile, reset]);
+
+  // 전화번호 자동 입력 (프로필에 있으면 프로필 값, 없으면 인증된 전화번호)
+  useEffect(() => {
+    if (profile?.memberProfile?.tel) {
+      // 프로필에 전화번호가 있으면 프로필 값 사용
+      setValue('tel', profile.memberProfile.tel, { shouldValidate: true });
+    } else if (isVerified && phoneNumber) {
+      // 프로필에 없고 인증된 전화번호가 있으면 인증된 값 사용
       setValue('tel', phoneNumber, { shouldValidate: true });
     }
-  }, [isVerified, phoneNumber, setValue]);
+  }, [profile, isVerified, phoneNumber, setValue]);
 
   const subjectOptions = useMemo(
     () =>
@@ -232,27 +250,138 @@ function StartStudyForm({
   const onValidSubmit = (values: StartStudyFormValues) => {
     const body = toJoinStudyRequest(memberId, values);
 
-    joinStudy(body, {
-      onSuccess: () => {
-        sendGTMEvent({
-          event: 'study_apply_success',
-          location: 'home',
-          preferred_subject: values.preferredStudySubjectId,
-          available_times_count: values.availableStudyTimeIds.length,
-          tech_stacks_count: values.techStackIds.length,
+    // 프로필 정보와 비교하여 변경된 항목만 업데이트
+    const profileUpdates: {
+      profile?: Parameters<typeof updateProfile>[0];
+      profileInfo?: Parameters<typeof updateProfileInfo>[0];
+    } = {};
+
+    // memberProfile 업데이트 (githubLink, blogOrSnsLink, techStackIds)
+    if (profile) {
+      const githubChanged =
+        values.githubLink !== (profile.memberProfile.githubLink?.url ?? '');
+      const blogChanged =
+        values.blogOrSnsLink !== (profile.memberProfile.blogOrSnsLink?.url ?? '');
+      const techStacksChanged =
+        JSON.stringify(values.techStackIds.sort()) !==
+        JSON.stringify(
+          profile.memberProfile.techStacks
+            ?.map((t) => String(t.techStackId))
+            .sort() ?? [],
+        );
+
+      if (githubChanged || blogChanged || techStacksChanged) {
+        profileUpdates.profile = {
+          nickname: profile.memberProfile.nickname,
+          githubLink: values.githubLink || undefined,
+          blogOrSnsLink: values.blogOrSnsLink || undefined,
+          techStackIds: values.techStackIds.map(Number),
+        };
+      }
+
+      // memberInfo 업데이트 (selfIntroduction, studyPlan, preferredStudySubjectId, availableStudyTimeIds)
+      const selfIntroChanged =
+        values.selfIntroduction !== (profile.memberInfo.selfIntroduction ?? '');
+      const studyPlanChanged =
+        values.studyPlan !== (profile.memberInfo.studyPlan ?? '');
+      const subjectChanged =
+        values.preferredStudySubjectId !==
+        (profile.memberInfo.preferredStudySubject?.studySubjectId ?? '');
+      const timesChanged =
+        JSON.stringify(values.availableStudyTimeIds.sort()) !==
+        JSON.stringify(
+          profile.memberInfo.availableStudyTimes
+            ?.map((t) => String(t.id))
+            .sort() ?? [],
+        );
+
+      if (selfIntroChanged || studyPlanChanged || subjectChanged || timesChanged) {
+        profileUpdates.profileInfo = {
+          selfIntroduction: values.selfIntroduction,
+          studyPlan: values.studyPlan,
+          preferredStudySubjectId: values.preferredStudySubjectId,
+          availableStudyTimeIds: values.availableStudyTimeIds.map(Number),
+          // 기존 프로필 정보 유지
+          jobs:
+            profile.memberInfo.jobs?.map((j) => j.job ?? '').filter(Boolean) ?? [],
+          career: profile.memberInfo.career?.career ?? '',
+          studyFormatTypes:
+            profile.memberInfo.studyFormatTypes
+              ?.map((s) => s.studyFormatType ?? '')
+              .filter(Boolean) ?? [],
+          goal: profile.memberInfo.goal ?? '',
+        };
+      }
+    }
+
+    // 프로필 업데이트와 스터디 신청을 순차적으로 실행
+    const updateProfilePromise = profileUpdates.profile
+      ? new Promise<void>((resolve, reject) => {
+          updateProfile(profileUpdates.profile!, {
+            onSuccess: () => resolve(),
+            onError: reject,
+          });
+        })
+      : Promise.resolve();
+
+    const updateProfileInfoPromise = profileUpdates.profileInfo
+      ? new Promise<void>((resolve, reject) => {
+          updateProfileInfo(profileUpdates.profileInfo!, {
+            onSuccess: () => resolve(),
+            onError: reject,
+          });
+        })
+      : Promise.resolve();
+
+    Promise.all([updateProfilePromise, updateProfileInfoPromise])
+      .then(() => {
+        // 프로필 업데이트 완료 후 스터디 신청
+        joinStudy(body, {
+          onSuccess: () => {
+            sendGTMEvent({
+              event: 'study_apply_success',
+              location: 'home',
+              preferred_subject: values.preferredStudySubjectId,
+              available_times_count: values.availableStudyTimeIds.length,
+              tech_stacks_count: values.techStackIds.length,
+            });
+            alert('스터디 신청이 완료되었습니다!');
+            onClose();
+            router.refresh();
+          },
+          onError: () => {
+            sendGTMEvent({
+              event: 'study_apply_error',
+              location: 'home',
+            });
+            alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+          },
         });
-        alert('스터디 신청이 완료되었습니다!');
-        onClose();
-        router.refresh();
-      },
-      onError: () => {
-        sendGTMEvent({
-          event: 'study_apply_error',
-          location: 'home',
+      })
+      .catch(() => {
+        // 프로필 업데이트 실패해도 스터디 신청은 진행
+        joinStudy(body, {
+          onSuccess: () => {
+            sendGTMEvent({
+              event: 'study_apply_success',
+              location: 'home',
+              preferred_subject: values.preferredStudySubjectId,
+              available_times_count: values.availableStudyTimeIds.length,
+              tech_stacks_count: values.techStackIds.length,
+            });
+            alert('스터디 신청이 완료되었습니다!');
+            onClose();
+            router.refresh();
+          },
+          onError: () => {
+            sendGTMEvent({
+              event: 'study_apply_error',
+              location: 'home',
+            });
+            alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+          },
         });
-        alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
-      },
-    });
+      });
   };
 
   return (
