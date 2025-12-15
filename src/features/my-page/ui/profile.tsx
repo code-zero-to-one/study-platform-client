@@ -17,6 +17,7 @@ import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
 import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
+import { formatPhoneNumber } from '@/utils/format';
 
 interface ProfileProps {
   memberId: number;
@@ -98,7 +99,7 @@ export default function Profile({
                     <div className="flex flex-row items-center gap-100">
                       <PhoneIcon />
                       <span className="font-designer-14r text-text-subtle leading-none">
-                        {phoneNumber}
+                        {formatPhoneNumber(phoneNumber)}
                       </span>
                       <Badge color="green" shape="rectangle">
                         인증완료
@@ -223,6 +224,7 @@ export default function Profile({
         open={isVerificationModalOpen}
         onOpenChange={setIsVerificationModalOpen}
         onVerificationComplete={handleVerificationComplete}
+        memberId={memberId}
       />
     </div>
   );

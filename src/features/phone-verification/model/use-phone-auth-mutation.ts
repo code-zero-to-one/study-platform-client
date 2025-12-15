@@ -9,6 +9,7 @@ import type {
   VerifyPhoneCodeRequest,
 } from '../api/types';
 import { usePhoneVerificationStore } from './store';
+import { getCookie } from '@/shared/tanstack-query/cookie';
 
 /**
  * SMS 인증번호 발송 Mutation
@@ -43,10 +44,19 @@ export const useVerifyPhoneCodeMutation = (memberId?: number) => {
         // 인증 상태 저장
         setVerified(variables.phoneNumber);
 
-        // 프로필 정보 쿼리키 갱신 (memberId가 있는 경우)
-        if (memberId) {
+        // 현재 사용자의 memberId 가져오기 (쿠키에서)
+        const currentMemberId = memberId ?? Number(getCookie('memberId'));
+
+        // 프로필 정보 쿼리키 갱신
+        if (currentMemberId) {
           await queryClient.invalidateQueries({
-            queryKey: ['userProfile', memberId],
+            queryKey: ['userProfile', currentMemberId],
+          });
+          // 모든 userProfile 쿼리도 무효화 (다른 곳에서 사용 중일 수 있음)
+          await queryClient.invalidateQueries({
+            predicate: (query) =>
+              Array.isArray(query.queryKey) &&
+              query.queryKey[0] === 'userProfile',
           });
           // 페이지 새로고침하여 서버 데이터 반영
           router.refresh();

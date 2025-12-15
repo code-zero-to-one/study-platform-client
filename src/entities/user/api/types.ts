@@ -86,7 +86,7 @@ export interface Hobby {
 // 기본정보 (SPRINT2 프로필개선)
 export interface MemberProfile {
   memberName: string; // 본인, 관리자만 조회 (+스터디 참여시 SPRINT2 프로필개선)
-  tel: string; // 본인, 관리자만 조회 (+스터디 참여시 SPRINT2 프로필개선)
+  tel?: string; // 본인, 관리자만 조회 (+스터디 참여시 SPRINT2 프로필개선) - 스터디 참가자끼리는 볼 수 있음
   nickname: string;
   profileImage: ProfileImage;
   simpleIntroduction: string;

@@ -216,6 +216,7 @@ export interface GroupStudyMember {
   id: number;
   profileImageUrl: string | null;
   memberName: string;
+  tel?: string; // 같은 스터디 참가자끼리는 볼 수 있음
   progress: MemberProgress;
   ranking: number;
   greeting: string | null;

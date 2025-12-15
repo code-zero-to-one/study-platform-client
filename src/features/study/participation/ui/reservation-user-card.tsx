@@ -20,7 +20,8 @@ export default function ReservationCard({
       <UserAvatar size={48} image={participant.avatarUrl?.trim() || ''} />
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex flex-row items-center gap-1">
-          <div className="font-designer-16b">{participant.name}</div>
+          {/* 닉네임 존재하지않을시 익명처리 (이름 -> 닉네임 migration 이후 삭제) */}
+          <div className="font-designer-16b">{participant.nickname !== '' ? participant.nickname : '익명'}</div>
           {isCurrentUser && (
             <Badge color="blue" className="ml-100">
               본인

@@ -1,7 +1,7 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
@@ -16,6 +16,11 @@ import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
+import { useParams } from 'next/navigation';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
+import { getCookie } from '@/api/client/cookie';
+import { decodeJwt } from '@/utils/jwt';
+import { formatPhoneNumber } from '@/utils/format';
 
 interface UserProfileModalProps {
   memberId: number;
@@ -58,7 +63,40 @@ function UserProfileBody({
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     memberId,
   });
+  console.log(profile);
+  
+  // 본인 여부 확인
+  const currentMemberId = Number(getCookie('memberId'));
+  const isMe = currentMemberId === memberId; // 본인
+  
+  // 관리자 여부 확인
+  const accessToken = getCookie('accessToken');
+  const decodedJwt = accessToken ? decodeJwt(accessToken) : null;
+  const isAdmin = decodedJwt?.roleIds?.includes('ROLE_ADMIN') ?? false; 
 
+  //  같은 스터디 참가자 여부 확인
+  const params = useParams();
+  const groupStudyId = params?.id ? Number(params.id) : undefined;
+
+  const { data: approvedApplicantsData } = useApplicantsByStatusQuery({
+    groupStudyId: groupStudyId ?? 0,
+    status: 'APPROVED',
+  });
+
+  const isSameStudyMember = useMemo(() => {
+    if (!groupStudyId || !approvedApplicantsData?.pages) return false;
+    const approvedApplicants = approvedApplicantsData.pages.flatMap(
+      (page) => page.content,
+    );
+
+    return approvedApplicants.some(
+      (apply) => apply.applicantInfo.memberId === memberId,
+    );
+  }, [groupStudyId, approvedApplicantsData, memberId]);
+
+  // 최종 이름, 전화번호 표시 가능 여부
+  const canSeePhoneNumber = isMe || isAdmin || isSameStudyMember;
+ 
   if (isLoading) {
     return (
       <>
@@ -162,8 +200,14 @@ function UserProfileBody({
                 icon={<GlobeIcon />}
                 value={profile.memberProfile.blogOrSnsLink?.url ?? '-'}
               />
-              {profile.memberProfile.tel && (
-                <Field icon={<PhoneIcon />} value={profile.memberProfile.tel} />
+              {/* 본인, 운영진, 스터디 참가자에게 노출 */}
+              {canSeePhoneNumber && (
+                <div className="flex items-center gap-100">
+                  <Field icon={<PhoneIcon />} value={formatPhoneNumber(profile.memberProfile.tel)} />
+                  <Badge color="green" shape="rectangle">
+                  인증완료
+                  </Badge>
+                </div>
               )}
             </div>
           </div>

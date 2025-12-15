@@ -40,10 +40,9 @@ export default function ReservationList({
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
     useInfiniteReservation(firstMemberId ?? undefined, pageSize);
-
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
-
+    
   useEffect(() => {
     if (!hasNextPage) return;
 
