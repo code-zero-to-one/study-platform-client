@@ -15,13 +15,14 @@ export const StartStudyFormSchema = z.object({
     .min(1, '공부 계획을 입력해 주세요.')
     .max(500, '최대 500자까지 입력 가능합니다.'),
   // tel은 전화번호 인증 검증용으로만 사용하고 API 요청에는 포함하지 않음
-  // tel: z
-  //   .string()
-  //   .trim()
-  //   .regex(
-  //     /^\d{2,3}-\d{3,4}-\d{4}$/,
-  //     '연락처 형식이 올바르지 않습니다. (예: 010-1234-5678)',
-  //   ),
+  tel: z
+    .string()
+    .trim()
+    .regex(
+      /^\d{2,3}-\d{3,4}-\d{4}$/,
+      '연락처 형식이 올바르지 않습니다. (예: 010-1234-5678)',
+    )
+    .optional(),
   githubLink: UrlSchema.optional().transform((v) => (v === '' ? undefined : v)),
   blogOrSnsLink: UrlSchema.optional().transform((v) =>
     v === '' ? undefined : v,
