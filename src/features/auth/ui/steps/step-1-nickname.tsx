@@ -2,9 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { StepHeader } from './step-header';
 import { Hand, Check, Loader2 } from 'lucide-react';
-import { cn } from '@/shared/shadcn/lib/utils';
-import { BaseInput } from '@/shared/ui/input';
-import { useDebounce } from '@/shared/lib/debounce';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { BaseInput } from '@/components/ui/input';
+import { useDebounce } from '@/hooks/common/use-debounce';
 import { useNicknameCheckQuery } from '../../model/use-nickname-check';
 import SignupImageSelector from '../sign-up-image-selector';
 

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { formatPhoneNumber } from '@/shared/lib/format';
+import { formatPhoneNumber } from '@/utils/format';
 import {
   useSendPhoneVerificationCodeMutation,
   useVerifyPhoneCodeMutation,

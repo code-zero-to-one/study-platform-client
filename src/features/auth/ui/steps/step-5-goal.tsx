@@ -1,5 +1,5 @@
-import Button from "@/shared/ui/button";
-import { TextAreaInput } from '@/shared/ui/input';
+import Button from "@/components/ui/button";
+import { TextAreaInput } from '@/components/ui/input';
 import { StepHeader } from './step-header';
 import { Lightbulb } from 'lucide-react';
 

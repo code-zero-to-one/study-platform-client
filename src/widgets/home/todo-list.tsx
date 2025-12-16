@@ -4,7 +4,7 @@ import CheckIcon from 'public/icons/check.svg';
 import { useState } from 'react';
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
-import Button from '@/shared/ui/button';
+import Button from '@/components/ui/button';
 
 interface TodoListProps {
   statusList: boolean[];

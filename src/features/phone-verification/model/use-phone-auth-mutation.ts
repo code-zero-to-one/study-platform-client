@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { getCookie } from '@/shared/tanstack-query/cookie';
+import { getCookie } from '@/api/client/cookie';
 import {
   sendPhoneVerificationCode,
   verifyPhoneCode,

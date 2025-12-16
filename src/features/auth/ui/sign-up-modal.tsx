@@ -1,24 +1,18 @@
 import { sendGTMEvent } from '@next/third-parties/google';
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { getCookie, setCookie } from '@/api/client/cookie';
-import Button from '@/components/ui/button';
-import { BaseInput, TextAreaInput } from '@/components/ui/input';
+import { useEffect, useState } from 'react';
 import { Modal } from '@/components/ui/modal';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { setCookie } from '@/api/client/cookie';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/features/auth/model/use-auth-mutation';
-import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import { getAttributionParams } from '@/utils/attribution-tracker';
 import { hashValue } from '@/utils/hash';
 import { 
   XIcon,
   ArrowLeft,
 } from 'lucide-react';
-import {
-  JOB_OPTIONS, CAREER_OPTIONS, STUDY_FORMAT_TYPES_OPTIONS,
-} from '@/features/auth/const/signup-options';
 import { SignUpRequest } from '../model/types';
 import { NicknameStep, JobStep, CareerStep, StudyFormatTypesStep, GoalStep } from './steps';
 
