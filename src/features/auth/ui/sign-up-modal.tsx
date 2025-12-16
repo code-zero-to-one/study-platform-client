@@ -34,7 +34,7 @@ export default function SignupModal({
     nickname: string;
     image?: string;
     file?: File;
-    job?: string;
+    jobs?: string[];
     career?: string;
     studyFormatTypes: string[];
     goal: string;
@@ -42,6 +42,7 @@ export default function SignupModal({
     nickname: '',
     studyFormatTypes: [],
     goal: '',
+    jobs: [],
   });
 
   useEffect(() => {
@@ -53,14 +54,16 @@ export default function SignupModal({
         ...attributionParams,
       });
       setCurrentStep('nickname');
-      setSignupData({ nickname: '', studyFormatTypes: [], goal: '' });
+      setSignupData({ nickname: '', studyFormatTypes: [], goal: '', jobs: [] });
     }
   }, [open]);
 
   const handleComplete = () => {
     const imageExtension = signupData.file?.name.split('.').pop()?.toUpperCase() || 'JPG';
     
-    const jobEnum = signupData.job;
+    const jobs = signupData.jobs && signupData.jobs.length > 0
+      ? signupData.jobs
+      : undefined;
     const careerEnum = signupData.career;
     const studyFormatTypes = signupData.studyFormatTypes.length > 0
       ? signupData.studyFormatTypes
@@ -69,7 +72,7 @@ export default function SignupModal({
     const signUpPayload: SignUpRequest = {
       nickname: signupData.nickname,
       imageExtension: imageExtension as 'JPG' | 'PNG' | 'GIF' | 'WEBP' | 'SVG' | 'JPEG' | 'DEFAULT',
-      ...(jobEnum && { job: jobEnum }),
+      ...(jobs && jobs.length > 0 && { jobs }),
       ...(careerEnum && { career: careerEnum }),
       ...(studyFormatTypes && studyFormatTypes.length > 0 && { studyFormatTypes }),
       ...(signupData.goal && signupData.goal.trim() && { goal: signupData.goal.trim().slice(0, 100) }), // 최대 100자

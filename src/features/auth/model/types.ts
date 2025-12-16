@@ -11,7 +11,7 @@ export interface SignUpResponse {
 export interface SignUpRequest {
   nickname: string;
   imageExtension?: 'JPG' | 'PNG' | 'GIF' | 'WEBP' | 'SVG' | 'JPEG' | 'DEFAULT';
-  job?: string;
+  jobs?: string[];
   career?: string;
   studyFormatTypes?: string[];
   goal?: string;
