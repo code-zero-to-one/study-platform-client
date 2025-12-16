@@ -22,6 +22,8 @@ export interface GetMemberListResponse {
     memberId: number;
     memberStatus: MemberStatus;
     memberName: string;
+    memberNickname?: string;
+    tel?: string;
     joinedAt: string;
     loginMostRecentlyAt: string;
     role: {
