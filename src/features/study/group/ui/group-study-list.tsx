@@ -151,8 +151,8 @@ export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
                   </div>
                   <Image
                     src={
-                      study.simpleDetailInfo.thumbnail.resizedImages[0]
-                        .resizedImageUrl
+                      study.simpleDetailInfo.thumbnail?.resizedImages[0]
+                        ?.resizedImageUrl || '/images/no-group-study-member.svg'
                     }
                     alt="thumbnail"
                     className="h-[160px] w-[240px] object-cover"
