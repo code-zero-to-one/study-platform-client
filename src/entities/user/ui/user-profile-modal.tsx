@@ -1,7 +1,8 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useParams } from 'next/navigation';
+import { useState, useMemo } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
@@ -10,10 +11,16 @@ import { useUserPositiveKeywordsQuery } from '@/entities/review/model/use-review
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import KeywordReview from '@/entities/user/ui/keyword-review';
 import ProfileInfoCard from '@/entities/user/ui/profile-info-card';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
+import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
+import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
+import { getCookie } from '@/api/client/cookie';
+import { decodeJwt } from '@/utils/jwt';
+import { formatPhoneNumber } from '@/utils/format';
 
 interface UserProfileModalProps {
   memberId: number;
@@ -56,7 +63,40 @@ function UserProfileBody({
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     memberId,
   });
+  console.log(profile);
+  
+  // 본인 여부 확인
+  const currentMemberId = Number(getCookie('memberId'));
+  const isMe = currentMemberId === memberId; // 본인
+  
+  // 관리자 여부 확인
+  const accessToken = getCookie('accessToken');
+  const decodedJwt = accessToken ? decodeJwt(accessToken) : null;
+  const isAdmin = decodedJwt?.roleIds?.includes('ROLE_ADMIN') ?? false; 
 
+  //  같은 스터디 참가자 여부 확인
+  const params = useParams();
+  const groupStudyId = params?.id ? Number(params.id) : undefined;
+
+  const { data: approvedApplicantsData } = useApplicantsByStatusQuery({
+    groupStudyId: groupStudyId ?? 0,
+    status: 'APPROVED',
+  });
+
+  const isSameStudyMember = useMemo(() => {
+    if (!groupStudyId || !approvedApplicantsData?.pages) return false;
+    const approvedApplicants = approvedApplicantsData.pages.flatMap(
+      (page) => page.content,
+    );
+
+    return approvedApplicants.some(
+      (apply) => apply.applicantInfo.memberId === memberId,
+    );
+  }, [groupStudyId, approvedApplicantsData, memberId]);
+
+  // 최종 이름, 전화번호 표시 가능 여부
+  const canSeePhoneNumber = isMe || isAdmin || isSameStudyMember;
+ 
   if (isLoading) {
     return (
       <>
@@ -83,7 +123,7 @@ function UserProfileBody({
   return (
     <>
       <Header
-        title={`${profile.memberProfile.memberName}님의 프로필`}
+        title={`${profile.memberProfile.nickname ?? '익명'}님의 프로필`}
         onClose={onClose}
       />
 
@@ -110,8 +150,12 @@ function UserProfileBody({
             </div>
 
             <div className="flex items-center justify-start">
-              <div className="font-designer-28b pb-50">
-                {profile.memberProfile.memberName}
+              <div className="flex items-center gap-50 font-designer-28b pb-50">
+                {profile.memberProfile.nickname}
+                {/* 본인 인증 배지 (인증된 경우에만 표시) */}
+                {profile.memberProfile.tel && (
+                  <VerifiedCheckIcon className="shrink-0" />
+                )}
               </div>
 
               <span
@@ -139,42 +183,99 @@ function UserProfileBody({
                 value={profile.memberProfile.birthDate}
               />
               <Field
-                icon={<GithubIcon />}
-                value={profile.memberProfile.githubLink?.url}
+                icon={<TechStackIcon />}
+                value={
+                  profile.memberProfile.techStacks?.length > 0
+                    ? profile.memberProfile.techStacks
+                        .map((tech) => tech.techStackName)
+                        .join(', ')
+                    : '-'
+                }
               />
-              <Field icon={<PhoneIcon />} value={profile.memberProfile.tel} />
+              <Field
+                icon={<GithubIcon />}
+                value={profile.memberProfile.githubLink?.url ?? '-'}
+              />
               <Field
                 icon={<GlobeIcon />}
-                value={profile.memberProfile.blogOrSnsLink?.url}
+                value={profile.memberProfile.blogOrSnsLink?.url ?? '-'}
               />
+              {/* 본인, 운영진, 스터디 참가자에게 노출 */}
+              {canSeePhoneNumber && (
+                <div className="flex items-center gap-100">
+                  <Field icon={<PhoneIcon />} value={formatPhoneNumber(profile.memberProfile.tel)} />
+                  <Badge color="green" shape="rectangle">
+                  인증완료
+                  </Badge>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-200">
           <ProfileInfoCard
-            title="선호하는 스터디 주제"
-            content={profile.memberInfo.preferredStudySubject?.name}
-          />
-          <ProfileInfoCard
-            title="기술 스택"
-            content={profile.memberInfo.techStacks
-              .map((t) => t.techStackName)
-              .join(', ')}
-          />
-          <ProfileInfoCard
-            title="가능 시간대"
-            content={profile.memberInfo.availableStudyTimes
-              .map((t) => t.label)
-              .join(', ')}
-          />
-          <ProfileInfoCard
             title="자기소개"
-            content={profile.memberInfo.selfIntroduction}
+            content={profile.memberInfo.selfIntroduction ?? '없음'}
           />
           <ProfileInfoCard
             title="공부 주제 및 계획"
-            content={profile.memberInfo.studyPlan}
+            content={profile.memberInfo.studyPlan ?? '없음'}
+          />
+          <ProfileInfoCard
+            title="선호하는 스터디 주제"
+            content={profile.memberInfo.preferredStudySubject?.name ?? '없음'}
+          />
+          <ProfileInfoCard
+            title="가능 시간대"
+            content={
+              profile.memberInfo.availableStudyTimes &&
+              profile.memberInfo.availableStudyTimes.length > 0
+                ? profile.memberInfo.availableStudyTimes
+                    .map((time) => time.fullLabel)
+                    .join(', ')
+                : '없음'
+            }
+          />
+          <ProfileInfoCard
+            title="직무"
+            content={
+              profile.memberInfo.jobs && profile.memberInfo.jobs.length > 0
+                ? profile.memberInfo.jobs
+                    .map((job) => job.description || job.job || '')
+                    .filter(Boolean)
+                    .join(', ')
+                : '없음'
+            }
+          />
+          <ProfileInfoCard
+            title="경력"
+            content={
+              profile.memberInfo.career
+                ? profile.memberInfo.career.description ||
+                  profile.memberInfo.career.career ||
+                  '없음'
+                : '없음'
+            }
+          />
+          <ProfileInfoCard
+            title="스터디 형태"
+            content={
+              profile.memberInfo.studyFormatTypes &&
+              profile.memberInfo.studyFormatTypes.length > 0
+                ? profile.memberInfo.studyFormatTypes
+                    .map(
+                      (studyFormatType) =>
+                        studyFormatType.description ||
+                        studyFormatType.studyFormatType,
+                    )
+                    .join(', ')
+                : '없음'
+            }
+          />
+          <ProfileInfoCard
+            title="스터디 목표"
+            content={profile.memberInfo.goal ?? '없음'}
           />
         </div>
 

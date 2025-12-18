@@ -2,6 +2,7 @@
 export interface ReservationUserItem {
   memberId: number;
   memberName: string;
+  memberNickname?: string;
   profileImage?: {
     imageId: number;
     resizedImages: {
@@ -28,6 +29,7 @@ export interface WeeklyReservationResponse {
 
 export interface Participant {
   id: number;
+  nickname?: string;
   name: string;
   avatarUrl?: string;
   simpleIntroduction?: string;

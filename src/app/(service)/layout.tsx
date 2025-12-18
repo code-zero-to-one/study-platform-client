@@ -1,5 +1,6 @@
 import '../global.css';
 
+import React from 'react';
 import Clarity from '@microsoft/clarity';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';

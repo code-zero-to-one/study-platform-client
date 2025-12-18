@@ -14,6 +14,8 @@ import {
   ApplyGroupStudyFormSchema,
 } from '../model/apply-group-study-form.schema';
 import { useApplyGroupStudyMutation } from '../model/use-apply-group-study';
+import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 interface ApplyGroupStudyModalProps {
   groupStudyId: number;
@@ -29,6 +31,23 @@ export default function ApplyGroupStudyModal({
   trigger,
 }: ApplyGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && !isVerified) {
+      setIsVerificationModalOpen(true);
+      setOpen(false);
+
+      return;
+    }
+    setOpen(isOpen);
+  };
+
+  const handleVerificationComplete = (phoneNumber: string) => {
+    setVerified(phoneNumber);
+    setOpen(true);
+  };
 
   useEffect(() => {
     if (open) {
@@ -41,30 +60,38 @@ export default function ApplyGroupStudyModal({
   }, [open, groupStudyId, title]);
 
   return (
-    <Modal.Root open={open} onOpenChange={setOpen}>
-      <Modal.Trigger asChild>{trigger}</Modal.Trigger>
+    <>
+      <Modal.Root open={open} onOpenChange={handleOpenChange}>
+        <Modal.Trigger asChild>{trigger}</Modal.Trigger>
 
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content>
-          <Modal.Header className="border-border-default flex justify-between border-b">
-            <Modal.Title className="font-designer-20b text-text-strong">
-              스터디 신청서 작성하기
-            </Modal.Title>
-            <Modal.Close onClick={() => setOpen(false)}>
-              <XIcon />
-            </Modal.Close>
-          </Modal.Header>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content>
+            <Modal.Header className="border-border-default flex justify-between border-b">
+              <Modal.Title className="font-designer-20b text-text-strong">
+                스터디 신청서 작성하기
+              </Modal.Title>
+              <Modal.Close onClick={() => setOpen(false)}>
+                <XIcon />
+              </Modal.Close>
+            </Modal.Header>
 
-          <ApplyGroupStudyForm
-            groupStudyId={groupStudyId}
-            title={title}
-            questions={questions}
-            onClose={() => setOpen(false)}
-          />
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal.Root>
+            <ApplyGroupStudyForm
+              groupStudyId={groupStudyId}
+              title={title}
+              questions={questions}
+              onClose={() => setOpen(false)}
+            />
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal.Root>
+
+      <PhoneVerificationModal
+        open={isVerificationModalOpen}
+        onOpenChange={setIsVerificationModalOpen}
+        onVerificationComplete={handleVerificationComplete}
+      />
+    </>
   );
 }
 

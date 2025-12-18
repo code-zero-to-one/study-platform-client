@@ -208,7 +208,14 @@ function PartnerInfo({
   return (
     <div className="flex flex-1 items-center justify-between p-300">
       <div className="flex gap-150">
-        <UserAvatar image={image} alt={name} size={32} />
+        <UserProfileModal
+          memberId={id}
+          trigger={
+            <div className="cursor-pointer">
+              <UserAvatar image={image} alt={name} size={32} />
+            </div>
+          }
+        />
 
         <div className="flex items-center gap-100">
           <span className="font-designer-16m text-text-default">{name}</span>

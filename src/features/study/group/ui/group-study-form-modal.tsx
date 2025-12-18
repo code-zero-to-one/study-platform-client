@@ -20,6 +20,8 @@ import {
   toOpenGroupRequest,
 } from '../model/group-study-form.schema';
 import { useGroupStudyDetailQuery } from '../model/use-study-query';
+import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 interface GroupStudyModalProps {
   trigger?: React.ReactNode;
@@ -47,6 +49,33 @@ export default function GroupStudyFormModal({
     isLoading,
     refetch: refetchGroupStudyInfo,
   } = useGroupStudyDetailQuery(groupStudyId!);
+
+  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+  const handleVerificationComplete = (phoneNumber: string) => {
+    setVerified(phoneNumber);
+    // 인증 완료 후 모달 열기
+    if (mode === 'create') {
+      setOpen(true);
+    }
+    // edit 모드일 때는 외부 제어라 호출자가 처리해야 함 (보통 edit는 이미 인증된 유저)
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && mode === 'create' && !isVerified) {
+      setIsVerificationModalOpen(true);
+      setOpen(false); // 스터디 모달은 닫힘 유지
+
+      return;
+    }
+
+    if (mode === 'create') {
+      setOpen(isOpen);
+    } else {
+      if (onControlledOpen) onControlledOpen();
+    }
+  };
 
   const refineStudyDetail = (value: GroupStudyDetailResponse) => {
     if (isLoading) return;
@@ -143,7 +172,7 @@ export default function GroupStudyFormModal({
     } catch (err) {
       alert('그룹 스터디 수정 중 오류가 발생했습니다. 다시 시도해 주세요.');
     } finally {
-      onControlledOpen();
+      if (onControlledOpen) onControlledOpen();
     }
   };
 
@@ -164,32 +193,40 @@ export default function GroupStudyFormModal({
   }, [open, mode]);
 
   return (
-    <Modal.Root
-      open={mode === 'create' ? open : controlledOpen}
-      onOpenChange={mode === 'create' ? () => setOpen(!open) : onControlledOpen}
-    >
-      {trigger && <Modal.Trigger asChild>{trigger}</Modal.Trigger>}
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content size="large">
-          <Modal.Header className="border-border-default flex items-center justify-between border-b">
-            <Modal.Title className="font-designer-20b">
-              {mode === 'create' ? '스터디 개설하기' : '스터디 수정하기'}
-            </Modal.Title>
-            <Modal.Close>
-              <XIcon />
-            </Modal.Close>
-          </Modal.Header>
-          <GroupStudyForm
-            defaultValues={
-              mode === 'create'
-                ? buildOpenGroupDefaultValues()
-                : refineStudyDetail(groupStudyInfo!)
-            }
-            onSubmit={handleSubmitForm}
-          />
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal.Root>
+    <>
+      <Modal.Root
+        open={mode === 'create' ? open : controlledOpen}
+        onOpenChange={handleOpenChange}
+      >
+        {trigger && <Modal.Trigger asChild>{trigger}</Modal.Trigger>}
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content size="large">
+            <Modal.Header className="border-border-default flex items-center justify-between border-b">
+              <Modal.Title className="font-designer-20b">
+                {mode === 'create' ? '스터디 개설하기' : '스터디 수정하기'}
+              </Modal.Title>
+              <Modal.Close>
+                <XIcon />
+              </Modal.Close>
+            </Modal.Header>
+            <GroupStudyForm
+              defaultValues={
+                mode === 'create'
+                  ? buildOpenGroupDefaultValues()
+                  : refineStudyDetail(groupStudyInfo!)
+              }
+              onSubmit={handleSubmitForm}
+            />
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal.Root>
+
+      <PhoneVerificationModal
+        open={isVerificationModalOpen}
+        onOpenChange={setIsVerificationModalOpen}
+        onVerificationComplete={handleVerificationComplete}
+      />
+    </>
   );
 }
