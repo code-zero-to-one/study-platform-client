@@ -81,7 +81,7 @@ Next.js 환경에서 올바른 엔드포인트로 요청하려면 `NEXT_PUBLIC_A
 
 ```bash
 export NEXT_PUBLIC_API_BASE_URL=https://test-api.zeroone.it.kr
-npm run dev
+yarn run dev
 ```
 
 환경변수가 누락되면 `src/api/openapi/base.ts`의 기본값으로 동작합니다.
