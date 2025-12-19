@@ -15,6 +15,7 @@ import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 
 import { GroupItems } from '@/components/ui/toggle';
+import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
@@ -22,10 +23,10 @@ import {
   useUpdateUserProfileMutation,
   useUpdateUserProfileInfoMutation,
 } from '@/features/my-page/model/use-update-user-profile-mutation';
-import { studySteps } from '@/features/study/participation/const/participation-const';
 
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
+import { studySteps } from '@/features/study/participation/const/participation-const';
 
 import {
   StartStudyFormSchema,
@@ -34,7 +35,6 @@ import {
   toJoinStudyRequest,
 } from '@/features/study/participation/model/start-study-form.schema';
 import { useJoinStudyMutation } from '@/features/study/participation/model/use-participation-query';
-import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 
 interface StartStudyModalProps {
   memberId: number;

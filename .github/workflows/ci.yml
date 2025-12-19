@@ -29,6 +29,7 @@ jobs:
         run: yarn install --frozen-lockfile
 
       # ESLint로 코드 스타일/버그 패턴 검사(경고를 실패로 취급)
+      # 실패 시: yarn lint:fix
       - name: Lint
         run: yarn lint
 
@@ -37,6 +38,7 @@ jobs:
         run: yarn typecheck
 
       # Prettier로 코드 포맷 검사(형식 불일치 시 실패)
+      # 실패 시: yarn prettier:fix
       - name: Prettier Check
         run: yarn prettier
 

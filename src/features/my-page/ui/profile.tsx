@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
 import Tooltip from '@/components/ui/tooltip';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
-import { useState, useEffect } from 'react';
 import { MemberProfile, SincerityTemp } from '@/entities/user/api/types';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';

@@ -8,14 +8,14 @@ import { useController, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { Modal } from '@/components/ui/modal';
+import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import { GroupStudyDetailResponse } from '../api/group-study-types';
 import {
   ApplyGroupStudyFormData,
   ApplyGroupStudyFormSchema,
 } from '../model/apply-group-study-form.schema';
 import { useApplyGroupStudyMutation } from '../model/use-apply-group-study';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
-import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 interface ApplyGroupStudyModalProps {
   groupStudyId: number;

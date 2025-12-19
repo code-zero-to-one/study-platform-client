@@ -1,10 +1,10 @@
 // 2. 직무 선택 단계
-import { useMemo } from 'react';
-import { StepHeader } from './step-header';
-import { cn } from "@/components/ui/(shadcn)/lib/utils";
 import { Briefcase } from 'lucide-react';
-import { useJobsQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
+import { useMemo } from 'react';
+import { cn } from "@/components/ui/(shadcn)/lib/utils";
 import type { JobResponse } from '@/features/my-page/api/types';
+import { useJobsQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
+import { StepHeader } from './step-header';
 
 export function JobStep({ data, updateData, onNext }: any) {
     const { data: jobs = [] } = useJobsQuery();

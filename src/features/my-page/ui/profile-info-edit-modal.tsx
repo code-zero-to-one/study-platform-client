@@ -7,13 +7,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
+import { SingleDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
 import { TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { GroupItems } from '@/components/ui/toggle';
-import type { MemberInfo } from '@/entities/user/api/types';
 import type { ToggleOption } from '@/components/ui/toggle/group';
-import { SingleDropdown } from '@/components/ui/dropdown';
+import type { MemberInfo } from '@/entities/user/api/types';
 import {
   ProfileInfoFormSchema,
   type ProfileInfoFormValues,

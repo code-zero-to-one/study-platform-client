@@ -1,20 +1,20 @@
 import { sendGTMEvent } from '@next/third-parties/google';
+import { 
+  XIcon,
+  ArrowLeft,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Modal } from '@/components/ui/modal';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { setCookie } from '@/api/client/cookie';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { Modal } from '@/components/ui/modal';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/features/auth/model/use-auth-mutation';
 import { getAttributionParams } from '@/utils/attribution-tracker';
 import { hashValue } from '@/utils/hash';
-import { 
-  XIcon,
-  ArrowLeft,
-} from 'lucide-react';
-import { SignUpRequest } from '../model/types';
 import { NicknameStep, JobStep, CareerStep, StudyFormatTypesStep, GoalStep } from './steps';
+import { SignUpRequest } from '../model/types';
 
 type Step = 'nickname' | 'job' | 'career' | 'study-format-type' | 'goal';
 

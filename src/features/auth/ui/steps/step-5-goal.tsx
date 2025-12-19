@@ -1,7 +1,7 @@
+import { Lightbulb } from 'lucide-react';
 import Button from "@/components/ui/button";
 import { TextAreaInput } from '@/components/ui/input';
 import { StepHeader } from './step-header';
-import { Lightbulb } from 'lucide-react';
 
 // 5. 목표 입력 단계
 export function GoalStep({ data, updateData, onNext, onSkip }: any) {

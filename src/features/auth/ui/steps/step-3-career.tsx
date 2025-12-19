@@ -1,9 +1,9 @@
 // 3. 경력 선택 단계
-import { StepHeader } from './step-header';
-import { cn } from "@/components/ui/(shadcn)/lib/utils";
 import { ArrowLeft, TrendingUp } from 'lucide-react';
-import { useCareersQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
+import { cn } from "@/components/ui/(shadcn)/lib/utils";
 import type { CareerResponse } from '@/features/my-page/api/types';
+import { useCareersQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
+import { StepHeader } from './step-header';
 
 export function CareerStep({ data, updateData, onNext }: any) {
     const { data: careers = [] } = useCareersQuery();

@@ -3,11 +3,11 @@ import Image from 'next/image';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import {
   ApplyStatus,
   GroupStudyApply,
 } from '@/features/study/group/application/api/type';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 
 interface ProfileCardProps {
   data: GroupStudyApply;

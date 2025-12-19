@@ -1,10 +1,10 @@
 // 1. 닉네임 입력 단계
-import { useState, useRef, useEffect } from 'react';
-import { StepHeader } from './step-header';
 import { Hand, Check, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { BaseInput } from '@/components/ui/input';
 import { useDebounce } from '@/hooks/common/use-debounce';
+import { StepHeader } from './step-header';
 import { useNicknameCheckQuery } from '../../model/use-nickname-check';
 import SignupImageSelector from '../sign-up-image-selector';
 

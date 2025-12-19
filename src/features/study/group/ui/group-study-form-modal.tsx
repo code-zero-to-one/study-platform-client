@@ -6,6 +6,8 @@ import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Modal } from '@/components/ui/modal';
+import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import GroupStudyForm from './group-study-form';
 
 import { GroupStudyDetailResponse } from '../api/group-study-types';
@@ -20,8 +22,6 @@ import {
   toOpenGroupRequest,
 } from '../model/group-study-form.schema';
 import { useGroupStudyDetailQuery } from '../model/use-study-query';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
-import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 interface GroupStudyModalProps {
   trigger?: React.ReactNode;

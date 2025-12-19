@@ -1,11 +1,11 @@
 import '../global.css';
 
-import React from 'react';
 import Clarity from '@microsoft/clarity';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import React from 'react';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
 import MainProvider from '@/providers';
 import Header from '@/widgets/home/header';

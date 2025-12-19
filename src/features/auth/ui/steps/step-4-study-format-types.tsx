@@ -1,10 +1,10 @@
 // 4. 관심 스터디 선택 단계
 
-import { StepHeader } from './step-header';
-import { cn } from "@/components/ui/(shadcn)/lib/utils";
 import { ArrowLeft, Rocket } from 'lucide-react';
-import { useStudyFormatTypesQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
+import { cn } from "@/components/ui/(shadcn)/lib/utils";
 import type { StudyFormatTypeResponse } from '@/features/my-page/api/types';
+import { useStudyFormatTypesQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
+import { StepHeader } from './step-header';
 
 export function StudyFormatTypesStep({ data, updateData, onNext }: any) {
   const { data: studyFormatTypes = [] } = useStudyFormatTypesQuery();
