@@ -1,4 +1,4 @@
-import Button from '@/shared/ui/button';
+import Button from '@/components/ui/button';
 import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
 interface CreatePostProps {

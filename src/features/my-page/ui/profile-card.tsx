@@ -1,12 +1,13 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import Button from '@/components/ui/button';
+import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import {
   ApplyStatus,
   GroupStudyApply,
 } from '@/features/study/group/application/api/type';
-import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
-import { cn } from '@/shared/shadcn/lib/utils';
-import Button from '@/shared/ui/button';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 
 interface ProfileCardProps {
   data: GroupStudyApply;
@@ -43,11 +44,19 @@ export default function ProfileCard(props: ProfileCardProps) {
   return (
     <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-[#E9EAEB] p-300">
       <div className="flex gap-150">
-        <Image
-          src="/profile-default.jpg"
-          alt="profile"
-          width={48}
-          height={48}
+        <UserProfileModal
+          memberId={applicant.applicantInfo.memberId}
+          trigger={
+            <div className="relative h-[48px] w-[48px] shrink-0 cursor-pointer overflow-hidden rounded-full">
+              <Image
+                src={applicant.applicantInfo.profileImage?.resizedImages[0].resizedImageUrl ?? ''}
+                alt="profile"
+                width={48}
+                height={48}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          }
         />
         <div>
           <div className="flex items-center gap-50">

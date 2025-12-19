@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import SingleDropdown from '@/shared/ui/dropdown/single';
+import SingleDropdown from '@/components/ui/dropdown/single';
 
 const meta: Meta<typeof SingleDropdown> = {
   component: SingleDropdown,

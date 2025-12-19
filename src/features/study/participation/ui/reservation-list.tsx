@@ -9,7 +9,7 @@ import {
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
 import ReservationCard from '@/features/study/participation/ui/reservation-user-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
-import { getCookie } from '@/shared/tanstack-query/cookie';
+import { useAuth } from '@/hooks/use-auth';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {
@@ -26,13 +26,9 @@ export default function ReservationList({
   week,
 }: ReservationListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const [memberId, setMemberId] = useState<number | null>(null);
+  const { data: authData } = useAuth();
+  const memberId = authData?.memberId ?? null;
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    const id = getCookie('memberId');
-    setMemberId(id ? Number(id) : null);
-  }, []);
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
   const autoMatching = userProfile?.autoMatching ?? false;
@@ -44,10 +40,9 @@ export default function ReservationList({
 
   const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
     useInfiniteReservation(firstMemberId ?? undefined, pageSize);
-
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
-
+    
   useEffect(() => {
     if (!hasNextPage) return;
 
@@ -115,8 +110,11 @@ export default function ReservationList({
 
         {!autoMatching && (
           <div
-            className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] items-center justify-between gap-150 px-200 py-300"
+            className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] cursor-pointer items-center justify-between gap-150 px-200 py-300 transition-all duration-300"
             onClick={handleApplyClick}
+            style={{
+              animation: 'subtle-pulse 1s ease-in-out infinite',
+            }}
           >
             <ProfileDefault
               width={48}

@@ -2,7 +2,7 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
-import { Carousel } from '@/shared/ui/carousel';
+import { Carousel } from '@/components/ui/carousel';
 import ArrowBackIcon from 'public/icons/arrow_back_ios.svg';
 import ArrowForwardIcon from 'public/icons/arrow_forward_ios.svg';
 

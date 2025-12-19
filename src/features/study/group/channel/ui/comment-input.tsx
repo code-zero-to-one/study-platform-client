@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import Button from '@/components/ui/button';
 import { useUser } from '@/features/auth/model/use-user';
-import Button from '@/shared/ui/button';
 
 interface CommentInputProps {
   mode: 'edit' | 'save';

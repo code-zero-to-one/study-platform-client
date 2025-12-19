@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
-import { useLeaderStore } from '@/shared/stores/useLeaderStore';
-import UserAvatar from '@/shared/ui/avatar';
-import Button from '@/shared/ui/button';
+import UserAvatar from '@/components/ui/avatar';
+import Button from '@/components/ui/button';
+import { useLeaderStore } from '@/stores/useLeaderStore';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
 interface PostProps {
@@ -34,9 +35,14 @@ export default function Post({ data }: PostProps) {
         </div>
 
         <div className="flex gap-150">
-          <UserAvatar
-            size={48}
-            image={leader.profileImage?.resizedImages[0].resizedImageUrl}
+          <UserProfileModal
+            memberId={leader.memberId}
+            trigger={
+              <UserAvatar
+                size={48}
+                image={leader.profileImage?.resizedImages[0].resizedImageUrl}
+              />
+            }
           />
           <div className="flex flex-col gap-50">
             <div className="flex gap-50">

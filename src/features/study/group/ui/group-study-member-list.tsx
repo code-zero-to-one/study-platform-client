@@ -2,8 +2,8 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import Pagination from '@/shared/ui/pagination';
+import Pagination from '@/components/ui/pagination';
+import { useAuth } from '@/hooks/use-auth';
 import GroupStudyMemberItem from './group-study-member-item';
 import KickedReasonModal from './kicked-reason-modal';
 import {
@@ -31,6 +31,7 @@ export default function GroupStudyMemberList({
     pageNumber: pageNumber,
     pageSize: PAGE_SIZE,
   });
+  const { data: authData } = useAuth();
 
   if (isLoading) {
     return null;
@@ -41,7 +42,7 @@ export default function GroupStudyMemberList({
 
   // memberList의 첫 번째 요소는 내 정보
   const myInfo = memberList[0];
-  const isLeader = leaderId === Number(getCookie('memberId'));
+  const isLeader = leaderId === authData?.memberId;
   const totalPages = Math.ceil((data?.totalMemberCount || 0) / PAGE_SIZE) || 1;
 
   return (

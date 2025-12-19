@@ -1,24 +1,21 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { decodeJwt } from '@/shared/lib/jwt';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/shared/shadcn/ui/dropdown-menu';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import UserAvatar from '@/shared/ui/avatar';
+} from '@/components/ui/(shadcn)/ui/dropdown-menu';
+import UserAvatar from '@/components/ui/avatar';
+import { useAuth } from '@/hooks/use-auth';
 import { useLogoutMutation } from '../model/use-auth-mutation';
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   const { mutateAsync: logout } = useLogoutMutation();
+  const { data: authData } = useAuth();
 
-  const jwt = getCookie('accessToken');
-  const decodedJwt = decodeJwt(jwt);
-
-  const hasAdminRole = decodedJwt && decodedJwt?.roleIds.includes('ROLE_ADMIN');
+  const hasAdminRole = authData?.roleIds.includes('ROLE_ADMIN');
 
   const router = useRouter();
 

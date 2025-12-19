@@ -1,10 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import UserAvatar from '@/components/ui/avatar';
+import MoreMenu from '@/components/ui/dropdown/more-menu';
 import { useUser } from '@/features/auth/model/use-user';
-import { useLeaderStore } from '@/shared/stores/useLeaderStore';
-import UserAvatar from '@/shared/ui/avatar';
-import MoreMenu from '@/shared/ui/dropdown/more-menu';
+import { useLeaderStore } from '@/stores/useLeaderStore';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import CommentInput from './comment-input';
 import { ResizedImage } from '../../api/group-study-types';
 import ConfirmDeleteModal from '../../ui/confirm-delete-modal';
@@ -212,9 +213,14 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
         }}
       />
       <div className="flex flex-1 items-start gap-150">
-        <UserAvatar
-          size={40}
-          image={data.image?.resizedImages[0].resizedImageUrl}
+        <UserProfileModal
+          memberId={data.authorId}
+          trigger={
+            <UserAvatar
+              size={40}
+              image={data.image?.resizedImages[0].resizedImageUrl}
+            />
+          }
         />
         {isEditing ? (
           <CommentInput

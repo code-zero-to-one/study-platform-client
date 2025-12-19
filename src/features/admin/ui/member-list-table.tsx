@@ -2,13 +2,13 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { useDebounce } from '@/shared/lib/debounce';
-import { formatYYYYMMDD } from '@/shared/lib/time';
-import Badge from '@/shared/ui/badge';
-import Button from '@/shared/ui/button';
-import Checkbox from '@/shared/ui/checkbox';
-import { SingleDropdown } from '@/shared/ui/dropdown';
-import Pagination from '@/shared/ui/pagination';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
+import { SingleDropdown } from '@/components/ui/dropdown';
+import Pagination from '@/components/ui/pagination';
+import { useDebounce } from '@/hooks/common/use-debounce';
+import { formatYYYYMMDD } from '@/utils/time';
 import FilledX from 'public/icons/filled-x.svg';
 import SealCheckIcon from 'public/icons/seal-check.svg';
 import SearchIcon from 'public/icons/search.svg';
@@ -145,7 +145,7 @@ export default function MemberListTable() {
                   />
                 </th>
                 <th className="font-designer-14m text-text-default px-300 text-left">
-                  이름
+                  닉네임 (이름)
                 </th>
                 <th className="font-designer-14m text-text-default px-300 text-left">
                   가입일
@@ -191,7 +191,10 @@ export default function MemberListTable() {
                     />
                   </td>
                   <td className="font-designer-16m text-text-default px-300 text-left">
-                    {user.memberName}
+                    {user.memberName 
+                      ? `${user.memberNickname} (${user.memberName})`
+                      : `익명 (${user.memberNickname})`
+                    }
                   </td>
                   <td className="font-designer-14r text-text-subtle px-300 text-left">
                     {formatYYYYMMDD(user.joinedAt)}

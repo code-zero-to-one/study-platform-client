@@ -3,10 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Button from '@/shared/ui/button';
-import FormField from '@/shared/ui/form/form-field';
-import { TextAreaInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
+import Button from '@/components/ui/button';
+import FormField from '@/components/ui/form/form-field';
+import { TextAreaInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import {
   DeleteGroupStudyMemberFormSchema,
   DeleteGroupStudyMemberFormValues,

@@ -1,3 +1,5 @@
+'use client';
+
 import { sendGTMEvent } from '@next/third-parties/google';
 import dayjs from 'dayjs';
 import {
@@ -15,16 +17,14 @@ import {
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import React from 'react';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
+import Button from '@/components/ui/button';
+import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { getSincerityPresetByLevelName } from '@/shared/config/sincerity-temp-presets';
-import { hashValue } from '@/shared/lib/hash';
-import { cn } from '@/shared/shadcn/lib/utils';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import UserAvatar from '@/shared/ui/avatar';
-
-import Button from '@/shared/ui/button';
+import { useAuth } from '@/hooks/use-auth';
+import { hashValue } from '@/utils/hash';
 import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
-import GroupStudyNoticeModal from './group-notice-modal';
 import SummaryStudyInfo from './summary-study-info';
 
 import {
@@ -56,6 +56,8 @@ export default function StudyInfoSection({
   memberId,
 }: StudyInfoSectionProps) {
   const router = useRouter();
+  const { data: authData } = useAuth();
+
   const { data: approvedApplicants } = useApplicantsByStatusQuery({
     groupStudyId,
     status: 'APPROVED',
@@ -134,7 +136,7 @@ export default function StudyInfoSection({
       },
       {
         label: '시작일자',
-        value: dayjs(basicInfo.createdAt).format('YYYY.MM.DD'),
+        value: dayjs(basicInfo.startDate).format('YYYY.MM.DD'),
         icon: <Clock size={24} color="#A4A7AE" />,
       },
       {
@@ -253,11 +255,12 @@ export default function StudyInfoSection({
                     key={data.applyId}
                     className="rounded-100 border-border-subtle flex h-[100px] w-[382px] items-center justify-between gap-150 border px-200 py-300"
                   >
-                    <UserAvatar size={48} image={undefined} />
+                    <UserAvatar size={48} image={data.applicantInfo.profileImage?.resizedImages[0].resizedImageUrl ?? ''} />
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="flex flex-row items-center gap-50">
                         <div className="font-designer-16b">
-                          {data.applicantInfo.memberName}
+                          {/* 닉네임 존재하지않을시 익명처리 (이름 -> 닉네임 migration 이후 삭제) */}
+                          {data.applicantInfo.memberNickname !== '' ? data.applicantInfo.memberNickname : '익명'}
                         </div>
                         <span
                           className={cn(
@@ -276,12 +279,13 @@ export default function StudyInfoSection({
                         <div
                           className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50"
                           onClick={() => {
-                            const memberId = getCookie('memberId');
                             sendGTMEvent({
                               event: 'group_study_member_profile_click',
                               dl_timestamp: new Date().toISOString(),
-                              ...(memberId && {
-                                dl_member_id: hashValue(memberId),
+                              ...(authData?.memberId && {
+                                dl_member_id: hashValue(
+                                  String(authData.memberId),
+                                ),
                               }),
                               dl_target_member_id: String(
                                 data.applicantInfo.memberId,

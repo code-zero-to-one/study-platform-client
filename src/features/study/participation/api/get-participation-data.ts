@@ -1,3 +1,4 @@
+import { axiosInstance } from '@/api/client/axios';
 import {
   WeeklyReservationRequest,
   WeeklyReservationResponse,
@@ -5,7 +6,6 @@ import {
   Participant,
   JoinStudyRequest,
 } from '@/features/study/participation/api/participation-types';
-import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 // 스터디 신청 목록 서버데이터 -> UI 매핑 함수
 export function mapReservation(user: ReservationUserItem): Participant {
@@ -16,6 +16,7 @@ export function mapReservation(user: ReservationUserItem): Participant {
   return {
     id: user.memberId,
     name: user.memberName,
+    nickname: user.memberNickname,
     avatarUrl: original ?? null,
     simpleIntroduction: user.simpleIntroduction,
   };
@@ -26,7 +27,6 @@ export const getReservationMembers = async (
   params: WeeklyReservationRequest,
 ): Promise<WeeklyReservationResponse> => {
   const { cursor, pageSize = 50, firstMemberId } = params;
-
   const res = await axiosInstance.get('/members/study-reservation', {
     params: {
       ...(cursor !== null ? { cursor } : {}),

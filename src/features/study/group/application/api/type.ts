@@ -21,6 +21,7 @@ export interface GroupStudyApply {
 export interface Applicant {
   memberId: number;
   memberName: string;
+  memberNickname?: string;
   profileImage: ProfileImage;
   sincerityTemp: SincerityTemp;
 }

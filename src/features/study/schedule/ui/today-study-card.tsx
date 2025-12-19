@@ -2,12 +2,11 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import UserAvatar from '@/components/ui/avatar';
+import Badge from '@/components/ui/badge';
 import UserPhoneNumberCopyModal from '@/entities/user/ui/user-phone-number-copy-modal';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { isNumeric } from '@/shared/lib/validation';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import UserAvatar from '@/shared/ui/avatar';
-import Badge from '@/shared/ui/badge';
+import { useAuth } from '@/hooks/use-auth';
 import { DailyStudyDetail } from '../../interview/api/interview-types';
 import { useDailyStudyDetailQuery } from '../../interview/model/use-interview-query';
 import { getStatusBadge } from '../../interview/ui/status-badge-map';
@@ -15,10 +14,8 @@ import StudyDoneModal from '../../interview/ui/study-done-modal';
 import StudyReadyModal from '../../interview/ui/study-ready-modal';
 
 export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
-  const memberIdInCookie = getCookie('memberId');
-  const memberId = isNumeric(memberIdInCookie)
-    ? Number(memberIdInCookie)
-    : null;
+  const { data: authData } = useAuth();
+  const memberId = authData?.memberId ?? null;
 
   const { data: todayStudyData } = useDailyStudyDetailQuery(studyDate);
 
@@ -211,7 +208,14 @@ function PartnerInfo({
   return (
     <div className="flex flex-1 items-center justify-between p-300">
       <div className="flex gap-150">
-        <UserAvatar image={image} alt={name} size={32} />
+        <UserProfileModal
+          memberId={id}
+          trigger={
+            <div className="cursor-pointer">
+              <UserAvatar image={image} alt={name} size={32} />
+            </div>
+          }
+        />
 
         <div className="flex items-center gap-100">
           <span className="font-designer-16m text-text-default">{name}</span>

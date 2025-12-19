@@ -1,7 +1,7 @@
 import { isAxiosError } from 'axios';
 import { notFound } from 'next/navigation';
-import { isApiError } from '@/shared/tanstack-query/api-error';
-import { axiosServerInstance } from '@/shared/tanstack-query/axios.server';
+import { isApiError } from '@/api/client/api-error';
+import { axiosServerInstance } from '@/api/client/axios.server';
 import {
   GroupStudyDetailRequest,
   GroupStudyDetailResponse,

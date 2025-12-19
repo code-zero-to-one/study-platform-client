@@ -4,10 +4,10 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { hashValue } from '@/shared/lib/hash';
-import { useIntersectionObserver } from '@/shared/lib/intersection-observer';
-import { getCookie } from '@/shared/tanstack-query/cookie';
-import Badge from '@/shared/ui/badge';
+import Badge from '@/components/ui/badge';
+import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
+import { useAuth } from '@/hooks/use-auth';
+import { hashValue } from '@/utils/hash';
 
 import { BasicInfoDetail } from '../api/group-study-types';
 import {
@@ -24,6 +24,7 @@ interface GroupStudyListProps {
 
 export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
   const router = useRouter();
+  const { data: authData } = useAuth();
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGroupStudyListQuery();
 
@@ -108,11 +109,12 @@ export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
                   className="rounded-100 flex w-full cursor-pointer justify-between gap-500 border border-solid border-[#D5D7DA] p-400"
                   key={index}
                   onClick={() => {
-                    const memberId = getCookie('memberId');
                     sendGTMEvent({
                       event: 'group_study_detail_view',
                       dl_timestamp: new Date().toISOString(),
-                      ...(memberId && { dl_member_id: hashValue(memberId) }),
+                      ...(authData?.memberId && {
+                        dl_member_id: hashValue(String(authData.memberId)),
+                      }),
                       dl_study_id: String(study.basicInfo.groupStudyId),
                       dl_study_title: study.simpleDetailInfo.title,
                     });
@@ -149,8 +151,8 @@ export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
                   </div>
                   <Image
                     src={
-                      study.simpleDetailInfo.thumbnail.resizedImages[0]
-                        .resizedImageUrl
+                      study.simpleDetailInfo.thumbnail?.resizedImages[0]
+                        ?.resizedImageUrl || '/images/no-group-study-member.svg'
                     }
                     alt="thumbnail"
                     className="h-[160px] w-[240px] object-cover"

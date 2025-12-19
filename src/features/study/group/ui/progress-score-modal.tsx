@@ -5,11 +5,11 @@ import { XIcon } from 'lucide-react';
 
 import React from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Button from '@/shared/ui/button';
-import FormField from '@/shared/ui/form/form-field';
-import { TextAreaInput } from '@/shared/ui/input';
-import { Modal } from '@/shared/ui/modal';
-import { GroupItems } from '@/shared/ui/toggle';
+import Button from '@/components/ui/button';
+import FormField from '@/components/ui/form/form-field';
+import { TextAreaInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
+import { GroupItems } from '@/components/ui/toggle';
 import { Grade, UpdateProgressScoreRequest } from '../api/group-study-types';
 import {
   ProgressScoreFormSchema,

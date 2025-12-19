@@ -1,9 +1,9 @@
+import { axiosInstance } from '@/api/client/axios';
 import type {
   CompleteStudyRequest,
   DailyStudyDetail,
   PrepareStudyRequest,
 } from '@/features/study/interview/api/interview-types';
-import { axiosInstance } from '@/shared/tanstack-query/axios';
 
 // 스터디 상세 조회
 export const getDailyStudyDetail = async (

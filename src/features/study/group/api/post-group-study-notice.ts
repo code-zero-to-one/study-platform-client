@@ -1,4 +1,4 @@
-import { axiosInstance } from '@/shared/tanstack-query/axios';
+import { axiosInstance } from '@/api/client/axios';
 import { GroupStudyNoticeRequest } from './group-study-types';
 
 // 그룹 스터디 공지 등록

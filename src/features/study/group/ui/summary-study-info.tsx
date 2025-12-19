@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import React from 'react';
-import Button from '@/shared/ui/button';
+import Button from '@/components/ui/button';
 import ApplyGroupStudyModal from './apply-group-study-modal';
 import {
   GroupStudyDetailResponse,

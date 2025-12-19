@@ -7,9 +7,9 @@ import {
   type CalendarDay as DayPickerDay,
   type Modifiers,
 } from 'react-day-picker';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { Calendar as ShadcnCalendar } from '@/components/ui/(shadcn)/ui/calendar';
 import { useMonthlyStudyCalendarQuery } from '@/features/study/schedule/model/use-schedule-query';
-import { cn } from '@/shared/shadcn/lib/utils';
-import { Calendar as ShadcnCalendar } from '@/shared/shadcn/ui/calendar';
 
 interface CalendarDayProps extends HTMLAttributes<HTMLTableCellElement> {
   day: DayPickerDay;
