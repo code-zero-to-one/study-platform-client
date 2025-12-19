@@ -35,9 +35,9 @@ function RedirectionContent() {
         } else {
           router.push('/home');
           router.refresh();
-          
+
           const attributionParams = getAttributionParams();
-          
+
           sendGTMEvent({
             event: 'custom_member_login',
             dl_timestamp: new Date().toISOString(),

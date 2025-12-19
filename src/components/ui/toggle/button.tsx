@@ -41,8 +41,9 @@ export const toggleButtonVariants = cva(
   },
 );
 
-interface ToggleButtonProps
-  extends React.ComponentProps<typeof TogglePrimitive.Root> {
+interface ToggleButtonProps extends React.ComponentProps<
+  typeof TogglePrimitive.Root
+> {
   size?: 'sm' | 'md' | 'lg';
   variant?: 'round' | 'square';
   color?: 'primary' | 'gray';

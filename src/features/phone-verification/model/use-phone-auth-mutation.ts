@@ -2,10 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getCookie } from '@/api/client/cookie';
 import { usePhoneVerificationStore } from './store';
-import {
-  sendPhoneVerificationCode,
-  verifyPhoneCode,
-} from '../api/phone-auth';
+import { sendPhoneVerificationCode, verifyPhoneCode } from '../api/phone-auth';
 import type {
   SendPhoneVerificationCodeRequest,
   VerifyPhoneCodeRequest,

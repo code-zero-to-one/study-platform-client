@@ -271,7 +271,7 @@ function ProfileInfoEditForm({
               <GroupItems options={timeOptions} />
             </FormField>
 
-            {/* 기본 정보 (profile-edit-modal)로 이동 */} 
+            {/* 기본 정보 (profile-edit-modal)로 이동 */}
             {/* <FormField<ProfileInfoFormValues, 'techStackIds', string[]>
               name="techStackIds"
               label="사용 가능한 기술 스택"
@@ -301,7 +301,10 @@ function ProfileInfoEditForm({
               direction="vertical"
               required
             >
-              <SingleDropdown options={careerOptions} placeholder="선택해주세요" />
+              <SingleDropdown
+                options={careerOptions}
+                placeholder="선택해주세요"
+              />
             </FormField>
 
             {/* 회원가입시 받는 내용 (SPRINT2 프로필개선) */}

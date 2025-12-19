@@ -60,7 +60,7 @@ export const getStudyDashboard = async (): Promise<StudyDashboardResponse> => {
   return res.data.content;
 };
 
-/** 
+/**
  * 회원가입시 받는 정보들 (SPRINT2 프로필개선)
  **/
 export const getJobs = async (): Promise<JobResponse[]> => {
@@ -75,7 +75,9 @@ export const getCareers = async (): Promise<CareerResponse[]> => {
   return res.data.content;
 };
 
-export const getStudyFormatTypes = async (): Promise<StudyFormatTypeResponse[]> => {
+export const getStudyFormatTypes = async (): Promise<
+  StudyFormatTypeResponse[]
+> => {
   const res = await axiosInstance.get('/study-format-types');
 
   return res.data.content;

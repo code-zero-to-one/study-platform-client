@@ -11,4 +11,3 @@ export function formatPhoneNumber(value: string | undefined): string {
 
   return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
 }
-

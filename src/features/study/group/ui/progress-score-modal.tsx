@@ -18,8 +18,10 @@ import {
 import { useProgressGradesQuery } from '../model/use-progress-grades-query';
 import { useUpdateProgressScoreMutation } from '../model/use-update-progress-score';
 
-interface ProgressScoreModalModalProps
-  extends Pick<UpdateProgressScoreRequest, 'targetMemberId' | 'groupStudyId'> {
+interface ProgressScoreModalModalProps extends Pick<
+  UpdateProgressScoreRequest,
+  'targetMemberId' | 'groupStudyId'
+> {
   open: boolean;
   onChangeOpen: (open: boolean) => void;
 }
@@ -55,8 +57,10 @@ export default function ProgressScoreModal({
   );
 }
 
-interface ProgressScoreFormProps
-  extends Pick<UpdateProgressScoreRequest, 'groupStudyId' | 'targetMemberId'> {
+interface ProgressScoreFormProps extends Pick<
+  UpdateProgressScoreRequest,
+  'groupStudyId' | 'targetMemberId'
+> {
   onClose: () => void;
 }
 

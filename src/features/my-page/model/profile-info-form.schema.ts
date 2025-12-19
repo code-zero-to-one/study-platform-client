@@ -29,18 +29,13 @@ export const ProfileInfoFormSchema = z.object({
   //   .min(1, '기술 스택을 1개 이상 선택해 주세요.'),
 
   // 기본정보에 추가되는 정보들 (SPRINT2 프로필개선)
-  jobs: z
-    .array(z.string()),
+  jobs: z.array(z.string()),
 
-  career: z
-    .string(),
+  career: z.string(),
 
-  studyFormatTypes: z
-    .array(z.string()),
+  studyFormatTypes: z.array(z.string()),
 
-  goal: z
-    .string()
-
+  goal: z.string(),
 });
 
 export type ProfileInfoFormValues = z.infer<typeof ProfileInfoFormSchema>;
@@ -63,16 +58,25 @@ export function buildProfileInfoDefaultValues(
     //   .filter((x): x is number => typeof x === 'number')
     //   .map(String),
 
-    jobs: member.jobs
-      ?.map((j) => (j.job ? String(j.job) : undefined))
-      .filter((x): x is string => x !== undefined && x !== null && x !== '') ?? [],
+    jobs:
+      member.jobs
+        ?.map((j) => (j.job ? String(j.job) : undefined))
+        .filter(
+          (x): x is string => x !== undefined && x !== null && x !== '',
+        ) ?? [],
     career: member.career?.career || undefined,
-     studyFormatTypes: member.studyFormatTypes && Array.isArray(member.studyFormatTypes) && member.studyFormatTypes.length > 0
-      ? member.studyFormatTypes
-          .map((item) => item.studyFormatType)
-          .filter((v): v is string => v !== undefined && v !== null && v.trim() !== '')
-      : [],
-    goal: member.goal ?? ''
+    studyFormatTypes:
+      member.studyFormatTypes &&
+      Array.isArray(member.studyFormatTypes) &&
+      member.studyFormatTypes.length > 0
+        ? member.studyFormatTypes
+            .map((item) => item.studyFormatType)
+            .filter(
+              (v): v is string =>
+                v !== undefined && v !== null && v.trim() !== '',
+            )
+        : [],
+    goal: member.goal ?? '',
   };
 }
 
@@ -89,6 +93,6 @@ export function toUpdateUserProfileInfoRequest(
     jobs: v.jobs ?? [],
     career: v.career ?? '',
     studyFormatTypes: v.studyFormatTypes ?? [],
-    goal: v.goal
+    goal: v.goal,
   };
 }

@@ -8,7 +8,9 @@ export interface PhoneVerificationState {
   verifiedAt: Date | null;
 }
 
-export function usePhoneVerificationState(initialState?: Partial<PhoneVerificationState>) {
+export function usePhoneVerificationState(
+  initialState?: Partial<PhoneVerificationState>,
+) {
   const [state, setState] = useState<PhoneVerificationState>({
     isVerified: initialState?.isVerified ?? false,
     phoneNumber: initialState?.phoneNumber ?? null,
@@ -37,4 +39,3 @@ export function usePhoneVerificationState(initialState?: Partial<PhoneVerificati
     reset,
   };
 }
-

@@ -41,8 +41,9 @@ const toggleThumbVariants = cva(
   },
 );
 
-interface ToggleProps
-  extends React.ComponentProps<typeof SwitchPrimitive.Root> {
+interface ToggleProps extends React.ComponentProps<
+  typeof SwitchPrimitive.Root
+> {
   label?: string;
   color?: 'primary' | 'gray';
   size?: 'sm' | 'md' | 'lg';

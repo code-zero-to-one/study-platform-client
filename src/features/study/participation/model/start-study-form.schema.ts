@@ -51,11 +51,16 @@ export function buildStartStudyDefaultValues(
     // tel: profile?.memberProfile?.tel ?? '',
     githubLink: profile?.memberProfile?.githubLink?.url ?? '',
     blogOrSnsLink: profile?.memberProfile?.blogOrSnsLink?.url ?? '',
-    preferredStudySubjectId: profile?.memberInfo?.preferredStudySubject?.studySubjectId ?? '',
+    preferredStudySubjectId:
+      profile?.memberInfo?.preferredStudySubject?.studySubjectId ?? '',
     availableStudyTimeIds:
-      profile?.memberInfo?.availableStudyTimes?.map((time) => String(time.id)) ?? [],
+      profile?.memberInfo?.availableStudyTimes?.map((time) =>
+        String(time.id),
+      ) ?? [],
     techStackIds:
-      profile?.memberProfile?.techStacks?.map((tech) => String(tech.techStackId)) ?? [],
+      profile?.memberProfile?.techStacks?.map((tech) =>
+        String(tech.techStackId),
+      ) ?? [],
   };
 }
 

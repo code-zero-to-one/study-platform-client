@@ -81,7 +81,7 @@ export default function MyProfileCard({
         open={isStartStudyModalOpen}
         onOpenChange={setIsStartStudyModalOpen}
       />
-      
+
       <section className="rounded-200 border-border-subtle bg-text-inverse flex flex-col items-start gap-200 border p-200">
         <div className="flex flex-row items-center gap-200">
           <div className="relative h-[64px] w-[64px] shrink-0">

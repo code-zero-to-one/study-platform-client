@@ -24,7 +24,10 @@ import {
   buildProfileDefaultValues,
   toUpdateProfilePayload,
 } from '../model/profile-form.schema';
-import { useTechStacksQuery, useUpdateUserProfileMutation } from '../model/use-update-user-profile-mutation';
+import {
+  useTechStacksQuery,
+  useUpdateUserProfileMutation,
+} from '../model/use-update-user-profile-mutation';
 
 interface Props {
   memberProfile: MemberProfile;
@@ -102,7 +105,7 @@ function ProfileEditForm({
       })),
     [techStacks],
   );
-  
+
   const onValidSubmit = async (values: ProfileFormValues) => {
     const file = fileInputRef.current?.files?.[0];
     const profileImageExtension =
@@ -181,7 +184,7 @@ function ProfileEditForm({
             >
               <BaseInput placeholder="입력해주세요." />
             </FormField>
-            
+
             <FormField<ProfileFormInput, 'mbti'>
               name="mbti"
               label="MBTI"
@@ -224,14 +227,17 @@ function ProfileEditForm({
               <BaseInput placeholder="2000.00.00" />
             </FormField>
 
-            {/* 기본 정보 (profile-info-edit-modal)에서 이동해옴 */} 
+            {/* 기본 정보 (profile-info-edit-modal)에서 이동해옴 */}
             <FormField<ProfileFormInput, 'techStackIds', string[]>
               name="techStackIds"
               label="사용 가능한 기술 스택"
               helper="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
               required
             >
-              <MultiDropdown options={techStackOptions} placeholder="선택해주세요" />
+              <MultiDropdown
+                options={techStackOptions}
+                placeholder="선택해주세요"
+              />
             </FormField>
 
             <FormField<ProfileFormInput, 'githubLink'>
@@ -255,7 +261,6 @@ function ProfileEditForm({
             >
               <BaseInput placeholder="https://github.com/user_id " />
             </FormField>
-
           </form>
         </FormProvider>
       </Modal.Body>

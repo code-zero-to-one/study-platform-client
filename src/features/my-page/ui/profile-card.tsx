@@ -49,7 +49,10 @@ export default function ProfileCard(props: ProfileCardProps) {
           trigger={
             <div className="relative h-[48px] w-[48px] shrink-0 cursor-pointer overflow-hidden rounded-full">
               <Image
-                src={applicant.applicantInfo.profileImage?.resizedImages[0].resizedImageUrl ?? ''}
+                src={
+                  applicant.applicantInfo.profileImage?.resizedImages[0]
+                    .resizedImageUrl ?? ''
+                }
                 alt="profile"
                 width={48}
                 height={48}

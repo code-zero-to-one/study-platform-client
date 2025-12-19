@@ -7,7 +7,6 @@ import { useRouter } from 'next/navigation';
 import { useMemo, useState, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-
 import Button from '@/components/ui/button';
 import { SingleDropdown, MultiDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
@@ -46,36 +45,48 @@ interface StartStudyModalProps {
 // 컴팩트한 스터디 설명 컴포넌트
 function StudyGuideCard() {
   return (
-    <div className="bg-fill-neutral-subtle-default rounded-100 p-300 flex flex-col gap-200">
+    <div className="bg-fill-neutral-subtle-default rounded-100 flex flex-col gap-200 p-300">
       <h3 className="font-designer-16b text-text-strong flex items-center gap-75">
         🔥 1:1 CS 스터디, 이렇게 진행돼요!
       </h3>
       <div className="flex flex-col gap-150">
         <div className="flex items-start gap-100">
-          <div className="mt-[2px] p-50 bg-fill-brand-subtle-default rounded-50">
-            <Users className="w-[14px] h-[14px] text-text-brand" />
+          <div className="bg-fill-brand-subtle-default rounded-50 mt-[2px] p-50">
+            <Users className="text-text-brand h-[14px] w-[14px]" />
           </div>
           <div className="flex flex-col">
-            <span className="font-designer-14b text-text-strong">파트너 매칭</span>
-            <span className="font-designer-13r text-text-subtle">주말 동안 나와 딱 맞는 파트너가 매칭돼요.</span>
+            <span className="font-designer-14b text-text-strong">
+              파트너 매칭
+            </span>
+            <span className="font-designer-13r text-text-subtle">
+              주말 동안 나와 딱 맞는 파트너가 매칭돼요.
+            </span>
           </div>
         </div>
         <div className="flex items-start gap-100">
-          <div className="mt-[2px] p-50 bg-fill-brand-subtle-default rounded-50">
-            <Calendar className="w-[14px] h-[14px] text-text-brand" />
+          <div className="bg-fill-brand-subtle-default rounded-50 mt-[2px] p-50">
+            <Calendar className="text-text-brand h-[14px] w-[14px]" />
           </div>
           <div className="flex flex-col">
-            <span className="font-designer-14b text-text-strong">월~금 매일 10분</span>
-            <span className="font-designer-13r text-text-subtle">한 주간 정해진 시간에 온라인으로 만나요.</span>
+            <span className="font-designer-14b text-text-strong">
+              월~금 매일 10분
+            </span>
+            <span className="font-designer-13r text-text-subtle">
+              한 주간 정해진 시간에 온라인으로 만나요.
+            </span>
           </div>
         </div>
         <div className="flex items-start gap-100">
-          <div className="mt-[2px] p-50 bg-fill-brand-subtle-default rounded-50">
-            <MessageCircle className="w-[14px] h-[14px] text-text-brand" />
+          <div className="bg-fill-brand-subtle-default rounded-50 mt-[2px] p-50">
+            <MessageCircle className="text-text-brand h-[14px] w-[14px]" />
           </div>
           <div className="flex flex-col">
-            <span className="font-designer-14b text-text-strong">발표와 질문</span>
-            <span className="font-designer-13r text-text-subtle">하루씩 번갈아가며 설명하고 질문하는 시간을 가져요.</span>
+            <span className="font-designer-14b text-text-strong">
+              발표와 질문
+            </span>
+            <span className="font-designer-13r text-text-subtle">
+              하루씩 번갈아가며 설명하고 질문하는 시간을 가져요.
+            </span>
           </div>
         </div>
       </div>
@@ -91,7 +102,7 @@ export default function StartStudyModal({
 }: StartStudyModalProps) {
   const { isVerified, setVerified } = usePhoneVerificationStore();
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-  
+
   const [internalOpen, setInternalOpen] = useState(false);
   const isModalOpen = open ?? internalOpen;
 
@@ -133,7 +144,7 @@ export default function StartStudyModal({
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
     setIsVerificationModalOpen(false);
-    
+
     if (onOpenChange) {
       onOpenChange(true);
     } else {
@@ -188,7 +199,8 @@ function StartStudyForm({
   const { data: techStacks = [] } = useTechStacksQuery();
   const { mutate: joinStudy } = useJoinStudyMutation();
   const { mutate: updateProfile } = useUpdateUserProfileMutation(memberId);
-  const { mutate: updateProfileInfo } = useUpdateUserProfileInfoMutation(memberId);
+  const { mutate: updateProfileInfo } =
+    useUpdateUserProfileInfoMutation(memberId);
 
   const { isVerified, phoneNumber } = usePhoneVerificationStore();
   const { data: profile } = useUserProfileQuery(memberId);
@@ -250,7 +262,8 @@ function StartStudyForm({
       const githubChanged =
         values.githubLink !== (profile.memberProfile.githubLink?.url ?? '');
       const blogChanged =
-        values.blogOrSnsLink !== (profile.memberProfile.blogOrSnsLink?.url ?? '');
+        values.blogOrSnsLink !==
+        (profile.memberProfile.blogOrSnsLink?.url ?? '');
       const techStacksChanged =
         JSON.stringify(values.techStackIds.sort()) !==
         JSON.stringify(
@@ -284,7 +297,12 @@ function StartStudyForm({
             .sort() ?? [],
         );
 
-      if (selfIntroChanged || studyPlanChanged || subjectChanged || timesChanged) {
+      if (
+        selfIntroChanged ||
+        studyPlanChanged ||
+        subjectChanged ||
+        timesChanged
+      ) {
         profileUpdates.profileInfo = {
           selfIntroduction: values.selfIntroduction,
           studyPlan: values.studyPlan,
@@ -292,7 +310,8 @@ function StartStudyForm({
           availableStudyTimeIds: values.availableStudyTimeIds.map(Number),
           // 기존 프로필 정보 유지
           jobs:
-            profile.memberInfo.jobs?.map((j) => j.job ?? '').filter(Boolean) ?? [],
+            profile.memberInfo.jobs?.map((j) => j.job ?? '').filter(Boolean) ??
+            [],
           career: profile.memberInfo.career?.career ?? '',
           studyFormatTypes:
             profile.memberInfo.studyFormatTypes
