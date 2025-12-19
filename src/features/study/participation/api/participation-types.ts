@@ -49,6 +49,7 @@ export interface JoinStudyRequest {
   preferredStudySubjectId?: string;
   availableStudyTimeIds?: number[];
   techStackIds?: number[];
+  /** @deprecated 전화번호 인증 검증용으로만 사용. API 요청 시에는 제거됨. */
   tel?: string;
   githubLink?: string;
   blogOrSnsLink?: string;
