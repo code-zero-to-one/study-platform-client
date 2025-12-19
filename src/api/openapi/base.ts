@@ -18,15 +18,7 @@ import type { Configuration } from './configuration';
 import type { AxiosPromise, AxiosInstance, RawAxiosRequestConfig } from 'axios';
 import globalAxios from 'axios';
 
-// Prefer environment variable, fallback to generator default
-const envBase =
-  typeof process !== 'undefined'
-    ? process.env.NEXT_PUBLIC_API_BASE_URL
-    : undefined;
-export const BASE_PATH = (envBase ?? 'https://test-api.zeroone.it.kr').replace(
-  /\/+$/,
-  '',
-);
+export const BASE_PATH = 'https://test-api.zeroone.it.kr'.replace(/\/+$/, '');
 
 export const COLLECTION_FORMATS = {
   csv: ',',

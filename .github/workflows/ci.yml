@@ -1,0 +1,54 @@
+# CI: PR에서 품질 체크(린트/타입/빌드/스토리북/보안)
+name: CI
+
+# 트리거: develop/main 대상으로 열리는 PR에서 실행
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+
+jobs:
+  lint-type-build:
+    # 실행 환경: 최신 Ubuntu 이미지
+    runs-on: ubuntu-latest
+    steps:
+      # 저장소 체크아웃
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Node 설정(버전 고정 및 npm 캐시 활용)
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 의존성 설치(잠금파일 기반, 재현성 높은 설치)
+      - name: Install dependencies
+        run: npm ci
+
+      # ESLint로 코드 스타일/버그 패턴 검사(경고를 실패로 취급)
+      - name: Lint
+        run: npm run lint
+
+      # TypeScript 컴파일러로 타입 체크(빌드 없이 타입만 검증)
+      - name: Type Check
+        run: npm run typecheck
+
+      # Prettier로 코드 포맷 검사(형식 불일치 시 실패)
+      - name: Prettier Check
+        run: npm run prettier
+
+      # Next.js 프로덕션 빌드(정적 분석 및 페이지 최적화 포함)
+      - name: Build
+        run: npm run build
+
+      # Storybook 정적 빌드(UI 카탈로그가 깨지지 않는지 확인)
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      # 보안 감사: 고위험 이상의 취약점 리포트(현재는 비차단)
+      # 실패로 처리하려면 '|| true'를 제거하세요.
+      - name: Security Audit
+        run: npm audit --omit=dev --audit-level=high || true
