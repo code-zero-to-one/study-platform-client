@@ -209,17 +209,6 @@ function StartStudyForm({
     }
   }, [profile, reset]);
 
-  // 전화번호 자동 입력 (프로필에 있으면 프로필 값, 없으면 인증된 전화번호)
-  useEffect(() => {
-    if (profile?.memberProfile?.tel) {
-      // 프로필에 전화번호가 있으면 프로필 값 사용
-      setValue('tel', profile.memberProfile.tel, { shouldValidate: true });
-    } else if (isVerified && phoneNumber) {
-      // 프로필에 없고 인증된 전화번호가 있으면 인증된 값 사용
-      setValue('tel', phoneNumber, { shouldValidate: true });
-    }
-  }, [profile, isVerified, phoneNumber, setValue]);
-
   const subjectOptions = useMemo(
     () =>
       studySubjects.map(({ studySubjectId, name }) => ({

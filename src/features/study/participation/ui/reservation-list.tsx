@@ -110,8 +110,11 @@ export default function ReservationList({
 
         {!autoMatching && (
           <div
-            className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] items-center justify-between gap-150 px-200 py-300"
+            className="rounded-100 bg-fill-information-subtle-default hover:bg-fill-information-subtle-hover active:bg-fill-information-subtle-pressed flex h-[100px] cursor-pointer items-center justify-between gap-150 px-200 py-300 transition-all duration-300"
             onClick={handleApplyClick}
+            style={{
+              animation: 'subtle-pulse 1s ease-in-out infinite',
+            }}
           >
             <ProfileDefault
               width={48}
