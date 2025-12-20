@@ -149,7 +149,7 @@ export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
                       ))}
                     </div>
                   </div>
-                  <Image
+                  {/* <Image
                     src={
                       study.simpleDetailInfo.thumbnail?.resizedImages[0]
                         ?.resizedImageUrl || '/images/no-group-study-member.svg'
@@ -158,7 +158,7 @@ export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
                     className="h-[160px] w-[240px] object-cover"
                     width={240}
                     height={160}
-                  />
+                  /> */}
                 </div>
               );
             })}
