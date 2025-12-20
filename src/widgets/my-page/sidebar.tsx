@@ -52,6 +52,12 @@ export default function Sidebar() {
       >
         결제 관리
       </SidebarItem>
+      <SidebarItem
+        onClick={() => router.push('/settlement-management')}
+        isActive={pathname === '/settlement-management'}
+      >
+        정산 관리
+      </SidebarItem>
       <div className="bg-border-subtlest h-[1px]" />
       <SidebarItem onClick={handleLogout} isActive={false}>
         로그아웃
