@@ -46,9 +46,12 @@ export default function Sidebar() {
       >
         스터디 후기
       </SidebarItem>
-      {/* <SidebarItem onClick={() => {}} isActive={false}>
-        계정설정
-      </SidebarItem> */}
+      <SidebarItem
+        onClick={() => router.push('/payment-management')}
+        isActive={pathname === '/payment-management'}
+      >
+        결제 관리
+      </SidebarItem>
       <div className="bg-border-subtlest h-[1px]" />
       <SidebarItem onClick={handleLogout} isActive={false}>
         로그아웃
