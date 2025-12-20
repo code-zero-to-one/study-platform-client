@@ -1,22 +1,15 @@
 'use client';
 
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { cn } from '../ui/(shadcn)/lib/utils';
 import Button from '../ui/button';
 import Checkbox from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
-import PaymentTermsModal from './PaymentTermsModal';
-
-interface Study {
-  id: string;
-  title: string;
-  desc: string;
-  price: number;
-  thumbnailUrl?: string;
-}
 
 interface Props {
-  study: Study;
+  orderId: string;
+  amount: number;
 }
 
 type PaymentMethod = 'CARD' | 'VBANK';
@@ -28,7 +21,10 @@ const methods: { id: PaymentMethod; label: string }[] = [
   { id: 'VBANK', label: '무통장 입금 (가상계좌)' },
 ];
 
-export default function PaymentCheckoutPage({ study }: Props) {
+export default function PaymentCheckoutPage({
+  orderId,
+  // amount,
+}: Props) {
   const [payment, setPayment] = useState(null);
   const [isAgreed, setIsAgreed] = useState(false);
 
@@ -59,21 +55,19 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
     try {
       await payment.requestPayment({
-        method: paymentMethod,
-        amount: {
-          currency: 'KRW',
-          value: study.price,
-        },
-        orderId: study.id,
-        orderName: study.title,
-        successUrl: window.location.origin + '/payment/success',
-        failUrl: window.location.origin + '/payment/fail',
+        method: 'CARD', // 카드 및 간편결제
+        amount: 50000, // 결제 금액
+        orderId: 'a0bPplgMJIXnZfBh4sSI1', // 고유 주문번호
+        orderName: '토스 티셔츠 외 2건',
+        successUrl: window.location.origin + '/success', // 결제 요청이 성공하면 리다이렉트되는 URL
+        failUrl: window.location.origin + '/fail', // 결제 요청이 실패하면 리다이렉트되는 URL
         customerEmail: 'customer123@gmail.com',
         customerName: '김토스',
         customerMobilePhone: '01012341234',
+        // 카드 결제에 필요한 정보
         card: {
           useEscrow: false,
-          flowMode: 'DEFAULT',
+          flowMode: 'DEFAULT', // 통합결제창 여는 옵션
           useCardPoint: false,
           useAppCardOnly: false,
         },
@@ -89,6 +83,10 @@ export default function PaymentCheckoutPage({ study }: Props) {
     }
   };
 
+  const [amount] = useState({
+    currency: 'KRW',
+    value: 50000,
+  });
 
   useEffect(() => {
     async function fetchPayment() {
@@ -129,7 +127,14 @@ export default function PaymentCheckoutPage({ study }: Props) {
             </span>
           </div>
 
-          <PaymentTermsModal />
+          <a
+            className="text-xs text-gray-500 underline"
+            href="/terms/payment"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            내용보기
+          </a>
         </div>
       </div>
 
@@ -146,18 +151,18 @@ export default function PaymentCheckoutPage({ study }: Props) {
             const selected = paymentMethod === m.id;
 
             return (
-              <label
+              <Button
                 key={m.id}
-                htmlFor={m.id}
-                className={`flex w-full cursor-pointer items-center justify-start rounded-100 px-400 py-300 ${
-                  selected
-                    ? 'bg-fill-primary-default text-text-on-color'
-                    : 'border border-border-default bg-white hover:bg-fill-neutral-subtle-hover'
-                }`}
+                type="button"
+                color={selected ? 'primary' : 'secondary'}
+                onClick={() => setPaymentMethod(m.id)}
+                className="flex w-full items-center justify-start"
               >
-                <RadioGroupItem value={m.id} id={m.id} size="large" />
-                <span className="font-designer-16b ml-75">{m.label}</span>
-              </label>
+                <label htmlFor={m.id} className="flex items-center">
+                  <RadioGroupItem value={m.id} size="large" />
+                  <span className="font-designer-16b ml-75">{m.label}</span>
+                </label>
+              </Button>
             );
           })}
         </RadioGroup>
