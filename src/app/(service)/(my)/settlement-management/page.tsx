@@ -11,6 +11,7 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function SettlementManagementPage() {
   const [page, setPage] = useState<number>(1);
@@ -77,6 +78,12 @@ export default function SettlementManagementPage() {
     }
     setAddAccountModalOpen(true);
   };
+
+  const { data } = useAuth();
+
+  if (!data.roleIds.includes('ROLE_MENTOR')) {
+    return <div>해당 페이지에 접근할 권한이 없습니다.</div>;
+  }
 
   return (
     <div className="flex flex-col gap-300">
