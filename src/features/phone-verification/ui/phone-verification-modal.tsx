@@ -243,7 +243,7 @@ export default function PhoneVerificationModal({
   if (!mounted || !open) return null;
 
   const modalContent = (
-    <div 
+    <div
       style={{
         position: 'fixed',
         inset: 0,
@@ -253,7 +253,8 @@ export default function PhoneVerificationModal({
         justifyContent: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
         backdropFilter: 'blur(4px)',
-        fontFamily: 'var(--font-pretendard), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        fontFamily:
+          'var(--font-pretendard), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       }}
       onClick={() => onOpenChange(false)}
     >
@@ -272,23 +273,39 @@ export default function PhoneVerificationModal({
       >
         {/* ---------------- STEP 1: 정보 입력 (이름 + 전화번호) ---------------- */}
         {step === 'input' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <h2 style={{ 
-                  fontSize: '24px', 
-                  fontWeight: 700, 
-                  lineHeight: 1.3,
-                  color: '#111827',
-                  margin: 0,
-                }}>
-                  본인 정보를<br/>입력해주세요
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <div
+                style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+              >
+                <h2
+                  style={{
+                    fontSize: '24px',
+                    fontWeight: 700,
+                    lineHeight: 1.3,
+                    color: '#111827',
+                    margin: 0,
+                  }}
+                >
+                  본인 정보를
+                  <br />
+                  입력해주세요
                 </h2>
-                <p style={{ 
-                  fontSize: '16px', 
-                  color: '#6b7280',
-                  margin: 0,
-                }}>
+                <p
+                  style={{
+                    fontSize: '16px',
+                    color: '#6b7280',
+                    margin: 0,
+                  }}
+                >
                   1:1 스터디를 진행하려면 본인인증이 필요해요.
                 </p>
               </div>
@@ -312,8 +329,16 @@ export default function PhoneVerificationModal({
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
                 <input
                   ref={inputRef}
                   type="text"
@@ -331,8 +356,12 @@ export default function PhoneVerificationModal({
                     color: '#111827',
                     boxSizing: 'border-box',
                   }}
-                  onFocus={(e) => { if (!error) e.target.style.borderColor = '#3b82f6'; }}
-                  onBlur={(e) => { if (!error) e.target.style.borderColor = '#e5e7eb'; }}
+                  onFocus={(e) => {
+                    if (!error) e.target.style.borderColor = '#3b82f6';
+                  }}
+                  onBlur={(e) => {
+                    if (!error) e.target.style.borderColor = '#e5e7eb';
+                  }}
                 />
 
                 <input
@@ -352,26 +381,41 @@ export default function PhoneVerificationModal({
                     color: '#111827',
                     boxSizing: 'border-box',
                   }}
-                  onFocus={(e) => { if (!error) e.target.style.borderColor = '#3b82f6'; }}
-                  onBlur={(e) => { if (!error) e.target.style.borderColor = '#e5e7eb'; }}
-                  onKeyDown={(e) => e.key === 'Enter' && phoneNumber.length >= 10 && name.trim().length >= 2 && handleRequestCode()}
+                  onFocus={(e) => {
+                    if (!error) e.target.style.borderColor = '#3b82f6';
+                  }}
+                  onBlur={(e) => {
+                    if (!error) e.target.style.borderColor = '#e5e7eb';
+                  }}
+                  onKeyDown={(e) =>
+                    e.key === 'Enter' &&
+                    phoneNumber.length >= 10 &&
+                    name.trim().length >= 2 &&
+                    handleRequestCode()
+                  }
                 />
-                <p style={{ 
-                  fontSize: '12px', 
-                  color: '#6b7280',
-                  marginTop: '2px',
-                  marginLeft: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  lineHeight: '1.4',
-                  wordBreak: 'keep-all'
-                }}>
+                <p
+                  style={{
+                    fontSize: '12px',
+                    color: '#6b7280',
+                    marginTop: '2px',
+                    marginLeft: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '4px',
+                    lineHeight: '1.4',
+                    wordBreak: 'keep-all',
+                  }}
+                >
                   <span>🔒</span>
-                  <span>실명과 전화번호는 <strong>본인과 스터디 참여자만 확인 가능</strong>하며, 외부자는 볼 수 없습니다.</span>
+                  <span>
+                    실명과 전화번호는{' '}
+                    <strong>본인과 스터디 참여자만 확인 가능</strong>하며,
+                    외부자는 볼 수 없습니다.
+                  </span>
                 </p>
               </div>
-              
+
               {error && (
                 <p style={{ fontSize: '14px', color: '#ef4444' }}>{error}</p>
               )}
@@ -414,27 +458,45 @@ export default function PhoneVerificationModal({
 
         {/* ---------------- STEP 2: 인증번호 입력 ---------------- */}
         {step === 'verify' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                <h2 style={{ 
-                  fontSize: '24px', 
-                  fontWeight: 700, 
-                  lineHeight: 1.3,
-                  color: '#111827',
-                  margin: 0,
-                }}>
-                  인증번호를<br/>입력해주세요
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+              }}
+            >
+              <div
+                style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+              >
+                <h2
+                  style={{
+                    fontSize: '24px',
+                    fontWeight: 700,
+                    lineHeight: 1.3,
+                    color: '#111827',
+                    margin: 0,
+                  }}
+                >
+                  인증번호를
+                  <br />
+                  입력해주세요
                 </h2>
-                <p style={{ 
-                  fontSize: '16px', 
-                  color: '#6b7280',
-                  margin: 0,
-                }}>
+                <p
+                  style={{
+                    fontSize: '16px',
+                    color: '#6b7280',
+                    margin: 0,
+                  }}
+                >
                   <span style={{ fontWeight: 600, color: '#111827' }}>
                     {formatPhoneNumber(phoneNumber)}
                   </span>
-                  으로<br/>전송된 번호를 입력해주세요.
+                  으로
+                  <br />
+                  전송된 번호를 입력해주세요.
                 </p>
               </div>
               <button
@@ -457,9 +519,11 @@ export default function PhoneVerificationModal({
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div 
-                style={{ 
+            <div
+              style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
+            >
+              <div
+                style={{
                   position: 'relative',
                   animation: isShaking ? 'shake 0.5s ease-in-out' : 'none',
                 }}
@@ -498,41 +562,53 @@ export default function PhoneVerificationModal({
                     boxSizing: 'border-box',
                     transition: 'background-color 0.2s, border-color 0.2s',
                   }}
-                  onFocus={(e) => { if (!error) e.target.style.borderColor = '#3b82f6'; }}
-                  onBlur={(e) => { if (!error) e.target.style.borderColor = '#e5e7eb'; }}
-                  onKeyDown={(e) => e.key === 'Enter' && code.length === 6 && handleVerifyCode()}
+                  onFocus={(e) => {
+                    if (!error) e.target.style.borderColor = '#3b82f6';
+                  }}
+                  onBlur={(e) => {
+                    if (!error) e.target.style.borderColor = '#e5e7eb';
+                  }}
+                  onKeyDown={(e) =>
+                    e.key === 'Enter' && code.length === 6 && handleVerifyCode()
+                  }
                 />
-                <span style={{
-                  position: 'absolute',
-                  right: '16px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  fontSize: '14px',
-                  fontWeight: 600,
-                  color: '#ef4444',
-                }}>
+                <span
+                  style={{
+                    position: 'absolute',
+                    right: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#ef4444',
+                  }}
+                >
                   {Math.floor(timer / 60)}:{String(timer % 60).padStart(2, '0')}
                 </span>
               </div>
-              
+
               {error ? (
-                <div style={{ 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}>
-                  <p style={{ 
-                    fontSize: '14px', 
-                    color: '#ef4444',
-                    margin: 0,
+                <div
+                  style={{
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                  }}>
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
+                >
+                  <p
+                    style={{
+                      fontSize: '14px',
+                      color: '#ef4444',
+                      margin: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                    }}
+                  >
                     <span>⚠</span> {error}
                   </p>
                   {failCount >= 5 && (
-                    <button 
+                    <button
                       onClick={handleResend}
                       disabled={isResending}
                       style={{
@@ -552,20 +628,28 @@ export default function PhoneVerificationModal({
                   )}
                 </div>
               ) : resendMessage ? (
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center',
-                  justifyContent: 'flex-end',
-                  gap: '6px',
-                }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'flex-end',
+                    gap: '6px',
+                  }}
+                >
                   <span style={{ fontSize: '14px', color: '#22c55e' }}>✓</span>
-                  <span style={{ fontSize: '14px', color: '#22c55e', fontWeight: 500 }}>
+                  <span
+                    style={{
+                      fontSize: '14px',
+                      color: '#22c55e',
+                      fontWeight: 500,
+                    }}
+                  >
                     {resendMessage}
                   </span>
                 </div>
               ) : (
                 <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  <button 
+                  <button
                     onClick={handleResend}
                     disabled={isResending}
                     style={{
@@ -613,42 +697,52 @@ export default function PhoneVerificationModal({
 
         {/* ---------------- STEP 3: 완료 ---------------- */}
         {step === 'complete' && (
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            textAlign: 'center',
-            padding: '20px 0',
-          }}>
-            <div style={{
-              width: '80px',
-              height: '80px',
-              backgroundColor: '#dcfce7',
-              borderRadius: '50%',
+          <div
+            style={{
               display: 'flex',
+              flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
-              marginBottom: '24px',
-            }}>
+              textAlign: 'center',
+              padding: '20px 0',
+            }}
+          >
+            <div
+              style={{
+                width: '80px',
+                height: '80px',
+                backgroundColor: '#dcfce7',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginBottom: '24px',
+              }}
+            >
               <span style={{ fontSize: '40px', color: '#22c55e' }}>✓</span>
             </div>
-            
-            <h2 style={{ 
-              fontSize: '24px', 
-              fontWeight: 700, 
-              color: '#111827',
-              margin: '0 0 8px 0',
-            }}>
+
+            <h2
+              style={{
+                fontSize: '24px',
+                fontWeight: 700,
+                color: '#111827',
+                margin: '0 0 8px 0',
+              }}
+            >
               인증 완료!
             </h2>
-            <p style={{ 
-              fontSize: '16px', 
-              color: '#6b7280',
-              margin: '0 0 32px 0',
-              lineHeight: 1.5,
-            }}>
-              본인 인증이 성공적으로<br/>완료되었습니다.
+            <p
+              style={{
+                fontSize: '16px',
+                color: '#6b7280',
+                margin: '0 0 32px 0',
+                lineHeight: 1.5,
+              }}
+            >
+              본인 인증이 성공적으로
+              <br />
+              완료되었습니다.
             </p>
 
             <button

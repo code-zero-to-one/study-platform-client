@@ -3,6 +3,7 @@
 import { XIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState, useMemo } from 'react';
+import { getCookie } from '@/api/client/cookie';
 import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import { Modal } from '@/components/ui/modal';
@@ -11,16 +12,15 @@ import { useUserPositiveKeywordsQuery } from '@/entities/review/model/use-review
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import KeywordReview from '@/entities/user/ui/keyword-review';
 import ProfileInfoCard from '@/entities/user/ui/profile-info-card';
-import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
 import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
-import { getCookie } from '@/api/client/cookie';
-import { decodeJwt } from '@/utils/jwt';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import { formatPhoneNumber } from '@/utils/format';
+import { decodeJwt } from '@/utils/jwt';
 
 interface UserProfileModalProps {
   memberId: number;
@@ -64,15 +64,15 @@ function UserProfileBody({
     memberId,
   });
   console.log(profile);
-  
+
   // 본인 여부 확인
   const currentMemberId = Number(getCookie('memberId'));
   const isMe = currentMemberId === memberId; // 본인
-  
+
   // 관리자 여부 확인
   const accessToken = getCookie('accessToken');
   const decodedJwt = accessToken ? decodeJwt(accessToken) : null;
-  const isAdmin = decodedJwt?.roleIds?.includes('ROLE_ADMIN') ?? false; 
+  const isAdmin = decodedJwt?.roleIds?.includes('ROLE_ADMIN') ?? false;
 
   //  같은 스터디 참가자 여부 확인
   const params = useParams();
@@ -96,7 +96,7 @@ function UserProfileBody({
 
   // 최종 이름, 전화번호 표시 가능 여부
   const canSeePhoneNumber = isMe || isAdmin || isSameStudyMember;
- 
+
   if (isLoading) {
     return (
       <>
@@ -150,7 +150,7 @@ function UserProfileBody({
             </div>
 
             <div className="flex items-center justify-start">
-              <div className="flex items-center gap-50 font-designer-28b pb-50">
+              <div className="font-designer-28b flex items-center gap-50 pb-50">
                 {profile.memberProfile.nickname}
                 {/* 본인 인증 배지 (인증된 경우에만 표시) */}
                 {profile.memberProfile.tel && (
@@ -203,9 +203,12 @@ function UserProfileBody({
               {/* 본인, 운영진, 스터디 참가자에게 노출 */}
               {canSeePhoneNumber && (
                 <div className="flex items-center gap-100">
-                  <Field icon={<PhoneIcon />} value={formatPhoneNumber(profile.memberProfile.tel)} />
+                  <Field
+                    icon={<PhoneIcon />}
+                    value={formatPhoneNumber(profile.memberProfile.tel)}
+                  />
                   <Badge color="green" shape="rectangle">
-                  인증완료
+                    인증완료
                   </Badge>
                 </div>
               )}

@@ -3,11 +3,11 @@ import Image from 'next/image';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import {
   ApplyStatus,
   GroupStudyApply,
 } from '@/features/study/group/application/api/type';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 
 interface ProfileCardProps {
   data: GroupStudyApply;
@@ -49,7 +49,10 @@ export default function ProfileCard(props: ProfileCardProps) {
           trigger={
             <div className="relative h-[48px] w-[48px] shrink-0 cursor-pointer overflow-hidden rounded-full">
               <Image
-                src={applicant.applicantInfo.profileImage?.resizedImages[0].resizedImageUrl ?? ''}
+                src={
+                  applicant.applicantInfo.profileImage?.resizedImages[0]
+                    .resizedImageUrl ?? ''
+                }
                 alt="profile"
                 width={48}
                 height={48}

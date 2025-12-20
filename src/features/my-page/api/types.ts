@@ -89,7 +89,7 @@ export interface StudyDashboardResponse {
   growthMetric: GrowthMetric;
 }
 
-/** 
+/**
  * 회원가입시 받는 정보들 (SPRINT2 프로필개선)
  **/
 export interface JobResponse {

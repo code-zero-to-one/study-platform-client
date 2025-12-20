@@ -72,7 +72,7 @@ export const useStudyDashboardQuery = () => {
   });
 };
 
-/** 
+/**
  * 서버에서 조회되는 Enum 값들 (기본적으로 백엔드에서 관리)
  **/
 export const useJobsQuery = () => {

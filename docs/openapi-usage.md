@@ -2,6 +2,12 @@
 
 이 문서는 `src/api/openapi`에 생성된 OpenAPI 클라이언트를 프로젝트에서 일관되게 사용하는 방법을 설명합니다.
 
+## 정책 안내
+
+- `src/api/openapi` 하위의 파일은 OpenAPI Generator가 자동 생성합니다. 이 디렉터리의 코드를 직접 수정하지 마세요.
+- PR에서 해당 경로의 변경이 발견되면 CI가 실패하도록 설정되어 있습니다. 필요 변경이 있다면 래퍼/헬퍼 레이어에서 처리하거나, 백엔드 스펙 업데이트 후 재생성을 요청하세요.
+- 이 디렉터리는 ESLint와 Prettier 검사에서 자동으로 제외됩니다 (`.eslintrc.cjs`와 `.prettierignore`에 설정됨).
+
 ## 기본 원칙
 
 - `Configuration`으로 `basePath`를 지정합니다.
@@ -76,7 +82,7 @@ Next.js 환경에서 올바른 엔드포인트로 요청하려면 `NEXT_PUBLIC_A
 
 ```bash
 export NEXT_PUBLIC_API_BASE_URL=https://test-api.zeroone.it.kr
-npm run dev
+yarn run dev
 ```
 
 환경변수가 누락되면 `src/api/openapi/base.ts`의 기본값으로 동작합니다.

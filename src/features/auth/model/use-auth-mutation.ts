@@ -10,11 +10,7 @@ import { SignUpRequest, SignUpResponse } from './types';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
-  return useMutation<
-    SignUpResponse,
-    Error,
-    SignUpRequest
-  >({
+  return useMutation<SignUpResponse, Error, SignUpRequest>({
     mutationFn: (data: SignUpRequest) => signUp(data),
   });
 };

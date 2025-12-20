@@ -5,7 +5,7 @@
       "name": "Next.js: debug server-side",
       "type": "node-terminal",
       "request": "launch",
-      "command": "npm run dev -- --inspect"
+      "command": "yarn run dev -- --inspect"
     },
   {
   "name": "Next.js: attach client (safe login)",

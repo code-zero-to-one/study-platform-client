@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import React from 'react';
 
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 

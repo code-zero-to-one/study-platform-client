@@ -1,10 +1,10 @@
 'use client';
 
-import CheckIcon from 'public/icons/check.svg';
 import { useState } from 'react';
+import Button from '@/components/ui/button';
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
-import Button from '@/components/ui/button';
+import CheckIcon from 'public/icons/check.svg';
 
 interface TodoListProps {
   statusList: boolean[];

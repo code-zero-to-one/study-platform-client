@@ -7,13 +7,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
+import { SingleDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
 import { TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { GroupItems } from '@/components/ui/toggle';
-import type { MemberInfo } from '@/entities/user/api/types';
 import type { ToggleOption } from '@/components/ui/toggle/group';
-import { SingleDropdown } from '@/components/ui/dropdown';
+import type { MemberInfo } from '@/entities/user/api/types';
 import {
   ProfileInfoFormSchema,
   type ProfileInfoFormValues,
@@ -271,7 +271,7 @@ function ProfileInfoEditForm({
               <GroupItems options={timeOptions} />
             </FormField>
 
-            {/* 기본 정보 (profile-edit-modal)로 이동 */} 
+            {/* 기본 정보 (profile-edit-modal)로 이동 */}
             {/* <FormField<ProfileInfoFormValues, 'techStackIds', string[]>
               name="techStackIds"
               label="사용 가능한 기술 스택"
@@ -301,7 +301,10 @@ function ProfileInfoEditForm({
               direction="vertical"
               required
             >
-              <SingleDropdown options={careerOptions} placeholder="선택해주세요" />
+              <SingleDropdown
+                options={careerOptions}
+                placeholder="선택해주세요"
+              />
             </FormField>
 
             {/* 회원가입시 받는 내용 (SPRINT2 프로필개선) */}

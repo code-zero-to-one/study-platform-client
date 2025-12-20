@@ -131,36 +131,36 @@ src/
 ### 개발 서버 실행
 
 ```bash
-npm run dev
+yarn run dev
 ```
 
 ### 백엔드 API 서버 (Docker)
 
 ```bash
 # API 서버 시작
-npm run api:on
+yarn run api:on
 
 # API 서버 종료
-npm run api:off
+yarn run api:off
 
 # 로그 확인
-npm run api:logs
+yarn run api:logs
 ```
 
 ### 코드 품질
 
 ```bash
 # ESLint 검사
-npm run lint
+yarn run lint
 
 # ESLint 자동 수정
-npm run lint:fix
+yarn run lint:fix
 
 # Prettier 검사
-npm run prettier
+yarn run prettier
 
 # Prettier 자동 포맷팅
-npm run prettier:fix
+yarn run prettier:fix
 ```
 
 ## 📦 주요 기술 스택
@@ -319,7 +319,7 @@ OpenAPI Generator로 생성된 클라이언트 사용법과 환경변수 설정�
 
 3. **타입 자동 생성**
    ```bash
-   npm run generate:api
+   yarn run generate:api
    ```
 
 ### 타입 정의 규칙
@@ -370,23 +370,23 @@ chore: 빌드 업무 수정, 패키지 매니저 수정
 
 ```bash
 # 단위 테스트
-npm run test
+yarn run test
 
 # E2E 테스트
-npm run test:e2e
+yarn run test:e2e
 ```
 
 ## 📚 Storybook
 
 ```bash
 # 개발 서버
-npm run storybook
+yarn run storybook
 
 # 빌드
-npm run build-storybook
+yarn run build-storybook
 
 # Chromatic 배포
-npm run chromatic
+yarn run chromatic
 ```
 
 ---

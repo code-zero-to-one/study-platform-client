@@ -1,12 +1,12 @@
 'use client';
 
 import Image from 'next/image';
+import { useState, useEffect } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
 import Tooltip from '@/components/ui/tooltip';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
-import { useState, useEffect } from 'react';
 import { MemberProfile, SincerityTemp } from '@/entities/user/api/types';
 import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
 import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
@@ -23,7 +23,7 @@ interface ProfileProps {
   memberId: number;
   memberProfile: MemberProfile;
   sincerityTemp: SincerityTemp;
-  hidePhoneNumber?: boolean; 
+  hidePhoneNumber?: boolean;
 }
 
 export default function Profile({
@@ -34,8 +34,9 @@ export default function Profile({
 }: ProfileProps) {
   const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
 
-  // Zustand 스토어 사용 
-  const { isVerified, phoneNumber, setVerified, reset } = usePhoneVerificationStore();
+  // Zustand 스토어 사용
+  const { isVerified, phoneNumber, setVerified, reset } =
+    usePhoneVerificationStore();
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   // 서버 데이터를 우선시: 서버에 전화번호가 있으면 인증된 것으로 간주, 없으면 스토어 초기화
@@ -94,7 +95,7 @@ export default function Profile({
                 {!hidePhoneNumber && isVerified && phoneNumber && (
                   <div className="flex flex-col items-end">
                     <div className="font-designer-14r text-text-subtle leading-none">
-                        {memberProfile.memberName}
+                      {memberProfile.memberName}
                     </div>
                     <div className="flex flex-row items-center gap-100">
                       <PhoneIcon />
@@ -105,7 +106,7 @@ export default function Profile({
                         인증완료
                       </Badge>
                       <button
-                        className="font-designer-13r text-text-subtlest underline hover:text-text-subtle"
+                        className="font-designer-13r text-text-subtlest hover:text-text-subtle underline"
                         onClick={() => setIsVerificationModalOpen(true)}
                       >
                         변경
@@ -115,7 +116,8 @@ export default function Profile({
                 )}
               </div>
               <p className="font-designer-15m text-text-default">
-                {memberProfile.simpleIntroduction ?? '나를 나타낼 수 있는 한마디소개를 입력해주세요.'}
+                {memberProfile.simpleIntroduction ??
+                  '나를 나타낼 수 있는 한마디소개를 입력해주세요.'}
               </p>
             </div>
 
@@ -130,7 +132,9 @@ export default function Profile({
               <div className="flex items-center gap-100">
                 <TechStackIcon />
                 <span className="font-designer-14r text-text-subtle leading-none">
-                  {memberProfile.techStacks?.map((tech) => tech.techStackName).join(', ') ?? '(아이콘) 기술 스택을 선택해주세요!'}
+                  {memberProfile.techStacks
+                    ?.map((tech) => tech.techStackName)
+                    .join(', ') ?? '(아이콘) 기술 스택을 선택해주세요!'}
                 </span>
               </div>
 
@@ -187,16 +191,19 @@ export default function Profile({
               />
             </div>
           </div>
-          
+
           {!hidePhoneNumber && (
-             <ProfileEditModal memberProfile={memberProfile} memberId={memberId} />
+            <ProfileEditModal
+              memberProfile={memberProfile}
+              memberId={memberId}
+            />
           )}
         </div>
       </div>
 
       {/* 하단 영역: 전화번호 미인증 시에만 인증 요청 블록 표시 (hidePhoneNumber가 true면 숨김) */}
       {!hidePhoneNumber && !isVerified && (
-        <div className="flex w-full flex-col gap-100 rounded-100 bg-background-alternative p-200">
+        <div className="rounded-100 bg-background-alternative flex w-full flex-col gap-100 p-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-100">
               <PhoneIcon className="h-5 w-5 text-yellow-500" fill="#fbbf24" />
@@ -210,7 +217,7 @@ export default function Profile({
               </div>
             </div>
             <button
-              className="rounded-75 bg-fill-brand-default-default px-150 py-75 font-designer-14b text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed"
+              className="rounded-75 bg-fill-brand-default-default font-designer-14b text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed px-150 py-75"
               onClick={() => setIsVerificationModalOpen(true)}
             >
               인증하기

@@ -1,7 +1,7 @@
 import { z } from 'zod';
+import type { GetUserProfileResponse } from '@/entities/user/api/types';
 import { JoinStudyRequest } from '@/features/study/participation/api/participation-types';
 import { UrlSchema } from '@/types/schemas/zod-schema';
-import type { GetUserProfileResponse } from '@/entities/user/api/types';
 
 export const StartStudyFormSchema = z.object({
   selfIntroduction: z
@@ -51,11 +51,16 @@ export function buildStartStudyDefaultValues(
     // tel: profile?.memberProfile?.tel ?? '',
     githubLink: profile?.memberProfile?.githubLink?.url ?? '',
     blogOrSnsLink: profile?.memberProfile?.blogOrSnsLink?.url ?? '',
-    preferredStudySubjectId: profile?.memberInfo?.preferredStudySubject?.studySubjectId ?? '',
+    preferredStudySubjectId:
+      profile?.memberInfo?.preferredStudySubject?.studySubjectId ?? '',
     availableStudyTimeIds:
-      profile?.memberInfo?.availableStudyTimes?.map((time) => String(time.id)) ?? [],
+      profile?.memberInfo?.availableStudyTimes?.map((time) =>
+        String(time.id),
+      ) ?? [],
     techStackIds:
-      profile?.memberProfile?.techStacks?.map((tech) => String(tech.techStackId)) ?? [],
+      profile?.memberProfile?.techStacks?.map((tech) =>
+        String(tech.techStackId),
+      ) ?? [],
   };
 }
 

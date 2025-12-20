@@ -14,4 +14,3 @@ export const useNicknameCheckQuery = (nickname: string, enabled: boolean) => {
     retry: false, // 중복 체크는 실패해도 재시도하지 않음
   });
 };
-

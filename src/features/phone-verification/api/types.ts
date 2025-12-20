@@ -18,4 +18,3 @@ export interface VerifyPhoneCodeResponse {
   success: boolean;
   message: string;
 }
-

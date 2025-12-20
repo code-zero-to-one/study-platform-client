@@ -27,7 +27,7 @@ export interface StudyFormatType {
 }
 
 // 내 스터디 정보 (SPRINT2 프로필개선)
-export interface MemberInfo { 
+export interface MemberInfo {
   selfIntroduction: string;
   studyPlan: string;
   preferredStudySubject: PreferredStudySubject;
@@ -40,7 +40,7 @@ export interface MemberInfo {
   goal: string;
 }
 
-/** 
+/**
  * 기본정보 (SPRINT2 프로필개선)
  **/
 export interface TechStack {

@@ -1,4 +1,7 @@
 dist/
 build/
 
+# OpenAPI auto-generated files
+src/api/openapi
+
 **/*.json
