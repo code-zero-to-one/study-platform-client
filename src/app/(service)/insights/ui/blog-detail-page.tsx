@@ -5,8 +5,8 @@ import Link from 'next/link';
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import { STRAPI_URL } from '@/shared/strapi/api/common-strapi-fetch';
-import { Article } from '@/shared/strapi/api/fetch-articles';
+import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
+import { Article } from '@/api/strapi/api/fetch-articles';
 
 interface BlogDetailPageProps {
   article: Article & { id: number; documentId: string };

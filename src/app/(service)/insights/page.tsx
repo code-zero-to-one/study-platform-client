@@ -1,11 +1,11 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { getServerCookie } from '@/shared/lib/server-cookie';
-import { STRAPI_URL } from '@/shared/strapi/api/common-strapi-fetch';
+import { getServerCookie } from '@/utils/server-cookie';
+import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
 import {
   fetchArticles,
   fetchCategories,
-} from '@/shared/strapi/api/fetch-articles';
+} from '@/api/strapi/api/fetch-articles';
 import Sidebar from '@/widgets/home/sidebar';
 
 export const revalidate = 60;
