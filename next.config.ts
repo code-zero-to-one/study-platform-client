@@ -31,6 +31,20 @@ const nextConfig: NextConfig = {
         hostname: 'www.zeroone.it.kr',
         pathname: '/**',
       },
+      // CMS 개발 환경에서 사용하는 이미지 도메인 허용 설정
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '1337',
+        pathname: '/uploads/**',
+      },
+      // CMS 테스트 서버 이미지 도메인 허용 설정
+      {
+        protocol: 'http',
+        hostname: 'test.zeroone.it.kr',
+        port: '21337',
+        pathname: '/uploads/**',
+      },
     ],
   },
 
