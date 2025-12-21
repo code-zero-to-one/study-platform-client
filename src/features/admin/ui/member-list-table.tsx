@@ -145,7 +145,7 @@ export default function MemberListTable() {
                   />
                 </th>
                 <th className="font-designer-14m text-text-default px-300 text-left">
-                  이름
+                  닉네임 (이름)
                 </th>
                 <th className="font-designer-14m text-text-default px-300 text-left">
                   가입일
@@ -191,7 +191,9 @@ export default function MemberListTable() {
                     />
                   </td>
                   <td className="font-designer-16m text-text-default px-300 text-left">
-                    {user.memberName}
+                    {user.memberName
+                      ? `${user.memberNickname} (${user.memberName})`
+                      : `익명 (${user.memberNickname})`}
                   </td>
                   <td className="font-designer-14r text-text-subtle px-300 text-left">
                     {formatYYYYMMDD(user.joinedAt)}

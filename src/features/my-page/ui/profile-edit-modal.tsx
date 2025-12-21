@@ -3,11 +3,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
-import { SingleDropdown } from '@/components/ui/dropdown';
+import { MultiDropdown, SingleDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
 import MultiItemSelector from '@/components/ui/form/multi-item-selector';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
@@ -24,7 +24,10 @@ import {
   buildProfileDefaultValues,
   toUpdateProfilePayload,
 } from '../model/profile-form.schema';
-import { useUpdateUserProfileMutation } from '../model/use-update-user-profile-mutation';
+import {
+  useTechStacksQuery,
+  useUpdateUserProfileMutation,
+} from '../model/use-update-user-profile-mutation';
 
 interface Props {
   memberProfile: MemberProfile;
@@ -74,6 +77,7 @@ function ProfileEditForm({
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
   const { mutateAsync: uploadProfileImage } = useUploadProfileImageMutation();
+  const { data: techStacks = [] } = useTechStacksQuery();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -92,6 +96,15 @@ function ProfileEditForm({
     handleSubmit,
     formState: { isValid, isSubmitting },
   } = methods;
+
+  const techStackOptions = useMemo(
+    () =>
+      techStacks.map(({ techStackId, techStackName }) => ({
+        value: String(techStackId),
+        label: techStackName,
+      })),
+    [techStacks],
+  );
 
   const onValidSubmit = async (values: ProfileFormValues) => {
     const file = fileInputRef.current?.files?.[0];
@@ -160,47 +173,16 @@ function ProfileEditForm({
               />
             </div>
 
-            <FormField<ProfileFormInput, 'name'>
-              name="name"
-              label="이름"
+            <FormField<ProfileFormInput, 'nickname'>
+              name="nickname"
+              label="닉네임"
               required
-              description="소셜 계정에서 불러온 닉네임 대신 이름을 입력해 주세요."
+              description="사람들이 나를 기억해줄 수 있는 닉네임을 입력해 주세요."
               rules={{
                 setValueAs: (v: string) => (v ?? '').replace(/\s/g, ''),
               }}
             >
               <BaseInput placeholder="입력해주세요." />
-            </FormField>
-
-            <FormField<ProfileFormInput, 'tel'>
-              name="tel"
-              label="연락처"
-              required
-              description="스터디 진행을 위한 연락 가능한 정보를 입력해 주세요."
-              rules={{
-                setValueAs: (v: string) => (v ?? '').replace(/[^\d-]/g, ''),
-              }}
-            >
-              <BaseInput placeholder="010-1234-5678" />
-            </FormField>
-
-            <FormField<ProfileFormInput, 'birthDate'>
-              name="birthDate"
-              label="생년월일"
-              description="생년월일을 입력해 주세요."
-            >
-              <BaseInput placeholder="2000.00.00" />
-            </FormField>
-
-            <FormField<ProfileFormInput, 'githubLink'>
-              name="githubLink"
-              label="Github"
-              description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
-              rules={{
-                setValueAs: (v: string) => (v ?? '').replace(/\s/g, ''),
-              }}
-            >
-              <BaseInput placeholder="https://github.com/zeroOne" />
             </FormField>
 
             <FormField<ProfileFormInput, 'mbti'>
@@ -235,6 +217,38 @@ function ProfileEditForm({
                 maxLength={200}
                 hideMeta
               />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'birthDate'>
+              name="birthDate"
+              label="생년월일"
+              description="생년월일을 입력해 주세요."
+            >
+              <BaseInput placeholder="2000.00.00" />
+            </FormField>
+
+            {/* 기본 정보 (profile-info-edit-modal)에서 이동해옴 */}
+            <FormField<ProfileFormInput, 'techStackIds', string[]>
+              name="techStackIds"
+              label="사용 가능한 기술 스택"
+              helper="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
+              required
+            >
+              <MultiDropdown
+                options={techStackOptions}
+                placeholder="선택해주세요"
+              />
+            </FormField>
+
+            <FormField<ProfileFormInput, 'githubLink'>
+              name="githubLink"
+              label="Github"
+              description="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
+              rules={{
+                setValueAs: (v: string) => (v ?? '').replace(/\s/g, ''),
+              }}
+            >
+              <BaseInput placeholder="https://github.com/zeroOne" />
             </FormField>
 
             <FormField<ProfileFormInput, 'blogOrSnsLink'>

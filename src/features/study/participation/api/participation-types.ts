@@ -2,6 +2,7 @@
 export interface ReservationUserItem {
   memberId: number;
   memberName: string;
+  memberNickname?: string;
   profileImage?: {
     imageId: number;
     resizedImages: {
@@ -28,6 +29,7 @@ export interface WeeklyReservationResponse {
 
 export interface Participant {
   id: number;
+  nickname?: string;
   name: string;
   avatarUrl?: string;
   simpleIntroduction?: string;
@@ -47,6 +49,7 @@ export interface JoinStudyRequest {
   preferredStudySubjectId?: string;
   availableStudyTimeIds?: number[];
   techStackIds?: number[];
+  /** @deprecated 전화번호 인증 검증용으로만 사용. API 요청 시에는 제거됨. */
   tel?: string;
   githubLink?: string;
   blogOrSnsLink?: string;

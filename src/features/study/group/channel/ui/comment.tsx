@@ -3,6 +3,7 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useUser } from '@/features/auth/model/use-user';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import CommentInput from './comment-input';
@@ -212,9 +213,14 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
         }}
       />
       <div className="flex flex-1 items-start gap-150">
-        <UserAvatar
-          size={40}
-          image={data.image?.resizedImages[0].resizedImageUrl}
+        <UserProfileModal
+          memberId={data.authorId}
+          trigger={
+            <UserAvatar
+              size={40}
+              image={data.image?.resizedImages[0].resizedImageUrl}
+            />
+          }
         />
         {isEditing ? (
           <CommentInput

@@ -7,14 +7,13 @@ import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
-import { MultiDropdown, SingleDropdown } from '@/components/ui/dropdown';
+import { SingleDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
 import { TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { GroupItems } from '@/components/ui/toggle';
+import type { ToggleOption } from '@/components/ui/toggle/group';
 import type { MemberInfo } from '@/entities/user/api/types';
-import { hashValue } from '@/utils/hash';
-
 import {
   ProfileInfoFormSchema,
   type ProfileInfoFormValues,
@@ -24,13 +23,43 @@ import {
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
-  useTechStacksQuery,
+  useJobsQuery,
+  useCareersQuery,
+  useStudyFormatTypesQuery,
   useUpdateUserProfileInfoMutation,
 } from '../model/use-update-user-profile-mutation';
 
 interface Props {
   memberId: number;
   memberInfo: MemberInfo;
+}
+
+// jobs 최대 제한을 위한 래퍼 컴포넌트
+// TODO : ui 컴포넌트에 반영 필요
+function LimitedGroupItems({
+  options,
+  value,
+  onChange,
+  maxSelection = 5,
+}: {
+  options: ToggleOption[];
+  value?: string[];
+  onChange?: (v: string[]) => void;
+  maxSelection?: number;
+}) {
+  const handleChange = (newValue: string[]) => {
+    const limited = newValue.slice(0, maxSelection);
+    onChange?.(limited);
+  };
+
+  return (
+    <GroupItems
+      options={options}
+      multiple={true}
+      value={value}
+      onChange={handleChange}
+    />
+  );
 }
 
 export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
@@ -57,7 +86,7 @@ export default function ProfileInfoEditModal({ memberId, memberInfo }: Props) {
         <Modal.Content size="medium">
           <Modal.Header className="border-border-default border-b">
             <div className="flex items-center justify-between">
-              <Modal.Title>내 정보 수정</Modal.Title>
+              <Modal.Title>내 스터디 정보 수정</Modal.Title>
               <Modal.Close>
                 <XIcon />
               </Modal.Close>
@@ -86,7 +115,9 @@ function ProfileInfoEditForm({
 }) {
   const { data: availableStudyTimes = [] } = useAvailableStudyTimesQuery();
   const { data: studySubjects = [] } = useStudySubjectsQuery();
-  const { data: techStacks = [] } = useTechStacksQuery();
+  const { data: jobs = [] } = useJobsQuery();
+  const { data: careers = [] } = useCareersQuery();
+  const { data: studyFormatTypes = [] } = useStudyFormatTypesQuery();
   const { mutate: updateProfileInfo } =
     useUpdateUserProfileInfoMutation(memberId);
 
@@ -114,17 +145,18 @@ function ProfileInfoEditForm({
 
     updateProfileInfo(formData, {
       onSuccess: () => {
-        const selectedNames =
-          techStacks
-            .filter((t) => values.techStackIds?.includes(String(t.techStackId)))
-            .map((t) => t.techStackName) ?? [];
+        // TODO : TBD
+        // const selectedNames =
+        //   techStacks
+        //     .filter((t) => values.techStackIds?.includes(String(t.techStackId)))
+        //     .map((t) => t.techStackName) ?? [];
 
-        sendGTMEvent({
-          event: 'custom_member_card',
-          dl_timestamp: new Date().toISOString(),
-          dl_member_id: hashValue(String(memberId)),
-          dl_tags: selectedNames,
-        });
+        // sendGTMEvent({
+        //   event: 'custom_member_card',
+        //   dl_timestamp: new Date().toISOString(),
+        //   dl_member_id: hashValue(String(memberId)),
+        //   dl_tags: selectedNames,
+        // });
 
         onClose();
       },
@@ -149,13 +181,31 @@ function ProfileInfoEditForm({
     [availableStudyTimes],
   );
 
-  const techOptions = useMemo(
+  const jobOptions = useMemo(
     () =>
-      techStacks.map(({ techStackId, techStackName }) => ({
-        value: String(techStackId),
-        label: techStackName,
+      jobs.map(({ job, description }) => ({
+        value: String(job),
+        label: description,
       })),
-    [techStacks],
+    [jobs],
+  );
+
+  const careerOptions = useMemo(
+    () =>
+      careers.map(({ career, description }) => ({
+        value: String(career),
+        label: description,
+      })),
+    [careers],
+  );
+
+  const studyFormatTypeOptions = useMemo(
+    () =>
+      studyFormatTypes.map(({ studyFormatType, description }) => ({
+        value: studyFormatType, // 이미 Enum 문자열이므로 String() 불필요
+        label: description,
+      })),
+    [studyFormatTypes],
   );
 
   return (
@@ -221,7 +271,8 @@ function ProfileInfoEditForm({
               <GroupItems options={timeOptions} />
             </FormField>
 
-            <FormField<ProfileInfoFormValues, 'techStackIds', string[]>
+            {/* 기본 정보 (profile-edit-modal)로 이동 */}
+            {/* <FormField<ProfileInfoFormValues, 'techStackIds', string[]>
               name="techStackIds"
               label="사용 가능한 기술 스택"
               helper="현재 본인이 사용할 수 있는 기술 스택을 모두 선택해 주세요."
@@ -229,6 +280,58 @@ function ProfileInfoEditForm({
               required
             >
               <MultiDropdown options={techOptions} placeholder="선택해주세요" />
+            </FormField> */}
+
+            {/* 회원가입시 받는 내용 (SPRINT2 프로필개선) */}
+            <FormField<ProfileInfoFormValues, 'jobs', string[]>
+              name="jobs"
+              label="직무"
+              description="본인의 직무를 선택해 주세요. (최대 5개 선택 가능)"
+              direction="vertical"
+              required
+            >
+              <LimitedGroupItems options={jobOptions} maxSelection={5} />
+            </FormField>
+
+            {/* 회원가입시 받는 내용 (SPRINT2 프로필개선) */}
+            <FormField<ProfileInfoFormValues, 'career'>
+              name="career"
+              label="경력"
+              description="본인의 경력을 선택해 주세요."
+              direction="vertical"
+              required
+            >
+              <SingleDropdown
+                options={careerOptions}
+                placeholder="선택해주세요"
+              />
+            </FormField>
+
+            {/* 회원가입시 받는 내용 (SPRINT2 프로필개선) */}
+            <FormField<ProfileInfoFormValues, 'studyFormatTypes', string[]>
+              name="studyFormatTypes"
+              label="스터디 형태"
+              description="본인의 스터디 형태를 선택해 주세요."
+              direction="vertical"
+              required
+            >
+              <GroupItems options={studyFormatTypeOptions} multiple={true} />
+            </FormField>
+
+            {/* 회원가입시 받는 내용 (SPRINT2 프로필개선) */}
+            <FormField<ProfileInfoFormValues, 'goal', string[]>
+              name="goal"
+              label="스터디 목표"
+              description="본인의 스터디 목표를 선택해 주세요."
+              direction="vertical"
+              showCounterRight
+              counterMax={500}
+            >
+              <TextAreaInput
+                maxLength={500}
+                placeholder="입력해주세요."
+                hideMeta
+              />
             </FormField>
           </form>
         </FormProvider>

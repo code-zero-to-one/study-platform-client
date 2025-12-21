@@ -255,11 +255,20 @@ export default function StudyInfoSection({
                     key={data.applyId}
                     className="rounded-100 border-border-subtle flex h-[100px] w-[382px] items-center justify-between gap-150 border px-200 py-300"
                   >
-                    <UserAvatar size={48} image={undefined} />
+                    <UserAvatar
+                      size={48}
+                      image={
+                        data.applicantInfo.profileImage?.resizedImages[0]
+                          .resizedImageUrl ?? ''
+                      }
+                    />
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="flex flex-row items-center gap-50">
                         <div className="font-designer-16b">
-                          {data.applicantInfo.memberName}
+                          {/* 닉네임 존재하지않을시 익명처리 (이름 -> 닉네임 migration 이후 삭제) */}
+                          {data.applicantInfo.memberNickname !== ''
+                            ? data.applicantInfo.memberNickname
+                            : '익명'}
                         </div>
                         <span
                           className={cn(

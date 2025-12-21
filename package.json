@@ -2,12 +2,18 @@
   "name": "study-platform-client",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "yarn@1.22.22",
+  "engines": {
+    "node": ">=20.0.0",
+    "yarn": ">=1.22.18"
+  },
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+    "typecheck": "tsc --noEmit",
     "prettier": "prettier --check .",
     "prettier:fix": "prettier --write .",
     "storybook": "storybook dev -p 6006",
@@ -46,6 +52,8 @@
     "react-dom": "^19.2.3",
     "react-hook-form": "^7.62.0",
     "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
+    "rehype-raw": "^7.0.0",
     "slate": "^0.118.1",
     "slate-dom": "^0.118.1",
     "slate-react": "^0.118.2",

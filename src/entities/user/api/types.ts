@@ -1,11 +1,3 @@
-export interface TechStack {
-  techStackId: number;
-  code: string;
-  techStackName: string;
-  parentId: number | undefined;
-  level: number;
-}
-
 export interface AvailableStudyTime {
   id: number;
   fromTime: string | undefined;
@@ -19,12 +11,44 @@ export interface PreferredStudySubject {
   name: string;
 }
 
+export interface Job {
+  job?: string; // Enum 값 (예: "IT_PRACTITIONER_GAME_DEV")
+  description?: string; // 설명 (예: "게임 개발자")
+}
+
+export interface Career {
+  career: string; // Enum 값 (예: "JUNIOR")
+  description: string; // 설명 (예: "주니어")
+}
+
+export interface StudyFormatType {
+  studyFormatType: string; // Enum 값 (예: "MENTORING")
+  description: string; // 설명 (예: "멘토링")
+}
+
+// 내 스터디 정보 (SPRINT2 프로필개선)
 export interface MemberInfo {
   selfIntroduction: string;
   studyPlan: string;
   preferredStudySubject: PreferredStudySubject;
   availableStudyTimes: AvailableStudyTime[];
-  techStacks: TechStack[];
+  // techStacks: TechStack[]; 기본정보로 이동 (SPRINT2 프로필개선) => memberProfile에 추가
+  // 기본정보에 추가되는 정보들 (SPRINT2 프로필개선)
+  jobs: Job[] | null;
+  career: Career | null;
+  studyFormatTypes: StudyFormatType[] | null;
+  goal: string;
+}
+
+/**
+ * 기본정보 (SPRINT2 프로필개선)
+ **/
+export interface TechStack {
+  techStackId: number;
+  code: string;
+  techStackName: string;
+  parentId: number | undefined;
+  level: number;
 }
 
 export interface SocialLink {
@@ -59,8 +83,11 @@ export interface Hobby {
   name: string;
 }
 
+// 기본정보 (SPRINT2 프로필개선)
 export interface MemberProfile {
-  memberName: string;
+  memberName: string; // 본인, 관리자만 조회 (+스터디 참여시 SPRINT2 프로필개선)
+  tel?: string; // 본인, 관리자만 조회 (+스터디 참여시 SPRINT2 프로필개선) - 스터디 참가자끼리는 볼 수 있음
+  nickname: string;
   profileImage: ProfileImage;
   simpleIntroduction: string;
   mbti: string;
@@ -69,7 +96,7 @@ export interface MemberProfile {
   birthDate: string;
   githubLink: SocialLink | undefined;
   blogOrSnsLink: SocialLink | undefined;
-  tel: string;
+  techStacks: TechStack[]; // 기본정보로 이동 (SPRINT2 프로필개선) => memberInfo에서 삭제
 }
 
 export interface SincerityTemp {

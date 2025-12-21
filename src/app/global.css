@@ -4,6 +4,53 @@
 /*
 ---break--- */
 @plugin 'tailwindcss-animate';
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: #e5e7eb;
+  }
+  input,
+  button,
+  select,
+  textarea {
+    font-family: inherit;
+    font-feature-settings: inherit;
+    font-variation-settings: inherit;
+    font-size: 100%;
+    font-weight: inherit;
+    line-height: inherit;
+    color: inherit;
+    margin: 0;
+    padding: 0;
+  }
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: 1.15;
+    margin: 0;
+  }
+  button,
+  select {
+    text-transform: none;
+  }
+  button,
+  [type='button'],
+  [type='reset'],
+  [type='submit'] {
+    -webkit-appearance: button;
+    background-color: transparent;
+    background-image: none;
+  }
+}
 /*
 ---break--- */
 @custom-variant dark (&:is(.dark *));
@@ -714,6 +761,19 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
       display: none;
     }
     scrollbar-width: none;
+  }
+}
+
+/* 은은한 펄스 애니메이션 (1:1스터디 신청하기 버튼시 사용) */
+@keyframes subtle-pulse {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 99, 235, 0);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 8px 20px 0 rgba(37, 99, 235, 0.25);
   }
 }
 

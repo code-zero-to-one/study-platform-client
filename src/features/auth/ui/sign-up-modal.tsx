@@ -1,17 +1,33 @@
 import { sendGTMEvent } from '@next/third-parties/google';
-import { XIcon } from 'lucide-react';
-import { useEffect, useState, useRef } from 'react';
-import { getCookie, setCookie } from '@/api/client/cookie';
-import Button from '@/components/ui/button';
-import { BaseInput } from '@/components/ui/input';
+import { XIcon, ArrowLeft } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { setCookie } from '@/api/client/cookie';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { Modal } from '@/components/ui/modal';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/features/auth/model/use-auth-mutation';
-import SignupImageSelector from '@/features/auth/ui/sign-up-image-selector';
 import { getAttributionParams } from '@/utils/attribution-tracker';
 import { hashValue } from '@/utils/hash';
+import {
+  NicknameStep,
+  JobStep,
+  CareerStep,
+  StudyFormatTypesStep,
+  GoalStep,
+} from './steps';
+import { SignUpRequest } from '../model/types';
+
+type Step = 'nickname' | 'job' | 'career' | 'study-format-type' | 'goal';
+
+const STEPS: Step[] = [
+  'nickname',
+  'job',
+  'career',
+  'study-format-type',
+  'goal',
+];
 
 export default function SignupModal({
   open,
@@ -20,13 +36,23 @@ export default function SignupModal({
   open: boolean;
   onClose: () => void;
 }) {
-  const [name, setName] = useState('');
-  const [checked, setChecked] = useState<boolean>(false);
-  const [image, setImage] = useState(getCookie('socialImageURL') || undefined);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
+  const [currentStep, setCurrentStep] = useState<Step>('nickname');
   const signUp = useSignUpMutation();
   const uploadProfileImage = useUploadProfileImageMutation();
+  const [signupData, setSignupData] = useState<{
+    nickname: string;
+    image?: string;
+    file?: File;
+    jobs?: string[];
+    career?: string;
+    studyFormatTypes: string[];
+    goal: string;
+  }>({
+    nickname: '',
+    studyFormatTypes: [],
+    goal: '',
+    jobs: [],
+  });
 
   useEffect(() => {
     if (open) {
@@ -36,150 +62,201 @@ export default function SignupModal({
         event: 'signup_modal_open',
         ...attributionParams,
       });
+      setCurrentStep('nickname');
+      setSignupData({ nickname: '', studyFormatTypes: [], goal: '', jobs: [] });
     }
   }, [open]);
 
-  const isValidName = /^[가-힣a-zA-Z]{2,10}$/.test(name);
+  const handleComplete = () => {
+    const imageExtension =
+      signupData.file?.name.split('.').pop()?.toUpperCase() || 'JPG';
 
-  // 이미지 업로드
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImage(URL.createObjectURL(e.target.files[0]));
+    const jobs =
+      signupData.jobs && signupData.jobs.length > 0
+        ? signupData.jobs
+        : undefined;
+    const careerEnum = signupData.career;
+    const studyFormatTypes =
+      signupData.studyFormatTypes.length > 0
+        ? signupData.studyFormatTypes
+        : undefined;
+
+    const signUpPayload: SignUpRequest = {
+      nickname: signupData.nickname,
+      imageExtension: imageExtension as
+        | 'JPG'
+        | 'PNG'
+        | 'GIF'
+        | 'WEBP'
+        | 'SVG'
+        | 'JPEG'
+        | 'DEFAULT',
+      ...(jobs && jobs.length > 0 && { jobs }),
+      ...(careerEnum && { career: careerEnum }),
+      ...(studyFormatTypes &&
+        studyFormatTypes.length > 0 && { studyFormatTypes }),
+      ...(signupData.goal &&
+        signupData.goal.trim() && {
+          goal: signupData.goal.trim().slice(0, 100),
+        }), // 최대 100자
+    };
+
+    signUp.mutate(signUpPayload, {
+      onSuccess: async (data) => {
+        const memberId = data.content.generatedMemberId;
+        if (memberId) {
+          setCookie('memberId', memberId);
+
+          // 이미지 업로드
+          if (signupData.file) {
+            const formData = new FormData();
+            formData.append('file', signupData.file);
+            uploadProfileImage.mutate({
+              memberId: Number(memberId),
+              filename: `profile-${memberId}`,
+              file: formData,
+            });
+          }
+
+          const attributionParams = getAttributionParams();
+
+          sendGTMEvent({
+            event: 'custom_member_join',
+            dl_timestamp: new Date().toISOString(),
+            dl_member_id: hashValue(memberId),
+            ...attributionParams,
+          });
+
+          onClose();
+          window.location.href = '/home';
+        }
+      },
+      onError: (error) => {
+        console.error('회원가입 실패:', error);
+        alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+      },
+    });
+  };
+
+  const handleNext = () => {
+    const currentIndex = STEPS.indexOf(currentStep);
+    if (currentIndex < STEPS.length - 1) {
+      setCurrentStep(STEPS[currentIndex + 1]);
+    } else {
+      handleComplete();
     }
   };
 
-  // 회원가입 요청 (작성완료 버튼 클릭시 회원가입 요청 & 이미지 업로드 비동기 실행
-  // TODO : Response에는 generatedMemberId, URL이 들어옴 (URL 은 향후 S3 등 연동을 위한 인터페이스로 생각)
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-
-    // 회원가입 요청
-    signUp.mutate(
-      {
-        name: name,
-        imageExtension: 'jpg',
-      },
-      {
-        // 회원가입 성공 시 프로필 이미지 업로드
-        onSuccess: (data) => {
-          const memberId = data.content.generatedMemberId;
-
-          if (data && memberId) {
-            setCookie('memberId', memberId);
-
-            // 회원가입 GA 이벤트 전송
-            const attributionParams = getAttributionParams();
-
-            sendGTMEvent({
-              event: 'custom_member_join',
-              dl_timestamp: new Date().toISOString(),
-              dl_member_id: hashValue(memberId),
-              ...attributionParams,
-            });
-
-            const formData = new FormData();
-
-            if (fileInputRef.current?.files?.[0]) {
-              // 스프링서버에서 받는 파라미터 이름이 file
-              formData.append('file', fileInputRef.current.files[0]);
-
-              uploadProfileImage.mutate({
-                memberId: Number(data.content.generatedMemberId),
-                filename: `profile-formdata-${data.content.generatedMemberId}`,
-                file: formData,
-              });
-            }
-
-            // 성공 후 홈페이지로 이동
-            window.location.href = '/home';
-          }
-        },
-        onError: (error) => {
-          console.error('회원가입 실패:', error);
-          // TODO: 실제 토스트 메시지 컴포넌트로 교체 필요
-          alert('회원가입에 실패했습니다. 다시 시도해주세요.');
-        },
-      },
-    );
+  const handleBack = () => {
+    const currentIndex = STEPS.indexOf(currentStep);
+    if (currentIndex > 0) {
+      setCurrentStep(STEPS[currentIndex - 1]);
+    }
   };
+
+  const updateData = (key: string, value: any) => {
+    setSignupData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const renderStep = () => {
+    switch (currentStep) {
+      case 'nickname':
+        return (
+          <NicknameStep
+            data={signupData}
+            updateData={updateData}
+            onNext={handleNext}
+          />
+        );
+      case 'job':
+        return (
+          <JobStep
+            data={signupData}
+            updateData={updateData}
+            onNext={handleNext}
+          />
+        );
+      case 'career':
+        return (
+          <CareerStep
+            data={signupData}
+            updateData={updateData}
+            onNext={handleNext}
+          />
+        );
+      case 'study-format-type':
+        return (
+          <StudyFormatTypesStep
+            data={signupData}
+            updateData={updateData}
+            onNext={handleNext}
+          />
+        );
+      case 'goal':
+        return (
+          <GoalStep
+            data={signupData}
+            updateData={updateData}
+            onNext={handleNext}
+            onSkip={handleComplete}
+          />
+        );
+      default:
+        return null;
+    }
+  };
+
+  const currentStepIndex = STEPS.indexOf(currentStep);
 
   return (
     <Modal.Root open={open} onOpenChange={onClose}>
       <Modal.Portal>
+        {/* 회원가입 타이틀은 스크린리더만 읽히도록 sr-only 처리 */}
+        <Modal.Title className="sr-only">회원가입</Modal.Title>
         <Modal.Overlay />
-        <Modal.Content size="small">
-          <Modal.Header className="border-border-default border-b">
+        <Modal.Content size="medium">
+          {/* 헤더 */}
+          <Modal.Header className="border-none pb-0">
             <div className="flex items-center justify-between">
-              <Modal.Title>ZERO - ONE 시작하기</Modal.Title>
-              <Modal.Close>
-                <XIcon />
+              {currentStepIndex > 0 ? (
+                <button
+                  onClick={handleBack}
+                  className="rounded-100 hover:bg-fill-neutral-default-default text-text-subtle p-100 transition-colors"
+                >
+                  <ArrowLeft className="h-[20px] w-[20px]" />
+                </button>
+              ) : (
+                <div className="w-[36px]" />
+              )}
+
+              {/* 스텝 인디케이터 (크기 키움) */}
+              <div className="flex gap-75">
+                {STEPS.map((step, idx) => (
+                  <div
+                    key={step}
+                    className={cn(
+                      'h-[10px] rounded-full transition-all duration-300',
+                      idx === currentStepIndex
+                        ? 'bg-fill-brand-default-default w-[32px]'
+                        : 'bg-fill-neutral-default-default w-[10px]',
+                    )}
+                  />
+                ))}
+              </div>
+
+              <Modal.Close className="rounded-100 hover:bg-fill-neutral-default-default text-text-subtle p-100 transition-colors">
+                <XIcon className="h-[20px] w-[20px]" />
               </Modal.Close>
             </div>
           </Modal.Header>
-          <Modal.Body className="px-400 py-500">
-            <div className="flex flex-col items-center gap-400">
-              <SignupImageSelector
-                image={image}
-                setImage={setImage}
-                fileInputRef={fileInputRef}
-                handleImageChange={handleImageChange}
-              />
-              <div className="font-designer-24b text-text-default mt-2 text-center">
-                서비스 이용을 위해 이름을 입력해주세요.
-              </div>
-              <div className="flex w-full flex-col items-center gap-200">
-                <div className="flex w-full flex-col gap-75">
-                  <BaseInput
-                    type="text"
-                    value={name}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      const filteredValue = value
-                        .replace(/[^a-zA-Zㄱ-힣]/g, '')
-                        .slice(0, 10)
-                        .trim();
-                      setName(filteredValue);
-                    }}
-                    placeholder="홍길동"
-                    className={`w-full`}
-                    color={
-                      isValidName || name.length === 0 ? 'default' : 'error'
-                    }
-                    maxLength={10}
-                  />
-                  <div
-                    className={`font-designer-13r ${isValidName || name.length === 0 ? 'text-text-subtlest' : 'text-text-error'}`}
-                  >
-                    {isValidName || name.length === 0
-                      ? '신뢰 있는 매칭을 위해 실명을 사용해주세요. (예: 홍길동 )'
-                      : '이름에는 숫자나 특수문자를 사용할 수 없습니다. 두 글자 이상 입력해주세요.'}
-                  </div>
-                </div>
-                <div className="flex w-full gap-75">
-                  <input
-                    type="checkbox"
-                    id="agree"
-                    checked={checked}
-                    onChange={(e) => setChecked(e.target.checked)}
-                  />
-                  <label
-                    htmlFor="agree"
-                    className="font-designer-14m text-text-subtle text-sm"
-                  >
-                    ZERO-ONE의 이용 약관과 개인정보 처리방침에 동의할게요.
-                  </label>
-                </div>
-              </div>
-              <Button
-                color="primary"
-                size="large"
-                className="w-full"
-                type="submit"
-                onClick={handleSubmit}
-                disabled={!isValidName || !checked || signUp.isPending}
-              >
-                가입 완료
-              </Button>
+
+          {/* 메인 컨텐츠 */}
+          <Modal.Body className="flex min-h-[400px] flex-col pt-200">
+            <div
+              key={currentStep}
+              className="animate-in slide-in-from-right-4 fade-in fill-mode-forwards flex h-full flex-1 flex-col duration-300"
+            >
+              {renderStep()}
             </div>
           </Modal.Body>
         </Modal.Content>

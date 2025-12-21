@@ -3,14 +3,16 @@ import { cva, VariantProps } from 'class-variance-authority';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 const buttonVariants = cva(
-  'flex items-center justify-center cursor-pointer py-0',
+  'flex items-center justify-center cursor-pointer py-0 disabled:bg-background-disabled disabled:text-text-disabled',
   {
     variants: {
       color: {
         primary:
-          'bg-fill-brand-default-default text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed disabled:bg-background-disabled disabled:text-text-disabled',
+          'bg-fill-brand-default-default text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed',
         secondary:
-          'bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed disabled:bg-background-disabled disabled:text-text-disabled',
+          'bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed',
+        outlined:
+          'bg-fill-background-surface-default text-text-default border border-border-default border-[1px] hover:bg-fill-neutral-subtle-hover active:bg-fill-neutral-subtle-pressed',
       },
       size: {
         xsmall: 'px-100 font-designer-13b rounded-75 h-350',

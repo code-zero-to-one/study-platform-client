@@ -1184,7 +1184,7 @@ cp src/widgets/landing/form.tsx src/components/forms/landing-form.tsx
 # - @/widgets/landing/form → @/components/forms/landing-form
 
 # 3. 테스트 및 커밋
-npm run dev  # 개발 서버 확인
+yarn run dev  # 개발 서버 확인
 git add .
 git commit -m "refactor(landing): Type-based 구조로 전환"
 ```
@@ -1195,7 +1195,7 @@ git commit -m "refactor(landing): Type-based 구조로 전환"
 - [ ] LandingForm 컴포넌트 이동
 - [ ] Landing 페이지 import 경로 수정
 - [ ] 개발 서버 정상 동작 확인
-- [ ] 빌드 테스트 (`npm run build`)
+- [ ] 빌드 테스트 (`yarn run build`)
 
 #### **Phase 2: Home 페이지 (2일)**
 
@@ -1245,7 +1245,7 @@ mkdir -p src/types/{api,schemas}
 # 4. Home 페이지 및 관련 컴포넌트 import 경로 수정
 
 # 5. 테스트 및 커밋
-npm run dev
+yarn run dev
 git add .
 git commit -m "refactor(home): Type-based 구조로 전환"
 ```
@@ -1303,7 +1303,7 @@ cp src/entities/review/ui/study-review-modal.tsx src/components/modals/study-rev
 # 4. My 페이지들 import 경로 수정
 
 # 5. 테스트 및 커밋
-npm run dev
+yarn run dev
 git add .
 git commit -m "refactor(my-pages): Type-based 구조로 전환"
 ```
@@ -1349,7 +1349,7 @@ mkdir -p src/types/schemas
 # 5. Study 페이지들 import 경로 수정
 
 # 6. 테스트 및 커밋
-npm run dev
+yarn run dev
 git add .
 git commit -m "refactor(study): Type-based 구조로 전환"
 ```
@@ -1387,7 +1387,7 @@ cp src/widgets/admin/ui/admin-detail-side-bar.tsx src/components/admin/admin-det
 # 4. Admin 페이지 import 경로 수정
 
 # 5. 테스트 및 커밋
-npm run dev
+yarn run dev
 git add .
 git commit -m "refactor(admin): Type-based 구조로 전환"
 ```
@@ -1437,8 +1437,8 @@ cp src/entities/review/lib/use-reminder-review.tsx src/hooks/common/use-reminder
 # 6. 전역 import 경로 일괄 수정 (남은 것들)
 
 # 7. 테스트 및 커밋
-npm run dev
-npm run build
+yarn run dev
+yarn run build
 git add .
 git commit -m "refactor(common): 공통 인프라 정리"
 ```
@@ -1469,9 +1469,9 @@ rm -rf src/shared
 # 3. package.json scripts 확인
 
 # 4. 최종 테스트
-npm run lint
-npm run build
-npm run dev
+yarn run lint
+yarn run build
+yarn run dev
 
 # 5. 문서 업데이트
 # README.md에 새 구조 반영 확인
@@ -1544,7 +1544,7 @@ git push origin refactoring
 
 - [ ] TypeScript 컴파일 에러 없음
 - [ ] ESLint 통과
-- [ ] 빌드 성공 (`npm run build`)
+- [ ] 빌드 성공 (`yarn run build`)
 - [ ] 모든 페이지 정상 동작
 - [ ] Storybook 정상 동작 (옵션)
 

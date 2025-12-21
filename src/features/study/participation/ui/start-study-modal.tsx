@@ -2,11 +2,10 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
-import { XIcon } from 'lucide-react';
+import { XIcon, Calendar, Users, MessageCircle } from 'lucide-react'; // 아이콘 추가
 import { useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-
 
 import Button from '@/components/ui/button';
 import { SingleDropdown, MultiDropdown } from '@/components/ui/dropdown';
@@ -15,12 +14,19 @@ import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 
 import { GroupItems } from '@/components/ui/toggle';
+import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,
   useTechStacksQuery,
+  useUpdateUserProfileMutation,
+  useUpdateUserProfileInfoMutation,
 } from '@/features/my-page/model/use-update-user-profile-mutation';
+
+import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import { studySteps } from '@/features/study/participation/const/participation-const';
+
 import {
   StartStudyFormSchema,
   type StartStudyFormValues,
@@ -36,23 +42,53 @@ interface StartStudyModalProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-interface NumberedBulletSectionProps {
-  title: string;
-  items: string[];
-}
-
-function NumberedBulletSection({ title, items }: NumberedBulletSectionProps) {
+// 컴팩트한 스터디 설명 컴포넌트
+function StudyGuideCard() {
   return (
-    <div className="flex flex-col gap-150">
-      <div className="font-designer-16b">{title}</div>
-      <div className="bg-background-alternative rounded-75 px-200 py-300">
-        <ul className="font-designer-15r text-text-subtle mx-250 list-outside list-disc pl-6">
-          {items.map((item, idx) => (
-            <li key={idx} className="mb-100 last:mb-0">
-              {item}
-            </li>
-          ))}
-        </ul>
+    <div className="bg-fill-neutral-subtle-default rounded-100 flex flex-col gap-200 p-300">
+      <h3 className="font-designer-16b text-text-strong flex items-center gap-75">
+        🔥 1:1 CS 스터디, 이렇게 진행돼요!
+      </h3>
+      <div className="flex flex-col gap-150">
+        <div className="flex items-start gap-100">
+          <div className="bg-fill-brand-subtle-default rounded-50 mt-[2px] p-50">
+            <Users className="text-text-brand h-[14px] w-[14px]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-designer-14b text-text-strong">
+              파트너 매칭
+            </span>
+            <span className="font-designer-13r text-text-subtle">
+              주말 동안 나와 딱 맞는 파트너가 매칭돼요.
+            </span>
+          </div>
+        </div>
+        <div className="flex items-start gap-100">
+          <div className="bg-fill-brand-subtle-default rounded-50 mt-[2px] p-50">
+            <Calendar className="text-text-brand h-[14px] w-[14px]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-designer-14b text-text-strong">
+              월~금 매일 10분
+            </span>
+            <span className="font-designer-13r text-text-subtle">
+              한 주간 정해진 시간에 온라인으로 만나요.
+            </span>
+          </div>
+        </div>
+        <div className="flex items-start gap-100">
+          <div className="bg-fill-brand-subtle-default rounded-50 mt-[2px] p-50">
+            <MessageCircle className="text-text-brand h-[14px] w-[14px]" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-designer-14b text-text-strong">
+              발표와 질문
+            </span>
+            <span className="font-designer-13r text-text-subtle">
+              하루씩 번갈아가며 설명하고 질문하는 시간을 가져요.
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -64,8 +100,27 @@ export default function StartStudyModal({
   open,
   onOpenChange,
 }: StartStudyModalProps) {
+  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+  const [internalOpen, setInternalOpen] = useState(false);
+  const isModalOpen = open ?? internalOpen;
+
   const handleOpenChange = (isOpen: boolean) => {
-    onOpenChange?.(isOpen);
+    if (isOpen && !isVerified) {
+      setIsVerificationModalOpen(true);
+      if (onOpenChange) onOpenChange(false);
+      setInternalOpen(false);
+
+      return;
+    }
+
+    if (onOpenChange) {
+      onOpenChange(isOpen);
+    } else {
+      setInternalOpen(isOpen);
+    }
+
     if (isOpen) {
       sendGTMEvent({
         event: 'study_apply_modal_open',
@@ -74,28 +129,60 @@ export default function StartStudyModal({
     }
   };
 
-  return (
-    <Modal.Root open={open} onOpenChange={handleOpenChange}>
-      {trigger ? <Modal.Trigger asChild>{trigger}</Modal.Trigger> : null}
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content size="large">
-          <Modal.Header className="border-border-default flex items-center justify-between border-b">
-            <Modal.Title className="font-designer-20b">
-              CS 스터디 신청하기
-            </Modal.Title>
-            <Modal.Close>
-              <XIcon />
-            </Modal.Close>
-          </Modal.Header>
+  // 모달이 열릴 때 인증 여부 체크 (외부 제어 open prop 대응)
+  useEffect(() => {
+    if (isModalOpen && !isVerified) {
+      setIsVerificationModalOpen(true);
+      if (onOpenChange) {
+        onOpenChange(false);
+      } else {
+        setInternalOpen(false);
+      }
+    }
+  }, [isModalOpen, isVerified, onOpenChange]);
 
-          <StartStudyForm
-            memberId={memberId}
-            onClose={() => onOpenChange?.(false)}
-          />
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal.Root>
+  const handleVerificationComplete = (phoneNumber: string) => {
+    setVerified(phoneNumber);
+    setIsVerificationModalOpen(false);
+
+    if (onOpenChange) {
+      onOpenChange(true);
+    } else {
+      setInternalOpen(true);
+    }
+  };
+
+  return (
+    <>
+      <Modal.Root open={isModalOpen} onOpenChange={handleOpenChange}>
+        {trigger ? <Modal.Trigger asChild>{trigger}</Modal.Trigger> : null}
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content size="large">
+            <Modal.Header className="border-border-default flex items-center justify-between border-b">
+              <Modal.Title className="font-designer-20b">
+                CS 스터디 신청하기
+              </Modal.Title>
+              <Modal.Close>
+                <XIcon />
+              </Modal.Close>
+            </Modal.Header>
+
+            <StartStudyForm
+              memberId={memberId}
+              onClose={() => handleOpenChange(false)}
+            />
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal.Root>
+
+      <PhoneVerificationModal
+        open={isVerificationModalOpen}
+        onOpenChange={setIsVerificationModalOpen}
+        onVerificationComplete={handleVerificationComplete}
+        memberId={memberId}
+      />
+    </>
   );
 }
 
@@ -111,14 +198,28 @@ function StartStudyForm({
   const { data: studySubjects = [] } = useStudySubjectsQuery();
   const { data: techStacks = [] } = useTechStacksQuery();
   const { mutate: joinStudy } = useJoinStudyMutation();
+  const { mutate: updateProfile } = useUpdateUserProfileMutation(memberId);
+  const { mutate: updateProfileInfo } =
+    useUpdateUserProfileInfoMutation(memberId);
+
+  const { isVerified, phoneNumber } = usePhoneVerificationStore();
+  const { data: profile } = useUserProfileQuery(memberId);
 
   const methods = useForm<StartStudyFormValues>({
     resolver: zodResolver(StartStudyFormSchema),
     mode: 'onChange',
-    defaultValues: buildStartStudyDefaultValues(),
+    defaultValues: buildStartStudyDefaultValues(profile),
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, setValue, reset } = methods;
+
+  // 프로필 정보가 로드되면 폼 기본값 업데이트
+  useEffect(() => {
+    if (profile) {
+      const defaultValues = buildStartStudyDefaultValues(profile);
+      reset(defaultValues);
+    }
+  }, [profile, reset]);
 
   const subjectOptions = useMemo(
     () =>
@@ -150,40 +251,152 @@ function StartStudyForm({
   const onValidSubmit = (values: StartStudyFormValues) => {
     const body = toJoinStudyRequest(memberId, values);
 
-    joinStudy(body, {
-      onSuccess: () => {
-        sendGTMEvent({
-          event: 'study_apply_success',
-          location: 'home',
-          preferred_subject: values.preferredStudySubjectId,
-          available_times_count: values.availableStudyTimeIds.length,
-          tech_stacks_count: values.techStackIds.length,
+    // 프로필 정보와 비교하여 변경된 항목만 업데이트
+    const profileUpdates: {
+      profile?: Parameters<typeof updateProfile>[0];
+      profileInfo?: Parameters<typeof updateProfileInfo>[0];
+    } = {};
+
+    // memberProfile 업데이트 (githubLink, blogOrSnsLink, techStackIds)
+    if (profile) {
+      const githubChanged =
+        values.githubLink !== (profile.memberProfile.githubLink?.url ?? '');
+      const blogChanged =
+        values.blogOrSnsLink !==
+        (profile.memberProfile.blogOrSnsLink?.url ?? '');
+      const techStacksChanged =
+        JSON.stringify(values.techStackIds.sort()) !==
+        JSON.stringify(
+          profile.memberProfile.techStacks
+            ?.map((t) => String(t.techStackId))
+            .sort() ?? [],
+        );
+
+      if (githubChanged || blogChanged || techStacksChanged) {
+        profileUpdates.profile = {
+          nickname: profile.memberProfile.nickname,
+          githubLink: values.githubLink || undefined,
+          blogOrSnsLink: values.blogOrSnsLink || undefined,
+          techStackIds: values.techStackIds.map(Number),
+        };
+      }
+
+      // memberInfo 업데이트 (selfIntroduction, studyPlan, preferredStudySubjectId, availableStudyTimeIds)
+      const selfIntroChanged =
+        values.selfIntroduction !== (profile.memberInfo.selfIntroduction ?? '');
+      const studyPlanChanged =
+        values.studyPlan !== (profile.memberInfo.studyPlan ?? '');
+      const subjectChanged =
+        values.preferredStudySubjectId !==
+        (profile.memberInfo.preferredStudySubject?.studySubjectId ?? '');
+      const timesChanged =
+        JSON.stringify(values.availableStudyTimeIds.sort()) !==
+        JSON.stringify(
+          profile.memberInfo.availableStudyTimes
+            ?.map((t) => String(t.id))
+            .sort() ?? [],
+        );
+
+      if (
+        selfIntroChanged ||
+        studyPlanChanged ||
+        subjectChanged ||
+        timesChanged
+      ) {
+        profileUpdates.profileInfo = {
+          selfIntroduction: values.selfIntroduction,
+          studyPlan: values.studyPlan,
+          preferredStudySubjectId: values.preferredStudySubjectId,
+          availableStudyTimeIds: values.availableStudyTimeIds.map(Number),
+          // 기존 프로필 정보 유지
+          jobs:
+            profile.memberInfo.jobs?.map((j) => j.job ?? '').filter(Boolean) ??
+            [],
+          career: profile.memberInfo.career?.career ?? '',
+          studyFormatTypes:
+            profile.memberInfo.studyFormatTypes
+              ?.map((s) => s.studyFormatType ?? '')
+              .filter(Boolean) ?? [],
+          goal: profile.memberInfo.goal ?? '',
+        };
+      }
+    }
+
+    // 프로필 업데이트와 스터디 신청을 순차적으로 실행
+    const updateProfilePromise = profileUpdates.profile
+      ? new Promise<void>((resolve, reject) => {
+          updateProfile(profileUpdates.profile!, {
+            onSuccess: () => resolve(),
+            onError: reject,
+          });
+        })
+      : Promise.resolve();
+
+    const updateProfileInfoPromise = profileUpdates.profileInfo
+      ? new Promise<void>((resolve, reject) => {
+          updateProfileInfo(profileUpdates.profileInfo!, {
+            onSuccess: () => resolve(),
+            onError: reject,
+          });
+        })
+      : Promise.resolve();
+
+    Promise.all([updateProfilePromise, updateProfileInfoPromise])
+      .then(() => {
+        // 프로필 업데이트 완료 후 스터디 신청
+        joinStudy(body, {
+          onSuccess: () => {
+            sendGTMEvent({
+              event: 'study_apply_success',
+              location: 'home',
+              preferred_subject: values.preferredStudySubjectId,
+              available_times_count: values.availableStudyTimeIds.length,
+              tech_stacks_count: values.techStackIds.length,
+            });
+            alert('스터디 신청이 완료되었습니다!');
+            onClose();
+            router.refresh();
+          },
+          onError: () => {
+            sendGTMEvent({
+              event: 'study_apply_error',
+              location: 'home',
+            });
+            alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+          },
         });
-        alert('스터디 신청이 완료되었습니다!');
-        onClose();
-        router.refresh();
-      },
-      onError: () => {
-        sendGTMEvent({
-          event: 'study_apply_error',
-          location: 'home',
+      })
+      .catch(() => {
+        // 프로필 업데이트 실패해도 스터디 신청은 진행
+        joinStudy(body, {
+          onSuccess: () => {
+            sendGTMEvent({
+              event: 'study_apply_success',
+              location: 'home',
+              preferred_subject: values.preferredStudySubjectId,
+              available_times_count: values.availableStudyTimeIds.length,
+              tech_stacks_count: values.techStackIds.length,
+            });
+            alert('스터디 신청이 완료되었습니다!');
+            onClose();
+            router.refresh();
+          },
+          onError: () => {
+            sendGTMEvent({
+              event: 'study_apply_error',
+              location: 'home',
+            });
+            alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+          },
         });
-        alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
-      },
-    });
+      });
   };
 
   return (
     <>
       <Modal.Body className="flex flex-col gap-500">
-        <div className="font-designer-18b">CS 스터디 진행 방법</div>
-        {studySteps.map((step, idx) => (
-          <NumberedBulletSection
-            key={idx}
-            title={step.title}
-            items={step.items}
-          />
-        ))}
+        {/* 기존 목록형 설명 제거하고 카드형 설명으로 대체 */}
+        <StudyGuideCard />
 
         <div className="border-border-default border-t" />
 
@@ -221,15 +434,7 @@ function StartStudyForm({
               />
             </FormField>
 
-            <FormField<StartStudyFormValues, 'tel'>
-              name="tel"
-              label="연락처"
-              helper="스터디 진행을 위해 연락 가능한 정보를 입력해 주세요. 입력하신 정보는 매칭된 스터디원에게만 제공되며, 외부에는 노출되지 않습니다."
-              direction="vertical"
-              required
-            >
-              <BaseInput placeholder="010-1234-5678" />
-            </FormField>
+            {/* 전화번호 입력 필드 제거 (값은 useEffect에서 자동 주입) */}
 
             <FormField<StartStudyFormValues, 'preferredStudySubjectId'>
               name="preferredStudySubjectId"
@@ -272,6 +477,7 @@ function StartStudyForm({
               label="GitHub"
               helper="본인의 활동을 확인할 수 있는 GitHub 링크를 입력해 주세요."
               direction="vertical"
+              required
             >
               <BaseInput placeholder="https://github.com/@zero-one" />
             </FormField>

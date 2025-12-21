@@ -6,16 +6,12 @@ import { useRouter } from 'next/navigation';
 import { deleteCookie, getCookie } from '@/api/client/cookie';
 import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
 import { hashValue } from '@/utils/hash';
-import { SignUpResponse } from './types';
+import { SignUpRequest, SignUpResponse } from './types';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
-  return useMutation<
-    SignUpResponse,
-    Error,
-    { name: string; imageExtension: string }
-  >({
-    mutationFn: (data: any) => signUp(data),
+  return useMutation<SignUpResponse, Error, SignUpRequest>({
+    mutationFn: (data: SignUpRequest) => signUp(data),
   });
 };
 

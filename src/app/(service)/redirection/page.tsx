@@ -5,8 +5,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, Suspense } from 'react';
 import { setCookie } from '@/api/client/cookie';
-import { hashValue } from '@/utils/hash';
 import { getAttributionParams } from '@/utils/attribution-tracker';
+import { hashValue } from '@/utils/hash';
 
 function RedirectionContent() {
   const searchParams = useSearchParams();
@@ -35,9 +35,9 @@ function RedirectionContent() {
         } else {
           router.push('/home');
           router.refresh();
-          
+
           const attributionParams = getAttributionParams();
-          
+
           sendGTMEvent({
             event: 'custom_member_login',
             dl_timestamp: new Date().toISOString(),

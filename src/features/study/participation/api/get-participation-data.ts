@@ -16,6 +16,7 @@ export function mapReservation(user: ReservationUserItem): Participant {
   return {
     id: user.memberId,
     name: user.memberName,
+    nickname: user.memberNickname,
     avatarUrl: original ?? null,
     simpleIntroduction: user.simpleIntroduction,
   };
@@ -26,7 +27,6 @@ export const getReservationMembers = async (
   params: WeeklyReservationRequest,
 ): Promise<WeeklyReservationResponse> => {
   const { cursor, pageSize = 50, firstMemberId } = params;
-
   const res = await axiosInstance.get('/members/study-reservation', {
     params: {
       ...(cursor !== null ? { cursor } : {}),
