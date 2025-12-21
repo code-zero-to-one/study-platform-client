@@ -24,6 +24,8 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
+import type { SettlementSearchCondition } from '../models';
+// @ts-ignore
 import type { StudySettlementCreateRequest } from '../models';
 /**
  * AdminSettlementApi - axios parameter creator
@@ -109,17 +111,24 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
             };
         },
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 날짜, 스터디명, 정산ID, 정산 상태로 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Query Parameters (Filter - SettlementSearchCondition)  | **키**        | **타입**   | **위치** | **설명**                                   | **필수 여부** | **예시**         | |--------------|-----------|---------|-------------------------------------------|--------------|------------------| | startDate    | LocalDate | query   | 정산 예정일 조회 시작일 (yyyy-MM-dd)        | N            | 2025-01-01       | | endDate      | LocalDate | query   | 정산 예정일 조회 종료일 (yyyy-MM-dd)        | N            | 2025-12-31       | | studyTitle   | string    | query   | 스터디명 검색 (부분 일치)                   | N            | 백엔드           | | settlementId | number    | query   | 정산 ID로 조회                             | N            | 123              | | status       | string    | query   | 정산 상태 (PENDING, APPROVED, COMPLETED 등) | N            | PENDING          |  ## Query Parameters (Pageable)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 개설자 ID | 53 | | leaderName | string | 스터디 개설자명 | \"이도현\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | bankName | string | 정산 계좌 은행명 | \"카카오뱅크\" | | accountNumber | string | 정산 계좌번호 | \"3333-12-3456789\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
          * @summary 관리자 정산 내역 목록 조회
+         * @param {SettlementSearchCondition} condition 
          * @param {Pageable} pageable 
-         * @param {string} [status] 정산 상태 필터 (미전달 시 전체 조회)
+         * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
+         * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
+         * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
+         * @param {number} [settlementId] 정산 ID로 조회
+         * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
          * @param {string} [sort] 정렬 기준
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSettlementsForAdmin: async (pageable: Pageable, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getSettlementsForAdmin: async (condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'condition' is not null or undefined
+            assertParamExists('getSettlementsForAdmin', 'condition', condition)
             // verify required parameter 'pageable' is not null or undefined
             assertParamExists('getSettlementsForAdmin', 'pageable', pageable)
             const localVarPath = `/api/v1/admin/settlements`;
@@ -138,6 +147,26 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = (startDate as any instanceof Date) ?
+                    (startDate as any).toISOString().substring(0,10) :
+                    startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = (endDate as any instanceof Date) ?
+                    (endDate as any).toISOString().substring(0,10) :
+                    endDate;
+            }
+
+            if (studyTitle !== undefined) {
+                localVarQueryParameter['studyTitle'] = studyTitle;
+            }
+
+            if (settlementId !== undefined) {
+                localVarQueryParameter['settlementId'] = settlementId;
+            }
+
             if (status !== undefined) {
                 localVarQueryParameter['status'] = status;
             }
@@ -152,6 +181,12 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
 
             if (sort !== undefined) {
                 localVarQueryParameter['sort'] = sort;
+            }
+
+            if (condition !== undefined) {
+                for (const [key, value] of Object.entries(condition)) {
+                    localVarQueryParameter[key] = value;
+                }
             }
 
             if (pageable !== undefined) {
@@ -207,18 +242,23 @@ export const AdminSettlementApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 날짜, 스터디명, 정산ID, 정산 상태로 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Query Parameters (Filter - SettlementSearchCondition)  | **키**        | **타입**   | **위치** | **설명**                                   | **필수 여부** | **예시**         | |--------------|-----------|---------|-------------------------------------------|--------------|------------------| | startDate    | LocalDate | query   | 정산 예정일 조회 시작일 (yyyy-MM-dd)        | N            | 2025-01-01       | | endDate      | LocalDate | query   | 정산 예정일 조회 종료일 (yyyy-MM-dd)        | N            | 2025-12-31       | | studyTitle   | string    | query   | 스터디명 검색 (부분 일치)                   | N            | 백엔드           | | settlementId | number    | query   | 정산 ID로 조회                             | N            | 123              | | status       | string    | query   | 정산 상태 (PENDING, APPROVED, COMPLETED 등) | N            | PENDING          |  ## Query Parameters (Pageable)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 개설자 ID | 53 | | leaderName | string | 스터디 개설자명 | \"이도현\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | bankName | string | 정산 계좌 은행명 | \"카카오뱅크\" | | accountNumber | string | 정산 계좌번호 | \"3333-12-3456789\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
          * @summary 관리자 정산 내역 목록 조회
+         * @param {SettlementSearchCondition} condition 
          * @param {Pageable} pageable 
-         * @param {string} [status] 정산 상태 필터 (미전달 시 전체 조회)
+         * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
+         * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
+         * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
+         * @param {number} [settlementId] 정산 ID로 조회
+         * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
          * @param {string} [sort] 정렬 기준
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getSettlementsForAdmin(pageable: Pageable, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getSettlementsForAdmin(pageable, status, page, size, sort, options);
+        async getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.getSettlementsForAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -253,18 +293,23 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
             return localVarFp.createSettlement(studySettlementCreateRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 날짜, 스터디명, 정산ID, 정산 상태로 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Query Parameters (Filter - SettlementSearchCondition)  | **키**        | **타입**   | **위치** | **설명**                                   | **필수 여부** | **예시**         | |--------------|-----------|---------|-------------------------------------------|--------------|------------------| | startDate    | LocalDate | query   | 정산 예정일 조회 시작일 (yyyy-MM-dd)        | N            | 2025-01-01       | | endDate      | LocalDate | query   | 정산 예정일 조회 종료일 (yyyy-MM-dd)        | N            | 2025-12-31       | | studyTitle   | string    | query   | 스터디명 검색 (부분 일치)                   | N            | 백엔드           | | settlementId | number    | query   | 정산 ID로 조회                             | N            | 123              | | status       | string    | query   | 정산 상태 (PENDING, APPROVED, COMPLETED 등) | N            | PENDING          |  ## Query Parameters (Pageable)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 개설자 ID | 53 | | leaderName | string | 스터디 개설자명 | \"이도현\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | bankName | string | 정산 계좌 은행명 | \"카카오뱅크\" | | accountNumber | string | 정산 계좌번호 | \"3333-12-3456789\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
          * @summary 관리자 정산 내역 목록 조회
+         * @param {SettlementSearchCondition} condition 
          * @param {Pageable} pageable 
-         * @param {string} [status] 정산 상태 필터 (미전달 시 전체 조회)
+         * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
+         * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
+         * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
+         * @param {number} [settlementId] 정산 ID로 조회
+         * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
          * @param {string} [sort] 정렬 기준
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSettlementsForAdmin(pageable: Pageable, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.getSettlementsForAdmin(pageable, status, page, size, sort, options).then((request) => request(axios, basePath));
+        getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -296,18 +341,23 @@ export class AdminSettlementApi extends BaseAPI {
     }
 
     /**
-     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 날짜, 스터디명, 정산ID, 정산 상태로 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Query Parameters (Filter - SettlementSearchCondition)  | **키**        | **타입**   | **위치** | **설명**                                   | **필수 여부** | **예시**         | |--------------|-----------|---------|-------------------------------------------|--------------|------------------| | startDate    | LocalDate | query   | 정산 예정일 조회 시작일 (yyyy-MM-dd)        | N            | 2025-01-01       | | endDate      | LocalDate | query   | 정산 예정일 조회 종료일 (yyyy-MM-dd)        | N            | 2025-12-31       | | studyTitle   | string    | query   | 스터디명 검색 (부분 일치)                   | N            | 백엔드           | | settlementId | number    | query   | 정산 ID로 조회                             | N            | 123              | | status       | string    | query   | 정산 상태 (PENDING, APPROVED, COMPLETED 등) | N            | PENDING          |  ## Query Parameters (Pageable)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 개설자 ID | 53 | | leaderName | string | 스터디 개설자명 | \"이도현\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | bankName | string | 정산 계좌 은행명 | \"카카오뱅크\" | | accountNumber | string | 정산 계좌번호 | \"3333-12-3456789\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
      * @summary 관리자 정산 내역 목록 조회
+     * @param {SettlementSearchCondition} condition 
      * @param {Pageable} pageable 
-     * @param {string} [status] 정산 상태 필터 (미전달 시 전체 조회)
+     * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
+     * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
+     * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
+     * @param {number} [settlementId] 정산 ID로 조회
+     * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
      * @param {number} [page] 페이지 번호 (0부터 시작)
      * @param {number} [size] 페이지 크기
      * @param {string} [sort] 정렬 기준
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getSettlementsForAdmin(pageable: Pageable, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
-        return AdminSettlementApiFp(this.configuration).getSettlementsForAdmin(pageable, status, page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    public getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
+        return AdminSettlementApiFp(this.configuration).getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

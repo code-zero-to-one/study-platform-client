@@ -194,6 +194,7 @@ docs/ResetWeeklyMatchingSchema.md
 docs/ResizedImageDto.md
 docs/SettlementAccountRegisterRequest.md
 docs/SettlementAccountResponse.md
+docs/SettlementSearchCondition.md
 docs/SettlementUserApi.md
 docs/SincerityTempResponse.md
 docs/SocialMediaResponseDto.md
@@ -357,6 +358,7 @@ models/reset-weekly-matching-schema.ts
 models/resized-image-dto.ts
 models/settlement-account-register-request.ts
 models/settlement-account-response.ts
+models/settlement-search-condition.ts
 models/sincerity-temp-response.ts
 models/social-media-response-dto.ts
 models/string-response-schema.ts
