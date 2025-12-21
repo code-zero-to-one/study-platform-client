@@ -6,6 +6,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**classification** | **string** | 스터디 분류 (그룹스터디 / 프리미엄 스터디) | [default to undefined]
 **type** | **string** | 스터디 타입 | [default to undefined]
 **hostType** | **string** | 스터디 주최자 구분(미입력 시 일반회원 GENERAL) | [optional] [default to undefined]
 **targetRoles** | **Array&lt;string&gt;** | 스터디 모집 대상 (복수 선택 가능) | [default to undefined]
@@ -17,8 +18,6 @@ Name | Type | Description | Notes
 **startDate** | **string** | 스터디 시작일자 | [default to undefined]
 **endDate** | **string** | 스터디 종료일자 | [default to undefined]
 **price** | **number** | 스터디 가격(미입력 시 0원) | [optional] [default to undefined]
-**createdAt** | **string** | 생성일시 | [optional] [default to undefined]
-**updatedAt** | **string** | 수정일시 | [optional] [default to undefined]
 
 ## Example
 
@@ -26,6 +25,7 @@ Name | Type | Description | Notes
 import { GroupStudyBasicInfoRequestDto } from './api';
 
 const instance: GroupStudyBasicInfoRequestDto = {
+    classification,
     type,
     hostType,
     targetRoles,
@@ -37,8 +37,6 @@ const instance: GroupStudyBasicInfoRequestDto = {
     startDate,
     endDate,
     price,
-    createdAt,
-    updatedAt,
 };
 ```
 

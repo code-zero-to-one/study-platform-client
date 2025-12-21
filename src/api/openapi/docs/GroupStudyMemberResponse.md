@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **id** | **number** |  | [optional] [default to undefined]
 **profileImageUrl** | **string** |  | [optional] [default to undefined]
 **memberName** | **string** |  | [optional] [default to undefined]
+**tel** | **string** |  | [optional] [default to undefined]
 **progress** | [**GroupStudyMemberProgressInfoResponse**](GroupStudyMemberProgressInfoResponse.md) |  | [optional] [default to undefined]
 **ranking** | **number** |  | [optional] [default to undefined]
 **greeting** | **string** |  | [optional] [default to undefined]
@@ -22,6 +23,7 @@ const instance: GroupStudyMemberResponse = {
     id,
     profileImageUrl,
     memberName,
+    tel,
     progress,
     ranking,
     greeting,

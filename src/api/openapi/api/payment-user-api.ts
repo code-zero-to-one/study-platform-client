@@ -22,14 +22,6 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponsePageResponseDtoStudyPaymentSummaryResponse } from '../models';
-// @ts-ignore
-import type { BaseResponseStudyPaymentDetailResponse } from '../models';
-// @ts-ignore
-import type { BaseResponseStudyPaymentPrepareResponse } from '../models';
-// @ts-ignore
-import type { BaseResponseVoid } from '../models';
-// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { StudyPaymentPrepareRequest } from '../models';
@@ -41,8 +33,9 @@ import type { TossPaymentConfirmRequest } from '../models';
 export const PaymentUserApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @param {number} paymentId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 결제창을 열기 전 또는 결제 진행 중, 사용자가 결제를 취소할 때 사용합니다. - 아직 SUCCESS 가 아닌 결제에 한해서만 취소 상태로 변경합니다. - 실제 PG 환불/취소가 아닌, 내부 결제 엔티티 상태를 CANCELED 로 변경하는 용도입니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response  - `BaseResponse<Void>` 형태이며, content 는 null 로 반환됩니다. 
+         * @summary 결제 취소 (SUCCESS 이전 단계)
+         * @param {number} paymentId 취소할 결제 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -78,8 +71,9 @@ export const PaymentUserApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
-         * 
-         * @param {TossPaymentConfirmRequest} tossPaymentConfirmRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 토스 결제창에서 사용자가 결제를 완료한 뒤, 클라이언트가 서버로 결제 검증을 요청하는 API입니다. - 서버는 다음을 검증합니다.   - 결제 요청을 생성한 회원과 현재 토큰의 회원이 동일한지   - 서버에 저장된 orderId, amount 와 클라이언트/토스에서 전달된 값이 일치하는지   - 토스 PG 응답 상태가 DONE 인지 - 모든 검증이 통과되면 결제 상태를 SUCCESS 로 변경합니다. - 이미 SUCCESS 상태인 결제에 대해 다시 호출되면, 재검증 없이 현재 결제 정보를 그대로 반환합니다.  ---  ## Request Body (TossPaymentConfirmRequest)  | 키        | 타입   | 설명                               | 필수 | 예시                          | |-----------|--------|------------------------------------|------|-------------------------------| | paymentId | number | 서버에서 생성한 결제 ID           | Y    | 123                           | | orderId   | string | 토스 결제의 orderId (tossOrderId) | Y    | \"ZTO-STUDY-10-1-XYZ123\"       | | amount    | number | 결제 금액                          | Y    | 99000                         | | paymentKey| string | 토스 paymentKey                    | Y    | \"pay_20251211_abcdef123456\"   |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보 전체를 반환하며, 마이페이지 상세 조회와 동일한 필드를 가집니다. 
+         * @summary Toss 결제 서버 Confirm
+         * @param {TossPaymentConfirmRequest} tossPaymentConfirmRequest 토스 결제 서버 confirm 요청
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -117,8 +111,9 @@ export const PaymentUserApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
-         * 
-         * @param {number} paymentId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 특정 결제 건에 대한 상세 정보를 조회합니다. - 다른 회원의 결제 건에 접근을 시도할 경우 `PAYMENT_OWNER_MISMATCH` 에러를 반환합니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보를 반환합니다. 
+         * @summary 마이페이지 결제 상세 조회
+         * @param {number} paymentId 조회할 결제 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -154,12 +149,17 @@ export const PaymentUserApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 결제 이력을 스터디별로 그룹핑하여 페이징 형태로 조회합니다. - 결제 히스토리(결제준비/결제성공/결제실패/환불 등 이벤트)를 포함합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 10             |  ---  ## Response (PageResponseDto<StudyPaymentGroupResponse>)  - `content`: 스터디별 결제 정보 리스트 (히스토리 포함) - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * @summary 마이페이지 결제관리 조회 (스터디별 그룹핑 + 필터링)
          * @param {Pageable} pageable 
+         * @param {string} [startDate] 
+         * @param {string} [endDate] 
+         * @param {string} [studyTitle] 
+         * @param {string} [paymentCode] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyPayments: async (pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getMyPayments: async (pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'pageable' is not null or undefined
             assertParamExists('getMyPayments', 'pageable', pageable)
             const localVarPath = `/api/v1/mypage/payments`;
@@ -177,6 +177,26 @@ export const PaymentUserApiAxiosParamCreator = function (configuration?: Configu
             // authentication bearer required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = (startDate as any instanceof Date) ?
+                    (startDate as any).toISOString().substring(0,10) :
+                    startDate;
+            }
+
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = (endDate as any instanceof Date) ?
+                    (endDate as any).toISOString().substring(0,10) :
+                    endDate;
+            }
+
+            if (studyTitle !== undefined) {
+                localVarQueryParameter['studyTitle'] = studyTitle;
+            }
+
+            if (paymentCode !== undefined) {
+                localVarQueryParameter['paymentCode'] = paymentCode;
+            }
 
             if (pageable !== undefined) {
                 for (const [key, value] of Object.entries(pageable)) {
@@ -196,9 +216,10 @@ export const PaymentUserApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
-         * 
-         * @param {number} groupStudyId 
-         * @param {StudyPaymentPrepareRequest} studyPaymentPrepareRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 유료 스터디 결제를 진행하기 위해 결제 정보를 생성합니다. - 사용자는 이미 신청(PENDING/APPROVED)한 유료 스터디에 대해 결제 페이지로 진입할 때 이 API를 호출합니다. - 서버 기준 스터디 가격(`group_study.price`)과 클라이언트에서 전달한 금액이 다를 경우 결제 준비를 거부합니다. - 동일 회원이 동일 스터디에 대해 SUCCESS 상태 결제를 이미 보유한 경우 재결제를 허용하지 않습니다.  ---  ## Business Rule  - 그룹스터디 조건   - 삭제된 스터디일 경우 결제 불가   - 스터디 상태가 `RECRUITING` 이 아닐 경우 결제 불가   - 무료 스터디(`price == null or 0`)는 결제 불가  - 신청 여부   - 회원이 해당 스터디에 `PENDING` 또는 `APPROVED` 상태로 신청한 기록이 없으면 결제 불가  - 결제 중복 방지   - 동일 회원/스터디 조합에 대해 SUCCESS 결제가 이미 존재하면 에러  ---  ## Path Variable  | 키           | 타입   | 위치  | 설명                | 필수 | 예시 | |--------------|--------|-------|---------------------|------|------| | groupStudyId | number | path  | 결제 대상 스터디 ID | Y    | 10   |  ---  ## Request Body (StudyPaymentPrepareRequest)  | 키     | 타입   | 설명                                                         | 필수 | 예시  | |--------|--------|--------------------------------------------------------------|------|-------| | amount | number | 클라이언트에서 인지한 결제 금액 (null 가능, 있을 경우 서버 금액과 일치 검증) | N    | 99000 |  ---  ## Response (StudyPaymentPrepareResponse)  | 키              | 타입    | 설명                               | |-----------------|---------|------------------------------------| | paymentId       | number  | 생성된 결제 ID                     | | paymentCode     | string  | 비즈니스용 결제 코드 (PAY-...)     | | groupStudyId    | number  | 스터디 ID                          | | groupStudyTitle | string  | 스터디 제목                        | | memberId        | number  | 결제 회원 ID                       | | memberName      | string  | 결제 회원 이름(또는 프로필 이름)  | | amount          | number  | 결제 금액                          | | currency        | string  | 통화 (예: KRW)                     | | pgProvider      | string  | PG사 식별자 (예: TOSS)             | | tossOrderId     | string  | 토스 payment orderId (유니크 값)  | 
+         * @summary 유료 스터디 결제 준비
+         * @param {number} groupStudyId 결제 대상 그룹스터디 ID
+         * @param {StudyPaymentPrepareRequest} studyPaymentPrepareRequest 결제 준비 요청
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -248,61 +269,70 @@ export const PaymentUserApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = PaymentUserApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @param {number} paymentId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 결제창을 열기 전 또는 결제 진행 중, 사용자가 결제를 취소할 때 사용합니다. - 아직 SUCCESS 가 아닌 결제에 한해서만 취소 상태로 변경합니다. - 실제 PG 환불/취소가 아닌, 내부 결제 엔티티 상태를 CANCELED 로 변경하는 용도입니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response  - `BaseResponse<Void>` 형태이며, content 는 null 로 반환됩니다. 
+         * @summary 결제 취소 (SUCCESS 이전 단계)
+         * @param {number} paymentId 취소할 결제 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async cancelPayment(paymentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
+        async cancelPayment(paymentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cancelPayment(paymentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.cancelPayment']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {TossPaymentConfirmRequest} tossPaymentConfirmRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 토스 결제창에서 사용자가 결제를 완료한 뒤, 클라이언트가 서버로 결제 검증을 요청하는 API입니다. - 서버는 다음을 검증합니다.   - 결제 요청을 생성한 회원과 현재 토큰의 회원이 동일한지   - 서버에 저장된 orderId, amount 와 클라이언트/토스에서 전달된 값이 일치하는지   - 토스 PG 응답 상태가 DONE 인지 - 모든 검증이 통과되면 결제 상태를 SUCCESS 로 변경합니다. - 이미 SUCCESS 상태인 결제에 대해 다시 호출되면, 재검증 없이 현재 결제 정보를 그대로 반환합니다.  ---  ## Request Body (TossPaymentConfirmRequest)  | 키        | 타입   | 설명                               | 필수 | 예시                          | |-----------|--------|------------------------------------|------|-------------------------------| | paymentId | number | 서버에서 생성한 결제 ID           | Y    | 123                           | | orderId   | string | 토스 결제의 orderId (tossOrderId) | Y    | \"ZTO-STUDY-10-1-XYZ123\"       | | amount    | number | 결제 금액                          | Y    | 99000                         | | paymentKey| string | 토스 paymentKey                    | Y    | \"pay_20251211_abcdef123456\"   |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보 전체를 반환하며, 마이페이지 상세 조회와 동일한 필드를 가집니다. 
+         * @summary Toss 결제 서버 Confirm
+         * @param {TossPaymentConfirmRequest} tossPaymentConfirmRequest 토스 결제 서버 confirm 요청
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async confirmTossPayment(tossPaymentConfirmRequest: TossPaymentConfirmRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseStudyPaymentDetailResponse>> {
+        async confirmTossPayment(tossPaymentConfirmRequest: TossPaymentConfirmRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.confirmTossPayment(tossPaymentConfirmRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.confirmTossPayment']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {number} paymentId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 특정 결제 건에 대한 상세 정보를 조회합니다. - 다른 회원의 결제 건에 접근을 시도할 경우 `PAYMENT_OWNER_MISMATCH` 에러를 반환합니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보를 반환합니다. 
+         * @summary 마이페이지 결제 상세 조회
+         * @param {number} paymentId 조회할 결제 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyPaymentDetail(paymentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseStudyPaymentDetailResponse>> {
+        async getMyPaymentDetail(paymentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMyPaymentDetail(paymentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.getMyPaymentDetail']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 결제 이력을 스터디별로 그룹핑하여 페이징 형태로 조회합니다. - 결제 히스토리(결제준비/결제성공/결제실패/환불 등 이벤트)를 포함합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 10             |  ---  ## Response (PageResponseDto<StudyPaymentGroupResponse>)  - `content`: 스터디별 결제 정보 리스트 (히스토리 포함) - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * @summary 마이페이지 결제관리 조회 (스터디별 그룹핑 + 필터링)
          * @param {Pageable} pageable 
+         * @param {string} [startDate] 
+         * @param {string} [endDate] 
+         * @param {string} [studyTitle] 
+         * @param {string} [paymentCode] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyPayments(pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponsePageResponseDtoStudyPaymentSummaryResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getMyPayments(pageable, options);
+        async getMyPayments(pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMyPayments(pageable, startDate, endDate, studyTitle, paymentCode, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.getMyPayments']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {number} groupStudyId 
-         * @param {StudyPaymentPrepareRequest} studyPaymentPrepareRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 유료 스터디 결제를 진행하기 위해 결제 정보를 생성합니다. - 사용자는 이미 신청(PENDING/APPROVED)한 유료 스터디에 대해 결제 페이지로 진입할 때 이 API를 호출합니다. - 서버 기준 스터디 가격(`group_study.price`)과 클라이언트에서 전달한 금액이 다를 경우 결제 준비를 거부합니다. - 동일 회원이 동일 스터디에 대해 SUCCESS 상태 결제를 이미 보유한 경우 재결제를 허용하지 않습니다.  ---  ## Business Rule  - 그룹스터디 조건   - 삭제된 스터디일 경우 결제 불가   - 스터디 상태가 `RECRUITING` 이 아닐 경우 결제 불가   - 무료 스터디(`price == null or 0`)는 결제 불가  - 신청 여부   - 회원이 해당 스터디에 `PENDING` 또는 `APPROVED` 상태로 신청한 기록이 없으면 결제 불가  - 결제 중복 방지   - 동일 회원/스터디 조합에 대해 SUCCESS 결제가 이미 존재하면 에러  ---  ## Path Variable  | 키           | 타입   | 위치  | 설명                | 필수 | 예시 | |--------------|--------|-------|---------------------|------|------| | groupStudyId | number | path  | 결제 대상 스터디 ID | Y    | 10   |  ---  ## Request Body (StudyPaymentPrepareRequest)  | 키     | 타입   | 설명                                                         | 필수 | 예시  | |--------|--------|--------------------------------------------------------------|------|-------| | amount | number | 클라이언트에서 인지한 결제 금액 (null 가능, 있을 경우 서버 금액과 일치 검증) | N    | 99000 |  ---  ## Response (StudyPaymentPrepareResponse)  | 키              | 타입    | 설명                               | |-----------------|---------|------------------------------------| | paymentId       | number  | 생성된 결제 ID                     | | paymentCode     | string  | 비즈니스용 결제 코드 (PAY-...)     | | groupStudyId    | number  | 스터디 ID                          | | groupStudyTitle | string  | 스터디 제목                        | | memberId        | number  | 결제 회원 ID                       | | memberName      | string  | 결제 회원 이름(또는 프로필 이름)  | | amount          | number  | 결제 금액                          | | currency        | string  | 통화 (예: KRW)                     | | pgProvider      | string  | PG사 식별자 (예: TOSS)             | | tossOrderId     | string  | 토스 payment orderId (유니크 값)  | 
+         * @summary 유료 스터디 결제 준비
+         * @param {number} groupStudyId 결제 대상 그룹스터디 ID
+         * @param {StudyPaymentPrepareRequest} studyPaymentPrepareRequest 결제 준비 요청
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async preparePayment(groupStudyId: number, studyPaymentPrepareRequest: StudyPaymentPrepareRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseStudyPaymentPrepareResponse>> {
+        async preparePayment(groupStudyId: number, studyPaymentPrepareRequest: StudyPaymentPrepareRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.preparePayment(groupStudyId, studyPaymentPrepareRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.preparePayment']?.[localVarOperationServerIndex]?.url;
@@ -318,49 +348,58 @@ export const PaymentUserApiFactory = function (configuration?: Configuration, ba
     const localVarFp = PaymentUserApiFp(configuration)
     return {
         /**
-         * 
-         * @param {number} paymentId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 결제창을 열기 전 또는 결제 진행 중, 사용자가 결제를 취소할 때 사용합니다. - 아직 SUCCESS 가 아닌 결제에 한해서만 취소 상태로 변경합니다. - 실제 PG 환불/취소가 아닌, 내부 결제 엔티티 상태를 CANCELED 로 변경하는 용도입니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response  - `BaseResponse<Void>` 형태이며, content 는 null 로 반환됩니다. 
+         * @summary 결제 취소 (SUCCESS 이전 단계)
+         * @param {number} paymentId 취소할 결제 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cancelPayment(paymentId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
+        cancelPayment(paymentId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.cancelPayment(paymentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {TossPaymentConfirmRequest} tossPaymentConfirmRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 토스 결제창에서 사용자가 결제를 완료한 뒤, 클라이언트가 서버로 결제 검증을 요청하는 API입니다. - 서버는 다음을 검증합니다.   - 결제 요청을 생성한 회원과 현재 토큰의 회원이 동일한지   - 서버에 저장된 orderId, amount 와 클라이언트/토스에서 전달된 값이 일치하는지   - 토스 PG 응답 상태가 DONE 인지 - 모든 검증이 통과되면 결제 상태를 SUCCESS 로 변경합니다. - 이미 SUCCESS 상태인 결제에 대해 다시 호출되면, 재검증 없이 현재 결제 정보를 그대로 반환합니다.  ---  ## Request Body (TossPaymentConfirmRequest)  | 키        | 타입   | 설명                               | 필수 | 예시                          | |-----------|--------|------------------------------------|------|-------------------------------| | paymentId | number | 서버에서 생성한 결제 ID           | Y    | 123                           | | orderId   | string | 토스 결제의 orderId (tossOrderId) | Y    | \"ZTO-STUDY-10-1-XYZ123\"       | | amount    | number | 결제 금액                          | Y    | 99000                         | | paymentKey| string | 토스 paymentKey                    | Y    | \"pay_20251211_abcdef123456\"   |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보 전체를 반환하며, 마이페이지 상세 조회와 동일한 필드를 가집니다. 
+         * @summary Toss 결제 서버 Confirm
+         * @param {TossPaymentConfirmRequest} tossPaymentConfirmRequest 토스 결제 서버 confirm 요청
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        confirmTossPayment(tossPaymentConfirmRequest: TossPaymentConfirmRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseStudyPaymentDetailResponse> {
+        confirmTossPayment(tossPaymentConfirmRequest: TossPaymentConfirmRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.confirmTossPayment(tossPaymentConfirmRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {number} paymentId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 특정 결제 건에 대한 상세 정보를 조회합니다. - 다른 회원의 결제 건에 접근을 시도할 경우 `PAYMENT_OWNER_MISMATCH` 에러를 반환합니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보를 반환합니다. 
+         * @summary 마이페이지 결제 상세 조회
+         * @param {number} paymentId 조회할 결제 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyPaymentDetail(paymentId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseStudyPaymentDetailResponse> {
+        getMyPaymentDetail(paymentId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.getMyPaymentDetail(paymentId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 결제 이력을 스터디별로 그룹핑하여 페이징 형태로 조회합니다. - 결제 히스토리(결제준비/결제성공/결제실패/환불 등 이벤트)를 포함합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 10             |  ---  ## Response (PageResponseDto<StudyPaymentGroupResponse>)  - `content`: 스터디별 결제 정보 리스트 (히스토리 포함) - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * @summary 마이페이지 결제관리 조회 (스터디별 그룹핑 + 필터링)
          * @param {Pageable} pageable 
+         * @param {string} [startDate] 
+         * @param {string} [endDate] 
+         * @param {string} [studyTitle] 
+         * @param {string} [paymentCode] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyPayments(pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponsePageResponseDtoStudyPaymentSummaryResponse> {
-            return localVarFp.getMyPayments(pageable, options).then((request) => request(axios, basePath));
+        getMyPayments(pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.getMyPayments(pageable, startDate, endDate, studyTitle, paymentCode, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {number} groupStudyId 
-         * @param {StudyPaymentPrepareRequest} studyPaymentPrepareRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 유료 스터디 결제를 진행하기 위해 결제 정보를 생성합니다. - 사용자는 이미 신청(PENDING/APPROVED)한 유료 스터디에 대해 결제 페이지로 진입할 때 이 API를 호출합니다. - 서버 기준 스터디 가격(`group_study.price`)과 클라이언트에서 전달한 금액이 다를 경우 결제 준비를 거부합니다. - 동일 회원이 동일 스터디에 대해 SUCCESS 상태 결제를 이미 보유한 경우 재결제를 허용하지 않습니다.  ---  ## Business Rule  - 그룹스터디 조건   - 삭제된 스터디일 경우 결제 불가   - 스터디 상태가 `RECRUITING` 이 아닐 경우 결제 불가   - 무료 스터디(`price == null or 0`)는 결제 불가  - 신청 여부   - 회원이 해당 스터디에 `PENDING` 또는 `APPROVED` 상태로 신청한 기록이 없으면 결제 불가  - 결제 중복 방지   - 동일 회원/스터디 조합에 대해 SUCCESS 결제가 이미 존재하면 에러  ---  ## Path Variable  | 키           | 타입   | 위치  | 설명                | 필수 | 예시 | |--------------|--------|-------|---------------------|------|------| | groupStudyId | number | path  | 결제 대상 스터디 ID | Y    | 10   |  ---  ## Request Body (StudyPaymentPrepareRequest)  | 키     | 타입   | 설명                                                         | 필수 | 예시  | |--------|--------|--------------------------------------------------------------|------|-------| | amount | number | 클라이언트에서 인지한 결제 금액 (null 가능, 있을 경우 서버 금액과 일치 검증) | N    | 99000 |  ---  ## Response (StudyPaymentPrepareResponse)  | 키              | 타입    | 설명                               | |-----------------|---------|------------------------------------| | paymentId       | number  | 생성된 결제 ID                     | | paymentCode     | string  | 비즈니스용 결제 코드 (PAY-...)     | | groupStudyId    | number  | 스터디 ID                          | | groupStudyTitle | string  | 스터디 제목                        | | memberId        | number  | 결제 회원 ID                       | | memberName      | string  | 결제 회원 이름(또는 프로필 이름)  | | amount          | number  | 결제 금액                          | | currency        | string  | 통화 (예: KRW)                     | | pgProvider      | string  | PG사 식별자 (예: TOSS)             | | tossOrderId     | string  | 토스 payment orderId (유니크 값)  | 
+         * @summary 유료 스터디 결제 준비
+         * @param {number} groupStudyId 결제 대상 그룹스터디 ID
+         * @param {StudyPaymentPrepareRequest} studyPaymentPrepareRequest 결제 준비 요청
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        preparePayment(groupStudyId: number, studyPaymentPrepareRequest: StudyPaymentPrepareRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseStudyPaymentPrepareResponse> {
+        preparePayment(groupStudyId: number, studyPaymentPrepareRequest: StudyPaymentPrepareRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.preparePayment(groupStudyId, studyPaymentPrepareRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -371,8 +410,9 @@ export const PaymentUserApiFactory = function (configuration?: Configuration, ba
  */
 export class PaymentUserApi extends BaseAPI {
     /**
-     * 
-     * @param {number} paymentId 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 결제창을 열기 전 또는 결제 진행 중, 사용자가 결제를 취소할 때 사용합니다. - 아직 SUCCESS 가 아닌 결제에 한해서만 취소 상태로 변경합니다. - 실제 PG 환불/취소가 아닌, 내부 결제 엔티티 상태를 CANCELED 로 변경하는 용도입니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response  - `BaseResponse<Void>` 형태이며, content 는 null 로 반환됩니다. 
+     * @summary 결제 취소 (SUCCESS 이전 단계)
+     * @param {number} paymentId 취소할 결제 ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -381,8 +421,9 @@ export class PaymentUserApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @param {TossPaymentConfirmRequest} tossPaymentConfirmRequest 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 토스 결제창에서 사용자가 결제를 완료한 뒤, 클라이언트가 서버로 결제 검증을 요청하는 API입니다. - 서버는 다음을 검증합니다.   - 결제 요청을 생성한 회원과 현재 토큰의 회원이 동일한지   - 서버에 저장된 orderId, amount 와 클라이언트/토스에서 전달된 값이 일치하는지   - 토스 PG 응답 상태가 DONE 인지 - 모든 검증이 통과되면 결제 상태를 SUCCESS 로 변경합니다. - 이미 SUCCESS 상태인 결제에 대해 다시 호출되면, 재검증 없이 현재 결제 정보를 그대로 반환합니다.  ---  ## Request Body (TossPaymentConfirmRequest)  | 키        | 타입   | 설명                               | 필수 | 예시                          | |-----------|--------|------------------------------------|------|-------------------------------| | paymentId | number | 서버에서 생성한 결제 ID           | Y    | 123                           | | orderId   | string | 토스 결제의 orderId (tossOrderId) | Y    | \"ZTO-STUDY-10-1-XYZ123\"       | | amount    | number | 결제 금액                          | Y    | 99000                         | | paymentKey| string | 토스 paymentKey                    | Y    | \"pay_20251211_abcdef123456\"   |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보 전체를 반환하며, 마이페이지 상세 조회와 동일한 필드를 가집니다. 
+     * @summary Toss 결제 서버 Confirm
+     * @param {TossPaymentConfirmRequest} tossPaymentConfirmRequest 토스 결제 서버 confirm 요청
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -391,8 +432,9 @@ export class PaymentUserApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @param {number} paymentId 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 특정 결제 건에 대한 상세 정보를 조회합니다. - 다른 회원의 결제 건에 접근을 시도할 경우 `PAYMENT_OWNER_MISMATCH` 에러를 반환합니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보를 반환합니다. 
+     * @summary 마이페이지 결제 상세 조회
+     * @param {number} paymentId 조회할 결제 ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -401,19 +443,25 @@ export class PaymentUserApi extends BaseAPI {
     }
 
     /**
-     * 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 결제 이력을 스터디별로 그룹핑하여 페이징 형태로 조회합니다. - 결제 히스토리(결제준비/결제성공/결제실패/환불 등 이벤트)를 포함합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 10             |  ---  ## Response (PageResponseDto<StudyPaymentGroupResponse>)  - `content`: 스터디별 결제 정보 리스트 (히스토리 포함) - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+     * @summary 마이페이지 결제관리 조회 (스터디별 그룹핑 + 필터링)
      * @param {Pageable} pageable 
+     * @param {string} [startDate] 
+     * @param {string} [endDate] 
+     * @param {string} [studyTitle] 
+     * @param {string} [paymentCode] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getMyPayments(pageable: Pageable, options?: RawAxiosRequestConfig) {
-        return PaymentUserApiFp(this.configuration).getMyPayments(pageable, options).then((request) => request(this.axios, this.basePath));
+    public getMyPayments(pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, options?: RawAxiosRequestConfig) {
+        return PaymentUserApiFp(this.configuration).getMyPayments(pageable, startDate, endDate, studyTitle, paymentCode, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * 
-     * @param {number} groupStudyId 
-     * @param {StudyPaymentPrepareRequest} studyPaymentPrepareRequest 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 유료 스터디 결제를 진행하기 위해 결제 정보를 생성합니다. - 사용자는 이미 신청(PENDING/APPROVED)한 유료 스터디에 대해 결제 페이지로 진입할 때 이 API를 호출합니다. - 서버 기준 스터디 가격(`group_study.price`)과 클라이언트에서 전달한 금액이 다를 경우 결제 준비를 거부합니다. - 동일 회원이 동일 스터디에 대해 SUCCESS 상태 결제를 이미 보유한 경우 재결제를 허용하지 않습니다.  ---  ## Business Rule  - 그룹스터디 조건   - 삭제된 스터디일 경우 결제 불가   - 스터디 상태가 `RECRUITING` 이 아닐 경우 결제 불가   - 무료 스터디(`price == null or 0`)는 결제 불가  - 신청 여부   - 회원이 해당 스터디에 `PENDING` 또는 `APPROVED` 상태로 신청한 기록이 없으면 결제 불가  - 결제 중복 방지   - 동일 회원/스터디 조합에 대해 SUCCESS 결제가 이미 존재하면 에러  ---  ## Path Variable  | 키           | 타입   | 위치  | 설명                | 필수 | 예시 | |--------------|--------|-------|---------------------|------|------| | groupStudyId | number | path  | 결제 대상 스터디 ID | Y    | 10   |  ---  ## Request Body (StudyPaymentPrepareRequest)  | 키     | 타입   | 설명                                                         | 필수 | 예시  | |--------|--------|--------------------------------------------------------------|------|-------| | amount | number | 클라이언트에서 인지한 결제 금액 (null 가능, 있을 경우 서버 금액과 일치 검증) | N    | 99000 |  ---  ## Response (StudyPaymentPrepareResponse)  | 키              | 타입    | 설명                               | |-----------------|---------|------------------------------------| | paymentId       | number  | 생성된 결제 ID                     | | paymentCode     | string  | 비즈니스용 결제 코드 (PAY-...)     | | groupStudyId    | number  | 스터디 ID                          | | groupStudyTitle | string  | 스터디 제목                        | | memberId        | number  | 결제 회원 ID                       | | memberName      | string  | 결제 회원 이름(또는 프로필 이름)  | | amount          | number  | 결제 금액                          | | currency        | string  | 통화 (예: KRW)                     | | pgProvider      | string  | PG사 식별자 (예: TOSS)             | | tossOrderId     | string  | 토스 payment orderId (유니크 값)  | 
+     * @summary 유료 스터디 결제 준비
+     * @param {number} groupStudyId 결제 대상 그룹스터디 ID
+     * @param {StudyPaymentPrepareRequest} studyPaymentPrepareRequest 결제 준비 요청
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */

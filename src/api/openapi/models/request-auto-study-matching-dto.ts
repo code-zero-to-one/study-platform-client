@@ -40,10 +40,6 @@ export interface RequestAutoStudyMatchingDto {
      */
     'techStackIds': Array<number>;
     /**
-     * 연락처 (휴대폰 번호). `010-1234-5678` 또는 `01012345678` 형식만 가능합니다.
-     */
-    'tel': string;
-    /**
      * GitHub 프로필 URL (선택). 유효한 URL 형식이어야 합니다. (예: https://github.com, www.github.com, github.com)
      */
     'githubLink'?: string;

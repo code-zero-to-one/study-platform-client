@@ -1,5 +1,6 @@
 # ErrorResponse
 
+Error response
 
 ## Properties
 

@@ -115,8 +115,8 @@ void (empty response body)
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | 그룹스터디 생성 성공 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -176,7 +176,7 @@ void (empty response body)
 # **getGroupStudies**
 > PageResponseDto getGroupStudies()
 
-모든 그룹스터디 목록을 조회합니다. 상태별 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
+모든 그룹스터디 목록을 조회합니다. 다양한 조건으로 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
 
 ### Example
 
@@ -189,14 +189,22 @@ import {
 const configuration = new Configuration();
 const apiInstance = new GroupStudyManagementApi(configuration);
 
+let classification: 'GROUP_STUDY' | 'PREMIUM_STUDY'; //스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디) (default to undefined)
 let page: number; //페이지 번호 (1부터 시작) (optional) (default to 1)
 let pageSize: number; //페이지 크기 (optional) (default to 20)
-let groupStudyStatus: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED'; //스터디 상태 필터 (optional) (default to undefined)
+let type: Array<'PROJECT' | 'MENTORING' | 'SEMINAR' | 'CHALLENGE' | 'BOOK_STUDY' | 'LECTURE_STUDY'>; //스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능. (optional) (default to undefined)
+let targetRoles: Array<'BACKEND' | 'FRONTEND' | 'PLANNER' | 'DESIGNER'>; //모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능. (optional) (default to undefined)
+let method: Array<'ONLINE' | 'OFFLINE' | 'HYBRID'>; //진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능. (optional) (default to undefined)
+let inProgress: boolean; //진행중인 스터디만 조회할지 여부. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getGroupStudies(
+    classification,
     page,
     pageSize,
-    groupStudyStatus
+    type,
+    targetRoles,
+    method,
+    inProgress
 );
 ```
 
@@ -204,9 +212,13 @@ const { status, data } = await apiInstance.getGroupStudies(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
+| **classification** | [**&#39;GROUP_STUDY&#39; | &#39;PREMIUM_STUDY&#39;**]**Array<&#39;GROUP_STUDY&#39; &#124; &#39;PREMIUM_STUDY&#39;>** | 스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디) | defaults to undefined|
 | **page** | [**number**] | 페이지 번호 (1부터 시작) | (optional) defaults to 1|
 | **pageSize** | [**number**] | 페이지 크기 | (optional) defaults to 20|
-| **groupStudyStatus** | [**&#39;RECRUITING&#39; | &#39;IN_PROGRESS&#39; | &#39;COMPLETED&#39;**]**Array<&#39;RECRUITING&#39; &#124; &#39;IN_PROGRESS&#39; &#124; &#39;COMPLETED&#39;>** | 스터디 상태 필터 | (optional) defaults to undefined|
+| **type** | **Array<&#39;PROJECT&#39; &#124; &#39;MENTORING&#39; &#124; &#39;SEMINAR&#39; &#124; &#39;CHALLENGE&#39; &#124; &#39;BOOK_STUDY&#39; &#124; &#39;LECTURE_STUDY&#39;>** | 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능. | (optional) defaults to undefined|
+| **targetRoles** | **Array<&#39;BACKEND&#39; &#124; &#39;FRONTEND&#39; &#124; &#39;PLANNER&#39; &#124; &#39;DESIGNER&#39;>** | 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능. | (optional) defaults to undefined|
+| **method** | **Array<&#39;ONLINE&#39; &#124; &#39;OFFLINE&#39; &#124; &#39;HYBRID&#39;>** | 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능. | (optional) defaults to undefined|
+| **inProgress** | [**boolean**] | 진행중인 스터디만 조회할지 여부. | (optional) defaults to undefined|
 
 
 ### Return type

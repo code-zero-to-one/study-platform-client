@@ -22,10 +22,6 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponsePageResponseDtoStudyPaymentSummaryResponse } from '../models';
-// @ts-ignore
-import type { BaseResponseVoid } from '../models';
-// @ts-ignore
 import type { Pageable } from '../models';
 /**
  * AdminPaymentApi - axios parameter creator
@@ -33,9 +29,10 @@ import type { Pageable } from '../models';
 export const AdminPaymentApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @param {number} paymentId 
-         * @param {string} [reason] 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 권한으로 결제 완료된 건을 강제 취소합니다. - 내부적으로 **환불 도메인 및 PG(Toss) 환불 API**와 연동되어 실제 결제 취소 및 환불이 진행됩니다. - 이미 환불이 진행 중이거나 완료된 결제 건에 대해 호출 시 예외가 발생합니다.  ---  ## Request  | **키**      | **타입** | **위치** | **설명**                                | **필수 여부** | **예시**                      | |------------|---------|---------|----------------------------------------|--------------|-------------------------------| | paymentId  | number  | path    | 강제 취소할 결제 ID                    | Y            | 1                             | | reason     | string  | query   | 관리자 강제 취소 사유 (로그/분쟁 대응용) | N            | \"회원 제재로 인한 강제 취소\"  |  ---  ## Response  | **키**      | **타입** | **설명**                                                                                   | |------------|---------|-------------------------------------------------------------------------------------------| | statusCode | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 409: 충돌 등)   | | timestamp  | string(datetime) | 응답 일시                                                                             | | content    | null    | 본문 없음 (강제 취소 성공 여부만 반환)                                                   | | message    | string  | 처리 결과 메시지                                                                          | 
+         * @summary 관리자 결제 강제 취소
+         * @param {number} paymentId 강제 취소할 결제 ID
+         * @param {string} [reason] 관리자 강제 취소 사유 (선택값)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -75,15 +72,19 @@ export const AdminPaymentApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
+         * @summary 관리자 결제 내역 목록 조회
          * @param {Pageable} pageable 
-         * @param {number} [memberId] 
-         * @param {number} [groupStudyId] 
-         * @param {GetPaymentsForAdminStatusEnum} [status] 
+         * @param {number} [memberId] 회원 ID (필터용)
+         * @param {number} [groupStudyId] 스터디 ID (필터용)
+         * @param {string} [status] 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED)
+         * @param {number} [page] 페이지 번호 (0부터 시작)
+         * @param {number} [size] 페이지 크기
+         * @param {string} [sort] 정렬 기준 (예: createdAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPaymentsForAdmin: async (pageable: Pageable, memberId?: number, groupStudyId?: number, status?: GetPaymentsForAdminStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getPaymentsForAdmin: async (pageable: Pageable, memberId?: number, groupStudyId?: number, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'pageable' is not null or undefined
             assertParamExists('getPaymentsForAdmin', 'pageable', pageable)
             const localVarPath = `/api/v1/admin/payments`;
@@ -114,6 +115,18 @@ export const AdminPaymentApiAxiosParamCreator = function (configuration?: Config
                 localVarQueryParameter['status'] = status;
             }
 
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort !== undefined) {
+                localVarQueryParameter['sort'] = sort;
+            }
+
             if (pageable !== undefined) {
                 for (const [key, value] of Object.entries(pageable)) {
                     localVarQueryParameter[key] = value;
@@ -141,29 +154,34 @@ export const AdminPaymentApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AdminPaymentApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @param {number} paymentId 
-         * @param {string} [reason] 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 권한으로 결제 완료된 건을 강제 취소합니다. - 내부적으로 **환불 도메인 및 PG(Toss) 환불 API**와 연동되어 실제 결제 취소 및 환불이 진행됩니다. - 이미 환불이 진행 중이거나 완료된 결제 건에 대해 호출 시 예외가 발생합니다.  ---  ## Request  | **키**      | **타입** | **위치** | **설명**                                | **필수 여부** | **예시**                      | |------------|---------|---------|----------------------------------------|--------------|-------------------------------| | paymentId  | number  | path    | 강제 취소할 결제 ID                    | Y            | 1                             | | reason     | string  | query   | 관리자 강제 취소 사유 (로그/분쟁 대응용) | N            | \"회원 제재로 인한 강제 취소\"  |  ---  ## Response  | **키**      | **타입** | **설명**                                                                                   | |------------|---------|-------------------------------------------------------------------------------------------| | statusCode | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 409: 충돌 등)   | | timestamp  | string(datetime) | 응답 일시                                                                             | | content    | null    | 본문 없음 (강제 취소 성공 여부만 반환)                                                   | | message    | string  | 처리 결과 메시지                                                                          | 
+         * @summary 관리자 결제 강제 취소
+         * @param {number} paymentId 강제 취소할 결제 ID
+         * @param {string} [reason] 관리자 강제 취소 사유 (선택값)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async forceCancelPayment(paymentId: number, reason?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
+        async forceCancelPayment(paymentId: number, reason?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.forceCancelPayment(paymentId, reason, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminPaymentApi.forceCancelPayment']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
+         * @summary 관리자 결제 내역 목록 조회
          * @param {Pageable} pageable 
-         * @param {number} [memberId] 
-         * @param {number} [groupStudyId] 
-         * @param {GetPaymentsForAdminStatusEnum} [status] 
+         * @param {number} [memberId] 회원 ID (필터용)
+         * @param {number} [groupStudyId] 스터디 ID (필터용)
+         * @param {string} [status] 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED)
+         * @param {number} [page] 페이지 번호 (0부터 시작)
+         * @param {number} [size] 페이지 크기
+         * @param {string} [sort] 정렬 기준 (예: createdAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: GetPaymentsForAdminStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponsePageResponseDtoStudyPaymentSummaryResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getPaymentsForAdmin(pageable, memberId, groupStudyId, status, options);
+        async getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getPaymentsForAdmin(pageable, memberId, groupStudyId, status, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminPaymentApi.getPaymentsForAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -178,26 +196,31 @@ export const AdminPaymentApiFactory = function (configuration?: Configuration, b
     const localVarFp = AdminPaymentApiFp(configuration)
     return {
         /**
-         * 
-         * @param {number} paymentId 
-         * @param {string} [reason] 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 권한으로 결제 완료된 건을 강제 취소합니다. - 내부적으로 **환불 도메인 및 PG(Toss) 환불 API**와 연동되어 실제 결제 취소 및 환불이 진행됩니다. - 이미 환불이 진행 중이거나 완료된 결제 건에 대해 호출 시 예외가 발생합니다.  ---  ## Request  | **키**      | **타입** | **위치** | **설명**                                | **필수 여부** | **예시**                      | |------------|---------|---------|----------------------------------------|--------------|-------------------------------| | paymentId  | number  | path    | 강제 취소할 결제 ID                    | Y            | 1                             | | reason     | string  | query   | 관리자 강제 취소 사유 (로그/분쟁 대응용) | N            | \"회원 제재로 인한 강제 취소\"  |  ---  ## Response  | **키**      | **타입** | **설명**                                                                                   | |------------|---------|-------------------------------------------------------------------------------------------| | statusCode | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 409: 충돌 등)   | | timestamp  | string(datetime) | 응답 일시                                                                             | | content    | null    | 본문 없음 (강제 취소 성공 여부만 반환)                                                   | | message    | string  | 처리 결과 메시지                                                                          | 
+         * @summary 관리자 결제 강제 취소
+         * @param {number} paymentId 강제 취소할 결제 ID
+         * @param {string} [reason] 관리자 강제 취소 사유 (선택값)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        forceCancelPayment(paymentId: number, reason?: string, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
+        forceCancelPayment(paymentId: number, reason?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.forceCancelPayment(paymentId, reason, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
+         * @summary 관리자 결제 내역 목록 조회
          * @param {Pageable} pageable 
-         * @param {number} [memberId] 
-         * @param {number} [groupStudyId] 
-         * @param {GetPaymentsForAdminStatusEnum} [status] 
+         * @param {number} [memberId] 회원 ID (필터용)
+         * @param {number} [groupStudyId] 스터디 ID (필터용)
+         * @param {string} [status] 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED)
+         * @param {number} [page] 페이지 번호 (0부터 시작)
+         * @param {number} [size] 페이지 크기
+         * @param {string} [sort] 정렬 기준 (예: createdAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: GetPaymentsForAdminStatusEnum, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponsePageResponseDtoStudyPaymentSummaryResponse> {
-            return localVarFp.getPaymentsForAdmin(pageable, memberId, groupStudyId, status, options).then((request) => request(axios, basePath));
+        getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.getPaymentsForAdmin(pageable, memberId, groupStudyId, status, page, size, sort, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -207,9 +230,10 @@ export const AdminPaymentApiFactory = function (configuration?: Configuration, b
  */
 export class AdminPaymentApi extends BaseAPI {
     /**
-     * 
-     * @param {number} paymentId 
-     * @param {string} [reason] 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 권한으로 결제 완료된 건을 강제 취소합니다. - 내부적으로 **환불 도메인 및 PG(Toss) 환불 API**와 연동되어 실제 결제 취소 및 환불이 진행됩니다. - 이미 환불이 진행 중이거나 완료된 결제 건에 대해 호출 시 예외가 발생합니다.  ---  ## Request  | **키**      | **타입** | **위치** | **설명**                                | **필수 여부** | **예시**                      | |------------|---------|---------|----------------------------------------|--------------|-------------------------------| | paymentId  | number  | path    | 강제 취소할 결제 ID                    | Y            | 1                             | | reason     | string  | query   | 관리자 강제 취소 사유 (로그/분쟁 대응용) | N            | \"회원 제재로 인한 강제 취소\"  |  ---  ## Response  | **키**      | **타입** | **설명**                                                                                   | |------------|---------|-------------------------------------------------------------------------------------------| | statusCode | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 409: 충돌 등)   | | timestamp  | string(datetime) | 응답 일시                                                                             | | content    | null    | 본문 없음 (강제 취소 성공 여부만 반환)                                                   | | message    | string  | 처리 결과 메시지                                                                          | 
+     * @summary 관리자 결제 강제 취소
+     * @param {number} paymentId 강제 취소할 결제 ID
+     * @param {string} [reason] 관리자 강제 취소 사유 (선택값)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -218,24 +242,20 @@ export class AdminPaymentApi extends BaseAPI {
     }
 
     /**
-     * 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
+     * @summary 관리자 결제 내역 목록 조회
      * @param {Pageable} pageable 
-     * @param {number} [memberId] 
-     * @param {number} [groupStudyId] 
-     * @param {GetPaymentsForAdminStatusEnum} [status] 
+     * @param {number} [memberId] 회원 ID (필터용)
+     * @param {number} [groupStudyId] 스터디 ID (필터용)
+     * @param {string} [status] 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED)
+     * @param {number} [page] 페이지 번호 (0부터 시작)
+     * @param {number} [size] 페이지 크기
+     * @param {string} [sort] 정렬 기준 (예: createdAt,desc)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: GetPaymentsForAdminStatusEnum, options?: RawAxiosRequestConfig) {
-        return AdminPaymentApiFp(this.configuration).getPaymentsForAdmin(pageable, memberId, groupStudyId, status, options).then((request) => request(this.axios, this.basePath));
+    public getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
+        return AdminPaymentApiFp(this.configuration).getPaymentsForAdmin(pageable, memberId, groupStudyId, status, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
-export const GetPaymentsForAdminStatusEnum = {
-    Requested: 'REQUESTED',
-    Pending: 'PENDING',
-    Success: 'SUCCESS',
-    Failed: 'FAILED',
-    Canceled: 'CANCELED'
-} as const;
-export type GetPaymentsForAdminStatusEnum = typeof GetPaymentsForAdminStatusEnum[keyof typeof GetPaymentsForAdminStatusEnum];

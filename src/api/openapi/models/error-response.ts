@@ -14,6 +14,9 @@
 
 
 
+/**
+ * Error response
+ */
 export interface ErrorResponse {
     'statusCode'?: number;
     'timestamp'?: string;

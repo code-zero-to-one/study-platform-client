@@ -22,12 +22,6 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponsePageResponseDtoStudyRefundSummaryResponse } from '../models';
-// @ts-ignore
-import type { BaseResponseStudyRefundDetailResponse } from '../models';
-// @ts-ignore
-import type { BaseResponseVoid } from '../models';
-// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { StudyRefundCreateRequest } from '../models';
@@ -37,8 +31,9 @@ import type { StudyRefundCreateRequest } from '../models';
 export const RefundUserApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @param {number} refundId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 사용자가 본인이 요청한 환불 요청을 취소합니다. - 환불 상태가 `REQUESTED` 인 경우에만 취소 가능합니다. - 다음 조건에 해당하는 경우 에러가 발생할 수 있습니다.   - 다른 사용자의 환불 건을 취소하려는 경우   - 환불 상태가 REQUESTED가 아닌 경우 (APPROVED / COMPLETED / CANCELED 등)  ---  ## Path Variable  | **키**    | **타입** | **위치** | **설명**     | **필수 여부** | **예시** | |----------|---------|---------|-------------|--------------|----------| | refundId | number  | path    | 취소할 환불 ID | Y           | 1        |  ---  ## Request Body  - Request Body는 필요하지 않습니다.  ---  ## Response  - `content`는 `null`이며, 상태 코드 200과 함께 성공 메시지를 반환합니다. 
+         * @summary 사용자 환불 요청 취소
+         * @param {number} refundId 취소할 환불 요청 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -74,12 +69,16 @@ export const RefundUserApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 사용자의 환불 내역을 페이징 형태로 조회합니다. - 최근 요청( requestedAt ) 기준으로 정렬하여 보여줍니다.  ---  ## Query Parameters (Pageable)  | **키**  | **타입** | **위치** | **설명**                          | **필수 여부** | **예시**             | |--------|---------|---------|------------------------------------|--------------|----------------------| | page   | number  | query   | 조회할 페이지 (0부터 시작)           | N            | 0                    | | size   | number  | query   | 페이지당 데이터 개수                 | N            | 10                   | | sort   | string  | query   | 정렬 기준 필드명, `requestedAt` 기준 권장 | N       | requestedAt,desc     |  ---  ## Response (PageResponseDto<StudyRefundSummaryResponse>)  ### PageResponseDto  | **키**         | **타입**          | **설명**                    | |---------------|------------------|----------------------------| | content       | array           | 환불 요약 정보 리스트         | | page          | number          | 현재 페이지(1부터 시작)       | | size          | number          | 페이지 크기                   | | totalElements | number          | 전체 데이터 개수              |  ### StudyRefundSummaryResponse  | **키**           | **타입**   | **설명**              | |-----------------|-----------|-----------------------| | refundId        | number    | 환불 ID               | | refundCode      | string    | 환불 코드             | | paymentId       | number    | 결제 ID               | | paymentCode     | string    | 결제 코드             | | memberId        | number    | 회원 ID               | | memberName      | string    | 회원 로그인 ID        | | groupStudyId    | number    | 그룹스터디 ID         | | groupStudyTitle | string    | 그룹스터디 제목       | | refundAmount    | number    | 환불 금액             | | status          | string    | 환불 상태             | | requestedAt     | datetime  | 환불 요청 일시        | | refundedAt      | datetime  | 환불 완료 일시        | 
+         * @summary 마이페이지 환불 내역 조회
          * @param {Pageable} pageable 
+         * @param {number} [page] 조회할 페이지 (0부터 시작)
+         * @param {number} [size] 페이지당 데이터 개수
+         * @param {string} [sort] 정렬 기준 (예: requestedAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyRefunds: async (pageable: Pageable, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getMyRefunds: async (pageable: Pageable, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'pageable' is not null or undefined
             assertParamExists('getMyRefunds', 'pageable', pageable)
             const localVarPath = `/api/v1/mypage/refunds`;
@@ -97,6 +96,18 @@ export const RefundUserApiAxiosParamCreator = function (configuration?: Configur
             // authentication bearer required
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort !== undefined) {
+                localVarQueryParameter['sort'] = sort;
+            }
 
             if (pageable !== undefined) {
                 for (const [key, value] of Object.entries(pageable)) {
@@ -116,9 +127,10 @@ export const RefundUserApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * 
-         * @param {number} paymentId 
-         * @param {StudyRefundCreateRequest} studyRefundCreateRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 특정 결제 건에 대해 사용자가 환불을 요청합니다. - 실제 환불 가능 여부(정산 여부, 스터디 상태 등)는 서버에서 정책에 따라 검증합니다. - 환불 금액은 결제 금액과 환불 정책(진행 기간, 출석률 등)에 따라 서버에서 계산됩니다. - 다음 조건에 해당하는 경우 에러가 발생할 수 있습니다.   - 결제가 완료되지 않은 경우   - 이미 동일 결제 건에 대해 환불이 진행 중 또는 완료된 경우   - 해당 스터디에 대해 정산(PENDING/APPROVED/COMPLETED)이 생성된 경우   - 스터디에서 정상 퇴장/강퇴( EXIT / KICKED ) 상태가 아닌 경우   - 환불 정책상 환불 가능 금액이 0원 이하인 경우  ---  ## Path Variable  | **키**      | **타입** | **위치** | **설명**     | **필수 여부** | **예시** | |------------|---------|---------|-------------|--------------|----------| | paymentId  | number  | path    | 결제 ID      | Y            | 10       |  ---  ## Request Body (StudyRefundCreateRequest)  | **키**  | **타입** | **설명**                           | **필수 여부** | **예시**                          | |--------|---------|------------------------------------|--------------|-----------------------------------| | reason | string  | 사용자가 남기는 환불 요청 사유        | N            | \"스터디 일정과 맞지 않아 환불 요청\" |  ---  ## Response (StudyRefundDetailResponse)  | **키**           | **타입**   | **설명**                 | |-----------------|-----------|--------------------------| | refundId        | number    | 환불 ID                  | | refundCode      | string    | 환불 코드                | | paymentId       | number    | 결제 ID                  | | paymentCode     | string    | 결제 코드                | | memberId        | number    | 회원 ID                  | | memberName      | string    | 회원 로그인 ID           | | groupStudyId    | number    | 그룹스터디 ID            | | groupStudyTitle | string    | 그룹스터디 제목          | | originalAmount  | number    | 기존 결제 금액           | | refundAmount    | number    | 환불 예정 금액           | | status          | string    | 환불 상태(REQUESTED 등)  | | reason          | string    | 사용자 환불 요청 사유     | | requestedAt     | datetime  | 환불 요청 일시           | | approvedAt      | datetime  | 환불 승인 일시           | | refundedAt      | datetime  | 환불 완료 일시           | | canceledAt      | datetime  | 환불 요청 취소 일시      | 
+         * @summary 사용자 환불 요청
+         * @param {number} paymentId 환불을 요청할 결제 ID
+         * @param {StudyRefundCreateRequest} studyRefundCreateRequest 사용자 환불 요청 정보
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -168,37 +180,43 @@ export const RefundUserApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = RefundUserApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @param {number} refundId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 사용자가 본인이 요청한 환불 요청을 취소합니다. - 환불 상태가 `REQUESTED` 인 경우에만 취소 가능합니다. - 다음 조건에 해당하는 경우 에러가 발생할 수 있습니다.   - 다른 사용자의 환불 건을 취소하려는 경우   - 환불 상태가 REQUESTED가 아닌 경우 (APPROVED / COMPLETED / CANCELED 등)  ---  ## Path Variable  | **키**    | **타입** | **위치** | **설명**     | **필수 여부** | **예시** | |----------|---------|---------|-------------|--------------|----------| | refundId | number  | path    | 취소할 환불 ID | Y           | 1        |  ---  ## Request Body  - Request Body는 필요하지 않습니다.  ---  ## Response  - `content`는 `null`이며, 상태 코드 200과 함께 성공 메시지를 반환합니다. 
+         * @summary 사용자 환불 요청 취소
+         * @param {number} refundId 취소할 환불 요청 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async cancelRefundRequest(refundId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
+        async cancelRefundRequest(refundId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cancelRefundRequest(refundId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RefundUserApi.cancelRefundRequest']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 사용자의 환불 내역을 페이징 형태로 조회합니다. - 최근 요청( requestedAt ) 기준으로 정렬하여 보여줍니다.  ---  ## Query Parameters (Pageable)  | **키**  | **타입** | **위치** | **설명**                          | **필수 여부** | **예시**             | |--------|---------|---------|------------------------------------|--------------|----------------------| | page   | number  | query   | 조회할 페이지 (0부터 시작)           | N            | 0                    | | size   | number  | query   | 페이지당 데이터 개수                 | N            | 10                   | | sort   | string  | query   | 정렬 기준 필드명, `requestedAt` 기준 권장 | N       | requestedAt,desc     |  ---  ## Response (PageResponseDto<StudyRefundSummaryResponse>)  ### PageResponseDto  | **키**         | **타입**          | **설명**                    | |---------------|------------------|----------------------------| | content       | array           | 환불 요약 정보 리스트         | | page          | number          | 현재 페이지(1부터 시작)       | | size          | number          | 페이지 크기                   | | totalElements | number          | 전체 데이터 개수              |  ### StudyRefundSummaryResponse  | **키**           | **타입**   | **설명**              | |-----------------|-----------|-----------------------| | refundId        | number    | 환불 ID               | | refundCode      | string    | 환불 코드             | | paymentId       | number    | 결제 ID               | | paymentCode     | string    | 결제 코드             | | memberId        | number    | 회원 ID               | | memberName      | string    | 회원 로그인 ID        | | groupStudyId    | number    | 그룹스터디 ID         | | groupStudyTitle | string    | 그룹스터디 제목       | | refundAmount    | number    | 환불 금액             | | status          | string    | 환불 상태             | | requestedAt     | datetime  | 환불 요청 일시        | | refundedAt      | datetime  | 환불 완료 일시        | 
+         * @summary 마이페이지 환불 내역 조회
          * @param {Pageable} pageable 
+         * @param {number} [page] 조회할 페이지 (0부터 시작)
+         * @param {number} [size] 페이지당 데이터 개수
+         * @param {string} [sort] 정렬 기준 (예: requestedAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyRefunds(pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponsePageResponseDtoStudyRefundSummaryResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getMyRefunds(pageable, options);
+        async getMyRefunds(pageable: Pageable, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMyRefunds(pageable, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RefundUserApi.getMyRefunds']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {number} paymentId 
-         * @param {StudyRefundCreateRequest} studyRefundCreateRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 특정 결제 건에 대해 사용자가 환불을 요청합니다. - 실제 환불 가능 여부(정산 여부, 스터디 상태 등)는 서버에서 정책에 따라 검증합니다. - 환불 금액은 결제 금액과 환불 정책(진행 기간, 출석률 등)에 따라 서버에서 계산됩니다. - 다음 조건에 해당하는 경우 에러가 발생할 수 있습니다.   - 결제가 완료되지 않은 경우   - 이미 동일 결제 건에 대해 환불이 진행 중 또는 완료된 경우   - 해당 스터디에 대해 정산(PENDING/APPROVED/COMPLETED)이 생성된 경우   - 스터디에서 정상 퇴장/강퇴( EXIT / KICKED ) 상태가 아닌 경우   - 환불 정책상 환불 가능 금액이 0원 이하인 경우  ---  ## Path Variable  | **키**      | **타입** | **위치** | **설명**     | **필수 여부** | **예시** | |------------|---------|---------|-------------|--------------|----------| | paymentId  | number  | path    | 결제 ID      | Y            | 10       |  ---  ## Request Body (StudyRefundCreateRequest)  | **키**  | **타입** | **설명**                           | **필수 여부** | **예시**                          | |--------|---------|------------------------------------|--------------|-----------------------------------| | reason | string  | 사용자가 남기는 환불 요청 사유        | N            | \"스터디 일정과 맞지 않아 환불 요청\" |  ---  ## Response (StudyRefundDetailResponse)  | **키**           | **타입**   | **설명**                 | |-----------------|-----------|--------------------------| | refundId        | number    | 환불 ID                  | | refundCode      | string    | 환불 코드                | | paymentId       | number    | 결제 ID                  | | paymentCode     | string    | 결제 코드                | | memberId        | number    | 회원 ID                  | | memberName      | string    | 회원 로그인 ID           | | groupStudyId    | number    | 그룹스터디 ID            | | groupStudyTitle | string    | 그룹스터디 제목          | | originalAmount  | number    | 기존 결제 금액           | | refundAmount    | number    | 환불 예정 금액           | | status          | string    | 환불 상태(REQUESTED 등)  | | reason          | string    | 사용자 환불 요청 사유     | | requestedAt     | datetime  | 환불 요청 일시           | | approvedAt      | datetime  | 환불 승인 일시           | | refundedAt      | datetime  | 환불 완료 일시           | | canceledAt      | datetime  | 환불 요청 취소 일시      | 
+         * @summary 사용자 환불 요청
+         * @param {number} paymentId 환불을 요청할 결제 ID
+         * @param {StudyRefundCreateRequest} studyRefundCreateRequest 사용자 환불 요청 정보
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async requestRefund(paymentId: number, studyRefundCreateRequest: StudyRefundCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseStudyRefundDetailResponse>> {
+        async requestRefund(paymentId: number, studyRefundCreateRequest: StudyRefundCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.requestRefund(paymentId, studyRefundCreateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RefundUserApi.requestRefund']?.[localVarOperationServerIndex]?.url;
@@ -214,31 +232,37 @@ export const RefundUserApiFactory = function (configuration?: Configuration, bas
     const localVarFp = RefundUserApiFp(configuration)
     return {
         /**
-         * 
-         * @param {number} refundId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 사용자가 본인이 요청한 환불 요청을 취소합니다. - 환불 상태가 `REQUESTED` 인 경우에만 취소 가능합니다. - 다음 조건에 해당하는 경우 에러가 발생할 수 있습니다.   - 다른 사용자의 환불 건을 취소하려는 경우   - 환불 상태가 REQUESTED가 아닌 경우 (APPROVED / COMPLETED / CANCELED 등)  ---  ## Path Variable  | **키**    | **타입** | **위치** | **설명**     | **필수 여부** | **예시** | |----------|---------|---------|-------------|--------------|----------| | refundId | number  | path    | 취소할 환불 ID | Y           | 1        |  ---  ## Request Body  - Request Body는 필요하지 않습니다.  ---  ## Response  - `content`는 `null`이며, 상태 코드 200과 함께 성공 메시지를 반환합니다. 
+         * @summary 사용자 환불 요청 취소
+         * @param {number} refundId 취소할 환불 요청 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cancelRefundRequest(refundId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
+        cancelRefundRequest(refundId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.cancelRefundRequest(refundId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 사용자의 환불 내역을 페이징 형태로 조회합니다. - 최근 요청( requestedAt ) 기준으로 정렬하여 보여줍니다.  ---  ## Query Parameters (Pageable)  | **키**  | **타입** | **위치** | **설명**                          | **필수 여부** | **예시**             | |--------|---------|---------|------------------------------------|--------------|----------------------| | page   | number  | query   | 조회할 페이지 (0부터 시작)           | N            | 0                    | | size   | number  | query   | 페이지당 데이터 개수                 | N            | 10                   | | sort   | string  | query   | 정렬 기준 필드명, `requestedAt` 기준 권장 | N       | requestedAt,desc     |  ---  ## Response (PageResponseDto<StudyRefundSummaryResponse>)  ### PageResponseDto  | **키**         | **타입**          | **설명**                    | |---------------|------------------|----------------------------| | content       | array           | 환불 요약 정보 리스트         | | page          | number          | 현재 페이지(1부터 시작)       | | size          | number          | 페이지 크기                   | | totalElements | number          | 전체 데이터 개수              |  ### StudyRefundSummaryResponse  | **키**           | **타입**   | **설명**              | |-----------------|-----------|-----------------------| | refundId        | number    | 환불 ID               | | refundCode      | string    | 환불 코드             | | paymentId       | number    | 결제 ID               | | paymentCode     | string    | 결제 코드             | | memberId        | number    | 회원 ID               | | memberName      | string    | 회원 로그인 ID        | | groupStudyId    | number    | 그룹스터디 ID         | | groupStudyTitle | string    | 그룹스터디 제목       | | refundAmount    | number    | 환불 금액             | | status          | string    | 환불 상태             | | requestedAt     | datetime  | 환불 요청 일시        | | refundedAt      | datetime  | 환불 완료 일시        | 
+         * @summary 마이페이지 환불 내역 조회
          * @param {Pageable} pageable 
+         * @param {number} [page] 조회할 페이지 (0부터 시작)
+         * @param {number} [size] 페이지당 데이터 개수
+         * @param {string} [sort] 정렬 기준 (예: requestedAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyRefunds(pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponsePageResponseDtoStudyRefundSummaryResponse> {
-            return localVarFp.getMyRefunds(pageable, options).then((request) => request(axios, basePath));
+        getMyRefunds(pageable: Pageable, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.getMyRefunds(pageable, page, size, sort, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {number} paymentId 
-         * @param {StudyRefundCreateRequest} studyRefundCreateRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 특정 결제 건에 대해 사용자가 환불을 요청합니다. - 실제 환불 가능 여부(정산 여부, 스터디 상태 등)는 서버에서 정책에 따라 검증합니다. - 환불 금액은 결제 금액과 환불 정책(진행 기간, 출석률 등)에 따라 서버에서 계산됩니다. - 다음 조건에 해당하는 경우 에러가 발생할 수 있습니다.   - 결제가 완료되지 않은 경우   - 이미 동일 결제 건에 대해 환불이 진행 중 또는 완료된 경우   - 해당 스터디에 대해 정산(PENDING/APPROVED/COMPLETED)이 생성된 경우   - 스터디에서 정상 퇴장/강퇴( EXIT / KICKED ) 상태가 아닌 경우   - 환불 정책상 환불 가능 금액이 0원 이하인 경우  ---  ## Path Variable  | **키**      | **타입** | **위치** | **설명**     | **필수 여부** | **예시** | |------------|---------|---------|-------------|--------------|----------| | paymentId  | number  | path    | 결제 ID      | Y            | 10       |  ---  ## Request Body (StudyRefundCreateRequest)  | **키**  | **타입** | **설명**                           | **필수 여부** | **예시**                          | |--------|---------|------------------------------------|--------------|-----------------------------------| | reason | string  | 사용자가 남기는 환불 요청 사유        | N            | \"스터디 일정과 맞지 않아 환불 요청\" |  ---  ## Response (StudyRefundDetailResponse)  | **키**           | **타입**   | **설명**                 | |-----------------|-----------|--------------------------| | refundId        | number    | 환불 ID                  | | refundCode      | string    | 환불 코드                | | paymentId       | number    | 결제 ID                  | | paymentCode     | string    | 결제 코드                | | memberId        | number    | 회원 ID                  | | memberName      | string    | 회원 로그인 ID           | | groupStudyId    | number    | 그룹스터디 ID            | | groupStudyTitle | string    | 그룹스터디 제목          | | originalAmount  | number    | 기존 결제 금액           | | refundAmount    | number    | 환불 예정 금액           | | status          | string    | 환불 상태(REQUESTED 등)  | | reason          | string    | 사용자 환불 요청 사유     | | requestedAt     | datetime  | 환불 요청 일시           | | approvedAt      | datetime  | 환불 승인 일시           | | refundedAt      | datetime  | 환불 완료 일시           | | canceledAt      | datetime  | 환불 요청 취소 일시      | 
+         * @summary 사용자 환불 요청
+         * @param {number} paymentId 환불을 요청할 결제 ID
+         * @param {StudyRefundCreateRequest} studyRefundCreateRequest 사용자 환불 요청 정보
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        requestRefund(paymentId: number, studyRefundCreateRequest: StudyRefundCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseStudyRefundDetailResponse> {
+        requestRefund(paymentId: number, studyRefundCreateRequest: StudyRefundCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.requestRefund(paymentId, studyRefundCreateRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -249,8 +273,9 @@ export const RefundUserApiFactory = function (configuration?: Configuration, bas
  */
 export class RefundUserApi extends BaseAPI {
     /**
-     * 
-     * @param {number} refundId 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 사용자가 본인이 요청한 환불 요청을 취소합니다. - 환불 상태가 `REQUESTED` 인 경우에만 취소 가능합니다. - 다음 조건에 해당하는 경우 에러가 발생할 수 있습니다.   - 다른 사용자의 환불 건을 취소하려는 경우   - 환불 상태가 REQUESTED가 아닌 경우 (APPROVED / COMPLETED / CANCELED 등)  ---  ## Path Variable  | **키**    | **타입** | **위치** | **설명**     | **필수 여부** | **예시** | |----------|---------|---------|-------------|--------------|----------| | refundId | number  | path    | 취소할 환불 ID | Y           | 1        |  ---  ## Request Body  - Request Body는 필요하지 않습니다.  ---  ## Response  - `content`는 `null`이며, 상태 코드 200과 함께 성공 메시지를 반환합니다. 
+     * @summary 사용자 환불 요청 취소
+     * @param {number} refundId 취소할 환불 요청 ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -259,19 +284,24 @@ export class RefundUserApi extends BaseAPI {
     }
 
     /**
-     * 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 사용자의 환불 내역을 페이징 형태로 조회합니다. - 최근 요청( requestedAt ) 기준으로 정렬하여 보여줍니다.  ---  ## Query Parameters (Pageable)  | **키**  | **타입** | **위치** | **설명**                          | **필수 여부** | **예시**             | |--------|---------|---------|------------------------------------|--------------|----------------------| | page   | number  | query   | 조회할 페이지 (0부터 시작)           | N            | 0                    | | size   | number  | query   | 페이지당 데이터 개수                 | N            | 10                   | | sort   | string  | query   | 정렬 기준 필드명, `requestedAt` 기준 권장 | N       | requestedAt,desc     |  ---  ## Response (PageResponseDto<StudyRefundSummaryResponse>)  ### PageResponseDto  | **키**         | **타입**          | **설명**                    | |---------------|------------------|----------------------------| | content       | array           | 환불 요약 정보 리스트         | | page          | number          | 현재 페이지(1부터 시작)       | | size          | number          | 페이지 크기                   | | totalElements | number          | 전체 데이터 개수              |  ### StudyRefundSummaryResponse  | **키**           | **타입**   | **설명**              | |-----------------|-----------|-----------------------| | refundId        | number    | 환불 ID               | | refundCode      | string    | 환불 코드             | | paymentId       | number    | 결제 ID               | | paymentCode     | string    | 결제 코드             | | memberId        | number    | 회원 ID               | | memberName      | string    | 회원 로그인 ID        | | groupStudyId    | number    | 그룹스터디 ID         | | groupStudyTitle | string    | 그룹스터디 제목       | | refundAmount    | number    | 환불 금액             | | status          | string    | 환불 상태             | | requestedAt     | datetime  | 환불 요청 일시        | | refundedAt      | datetime  | 환불 완료 일시        | 
+     * @summary 마이페이지 환불 내역 조회
      * @param {Pageable} pageable 
+     * @param {number} [page] 조회할 페이지 (0부터 시작)
+     * @param {number} [size] 페이지당 데이터 개수
+     * @param {string} [sort] 정렬 기준 (예: requestedAt,desc)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getMyRefunds(pageable: Pageable, options?: RawAxiosRequestConfig) {
-        return RefundUserApiFp(this.configuration).getMyRefunds(pageable, options).then((request) => request(this.axios, this.basePath));
+    public getMyRefunds(pageable: Pageable, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
+        return RefundUserApiFp(this.configuration).getMyRefunds(pageable, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * 
-     * @param {number} paymentId 
-     * @param {StudyRefundCreateRequest} studyRefundCreateRequest 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 특정 결제 건에 대해 사용자가 환불을 요청합니다. - 실제 환불 가능 여부(정산 여부, 스터디 상태 등)는 서버에서 정책에 따라 검증합니다. - 환불 금액은 결제 금액과 환불 정책(진행 기간, 출석률 등)에 따라 서버에서 계산됩니다. - 다음 조건에 해당하는 경우 에러가 발생할 수 있습니다.   - 결제가 완료되지 않은 경우   - 이미 동일 결제 건에 대해 환불이 진행 중 또는 완료된 경우   - 해당 스터디에 대해 정산(PENDING/APPROVED/COMPLETED)이 생성된 경우   - 스터디에서 정상 퇴장/강퇴( EXIT / KICKED ) 상태가 아닌 경우   - 환불 정책상 환불 가능 금액이 0원 이하인 경우  ---  ## Path Variable  | **키**      | **타입** | **위치** | **설명**     | **필수 여부** | **예시** | |------------|---------|---------|-------------|--------------|----------| | paymentId  | number  | path    | 결제 ID      | Y            | 10       |  ---  ## Request Body (StudyRefundCreateRequest)  | **키**  | **타입** | **설명**                           | **필수 여부** | **예시**                          | |--------|---------|------------------------------------|--------------|-----------------------------------| | reason | string  | 사용자가 남기는 환불 요청 사유        | N            | \"스터디 일정과 맞지 않아 환불 요청\" |  ---  ## Response (StudyRefundDetailResponse)  | **키**           | **타입**   | **설명**                 | |-----------------|-----------|--------------------------| | refundId        | number    | 환불 ID                  | | refundCode      | string    | 환불 코드                | | paymentId       | number    | 결제 ID                  | | paymentCode     | string    | 결제 코드                | | memberId        | number    | 회원 ID                  | | memberName      | string    | 회원 로그인 ID           | | groupStudyId    | number    | 그룹스터디 ID            | | groupStudyTitle | string    | 그룹스터디 제목          | | originalAmount  | number    | 기존 결제 금액           | | refundAmount    | number    | 환불 예정 금액           | | status          | string    | 환불 상태(REQUESTED 등)  | | reason          | string    | 사용자 환불 요청 사유     | | requestedAt     | datetime  | 환불 요청 일시           | | approvedAt      | datetime  | 환불 승인 일시           | | refundedAt      | datetime  | 환불 완료 일시           | | canceledAt      | datetime  | 환불 요청 취소 일시      | 
+     * @summary 사용자 환불 요청
+     * @param {number} paymentId 환불을 요청할 결제 ID
+     * @param {StudyRefundCreateRequest} studyRefundCreateRequest 사용자 환불 요청 정보
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */

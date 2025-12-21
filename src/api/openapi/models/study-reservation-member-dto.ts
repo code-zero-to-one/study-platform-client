@@ -19,7 +19,7 @@ import type { ImageDto } from './image-dto';
 
 export interface StudyReservationMemberDto {
     'memberId'?: number;
-    'memberName'?: string;
+    'memberNickname'?: string;
     'profileImage'?: ImageDto;
     'simpleIntroduction'?: string;
 }

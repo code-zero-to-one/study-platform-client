@@ -16,13 +16,9 @@
 
 export interface MemberProfileUpdateRequestDto {
     /**
-     * 회원 이름; \"ignore-null\"이 false인 경우, null이면 안 됨
+     * 닉네임
      */
-    'name': string;
-    /**
-     * 연락처; \"ignore-null\"이 false인 경우, null이면 안 됨
-     */
-    'tel': string;
+    'nickname'?: string;
     /**
      * 생년월일. yyyy-MM-dd 형식
      */
@@ -51,6 +47,10 @@ export interface MemberProfileUpdateRequestDto {
      * 프로필 이미지 확장자. null이 아닐 경우 프로필 이미지 업로드 URL이 반환됨. null일 경우 반환되지 않음
      */
     'profileImageExtension'?: MemberProfileUpdateRequestDtoProfileImageExtensionEnum;
+    /**
+     * 기술 스택 ID 목록
+     */
+    'techStackIds'?: Array<number>;
 }
 
 export const MemberProfileUpdateRequestDtoMbtiEnum = {

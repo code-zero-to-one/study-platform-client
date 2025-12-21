@@ -5,7 +5,6 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**groupStudyId** | **number** |  | [default to undefined]
 **amount** | **number** |  | [optional] [default to undefined]
 
 ## Example
@@ -14,7 +13,6 @@ Name | Type | Description | Notes
 import { StudyPaymentPrepareRequest } from './api';
 
 const instance: StudyPaymentPrepareRequest = {
-    groupStudyId,
     amount,
 };
 ```

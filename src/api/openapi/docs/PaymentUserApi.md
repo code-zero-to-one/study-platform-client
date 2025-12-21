@@ -4,15 +4,16 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**cancelPayment**](#cancelpayment) | **POST** /api/v1/payments/{paymentId}/cancel | |
-|[**confirmTossPayment**](#confirmtosspayment) | **POST** /api/v1/payments/toss/confirm | |
-|[**getMyPaymentDetail**](#getmypaymentdetail) | **GET** /api/v1/mypage/payments/{paymentId} | |
-|[**getMyPayments**](#getmypayments) | **GET** /api/v1/mypage/payments | |
-|[**preparePayment**](#preparepayment) | **POST** /api/v1/group-studies/{groupStudyId}/payments/prepare | |
+|[**cancelPayment**](#cancelpayment) | **POST** /api/v1/payments/{paymentId}/cancel | 결제 취소 (SUCCESS 이전 단계)|
+|[**confirmTossPayment**](#confirmtosspayment) | **POST** /api/v1/payments/toss/confirm | Toss 결제 서버 Confirm|
+|[**getMyPaymentDetail**](#getmypaymentdetail) | **GET** /api/v1/mypage/payments/{paymentId} | 마이페이지 결제 상세 조회|
+|[**getMyPayments**](#getmypayments) | **GET** /api/v1/mypage/payments | 마이페이지 결제관리 조회 (스터디별 그룹핑 + 필터링)|
+|[**preparePayment**](#preparepayment) | **POST** /api/v1/group-studies/{groupStudyId}/payments/prepare | 유료 스터디 결제 준비|
 
 # **cancelPayment**
-> BaseResponseVoid cancelPayment()
+> cancelPayment()
 
+작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 결제창을 열기 전 또는 결제 진행 중, 사용자가 결제를 취소할 때 사용합니다. - 아직 SUCCESS 가 아닌 결제에 한해서만 취소 상태로 변경합니다. - 실제 PG 환불/취소가 아닌, 내부 결제 엔티티 상태를 CANCELED 로 변경하는 용도입니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response  - `BaseResponse<Void>` 형태이며, content 는 null 로 반환됩니다. 
 
 ### Example
 
@@ -25,7 +26,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new PaymentUserApi(configuration);
 
-let paymentId: number; // (default to undefined)
+let paymentId: number; //취소할 결제 ID (default to undefined)
 
 const { status, data } = await apiInstance.cancelPayment(
     paymentId
@@ -36,12 +37,12 @@ const { status, data } = await apiInstance.cancelPayment(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **paymentId** | [**number**] |  | defaults to undefined|
+| **paymentId** | [**number**] | 취소할 결제 ID | defaults to undefined|
 
 
 ### Return type
 
-**BaseResponseVoid**
+void (empty response body)
 
 ### Authorization
 
@@ -50,21 +51,22 @@ const { status, data } = await apiInstance.cancelPayment(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: */*
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | OK |  -  |
+|**200** | 결제 취소 처리 성공 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **confirmTossPayment**
-> BaseResponseStudyPaymentDetailResponse confirmTossPayment(tossPaymentConfirmRequest)
+> confirmTossPayment(tossPaymentConfirmRequest)
 
+작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 토스 결제창에서 사용자가 결제를 완료한 뒤, 클라이언트가 서버로 결제 검증을 요청하는 API입니다. - 서버는 다음을 검증합니다.   - 결제 요청을 생성한 회원과 현재 토큰의 회원이 동일한지   - 서버에 저장된 orderId, amount 와 클라이언트/토스에서 전달된 값이 일치하는지   - 토스 PG 응답 상태가 DONE 인지 - 모든 검증이 통과되면 결제 상태를 SUCCESS 로 변경합니다. - 이미 SUCCESS 상태인 결제에 대해 다시 호출되면, 재검증 없이 현재 결제 정보를 그대로 반환합니다.  ---  ## Request Body (TossPaymentConfirmRequest)  | 키        | 타입   | 설명                               | 필수 | 예시                          | |-----------|--------|------------------------------------|------|-------------------------------| | paymentId | number | 서버에서 생성한 결제 ID           | Y    | 123                           | | orderId   | string | 토스 결제의 orderId (tossOrderId) | Y    | \"ZTO-STUDY-10-1-XYZ123\"       | | amount    | number | 결제 금액                          | Y    | 99000                         | | paymentKey| string | 토스 paymentKey                    | Y    | \"pay_20251211_abcdef123456\"   |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보 전체를 반환하며, 마이페이지 상세 조회와 동일한 필드를 가집니다. 
 
 ### Example
 
@@ -78,7 +80,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new PaymentUserApi(configuration);
 
-let tossPaymentConfirmRequest: TossPaymentConfirmRequest; //
+let tossPaymentConfirmRequest: TossPaymentConfirmRequest; //토스 결제 서버 confirm 요청
 
 const { status, data } = await apiInstance.confirmTossPayment(
     tossPaymentConfirmRequest
@@ -89,12 +91,12 @@ const { status, data } = await apiInstance.confirmTossPayment(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **tossPaymentConfirmRequest** | **TossPaymentConfirmRequest**|  | |
+| **tossPaymentConfirmRequest** | **TossPaymentConfirmRequest**| 토스 결제 서버 confirm 요청 | |
 
 
 ### Return type
 
-**BaseResponseStudyPaymentDetailResponse**
+void (empty response body)
 
 ### Authorization
 
@@ -103,21 +105,22 @@ const { status, data } = await apiInstance.confirmTossPayment(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: */*
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | OK |  -  |
+|**200** | 결제 confirm 성공 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMyPaymentDetail**
-> BaseResponseStudyPaymentDetailResponse getMyPaymentDetail()
+> getMyPaymentDetail()
 
+작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 특정 결제 건에 대한 상세 정보를 조회합니다. - 다른 회원의 결제 건에 접근을 시도할 경우 `PAYMENT_OWNER_MISMATCH` 에러를 반환합니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보를 반환합니다. 
 
 ### Example
 
@@ -130,7 +133,7 @@ import {
 const configuration = new Configuration();
 const apiInstance = new PaymentUserApi(configuration);
 
-let paymentId: number; // (default to undefined)
+let paymentId: number; //조회할 결제 ID (default to undefined)
 
 const { status, data } = await apiInstance.getMyPaymentDetail(
     paymentId
@@ -141,12 +144,12 @@ const { status, data } = await apiInstance.getMyPaymentDetail(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **paymentId** | [**number**] |  | defaults to undefined|
+| **paymentId** | [**number**] | 조회할 결제 ID | defaults to undefined|
 
 
 ### Return type
 
-**BaseResponseStudyPaymentDetailResponse**
+void (empty response body)
 
 ### Authorization
 
@@ -155,21 +158,22 @@ const { status, data } = await apiInstance.getMyPaymentDetail(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: */*
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | OK |  -  |
+|**200** | 결제 상세 조회 성공 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMyPayments**
-> BaseResponsePageResponseDtoStudyPaymentSummaryResponse getMyPayments()
+> getMyPayments()
 
+작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 결제 이력을 스터디별로 그룹핑하여 페이징 형태로 조회합니다. - 결제 히스토리(결제준비/결제성공/결제실패/환불 등 이벤트)를 포함합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 10             |  ---  ## Response (PageResponseDto<StudyPaymentGroupResponse>)  - `content`: 스터디별 결제 정보 리스트 (히스토리 포함) - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
 
 ### Example
 
@@ -184,9 +188,17 @@ const configuration = new Configuration();
 const apiInstance = new PaymentUserApi(configuration);
 
 let pageable: Pageable; // (default to undefined)
+let startDate: string; // (optional) (default to undefined)
+let endDate: string; // (optional) (default to undefined)
+let studyTitle: string; // (optional) (default to undefined)
+let paymentCode: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getMyPayments(
-    pageable
+    pageable,
+    startDate,
+    endDate,
+    studyTitle,
+    paymentCode
 );
 ```
 
@@ -195,11 +207,15 @@ const { status, data } = await apiInstance.getMyPayments(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **pageable** | **Pageable** |  | defaults to undefined|
+| **startDate** | [**string**] |  | (optional) defaults to undefined|
+| **endDate** | [**string**] |  | (optional) defaults to undefined|
+| **studyTitle** | [**string**] |  | (optional) defaults to undefined|
+| **paymentCode** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type
 
-**BaseResponsePageResponseDtoStudyPaymentSummaryResponse**
+void (empty response body)
 
 ### Authorization
 
@@ -208,21 +224,22 @@ const { status, data } = await apiInstance.getMyPayments(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: */*
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | OK |  -  |
+|**200** | 결제관리 조회 성공 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **preparePayment**
-> BaseResponseStudyPaymentPrepareResponse preparePayment(studyPaymentPrepareRequest)
+> preparePayment(studyPaymentPrepareRequest)
 
+작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 유료 스터디 결제를 진행하기 위해 결제 정보를 생성합니다. - 사용자는 이미 신청(PENDING/APPROVED)한 유료 스터디에 대해 결제 페이지로 진입할 때 이 API를 호출합니다. - 서버 기준 스터디 가격(`group_study.price`)과 클라이언트에서 전달한 금액이 다를 경우 결제 준비를 거부합니다. - 동일 회원이 동일 스터디에 대해 SUCCESS 상태 결제를 이미 보유한 경우 재결제를 허용하지 않습니다.  ---  ## Business Rule  - 그룹스터디 조건   - 삭제된 스터디일 경우 결제 불가   - 스터디 상태가 `RECRUITING` 이 아닐 경우 결제 불가   - 무료 스터디(`price == null or 0`)는 결제 불가  - 신청 여부   - 회원이 해당 스터디에 `PENDING` 또는 `APPROVED` 상태로 신청한 기록이 없으면 결제 불가  - 결제 중복 방지   - 동일 회원/스터디 조합에 대해 SUCCESS 결제가 이미 존재하면 에러  ---  ## Path Variable  | 키           | 타입   | 위치  | 설명                | 필수 | 예시 | |--------------|--------|-------|---------------------|------|------| | groupStudyId | number | path  | 결제 대상 스터디 ID | Y    | 10   |  ---  ## Request Body (StudyPaymentPrepareRequest)  | 키     | 타입   | 설명                                                         | 필수 | 예시  | |--------|--------|--------------------------------------------------------------|------|-------| | amount | number | 클라이언트에서 인지한 결제 금액 (null 가능, 있을 경우 서버 금액과 일치 검증) | N    | 99000 |  ---  ## Response (StudyPaymentPrepareResponse)  | 키              | 타입    | 설명                               | |-----------------|---------|------------------------------------| | paymentId       | number  | 생성된 결제 ID                     | | paymentCode     | string  | 비즈니스용 결제 코드 (PAY-...)     | | groupStudyId    | number  | 스터디 ID                          | | groupStudyTitle | string  | 스터디 제목                        | | memberId        | number  | 결제 회원 ID                       | | memberName      | string  | 결제 회원 이름(또는 프로필 이름)  | | amount          | number  | 결제 금액                          | | currency        | string  | 통화 (예: KRW)                     | | pgProvider      | string  | PG사 식별자 (예: TOSS)             | | tossOrderId     | string  | 토스 payment orderId (유니크 값)  | 
 
 ### Example
 
@@ -236,8 +253,8 @@ import {
 const configuration = new Configuration();
 const apiInstance = new PaymentUserApi(configuration);
 
-let groupStudyId: number; // (default to undefined)
-let studyPaymentPrepareRequest: StudyPaymentPrepareRequest; //
+let groupStudyId: number; //결제 대상 그룹스터디 ID (default to undefined)
+let studyPaymentPrepareRequest: StudyPaymentPrepareRequest; //결제 준비 요청
 
 const { status, data } = await apiInstance.preparePayment(
     groupStudyId,
@@ -249,13 +266,13 @@ const { status, data } = await apiInstance.preparePayment(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **studyPaymentPrepareRequest** | **StudyPaymentPrepareRequest**|  | |
-| **groupStudyId** | [**number**] |  | defaults to undefined|
+| **studyPaymentPrepareRequest** | **StudyPaymentPrepareRequest**| 결제 준비 요청 | |
+| **groupStudyId** | [**number**] | 결제 대상 그룹스터디 ID | defaults to undefined|
 
 
 ### Return type
 
-**BaseResponseStudyPaymentPrepareResponse**
+void (empty response body)
 
 ### Authorization
 
@@ -264,13 +281,13 @@ const { status, data } = await apiInstance.preparePayment(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: */*
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | OK |  -  |
+|**201** | 결제 준비 성공 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 

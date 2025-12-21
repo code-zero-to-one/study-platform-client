@@ -22,12 +22,19 @@ import type { ImageDto } from './image-dto';
 // May contain unused imports in some cases
 // @ts-ignore
 import type { SocialMediaResponseDto } from './social-media-response-dto';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { TechStackResponse } from './tech-stack-response';
 
 export interface MemberProfileResponseDto {
     /**
      * 회원 이름
      */
     'memberName'?: string;
+    /**
+     * 닉네임
+     */
+    'nickname'?: string;
     /**
      * 프로필 이미지 - 리사이징된 이미지를 포함하고 있음 - 지금은 ORIGINAL 하나밖에 없음
      */
@@ -60,6 +67,10 @@ export interface MemberProfileResponseDto {
      * 연락처 - 국제번호는 포함하지 않음
      */
     'tel'?: string;
+    /**
+     * 기술스택
+     */
+    'techStacks'?: Array<TechStackResponse>;
 }
 
 export const MemberProfileResponseDtoMbtiEnum = {

@@ -2,10 +2,3 @@ wwwroot/*.js
 node_modules
 typings
 dist
-
-# OpenAPI Generator 자동생성 메타데이터
-.openapi-generator/
-.openapi-generator-ignore
-git_push.sh
-
-

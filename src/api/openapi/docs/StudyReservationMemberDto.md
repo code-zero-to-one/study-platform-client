@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **memberId** | **number** |  | [optional] [default to undefined]
-**memberName** | **string** |  | [optional] [default to undefined]
+**memberNickname** | **string** |  | [optional] [default to undefined]
 **profileImage** | [**ImageDto**](ImageDto.md) |  | [optional] [default to undefined]
 **simpleIntroduction** | **string** |  | [optional] [default to undefined]
 
@@ -17,7 +17,7 @@ import { StudyReservationMemberDto } from './api';
 
 const instance: StudyReservationMemberDto = {
     memberId,
-    memberName,
+    memberNickname,
     profileImage,
     simpleIntroduction,
 };

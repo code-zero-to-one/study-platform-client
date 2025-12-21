@@ -8,7 +8,11 @@ Name | Type | Description | Notes
 **memberId** | **number** |  | [optional] [default to undefined]
 **selfIntroduction** | **string** |  | [optional] [default to undefined]
 **studyPlan** | **string** |  | [optional] [default to undefined]
+**goal** | **string** |  | [optional] [default to undefined]
+**jobs** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
+**career** | **string** |  | [optional] [default to undefined]
 **preferredStudySubjectId** | **string** |  | [optional] [default to undefined]
+**studyFormatTypes** | **Array&lt;string&gt;** |  | [optional] [default to undefined]
 **techStackIds** | **Array&lt;number&gt;** |  | [optional] [default to undefined]
 **availableStudyTimeIds** | **Array&lt;number&gt;** |  | [optional] [default to undefined]
 
@@ -21,7 +25,11 @@ const instance: MemberInfoUpdateResponseDto = {
     memberId,
     selfIntroduction,
     studyPlan,
+    goal,
+    jobs,
+    career,
     preferredStudySubjectId,
+    studyFormatTypes,
     techStackIds,
     availableStudyTimeIds,
 };

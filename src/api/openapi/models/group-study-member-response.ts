@@ -21,6 +21,7 @@ export interface GroupStudyMemberResponse {
     'id'?: number;
     'profileImageUrl'?: string;
     'memberName'?: string;
+    'tel'?: string;
     'progress'?: GroupStudyMemberProgressInfoResponse;
     'ranking'?: number;
     'greeting'?: string;

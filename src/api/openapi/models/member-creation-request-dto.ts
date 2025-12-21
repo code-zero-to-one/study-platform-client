@@ -16,19 +16,77 @@
 
 export interface MemberCreationRequestDto {
     /**
-     * 로그인 시 사용될 ID (혹은 소셜 로그인 ID). 소셜 로그인 시 생략된다.
+     * 회원의 로그인 아이디(소셜 로그인 시 비어있음)
      */
     'loginId'?: string;
     /**
-     * 회원의 이름
+     * 회원의 닉네임 (기존 name에서 변경됨) 필수값이지만 하위호환성을 위해 선택값으로 처리
      */
-    'name': string;
+    'nickname'?: string;
     /**
-     * 이미지 확장자 - jpg, jpeg, png 등. 
+     * 호환성을 위한 임시 필드
+     */
+    'name'?: string;
+    /**
+     * 직무 리스트 (최대 5개) (예: [IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_FRONTEND])
+     */
+    'jobs'?: Array<MemberCreationRequestDtoJobsEnum>;
+    /**
+     * 경력 (예: JUNIOR)
+     */
+    'career'?: MemberCreationRequestDtoCareerEnum;
+    /**
+     * 관심 스터디 유형 리스트 (예: [\"PROJECT\", \"SEMINAR\"])
+     */
+    'studyFormatTypes'?: Array<MemberCreationRequestDtoStudyFormatTypesEnum>;
+    /**
+     * 목표 및 다짐 (최대 100자)
+     */
+    'goal'?: string;
+    /**
+     * 이미지 확장자 - DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG
      */
     'imageExtension'?: MemberCreationRequestDtoImageExtensionEnum;
 }
 
+export const MemberCreationRequestDtoJobsEnum = {
+    ItNobaseBusinessStartup: 'IT_NOBASE_BUSINESS_STARTUP',
+    ItNobaseAutomation: 'IT_NOBASE_AUTOMATION',
+    ItNobaseMyService: 'IT_NOBASE_MY_SERVICE',
+    ItPractitionerPmPoPlanning: 'IT_PRACTITIONER_PM_PO_PLANNING',
+    ItPractitionerFrontend: 'IT_PRACTITIONER_FRONTEND',
+    ItPractitionerBackend: 'IT_PRACTITIONER_BACKEND',
+    ItPractitionerAiMl: 'IT_PRACTITIONER_AI_ML',
+    ItPractitionerIos: 'IT_PRACTITIONER_IOS',
+    ItPractitionerAndroid: 'IT_PRACTITIONER_ANDROID',
+    ItPractitionerDevops: 'IT_PRACTITIONER_DEVOPS',
+    ItPractitionerDataAnalysis: 'IT_PRACTITIONER_DATA_ANALYSIS',
+    ItPractitionerQa: 'IT_PRACTITIONER_QA',
+    ItPractitionerGameDev: 'IT_PRACTITIONER_GAME_DEV',
+    ItPractitionerDesign: 'IT_PRACTITIONER_DESIGN',
+    ItPractitionerMarketing: 'IT_PRACTITIONER_MARKETING',
+    ItPractitionerEtc: 'IT_PRACTITIONER_ETC'
+} as const;
+
+export type MemberCreationRequestDtoJobsEnum = typeof MemberCreationRequestDtoJobsEnum[keyof typeof MemberCreationRequestDtoJobsEnum];
+export const MemberCreationRequestDtoCareerEnum = {
+    Beginner: 'BEGINNER',
+    JobSeeker: 'JOB_SEEKER',
+    Junior: 'JUNIOR',
+    Middle: 'MIDDLE',
+    Senior: 'SENIOR'
+} as const;
+
+export type MemberCreationRequestDtoCareerEnum = typeof MemberCreationRequestDtoCareerEnum[keyof typeof MemberCreationRequestDtoCareerEnum];
+export const MemberCreationRequestDtoStudyFormatTypesEnum = {
+    Project: 'PROJECT',
+    Mentoring: 'MENTORING',
+    Seminar: 'SEMINAR',
+    Challenge: 'CHALLENGE',
+    BookLecture: 'BOOK_LECTURE'
+} as const;
+
+export type MemberCreationRequestDtoStudyFormatTypesEnum = typeof MemberCreationRequestDtoStudyFormatTypesEnum[keyof typeof MemberCreationRequestDtoStudyFormatTypesEnum];
 export const MemberCreationRequestDtoImageExtensionEnum = {
     Default: 'DEFAULT',
     Jpg: 'JPG',
