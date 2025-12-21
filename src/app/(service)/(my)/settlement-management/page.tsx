@@ -1,7 +1,5 @@
 'use client';
 
-import dayjs from 'dayjs';
-import { CalendarCheck2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
@@ -9,6 +7,7 @@ import AccountInfoModal from '@/components/modals/account-info-modal';
 import AddAccountModal from '@/components/modals/add-account-modal';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
+import DatePicker from '@/components/ui/date-picker';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
 import { useAuth } from '@/hooks/use-auth';
@@ -22,7 +21,6 @@ export default function SettlementManagementPage() {
     from: new Date(2025, 0, 1), // 2025.01.01
     to: new Date(2025, 11, 7), // 2025.12.07
   });
-  const [showCalendar, setShowCalendar] = useState<boolean>(false);
 
   // Mock data - 실제로는 API에서 가져올 데이터
   const settlements = [
@@ -106,33 +104,11 @@ export default function SettlementManagementPage() {
       {/* 날짜 선택 & 검색 */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-100">
-          {/* 시작 날짜 */}
-          <div className="relative">
-            <button
-              onClick={() => setShowCalendar(!showCalendar)}
-              className="rounded-100 border-border-default flex h-[40px] w-[160px] items-center justify-between gap-100 border bg-white px-150"
-            >
-              <span className="font-designer-14r text-text-subtle">
-                {dayjs(dateRange?.from).format('YYYY.MM.DD')}
-              </span>
-              <CalendarCheck2 size={16} />
-            </button>
-          </div>
-
-          <span className="font-designer-14r text-text-subtlest">~</span>
-
-          {/* 종료 날짜 */}
-          <div className="relative">
-            <button
-              onClick={() => setShowCalendar(!showCalendar)}
-              className="rounded-100 border-border-default flex h-[40px] w-[160px] items-center justify-between gap-100 border bg-white px-150"
-            >
-              <span className="font-designer-14r text-text-subtle">
-                {dayjs(dateRange?.to).format('YYYY.MM.DD')}
-              </span>
-              <CalendarCheck2 size={16} />
-            </button>
-          </div>
+          <DatePicker
+            mode="range"
+            selected={dateRange}
+            onSelect={(range) => setDateRange(range as DateRange)}
+          />
         </div>
 
         {/* 검색 */}
@@ -145,13 +121,6 @@ export default function SettlementManagementPage() {
           />
         </div>
       </div>
-
-      {/* 캘린더 팝업 */}
-      {showCalendar && (
-        <div className="rounded-200 border-border-default absolute z-50 border bg-white shadow-lg">
-          {/* 캘린더 자리 */}
-        </div>
-      )}
 
       {/* 정산 내역 테이블 */}
       <div className="rounded-tl-100 rounded-tr-100 overflow-hidden">
