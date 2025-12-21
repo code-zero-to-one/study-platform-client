@@ -29,13 +29,17 @@ export interface FullMemberProfileResponseDto {
      */
     'memberId'?: number;
     /**
-     * 자동 매칭 여부
+     * 자동 매칭 여부 (본인 또는 관리자 프로필 조회 시에만 포함됨)
      */
     'autoMatching'?: boolean;
     /**
-     * 스터디를 신청했는지 여부
+     * 스터디를 신청했는지 여부 (본인 또는 관리자 프로필 조회 시에만 포함됨)
      */
     'studyApplied'?: boolean;
+    /**
+     * 본인 인증 완료 여부 (본인 또는 관리자 프로필 조회 시에만 포함됨)
+     */
+    'isVerified'?: boolean;
     /**
      * 회원 정보
      */

@@ -15,7 +15,6 @@
 
 
 export interface StudyRefundCreateRequest {
-    'paymentId': number;
     'reason'?: string;
 }
 

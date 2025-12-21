@@ -23,17 +23,13 @@ export interface MemberProfileUpdateResponseDto {
      */
     'memberId'?: number;
     /**
-     * 업데이트된 회원의 이름
+     * 업데이트된 닉네임
      */
-    'name'?: string;
+    'nickname'?: string;
     /**
      * 프로필 이미지 업로드 URL. 이 URL로 프로필 이미지를 업로드하면 완료된다.
      */
     'profileImageUploadUrl'?: string;
-    /**
-     * 연락처
-     */
-    'tel'?: string;
     /**
      * 업데이트된 회원의 github 링크
      */
@@ -58,6 +54,10 @@ export interface MemberProfileUpdateResponseDto {
      * 업데이트된 관심사
      */
     'interests'?: Array<IdNameDto>;
+    /**
+     * 업데이트된 기술 스택 ID 목록
+     */
+    'techStackIds'?: Array<number>;
 }
 
 export const MemberProfileUpdateResponseDtoMbtiEnum = {

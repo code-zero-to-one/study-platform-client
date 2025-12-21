@@ -26,6 +26,10 @@ export interface GroupStudyBasicInfoResponseDto {
      */
     'groupStudyId'?: number;
     /**
+     * 스터디 분류
+     */
+    'classification'?: GroupStudyBasicInfoResponseDtoClassificationEnum;
+    /**
      * 그룹스터디 리더 정보
      */
     'leader'?: StudyReservationMemberDto;
@@ -107,6 +111,12 @@ export interface GroupStudyBasicInfoResponseDto {
     'deletedAt'?: string;
 }
 
+export const GroupStudyBasicInfoResponseDtoClassificationEnum = {
+    GroupStudy: 'GROUP_STUDY',
+    PremiumStudy: 'PREMIUM_STUDY'
+} as const;
+
+export type GroupStudyBasicInfoResponseDtoClassificationEnum = typeof GroupStudyBasicInfoResponseDtoClassificationEnum[keyof typeof GroupStudyBasicInfoResponseDtoClassificationEnum];
 export const GroupStudyBasicInfoResponseDtoTypeEnum = {
     Project: 'PROJECT',
     Mentoring: 'MENTORING',

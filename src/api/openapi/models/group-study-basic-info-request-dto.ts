@@ -19,6 +19,10 @@
  */
 export interface GroupStudyBasicInfoRequestDto {
     /**
+     * 스터디 분류 (그룹스터디 / 프리미엄 스터디)
+     */
+    'classification': GroupStudyBasicInfoRequestDtoClassificationEnum;
+    /**
      * 스터디 타입
      */
     'type': GroupStudyBasicInfoRequestDtoTypeEnum;
@@ -62,16 +66,14 @@ export interface GroupStudyBasicInfoRequestDto {
      * 스터디 가격(미입력 시 0원)
      */
     'price'?: number;
-    /**
-     * 생성일시
-     */
-    'createdAt'?: string;
-    /**
-     * 수정일시
-     */
-    'updatedAt'?: string;
 }
 
+export const GroupStudyBasicInfoRequestDtoClassificationEnum = {
+    GroupStudy: 'GROUP_STUDY',
+    PremiumStudy: 'PREMIUM_STUDY'
+} as const;
+
+export type GroupStudyBasicInfoRequestDtoClassificationEnum = typeof GroupStudyBasicInfoRequestDtoClassificationEnum[keyof typeof GroupStudyBasicInfoRequestDtoClassificationEnum];
 export const GroupStudyBasicInfoRequestDtoTypeEnum = {
     Project: 'PROJECT',
     Mentoring: 'MENTORING',

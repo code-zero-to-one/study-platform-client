@@ -5,8 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**name** | **string** | 회원 이름; \&quot;ignore-null\&quot;이 false인 경우, null이면 안 됨 | [default to undefined]
-**tel** | **string** | 연락처; \&quot;ignore-null\&quot;이 false인 경우, null이면 안 됨 | [default to undefined]
+**nickname** | **string** | 닉네임 | [optional] [default to undefined]
 **birthDate** | **string** | 생년월일. yyyy-MM-dd 형식 | [optional] [default to undefined]
 **githubLink** | **string** | GitHub 링크 | [optional] [default to undefined]
 **blogOrSnsLink** | **string** | 블로그/SNS 등 링크 | [optional] [default to undefined]
@@ -14,6 +13,7 @@ Name | Type | Description | Notes
 **mbti** | **string** | MBTI | [optional] [default to undefined]
 **interests** | **Array&lt;string&gt;** | 관심사 리스트 - 기존 데이터는 날아가고 이걸로 대체 | [optional] [default to undefined]
 **profileImageExtension** | **string** | 프로필 이미지 확장자. null이 아닐 경우 프로필 이미지 업로드 URL이 반환됨. null일 경우 반환되지 않음 | [optional] [default to undefined]
+**techStackIds** | **Array&lt;number&gt;** | 기술 스택 ID 목록 | [optional] [default to undefined]
 
 ## Example
 
@@ -21,8 +21,7 @@ Name | Type | Description | Notes
 import { MemberProfileUpdateRequestDto } from './api';
 
 const instance: MemberProfileUpdateRequestDto = {
-    name,
-    tel,
+    nickname,
     birthDate,
     githubLink,
     blogOrSnsLink,
@@ -30,6 +29,7 @@ const instance: MemberProfileUpdateRequestDto = {
     mbti,
     interests,
     profileImageExtension,
+    techStackIds,
 };
 ```
 

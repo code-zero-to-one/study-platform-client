@@ -22,10 +22,6 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponsePageResponseDtoStudySettlementSummaryResponse } from '../models';
-// @ts-ignore
-import type { BaseResponseStudySettlementDetailResponse } from '../models';
-// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { StudySettlementCreateRequest } from '../models';
@@ -35,8 +31,9 @@ import type { StudySettlementCreateRequest } from '../models';
 export const AdminSettlementApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @param {number} settlementId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+         * @summary 관리자 정산 완료 처리
+         * @param {number} settlementId 완료 처리할 정산 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -72,8 +69,9 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
             };
         },
         /**
-         * 
-         * @param {StudySettlementCreateRequest} studySettlementCreateRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 권한으로 특정 유료 스터디에 대한 정산을 생성합니다. - 스터디 종료 상태(`GroupStudyStatus.COMPLETED`)이며, 성공 결제 내역이 존재하고,   환불이 모두 처리된 상태(진행 중 환불 없음)에서만 정산을 생성할 수 있습니다. - 생성된 정산은 `PENDING` 상태로 저장되며, 이후 정산 완료 처리 API를 통해 `COMPLETED`로 변경됩니다. - 다음 조건을 만족하지 않으면 정산이 생성되지 않습니다.   - 해당 스터디에 SUCCESS 상태의 결제가 하나 이상 존재해야 합니다.   - REQUESTED/APPROVED 상태의 환불 건이 없어야 합니다.   - (총 결제액 - 완료된 환불액) > 0 이어야 합니다.   - 동일 스터디에 대해 PENDING/APPROVED/COMPLETED 상태의 정산이 이미 존재하지 않아야 합니다.  ---  ## Request Body (`StudySettlementCreateRequest`)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | groupStudyId | number | 정산 대상 스터디 ID | Y | 10 | | platformFeeRate | number(decimal) | 플랫폼 수수료율 (미전달 시 기본 0.10) | N | 0.10 | | taxRate | number(decimal) | 세금/원천징수 비율 (미전달 시 기본 0.033) | N | 0.033 | | scheduledAt | string(datetime) | 정산 예정 일시 (미전달 시 기준+3일) | N | \"2025-12-20T00:00:00\" |  ---  ## Response  `StudySettlementDetailResponse`를 content로 반환합니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 리더 회원 ID | 3 | | leaderName | string | 스터디 리더 로그인 ID | \"leader01\" | | totalSalesAmount | number | 총 매출 금액(성공 결제 합산) | 1000000 | | totalRefundAmount | number | 총 환불 금액(완료 환불 합산) | 100000 | | platformFeeRate | number(decimal) | 플랫폼 수수료율 | 0.10 | | taxRate | number(decimal) | 세율 | 0.033 | | settlementAmount | number | 최종 정산 금액(원) | 810000 | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(생성 시 null) | null | | status | string(SettlementStatus) | 정산 상태 | \"PENDING\" | 
+         * @summary 관리자 정산 생성
+         * @param {StudySettlementCreateRequest} studySettlementCreateRequest 정산 생성 요청 본문
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -111,13 +109,17 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
             };
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+         * @summary 관리자 정산 내역 목록 조회
          * @param {Pageable} pageable 
-         * @param {GetSettlementsForAdminStatusEnum} [status] 
+         * @param {string} [status] 정산 상태 필터 (미전달 시 전체 조회)
+         * @param {number} [page] 페이지 번호 (0부터 시작)
+         * @param {number} [size] 페이지 크기
+         * @param {string} [sort] 정렬 기준
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSettlementsForAdmin: async (pageable: Pageable, status?: GetSettlementsForAdminStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getSettlementsForAdmin: async (pageable: Pageable, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'pageable' is not null or undefined
             assertParamExists('getSettlementsForAdmin', 'pageable', pageable)
             const localVarPath = `/api/v1/admin/settlements`;
@@ -138,6 +140,18 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
 
             if (status !== undefined) {
                 localVarQueryParameter['status'] = status;
+            }
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+            if (sort !== undefined) {
+                localVarQueryParameter['sort'] = sort;
             }
 
             if (pageable !== undefined) {
@@ -167,38 +181,44 @@ export const AdminSettlementApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AdminSettlementApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @param {number} settlementId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+         * @summary 관리자 정산 완료 처리
+         * @param {number} settlementId 완료 처리할 정산 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async completeSettlement(settlementId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseStudySettlementDetailResponse>> {
+        async completeSettlement(settlementId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.completeSettlement(settlementId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.completeSettlement']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {StudySettlementCreateRequest} studySettlementCreateRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 권한으로 특정 유료 스터디에 대한 정산을 생성합니다. - 스터디 종료 상태(`GroupStudyStatus.COMPLETED`)이며, 성공 결제 내역이 존재하고,   환불이 모두 처리된 상태(진행 중 환불 없음)에서만 정산을 생성할 수 있습니다. - 생성된 정산은 `PENDING` 상태로 저장되며, 이후 정산 완료 처리 API를 통해 `COMPLETED`로 변경됩니다. - 다음 조건을 만족하지 않으면 정산이 생성되지 않습니다.   - 해당 스터디에 SUCCESS 상태의 결제가 하나 이상 존재해야 합니다.   - REQUESTED/APPROVED 상태의 환불 건이 없어야 합니다.   - (총 결제액 - 완료된 환불액) > 0 이어야 합니다.   - 동일 스터디에 대해 PENDING/APPROVED/COMPLETED 상태의 정산이 이미 존재하지 않아야 합니다.  ---  ## Request Body (`StudySettlementCreateRequest`)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | groupStudyId | number | 정산 대상 스터디 ID | Y | 10 | | platformFeeRate | number(decimal) | 플랫폼 수수료율 (미전달 시 기본 0.10) | N | 0.10 | | taxRate | number(decimal) | 세금/원천징수 비율 (미전달 시 기본 0.033) | N | 0.033 | | scheduledAt | string(datetime) | 정산 예정 일시 (미전달 시 기준+3일) | N | \"2025-12-20T00:00:00\" |  ---  ## Response  `StudySettlementDetailResponse`를 content로 반환합니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 리더 회원 ID | 3 | | leaderName | string | 스터디 리더 로그인 ID | \"leader01\" | | totalSalesAmount | number | 총 매출 금액(성공 결제 합산) | 1000000 | | totalRefundAmount | number | 총 환불 금액(완료 환불 합산) | 100000 | | platformFeeRate | number(decimal) | 플랫폼 수수료율 | 0.10 | | taxRate | number(decimal) | 세율 | 0.033 | | settlementAmount | number | 최종 정산 금액(원) | 810000 | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(생성 시 null) | null | | status | string(SettlementStatus) | 정산 상태 | \"PENDING\" | 
+         * @summary 관리자 정산 생성
+         * @param {StudySettlementCreateRequest} studySettlementCreateRequest 정산 생성 요청 본문
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createSettlement(studySettlementCreateRequest: StudySettlementCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseStudySettlementDetailResponse>> {
+        async createSettlement(studySettlementCreateRequest: StudySettlementCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createSettlement(studySettlementCreateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.createSettlement']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+         * @summary 관리자 정산 내역 목록 조회
          * @param {Pageable} pageable 
-         * @param {GetSettlementsForAdminStatusEnum} [status] 
+         * @param {string} [status] 정산 상태 필터 (미전달 시 전체 조회)
+         * @param {number} [page] 페이지 번호 (0부터 시작)
+         * @param {number} [size] 페이지 크기
+         * @param {string} [sort] 정렬 기준
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getSettlementsForAdmin(pageable: Pageable, status?: GetSettlementsForAdminStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponsePageResponseDtoStudySettlementSummaryResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getSettlementsForAdmin(pageable, status, options);
+        async getSettlementsForAdmin(pageable: Pageable, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSettlementsForAdmin(pageable, status, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.getSettlementsForAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -213,32 +233,38 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
     const localVarFp = AdminSettlementApiFp(configuration)
     return {
         /**
-         * 
-         * @param {number} settlementId 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+         * @summary 관리자 정산 완료 처리
+         * @param {number} settlementId 완료 처리할 정산 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeSettlement(settlementId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseStudySettlementDetailResponse> {
+        completeSettlement(settlementId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.completeSettlement(settlementId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {StudySettlementCreateRequest} studySettlementCreateRequest 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 권한으로 특정 유료 스터디에 대한 정산을 생성합니다. - 스터디 종료 상태(`GroupStudyStatus.COMPLETED`)이며, 성공 결제 내역이 존재하고,   환불이 모두 처리된 상태(진행 중 환불 없음)에서만 정산을 생성할 수 있습니다. - 생성된 정산은 `PENDING` 상태로 저장되며, 이후 정산 완료 처리 API를 통해 `COMPLETED`로 변경됩니다. - 다음 조건을 만족하지 않으면 정산이 생성되지 않습니다.   - 해당 스터디에 SUCCESS 상태의 결제가 하나 이상 존재해야 합니다.   - REQUESTED/APPROVED 상태의 환불 건이 없어야 합니다.   - (총 결제액 - 완료된 환불액) > 0 이어야 합니다.   - 동일 스터디에 대해 PENDING/APPROVED/COMPLETED 상태의 정산이 이미 존재하지 않아야 합니다.  ---  ## Request Body (`StudySettlementCreateRequest`)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | groupStudyId | number | 정산 대상 스터디 ID | Y | 10 | | platformFeeRate | number(decimal) | 플랫폼 수수료율 (미전달 시 기본 0.10) | N | 0.10 | | taxRate | number(decimal) | 세금/원천징수 비율 (미전달 시 기본 0.033) | N | 0.033 | | scheduledAt | string(datetime) | 정산 예정 일시 (미전달 시 기준+3일) | N | \"2025-12-20T00:00:00\" |  ---  ## Response  `StudySettlementDetailResponse`를 content로 반환합니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 리더 회원 ID | 3 | | leaderName | string | 스터디 리더 로그인 ID | \"leader01\" | | totalSalesAmount | number | 총 매출 금액(성공 결제 합산) | 1000000 | | totalRefundAmount | number | 총 환불 금액(완료 환불 합산) | 100000 | | platformFeeRate | number(decimal) | 플랫폼 수수료율 | 0.10 | | taxRate | number(decimal) | 세율 | 0.033 | | settlementAmount | number | 최종 정산 금액(원) | 810000 | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(생성 시 null) | null | | status | string(SettlementStatus) | 정산 상태 | \"PENDING\" | 
+         * @summary 관리자 정산 생성
+         * @param {StudySettlementCreateRequest} studySettlementCreateRequest 정산 생성 요청 본문
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createSettlement(studySettlementCreateRequest: StudySettlementCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseStudySettlementDetailResponse> {
+        createSettlement(studySettlementCreateRequest: StudySettlementCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.createSettlement(studySettlementCreateRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+         * @summary 관리자 정산 내역 목록 조회
          * @param {Pageable} pageable 
-         * @param {GetSettlementsForAdminStatusEnum} [status] 
+         * @param {string} [status] 정산 상태 필터 (미전달 시 전체 조회)
+         * @param {number} [page] 페이지 번호 (0부터 시작)
+         * @param {number} [size] 페이지 크기
+         * @param {string} [sort] 정렬 기준
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSettlementsForAdmin(pageable: Pageable, status?: GetSettlementsForAdminStatusEnum, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponsePageResponseDtoStudySettlementSummaryResponse> {
-            return localVarFp.getSettlementsForAdmin(pageable, status, options).then((request) => request(axios, basePath));
+        getSettlementsForAdmin(pageable: Pageable, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.getSettlementsForAdmin(pageable, status, page, size, sort, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -248,8 +274,9 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
  */
 export class AdminSettlementApi extends BaseAPI {
     /**
-     * 
-     * @param {number} settlementId 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+     * @summary 관리자 정산 완료 처리
+     * @param {number} settlementId 완료 처리할 정산 ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -258,8 +285,9 @@ export class AdminSettlementApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @param {StudySettlementCreateRequest} studySettlementCreateRequest 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 권한으로 특정 유료 스터디에 대한 정산을 생성합니다. - 스터디 종료 상태(`GroupStudyStatus.COMPLETED`)이며, 성공 결제 내역이 존재하고,   환불이 모두 처리된 상태(진행 중 환불 없음)에서만 정산을 생성할 수 있습니다. - 생성된 정산은 `PENDING` 상태로 저장되며, 이후 정산 완료 처리 API를 통해 `COMPLETED`로 변경됩니다. - 다음 조건을 만족하지 않으면 정산이 생성되지 않습니다.   - 해당 스터디에 SUCCESS 상태의 결제가 하나 이상 존재해야 합니다.   - REQUESTED/APPROVED 상태의 환불 건이 없어야 합니다.   - (총 결제액 - 완료된 환불액) > 0 이어야 합니다.   - 동일 스터디에 대해 PENDING/APPROVED/COMPLETED 상태의 정산이 이미 존재하지 않아야 합니다.  ---  ## Request Body (`StudySettlementCreateRequest`)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | groupStudyId | number | 정산 대상 스터디 ID | Y | 10 | | platformFeeRate | number(decimal) | 플랫폼 수수료율 (미전달 시 기본 0.10) | N | 0.10 | | taxRate | number(decimal) | 세금/원천징수 비율 (미전달 시 기본 0.033) | N | 0.033 | | scheduledAt | string(datetime) | 정산 예정 일시 (미전달 시 기준+3일) | N | \"2025-12-20T00:00:00\" |  ---  ## Response  `StudySettlementDetailResponse`를 content로 반환합니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 리더 회원 ID | 3 | | leaderName | string | 스터디 리더 로그인 ID | \"leader01\" | | totalSalesAmount | number | 총 매출 금액(성공 결제 합산) | 1000000 | | totalRefundAmount | number | 총 환불 금액(완료 환불 합산) | 100000 | | platformFeeRate | number(decimal) | 플랫폼 수수료율 | 0.10 | | taxRate | number(decimal) | 세율 | 0.033 | | settlementAmount | number | 최종 정산 금액(원) | 810000 | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(생성 시 null) | null | | status | string(SettlementStatus) | 정산 상태 | \"PENDING\" | 
+     * @summary 관리자 정산 생성
+     * @param {StudySettlementCreateRequest} studySettlementCreateRequest 정산 생성 요청 본문
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -268,20 +296,18 @@ export class AdminSettlementApi extends BaseAPI {
     }
 
     /**
-     * 
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+     * @summary 관리자 정산 내역 목록 조회
      * @param {Pageable} pageable 
-     * @param {GetSettlementsForAdminStatusEnum} [status] 
+     * @param {string} [status] 정산 상태 필터 (미전달 시 전체 조회)
+     * @param {number} [page] 페이지 번호 (0부터 시작)
+     * @param {number} [size] 페이지 크기
+     * @param {string} [sort] 정렬 기준
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getSettlementsForAdmin(pageable: Pageable, status?: GetSettlementsForAdminStatusEnum, options?: RawAxiosRequestConfig) {
-        return AdminSettlementApiFp(this.configuration).getSettlementsForAdmin(pageable, status, options).then((request) => request(this.axios, this.basePath));
+    public getSettlementsForAdmin(pageable: Pageable, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
+        return AdminSettlementApiFp(this.configuration).getSettlementsForAdmin(pageable, status, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
-export const GetSettlementsForAdminStatusEnum = {
-    Pending: 'PENDING',
-    Approved: 'APPROVED',
-    Completed: 'COMPLETED'
-} as const;
-export type GetSettlementsForAdminStatusEnum = typeof GetSettlementsForAdminStatusEnum[keyof typeof GetSettlementsForAdminStatusEnum];

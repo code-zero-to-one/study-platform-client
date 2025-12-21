@@ -5,7 +5,6 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**paymentId** | **number** |  | [default to undefined]
 **reason** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -14,7 +13,6 @@ Name | Type | Description | Notes
 import { StudyRefundCreateRequest } from './api';
 
 const instance: StudyRefundCreateRequest = {
-    paymentId,
     reason,
 };
 ```

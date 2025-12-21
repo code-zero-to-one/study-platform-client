@@ -15,7 +15,6 @@
 
 
 export interface StudyRefundApproveRequest {
-    'refundId': number;
     'approvedAmount'?: number;
     'adminReason'?: string;
 }

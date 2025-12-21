@@ -153,15 +153,21 @@ export const GroupStudyManagementApiAxiosParamCreator = function (configuration?
             };
         },
         /**
-         * 모든 그룹스터디 목록을 조회합니다. 상태별 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
+         * 모든 그룹스터디 목록을 조회합니다. 다양한 조건으로 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
          * @summary 그룹스터디 목록 조회
+         * @param {GetGroupStudiesClassificationEnum} classification 스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디)
          * @param {number} [page] 페이지 번호 (1부터 시작)
          * @param {number} [pageSize] 페이지 크기
-         * @param {GetGroupStudiesGroupStudyStatusEnum} [groupStudyStatus] 스터디 상태 필터
+         * @param {Array<GetGroupStudiesTypeEnum>} [type] 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능.
+         * @param {Array<GetGroupStudiesTargetRolesEnum>} [targetRoles] 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능.
+         * @param {Array<GetGroupStudiesMethodEnum>} [method] 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능.
+         * @param {boolean} [inProgress] 진행중인 스터디만 조회할지 여부.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupStudies: async (page?: number, pageSize?: number, groupStudyStatus?: GetGroupStudiesGroupStudyStatusEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getGroupStudies: async (classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'classification' is not null or undefined
+            assertParamExists('getGroupStudies', 'classification', classification)
             const localVarPath = `/api/v1/group-studies`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -186,8 +192,24 @@ export const GroupStudyManagementApiAxiosParamCreator = function (configuration?
                 localVarQueryParameter['page-size'] = pageSize;
             }
 
-            if (groupStudyStatus !== undefined) {
-                localVarQueryParameter['groupStudyStatus'] = groupStudyStatus;
+            if (classification !== undefined) {
+                localVarQueryParameter['classification'] = classification;
+            }
+
+            if (type) {
+                localVarQueryParameter['type'] = type;
+            }
+
+            if (targetRoles) {
+                localVarQueryParameter['target-roles'] = targetRoles;
+            }
+
+            if (method) {
+                localVarQueryParameter['method'] = method;
+            }
+
+            if (inProgress !== undefined) {
+                localVarQueryParameter['in-progress'] = inProgress;
             }
 
 
@@ -429,16 +451,20 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 모든 그룹스터디 목록을 조회합니다. 상태별 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
+         * 모든 그룹스터디 목록을 조회합니다. 다양한 조건으로 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
          * @summary 그룹스터디 목록 조회
+         * @param {GetGroupStudiesClassificationEnum} classification 스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디)
          * @param {number} [page] 페이지 번호 (1부터 시작)
          * @param {number} [pageSize] 페이지 크기
-         * @param {GetGroupStudiesGroupStudyStatusEnum} [groupStudyStatus] 스터디 상태 필터
+         * @param {Array<GetGroupStudiesTypeEnum>} [type] 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능.
+         * @param {Array<GetGroupStudiesTargetRolesEnum>} [targetRoles] 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능.
+         * @param {Array<GetGroupStudiesMethodEnum>} [method] 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능.
+         * @param {boolean} [inProgress] 진행중인 스터디만 조회할지 여부.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getGroupStudies(page?: number, pageSize?: number, groupStudyStatus?: GetGroupStudiesGroupStudyStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageResponseDto>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getGroupStudies(page, pageSize, groupStudyStatus, options);
+        async getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getGroupStudies(classification, page, pageSize, type, targetRoles, method, inProgress, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.getGroupStudies']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -540,16 +566,20 @@ export const GroupStudyManagementApiFactory = function (configuration?: Configur
             return localVarFp.deleteGroupStudy(groupStudyId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 모든 그룹스터디 목록을 조회합니다. 상태별 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
+         * 모든 그룹스터디 목록을 조회합니다. 다양한 조건으로 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
          * @summary 그룹스터디 목록 조회
+         * @param {GetGroupStudiesClassificationEnum} classification 스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디)
          * @param {number} [page] 페이지 번호 (1부터 시작)
          * @param {number} [pageSize] 페이지 크기
-         * @param {GetGroupStudiesGroupStudyStatusEnum} [groupStudyStatus] 스터디 상태 필터
+         * @param {Array<GetGroupStudiesTypeEnum>} [type] 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능.
+         * @param {Array<GetGroupStudiesTargetRolesEnum>} [targetRoles] 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능.
+         * @param {Array<GetGroupStudiesMethodEnum>} [method] 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능.
+         * @param {boolean} [inProgress] 진행중인 스터디만 조회할지 여부.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupStudies(page?: number, pageSize?: number, groupStudyStatus?: GetGroupStudiesGroupStudyStatusEnum, options?: RawAxiosRequestConfig): AxiosPromise<PageResponseDto> {
-            return localVarFp.getGroupStudies(page, pageSize, groupStudyStatus, options).then((request) => request(axios, basePath));
+        getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<PageResponseDto> {
+            return localVarFp.getGroupStudies(classification, page, pageSize, type, targetRoles, method, inProgress, options).then((request) => request(axios, basePath));
         },
         /**
          * 특정 그룹스터디의 상세 정보를 조회합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
@@ -637,16 +667,20 @@ export class GroupStudyManagementApi extends BaseAPI {
     }
 
     /**
-     * 모든 그룹스터디 목록을 조회합니다. 상태별 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
+     * 모든 그룹스터디 목록을 조회합니다. 다양한 조건으로 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
      * @summary 그룹스터디 목록 조회
+     * @param {GetGroupStudiesClassificationEnum} classification 스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디)
      * @param {number} [page] 페이지 번호 (1부터 시작)
      * @param {number} [pageSize] 페이지 크기
-     * @param {GetGroupStudiesGroupStudyStatusEnum} [groupStudyStatus] 스터디 상태 필터
+     * @param {Array<GetGroupStudiesTypeEnum>} [type] 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능.
+     * @param {Array<GetGroupStudiesTargetRolesEnum>} [targetRoles] 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능.
+     * @param {Array<GetGroupStudiesMethodEnum>} [method] 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능.
+     * @param {boolean} [inProgress] 진행중인 스터디만 조회할지 여부.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getGroupStudies(page?: number, pageSize?: number, groupStudyStatus?: GetGroupStudiesGroupStudyStatusEnum, options?: RawAxiosRequestConfig) {
-        return GroupStudyManagementApiFp(this.configuration).getGroupStudies(page, pageSize, groupStudyStatus, options).then((request) => request(this.axios, this.basePath));
+    public getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig) {
+        return GroupStudyManagementApiFp(this.configuration).getGroupStudies(classification, page, pageSize, type, targetRoles, method, inProgress, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -699,12 +733,33 @@ export class GroupStudyManagementApi extends BaseAPI {
     }
 }
 
-export const GetGroupStudiesGroupStudyStatusEnum = {
-    Recruiting: 'RECRUITING',
-    InProgress: 'IN_PROGRESS',
-    Completed: 'COMPLETED'
+export const GetGroupStudiesClassificationEnum = {
+    GroupStudy: 'GROUP_STUDY',
+    PremiumStudy: 'PREMIUM_STUDY'
 } as const;
-export type GetGroupStudiesGroupStudyStatusEnum = typeof GetGroupStudiesGroupStudyStatusEnum[keyof typeof GetGroupStudiesGroupStudyStatusEnum];
+export type GetGroupStudiesClassificationEnum = typeof GetGroupStudiesClassificationEnum[keyof typeof GetGroupStudiesClassificationEnum];
+export const GetGroupStudiesTypeEnum = {
+    Project: 'PROJECT',
+    Mentoring: 'MENTORING',
+    Seminar: 'SEMINAR',
+    Challenge: 'CHALLENGE',
+    BookStudy: 'BOOK_STUDY',
+    LectureStudy: 'LECTURE_STUDY'
+} as const;
+export type GetGroupStudiesTypeEnum = typeof GetGroupStudiesTypeEnum[keyof typeof GetGroupStudiesTypeEnum];
+export const GetGroupStudiesTargetRolesEnum = {
+    Backend: 'BACKEND',
+    Frontend: 'FRONTEND',
+    Planner: 'PLANNER',
+    Designer: 'DESIGNER'
+} as const;
+export type GetGroupStudiesTargetRolesEnum = typeof GetGroupStudiesTargetRolesEnum[keyof typeof GetGroupStudiesTargetRolesEnum];
+export const GetGroupStudiesMethodEnum = {
+    Online: 'ONLINE',
+    Offline: 'OFFLINE',
+    Hybrid: 'HYBRID'
+} as const;
+export type GetGroupStudiesMethodEnum = typeof GetGroupStudiesMethodEnum[keyof typeof GetGroupStudiesMethodEnum];
 export const GetMyGroupStudyApplicationsApplyStatusEnum = {
     None: 'NONE',
     Pending: 'PENDING',

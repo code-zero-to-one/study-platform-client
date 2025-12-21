@@ -18,10 +18,16 @@
 import type { AvailableStudyTimeDto } from './available-study-time-dto';
 // May contain unused imports in some cases
 // @ts-ignore
-import type { StudySubjectDto } from './study-subject-dto';
+import type { CareerResponseDto } from './career-response-dto';
 // May contain unused imports in some cases
 // @ts-ignore
-import type { TechStackResponse } from './tech-stack-response';
+import type { JobResponseDto } from './job-response-dto';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { StudyFormatTypeResponseDto } from './study-format-type-response-dto';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { StudySubjectDto } from './study-subject-dto';
 
 export interface MemberInfoResponseDto {
     /**
@@ -33,16 +39,28 @@ export interface MemberInfoResponseDto {
      */
     'studyPlan'?: string;
     /**
+     * 목표
+     */
+    'goal'?: string;
+    /**
+     * 직업 목록
+     */
+    'jobs'?: Array<JobResponseDto>;
+    /**
+     * 경력
+     */
+    'career'?: CareerResponseDto;
+    /**
      * 선호하는 스터디 주제
      */
     'preferredStudySubject'?: StudySubjectDto;
     /**
+     * 스터디 포맷 타입 목록
+     */
+    'studyFormatTypes'?: Array<StudyFormatTypeResponseDto>;
+    /**
      * 스터디 가능 시간대
      */
     'availableStudyTimes'?: Array<AvailableStudyTimeDto>;
-    /**
-     * 기술스택
-     */
-    'techStacks'?: Array<TechStackResponse>;
 }
 

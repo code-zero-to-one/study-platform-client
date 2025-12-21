@@ -7,6 +7,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **groupStudyId** | **number** | 그룹스터디 ID | [optional] [default to undefined]
+**classification** | **string** | 스터디 분류 | [optional] [default to undefined]
 **leader** | [**StudyReservationMemberDto**](StudyReservationMemberDto.md) | 그룹스터디 리더 정보 | [optional] [default to undefined]
 **type** | **string** | 스터디 타입 | [optional] [default to undefined]
 **hostType** | **string** | 스터디 주최자 구분 | [optional] [default to undefined]
@@ -35,6 +36,7 @@ import { GroupStudyBasicInfoResponseDto } from './api';
 
 const instance: GroupStudyBasicInfoResponseDto = {
     groupStudyId,
+    classification,
     leader,
     type,
     hostType,

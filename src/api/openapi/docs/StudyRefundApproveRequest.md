@@ -5,7 +5,6 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**refundId** | **number** |  | [default to undefined]
 **approvedAmount** | **number** |  | [optional] [default to undefined]
 **adminReason** | **string** |  | [optional] [default to undefined]
 
@@ -15,7 +14,6 @@ Name | Type | Description | Notes
 import { StudyRefundApproveRequest } from './api';
 
 const instance: StudyRefundApproveRequest = {
-    refundId,
     approvedAmount,
     adminReason,
 };

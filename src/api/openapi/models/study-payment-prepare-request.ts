@@ -15,7 +15,6 @@
 
 
 export interface StudyPaymentPrepareRequest {
-    'groupStudyId': number;
     'amount'?: number;
 }
 
