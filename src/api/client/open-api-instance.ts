@@ -1,6 +1,7 @@
 import { AxiosInstance } from 'axios';
 import { Configuration } from '../openapi';
-import { axiosInstance } from './axios';
+
+import { axiosInstanceV2 } from './axiosV2';
 import { getCookie } from './cookie';
 
 // OpenAPI용 Configuration
@@ -19,5 +20,5 @@ export const createApiInstance = <T>(
     axios?: AxiosInstance,
   ) => T,
 ): T => {
-  return new ApiClass(openapiConfig, openapiConfig.basePath, axiosInstance);
+  return new ApiClass(openapiConfig, openapiConfig.basePath, axiosInstanceV2);
 };
