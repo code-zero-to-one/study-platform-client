@@ -6,8 +6,8 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |------------- | ------------- | -------------|
 |[**cancelPayment**](#cancelpayment) | **POST** /api/v1/payments/{paymentId}/cancel | 결제 취소 (SUCCESS 이전 단계)|
 |[**confirmTossPayment**](#confirmtosspayment) | **POST** /api/v1/payments/toss/confirm | Toss 결제 서버 Confirm|
-|[**getMyPaymentDetail**](#getmypaymentdetail) | **GET** /api/v1/mypage/payments/{paymentId} | 마이페이지 결제 상세 조회|
-|[**getMyPayments**](#getmypayments) | **GET** /api/v1/mypage/payments | 마이페이지 결제관리 조회 (스터디별 그룹핑 + 필터링)|
+|[**getMyTransactions**](#getmytransactions) | **GET** /api/v1/mypage/transactions | 마이페이지 결제 관리 리스트 조회 (결제/환불 통합)|
+|[**getMyTransactionsByGroupStudy**](#getmytransactionsbygroupstudy) | **GET** /api/v1/mypage/transactions/group-studies/{groupStudyId} | 마이페이지 결제 관리 상세 조회 (그룹스터디별 전체 히스토리)|
 |[**preparePayment**](#preparepayment) | **POST** /api/v1/group-studies/{groupStudyId}/payments/prepare | 유료 스터디 결제 준비|
 
 # **cancelPayment**
@@ -117,26 +117,42 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getMyPaymentDetail**
-> getMyPaymentDetail()
+# **getMyTransactions**
+> getMyTransactions()
 
-작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 특정 결제 건에 대한 상세 정보를 조회합니다. - 다른 회원의 결제 건에 접근을 시도할 경우 `PAYMENT_OWNER_MISMATCH` 에러를 반환합니다.  ---  ## Path Variable  | 키        | 타입   | 위치 | 설명     | 필수 | 예시 | |-----------|--------|------|----------|------|------| | paymentId | number | path | 결제 ID  | Y    | 123  |  ---  ## Response (StudyPaymentDetailResponse)  - 결제 상세 정보를 반환합니다. 
+작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 로그인한 회원의 결제/환불 거래 내역을 그룹스터디별 최신 거래 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 그룹스터디별로 가장 최근 거래(결제 또는 환불)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 10             |  ---  ## Response (PageResponseDto<UserTransactionListResponse>)  - `content`: 그룹스터디별 최신 거래 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
 
 ### Example
 
 ```typescript
 import {
     PaymentUserApi,
-    Configuration
+    Configuration,
+    PaymentSearchCondition,
+    Pageable
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new PaymentUserApi(configuration);
 
-let paymentId: number; //조회할 결제 ID (default to undefined)
+let condition: PaymentSearchCondition; // (default to undefined)
+let pageable: Pageable; // (default to undefined)
+let startDate: string; //조회 시작일 (yyyy-MM-dd) (optional) (default to undefined)
+let endDate: string; //조회 종료일 (yyyy-MM-dd) (optional) (default to undefined)
+let studyTitle: string; //스터디명 검색 (부분 일치) (optional) (default to undefined)
+let paymentCode: string; //거래ID 검색 (부분 일치) (optional) (default to undefined)
+let page: number; //페이지 번호 (0부터 시작) (optional) (default to undefined)
+let size: number; //페이지 크기 (optional) (default to undefined)
 
-const { status, data } = await apiInstance.getMyPaymentDetail(
-    paymentId
+const { status, data } = await apiInstance.getMyTransactions(
+    condition,
+    pageable,
+    startDate,
+    endDate,
+    studyTitle,
+    paymentCode,
+    page,
+    size
 );
 ```
 
@@ -144,7 +160,14 @@ const { status, data } = await apiInstance.getMyPaymentDetail(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **paymentId** | [**number**] | 조회할 결제 ID | defaults to undefined|
+| **condition** | **PaymentSearchCondition** |  | defaults to undefined|
+| **pageable** | **Pageable** |  | defaults to undefined|
+| **startDate** | [**string**] | 조회 시작일 (yyyy-MM-dd) | (optional) defaults to undefined|
+| **endDate** | [**string**] | 조회 종료일 (yyyy-MM-dd) | (optional) defaults to undefined|
+| **studyTitle** | [**string**] | 스터디명 검색 (부분 일치) | (optional) defaults to undefined|
+| **paymentCode** | [**string**] | 거래ID 검색 (부분 일치) | (optional) defaults to undefined|
+| **page** | [**number**] | 페이지 번호 (0부터 시작) | (optional) defaults to undefined|
+| **size** | [**number**] | 페이지 크기 | (optional) defaults to undefined|
 
 
 ### Return type
@@ -164,16 +187,16 @@ void (empty response body)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | 결제 상세 조회 성공 |  -  |
+|**200** | 거래 내역 리스트 조회 성공 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getMyPayments**
-> getMyPayments()
+# **getMyTransactionsByGroupStudy**
+> getMyTransactionsByGroupStudy()
 
-작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원 본인의 결제 이력을 스터디별로 그룹핑하여 페이징 형태로 조회합니다. - 결제 히스토리(결제준비/결제성공/결제실패/환불 등 이벤트)를 포함합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 10             |  ---  ## Response (PageResponseDto<StudyPaymentGroupResponse>)  - `content`: 스터디별 결제 정보 리스트 (히스토리 포함) - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 특정 그룹스터디에 대한 해당 유저의 전체 결제/환불 히스토리를 조회합니다. - 리스트 화면에서 토글 클릭 시 호출되어 상세 거래 내역을 표시합니다. - 결과는 최신순으로 정렬됩니다. - PAYMENT_SUCCESS,   PAYMENT_FAILED,   PAYMENT_CANCELED,   REFUND_COMPLETED,   REFUND_FAILED,   REFUND_REJECTED 기록만 조회합니다.  ---  ## Path Parameters  | 키           | 타입   | 설명                             | 필수 | 예시           | |--------------|--------|----------------------------------|------|----------------| | groupStudyId | Long   | 그룹스터디 ID                    | Y    | 10             |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<UserTransactionDetailResponse>)  - `content`: 거래 히스토리 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
 
 ### Example
 
@@ -187,18 +210,16 @@ import {
 const configuration = new Configuration();
 const apiInstance = new PaymentUserApi(configuration);
 
+let groupStudyId: number; //그룹스터디 ID (default to undefined)
 let pageable: Pageable; // (default to undefined)
-let startDate: string; // (optional) (default to undefined)
-let endDate: string; // (optional) (default to undefined)
-let studyTitle: string; // (optional) (default to undefined)
-let paymentCode: string; // (optional) (default to undefined)
+let page: number; //페이지 번호 (0부터 시작) (optional) (default to undefined)
+let size: number; //페이지 크기 (optional) (default to undefined)
 
-const { status, data } = await apiInstance.getMyPayments(
+const { status, data } = await apiInstance.getMyTransactionsByGroupStudy(
+    groupStudyId,
     pageable,
-    startDate,
-    endDate,
-    studyTitle,
-    paymentCode
+    page,
+    size
 );
 ```
 
@@ -206,11 +227,10 @@ const { status, data } = await apiInstance.getMyPayments(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
+| **groupStudyId** | [**number**] | 그룹스터디 ID | defaults to undefined|
 | **pageable** | **Pageable** |  | defaults to undefined|
-| **startDate** | [**string**] |  | (optional) defaults to undefined|
-| **endDate** | [**string**] |  | (optional) defaults to undefined|
-| **studyTitle** | [**string**] |  | (optional) defaults to undefined|
-| **paymentCode** | [**string**] |  | (optional) defaults to undefined|
+| **page** | [**number**] | 페이지 번호 (0부터 시작) | (optional) defaults to undefined|
+| **size** | [**number**] | 페이지 크기 | (optional) defaults to undefined|
 
 
 ### Return type
@@ -230,7 +250,7 @@ void (empty response body)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | 결제관리 조회 성공 |  -  |
+|**200** | 거래 내역 상세 조회 성공 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 

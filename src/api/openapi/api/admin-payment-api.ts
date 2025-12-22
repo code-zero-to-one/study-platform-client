@@ -23,6 +23,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
 import type { Pageable } from '../models';
+// @ts-ignore
+import type { PaymentSearchCondition } from '../models';
 /**
  * AdminPaymentApi - axios parameter creator
  */
@@ -72,22 +74,25 @@ export const AdminPaymentApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
-         * @summary 관리자 결제 내역 목록 조회
+         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * @summary 관리자 매출 관리 리스트 조회 (결제/환불 통합)
+         * @param {PaymentSearchCondition} condition 
          * @param {Pageable} pageable 
-         * @param {number} [memberId] 회원 ID (필터용)
-         * @param {number} [groupStudyId] 스터디 ID (필터용)
-         * @param {string} [status] 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED)
+         * @param {string} [startDate] 조회 시작일 (yyyy-MM-dd)
+         * @param {string} [endDate] 조회 종료일 (yyyy-MM-dd)
+         * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
+         * @param {string} [paymentCode] 거래ID 검색 (부분 일치)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
-         * @param {string} [sort] 정렬 기준 (예: createdAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPaymentsForAdmin: async (pageable: Pageable, memberId?: number, groupStudyId?: number, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getTransactionsForAdmin: async (condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'condition' is not null or undefined
+            assertParamExists('getTransactionsForAdmin', 'condition', condition)
             // verify required parameter 'pageable' is not null or undefined
-            assertParamExists('getPaymentsForAdmin', 'pageable', pageable)
-            const localVarPath = `/api/v1/admin/payments`;
+            assertParamExists('getTransactionsForAdmin', 'pageable', pageable)
+            const localVarPath = `/api/v1/admin/payments/transactions`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -103,16 +108,24 @@ export const AdminPaymentApiAxiosParamCreator = function (configuration?: Config
             // http bearer authentication required
             await setBearerAuthToObject(localVarHeaderParameter, configuration)
 
-            if (memberId !== undefined) {
-                localVarQueryParameter['memberId'] = memberId;
+            if (startDate !== undefined) {
+                localVarQueryParameter['startDate'] = (startDate as any instanceof Date) ?
+                    (startDate as any).toISOString().substring(0,10) :
+                    startDate;
             }
 
-            if (groupStudyId !== undefined) {
-                localVarQueryParameter['groupStudyId'] = groupStudyId;
+            if (endDate !== undefined) {
+                localVarQueryParameter['endDate'] = (endDate as any instanceof Date) ?
+                    (endDate as any).toISOString().substring(0,10) :
+                    endDate;
             }
 
-            if (status !== undefined) {
-                localVarQueryParameter['status'] = status;
+            if (studyTitle !== undefined) {
+                localVarQueryParameter['studyTitle'] = studyTitle;
+            }
+
+            if (paymentCode !== undefined) {
+                localVarQueryParameter['paymentCode'] = paymentCode;
             }
 
             if (page !== undefined) {
@@ -123,8 +136,10 @@ export const AdminPaymentApiAxiosParamCreator = function (configuration?: Config
                 localVarQueryParameter['size'] = size;
             }
 
-            if (sort !== undefined) {
-                localVarQueryParameter['sort'] = sort;
+            if (condition !== undefined) {
+                for (const [key, value] of Object.entries(condition)) {
+                    localVarQueryParameter[key] = value;
+                }
             }
 
             if (pageable !== undefined) {
@@ -168,22 +183,23 @@ export const AdminPaymentApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
-         * @summary 관리자 결제 내역 목록 조회
+         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * @summary 관리자 매출 관리 리스트 조회 (결제/환불 통합)
+         * @param {PaymentSearchCondition} condition 
          * @param {Pageable} pageable 
-         * @param {number} [memberId] 회원 ID (필터용)
-         * @param {number} [groupStudyId] 스터디 ID (필터용)
-         * @param {string} [status] 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED)
+         * @param {string} [startDate] 조회 시작일 (yyyy-MM-dd)
+         * @param {string} [endDate] 조회 종료일 (yyyy-MM-dd)
+         * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
+         * @param {string} [paymentCode] 거래ID 검색 (부분 일치)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
-         * @param {string} [sort] 정렬 기준 (예: createdAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getPaymentsForAdmin(pageable, memberId, groupStudyId, status, page, size, sort, options);
+        async getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AdminPaymentApi.getPaymentsForAdmin']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AdminPaymentApi.getTransactionsForAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -207,20 +223,21 @@ export const AdminPaymentApiFactory = function (configuration?: Configuration, b
             return localVarFp.forceCancelPayment(paymentId, reason, options).then((request) => request(axios, basePath));
         },
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
-         * @summary 관리자 결제 내역 목록 조회
+         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * @summary 관리자 매출 관리 리스트 조회 (결제/환불 통합)
+         * @param {PaymentSearchCondition} condition 
          * @param {Pageable} pageable 
-         * @param {number} [memberId] 회원 ID (필터용)
-         * @param {number} [groupStudyId] 스터디 ID (필터용)
-         * @param {string} [status] 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED)
+         * @param {string} [startDate] 조회 시작일 (yyyy-MM-dd)
+         * @param {string} [endDate] 조회 종료일 (yyyy-MM-dd)
+         * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
+         * @param {string} [paymentCode] 거래ID 검색 (부분 일치)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
-         * @param {string} [sort] 정렬 기준 (예: createdAt,desc)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.getPaymentsForAdmin(pageable, memberId, groupStudyId, status, page, size, sort, options).then((request) => request(axios, basePath));
+        getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -242,20 +259,21 @@ export class AdminPaymentApi extends BaseAPI {
     }
 
     /**
-     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
-     * @summary 관리자 결제 내역 목록 조회
+     * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+     * @summary 관리자 매출 관리 리스트 조회 (결제/환불 통합)
+     * @param {PaymentSearchCondition} condition 
      * @param {Pageable} pageable 
-     * @param {number} [memberId] 회원 ID (필터용)
-     * @param {number} [groupStudyId] 스터디 ID (필터용)
-     * @param {string} [status] 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED)
+     * @param {string} [startDate] 조회 시작일 (yyyy-MM-dd)
+     * @param {string} [endDate] 조회 종료일 (yyyy-MM-dd)
+     * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
+     * @param {string} [paymentCode] 거래ID 검색 (부분 일치)
      * @param {number} [page] 페이지 번호 (0부터 시작)
      * @param {number} [size] 페이지 크기
-     * @param {string} [sort] 정렬 기준 (예: createdAt,desc)
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getPaymentsForAdmin(pageable: Pageable, memberId?: number, groupStudyId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
-        return AdminPaymentApiFp(this.configuration).getPaymentsForAdmin(pageable, memberId, groupStudyId, status, page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    public getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return AdminPaymentApiFp(this.configuration).getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

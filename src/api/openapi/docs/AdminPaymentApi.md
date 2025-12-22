@@ -5,7 +5,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
 |[**forceCancelPayment**](#forcecancelpayment) | **POST** /api/v1/admin/payments/{paymentId}/cancel | 관리자 결제 강제 취소|
-|[**getPaymentsForAdmin**](#getpaymentsforadmin) | **GET** /api/v1/admin/payments | 관리자 결제 내역 목록 조회|
+|[**getTransactionsForAdmin**](#gettransactionsforadmin) | **GET** /api/v1/admin/payments/transactions | 관리자 매출 관리 리스트 조회 (결제/환불 통합)|
 
 # **forceCancelPayment**
 > forceCancelPayment()
@@ -63,10 +63,10 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getPaymentsForAdmin**
-> getPaymentsForAdmin()
+# **getTransactionsForAdmin**
+> getTransactionsForAdmin()
 
-작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 유료 스터디 결제 내역을 조회합니다. - `memberId`, `groupStudyId`, `status`를 이용해 필터링할 수 있으며, 페이지네이션이 적용됩니다.  ---  ## Request  | **키**        | **타입** | **위치** | **설명**                                   | **필수 여부** | **예시**               | |--------------|---------|---------|-------------------------------------------|--------------|------------------------| | memberId     | number  | query   | 회원 ID (필터용)                           | N            | 53                     | | groupStudyId | number  | query   | 스터디 ID (필터용)                         | N            | 55                     | | status       | string  | query   | 결제 상태 (`REQUESTED`, `SUCCESS` 등)      | N            | \"SUCCESS\"              | | page         | number  | query   | 페이지 번호 (0부터 시작)                   | N            | 0                      | | size         | number  | query   | 페이지 크기                                | N            | 20                     | | sort         | string  | query   | 정렬 기준 (예: `\"createdAt,desc\"`)         | N            | \"createdAt,desc\"       |  ---  ## Response  | **키**       | **타입** | **설명**                                                                                   | |-------------|---------|-------------------------------------------------------------------------------------------| | statusCode  | number  | 상태 코드 (200: 성공 / 400: 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 500: 서버 오류 등) | | timestamp   | string(datetime) | 응답 일시                                                                                 | | content     | object  | 페이지네이션된 결제 요약 목록 (`PageResponseDto<StudyPaymentSummaryResponse>`)            | | message     | string  | 처리 결과 메시지                                                                          |  ### content 구조 (PageResponseDto)  | **키**         | **타입** | **설명**                        | |---------------|---------|--------------------------------| | content       | array  | 결제 요약 목록                 | | page          | number | 현재 페이지 번호 (1부터 시작)  | | size          | number | 페이지 크기                    | | totalElements | number | 전체 데이터 개수               | | totalPages    | number | 전체 페이지 수                 | | hasNext       | bool   | 다음 페이지 존재 여부          | | hasPrevious   | bool   | 이전 페이지 존재 여부          |  ### content[].content[i] 구조 (StudyPaymentSummaryResponse)  | **키**           | **타입** | **설명**                  | |-----------------|---------|---------------------------| | paymentId       | number  | 결제 ID                   | | paymentCode     | string  | 결제 코드                 | | groupStudyId    | number  | 스터디 ID                 | | groupStudyTitle | string  | 스터디 제목               | | memberId        | number  | 결제 회원 ID              | | memberName      | string  | 결제 회원명/로그인ID      | | amount          | number  | 결제 금액(원)             | | status          | string  | 결제 상태 (`SUCCESS` 등)  | | method          | string  | 결제 수단 (`CARD` 등)     | | createdAt       | string(datetime) | 결제 레코드 생성 시각 | | paidAt          | string(datetime) | 실제 결제 완료 시각    | 
+작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
 
 ### Example
 
@@ -74,28 +74,31 @@ void (empty response body)
 import {
     AdminPaymentApi,
     Configuration,
+    PaymentSearchCondition,
     Pageable
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminPaymentApi(configuration);
 
+let condition: PaymentSearchCondition; // (default to undefined)
 let pageable: Pageable; // (default to undefined)
-let memberId: number; //회원 ID (필터용) (optional) (default to undefined)
-let groupStudyId: number; //스터디 ID (필터용) (optional) (default to undefined)
-let status: string; //결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED) (optional) (default to undefined)
+let startDate: string; //조회 시작일 (yyyy-MM-dd) (optional) (default to undefined)
+let endDate: string; //조회 종료일 (yyyy-MM-dd) (optional) (default to undefined)
+let studyTitle: string; //스터디명 검색 (부분 일치) (optional) (default to undefined)
+let paymentCode: string; //거래ID 검색 (부분 일치) (optional) (default to undefined)
 let page: number; //페이지 번호 (0부터 시작) (optional) (default to undefined)
 let size: number; //페이지 크기 (optional) (default to undefined)
-let sort: string; //정렬 기준 (예: createdAt,desc) (optional) (default to undefined)
 
-const { status, data } = await apiInstance.getPaymentsForAdmin(
+const { status, data } = await apiInstance.getTransactionsForAdmin(
+    condition,
     pageable,
-    memberId,
-    groupStudyId,
-    status,
+    startDate,
+    endDate,
+    studyTitle,
+    paymentCode,
     page,
-    size,
-    sort
+    size
 );
 ```
 
@@ -103,13 +106,14 @@ const { status, data } = await apiInstance.getPaymentsForAdmin(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
+| **condition** | **PaymentSearchCondition** |  | defaults to undefined|
 | **pageable** | **Pageable** |  | defaults to undefined|
-| **memberId** | [**number**] | 회원 ID (필터용) | (optional) defaults to undefined|
-| **groupStudyId** | [**number**] | 스터디 ID (필터용) | (optional) defaults to undefined|
-| **status** | [**string**] | 결제 상태 (예: REQUESTED, SUCCESS, FAILED, CANCELED) | (optional) defaults to undefined|
+| **startDate** | [**string**] | 조회 시작일 (yyyy-MM-dd) | (optional) defaults to undefined|
+| **endDate** | [**string**] | 조회 종료일 (yyyy-MM-dd) | (optional) defaults to undefined|
+| **studyTitle** | [**string**] | 스터디명 검색 (부분 일치) | (optional) defaults to undefined|
+| **paymentCode** | [**string**] | 거래ID 검색 (부분 일치) | (optional) defaults to undefined|
 | **page** | [**number**] | 페이지 번호 (0부터 시작) | (optional) defaults to undefined|
 | **size** | [**number**] | 페이지 크기 | (optional) defaults to undefined|
-| **sort** | [**string**] | 정렬 기준 (예: createdAt,desc) | (optional) defaults to undefined|
 
 
 ### Return type
@@ -129,7 +133,7 @@ void (empty response body)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | 관리자 결제 내역 조회 성공 |  -  |
+|**200** | 관리자 거래 내역 리스트 조회 성공 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 

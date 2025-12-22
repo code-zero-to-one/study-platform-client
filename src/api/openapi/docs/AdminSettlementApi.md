@@ -118,7 +118,7 @@ void (empty response body)
 # **getSettlementsForAdmin**
 > getSettlementsForAdmin()
 
-작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 정산 상태(`status`)에 따라 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | status | string(SettlementStatus) | 정산 상태 필터 (미전달 시 전체) | N | \"PENDING\", \"COMPLETED\" | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
+작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 관리자 페이지에서 정산 내역을 페이지 단위로 조회합니다. - 날짜, 스터디명, 정산ID, 정산 상태로 필터링하여 조회할 수 있습니다. - 정산 정보에는 스터디, 리더, 정산 금액, 정산 예정일/완료일, 상태 정보가 포함됩니다.  ---  ## Query Parameters (Filter - SettlementSearchCondition)  | **키**        | **타입**   | **위치** | **설명**                                   | **필수 여부** | **예시**         | |--------------|-----------|---------|-------------------------------------------|--------------|------------------| | startDate    | LocalDate | query   | 정산 예정일 조회 시작일 (yyyy-MM-dd)        | N            | 2025-01-01       | | endDate      | LocalDate | query   | 정산 예정일 조회 종료일 (yyyy-MM-dd)        | N            | 2025-12-31       | | studyTitle   | string    | query   | 스터디명 검색 (부분 일치)                   | N            | 백엔드           | | settlementId | number    | query   | 정산 ID로 조회                             | N            | 123              | | status       | string    | query   | 정산 상태 (PENDING, APPROVED, COMPLETED 등) | N            | PENDING          |  ## Query Parameters (Pageable)  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | page | number | 페이지 번호 (0부터 시작) | N | 0 | | size | number | 페이지 크기 | N | 20 | | sort | string | 정렬 기준 | N | \"scheduledAt,desc\" |  ---  ## Response  ### content  - `content`: 정산 목록 (배열) - 각 요소는 `StudySettlementSummaryResponse` 형식입니다.  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | settlementId | number | 정산 ID | 1 | | settlementCode | string | 정산 코드 | \"SET-AB12CD34\" | | groupStudyId | number | 스터디 ID | 10 | | groupStudyTitle | string | 스터디 제목 | \"알고리즘 스터디 1기\" | | leaderId | number | 스터디 개설자 ID | 53 | | leaderName | string | 스터디 개설자명 | \"이도현\" | | settlementAmount | number | 정산 금액(원) | 900000 | | status | string | 정산 상태 | \"PENDING\" | | bankName | string | 정산 계좌 은행명 | \"카카오뱅크\" | | accountNumber | string | 정산 계좌번호 | \"3333-12-3456789\" | | scheduledAt | string(datetime) | 정산 예정 일시 | \"2025-12-20T00:00:00\" | | settledAt | string(datetime) | 정산 완료 일시(완료 전 null) | null |  ### page 정보  - `PageResponseDto` 형식  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | content | array | 정산 목록 | [ { ... } ] | | page | number | 현재 페이지 번호(1부터 시작) | 1 | | size | number | 페이지 크기 | 20 | | totalElements | number | 전체 데이터 개수 | 1 | | totalPages | number | 전체 페이지 수 | 1 | | hasNext | boolean | 다음 페이지 존재 여부 | false | | hasPrevious | boolean | 이전 페이지 존재 여부 | false | 
 
 ### Example
 
@@ -126,20 +126,31 @@ void (empty response body)
 import {
     AdminSettlementApi,
     Configuration,
+    SettlementSearchCondition,
     Pageable
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new AdminSettlementApi(configuration);
 
+let condition: SettlementSearchCondition; // (default to undefined)
 let pageable: Pageable; // (default to undefined)
-let status: string; //정산 상태 필터 (미전달 시 전체 조회) (optional) (default to undefined)
+let startDate: string; //정산 예정일 조회 시작일 (yyyy-MM-dd) (optional) (default to undefined)
+let endDate: string; //정산 예정일 조회 종료일 (yyyy-MM-dd) (optional) (default to undefined)
+let studyTitle: string; //스터디명 검색 (부분 일치) (optional) (default to undefined)
+let settlementId: number; //정산 ID로 조회 (optional) (default to undefined)
+let status: string; //정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED) (optional) (default to undefined)
 let page: number; //페이지 번호 (0부터 시작) (optional) (default to undefined)
 let size: number; //페이지 크기 (optional) (default to undefined)
 let sort: string; //정렬 기준 (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getSettlementsForAdmin(
+    condition,
     pageable,
+    startDate,
+    endDate,
+    studyTitle,
+    settlementId,
     status,
     page,
     size,
@@ -151,8 +162,13 @@ const { status, data } = await apiInstance.getSettlementsForAdmin(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
+| **condition** | **SettlementSearchCondition** |  | defaults to undefined|
 | **pageable** | **Pageable** |  | defaults to undefined|
-| **status** | [**string**] | 정산 상태 필터 (미전달 시 전체 조회) | (optional) defaults to undefined|
+| **startDate** | [**string**] | 정산 예정일 조회 시작일 (yyyy-MM-dd) | (optional) defaults to undefined|
+| **endDate** | [**string**] | 정산 예정일 조회 종료일 (yyyy-MM-dd) | (optional) defaults to undefined|
+| **studyTitle** | [**string**] | 스터디명 검색 (부분 일치) | (optional) defaults to undefined|
+| **settlementId** | [**number**] | 정산 ID로 조회 | (optional) defaults to undefined|
+| **status** | [**string**] | 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED) | (optional) defaults to undefined|
 | **page** | [**number**] | 페이지 번호 (0부터 시작) | (optional) defaults to undefined|
 | **size** | [**number**] | 페이지 크기 | (optional) defaults to undefined|
 | **sort** | [**string**] | 정렬 기준 | (optional) defaults to undefined|
