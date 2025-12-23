@@ -1,5 +1,6 @@
 import '../global.css';
 
+import * as amplitude from '@amplitude/unified';
 import Clarity from '@microsoft/clarity';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
@@ -8,7 +9,6 @@ import localFont from 'next/font/local';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
 import MainProvider from '@/providers';
 import Header from '@/widgets/home/header';
-import * as amplitude from '@amplitude/unified';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -39,22 +39,28 @@ export default function LandingPageLayout({
     AMPLITUDE_API_KEY
   ) {
     Clarity.init(CLARITY_PROJECT_ID);
-    void amplitude.initAll(AMPLITUDE_API_KEY, {
-      analytics: {
-        autocapture: {
-          attribution: true,
-          fileDownloads: true,
-          formInteractions: true,
-          pageViews: true,
-          sessions: true,
-          elementInteractions: true,
-          networkTracking: true,
-          webVitals: true,
-          frustrationInteractions: true,
+    // Initialize Amplitude and explicitly catch errors to avoid unhandled promise rejections.
+    amplitude
+      .initAll(AMPLITUDE_API_KEY, {
+        analytics: {
+          autocapture: {
+            attribution: true,
+            fileDownloads: true,
+            formInteractions: true,
+            pageViews: true,
+            sessions: true,
+            elementInteractions: true,
+            networkTracking: true,
+            webVitals: true,
+            frustrationInteractions: true,
+          },
         },
-      },
-      sessionReplay: { sampleRate: 1 },
-    });
+        sessionReplay: { sampleRate: 1 },
+      })
+      .catch((err) => {
+        // optional: surface the error during development
+        // console.error('Amplitude init failed', err);
+      });
   }
 
   return (
