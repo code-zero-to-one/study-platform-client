@@ -8,7 +8,6 @@ api/admin-matching-api.ts
 api/admin-payment-api.ts
 api/admin-refund-api.ts
 api/admin-settlement-api.ts
-api/apiapi.ts
 api/auth-api.ts
 api/bank-search-api.ts
 api/daily-study-api.ts
@@ -40,7 +39,6 @@ api/token-apiapi.ts
 base.ts
 common.ts
 configuration.ts
-docs/APIApi.md
 docs/AdminAligoSMSApi.md
 docs/AdminApi.md
 docs/AdminMatchingApi.md
