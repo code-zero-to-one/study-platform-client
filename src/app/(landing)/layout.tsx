@@ -39,7 +39,7 @@ export default function LandingPageLayout({
     AMPLITUDE_API_KEY
   ) {
     Clarity.init(CLARITY_PROJECT_ID);
-    amplitude.initAll(AMPLITUDE_API_KEY, {
+    void amplitude.initAll(AMPLITUDE_API_KEY, {
       analytics: {
         autocapture: {
           attribution: true,
