@@ -5,24 +5,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: [
-          '/',
-          '/home',
+        allow: ['/', '/home', '/study', '/study/*', '/insights', '/insights/*'],
+        disallow: [
           '/login',
           '/sign-up',
-          '/favicon.ico',
-          '/images/',
-          '/icons/',
-          '/fonts/',
-          '/study',
-          '/insights',
-        ],
-        disallow: [
           '/my-page',
           '/my-study',
           '/my-study-review',
           '/redirection',
           '/admin',
+          '/admin/*',
           '/api/',
           '/_next/',
           '/_vercel/',
