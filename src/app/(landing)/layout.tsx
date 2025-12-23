@@ -26,31 +26,35 @@ const pretendard = localFont({
 
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
+const AMPLITUDE_API_KEY = process.env.NEXT_PUBLIC_AMPLITUDE_API_KEY;
 
 export default function LandingPageLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  amplitude.initAll('acdc4c80bbcd99c33dee81367af95a82', {
-    analytics: {
-      autocapture: {
-        attribution: true,
-        fileDownloads: true,
-        formInteractions: true,
-        pageViews: true,
-        sessions: true,
-        elementInteractions: true,
-        networkTracking: true,
-        webVitals: true,
-        frustrationInteractions: true,
-      },
-    },
-    sessionReplay: { sampleRate: 1 },
-  });
-
-  if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
+  if (
+    typeof window !== 'undefined' &&
+    CLARITY_PROJECT_ID &&
+    AMPLITUDE_API_KEY
+  ) {
     Clarity.init(CLARITY_PROJECT_ID);
+    amplitude.initAll(AMPLITUDE_API_KEY, {
+      analytics: {
+        autocapture: {
+          attribution: true,
+          fileDownloads: true,
+          formInteractions: true,
+          pageViews: true,
+          sessions: true,
+          elementInteractions: true,
+          networkTracking: true,
+          webVitals: true,
+          frustrationInteractions: true,
+        },
+      },
+      sessionReplay: { sampleRate: 1 },
+    });
   }
 
   return (
