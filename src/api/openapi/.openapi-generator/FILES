@@ -10,6 +10,7 @@ api/admin-refund-api.ts
 api/admin-settlement-api.ts
 api/apiapi.ts
 api/auth-api.ts
+api/bank-search-api.ts
 api/daily-study-api.ts
 api/documented-error-code-controller-api.ts
 api/evaluation-api.ts
@@ -29,6 +30,7 @@ api/notification-api.ts
 api/payment-user-api.ts
 api/phone-auth-api.ts
 api/refund-user-api.ts
+api/settlement-account-api.ts
 api/settlement-user-api.ts
 api/study-dashboard-api.ts
 api/study-review-api.ts
@@ -55,6 +57,7 @@ docs/AligoRemainResponseSchema.md
 docs/AuthApi.md
 docs/AutoRunMatchingRequestDto.md
 docs/AvailableStudyTimeDto.md
+docs/BankSearchApi.md
 docs/BaseResponse.md
 docs/BaseResponseGetGroupStudyMemberStatusResponse.md
 docs/BaseResponseGrantedTokenInfo.md
@@ -196,6 +199,7 @@ docs/ResetWeeklyMatchingRequest.md
 docs/ResetWeeklyMatchingResponse.md
 docs/ResetWeeklyMatchingSchema.md
 docs/ResizedImageDto.md
+docs/SettlementAccountApi.md
 docs/SettlementAccountRegisterRequest.md
 docs/SettlementAccountResponse.md
 docs/SettlementSearchCondition.md

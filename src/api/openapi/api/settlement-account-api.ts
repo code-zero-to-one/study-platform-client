@@ -28,9 +28,9 @@ import type { BaseResponseVoid } from '../models';
 // @ts-ignore
 import type { SettlementAccountRegisterRequest } from '../models';
 /**
- * APIApi - axios parameter creator
+ * SettlementAccountApi - axios parameter creator
  */
-export const APIApiAxiosParamCreator = function (configuration?: Configuration) {
+export const SettlementAccountApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
@@ -184,10 +184,10 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
 };
 
 /**
- * APIApi - functional programming interface
+ * SettlementAccountApi - functional programming interface
  */
-export const APIApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = APIApiAxiosParamCreator(configuration)
+export const SettlementAccountApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SettlementAccountApiAxiosParamCreator(configuration)
     return {
         /**
          * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
@@ -198,7 +198,7 @@ export const APIApiFp = function(configuration?: Configuration) {
         async _delete(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator._delete(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi._delete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi._delete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -210,7 +210,7 @@ export const APIApiFp = function(configuration?: Configuration) {
         async get(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseSettlementAccountResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.get(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi.get']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.get']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -223,7 +223,7 @@ export const APIApiFp = function(configuration?: Configuration) {
         async register(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.register(settlementAccountRegisterRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi.register']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.register']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -236,17 +236,17 @@ export const APIApiFp = function(configuration?: Configuration) {
         async update(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseSettlementAccountResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.update(settlementAccountRegisterRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi.update']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.update']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * APIApi - factory interface
+ * SettlementAccountApi - factory interface
  */
-export const APIApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = APIApiFp(configuration)
+export const SettlementAccountApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SettlementAccountApiFp(configuration)
     return {
         /**
          * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
@@ -290,9 +290,9 @@ export const APIApiFactory = function (configuration?: Configuration, basePath?:
 };
 
 /**
- * APIApi - object-oriented interface
+ * SettlementAccountApi - object-oriented interface
  */
-export class APIApi extends BaseAPI {
+export class SettlementAccountApi extends BaseAPI {
     /**
      * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
      * @summary 정산 계좌 삭제
@@ -300,7 +300,7 @@ export class APIApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public _delete(options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration)._delete(options).then((request) => request(this.axios, this.basePath));
+        return SettlementAccountApiFp(this.configuration)._delete(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -310,7 +310,7 @@ export class APIApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public get(options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration).get(options).then((request) => request(this.axios, this.basePath));
+        return SettlementAccountApiFp(this.configuration).get(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -321,7 +321,7 @@ export class APIApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public register(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration).register(settlementAccountRegisterRequest, options).then((request) => request(this.axios, this.basePath));
+        return SettlementAccountApiFp(this.configuration).register(settlementAccountRegisterRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -332,7 +332,7 @@ export class APIApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public update(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration).update(settlementAccountRegisterRequest, options).then((request) => request(this.axios, this.basePath));
+        return SettlementAccountApiFp(this.configuration).update(settlementAccountRegisterRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

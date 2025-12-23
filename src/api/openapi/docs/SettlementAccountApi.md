@@ -1,4 +1,4 @@
-# APIApi
+# SettlementAccountApi
 
 All URIs are relative to *https://test-api.zeroone.it.kr*
 
@@ -18,12 +18,12 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 ```typescript
 import {
-    APIApi,
+    SettlementAccountApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new APIApi(configuration);
+const apiInstance = new SettlementAccountApi(configuration);
 
 const { status, data } = await apiInstance._delete();
 ```
@@ -62,12 +62,12 @@ This endpoint does not have any parameters.
 
 ```typescript
 import {
-    APIApi,
+    SettlementAccountApi,
     Configuration
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new APIApi(configuration);
+const apiInstance = new SettlementAccountApi(configuration);
 
 const { status, data } = await apiInstance.get();
 ```
@@ -106,13 +106,13 @@ This endpoint does not have any parameters.
 
 ```typescript
 import {
-    APIApi,
+    SettlementAccountApi,
     Configuration,
     SettlementAccountRegisterRequest
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new APIApi(configuration);
+const apiInstance = new SettlementAccountApi(configuration);
 
 let settlementAccountRegisterRequest: SettlementAccountRegisterRequest; //정산 계좌 등록 요청
 
@@ -158,13 +158,13 @@ void (empty response body)
 
 ```typescript
 import {
-    APIApi,
+    SettlementAccountApi,
     Configuration,
     SettlementAccountRegisterRequest
 } from './api';
 
 const configuration = new Configuration();
-const apiInstance = new APIApi(configuration);
+const apiInstance = new SettlementAccountApi(configuration);
 
 let settlementAccountRegisterRequest: SettlementAccountRegisterRequest; //정산 계좌 수정 요청
 
