@@ -8,6 +8,7 @@ import localFont from 'next/font/local';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
 import MainProvider from '@/providers';
 import Header from '@/widgets/home/header';
+import * as amplitude from '@amplitude/unified';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -31,6 +32,23 @@ export default function LandingPageLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  amplitude.initAll('acdc4c80bbcd99c33dee81367af95a82', {
+    analytics: {
+      autocapture: {
+        attribution: true,
+        fileDownloads: true,
+        formInteractions: true,
+        pageViews: true,
+        sessions: true,
+        elementInteractions: true,
+        networkTracking: true,
+        webVitals: true,
+        frustrationInteractions: true,
+      },
+    },
+    sessionReplay: { sampleRate: 1 },
+  });
+
   if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
     Clarity.init(CLARITY_PROJECT_ID);
   }

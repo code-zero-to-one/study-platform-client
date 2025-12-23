@@ -7,6 +7,7 @@ import {
   getAttributionParams,
   trackAttribution,
 } from '@/utils/attribution-tracker';
+import * as amplitude from '@amplitude/unified';
 
 export default function PageViewTracker(): null {
   const pathname = usePathname();
@@ -19,6 +20,13 @@ export default function PageViewTracker(): null {
 
     // Attribution 파라미터 가져오기
     const attributionParams = getAttributionParams();
+
+    amplitude.track('page_view', {
+      page_title: document.title || pathname,
+      page_location: window.location.href,
+      page_path: pathname,
+      ...attributionParams,
+    });
 
     sendGTMEvent({
       event: 'page_view',

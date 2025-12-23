@@ -24,6 +24,7 @@
     "api:logs": "docker-compose -f ../study-platform-mvp/docker-compose.yml logs -f mvp-app"
   },
   "dependencies": {
+    "@amplitude/unified": "^1.0.0-beta.9",
     "@hookform/resolvers": "^5.2.1",
     "@microsoft/clarity": "^1.0.0",
     "@next/third-parties": "^15.3.3",
