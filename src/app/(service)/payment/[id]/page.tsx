@@ -2,8 +2,8 @@
 
 import OrderSummary from '@/components/payment/orderSummary';
 import PaymentCheckoutPage from '@/components/payment/paymentActionClient';
-import CheckoutActionClient from '@/components/payment/paymentActionClient';
 import PriceSummary from '@/components/payment/priceSummary';
+import { getGroupStudyDetailInServer } from '@/features/study/group/api/get-group-study-detail.server';
 
 interface Study {
   id: string;
@@ -13,58 +13,26 @@ interface Study {
   thumbnailUrl?: string;
 }
 
-interface Terms {
-  id: string;
-  label: string;
-  required: boolean;
-  url?: string;
+interface PaymentPageProps {
+  params: Promise<{ id: string }>;
 }
 
-interface PaymentMethod {
-  id: 'CARD' | 'VBANK';
-  label: string;
-  subLabel?: string;
-}
+async function getStudyData(groupStudyId: number): Promise<Study> {
+  const studyDetail = await getGroupStudyDetailInServer({ groupStudyId });
 
-async function getCheckoutData(): Promise<{
-  study: Study;
-  terms: Terms[];
-  methods: PaymentMethod[];
-}> {
-  // 실제론 db / internal api에서 가져오기
   return {
-    study: {
-      id: 'study_1',
-      title: '1일1코테류프를 인증 챌린지',
-      desc: '1인 개발자, 이제는 대세가 되었다죠.',
-      price: 35000,
-      thumbnailUrl: '',
-    },
-    terms: [
-      {
-        id: 'terms_usage',
-        label: '이용약관 동의 (필수)',
-        required: true,
-        url: '/terms/usage',
-      },
-    ],
-    methods: [
-      { id: 'CARD', label: '신용카드 결제' },
-      { id: 'VBANK', label: '무통장 입금 (가상계좌)' },
-    ],
+    id: String(studyDetail.basicInfo.groupStudyId),
+    title: studyDetail.detailInfo.title,
+    desc: studyDetail.detailInfo.summary,
+    price: studyDetail.basicInfo.price,
+    thumbnailUrl:
+      studyDetail.detailInfo.image?.resizedImages?.[0]?.resizedImageUrl || '',
   };
 }
 
-export default async function CheckoutPage() {
-  const { study, terms, methods } = await getCheckoutData();
-
-  // const clientKey = 'test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm';
-  // const tossPayments = await loadTossPayments(clientKey);
-
-  //  const customerKey = "pfROxUh11lHWaPrBxzIBN";
-  //       const widgets = tossPayments.widgets({
-  //         customerKey,
-  //       });
+export default async function CheckoutPage({ params }: PaymentPageProps) {
+  const { id } = await params;
+  const study = await getStudyData(Number(id));
 
   return (
     <div className="bg-background-alternative min-h-dvh">
@@ -88,12 +56,7 @@ export default async function CheckoutPage() {
 
           {/* 클라 렌더: 약관/결제수단/결제하기 */}
           <section>
-            <PaymentCheckoutPage
-              orderId={study.id}
-              amount={study.price}
-              terms={terms}
-              methods={methods}
-            />
+            <PaymentCheckoutPage study={study} />
           </section>
         </div>
       </div>
