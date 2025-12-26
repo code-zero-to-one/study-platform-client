@@ -28,9 +28,9 @@ import type { BaseResponseVoid } from '../models';
 // @ts-ignore
 import type { SettlementAccountRegisterRequest } from '../models';
 /**
- * APIApi - axios parameter creator
+ * SettlementAccountApi - axios parameter creator
  */
-export const APIApiAxiosParamCreator = function (configuration?: Configuration) {
+export const SettlementAccountApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
          * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
@@ -74,40 +74,6 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
          */
         get: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/mypage/settlement-account`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 정산 계좌 등록/수정을 위해 사용 가능한 은행 목록을 조회합니다. - 은행 코드는 PG 및 정산 연동 시 사용되는 표준 코드입니다. - 인증이 필요하지 않은 공용 API입니다.  ---  ## Response  - 은행 코드와 은행명 목록을 반환합니다. 
-         * @summary 은행 목록 조회
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getBanks: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/banks`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -218,10 +184,10 @@ export const APIApiAxiosParamCreator = function (configuration?: Configuration) 
 };
 
 /**
- * APIApi - functional programming interface
+ * SettlementAccountApi - functional programming interface
  */
-export const APIApiFp = function(configuration?: Configuration) {
-    const localVarAxiosParamCreator = APIApiAxiosParamCreator(configuration)
+export const SettlementAccountApiFp = function(configuration?: Configuration) {
+    const localVarAxiosParamCreator = SettlementAccountApiAxiosParamCreator(configuration)
     return {
         /**
          * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
@@ -232,7 +198,7 @@ export const APIApiFp = function(configuration?: Configuration) {
         async _delete(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator._delete(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi._delete']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi._delete']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -244,19 +210,7 @@ export const APIApiFp = function(configuration?: Configuration) {
         async get(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseSettlementAccountResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.get(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi.get']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 정산 계좌 등록/수정을 위해 사용 가능한 은행 목록을 조회합니다. - 은행 코드는 PG 및 정산 연동 시 사용되는 표준 코드입니다. - 인증이 필요하지 않은 공용 API입니다.  ---  ## Response  - 은행 코드와 은행명 목록을 반환합니다. 
-         * @summary 은행 목록 조회
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getBanks(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getBanks(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi.getBanks']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.get']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -269,7 +223,7 @@ export const APIApiFp = function(configuration?: Configuration) {
         async register(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.register(settlementAccountRegisterRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi.register']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.register']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -282,17 +236,17 @@ export const APIApiFp = function(configuration?: Configuration) {
         async update(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseSettlementAccountResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.update(settlementAccountRegisterRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['APIApi.update']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.update']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
 };
 
 /**
- * APIApi - factory interface
+ * SettlementAccountApi - factory interface
  */
-export const APIApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
-    const localVarFp = APIApiFp(configuration)
+export const SettlementAccountApiFactory = function (configuration?: Configuration, basePath?: string, axios?: AxiosInstance) {
+    const localVarFp = SettlementAccountApiFp(configuration)
     return {
         /**
          * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
@@ -311,15 +265,6 @@ export const APIApiFactory = function (configuration?: Configuration, basePath?:
          */
         get(options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseSettlementAccountResponse> {
             return localVarFp.get(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 정산 계좌 등록/수정을 위해 사용 가능한 은행 목록을 조회합니다. - 은행 코드는 PG 및 정산 연동 시 사용되는 표준 코드입니다. - 인증이 필요하지 않은 공용 API입니다.  ---  ## Response  - 은행 코드와 은행명 목록을 반환합니다. 
-         * @summary 은행 목록 조회
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getBanks(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.getBanks(options).then((request) => request(axios, basePath));
         },
         /**
          * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 최초로 등록합니다. - 회원당 하나의 정산 계좌만 등록할 수 있습니다. - 이미 정산 계좌가 존재하는 경우 에러가 발생합니다.  ---  ## Request Body (SettlementAccountRegisterRequest)  | 키 | 타입 | 설명 | 필수 | |----|------|------|------| | bankName | string | 은행명 | Y | | accountNumber | string | 계좌 번호 | Y | | accountHolder | string | 예금주명 | Y |  ---  ## Response (SettlementAccountResponse)  - 등록된 정산 계좌 정보를 반환합니다. 
@@ -345,9 +290,9 @@ export const APIApiFactory = function (configuration?: Configuration, basePath?:
 };
 
 /**
- * APIApi - object-oriented interface
+ * SettlementAccountApi - object-oriented interface
  */
-export class APIApi extends BaseAPI {
+export class SettlementAccountApi extends BaseAPI {
     /**
      * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
      * @summary 정산 계좌 삭제
@@ -355,7 +300,7 @@ export class APIApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public _delete(options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration)._delete(options).then((request) => request(this.axios, this.basePath));
+        return SettlementAccountApiFp(this.configuration)._delete(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -365,17 +310,7 @@ export class APIApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public get(options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration).get(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 정산 계좌 등록/수정을 위해 사용 가능한 은행 목록을 조회합니다. - 은행 코드는 PG 및 정산 연동 시 사용되는 표준 코드입니다. - 인증이 필요하지 않은 공용 API입니다.  ---  ## Response  - 은행 코드와 은행명 목록을 반환합니다. 
-     * @summary 은행 목록 조회
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public getBanks(options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration).getBanks(options).then((request) => request(this.axios, this.basePath));
+        return SettlementAccountApiFp(this.configuration).get(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -386,7 +321,7 @@ export class APIApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public register(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration).register(settlementAccountRegisterRequest, options).then((request) => request(this.axios, this.basePath));
+        return SettlementAccountApiFp(this.configuration).register(settlementAccountRegisterRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -397,7 +332,7 @@ export class APIApi extends BaseAPI {
      * @throws {RequiredError}
      */
     public update(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig) {
-        return APIApiFp(this.configuration).update(settlementAccountRegisterRequest, options).then((request) => request(this.axios, this.basePath));
+        return SettlementAccountApiFp(this.configuration).update(settlementAccountRegisterRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

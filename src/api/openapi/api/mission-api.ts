@@ -24,6 +24,8 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { BaseResponseMissionCreationResult } from '../models';
 // @ts-ignore
+import type { BaseResponsePageResponseDtoMissionListResponse } from '../models';
+// @ts-ignore
 import type { BaseResponseVoid } from '../models';
 // @ts-ignore
 import type { MissionCreationRequest } from '../models';
@@ -71,6 +73,53 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
             localVarRequestOptions.data = serializeDataIfNeeded(missionCreationRequest, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {number} groupStudyId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMissions: async (groupStudyId: number, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'groupStudyId' is not null or undefined
+            assertParamExists('getMissions', 'groupStudyId', groupStudyId)
+            const localVarPath = `/group-studies/{groupStudyId}/missions`
+                .replace(`{${"groupStudyId"}}`, encodeURIComponent(String(groupStudyId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+            if (page !== undefined) {
+                localVarQueryParameter['page'] = page;
+            }
+
+            if (size !== undefined) {
+                localVarQueryParameter['size'] = size;
+            }
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -144,6 +193,20 @@ export const MissionApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} groupStudyId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getMissions(groupStudyId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponsePageResponseDtoMissionListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMissions(groupStudyId, page, size, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MissionApi.getMissions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} missionId 
          * @param {MissionUpdateRequest} missionUpdateRequest 
          * @param {*} [options] Override http request option.
@@ -176,6 +239,17 @@ export const MissionApiFactory = function (configuration?: Configuration, basePa
         },
         /**
          * 
+         * @param {number} groupStudyId 
+         * @param {number} [page] 
+         * @param {number} [size] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMissions(groupStudyId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponsePageResponseDtoMissionListResponse> {
+            return localVarFp.getMissions(groupStudyId, page, size, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {number} missionId 
          * @param {MissionUpdateRequest} missionUpdateRequest 
          * @param {*} [options] Override http request option.
@@ -200,6 +274,18 @@ export class MissionApi extends BaseAPI {
      */
     public createMission(groupStudyId: number, missionCreationRequest: MissionCreationRequest, options?: RawAxiosRequestConfig) {
         return MissionApiFp(this.configuration).createMission(groupStudyId, missionCreationRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} groupStudyId 
+     * @param {number} [page] 
+     * @param {number} [size] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getMissions(groupStudyId: number, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return MissionApiFp(this.configuration).getMissions(groupStudyId, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

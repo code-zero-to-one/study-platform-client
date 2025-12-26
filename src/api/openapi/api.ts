@@ -14,7 +14,6 @@
 
 
 
-export * from './api/apiapi';
 export * from './api/admin-api';
 export * from './api/admin-aligo-smsapi';
 export * from './api/admin-matching-api';
@@ -22,6 +21,7 @@ export * from './api/admin-payment-api';
 export * from './api/admin-refund-api';
 export * from './api/admin-settlement-api';
 export * from './api/auth-api';
+export * from './api/bank-search-api';
 export * from './api/daily-study-api';
 export * from './api/documented-error-code-controller-api';
 export * from './api/evaluation-api';
@@ -41,6 +41,7 @@ export * from './api/notification-api';
 export * from './api/payment-user-api';
 export * from './api/phone-auth-api';
 export * from './api/refund-user-api';
+export * from './api/settlement-account-api';
 export * from './api/settlement-user-api';
 export * from './api/study-dashboard-api';
 export * from './api/study-review-api';
