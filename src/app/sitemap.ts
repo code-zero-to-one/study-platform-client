@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { Configuration } from '@/api/openapi/configuration';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
+import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyBasicInfoResponseDto } from '@/api/openapi/models';
 import { fetchArticles } from '@/api/strapi/api/fetch-articles';
 
@@ -8,30 +8,33 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://www.zeroone.it.kr';
 
   // 정적 페이지
+  // 우선순위 및 갱신 빈도에 따라 설정
+  // priority: 1.0 (가장 중요), 0.5 (중간), 0.1 (낮음)
+  // changeFrequency: always, hourly, daily, weekly, monthly, yearly, never
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: `${baseUrl}/`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
-      priority: 1,
+      priority: 1.0, // 홈페이지는 최우선
     },
     {
       url: `${baseUrl}/home`,
       lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 0.9,
+      priority: 0.9, // 높음
     },
     {
       url: `${baseUrl}/study`,
       lastModified: new Date(),
       changeFrequency: 'daily',
-      priority: 0.8,
+      priority: 0.9, // 높음 (스터디 리스트는 자주 변경)
     },
     {
       url: `${baseUrl}/insights`,
       lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 1,
+      changeFrequency: 'weekly',
+      priority: 0.9, // 높음 (블로그 콘텐츠)
     },
   ];
 
@@ -82,7 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             ? new Date(study.updatedAt)
             : new Date(),
           changeFrequency: 'daily' as const,
-          priority: 0.7,
+          priority: 0.7, // 스터디 상세: 중간 우선도
         })),
     );
   } catch (error) {
@@ -102,12 +105,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           ? new Date(article.updatedAt)
           : new Date(),
         changeFrequency: 'weekly' as const,
-        priority: 0.8,
+        priority: 0.8, // 인사이트 상세: 중간-높음 우선도
       })),
     );
   } catch (error) {
     console.error('Failed to fetch insight pages for sitemap:', error);
   }
 
+  // Sitemap 병합 및 반환
+  // 정적 페이지 → 스터디 페이지 → 인사이트 페이지 순서로 정렬
   return [...staticPages, ...studyPages, ...insightPages];
 }
