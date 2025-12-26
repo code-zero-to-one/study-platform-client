@@ -22,11 +22,11 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponseSettlementAccountResponse } from '../models';
-// @ts-ignore
 import type { BaseResponseVoid } from '../models';
 // @ts-ignore
 import type { SettlementAccountRegisterRequest } from '../models';
+// @ts-ignore
+import type { SettlementAccountResponseSchema } from '../models';
 /**
  * SettlementAccountApi - axios parameter creator
  */
@@ -207,7 +207,7 @@ export const SettlementAccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async get(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseSettlementAccountResponse>> {
+        async get(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SettlementAccountResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.get(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.get']?.[localVarOperationServerIndex]?.url;
@@ -220,7 +220,7 @@ export const SettlementAccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async register(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async register(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SettlementAccountResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.register(settlementAccountRegisterRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.register']?.[localVarOperationServerIndex]?.url;
@@ -233,7 +233,7 @@ export const SettlementAccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async update(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseSettlementAccountResponse>> {
+        async update(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<SettlementAccountResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.update(settlementAccountRegisterRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi.update']?.[localVarOperationServerIndex]?.url;
@@ -263,7 +263,7 @@ export const SettlementAccountApiFactory = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        get(options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseSettlementAccountResponse> {
+        get(options?: RawAxiosRequestConfig): AxiosPromise<SettlementAccountResponseSchema> {
             return localVarFp.get(options).then((request) => request(axios, basePath));
         },
         /**
@@ -273,7 +273,7 @@ export const SettlementAccountApiFactory = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        register(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        register(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<SettlementAccountResponseSchema> {
             return localVarFp.register(settlementAccountRegisterRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -283,7 +283,7 @@ export const SettlementAccountApiFactory = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        update(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseSettlementAccountResponse> {
+        update(settlementAccountRegisterRequest: SettlementAccountRegisterRequest, options?: RawAxiosRequestConfig): AxiosPromise<SettlementAccountResponseSchema> {
             return localVarFp.update(settlementAccountRegisterRequest, options).then((request) => request(axios, basePath));
         },
     };

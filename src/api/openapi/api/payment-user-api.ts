@@ -22,13 +22,23 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { PageUserTransactionDetailResponseSchema } from '../models';
+// @ts-ignore
+import type { PageUserTransactionListResponseSchema } from '../models';
+// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { PaymentSearchCondition } from '../models';
 // @ts-ignore
+import type { StudyPaymentDetailResponseSchema } from '../models';
+// @ts-ignore
 import type { StudyPaymentPrepareRequest } from '../models';
 // @ts-ignore
+import type { StudyPaymentPrepareResponseSchema } from '../models';
+// @ts-ignore
 import type { TossPaymentConfirmRequest } from '../models';
+// @ts-ignore
+import type { VoidResponseSchema } from '../models';
 /**
  * PaymentUserApi - axios parameter creator
  */
@@ -315,7 +325,7 @@ export const PaymentUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async cancelPayment(paymentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async cancelPayment(paymentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VoidResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cancelPayment(paymentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.cancelPayment']?.[localVarOperationServerIndex]?.url;
@@ -328,7 +338,7 @@ export const PaymentUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async confirmTossPayment(tossPaymentConfirmRequest: TossPaymentConfirmRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async confirmTossPayment(tossPaymentConfirmRequest: TossPaymentConfirmRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyPaymentDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.confirmTossPayment(tossPaymentConfirmRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.confirmTossPayment']?.[localVarOperationServerIndex]?.url;
@@ -348,7 +358,7 @@ export const PaymentUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyTransactions(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getMyTransactions(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageUserTransactionListResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMyTransactions(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.getMyTransactions']?.[localVarOperationServerIndex]?.url;
@@ -364,7 +374,7 @@ export const PaymentUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyTransactionsByGroupStudy(groupStudyId: number, pageable: Pageable, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getMyTransactionsByGroupStudy(groupStudyId: number, pageable: Pageable, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageUserTransactionDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMyTransactionsByGroupStudy(groupStudyId, pageable, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.getMyTransactionsByGroupStudy']?.[localVarOperationServerIndex]?.url;
@@ -378,7 +388,7 @@ export const PaymentUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async preparePayment(groupStudyId: number, studyPaymentPrepareRequest: StudyPaymentPrepareRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async preparePayment(groupStudyId: number, studyPaymentPrepareRequest: StudyPaymentPrepareRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyPaymentPrepareResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.preparePayment(groupStudyId, studyPaymentPrepareRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PaymentUserApi.preparePayment']?.[localVarOperationServerIndex]?.url;
@@ -400,7 +410,7 @@ export const PaymentUserApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cancelPayment(paymentId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        cancelPayment(paymentId: number, options?: RawAxiosRequestConfig): AxiosPromise<VoidResponseSchema> {
             return localVarFp.cancelPayment(paymentId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -410,7 +420,7 @@ export const PaymentUserApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        confirmTossPayment(tossPaymentConfirmRequest: TossPaymentConfirmRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        confirmTossPayment(tossPaymentConfirmRequest: TossPaymentConfirmRequest, options?: RawAxiosRequestConfig): AxiosPromise<StudyPaymentDetailResponseSchema> {
             return localVarFp.confirmTossPayment(tossPaymentConfirmRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -427,7 +437,7 @@ export const PaymentUserApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyTransactions(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getMyTransactions(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<PageUserTransactionListResponseSchema> {
             return localVarFp.getMyTransactions(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options).then((request) => request(axios, basePath));
         },
         /**
@@ -440,7 +450,7 @@ export const PaymentUserApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyTransactionsByGroupStudy(groupStudyId: number, pageable: Pageable, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getMyTransactionsByGroupStudy(groupStudyId: number, pageable: Pageable, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<PageUserTransactionDetailResponseSchema> {
             return localVarFp.getMyTransactionsByGroupStudy(groupStudyId, pageable, page, size, options).then((request) => request(axios, basePath));
         },
         /**
@@ -451,7 +461,7 @@ export const PaymentUserApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        preparePayment(groupStudyId: number, studyPaymentPrepareRequest: StudyPaymentPrepareRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        preparePayment(groupStudyId: number, studyPaymentPrepareRequest: StudyPaymentPrepareRequest, options?: RawAxiosRequestConfig): AxiosPromise<StudyPaymentPrepareResponseSchema> {
             return localVarFp.preparePayment(groupStudyId, studyPaymentPrepareRequest, options).then((request) => request(axios, basePath));
         },
     };

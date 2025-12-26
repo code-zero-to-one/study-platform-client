@@ -1,4 +1,4 @@
-# BaseResponseSettlementAccountResponse
+# SettlementAccountResponseSchema
 
 
 ## Properties
@@ -13,9 +13,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { BaseResponseSettlementAccountResponse } from './api';
+import { SettlementAccountResponseSchema } from './api';
 
-const instance: BaseResponseSettlementAccountResponse = {
+const instance: SettlementAccountResponseSchema = {
     statusCode,
     timestamp,
     content,

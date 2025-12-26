@@ -22,9 +22,13 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { PageAdminTransactionListResponseSchema } from '../models';
+// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { PaymentSearchCondition } from '../models';
+// @ts-ignore
+import type { VoidResponseSchema } from '../models';
 /**
  * AdminPaymentApi - axios parameter creator
  */
@@ -176,7 +180,7 @@ export const AdminPaymentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async forceCancelPayment(paymentId: number, reason?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async forceCancelPayment(paymentId: number, reason?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VoidResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.forceCancelPayment(paymentId, reason, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminPaymentApi.forceCancelPayment']?.[localVarOperationServerIndex]?.url;
@@ -196,7 +200,7 @@ export const AdminPaymentApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageAdminTransactionListResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminPaymentApi.getTransactionsForAdmin']?.[localVarOperationServerIndex]?.url;
@@ -219,7 +223,7 @@ export const AdminPaymentApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        forceCancelPayment(paymentId: number, reason?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        forceCancelPayment(paymentId: number, reason?: string, options?: RawAxiosRequestConfig): AxiosPromise<VoidResponseSchema> {
             return localVarFp.forceCancelPayment(paymentId, reason, options).then((request) => request(axios, basePath));
         },
         /**
@@ -236,7 +240,7 @@ export const AdminPaymentApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<PageAdminTransactionListResponseSchema> {
             return localVarFp.getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options).then((request) => request(axios, basePath));
         },
     };
