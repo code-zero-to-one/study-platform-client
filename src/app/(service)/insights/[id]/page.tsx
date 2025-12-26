@@ -26,7 +26,6 @@ export async function generateMetadata({
   const article = res.data;
 
   // 1. SEO 블록에서 메타데이터 추출
-  // article.blocks 배열을 순회하며 __component가 'shared.seo'인 블록을 찾습니다.
   const seoBlock = article.blocks?.find(
     (block: any) => block.__component === 'shared.seo',
   );
@@ -41,24 +40,47 @@ export async function generateMetadata({
   // 3. OG 이미지 결정 (SEO 블록의 shareImage 우선, 없으면 article.cover 사용)
   let imageUrl: string | undefined;
 
-  // shared.seo 블록에 shareImage가 있고 데이터가 있다면 사용
   if (seoBlock?.shareImage?.url) {
-    imageUrl = `${STRAPI_URL}${seoBlock.shareImage.url}`;
+    const shareImageUrl = seoBlock.shareImage.url;
+    imageUrl = shareImageUrl.startsWith('http')
+      ? shareImageUrl
+      : `${STRAPI_URL}${shareImageUrl}`;
   } else if (article.cover) {
-    // 없다면 article.cover 사용
-    imageUrl =
+    const coverUrl =
       (article.cover as any).url ||
       (article.cover as any).data?.attributes?.url;
+    if (coverUrl) {
+      imageUrl = coverUrl.startsWith('http')
+        ? coverUrl
+        : `${STRAPI_URL}${coverUrl}`;
+    }
   }
 
-  return {
-    title: metaTitle, // Strapi SEO 블록에서 가져온 제목 사용
-    description: metaDescription, // Strapi SEO 블록에서 가져온 설명 사용
+  const fallbackImage = '/images/banner.png';
 
+  const canonicalUrl = `https://www.zeroone.it.kr/insights/${slug}`;
+
+  return {
+    title: `${metaTitle} | ZERO-ONE`,
+    description: metaDescription,
+    keywords: [
+      metaTitle,
+      'ZERO-ONE',
+      article.category?.name || 'insights',
+      '개발',
+      '성장',
+      '기술',
+    ].filter(Boolean),
+    alternates: {
+      canonical: canonicalUrl,
+    },
     robots: {
       index: true,
       follow: true,
       nocache: false,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
       googleBot: {
         index: true,
         follow: true,
@@ -67,15 +89,33 @@ export async function generateMetadata({
         'max-snippet': -1,
       },
     },
-
     // OG (Open Graph) 태그 설정
     openGraph: {
-      title: metaTitle,
-      description: metaDescription,
-      url: `${process.env.NEXT_PUBLIC_SITE_URL}/insights/${slug}`,
-      siteName: 'ZERO-ONE',
-      images: imageUrl ? [{ url: imageUrl }] : [],
       type: 'article',
+      url: canonicalUrl,
+      title: `${metaTitle} | ZERO-ONE`,
+      description: metaDescription,
+      siteName: 'ZERO-ONE',
+      images: imageUrl
+        ? [
+            {
+              url: imageUrl,
+              width: 1200,
+              height: 630,
+              alt: metaTitle,
+            },
+          ]
+        : [
+            {
+              url: `https://www.zeroone.it.kr${fallbackImage}`,
+              width: 1200,
+              height: 630,
+              alt: 'ZERO-ONE',
+            },
+          ],
+      publishedTime: article.createdAt ? article.createdAt : undefined,
+      modifiedTime: article.updatedAt ? article.updatedAt : undefined,
+      authors: ['ZERO-ONE'],
     },
   };
 }

@@ -1,3 +1,4 @@
+import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
 import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
@@ -5,10 +6,27 @@ import {
   fetchArticles,
   fetchCategories,
 } from '@/api/strapi/api/fetch-articles';
+import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import { getServerCookie } from '@/utils/server-cookie';
 import Sidebar from '@/widgets/home/sidebar';
 
 export const revalidate = 60;
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'ZERO-ONE 인사이트',
+  description:
+    'ZERO-ONE 팀이 공유하는 개발, 취업, 성장에 관한 인사이트. 최신 기술 동향, 면접 팁, 커리어 성장 조언을 읽어보세요.',
+  path: '/insights',
+  keywords: [
+    '개발 인사이트',
+    '기술 블로그',
+    '면접 팁',
+    '커리어',
+    '개발자 성장',
+    '기술 동향',
+  ],
+  canonicalUrl: 'https://www.zeroone.it.kr/insights',
+});
 
 // 날짜 포맷팅 함수
 function formatDate(dateString: string): string {
