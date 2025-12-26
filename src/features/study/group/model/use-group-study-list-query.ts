@@ -9,6 +9,7 @@ export const useGroupStudyListQuery = () => {
         page: pageParam,
         size: 20,
         status: 'RECRUITING',
+        classification: 'GROUP_STUDY',
       });
 
       return response;
