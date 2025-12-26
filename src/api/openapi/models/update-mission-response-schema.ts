@@ -13,14 +13,11 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { MissionCreationResult } from './mission-creation-result';
 
-export interface BaseResponseMissionCreationResult {
+export interface UpdateMissionResponseSchema {
     'statusCode'?: number;
     'timestamp'?: string;
-    'content'?: MissionCreationResult;
+    'content'?: object;
     'message'?: string;
 }
 

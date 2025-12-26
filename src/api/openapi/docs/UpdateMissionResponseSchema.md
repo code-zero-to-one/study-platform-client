@@ -1,4 +1,4 @@
-# BaseResponsePageResponseDtoMissionListResponse
+# UpdateMissionResponseSchema
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**PageResponseDtoMissionListResponse**](PageResponseDtoMissionListResponse.md) |  | [optional] [default to undefined]
+**content** | **object** |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { BaseResponsePageResponseDtoMissionListResponse } from './api';
+import { UpdateMissionResponseSchema } from './api';
 
-const instance: BaseResponsePageResponseDtoMissionListResponse = {
+const instance: UpdateMissionResponseSchema = {
     statusCode,
     timestamp,
     content,

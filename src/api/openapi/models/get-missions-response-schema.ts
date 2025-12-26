@@ -17,7 +17,7 @@
 // @ts-ignore
 import type { PageResponseDtoMissionListResponse } from './page-response-dto-mission-list-response';
 
-export interface BaseResponsePageResponseDtoMissionListResponse {
+export interface GetMissionsResponseSchema {
     'statusCode'?: number;
     'timestamp'?: string;
     'content'?: PageResponseDtoMissionListResponse;

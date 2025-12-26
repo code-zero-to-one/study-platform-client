@@ -1,4 +1,4 @@
-# BaseResponseMissionCreationResult
+# GetMissionsResponseSchema
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**MissionCreationResult**](MissionCreationResult.md) |  | [optional] [default to undefined]
+**content** | [**PageResponseDtoMissionListResponse**](PageResponseDtoMissionListResponse.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { BaseResponseMissionCreationResult } from './api';
+import { GetMissionsResponseSchema } from './api';
 
-const instance: BaseResponseMissionCreationResult = {
+const instance: GetMissionsResponseSchema = {
     statusCode,
     timestamp,
     content,

@@ -5,12 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**title** | **string** |  | [default to undefined]
-**content** | **string** |  | [default to undefined]
-**startTime** | **string** |  | [default to undefined]
-**endTime** | **string** |  | [optional] [default to undefined]
-**tasks** | [**Array&lt;MissionTaskDto&gt;**](MissionTaskDto.md) |  | [default to undefined]
-**scoreAllocation** | **number** |  | [optional] [default to undefined]
+**title** | **string** | 미션 제목 | [default to undefined]
+**content** | **string** | 미션 내용 | [default to undefined]
+**startTime** | **string** | 미션 시작 시간 | [default to undefined]
+**endTime** | **string** | 미션 종료 시간 | [default to undefined]
 
 ## Example
 
@@ -22,8 +20,6 @@ const instance: MissionCreationRequest = {
     content,
     startTime,
     endTime,
-    tasks,
-    scoreAllocation,
 };
 ```
 

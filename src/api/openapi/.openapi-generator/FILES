@@ -67,9 +67,7 @@ docs/BaseResponseGroupStudyProgressGradesResponse.md
 docs/BaseResponseHomeworkSubmissionResponse.md
 docs/BaseResponseMatchingRequestResponse.md
 docs/BaseResponseMemberAccountHistoryResponseDto.md
-docs/BaseResponseMissionCreationResult.md
 docs/BaseResponseObject.md
-docs/BaseResponsePageResponseDtoMissionListResponse.md
 docs/BaseResponseString.md
 docs/BaseResponseStudySpaceIsParticipateResponse.md
 docs/BaseResponseTemporalToken.md
@@ -79,6 +77,7 @@ docs/CareerResponseDto.md
 docs/ChangeHistDto.md
 docs/CompleteDailyStudyRequest.md
 docs/CompleteDailyStudyRequestSchema.md
+docs/CreateMissionResponseSchema.md
 docs/CreateStudySpaceRequest.md
 docs/CursorResponseDtoDailyStudyResponse.md
 docs/CursorResponseDtoStudyReservationMemberDto.md
@@ -93,6 +92,7 @@ docs/FullMemberProfileResponseDto.md
 docs/FullMemberProfileResponseSchema.md
 docs/GetDailyStudiesResponseSchema.md
 docs/GetGroupStudyMemberStatusResponse.md
+docs/GetMissionsResponseSchema.md
 docs/GetMyDailyStudyCalenderResponseSchema.md
 docs/GetStudyDashboardResponseSchema.md
 docs/GetStudySpaceResponseSchema.md
@@ -254,6 +254,7 @@ docs/TokenAPIApi.md
 docs/TossPaymentConfirmRequest.md
 docs/UpdateGroupStudyMemberGreetingRequest.md
 docs/UpdateGroupStudyMemberProgressRequest.md
+docs/UpdateMissionResponseSchema.md
 docs/UpdateStudySpaceRequest.md
 docs/UploadProfileImageRequest.md
 docs/UserTransactionDetailResponse.md
@@ -280,9 +281,7 @@ models/base-response-group-study-progress-grades-response.ts
 models/base-response-homework-submission-response.ts
 models/base-response-matching-request-response.ts
 models/base-response-member-account-history-response-dto.ts
-models/base-response-mission-creation-result.ts
 models/base-response-object.ts
-models/base-response-page-response-dto-mission-list-response.ts
 models/base-response-string.ts
 models/base-response-study-space-is-participate-response.ts
 models/base-response-temporal-token.ts
@@ -293,6 +292,7 @@ models/career-response-dto.ts
 models/change-hist-dto.ts
 models/complete-daily-study-request-schema.ts
 models/complete-daily-study-request.ts
+models/create-mission-response-schema.ts
 models/create-study-space-request.ts
 models/cursor-response-dto-daily-study-response.ts
 models/cursor-response-dto-study-reservation-member-dto.ts
@@ -303,6 +303,7 @@ models/full-member-profile-response-dto.ts
 models/full-member-profile-response-schema.ts
 models/get-daily-studies-response-schema.ts
 models/get-group-study-member-status-response.ts
+models/get-missions-response-schema.ts
 models/get-my-daily-study-calender-response-schema.ts
 models/get-study-dashboard-response-schema.ts
 models/get-study-space-response-schema.ts
@@ -443,6 +444,7 @@ models/today-study-data-response.ts
 models/toss-payment-confirm-request.ts
 models/update-group-study-member-greeting-request.ts
 models/update-group-study-member-progress-request.ts
+models/update-mission-response-schema.ts
 models/update-study-space-request.ts
 models/upload-profile-image-request.ts
 models/user-transaction-detail-response.ts
