@@ -42,7 +42,7 @@ export default function AdminLayout({
           <div className="flex min-w-[1200px]">
             <AdminSideBar />
 
-            <main className="p-300 flex-1">{children}</main>
+            <main className="flex-1 p-300">{children}</main>
           </div>
         </MainProvider>
       </body>
