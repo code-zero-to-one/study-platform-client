@@ -1,15 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { createContext, useContext, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import {
   GroupStudyFormSchema,
   GroupStudyFormValues,
+  StudyClassification,
 } from '../model/group-study-form.schema';
 import Step1OpenGroupStudy from './step/step1-group';
 import Step2OpenGroupStudy from './step/step2-group';
 import Step3OpenGroupStudy from './step/step3-group';
+
+const ClassificationContext = createContext<StudyClassification>('GROUP_STUDY');
+export const useClassification = () => useContext(ClassificationContext);
 
 interface GroupStudyFormProps {
   defaultValues: GroupStudyFormValues;
@@ -27,6 +31,7 @@ const STEP_FIELDS: Record<1 | 2 | 3, (keyof GroupStudyFormValues)[]> = {
     'regularMeeting',
     'startDate',
     'endDate',
+    'price',
   ],
   2: ['thumbnailExtension', 'title', 'description', 'summary'],
   3: ['interviewPost'],
@@ -42,7 +47,8 @@ export default function GroupStudyForm({
     defaultValues: defaultValues,
   });
 
-  const { handleSubmit, trigger, formState } = methods;
+  const { handleSubmit, trigger, formState, watch } = methods;
+  const classification = watch('classification');
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
@@ -63,7 +69,7 @@ export default function GroupStudyForm({
   };
 
   return (
-    <>
+    <ClassificationContext.Provider value={classification}>
       <Modal.Body className="flex flex-col gap-150">
         <Stepper step={step} />
         <FormProvider {...methods}>
@@ -124,7 +130,7 @@ export default function GroupStudyForm({
           )}
         </div>
       </Modal.Footer>
-    </>
+    </ClassificationContext.Provider>
   );
 }
 

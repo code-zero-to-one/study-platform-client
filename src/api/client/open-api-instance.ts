@@ -22,3 +22,13 @@ export const createApiInstance = <T>(
 ): T => {
   return new ApiClass(openapiConfig, openapiConfig.basePath, axiosInstanceV2);
 };
+
+export const createApiServerInstance = <T>(
+  ApiClass: new (
+    config: Configuration,
+    basePath?: string,
+    axios?: AxiosInstance,
+  ) => T,
+): T => {
+  return new ApiClass(openapiConfig, openapiConfig.basePath, axiosInstanceV2);
+};

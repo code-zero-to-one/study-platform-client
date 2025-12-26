@@ -11,7 +11,11 @@ import {
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
+export const STUDY_CLASSIFICATION = ['GROUP_STUDY', 'PREMIUM_STUDY'] as const;
+export type StudyClassification = (typeof STUDY_CLASSIFICATION)[number];
+
 export const GroupStudyFormSchema = z.object({
+  classification: z.enum(STUDY_CLASSIFICATION),
   type: z.enum(STUDY_TYPES),
   targetRoles: z
     .array(z.enum(TARGET_ROLE_OPTIONS))
@@ -60,8 +64,11 @@ export type GroupStudyFormValues = z.input<typeof GroupStudyFormSchema> & {
 };
 export type OpenGroupParsedValues = z.output<typeof GroupStudyFormSchema>;
 
-export function buildOpenGroupDefaultValues(): GroupStudyFormValues {
+export function buildOpenGroupDefaultValues(
+  classification: StudyClassification = 'GROUP_STUDY',
+): GroupStudyFormValues {
   return {
+    classification,
     type: 'PROJECT',
     targetRoles: [],
     maxMembersCount: '',
@@ -80,9 +87,9 @@ export function buildOpenGroupDefaultValues(): GroupStudyFormValues {
   };
 }
 
-export function toOpenGroupRequest(
-  v: OpenGroupParsedValues,
-): GroupStudyFormRequest {
+export function toOpenGroupRequest(v: OpenGroupParsedValues): GroupStudyFormRequest {
+  const isPremiumStudy = v.classification === 'PREMIUM_STUDY';
+
   return {
     basicInfo: {
       type: v.type,
@@ -94,7 +101,7 @@ export function toOpenGroupRequest(
       location: v.location.trim(),
       startDate: v.startDate.trim(),
       endDate: v.endDate.trim(),
-      price: Number(v.price),
+      price: isPremiumStudy ? Number(v.price) || 0 : 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     },

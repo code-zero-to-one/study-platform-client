@@ -8,19 +8,19 @@ import Button from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import { GroupStudyData } from '../api/group-study-types';
-import { REGULAR_MEETING_LABELS } from '../const/group-study-const';
+import { GroupStudyData } from '../../group/api/group-study-types';
+import { REGULAR_MEETING_LABELS } from '../../group/const/group-study-const';
 
-interface GroupStudyListProps {
+interface PremiumStudyListProps {
   studies: GroupStudyData[];
 }
 
-export default function GroupStudyList({ studies }: GroupStudyListProps) {
+export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
   const { data: authData } = useAuth();
 
   const handleStudyClick = (study: GroupStudyData) => {
     sendGTMEvent({
-      event: 'group_study_detail_view',
+      event: 'premium_study_detail_view',
       dl_timestamp: new Date().toISOString(),
       ...(authData?.memberId && {
         dl_member_id: hashValue(String(authData.memberId)),
@@ -35,7 +35,7 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
       <div className="bg-background-alternative rounded-100 flex h-[640px] flex-col items-center justify-center gap-300">
         <Image
           src="/icons/empty-study-case.svg"
-          alt="현재 그룹 스터디가 없습니다."
+          alt="현재 멘토 스터디가 없습니다."
           width={88}
           height={88}
         />
@@ -56,12 +56,12 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
       {studies.map((study) => (
         <Link
           key={study.basicInfo.groupStudyId}
-          href={`/group-study/${study.basicInfo.groupStudyId}`}
+          href={`/premium-study/${study.basicInfo.groupStudyId}`}
           onClick={() => handleStudyClick(study)}
           className="cursor-pointer overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white transition-shadow hover:shadow-md"
         >
           {/* 썸네일 영역 */}
-          <div className="relative flex h-[180px] items-center justify-center bg-gradient-to-br from-[#6366F1] to-[#8B5CF6]">
+          <div className="relative flex h-[180px] items-center justify-center bg-gradient-to-br from-[#F87171] to-[#EC4899]">
             {study.simpleDetailInfo.thumbnail?.resizedImages?.[0]
               ?.resizedImageUrl ? (
               <Image
@@ -101,7 +101,7 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
             <div className="mb-300 flex items-center justify-between">
               <div className="flex items-center gap-150">
                 <div className="flex h-[32px] w-[32px] items-center justify-center overflow-hidden rounded-full bg-[#E5E7EB]">
-                  {/* {study.basicInfo.leader?.profileImage?.resizedImages?.[0]
+                  {study.basicInfo.leader?.profileImage?.resizedImages?.[0]
                     ?.resizedImageUrl ? (
                     <Image
                       src={
@@ -120,7 +120,7 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
                       width={20}
                       height={20}
                     />
-                  )} */}
+                  )}
                 </div>
                 <div>
                   <p className="font-designer-13b text-[#1F2937]">
@@ -142,7 +142,7 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
 
             {/* 가격 및 버튼 */}
             <div className="flex items-center justify-between">
-              <span className="font-designer-18b text-[#6366F1]">
+              <span className="font-designer-18b text-[#EF4444]">
                 {study.basicInfo.price === 0
                   ? '무료'
                   : `${study.basicInfo.price.toLocaleString()}원`}
