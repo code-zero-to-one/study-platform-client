@@ -27,8 +27,8 @@ export default async function Study() {
   const isLoggedIn = !!memberIdStr;
 
   return (
-    <div className="gap-600 py-600 flex w-full">
-      <div className="gap-500 flex flex-1 flex-col">
+    <div className="flex w-full gap-600 py-600">
+      <div className="flex flex-1 flex-col gap-500">
         <div className="flex justify-between">
           <span className="font-designer-28b text-[#181D27]">
             스터디 둘러보기
