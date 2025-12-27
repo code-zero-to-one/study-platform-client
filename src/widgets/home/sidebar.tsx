@@ -13,8 +13,6 @@ export default async function Sidebar() {
 
   const userProfile = await getUserProfileInServer(memberId);
 
-  console.log(userProfile);
-
   return (
     <aside className="flex w-[335px] flex-col gap-300">
       <MyProfileCard

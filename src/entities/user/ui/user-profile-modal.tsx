@@ -63,8 +63,6 @@ function UserProfileBody({
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     memberId,
   });
-  console.log(profile);
-
   // 본인 여부 확인
   const currentMemberId = Number(getCookie('memberId'));
   const isMe = currentMemberId === memberId; // 본인
@@ -153,7 +151,7 @@ function UserProfileBody({
               <div className="font-designer-28b flex items-center gap-50 pb-50">
                 {profile.memberProfile.nickname}
                 {/* 본인 인증 배지 (인증된 경우에만 표시) */}
-                {profile.memberProfile.tel && (
+                {profile.isVerified && (
                   <VerifiedCheckIcon className="shrink-0" />
                 )}
               </div>
@@ -201,7 +199,7 @@ function UserProfileBody({
                 value={profile.memberProfile.blogOrSnsLink?.url ?? '-'}
               />
               {/* 본인, 운영진, 스터디 참가자에게 노출 */}
-              {canSeePhoneNumber && (
+              {canSeePhoneNumber && profile.isVerified && (
                 <div className="flex items-center gap-100">
                   <Field
                     icon={<PhoneIcon />}
