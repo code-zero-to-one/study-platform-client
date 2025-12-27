@@ -8,7 +8,7 @@ import {
 export const getGroupStudyList = async (
   params: GroupStudyListRequest,
 ): Promise<GroupStudyListResponse> => {
-  const { page, size, status } = params;
+  const { page, size, status, classification } = params;
 
   try {
     const { data } = await axiosInstance.get('/group-studies', {
@@ -16,6 +16,7 @@ export const getGroupStudyList = async (
         page,
         'page-size': size,
         groupStudyStatus: status,
+        'classification': classification,
       },
     });
 

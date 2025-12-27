@@ -170,6 +170,7 @@ export interface GroupStudyFormRequest {
 export interface GroupStudyListRequest {
   page: number;
   size: number;
+  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
   status: GroupStudyStatus;
 }
 
