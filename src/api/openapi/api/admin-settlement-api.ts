@@ -122,7 +122,7 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
          * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
          * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
-         * @param {number} [settlementId] 정산 ID로 조회
+         * @param {number} [settlementCode] 정산 Code로 조회
          * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
@@ -130,7 +130,7 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSettlementsForAdmin: async (condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getSettlementsForAdmin: async (condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: number, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'condition' is not null or undefined
             assertParamExists('getSettlementsForAdmin', 'condition', condition)
             // verify required parameter 'pageable' is not null or undefined
@@ -167,8 +167,8 @@ export const AdminSettlementApiAxiosParamCreator = function (configuration?: Con
                 localVarQueryParameter['studyTitle'] = studyTitle;
             }
 
-            if (settlementId !== undefined) {
-                localVarQueryParameter['settlementId'] = settlementId;
+            if (settlementCode !== undefined) {
+                localVarQueryParameter['settlementCode'] = settlementCode;
             }
 
             if (status !== undefined) {
@@ -253,7 +253,7 @@ export const AdminSettlementApiFp = function(configuration?: Configuration) {
          * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
          * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
-         * @param {number} [settlementId] 정산 ID로 조회
+         * @param {number} [settlementCode] 정산 Code로 조회
          * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
@@ -261,8 +261,8 @@ export const AdminSettlementApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageStudySettlementSummaryResponseSchema>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options);
+        async getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageStudySettlementSummaryResponseSchema>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementCode, status, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.getSettlementsForAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -304,7 +304,7 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
          * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
          * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
-         * @param {number} [settlementId] 정산 ID로 조회
+         * @param {number} [settlementCode] 정산 Code로 조회
          * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
@@ -312,8 +312,8 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<PageStudySettlementSummaryResponseSchema> {
-            return localVarFp.getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options).then((request) => request(axios, basePath));
+        getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<PageStudySettlementSummaryResponseSchema> {
+            return localVarFp.getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementCode, status, page, size, sort, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -352,7 +352,7 @@ export class AdminSettlementApi extends BaseAPI {
      * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
      * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
      * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
-     * @param {number} [settlementId] 정산 ID로 조회
+     * @param {number} [settlementCode] 정산 Code로 조회
      * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
      * @param {number} [page] 페이지 번호 (0부터 시작)
      * @param {number} [size] 페이지 크기
@@ -360,8 +360,8 @@ export class AdminSettlementApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
-        return AdminSettlementApiFp(this.configuration).getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options).then((request) => request(this.axios, this.basePath));
+    public getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
+        return AdminSettlementApiFp(this.configuration).getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementCode, status, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

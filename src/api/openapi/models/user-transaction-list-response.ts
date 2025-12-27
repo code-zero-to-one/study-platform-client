@@ -18,7 +18,10 @@ export interface UserTransactionListResponse {
     'groupStudyId'?: number;
     'groupStudyTitle'?: string;
     'groupStudyStartDate'?: string;
+    'paymentId'?: number;
     'paymentCode'?: string;
+    'refundId'?: number;
+    'refundCode'?: string;
     'latestTransactionType'?: UserTransactionListResponseLatestTransactionTypeEnum;
     'latestTransactionTypeDisplayName'?: string;
     'latestTransactionAmount'?: number;
