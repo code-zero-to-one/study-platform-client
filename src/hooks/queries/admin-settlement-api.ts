@@ -2,29 +2,24 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { AdminSettlementApi } from '@/api/openapi';
 import type {
-  SettlementSearchCondition,
-  Pageable,
+  SettlementSearchConditionStatusEnum,
   StudySettlementCreateRequest,
 } from '@/api/openapi/models';
 
 const adminSettlementApi = createApiInstance(AdminSettlementApi);
 
 interface SettlementsForAdminParams {
-  condition: SettlementSearchCondition;
-  pageable: Pageable;
   startDate?: string;
   endDate?: string;
   studyTitle?: string;
   settlementId?: number;
-  status?: string;
+  status?: SettlementSearchConditionStatusEnum;
   page?: number;
   size?: number;
   sort?: string;
 }
 
 export const useGetSettlementsForAdmin = ({
-  condition,
-  pageable,
   startDate,
   endDate,
   studyTitle,
@@ -37,8 +32,6 @@ export const useGetSettlementsForAdmin = ({
   return useQuery({
     queryKey: [
       'settlementsForAdmin',
-      condition,
-      pageable,
       startDate,
       endDate,
       studyTitle,
@@ -50,8 +43,17 @@ export const useGetSettlementsForAdmin = ({
     ],
     queryFn: async () => {
       const { data } = await adminSettlementApi.getSettlementsForAdmin(
-        condition,
-        pageable,
+        {
+          startDate,
+          endDate,
+          studyTitle,
+          settlementId,
+          status,
+        },
+        {
+          page,
+          size,
+        },
         startDate,
         endDate,
         studyTitle,
@@ -89,9 +91,8 @@ export const useCompleteSettlement = () => {
 
   return useMutation({
     mutationFn: async (settlementId: number) => {
-      const { data } = await adminSettlementApi.completeSettlement(
-        settlementId,
-      );
+      const { data } =
+        await adminSettlementApi.completeSettlement(settlementId);
 
       return data.content;
     },

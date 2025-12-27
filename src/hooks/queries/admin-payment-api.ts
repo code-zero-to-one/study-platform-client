@@ -1,24 +1,22 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { AdminPaymentApi } from '@/api/openapi';
-import type { PaymentSearchCondition, Pageable } from '@/api/openapi/models';
+import type { PaymentSearchConditionTypeEnum } from '@/api/openapi/models';
 
 const adminPaymentApi = createApiInstance(AdminPaymentApi);
 
 interface TransactionsForAdminParams {
-  condition: PaymentSearchCondition;
-  pageable: Pageable;
   startDate?: string;
   endDate?: string;
   studyTitle?: string;
   paymentCode?: string;
+  type?: PaymentSearchConditionTypeEnum;
   page?: number;
   size?: number;
 }
 
 export const useGetTransactionsForAdmin = ({
-  condition,
-  pageable,
+  type,
   startDate,
   endDate,
   studyTitle,
@@ -29,8 +27,7 @@ export const useGetTransactionsForAdmin = ({
   return useQuery({
     queryKey: [
       'transactionsForAdmin',
-      condition,
-      pageable,
+      type,
       startDate,
       endDate,
       studyTitle,
@@ -40,12 +37,22 @@ export const useGetTransactionsForAdmin = ({
     ],
     queryFn: async () => {
       const { data } = await adminPaymentApi.getTransactionsForAdmin(
-        condition,
-        pageable,
+        {
+          type,
+          startDate,
+          endDate,
+          studyTitle,
+          paymentCode,
+        },
+        {
+          page,
+          size,
+        },
         startDate,
         endDate,
         studyTitle,
         paymentCode,
+        type,
         page,
         size,
       );
