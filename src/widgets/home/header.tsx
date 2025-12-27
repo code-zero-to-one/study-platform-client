@@ -6,6 +6,7 @@ import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
 import LoginModal from '@/features/auth/ui/login-modal';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
+import NotiIcon from 'public/icons/notifications_none.svg';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');
@@ -51,10 +52,14 @@ export default async function Header() {
         </nav>
 
         {/* 알림 기능을 구현하지 못해 주석 처리 */}
-        {/* <div>
-            <NotiIcon />
-          </div> */}
-        <div>
+
+        <Link
+          href="/notification"
+          className="flex items-center justify-center p-100"
+        >
+          <NotiIcon />
+        </Link>
+        <div className="ml-150">
           {isLoggedIn ? (
             <HeaderUserDropdown userImg={userImg} />
           ) : (

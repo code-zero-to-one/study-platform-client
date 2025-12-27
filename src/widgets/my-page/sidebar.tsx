@@ -23,6 +23,12 @@ export default function Sidebar() {
         프로필
       </SidebarItem>
       <SidebarItem
+        onClick={() => router.push('/notification')}
+        isActive={pathname === '/notification'}
+      >
+        알림
+      </SidebarItem>
+      <SidebarItem
         onClick={() => router.push('/my-activity')}
         isActive={pathname === '/my-activity'}
       >
