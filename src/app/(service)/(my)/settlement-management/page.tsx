@@ -50,6 +50,8 @@ export default function SettlementManagementPage() {
     to: undefined,
   });
 
+  const isSettlementCode = keyword.startsWith('SET-');
+
   const { data } = useGetMySettlements({
     page: page - 1,
     size: 8,
@@ -59,7 +61,8 @@ export default function SettlementManagementPage() {
     endDate: dateRange?.to
       ? dateRange.to.toISOString().split('T')[0]
       : undefined,
-    studyTitle: keyword || undefined,
+    studyTitle: isSettlementCode ? undefined : keyword,
+    settlementCode: isSettlementCode ? keyword : undefined,
   });
 
   const { data: accountData, isError } = useGetSettlementAccount();
