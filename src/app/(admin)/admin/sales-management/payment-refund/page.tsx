@@ -75,10 +75,10 @@ export default function PaymentRefundPage() {
   const { data: transactionsData } = useGetTransactionsForAdmin({
     type,
     startDate: dateRange?.from
-      ? dateRange.from.toISOString().split('T')[0]
+      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
       : undefined,
     endDate: dateRange?.to
-      ? dateRange.to.toISOString().split('T')[0]
+      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
       : undefined,
     studyTitle: !isPaymentId && keyword ? keyword : undefined,
     paymentCode: isPaymentId && keyword ? keyword : undefined,

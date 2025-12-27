@@ -1,5 +1,6 @@
 'use client';
 
+import { format } from 'date-fns';
 import React, { useState } from 'react';
 
 import { DateRange } from 'react-day-picker';
@@ -16,6 +17,7 @@ import {
   useGetMyTransactions,
   useGetMyTransactionsByGroupStudy,
 } from '@/hooks/queries/payment-user-api';
+import { formatToKST } from '@/utils/time';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
 
@@ -56,8 +58,12 @@ export default function PaymentManagement() {
   const { data: paymentListData } = useGetMyTransactions({
     page: page - 1,
     size: 8,
-    startDate: dateRange?.from?.toISOString().split('T')[0],
-    endDate: dateRange?.to?.toISOString().split('T')[0],
+    startDate: dateRange?.from
+      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
+      : undefined,
+    endDate: dateRange?.to
+      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
+      : undefined,
     studyTitle: isPaymentCode ? undefined : keyword,
     paymentCode: isPaymentCode ? keyword : undefined,
   });

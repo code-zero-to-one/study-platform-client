@@ -1,5 +1,6 @@
 'use client';
 
+import { format } from 'date-fns';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
@@ -13,6 +14,7 @@ import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
 import { useGetSettlementAccount } from '@/hooks/queries/settlement-account-api';
 import { useGetMySettlements } from '@/hooks/queries/settlement-user-api';
+import { formatToKST } from '@/utils/time';
 
 const SETTLEMENT_STATUS_MAP: Record<
   NonNullable<StudySettlementSummaryResponse['status']>,
@@ -42,10 +44,10 @@ export default function SettlementManagementPage() {
     page: page - 1,
     size: 8,
     startDate: dateRange?.from
-      ? dateRange.from.toISOString().split('T')[0]
+      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
       : undefined,
     endDate: dateRange?.to
-      ? dateRange.to.toISOString().split('T')[0]
+      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
       : undefined,
     studyTitle: isSettlementCode ? undefined : keyword,
     settlementCode: isSettlementCode ? keyword : undefined,
