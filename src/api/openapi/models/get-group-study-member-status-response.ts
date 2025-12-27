@@ -15,22 +15,9 @@
 
 
 export interface GetGroupStudyMemberStatusResponse {
-    /**
-     * 그룹스터디 신청 상태
-     */
-    'status'?: GetGroupStudyMemberStatusResponseStatusEnum;
-    'reason'?: string;
+    'statusCode'?: number;
+    'timestamp'?: string;
+    'content'?: GetGroupStudyMemberStatusResponse;
+    'message'?: string;
 }
-
-export const GetGroupStudyMemberStatusResponseStatusEnum = {
-    None: 'NONE',
-    Pending: 'PENDING',
-    Approved: 'APPROVED',
-    Rejected: 'REJECTED',
-    Exit: 'EXIT',
-    Kicked: 'KICKED'
-} as const;
-
-export type GetGroupStudyMemberStatusResponseStatusEnum = typeof GetGroupStudyMemberStatusResponseStatusEnum[keyof typeof GetGroupStudyMemberStatusResponseStatusEnum];
-
 

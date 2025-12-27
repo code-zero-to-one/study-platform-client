@@ -5,8 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**status** | **string** | 그룹스터디 신청 상태 | [optional] [default to undefined]
-**reason** | **string** |  | [optional] [default to undefined]
+**statusCode** | **number** |  | [optional] [default to undefined]
+**timestamp** | **string** |  | [optional] [default to undefined]
+**content** | [**GetGroupStudyMemberStatusResponse**](GetGroupStudyMemberStatusResponse.md) |  | [optional] [default to undefined]
+**message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -14,8 +16,10 @@ Name | Type | Description | Notes
 import { GetGroupStudyMemberStatusResponse } from './api';
 
 const instance: GetGroupStudyMemberStatusResponse = {
-    status,
-    reason,
+    statusCode,
+    timestamp,
+    content,
+    message,
 };
 ```
 

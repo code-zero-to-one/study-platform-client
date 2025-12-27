@@ -16,7 +16,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**updateThread**](#updatethread) | **PUT** /api/v1/group-studies/{groupStudyId}/threads/{threadId} | 그룹스터디 스레드 글 수정|
 
 # **createComment**
-> BaseResponse createComment(groupStudyThreadCommentRequest)
+> ThreadCommentResponseSchema createComment(groupStudyThreadCommentRequest)
 
 스터디 멤버가 특정 스레드에 댓글을 등록합니다.
 
@@ -54,7 +54,7 @@ const { status, data } = await apiInstance.createComment(
 
 ### Return type
 
-**BaseResponse**
+**ThreadCommentResponseSchema**
 
 ### Authorization
 
@@ -76,7 +76,7 @@ const { status, data } = await apiInstance.createComment(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **createThread**
-> BaseResponse createThread(groupStudyThreadRequest)
+> ThreadSummaryResponse createThread(groupStudyThreadRequest)
 
 스터디 멤버가 특정 그룹스터디의 스레드 글을 등록합니다.
 
@@ -111,7 +111,7 @@ const { status, data } = await apiInstance.createThread(
 
 ### Return type
 
-**BaseResponse**
+**ThreadSummaryResponse**
 
 ### Authorization
 
@@ -132,7 +132,7 @@ const { status, data } = await apiInstance.createThread(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteComment**
-> BaseResponse deleteComment()
+> StringResponseSchema deleteComment()
 
 특정 스레드 댓글을 삭제합니다.
 
@@ -169,7 +169,7 @@ const { status, data } = await apiInstance.deleteComment(
 
 ### Return type
 
-**BaseResponse**
+**StringResponseSchema**
 
 ### Authorization
 
@@ -191,7 +191,7 @@ const { status, data } = await apiInstance.deleteComment(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteThread**
-> BaseResponse deleteThread()
+> StringResponseSchema deleteThread()
 
 특정 그룹스터디의 스레드 글을 삭제합니다.
 
@@ -225,7 +225,7 @@ const { status, data } = await apiInstance.deleteThread(
 
 ### Return type
 
-**BaseResponse**
+**StringResponseSchema**
 
 ### Authorization
 
@@ -247,7 +247,7 @@ const { status, data } = await apiInstance.deleteThread(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getComments**
-> BaseResponse getComments()
+> ThreadCommentResponseSchema getComments()
 
 특정 그룹스터디의 스레드 댓글을 조회합니다.
 
@@ -285,7 +285,7 @@ const { status, data } = await apiInstance.getComments(
 
 ### Return type
 
-**BaseResponse**
+**ThreadCommentResponseSchema**
 
 ### Authorization
 
@@ -308,7 +308,7 @@ const { status, data } = await apiInstance.getComments(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getThreads**
-> BaseResponse getThreads()
+> ThreadSummaryResponse getThreads()
 
 특정 그룹스터디의 스레드 글을 조회합니다.
 
@@ -343,7 +343,7 @@ const { status, data } = await apiInstance.getThreads(
 
 ### Return type
 
-**BaseResponse**
+**ThreadSummaryResponse**
 
 ### Authorization
 
@@ -364,7 +364,7 @@ const { status, data } = await apiInstance.getThreads(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **toggleCommentReaction**
-> BaseResponse toggleCommentReaction(reactionRequest)
+> ReactionSummaryResponse toggleCommentReaction(reactionRequest)
 
 스터디 멤버가 특정 스레드/댓글에 좋아요/싫어요 토글을 누릅니다.
 
@@ -402,7 +402,7 @@ const { status, data } = await apiInstance.toggleCommentReaction(
 
 ### Return type
 
-**BaseResponse**
+**ReactionSummaryResponse**
 
 ### Authorization
 
@@ -424,7 +424,7 @@ const { status, data } = await apiInstance.toggleCommentReaction(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **toggleThreadReaction**
-> BaseResponse toggleThreadReaction(reactionRequest)
+> ReactionSummaryResponse toggleThreadReaction(reactionRequest)
 
 스터디 멤버가 특정 스레드/댓글에 좋아요/싫어요 토글을 누릅니다.
 
@@ -462,7 +462,7 @@ const { status, data } = await apiInstance.toggleThreadReaction(
 
 ### Return type
 
-**BaseResponse**
+**ReactionSummaryResponse**
 
 ### Authorization
 
@@ -484,7 +484,7 @@ const { status, data } = await apiInstance.toggleThreadReaction(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateComment**
-> BaseResponse updateComment(groupStudyThreadCommentRequest)
+> ThreadCommentResponseSchema updateComment(groupStudyThreadCommentRequest)
 
 특정 스레드 댓글을 수정합니다.
 
@@ -525,7 +525,7 @@ const { status, data } = await apiInstance.updateComment(
 
 ### Return type
 
-**BaseResponse**
+**ThreadCommentResponseSchema**
 
 ### Authorization
 
@@ -547,7 +547,7 @@ const { status, data } = await apiInstance.updateComment(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateThread**
-> BaseResponse updateThread(groupStudyThreadRequest)
+> ThreadSummaryResponse updateThread(groupStudyThreadRequest)
 
 특정 그룹스터디의 스레드 글을 수정합니다.
 
@@ -585,7 +585,7 @@ const { status, data } = await apiInstance.updateThread(
 
 ### Return type
 
-**BaseResponse**
+**ThreadSummaryResponse**
 
 ### Authorization
 

@@ -22,13 +22,19 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponseGetGroupStudyMemberStatusResponse } from '../models';
-// @ts-ignore
 import type { BaseResponseGroupStudyMembersResponse } from '../models';
 // @ts-ignore
 import type { BaseResponseGroupStudyProgressGradesResponse } from '../models';
 // @ts-ignore
 import type { BaseResponseString } from '../models';
+// @ts-ignore
+import type { ErrorResponse } from '../models';
+// @ts-ignore
+import type { GetGroupStudyMemberStatusResponse } from '../models';
+// @ts-ignore
+import type { GroupStudyMembersResponse } from '../models';
+// @ts-ignore
+import type { StringResponseSchema } from '../models';
 // @ts-ignore
 import type { UpdateGroupStudyMemberGreetingRequest } from '../models';
 // @ts-ignore
@@ -322,7 +328,7 @@ export const GroupStudyMemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getGroupStudyMembers(id: number, isPaging?: boolean, pageSize?: number, pageNumber?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getGroupStudyMembers(id: number, isPaging?: boolean, pageSize?: number, pageNumber?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyMembersResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getGroupStudyMembers(id, isPaging, pageSize, pageNumber, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.getGroupStudyMembers']?.[localVarOperationServerIndex]?.url;
@@ -335,7 +341,7 @@ export const GroupStudyMemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMemberStatus(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getMemberStatus(id: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetGroupStudyMemberStatusResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMemberStatus(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.getMemberStatus']?.[localVarOperationServerIndex]?.url;
@@ -362,7 +368,7 @@ export const GroupStudyMemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async kickMember(id: number, targetMemberId: number, reason: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async kickMember(id: number, targetMemberId: number, reason: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.kickMember(id, targetMemberId, reason, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.kickMember']?.[localVarOperationServerIndex]?.url;
@@ -376,7 +382,7 @@ export const GroupStudyMemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateGreeting(id: number, updateGroupStudyMemberGreetingRequest: UpdateGroupStudyMemberGreetingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async updateGreeting(id: number, updateGroupStudyMemberGreetingRequest: UpdateGroupStudyMemberGreetingRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateGreeting(id, updateGroupStudyMemberGreetingRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.updateGreeting']?.[localVarOperationServerIndex]?.url;
@@ -390,7 +396,7 @@ export const GroupStudyMemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateMemberProgress(id: number, updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async updateMemberProgress(id: number, updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateMemberProgress(id, updateGroupStudyMemberProgressRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.updateMemberProgress']?.[localVarOperationServerIndex]?.url;
@@ -415,7 +421,7 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupStudyMembers(id: number, isPaging?: boolean, pageSize?: number, pageNumber?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getGroupStudyMembers(id: number, isPaging?: boolean, pageSize?: number, pageNumber?: number, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyMembersResponse> {
             return localVarFp.getGroupStudyMembers(id, isPaging, pageSize, pageNumber, options).then((request) => request(axios, basePath));
         },
         /**
@@ -425,7 +431,7 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMemberStatus(id: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getMemberStatus(id: number, options?: RawAxiosRequestConfig): AxiosPromise<GetGroupStudyMemberStatusResponse> {
             return localVarFp.getMemberStatus(id, options).then((request) => request(axios, basePath));
         },
         /**
@@ -446,7 +452,7 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        kickMember(id: number, targetMemberId: number, reason: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        kickMember(id: number, targetMemberId: number, reason: string, options?: RawAxiosRequestConfig): AxiosPromise<StringResponseSchema> {
             return localVarFp.kickMember(id, targetMemberId, reason, options).then((request) => request(axios, basePath));
         },
         /**
@@ -457,7 +463,7 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGreeting(id: number, updateGroupStudyMemberGreetingRequest: UpdateGroupStudyMemberGreetingRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        updateGreeting(id: number, updateGroupStudyMemberGreetingRequest: UpdateGroupStudyMemberGreetingRequest, options?: RawAxiosRequestConfig): AxiosPromise<StringResponseSchema> {
             return localVarFp.updateGreeting(id, updateGroupStudyMemberGreetingRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -468,7 +474,7 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateMemberProgress(id: number, updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        updateMemberProgress(id: number, updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest, options?: RawAxiosRequestConfig): AxiosPromise<StringResponseSchema> {
             return localVarFp.updateMemberProgress(id, updateGroupStudyMemberProgressRequest, options).then((request) => request(axios, basePath));
         },
     };

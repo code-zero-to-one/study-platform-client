@@ -22,9 +22,11 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { ErrorResponse } from '../models';
 // @ts-ignore
 import type { GroupStudyNoticeRequest } from '../models';
+// @ts-ignore
+import type { GroupStudyNoticeResponse } from '../models';
 /**
  * GroupStudyNoticeApi - axios parameter creator
  */
@@ -173,7 +175,7 @@ export const GroupStudyNoticeApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createNotice(groupStudyId: number, groupStudyNoticeRequest: GroupStudyNoticeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async createNotice(groupStudyId: number, groupStudyNoticeRequest: GroupStudyNoticeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyNoticeResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createNotice(groupStudyId, groupStudyNoticeRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyNoticeApi.createNotice']?.[localVarOperationServerIndex]?.url;
@@ -186,7 +188,7 @@ export const GroupStudyNoticeApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getNotice(groupStudyId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async getNotice(groupStudyId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyNoticeResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getNotice(groupStudyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyNoticeApi.getNotice']?.[localVarOperationServerIndex]?.url;
@@ -200,7 +202,7 @@ export const GroupStudyNoticeApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateNotice(groupStudyId: number, groupStudyNoticeRequest: GroupStudyNoticeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async updateNotice(groupStudyId: number, groupStudyNoticeRequest: GroupStudyNoticeRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyNoticeResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateNotice(groupStudyId, groupStudyNoticeRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyNoticeApi.updateNotice']?.[localVarOperationServerIndex]?.url;
@@ -223,7 +225,7 @@ export const GroupStudyNoticeApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createNotice(groupStudyId: number, groupStudyNoticeRequest: GroupStudyNoticeRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        createNotice(groupStudyId: number, groupStudyNoticeRequest: GroupStudyNoticeRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyNoticeResponse> {
             return localVarFp.createNotice(groupStudyId, groupStudyNoticeRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -233,7 +235,7 @@ export const GroupStudyNoticeApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getNotice(groupStudyId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        getNotice(groupStudyId: number, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyNoticeResponse> {
             return localVarFp.getNotice(groupStudyId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -244,7 +246,7 @@ export const GroupStudyNoticeApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateNotice(groupStudyId: number, groupStudyNoticeRequest: GroupStudyNoticeRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        updateNotice(groupStudyId: number, groupStudyNoticeRequest: GroupStudyNoticeRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyNoticeResponse> {
             return localVarFp.updateNotice(groupStudyId, groupStudyNoticeRequest, options).then((request) => request(axios, basePath));
         },
     };

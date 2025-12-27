@@ -22,15 +22,27 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { ErrorResponse } from '../models';
+// @ts-ignore
 import type { GroupStudyCreationRequestDto } from '../models';
 // @ts-ignore
-import type { GroupStudyFullResponseDto } from '../models';
+import type { GroupStudyCreationResponse } from '../models';
 // @ts-ignore
-import type { GroupStudyInterviewPostRequestDto } from '../models';
+import type { GroupStudyDetailResponse } from '../models';
 // @ts-ignore
-import type { GroupStudyUpdateRequestDto } from '../models';
+import type { GroupStudyInterviewPostRequest } from '../models';
 // @ts-ignore
-import type { PageResponseDto } from '../models';
+import type { GroupStudyInterviewPostUpdateResponse } from '../models';
+// @ts-ignore
+import type { GroupStudyListResponse } from '../models';
+// @ts-ignore
+import type { GroupStudyUpdateRequest } from '../models';
+// @ts-ignore
+import type { GroupStudyUpdateResponse } from '../models';
+// @ts-ignore
+import type { MyGroupStudyApplicationResponse } from '../models';
+// @ts-ignore
+import type { NoContentResponse } from '../models';
 /**
  * GroupStudyManagementApi - axios parameter creator
  */
@@ -318,15 +330,15 @@ export const GroupStudyManagementApiAxiosParamCreator = function (configuration?
          * 그룹스터디의 기본 정보(타입, 모집인원, 진행방식 등), 상세 정보(제목, 설명, 요약, 썸네일), 개설질문을 한번에 수정합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 👤 **그룹스터디 리더만** 수정 가능 
          * @summary 그룹스터디 정보 수정 (기본정보 + 상세정보 + 개설질문)
          * @param {number} groupStudyId 그룹스터디 ID
-         * @param {GroupStudyUpdateRequestDto} groupStudyUpdateRequestDto 
+         * @param {GroupStudyUpdateRequest} groupStudyUpdateRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupStudyInfo: async (groupStudyId: number, groupStudyUpdateRequestDto: GroupStudyUpdateRequestDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateGroupStudyInfo: async (groupStudyId: number, groupStudyUpdateRequest: GroupStudyUpdateRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'groupStudyId' is not null or undefined
             assertParamExists('updateGroupStudyInfo', 'groupStudyId', groupStudyId)
-            // verify required parameter 'groupStudyUpdateRequestDto' is not null or undefined
-            assertParamExists('updateGroupStudyInfo', 'groupStudyUpdateRequestDto', groupStudyUpdateRequestDto)
+            // verify required parameter 'groupStudyUpdateRequest' is not null or undefined
+            assertParamExists('updateGroupStudyInfo', 'groupStudyUpdateRequest', groupStudyUpdateRequest)
             const localVarPath = `/api/v1/group-studies/{groupStudyId}`
                 .replace(`{${"groupStudyId"}}`, encodeURIComponent(String(groupStudyId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -351,7 +363,7 @@ export const GroupStudyManagementApiAxiosParamCreator = function (configuration?
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(groupStudyUpdateRequestDto, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(groupStudyUpdateRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -362,15 +374,15 @@ export const GroupStudyManagementApiAxiosParamCreator = function (configuration?
          * 그룹스터디의 개설질문을 수정합니다.
          * @summary 그룹스터디 개설질문 수정
          * @param {number} groupStudyId 그룹스터디 ID
-         * @param {GroupStudyInterviewPostRequestDto} groupStudyInterviewPostRequestDto 
+         * @param {GroupStudyInterviewPostRequest} groupStudyInterviewPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupStudyInterviewPost: async (groupStudyId: number, groupStudyInterviewPostRequestDto: GroupStudyInterviewPostRequestDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateGroupStudyInterviewPost: async (groupStudyId: number, groupStudyInterviewPostRequest: GroupStudyInterviewPostRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'groupStudyId' is not null or undefined
             assertParamExists('updateGroupStudyInterviewPost', 'groupStudyId', groupStudyId)
-            // verify required parameter 'groupStudyInterviewPostRequestDto' is not null or undefined
-            assertParamExists('updateGroupStudyInterviewPost', 'groupStudyInterviewPostRequestDto', groupStudyInterviewPostRequestDto)
+            // verify required parameter 'groupStudyInterviewPostRequest' is not null or undefined
+            assertParamExists('updateGroupStudyInterviewPost', 'groupStudyInterviewPostRequest', groupStudyInterviewPostRequest)
             const localVarPath = `/api/v1/group-studies/{groupStudyId}/interview-post`
                 .replace(`{${"groupStudyId"}}`, encodeURIComponent(String(groupStudyId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -395,7 +407,7 @@ export const GroupStudyManagementApiAxiosParamCreator = function (configuration?
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(groupStudyInterviewPostRequestDto, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(groupStudyInterviewPostRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -418,7 +430,7 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async completeGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async completeGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NoContentResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.completeGroupStudy(groupStudyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.completeGroupStudy']?.[localVarOperationServerIndex]?.url;
@@ -431,7 +443,7 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createGroupStudy(groupStudyCreationRequestDto: GroupStudyCreationRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async createGroupStudy(groupStudyCreationRequestDto: GroupStudyCreationRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyCreationResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createGroupStudy(groupStudyCreationRequestDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.createGroupStudy']?.[localVarOperationServerIndex]?.url;
@@ -444,7 +456,7 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async deleteGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NoContentResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteGroupStudy(groupStudyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.deleteGroupStudy']?.[localVarOperationServerIndex]?.url;
@@ -463,7 +475,7 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageResponseDto>> {
+        async getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getGroupStudies(classification, page, pageSize, type, targetRoles, method, inProgress, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.getGroupStudies']?.[localVarOperationServerIndex]?.url;
@@ -476,7 +488,7 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyFullResponseDto>> {
+        async getGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyDetailResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getGroupStudy(groupStudyId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.getGroupStudy']?.[localVarOperationServerIndex]?.url;
@@ -492,7 +504,7 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyGroupStudyApplications(applicantId: number, page?: number, pageSize?: number, applyStatus?: GetMyGroupStudyApplicationsApplyStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageResponseDto>> {
+        async getMyGroupStudyApplications(applicantId: number, page?: number, pageSize?: number, applyStatus?: GetMyGroupStudyApplicationsApplyStatusEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MyGroupStudyApplicationResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMyGroupStudyApplications(applicantId, page, pageSize, applyStatus, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.getMyGroupStudyApplications']?.[localVarOperationServerIndex]?.url;
@@ -502,12 +514,12 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * 그룹스터디의 기본 정보(타입, 모집인원, 진행방식 등), 상세 정보(제목, 설명, 요약, 썸네일), 개설질문을 한번에 수정합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 👤 **그룹스터디 리더만** 수정 가능 
          * @summary 그룹스터디 정보 수정 (기본정보 + 상세정보 + 개설질문)
          * @param {number} groupStudyId 그룹스터디 ID
-         * @param {GroupStudyUpdateRequestDto} groupStudyUpdateRequestDto 
+         * @param {GroupStudyUpdateRequest} groupStudyUpdateRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateGroupStudyInfo(groupStudyId: number, groupStudyUpdateRequestDto: GroupStudyUpdateRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateGroupStudyInfo(groupStudyId, groupStudyUpdateRequestDto, options);
+        async updateGroupStudyInfo(groupStudyId: number, groupStudyUpdateRequest: GroupStudyUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyUpdateResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateGroupStudyInfo(groupStudyId, groupStudyUpdateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.updateGroupStudyInfo']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -516,12 +528,12 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * 그룹스터디의 개설질문을 수정합니다.
          * @summary 그룹스터디 개설질문 수정
          * @param {number} groupStudyId 그룹스터디 ID
-         * @param {GroupStudyInterviewPostRequestDto} groupStudyInterviewPostRequestDto 
+         * @param {GroupStudyInterviewPostRequest} groupStudyInterviewPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateGroupStudyInterviewPost(groupStudyId: number, groupStudyInterviewPostRequestDto: GroupStudyInterviewPostRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateGroupStudyInterviewPost(groupStudyId, groupStudyInterviewPostRequestDto, options);
+        async updateGroupStudyInterviewPost(groupStudyId: number, groupStudyInterviewPostRequest: GroupStudyInterviewPostRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyInterviewPostUpdateResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateGroupStudyInterviewPost(groupStudyId, groupStudyInterviewPostRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.updateGroupStudyInterviewPost']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -542,7 +554,7 @@ export const GroupStudyManagementApiFactory = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        completeGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): AxiosPromise<NoContentResponse> {
             return localVarFp.completeGroupStudy(groupStudyId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -552,7 +564,7 @@ export const GroupStudyManagementApiFactory = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createGroupStudy(groupStudyCreationRequestDto: GroupStudyCreationRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        createGroupStudy(groupStudyCreationRequestDto: GroupStudyCreationRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyCreationResponse> {
             return localVarFp.createGroupStudy(groupStudyCreationRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
@@ -562,7 +574,7 @@ export const GroupStudyManagementApiFactory = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        deleteGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): AxiosPromise<NoContentResponse> {
             return localVarFp.deleteGroupStudy(groupStudyId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -578,7 +590,7 @@ export const GroupStudyManagementApiFactory = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<PageResponseDto> {
+        getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyListResponse> {
             return localVarFp.getGroupStudies(classification, page, pageSize, type, targetRoles, method, inProgress, options).then((request) => request(axios, basePath));
         },
         /**
@@ -588,7 +600,7 @@ export const GroupStudyManagementApiFactory = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyFullResponseDto> {
+        getGroupStudy(groupStudyId: number, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyDetailResponse> {
             return localVarFp.getGroupStudy(groupStudyId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -601,30 +613,30 @@ export const GroupStudyManagementApiFactory = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyGroupStudyApplications(applicantId: number, page?: number, pageSize?: number, applyStatus?: GetMyGroupStudyApplicationsApplyStatusEnum, options?: RawAxiosRequestConfig): AxiosPromise<PageResponseDto> {
+        getMyGroupStudyApplications(applicantId: number, page?: number, pageSize?: number, applyStatus?: GetMyGroupStudyApplicationsApplyStatusEnum, options?: RawAxiosRequestConfig): AxiosPromise<MyGroupStudyApplicationResponse> {
             return localVarFp.getMyGroupStudyApplications(applicantId, page, pageSize, applyStatus, options).then((request) => request(axios, basePath));
         },
         /**
          * 그룹스터디의 기본 정보(타입, 모집인원, 진행방식 등), 상세 정보(제목, 설명, 요약, 썸네일), 개설질문을 한번에 수정합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 👤 **그룹스터디 리더만** 수정 가능 
          * @summary 그룹스터디 정보 수정 (기본정보 + 상세정보 + 개설질문)
          * @param {number} groupStudyId 그룹스터디 ID
-         * @param {GroupStudyUpdateRequestDto} groupStudyUpdateRequestDto 
+         * @param {GroupStudyUpdateRequest} groupStudyUpdateRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupStudyInfo(groupStudyId: number, groupStudyUpdateRequestDto: GroupStudyUpdateRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateGroupStudyInfo(groupStudyId, groupStudyUpdateRequestDto, options).then((request) => request(axios, basePath));
+        updateGroupStudyInfo(groupStudyId: number, groupStudyUpdateRequest: GroupStudyUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyUpdateResponse> {
+            return localVarFp.updateGroupStudyInfo(groupStudyId, groupStudyUpdateRequest, options).then((request) => request(axios, basePath));
         },
         /**
          * 그룹스터디의 개설질문을 수정합니다.
          * @summary 그룹스터디 개설질문 수정
          * @param {number} groupStudyId 그룹스터디 ID
-         * @param {GroupStudyInterviewPostRequestDto} groupStudyInterviewPostRequestDto 
+         * @param {GroupStudyInterviewPostRequest} groupStudyInterviewPostRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateGroupStudyInterviewPost(groupStudyId: number, groupStudyInterviewPostRequestDto: GroupStudyInterviewPostRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.updateGroupStudyInterviewPost(groupStudyId, groupStudyInterviewPostRequestDto, options).then((request) => request(axios, basePath));
+        updateGroupStudyInterviewPost(groupStudyId: number, groupStudyInterviewPostRequest: GroupStudyInterviewPostRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyInterviewPostUpdateResponse> {
+            return localVarFp.updateGroupStudyInterviewPost(groupStudyId, groupStudyInterviewPostRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -712,24 +724,24 @@ export class GroupStudyManagementApi extends BaseAPI {
      * 그룹스터디의 기본 정보(타입, 모집인원, 진행방식 등), 상세 정보(제목, 설명, 요약, 썸네일), 개설질문을 한번에 수정합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 👤 **그룹스터디 리더만** 수정 가능 
      * @summary 그룹스터디 정보 수정 (기본정보 + 상세정보 + 개설질문)
      * @param {number} groupStudyId 그룹스터디 ID
-     * @param {GroupStudyUpdateRequestDto} groupStudyUpdateRequestDto 
+     * @param {GroupStudyUpdateRequest} groupStudyUpdateRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public updateGroupStudyInfo(groupStudyId: number, groupStudyUpdateRequestDto: GroupStudyUpdateRequestDto, options?: RawAxiosRequestConfig) {
-        return GroupStudyManagementApiFp(this.configuration).updateGroupStudyInfo(groupStudyId, groupStudyUpdateRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public updateGroupStudyInfo(groupStudyId: number, groupStudyUpdateRequest: GroupStudyUpdateRequest, options?: RawAxiosRequestConfig) {
+        return GroupStudyManagementApiFp(this.configuration).updateGroupStudyInfo(groupStudyId, groupStudyUpdateRequest, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 그룹스터디의 개설질문을 수정합니다.
      * @summary 그룹스터디 개설질문 수정
      * @param {number} groupStudyId 그룹스터디 ID
-     * @param {GroupStudyInterviewPostRequestDto} groupStudyInterviewPostRequestDto 
+     * @param {GroupStudyInterviewPostRequest} groupStudyInterviewPostRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public updateGroupStudyInterviewPost(groupStudyId: number, groupStudyInterviewPostRequestDto: GroupStudyInterviewPostRequestDto, options?: RawAxiosRequestConfig) {
-        return GroupStudyManagementApiFp(this.configuration).updateGroupStudyInterviewPost(groupStudyId, groupStudyInterviewPostRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public updateGroupStudyInterviewPost(groupStudyId: number, groupStudyInterviewPostRequest: GroupStudyInterviewPostRequest, options?: RawAxiosRequestConfig) {
+        return GroupStudyManagementApiFp(this.configuration).updateGroupStudyInterviewPost(groupStudyId, groupStudyInterviewPostRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

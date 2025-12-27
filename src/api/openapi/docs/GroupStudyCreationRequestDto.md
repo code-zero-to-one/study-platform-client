@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **basicInfo** | [**GroupStudyBasicInfoRequestDto**](GroupStudyBasicInfoRequestDto.md) | 그룹스터디 기본 정보 | [optional] [default to undefined]
 **detailInfo** | [**GroupStudyDetailInfoRequestDto**](GroupStudyDetailInfoRequestDto.md) | 그룹스터디 상세 정보 | [optional] [default to undefined]
-**interviewPost** | [**GroupStudyInterviewPostRequestDto**](GroupStudyInterviewPostRequestDto.md) | 그룹스터디 개설질문 | [optional] [default to undefined]
+**interviewPost** | [**GroupStudyInterviewPostRequest**](GroupStudyInterviewPostRequest.md) | 그룹스터디 개설질문 | [optional] [default to undefined]
 **thumbnailExtension** | **string** | 썸네일 이미지 확장자 | [optional] [default to undefined]
 
 ## Example

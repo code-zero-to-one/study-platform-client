@@ -14,57 +14,10 @@
 
 
 
-/**
- * 그룹스터디 신청 생성 응답
- */
 export interface GroupStudyApplyResponse {
-    /**
-     * 그룹스터디 신청 ID
-     */
-    'groupStudyApplyId'?: number;
-    /**
-     * 신청자 ID
-     */
-    'applicantId'?: number;
-    /**
-     * 그룹스터디 ID
-     */
-    'groupStudyId'?: number;
-    /**
-     * 진행률 점수
-     */
-    'progressScore'?: number;
-    /**
-     * 역할
-     */
-    'role'?: string;
-    /**
-     * 최근 접속일
-     */
-    'lastAccessedAt'?: string;
-    /**
-     * 스터디 모집글에 대한 답변 목록 (최대 10개)
-     */
-    'answer'?: Array<string>;
-    /**
-     * 신청상태
-     */
-    'status'?: string;
-    /**
-     * 생성일시
-     */
-    'createdAt'?: string;
-    /**
-     * 수정일시
-     */
-    'updatedAt'?: string;
-    /**
-     * 삭제일시
-     */
-    'deletedAt'?: string;
-    /**
-     * 프리미엄 스터디 여부
-     */
-    'premium': boolean;
+    'statusCode'?: number;
+    'timestamp'?: string;
+    'content'?: GroupStudyApplyResponse;
+    'message'?: string;
 }
 

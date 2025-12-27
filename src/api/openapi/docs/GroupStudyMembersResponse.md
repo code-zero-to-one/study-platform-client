@@ -5,13 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**pageSize** | **number** |  | [optional] [default to undefined]
-**pageNumber** | **number** |  | [optional] [default to undefined]
-**totalElements** | **number** |  | [optional] [default to undefined]
-**totalMemberCount** | **number** |  | [optional] [default to undefined]
-**hasPrevious** | **boolean** |  | [optional] [default to undefined]
-**hasNext** | **boolean** |  | [optional] [default to undefined]
-**members** | [**Array&lt;GroupStudyMemberResponse&gt;**](GroupStudyMemberResponse.md) |  | [optional] [default to undefined]
+**statusCode** | **number** |  | [optional] [default to undefined]
+**timestamp** | **string** |  | [optional] [default to undefined]
+**content** | [**GroupStudyMembersResponse**](GroupStudyMembersResponse.md) |  | [optional] [default to undefined]
+**message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -19,13 +16,10 @@ Name | Type | Description | Notes
 import { GroupStudyMembersResponse } from './api';
 
 const instance: GroupStudyMembersResponse = {
-    pageSize,
-    pageNumber,
-    totalElements,
-    totalMemberCount,
-    hasPrevious,
-    hasNext,
-    members,
+    statusCode,
+    timestamp,
+    content,
+    message,
 };
 ```
 
