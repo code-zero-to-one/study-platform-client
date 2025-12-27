@@ -22,11 +22,15 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { PageStudySettlementSummaryResponseSchema } from '../models';
+// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { SettlementSearchCondition } from '../models';
 // @ts-ignore
 import type { StudySettlementCreateRequest } from '../models';
+// @ts-ignore
+import type { StudySettlementDetailResponseSchema } from '../models';
 /**
  * AdminSettlementApi - axios parameter creator
  */
@@ -222,7 +226,7 @@ export const AdminSettlementApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async completeSettlement(settlementId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async completeSettlement(settlementId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudySettlementDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.completeSettlement(settlementId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.completeSettlement']?.[localVarOperationServerIndex]?.url;
@@ -235,7 +239,7 @@ export const AdminSettlementApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createSettlement(studySettlementCreateRequest: StudySettlementCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async createSettlement(studySettlementCreateRequest: StudySettlementCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudySettlementDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createSettlement(studySettlementCreateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.createSettlement']?.[localVarOperationServerIndex]?.url;
@@ -257,7 +261,7 @@ export const AdminSettlementApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageStudySettlementSummaryResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.getSettlementsForAdmin']?.[localVarOperationServerIndex]?.url;
@@ -279,7 +283,7 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeSettlement(settlementId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        completeSettlement(settlementId: number, options?: RawAxiosRequestConfig): AxiosPromise<StudySettlementDetailResponseSchema> {
             return localVarFp.completeSettlement(settlementId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -289,7 +293,7 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createSettlement(studySettlementCreateRequest: StudySettlementCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        createSettlement(studySettlementCreateRequest: StudySettlementCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<StudySettlementDetailResponseSchema> {
             return localVarFp.createSettlement(studySettlementCreateRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -308,7 +312,7 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getSettlementsForAdmin(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<PageStudySettlementSummaryResponseSchema> {
             return localVarFp.getSettlementsForAdmin(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options).then((request) => request(axios, basePath));
         },
     };

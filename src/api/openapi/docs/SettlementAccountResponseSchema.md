@@ -1,4 +1,4 @@
-# BaseResponsePageResponseDtoMissionListResponse
+# SettlementAccountResponseSchema
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**PageResponseDtoMissionListResponse**](PageResponseDtoMissionListResponse.md) |  | [optional] [default to undefined]
+**content** | [**SettlementAccountResponse**](SettlementAccountResponse.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { BaseResponsePageResponseDtoMissionListResponse } from './api';
+import { SettlementAccountResponseSchema } from './api';
 
-const instance: BaseResponsePageResponseDtoMissionListResponse = {
+const instance: SettlementAccountResponseSchema = {
     statusCode,
     timestamp,
     content,

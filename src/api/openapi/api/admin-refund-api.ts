@@ -22,9 +22,13 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { PageStudyRefundSummaryResponseSchema } from '../models';
+// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { StudyRefundApproveRequest } from '../models';
+// @ts-ignore
+import type { StudyRefundDetailResponseSchema } from '../models';
 // @ts-ignore
 import type { StudyRefundRejectRequest } from '../models';
 /**
@@ -276,7 +280,7 @@ export const AdminRefundApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async approveRefund(refundId: number, studyRefundApproveRequest: StudyRefundApproveRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async approveRefund(refundId: number, studyRefundApproveRequest: StudyRefundApproveRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyRefundDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.approveRefund(refundId, studyRefundApproveRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRefundApi.approveRefund']?.[localVarOperationServerIndex]?.url;
@@ -289,7 +293,7 @@ export const AdminRefundApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async completeRefund(refundId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async completeRefund(refundId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyRefundDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.completeRefund(refundId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRefundApi.completeRefund']?.[localVarOperationServerIndex]?.url;
@@ -306,7 +310,7 @@ export const AdminRefundApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getRefundsForAdmin(pageable: Pageable, memberId?: number, status?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getRefundsForAdmin(pageable: Pageable, memberId?: number, status?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageStudyRefundSummaryResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getRefundsForAdmin(pageable, memberId, status, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRefundApi.getRefundsForAdmin']?.[localVarOperationServerIndex]?.url;
@@ -320,7 +324,7 @@ export const AdminRefundApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async rejectRefund(refundId: number, studyRefundRejectRequest: StudyRefundRejectRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async rejectRefund(refundId: number, studyRefundRejectRequest: StudyRefundRejectRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyRefundDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.rejectRefund(refundId, studyRefundRejectRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRefundApi.rejectRefund']?.[localVarOperationServerIndex]?.url;
@@ -333,7 +337,7 @@ export const AdminRefundApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async retryRefund(refundId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async retryRefund(refundId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyRefundDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.retryRefund(refundId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminRefundApi.retryRefund']?.[localVarOperationServerIndex]?.url;
@@ -356,7 +360,7 @@ export const AdminRefundApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        approveRefund(refundId: number, studyRefundApproveRequest: StudyRefundApproveRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        approveRefund(refundId: number, studyRefundApproveRequest: StudyRefundApproveRequest, options?: RawAxiosRequestConfig): AxiosPromise<StudyRefundDetailResponseSchema> {
             return localVarFp.approveRefund(refundId, studyRefundApproveRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -366,7 +370,7 @@ export const AdminRefundApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        completeRefund(refundId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        completeRefund(refundId: number, options?: RawAxiosRequestConfig): AxiosPromise<StudyRefundDetailResponseSchema> {
             return localVarFp.completeRefund(refundId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -380,7 +384,7 @@ export const AdminRefundApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getRefundsForAdmin(pageable: Pageable, memberId?: number, status?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getRefundsForAdmin(pageable: Pageable, memberId?: number, status?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<PageStudyRefundSummaryResponseSchema> {
             return localVarFp.getRefundsForAdmin(pageable, memberId, status, page, size, options).then((request) => request(axios, basePath));
         },
         /**
@@ -391,7 +395,7 @@ export const AdminRefundApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        rejectRefund(refundId: number, studyRefundRejectRequest: StudyRefundRejectRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        rejectRefund(refundId: number, studyRefundRejectRequest: StudyRefundRejectRequest, options?: RawAxiosRequestConfig): AxiosPromise<StudyRefundDetailResponseSchema> {
             return localVarFp.rejectRefund(refundId, studyRefundRejectRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -401,7 +405,7 @@ export const AdminRefundApiFactory = function (configuration?: Configuration, ba
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        retryRefund(refundId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        retryRefund(refundId: number, options?: RawAxiosRequestConfig): AxiosPromise<StudyRefundDetailResponseSchema> {
             return localVarFp.retryRefund(refundId, options).then((request) => request(axios, basePath));
         },
     };

@@ -15,12 +15,12 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageResponseDtoMissionListResponse } from './page-response-dto-mission-list-response';
+import type { PageResponseDtoStudyRefundSummaryResponse } from './page-response-dto-study-refund-summary-response';
 
-export interface BaseResponsePageResponseDtoMissionListResponse {
+export interface PageStudyRefundSummaryResponseSchema {
     'statusCode'?: number;
     'timestamp'?: string;
-    'content'?: PageResponseDtoMissionListResponse;
+    'content'?: PageResponseDtoStudyRefundSummaryResponse;
     'message'?: string;
 }
 

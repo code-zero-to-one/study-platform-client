@@ -1,4 +1,4 @@
-# BaseResponseMissionCreationResult
+# PageUserTransactionListResponseSchema
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**MissionCreationResult**](MissionCreationResult.md) |  | [optional] [default to undefined]
+**content** | [**PageResponseDtoUserTransactionListResponse**](PageResponseDtoUserTransactionListResponse.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { BaseResponseMissionCreationResult } from './api';
+import { PageUserTransactionListResponseSchema } from './api';
 
-const instance: BaseResponseMissionCreationResult = {
+const instance: PageUserTransactionListResponseSchema = {
     statusCode,
     timestamp,
     content,

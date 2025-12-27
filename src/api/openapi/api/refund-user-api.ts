@@ -22,9 +22,15 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { PageStudyRefundSummaryResponseSchema } from '../models';
+// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { StudyRefundCreateRequest } from '../models';
+// @ts-ignore
+import type { StudyRefundDetailResponseSchema } from '../models';
+// @ts-ignore
+import type { VoidResponseSchema } from '../models';
 /**
  * RefundUserApi - axios parameter creator
  */
@@ -186,7 +192,7 @@ export const RefundUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async cancelRefundRequest(refundId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async cancelRefundRequest(refundId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<VoidResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.cancelRefundRequest(refundId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RefundUserApi.cancelRefundRequest']?.[localVarOperationServerIndex]?.url;
@@ -202,7 +208,7 @@ export const RefundUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyRefunds(pageable: Pageable, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getMyRefunds(pageable: Pageable, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageStudyRefundSummaryResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMyRefunds(pageable, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RefundUserApi.getMyRefunds']?.[localVarOperationServerIndex]?.url;
@@ -216,7 +222,7 @@ export const RefundUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async requestRefund(paymentId: number, studyRefundCreateRequest: StudyRefundCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async requestRefund(paymentId: number, studyRefundCreateRequest: StudyRefundCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyRefundDetailResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.requestRefund(paymentId, studyRefundCreateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['RefundUserApi.requestRefund']?.[localVarOperationServerIndex]?.url;
@@ -238,7 +244,7 @@ export const RefundUserApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        cancelRefundRequest(refundId: number, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        cancelRefundRequest(refundId: number, options?: RawAxiosRequestConfig): AxiosPromise<VoidResponseSchema> {
             return localVarFp.cancelRefundRequest(refundId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -251,7 +257,7 @@ export const RefundUserApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyRefunds(pageable: Pageable, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getMyRefunds(pageable: Pageable, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<PageStudyRefundSummaryResponseSchema> {
             return localVarFp.getMyRefunds(pageable, page, size, sort, options).then((request) => request(axios, basePath));
         },
         /**
@@ -262,7 +268,7 @@ export const RefundUserApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        requestRefund(paymentId: number, studyRefundCreateRequest: StudyRefundCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        requestRefund(paymentId: number, studyRefundCreateRequest: StudyRefundCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<StudyRefundDetailResponseSchema> {
             return localVarFp.requestRefund(paymentId, studyRefundCreateRequest, options).then((request) => request(axios, basePath));
         },
     };

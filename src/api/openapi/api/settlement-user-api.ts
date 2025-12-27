@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { PageStudySettlementSummaryResponseSchema } from '../models';
+// @ts-ignore
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { SettlementSearchCondition } from '../models';
@@ -151,7 +153,7 @@ export const SettlementUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageStudySettlementSummaryResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMySettlements(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SettlementUserApi.getMySettlements']?.[localVarOperationServerIndex]?.url;
@@ -182,7 +184,7 @@ export const SettlementUserApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementId?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<PageStudySettlementSummaryResponseSchema> {
             return localVarFp.getMySettlements(condition, pageable, startDate, endDate, studyTitle, settlementId, status, page, size, sort, options).then((request) => request(axios, basePath));
         },
     };

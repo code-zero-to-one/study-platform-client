@@ -17,7 +17,7 @@
 // @ts-ignore
 import type { SettlementAccountResponse } from './settlement-account-response';
 
-export interface BaseResponseSettlementAccountResponse {
+export interface SettlementAccountResponseSchema {
     'statusCode'?: number;
     'timestamp'?: string;
     'content'?: SettlementAccountResponse;

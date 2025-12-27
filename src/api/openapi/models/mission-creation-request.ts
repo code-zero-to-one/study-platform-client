@@ -13,16 +13,23 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { MissionTaskDto } from './mission-task-dto';
 
 export interface MissionCreationRequest {
+    /**
+     * 미션 제목
+     */
     'title': string;
+    /**
+     * 미션 내용
+     */
     'content': string;
+    /**
+     * 미션 시작 시간
+     */
     'startTime': string;
-    'endTime'?: string;
-    'tasks': Array<MissionTaskDto>;
-    'scoreAllocation'?: number;
+    /**
+     * 미션 종료 시간
+     */
+    'endTime': string;
 }
 
