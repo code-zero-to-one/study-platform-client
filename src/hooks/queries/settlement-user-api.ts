@@ -12,7 +12,7 @@ interface SettlementParams {
   startDate?: string;
   endDate?: string;
   studyTitle?: string;
-  settlementId?: number;
+  settlementCode?: string;
   status?: SettlementSearchConditionStatusEnum;
 }
 
@@ -23,7 +23,7 @@ export const useGetMySettlements = ({
   startDate,
   endDate,
   studyTitle,
-  settlementId,
+  settlementCode,
   status,
 }: SettlementParams = {}) => {
   return useQuery({
@@ -35,7 +35,7 @@ export const useGetMySettlements = ({
       startDate,
       endDate,
       studyTitle,
-      settlementId,
+      settlementCode,
       status,
     ],
     queryFn: async () => {
@@ -46,7 +46,7 @@ export const useGetMySettlements = ({
           startDate,
           endDate,
           studyTitle,
-          settlementId,
+          settlementCode,
           status,
         },
         {
@@ -57,7 +57,7 @@ export const useGetMySettlements = ({
         startDate,
         endDate,
         studyTitle,
-        settlementId,
+        settlementCode,
         status,
         page,
         size,

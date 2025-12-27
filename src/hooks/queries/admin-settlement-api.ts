@@ -12,7 +12,7 @@ interface SettlementsForAdminParams {
   startDate?: string;
   endDate?: string;
   studyTitle?: string;
-  settlementId?: number;
+  settlementCode?: string;
   status?: SettlementSearchConditionStatusEnum;
   page?: number;
   size?: number;
@@ -23,7 +23,7 @@ export const useGetSettlementsForAdmin = ({
   startDate,
   endDate,
   studyTitle,
-  settlementId,
+  settlementCode,
   status,
   page = 0,
   size = 20,
@@ -35,7 +35,7 @@ export const useGetSettlementsForAdmin = ({
       startDate,
       endDate,
       studyTitle,
-      settlementId,
+      settlementCode,
       status,
       page,
       size,
@@ -47,7 +47,7 @@ export const useGetSettlementsForAdmin = ({
           startDate,
           endDate,
           studyTitle,
-          settlementId,
+          settlementCode,
           status,
         },
         {
@@ -57,7 +57,7 @@ export const useGetSettlementsForAdmin = ({
         startDate,
         endDate,
         studyTitle,
-        settlementId,
+        settlementCode,
         status,
         page,
         size,
