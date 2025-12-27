@@ -5,21 +5,21 @@ import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/noti
 
 const notificationApi = createApiInstance(NotificationApi);
 
-interface MemberNotificationsParams {
+interface NotificationsParams {
   page?: number;
   size?: number;
   hasRead?: boolean;
   topicType?: GetMemberNotificationsTopicTypeEnum;
 }
 
-export const useGetMemberNotifications = ({
+export const useGetNotifications = ({
   page = 1,
   size = 10,
   hasRead,
   topicType,
-}: MemberNotificationsParams = {}) => {
+}: NotificationsParams = {}) => {
   return useQuery({
-    queryKey: ['memberNotifications', page, size, hasRead, topicType],
+    queryKey: ['notifications', page, size, hasRead, topicType],
     queryFn: async () => {
       const { data } = await notificationApi.getMemberNotifications(
         page,
@@ -33,9 +33,9 @@ export const useGetMemberNotifications = ({
   });
 };
 
-export const useGetMemberNotificationCategories = () => {
+export const useGetNotificationCategories = () => {
   return useQuery({
-    queryKey: ['memberNotificationCategories'],
+    queryKey: ['notificationCategories'],
     queryFn: async () => {
       const { data } = await notificationApi.getMemberNotificationCategories();
 
@@ -44,9 +44,9 @@ export const useGetMemberNotificationCategories = () => {
   });
 };
 
-export const useHasMemberNewNotification = () => {
+export const useHasNewNotification = () => {
   return useQuery({
-    queryKey: ['hasMemberNewNotification'],
+    queryKey: ['hasNewNotification'],
     queryFn: async () => {
       const { data } = await notificationApi.hasMemberNewNotification();
 
@@ -55,7 +55,7 @@ export const useHasMemberNewNotification = () => {
   });
 };
 
-export const useReadMemberNotifications = () => {
+export const useReadNotifications = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -66,16 +66,16 @@ export const useReadMemberNotifications = () => {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['memberNotifications'] }),
+        queryClient.invalidateQueries({ queryKey: ['notifications'] }),
         queryClient.invalidateQueries({
-          queryKey: ['hasMemberNewNotification'],
+          queryKey: ['hasNewNotification'],
         }),
       ]);
     },
   });
 };
 
-export const useDeleteMemberNotifications = () => {
+export const useDeleteNotifications = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -86,9 +86,9 @@ export const useDeleteMemberNotifications = () => {
     },
     onSuccess: async () => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['memberNotifications'] }),
+        queryClient.invalidateQueries({ queryKey: ['notifications'] }),
         queryClient.invalidateQueries({
-          queryKey: ['hasMemberNewNotification'],
+          queryKey: ['hasNewNotification'],
         }),
       ]);
     },
