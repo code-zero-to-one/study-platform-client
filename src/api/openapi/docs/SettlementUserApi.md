@@ -29,7 +29,7 @@ let pageable: Pageable; // (default to undefined)
 let startDate: string; //정산 예정일 조회 시작일 (yyyy-MM-dd) (optional) (default to undefined)
 let endDate: string; //정산 예정일 조회 종료일 (yyyy-MM-dd) (optional) (default to undefined)
 let studyTitle: string; //스터디명 검색 (부분 일치) (optional) (default to undefined)
-let settlementCode: number; //정산 Code로 조회 (optional) (default to undefined)
+let settlementCode: string; //정산 Code로 조회 (optional) (default to undefined)
 let status: string; //정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED) (optional) (default to undefined)
 let page: number; //조회할 페이지 (0부터 시작) (optional) (default to undefined)
 let size: number; //페이지당 데이터 개수 (optional) (default to undefined)
@@ -58,7 +58,7 @@ const { status, data } = await apiInstance.getMySettlements(
 | **startDate** | [**string**] | 정산 예정일 조회 시작일 (yyyy-MM-dd) | (optional) defaults to undefined|
 | **endDate** | [**string**] | 정산 예정일 조회 종료일 (yyyy-MM-dd) | (optional) defaults to undefined|
 | **studyTitle** | [**string**] | 스터디명 검색 (부분 일치) | (optional) defaults to undefined|
-| **settlementCode** | [**number**] | 정산 Code로 조회 | (optional) defaults to undefined|
+| **settlementCode** | [**string**] | 정산 Code로 조회 | (optional) defaults to undefined|
 | **status** | [**string**] | 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED) | (optional) defaults to undefined|
 | **page** | [**number**] | 조회할 페이지 (0부터 시작) | (optional) defaults to undefined|
 | **size** | [**number**] | 페이지당 데이터 개수 | (optional) defaults to undefined|

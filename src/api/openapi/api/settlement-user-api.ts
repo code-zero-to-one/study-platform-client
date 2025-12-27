@@ -40,7 +40,7 @@ export const SettlementUserApiAxiosParamCreator = function (configuration?: Conf
          * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
          * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
-         * @param {number} [settlementCode] 정산 Code로 조회
+         * @param {string} [settlementCode] 정산 Code로 조회
          * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 조회할 페이지 (0부터 시작)
          * @param {number} [size] 페이지당 데이터 개수
@@ -48,7 +48,7 @@ export const SettlementUserApiAxiosParamCreator = function (configuration?: Conf
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMySettlements: async (condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: number, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getMySettlements: async (condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: string, status?: string, page?: number, size?: number, sort?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'condition' is not null or undefined
             assertParamExists('getMySettlements', 'condition', condition)
             // verify required parameter 'pageable' is not null or undefined
@@ -145,7 +145,7 @@ export const SettlementUserApiFp = function(configuration?: Configuration) {
          * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
          * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
-         * @param {number} [settlementCode] 정산 Code로 조회
+         * @param {string} [settlementCode] 정산 Code로 조회
          * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 조회할 페이지 (0부터 시작)
          * @param {number} [size] 페이지당 데이터 개수
@@ -153,7 +153,7 @@ export const SettlementUserApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageStudySettlementSummaryResponseSchema>> {
+        async getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: string, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageStudySettlementSummaryResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMySettlements(condition, pageable, startDate, endDate, studyTitle, settlementCode, status, page, size, sort, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SettlementUserApi.getMySettlements']?.[localVarOperationServerIndex]?.url;
@@ -176,7 +176,7 @@ export const SettlementUserApiFactory = function (configuration?: Configuration,
          * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
          * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
-         * @param {number} [settlementCode] 정산 Code로 조회
+         * @param {string} [settlementCode] 정산 Code로 조회
          * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
          * @param {number} [page] 조회할 페이지 (0부터 시작)
          * @param {number} [size] 페이지당 데이터 개수
@@ -184,7 +184,7 @@ export const SettlementUserApiFactory = function (configuration?: Configuration,
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<PageStudySettlementSummaryResponseSchema> {
+        getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: string, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig): AxiosPromise<PageStudySettlementSummaryResponseSchema> {
             return localVarFp.getMySettlements(condition, pageable, startDate, endDate, studyTitle, settlementCode, status, page, size, sort, options).then((request) => request(axios, basePath));
         },
     };
@@ -202,7 +202,7 @@ export class SettlementUserApi extends BaseAPI {
      * @param {string} [startDate] 정산 예정일 조회 시작일 (yyyy-MM-dd)
      * @param {string} [endDate] 정산 예정일 조회 종료일 (yyyy-MM-dd)
      * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
-     * @param {number} [settlementCode] 정산 Code로 조회
+     * @param {string} [settlementCode] 정산 Code로 조회
      * @param {string} [status] 정산 상태 필터 (PENDING, APPROVED, COMPLETED, CANCELED)
      * @param {number} [page] 조회할 페이지 (0부터 시작)
      * @param {number} [size] 페이지당 데이터 개수
@@ -210,7 +210,7 @@ export class SettlementUserApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: number, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
+    public getMySettlements(condition: SettlementSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, settlementCode?: string, status?: string, page?: number, size?: number, sort?: string, options?: RawAxiosRequestConfig) {
         return SettlementUserApiFp(this.configuration).getMySettlements(condition, pageable, startDate, endDate, studyTitle, settlementCode, status, page, size, sort, options).then((request) => request(this.axios, this.basePath));
     }
 }
