@@ -6,6 +6,7 @@ import Button from '@/components/ui/button';
 import SingleDropdown from '@/components/ui/dropdown/single';
 import FormField from '@/components/ui/form/form-field';
 import { Modal } from '@/components/ui/modal';
+import { useSearchBanks } from '@/hooks/queries/bank-search-api';
 import { BaseInput } from '../ui/input';
 
 // Form Schema
@@ -15,22 +16,6 @@ const AddAccountFormSchema = z.object({
 });
 
 type AddAccountFormValues = z.infer<typeof AddAccountFormSchema>;
-
-// Bank options - 실제 은행 목록으로 대체 가능
-const BANK_OPTIONS = [
-  { value: 'kb', label: 'KB국민은행' },
-  { value: 'shinhan', label: '신한은행' },
-  { value: 'woori', label: '우리은행' },
-  { value: 'hana', label: '하나은행' },
-  { value: 'nh', label: 'NH농협은행' },
-  { value: 'ibk', label: 'IBK기업은행' },
-  { value: 'keb', label: 'KEB하나은행' },
-  { value: 'sc', label: 'SC제일은행' },
-  { value: 'citi', label: '한국씨티은행' },
-  { value: 'kakao', label: '카카오뱅크' },
-  { value: 'toss', label: '토스뱅크' },
-  { value: 'k', label: '케이뱅크' },
-] as const;
 
 interface AddAccountModalProps {
   open: boolean;
@@ -89,11 +74,17 @@ function AddAccountForm({ onClose, onSubmit }: AddAccountFormProps) {
     if (onSubmit) {
       onSubmit(values);
     } else {
-      console.log('Account data:', values);
       alert('계좌 정보가 등록되었습니다!');
     }
     onClose();
   };
+
+  const { data } = useSearchBanks();
+  const bankOptions =
+    data?.map((bank) => ({
+      value: bank.bankCode,
+      label: bank.bankName,
+    })) || [];
 
   return (
     <FormProvider {...methods}>
@@ -115,7 +106,7 @@ function AddAccountForm({ onClose, onSubmit }: AddAccountFormProps) {
               render={({ field, fieldState }) => (
                 <div className="w-1/2">
                   <SingleDropdown
-                    options={BANK_OPTIONS}
+                    options={bankOptions}
                     value={field.value}
                     onChange={(value) => field.onChange(value || '')}
                     placeholder="은행 선택"

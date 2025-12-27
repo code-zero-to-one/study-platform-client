@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
+import type { StudySettlementSummaryResponseStatusEnum } from '@/api/openapi/models';
 import AccountInfoModal from '@/components/modals/account-info-modal';
 import AddAccountModal from '@/components/modals/add-account-modal';
 import Badge from '@/components/ui/badge';
@@ -10,7 +11,34 @@ import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
-import { useAuth } from '@/hooks/use-auth';
+import { useGetSettlementAccount } from '@/hooks/queries/settlement-account';
+import { useGetMySettlements } from '@/hooks/queries/settlement-user-api';
+
+type SettlementStatus = '정산대기' | '정산승인' | '정산완료';
+
+const STATUS_TEXT_MAP: Record<
+  StudySettlementSummaryResponseStatusEnum,
+  SettlementStatus
+> = {
+  PENDING: '정산대기',
+  APPROVED: '정산승인',
+  COMPLETED: '정산완료',
+};
+
+const getStatusBadgeColor = (
+  status: SettlementStatus,
+): 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray' => {
+  switch (status) {
+    case '정산대기':
+      return 'gray';
+    case '정산승인':
+      return 'blue';
+    case '정산완료':
+      return 'green';
+    default:
+      return 'gray';
+  }
+};
 
 export default function SettlementManagementPage() {
   const [page, setPage] = useState<number>(1);
@@ -18,49 +46,27 @@ export default function SettlementManagementPage() {
   // 검색 필터 상태
   const [keyword, setKeyword] = useState<string>('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: new Date(2025, 0, 1), // 2025.01.01
-    to: new Date(2025, 11, 7), // 2025.12.07
+    from: undefined,
+    to: undefined,
   });
 
-  // Mock data - 실제로는 API에서 가져올 데이터
-  const settlements = [
-    {
-      id: 1,
-      title: '딥러닝 실전 5기',
-      code: 'SET-20251206-001',
-      status: '정산대기' as const,
-      revenue: 1500000,
-      refund: -300000,
-      total: 1200000,
-      date: '2025-12-06 14:21',
-    },
-    {
-      id: 2,
-      title: 'UX/UI 스터디 2기',
-      code: 'SET-20251206-001',
-      status: '정산요청' as const,
-      revenue: 800000,
-      refund: -200000,
-      total: 600000,
-      date: '2025-12-06 14:21',
-    },
-    {
-      id: 3,
-      title: '딥러닝 실전 5기',
-      code: 'SET-20251206-001',
-      status: '정산완료' as const,
-      revenue: 680000,
-      refund: 0,
-      total: 680000,
-      date: '2025-12-06 14:21',
-    },
-  ];
+  const { data } = useGetMySettlements({
+    page: page - 1,
+    size: 8,
+    startDate: dateRange?.from
+      ? dateRange.from.toISOString().split('T')[0]
+      : undefined,
+    endDate: dateRange?.to
+      ? dateRange.to.toISOString().split('T')[0]
+      : undefined,
+    studyTitle: keyword || undefined,
+  });
 
-  const totalCount = 3;
-  const totalPages = 1;
+  const { data: accountData, isError } = useGetSettlementAccount();
+  const hasAccount = !isError && !!accountData;
 
-  // 연결된 계좌 여부 (mock)
-  const hasAccount = true;
+  const totalCount = data?.totalElements || 0;
+  const totalPages = data?.totalPages || 1;
 
   const [accountInfoModalOpen, setAccountInfoModalOpen] =
     useState<boolean>(false);
@@ -77,12 +83,6 @@ export default function SettlementManagementPage() {
     setAddAccountModalOpen(true);
   };
 
-  const { data } = useAuth();
-
-  if (!data.roleIds.includes('ROLE_MENTOR')) {
-    return <div>해당 페이지에 접근할 권한이 없습니다.</div>;
-  }
-
   return (
     <div className="flex flex-col gap-300">
       <div className="flex items-center justify-between">
@@ -96,6 +96,7 @@ export default function SettlementManagementPage() {
           onOpenChange={setAddAccountModalOpen}
         />
         <AccountInfoModal
+          data={accountData}
           open={accountInfoModalOpen}
           onOpenChange={setAccountInfoModalOpen}
         />
@@ -139,10 +140,10 @@ export default function SettlementManagementPage() {
             </tr>
           </thead>
           <tbody>
-            {settlements.length > 0 ? (
-              settlements.map((settlement) => (
+            {data && data.content.length > 0 ? (
+              data.content.map((settlement) => (
                 <tr
-                  key={settlement.id}
+                  key={settlement.settlementId}
                   className="border-b-border-default border-b"
                 >
                   {/* 스터디명 + 상태 */}
@@ -150,23 +151,21 @@ export default function SettlementManagementPage() {
                     <div className="flex flex-col gap-50">
                       <div className="flex items-center gap-[10px]">
                         <h3 className="font-designer-16m text-text-default">
-                          {settlement.title}
+                          {settlement.groupStudyTitle || '-'}
                         </h3>
-                        <Badge
-                          color={
-                            settlement.status === '정산대기'
-                              ? 'gray'
-                              : settlement.status === '정산요청'
-                                ? 'blue'
-                                : 'green'
-                          }
-                          shape="rectangle"
-                        >
-                          {settlement.status}
-                        </Badge>
+                        {settlement.status && (
+                          <Badge
+                            color={getStatusBadgeColor(
+                              STATUS_TEXT_MAP[settlement.status],
+                            )}
+                            shape="rectangle"
+                          >
+                            {STATUS_TEXT_MAP[settlement.status]}
+                          </Badge>
+                        )}
                       </div>
                       <div className="font-designer-13r text-text-subtlest">
-                        {settlement.code}
+                        {settlement.settlementCode || '-'}
                       </div>
                     </div>
                   </td>
@@ -175,10 +174,12 @@ export default function SettlementManagementPage() {
                   <td className="py-200">
                     <div className="flex flex-col gap-50">
                       <div className="font-designer-13r text-text-subtlest">
-                        매출 {settlement.revenue.toLocaleString()}원
+                        매출{' '}
+                        {settlement.totalSalesAmount?.toLocaleString() || 0}원
                       </div>
                       <div className="font-designer-13r text-text-subtlest">
-                        환불 {settlement.refund.toLocaleString()}원
+                        환불{' '}
+                        {settlement.totalRefundAmount?.toLocaleString() || 0}원
                       </div>
                     </div>
                   </td>
@@ -187,10 +188,10 @@ export default function SettlementManagementPage() {
                   <td className="py-200 pr-250">
                     <div className="flex flex-col gap-50">
                       <div className="font-designer-14m text-text-default">
-                        {settlement.total.toLocaleString()}원
+                        {settlement.settlementAmount?.toLocaleString() || 0}원
                       </div>
                       <div className="font-designer-13r text-text-subtlest">
-                        {settlement.date}
+                        {settlement.settledAt || settlement.scheduledAt || '-'}
                       </div>
                     </div>
                   </td>

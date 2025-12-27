@@ -1,30 +1,22 @@
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
+import { SettlementAccountResponse } from '@/api/openapi';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import AddAccountModal from './add-account-modal';
 
-interface AccountInfo {
-  bankName: string;
-  accountNumber: string;
-}
-
 interface AccountInfoModalProps {
+  data?: SettlementAccountResponse;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export default function AccountInfoModal({
+  data,
   open,
   onOpenChange,
 }: AccountInfoModalProps) {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
-  // Mock 계좌 정보
-  const accountInfo: AccountInfo = {
-    bankName: '국민은행',
-    accountNumber: '123-456-78901234',
-  };
 
   const handleEdit = () => {
     setIsEditModalOpen(true);
@@ -34,8 +26,6 @@ export default function AccountInfoModal({
     bankName: string;
     accountNumber: string;
   }) => {
-    // TODO: API 호출로 계좌 정보 업데이트
-    console.log('Updated account info:', values);
     alert('계좌 정보가 변경되었습니다!');
     setIsEditModalOpen(false);
   };
@@ -63,7 +53,7 @@ export default function AccountInfoModal({
 
                 <div className="flex items-center gap-150">
                   <p className="font-designer-16m text-text-subtle">
-                    {accountInfo.bankName} {accountInfo.accountNumber}
+                    {data?.bankName} {data?.accountNumber}
                   </p>
                   <Button
                     color="outlined"
