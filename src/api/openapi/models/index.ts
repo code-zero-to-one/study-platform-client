@@ -74,6 +74,8 @@ export * from './group-study-thread-comment-request';
 export * from './group-study-thread-request';
 export * from './group-study-update-request-dto';
 export * from './growth-metric-response';
+export * from './has-member-new-notification-response';
+export * from './has-member-new-notification-schema';
 export * from './homework-edit-request';
 export * from './homework-submission-request';
 export * from './homework-submission-response';

@@ -133,6 +133,8 @@ docs/GroupStudyThreadCommentRequest.md
 docs/GroupStudyThreadRequest.md
 docs/GroupStudyUpdateRequestDto.md
 docs/GrowthMetricResponse.md
+docs/HasMemberNewNotificationResponse.md
+docs/HasMemberNewNotificationSchema.md
 docs/HomeworkEditRequest.md
 docs/HomeworkSubmissionRequest.md
 docs/HomeworkSubmissionResponse.md
@@ -343,6 +345,8 @@ models/group-study-thread-comment-request.ts
 models/group-study-thread-request.ts
 models/group-study-update-request-dto.ts
 models/growth-metric-response.ts
+models/has-member-new-notification-response.ts
+models/has-member-new-notification-schema.ts
 models/homework-edit-request.ts
 models/homework-submission-request.ts
 models/homework-submission-response.ts

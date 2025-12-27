@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { HasMemberNewNotificationSchema } from '../models';
+// @ts-ignore
 import type { MemberNotificationSchema } from '../models';
 // @ts-ignore
 import type { NotificationCategoriesSchema } from '../models';
@@ -158,7 +160,7 @@ export const NotificationApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
-         * 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원의 신규 알림 존재 여부를 조회합니다.  - 읽지 않은 알림이 하나 이상 존재하는 경우 false를 반환합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | boolean | 알림 읽음 여부 | true / false | | message | string | 처리 결과 | \"회원 신규 알림 여부 조회 성공\" | 
+         * 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원의 신규 알림 존재 여부를 조회합니다.  - 읽지 않은 알림이 하나 이상 존재하는 경우 false를 반환합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"회원 신규 알림 여부 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | isRead | boolean | 신규 알림 여부 | true / false | 
          * @summary 회원 신규 알림 여부 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -281,12 +283,12 @@ export const NotificationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원의 신규 알림 존재 여부를 조회합니다.  - 읽지 않은 알림이 하나 이상 존재하는 경우 false를 반환합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | boolean | 알림 읽음 여부 | true / false | | message | string | 처리 결과 | \"회원 신규 알림 여부 조회 성공\" | 
+         * 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원의 신규 알림 존재 여부를 조회합니다.  - 읽지 않은 알림이 하나 이상 존재하는 경우 false를 반환합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"회원 신규 알림 여부 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | isRead | boolean | 신규 알림 여부 | true / false | 
          * @summary 회원 신규 알림 여부 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async hasMemberNewNotification(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async hasMemberNewNotification(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HasMemberNewNotificationSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.hasMemberNewNotification(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['NotificationApi.hasMemberNewNotification']?.[localVarOperationServerIndex]?.url;
@@ -299,7 +301,7 @@ export const NotificationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async readMemberNotifications(ids?: Array<any>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async readMemberNotifications(ids?: Array<any>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HasMemberNewNotificationSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.readMemberNotifications(ids, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['NotificationApi.readMemberNotifications']?.[localVarOperationServerIndex]?.url;
@@ -347,12 +349,12 @@ export const NotificationApiFactory = function (configuration?: Configuration, b
             return localVarFp.getMemberNotifications(page, size, hasRead, topicType, options).then((request) => request(axios, basePath));
         },
         /**
-         * 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원의 신규 알림 존재 여부를 조회합니다.  - 읽지 않은 알림이 하나 이상 존재하는 경우 false를 반환합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | boolean | 알림 읽음 여부 | true / false | | message | string | 처리 결과 | \"회원 신규 알림 여부 조회 성공\" | 
+         * 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원의 신규 알림 존재 여부를 조회합니다.  - 읽지 않은 알림이 하나 이상 존재하는 경우 false를 반환합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"회원 신규 알림 여부 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | isRead | boolean | 신규 알림 여부 | true / false | 
          * @summary 회원 신규 알림 여부 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        hasMemberNewNotification(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        hasMemberNewNotification(options?: RawAxiosRequestConfig): AxiosPromise<HasMemberNewNotificationSchema> {
             return localVarFp.hasMemberNewNotification(options).then((request) => request(axios, basePath));
         },
         /**
@@ -362,7 +364,7 @@ export const NotificationApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        readMemberNotifications(ids?: Array<any>, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        readMemberNotifications(ids?: Array<any>, options?: RawAxiosRequestConfig): AxiosPromise<HasMemberNewNotificationSchema> {
             return localVarFp.readMemberNotifications(ids, options).then((request) => request(axios, basePath));
         },
     };
@@ -408,7 +410,7 @@ export class NotificationApi extends BaseAPI {
     }
 
     /**
-     * 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원의 신규 알림 존재 여부를 조회합니다.  - 읽지 않은 알림이 하나 이상 존재하는 경우 false를 반환합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | boolean | 알림 읽음 여부 | true / false | | message | string | 처리 결과 | \"회원 신규 알림 여부 조회 성공\" | 
+     * 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원의 신규 알림 존재 여부를 조회합니다.  - 읽지 않은 알림이 하나 이상 존재하는 경우 false를 반환합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 201: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"회원 신규 알림 여부 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | isRead | boolean | 신규 알림 여부 | true / false | 
      * @summary 회원 신규 알림 여부 조회
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
