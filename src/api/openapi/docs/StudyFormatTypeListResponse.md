@@ -1,4 +1,4 @@
-# MemberProfileUpdateResponseSchema
+# StudyFormatTypeListResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**MemberProfileUpdateResponseDto**](MemberProfileUpdateResponseDto.md) |  | [optional] [default to undefined]
+**content** | [**Array&lt;StudyFormatTypeResponseDto&gt;**](StudyFormatTypeResponseDto.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { MemberProfileUpdateResponseSchema } from './api';
+import { StudyFormatTypeListResponse } from './api';
 
-const instance: MemberProfileUpdateResponseSchema = {
+const instance: StudyFormatTypeListResponse = {
     statusCode,
     timestamp,
     content,

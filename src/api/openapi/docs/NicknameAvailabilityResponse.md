@@ -1,4 +1,4 @@
-# FullMemberProfileResponseSchema
+# NicknameAvailabilityResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**FullMemberProfileResponseDto**](FullMemberProfileResponseDto.md) |  | [optional] [default to undefined]
+**content** | [**NicknameAvailabilityResponseDto**](NicknameAvailabilityResponseDto.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { FullMemberProfileResponseSchema } from './api';
+import { NicknameAvailabilityResponse } from './api';
 
-const instance: FullMemberProfileResponseSchema = {
+const instance: NicknameAvailabilityResponse = {
     statusCode,
     timestamp,
     content,

@@ -13,11 +13,14 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { NicknameAvailabilityResponseDto } from './nickname-availability-response-dto';
 
-export interface LongValueSchema {
+export interface NicknameAvailabilityResponse {
     'statusCode'?: number;
     'timestamp'?: string;
-    'content'?: number;
+    'content'?: NicknameAvailabilityResponseDto;
     'message'?: string;
 }
 

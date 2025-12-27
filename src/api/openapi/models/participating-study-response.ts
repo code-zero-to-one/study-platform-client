@@ -15,12 +15,12 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { MemberProfileUpdateResponseDto } from './member-profile-update-response-dto';
+import type { ParticipatingStudyResponseDto } from './participating-study-response-dto';
 
-export interface MemberProfileUpdateResponseSchema {
+export interface ParticipatingStudyResponse {
     'statusCode'?: number;
     'timestamp'?: string;
-    'content'?: MemberProfileUpdateResponseDto;
+    'content'?: ParticipatingStudyResponseDto;
     'message'?: string;
 }
 

@@ -1,4 +1,4 @@
-# ParticipatingStudyResponseSchema
+# AvailableStudyTimeListResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**ParticipatingStudyResponseDto**](ParticipatingStudyResponseDto.md) |  | [optional] [default to undefined]
+**content** | [**Array&lt;AvailableStudyTimeDto&gt;**](AvailableStudyTimeDto.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { ParticipatingStudyResponseSchema } from './api';
+import { AvailableStudyTimeListResponse } from './api';
 
-const instance: ParticipatingStudyResponseSchema = {
+const instance: AvailableStudyTimeListResponse = {
     statusCode,
     timestamp,
     content,

@@ -1,4 +1,4 @@
-# LongValueSchema
+# StudySubjectListResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | **number** |  | [optional] [default to undefined]
+**content** | [**Array&lt;StudySubjectDto&gt;**](StudySubjectDto.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { LongValueSchema } from './api';
+import { StudySubjectListResponse } from './api';
 
-const instance: LongValueSchema = {
+const instance: StudySubjectListResponse = {
     statusCode,
     timestamp,
     content,

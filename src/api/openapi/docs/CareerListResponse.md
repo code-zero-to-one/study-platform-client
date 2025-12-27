@@ -1,4 +1,4 @@
-# MemberProfileForStudySchema
+# CareerListResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**MemberProfileForStudyDto**](MemberProfileForStudyDto.md) |  | [optional] [default to undefined]
+**content** | [**Array&lt;CareerResponseDto&gt;**](CareerResponseDto.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { MemberProfileForStudySchema } from './api';
+import { CareerListResponse } from './api';
 
-const instance: MemberProfileForStudySchema = {
+const instance: CareerListResponse = {
     statusCode,
     timestamp,
     content,

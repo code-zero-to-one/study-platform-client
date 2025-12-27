@@ -15,12 +15,12 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ParticipatingStudyResponseDto } from './participating-study-response-dto';
+import type { JobResponseDto } from './job-response-dto';
 
-export interface ParticipatingStudyResponseSchema {
+export interface JobListResponse {
     'statusCode'?: number;
     'timestamp'?: string;
-    'content'?: ParticipatingStudyResponseDto;
+    'content'?: Array<JobResponseDto>;
     'message'?: string;
 }
 

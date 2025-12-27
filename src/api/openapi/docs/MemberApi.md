@@ -10,7 +10,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**signUp**](#signup) | **POST** /api/v1/members | [회원가입/로그인 팝업] 회원가입|
 
 # **autoMatchMember**
-> BaseResponse autoMatchMember()
+> NoContentResponse autoMatchMember()
 
 회원의 자동 매칭 여부를 켜거나 끌 수 있습니다.
 
@@ -26,7 +26,7 @@ const configuration = new Configuration();
 const apiInstance = new MemberApi(configuration);
 
 let autoMatching: boolean; //true일 경우 자동매칭 On, false일 경우 자동매칭 Off (default to undefined)
-let memberId: number; // (default to undefined)
+let memberId: number; //회원 Id (default to undefined)
 
 const { status, data } = await apiInstance.autoMatchMember(
     autoMatching,
@@ -39,12 +39,12 @@ const { status, data } = await apiInstance.autoMatchMember(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **autoMatching** | [**boolean**] | true일 경우 자동매칭 On, false일 경우 자동매칭 Off | defaults to undefined|
-| **memberId** | [**number**] |  | defaults to undefined|
+| **memberId** | [**number**] | 회원 Id | defaults to undefined|
 
 
 ### Return type
 
-**BaseResponse**
+**NoContentResponse**
 
 ### Authorization
 
@@ -68,7 +68,7 @@ const { status, data } = await apiInstance.autoMatchMember(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **findStudyReservations**
-> StudyReservationSchema findStudyReservations()
+> StudyReservationResponse findStudyReservations()
 
 다음 스터디 참가 예정인 회원 목록을 조회합니다.
 
@@ -105,7 +105,7 @@ const { status, data } = await apiInstance.findStudyReservations(
 
 ### Return type
 
-**StudyReservationSchema**
+**StudyReservationResponse**
 
 ### Authorization
 
@@ -125,7 +125,7 @@ const { status, data } = await apiInstance.findStudyReservations(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getParticipatingStudies**
-> ParticipatingStudyResponseSchema getParticipatingStudies()
+> ParticipatingStudyResponse getParticipatingStudies()
 
 회원이 참여한 스터디를 조회합니다.
 
@@ -174,7 +174,7 @@ const { status, data } = await apiInstance.getParticipatingStudies(
 
 ### Return type
 
-**ParticipatingStudyResponseSchema**
+**ParticipatingStudyResponse**
 
 ### Authorization
 
@@ -194,7 +194,7 @@ const { status, data } = await apiInstance.getParticipatingStudies(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **signUp**
-> signUp(memberCreationRequestDto)
+> MemberCreationResponse signUp(memberCreationRequest)
 
 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
 
@@ -204,16 +204,16 @@ const { status, data } = await apiInstance.getParticipatingStudies(
 import {
     MemberApi,
     Configuration,
-    MemberCreationRequestDto
+    MemberCreationRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new MemberApi(configuration);
 
-let memberCreationRequestDto: MemberCreationRequestDto; //
+let memberCreationRequest: MemberCreationRequest; //
 
 const { status, data } = await apiInstance.signUp(
-    memberCreationRequestDto
+    memberCreationRequest
 );
 ```
 
@@ -221,12 +221,12 @@ const { status, data } = await apiInstance.signUp(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **memberCreationRequestDto** | **MemberCreationRequestDto**|  | |
+| **memberCreationRequest** | **MemberCreationRequest**|  | |
 
 
 ### Return type
 
-void (empty response body)
+**MemberCreationResponse**
 
 ### Authorization
 

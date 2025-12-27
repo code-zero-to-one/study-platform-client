@@ -15,12 +15,12 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { FullMemberProfileResponseDto } from './full-member-profile-response-dto';
+import type { AvailableStudyTimeDto } from './available-study-time-dto';
 
-export interface FullMemberProfileResponseSchema {
+export interface AvailableStudyTimeListResponse {
     'statusCode'?: number;
     'timestamp'?: string;
-    'content'?: FullMemberProfileResponseDto;
+    'content'?: Array<AvailableStudyTimeDto>;
     'message'?: string;
 }
 

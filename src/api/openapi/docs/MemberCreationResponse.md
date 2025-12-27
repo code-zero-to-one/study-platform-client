@@ -1,4 +1,4 @@
-# StudyReservationSchema
+# MemberCreationResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** |  | [optional] [default to undefined]
 **timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**StudyReservationResponseDto**](StudyReservationResponseDto.md) |  | [optional] [default to undefined]
+**content** | [**MemberCreationResponseDto**](MemberCreationResponseDto.md) |  | [optional] [default to undefined]
 **message** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { StudyReservationSchema } from './api';
+import { MemberCreationResponse } from './api';
 
-const instance: StudyReservationSchema = {
+const instance: MemberCreationResponse = {
     statusCode,
     timestamp,
     content,
