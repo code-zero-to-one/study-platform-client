@@ -50,9 +50,13 @@ export interface BasicInfo {
   startDate: string;
   endDate: string;
   price: number;
+  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
   createdAt: string;
   updatedAt: string;
 }
+
+// 요청용 BasicInfo (백엔드 request body에서 createdAt, updatedAt 제외됨)
+export type BasicInfoRequest = Omit<BasicInfo, 'createdAt' | 'updatedAt'>;
 
 export interface BasicInfoDetail extends BasicInfo {
   groupStudyId: number;
@@ -158,7 +162,7 @@ export interface ApplyGroupStudyResponse {
 }
 
 export interface GroupStudyFormRequest {
-  basicInfo: BasicInfo;
+  basicInfo: BasicInfoRequest;
   detailInfo: DetailInfo;
   interviewPost: {
     interviewPost: string[];

@@ -35,6 +35,7 @@ export const GroupStudyFormSchema = z.object({
     .trim()
     .regex(ISO_DATE_REGEX, 'YYYY-MM-DD 형식의 종료일을 입력해 주세요.'),
   price: z.string().trim().optional(),
+  classification: z.enum(['GROUP_STUDY', 'PREMIUM_STUDY']),
   title: z.string().trim().min(1, '스터디 제목을 입력해주세요.'),
   summary: z.string().trim().min(1, '한 줄 소개를 입력해주세요.'),
   description: z.string().trim().min(1, '스터디 소개를 입력해주세요.'),
@@ -72,6 +73,7 @@ export function buildOpenGroupDefaultValues(): GroupStudyFormValues {
     startDate: '',
     endDate: '',
     price: '',
+    classification: 'GROUP_STUDY',
     title: '',
     description: '',
     summary: '',
@@ -95,8 +97,7 @@ export function toOpenGroupRequest(
       startDate: v.startDate.trim(),
       endDate: v.endDate.trim(),
       price: Number(v.price),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+      classification: v.classification,
     },
     detailInfo: {
       thumbnailExtension: v.thumbnailExtension,
