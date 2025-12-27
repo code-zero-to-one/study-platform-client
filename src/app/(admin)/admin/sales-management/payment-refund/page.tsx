@@ -70,7 +70,7 @@ export default function PaymentRefundPage() {
     })),
   ];
 
-  const isPaymentId = keyword.startsWith('PAY');
+  const isPaymentId = keyword.startsWith('PAY-');
 
   const { data: transactionsData } = useGetTransactionsForAdmin({
     type,

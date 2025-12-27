@@ -51,13 +51,15 @@ export default function PaymentManagement() {
     to: undefined,
   });
 
+  const isPaymentCode = keyword.startsWith('PAY-');
+
   const { data: paymentListData } = useGetMyTransactions({
     page: page - 1,
     size: 8,
     startDate: dateRange?.from?.toISOString().split('T')[0],
     endDate: dateRange?.to?.toISOString().split('T')[0],
-    studyTitle: keyword || undefined,
-    paymentCode: keyword || undefined,
+    studyTitle: isPaymentCode ? undefined : keyword,
+    paymentCode: isPaymentCode ? keyword : undefined,
   });
 
   const paymentList = paymentListData?.content;
