@@ -191,7 +191,8 @@ export default function PaymentRefundPage() {
                     {/* 결제 내역 */}
                     <td className="py-200 pl-[10px]">
                       <span className="font-designer-14r text-text-default">
-                        {transaction.paymentAmount?.toLocaleString() || 0}원(
+                        {transaction.transactionAmount?.toLocaleString() || 0}
+                        원(
                         {transaction.paymentMethod || '-'})
                       </span>
                     </td>
@@ -220,7 +221,7 @@ export default function PaymentRefundPage() {
                         groupStudyName={transaction.groupStudyName}
                         paymentMemberName={transaction.paymentMemberName}
                         paymentMemberId={transaction.paymentMemberId}
-                        paymentAmount={transaction.paymentAmount}
+                        transactionAmount={transaction.transactionAmount}
                       />
                     </td>
                   </tr>
@@ -263,14 +264,14 @@ function SalesActionButtons({
   groupStudyName,
   paymentMemberName,
   paymentMemberId,
-  paymentAmount,
+  transactionAmount,
 }: Pick<
   AdminTransactionListResponse,
   | 'paymentHistoryType'
   | 'groupStudyName'
   | 'paymentMemberName'
   | 'paymentMemberId'
-  | 'paymentAmount'
+  | 'transactionAmount'
 >) {
   switch (paymentHistoryType) {
     case 'PAYMENT_SUCCESS':
@@ -288,7 +289,7 @@ function SalesActionButtons({
             groupStudyName={groupStudyName}
             paymentMemberName={paymentMemberName}
             paymentMemberId={paymentMemberId}
-            paymentAmount={paymentAmount}
+            transactionAmount={transactionAmount}
           />
           <ReceiptButton />
         </div>
@@ -328,10 +329,13 @@ function RefundButton({
   groupStudyName,
   paymentMemberName,
   paymentMemberId,
-  paymentAmount,
+  transactionAmount,
 }: Pick<
   AdminTransactionListResponse,
-  'groupStudyName' | 'paymentMemberName' | 'paymentMemberId' | 'paymentAmount'
+  | 'groupStudyName'
+  | 'paymentMemberName'
+  | 'paymentMemberId'
+  | 'transactionAmount'
 >) {
   const [open, setOpen] = useState(false);
 
@@ -343,7 +347,7 @@ function RefundButton({
         groupStudyName={groupStudyName}
         paymentMemberName={paymentMemberName}
         paymentMemberId={paymentMemberId}
-        paymentAmount={paymentAmount}
+        transactionAmount={transactionAmount}
       />
       <Button color="outlined" size="small" className="font-designer-14r">
         환불하기

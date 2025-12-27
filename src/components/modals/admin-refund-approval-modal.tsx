@@ -5,7 +5,10 @@ import { Modal } from '../ui/modal';
 interface AdminRefundApprovalModalProps
   extends Pick<
     AdminTransactionListResponse,
-    'groupStudyName' | 'paymentMemberName' | 'paymentMemberId' | 'paymentAmount'
+    | 'groupStudyName'
+    | 'paymentMemberName'
+    | 'paymentMemberId'
+    | 'transactionAmount'
   > {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -17,7 +20,7 @@ export default function AdminRefundApprovalModal({
   groupStudyName,
   paymentMemberName,
   paymentMemberId,
-  paymentAmount,
+  transactionAmount,
 }: AdminRefundApprovalModalProps) {
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -33,7 +36,7 @@ export default function AdminRefundApprovalModal({
             <span>
               {paymentMemberName}({paymentMemberId})
             </span>
-            <span>{paymentAmount.toLocaleString()}원(무통장입금)</span>
+            <span>{transactionAmount.toLocaleString()}원(무통장입금)</span>
           </Modal.Body>
 
           <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
