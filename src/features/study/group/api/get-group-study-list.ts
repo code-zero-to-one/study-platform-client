@@ -16,7 +16,7 @@ export const getGroupStudyList = async (
         page,
         'page-size': size,
         groupStudyStatus: status,
-        'classification': classification,
+        classification: classification,
       },
     });
 
