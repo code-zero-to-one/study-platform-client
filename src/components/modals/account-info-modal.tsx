@@ -22,14 +22,6 @@ export default function AccountInfoModal({
     setIsEditModalOpen(true);
   };
 
-  const handleEditSubmit = (values: {
-    bankName: string;
-    accountNumber: string;
-  }) => {
-    alert('계좌 정보가 변경되었습니다!');
-    setIsEditModalOpen(false);
-  };
-
   return (
     <>
       <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -83,9 +75,13 @@ export default function AccountInfoModal({
       </Modal.Root>
 
       <AddAccountModal
+        defaultValues={{
+          bankName: data?.bankName,
+          accountNumber: data?.accountNumber,
+          accountHolder: data?.accountHolder,
+        }}
         open={isEditModalOpen}
         onOpenChange={setIsEditModalOpen}
-        onSubmit={handleEditSubmit}
       />
     </>
   );

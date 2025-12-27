@@ -7,26 +7,31 @@ import SingleDropdown from '@/components/ui/dropdown/single';
 import FormField from '@/components/ui/form/form-field';
 import { Modal } from '@/components/ui/modal';
 import { useSearchBanks } from '@/hooks/queries/bank-search-api';
+import {
+  useRegisterSettlementAccount,
+  useUpdateSettlementAccount,
+} from '@/hooks/queries/settlement-account-api';
 import { BaseInput } from '../ui/input';
 
 // Form Schema
 const AddAccountFormSchema = z.object({
   bankName: z.string().min(1, '은행을 선택해주세요.'),
   accountNumber: z.string().min(1, '계좌번호를 입력해주세요.'),
+  accountHolder: z.string().min(1, '예금주명을 입력해주세요.'),
 });
 
 type AddAccountFormValues = z.infer<typeof AddAccountFormSchema>;
 
 interface AddAccountModalProps {
+  defaultValues?: AddAccountFormValues;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSubmit?: (values: AddAccountFormValues) => void;
 }
 
 export default function AddAccountModal({
+  defaultValues,
   open,
   onOpenChange,
-  onSubmit,
 }: AddAccountModalProps) {
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -43,8 +48,8 @@ export default function AddAccountModal({
           </Modal.Header>
 
           <AddAccountForm
+            defaultValues={defaultValues}
             onClose={() => onOpenChange(false)}
-            onSubmit={onSubmit}
           />
         </Modal.Content>
       </Modal.Portal>
@@ -53,30 +58,55 @@ export default function AddAccountModal({
 }
 
 interface AddAccountFormProps {
+  defaultValues?: AddAccountFormValues;
   onClose: () => void;
-  onSubmit?: (values: AddAccountFormValues) => void;
 }
 
-function AddAccountForm({ onClose, onSubmit }: AddAccountFormProps) {
+function AddAccountForm({
+  defaultValues = {
+    bankName: '',
+    accountNumber: '',
+    accountHolder: '',
+  },
+  onClose,
+}: AddAccountFormProps) {
   const methods = useForm<AddAccountFormValues>({
     resolver: zodResolver(AddAccountFormSchema),
     mode: 'onChange',
-    defaultValues: {
-      bankName: '',
-      accountNumber: '',
-    },
+    defaultValues,
   });
 
   const { handleSubmit, formState, control } = methods;
 
+  const { mutate: registerAccount } = useRegisterSettlementAccount();
+  const { mutate: updateAccount } = useUpdateSettlementAccount();
+
   const onValidSubmit = (values: AddAccountFormValues) => {
-    // TODO: API 호출로 대체
-    if (onSubmit) {
-      onSubmit(values);
-    } else {
-      alert('계좌 정보가 등록되었습니다!');
+    const mode = defaultValues ? 'update' : 'add';
+
+    if (mode === 'add') {
+      registerAccount(values, {
+        onSuccess: () => {
+          alert('계좌가 성공적으로 등록되었습니다!');
+          onClose();
+        },
+        onError: () => {
+          alert('계좌 등록에 실패했습니다. 다시 시도해주세요.');
+        },
+      });
+
+      return;
+    } else if (mode === 'update') {
+      updateAccount(values, {
+        onSuccess: () => {
+          alert('계좌 정보가 성공적으로 변경되었습니다!');
+          onClose();
+        },
+        onError: () => {
+          alert('계좌 정보 변경에 실패했습니다. 다시 시도해주세요.');
+        },
+      });
     }
-    onClose();
   };
 
   const { data } = useSearchBanks();
@@ -126,6 +156,19 @@ function AddAccountForm({ onClose, onSubmit }: AddAccountFormProps) {
             <BaseInput
               id="accountNumber"
               placeholder="계좌 번호를 입력해주세요."
+              maxLength={50}
+            />
+          </FormField>
+
+          <FormField<AddAccountFormValues, 'accountHolder'>
+            name="accountHolder"
+            label="예금주명"
+            direction="vertical"
+            required
+          >
+            <BaseInput
+              id="accountHolder"
+              placeholder="예금주명을 입력해주세요."
               maxLength={50}
             />
           </FormField>
