@@ -1,5 +1,5 @@
 const STRAPI_URL =
-  process.env.NEXT_PUBLIC_STRAPI_URL || 'http://test.zeroone.it.kr:21337';
+  process.env.NEXT_PUBLIC_STRAPI_URL || 'https://test-blog.zeroone.it.kr';
 
 // 공통 응답 타입 (flat 구조용)
 export interface StrapiCollectionResponse<T> {
