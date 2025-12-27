@@ -1,7 +1,12 @@
 'use client';
 
+import { format } from 'date-fns';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
+import {
+  AdminTransactionListResponse,
+  PaymentSearchConditionTypeEnum,
+} from '@/api/openapi';
 import AdminForcedCancellationModal from '@/components/modals/admin-forced-cancellation-modal';
 import AdminRefundApprovalModal from '@/components/modals/admin-refund-approval-modal';
 import Badge from '@/components/ui/badge';
@@ -10,89 +15,78 @@ import DatePicker from '@/components/ui/date-picker';
 import SingleDropdown from '@/components/ui/dropdown/single';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
+import { useGetTransactionsForAdmin } from '@/hooks/queries/admin-payment-api';
+import { formatToKST } from '@/utils/time';
 
-type SalesStatus =
-  | '결제대기'
-  | '결제취소'
-  | '결제완료'
-  | '환불요청'
-  | '환불완료';
-
-const getStatusBadgeColor = (
-  status: SalesStatus,
-): 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray' => {
-  switch (status) {
-    case '결제대기':
-      return 'blue';
-    case '결제취소':
-      return 'red';
-    case '결제완료':
-      return 'green';
-    case '환불요청':
-      return 'orange';
-    case '환불완료':
-      return 'gray';
-    default:
-      return 'gray';
+const PAYMENT_HISTORY_TYPE_MAP: Record<
+  NonNullable<AdminTransactionListResponse['paymentHistoryType']>,
+  {
+    label: string;
+    color: 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray';
   }
+> = {
+  PAYMENT_REQUESTED: { label: '결제대기', color: 'blue' },
+  PAYMENT_SUCCESS: { label: '결제완료', color: 'green' },
+  PAYMENT_FAILED: { label: '결제실패', color: 'red' },
+  PAYMENT_CANCELED: { label: '결제취소', color: 'red' },
+  REFUND_REQUESTED: { label: '환불요청', color: 'orange' },
+  REFUND_APPROVED: { label: '환불승인', color: 'orange' },
+  REFUND_COMPLETED: { label: '환불완료', color: 'gray' },
+  REFUND_REJECTED: { label: '환불반려', color: 'green' },
+  REFUND_CANCELED: { label: '환불취소', color: 'green' },
+  REFUND_FAILED: { label: '환불실패', color: 'red' },
 };
 
-const mockSalesData = [
-  {
-    id: 'PAY-20251206-001',
-    studyTitle: '데이터 분석 Python 스터디(진행전)',
-    buyer: '김민정(1)',
-    amount: 150000,
-    paymentType: '카드(신한)',
-    status: '결제대기' as SalesStatus,
-    date: '2025.12.08 12:11',
-  },
-  {
-    id: 'PAY-20251206-001',
-    studyTitle: '데이터 분석 Python 스터디(진행전)',
-    buyer: '김민정(2)',
-    amount: 150000,
-    paymentType: '카드(신한)',
-    status: '결제취소' as SalesStatus,
-    date: '2025.12.08 12:11',
-  },
-  {
-    id: 'PAY-20251206-001',
-    studyTitle: '데이터 분석 Python 스터디(진행전)',
-    buyer: '김민정(3)',
-    amount: 150000,
-    paymentType: '카드(신한)',
-    status: '결제완료' as SalesStatus,
-    date: '2025.12.08 12:11',
-  },
-  {
-    id: 'PAY-20251206-001',
-    studyTitle: '데이터 분석 Python 스터디',
-    buyer: '김민정(1)',
-    amount: 150000,
-    paymentType: '무통장입금',
-    status: '환불요청' as SalesStatus,
-    date: '2025.12.08 12:11',
-  },
-];
-
-const filterOptions = [
-  { value: 'all', label: '전체' },
-  { value: 'payment_pending', label: '결제대기' },
-  { value: 'payment_complete', label: '결제완료' },
-  { value: 'payment_cancel', label: '결제취소' },
-  { value: 'refund_request', label: '환불요청' },
-  { value: 'refund_complete', label: '환불완료' },
-];
+const STUDY_STATUS_MAP: Record<
+  NonNullable<AdminTransactionListResponse['groupStudyStatus']>,
+  string
+> = {
+  RECRUITING: '모집중',
+  IN_PROGRESS: '진행중',
+  COMPLETED: '완료',
+};
 
 export default function PaymentRefundPage() {
-  const [filterStatus, setFilterStatus] = useState<string>('all');
   const [keyword, setKeyword] = useState<string>('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
   const [page, setPage] = useState<number>(1);
+  const [type, setType] = useState<PaymentSearchConditionTypeEnum | undefined>(
+    undefined,
+  );
+
+  const typeOptions = [
+    {
+      label: '전체',
+      value: undefined,
+    },
+    ...Object.keys(PAYMENT_HISTORY_TYPE_MAP).map((key) => ({
+      label:
+        PAYMENT_HISTORY_TYPE_MAP[key as keyof typeof PAYMENT_HISTORY_TYPE_MAP]
+          .label,
+      value: key,
+    })),
+  ];
+
+  const isPaymentId = keyword.startsWith('PAY');
+
+  const { data: transactionsData } = useGetTransactionsForAdmin({
+    type,
+    startDate: dateRange?.from
+      ? dateRange.from.toISOString().split('T')[0]
+      : undefined,
+    endDate: dateRange?.to
+      ? dateRange.to.toISOString().split('T')[0]
+      : undefined,
+    studyTitle: !isPaymentId && keyword ? keyword : undefined,
+    paymentCode: isPaymentId && keyword ? keyword : undefined,
+    page: page - 1,
+    size: 20,
+  });
+
+  const list = transactionsData?.content || [];
 
   return (
     <>
@@ -102,9 +96,11 @@ export default function PaymentRefundPage() {
           {/* 상태 필터 드롭다운 */}
           <div className="w-[160px]">
             <SingleDropdown
-              options={filterOptions}
-              value={filterStatus}
-              onChange={(value) => setFilterStatus(value || 'all')}
+              options={typeOptions}
+              value={type}
+              onChange={(value) =>
+                setType(value as PaymentSearchConditionTypeEnum)
+              }
               placeholder="전체"
               size="m"
             />
@@ -155,63 +151,81 @@ export default function PaymentRefundPage() {
             </tr>
           </thead>
           <tbody>
-            {mockSalesData && mockSalesData.length > 0 ? (
-              mockSalesData.map((sale, index) => (
-                <tr
-                  key={`${sale.id}-${index}`}
-                  className="border-b-border-default border-b"
-                >
-                  {/* 거래 ID */}
-                  <td className="py-200 pl-250">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.id}
-                    </span>
-                  </td>
+            {list && list.length > 0 ? (
+              list.map((transaction, index) => {
+                const statusConfig = transaction.paymentHistoryType
+                  ? PAYMENT_HISTORY_TYPE_MAP[transaction.paymentHistoryType]
+                  : null;
 
-                  {/* 스터디명 */}
-                  <td className="py-200 pl-[10px]">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.studyTitle}
-                    </span>
-                  </td>
+                if (!statusConfig) return null;
 
-                  {/* 결제자 */}
-                  <td className="py-200 pl-[10px]">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.buyer}
-                    </span>
-                  </td>
+                return (
+                  <tr
+                    key={`${transaction.paymentCode}-${index}`}
+                    className="border-b-border-default border-b"
+                  >
+                    {/* 거래 ID */}
+                    <td className="py-200 pl-250">
+                      <span className="font-designer-14r text-text-default">
+                        {transaction.paymentCode || '-'}
+                      </span>
+                    </td>
 
-                  {/* 결제 내역 */}
-                  <td className="py-200 pl-[10px]">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.amount.toLocaleString()}원({sale.paymentType})
-                    </span>
-                  </td>
+                    {/* 스터디명 */}
+                    <td className="py-200 pl-[10px]">
+                      <span className="font-designer-14r text-text-default">
+                        {`${transaction.groupStudyName} (${
+                          STUDY_STATUS_MAP[transaction.groupStudyStatus]
+                        })`}
+                      </span>
+                    </td>
 
-                  {/* 상태 */}
-                  <td className="py-200 pl-[10px]">
-                    <Badge
-                      color={getStatusBadgeColor(sale.status)}
-                      shape="rectangle"
-                    >
-                      {sale.status}
-                    </Badge>
-                  </td>
+                    {/* 결제자 */}
+                    <td className="py-200 pl-[10px]">
+                      <span className="font-designer-14r text-text-default">
+                        {transaction.paymentMemberName || '-'}(
+                        {transaction.paymentMemberId || '-'})
+                      </span>
+                    </td>
 
-                  {/* 일시 */}
-                  <td className="py-200 pl-[10px]">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.date}
-                    </span>
-                  </td>
+                    {/* 결제 내역 */}
+                    <td className="py-200 pl-[10px]">
+                      <span className="font-designer-14r text-text-default">
+                        {transaction.paymentAmount?.toLocaleString() || 0}원(
+                        {transaction.paymentMethod || '-'})
+                      </span>
+                    </td>
 
-                  {/* 액션 버튼 */}
-                  <td className="py-200 pr-250">
-                    <SalesActionButtons status={sale.status} />
-                  </td>
-                </tr>
-              ))
+                    {/* 상태 */}
+                    <td className="py-200 pl-[10px]">
+                      <Badge color={statusConfig.color} shape="rectangle">
+                        {statusConfig.label}
+                      </Badge>
+                    </td>
+
+                    {/* 일시 */}
+                    <td className="py-200 pl-[10px]">
+                      <span className="font-designer-14r text-text-default">
+                        {format(
+                          formatToKST(transaction.transactionedAt),
+                          'yyyy.MM.dd HH:mm',
+                        )}
+                      </span>
+                    </td>
+
+                    {/* 액션 버튼 */}
+                    <td className="py-200 pr-250">
+                      <SalesActionButtons
+                        paymentHistoryType={transaction.paymentHistoryType}
+                        groupStudyName={transaction.groupStudyName}
+                        paymentMemberName={transaction.paymentMemberName}
+                        paymentMemberId={transaction.paymentMemberId}
+                        paymentAmount={transaction.paymentAmount}
+                      />
+                    </td>
+                  </tr>
+                );
+              })
             ) : (
               <tr>
                 <td
@@ -231,36 +245,55 @@ export default function PaymentRefundPage() {
       {/* 페이지네이션 */}
       <div className="flex items-center justify-between">
         <span className="text-icon-subtlest font-designer-13r">
-          총 {mockSalesData.length}건
+          총 {transactionsData?.totalElements || 0}건
         </span>
-        <Pagination page={page} onChangePage={setPage} totalPages={5} />
+        <Pagination
+          page={page}
+          onChangePage={setPage}
+          totalPages={transactionsData?.totalPages || 1}
+        />
         <div />
       </div>
     </>
   );
 }
 
-function SalesActionButtons({ status }: { status: SalesStatus }) {
-  const handleAction = (action: string) => {
-    console.log(`Action: ${action} for status: ${status}`);
-  };
-
-  switch (status) {
-    case '결제완료':
+function SalesActionButtons({
+  paymentHistoryType,
+  groupStudyName,
+  paymentMemberName,
+  paymentMemberId,
+  paymentAmount,
+}: Pick<
+  AdminTransactionListResponse,
+  | 'paymentHistoryType'
+  | 'groupStudyName'
+  | 'paymentMemberName'
+  | 'paymentMemberId'
+  | 'paymentAmount'
+>) {
+  switch (paymentHistoryType) {
+    case 'PAYMENT_SUCCESS':
       return (
         <div className="flex items-center gap-100">
+          <ForcedCancellationButton />
           <ReceiptButton />
         </div>
       );
-    case '환불요청':
+
+    case 'REFUND_REQUESTED':
       return (
         <div className="flex items-center gap-100">
-          <ApproveRefundButton />
-          <RejectRefundButton />
+          <RefundButton
+            groupStudyName={groupStudyName}
+            paymentMemberName={paymentMemberName}
+            paymentMemberId={paymentMemberId}
+            paymentAmount={paymentAmount}
+          />
+          <ReceiptButton />
         </div>
       );
-    case '환불완료':
-      return <ReceiptButton />;
+
     default:
       return null;
   }
@@ -291,44 +324,29 @@ function ForcedCancellationButton() {
   );
 }
 
-function RefundButton() {
-  return (
-    <Button color="outlined" size="small" className="font-designer-14r">
-      환불하기
-    </Button>
-  );
-}
-
-function ApproveRefundButton() {
+function RefundButton({
+  groupStudyName,
+  paymentMemberName,
+  paymentMemberId,
+  paymentAmount,
+}: Pick<
+  AdminTransactionListResponse,
+  'groupStudyName' | 'paymentMemberName' | 'paymentMemberId' | 'paymentAmount'
+>) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <AdminRefundApprovalModal open={open} onOpenChange={setOpen} />
-      <Button
-        color="outlined"
-        size="small"
-        className="font-designer-14r"
-        onClick={() => setOpen(true)}
-      >
-        환불 승인
-      </Button>
-    </>
-  );
-}
-
-function RejectRefundButton() {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <>
-      <AdminRefundApprovalModal open={open} onOpenChange={setOpen} />
-      <Button
-        size="small"
-        className="font-designer-14r"
-        onClick={() => setOpen(true)}
-      >
-        환불 반려
+      <AdminRefundApprovalModal
+        open={open}
+        onOpenChange={setOpen}
+        groupStudyName={groupStudyName}
+        paymentMemberName={paymentMemberName}
+        paymentMemberId={paymentMemberId}
+        paymentAmount={paymentAmount}
+      />
+      <Button color="outlined" size="small" className="font-designer-14r">
+        환불하기
       </Button>
     </>
   );

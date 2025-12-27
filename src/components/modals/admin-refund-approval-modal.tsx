@@ -1,22 +1,23 @@
+import { AdminTransactionListResponse } from '@/api/openapi';
 import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
-interface AdminRefundApprovalModalProps {
+interface AdminRefundApprovalModalProps
+  extends Pick<
+    AdminTransactionListResponse,
+    'groupStudyName' | 'paymentMemberName' | 'paymentMemberId' | 'paymentAmount'
+  > {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  studyTitle?: string;
-  userName?: string;
-  userId?: string;
-  amount?: number;
 }
 
 export default function AdminRefundApprovalModal({
   open,
   onOpenChange,
-  studyTitle = '데이터 분석 Python 스터디',
-  userName = '김민정',
-  userId = 'ab0001',
-  amount = 150000,
+  groupStudyName,
+  paymentMemberName,
+  paymentMemberId,
+  paymentAmount,
 }: AdminRefundApprovalModalProps) {
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -28,11 +29,11 @@ export default function AdminRefundApprovalModal({
           </Modal.Header>
 
           <Modal.Body className="font-designer-14r text-text-default flex flex-col items-center gap-100 py-250">
-            <span>{studyTitle}</span>
+            <span>{groupStudyName}</span>
             <span>
-              {userName}({userId})
+              {paymentMemberName}({paymentMemberId})
             </span>
-            <span>{amount.toLocaleString()}원(무통장입금)</span>
+            <span>{paymentAmount.toLocaleString()}원(무통장입금)</span>
           </Modal.Body>
 
           <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
