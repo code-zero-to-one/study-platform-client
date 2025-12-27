@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
-import type { StudySettlementSummaryResponseStatusEnum } from '@/api/openapi/models';
+import type { StudySettlementSummaryResponse } from '@/api/openapi/models';
 import AccountInfoModal from '@/components/modals/account-info-modal';
 import AddAccountModal from '@/components/modals/add-account-modal';
 import Badge from '@/components/ui/badge';
@@ -14,30 +14,16 @@ import Pagination from '@/components/ui/pagination';
 import { useGetSettlementAccount } from '@/hooks/queries/settlement-account-api';
 import { useGetMySettlements } from '@/hooks/queries/settlement-user-api';
 
-type SettlementStatus = '정산대기' | '정산승인' | '정산완료';
-
-const STATUS_TEXT_MAP: Record<
-  StudySettlementSummaryResponseStatusEnum,
-  SettlementStatus
-> = {
-  PENDING: '정산대기',
-  APPROVED: '정산승인',
-  COMPLETED: '정산완료',
-};
-
-const getStatusBadgeColor = (
-  status: SettlementStatus,
-): 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray' => {
-  switch (status) {
-    case '정산대기':
-      return 'gray';
-    case '정산승인':
-      return 'blue';
-    case '정산완료':
-      return 'green';
-    default:
-      return 'gray';
+const SETTLEMENT_STATUS_MAP: Record<
+  NonNullable<StudySettlementSummaryResponse['status']>,
+  {
+    label: string;
+    color: 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray';
   }
+> = {
+  PENDING: { label: '정산대기', color: 'gray' },
+  APPROVED: { label: '정산승인', color: 'blue' },
+  COMPLETED: { label: '정산완료', color: 'green' },
 };
 
 export default function SettlementManagementPage() {
@@ -158,12 +144,12 @@ export default function SettlementManagementPage() {
                         </h3>
                         {settlement.status && (
                           <Badge
-                            color={getStatusBadgeColor(
-                              STATUS_TEXT_MAP[settlement.status],
-                            )}
+                            color={
+                              SETTLEMENT_STATUS_MAP[settlement.status].color
+                            }
                             shape="rectangle"
                           >
-                            {STATUS_TEXT_MAP[settlement.status]}
+                            {SETTLEMENT_STATUS_MAP[settlement.status].label}
                           </Badge>
                         )}
                       </div>

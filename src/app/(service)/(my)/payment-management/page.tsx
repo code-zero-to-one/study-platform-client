@@ -19,55 +19,23 @@ import {
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
 
-type PaymentStatus =
-  | '결제대기'
-  | '결제취소'
-  | '결제실패'
-  | '결제완료'
-  | '환불완료'
-  | '환불요청'
-  | '환불승인'
-  | '환불반려'
-  | '환불취소'
-  | '환불실패';
-
-const STATUS_TEXT_MAP: Record<
+const TRANSACTION_TYPE_MAP: Record<
   UserTransactionListResponseLatestTransactionTypeEnum,
-  PaymentStatus
-> = {
-  PAYMENT_REQUESTED: '결제대기',
-  PAYMENT_SUCCESS: '결제완료',
-  PAYMENT_FAILED: '결제실패',
-  PAYMENT_CANCELED: '결제취소',
-  REFUND_REQUESTED: '환불요청',
-  REFUND_APPROVED: '환불승인',
-  REFUND_COMPLETED: '환불완료',
-  REFUND_REJECTED: '환불반려',
-  REFUND_CANCELED: '환불취소',
-  REFUND_FAILED: '환불실패',
-};
-
-const getStatusBadgeColor = (
-  status: PaymentStatus,
-): 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray' => {
-  switch (status) {
-    case '결제대기':
-      return 'blue';
-    case '결제취소':
-      return 'red';
-    case '결제완료':
-      return 'green';
-    case '환불완료':
-      return 'gray';
-    case '환불요청':
-      return 'orange';
-    case '환불승인':
-      return 'orange';
-    case '환불반려':
-      return 'red';
-    default:
-      return 'gray';
+  {
+    label: string;
+    color: 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray';
   }
+> = {
+  PAYMENT_REQUESTED: { label: '결제대기', color: 'blue' },
+  PAYMENT_SUCCESS: { label: '결제완료', color: 'green' },
+  PAYMENT_FAILED: { label: '결제실패', color: 'red' },
+  PAYMENT_CANCELED: { label: '결제취소', color: 'red' },
+  REFUND_REQUESTED: { label: '환불요청', color: 'orange' },
+  REFUND_APPROVED: { label: '환불승인', color: 'orange' },
+  REFUND_COMPLETED: { label: '환불완료', color: 'gray' },
+  REFUND_REJECTED: { label: '환불반려', color: 'red' },
+  REFUND_CANCELED: { label: '환불취소', color: 'red' },
+  REFUND_FAILED: { label: '환불실패', color: 'red' },
 };
 
 export default function PaymentManagement() {
@@ -170,17 +138,17 @@ export default function PaymentManagement() {
                             </h3>
                             {transaction.latestTransactionType && (
                               <Badge
-                                color={getStatusBadgeColor(
-                                  STATUS_TEXT_MAP[
+                                color={
+                                  TRANSACTION_TYPE_MAP[
                                     transaction.latestTransactionType
-                                  ],
-                                )}
+                                  ].color
+                                }
                                 shape="rectangle"
                               >
                                 {
-                                  STATUS_TEXT_MAP[
+                                  TRANSACTION_TYPE_MAP[
                                     transaction.latestTransactionType
-                                  ]
+                                  ].label
                                 }
                               </Badge>
                             )}
