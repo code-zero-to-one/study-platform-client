@@ -56,8 +56,10 @@ const { status, data } = await apiInstance.cancelRefundRequest(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 사용자 환불 요청 취소 성공 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**400** | 환불 상태가 유효하지 않거나 이미 취소됨 |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
+|**404** | 환불 정보를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -176,8 +178,10 @@ const { status, data } = await apiInstance.requestRefund(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | 사용자 환불 요청 성공 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**400** | 환불 불가 상태 (이미 환불 진행중, 정산 후, 환불 금액 0원 등) |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
+|**404** | 결제 정보를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

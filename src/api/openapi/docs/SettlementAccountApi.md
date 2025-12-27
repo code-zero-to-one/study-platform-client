@@ -43,13 +43,14 @@ This endpoint does not have any parameters.
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: */*
+ - **Accept**: */*, application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | 정산 계좌 삭제 성공 |  -  |
+|**400** | 정산 계좌를 찾을 수 없음 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -94,6 +95,7 @@ This endpoint does not have any parameters.
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 정산 계좌 조회 성공 |  -  |
+|**400** | 정산 계좌를 찾을 수 없음 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -146,6 +148,7 @@ const { status, data } = await apiInstance.register(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | 정산 계좌 등록 성공 |  -  |
+|**400** | 정산 계좌가 이미 존재함 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -198,6 +201,7 @@ const { status, data } = await apiInstance.update(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 정산 계좌 수정 성공 |  -  |
+|**400** | 정산 계좌를 찾을 수 없음 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

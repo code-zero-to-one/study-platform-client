@@ -62,6 +62,8 @@ const { status, data } = await apiInstance.approveRefund(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 관리자 환불 승인 성공 |  -  |
+|**400** | 환불 상태가 유효하지 않거나 정산 후 환불 불가 |  -  |
+|**404** | 환불 정보를 찾을 수 없음 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
@@ -115,6 +117,9 @@ const { status, data } = await apiInstance.completeRefund(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 관리자 환불 완료 처리 성공 |  -  |
+|**400** | 환불 상태가 유효하지 않음 |  -  |
+|**404** | 환불 정보를 찾을 수 없음 |  -  |
+|**502** | 토스 환불 실패 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
@@ -238,6 +243,8 @@ const { status, data } = await apiInstance.rejectRefund(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 관리자 환불 거절 성공 |  -  |
+|**400** | 환불 상태가 유효하지 않음 |  -  |
+|**404** | 환불 정보를 찾을 수 없음 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
@@ -291,6 +298,9 @@ const { status, data } = await apiInstance.retryRefund(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 관리자 환불 재시도 성공 |  -  |
+|**400** | 환불 상태가 유효하지 않음 (FAILED 상태가 아님) |  -  |
+|**404** | 환불 정보를 찾을 수 없음 |  -  |
+|**502** | 토스 환불 재시도 실패 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
