@@ -6,20 +6,18 @@ import * as React from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex min-w-[24px] px-100 py-50 justify-center items-center border gap-[2px] text-xs font-medium whitespace-nowrap',
+  'inline-flex min-w-[24px] px-100 py-50 justify-center items-center gap-[2px] text-xs font-medium whitespace-nowrap',
   {
     variants: {
       color: {
-        default: 'text-text-subtlest border-border-default',
-        primary:
-          'text-text-brand bg-fill-brand-subtle-default border-fill-brand-subtle-default',
-        green:
-          'bg-fill-success-subtle-default text-text-success border-fill-success-subtle-default',
-        red: 'bg-fill-danger-subtle-default text-text-error border-fill-danger-subtle-default',
-        blue: 'bg-background-accent-blue-subtle text-text-information border-background-accent-blue-subtle',
+        default: 'text-text-subtlest',
+        primary: 'text-text-brand bg-fill-brand-subtle-default',
+        green: 'bg-fill-success-subtle-default text-text-success',
+        red: 'bg-fill-danger-subtle-default text-text-error',
+        blue: 'bg-background-accent-blue-subtle text-text-information',
         orange:
           'bg-background-accent-orange-subtle text-background-accent-orange-strong',
-        gray: 'bg-background-accent-gray-subtle text-background-accent-gray-strong border-0',
+        gray: 'bg-background-accent-gray-subtle text-background-accent-gray-strong',
         purple:
           'bg-background-accent-purple-subtle text-background-accent-purple-strong',
       },
