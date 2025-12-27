@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 
 import { DateRange } from 'react-day-picker';
-import { StudyPaymentSummaryResponse } from '@/api/openapi/models';
+
+import type { UserTransactionListResponseLatestTransactionTypeEnum } from '@/api/openapi/models';
 import PremiumStudyCancelPaymentModal from '@/components/modals/premium-study-cancel-payment-modal';
 import PremiumStudyRefundRequestModal from '@/components/modals/premium-study-refund-request-modal';
 import Badge from '@/components/ui/badge';
@@ -11,24 +12,39 @@ import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
-import { useGetPaymentList } from '@/hooks/queries/payment-user-api';
+import {
+  useGetMyTransactions,
+  useGetMyTransactionsByGroupStudy,
+} from '@/hooks/queries/payment-user-api';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
 
-type PaymentStatus = '결제대기' | '결제취소' | '결제완료';
-// | '환불완료'
-// | '환불신청'
-// | '환불반려';
+type PaymentStatus =
+  | '결제대기'
+  | '결제취소'
+  | '결제실패'
+  | '결제완료'
+  | '환불완료'
+  | '환불요청'
+  | '환불승인'
+  | '환불반려'
+  | '환불취소'
+  | '환불실패';
 
 const STATUS_TEXT_MAP: Record<
-  StudyPaymentSummaryResponse['status'],
+  UserTransactionListResponseLatestTransactionTypeEnum,
   PaymentStatus
 > = {
-  REQUESTED: '결제대기',
-  PENDING: '결제대기',
-  SUCCESS: '결제완료',
-  FAILED: '결제취소',
-  CANCELED: '결제취소',
+  PAYMENT_REQUESTED: '결제대기',
+  PAYMENT_SUCCESS: '결제완료',
+  PAYMENT_FAILED: '결제실패',
+  PAYMENT_CANCELED: '결제취소',
+  REFUND_REQUESTED: '환불요청',
+  REFUND_APPROVED: '환불승인',
+  REFUND_COMPLETED: '환불완료',
+  REFUND_REJECTED: '환불반려',
+  REFUND_CANCELED: '환불취소',
+  REFUND_FAILED: '환불실패',
 };
 
 const getStatusBadgeColor = (
@@ -41,12 +57,14 @@ const getStatusBadgeColor = (
       return 'red';
     case '결제완료':
       return 'green';
-    // case '환불완료':
-    //   return 'gray';
-    // case '환불신청':
-    //   return 'orange';
-    // case '환불반려':
-    //   return 'red';
+    case '환불완료':
+      return 'gray';
+    case '환불요청':
+      return 'orange';
+    case '환불승인':
+      return 'orange';
+    case '환불반려':
+      return 'red';
     default:
       return 'gray';
   }
@@ -54,9 +72,9 @@ const getStatusBadgeColor = (
 
 export default function PaymentManagement() {
   const [page, setPage] = useState<number>(1);
-  const [expandedPaymentIds, setExpandedPaymentIds] = useState<Set<number>>(
-    new Set(),
-  );
+  const [expandedGroupStudyIds, setExpandedGroupStudyIds] = useState<
+    Set<number>
+  >(new Set());
 
   // 검색 필터 상태
   const [keyword, setKeyword] = useState<string>('');
@@ -65,16 +83,25 @@ export default function PaymentManagement() {
     to: undefined,
   });
 
-  const { data: paymentList } = useGetPaymentList(page);
+  const { data: paymentListData } = useGetMyTransactions({
+    page: page - 1,
+    size: 8,
+    startDate: dateRange?.from?.toISOString().split('T')[0],
+    endDate: dateRange?.to?.toISOString().split('T')[0],
+    studyTitle: keyword || undefined,
+    paymentCode: keyword || undefined,
+  });
 
-  const toggleHistory = (paymentId: number) => {
-    setExpandedPaymentIds((prev) => {
+  const paymentList = paymentListData?.content;
+
+  const toggleHistory = (groupStudyId: number) => {
+    setExpandedGroupStudyIds((prev) => {
       const newSet = new Set(prev);
 
-      if (newSet.has(paymentId)) {
-        newSet.delete(paymentId);
+      if (newSet.has(groupStudyId)) {
+        newSet.delete(groupStudyId);
       } else {
-        newSet.add(paymentId);
+        newSet.add(groupStudyId);
       }
 
       return newSet;
@@ -121,12 +148,14 @@ export default function PaymentManagement() {
             </tr>
           </thead>
           <tbody>
-            {paymentList?.content && paymentList.content.length > 0 ? (
-              paymentList.content.map((payment) => {
-                const isExpanded = expandedPaymentIds.has(payment.paymentId);
+            {paymentList && paymentList.length > 0 ? (
+              paymentList.map((transaction) => {
+                const isExpanded = expandedGroupStudyIds.has(
+                  transaction.groupStudyId!,
+                );
 
                 return (
-                  <React.Fragment key={payment.paymentId}>
+                  <React.Fragment key={transaction.groupStudyId}>
                     <tr
                       className={
                         isExpanded ? '' : 'border-b-border-default border-b'
@@ -137,22 +166,27 @@ export default function PaymentManagement() {
                         <div className="flex flex-col gap-50">
                           <div className="flex items-center gap-[10px]">
                             <h3 className="font-designer-16m text-text-default">
-                              {payment.groupStudyTitle || '-'}
+                              {transaction.groupStudyTitle || '-'}
                             </h3>
-                            {payment.status && (
+                            {transaction.latestTransactionType && (
                               <Badge
                                 color={getStatusBadgeColor(
-                                  STATUS_TEXT_MAP[payment.status],
+                                  STATUS_TEXT_MAP[
+                                    transaction.latestTransactionType
+                                  ],
                                 )}
                                 shape="rectangle"
                               >
-                                {STATUS_TEXT_MAP[payment.status]}
+                                {
+                                  STATUS_TEXT_MAP[
+                                    transaction.latestTransactionType
+                                  ]
+                                }
                               </Badge>
                             )}
                           </div>
                           <div className="font-designer-13r text-text-subtlest">
-                            {payment.paymentCode || '-'} /{' '}
-                            {payment.memberName || '-'}
+                            {transaction.paymentCode || '-'}
                           </div>
                         </div>
                       </td>
@@ -161,23 +195,31 @@ export default function PaymentManagement() {
                       <td className="py-200">
                         <div className="flex flex-col gap-50">
                           <div className="font-designer-14m text-text-default">
-                            {payment.amount?.toLocaleString() || 0}원
+                            {transaction.latestTransactionAmount?.toLocaleString() ||
+                              0}
+                            원
                           </div>
                           <div className="font-designer-13r text-text-subtlest">
-                            {payment.createdAt || '-'} / {payment.method || '-'}
+                            {transaction.paidAt || '-'} /{' '}
+                            {transaction.paymentMethod || '-'}
                           </div>
                         </div>
                       </td>
 
                       {/* 액션 버튼 */}
                       <td className="py-200 pr-250">
-                        <PaymentActionButtons status={payment.status} />
+                        <PaymentActionButtons
+                          transactionType={transaction.latestTransactionType}
+                          receiptUrl={transaction.paymentReceiptUrl}
+                        />
                       </td>
 
                       {/* 맨 오른쪽: 토글 버튼 */}
                       <td className="px-300 py-300 text-center">
                         <button
-                          onClick={() => toggleHistory(payment.paymentId)}
+                          onClick={() =>
+                            toggleHistory(transaction.groupStudyId!)
+                          }
                         >
                           {isExpanded ? <CaretUpIcon /> : <CaretDownIcon />}
                         </button>
@@ -186,40 +228,9 @@ export default function PaymentManagement() {
 
                     {/* 결제 히스토리 박스 */}
                     {isExpanded && (
-                      <tr className="border-b-border-default border-b">
-                        <td colSpan={4} className="px-250 pb-200">
-                          <div className="bg-background-alternative rounded-100 flex flex-col gap-50 px-300 py-300 pr-200 pb-200 pl-250">
-                            <h4 className="font-designer-13m text-text-subtle">
-                              결제 히스토리
-                            </h4>
-
-                            <div className="font-designer-11r flex justify-between">
-                              <span className="text-text-subtlest">
-                                환불 완료 / 본인 요청에 의한 취소
-                              </span>
-                              <span className="text-text-subtlest">
-                                2025.12.05 22:01
-                              </span>
-                            </div>
-                            <div className="font-designer-11r flex justify-between">
-                              <span className="text-text-subtlest">
-                                결제 완료
-                              </span>
-                              <span className="text-text-subtlest">
-                                2025.12.03 22:01
-                              </span>
-                            </div>
-                            <div className="font-designer-11r flex justify-between">
-                              <span className="text-text-subtlest">
-                                결제 실패 / 한도 초과-카드(하나)
-                              </span>
-                              <span className="text-text-subtlest">
-                                2025.12.01 22:01
-                              </span>
-                            </div>
-                          </div>
-                        </td>
-                      </tr>
+                      <TransactionHistory
+                        groupStudyId={transaction.groupStudyId!}
+                      />
                     )}
                   </React.Fragment>
                 );
@@ -243,12 +254,12 @@ export default function PaymentManagement() {
       {/* 페이지네이션 */}
       <div className="flex items-center justify-between">
         <span className="text-icon-subtlest font-designer-13r">
-          총 {paymentList?.totalElements || 0}건
+          총 {paymentListData?.totalElements || 0}건
         </span>
         <Pagination
           page={page}
           onChangePage={setPage}
-          totalPages={paymentList?.totalPages || 1}
+          totalPages={paymentListData?.totalPages || 1}
         />
         <div />
       </div>
@@ -256,9 +267,54 @@ export default function PaymentManagement() {
   );
 }
 
+function TransactionHistory({ groupStudyId }: { groupStudyId: number }) {
+  const { data: transactionsData } = useGetMyTransactionsByGroupStudy({
+    groupStudyId,
+    page: 0,
+    size: 20,
+  });
+
+  const transactions = transactionsData?.content || [];
+
+  return (
+    <tr className="border-b-border-default border-b">
+      <td colSpan={4} className="px-250 pb-200">
+        <div className="bg-background-alternative rounded-100 flex flex-col gap-50 px-300 py-300 pr-200 pb-200 pl-250">
+          <h4 className="font-designer-13m text-text-subtle">결제 히스토리</h4>
+
+          {transactions.length > 0 ? (
+            transactions.map((transaction, index) => (
+              <div
+                key={index}
+                className="font-designer-11r flex justify-between"
+              >
+                <span className="text-text-subtlest">
+                  {transaction.transactionTypeDisplayName || '-'}
+                  {transaction.reason && ` / ${transaction.reason}`}
+                </span>
+                <span className="text-text-subtlest">
+                  {transaction.transactionedAt || '-'}
+                </span>
+              </div>
+            ))
+          ) : (
+            <div className="font-designer-11r text-text-subtlest">
+              히스토리가 없습니다.
+            </div>
+          )}
+        </div>
+      </td>
+    </tr>
+  );
+}
+
 function PaymentActionButtons({
-  status,
-}: Pick<StudyPaymentSummaryResponse, 'status'>) {
+  transactionType,
+  receiptUrl,
+}: {
+  transactionType?: UserTransactionListResponseLatestTransactionTypeEnum;
+  receiptUrl?: string;
+}) {
   const [refundRequestModalOpen, setRefundRequestModalOpen] =
     useState<boolean>(false);
   const [cancelPaymentModalOpen, setCancelPaymentModalOpen] =
@@ -274,7 +330,9 @@ function PaymentActionButtons({
   };
 
   const handleReceiptView = () => {
-    // TODO: 영수증 보기 로직 구현
+    if (receiptUrl) {
+      window.open(receiptUrl, '_blank');
+    }
   };
 
   const handleRefundRequest = () => {
@@ -282,8 +340,8 @@ function PaymentActionButtons({
     setRefundRequestModalOpen(true);
   };
 
-  switch (status) {
-    case 'REQUESTED':
+  switch (transactionType) {
+    case 'PAYMENT_REQUESTED':
       return (
         <>
           <PremiumStudyCancelPaymentModal
@@ -311,7 +369,7 @@ function PaymentActionButtons({
           </div>
         </>
       );
-    case 'SUCCESS':
+    case 'PAYMENT_SUCCESS':
       return (
         <>
           <PremiumStudyRefundRequestModal
@@ -324,6 +382,7 @@ function PaymentActionButtons({
               size="small"
               className="font-designer-14r"
               onClick={handleReceiptView}
+              disabled={!receiptUrl}
             >
               영수증 보기
             </Button>
@@ -338,24 +397,6 @@ function PaymentActionButtons({
           </div>
         </>
       );
-    // case 'REFUND_REQUESTED':
-    //   return (
-    //     <>
-    //       <PremiumStudyRefundRequestModal
-    //         open={refundRequestModalOpen}
-    //         onOpenChange={setRefundRequestModalOpen}
-    //       />
-    //       <Button color="outlined" size="small" className="font-designer-14r">
-    //         환불 요청
-    //       </Button>
-    //     </>
-    //   );
-    // case 'REFUND_REJECTED':
-    //   return (
-    //     <Button color="outlined" size="small" className="font-designer-14r">
-    //       영수증 보기
-    //     </Button>
-    //   );
     default:
       return null;
   }
