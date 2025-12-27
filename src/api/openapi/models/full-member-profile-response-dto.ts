@@ -41,6 +41,10 @@ export interface FullMemberProfileResponseDto {
      */
     'isVerified'?: boolean;
     /**
+     * 프리미엄 스터디 생성자인지 여부
+     */
+    'premiumCreator'?: boolean;
+    /**
      * 회원 정보
      */
     'memberInfo'?: MemberInfoResponseDto;
