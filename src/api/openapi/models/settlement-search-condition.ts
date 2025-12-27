@@ -18,7 +18,7 @@ export interface SettlementSearchCondition {
     'startDate'?: string;
     'endDate'?: string;
     'studyTitle'?: string;
-    'settlementId'?: number;
+    'settlementCode'?: string;
     'status'?: SettlementSearchConditionStatusEnum;
 }
 

@@ -15,7 +15,10 @@
 
 
 export interface AdminTransactionListResponse {
+    'paymentId'?: number;
     'paymentCode'?: string;
+    'refundId'?: number;
+    'refundCode'?: string;
     'groupStudyId'?: number;
     'groupStudyName'?: string;
     /**
@@ -24,7 +27,7 @@ export interface AdminTransactionListResponse {
     'groupStudyStatus'?: AdminTransactionListResponseGroupStudyStatusEnum;
     'paymentMemberId'?: number;
     'paymentMemberName'?: string;
-    'paymentAmount'?: number;
+    'transactionAmount'?: number;
     'paymentMethod'?: string;
     'paymentReceiptUrl'?: string;
     'paymentHistoryType'?: AdminTransactionListResponsePaymentHistoryTypeEnum;

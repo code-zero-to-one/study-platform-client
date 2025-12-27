@@ -5,13 +5,16 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**paymentId** | **number** |  | [optional] [default to undefined]
 **paymentCode** | **string** |  | [optional] [default to undefined]
+**refundId** | **number** |  | [optional] [default to undefined]
+**refundCode** | **string** |  | [optional] [default to undefined]
 **groupStudyId** | **number** |  | [optional] [default to undefined]
 **groupStudyName** | **string** |  | [optional] [default to undefined]
 **groupStudyStatus** | **string** | 그룹스터디 진행 상태 | [optional] [default to undefined]
 **paymentMemberId** | **number** |  | [optional] [default to undefined]
 **paymentMemberName** | **string** |  | [optional] [default to undefined]
-**paymentAmount** | **number** |  | [optional] [default to undefined]
+**transactionAmount** | **number** |  | [optional] [default to undefined]
 **paymentMethod** | **string** |  | [optional] [default to undefined]
 **paymentReceiptUrl** | **string** |  | [optional] [default to undefined]
 **paymentHistoryType** | **string** |  | [optional] [default to undefined]
@@ -24,13 +27,16 @@ Name | Type | Description | Notes
 import { AdminTransactionListResponse } from './api';
 
 const instance: AdminTransactionListResponse = {
+    paymentId,
     paymentCode,
+    refundId,
+    refundCode,
     groupStudyId,
     groupStudyName,
     groupStudyStatus,
     paymentMemberId,
     paymentMemberName,
-    paymentAmount,
+    transactionAmount,
     paymentMethod,
     paymentReceiptUrl,
     paymentHistoryType,
