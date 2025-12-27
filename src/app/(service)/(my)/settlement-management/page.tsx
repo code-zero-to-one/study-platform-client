@@ -11,7 +11,7 @@ import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
-import { useGetSettlementAccount } from '@/hooks/queries/settlement-account';
+import { useGetSettlementAccount } from '@/hooks/queries/settlement-account-api';
 import { useGetMySettlements } from '@/hooks/queries/settlement-user-api';
 
 type SettlementStatus = '정산대기' | '정산승인' | '정산완료';
