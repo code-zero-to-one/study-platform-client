@@ -221,47 +221,51 @@ OpenAPI Generator로 생성된 클라이언트 사용법과 환경변수 설정�
 
 ### 새로운 API 추가
 
-1. **API 함수 작성** (`api/endpoints/`)
+`src/hooks/queries` 디렉토리에 새로운 파일이 생성되면 자동으로 API 인스턴스 보일러플레이트 코드를 추가하는 코드 제너레이터를 사용해줍니다.
 
-   ```typescript
-   // api/endpoints/study.api.ts
-   import { axiosInstance } from '@/api/client/axios';
-   import type { Study } from '@/models/study.model';
+1. **새 파일 생성**
 
-   export const StudyAPI = {
-     getList: async (): Promise<Study[]> => {
-       const res = await axiosInstance.get('/studies');
-       return res.data.content;
-     },
-   };
-   ```
+```bash
+yarn generate:api bank-search-api
+```
 
-2. **Query Hook 추가** (`hooks/queries/`)
+이 명령어는 `src/hooks/queries/bank-search-api.ts` 파일을 생성하고 자동으로 보일러플레이트 코드를 추가합니다.
 
-   ```typescript
-   // hooks/queries/use-study-queries.ts
-   import { useQuery } from '@tanstack/react-query';
-   import { StudyAPI } from '@/api/endpoints/study.api';
+```typescript
+import { createApiInstance } from '@/api/client/open-api-instance';
+import { BankSearchApi } from '@/api/openapi';
 
-   export const useStudyQueries = {
-     useList: () =>
-       useQuery({
-         queryKey: ['study', 'list'],
-         queryFn: StudyAPI.getList,
-       }),
-   };
-   ```
+const bankSearchApi = createApiInstance(BankSearchApi);
+```
 
-3. **컴포넌트에서 사용**
+여러 파일 동시 생성도 가능합니다.
 
-   ```tsx
-   import { useStudyQueries } from '@/hooks/queries/use-study-queries';
+```bash
+yarn generate:api payment-api settlement-api user-api
+```
 
-   export default function StudyList() {
-     const { data: studies } = useStudyQueries.useList();
-     return <div>{/* ... */}</div>;
-   }
-   ```
+2. **hook 작성**
+
+파일을 만들었다면 hook을 작성해주세요.
+
+```typescript
+// src/hooks/queries/new-api.ts
+import { createApiInstance } from '@/api/client/open-api-instance';
+import { NewApi } from '@/api/openapi';
+
+const newApi = createApiInstance(NewApi); // 자동 생성됨
+
+// 여기서부터 hooks을 작성하세요
+export const useGetData = () => {
+  return useQuery({
+    queryKey: ['data'],
+    queryFn: async () => {
+      const { data } = await newApi.getData();
+      return data.content;
+    },
+  });
+};
+```
 
 ### 새로운 타입/스키마 추가
 
