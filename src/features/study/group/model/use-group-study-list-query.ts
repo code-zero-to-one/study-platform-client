@@ -1,14 +1,19 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { getGroupStudyList } from '../api/get-group-study-list';
 
-export const useGroupStudyListQuery = () => {
+export const useGroupStudyListQuery = ({
+  classification,
+}: {
+  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
+}) => {
   return useInfiniteQuery({
-    queryKey: ['groupStudies'],
+    queryKey: ['groupStudies', classification],
     queryFn: async ({ pageParam }) => {
       const response = await getGroupStudyList({
         page: pageParam,
         size: 20,
         status: 'RECRUITING',
+        classification,
       });
 
       return response;

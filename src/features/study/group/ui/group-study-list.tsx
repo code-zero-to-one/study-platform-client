@@ -20,13 +20,19 @@ import { useGroupStudyListQuery } from '../model/use-group-study-list-query';
 
 interface GroupStudyListProps {
   isLoggedIn: boolean;
+  classification?: 'GROUP_STUDY' | 'PREMIUM_STUDY';
 }
 
-export default function GroupStudyList({ isLoggedIn }: GroupStudyListProps) {
+export default function GroupStudyList({
+  isLoggedIn,
+  classification = 'GROUP_STUDY',
+}: GroupStudyListProps) {
   const router = useRouter();
   const { data: authData } = useAuth();
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useGroupStudyListQuery();
+    useGroupStudyListQuery({
+      classification,
+    });
 
   const groupStudyList = data?.pages.flatMap((page) => page.content) || [];
 

@@ -91,6 +91,7 @@ export default function GroupStudyFormModal({
       startDate: value.basicInfo.startDate,
       endDate: value.basicInfo.endDate,
       price: value.basicInfo.price.toString(),
+      classification: value.basicInfo.classification,
       title: value.detailInfo.title,
       description: value.detailInfo.description,
       summary: value.detailInfo.summary,

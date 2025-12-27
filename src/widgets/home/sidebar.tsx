@@ -18,6 +18,7 @@ export default async function Sidebar() {
       <MyProfileCard
         memberId={memberId}
         name={userProfile?.memberProfile.memberName}
+        nickname={userProfile?.memberProfile.nickname}
         imageUrl={
           userProfile?.memberProfile?.profileImage?.resizedImages[0]
             ?.resizedImageUrl

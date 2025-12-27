@@ -108,6 +108,7 @@ export interface SincerityTemp {
 export interface GetUserProfileResponse {
   memberId: number;
   autoMatching: boolean;
+  isVerified: boolean; // 본인 인증 여부
   studyApplied: boolean;
   memberInfo: MemberInfo;
   memberProfile: MemberProfile;
