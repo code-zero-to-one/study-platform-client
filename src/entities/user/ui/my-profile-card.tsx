@@ -19,6 +19,7 @@ import { SincerityTemp } from '../api/types';
 interface MyProfileCardProps {
   memberId: number;
   name?: string;
+  nickname?: string;
   imageUrl?: string;
   matching: boolean;
   subject?: string;
@@ -31,6 +32,7 @@ interface MyProfileCardProps {
 export default function MyProfileCard({
   memberId,
   name,
+  nickname,
   imageUrl,
   matching,
   subject,
@@ -96,7 +98,7 @@ export default function MyProfileCard({
           <div className="flex flex-col gap-75">
             <div className="flex flex-row items-center gap-50">
               <div className="font-designer-18b">
-                {name?.trim() || '비회원'}님
+                {nickname?.trim() || '비회원'}님
               </div>
               <div
                 className={cn(
