@@ -56,6 +56,8 @@ const { status, data } = await apiInstance.completeSettlement(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 관리자 정산 완료 처리 성공 |  -  |
+|**400** | 정산 상태가 유효하지 않거나 이미 완료됨 |  -  |
+|**404** | 정산 정보를 찾을 수 없음 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
@@ -110,6 +112,8 @@ const { status, data } = await apiInstance.createSettlement(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | 관리자 정산 생성 성공 |  -  |
+|**400** | 정산 생성 불가 상태 |  -  |
+|**404** | 그룹스터디를 찾을 수 없음 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 

@@ -58,6 +58,9 @@ const { status, data } = await apiInstance.forceCancelPayment(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 관리자 결제 강제 취소 성공 |  -  |
+|**400** | 이미 환불이 진행 중이거나 완료된 결제 |  -  |
+|**404** | 결제 정보를 찾을 수 없음 |  -  |
+|**502** | PG사 환불 처리 실패 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 

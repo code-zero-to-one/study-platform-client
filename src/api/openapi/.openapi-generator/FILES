@@ -155,6 +155,8 @@ docs/MemberCreationRequestDto.md
 docs/MemberFeature.md
 docs/MemberInfoResponseDto.md
 docs/MemberInfoUpdateResponseDto.md
+docs/MemberNotificationResponse.md
+docs/MemberNotificationSchema.md
 docs/MemberProfileApi.md
 docs/MemberProfileForStudyDto.md
 docs/MemberProfileForStudySchema.md
@@ -171,6 +173,9 @@ docs/MissionTaskDto.md
 docs/MissionUpdateRequest.md
 docs/MonthlyCalendarResponse.md
 docs/NotificationApi.md
+docs/NotificationCategoriesResponse.md
+docs/NotificationCategoriesSchema.md
+docs/NotificationTopicResponse.md
 docs/OAuth2UserInfo.md
 docs/OptionalHomeworkSubmission.md
 docs/PageAdminTransactionListResponseSchema.md
@@ -359,6 +364,8 @@ models/member-creation-request-dto.ts
 models/member-feature.ts
 models/member-info-response-dto.ts
 models/member-info-update-response-dto.ts
+models/member-notification-response.ts
+models/member-notification-schema.ts
 models/member-profile-for-study-dto.ts
 models/member-profile-for-study-schema.ts
 models/member-profile-response-dto.ts
@@ -371,6 +378,9 @@ models/mission-list-response.ts
 models/mission-task-dto.ts
 models/mission-update-request.ts
 models/monthly-calendar-response.ts
+models/notification-categories-response.ts
+models/notification-categories-schema.ts
+models/notification-topic-response.ts
 models/oauth2-user-info.ts
 models/optional-homework-submission.ts
 models/page-admin-transaction-list-response-schema.ts

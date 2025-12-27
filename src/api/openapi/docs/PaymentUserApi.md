@@ -58,8 +58,10 @@ const { status, data } = await apiInstance.cancelPayment(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 결제 취소 처리 성공 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**400** | 이미 성공하거나 취소된 결제 |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
+|**404** | 결제 정보를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -112,8 +114,11 @@ const { status, data } = await apiInstance.confirmTossPayment(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 결제 confirm 성공 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**400** | 잘못된 요청 (orderId/amount 불일치, 이미 승인된 결제 등) |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
+|**404** | 결제 정보를 찾을 수 없음 |  -  |
+|**502** | 토스 결제 승인 실패 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -308,6 +313,9 @@ const { status, data } = await apiInstance.preparePayment(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | 결제 준비 성공 |  -  |
+|**400** | 잘못된 요청 (금액 불일치, 무료 스터디, 모집중이 아닌 스터디 등) |  -  |
+|**404** | 존재하지 않는 회원 요청 |  -  |
+|**409** | 이미 결제 완료된 스터디 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 
