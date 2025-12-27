@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { ErrorResponse } from '../models';
 // @ts-ignore
 import type { GroupStudyThreadCommentRequest } from '../models';
 // @ts-ignore
@@ -31,6 +31,14 @@ import type { GroupStudyThreadRequest } from '../models';
 import type { Pageable } from '../models';
 // @ts-ignore
 import type { ReactionRequest } from '../models';
+// @ts-ignore
+import type { ReactionSummaryResponse } from '../models';
+// @ts-ignore
+import type { StringResponseSchema } from '../models';
+// @ts-ignore
+import type { ThreadCommentResponseSchema } from '../models';
+// @ts-ignore
+import type { ThreadSummaryResponse } from '../models';
 /**
  * GroupStudyThreadApi - axios parameter creator
  */
@@ -528,7 +536,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createComment(groupStudyId: number, threadId: number, groupStudyThreadCommentRequest: GroupStudyThreadCommentRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async createComment(groupStudyId: number, threadId: number, groupStudyThreadCommentRequest: GroupStudyThreadCommentRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThreadCommentResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createComment(groupStudyId, threadId, groupStudyThreadCommentRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.createComment']?.[localVarOperationServerIndex]?.url;
@@ -542,7 +550,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createThread(groupStudyId: number, groupStudyThreadRequest: GroupStudyThreadRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async createThread(groupStudyId: number, groupStudyThreadRequest: GroupStudyThreadRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThreadSummaryResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createThread(groupStudyId, groupStudyThreadRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.createThread']?.[localVarOperationServerIndex]?.url;
@@ -557,7 +565,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteComment(groupStudyId: number, threadId: number, commentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async deleteComment(groupStudyId: number, threadId: number, commentId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteComment(groupStudyId, threadId, commentId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.deleteComment']?.[localVarOperationServerIndex]?.url;
@@ -571,7 +579,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteThread(groupStudyId: number, threadId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async deleteThread(groupStudyId: number, threadId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteThread(groupStudyId, threadId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.deleteThread']?.[localVarOperationServerIndex]?.url;
@@ -586,7 +594,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getComments(groupStudyId: number, threadId: number, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async getComments(groupStudyId: number, threadId: number, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThreadCommentResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getComments(groupStudyId, threadId, pageable, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.getComments']?.[localVarOperationServerIndex]?.url;
@@ -600,7 +608,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getThreads(groupStudyId: number, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async getThreads(groupStudyId: number, pageable: Pageable, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThreadSummaryResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getThreads(groupStudyId, pageable, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.getThreads']?.[localVarOperationServerIndex]?.url;
@@ -615,7 +623,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async toggleCommentReaction(threadId: number, commentId: number, reactionRequest: ReactionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async toggleCommentReaction(threadId: number, commentId: number, reactionRequest: ReactionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReactionSummaryResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.toggleCommentReaction(threadId, commentId, reactionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.toggleCommentReaction']?.[localVarOperationServerIndex]?.url;
@@ -630,7 +638,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async toggleThreadReaction(groupStudyId: number, threadId: number, reactionRequest: ReactionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async toggleThreadReaction(groupStudyId: number, threadId: number, reactionRequest: ReactionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ReactionSummaryResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.toggleThreadReaction(groupStudyId, threadId, reactionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.toggleThreadReaction']?.[localVarOperationServerIndex]?.url;
@@ -646,7 +654,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateComment(groupStudyId: number, threadId: number, commentId: number, groupStudyThreadCommentRequest: GroupStudyThreadCommentRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async updateComment(groupStudyId: number, threadId: number, commentId: number, groupStudyThreadCommentRequest: GroupStudyThreadCommentRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThreadCommentResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateComment(groupStudyId, threadId, commentId, groupStudyThreadCommentRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.updateComment']?.[localVarOperationServerIndex]?.url;
@@ -661,7 +669,7 @@ export const GroupStudyThreadApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateThread(groupStudyId: number, threadId: number, groupStudyThreadRequest: GroupStudyThreadRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async updateThread(groupStudyId: number, threadId: number, groupStudyThreadRequest: GroupStudyThreadRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ThreadSummaryResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateThread(groupStudyId, threadId, groupStudyThreadRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyThreadApi.updateThread']?.[localVarOperationServerIndex]?.url;
@@ -685,7 +693,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createComment(groupStudyId: number, threadId: number, groupStudyThreadCommentRequest: GroupStudyThreadCommentRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        createComment(groupStudyId: number, threadId: number, groupStudyThreadCommentRequest: GroupStudyThreadCommentRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThreadCommentResponseSchema> {
             return localVarFp.createComment(groupStudyId, threadId, groupStudyThreadCommentRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -696,7 +704,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createThread(groupStudyId: number, groupStudyThreadRequest: GroupStudyThreadRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        createThread(groupStudyId: number, groupStudyThreadRequest: GroupStudyThreadRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThreadSummaryResponse> {
             return localVarFp.createThread(groupStudyId, groupStudyThreadRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -708,7 +716,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteComment(groupStudyId: number, threadId: number, commentId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        deleteComment(groupStudyId: number, threadId: number, commentId: number, options?: RawAxiosRequestConfig): AxiosPromise<StringResponseSchema> {
             return localVarFp.deleteComment(groupStudyId, threadId, commentId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -719,7 +727,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteThread(groupStudyId: number, threadId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        deleteThread(groupStudyId: number, threadId: number, options?: RawAxiosRequestConfig): AxiosPromise<StringResponseSchema> {
             return localVarFp.deleteThread(groupStudyId, threadId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -731,7 +739,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getComments(groupStudyId: number, threadId: number, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        getComments(groupStudyId: number, threadId: number, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<ThreadCommentResponseSchema> {
             return localVarFp.getComments(groupStudyId, threadId, pageable, options).then((request) => request(axios, basePath));
         },
         /**
@@ -742,7 +750,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getThreads(groupStudyId: number, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        getThreads(groupStudyId: number, pageable: Pageable, options?: RawAxiosRequestConfig): AxiosPromise<ThreadSummaryResponse> {
             return localVarFp.getThreads(groupStudyId, pageable, options).then((request) => request(axios, basePath));
         },
         /**
@@ -754,7 +762,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        toggleCommentReaction(threadId: number, commentId: number, reactionRequest: ReactionRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        toggleCommentReaction(threadId: number, commentId: number, reactionRequest: ReactionRequest, options?: RawAxiosRequestConfig): AxiosPromise<ReactionSummaryResponse> {
             return localVarFp.toggleCommentReaction(threadId, commentId, reactionRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -766,7 +774,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        toggleThreadReaction(groupStudyId: number, threadId: number, reactionRequest: ReactionRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        toggleThreadReaction(groupStudyId: number, threadId: number, reactionRequest: ReactionRequest, options?: RawAxiosRequestConfig): AxiosPromise<ReactionSummaryResponse> {
             return localVarFp.toggleThreadReaction(groupStudyId, threadId, reactionRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -779,7 +787,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateComment(groupStudyId: number, threadId: number, commentId: number, groupStudyThreadCommentRequest: GroupStudyThreadCommentRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        updateComment(groupStudyId: number, threadId: number, commentId: number, groupStudyThreadCommentRequest: GroupStudyThreadCommentRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThreadCommentResponseSchema> {
             return localVarFp.updateComment(groupStudyId, threadId, commentId, groupStudyThreadCommentRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -791,7 +799,7 @@ export const GroupStudyThreadApiFactory = function (configuration?: Configuratio
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateThread(groupStudyId: number, threadId: number, groupStudyThreadRequest: GroupStudyThreadRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        updateThread(groupStudyId: number, threadId: number, groupStudyThreadRequest: GroupStudyThreadRequest, options?: RawAxiosRequestConfig): AxiosPromise<ThreadSummaryResponse> {
             return localVarFp.updateThread(groupStudyId, threadId, groupStudyThreadRequest, options).then((request) => request(axios, basePath));
         },
     };

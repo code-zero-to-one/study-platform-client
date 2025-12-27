@@ -14,7 +14,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**updateGroupStudyInterviewPost**](#updategroupstudyinterviewpost) | **PATCH** /api/v1/group-studies/{groupStudyId}/interview-post | 그룹스터디 개설질문 수정|
 
 # **completeGroupStudy**
-> completeGroupStudy()
+> NoContentResponse completeGroupStudy()
 
 그룹스터디 상태를 COMPLETED로 변경합니다.  [권한] - 🔐 로그인 필수 (ROLE_MEMBER) - 👤 해당 그룹스터디 리더만 가능
 
@@ -45,7 +45,7 @@ const { status, data } = await apiInstance.completeGroupStudy(
 
 ### Return type
 
-void (empty response body)
+**NoContentResponse**
 
 ### Authorization
 
@@ -67,7 +67,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **createGroupStudy**
-> createGroupStudy(groupStudyCreationRequestDto)
+> GroupStudyCreationResponse createGroupStudy(groupStudyCreationRequestDto)
 
 새로운 그룹스터디를 생성합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - Bearer Token이 필요합니다. 
 
@@ -99,7 +99,7 @@ const { status, data } = await apiInstance.createGroupStudy(
 
 ### Return type
 
-void (empty response body)
+**GroupStudyCreationResponse**
 
 ### Authorization
 
@@ -121,7 +121,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteGroupStudy**
-> deleteGroupStudy()
+> NoContentResponse deleteGroupStudy()
 
 그룹스터디를 삭제합니다. 본인이 생성한 그룹스터디만 삭제할 수 있습니다.
 
@@ -152,7 +152,7 @@ const { status, data } = await apiInstance.deleteGroupStudy(
 
 ### Return type
 
-void (empty response body)
+**NoContentResponse**
 
 ### Authorization
 
@@ -167,14 +167,14 @@ void (empty response body)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | 삭제 성공 |  -  |
+|**204** | 삭제 성공 |  -  |
 |**403** | 권한 없음 - 본인이 생성한 그룹스터디가 아님 |  -  |
 |**404** | 그룹스터디를 찾을 수 없음 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getGroupStudies**
-> PageResponseDto getGroupStudies()
+> GroupStudyListResponse getGroupStudies()
 
 모든 그룹스터디 목록을 조회합니다. 다양한 조건으로 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
 
@@ -223,7 +223,7 @@ const { status, data } = await apiInstance.getGroupStudies(
 
 ### Return type
 
-**PageResponseDto**
+**GroupStudyListResponse**
 
 ### Authorization
 
@@ -243,7 +243,7 @@ const { status, data } = await apiInstance.getGroupStudies(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getGroupStudy**
-> GroupStudyFullResponseDto getGroupStudy()
+> GroupStudyDetailResponse getGroupStudy()
 
 특정 그룹스터디의 상세 정보를 조회합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
 
@@ -274,7 +274,7 @@ const { status, data } = await apiInstance.getGroupStudy(
 
 ### Return type
 
-**GroupStudyFullResponseDto**
+**GroupStudyDetailResponse**
 
 ### Authorization
 
@@ -294,7 +294,7 @@ const { status, data } = await apiInstance.getGroupStudy(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMyGroupStudyApplications**
-> PageResponseDto getMyGroupStudyApplications()
+> MyGroupStudyApplicationResponse getMyGroupStudyApplications()
 
 특정 신청자가 신청한 활성 그룹스터디 목록을 조회합니다. 삭제되지 않은 신청만 조회되며, 상태별 필터링이 가능합니다.  **[권한]** - 🌐 **비회원 접근 가능** - URL의 applicantId로 누구나 조회 가능합니다. 
 
@@ -334,7 +334,7 @@ const { status, data } = await apiInstance.getMyGroupStudyApplications(
 
 ### Return type
 
-**PageResponseDto**
+**MyGroupStudyApplicationResponse**
 
 ### Authorization
 
@@ -354,7 +354,7 @@ const { status, data } = await apiInstance.getMyGroupStudyApplications(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateGroupStudyInfo**
-> updateGroupStudyInfo(groupStudyUpdateRequestDto)
+> GroupStudyUpdateResponse updateGroupStudyInfo(groupStudyUpdateRequest)
 
 그룹스터디의 기본 정보(타입, 모집인원, 진행방식 등), 상세 정보(제목, 설명, 요약, 썸네일), 개설질문을 한번에 수정합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 👤 **그룹스터디 리더만** 수정 가능 
 
@@ -364,18 +364,18 @@ const { status, data } = await apiInstance.getMyGroupStudyApplications(
 import {
     GroupStudyManagementApi,
     Configuration,
-    GroupStudyUpdateRequestDto
+    GroupStudyUpdateRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GroupStudyManagementApi(configuration);
 
 let groupStudyId: number; //그룹스터디 ID (default to undefined)
-let groupStudyUpdateRequestDto: GroupStudyUpdateRequestDto; //
+let groupStudyUpdateRequest: GroupStudyUpdateRequest; //
 
 const { status, data } = await apiInstance.updateGroupStudyInfo(
     groupStudyId,
-    groupStudyUpdateRequestDto
+    groupStudyUpdateRequest
 );
 ```
 
@@ -383,13 +383,13 @@ const { status, data } = await apiInstance.updateGroupStudyInfo(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **groupStudyUpdateRequestDto** | **GroupStudyUpdateRequestDto**|  | |
+| **groupStudyUpdateRequest** | **GroupStudyUpdateRequest**|  | |
 | **groupStudyId** | [**number**] | 그룹스터디 ID | defaults to undefined|
 
 
 ### Return type
 
-void (empty response body)
+**GroupStudyUpdateResponse**
 
 ### Authorization
 
@@ -409,7 +409,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateGroupStudyInterviewPost**
-> updateGroupStudyInterviewPost(groupStudyInterviewPostRequestDto)
+> GroupStudyInterviewPostUpdateResponse updateGroupStudyInterviewPost(groupStudyInterviewPostRequest)
 
 그룹스터디의 개설질문을 수정합니다.
 
@@ -419,18 +419,18 @@ void (empty response body)
 import {
     GroupStudyManagementApi,
     Configuration,
-    GroupStudyInterviewPostRequestDto
+    GroupStudyInterviewPostRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GroupStudyManagementApi(configuration);
 
 let groupStudyId: number; //그룹스터디 ID (default to undefined)
-let groupStudyInterviewPostRequestDto: GroupStudyInterviewPostRequestDto; //
+let groupStudyInterviewPostRequest: GroupStudyInterviewPostRequest; //
 
 const { status, data } = await apiInstance.updateGroupStudyInterviewPost(
     groupStudyId,
-    groupStudyInterviewPostRequestDto
+    groupStudyInterviewPostRequest
 );
 ```
 
@@ -438,13 +438,13 @@ const { status, data } = await apiInstance.updateGroupStudyInterviewPost(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **groupStudyInterviewPostRequestDto** | **GroupStudyInterviewPostRequestDto**|  | |
+| **groupStudyInterviewPostRequest** | **GroupStudyInterviewPostRequest**|  | |
 | **groupStudyId** | [**number**] | 그룹스터디 ID | defaults to undefined|
 
 
 ### Return type
 
-void (empty response body)
+**GroupStudyInterviewPostUpdateResponse**
 
 ### Authorization
 

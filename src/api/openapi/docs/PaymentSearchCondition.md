@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **endDate** | **string** |  | [optional] [default to undefined]
 **studyTitle** | **string** |  | [optional] [default to undefined]
 **paymentCode** | **string** |  | [optional] [default to undefined]
+**type** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -20,6 +21,7 @@ const instance: PaymentSearchCondition = {
     endDate,
     studyTitle,
     paymentCode,
+    type,
 };
 ```
 

@@ -24,7 +24,9 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { BaseResponseMemberAccountHistoryResponseDto } from '../models';
 // @ts-ignore
-import type { FullMemberProfileResponseSchema } from '../models';
+import type { ErrorResponse } from '../models';
+// @ts-ignore
+import type { FullMemberProfileResponse } from '../models';
 /**
  * AdminApi - axios parameter creator
  */
@@ -347,7 +349,7 @@ export const AdminApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMemberProfile1(memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FullMemberProfileResponseSchema>> {
+        async getMemberProfile1(memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FullMemberProfileResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMemberProfile1(memberId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminApi.getMemberProfile1']?.[localVarOperationServerIndex]?.url;
@@ -435,7 +437,7 @@ export const AdminApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMemberProfile1(memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<FullMemberProfileResponseSchema> {
+        getMemberProfile1(memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<FullMemberProfileResponse> {
             return localVarFp.getMemberProfile1(memberId, options).then((request) => request(axios, basePath));
         },
         /**

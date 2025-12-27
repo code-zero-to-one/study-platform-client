@@ -22,15 +22,31 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { FullMemberProfileResponseSchema } from '../models';
+import type { AvailableStudyTimeListResponse } from '../models';
+// @ts-ignore
+import type { CareerListResponse } from '../models';
+// @ts-ignore
+import type { ErrorResponse } from '../models';
+// @ts-ignore
+import type { FullMemberProfileResponse } from '../models';
+// @ts-ignore
+import type { JobListResponse } from '../models';
+// @ts-ignore
+import type { MemberInfoUpdateResponse } from '../models';
 // @ts-ignore
 import type { MemberInfoUpdateResponseDto } from '../models';
 // @ts-ignore
-import type { MemberProfileForStudySchema } from '../models';
+import type { MemberProfileForStudy } from '../models';
 // @ts-ignore
 import type { MemberProfileUpdateRequestDto } from '../models';
 // @ts-ignore
-import type { MemberProfileUpdateResponseSchema } from '../models';
+import type { MemberProfileUpdateResponse } from '../models';
+// @ts-ignore
+import type { NicknameAvailabilityResponse } from '../models';
+// @ts-ignore
+import type { StudyFormatTypeListResponse } from '../models';
+// @ts-ignore
+import type { StudySubjectListResponse } from '../models';
 /**
  * MemberProfileApi - axios parameter creator
  */
@@ -437,7 +453,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async checkNicknameAvailability(nickname: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async checkNicknameAvailability(nickname: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NicknameAvailabilityResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.checkNicknameAvailability(nickname, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.checkNicknameAvailability']?.[localVarOperationServerIndex]?.url;
@@ -449,7 +465,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async findAllCareers(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async findAllCareers(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<CareerListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.findAllCareers(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.findAllCareers']?.[localVarOperationServerIndex]?.url;
@@ -461,7 +477,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async findAllJobs(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async findAllJobs(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<JobListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.findAllJobs(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.findAllJobs']?.[localVarOperationServerIndex]?.url;
@@ -473,7 +489,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async findAllStudyFormatTypes(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async findAllStudyFormatTypes(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyFormatTypeListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.findAllStudyFormatTypes(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.findAllStudyFormatTypes']?.[localVarOperationServerIndex]?.url;
@@ -485,7 +501,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async findAllStudySubjects(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async findAllStudySubjects(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudySubjectListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.findAllStudySubjects(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.findAllStudySubjects']?.[localVarOperationServerIndex]?.url;
@@ -497,7 +513,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getAllAvailableStudyTimes(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async getAllAvailableStudyTimes(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<AvailableStudyTimeListResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getAllAvailableStudyTimes(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.getAllAvailableStudyTimes']?.[localVarOperationServerIndex]?.url;
@@ -510,7 +526,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMemberProfile(memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FullMemberProfileResponseSchema>> {
+        async getMemberProfile(memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<FullMemberProfileResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMemberProfile(memberId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.getMemberProfile']?.[localVarOperationServerIndex]?.url;
@@ -523,7 +539,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMemberProfileForStudy(memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberProfileForStudySchema>> {
+        async getMemberProfileForStudy(memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberProfileForStudy>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMemberProfileForStudy(memberId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.getMemberProfileForStudy']?.[localVarOperationServerIndex]?.url;
@@ -538,7 +554,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateMemberInfo(memberId: number, memberInfoUpdateResponseDto: MemberInfoUpdateResponseDto, ignoreNull?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+        async updateMemberInfo(memberId: number, memberInfoUpdateResponseDto: MemberInfoUpdateResponseDto, ignoreNull?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberInfoUpdateResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateMemberInfo(memberId, memberInfoUpdateResponseDto, ignoreNull, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.updateMemberInfo']?.[localVarOperationServerIndex]?.url;
@@ -553,7 +569,7 @@ export const MemberProfileApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateProfile(memberId: number, memberProfileUpdateRequestDto: MemberProfileUpdateRequestDto, ignoreNull?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberProfileUpdateResponseSchema>> {
+        async updateProfile(memberId: number, memberProfileUpdateRequestDto: MemberProfileUpdateRequestDto, ignoreNull?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberProfileUpdateResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateProfile(memberId, memberProfileUpdateRequestDto, ignoreNull, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberProfileApi.updateProfile']?.[localVarOperationServerIndex]?.url;
@@ -575,7 +591,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        checkNicknameAvailability(nickname: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        checkNicknameAvailability(nickname: string, options?: RawAxiosRequestConfig): AxiosPromise<NicknameAvailabilityResponse> {
             return localVarFp.checkNicknameAvailability(nickname, options).then((request) => request(axios, basePath));
         },
         /**
@@ -584,7 +600,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        findAllCareers(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        findAllCareers(options?: RawAxiosRequestConfig): AxiosPromise<CareerListResponse> {
             return localVarFp.findAllCareers(options).then((request) => request(axios, basePath));
         },
         /**
@@ -593,7 +609,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        findAllJobs(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        findAllJobs(options?: RawAxiosRequestConfig): AxiosPromise<JobListResponse> {
             return localVarFp.findAllJobs(options).then((request) => request(axios, basePath));
         },
         /**
@@ -602,7 +618,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        findAllStudyFormatTypes(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        findAllStudyFormatTypes(options?: RawAxiosRequestConfig): AxiosPromise<StudyFormatTypeListResponse> {
             return localVarFp.findAllStudyFormatTypes(options).then((request) => request(axios, basePath));
         },
         /**
@@ -611,7 +627,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        findAllStudySubjects(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        findAllStudySubjects(options?: RawAxiosRequestConfig): AxiosPromise<StudySubjectListResponse> {
             return localVarFp.findAllStudySubjects(options).then((request) => request(axios, basePath));
         },
         /**
@@ -620,7 +636,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getAllAvailableStudyTimes(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        getAllAvailableStudyTimes(options?: RawAxiosRequestConfig): AxiosPromise<AvailableStudyTimeListResponse> {
             return localVarFp.getAllAvailableStudyTimes(options).then((request) => request(axios, basePath));
         },
         /**
@@ -630,7 +646,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMemberProfile(memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<FullMemberProfileResponseSchema> {
+        getMemberProfile(memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<FullMemberProfileResponse> {
             return localVarFp.getMemberProfile(memberId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -640,7 +656,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMemberProfileForStudy(memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<MemberProfileForStudySchema> {
+        getMemberProfileForStudy(memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<MemberProfileForStudy> {
             return localVarFp.getMemberProfileForStudy(memberId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -652,7 +668,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateMemberInfo(memberId: number, memberInfoUpdateResponseDto: MemberInfoUpdateResponseDto, ignoreNull?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+        updateMemberInfo(memberId: number, memberInfoUpdateResponseDto: MemberInfoUpdateResponseDto, ignoreNull?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<MemberInfoUpdateResponse> {
             return localVarFp.updateMemberInfo(memberId, memberInfoUpdateResponseDto, ignoreNull, options).then((request) => request(axios, basePath));
         },
         /**
@@ -664,7 +680,7 @@ export const MemberProfileApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateProfile(memberId: number, memberProfileUpdateRequestDto: MemberProfileUpdateRequestDto, ignoreNull?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<MemberProfileUpdateResponseSchema> {
+        updateProfile(memberId: number, memberProfileUpdateRequestDto: MemberProfileUpdateRequestDto, ignoreNull?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<MemberProfileUpdateResponse> {
             return localVarFp.updateProfile(memberId, memberProfileUpdateRequestDto, ignoreNull, options).then((request) => request(axios, basePath));
         },
     };

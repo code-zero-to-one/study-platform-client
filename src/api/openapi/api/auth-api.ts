@@ -26,7 +26,7 @@ import type { BaseResponseGrantedTokenInfo } from '../models';
 // @ts-ignore
 import type { BaseResponseVoid } from '../models';
 // @ts-ignore
-import type { LongValueSchema } from '../models';
+import type { NumberResponse } from '../models';
 // @ts-ignore
 import type { RefreshedAccessTokenResponseSchema } from '../models';
 /**
@@ -249,7 +249,7 @@ export const AuthApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async whoAmI(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<LongValueSchema>> {
+        async whoAmI(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NumberResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.whoAmI(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthApi.whoAmI']?.[localVarOperationServerIndex]?.url;
@@ -302,7 +302,7 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        whoAmI(options?: RawAxiosRequestConfig): AxiosPromise<LongValueSchema> {
+        whoAmI(options?: RawAxiosRequestConfig): AxiosPromise<NumberResponse> {
             return localVarFp.whoAmI(options).then((request) => request(axios, basePath));
         },
     };

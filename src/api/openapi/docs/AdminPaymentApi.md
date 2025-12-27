@@ -69,7 +69,7 @@ const { status, data } = await apiInstance.forceCancelPayment(
 # **getTransactionsForAdmin**
 > PageAdminTransactionListResponseSchema getTransactionsForAdmin()
 
-작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입              | 설명                              | 필수 | 예시             | |-------------|-------------------|-----------------------------------|------|------------------| | startDate   | LocalDate         | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01       | | endDate     | LocalDate         | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31       | | studyTitle  | string            | 스터디명 검색 (부분 일치)         | N    | 백엔드           | | paymentCode | string            | 거래ID 검색 (부분 일치)           | N    | PAY-20251211     | | type        | PaymentHistoryType | 거래 유형 필터                   | N    | PAYMENT_SUCCESS  |  ### type 필터 가능 값 - PAYMENT_REQUESTED (결제준비) - PAYMENT_SUCCESS (결제완료) - PAYMENT_FAILED (결제실패) - PAYMENT_CANCELED (결제취소) - REFUND_REQUESTED (환불요청) - REFUND_APPROVED (환불승인) - REFUND_COMPLETED (환불완료) - REFUND_REJECTED (환불반려) - REFUND_CANCELED (환불요청취소) - REFUND_FAILED (환불실패)  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
 
 ### Example
 
@@ -90,6 +90,7 @@ let startDate: string; //조회 시작일 (yyyy-MM-dd) (optional) (default to un
 let endDate: string; //조회 종료일 (yyyy-MM-dd) (optional) (default to undefined)
 let studyTitle: string; //스터디명 검색 (부분 일치) (optional) (default to undefined)
 let paymentCode: string; //거래ID 검색 (부분 일치) (optional) (default to undefined)
+let type: string; //거래 유형 필터 (PAYMENT_REQUESTED, PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_CANCELED, REFUND_REQUESTED, REFUND_APPROVED, REFUND_COMPLETED, REFUND_REJECTED, REFUND_CANCELED, REFUND_FAILED) (optional) (default to undefined)
 let page: number; //페이지 번호 (0부터 시작) (optional) (default to undefined)
 let size: number; //페이지 크기 (optional) (default to undefined)
 
@@ -100,6 +101,7 @@ const { status, data } = await apiInstance.getTransactionsForAdmin(
     endDate,
     studyTitle,
     paymentCode,
+    type,
     page,
     size
 );
@@ -115,6 +117,7 @@ const { status, data } = await apiInstance.getTransactionsForAdmin(
 | **endDate** | [**string**] | 조회 종료일 (yyyy-MM-dd) | (optional) defaults to undefined|
 | **studyTitle** | [**string**] | 스터디명 검색 (부분 일치) | (optional) defaults to undefined|
 | **paymentCode** | [**string**] | 거래ID 검색 (부분 일치) | (optional) defaults to undefined|
+| **type** | [**string**] | 거래 유형 필터 (PAYMENT_REQUESTED, PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_CANCELED, REFUND_REQUESTED, REFUND_APPROVED, REFUND_COMPLETED, REFUND_REJECTED, REFUND_CANCELED, REFUND_FAILED) | (optional) defaults to undefined|
 | **page** | [**number**] | 페이지 번호 (0부터 시작) | (optional) defaults to undefined|
 | **size** | [**number**] | 페이지 크기 | (optional) defaults to undefined|
 

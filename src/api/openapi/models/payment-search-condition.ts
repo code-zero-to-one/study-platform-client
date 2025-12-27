@@ -19,5 +19,22 @@ export interface PaymentSearchCondition {
     'endDate'?: string;
     'studyTitle'?: string;
     'paymentCode'?: string;
+    'type'?: PaymentSearchConditionTypeEnum;
 }
+
+export const PaymentSearchConditionTypeEnum = {
+    PaymentRequested: 'PAYMENT_REQUESTED',
+    PaymentSuccess: 'PAYMENT_SUCCESS',
+    PaymentFailed: 'PAYMENT_FAILED',
+    PaymentCanceled: 'PAYMENT_CANCELED',
+    RefundRequested: 'REFUND_REQUESTED',
+    RefundApproved: 'REFUND_APPROVED',
+    RefundCompleted: 'REFUND_COMPLETED',
+    RefundRejected: 'REFUND_REJECTED',
+    RefundCanceled: 'REFUND_CANCELED',
+    RefundFailed: 'REFUND_FAILED'
+} as const;
+
+export type PaymentSearchConditionTypeEnum = typeof PaymentSearchConditionTypeEnum[keyof typeof PaymentSearchConditionTypeEnum];
+
 

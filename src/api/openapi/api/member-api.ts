@@ -22,13 +22,17 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { ErrorResponse } from '../models';
 // @ts-ignore
-import type { MemberCreationRequestDto } from '../models';
+import type { MemberCreationRequest } from '../models';
 // @ts-ignore
-import type { ParticipatingStudyResponseSchema } from '../models';
+import type { MemberCreationResponse } from '../models';
 // @ts-ignore
-import type { StudyReservationSchema } from '../models';
+import type { NoContentResponse } from '../models';
+// @ts-ignore
+import type { ParticipatingStudyResponse } from '../models';
+// @ts-ignore
+import type { StudyReservationResponse } from '../models';
 /**
  * MemberApi - axios parameter creator
  */
@@ -38,7 +42,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
          * 회원의 자동 매칭 여부를 켜거나 끌 수 있습니다.
          * @summary [메인: 스터디 신청을 완료한 사용자] 자동 매칭 On/Off
          * @param {boolean} autoMatching true일 경우 자동매칭 On, false일 경우 자동매칭 Off
-         * @param {number} memberId 
+         * @param {number} memberId 회원 Id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -199,13 +203,13 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          * 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
          * @summary [회원가입/로그인 팝업] 회원가입
-         * @param {MemberCreationRequestDto} memberCreationRequestDto 
+         * @param {MemberCreationRequest} memberCreationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        signUp: async (memberCreationRequestDto: MemberCreationRequestDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'memberCreationRequestDto' is not null or undefined
-            assertParamExists('signUp', 'memberCreationRequestDto', memberCreationRequestDto)
+        signUp: async (memberCreationRequest: MemberCreationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'memberCreationRequest' is not null or undefined
+            assertParamExists('signUp', 'memberCreationRequest', memberCreationRequest)
             const localVarPath = `/api/v1/members`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -229,7 +233,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(memberCreationRequestDto, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(memberCreationRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -249,11 +253,11 @@ export const MemberApiFp = function(configuration?: Configuration) {
          * 회원의 자동 매칭 여부를 켜거나 끌 수 있습니다.
          * @summary [메인: 스터디 신청을 완료한 사용자] 자동 매칭 On/Off
          * @param {boolean} autoMatching true일 경우 자동매칭 On, false일 경우 자동매칭 Off
-         * @param {number} memberId 
+         * @param {number} memberId 회원 Id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async autoMatchMember(autoMatching: boolean, memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async autoMatchMember(autoMatching: boolean, memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NoContentResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.autoMatchMember(autoMatching, memberId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberApi.autoMatchMember']?.[localVarOperationServerIndex]?.url;
@@ -268,7 +272,7 @@ export const MemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async findStudyReservations(cursor?: number, pageSize?: number, firstMemberId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyReservationSchema>> {
+        async findStudyReservations(cursor?: number, pageSize?: number, firstMemberId?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudyReservationResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.findStudyReservations(cursor, pageSize, firstMemberId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberApi.findStudyReservations']?.[localVarOperationServerIndex]?.url;
@@ -287,7 +291,7 @@ export const MemberApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getParticipatingStudies(memberId: number, studyType?: GetParticipatingStudiesStudyTypeEnum, studyStatus?: GetParticipatingStudiesStudyStatusEnum, inProgressPage?: number, inProgressPageSize?: number, completedPage?: number, completedPageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ParticipatingStudyResponseSchema>> {
+        async getParticipatingStudies(memberId: number, studyType?: GetParticipatingStudiesStudyTypeEnum, studyStatus?: GetParticipatingStudiesStudyStatusEnum, inProgressPage?: number, inProgressPageSize?: number, completedPage?: number, completedPageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<ParticipatingStudyResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getParticipatingStudies(memberId, studyType, studyStatus, inProgressPage, inProgressPageSize, completedPage, completedPageSize, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberApi.getParticipatingStudies']?.[localVarOperationServerIndex]?.url;
@@ -296,12 +300,12 @@ export const MemberApiFp = function(configuration?: Configuration) {
         /**
          * 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
          * @summary [회원가입/로그인 팝업] 회원가입
-         * @param {MemberCreationRequestDto} memberCreationRequestDto 
+         * @param {MemberCreationRequest} memberCreationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async signUp(memberCreationRequestDto: MemberCreationRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.signUp(memberCreationRequestDto, options);
+        async signUp(memberCreationRequest: MemberCreationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberCreationResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.signUp(memberCreationRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberApi.signUp']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -319,11 +323,11 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
          * 회원의 자동 매칭 여부를 켜거나 끌 수 있습니다.
          * @summary [메인: 스터디 신청을 완료한 사용자] 자동 매칭 On/Off
          * @param {boolean} autoMatching true일 경우 자동매칭 On, false일 경우 자동매칭 Off
-         * @param {number} memberId 
+         * @param {number} memberId 회원 Id
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        autoMatchMember(autoMatching: boolean, memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        autoMatchMember(autoMatching: boolean, memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<NoContentResponse> {
             return localVarFp.autoMatchMember(autoMatching, memberId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -335,7 +339,7 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        findStudyReservations(cursor?: number, pageSize?: number, firstMemberId?: number, options?: RawAxiosRequestConfig): AxiosPromise<StudyReservationSchema> {
+        findStudyReservations(cursor?: number, pageSize?: number, firstMemberId?: number, options?: RawAxiosRequestConfig): AxiosPromise<StudyReservationResponse> {
             return localVarFp.findStudyReservations(cursor, pageSize, firstMemberId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -351,18 +355,18 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getParticipatingStudies(memberId: number, studyType?: GetParticipatingStudiesStudyTypeEnum, studyStatus?: GetParticipatingStudiesStudyStatusEnum, inProgressPage?: number, inProgressPageSize?: number, completedPage?: number, completedPageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<ParticipatingStudyResponseSchema> {
+        getParticipatingStudies(memberId: number, studyType?: GetParticipatingStudiesStudyTypeEnum, studyStatus?: GetParticipatingStudiesStudyStatusEnum, inProgressPage?: number, inProgressPageSize?: number, completedPage?: number, completedPageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<ParticipatingStudyResponse> {
             return localVarFp.getParticipatingStudies(memberId, studyType, studyStatus, inProgressPage, inProgressPageSize, completedPage, completedPageSize, options).then((request) => request(axios, basePath));
         },
         /**
          * 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
          * @summary [회원가입/로그인 팝업] 회원가입
-         * @param {MemberCreationRequestDto} memberCreationRequestDto 
+         * @param {MemberCreationRequest} memberCreationRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        signUp(memberCreationRequestDto: MemberCreationRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.signUp(memberCreationRequestDto, options).then((request) => request(axios, basePath));
+        signUp(memberCreationRequest: MemberCreationRequest, options?: RawAxiosRequestConfig): AxiosPromise<MemberCreationResponse> {
+            return localVarFp.signUp(memberCreationRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -375,7 +379,7 @@ export class MemberApi extends BaseAPI {
      * 회원의 자동 매칭 여부를 켜거나 끌 수 있습니다.
      * @summary [메인: 스터디 신청을 완료한 사용자] 자동 매칭 On/Off
      * @param {boolean} autoMatching true일 경우 자동매칭 On, false일 경우 자동매칭 Off
-     * @param {number} memberId 
+     * @param {number} memberId 회원 Id
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -416,12 +420,12 @@ export class MemberApi extends BaseAPI {
     /**
      * 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
      * @summary [회원가입/로그인 팝업] 회원가입
-     * @param {MemberCreationRequestDto} memberCreationRequestDto 
+     * @param {MemberCreationRequest} memberCreationRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public signUp(memberCreationRequestDto: MemberCreationRequestDto, options?: RawAxiosRequestConfig) {
-        return MemberApiFp(this.configuration).signUp(memberCreationRequestDto, options).then((request) => request(this.axios, this.basePath));
+    public signUp(memberCreationRequest: MemberCreationRequest, options?: RawAxiosRequestConfig) {
+        return MemberApiFp(this.configuration).signUp(memberCreationRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

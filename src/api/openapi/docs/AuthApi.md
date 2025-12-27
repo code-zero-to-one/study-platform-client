@@ -170,7 +170,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **whoAmI**
-> LongValueSchema whoAmI()
+> NumberResponse whoAmI()
 
 Access token으로부터 사용자 정보를 가져와 반환. memberId만 반환한다.
 
@@ -194,7 +194,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**LongValueSchema**
+**NumberResponse**
 
 ### Authorization
 

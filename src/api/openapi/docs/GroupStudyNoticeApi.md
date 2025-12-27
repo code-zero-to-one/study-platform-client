@@ -9,7 +9,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**updateNotice**](#updatenotice) | **PUT** /api/v1/group-studies/{groupStudyId}/notice | 그룹스터디 공지 수정|
 
 # **createNotice**
-> BaseResponse createNotice(groupStudyNoticeRequest)
+> GroupStudyNoticeResponse createNotice(groupStudyNoticeRequest)
 
 스터디 리더가 특정 그룹스터디의 공지를 등록합니다.
 
@@ -44,7 +44,7 @@ const { status, data } = await apiInstance.createNotice(
 
 ### Return type
 
-**BaseResponse**
+**GroupStudyNoticeResponse**
 
 ### Authorization
 
@@ -66,7 +66,7 @@ const { status, data } = await apiInstance.createNotice(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getNotice**
-> BaseResponse getNotice()
+> GroupStudyNoticeResponse getNotice()
 
 특정 그룹스터디의 공지를 조회합니다.
 
@@ -97,7 +97,7 @@ const { status, data } = await apiInstance.getNotice(
 
 ### Return type
 
-**BaseResponse**
+**GroupStudyNoticeResponse**
 
 ### Authorization
 
@@ -118,7 +118,7 @@ const { status, data } = await apiInstance.getNotice(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateNotice**
-> BaseResponse updateNotice(groupStudyNoticeRequest)
+> GroupStudyNoticeResponse updateNotice(groupStudyNoticeRequest)
 
 특정 그룹스터디의 공지를 수정합니다.
 
@@ -153,7 +153,7 @@ const { status, data } = await apiInstance.updateNotice(
 
 ### Return type
 
-**BaseResponse**
+**GroupStudyNoticeResponse**
 
 ### Authorization
 

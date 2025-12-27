@@ -78,7 +78,7 @@ export const AdminPaymentApiAxiosParamCreator = function (configuration?: Config
             };
         },
         /**
-         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입              | 설명                              | 필수 | 예시             | |-------------|-------------------|-----------------------------------|------|------------------| | startDate   | LocalDate         | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01       | | endDate     | LocalDate         | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31       | | studyTitle  | string            | 스터디명 검색 (부분 일치)         | N    | 백엔드           | | paymentCode | string            | 거래ID 검색 (부분 일치)           | N    | PAY-20251211     | | type        | PaymentHistoryType | 거래 유형 필터                   | N    | PAYMENT_SUCCESS  |  ### type 필터 가능 값 - PAYMENT_REQUESTED (결제준비) - PAYMENT_SUCCESS (결제완료) - PAYMENT_FAILED (결제실패) - PAYMENT_CANCELED (결제취소) - REFUND_REQUESTED (환불요청) - REFUND_APPROVED (환불승인) - REFUND_COMPLETED (환불완료) - REFUND_REJECTED (환불반려) - REFUND_CANCELED (환불요청취소) - REFUND_FAILED (환불실패)  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
          * @summary 관리자 매출 관리 리스트 조회 (결제/환불 통합)
          * @param {PaymentSearchCondition} condition 
          * @param {Pageable} pageable 
@@ -86,12 +86,13 @@ export const AdminPaymentApiAxiosParamCreator = function (configuration?: Config
          * @param {string} [endDate] 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
          * @param {string} [paymentCode] 거래ID 검색 (부분 일치)
+         * @param {string} [type] 거래 유형 필터 (PAYMENT_REQUESTED, PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_CANCELED, REFUND_REQUESTED, REFUND_APPROVED, REFUND_COMPLETED, REFUND_REJECTED, REFUND_CANCELED, REFUND_FAILED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getTransactionsForAdmin: async (condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getTransactionsForAdmin: async (condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, type?: string, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'condition' is not null or undefined
             assertParamExists('getTransactionsForAdmin', 'condition', condition)
             // verify required parameter 'pageable' is not null or undefined
@@ -130,6 +131,10 @@ export const AdminPaymentApiAxiosParamCreator = function (configuration?: Config
 
             if (paymentCode !== undefined) {
                 localVarQueryParameter['paymentCode'] = paymentCode;
+            }
+
+            if (type !== undefined) {
+                localVarQueryParameter['type'] = type;
             }
 
             if (page !== undefined) {
@@ -187,7 +192,7 @@ export const AdminPaymentApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입              | 설명                              | 필수 | 예시             | |-------------|-------------------|-----------------------------------|------|------------------| | startDate   | LocalDate         | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01       | | endDate     | LocalDate         | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31       | | studyTitle  | string            | 스터디명 검색 (부분 일치)         | N    | 백엔드           | | paymentCode | string            | 거래ID 검색 (부분 일치)           | N    | PAY-20251211     | | type        | PaymentHistoryType | 거래 유형 필터                   | N    | PAYMENT_SUCCESS  |  ### type 필터 가능 값 - PAYMENT_REQUESTED (결제준비) - PAYMENT_SUCCESS (결제완료) - PAYMENT_FAILED (결제실패) - PAYMENT_CANCELED (결제취소) - REFUND_REQUESTED (환불요청) - REFUND_APPROVED (환불승인) - REFUND_COMPLETED (환불완료) - REFUND_REJECTED (환불반려) - REFUND_CANCELED (환불요청취소) - REFUND_FAILED (환불실패)  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
          * @summary 관리자 매출 관리 리스트 조회 (결제/환불 통합)
          * @param {PaymentSearchCondition} condition 
          * @param {Pageable} pageable 
@@ -195,13 +200,14 @@ export const AdminPaymentApiFp = function(configuration?: Configuration) {
          * @param {string} [endDate] 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
          * @param {string} [paymentCode] 거래ID 검색 (부분 일치)
+         * @param {string} [type] 거래 유형 필터 (PAYMENT_REQUESTED, PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_CANCELED, REFUND_REQUESTED, REFUND_APPROVED, REFUND_COMPLETED, REFUND_REJECTED, REFUND_CANCELED, REFUND_FAILED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageAdminTransactionListResponseSchema>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options);
+        async getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, type?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PageAdminTransactionListResponseSchema>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, type, page, size, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminPaymentApi.getTransactionsForAdmin']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -227,7 +233,7 @@ export const AdminPaymentApiFactory = function (configuration?: Configuration, b
             return localVarFp.forceCancelPayment(paymentId, reason, options).then((request) => request(axios, basePath));
         },
         /**
-         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+         * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입              | 설명                              | 필수 | 예시             | |-------------|-------------------|-----------------------------------|------|------------------| | startDate   | LocalDate         | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01       | | endDate     | LocalDate         | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31       | | studyTitle  | string            | 스터디명 검색 (부분 일치)         | N    | 백엔드           | | paymentCode | string            | 거래ID 검색 (부분 일치)           | N    | PAY-20251211     | | type        | PaymentHistoryType | 거래 유형 필터                   | N    | PAYMENT_SUCCESS  |  ### type 필터 가능 값 - PAYMENT_REQUESTED (결제준비) - PAYMENT_SUCCESS (결제완료) - PAYMENT_FAILED (결제실패) - PAYMENT_CANCELED (결제취소) - REFUND_REQUESTED (환불요청) - REFUND_APPROVED (환불승인) - REFUND_COMPLETED (환불완료) - REFUND_REJECTED (환불반려) - REFUND_CANCELED (환불요청취소) - REFUND_FAILED (환불실패)  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
          * @summary 관리자 매출 관리 리스트 조회 (결제/환불 통합)
          * @param {PaymentSearchCondition} condition 
          * @param {Pageable} pageable 
@@ -235,13 +241,14 @@ export const AdminPaymentApiFactory = function (configuration?: Configuration, b
          * @param {string} [endDate] 조회 종료일 (yyyy-MM-dd)
          * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
          * @param {string} [paymentCode] 거래ID 검색 (부분 일치)
+         * @param {string} [type] 거래 유형 필터 (PAYMENT_REQUESTED, PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_CANCELED, REFUND_REQUESTED, REFUND_APPROVED, REFUND_COMPLETED, REFUND_REJECTED, REFUND_CANCELED, REFUND_FAILED)
          * @param {number} [page] 페이지 번호 (0부터 시작)
          * @param {number} [size] 페이지 크기
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<PageAdminTransactionListResponseSchema> {
-            return localVarFp.getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options).then((request) => request(axios, basePath));
+        getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, type?: string, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<PageAdminTransactionListResponseSchema> {
+            return localVarFp.getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, type, page, size, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -263,7 +270,7 @@ export class AdminPaymentApi extends BaseAPI {
     }
 
     /**
-     * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입       | 설명                              | 필수 | 예시           | |-------------|------------|-----------------------------------|------|----------------| | startDate   | LocalDate  | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01     | | endDate     | LocalDate  | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31     | | studyTitle  | string     | 스터디명 검색 (부분 일치)         | N    | 백엔드         | | paymentCode | string     | 거래ID 검색 (부분 일치)           | N    | PAY-20251211   |  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
+     * 작성일자: 2025-12-22  작성자: 이도현  ---  ## Description  - 전체 유저의 결제/환불 거래 내역을 거래(payment)별 최신 히스토리 기준으로 조회합니다. - PaymentHistory 테이블 기반으로 결제와 환불을 통합하여 조회합니다. - 각 거래별로 가장 최근 상태(결제 완료, 환불 완료 등)를 기준으로 리스트를 반환합니다. - 날짜, 스터디명, 거래ID(paymentCode)로 필터링할 수 있습니다.  ---  ## Query Parameters (Filter - PaymentSearchCondition)  | 키          | 타입              | 설명                              | 필수 | 예시             | |-------------|-------------------|-----------------------------------|------|------------------| | startDate   | LocalDate         | 조회 시작일 (yyyy-MM-dd)          | N    | 2025-01-01       | | endDate     | LocalDate         | 조회 종료일 (yyyy-MM-dd)          | N    | 2025-12-31       | | studyTitle  | string            | 스터디명 검색 (부분 일치)         | N    | 백엔드           | | paymentCode | string            | 거래ID 검색 (부분 일치)           | N    | PAY-20251211     | | type        | PaymentHistoryType | 거래 유형 필터                   | N    | PAYMENT_SUCCESS  |  ### type 필터 가능 값 - PAYMENT_REQUESTED (결제준비) - PAYMENT_SUCCESS (결제완료) - PAYMENT_FAILED (결제실패) - PAYMENT_CANCELED (결제취소) - REFUND_REQUESTED (환불요청) - REFUND_APPROVED (환불승인) - REFUND_COMPLETED (환불완료) - REFUND_REJECTED (환불반려) - REFUND_CANCELED (환불요청취소) - REFUND_FAILED (환불실패)  ## Query Parameters (Pageable)  | 키   | 타입   | 설명                             | 필수 | 예시           | |------|--------|----------------------------------|------|----------------| | page | number | 페이지 번호(0부터 시작)          | N    | 0              | | size | number | 페이지 크기                      | N    | 20             |  ---  ## Response (PageResponseDto<AdminTransactionListResponse>)  - `content`: 거래별 최신 상태 정보 리스트 - `page`: 현재 페이지(1 기반) - `size`: 페이지 크기 - `totalElements`: 전체 개수 
      * @summary 관리자 매출 관리 리스트 조회 (결제/환불 통합)
      * @param {PaymentSearchCondition} condition 
      * @param {Pageable} pageable 
@@ -271,13 +278,14 @@ export class AdminPaymentApi extends BaseAPI {
      * @param {string} [endDate] 조회 종료일 (yyyy-MM-dd)
      * @param {string} [studyTitle] 스터디명 검색 (부분 일치)
      * @param {string} [paymentCode] 거래ID 검색 (부분 일치)
+     * @param {string} [type] 거래 유형 필터 (PAYMENT_REQUESTED, PAYMENT_SUCCESS, PAYMENT_FAILED, PAYMENT_CANCELED, REFUND_REQUESTED, REFUND_APPROVED, REFUND_COMPLETED, REFUND_REJECTED, REFUND_CANCELED, REFUND_FAILED)
      * @param {number} [page] 페이지 번호 (0부터 시작)
      * @param {number} [size] 페이지 크기
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, page?: number, size?: number, options?: RawAxiosRequestConfig) {
-        return AdminPaymentApiFp(this.configuration).getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, page, size, options).then((request) => request(this.axios, this.basePath));
+    public getTransactionsForAdmin(condition: PaymentSearchCondition, pageable: Pageable, startDate?: string, endDate?: string, studyTitle?: string, paymentCode?: string, type?: string, page?: number, size?: number, options?: RawAxiosRequestConfig) {
+        return AdminPaymentApiFp(this.configuration).getTransactionsForAdmin(condition, pageable, startDate, endDate, studyTitle, paymentCode, type, page, size, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

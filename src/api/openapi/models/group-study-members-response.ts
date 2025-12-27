@@ -13,17 +13,11 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { GroupStudyMemberResponse } from './group-study-member-response';
 
 export interface GroupStudyMembersResponse {
-    'pageSize'?: number;
-    'pageNumber'?: number;
-    'totalElements'?: number;
-    'totalMemberCount'?: number;
-    'hasPrevious'?: boolean;
-    'hasNext'?: boolean;
-    'members'?: Array<GroupStudyMemberResponse>;
+    'statusCode'?: number;
+    'timestamp'?: string;
+    'content'?: GroupStudyMembersResponse;
+    'message'?: string;
 }
 

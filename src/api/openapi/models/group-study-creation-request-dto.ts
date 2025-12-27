@@ -21,7 +21,7 @@ import type { GroupStudyBasicInfoRequestDto } from './group-study-basic-info-req
 import type { GroupStudyDetailInfoRequestDto } from './group-study-detail-info-request-dto';
 // May contain unused imports in some cases
 // @ts-ignore
-import type { GroupStudyInterviewPostRequestDto } from './group-study-interview-post-request-dto';
+import type { GroupStudyInterviewPostRequest } from './group-study-interview-post-request';
 
 /**
  * 그룹스터디 생성 요청
@@ -38,7 +38,7 @@ export interface GroupStudyCreationRequestDto {
     /**
      * 그룹스터디 개설질문
      */
-    'interviewPost'?: GroupStudyInterviewPostRequestDto;
+    'interviewPost'?: GroupStudyInterviewPostRequest;
     /**
      * 썸네일 이미지 확장자
      */

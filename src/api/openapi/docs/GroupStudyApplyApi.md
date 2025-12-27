@@ -12,7 +12,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**updateGroupStudyApply**](#updategroupstudyapply) | **PUT** /api/v1/group-studies/{groupStudyId}/apply/{applyId} | 그룹스터디 신청 수정|
 
 # **applyGroupStudy**
-> GroupStudyApplyResponse applyGroupStudy(groupStudyApplyCreationRequestDto)
+> GroupStudyApplyResponse applyGroupStudy(groupStudyApplyRequest)
 
 새로운 그룹스터디에 신청합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - Bearer Token이 필요합니다. 
 
@@ -22,18 +22,18 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 import {
     GroupStudyApplyApi,
     Configuration,
-    GroupStudyApplyCreationRequestDto
+    GroupStudyApplyRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GroupStudyApplyApi(configuration);
 
 let groupStudyId: number; //그룹스터디 ID (default to undefined)
-let groupStudyApplyCreationRequestDto: GroupStudyApplyCreationRequestDto; //
+let groupStudyApplyRequest: GroupStudyApplyRequest; //
 
 const { status, data } = await apiInstance.applyGroupStudy(
     groupStudyId,
-    groupStudyApplyCreationRequestDto
+    groupStudyApplyRequest
 );
 ```
 
@@ -41,7 +41,7 @@ const { status, data } = await apiInstance.applyGroupStudy(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **groupStudyApplyCreationRequestDto** | **GroupStudyApplyCreationRequestDto**|  | |
+| **groupStudyApplyRequest** | **GroupStudyApplyRequest**|  | |
 | **groupStudyId** | [**number**] | 그룹스터디 ID | defaults to undefined|
 
 
@@ -67,7 +67,7 @@ const { status, data } = await apiInstance.applyGroupStudy(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **cancelGroupStudyApply**
-> cancelGroupStudyApply()
+> NoContentResponse cancelGroupStudyApply()
 
 기존 그룹스터디 신청을 취소합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 👤 **본인이 작성한 신청만** 취소 가능 
 
@@ -101,7 +101,7 @@ const { status, data } = await apiInstance.cancelGroupStudyApply(
 
 ### Return type
 
-void (empty response body)
+**NoContentResponse**
 
 ### Authorization
 
@@ -116,12 +116,12 @@ void (empty response body)
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
-|**200** | 취소 성공 |  -  |
+|**204** | 취소 성공 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **findGroupStudyApplicantsByGroupStudy**
-> PageResponseDto findGroupStudyApplicantsByGroupStudy()
+> GroupStudyApplyListResponse findGroupStudyApplicantsByGroupStudy()
 
 특정 그룹스터디에 신청한 활성 신청자 목록을 조회합니다. (삭제되지 않은 신청만 조회)  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
 
@@ -161,7 +161,7 @@ const { status, data } = await apiInstance.findGroupStudyApplicantsByGroupStudy(
 
 ### Return type
 
-**PageResponseDto**
+**GroupStudyApplyListResponse**
 
 ### Authorization
 
@@ -181,7 +181,7 @@ const { status, data } = await apiInstance.findGroupStudyApplicantsByGroupStudy(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getGroupStudyApplyDetail**
-> GroupStudyApplyResponseDto getGroupStudyApplyDetail()
+> GroupStudyApplyDetailResponse getGroupStudyApplyDetail()
 
 자신의 그룹스터디 신청 정보를 조회합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 본인의 신청 정보만 조회할 수 있습니다. 
 
@@ -212,7 +212,7 @@ const { status, data } = await apiInstance.getGroupStudyApplyDetail(
 
 ### Return type
 
-**GroupStudyApplyResponseDto**
+**GroupStudyApplyDetailResponse**
 
 ### Authorization
 
@@ -232,7 +232,7 @@ const { status, data } = await apiInstance.getGroupStudyApplyDetail(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **processGroupStudyApply**
-> GroupStudyApplyProcessResponseDto processGroupStudyApply(groupStudyApplyProcessRequestDto)
+> GroupStudyApplyProcessResponse processGroupStudyApply(groupStudyApplyProcessRequest)
 
 그룹스터디 신청을 승인/거절합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 👤 **그룹스터디 리더만** 처리 가능 
 
@@ -242,7 +242,7 @@ const { status, data } = await apiInstance.getGroupStudyApplyDetail(
 import {
     GroupStudyApplyApi,
     Configuration,
-    GroupStudyApplyProcessRequestDto
+    GroupStudyApplyProcessRequest
 } from './api';
 
 const configuration = new Configuration();
@@ -250,12 +250,12 @@ const apiInstance = new GroupStudyApplyApi(configuration);
 
 let groupStudyId: number; //그룹스터디 ID (default to undefined)
 let applyId: number; //신청 ID (default to undefined)
-let groupStudyApplyProcessRequestDto: GroupStudyApplyProcessRequestDto; //
+let groupStudyApplyProcessRequest: GroupStudyApplyProcessRequest; //
 
 const { status, data } = await apiInstance.processGroupStudyApply(
     groupStudyId,
     applyId,
-    groupStudyApplyProcessRequestDto
+    groupStudyApplyProcessRequest
 );
 ```
 
@@ -263,14 +263,14 @@ const { status, data } = await apiInstance.processGroupStudyApply(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **groupStudyApplyProcessRequestDto** | **GroupStudyApplyProcessRequestDto**|  | |
+| **groupStudyApplyProcessRequest** | **GroupStudyApplyProcessRequest**|  | |
 | **groupStudyId** | [**number**] | 그룹스터디 ID | defaults to undefined|
 | **applyId** | [**number**] | 신청 ID | defaults to undefined|
 
 
 ### Return type
 
-**GroupStudyApplyProcessResponseDto**
+**GroupStudyApplyProcessResponse**
 
 ### Authorization
 
@@ -290,7 +290,7 @@ const { status, data } = await apiInstance.processGroupStudyApply(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateGroupStudyApply**
-> GroupStudyApplyUpdateResponseDto updateGroupStudyApply(groupStudyApplyUpdateRequestDto)
+> GroupStudyUpdateResponse updateGroupStudyApply(groupStudyApplyUpdateRequest)
 
 기존 그룹스터디 신청 내용을 수정합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - 👤 **본인이 작성한 신청만** 수정 가능 
 
@@ -300,7 +300,7 @@ const { status, data } = await apiInstance.processGroupStudyApply(
 import {
     GroupStudyApplyApi,
     Configuration,
-    GroupStudyApplyUpdateRequestDto
+    GroupStudyApplyUpdateRequest
 } from './api';
 
 const configuration = new Configuration();
@@ -308,12 +308,12 @@ const apiInstance = new GroupStudyApplyApi(configuration);
 
 let groupStudyId: number; //그룹스터디 ID (default to undefined)
 let applyId: number; //신청 ID (default to undefined)
-let groupStudyApplyUpdateRequestDto: GroupStudyApplyUpdateRequestDto; //
+let groupStudyApplyUpdateRequest: GroupStudyApplyUpdateRequest; //
 
 const { status, data } = await apiInstance.updateGroupStudyApply(
     groupStudyId,
     applyId,
-    groupStudyApplyUpdateRequestDto
+    groupStudyApplyUpdateRequest
 );
 ```
 
@@ -321,14 +321,14 @@ const { status, data } = await apiInstance.updateGroupStudyApply(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **groupStudyApplyUpdateRequestDto** | **GroupStudyApplyUpdateRequestDto**|  | |
+| **groupStudyApplyUpdateRequest** | **GroupStudyApplyUpdateRequest**|  | |
 | **groupStudyId** | [**number**] | 그룹스터디 ID | defaults to undefined|
 | **applyId** | [**number**] | 신청 ID | defaults to undefined|
 
 
 ### Return type
 
-**GroupStudyApplyUpdateResponseDto**
+**GroupStudyUpdateResponse**
 
 ### Authorization
 
