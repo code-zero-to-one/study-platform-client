@@ -4,14 +4,12 @@ import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import AdminForcedCancellationModal from '@/components/modals/admin-forced-cancellation-modal';
 import AdminRefundApprovalModal from '@/components/modals/admin-refund-approval-modal';
-import AdminSettlementModal from '@/components/modals/admin-settlement-modal';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
 import SingleDropdown from '@/components/ui/dropdown/single';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
-import Tabs from '@/components/ui/tabs';
 
 type SalesStatus =
   | '결제대기'
@@ -39,7 +37,6 @@ const getStatusBadgeColor = (
   }
 };
 
-// Mock data for demonstration
 const mockSalesData = [
   {
     id: 'PAY-20251206-001',
@@ -88,47 +85,14 @@ const filterOptions = [
   { value: 'refund_complete', label: '환불완료' },
 ];
 
-export default function SalesManagementPage() {
-  const [activeTab, setActiveTab] = useState<string>('payment_refund');
-  const [page, setPage] = useState<number>(1);
-
-  const tabs = [
-    { label: '결제 및 환불', value: 'payment_refund' },
-    { label: '정산', value: 'settlement' },
-  ];
-
-  return (
-    <div className="flex flex-col gap-200 p-300">
-      <div className="font-designer-20b text-text-default">매출 관리</div>
-
-      {/* Tabs */}
-      <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} />
-
-      {activeTab === 'payment_refund' ? (
-        <PaymentRefundTabContent />
-      ) : (
-        <SettlementTabContent />
-      )}
-
-      {/* 페이지네이션 */}
-      <div className="flex items-center justify-between">
-        <span className="text-icon-subtlest font-designer-13r">
-          총 {mockSalesData.length}건
-        </span>
-        <Pagination page={page} onChangePage={setPage} totalPages={5} />
-        <div />
-      </div>
-    </div>
-  );
-}
-
-function PaymentRefundTabContent() {
+export default function PaymentRefundPage() {
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [keyword, setKeyword] = useState<string>('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
+  const [page, setPage] = useState<number>(1);
 
   return (
     <>
@@ -263,156 +227,19 @@ function PaymentRefundTabContent() {
           </tbody>
         </table>
       </div>
-    </>
-  );
-}
 
-function SettlementTabContent() {
-  const [filterStatus, setFilterStatus] = useState<string>('all');
-  const [keyword, setKeyword] = useState<string>('');
-  const [dateRange, setDateRange] = useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
-
-  return (
-    <>
-      {/* 필터 영역 */}
-      <div className="flex items-center justify-between py-100">
-        <div className="flex items-center gap-100">
-          {/* 상태 필터 드롭다운 */}
-          <div className="w-[160px]">
-            <SingleDropdown
-              options={filterOptions}
-              value={filterStatus}
-              onChange={(value) => setFilterStatus(value || 'all')}
-              placeholder="전체"
-              size="m"
-            />
-          </div>
-
-          <DatePicker
-            mode="range"
-            selected={dateRange}
-            onSelect={(range) => setDateRange(range as DateRange)}
-          />
-        </div>
-
-        {/* 검색 */}
-        <div className="w-[300px]">
-          <BaseInput
-            placeholder="스터디명 혹은 결제ID 검색"
-            size="m"
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {/* 테이블 */}
-      <div className="rounded-tl-100 rounded-tr-100 overflow-hidden">
-        <table className="w-full">
-          <thead className="bg-background-alternative border-b-border-default border-b">
-            <tr>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-250 text-left">
-                정산 ID
-              </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
-                스터디명(진행 상태)
-              </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
-                개설자(ID)
-              </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
-                정산 내역
-              </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
-                상태
-              </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
-                정산일시
-              </th>
-              <th className="py-100 pr-250" />
-            </tr>
-          </thead>
-          <tbody>
-            {mockSalesData && mockSalesData.length > 0 ? (
-              mockSalesData.map((sale, index) => (
-                <tr
-                  key={`${sale.id}-${index}`}
-                  className="border-b-border-default border-b"
-                >
-                  {/* 거래 ID */}
-                  <td className="py-200 pl-250">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.id}
-                    </span>
-                  </td>
-
-                  {/* 스터디명 */}
-                  <td className="py-200 pl-[10px]">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.studyTitle}
-                    </span>
-                  </td>
-
-                  {/* 결제자 */}
-                  <td className="py-200 pl-[10px]">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.buyer}
-                    </span>
-                  </td>
-
-                  {/* 결제 내역 */}
-                  <td className="py-200 pl-[10px]">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.amount.toLocaleString()}원({sale.paymentType})
-                    </span>
-                  </td>
-
-                  {/* 상태 */}
-                  <td className="py-200 pl-[10px]">
-                    <Badge
-                      color={getStatusBadgeColor(sale.status)}
-                      shape="rectangle"
-                    >
-                      {sale.status}
-                    </Badge>
-                  </td>
-
-                  {/* 일시 */}
-                  <td className="py-200 pl-[10px]">
-                    <span className="font-designer-14r text-text-default">
-                      {sale.date}
-                    </span>
-                  </td>
-
-                  {/* 액션 버튼 */}
-                  <td className="py-200 pr-250">
-                    <SalesActionButtons status={sale.status} />
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan={7}
-                  className="border-b-border-default border-b py-[200px] text-center"
-                >
-                  <p className="font-designer-16r text-text-subtlest">
-                    매출 내역이 없습니다.
-                  </p>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      {/* 페이지네이션 */}
+      <div className="flex items-center justify-between">
+        <span className="text-icon-subtlest font-designer-13r">
+          총 {mockSalesData.length}건
+        </span>
+        <Pagination page={page} onChangePage={setPage} totalPages={5} />
+        <div />
       </div>
     </>
   );
 }
 
-// todo: 수정
 function SalesActionButtons({ status }: { status: SalesStatus }) {
   const handleAction = (action: string) => {
     console.log(`Action: ${action} for status: ${status}`);
@@ -422,13 +249,14 @@ function SalesActionButtons({ status }: { status: SalesStatus }) {
     case '결제완료':
       return (
         <div className="flex items-center gap-100">
-          <SettlementButton />
+          <ReceiptButton />
         </div>
       );
     case '환불요청':
       return (
         <div className="flex items-center gap-100">
-          <ReceiptButton />
+          <ApproveRefundButton />
+          <RejectRefundButton />
         </div>
       );
     case '환불완료':
@@ -502,27 +330,6 @@ function RejectRefundButton() {
       >
         환불 반려
       </Button>
-    </>
-  );
-}
-
-function SettlementButton() {
-  const [open, setOpen] = useState(false);
-
-  return (
-    <>
-      <Button
-        color="outlined"
-        size="small"
-        className="font-designer-14r"
-        onClick={() => {
-          setOpen(true);
-        }}
-      >
-        정산하기
-      </Button>
-
-      {open && <AdminSettlementModal open={open} onOpenChange={setOpen} />}
     </>
   );
 }

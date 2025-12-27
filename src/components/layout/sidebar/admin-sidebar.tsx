@@ -43,8 +43,13 @@ export default function AdminSideBar() {
           <Link href="/admin">사용자 관리</Link>
         </TabMenu>
 
-        <TabMenu active={pathname === '/admin/sales-management'}>
-          <Link href="/admin/sales-management">매출 관리</Link>
+        <TabMenu
+          active={
+            pathname === '/admin/sales-management/payment-refund' ||
+            pathname === '/admin/sales-management/settlement'
+          }
+        >
+          <Link href="/admin/sales-management/payment-refund">매출 관리</Link>
         </TabMenu>
       </nav>
     </aside>
