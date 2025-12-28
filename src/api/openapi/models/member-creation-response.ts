@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { MemberCreationResponseDto } from './member-creation-response-dto';
+import type { MemberCreationResponseContent } from './member-creation-response-content';
 
 export interface MemberCreationResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: MemberCreationResponseDto;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: MemberCreationResponseContent;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

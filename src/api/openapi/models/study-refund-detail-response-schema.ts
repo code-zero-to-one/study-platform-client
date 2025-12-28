@@ -18,9 +18,21 @@
 import type { StudyRefundDetailResponse } from './study-refund-detail-response';
 
 export interface StudyRefundDetailResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: StudyRefundDetailResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

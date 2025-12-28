@@ -18,9 +18,21 @@
 import type { StudyFormatTypeResponseDto } from './study-format-type-response-dto';
 
 export interface StudyFormatTypeListResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: Array<StudyFormatTypeResponseDto>;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

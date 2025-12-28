@@ -6,7 +6,7 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **studyId** | **number** | 스터디 ID. 그룹스터디 ID 혹은 1대1 스터디 ID. type에 따라서 종류가 달라진다 | [optional] [default to undefined]
-**thumbnail** | [**ImageDto**](ImageDto.md) | 섬네일 이미지 | [optional] [default to undefined]
+**thumbnail** | [**Image**](Image.md) | 섬네일 이미지 | [optional] [default to undefined]
 **title** | **string** | 스터디 제목 - 일대일 스터디인 경우 null | [optional] [default to undefined]
 **maxMembersCount** | **number** | 참여 가능한 최대 회원 수 | [optional] [default to undefined]
 **participantsCount** | **number** | 참여한 회원의 수 | [optional] [default to undefined]

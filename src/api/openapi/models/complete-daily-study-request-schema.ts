@@ -18,9 +18,21 @@
 import type { CompleteDailyStudyRequest } from './complete-daily-study-request';
 
 export interface CompleteDailyStudyRequestSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: CompleteDailyStudyRequest;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

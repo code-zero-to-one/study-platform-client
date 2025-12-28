@@ -10,7 +10,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**update**](#update) | **PUT** /api/v1/mypage/settlement-account | 정산 계좌 수정|
 
 # **_delete**
-> BaseResponseVoid _delete()
+> BaseResponse _delete()
 
 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 로그인한 회원의 정산 계좌 정보를 삭제합니다. - 삭제 후 정산 계좌는 조회할 수 없습니다.  ---  ## Response  - 성공 시 응답 바디 없이 204 No Content를 반환합니다. 
 
@@ -34,7 +34,7 @@ This endpoint does not have any parameters.
 
 ### Return type
 
-**BaseResponseVoid**
+**BaseResponse**
 
 ### Authorization
 

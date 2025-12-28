@@ -18,9 +18,21 @@
 import type { StudyDashboardResponse } from './study-dashboard-response';
 
 export interface GetStudyDashboardResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: StudyDashboardResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

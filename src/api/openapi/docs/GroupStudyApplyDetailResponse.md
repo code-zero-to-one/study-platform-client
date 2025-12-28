@@ -5,10 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**statusCode** | **number** |  | [optional] [default to undefined]
-**timestamp** | **string** |  | [optional] [default to undefined]
-**content** | [**GroupStudyApplyResponseDto**](GroupStudyApplyResponseDto.md) |  | [optional] [default to undefined]
-**message** | **string** |  | [optional] [default to undefined]
+**statusCode** | **number** | Status Code | [default to undefined]
+**timestamp** | **string** | Timestamp | [default to undefined]
+**content** | [**GroupStudyApplyResponseContent**](GroupStudyApplyResponseContent.md) | Content | [optional] [default to undefined]
+**message** | **string** | Message | [optional] [default to undefined]
 
 ## Example
 

@@ -30,8 +30,6 @@ import type { AutoRunMatchingRequestDto } from '../models';
 // @ts-ignore
 import type { BaseResponse } from '../models';
 // @ts-ignore
-import type { BaseResponseMatchingRequestResponse } from '../models';
-// @ts-ignore
 import type { ErrorResponse } from '../models';
 // @ts-ignore
 import type { ResetWeeklyMatchingRequest } from '../models';
@@ -332,7 +330,7 @@ export const AdminMatchingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createMatchingRequestByAdmin(adminMatchingCreateRequest: AdminMatchingCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseMatchingRequestResponse>> {
+        async createMatchingRequestByAdmin(adminMatchingCreateRequest: AdminMatchingCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createMatchingRequestByAdmin(adminMatchingCreateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMatchingApi.createMatchingRequestByAdmin']?.[localVarOperationServerIndex]?.url;
@@ -370,7 +368,7 @@ export const AdminMatchingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMatchingRequest(matchingRequestId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseMatchingRequestResponse>> {
+        async getMatchingRequest(matchingRequestId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMatchingRequest(matchingRequestId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMatchingApi.getMatchingRequest']?.[localVarOperationServerIndex]?.url;
@@ -410,7 +408,7 @@ export const AdminMatchingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateMatchingRequestByAdmin(matchingRequestId: number, adminMatchingUpdateRequest: AdminMatchingUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseMatchingRequestResponse>> {
+        async updateMatchingRequestByAdmin(matchingRequestId: number, adminMatchingUpdateRequest: AdminMatchingUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateMatchingRequestByAdmin(matchingRequestId, adminMatchingUpdateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMatchingApi.updateMatchingRequestByAdmin']?.[localVarOperationServerIndex]?.url;
@@ -432,7 +430,7 @@ export const AdminMatchingApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createMatchingRequestByAdmin(adminMatchingCreateRequest: AdminMatchingCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseMatchingRequestResponse> {
+        createMatchingRequestByAdmin(adminMatchingCreateRequest: AdminMatchingCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
             return localVarFp.createMatchingRequestByAdmin(adminMatchingCreateRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -461,7 +459,7 @@ export const AdminMatchingApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMatchingRequest(matchingRequestId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseMatchingRequestResponse> {
+        getMatchingRequest(matchingRequestId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
             return localVarFp.getMatchingRequest(matchingRequestId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -492,7 +490,7 @@ export const AdminMatchingApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateMatchingRequestByAdmin(matchingRequestId: number, adminMatchingUpdateRequest: AdminMatchingUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseMatchingRequestResponse> {
+        updateMatchingRequestByAdmin(matchingRequestId: number, adminMatchingUpdateRequest: AdminMatchingUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
             return localVarFp.updateMatchingRequestByAdmin(matchingRequestId, adminMatchingUpdateRequest, options).then((request) => request(axios, basePath));
         },
     };

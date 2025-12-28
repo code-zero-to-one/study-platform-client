@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { StudyReservationResponseDto } from './study-reservation-response-dto';
+import type { StudyReservationResponseContent } from './study-reservation-response-content';
 
 export interface StudyReservationResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: StudyReservationResponseDto;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: StudyReservationResponseContent;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

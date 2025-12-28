@@ -18,9 +18,21 @@
 import type { TodayStudyDataResponse } from './today-study-data-response';
 
 export interface GetTodayMyDailyStudyResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: TodayStudyDataResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

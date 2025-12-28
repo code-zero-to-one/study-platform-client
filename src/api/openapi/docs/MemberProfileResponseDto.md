@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **memberName** | **string** | 회원 이름 | [optional] [default to undefined]
 **nickname** | **string** | 닉네임 | [optional] [default to undefined]
-**profileImage** | [**ImageDto**](ImageDto.md) | 프로필 이미지 - 리사이징된 이미지를 포함하고 있음 - 지금은 ORIGINAL 하나밖에 없음 | [optional] [default to undefined]
+**profileImage** | [**Image**](Image.md) | 프로필 이미지 - 리사이징된 이미지를 포함하고 있음 - 지금은 ORIGINAL 하나밖에 없음 | [optional] [default to undefined]
 **simpleIntroduction** | **string** | 한마디 소개 | [optional] [default to undefined]
 **mbti** | **string** | MBTI | [optional] [default to undefined]
 **interests** | [**Array&lt;IdNameDto&gt;**](IdNameDto.md) | 관심사 | [optional] [default to undefined]

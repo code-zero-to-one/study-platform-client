@@ -18,9 +18,21 @@
 import type { MemberProfileUpdateResponseDto } from './member-profile-update-response-dto';
 
 export interface MemberProfileUpdateResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: MemberProfileUpdateResponseDto;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

@@ -18,9 +18,21 @@
 import type { RefreshedAccessTokenResponseDto } from './refreshed-access-token-response-dto';
 
 export interface RefreshedAccessTokenResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: RefreshedAccessTokenResponseDto;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

@@ -18,9 +18,21 @@
 import type { JobResponseDto } from './job-response-dto';
 
 export interface JobListResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: Array<JobResponseDto>;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

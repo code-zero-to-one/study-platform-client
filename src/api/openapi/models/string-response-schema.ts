@@ -15,9 +15,21 @@
 
 
 export interface StringResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: string;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

@@ -18,9 +18,21 @@
 import type { MemberNotificationResponse } from './member-notification-response';
 
 export interface MemberNotificationSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: MemberNotificationResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

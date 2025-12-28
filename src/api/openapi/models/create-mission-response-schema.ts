@@ -18,9 +18,21 @@
 import type { MissionCreationResult } from './mission-creation-result';
 
 export interface CreateMissionResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: MissionCreationResult;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

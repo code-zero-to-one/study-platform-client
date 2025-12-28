@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponseMemberAccountHistoryResponseDto } from '../models';
+import type { BaseResponse } from '../models';
 // @ts-ignore
 import type { ErrorResponse } from '../models';
 // @ts-ignore
@@ -336,7 +336,7 @@ export const AdminApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMemberAccountHistoryResponse(memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseMemberAccountHistoryResponseDto>> {
+        async getMemberAccountHistoryResponse(memberId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMemberAccountHistoryResponse(memberId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminApi.getMemberAccountHistoryResponse']?.[localVarOperationServerIndex]?.url;
@@ -427,7 +427,7 @@ export const AdminApiFactory = function (configuration?: Configuration, basePath
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMemberAccountHistoryResponse(memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseMemberAccountHistoryResponseDto> {
+        getMemberAccountHistoryResponse(memberId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
             return localVarFp.getMemberAccountHistoryResponse(memberId, options).then((request) => request(axios, basePath));
         },
         /**

@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { GroupStudyApplyProcessResponseDto } from './group-study-apply-process-response-dto';
+import type { GroupStudyApplyProcessResponseContent } from './group-study-apply-process-response-content';
 
 export interface GroupStudyApplyProcessResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: GroupStudyApplyProcessResponseDto;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: GroupStudyApplyProcessResponseContent;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

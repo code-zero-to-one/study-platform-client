@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageResponseDtoMyGroupStudyApplyListItemDto } from './page-response-dto-my-group-study-apply-list-item-dto';
+import type { PageResponseMyGroupStudyApplyListItem } from './page-response-my-group-study-apply-list-item';
 
 export interface MyGroupStudyApplicationResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: PageResponseDtoMyGroupStudyApplyListItemDto;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: PageResponseMyGroupStudyApplyListItem;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 
