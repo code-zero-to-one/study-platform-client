@@ -18,9 +18,21 @@
 import type { StudySpaceIsParticipateResponse } from './study-space-is-participate-response';
 
 export interface StudySpaceIsParticipateResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: StudySpaceIsParticipateResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

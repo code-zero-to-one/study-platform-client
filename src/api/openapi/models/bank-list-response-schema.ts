@@ -18,9 +18,21 @@
 import type { BankResponse } from './bank-response';
 
 export interface BankListResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: Array<BankResponse>;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

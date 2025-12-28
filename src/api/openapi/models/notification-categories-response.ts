@@ -13,11 +13,23 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { NotificationTopicResponse } from './notification-topic-response';
 
 export interface NotificationCategoriesResponse {
-    'notificationCategories'?: Array<NotificationTopicResponse>;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: NotificationCategoriesResponse;
+    /**
+     * Message
+     */
+    'message'?: string;
 }
 

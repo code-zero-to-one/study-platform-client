@@ -18,9 +18,21 @@
 import type { CareerResponseDto } from './career-response-dto';
 
 export interface CareerListResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: Array<CareerResponseDto>;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

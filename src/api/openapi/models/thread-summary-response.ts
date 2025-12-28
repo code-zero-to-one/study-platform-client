@@ -13,11 +13,26 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ThreadSummaryResponseContent } from './thread-summary-response-content';
 
 export interface ThreadSummaryResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: ThreadSummaryResponse;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: ThreadSummaryResponseContent;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

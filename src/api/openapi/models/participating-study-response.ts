@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ParticipatingStudyResponseDto } from './participating-study-response-dto';
+import type { ParticipatingStudyResponseContent } from './participating-study-response-content';
 
 export interface ParticipatingStudyResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: ParticipatingStudyResponseDto;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: ParticipatingStudyResponseContent;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

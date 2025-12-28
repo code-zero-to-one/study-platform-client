@@ -18,9 +18,21 @@
 import type { MonthlyCalendarResponse } from './monthly-calendar-response';
 
 export interface GetMyDailyStudyCalenderResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: MonthlyCalendarResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

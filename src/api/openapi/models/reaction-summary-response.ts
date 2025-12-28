@@ -13,11 +13,26 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ReactionSummaryResponseContent } from './reaction-summary-response-content';
 
 export interface ReactionSummaryResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: ReactionSummaryResponse;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: ReactionSummaryResponseContent;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

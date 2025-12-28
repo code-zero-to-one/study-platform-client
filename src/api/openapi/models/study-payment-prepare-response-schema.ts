@@ -18,9 +18,21 @@
 import type { StudyPaymentPrepareResponse } from './study-payment-prepare-response';
 
 export interface StudyPaymentPrepareResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: StudyPaymentPrepareResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

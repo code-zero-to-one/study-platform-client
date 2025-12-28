@@ -18,9 +18,21 @@
 import type { FullMemberProfileResponseDto } from './full-member-profile-response-dto';
 
 export interface FullMemberProfileResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: FullMemberProfileResponseDto;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

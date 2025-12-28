@@ -15,6 +15,21 @@
 
 
 export interface HasMemberNewNotificationResponse {
-    'isRead'?: boolean;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: HasMemberNewNotificationResponse;
+    /**
+     * Message
+     */
+    'message'?: string;
 }
 

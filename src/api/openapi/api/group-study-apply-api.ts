@@ -22,6 +22,8 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
+import type { GroupStudyApplyCreationResponse } from '../models';
+// @ts-ignore
 import type { GroupStudyApplyDetailResponse } from '../models';
 // @ts-ignore
 import type { GroupStudyApplyListResponse } from '../models';
@@ -31,8 +33,6 @@ import type { GroupStudyApplyProcessRequest } from '../models';
 import type { GroupStudyApplyProcessResponse } from '../models';
 // @ts-ignore
 import type { GroupStudyApplyRequest } from '../models';
-// @ts-ignore
-import type { GroupStudyApplyResponse } from '../models';
 // @ts-ignore
 import type { GroupStudyApplyUpdateRequest } from '../models';
 // @ts-ignore
@@ -334,7 +334,7 @@ export const GroupStudyApplyApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async applyGroupStudy(groupStudyId: number, groupStudyApplyRequest: GroupStudyApplyRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyApplyResponse>> {
+        async applyGroupStudy(groupStudyId: number, groupStudyApplyRequest: GroupStudyApplyRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyApplyCreationResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.applyGroupStudy(groupStudyId, groupStudyApplyRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyApplyApi.applyGroupStudy']?.[localVarOperationServerIndex]?.url;
@@ -430,7 +430,7 @@ export const GroupStudyApplyApiFactory = function (configuration?: Configuration
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        applyGroupStudy(groupStudyId: number, groupStudyApplyRequest: GroupStudyApplyRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyApplyResponse> {
+        applyGroupStudy(groupStudyId: number, groupStudyApplyRequest: GroupStudyApplyRequest, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyApplyCreationResponse> {
             return localVarFp.applyGroupStudy(groupStudyId, groupStudyApplyRequest, options).then((request) => request(axios, basePath));
         },
         /**

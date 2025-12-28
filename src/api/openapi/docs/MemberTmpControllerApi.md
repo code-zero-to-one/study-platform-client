@@ -7,7 +7,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**deleteMemberPermanently**](#deletememberpermanently) | **GET** /api/v1/members/{memberId}/permanently | |
 
 # **deleteMemberPermanently**
-> BaseResponseVoid deleteMemberPermanently()
+> BaseResponse deleteMemberPermanently()
 
 
 ### Example
@@ -37,7 +37,7 @@ const { status, data } = await apiInstance.deleteMemberPermanently(
 
 ### Return type
 
-**BaseResponseVoid**
+**BaseResponse**
 
 ### Authorization
 

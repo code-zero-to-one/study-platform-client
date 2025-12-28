@@ -15,9 +15,18 @@
 
 
 export interface GetStudySpacesResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
     'content'?: object;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

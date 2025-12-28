@@ -18,9 +18,21 @@
 import type { MemberProfileForStudyDto } from './member-profile-for-study-dto';
 
 export interface MemberProfileForStudy {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: MemberProfileForStudyDto;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 
