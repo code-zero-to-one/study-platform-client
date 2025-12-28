@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
-import type { GroupStudyBasicInfoResponseDto } from '@/api/openapi/models';
+import type { GroupStudyListItem } from '@/api/openapi/models';
 import { fetchArticles } from '@/api/strapi/api/fetch-articles';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -66,20 +66,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     ]);
 
-    const allStudies = [
-      ...((normalStudies.data?.content as GroupStudyBasicInfoResponseDto[]) ||
-        []),
-      ...((premiumStudies.data?.content as GroupStudyBasicInfoResponseDto[]) ||
-        []),
+    const normalStudyItems: GroupStudyListItem[] =
+      normalStudies.data?.content?.content ?? [];
+    const premiumStudyItems: GroupStudyListItem[] =
+      premiumStudies.data?.content?.content ?? [];
+    const allStudies: GroupStudyListItem[] = [
+      ...normalStudyItems,
+      ...premiumStudyItems,
     ];
 
     studyPages.push(
       ...allStudies
-        .filter((study) => study.groupStudyId)
-        .map((study) => ({
-          url: `${baseUrl}/study/${study.groupStudyId}`,
-          lastModified: study.updatedAt
-            ? new Date(study.updatedAt)
+        .filter((item) => item.basicInfo?.groupStudyId)
+        .map((item) => ({
+          url: `${baseUrl}/study/${item.basicInfo!.groupStudyId}`,
+          lastModified: item.basicInfo?.updatedAt
+            ? new Date(item.basicInfo.updatedAt)
             : new Date(),
           changeFrequency: 'daily' as const,
           priority: 0.7,
