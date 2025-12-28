@@ -6,7 +6,7 @@ import {
 import type { Metadata } from 'next';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
-import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
+import type { GroupStudyDetailResponseContent } from '@/api/openapi/models';
 import { getGroupStudyDetailInServer } from '@/features/study/group/api/get-group-study-detail.server';
 import { getGroupStudyMyStatusInServer } from '@/features/study/group/api/get-group-study-my-status.server';
 import { GroupStudyDetailResponse } from '@/features/study/group/api/group-study-types';
@@ -18,7 +18,7 @@ interface Props {
 }
 
 interface GroupStudyResponse {
-  content?: GroupStudyFullResponseDto;
+  content?: GroupStudyDetailResponseContent;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -109,10 +109,10 @@ export default async function Page({
     queryFn: () => getGroupStudyDetailInServer({ groupStudyId: Number(id) }),
   });
 
-  const data: GroupStudyDetailResponse = queryClient.getQueryData([
+  const data = queryClient.getQueryData<GroupStudyDetailResponse>([
     'groupStudyDetail',
     Number(id),
-  ]);
+  ])!;
 
   const memberIdStr = await getServerCookie('memberId');
   const memberId = memberIdStr ? Number(memberIdStr) : undefined;

@@ -14,12 +14,13 @@ export async function GET(request: NextRequest) {
   // 절대 URL 생성: 요청의 origin을 우선 사용 (이미 protocol 포함)
   // origin이 없으면 host + protocol 조합, 그래도 없으면 환경 변수 사용
   const origin = request.headers.get('origin');
-  
+
   const baseUrl =
     origin || // origin은 이미 protocol 포함 (예: https://test.zeroone.it.kr)
     (() => {
       const host = request.headers.get('host');
       const protocol = request.headers.get('x-forwarded-proto') || 'https';
+
       return host ? `${protocol}://${host}` : null;
     })() ||
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -28,7 +29,7 @@ export async function GET(request: NextRequest) {
     request.url.split('/api')[0];
 
   console.log('baseUrl', baseUrl);
-  
+
   // 리다이렉트
   return NextResponse.redirect(new URL(redirectTo, baseUrl));
 }
