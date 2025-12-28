@@ -1,11 +1,15 @@
 'use client';
 
 import { format } from 'date-fns';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
 import { DateRange } from 'react-day-picker';
 
-import type { UserTransactionListResponseLatestTransactionTypeEnum } from '@/api/openapi/models';
+import type {
+  UserTransactionListResponse,
+  UserTransactionListResponseLatestTransactionTypeEnum,
+} from '@/api/openapi/models';
 import PremiumStudyCancelPaymentModal from '@/components/modals/premium-study-cancel-payment-modal';
 import PremiumStudyRefundRequestModal from '@/components/modals/premium-study-refund-request-modal';
 import Badge from '@/components/ui/badge';
@@ -32,10 +36,10 @@ const TRANSACTION_TYPE_MAP: Record<
   PAYMENT_SUCCESS: { label: '결제완료', color: 'green' },
   PAYMENT_FAILED: { label: '결제실패', color: 'red' },
   PAYMENT_CANCELED: { label: '결제취소', color: 'red' },
-  REFUND_REQUESTED: { label: '환불요청', color: 'orange' },
+  REFUND_REQUESTED: { label: '환불요청', color: 'blue' },
   REFUND_APPROVED: { label: '환불승인', color: 'orange' },
-  REFUND_COMPLETED: { label: '환불완료', color: 'gray' },
-  REFUND_REJECTED: { label: '환불반려', color: 'red' },
+  REFUND_COMPLETED: { label: '환불완료', color: 'orange' },
+  REFUND_REJECTED: { label: '환불반려', color: 'gray' },
   REFUND_CANCELED: { label: '환불취소', color: 'red' },
   REFUND_FAILED: { label: '환불실패', color: 'red' },
 };
@@ -129,6 +133,8 @@ export default function PaymentManagement() {
                 const isExpanded = expandedGroupStudyIds.has(
                   transaction.groupStudyId!,
                 );
+                const beforeStarting =
+                  formatToKST(transaction.groupStudyStartDate) < new Date();
 
                 return (
                   <React.Fragment key={transaction.groupStudyId}>
@@ -162,7 +168,8 @@ export default function PaymentManagement() {
                             )}
                           </div>
                           <div className="font-designer-13r text-text-subtlest">
-                            {transaction.paymentCode || '-'}
+                            {`${transaction.paymentCode}${beforeStarting && ' / 시작 전'}` ||
+                              '-'}
                           </div>
                         </div>
                       </td>
@@ -176,8 +183,11 @@ export default function PaymentManagement() {
                             원
                           </div>
                           <div className="font-designer-13r text-text-subtlest">
-                            {transaction.paidAt || '-'} /{' '}
-                            {transaction.paymentMethod || '-'}
+                            {format(
+                              formatToKST(transaction.paidAt),
+                              'yyyy.MM.dd HH:mm',
+                            ) || '-'}{' '}
+                            {transaction.paymentMethod}
                           </div>
                         </div>
                       </td>
@@ -185,8 +195,11 @@ export default function PaymentManagement() {
                       {/* 액션 버튼 */}
                       <td className="py-200 pr-250">
                         <PaymentActionButtons
-                          transactionType={transaction.latestTransactionType}
-                          receiptUrl={transaction.paymentReceiptUrl}
+                          groupStudyId={transaction.groupStudyId}
+                          latestTransactionType={
+                            transaction.latestTransactionType
+                          }
+                          paymentReceiptUrl={transaction.paymentReceiptUrl}
                         />
                       </td>
 
@@ -217,7 +230,7 @@ export default function PaymentManagement() {
                   colSpan={4}
                   className="border-b-border-default border-b py-[200px] text-center"
                 >
-                  <p className="font-designer-16r text-text-subtlest">
+                  <p className="font-designer-16r text-text-default">
                     결제 내역이 없습니다.
                   </p>
                 </td>
@@ -269,7 +282,10 @@ function TransactionHistory({ groupStudyId }: { groupStudyId: number }) {
                   {transaction.reason && ` / ${transaction.reason}`}
                 </span>
                 <span className="text-text-subtlest">
-                  {transaction.transactionedAt || '-'}
+                  {format(
+                    formatToKST(transaction.transactionedAt),
+                    'yyyy.MM.dd HH:mm',
+                  ) || '-'}
                 </span>
               </div>
             ))
@@ -285,95 +301,138 @@ function TransactionHistory({ groupStudyId }: { groupStudyId: number }) {
 }
 
 function PaymentActionButtons({
-  transactionType,
-  receiptUrl,
-}: {
-  transactionType?: UserTransactionListResponseLatestTransactionTypeEnum;
-  receiptUrl?: string;
-}) {
-  const [refundRequestModalOpen, setRefundRequestModalOpen] =
-    useState<boolean>(false);
-  const [cancelPaymentModalOpen, setCancelPaymentModalOpen] =
-    useState<boolean>(false);
-
-  const handlePaymentProceed = () => {
-    // TODO: 결제 진행 로직 구현
-  };
-
-  const handlePaymentCancel = () => {
-    // TODO: 결제 취소 로직 구현
-    setCancelPaymentModalOpen(true);
-  };
-
-  const handleReceiptView = () => {
-    if (receiptUrl) {
-      window.open(receiptUrl, '_blank');
-    }
-  };
-
-  const handleRefundRequest = () => {
-    // TODO: 환불 요청 로직 구현
-    setRefundRequestModalOpen(true);
-  };
-
-  switch (transactionType) {
+  groupStudyId,
+  latestTransactionType,
+  paymentReceiptUrl,
+}: Pick<
+  UserTransactionListResponse,
+  'latestTransactionType' | 'paymentReceiptUrl' | 'groupStudyId'
+>) {
+  switch (latestTransactionType) {
     case 'PAYMENT_REQUESTED':
       return (
-        <>
-          <PremiumStudyCancelPaymentModal
-            open={cancelPaymentModalOpen}
-            onOpenChange={setCancelPaymentModalOpen}
-          />
-
-          <div className="flex flex-col gap-100">
-            <Button
-              color="outlined"
-              size="small"
-              className="font-designer-14r"
-              onClick={handlePaymentProceed}
-            >
-              결제 진행
-            </Button>
-            <Button
-              color="outlined"
-              size="small"
-              className="font-designer-14r"
-              onClick={handlePaymentCancel}
-            >
-              결제 취소
-            </Button>
-          </div>
-        </>
+        <div className="flex flex-col gap-100">
+          <PaymentProceedButton groupStudyId={groupStudyId} />
+          <PaymentCancelButton />
+        </div>
       );
+
+    case 'PAYMENT_FAILED':
+      return <PaymentCancelButton />;
+
     case 'PAYMENT_SUCCESS':
       return (
-        <>
-          <PremiumStudyRefundRequestModal
-            open={refundRequestModalOpen}
-            onOpenChange={setRefundRequestModalOpen}
-          />
-          <div className="flex flex-col gap-100">
-            <Button
-              color="outlined"
-              size="small"
-              className="font-designer-14r"
-              onClick={handleReceiptView}
-              disabled={!receiptUrl}
-            >
-              영수증 보기
-            </Button>
-            <Button
-              color="outlined"
-              size="small"
-              className="font-designer-14r"
-              onClick={handleRefundRequest}
-            >
-              환불 요청
-            </Button>
-          </div>
-        </>
+        <div className="flex flex-col gap-100">
+          <ReceiptButton paymentReceiptUrl={paymentReceiptUrl} />
+          <RefundRequestButton />
+        </div>
       );
+
+    case 'REFUND_REQUESTED':
+    case 'REFUND_APPROVED':
+    case 'REFUND_CANCELED':
+    case 'REFUND_FAILED':
+    case 'REFUND_REJECTED':
+      return <ReceiptButton paymentReceiptUrl={paymentReceiptUrl} />;
+
     default:
       return null;
   }
+}
+
+function ReceiptButton({
+  paymentReceiptUrl,
+}: Pick<UserTransactionListResponse, 'paymentReceiptUrl'>) {
+  const handleReceiptView = () => {
+    if (paymentReceiptUrl) {
+      window.open(paymentReceiptUrl, '_blank');
+    }
+  };
+
+  return (
+    <Button
+      color="outlined"
+      size="small"
+      className="font-designer-14r"
+      onClick={handleReceiptView}
+      disabled={!paymentReceiptUrl}
+    >
+      영수증 보기
+    </Button>
+  );
+}
+
+function PaymentProceedButton({
+  groupStudyId,
+}: Pick<UserTransactionListResponse, 'groupStudyId'>) {
+  const router = useRouter();
+
+  const handlePaymentProceed = () => {
+    router.push(`/payment/${groupStudyId}`);
+  };
+
+  return (
+    <Button
+      color="outlined"
+      size="small"
+      className="font-designer-14r"
+      onClick={handlePaymentProceed}
+    >
+      결제 진행
+    </Button>
+  );
+}
+
+function PaymentCancelButton() {
+  const [cancelPaymentModalOpen, setCancelPaymentModalOpen] =
+    useState<boolean>(false);
+
+  const handlePaymentCancel = () => {
+    setCancelPaymentModalOpen(true);
+  };
+
+  return (
+    <>
+      <PremiumStudyCancelPaymentModal
+        open={cancelPaymentModalOpen}
+        onOpenChange={setCancelPaymentModalOpen}
+      />
+
+      <Button
+        color="outlined"
+        size="small"
+        className="font-designer-14r"
+        onClick={handlePaymentCancel}
+      >
+        결제 취소
+      </Button>
+    </>
+  );
+}
+
+function RefundRequestButton() {
+  const [refundRequestModalOpen, setRefundRequestModalOpen] =
+    useState<boolean>(false);
+
+  const handleRefundRequest = () => {
+    setRefundRequestModalOpen(true);
+  };
+
+  return (
+    <>
+      <PremiumStudyRefundRequestModal
+        open={refundRequestModalOpen}
+        onOpenChange={setRefundRequestModalOpen}
+      />
+
+      <Button
+        color="outlined"
+        size="small"
+        className="font-designer-14r"
+        onClick={handleRefundRequest}
+      >
+        환불 요청
+      </Button>
+    </>
+  );
 }
