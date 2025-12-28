@@ -13,26 +13,24 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { PageResponseMemberNotificationResponse } from './page-response-member-notification-response';
 
 export interface MemberNotificationResponse {
-    /**
-     * Status Code
-     */
-    'statusCode': number;
-    /**
-     * Timestamp
-     */
-    'timestamp': string;
-    /**
-     * Content
-     */
-    'content'?: PageResponseMemberNotificationResponse;
-    /**
-     * Message
-     */
-    'message'?: string;
+    'id'?: number;
+    'topicType'?: MemberNotificationResponseTopicTypeEnum;
+    'topicDescription'?: string;
+    'title'?: string;
+    'content'?: string;
+    'isRead'?: boolean;
+    'createdAt'?: string;
 }
+
+export const MemberNotificationResponseTopicTypeEnum = {
+    OneOnOneStudy: 'ONE_ON_ONE_STUDY',
+    GroupStudy: 'GROUP_STUDY',
+    Payment: 'PAYMENT',
+    Etc: 'ETC'
+} as const;
+
+export type MemberNotificationResponseTopicTypeEnum = typeof MemberNotificationResponseTopicTypeEnum[keyof typeof MemberNotificationResponseTopicTypeEnum];
+
 

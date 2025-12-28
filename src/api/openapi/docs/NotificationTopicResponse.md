@@ -1,19 +1,21 @@
-# HasMemberNewNotificationResponse
+# NotificationTopicResponse
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**isRead** | **boolean** |  | [optional] [default to undefined]
+**name** | **string** |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { HasMemberNewNotificationResponse } from './api';
+import { NotificationTopicResponse } from './api';
 
-const instance: HasMemberNewNotificationResponse = {
-    isRead,
+const instance: NotificationTopicResponse = {
+    name,
+    description,
 };
 ```
 
