@@ -30,6 +30,7 @@ export const useGetNotifications = ({
 
       return data.content;
     },
+    refetchInterval: 60000, // 1 minute
   });
 };
 
@@ -52,6 +53,7 @@ export const useHasNewNotification = () => {
 
       return data.content;
     },
+    refetchInterval: 60000, // 1 minute
   });
 };
 
