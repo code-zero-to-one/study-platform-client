@@ -36,8 +36,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     if (!groupStudy) {
       return {
-        title: '그룹 스터디 - 제로원',
-        description: '제로원 스터디 플랫폼에서 스터디를 둘러보세요.',
+        title: '그룹 스터디 - ZERO-ONE',
+        description: 'ZERO-ONE 스터디 플랫폼에서 스터디를 둘러보세요.',
+        robots: {
+          index: true,
+          follow: true,
+        },
       };
     }
 
@@ -45,24 +49,47 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description =
       groupStudy.detailInfo?.description ||
       groupStudy.detailInfo?.summary ||
-      '제로원 스터디에 참여하세요.';
+      'ZERO-ONE 스터디에 참여하세요.';
+    const imageUrl =
+      groupStudy.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl ||
+      '/images/banner.png';
 
     return {
-      title: `${title} - 제로원 스터디`,
+      title: `${title} | ZERO-ONE 스터디`,
       description,
+      keywords: [title, '스터디', '그룹스터디', '협업'].filter(Boolean),
+      alternates: {
+        canonical: `https://www.zeroone.it.kr/study/${id}`,
+      },
+      robots: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+      },
       openGraph: {
-        title: `${title} - 제로원 스터디`,
+        type: 'website',
+        url: `https://www.zeroone.it.kr/study/${id}`,
+        title: `${title} | ZERO-ONE 스터디`,
         description,
-        images: groupStudy.detailInfo?.image?.resizedImages?.[0]
-          ?.resizedImageUrl
-          ? [groupStudy.detailInfo.image.resizedImages[0].resizedImageUrl]
-          : [],
+        siteName: 'ZERO-ONE',
+        images: [
+          {
+            url: imageUrl,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
       },
     };
   } catch {
     return {
-      title: '그룹 스터디 - 제로원',
-      description: '제로원 스터디 플랫폼에서 스터디를 둘러보세요.',
+      title: '그룹 스터디 - ZERO-ONE',
+      description: 'ZERO-ONE 스터디 플랫폼에서 스터디를 둘러보세요.',
+      robots: {
+        index: false,
+        follow: false,
+      },
     };
   }
 }
