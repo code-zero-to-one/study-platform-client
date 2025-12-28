@@ -17,22 +17,13 @@
 // @ts-ignore
 import type { MemberNotificationResponse } from './member-notification-response';
 
-export interface MemberNotificationSchema {
-    /**
-     * Status Code
-     */
-    'statusCode': number;
-    /**
-     * Timestamp
-     */
-    'timestamp': string;
-    /**
-     * Content
-     */
-    'content'?: MemberNotificationResponse;
-    /**
-     * Message
-     */
-    'message'?: string;
+export interface PageResponseMemberNotificationResponse {
+    'content'?: Array<MemberNotificationResponse>;
+    'page'?: number;
+    'size'?: number;
+    'totalElements'?: number;
+    'totalPages'?: number;
+    'hasNext'?: boolean;
+    'hasPrevious'?: boolean;
 }
 

@@ -5,7 +5,10 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**isRead** | **boolean** |  | [optional] [default to undefined]
+**statusCode** | **number** | Status Code | [default to undefined]
+**timestamp** | **string** | Timestamp | [default to undefined]
+**content** | [**HasMemberNewNotificationResponse**](HasMemberNewNotificationResponse.md) | Content | [optional] [default to undefined]
+**message** | **string** | Message | [optional] [default to undefined]
 
 ## Example
 
@@ -13,7 +16,10 @@ Name | Type | Description | Notes
 import { HasMemberNewNotificationResponse } from './api';
 
 const instance: HasMemberNewNotificationResponse = {
-    isRead,
+    statusCode,
+    timestamp,
+    content,
+    message,
 };
 ```
 
