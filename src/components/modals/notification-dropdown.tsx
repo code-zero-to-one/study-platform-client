@@ -1,9 +1,13 @@
 'use client';
 
+import { DotIcon } from 'lucide-react';
 import { useState } from 'react';
 import NotificationList from '@/components/lists/notification-list';
 
-import { useGetNotifications } from '@/hooks/queries/notification-api';
+import {
+  useGetNotifications,
+  useHasNewNotification,
+} from '@/hooks/queries/notification-api';
 import NotiIcon from 'public/icons/notifications_none.svg';
 import {
   DropdownMenu,
@@ -23,6 +27,9 @@ export default function NotificationDropdown() {
     size: 5,
     hasRead: false,
   });
+  const { data: newData } = useHasNewNotification();
+
+  const isRead = newData?.isRead;
 
   const notifications =
     mode === 'all'
@@ -35,7 +42,13 @@ export default function NotificationDropdown() {
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
-        <NotiIcon />
+        <div className="relative cursor-pointer">
+          <NotiIcon />
+
+          {!isRead && (
+            <DotIcon className="absolute -top-100 -left-100 fill-red-500 stroke-red-500" />
+          )}
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="shadow-2 rounded-100 border-border-default bg-background-default w-[520px] border">
         {/* Header */}
