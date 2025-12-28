@@ -1,3 +1,4 @@
+import qs from 'qs';
 import { StrapiCollectionResponse, strapiFetch } from './common-strapi-fetch';
 
 // Media 타입
@@ -77,16 +78,32 @@ export async function fetchCategories() {
 
 // 특정 slug로 아티클 조회
 export async function fetchArticleBySlug(slug: string) {
-  const query = new URLSearchParams();
-  // 슬러그 필터
-  query.append('filters[slug][$eq]', slug);
-  query.append('populate[category][populate]', '*');
-  query.append('populate[cover][populate]', '*');
-  query.append('populate[blocks][populate]', '*');
-  query.append('populate[author][populate]', '*');
+  // qs를 사용하여 쿼리 구성
+  const query = qs.stringify(
+    {
+      filters: {
+        slug: {
+          $eq: slug,
+        },
+      },
+      populate: {
+        category: true,
+        cover: true,
+        author: {
+          populate: ['avatar'],
+        },
+        blocks: {
+          populate: '*',
+        },
+      },
+    },
+    {
+      encodeValuesOnly: true,
+    },
+  );
 
   const response = await strapiFetch<StrapiCollectionResponse<Article>>(
-    `/api/articles?${query.toString()}`,
+    `/api/articles?${query}`,
   );
 
   const singleData =

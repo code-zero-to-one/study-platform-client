@@ -38,11 +38,10 @@ const nextConfig: NextConfig = {
         port: '1337',
         pathname: '/uploads/**',
       },
-      // CMS 테스트 서버 이미지 도메인 허용 설정
+      // CMS 테스트 서버 이미지 도메인 허용 설정 (HTTPS)
       {
-        protocol: 'http',
-        hostname: 'test.zeroone.it.kr',
-        port: '21337',
+        protocol: 'https',
+        hostname: 'test-blog.zeroone.it.kr',
         pathname: '/uploads/**',
       },
     ],
