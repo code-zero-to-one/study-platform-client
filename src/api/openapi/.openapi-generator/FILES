@@ -138,6 +138,7 @@ docs/GroupStudyUpdateRequest.md
 docs/GroupStudyUpdateResponse.md
 docs/GrowthMetricResponse.md
 docs/HasMemberNewNotificationResponse.md
+docs/HasMemberNewNotificationResponseSchema.md
 docs/HomeworkEditRequest.md
 docs/HomeworkSubmissionRequest.md
 docs/IdNameDto.md
@@ -161,6 +162,7 @@ docs/MemberInfoResponseDto.md
 docs/MemberInfoUpdateResponse.md
 docs/MemberInfoUpdateResponseDto.md
 docs/MemberNotificationResponse.md
+docs/MemberNotificationResponseSchema.md
 docs/MemberProfileApi.md
 docs/MemberProfileForStudy.md
 docs/MemberProfileForStudyDto.md
@@ -183,6 +185,8 @@ docs/NicknameAvailabilityResponseDto.md
 docs/NoContentResponse.md
 docs/NotificationApi.md
 docs/NotificationCategoriesResponse.md
+docs/NotificationCategoriesResponseSchema.md
+docs/NotificationTopicResponse.md
 docs/NumberResponse.md
 docs/OptionalHomeworkSubmission.md
 docs/PageAdminTransactionListResponseSchema.md
@@ -364,6 +368,7 @@ models/group-study-thread-request.ts
 models/group-study-update-request.ts
 models/group-study-update-response.ts
 models/growth-metric-response.ts
+models/has-member-new-notification-response-schema.ts
 models/has-member-new-notification-response.ts
 models/homework-edit-request.ts
 models/homework-submission-request.ts
@@ -386,6 +391,7 @@ models/member-feature.ts
 models/member-info-response-dto.ts
 models/member-info-update-response-dto.ts
 models/member-info-update-response.ts
+models/member-notification-response-schema.ts
 models/member-notification-response.ts
 models/member-profile-for-study-dto.ts
 models/member-profile-for-study.ts
@@ -404,7 +410,9 @@ models/my-group-study-apply-list-item.ts
 models/nickname-availability-response-dto.ts
 models/nickname-availability-response.ts
 models/no-content-response.ts
+models/notification-categories-response-schema.ts
 models/notification-categories-response.ts
+models/notification-topic-response.ts
 models/number-response.ts
 models/optional-homework-submission.ts
 models/page-admin-transaction-list-response-schema.ts

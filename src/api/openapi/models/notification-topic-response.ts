@@ -14,7 +14,8 @@
 
 
 
-export interface HasMemberNewNotificationResponse {
-    'isRead'?: boolean;
+export interface NotificationTopicResponse {
+    'name'?: string;
+    'description'?: string;
 }
 
