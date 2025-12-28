@@ -56,7 +56,9 @@ export default function NotificationPage() {
   };
 
   const handleMarkAllAsRead = () => {
-    readNotifications([]);
+    const ids = notifications.map((notification) => notification.id);
+
+    readNotifications(ids);
   };
 
   return (
