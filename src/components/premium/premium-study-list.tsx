@@ -5,19 +5,19 @@ import Image from 'next/image';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import { GroupStudyData } from '../api/group-study-types';
-import StudyCard from '../../../../components/study/study-card';
+import { GroupStudyData } from '../../features/study/group/api/group-study-types';
+import StudyCard from '../study/study-card';
 
-interface GroupStudyListProps {
+interface PremiumStudyListProps {
   studies: GroupStudyData[];
 }
 
-export default function GroupStudyList({ studies }: GroupStudyListProps) {
+export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
   const { data: authData } = useAuth();
 
   const handleStudyClick = (study: GroupStudyData) => {
     sendGTMEvent({
-      event: 'group_study_detail_view',
+      event: 'premium_study_detail_view',
       dl_timestamp: new Date().toISOString(),
       ...(authData?.memberId && {
         dl_member_id: hashValue(String(authData.memberId)),
@@ -32,7 +32,7 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
       <div className="bg-background-alternative rounded-100 flex h-[640px] flex-col items-center justify-center gap-300">
         <Image
           src="/icons/empty-study-case.svg"
-          alt="현재 그룹 스터디가 없습니다."
+          alt="현재 멘토 스터디가 없습니다."
           width={88}
           height={88}
         />
@@ -54,7 +54,7 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
         <StudyCard
           key={study.basicInfo.groupStudyId}
           study={study}
-          href={`/group-study/${study.basicInfo.groupStudyId}`}
+          href={`/premium-study/${study.basicInfo.groupStudyId}`}
           onClick={() => handleStudyClick(study)}
         />
       ))}

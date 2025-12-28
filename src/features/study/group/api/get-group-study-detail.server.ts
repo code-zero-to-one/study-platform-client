@@ -2,10 +2,7 @@ import { isAxiosError } from 'axios';
 import { notFound } from 'next/navigation';
 import { isApiError } from '@/api/client/api-error';
 import { axiosServerInstance } from '@/api/client/axios.server';
-import {
-  createApiInstance,
-  createApiServerInstance,
-} from '@/api/client/open-api-instance';
+import { createApiServerInstance } from '@/api/client/open-api-instance.server';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import {
   GroupStudyDetailRequest,

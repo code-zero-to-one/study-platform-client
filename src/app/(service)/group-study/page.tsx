@@ -1,5 +1,5 @@
 import { Play, Plus } from 'lucide-react';
-import { createApiServerInstance } from '@/api/client/open-api-instance';
+import { createApiServerInstance } from '@/api/client/open-api-instance.server';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import Button from '@/components/ui/button';
 import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';

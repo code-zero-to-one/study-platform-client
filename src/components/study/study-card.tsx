@@ -5,11 +5,14 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Badge from '@/components/ui/badge';
 
-import { GroupStudyData, StudyType } from '../group/api/group-study-types';
+import {
+  GroupStudyData,
+  StudyType,
+} from '../../features/study/group/api/group-study-types';
 import {
   REGULAR_MEETING_LABELS,
   STUDY_TYPE_LABELS,
-} from '../group/const/group-study-const';
+} from '../../features/study/group/const/group-study-const';
 
 type BadgeColor =
   | 'default'

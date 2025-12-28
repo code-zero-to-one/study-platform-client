@@ -5,7 +5,8 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/button';
-import { GroupStudyDetailResponse } from '../group/api/group-study-types';
+import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
+import { GroupStudyDetailResponse } from '../../features/study/group/api/group-study-types';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -13,8 +14,8 @@ import {
   STUDY_METHOD_LABELS,
   STUDY_STATUS_LABELS,
   STUDY_TYPE_LABELS,
-} from '../group/const/group-study-const';
-import { useGroupStudyMyStatusQuery } from '../group/model/use-group-study-my-status-query';
+} from '../../features/study/group/const/group-study-const';
+import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
 
 interface Props {
   data: GroupStudyDetailResponse;
@@ -25,7 +26,7 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { basicInfo, detailInfo } = data;
+  const { basicInfo, detailInfo, interviewPost } = data;
   const {
     groupStudyId,
     hostType,
@@ -44,6 +45,8 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
     experienceLevels,
   } = basicInfo;
   const { title } = detailInfo;
+  const { interviewPost: questions } = interviewPost;
+  console.log('interviewPost', interviewPost);
 
   const isLeader = leader.memberId === memberId;
   const isLoggedIn = typeof memberId === 'number';
@@ -53,6 +56,8 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
     groupStudyId,
     isLeader,
   });
+
+  console.log('myApplicationStatus', myApplicationStatus);
 
   const getDurationText = (start: string, end: string): string => {
     const startDateObj = new Date(start);
@@ -120,8 +125,10 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
     alert('스터디 링크가 복사되었습니다!');
   };
 
-  const handleApplyClick = () => {
-    router.push(`/payment/${groupStudyId}`);
+  const handleApplySuccess = () => {
+    if (price > 0) {
+      router.push(`/payment/${groupStudyId}`);
+    }
   };
 
   const isApplyDisabled =
@@ -187,57 +194,24 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
 
       {/* 버튼 영역 */}
       <div className="flex flex-col gap-100">
-        {/* 프리미엄(유료) 스터디: 결제 페이지로 이동 */}
-        {isPremium && !isLeader && isLoggedIn && (
-          <Button
-            size="large"
-            color="primary"
-            className="h-[48px]"
-            disabled={isApplyDisabled}
-            onClick={handleApplyClick}
-          >
-            {getButtonText()}
-          </Button>
-        )}
+        {/* 스터디 신청 모달 (유료/무료 공통) */}
 
-        {/* 무료 스터디: 모달로 신청 */}
-        {/* {!isPremium && !isLeader && isLoggedIn && (
-          <ApplyGroupStudyModal
-            groupStudyId={groupStudyId}
-            title={title}
-            questions={questions}
-            trigger={
-              <Button
-                size="large"
-                color="primary"
-                className="h-[48px]"
-                disabled={isApplyDisabled}
-              >
-                {getButtonText()}
-              </Button>
-            }
-          />
-        )} */}
-
-        {/* 비로그인 상태 */}
-        {!isLoggedIn && (
-          <Button
-            size="large"
-            color="primary"
-            className="h-[48px]"
-            disabled={
-              groupStudyStatus === 'IN_PROGRESS' ||
-              approvedCount >= maxMembersCount
-            }
-            onClick={() => {
-              router.push('/login');
-            }}
-          >
-            {groupStudyStatus === 'IN_PROGRESS'
-              ? '참여 중인 스터디'
-              : '신청하기'}
-          </Button>
-        )}
+        <ApplyGroupStudyModal
+          groupStudyId={groupStudyId}
+          title={title}
+          questions={questions}
+          onSuccess={handleApplySuccess}
+          trigger={
+            <Button
+              size="large"
+              color="primary"
+              className="h-[48px]"
+              disabled={isApplyDisabled}
+            >
+              {getButtonText()}
+            </Button>
+          }
+        />
 
         <Button
           color="secondary"

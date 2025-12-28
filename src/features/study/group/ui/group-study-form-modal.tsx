@@ -134,6 +134,7 @@ export default function GroupStudyFormModal({
   const handleCreate = async (values: GroupStudyFormValues) => {
     try {
       const body = toOpenGroupRequest(values);
+      console.log('body', body);
       const created = await createGroupStudy(body);
 
       if (values.thumbnailFile) {

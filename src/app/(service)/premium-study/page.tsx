@@ -1,10 +1,10 @@
 import { Plus } from 'lucide-react';
-import { createApiServerInstance } from '@/api/client/open-api-instance';
+import { createApiServerInstance } from '@/api/client/open-api-instance.server';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
+import PremiumStudyList from '@/components/premium/premium-study-list';
+import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
 import Button from '@/components/ui/button';
 import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
-import PremiumStudyList from '@/features/study/premium/ui/premium-study-list';
-import PremiumStudyPagination from '@/features/study/premium/ui/premium-study-pagination';
 
 interface PremiumStudyPageProps {
   searchParams: Promise<{ page?: string }>;

@@ -6,17 +6,17 @@ import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import ConfirmDeleteModal from '../../group/ui/confirm-delete-modal';
-import GroupStudyFormModal from '../../group/ui/group-study-form-modal';
-import GroupStudyMemberList from '../../group/ui/group-study-member-list';
+import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
+import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
+import GroupStudyMemberList from '../../features/study/group/ui/group-study-member-list';
 import PremiumStudyInfoSection from './premium-study-info-section';
-import ChannelSection from '../../group/channel/ui/channel-section';
-import { useGroupStudyMyStatusQuery } from '../../group/model/use-group-study-my-status-query';
+import ChannelSection from '../../features/study/group/channel/ui/channel-section';
+import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
-} from '../../group/model/use-study-query';
+} from '../../features/study/group/model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
 
@@ -212,12 +212,7 @@ export default function PremiumStudyDetailPage({
         }}
       />
       {active === 'intro' && (
-        <PremiumStudyInfoSection
-          study={studyDetail}
-          memberId={memberId}
-          groupStudyId={groupStudyId}
-          isLeader={isLeader}
-        />
+        <PremiumStudyInfoSection study={studyDetail} isLeader={isLeader} />
       )}
       {active === 'members' && (
         <GroupStudyMemberList

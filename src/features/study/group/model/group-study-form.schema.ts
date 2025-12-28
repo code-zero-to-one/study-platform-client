@@ -87,11 +87,14 @@ export function buildOpenGroupDefaultValues(
   };
 }
 
-export function toOpenGroupRequest(v: OpenGroupParsedValues): GroupStudyFormRequest {
+export function toOpenGroupRequest(
+  v: OpenGroupParsedValues,
+): GroupStudyFormRequest {
   const isPremiumStudy = v.classification === 'PREMIUM_STUDY';
 
   return {
     basicInfo: {
+      classification: v.classification,
       type: v.type,
       targetRoles: v.targetRoles,
       maxMembersCount: Number(v.maxMembersCount),
@@ -102,8 +105,6 @@ export function toOpenGroupRequest(v: OpenGroupParsedValues): GroupStudyFormRequ
       startDate: v.startDate.trim(),
       endDate: v.endDate.trim(),
       price: isPremiumStudy ? Number(v.price) || 0 : 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     },
     detailInfo: {
       thumbnailExtension: v.thumbnailExtension,

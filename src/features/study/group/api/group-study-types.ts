@@ -40,6 +40,7 @@ export const EXTENSION_TO_MIME: Record<
 };
 
 export interface BasicInfo {
+  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
   type: StudyType;
   targetRoles: TargetRole[];
   maxMembersCount: number;
@@ -165,6 +166,8 @@ export interface GroupStudyFormRequest {
   };
   thumbnailExtension: ThumbnailExtension;
 }
+
+export type { GroupStudyCreationRequestDto } from '@/api/openapi/models/group-study-creation-request-dto';
 
 // 그룹 리스트 타입
 export interface GroupStudyListRequest {
