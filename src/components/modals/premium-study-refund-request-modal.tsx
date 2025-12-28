@@ -1,13 +1,19 @@
+import { UserTransactionListResponse } from '@/api/openapi';
 import { Modal } from '@/components/ui/modal';
+import { useRequestRefund } from '@/hooks/queries/refund-user-api';
 import Button from '../ui/button';
 
 export default function PremiumStudyRefundRequestModal({
+  paymentId,
   open,
   onOpenChange,
 }: {
+  paymentId: UserTransactionListResponse['paymentId'];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { mutate: requestRefund } = useRequestRefund();
+
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
@@ -27,7 +33,19 @@ export default function PremiumStudyRefundRequestModal({
               color="secondary"
               className="w-[160px]"
               size="medium"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                requestRefund(
+                  {
+                    paymentId,
+                    request: {},
+                  },
+                  {
+                    onSuccess: () => {
+                      onOpenChange(false);
+                    },
+                  },
+                );
+              }}
             >
               환불 요청하기
             </Button>

@@ -125,5 +125,11 @@ export const useCancelPayment = () => {
 
       return data.content;
     },
+    onSuccess: async () => {
+      alert('결제가 취소되었습니다.');
+    },
+    onError: () => {
+      alert('결제 취소에 실패했습니다. 다시 시도해주세요.');
+    },
   });
 };

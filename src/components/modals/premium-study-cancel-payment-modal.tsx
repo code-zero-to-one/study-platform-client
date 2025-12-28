@@ -1,13 +1,19 @@
+import { UserTransactionListResponse } from '@/api/openapi';
 import { Modal } from '@/components/ui/modal';
+import { useCancelPayment } from '@/hooks/queries/payment-user-api';
 import Button from '../ui/button';
 
 export default function PremiumStudyCancelPaymentModal({
+  paymentId,
   open,
   onOpenChange,
 }: {
+  paymentId: UserTransactionListResponse['paymentId'];
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
+  const { mutate: cancelPayment } = useCancelPayment();
+
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
@@ -34,7 +40,13 @@ export default function PremiumStudyCancelPaymentModal({
               color="primary"
               className="w-[160px]"
               size="medium"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                cancelPayment(paymentId, {
+                  onSuccess: () => {
+                    onOpenChange(false);
+                  },
+                });
+              }}
             >
               결제 취소
             </Button>

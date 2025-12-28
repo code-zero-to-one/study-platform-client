@@ -195,6 +195,7 @@ export default function PaymentManagement() {
                       {/* 액션 버튼 */}
                       <td className="py-200 pr-250">
                         <PaymentActionButtons
+                          paymentId={transaction.paymentId}
                           groupStudyId={transaction.groupStudyId}
                           latestTransactionType={
                             transaction.latestTransactionType
@@ -301,30 +302,31 @@ function TransactionHistory({ groupStudyId }: { groupStudyId: number }) {
 }
 
 function PaymentActionButtons({
+  paymentId,
   groupStudyId,
   latestTransactionType,
   paymentReceiptUrl,
 }: Pick<
   UserTransactionListResponse,
-  'latestTransactionType' | 'paymentReceiptUrl' | 'groupStudyId'
+  'paymentId' | 'latestTransactionType' | 'paymentReceiptUrl' | 'groupStudyId'
 >) {
   switch (latestTransactionType) {
     case 'PAYMENT_REQUESTED':
       return (
         <div className="flex flex-col gap-100">
           <PaymentProceedButton groupStudyId={groupStudyId} />
-          <PaymentCancelButton />
+          <PaymentCancelButton paymentId={paymentId} />
         </div>
       );
 
     case 'PAYMENT_FAILED':
-      return <PaymentCancelButton />;
+      return <PaymentCancelButton paymentId={paymentId} />;
 
     case 'PAYMENT_SUCCESS':
       return (
         <div className="flex flex-col gap-100">
           <ReceiptButton paymentReceiptUrl={paymentReceiptUrl} />
-          <RefundRequestButton />
+          <RefundRequestButton paymentId={paymentId} />
         </div>
       );
 
@@ -383,7 +385,9 @@ function PaymentProceedButton({
   );
 }
 
-function PaymentCancelButton() {
+function PaymentCancelButton({
+  paymentId,
+}: Pick<UserTransactionListResponse, 'paymentId'>) {
   const [cancelPaymentModalOpen, setCancelPaymentModalOpen] =
     useState<boolean>(false);
 
@@ -394,6 +398,7 @@ function PaymentCancelButton() {
   return (
     <>
       <PremiumStudyCancelPaymentModal
+        paymentId={paymentId}
         open={cancelPaymentModalOpen}
         onOpenChange={setCancelPaymentModalOpen}
       />
@@ -410,7 +415,9 @@ function PaymentCancelButton() {
   );
 }
 
-function RefundRequestButton() {
+function RefundRequestButton({
+  paymentId,
+}: Pick<UserTransactionListResponse, 'paymentId'>) {
   const [refundRequestModalOpen, setRefundRequestModalOpen] =
     useState<boolean>(false);
 
@@ -421,6 +428,7 @@ function RefundRequestButton() {
   return (
     <>
       <PremiumStudyRefundRequestModal
+        paymentId={paymentId}
         open={refundRequestModalOpen}
         onOpenChange={setRefundRequestModalOpen}
       />
