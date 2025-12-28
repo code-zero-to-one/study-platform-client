@@ -5,10 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**statusCode** | **number** | Status Code | [default to undefined]
-**timestamp** | **string** | Timestamp | [default to undefined]
-**content** | [**NotificationCategoriesResponse**](NotificationCategoriesResponse.md) | Content | [optional] [default to undefined]
-**message** | **string** | Message | [optional] [default to undefined]
+**notificationCategories** | [**Array&lt;NotificationTopicResponse&gt;**](NotificationTopicResponse.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -16,10 +13,7 @@ Name | Type | Description | Notes
 import { NotificationCategoriesResponse } from './api';
 
 const instance: NotificationCategoriesResponse = {
-    statusCode,
-    timestamp,
-    content,
-    message,
+    notificationCategories,
 };
 ```
 

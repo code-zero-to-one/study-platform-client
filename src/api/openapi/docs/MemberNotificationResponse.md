@@ -5,10 +5,13 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**statusCode** | **number** | Status Code | [default to undefined]
-**timestamp** | **string** | Timestamp | [default to undefined]
-**content** | [**PageResponseMemberNotificationResponse**](PageResponseMemberNotificationResponse.md) | Content | [optional] [default to undefined]
-**message** | **string** | Message | [optional] [default to undefined]
+**id** | **number** |  | [optional] [default to undefined]
+**topicType** | **string** |  | [optional] [default to undefined]
+**topicDescription** | **string** |  | [optional] [default to undefined]
+**title** | **string** |  | [optional] [default to undefined]
+**content** | **string** |  | [optional] [default to undefined]
+**isRead** | **boolean** |  | [optional] [default to undefined]
+**createdAt** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -16,10 +19,13 @@ Name | Type | Description | Notes
 import { MemberNotificationResponse } from './api';
 
 const instance: MemberNotificationResponse = {
-    statusCode,
-    timestamp,
+    id,
+    topicType,
+    topicDescription,
+    title,
     content,
-    message,
+    isRead,
+    createdAt,
 };
 ```
 
