@@ -62,7 +62,7 @@ export const useReadNotifications = () => {
     mutationFn: async (ids?: number[]) => {
       const { data } = await notificationApi.readMemberNotifications(ids);
 
-      return data.content;
+      // return data.content;
     },
     onSuccess: async () => {
       await Promise.all([

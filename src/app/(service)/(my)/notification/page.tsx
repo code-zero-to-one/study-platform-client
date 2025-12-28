@@ -1,78 +1,24 @@
 'use client';
 
+import { format } from 'date-fns';
 import { useState } from 'react';
+
+import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/notification-api';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import SingleDropdown from '@/components/ui/dropdown/single';
 import Pagination from '@/components/ui/pagination';
+import {
+  useGetNotifications,
+  useGetNotificationCategories,
+  useReadNotifications,
+} from '@/hooks/queries/notification-api';
 import NotificationIcon from 'public/images/notification.svg';
 
-// Mock data for demonstration
-const MOCK_NOTIFICATIONS = [
-  {
-    id: 1,
-    topicType: 'ONE_ON_ONE_STUDY',
-    topicDescription: '스터디',
-    title: '[Spring Boot 스터디] 종료되었습니다.',
-    content: '[Spring Boot 스터디] 종료되었습니다.',
-    isRead: false,
-    createdAt: '2025.07.25 09:30',
-  },
-  {
-    id: 2,
-    topicType: 'PAYMENT',
-    topicDescription: '결제/정산',
-    title: '[멘토 스터디] 교육비 200,000원 결제가 완료되었습니다.',
-    content: '[멘토 스터디] 교육비 200,000원 결제가 완료되었습니다.',
-    isRead: false,
-    createdAt: '2025.06.26 20:30',
-  },
-  {
-    id: 3,
-    topicType: 'PAYMENT',
-    topicDescription: '멘토인증',
-    title: '멘토 인증 안내 메세지',
-    content: '멘토 인증 안내 메세지',
-    isRead: false,
-    createdAt: '2025.06.26 20:30',
-  },
-  {
-    id: 4,
-    topicType: 'ETC',
-    topicDescription: '시스템',
-    title: '[중요] 서비스 점검 안내: 11월 10일 02:00~04:00',
-    content: '[중요] 서비스 점검 안내: 11월 10일 02:00~04:00',
-    isRead: false,
-    createdAt: '2025.06.26 20:30',
-  },
-  {
-    id: 5,
-    topicType: 'GROUP_STUDY',
-    topicDescription: '마케팅',
-    title: '이번주까지만 마감! 멘토 후기글 이벤트',
-    content: '이번주까지만 마감! 멘토 후기글 이벤트',
-    isRead: false,
-    createdAt: '2025.06.26 20:30',
-  },
-];
-
-const CATEGORY_OPTIONS = [
-  { value: 'all', label: '카테고리 전체' },
-  { value: 'ONE_ON_ONE_STUDY', label: '1:1 스터디' },
-  { value: 'GROUP_STUDY', label: '그룹스터디' },
-  { value: 'PAYMENT', label: '결제' },
-  { value: 'ETC', label: '기타' },
-];
-
 const READ_STATUS_OPTIONS = [
-  { value: 'all', label: '모든 읽음 처리' },
+  { value: 'all', label: '상태 전체' },
   { value: 'read', label: '읽음' },
   { value: 'unread', label: '안 읽음' },
-];
-
-const SORT_OPTIONS = [
-  { value: 'latest', label: '상태 전체' },
-  { value: 'oldest', label: '오래된 순' },
 ];
 
 const getBadgeColor = (
@@ -93,12 +39,43 @@ const getBadgeColor = (
 };
 
 export default function NotificationPage() {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [category, setCategory] = useState<string>('all');
-  const [readStatus, setReadStatus] = useState<string>('all');
-  const [sortOrder, setSortOrder] = useState<string>('latest');
+  const [page, setPage] = useState(1);
+  const [category, setCategory] =
+    useState<GetMemberNotificationsTopicTypeEnum | null>(null);
+  const [readStatus, setReadStatus] = useState<'all' | 'read' | 'unread'>(
+    'all',
+  );
 
-  const totalPages = 10;
+  const PAGE_SIZE = 10;
+  const { data: notificationsData } = useGetNotifications({
+    page: page,
+    size: PAGE_SIZE,
+    hasRead: readStatus === 'all' ? null : readStatus === 'read' ? true : false,
+    topicType: category,
+  });
+  const { data: categoriesData } = useGetNotificationCategories();
+
+  const notifications = notificationsData?.content;
+  const categories = categoriesData?.notificationCategories || [];
+
+  const { mutate: readNotifications } = useReadNotifications();
+
+  const categoryOptions = [
+    { value: null, label: '카테고리 전체' },
+    ...categories.map((category) => ({
+      value: category.name,
+      label: category.description,
+    })),
+  ];
+
+  const handleCategoryChange = (value: string | null) => {
+    setCategory(value as GetMemberNotificationsTopicTypeEnum | null);
+    setPage(1);
+  };
+
+  const handleMarkAllAsRead = () => {
+    readNotifications([]);
+  };
 
   return (
     <div className="flex flex-col gap-300">
@@ -113,9 +90,9 @@ export default function NotificationPage() {
         <div className="w-[140px]">
           <SingleDropdown
             size="s"
-            options={CATEGORY_OPTIONS}
+            options={categoryOptions}
             value={category}
-            onChange={(value) => setCategory(value ?? 'all')}
+            onChange={handleCategoryChange}
             placeholder="카테고리 전체"
           />
         </div>
@@ -123,9 +100,7 @@ export default function NotificationPage() {
           <Button
             color="outlined"
             className="font-designer-13r h-[32px]"
-            onClick={() => {
-              setReadStatus('all');
-            }}
+            onClick={handleMarkAllAsRead}
           >
             모든 읽음 처리
           </Button>
@@ -133,9 +108,12 @@ export default function NotificationPage() {
           <div className="w-[120px]">
             <SingleDropdown
               size="s"
-              options={SORT_OPTIONS}
-              value={sortOrder}
-              onChange={(value) => setSortOrder(value ?? 'latest')}
+              options={READ_STATUS_OPTIONS}
+              value={readStatus}
+              onChange={(value) => {
+                setReadStatus(value as 'all' | 'read' | 'unread');
+                setPage(1);
+              }}
               placeholder="상태 전체"
             />
           </div>
@@ -144,7 +122,7 @@ export default function NotificationPage() {
 
       {/* Notification List */}
       <ul>
-        {MOCK_NOTIFICATIONS.map((notification) => (
+        {notifications?.map((notification) => (
           <li
             key={notification.id}
             className="border-bottom-border-default bg-background-default flex items-center justify-between border-b py-150"
@@ -156,12 +134,14 @@ export default function NotificationPage() {
               >
                 {notification.topicDescription}
               </Badge>
-              <span className="font-designer-13r text-text-default">
+              <span
+                className={`${notification.isRead ? 'font-designer-13r' : 'font-designer-13b'} text-text-default`}
+              >
                 {notification.title}
               </span>
             </div>
             <span className="font-designer-11r text-text-subtlest whitespace-nowrap">
-              {notification.createdAt}
+              {format(notification.createdAt, 'yyyy.MM.dd HH:mm')}
             </span>
           </li>
         ))}
@@ -170,9 +150,9 @@ export default function NotificationPage() {
       {/* Pagination */}
       <div className="mt-200">
         <Pagination
-          page={currentPage}
-          totalPages={totalPages}
-          onChangePage={setCurrentPage}
+          page={page}
+          totalPages={notificationsData?.totalPages ?? 1}
+          onChangePage={setPage}
         />
       </div>
     </div>
