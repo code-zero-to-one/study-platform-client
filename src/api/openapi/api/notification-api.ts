@@ -22,11 +22,11 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { HasMemberNewNotificationSchema } from '../models';
+import type { HasMemberNewNotificationResponse } from '../models';
 // @ts-ignore
-import type { MemberNotificationSchema } from '../models';
+import type { MemberNotificationResponse } from '../models';
 // @ts-ignore
-import type { NotificationCategoriesSchema } from '../models';
+import type { NotificationCategoriesResponse } from '../models';
 /**
  * NotificationApi - axios parameter creator
  */
@@ -260,7 +260,7 @@ export const NotificationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMemberNotificationCategories(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NotificationCategoriesSchema>> {
+        async getMemberNotificationCategories(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NotificationCategoriesResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMemberNotificationCategories(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['NotificationApi.getMemberNotificationCategories']?.[localVarOperationServerIndex]?.url;
@@ -276,7 +276,7 @@ export const NotificationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMemberNotifications(page?: number, size?: number, hasRead?: boolean, topicType?: GetMemberNotificationsTopicTypeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberNotificationSchema>> {
+        async getMemberNotifications(page?: number, size?: number, hasRead?: boolean, topicType?: GetMemberNotificationsTopicTypeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberNotificationResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMemberNotifications(page, size, hasRead, topicType, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['NotificationApi.getMemberNotifications']?.[localVarOperationServerIndex]?.url;
@@ -288,7 +288,7 @@ export const NotificationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async hasMemberNewNotification(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HasMemberNewNotificationSchema>> {
+        async hasMemberNewNotification(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HasMemberNewNotificationResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.hasMemberNewNotification(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['NotificationApi.hasMemberNewNotification']?.[localVarOperationServerIndex]?.url;
@@ -301,7 +301,7 @@ export const NotificationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async readMemberNotifications(ids?: Array<any>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HasMemberNewNotificationSchema>> {
+        async readMemberNotifications(ids?: Array<any>, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<HasMemberNewNotificationResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.readMemberNotifications(ids, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['NotificationApi.readMemberNotifications']?.[localVarOperationServerIndex]?.url;
@@ -332,7 +332,7 @@ export const NotificationApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMemberNotificationCategories(options?: RawAxiosRequestConfig): AxiosPromise<NotificationCategoriesSchema> {
+        getMemberNotificationCategories(options?: RawAxiosRequestConfig): AxiosPromise<NotificationCategoriesResponse> {
             return localVarFp.getMemberNotificationCategories(options).then((request) => request(axios, basePath));
         },
         /**
@@ -345,7 +345,7 @@ export const NotificationApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMemberNotifications(page?: number, size?: number, hasRead?: boolean, topicType?: GetMemberNotificationsTopicTypeEnum, options?: RawAxiosRequestConfig): AxiosPromise<MemberNotificationSchema> {
+        getMemberNotifications(page?: number, size?: number, hasRead?: boolean, topicType?: GetMemberNotificationsTopicTypeEnum, options?: RawAxiosRequestConfig): AxiosPromise<MemberNotificationResponse> {
             return localVarFp.getMemberNotifications(page, size, hasRead, topicType, options).then((request) => request(axios, basePath));
         },
         /**
@@ -354,7 +354,7 @@ export const NotificationApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        hasMemberNewNotification(options?: RawAxiosRequestConfig): AxiosPromise<HasMemberNewNotificationSchema> {
+        hasMemberNewNotification(options?: RawAxiosRequestConfig): AxiosPromise<HasMemberNewNotificationResponse> {
             return localVarFp.hasMemberNewNotification(options).then((request) => request(axios, basePath));
         },
         /**
@@ -364,7 +364,7 @@ export const NotificationApiFactory = function (configuration?: Configuration, b
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        readMemberNotifications(ids?: Array<any>, options?: RawAxiosRequestConfig): AxiosPromise<HasMemberNewNotificationSchema> {
+        readMemberNotifications(ids?: Array<any>, options?: RawAxiosRequestConfig): AxiosPromise<HasMemberNewNotificationResponse> {
             return localVarFp.readMemberNotifications(ids, options).then((request) => request(axios, basePath));
         },
     };

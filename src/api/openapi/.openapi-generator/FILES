@@ -138,7 +138,6 @@ docs/GroupStudyUpdateRequest.md
 docs/GroupStudyUpdateResponse.md
 docs/GrowthMetricResponse.md
 docs/HasMemberNewNotificationResponse.md
-docs/HasMemberNewNotificationSchema.md
 docs/HomeworkEditRequest.md
 docs/HomeworkSubmissionRequest.md
 docs/IdNameDto.md
@@ -162,7 +161,6 @@ docs/MemberInfoResponseDto.md
 docs/MemberInfoUpdateResponse.md
 docs/MemberInfoUpdateResponseDto.md
 docs/MemberNotificationResponse.md
-docs/MemberNotificationSchema.md
 docs/MemberProfileApi.md
 docs/MemberProfileForStudy.md
 docs/MemberProfileForStudyDto.md
@@ -185,14 +183,13 @@ docs/NicknameAvailabilityResponseDto.md
 docs/NoContentResponse.md
 docs/NotificationApi.md
 docs/NotificationCategoriesResponse.md
-docs/NotificationCategoriesSchema.md
-docs/NotificationTopicResponse.md
 docs/NumberResponse.md
 docs/OptionalHomeworkSubmission.md
 docs/PageAdminTransactionListResponseSchema.md
 docs/PageResponseAdminTransactionListResponse.md
 docs/PageResponseGroupStudyApplyListItem.md
 docs/PageResponseGroupStudyListItem.md
+docs/PageResponseMemberNotificationResponse.md
 docs/PageResponseMissionListResponse.md
 docs/PageResponseMyGroupStudyApplyListItem.md
 docs/PageResponseParticipatingStudyInfo.md
@@ -368,7 +365,6 @@ models/group-study-update-request.ts
 models/group-study-update-response.ts
 models/growth-metric-response.ts
 models/has-member-new-notification-response.ts
-models/has-member-new-notification-schema.ts
 models/homework-edit-request.ts
 models/homework-submission-request.ts
 models/id-name-dto.ts
@@ -391,7 +387,6 @@ models/member-info-response-dto.ts
 models/member-info-update-response-dto.ts
 models/member-info-update-response.ts
 models/member-notification-response.ts
-models/member-notification-schema.ts
 models/member-profile-for-study-dto.ts
 models/member-profile-for-study.ts
 models/member-profile-response-dto.ts
@@ -410,14 +405,13 @@ models/nickname-availability-response-dto.ts
 models/nickname-availability-response.ts
 models/no-content-response.ts
 models/notification-categories-response.ts
-models/notification-categories-schema.ts
-models/notification-topic-response.ts
 models/number-response.ts
 models/optional-homework-submission.ts
 models/page-admin-transaction-list-response-schema.ts
 models/page-response-admin-transaction-list-response.ts
 models/page-response-group-study-apply-list-item.ts
 models/page-response-group-study-list-item.ts
+models/page-response-member-notification-response.ts
 models/page-response-mission-list-response.ts
 models/page-response-my-group-study-apply-list-item.ts
 models/page-response-participating-study-info.ts
