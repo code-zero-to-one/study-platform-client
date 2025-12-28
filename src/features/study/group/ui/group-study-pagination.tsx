@@ -26,7 +26,7 @@ export default function GroupStudyPagination({
       page={currentPage}
       totalPages={totalPages}
       onChangePage={handleChangePage}
-      className="mt-600"
+      className="mt-400 py-200"
     />
   );
 }

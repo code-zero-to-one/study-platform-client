@@ -42,6 +42,8 @@ export default function StudyDetailPage({
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
+  console.log('data', studyDetail);
+
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
   const isLeader = leaderId === memberId;
@@ -211,12 +213,7 @@ export default function StudyDetailPage({
         }}
       />
       {active === 'intro' && (
-        <StudyInfoSection
-          study={studyDetail}
-          memberId={memberId}
-          groupStudyId={groupStudyId}
-          isLeader={isLeader}
-        />
+        <StudyInfoSection study={studyDetail} isLeader={isLeader} />
       )}
       {active === 'members' && (
         <GroupStudyMemberList

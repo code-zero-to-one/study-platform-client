@@ -3,6 +3,11 @@ import { notFound } from 'next/navigation';
 import { isApiError } from '@/api/client/api-error';
 import { axiosServerInstance } from '@/api/client/axios.server';
 import {
+  createApiInstance,
+  createApiServerInstance,
+} from '@/api/client/open-api-instance';
+import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
+import {
   GroupStudyDetailRequest,
   GroupStudyDetailResponse,
 } from './group-study-types';
@@ -12,9 +17,11 @@ export const getGroupStudyDetailInServer = async ({
   groupStudyId,
 }: GroupStudyDetailRequest): Promise<GroupStudyDetailResponse> => {
   try {
-    const res = await axiosServerInstance.get(`/group-studies/${groupStudyId}`);
+    const groupStudyApi = createApiServerInstance(GroupStudyManagementApi);
 
-    return res.data.content;
+    const { data } = await groupStudyApi.getGroupStudy(groupStudyId);
+
+    return data.content;
   } catch (error: any) {
     // 서버에서 그룹스터디를 찾을 수 없다는 에러가 오면 notFound 호출
     if (

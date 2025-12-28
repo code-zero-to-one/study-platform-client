@@ -1,22 +1,8 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import dayjs from 'dayjs';
-import {
-  Calendar,
-  Clock,
-  File,
-  Folder,
-  Globe,
-  HandCoins,
-  MapPin,
-  SignpostBig,
-  UserCheck,
-  Users,
-} from 'lucide-react';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import React from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
@@ -24,170 +10,35 @@ import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
-import InfoCard from '@/widgets/study/group/ui/group-detail/info-card';
-import SummaryStudyInfo from './summary-study-info';
+import SummaryStudyInfo from '../../ui/summary-study-info';
 
-import {
-  BasicInfoDetail,
-  GroupStudyDetailResponse,
-} from '../api/group-study-types';
+import { GroupStudyDetailResponse } from '../api/group-study-types';
 
 import { useApplicantsByStatusQuery } from '../application/model/use-applicant-qeury';
-import {
-  EXPERIENCE_LEVEL_LABELS,
-  REGULAR_MEETING_LABELS,
-  ROLE_LABELS,
-  STUDY_METHOD_LABELS,
-  STUDY_STATUS_LABELS,
-  STUDY_TYPE_LABELS,
-} from '../const/group-study-const';
 
 interface StudyInfoSectionProps {
   study: GroupStudyDetailResponse;
-  groupStudyId: number;
   isLeader: boolean;
-  memberId?: number;
 }
 
 export default function StudyInfoSection({
   study: studyDetail,
-  groupStudyId,
   isLeader,
-  memberId,
 }: StudyInfoSectionProps) {
   const router = useRouter();
+  const params = useParams();
   const { data: authData } = useAuth();
+
+  const groupStudyId = Number(params.id);
 
   const { data: approvedApplicants } = useApplicantsByStatusQuery({
     groupStudyId,
     status: 'APPROVED',
   });
-  const { data: pendingApplicants } = useApplicantsByStatusQuery({
-    groupStudyId,
-    status: 'PENDING',
-  });
 
   const applicants = [
     ...(approvedApplicants?.pages.flatMap(({ content }) => content) || []),
-    ...(pendingApplicants?.pages.flatMap(({ content }) => content) || []),
   ];
-
-  const basicInfoItems = (basicInfo: BasicInfoDetail) => {
-    const getDurationText = (startDate: string, endDate: string): string => {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-
-      const diffTime = end.getTime() - start.getTime();
-      if (diffTime < 0) return '기간이 잘못되었습니다.';
-
-      const diffDays = diffTime / (1000 * 60 * 60 * 24);
-      const diffWeeks = diffDays / 7;
-      const diffMonths = diffDays / 30; // 대략적인 월 계산 (평균 30일)
-
-      return diffMonths < 1
-        ? `약 ${Math.round(diffWeeks)}주`
-        : `약 ${Math.round(diffMonths)}개월`;
-    };
-
-    return [
-      {
-        label: '유형',
-        value: STUDY_TYPE_LABELS[basicInfo.type],
-        icon: <Folder size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '주제',
-        value: basicInfo.targetRoles
-          .map((role) => {
-            return ROLE_LABELS[role];
-          })
-          .join(', '),
-        icon: <File size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '경력',
-        value:
-          basicInfo.experienceLevels
-            .map((level) => {
-              return EXPERIENCE_LEVEL_LABELS[level];
-            })
-            .join(', ') || '무관',
-        icon: <UserCheck size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '진행 방식',
-        value: `${STUDY_METHOD_LABELS[basicInfo.method]}${basicInfo.location ? `, ${basicInfo.location}` : ''}`,
-        icon: <Globe size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '진행 기간',
-        value: getDurationText(basicInfo.startDate, basicInfo.endDate),
-        icon: <Calendar size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '정기모임',
-        value: REGULAR_MEETING_LABELS[basicInfo.regularMeeting],
-        icon: <MapPin size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '모집인원',
-        value: `${basicInfo.maxMembersCount}명`,
-        icon: <Users size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '시작일자',
-        value: dayjs(basicInfo.startDate).format('YYYY.MM.DD'),
-        icon: <Clock size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '참가비',
-        value:
-          basicInfo.price === 0
-            ? '무료'
-            : `${basicInfo.price.toLocaleString()}원`,
-        icon: <HandCoins size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '상태',
-        value: `${STUDY_STATUS_LABELS[basicInfo.status]}`,
-        icon: <SignpostBig size={24} color="#A4A7AE" />,
-      },
-    ];
-  };
-
-  const summaryBasicInfoItems = (basicInfo: BasicInfoDetail) => {
-    return [
-      {
-        label: '주제',
-        value: basicInfo.targetRoles
-          .map((role) => {
-            return ROLE_LABELS[role];
-          })
-          .join(', '),
-        icon: <File size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '정기모임',
-        value: `${REGULAR_MEETING_LABELS[basicInfo.regularMeeting]}, ${basicInfo.location}`,
-        icon: <MapPin size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '경력',
-        value:
-          basicInfo.experienceLevels
-            .map((level) => {
-              return EXPERIENCE_LEVEL_LABELS[level];
-            })
-            .join(', ') || '무관',
-        icon: <UserCheck size={24} color="#A4A7AE" />,
-      },
-      {
-        label: '모집인원',
-        value: `${basicInfo.maxMembersCount}명`,
-        icon: <Users size={24} color="#A4A7AE" />,
-      },
-    ];
-  };
 
   return (
     // todo: 스터디 공지 모달 추가
@@ -206,31 +57,49 @@ export default function StudyInfoSection({
         <div className="flex flex-col gap-600">
           <div className="flex flex-col gap-200">
             <p className="font-designer-20b">스터디 소개</p>
+            <div className="bg-background-alternative rounded-100 flex items-center justify-between px-200 py-300">
+              <div className="flex items-center gap-150">
+                <UserAvatar
+                  size={80}
+                  image={
+                    studyDetail.basicInfo.leader.profileImage?.resizedImages[0]
+                      .resizedImageUrl ?? ''
+                  }
+                />
+                <div className="flex flex-col">
+                  <div className="flex flex-col items-start gap-50">
+                    <span className="font-designer-20b">
+                      {studyDetail.basicInfo.leader.memberNickname}
+                    </span>
+                    <div className="font-designer-15r text-text-subtle flex items-center gap-100">
+                      <span>스터디 리더</span>
+                      <span className="h-[8px] w-[1px] bg-[#E9EAEB]" />
+                      <span>
+                        {studyDetail.basicInfo.leader.simpleIntroduction}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <UserProfileModal
+                memberId={studyDetail.basicInfo.leader.memberId}
+                trigger={
+                  <div className="bg-fill-neutral-default-default text-text-default font-designer-14b rounded-75 flex cursor-pointer items-center justify-center p-100">
+                    프로필
+                  </div>
+                }
+              />
+            </div>
             <div className="font-designer-16r whitespace-pre-line text-[#535862]">
               {studyDetail?.detailInfo.description}
             </div>
           </div>
-          <div className="flex flex-col gap-200">
-            <p className="font-designer-20b">기본 정보</p>
-            {/* <div>프로필박스</div> */}
-            <div className="grid grid-cols-4 grid-rows-3 gap-150">
-              {basicInfoItems(studyDetail?.basicInfo).map((item) => {
-                return (
-                  <InfoCard
-                    key={`${item.label}-${item.value}`}
-                    title={item.label}
-                    value={item.value}
-                    icon={item.icon}
-                  />
-                );
-              })}
-            </div>
-          </div>
+
           <div className="flex flex-col gap-200">
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>실시간 신청자 목록</span>
-                <span className="text-[#A4A7AE]">{`${studyDetail.basicInfo.approvedCount + studyDetail.basicInfo.pendingCount}명`}</span>
+                <span className="text-[#A4A7AE]">{`${approvedApplicants?.pages.length}명`}</span>
               </div>
               {isLeader && (
                 <Button
@@ -313,17 +182,7 @@ export default function StudyInfoSection({
           </div>
         </div>
       </div>
-      <SummaryStudyInfo
-        groupStudyId={groupStudyId}
-        memberId={memberId}
-        isLeader={isLeader}
-        groupStudyStatus={studyDetail.basicInfo.status}
-        approvedCount={studyDetail.basicInfo.approvedCount}
-        maxMembersCount={studyDetail.basicInfo.maxMembersCount}
-        data={summaryBasicInfoItems(studyDetail.basicInfo)}
-        title={studyDetail.detailInfo.title}
-        questions={studyDetail.interviewPost.interviewPost}
-      />
+      <SummaryStudyInfo data={studyDetail} />
     </div>
   );
 }

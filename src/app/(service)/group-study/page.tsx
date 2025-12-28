@@ -15,7 +15,7 @@ export default async function GroupStudyPage({
 }: GroupStudyPageProps) {
   const params = await searchParams;
   const currentPage = Number(params.page) || 1;
-  const pageSize = 9;
+  const pageSize = 15;
 
   const groupStudyApi = createApiServerInstance(GroupStudyManagementApi);
 
@@ -54,10 +54,10 @@ export default async function GroupStudyPage({
       <GroupStudyList studies={data.content.content} />
 
       {/* 페이지네이션 */}
-      {data.totalPages > 1 && (
+      {data.content.totalPages > 1 && (
         <GroupStudyPagination
           currentPage={currentPage}
-          totalPages={data.totalPages}
+          totalPages={data.content.totalPages}
         />
       )}
     </div>
