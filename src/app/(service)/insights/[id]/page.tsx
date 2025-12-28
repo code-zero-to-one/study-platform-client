@@ -1,9 +1,9 @@
-import { notFound } from 'next/navigation';
-import { getServerCookie } from '@/utils/server-cookie';
-import { fetchArticleBySlug } from '@/api/strapi/api/fetch-articles';
-import BlogDetailPage from '../ui/blog-detail-page';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
+import { fetchArticleBySlug } from '@/api/strapi/api/fetch-articles';
+import { getServerCookie } from '@/utils/server-cookie';
+import BlogDetailPage from '../ui/blog-detail-page';
 
 export const revalidate = 60;
 

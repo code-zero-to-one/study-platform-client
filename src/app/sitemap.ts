@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { Configuration } from '@/api/openapi/configuration';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
+import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyBasicInfoResponseDto } from '@/api/openapi/models';
 import { fetchArticles } from '@/api/strapi/api/fetch-articles';
 

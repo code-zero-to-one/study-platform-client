@@ -78,7 +78,7 @@ export async function fetchCategories() {
 
 // 특정 slug로 아티클 조회
 export async function fetchArticleBySlug(slug: string) {
-  // qs를 사용해서 복잡한 쿼리 구성
+  // qs를 사용하여 쿼리 구성
   const query = qs.stringify(
     {
       filters: {
@@ -98,8 +98,8 @@ export async function fetchArticleBySlug(slug: string) {
       },
     },
     {
-      encodeValuesOnly: true, // 대괄호를 인코딩하지 않음
-    }
+      encodeValuesOnly: true,
+    },
   );
 
   const response = await strapiFetch<StrapiCollectionResponse<Article>>(

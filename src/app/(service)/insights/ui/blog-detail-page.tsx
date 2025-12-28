@@ -26,16 +26,11 @@ function formatDate(dateString: string) {
 function ImageSlider({ files }: { files: any[] }) {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  console.log('ImageSlider - files:', files);
-  console.log('ImageSlider - files.length:', files.length);
-
   const goToPrevious = () => {
-    console.log('Previous clicked');
     setCurrentIndex((prev) => (prev === 0 ? files.length - 1 : prev - 1));
   };
 
   const goToNext = () => {
-    console.log('Next clicked');
     setCurrentIndex((prev) => (prev === files.length - 1 ? 0 : prev + 1));
   };
 
@@ -56,8 +51,6 @@ function ImageSlider({ files }: { files: any[] }) {
               const imageUrl = file.url?.startsWith('/')
                 ? `${STRAPI_URL}${file.url}`
                 : file.url;
-
-              console.log(`Image ${idx}:`, imageUrl);
 
               return (
                 <div key={file.id || idx} className="min-w-full">
@@ -123,7 +116,6 @@ function ImageSlider({ files }: { files: any[] }) {
 }
 
 export default function BlogDetailPage({ article }: BlogDetailPageProps) {
-  console.log(article);
   // 마크다운 렌더러용 커스텀 컴포넌트 설정
   const MarkdownComponents = {
     // 비디오 태그 처리
@@ -287,7 +279,10 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
       // Case B: 문자열 데이터 (Markdown)
       return (
-        <div key={index} className="blog-content-markdown">
+        <div
+          key={index}
+          className="blog-content-markdown font-designer-18r text-[#333D4B]"
+        >
           {block.body ? (
             <ReactMarkdown
               components={MarkdownComponents}
@@ -313,7 +308,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
               {block.title}
             </p>
           )}
-          <p className="font-designer-16r leading-8 text-[#535862] italic">
+          <p className="font-designer-18r leading-8 text-[#535862] italic">
             {block.body}
           </p>
         </blockquote>
@@ -322,12 +317,9 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
     // 3. 미디어 (단독 블록 - Media: 이미지, 비디오, GIF 등)
     if (block.__component?.includes('media')) {
-      console.log('Media block:', block);
-
       // block.file이 있는 경우 처리
       if (block.file) {
         const fileData = block.file.data || block.file;
-        console.log('fileData:', fileData);
         if (!fileData) return null;
 
         const mediaUrl = fileData.url?.startsWith('/')
@@ -420,8 +412,6 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
     // 4. 슬라이더
     if (block.__component?.includes('slider')) {
-      console.log('Slider block:', block);
-
       // files 데이터 확인 (여러 가능성 체크)
       let files = null;
 
@@ -434,8 +424,6 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       }
 
       if (!files || files.length === 0) {
-        console.log('Slider has no files');
-
         return null;
       }
 
