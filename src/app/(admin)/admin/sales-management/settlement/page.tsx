@@ -1,7 +1,12 @@
 'use client';
 
+import { format } from 'date-fns';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
+import {
+  SettlementSearchConditionStatusEnum,
+  StudySettlementSummaryResponse,
+} from '@/api/openapi/models';
 import AdminSettlementModal from '@/components/modals/admin-settlement-modal';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -9,6 +14,8 @@ import DatePicker from '@/components/ui/date-picker';
 import SingleDropdown from '@/components/ui/dropdown/single';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
+import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
+import { formatToKST } from '@/utils/time';
 
 type SalesStatus =
   | '결제대기'
@@ -17,81 +24,53 @@ type SalesStatus =
   | '환불요청'
   | '환불완료';
 
-const getStatusBadgeColor = (
-  status: SalesStatus,
-): 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray' => {
-  switch (status) {
-    case '결제대기':
-      return 'blue';
-    case '결제취소':
-      return 'red';
-    case '결제완료':
-      return 'green';
-    case '환불요청':
-      return 'orange';
-    case '환불완료':
-      return 'gray';
-    default:
-      return 'gray';
+const SETTLEMENT_STATUS_MAP: Record<
+  StudySettlementSummaryResponse['status'],
+  {
+    label: string;
+    color: 'primary' | 'red' | 'green' | 'blue' | 'orange' | 'gray';
   }
+> = {
+  PENDING: { label: '정산대기', color: 'blue' },
+  APPROVED: { label: '정산승인', color: 'orange' },
+  COMPLETED: { label: '정산완료', color: 'green' },
 };
 
-const mockSalesData = [
-  {
-    id: 'PAY-20251206-001',
-    studyTitle: '데이터 분석 Python 스터디(진행전)',
-    buyer: '김민정(1)',
-    amount: 150000,
-    paymentType: '카드(신한)',
-    status: '결제대기' as SalesStatus,
-    date: '2025.12.08 12:11',
-  },
-  {
-    id: 'PAY-20251206-001',
-    studyTitle: '데이터 분석 Python 스터디(진행전)',
-    buyer: '김민정(2)',
-    amount: 150000,
-    paymentType: '카드(신한)',
-    status: '결제취소' as SalesStatus,
-    date: '2025.12.08 12:11',
-  },
-  {
-    id: 'PAY-20251206-001',
-    studyTitle: '데이터 분석 Python 스터디(진행전)',
-    buyer: '김민정(3)',
-    amount: 150000,
-    paymentType: '카드(신한)',
-    status: '결제완료' as SalesStatus,
-    date: '2025.12.08 12:11',
-  },
-  {
-    id: 'PAY-20251206-001',
-    studyTitle: '데이터 분석 Python 스터디',
-    buyer: '김민정(1)',
-    amount: 150000,
-    paymentType: '무통장입금',
-    status: '환불요청' as SalesStatus,
-    date: '2025.12.08 12:11',
-  },
-];
-
-const filterOptions = [
-  { value: 'all', label: '전체' },
-  { value: 'payment_pending', label: '결제대기' },
-  { value: 'payment_complete', label: '결제완료' },
-  { value: 'payment_cancel', label: '결제취소' },
-  { value: 'refund_request', label: '환불요청' },
-  { value: 'refund_complete', label: '환불완료' },
-];
-
 export default function SettlementPage() {
-  const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [status, setStatus] = useState<
+    SettlementSearchConditionStatusEnum | undefined
+  >(undefined);
   const [keyword, setKeyword] = useState<string>('');
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: undefined,
     to: undefined,
   });
   const [page, setPage] = useState<number>(1);
+
+  // API 호출
+  const { data } = useGetSettlementsForAdmin({
+    startDate: dateRange?.from
+      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
+      : undefined,
+    endDate: dateRange?.to
+      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
+      : undefined,
+    studyTitle: keyword || undefined,
+    settlementCode: keyword || undefined,
+    status,
+    page: page - 1,
+    size: 20,
+  });
+
+  const settlements = data?.content ?? [];
+
+  const statusOptions = [
+    { value: undefined, label: '전체' },
+    ...Object.entries(SETTLEMENT_STATUS_MAP).map(([key, value]) => ({
+      value: key,
+      label: value.label,
+    })),
+  ];
 
   return (
     <>
@@ -101,9 +80,13 @@ export default function SettlementPage() {
           {/* 상태 필터 드롭다운 */}
           <div className="w-[160px]">
             <SingleDropdown
-              options={filterOptions}
-              value={filterStatus}
-              onChange={(value) => setFilterStatus(value || 'all')}
+              options={statusOptions}
+              value={status}
+              onChange={(value) =>
+                setStatus(
+                  value as SettlementSearchConditionStatusEnum | undefined,
+                )
+              }
               placeholder="전체"
               size="m"
             />
@@ -154,60 +137,62 @@ export default function SettlementPage() {
             </tr>
           </thead>
           <tbody>
-            {mockSalesData && mockSalesData.length > 0 ? (
-              mockSalesData.map((sale, index) => (
+            {settlements && settlements.length > 0 ? (
+              settlements.map((settlement, index) => (
                 <tr
-                  key={`${sale.id}-${index}`}
+                  key={`${settlement.settlementCode}-${index}`}
                   className="border-b-border-default border-b"
                 >
-                  {/* 거래 ID */}
+                  {/* 정산 ID */}
                   <td className="py-200 pl-250">
                     <span className="font-designer-14r text-text-default">
-                      {sale.id}
+                      {settlement.settlementCode}
                     </span>
                   </td>
 
                   {/* 스터디명 */}
                   <td className="py-200 pl-[10px]">
                     <span className="font-designer-14r text-text-default">
-                      {sale.studyTitle}
+                      {settlement.groupStudyTitle}
                     </span>
                   </td>
 
-                  {/* 결제자 */}
+                  {/* 개설자 */}
                   <td className="py-200 pl-[10px]">
                     <span className="font-designer-14r text-text-default">
-                      {sale.buyer}
+                      {settlement.leaderName}({settlement.leaderId})
                     </span>
                   </td>
 
-                  {/* 결제 내역 */}
+                  {/* 정산 내역 */}
                   <td className="py-200 pl-[10px]">
                     <span className="font-designer-14r text-text-default">
-                      {sale.amount.toLocaleString()}원({sale.paymentType})
+                      {settlement.settlementAmount?.toLocaleString()}원
                     </span>
                   </td>
 
                   {/* 상태 */}
                   <td className="py-200 pl-[10px]">
                     <Badge
-                      color={getStatusBadgeColor(sale.status)}
+                      color={SETTLEMENT_STATUS_MAP[settlement.status].color}
                       shape="rectangle"
                     >
-                      {sale.status}
+                      {SETTLEMENT_STATUS_MAP[settlement.status].label}
                     </Badge>
                   </td>
 
                   {/* 일시 */}
                   <td className="py-200 pl-[10px]">
                     <span className="font-designer-14r text-text-default">
-                      {sale.date}
+                      {settlement.settledAt}
                     </span>
                   </td>
 
                   {/* 액션 버튼 */}
                   <td className="py-200 pr-250">
-                    <SettlementActionButtons status={sale.status} />
+                    <SettlementActionButtons
+                      status={settlement.status as SalesStatus}
+                    />
                   </td>
                 </tr>
               ))
@@ -218,7 +203,7 @@ export default function SettlementPage() {
                   className="border-b-border-default border-b py-[200px] text-center"
                 >
                   <p className="font-designer-16r text-text-subtlest">
-                    매출 내역이 없습니다.
+                    정산 내역이 없습니다.
                   </p>
                 </td>
               </tr>
@@ -230,9 +215,13 @@ export default function SettlementPage() {
       {/* 페이지네이션 */}
       <div className="flex items-center justify-between">
         <span className="text-icon-subtlest font-designer-13r">
-          총 {mockSalesData.length}건
+          총 {data?.totalElements ?? 0}건
         </span>
-        <Pagination page={page} onChangePage={setPage} totalPages={5} />
+        <Pagination
+          page={page}
+          onChangePage={setPage}
+          totalPages={data?.totalPages ?? 1}
+        />
         <div />
       </div>
     </>
