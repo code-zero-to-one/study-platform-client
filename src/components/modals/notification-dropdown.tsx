@@ -1,6 +1,7 @@
 'use client';
 
 import { DotIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import NotificationList from '@/components/lists/notification-list';
 
@@ -17,6 +18,8 @@ import {
 import Button from '../ui/button';
 
 export default function NotificationDropdown() {
+  const router = useRouter();
+
   const [mode, setMode] = useState<'all' | 'unread'>('all');
   const { data: notificationsData } = useGetNotifications({
     page: 1,
@@ -94,6 +97,7 @@ export default function NotificationDropdown() {
             color="outlined"
             size="medium"
             className="font-designer-16m w-full"
+            onClick={() => router.push('/notification')}
           >
             전체 알림 목록
           </Button>

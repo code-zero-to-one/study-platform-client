@@ -51,7 +51,7 @@ export default async function Header() {
           <Link href="/insights">인사이트</Link>
         </nav>
 
-        <NotificationDropdown />
+        {accessTokenStr && <NotificationDropdown />}
 
         <div className="ml-150">
           {isLoggedIn ? (
