@@ -9,10 +9,14 @@ import MainProvider from '@/providers';
 import AdminSideBar from '@/widgets/admin/ui/admin-side-bar';
 
 export const metadata: Metadata = {
-  title: 'ZERO-ONE',
-  description: '매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼, ZERO-ONE',
+  title: '관리자 - ZERO-ONE',
+  description: 'ZERO-ONE 플랫폼 관리자 영역',
   icons: {
     icon: '/favicon.ico',
+  },
+  robots: {
+    index: false,
+    follow: false,
   },
 };
 
