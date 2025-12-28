@@ -1,10 +1,9 @@
 'use client';
 
-import { format } from 'date-fns';
 import { useState } from 'react';
 
 import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/notification-api';
-import Badge from '@/components/ui/badge';
+import NotificationList from '@/components/lists/notification-list';
 import Button from '@/components/ui/button';
 import SingleDropdown from '@/components/ui/dropdown/single';
 import Pagination from '@/components/ui/pagination';
@@ -20,23 +19,6 @@ const READ_STATUS_OPTIONS = [
   { value: 'read', label: '읽음' },
   { value: 'unread', label: '안 읽음' },
 ];
-
-const getBadgeColor = (
-  topicType: string,
-): 'primary' | 'green' | 'red' | 'blue' | 'orange' | 'gray' | 'purple' => {
-  switch (topicType) {
-    case 'ONE_ON_ONE_STUDY':
-      return 'blue';
-    case 'GROUP_STUDY':
-      return 'purple';
-    case 'PAYMENT':
-      return 'green';
-    case 'ETC':
-      return 'gray';
-    default:
-      return 'gray';
-  }
-};
 
 export default function NotificationPage() {
   const [page, setPage] = useState(1);
@@ -120,32 +102,7 @@ export default function NotificationPage() {
         </div>
       </div>
 
-      {/* Notification List */}
-      <ul>
-        {notifications?.map((notification) => (
-          <li
-            key={notification.id}
-            className="border-bottom-border-default bg-background-default flex items-center justify-between border-b py-150"
-          >
-            <div className="flex items-center gap-150">
-              <Badge
-                color={getBadgeColor(notification.topicType)}
-                shape="rectangle"
-              >
-                {notification.topicDescription}
-              </Badge>
-              <span
-                className={`${notification.isRead ? 'font-designer-13r' : 'font-designer-13b'} text-text-default`}
-              >
-                {notification.title}
-              </span>
-            </div>
-            <span className="font-designer-11r text-text-subtlest whitespace-nowrap">
-              {format(notification.createdAt, 'yyyy.MM.dd HH:mm')}
-            </span>
-          </li>
-        ))}
-      </ul>
+      <NotificationList notifications={notifications} />
 
       {/* Pagination */}
       <div className="mt-200">
