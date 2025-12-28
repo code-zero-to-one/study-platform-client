@@ -81,9 +81,13 @@ export const useForceCancelPayment = () => {
       return data.content;
     },
     onSuccess: async () => {
+      alert('강제 취소가 완료되었습니다.');
       await queryClient.invalidateQueries({
         queryKey: ['transactionsForAdmin'],
       });
+    },
+    onError: () => {
+      alert('강제 취소에 실패했습니다. 다시 시도해주세요.');
     },
   });
 };

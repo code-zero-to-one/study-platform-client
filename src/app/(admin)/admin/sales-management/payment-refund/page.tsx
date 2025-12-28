@@ -29,11 +29,11 @@ const PAYMENT_HISTORY_TYPE_MAP: Record<
   PAYMENT_SUCCESS: { label: '결제완료', color: 'green' },
   PAYMENT_FAILED: { label: '결제실패', color: 'red' },
   PAYMENT_CANCELED: { label: '결제취소', color: 'red' },
-  REFUND_REQUESTED: { label: '환불요청', color: 'orange' },
+  REFUND_REQUESTED: { label: '환불요청', color: 'blue' },
   REFUND_APPROVED: { label: '환불승인', color: 'orange' },
-  REFUND_COMPLETED: { label: '환불완료', color: 'gray' },
-  REFUND_REJECTED: { label: '환불반려', color: 'green' },
-  REFUND_CANCELED: { label: '환불취소', color: 'green' },
+  REFUND_COMPLETED: { label: '환불완료', color: 'green' },
+  REFUND_REJECTED: { label: '환불반려', color: 'gray' },
+  REFUND_CANCELED: { label: '환불취소', color: 'red' },
   REFUND_FAILED: { label: '환불실패', color: 'red' },
 };
 
@@ -41,7 +41,7 @@ const STUDY_STATUS_MAP: Record<
   NonNullable<AdminTransactionListResponse['groupStudyStatus']>,
   string
 > = {
-  RECRUITING: '모집중',
+  RECRUITING: '진행전',
   IN_PROGRESS: '진행중',
   COMPLETED: '완료',
 };
@@ -217,6 +217,8 @@ export default function PaymentRefundPage() {
                     {/* 액션 버튼 */}
                     <td className="py-200 pr-250">
                       <SalesActionButtons
+                        paymentId={transaction.paymentId}
+                        paymentReceiptUrl={transaction.paymentReceiptUrl}
                         paymentHistoryType={transaction.paymentHistoryType}
                         groupStudyName={transaction.groupStudyName}
                         paymentMemberName={transaction.paymentMemberName}
@@ -260,6 +262,8 @@ export default function PaymentRefundPage() {
 }
 
 function SalesActionButtons({
+  paymentId,
+  paymentReceiptUrl,
   paymentHistoryType,
   groupStudyName,
   paymentMemberName,
@@ -267,6 +271,8 @@ function SalesActionButtons({
   transactionAmount,
 }: Pick<
   AdminTransactionListResponse,
+  | 'paymentId'
+  | 'paymentReceiptUrl'
   | 'paymentHistoryType'
   | 'groupStudyName'
   | 'paymentMemberName'
@@ -277,8 +283,8 @@ function SalesActionButtons({
     case 'PAYMENT_SUCCESS':
       return (
         <div className="flex items-center gap-100">
-          <ForcedCancellationButton />
-          <ReceiptButton />
+          <ForcedCancellationButton paymentId={paymentId} />
+          <ReceiptButton paymentReceiptUrl={paymentReceiptUrl} />
         </div>
       );
 
@@ -291,29 +297,51 @@ function SalesActionButtons({
             paymentMemberId={paymentMemberId}
             transactionAmount={transactionAmount}
           />
-          <ReceiptButton />
+          <ReceiptButton paymentReceiptUrl={paymentReceiptUrl} />
         </div>
       );
+
+    case 'REFUND_REJECTED':
+      return <ReceiptButton paymentReceiptUrl={paymentReceiptUrl} />;
 
     default:
       return null;
   }
 }
 
-function ReceiptButton() {
+function ReceiptButton({
+  paymentReceiptUrl,
+}: Pick<AdminTransactionListResponse, 'paymentReceiptUrl'>) {
+  const handleReceiptView = () => {
+    if (paymentReceiptUrl) {
+      window.open(paymentReceiptUrl, '_blank');
+    }
+  };
+
   return (
-    <Button color="outlined" size="small" className="font-designer-14r">
+    <Button
+      color="outlined"
+      size="small"
+      className="font-designer-14r"
+      onClick={handleReceiptView}
+    >
       영수증 보기
     </Button>
   );
 }
 
-function ForcedCancellationButton() {
+function ForcedCancellationButton({
+  paymentId,
+}: Pick<AdminTransactionListResponse, 'paymentId'>) {
   const [open, setOpen] = useState(false);
 
   return (
     <>
-      <AdminForcedCancellationModal open={open} onOpenChange={setOpen} />
+      <AdminForcedCancellationModal
+        open={open}
+        onOpenChange={setOpen}
+        paymentId={paymentId}
+      />
       <Button
         size="small"
         className="font-designer-14r bg-background-danger-default text-text-inverse"

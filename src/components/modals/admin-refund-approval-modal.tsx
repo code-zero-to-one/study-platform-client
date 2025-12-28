@@ -1,10 +1,15 @@
 import { AdminTransactionListResponse } from '@/api/openapi';
+import {
+  useApproveRefund,
+  useRejectRefund,
+} from '@/hooks/queries/admin-refund-api';
 import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
 interface AdminRefundApprovalModalProps
   extends Pick<
     AdminTransactionListResponse,
+    | 'refundId'
     | 'groupStudyName'
     | 'paymentMemberName'
     | 'paymentMemberId'
@@ -17,11 +22,15 @@ interface AdminRefundApprovalModalProps
 export default function AdminRefundApprovalModal({
   open,
   onOpenChange,
+  refundId,
   groupStudyName,
   paymentMemberName,
   paymentMemberId,
   transactionAmount,
 }: AdminRefundApprovalModalProps) {
+  const { mutate: approveRefund } = useApproveRefund();
+  const { mutate: rejectRefund } = useRejectRefund();
+
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
@@ -44,7 +53,21 @@ export default function AdminRefundApprovalModal({
               color="secondary"
               className="w-[160px]"
               size="medium"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                rejectRefund(
+                  {
+                    refundId,
+                    request: {
+                      reason: '',
+                    },
+                  },
+                  {
+                    onSuccess: () => {
+                      onOpenChange(false);
+                    },
+                  },
+                );
+              }}
             >
               환불 반려
             </Button>
@@ -52,7 +75,19 @@ export default function AdminRefundApprovalModal({
               color="primary"
               className="w-[160px]"
               size="medium"
-              onClick={() => onOpenChange(false)}
+              onClick={() => {
+                approveRefund(
+                  {
+                    refundId,
+                    request: {},
+                  },
+                  {
+                    onSuccess: () => {
+                      onOpenChange(false);
+                    },
+                  },
+                );
+              }}
             >
               환불 승인
             </Button>

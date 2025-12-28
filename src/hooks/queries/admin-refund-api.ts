@@ -56,9 +56,13 @@ export const useApproveRefund = () => {
       return data.content;
     },
     onSuccess: async () => {
+      alert('환불 승인이 완료되었습니다.');
       await queryClient.invalidateQueries({
         queryKey: ['transactionsForAdmin'],
       });
+    },
+    onError: () => {
+      alert('환불 승인에 실패했습니다. 다시 시도해주세요.');
     },
   });
 };
@@ -96,9 +100,13 @@ export const useRejectRefund = () => {
       return data.content;
     },
     onSuccess: async () => {
+      alert('환불 반려가 완료되었습니다.');
       await queryClient.invalidateQueries({
         queryKey: ['transactionsForAdmin'],
       });
+    },
+    onError: () => {
+      alert('환불 반려에 실패했습니다. 다시 시도해주세요.');
     },
   });
 };
