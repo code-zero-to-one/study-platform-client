@@ -18,9 +18,21 @@
 import type { ResetWeeklyMatchingResponse } from './reset-weekly-matching-response';
 
 export interface ResetWeeklyMatchingSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: ResetWeeklyMatchingResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

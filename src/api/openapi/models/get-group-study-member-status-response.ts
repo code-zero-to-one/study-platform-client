@@ -13,11 +13,26 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { GetGroupStudyMemberStatusResponseContent } from './get-group-study-member-status-response-content';
 
 export interface GetGroupStudyMemberStatusResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: GetGroupStudyMemberStatusResponse;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: GetGroupStudyMemberStatusResponseContent;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

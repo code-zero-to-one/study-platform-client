@@ -77,7 +77,7 @@ void (empty response body)
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMemberAccountHistoryResponse**
-> BaseResponseMemberAccountHistoryResponseDto getMemberAccountHistoryResponse()
+> BaseResponse getMemberAccountHistoryResponse()
 
 
 ### Example
@@ -107,7 +107,7 @@ const { status, data } = await apiInstance.getMemberAccountHistoryResponse(
 
 ### Return type
 
-**BaseResponseMemberAccountHistoryResponseDto**
+**BaseResponse**
 
 ### Authorization
 

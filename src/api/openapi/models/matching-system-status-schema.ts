@@ -18,9 +18,21 @@
 import type { MatchingSystemStatusResponse } from './matching-system-status-response';
 
 export interface MatchingSystemStatusSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: MatchingSystemStatusResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

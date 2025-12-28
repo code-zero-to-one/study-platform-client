@@ -18,9 +18,21 @@
 import type { CursorResponseDtoDailyStudyResponse } from './cursor-response-dto-daily-study-response';
 
 export interface GetDailyStudiesResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: CursorResponseDtoDailyStudyResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

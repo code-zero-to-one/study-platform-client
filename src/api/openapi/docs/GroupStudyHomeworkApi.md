@@ -8,7 +8,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**submitHomework**](#submithomework) | **POST** /missions/{missionId}/homeworks | |
 
 # **editHomework**
-> BaseResponseVoid editHomework(homeworkEditRequest)
+> BaseResponse editHomework(homeworkEditRequest)
 
 
 ### Example
@@ -42,7 +42,7 @@ const { status, data } = await apiInstance.editHomework(
 
 ### Return type
 
-**BaseResponseVoid**
+**BaseResponse**
 
 ### Authorization
 
@@ -62,7 +62,7 @@ const { status, data } = await apiInstance.editHomework(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **submitHomework**
-> BaseResponseHomeworkSubmissionResponse submitHomework(homeworkSubmissionRequest)
+> BaseResponse submitHomework(homeworkSubmissionRequest)
 
 
 ### Example
@@ -96,7 +96,7 @@ const { status, data } = await apiInstance.submitHomework(
 
 ### Return type
 
-**BaseResponseHomeworkSubmissionResponse**
+**BaseResponse**
 
 ### Authorization
 

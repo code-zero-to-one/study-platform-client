@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { GroupStudyInterviewPostResponseDto } from './group-study-interview-post-response-dto';
+import type { GroupStudInterviewPostResponseContent } from './group-stud-interview-post-response-content';
 
 export interface GroupStudyInterviewPostUpdateResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: GroupStudyInterviewPostResponseDto;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: GroupStudInterviewPostResponseContent;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

@@ -18,9 +18,21 @@
 import type { AvailableStudyTimeDto } from './available-study-time-dto';
 
 export interface AvailableStudyTimeListResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: Array<AvailableStudyTimeDto>;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

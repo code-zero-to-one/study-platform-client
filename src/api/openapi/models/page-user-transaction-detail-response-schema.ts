@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageResponseDtoUserTransactionDetailResponse } from './page-response-dto-user-transaction-detail-response';
+import type { PageResponseUserTransactionDetailResponse } from './page-response-user-transaction-detail-response';
 
 export interface PageUserTransactionDetailResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: PageResponseDtoUserTransactionDetailResponse;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: PageResponseUserTransactionDetailResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

@@ -18,9 +18,21 @@
 import type { SettlementAccountResponse } from './settlement-account-response';
 
 export interface SettlementAccountResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: SettlementAccountResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

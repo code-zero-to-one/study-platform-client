@@ -18,7 +18,7 @@
 import type { IdNameDto } from './id-name-dto';
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ImageDto } from './image-dto';
+import type { Image } from './image';
 // May contain unused imports in some cases
 // @ts-ignore
 import type { SocialMediaResponseDto } from './social-media-response-dto';
@@ -38,7 +38,7 @@ export interface MemberProfileResponseDto {
     /**
      * 프로필 이미지 - 리사이징된 이미지를 포함하고 있음 - 지금은 ORIGINAL 하나밖에 없음
      */
-    'profileImage'?: ImageDto;
+    'profileImage'?: Image;
     /**
      * 한마디 소개
      */

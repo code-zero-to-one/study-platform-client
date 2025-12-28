@@ -18,9 +18,21 @@
 import type { NotificationCategoriesResponse } from './notification-categories-response';
 
 export interface NotificationCategoriesSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: NotificationCategoriesResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

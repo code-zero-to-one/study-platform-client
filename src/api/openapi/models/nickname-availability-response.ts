@@ -18,9 +18,21 @@
 import type { NicknameAvailabilityResponseDto } from './nickname-availability-response-dto';
 
 export interface NicknameAvailabilityResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: NicknameAvailabilityResponseDto;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

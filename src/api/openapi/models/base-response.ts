@@ -15,9 +15,21 @@
 
 
 export interface BaseResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: object;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

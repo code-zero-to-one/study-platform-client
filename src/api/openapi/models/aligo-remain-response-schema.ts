@@ -18,9 +18,21 @@
 import type { AligoRemainResponseDto } from './aligo-remain-response-dto';
 
 export interface AligoRemainResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: AligoRemainResponseDto;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

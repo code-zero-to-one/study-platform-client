@@ -22,9 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponseGrantedTokenInfo } from '../models';
-// @ts-ignore
-import type { BaseResponseVoid } from '../models';
+import type { BaseResponse } from '../models';
 // @ts-ignore
 import type { NumberResponse } from '../models';
 // @ts-ignore
@@ -222,7 +220,7 @@ export const AuthApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async logout(referer?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
+        async logout(referer?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.logout(referer, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthApi.logout']?.[localVarOperationServerIndex]?.url;
@@ -281,7 +279,7 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        logout(referer?: string, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
+        logout(referer?: string, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
             return localVarFp.logout(referer, options).then((request) => request(axios, basePath));
         },
         /**

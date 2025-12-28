@@ -18,9 +18,21 @@
 import type { PrepareDailyStudyRequest } from './prepare-daily-study-request';
 
 export interface PrepareDailyStudyRequestSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: PrepareDailyStudyRequest;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

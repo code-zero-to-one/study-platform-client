@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageResponseDtoAdminTransactionListResponse } from './page-response-dto-admin-transaction-list-response';
+import type { PageResponseAdminTransactionListResponse } from './page-response-admin-transaction-list-response';
 
 export interface PageAdminTransactionListResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: PageResponseDtoAdminTransactionListResponse;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: PageResponseAdminTransactionListResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

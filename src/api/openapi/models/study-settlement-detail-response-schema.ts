@@ -18,9 +18,21 @@
 import type { StudySettlementDetailResponse } from './study-settlement-detail-response';
 
 export interface StudySettlementDetailResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: StudySettlementDetailResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

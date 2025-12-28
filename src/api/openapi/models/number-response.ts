@@ -15,9 +15,21 @@
 
 
 export interface NumberResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: number;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

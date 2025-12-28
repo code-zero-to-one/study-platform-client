@@ -18,9 +18,21 @@
 import type { MemberInfoUpdateResponseDto } from './member-info-update-response-dto';
 
 export interface MemberInfoUpdateResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: MemberInfoUpdateResponseDto;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

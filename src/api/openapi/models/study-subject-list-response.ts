@@ -18,9 +18,21 @@
 import type { StudySubjectDto } from './study-subject-dto';
 
 export interface StudySubjectListResponse {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: Array<StudySubjectDto>;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

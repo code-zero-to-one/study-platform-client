@@ -7,7 +7,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**uploadProfileImage**](#uploadprofileimage) | **PUT** /api/v1/files/{filePath} | |
 
 # **uploadProfileImage**
-> BaseResponseVoid uploadProfileImage()
+> BaseResponse uploadProfileImage()
 
 
 ### Example
@@ -44,7 +44,7 @@ const { status, data } = await apiInstance.uploadProfileImage(
 
 ### Return type
 
-**BaseResponseVoid**
+**BaseResponse**
 
 ### Authorization
 

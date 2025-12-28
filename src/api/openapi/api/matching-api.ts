@@ -24,8 +24,6 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { BaseResponse } from '../models';
 // @ts-ignore
-import type { BaseResponseObject } from '../models';
-// @ts-ignore
 import type { ErrorResponse } from '../models';
 // @ts-ignore
 import type { MatchingSystemStatusSchema } from '../models';

@@ -12,7 +12,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**updateGroupStudyApply**](#updategroupstudyapply) | **PUT** /api/v1/group-studies/{groupStudyId}/apply/{applyId} | 그룹스터디 신청 수정|
 
 # **applyGroupStudy**
-> GroupStudyApplyResponse applyGroupStudy(groupStudyApplyRequest)
+> GroupStudyApplyCreationResponse applyGroupStudy(groupStudyApplyRequest)
 
 새로운 그룹스터디에 신청합니다.  **[권한]** - 🔐 **로그인 필수** (ROLE_MEMBER) - Bearer Token이 필요합니다. 
 
@@ -47,7 +47,7 @@ const { status, data } = await apiInstance.applyGroupStudy(
 
 ### Return type
 
-**GroupStudyApplyResponse**
+**GroupStudyApplyCreationResponse**
 
 ### Authorization
 

@@ -18,9 +18,21 @@
 import type { HasMemberNewNotificationResponse } from './has-member-new-notification-response';
 
 export interface HasMemberNewNotificationSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: HasMemberNewNotificationResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

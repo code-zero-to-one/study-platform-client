@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageResponseDtoStudyRefundSummaryResponse } from './page-response-dto-study-refund-summary-response';
+import type { PageResponseStudyRefundSummaryResponse } from './page-response-study-refund-summary-response';
 
 export interface PageStudyRefundSummaryResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
-    'content'?: PageResponseDtoStudyRefundSummaryResponse;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: PageResponseStudyRefundSummaryResponse;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 

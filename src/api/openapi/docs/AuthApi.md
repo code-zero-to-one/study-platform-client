@@ -62,7 +62,7 @@ const { status, data } = await apiInstance.accessToken(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **logout**
-> BaseResponseVoid logout()
+> BaseResponse logout()
 
 Cookie에 저장된 Refresh token을 제거함으로써 로그아웃 진행. 프론트에서 Access token을 제거할 필요가 있음
 
@@ -93,7 +93,7 @@ const { status, data } = await apiInstance.logout(
 
 ### Return type
 
-**BaseResponseVoid**
+**BaseResponse**
 
 ### Authorization
 

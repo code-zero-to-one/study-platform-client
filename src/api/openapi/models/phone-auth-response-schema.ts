@@ -18,9 +18,21 @@
 import type { PhoneAuthResponseDto } from './phone-auth-response-dto';
 
 export interface PhoneAuthResponseSchema {
-    'statusCode'?: number;
-    'timestamp'?: string;
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
     'content'?: PhoneAuthResponseDto;
+    /**
+     * Message
+     */
     'message'?: string;
 }
 
