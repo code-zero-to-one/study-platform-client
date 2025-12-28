@@ -2,13 +2,18 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import { useLogoutMutation } from '@/features/auth/model/use-auth-mutation';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
+  const { data: authData } = useAuth();
   const { mutateAsync: logout } = useLogoutMutation();
+
+  const { data: profile } = useUserProfileQuery(authData?.memberId || 0);
 
   const handleLogout = async () => {
     await logout();
@@ -52,12 +57,14 @@ export default function Sidebar() {
       >
         결제 관리
       </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/settlement-management')}
-        isActive={pathname === '/settlement-management'}
-      >
-        정산 관리
-      </SidebarItem>
+      {profile?.premiumCreator && (
+        <SidebarItem
+          onClick={() => router.push('/settlement-management')}
+          isActive={pathname === '/settlement-management'}
+        >
+          정산 관리
+        </SidebarItem>
+      )}
       <div className="bg-border-subtlest h-[1px]" />
       <SidebarItem onClick={handleLogout} isActive={false}>
         로그아웃
