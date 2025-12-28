@@ -182,7 +182,10 @@ export default function SettlementManagementPage() {
                         {settlement.settlementAmount?.toLocaleString() || 0}원
                       </div>
                       <div className="font-designer-13r text-text-subtlest">
-                        {settlement.settledAt || settlement.scheduledAt || '-'}
+                        {format(
+                          formatToKST(settlement.settledAt),
+                          'yyyy-MM-dd HH:mm',
+                        ) || '-'}
                       </div>
                     </div>
                   </td>
@@ -194,7 +197,7 @@ export default function SettlementManagementPage() {
                   colSpan={3}
                   className="border-b-border-default border-b py-[200px] text-center"
                 >
-                  <p className="font-designer-16r text-text-subtlest">
+                  <p className="font-designer-16r text-text-default">
                     정산 내역이 없습니다.
                   </p>
                 </td>
