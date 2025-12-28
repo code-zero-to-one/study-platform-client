@@ -214,7 +214,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **readMemberNotifications**
-> HasMemberNewNotificationResponse readMemberNotifications()
+> readMemberNotifications()
 
 작성일자: 2025-11-29  작성자: 성효빈  ---  ## Description  - 회원 알림을 읽음 처리합니다.  - 알림 ID 목록을 전송하지 않는 경우, 전체 알림을 읽음 처리합니다. ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | ids | array | 알림 ID 목록(전송하지 않는 경우 전체 알림 읽음 처리) | N | [1, 2, 3] |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 409: 충돌 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-11-29T10:11:12.123456\" | | content | object | 응답 본문 | null | | message | string | 처리 결과 | \"회원 알림 읽음 처리 성공\" | 
 
@@ -245,7 +245,7 @@ const { status, data } = await apiInstance.readMemberNotifications(
 
 ### Return type
 
-**HasMemberNewNotificationResponse**
+void (empty response body)
 
 ### Authorization
 
