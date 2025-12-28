@@ -62,18 +62,15 @@ interface AddAccountFormProps {
   onClose: () => void;
 }
 
-function AddAccountForm({
-  defaultValues = {
-    bankName: '',
-    accountNumber: '',
-    accountHolder: '',
-  },
-  onClose,
-}: AddAccountFormProps) {
+function AddAccountForm({ defaultValues, onClose }: AddAccountFormProps) {
   const methods = useForm<AddAccountFormValues>({
     resolver: zodResolver(AddAccountFormSchema),
     mode: 'onChange',
-    defaultValues,
+    defaultValues: defaultValues || {
+      bankName: '',
+      accountNumber: '',
+      accountHolder: '',
+    },
   });
 
   const { handleSubmit, formState, control } = methods;

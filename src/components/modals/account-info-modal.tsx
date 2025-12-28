@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { SettlementAccountResponse } from '@/api/openapi';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import { useSearchBanks } from '@/hooks/queries/bank-search-api';
 import AddAccountModal from './add-account-modal';
 
 interface AccountInfoModalProps {
@@ -16,6 +17,10 @@ export default function AccountInfoModal({
   open,
   onOpenChange,
 }: AccountInfoModalProps) {
+  const { data: banks } = useSearchBanks();
+  const bankName = banks?.find(
+    (bank) => bank.bankCode === data?.bankName,
+  )?.bankName;
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const handleEdit = () => {
@@ -45,7 +50,7 @@ export default function AccountInfoModal({
 
                 <div className="flex items-center gap-150">
                   <p className="font-designer-16m text-text-subtle">
-                    {data?.bankName} {data?.accountNumber}
+                    {bankName} {data?.accountNumber}
                   </p>
                   <Button
                     color="outlined"
