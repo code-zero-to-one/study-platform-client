@@ -56,8 +56,8 @@ export default function NotificationDropdown() {
           <button
             className={
               mode === 'all'
-                ? 'font-designer-12b text-text-subtle'
-                : 'font-designer-12m text-text-subtlest'
+                ? 'font-designer-12b text-text-subtle cursor-pointer'
+                : 'font-designer-12m text-text-subtlest cursor-pointer'
             }
             onClick={() => setMode('all')}
           >
@@ -66,8 +66,8 @@ export default function NotificationDropdown() {
           <button
             className={
               mode === 'unread'
-                ? 'font-designer-12b text-text-subtle'
-                : 'font-designer-12m text-text-subtlest'
+                ? 'font-designer-12b text-text-subtle cursor-pointer'
+                : 'font-designer-12m text-text-subtlest cursor-pointer'
             }
             onClick={() => setMode('unread')}
           >
