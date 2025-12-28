@@ -14,7 +14,7 @@ import StudyDetailPage from '@/features/study/group/ui/group-study-detail-page';
 import { getServerCookie } from '@/utils/server-cookie';
 
 interface Props {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 interface GroupStudyResponse {
@@ -22,7 +22,7 @@ interface GroupStudyResponse {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const config = new Configuration({
@@ -94,8 +94,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
   const queryClient = new QueryClient();
 
