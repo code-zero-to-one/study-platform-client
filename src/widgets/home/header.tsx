@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import NotificationDropdown from '@/components/modals/notification-dropdown';
 import Button from '@/components/ui/button';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
@@ -50,11 +51,9 @@ export default async function Header() {
           <Link href="/insights">인사이트</Link>
         </nav>
 
-        {/* 알림 기능을 구현하지 못해 주석 처리 */}
-        {/* <div>
-            <NotiIcon />
-          </div> */}
-        <div>
+        <NotificationDropdown />
+
+        <div className="ml-150">
           {isLoggedIn ? (
             <HeaderUserDropdown userImg={userImg} />
           ) : (
