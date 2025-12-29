@@ -15,10 +15,10 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { CursorResponseDtoStudyReservationMember } from './cursor-response-dto-study-reservation-member';
+import type { CursorResponseDtoStudyReservationMemberDto } from './cursor-response-dto-study-reservation-member-dto';
 
 export interface StudyReservationResponseContent {
-    'members'?: CursorResponseDtoStudyReservationMember;
+    'members'?: CursorResponseDtoStudyReservationMemberDto;
     'totalMemberCount'?: number;
 }
 

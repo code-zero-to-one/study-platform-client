@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** | Status Code | [default to undefined]
 **timestamp** | **string** | Timestamp | [default to undefined]
-**content** | [**PageResponseMyGroupStudyApplyListItem**](PageResponseMyGroupStudyApplyListItem.md) | Content | [optional] [default to undefined]
+**content** | [**PageResponseMyGroupStudyApplyListItemDto**](PageResponseMyGroupStudyApplyListItemDto.md) | Content | [optional] [default to undefined]
 **message** | **string** | Message | [optional] [default to undefined]
 
 ## Example
