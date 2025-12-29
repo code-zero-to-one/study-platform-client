@@ -15,7 +15,7 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageResponseMyGroupStudyApplyListItem } from './page-response-my-group-study-apply-list-item';
+import type { PageResponseMyGroupStudyApplyListItemDto } from './page-response-my-group-study-apply-list-item-dto';
 
 export interface MyGroupStudyApplicationResponse {
     /**
@@ -29,7 +29,7 @@ export interface MyGroupStudyApplicationResponse {
     /**
      * Content
      */
-    'content'?: PageResponseMyGroupStudyApplyListItem;
+    'content'?: PageResponseMyGroupStudyApplyListItemDto;
     /**
      * Message
      */

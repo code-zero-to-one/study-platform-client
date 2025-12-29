@@ -15,14 +15,14 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { Image } from './image';
+import type { ImageDto } from './image-dto';
 
 export interface ThreadCommentResponseContent {
     'commentId'?: number;
     'threadId'?: number;
     'authorId'?: number;
     'authorName'?: string;
-    'image'?: Image;
+    'image'?: ImageDto;
     'content'?: string;
     'isLeader'?: boolean;
     'likesCount'?: number;

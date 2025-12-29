@@ -15,7 +15,7 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { GroupStudInterviewPostResponseContent } from './group-stud-interview-post-response-content';
+import type { GroupStudyInterviewPostResponseDto } from './group-study-interview-post-response-dto';
 
 export interface GroupStudyInterviewPostUpdateResponse {
     /**
@@ -29,7 +29,7 @@ export interface GroupStudyInterviewPostUpdateResponse {
     /**
      * Content
      */
-    'content'?: GroupStudInterviewPostResponseContent;
+    'content'?: GroupStudyInterviewPostResponseDto;
     /**
      * Message
      */

@@ -151,6 +151,8 @@ export const config = {
     '/',
     '/home',
     '/my-page',
+    '/payment-management',
+    '/settlement-management',
     '/my-study',
     '/my-study-review',
     '/sign-up',

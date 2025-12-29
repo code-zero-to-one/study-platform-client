@@ -22,7 +22,9 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { BaseResponseString } from '../models';
+// @ts-ignore
+import type { BaseResponseStudySpaceIsParticipateResponse } from '../models';
 // @ts-ignore
 import type { CreateStudySpaceRequest } from '../models';
 // @ts-ignore

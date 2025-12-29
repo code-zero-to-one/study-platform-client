@@ -15,7 +15,7 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageResponseGroupStudyListItem } from './page-response-group-study-list-item';
+import type { PageResponseGroupStudyListItemDto } from './page-response-group-study-list-item-dto';
 
 export interface GroupStudyListResponse {
     /**
@@ -29,7 +29,7 @@ export interface GroupStudyListResponse {
     /**
      * Content
      */
-    'content'?: PageResponseGroupStudyListItem;
+    'content'?: PageResponseGroupStudyListItemDto;
     /**
      * Message
      */

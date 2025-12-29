@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { BaseResponseVoid } from '../models';
 // @ts-ignore
 import type { SettlementAccountRegisterRequest } from '../models';
 // @ts-ignore
@@ -195,7 +195,7 @@ export const SettlementAccountApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async _delete(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async _delete(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator._delete(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['SettlementAccountApi._delete']?.[localVarOperationServerIndex]?.url;
@@ -254,7 +254,7 @@ export const SettlementAccountApiFactory = function (configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        _delete(options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        _delete(options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
             return localVarFp._delete(options).then((request) => request(axios, basePath));
         },
         /**
