@@ -2,21 +2,21 @@
 
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { useEffect, useState } from 'react';
+import { StudyPaymentPrepareResponse } from '@/api/openapi';
+import PaymentTermsModal from './PaymentTermsModal';
 import Button from '../ui/button';
 import Checkbox from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
-import PaymentTermsModal from './PaymentTermsModal';
 
-interface Study {
-  id: string;
-  title: string;
-  desc: string;
-  price: number;
-  thumbnailUrl?: string;
-}
+// interface Study {
+//   paymentId: number;
+//   tossOrderId: string;
+//   groupStudyTitle: string;
+//   amount: number;
+// }
 
 interface Props {
-  study: Study;
+  study: StudyPaymentPrepareResponse;
 }
 
 type PaymentMethod = 'CARD' | 'VBANK';
@@ -62,12 +62,15 @@ export default function PaymentCheckoutPage({ study }: Props) {
         method: paymentMethod,
         amount: {
           currency: 'KRW',
-          value: study.price,
+          value: study.amount,
         },
-        orderId: study.id,
-        orderName: study.title,
-        successUrl: window.location.origin + '/payment/success',
-        failUrl: window.location.origin + '/payment/fail',
+        orderId: study.tossOrderId,
+        orderName: study.groupStudyTitle,
+        successUrl:
+          window.location.origin +
+          `/payment/success?paymentId=${study.paymentId}`,
+        failUrl:
+          window.location.origin + `/payment/fail?paymentId=${study.paymentId}`,
         customerEmail: 'customer123@gmail.com',
         customerName: '김토스',
         customerMobilePhone: '01012341234',
@@ -88,7 +91,6 @@ export default function PaymentCheckoutPage({ study }: Props) {
     } finally {
     }
   };
-
 
   useEffect(() => {
     async function fetchPayment() {
@@ -149,10 +151,10 @@ export default function PaymentCheckoutPage({ study }: Props) {
               <label
                 key={m.id}
                 htmlFor={m.id}
-                className={`flex w-full cursor-pointer items-center justify-start rounded-100 px-400 py-300 ${
+                className={`rounded-100 flex w-full cursor-pointer items-center justify-start px-400 py-300 ${
                   selected
                     ? 'bg-fill-primary-default text-text-on-color'
-                    : 'border border-border-default bg-white hover:bg-fill-neutral-subtle-hover'
+                    : 'border-border-default hover:bg-fill-neutral-subtle-hover border bg-white'
                 }`}
               >
                 <RadioGroupItem value={m.id} id={m.id} size="large" />
