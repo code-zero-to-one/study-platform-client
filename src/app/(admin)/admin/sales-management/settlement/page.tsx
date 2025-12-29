@@ -16,6 +16,7 @@ import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
 import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
 import { formatToKST } from '@/utils/time';
+import AdminCompleteSettlementModal from '@/components/modals/admin-complete-settlement-modal';
 
 const SETTLEMENT_STATUS_MAP: Record<
   StudySettlementSummaryResponse['status'],
@@ -233,6 +234,9 @@ function SettlementActionButtons({
     case 'PENDING':
       return <ApproveSettlementButton settlementId={settlementId} />;
 
+    case 'APPROVED':
+      return <CompletedSettlementButton settlementId={settlementId} />;
+
     default:
       return null;
   }
@@ -257,6 +261,33 @@ function ApproveSettlementButton({
       </Button>
 
       <AdminApproveSettlementModal
+        settlementId={settlementId}
+        open={open}
+        onOpenChange={setOpen}
+      />
+    </>
+  );
+}
+
+function CompletedSettlementButton({
+  settlementId,
+}: Pick<StudySettlementSummaryResponse, 'settlementId'>) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <>
+      <Button
+        color="outlined"
+        size="small"
+        className="font-designer-14r"
+        onClick={() => {
+          setOpen(true);
+        }}
+      >
+        정산 완료
+      </Button>
+
+      <AdminCompleteSettlementModal
         settlementId={settlementId}
         open={open}
         onOpenChange={setOpen}
