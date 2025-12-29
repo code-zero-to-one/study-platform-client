@@ -17,6 +17,7 @@ Name | Type | Description | Notes
 **taxRate** | **number** |  | [optional] [default to undefined]
 **settlementAmount** | **number** |  | [optional] [default to undefined]
 **scheduledAt** | **string** |  | [optional] [default to undefined]
+**approvedAt** | **string** |  | [optional] [default to undefined]
 **settledAt** | **string** |  | [optional] [default to undefined]
 **status** | **string** |  | [optional] [default to undefined]
 
@@ -38,6 +39,7 @@ const instance: StudySettlementDetailResponse = {
     taxRate,
     settlementAmount,
     scheduledAt,
+    approvedAt,
     settledAt,
     status,
 };

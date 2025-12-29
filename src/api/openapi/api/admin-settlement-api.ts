@@ -37,7 +37,45 @@ import type { StudySettlementDetailResponseSchema } from '../models';
 export const AdminSettlementApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+         * 작성일자: 2025-12-29  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `APPROVED` 상태로 변경합니다. - 정산 내역 검토 후 승인 시 호출합니다. - 승인된 정산은 관리자가 실제 입금 후 완료 처리를 진행합니다. - `PENDING` 상태가 아닌 정산에 대해 승인을 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 승인할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `APPROVED`로 변경된 정산 정보입니다. 
+         * @summary 관리자 정산 승인
+         * @param {number} settlementId 승인할 정산 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        approveSettlement: async (settlementId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'settlementId' is not null or undefined
+            assertParamExists('approveSettlement', 'settlementId', settlementId)
+            const localVarPath = `/api/v1/admin/settlements/{settlementId}/approve`
+                .replace(`{${"settlementId"}}`, encodeURIComponent(String(settlementId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 승인된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `APPROVED` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
          * @summary 관리자 정산 완료 처리
          * @param {number} settlementId 완료 처리할 정산 ID
          * @param {*} [options] Override http request option.
@@ -220,7 +258,20 @@ export const AdminSettlementApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = AdminSettlementApiAxiosParamCreator(configuration)
     return {
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+         * 작성일자: 2025-12-29  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `APPROVED` 상태로 변경합니다. - 정산 내역 검토 후 승인 시 호출합니다. - 승인된 정산은 관리자가 실제 입금 후 완료 처리를 진행합니다. - `PENDING` 상태가 아닌 정산에 대해 승인을 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 승인할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `APPROVED`로 변경된 정산 정보입니다. 
+         * @summary 관리자 정산 승인
+         * @param {number} settlementId 승인할 정산 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async approveSettlement(settlementId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StudySettlementDetailResponseSchema>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.approveSettlement(settlementId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminSettlementApi.approveSettlement']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 승인된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `APPROVED` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
          * @summary 관리자 정산 완료 처리
          * @param {number} settlementId 완료 처리할 정산 ID
          * @param {*} [options] Override http request option.
@@ -277,7 +328,17 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
     const localVarFp = AdminSettlementApiFp(configuration)
     return {
         /**
-         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+         * 작성일자: 2025-12-29  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `APPROVED` 상태로 변경합니다. - 정산 내역 검토 후 승인 시 호출합니다. - 승인된 정산은 관리자가 실제 입금 후 완료 처리를 진행합니다. - `PENDING` 상태가 아닌 정산에 대해 승인을 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 승인할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `APPROVED`로 변경된 정산 정보입니다. 
+         * @summary 관리자 정산 승인
+         * @param {number} settlementId 승인할 정산 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        approveSettlement(settlementId: number, options?: RawAxiosRequestConfig): AxiosPromise<StudySettlementDetailResponseSchema> {
+            return localVarFp.approveSettlement(settlementId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 승인된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `APPROVED` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
          * @summary 관리자 정산 완료 처리
          * @param {number} settlementId 완료 처리할 정산 ID
          * @param {*} [options] Override http request option.
@@ -323,7 +384,18 @@ export const AdminSettlementApiFactory = function (configuration?: Configuration
  */
 export class AdminSettlementApi extends BaseAPI {
     /**
-     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+     * 작성일자: 2025-12-29  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `APPROVED` 상태로 변경합니다. - 정산 내역 검토 후 승인 시 호출합니다. - 승인된 정산은 관리자가 실제 입금 후 완료 처리를 진행합니다. - `PENDING` 상태가 아닌 정산에 대해 승인을 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 승인할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `APPROVED`로 변경된 정산 정보입니다. 
+     * @summary 관리자 정산 승인
+     * @param {number} settlementId 승인할 정산 ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public approveSettlement(settlementId: number, options?: RawAxiosRequestConfig) {
+        return AdminSettlementApiFp(this.configuration).approveSettlement(settlementId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 승인된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `APPROVED` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
      * @summary 관리자 정산 완료 처리
      * @param {number} settlementId 완료 처리할 정산 ID
      * @param {*} [options] Override http request option.

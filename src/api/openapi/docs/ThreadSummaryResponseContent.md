@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **groupStudyId** | **number** |  | [optional] [default to undefined]
 **authorId** | **number** |  | [optional] [default to undefined]
 **authorName** | **string** |  | [optional] [default to undefined]
-**image** | [**Image**](Image.md) |  | [optional] [default to undefined]
+**image** | [**ImageDto**](ImageDto.md) |  | [optional] [default to undefined]
 **content** | **string** |  | [optional] [default to undefined]
 **isLeader** | **boolean** |  | [optional] [default to undefined]
 **likesCount** | **number** |  | [optional] [default to undefined]

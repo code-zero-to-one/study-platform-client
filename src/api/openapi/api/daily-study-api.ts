@@ -24,6 +24,8 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { BaseResponse } from '../models';
 // @ts-ignore
+import type { BaseResponseString } from '../models';
+// @ts-ignore
 import type { CompleteDailyStudyRequestSchema } from '../models';
 // @ts-ignore
 import type { GetDailyStudiesResponseSchema } from '../models';

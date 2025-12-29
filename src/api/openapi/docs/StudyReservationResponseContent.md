@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**members** | [**CursorResponseDtoStudyReservationMember**](CursorResponseDtoStudyReservationMember.md) |  | [optional] [default to undefined]
+**members** | [**CursorResponseDtoStudyReservationMemberDto**](CursorResponseDtoStudyReservationMemberDto.md) |  | [optional] [default to undefined]
 **totalMemberCount** | **number** |  | [optional] [default to undefined]
 
 ## Example
