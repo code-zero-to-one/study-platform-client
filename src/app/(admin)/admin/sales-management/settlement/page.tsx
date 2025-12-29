@@ -7,7 +7,7 @@ import {
   SettlementSearchConditionStatusEnum,
   StudySettlementSummaryResponse,
 } from '@/api/openapi/models';
-import AdminSettlementModal from '@/components/modals/admin-settlement-modal';
+import AdminApproveSettlementModal from '@/components/modals/admin-approve-settlement-modal';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
@@ -16,13 +16,6 @@ import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
 import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
 import { formatToKST } from '@/utils/time';
-
-type SalesStatus =
-  | '결제대기'
-  | '결제취소'
-  | '결제완료'
-  | '환불요청'
-  | '환불완료';
 
 const SETTLEMENT_STATUS_MAP: Record<
   StudySettlementSummaryResponse['status'],
@@ -184,14 +177,18 @@ export default function SettlementPage() {
                   {/* 일시 */}
                   <td className="py-200 pl-[10px]">
                     <span className="font-designer-14r text-text-default">
-                      {settlement.settledAt}
+                      {format(
+                        formatToKST(settlement.settledAt),
+                        'yyyy.MM.dd HH:mm',
+                      )}
                     </span>
                   </td>
 
                   {/* 액션 버튼 */}
                   <td className="py-200 pr-250">
                     <SettlementActionButtons
-                      status={settlement.status as SalesStatus}
+                      status={settlement.status}
+                      settlementId={settlement.settlementId}
                     />
                   </td>
                 </tr>
@@ -228,20 +225,22 @@ export default function SettlementPage() {
   );
 }
 
-function SettlementActionButtons({ status }: { status: SalesStatus }) {
+function SettlementActionButtons({
+  settlementId,
+  status,
+}: Pick<StudySettlementSummaryResponse, 'status' | 'settlementId'>) {
   switch (status) {
-    case '결제완료':
-      return (
-        <div className="flex items-center gap-100">
-          <SettlementButton />
-        </div>
-      );
+    case 'PENDING':
+      return <ApproveSettlementButton settlementId={settlementId} />;
+
     default:
       return null;
   }
 }
 
-function SettlementButton() {
+function ApproveSettlementButton({
+  settlementId,
+}: Pick<StudySettlementSummaryResponse, 'settlementId'>) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -254,10 +253,14 @@ function SettlementButton() {
           setOpen(true);
         }}
       >
-        정산하기
+        정산 승인
       </Button>
 
-      {open && <AdminSettlementModal open={open} onOpenChange={setOpen} />}
+      <AdminApproveSettlementModal
+        settlementId={settlementId}
+        open={open}
+        onOpenChange={setOpen}
+      />
     </>
   );
 }

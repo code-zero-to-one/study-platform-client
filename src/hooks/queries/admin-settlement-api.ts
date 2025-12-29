@@ -97,9 +97,34 @@ export const useCompleteSettlement = () => {
       return data.content;
     },
     onSuccess: async () => {
+      alert('정산 확정 처리가 완료되었습니다.');
       await queryClient.invalidateQueries({
         queryKey: ['settlementsForAdmin'],
       });
+    },
+    onError: () => {
+      alert('정산 확정 처리에 실패했습니다. 다시 시도해주세요.');
+    },
+  });
+};
+
+export const useApproveSettlement = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (settlementId: number) => {
+      const { data } = await adminSettlementApi.approveSettlement(settlementId);
+
+      return data.content;
+    },
+    onSuccess: async () => {
+      alert('정산 승인 처리가 완료되었습니다.');
+      await queryClient.invalidateQueries({
+        queryKey: ['settlementsForAdmin'],
+      });
+    },
+    onError: () => {
+      alert('정산 승인 처리에 실패했습니다. 다시 시도해주세요.');
     },
   });
 };
