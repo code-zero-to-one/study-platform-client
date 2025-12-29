@@ -19,9 +19,12 @@ import {
 import {
   buildOpenGroupDefaultValues,
   GroupStudyFormValues,
+  StudyClassification,
   toOpenGroupRequest,
 } from '../model/group-study-form.schema';
 import { useGroupStudyDetailQuery } from '../model/use-study-query';
+
+export type { StudyClassification };
 
 interface GroupStudyModalProps {
   trigger?: React.ReactNode;
@@ -29,6 +32,7 @@ interface GroupStudyModalProps {
   onOpenChange?: () => void;
   mode: 'create' | 'edit';
   groupStudyId?: number;
+  classification?: StudyClassification;
 }
 
 export default function GroupStudyFormModal({
@@ -37,6 +41,7 @@ export default function GroupStudyFormModal({
   open: controlledOpen = false,
   groupStudyId,
   onOpenChange: onControlledOpen,
+  classification = 'GROUP_STUDY',
 }: GroupStudyModalProps) {
   const qc = useQueryClient();
   const [open, setOpen] = useState<boolean>(false);
@@ -81,6 +86,7 @@ export default function GroupStudyFormModal({
     if (isLoading) return;
 
     return {
+      classification,
       type: value.basicInfo.type,
       targetRoles: value.basicInfo.targetRoles,
       maxMembersCount: value.basicInfo.maxMembersCount.toString(),
@@ -129,6 +135,7 @@ export default function GroupStudyFormModal({
   const handleCreate = async (values: GroupStudyFormValues) => {
     try {
       const body = toOpenGroupRequest(values);
+      console.log('body', body);
       const created = await createGroupStudy(body);
 
       if (values.thumbnailFile) {
@@ -214,7 +221,7 @@ export default function GroupStudyFormModal({
             <GroupStudyForm
               defaultValues={
                 mode === 'create'
-                  ? buildOpenGroupDefaultValues()
+                  ? buildOpenGroupDefaultValues(classification)
                   : refineStudyDetail(groupStudyInfo!)
               }
               onSubmit={handleSubmitForm}

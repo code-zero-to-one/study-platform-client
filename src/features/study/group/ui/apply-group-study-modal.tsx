@@ -22,6 +22,7 @@ interface ApplyGroupStudyModalProps {
   title: string;
   questions: GroupStudyDetailResponse['interviewPost']['interviewPost'];
   trigger: React.ReactNode;
+  onSuccess?: () => void;
 }
 
 export default function ApplyGroupStudyModal({
@@ -29,6 +30,7 @@ export default function ApplyGroupStudyModal({
   title,
   questions,
   trigger,
+  onSuccess,
 }: ApplyGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
   const { isVerified, setVerified } = usePhoneVerificationStore();
@@ -81,6 +83,7 @@ export default function ApplyGroupStudyModal({
               title={title}
               questions={questions}
               onClose={() => setOpen(false)}
+              onSuccess={onSuccess}
             />
           </Modal.Content>
         </Modal.Portal>
@@ -100,11 +103,13 @@ function ApplyGroupStudyForm({
   title,
   questions,
   onClose,
+  onSuccess,
 }: {
   groupStudyId: number;
   title: string;
   questions: { question: string; id: number }[];
   onClose: () => void;
+  onSuccess?: () => void;
 }) {
   const {
     register,
@@ -142,6 +147,7 @@ function ApplyGroupStudyForm({
           });
           alert('스터디 신청이 완료되었습니다.');
           onClose();
+          onSuccess?.();
         },
         onError: () => {
           sendGTMEvent({

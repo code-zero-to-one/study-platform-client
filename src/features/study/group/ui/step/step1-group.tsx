@@ -23,6 +23,7 @@ import {
   REGULAR_MEETING_LABELS,
 } from '../../const/group-study-const';
 import { GroupStudyFormValues } from '../../model/group-study-form.schema';
+import { useClassification } from '../group-study-form';
 
 const methodOptions = STUDY_METHODS.map((v) => ({
   label: STUDY_METHOD_LABELS[v],
@@ -37,6 +38,9 @@ const memberOptions = Array.from({ length: 20 }, (_, i) => {
 
 export default function Step1OpenGroupStudy() {
   const { control, formState, watch } = useFormContext<GroupStudyFormValues>();
+  const classification = useClassification();
+  const isPremiumStudy = classification === 'PREMIUM_STUDY';
+
   const { field: typeField } = useController({
     name: 'type',
     control,
@@ -233,17 +237,29 @@ export default function Step1OpenGroupStudy() {
           )}
         </div>
       </div>
-      {/* API에는 있는데 디자인에는 없음. 뭐지??? */}
-      {/* <FormField<OpenGroupFormValues, 'price'>
-        name="price"
-        label="참가비"
-        helper="참가비가 있다면 입력해주세요. (0원 가능)"
-        direction="vertical"
-        size="medium"
-        required
-      >
-        <BaseInput type="number" min={0} placeholder="0" />
-      </FormField> */}
+      {isPremiumStudy && (
+        <FormField<GroupStudyFormValues, 'price'>
+          name="price"
+          label="참가비"
+          helper="참가비가 있다면 입력해주세요. (0원 가능)"
+          direction="vertical"
+          size="medium"
+        >
+          <Controller
+            name="price"
+            control={control}
+            render={({ field }) => (
+              <BaseInput
+                type="number"
+                min={0}
+                placeholder="0"
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </FormField>
+      )}
     </>
   );
 }

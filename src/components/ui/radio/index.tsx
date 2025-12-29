@@ -19,7 +19,7 @@ function RadioGroup({
 }
 
 const radioGroupItemVariants = cva(
-  'border-border-default hover:bg-fill-neutral-subtle-hover disabled:border-border-disabled disabled:bg-icon-disabled data-[state=checked]:border-border-success rounded-full border-2 bg-white data-[state=checked]:border-4',
+  'border-border-default hover:bg-fill-neutral-subtle-hover disabled:border-border-disabled disabled:bg-icon-disabled data-[state=checked]:border-border-success rounded-full border-2 bg-[#fff] data-[state=checked]:border-4',
   {
     variants: {
       size: {
@@ -45,7 +45,7 @@ function RadioGroupItem({
       className={cn(radioGroupItemVariants({ size }), className)}
       {...props}
     >
-      <RadioGroupPrimitive.RadioGroupIndicator className="flex h-full w-full items-center justify-center rounded-full" />
+      <RadioGroupPrimitive.RadioGroupIndicator className="flex h-full w-full items-center justify-center rounded-full bg-[#fff]" />
     </RadioGroupPrimitive.RadioGroupItem>
   );
 }

@@ -6,23 +6,23 @@ import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import ConfirmDeleteModal from './confirm-delete-modal';
-import GroupStudyFormModal from './group-study-form-modal';
-import GroupStudyMemberList from './group-study-member-list';
-import StudyInfoSection from './study-info-section';
-import ChannelSection from '../channel/ui/channel-section';
-import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
+import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
+import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
+import GroupStudyMemberList from '../../features/study/group/ui/group-study-member-list';
+import PremiumStudyInfoSection from './premium-study-info-section';
+import ChannelSection from '../../features/study/group/channel/ui/channel-section';
+import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
-} from '../model/use-study-query';
+} from '../../features/study/group/model/use-study-query';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
 
-type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
+type ActionKey = 'end' | 'delete';
 
-interface StudyDetailPageProps {
+interface PremiumStudyDetailPageProps {
   groupStudyId: number;
   memberId?: number;
 }
@@ -33,16 +33,14 @@ const TABS = [
   { label: '채널', value: 'channel' },
 ];
 
-export default function StudyDetailPage({
+export default function PremiumStudyDetailPage({
   groupStudyId,
   memberId,
-}: StudyDetailPageProps) {
+}: PremiumStudyDetailPageProps) {
   const router = useRouter();
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
-
-  console.log('data', studyDetail);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
@@ -84,14 +82,14 @@ export default function StudyDetailPage({
           {
             onSuccess: () => {
               sendGTMEvent({
-                event: 'group_study_end',
+                event: 'premium_study_end',
                 group_study_id: String(groupStudyId),
               });
               alert('스터디가 종료되었습니다.');
             },
             onSettled: () => {
               setShowModal(false);
-              router.push('/study');
+              router.push('/premium-study');
             },
           },
         );
@@ -112,7 +110,7 @@ export default function StudyDetailPage({
           {
             onSuccess: () => {
               sendGTMEvent({
-                event: 'group_study_delete',
+                event: 'premium_study_delete',
                 group_study_id: String(groupStudyId),
               });
               alert('스터디가 삭제되었습니다.');
@@ -121,7 +119,7 @@ export default function StudyDetailPage({
               alert('스터디 삭제에 실패하였습니다.');
             },
             onSettled: () => {
-              router.push('/study');
+              router.push('/premium-study');
               setShowModal(false);
             },
           },
@@ -153,6 +151,7 @@ export default function StudyDetailPage({
         open={showStudyFormModal}
         mode="edit"
         groupStudyId={groupStudyId}
+        classification="PREMIUM_STUDY"
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
 
@@ -206,14 +205,14 @@ export default function StudyDetailPage({
         onChange={(value: ActiveTab) => {
           setActive(value);
           sendGTMEvent({
-            event: 'group_study_tab_change',
+            event: 'premium_study_tab_change',
             group_study_id: String(groupStudyId),
             tab: value,
           });
         }}
       />
       {active === 'intro' && (
-        <StudyInfoSection study={studyDetail} isLeader={isLeader} />
+        <PremiumStudyInfoSection study={studyDetail} isLeader={isLeader} />
       )}
       {active === 'members' && (
         <GroupStudyMemberList

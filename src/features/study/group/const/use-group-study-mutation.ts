@@ -6,7 +6,7 @@ import { updateGroupStudy } from '../api/update-group-study';
 // 그룹 스터디 개설 mutation
 export const useCreateGroupStudyMutation = () => {
   return useMutation({
-    mutationFn: (payload: GroupStudyFormRequest) => createGroupStudy(payload),
+    mutationFn: (payload: any) => createGroupStudy(payload),
   });
 };
 
