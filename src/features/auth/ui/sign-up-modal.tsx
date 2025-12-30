@@ -16,10 +16,11 @@ import {
   CareerStep,
   StudyFormatTypesStep,
   GoalStep,
+  SuccessStep,
 } from './steps';
 import { SignUpRequest } from '../model/types';
 
-type Step = 'nickname' | 'job' | 'career' | 'study-format-type' | 'goal';
+type Step = 'nickname' | 'job' | 'career' | 'study-format-type' | 'goal' | 'success';
 
 const STEPS: Step[] = [
   'nickname',
@@ -27,6 +28,7 @@ const STEPS: Step[] = [
   'career',
   'study-format-type',
   'goal',
+  'success',
 ];
 
 export default function SignupModal({
@@ -127,8 +129,8 @@ export default function SignupModal({
             ...attributionParams,
           });
 
-          onClose();
-          window.location.href = '/home';
+          // 모달 닫지 않고 success step으로 이동
+          setCurrentStep('success');
         }
       },
       onError: (error) => {
@@ -152,6 +154,11 @@ export default function SignupModal({
     if (currentIndex > 0) {
       setCurrentStep(STEPS[currentIndex - 1]);
     }
+  };
+
+  const handleSuccessConfirm = () => {
+    onClose();
+    window.location.href = '/home';
   };
 
   const updateData = (key: string, value: any) => {
@@ -201,12 +208,15 @@ export default function SignupModal({
             onSkip={handleComplete}
           />
         );
+      case 'success':
+        return <SuccessStep onConfirm={handleSuccessConfirm} />;
       default:
         return null;
     }
   };
 
   const currentStepIndex = STEPS.indexOf(currentStep);
+  const isSuccessStep = currentStep === 'success';
 
   return (
     <Modal.Root open={open} onOpenChange={onClose}>
@@ -215,40 +225,42 @@ export default function SignupModal({
         <Modal.Title className="sr-only">회원가입</Modal.Title>
         <Modal.Overlay />
         <Modal.Content size="medium">
-          {/* 헤더 */}
-          <Modal.Header className="border-none pb-0">
-            <div className="flex items-center justify-between">
-              {currentStepIndex > 0 ? (
-                <button
-                  onClick={handleBack}
-                  className="rounded-100 hover:bg-fill-neutral-default-default text-text-subtle p-100 transition-colors"
-                >
-                  <ArrowLeft className="h-[20px] w-[20px]" />
-                </button>
-              ) : (
-                <div className="w-[36px]" />
-              )}
+          {/* 헤더 - success step일 때 숨김 */}
+          {!isSuccessStep && (
+            <Modal.Header className="border-none pb-0">
+              <div className="flex items-center justify-between">
+                {currentStepIndex > 0 ? (
+                  <button
+                    onClick={handleBack}
+                    className="rounded-100 hover:bg-fill-neutral-default-default text-text-subtle p-100 transition-colors"
+                  >
+                    <ArrowLeft className="h-[20px] w-[20px]" />
+                  </button>
+                ) : (
+                  <div className="w-[36px]" />
+                )}
 
-              {/* 스텝 인디케이터 (크기 키움) */}
-              <div className="flex gap-75">
-                {STEPS.map((step, idx) => (
-                  <div
-                    key={step}
-                    className={cn(
-                      'h-[10px] rounded-full transition-all duration-300',
-                      idx === currentStepIndex
-                        ? 'bg-fill-brand-default-default w-[32px]'
-                        : 'bg-fill-neutral-default-default w-[10px]',
-                    )}
-                  />
-                ))}
+                {/* 스텝 인디케이터 (크기 키움) */}
+                <div className="flex gap-75">
+                  {STEPS.filter((step) => step !== 'success').map((step, idx) => (
+                    <div
+                      key={step}
+                      className={cn(
+                        'h-[10px] rounded-full transition-all duration-300',
+                        idx === currentStepIndex
+                          ? 'bg-fill-brand-default-default w-[32px]'
+                          : 'bg-fill-neutral-default-default w-[10px]',
+                      )}
+                    />
+                  ))}
+                </div>
+
+                <Modal.Close className="rounded-100 hover:bg-fill-neutral-default-default text-text-subtle p-100 transition-colors">
+                  <XIcon className="h-[20px] w-[20px]" />
+                </Modal.Close>
               </div>
-
-              <Modal.Close className="rounded-100 hover:bg-fill-neutral-default-default text-text-subtle p-100 transition-colors">
-                <XIcon className="h-[20px] w-[20px]" />
-              </Modal.Close>
-            </div>
-          </Modal.Header>
+            </Modal.Header>
+          )}
 
           {/* 메인 컨텐츠 */}
           <Modal.Body className="flex min-h-[400px] flex-col pt-200">
