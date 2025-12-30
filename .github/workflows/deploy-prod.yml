@@ -50,9 +50,9 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.LIGHTSAIL_PROD_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -H ${{ secrets.LIGHTSAIL_PROD_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -p 9822 -H ${{ secrets.LIGHTSAIL_PROD_HOST }} >> ~/.ssh/known_hosts
           echo "SSH 설정 완료"
-
+          
       - name: 서버 배포
         run: |
           ssh -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_PROD_USER }}@${{ secrets.LIGHTSAIL_PROD_HOST }} << EOF
