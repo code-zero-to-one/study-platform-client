@@ -20,7 +20,13 @@ import {
 } from './steps';
 import { SignUpRequest } from '../model/types';
 
-type Step = 'nickname' | 'job' | 'career' | 'study-format-type' | 'goal' | 'success';
+type Step =
+  | 'nickname'
+  | 'job'
+  | 'career'
+  | 'study-format-type'
+  | 'goal'
+  | 'success';
 
 const STEPS: Step[] = [
   'nickname',
@@ -242,17 +248,19 @@ export default function SignupModal({
 
                 {/* 스텝 인디케이터 (크기 키움) */}
                 <div className="flex gap-75">
-                  {STEPS.filter((step) => step !== 'success').map((step, idx) => (
-                    <div
-                      key={step}
-                      className={cn(
-                        'h-[10px] rounded-full transition-all duration-300',
-                        idx === currentStepIndex
-                          ? 'bg-fill-brand-default-default w-[32px]'
-                          : 'bg-fill-neutral-default-default w-[10px]',
-                      )}
-                    />
-                  ))}
+                  {STEPS.filter((step) => step !== 'success').map(
+                    (step, idx) => (
+                      <div
+                        key={step}
+                        className={cn(
+                          'h-[10px] rounded-full transition-all duration-300',
+                          idx === currentStepIndex
+                            ? 'bg-fill-brand-default-default w-[32px]'
+                            : 'bg-fill-neutral-default-default w-[10px]',
+                        )}
+                      />
+                    ),
+                  )}
                 </div>
 
                 <Modal.Close className="rounded-100 hover:bg-fill-neutral-default-default text-text-subtle p-100 transition-colors">

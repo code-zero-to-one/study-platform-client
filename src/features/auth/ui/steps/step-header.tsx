@@ -1,3 +1,5 @@
+import React from 'react';
+
 // 공통 스텝헤더
 export function StepHeader({
   title,
