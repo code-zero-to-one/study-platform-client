@@ -2,28 +2,28 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
+import type { GroupStudyListItem } from '@/api/openapi/models';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import { GroupStudyData } from '../../features/study/group/api/group-study-types';
 import StudyCard from '../study/study-card';
 
 interface PremiumStudyListProps {
-  studies: GroupStudyData[];
+  studies: GroupStudyListItem[];
 }
 
 export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
   const { data: authData } = useAuth();
 
-  const handleStudyClick = (study: GroupStudyData) => {
+  const handleStudyClick = (study: GroupStudyListItem) => {
     sendGTMEvent({
       event: 'premium_study_detail_view',
       dl_timestamp: new Date().toISOString(),
       ...(authData?.memberId && {
         dl_member_id: hashValue(String(authData.memberId)),
       }),
-      dl_study_id: String(study.basicInfo.groupStudyId),
-      dl_study_title: study.simpleDetailInfo.title,
+      dl_study_id: String(study.basicInfo?.groupStudyId),
+      dl_study_title: study.simpleDetailInfo?.title,
     });
   };
 
@@ -52,9 +52,9 @@ export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
     <div className="grid grid-cols-3 gap-300">
       {studies.map((study) => (
         <StudyCard
-          key={study.basicInfo.groupStudyId}
+          key={study.basicInfo?.groupStudyId}
           study={study}
-          href={`/premium-study/${study.basicInfo.groupStudyId}`}
+          href={`/premium-study/${study.basicInfo?.groupStudyId}`}
           onClick={() => handleStudyClick(study)}
         />
       ))}
