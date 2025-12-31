@@ -25,12 +25,9 @@ export default function StudySearch({
     [inputValue, onChange],
   );
 
-  const handleChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      setInputValue(e.target.value);
-    },
-    [],
-  );
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+  }, []);
 
   const handleSearchClick = useCallback(() => {
     onChange(inputValue);

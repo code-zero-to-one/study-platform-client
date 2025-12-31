@@ -91,7 +91,8 @@ export function toOpenGroupRequest(
   v: GroupStudyFormValues,
 ): GroupStudyFormRequest {
   const isPremiumStudy = v.classification === 'PREMIUM_STUDY';
-  const thumbnailExt = v.thumbnailExtension === 'DEFAULT' ? 'JPG' : v.thumbnailExtension;
+  const thumbnailExt =
+    v.thumbnailExtension === 'DEFAULT' ? 'JPG' : v.thumbnailExtension;
 
   return {
     basicInfo: {

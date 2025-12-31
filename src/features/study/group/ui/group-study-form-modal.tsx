@@ -99,13 +99,16 @@ export default function GroupStudyFormModal({
       title: value.detailInfo?.title,
       description: value.detailInfo?.description,
       summary: value.detailInfo?.summary,
-      interviewPost: value.interviewPost?.interviewPost?.map((q: { question?: string }) => q.question),
+      interviewPost: value.interviewPost?.interviewPost?.map(
+        (q: { question?: string }) => q.question,
+      ),
       thumbnailExtension:
         value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
           ?.split('.')
           .pop()
           ?.toUpperCase() as GroupStudyFormValues['thumbnailExtension'],
-      thumbnailUrl: value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
+      thumbnailUrl:
+        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
     };
   };
 
