@@ -13,7 +13,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**updateMatchingRequestByAdmin**](#updatematchingrequestbyadmin) | **PATCH** /api/v1/admin/matching/requests/{matchingRequestId} | 관리자 매칭 변경/취소|
 
 # **createMatchingRequestByAdmin**
-> BaseResponse createMatchingRequestByAdmin(adminMatchingCreateRequest)
+> BaseResponseMatchingRequestResponse createMatchingRequestByAdmin(adminMatchingCreateRequest)
 
 관리자가 수동으로 매칭 요청을 생성합니다. weeklyPeriodIdentifier는 매칭이 속할 주간을 지정하며, 해당 주간의 토요일 날짜를 사용합니다.
 
@@ -45,7 +45,7 @@ const { status, data } = await apiInstance.createMatchingRequestByAdmin(
 
 ### Return type
 
-**BaseResponse**
+**BaseResponseMatchingRequestResponse**
 
 ### Authorization
 
@@ -166,7 +166,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMatchingRequest**
-> BaseResponse getMatchingRequest()
+> BaseResponseMatchingRequestResponse getMatchingRequest()
 
 관리자가 특정 매칭 요청을 조회합니다.
 
@@ -197,7 +197,7 @@ const { status, data } = await apiInstance.getMatchingRequest(
 
 ### Return type
 
-**BaseResponse**
+**BaseResponseMatchingRequestResponse**
 
 ### Authorization
 
@@ -332,7 +332,7 @@ const { status, data } = await apiInstance.runAutoMatchingJob(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateMatchingRequestByAdmin**
-> BaseResponse updateMatchingRequestByAdmin(adminMatchingUpdateRequest)
+> BaseResponseMatchingRequestResponse updateMatchingRequestByAdmin(adminMatchingUpdateRequest)
 
 관리자가 특정 매칭 요청의 상태, 파트너 등을 변경합니다.
 
@@ -367,7 +367,7 @@ const { status, data } = await apiInstance.updateMatchingRequestByAdmin(
 
 ### Return type
 
-**BaseResponse**
+**BaseResponseMatchingRequestResponse**
 
 ### Authorization
 

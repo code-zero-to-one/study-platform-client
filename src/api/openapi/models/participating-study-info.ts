@@ -15,7 +15,7 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { Image } from './image';
+import type { ImageDto } from './image-dto';
 
 export interface ParticipatingStudyInfo {
     /**
@@ -25,7 +25,7 @@ export interface ParticipatingStudyInfo {
     /**
      * 섬네일 이미지
      */
-    'thumbnail'?: Image;
+    'thumbnail'?: ImageDto;
     /**
      * 스터디 제목 - 일대일 스터디인 경우 null
      */

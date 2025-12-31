@@ -15,7 +15,7 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { Image } from './image';
+import type { ImageDto } from './image-dto';
 // May contain unused imports in some cases
 // @ts-ignore
 import type { SincerityTempResponse } from './sincerity-temp-response';
@@ -35,7 +35,7 @@ export interface GroupStudyApplicant {
     /**
      * 신청자 프로필 이미지
      */
-    'profileImage'?: Image;
+    'profileImage'?: ImageDto;
     /**
      * 신청자 한줄 소개
      */

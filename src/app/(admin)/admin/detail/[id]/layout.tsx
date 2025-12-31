@@ -1,6 +1,6 @@
 import { ArrowLeftIcon } from 'lucide-react';
 import Link from 'next/link';
-import AdminDetailSideBar from '@/widgets/admin/ui/admin-detail-side-bar';
+import AdminDetailSideBar from '@/components/layout/sidebar/admin-detail-sidebar';
 
 export default async function AdminDetailLayout({
   children,

@@ -4,14 +4,70 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**approveSettlement**](#approvesettlement) | **POST** /api/v1/admin/settlements/{settlementId}/approve | 관리자 정산 승인|
 |[**completeSettlement**](#completesettlement) | **POST** /api/v1/admin/settlements/{settlementId}/complete | 관리자 정산 완료 처리|
 |[**createSettlement**](#createsettlement) | **POST** /api/v1/admin/settlements | 관리자 정산 생성|
 |[**getSettlementsForAdmin**](#getsettlementsforadmin) | **GET** /api/v1/admin/settlements | 관리자 정산 내역 목록 조회|
 
+# **approveSettlement**
+> StudySettlementDetailResponseSchema approveSettlement()
+
+작성일자: 2025-12-29  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `APPROVED` 상태로 변경합니다. - 정산 내역 검토 후 승인 시 호출합니다. - 승인된 정산은 관리자가 실제 입금 후 완료 처리를 진행합니다. - `PENDING` 상태가 아닌 정산에 대해 승인을 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 승인할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `APPROVED`로 변경된 정산 정보입니다. 
+
+### Example
+
+```typescript
+import {
+    AdminSettlementApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminSettlementApi(configuration);
+
+let settlementId: number; //승인할 정산 ID (default to undefined)
+
+const { status, data } = await apiInstance.approveSettlement(
+    settlementId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **settlementId** | [**number**] | 승인할 정산 ID | defaults to undefined|
+
+
+### Return type
+
+**StudySettlementDetailResponseSchema**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | 관리자 정산 승인 성공 |  -  |
+|**400** | 정산 상태가 유효하지 않음 |  -  |
+|**404** | 정산 정보를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **completeSettlement**
 > StudySettlementDetailResponseSchema completeSettlement()
 
-작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 생성된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `PENDING` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
+작성일자: 2025-12-11  작성자: 이도현  ---  ## Description  - 승인된 정산 건을 `COMPLETED` 상태로 변경합니다. - 실제로는 관리자에 의해 정산 금액이 리더에게 지급 완료된 시점에 호출됩니다. - `APPROVED` 상태가 아닌 정산에 대해 완료 처리를 시도하면 에러가 발생합니다.  ---  ## Request  | **키** | **타입** | **위치** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | --- | | settlementId | number | path | 완료 처리할 정산 ID | Y | 1 |  ---  ## Response  - `StudySettlementDetailResponse` 반환 - 상태가 `COMPLETED`로 변경된 최종 정산 정보입니다. 
 
 ### Example
 

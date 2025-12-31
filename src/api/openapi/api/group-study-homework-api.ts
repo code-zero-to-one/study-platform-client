@@ -22,7 +22,9 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { BaseResponseHomeworkSubmissionResponse } from '../models';
+// @ts-ignore
+import type { BaseResponseVoid } from '../models';
 // @ts-ignore
 import type { HomeworkEditRequest } from '../models';
 // @ts-ignore
@@ -134,7 +136,7 @@ export const GroupStudyHomeworkApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.editHomework(homeworkId, homeworkEditRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyHomeworkApi.editHomework']?.[localVarOperationServerIndex]?.url;
@@ -147,7 +149,7 @@ export const GroupStudyHomeworkApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async submitHomework(missionId: number, homeworkSubmissionRequest: HomeworkSubmissionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async submitHomework(missionId: number, homeworkSubmissionRequest: HomeworkSubmissionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseHomeworkSubmissionResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.submitHomework(missionId, homeworkSubmissionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyHomeworkApi.submitHomework']?.[localVarOperationServerIndex]?.url;
@@ -169,7 +171,7 @@ export const GroupStudyHomeworkApiFactory = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
             return localVarFp.editHomework(homeworkId, homeworkEditRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -179,7 +181,7 @@ export const GroupStudyHomeworkApiFactory = function (configuration?: Configurat
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        submitHomework(missionId: number, homeworkSubmissionRequest: HomeworkSubmissionRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        submitHomework(missionId: number, homeworkSubmissionRequest: HomeworkSubmissionRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseHomeworkSubmissionResponse> {
             return localVarFp.submitHomework(missionId, homeworkSubmissionRequest, options).then((request) => request(axios, basePath));
         },
     };
