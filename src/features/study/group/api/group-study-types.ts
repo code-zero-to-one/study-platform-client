@@ -149,7 +149,7 @@ export interface DetailInfoDetail extends SimpleDetailInfo, Timestamps {
 
 /** 상세 화면용 InterviewPost */
 export interface InterviewPostDetail extends Timestamps {
-  interviewPost: { question: string; id: number }[];
+  interviewPost: { question?: string; id?: number }[];
 }
 
 // 그룹 스터디 신청 Response 타입

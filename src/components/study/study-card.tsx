@@ -3,13 +3,10 @@
 import { Clock5, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { GroupStudyListItemDto } from '@/api/openapi/models';
+import { GroupStudyListItemDto } from '@/api/openapi';
 import Badge from '@/components/ui/badge';
 
-import {
-  GroupStudyData,
-  StudyType,
-} from '../../features/study/group/api/group-study-types';
+import { StudyType } from '../../features/study/group/api/group-study-types';
 import {
   REGULAR_MEETING_LABELS,
   STUDY_TYPE_LABELS,
@@ -35,7 +32,7 @@ const STUDY_TYPE_BADGE_COLORS: Record<StudyType, BadgeColor> = {
 };
 
 interface StudyCardProps {
-  study: GroupStudyData | GroupStudyListItemDto;
+  study: GroupStudyListItemDto;
   href: string;
   onClick?: () => void;
 }

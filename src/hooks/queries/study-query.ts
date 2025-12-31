@@ -51,8 +51,6 @@ export const useGetStudies = ({
         inProgress,
       );
 
-      console.log('study-api-data', data);
-
       return data.content;
     },
   });

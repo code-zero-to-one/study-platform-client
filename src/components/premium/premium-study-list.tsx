@@ -2,20 +2,22 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
-import type { GroupStudyListItem } from '@/api/openapi/models';
+
+import { GroupStudyListItemDto } from '@/api/openapi';
+import { GroupStudyData } from '@/features/study/group/api/group-study-types';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 
 import StudyCard from '../study/study-card';
 
 interface PremiumStudyListProps {
-  studies: GroupStudyListItem[];
+  studies: GroupStudyListItemDto[];
 }
 
 export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
   const { data: authData } = useAuth();
 
-  const handleStudyClick = (study: GroupStudyListItem) => {
+  const handleStudyClick = (study: GroupStudyListItemDto) => {
     sendGTMEvent({
       event: 'premium_study_detail_view',
       dl_timestamp: new Date().toISOString(),

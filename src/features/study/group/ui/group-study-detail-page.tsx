@@ -10,6 +10,7 @@ import ConfirmDeleteModal from './confirm-delete-modal';
 import GroupStudyFormModal from './group-study-form-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
+import { Leader } from '../api/group-study-types';
 import ChannelSection from '../channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 import {
@@ -42,8 +43,6 @@ export default function StudyDetailPage({
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
-  console.log('data', studyDetail);
-
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
   const isLeader = leaderId === memberId;
@@ -62,7 +61,7 @@ export default function StudyDetailPage({
 
   useEffect(() => {
     const leader = studyDetail.basicInfo.leader;
-    setLeaderInfo(leader);
+    setLeaderInfo(leader as Leader);
   }, [studyDetail, setLeaderInfo]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();

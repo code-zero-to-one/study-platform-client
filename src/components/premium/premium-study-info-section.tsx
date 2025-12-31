@@ -71,11 +71,11 @@ export default function PremiumStudyInfoSection({
                 <div className="flex flex-col">
                   <div className="flex flex-col items-start gap-50">
                     <span className="font-designer-20b">
-                      {studyDetail.basicInfo.leader.memberName}
+                      {studyDetail.basicInfo.leader.memberNickname}
                     </span>
                     <div className="font-designer-15r text-text-subtle flex items-center gap-100">
                       <span>스터디 리더</span>
-                      <span className="h-[8px] w-[1px] bg-[#E9EAEB]" />
+                      <span className="h-100 w-px bg-[#E9EAEB]" />
                       <span>
                         {studyDetail.basicInfo.leader.simpleIntroduction}
                       </span>
@@ -105,7 +105,7 @@ export default function PremiumStudyInfoSection({
               </div>
               {isLeader && (
                 <Button
-                  className="h-[40px] w-[80px] text-[16px] font-bold"
+                  className="h-500 w-[80px] text-[16px] font-bold"
                   onClick={() =>
                     router.push(`/application-list/${groupStudyId}`)
                   }

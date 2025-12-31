@@ -8,7 +8,9 @@ import type {
   GetGroupStudiesTargetRolesEnum,
   GetGroupStudiesMethodEnum,
 } from '@/api/openapi/api/group-study-management-api';
-import StudyFilter, { StudyFilterValues } from '@/components/study/study-filter';
+import StudyFilter, {
+  StudyFilterValues,
+} from '@/components/study/study-filter';
 import StudySearch from '@/components/study/study-search';
 import Button from '@/components/ui/button';
 import { useGetStudies } from '@/hooks/queries/study-query';
@@ -143,7 +145,7 @@ export default function GroupStudyListPage() {
             <Button
               color="primary"
               size="small"
-              icon={<Plus className="h-[16px] w-[16px]" />}
+              icon={<Plus className="h-200 w-200" />}
               iconPosition="left"
             >
               스터디 개설하기

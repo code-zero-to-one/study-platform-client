@@ -107,7 +107,7 @@ function ApplyGroupStudyForm({
 }: {
   groupStudyId: number;
   title: string;
-  questions: { question: string; id: number }[];
+  questions: { question?: string; id?: number }[];
   onClose: () => void;
   onSuccess?: () => void;
 }) {
