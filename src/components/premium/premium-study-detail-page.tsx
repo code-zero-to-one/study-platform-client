@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import {
-  GroupStudyDetailResponse,
+  GroupStudyFullResponse,
   Leader,
 } from '@/features/study/group/api/group-study-types';
 import { useLeaderStore } from '@/stores/useLeaderStore';
@@ -217,7 +217,7 @@ export default function PremiumStudyDetailPage({
       />
       {active === 'intro' && (
         <PremiumStudyInfoSection
-          study={studyDetail as GroupStudyDetailResponse}
+          study={studyDetail as GroupStudyFullResponse}
           isLeader={isLeader}
         />
       )}

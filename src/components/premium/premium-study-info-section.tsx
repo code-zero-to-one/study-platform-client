@@ -11,7 +11,7 @@ import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import { GroupStudyDetailResponse } from '../../features/study/group/api/group-study-types';
+import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
 
 import { useApplicantsByStatusQuery } from '../../features/study/group/application/model/use-applicant-qeury';
 import SummaryStudyInfo from '../study/summary-study-info';
@@ -23,7 +23,7 @@ function getApplicantsList<T>(pages: { content: T[] }[] | undefined) {
 }
 
 interface PremiumStudyInfoSectionProps {
-  study: GroupStudyDetailResponse;
+  study: GroupStudyFullResponse;
   isLeader: boolean;
 }
 

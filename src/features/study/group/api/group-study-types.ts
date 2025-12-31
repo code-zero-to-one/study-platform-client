@@ -199,6 +199,9 @@ export interface GroupStudyDetailResponse {
   interviewPost: InterviewPostDetail; // InterviewPost 확장
 }
 
+// OpenAPI에서 자동 생성된 DTO 타입 (API 응답용)
+export type { GroupStudyFullResponseDto as GroupStudyFullResponse } from '@/api/openapi';
+
 export type DeleteGroupStudyRequest = GroupStudyDetailRequest;
 export type CompleteGroupStudyRequest = GroupStudyDetailRequest;
 

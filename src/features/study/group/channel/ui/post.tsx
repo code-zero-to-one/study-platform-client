@@ -46,7 +46,7 @@ export default function Post({ data }: PostProps) {
           />
           <div className="flex flex-col gap-50">
             <div className="flex gap-50">
-              <span className="font-designer-15b">{leader.memberName}</span>
+              <span className="font-designer-15b">{leader.memberNickname}</span>
               <div className="text-text-brand font-designer-12m bg-fill-brand-subtle-default rounded-[3px] px-[6px] py-[2.5px]">
                 스터디 리더
               </div>

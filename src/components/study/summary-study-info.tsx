@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/button';
-import { GroupStudyDetailResponse } from '@/features/study/group/api/group-study-types';
+import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import {
   EXPERIENCE_LEVEL_LABELS,
@@ -18,7 +18,7 @@ import {
 import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
 
 interface Props {
-  data: GroupStudyDetailResponse;
+  data: GroupStudyFullResponse;
   memberId?: number;
 }
 
@@ -43,12 +43,12 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
     type,
     targetRoles,
     experienceLevels,
-  } = basicInfo;
-  const { title } = detailInfo;
-  const { interviewPost: questions } = interviewPost;
+  } = basicInfo ?? {};
+  const { title } = detailInfo ?? {};
+  const { interviewPost: questions } = interviewPost ?? {};
   console.log('interviewPost', interviewPost);
 
-  const isLeader = leader.memberId === memberId;
+  const isLeader = leader?.memberId === memberId;
   // const isLoggedIn = typeof memberId === 'number';
   // const isPremium = hostType === 'ZEROONE' || hostType === 'METOR';
 
