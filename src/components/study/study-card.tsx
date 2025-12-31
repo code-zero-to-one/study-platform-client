@@ -49,10 +49,10 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
     <Link
       href={href}
       onClick={onClick}
-      className="hover:shadow-2 hover:border-border-brand cursor-pointer overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white transition-all"
+      className="hover:shadow-2 hover:border-border-brand rounded-150 cursor-pointer overflow-hidden border border-[#E5E7EB] bg-white transition-all"
     >
       {/* 썸네일 영역 */}
-      <div className="relative flex h-[180px] items-center justify-center bg-gradient-to-br from-[#F87171] to-[#EC4899]">
+      <div className="relative flex h-[180px] items-center justify-center bg-linear-to-br from-[#F87171] to-[#EC4899]">
         {study.simpleDetailInfo?.thumbnail?.resizedImages?.[0]
           ?.resizedImageUrl ? (
           <Image
@@ -110,7 +110,7 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
         {/* 리더 정보 & 가격 */}
         <div className="mt-500 flex items-center justify-between">
           <div className="flex items-center gap-150">
-            <div className="flex h-[32px] w-[32px] items-center justify-center overflow-hidden rounded-full bg-[#E5E7EB]">
+            <div className="flex h-400 w-400 items-center justify-center overflow-hidden rounded-full bg-[#E5E7EB]">
               {study.basicInfo?.leader?.profileImage?.resizedImages?.[0]
                 ?.resizedImageUrl ? (
                 <Image
@@ -134,8 +134,18 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
             </div>
             <div>
               <p className="font-designer-15m">
-                {(study.basicInfo?.leader as { memberName?: string; memberNickname?: string })?.memberName ||
-                  (study.basicInfo?.leader as { memberName?: string; memberNickname?: string })?.memberNickname ||
+                {(
+                  study.basicInfo?.leader as {
+                    memberName?: string;
+                    memberNickname?: string;
+                  }
+                )?.memberName ||
+                  (
+                    study.basicInfo?.leader as {
+                      memberName?: string;
+                      memberNickname?: string;
+                    }
+                  )?.memberNickname ||
                   '스터디장'}
               </p>
               <p className="font-designer-12r text-text-subtlest">스터디장</p>

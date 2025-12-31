@@ -6,8 +6,8 @@ import type { GroupStudyListItem } from '@/api/openapi/models';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import { GroupStudyData } from '../api/group-study-types';
 import StudyCard from '../../../../components/study/study-card';
+import { GroupStudyData } from '../api/group-study-types';
 
 interface GroupStudyListProps {
   studies: GroupStudyData[] | GroupStudyListItem[];

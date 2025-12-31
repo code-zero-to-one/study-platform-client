@@ -71,11 +71,10 @@ export interface BasicInfoDetail extends BasicInfo {
 }
 
 export interface Leader {
-  memberId: number;
-  memberName?: string;
+  memberId?: number;
   memberNickname?: string;
-  profileImage: ProfileImage | null;
-  simpleIntroduction: string | null;
+  profileImage?: ProfileImage;
+  simpleIntroduction?: string;
 }
 
 export interface ProfileImage {
