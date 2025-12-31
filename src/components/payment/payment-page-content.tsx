@@ -20,6 +20,7 @@ export default function PaymentPageContent({ id }: PaymentPageContentProps) {
       const { data } = await paymentUserApi.preparePayment(Number(id), {
         amount: 2000,
       });
+
       return data.content;
     },
   });
