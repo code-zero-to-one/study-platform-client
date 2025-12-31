@@ -51,7 +51,6 @@ export interface BasicInfo {
   startDate: string;
   endDate: string;
   price: number;
-  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
   createdAt: string;
   updatedAt: string;
 }
@@ -73,7 +72,8 @@ export interface BasicInfoDetail extends BasicInfo {
 
 export interface Leader {
   memberId: number;
-  memberName: string;
+  memberName?: string;
+  memberNickname?: string;
   profileImage: ProfileImage | null;
   simpleIntroduction: string | null;
 }

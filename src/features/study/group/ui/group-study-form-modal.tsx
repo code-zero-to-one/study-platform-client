@@ -86,7 +86,7 @@ export default function GroupStudyFormModal({
     if (isLoading) return;
 
     return {
-      classification,
+      classification: value.basicInfo.classification,
       type: value.basicInfo.type,
       targetRoles: value.basicInfo.targetRoles,
       maxMembersCount: value.basicInfo.maxMembersCount.toString(),
@@ -97,7 +97,6 @@ export default function GroupStudyFormModal({
       startDate: value.basicInfo.startDate,
       endDate: value.basicInfo.endDate,
       price: value.basicInfo.price.toString(),
-      classification: value.basicInfo.classification,
       title: value.detailInfo.title,
       description: value.detailInfo.description,
       summary: value.detailInfo.summary,

@@ -3,7 +3,7 @@
 import { Clock5, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import type { GroupStudyListItem } from '@/api/openapi/models';
+import type { GroupStudyListItemDto } from '@/api/openapi/models';
 import Badge from '@/components/ui/badge';
 
 import {
@@ -35,7 +35,7 @@ const STUDY_TYPE_BADGE_COLORS: Record<StudyType, BadgeColor> = {
 };
 
 interface StudyCardProps {
-  study: GroupStudyData | GroupStudyListItem;
+  study: GroupStudyData | GroupStudyListItemDto;
   href: string;
   onClick?: () => void;
 }
