@@ -82,7 +82,7 @@ export default function PaymentSuccessPage() {
       }
     }
 
-    confirm();
+    confirm().catch(() => {});
   }, [paymentKey, orderId, amount]);
 
   if (status === 'loading') {
