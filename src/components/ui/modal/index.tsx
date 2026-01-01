@@ -150,7 +150,7 @@ function ModalTitle({
   return (
     <DialogTitle
       data-slot="modal-title"
-      className={cn('d20b', 'text-text-strong', className)}
+      className={cn('text-text-strong !font-designer-18b', className)}
       {...props}
     />
   );
