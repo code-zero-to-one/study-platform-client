@@ -49,7 +49,7 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
             assertParamExists('createEvaluation', 'homeworkId', homeworkId)
             // verify required parameter 'evaluationRequest' is not null or undefined
             assertParamExists('createEvaluation', 'evaluationRequest', evaluationRequest)
-            const localVarPath = `/homeworks/{homeworkId}/evaluations`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}/evaluations`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -90,7 +90,7 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
         deleteEvaluation: async (evaluationId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'evaluationId' is not null or undefined
             assertParamExists('deleteEvaluation', 'evaluationId', evaluationId)
-            const localVarPath = `/evaluations/{evaluationId}`
+            const localVarPath = `/api/v1/evaluations/{evaluationId}`
                 .replace(`{${"evaluationId"}}`, encodeURIComponent(String(evaluationId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -128,7 +128,7 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
         getEvaluation: async (homeworkId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'homeworkId' is not null or undefined
             assertParamExists('getEvaluation', 'homeworkId', homeworkId)
-            const localVarPath = `/homeworks/{homeworkId}/evaluation`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}/evaluation`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -169,7 +169,7 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
             assertParamExists('updateEvaluation', 'evaluationId', evaluationId)
             // verify required parameter 'evaluationRequest' is not null or undefined
             assertParamExists('updateEvaluation', 'evaluationRequest', evaluationRequest)
-            const localVarPath = `/evaluations/{evaluationId}`
+            const localVarPath = `/api/v1/evaluations/{evaluationId}`
                 .replace(`{${"evaluationId"}}`, encodeURIComponent(String(evaluationId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);

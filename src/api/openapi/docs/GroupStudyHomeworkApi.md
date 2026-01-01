@@ -4,9 +4,9 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**deleteHomework**](#deletehomework) | **DELETE** /homeworks/{homeworkId} | 과제 삭제|
-|[**editHomework**](#edithomework) | **PUT** /homeworks/{homeworkId} | 과제 수정|
-|[**submitHomework**](#submithomework) | **POST** /missions/{missionId}/homeworks | 과제 제출|
+|[**deleteHomework**](#deletehomework) | **DELETE** /api/v1/homeworks/{homeworkId} | 과제 삭제|
+|[**editHomework**](#edithomework) | **PUT** /api/v1/homeworks/{homeworkId} | 과제 수정|
+|[**submitHomework**](#submithomework) | **POST** /api/v1/missions/{missionId}/homeworks | 과제 제출|
 
 # **deleteHomework**
 > NoContentResponse deleteHomework()

@@ -4,11 +4,11 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**createPeerReview**](#createpeerreview) | **POST** /homeworks/{homeworkId}/peer-reviews | 피어리뷰 작성|
-|[**deletePeerReview**](#deletepeerreview) | **DELETE** /peer-reviews/{peerReviewId} | 피어리뷰 삭제|
-|[**getPeerReviews**](#getpeerreviews) | **GET** /homeworks/{homeworkId}/peer-reviews | 과제별 피어리뷰 목록 조회|
-|[**toggleThumbsUp**](#togglethumbsup) | **POST** /peer-reviews/{peerReviewId}/reactions | 피어리뷰 반응 토글|
-|[**updatePeerReview**](#updatepeerreview) | **PUT** /peer-reviews/{peerReviewId} | 피어리뷰 수정|
+|[**createPeerReview**](#createpeerreview) | **POST** /api/v1/homeworks/{homeworkId}/peer-reviews | 피어리뷰 작성|
+|[**deletePeerReview**](#deletepeerreview) | **DELETE** /api/v1/peer-reviews/{peerReviewId} | 피어리뷰 삭제|
+|[**getPeerReviews**](#getpeerreviews) | **GET** /api/v1/homeworks/{homeworkId}/peer-reviews | 과제별 피어리뷰 목록 조회|
+|[**toggleThumbsUp**](#togglethumbsup) | **POST** /api/v1/peer-reviews/{peerReviewId}/reactions | 피어리뷰 반응 토글|
+|[**updatePeerReview**](#updatepeerreview) | **PUT** /api/v1/peer-reviews/{peerReviewId} | 피어리뷰 수정|
 
 # **createPeerReview**
 > PeerReviewCreationResponseSchema createPeerReview(peerReviewCreateRequest)

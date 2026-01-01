@@ -57,7 +57,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('createMission', 'groupStudyId', groupStudyId)
             // verify required parameter 'missionCreationRequest' is not null or undefined
             assertParamExists('createMission', 'missionCreationRequest', missionCreationRequest)
-            const localVarPath = `/group-studies/{groupStudyId}/missions`
+            const localVarPath = `/api/v1/group-studies/{groupStudyId}/missions`
                 .replace(`{${"groupStudyId"}}`, encodeURIComponent(String(groupStudyId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -98,7 +98,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
         deleteMission: async (missionId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'missionId' is not null or undefined
             assertParamExists('deleteMission', 'missionId', missionId)
-            const localVarPath = `/missions/{missionId}`
+            const localVarPath = `/api/v1/missions/{missionId}`
                 .replace(`{${"missionId"}}`, encodeURIComponent(String(missionId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -136,7 +136,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
         getMission: async (missionId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'missionId' is not null or undefined
             assertParamExists('getMission', 'missionId', missionId)
-            const localVarPath = `/missions/{missionId}`
+            const localVarPath = `/api/v1/missions/{missionId}`
                 .replace(`{${"missionId"}}`, encodeURIComponent(String(missionId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -179,7 +179,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('getMissions', 'groupStudyId', groupStudyId)
             // verify required parameter 'searchType' is not null or undefined
             assertParamExists('getMissions', 'searchType', searchType)
-            const localVarPath = `/group-studies/{groupStudyId}/missions`
+            const localVarPath = `/api/v1/group-studies/{groupStudyId}/missions`
                 .replace(`{${"groupStudyId"}}`, encodeURIComponent(String(groupStudyId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -232,7 +232,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('updateMission', 'missionId', missionId)
             // verify required parameter 'missionUpdateRequest' is not null or undefined
             assertParamExists('updateMission', 'missionUpdateRequest', missionUpdateRequest)
-            const localVarPath = `/missions/{missionId}`
+            const localVarPath = `/api/v1/missions/{missionId}`
                 .replace(`{${"missionId"}}`, encodeURIComponent(String(missionId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);

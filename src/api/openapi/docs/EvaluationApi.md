@@ -4,10 +4,10 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**createEvaluation**](#createevaluation) | **POST** /homeworks/{homeworkId}/evaluations | 과제 평가 생성|
-|[**deleteEvaluation**](#deleteevaluation) | **DELETE** /evaluations/{evaluationId} | 과제 평가 삭제|
-|[**getEvaluation**](#getevaluation) | **GET** /homeworks/{homeworkId}/evaluation | 과제 평가 조회|
-|[**updateEvaluation**](#updateevaluation) | **PUT** /evaluations/{evaluationId} | 과제 평가 수정|
+|[**createEvaluation**](#createevaluation) | **POST** /api/v1/homeworks/{homeworkId}/evaluations | 과제 평가 생성|
+|[**deleteEvaluation**](#deleteevaluation) | **DELETE** /api/v1/evaluations/{evaluationId} | 과제 평가 삭제|
+|[**getEvaluation**](#getevaluation) | **GET** /api/v1/homeworks/{homeworkId}/evaluation | 과제 평가 조회|
+|[**updateEvaluation**](#updateevaluation) | **PUT** /api/v1/evaluations/{evaluationId} | 과제 평가 수정|
 
 # **createEvaluation**
 > EvaluationCreationResponseSchema createEvaluation(evaluationRequest)

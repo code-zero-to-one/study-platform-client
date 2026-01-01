@@ -4,11 +4,11 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**createMission**](#createmission) | **POST** /group-studies/{groupStudyId}/missions | 그룹스터디 미션 생성|
-|[**deleteMission**](#deletemission) | **DELETE** /missions/{missionId} | 미션 삭제|
-|[**getMission**](#getmission) | **GET** /missions/{missionId} | 그룹스터디 미션 조회|
-|[**getMissions**](#getmissions) | **GET** /group-studies/{groupStudyId}/missions | 그룹스터디 미션 목록 조회|
-|[**updateMission**](#updatemission) | **PUT** /missions/{missionId} | 그룹스터디 미션 수정|
+|[**createMission**](#createmission) | **POST** /api/v1/group-studies/{groupStudyId}/missions | 그룹스터디 미션 생성|
+|[**deleteMission**](#deletemission) | **DELETE** /api/v1/missions/{missionId} | 미션 삭제|
+|[**getMission**](#getmission) | **GET** /api/v1/missions/{missionId} | 그룹스터디 미션 조회|
+|[**getMissions**](#getmissions) | **GET** /api/v1/group-studies/{groupStudyId}/missions | 그룹스터디 미션 목록 조회|
+|[**updateMission**](#updatemission) | **PUT** /api/v1/missions/{missionId} | 그룹스터디 미션 수정|
 
 # **createMission**
 > CreateMissionResponseSchema createMission(missionCreationRequest)

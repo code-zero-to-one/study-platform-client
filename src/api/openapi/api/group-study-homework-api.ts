@@ -46,7 +46,7 @@ export const GroupStudyHomeworkApiAxiosParamCreator = function (configuration?: 
         deleteHomework: async (homeworkId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'homeworkId' is not null or undefined
             assertParamExists('deleteHomework', 'homeworkId', homeworkId)
-            const localVarPath = `/homeworks/{homeworkId}`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -87,7 +87,7 @@ export const GroupStudyHomeworkApiAxiosParamCreator = function (configuration?: 
             assertParamExists('editHomework', 'homeworkId', homeworkId)
             // verify required parameter 'homeworkEditRequest' is not null or undefined
             assertParamExists('editHomework', 'homeworkEditRequest', homeworkEditRequest)
-            const localVarPath = `/homeworks/{homeworkId}`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -131,7 +131,7 @@ export const GroupStudyHomeworkApiAxiosParamCreator = function (configuration?: 
             assertParamExists('submitHomework', 'missionId', missionId)
             // verify required parameter 'homeworkSubmissionRequest' is not null or undefined
             assertParamExists('submitHomework', 'homeworkSubmissionRequest', homeworkSubmissionRequest)
-            const localVarPath = `/missions/{missionId}/homeworks`
+            const localVarPath = `/api/v1/missions/{missionId}/homeworks`
                 .replace(`{${"missionId"}}`, encodeURIComponent(String(missionId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);

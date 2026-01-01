@@ -53,7 +53,7 @@ export const PeerReviewApiAxiosParamCreator = function (configuration?: Configur
             assertParamExists('createPeerReview', 'homeworkId', homeworkId)
             // verify required parameter 'peerReviewCreateRequest' is not null or undefined
             assertParamExists('createPeerReview', 'peerReviewCreateRequest', peerReviewCreateRequest)
-            const localVarPath = `/homeworks/{homeworkId}/peer-reviews`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}/peer-reviews`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -94,7 +94,7 @@ export const PeerReviewApiAxiosParamCreator = function (configuration?: Configur
         deletePeerReview: async (peerReviewId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'peerReviewId' is not null or undefined
             assertParamExists('deletePeerReview', 'peerReviewId', peerReviewId)
-            const localVarPath = `/peer-reviews/{peerReviewId}`
+            const localVarPath = `/api/v1/peer-reviews/{peerReviewId}`
                 .replace(`{${"peerReviewId"}}`, encodeURIComponent(String(peerReviewId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -132,7 +132,7 @@ export const PeerReviewApiAxiosParamCreator = function (configuration?: Configur
         getPeerReviews: async (homeworkId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'homeworkId' is not null or undefined
             assertParamExists('getPeerReviews', 'homeworkId', homeworkId)
-            const localVarPath = `/homeworks/{homeworkId}/peer-reviews`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}/peer-reviews`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -173,7 +173,7 @@ export const PeerReviewApiAxiosParamCreator = function (configuration?: Configur
             assertParamExists('toggleThumbsUp', 'peerReviewId', peerReviewId)
             // verify required parameter 'reactionType' is not null or undefined
             assertParamExists('toggleThumbsUp', 'reactionType', reactionType)
-            const localVarPath = `/peer-reviews/{peerReviewId}/reactions`
+            const localVarPath = `/api/v1/peer-reviews/{peerReviewId}/reactions`
                 .replace(`{${"peerReviewId"}}`, encodeURIComponent(String(peerReviewId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -218,7 +218,7 @@ export const PeerReviewApiAxiosParamCreator = function (configuration?: Configur
             assertParamExists('updatePeerReview', 'peerReviewId', peerReviewId)
             // verify required parameter 'peerReviewUpdateRequest' is not null or undefined
             assertParamExists('updatePeerReview', 'peerReviewUpdateRequest', peerReviewUpdateRequest)
-            const localVarPath = `/peer-reviews/{peerReviewId}`
+            const localVarPath = `/api/v1/peer-reviews/{peerReviewId}`
                 .replace(`{${"peerReviewId"}}`, encodeURIComponent(String(peerReviewId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
