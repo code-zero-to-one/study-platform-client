@@ -1,19 +1,19 @@
-# MissionTaskDto
+# PeerReviewCreateRequest
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**task** | **string** |  | [optional] [default to undefined]
+**comment** | **string** |  | [default to undefined]
 
 ## Example
 
 ```typescript
-import { MissionTaskDto } from './api';
+import { PeerReviewCreateRequest } from './api';
 
-const instance: MissionTaskDto = {
-    task,
+const instance: PeerReviewCreateRequest = {
+    comment,
 };
 ```
 

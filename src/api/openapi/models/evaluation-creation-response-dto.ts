@@ -14,7 +14,7 @@
 
 
 
-export interface HomeworkSubmissionResponse {
-    'homeworkId'?: number;
+export interface EvaluationCreationResponseDto {
+    'evaluationId'?: number;
 }
 

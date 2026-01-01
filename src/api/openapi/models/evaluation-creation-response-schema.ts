@@ -13,8 +13,11 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { EvaluationCreationResponseDto } from './evaluation-creation-response-dto';
 
-export interface GroupStudyMembersResponse {
+export interface EvaluationCreationResponseSchema {
     /**
      * Status Code
      */
@@ -26,7 +29,7 @@ export interface GroupStudyMembersResponse {
     /**
      * Content
      */
-    'content'?: GroupStudyMembersResponse;
+    'content'?: EvaluationCreationResponseDto;
     /**
      * Message
      */

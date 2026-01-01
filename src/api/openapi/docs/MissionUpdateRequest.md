@@ -6,11 +6,10 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **title** | **string** |  | [default to undefined]
-**content** | **string** |  | [default to undefined]
-**startTime** | **string** |  | [default to undefined]
-**endTime** | **string** |  | [optional] [default to undefined]
-**tasks** | [**Array&lt;MissionTaskDto&gt;**](MissionTaskDto.md) |  | [default to undefined]
-**scoreAllocation** | **number** |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**guide** | **string** |  | [default to undefined]
+**startDate** | **string** |  | [default to undefined]
+**endDate** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -19,11 +18,10 @@ import { MissionUpdateRequest } from './api';
 
 const instance: MissionUpdateRequest = {
     title,
-    content,
-    startTime,
-    endTime,
-    tasks,
-    scoreAllocation,
+    description,
+    guide,
+    startDate,
+    endDate,
 };
 ```
 

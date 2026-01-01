@@ -14,11 +14,7 @@
 
 
 
-export interface MissionUpdateRequest {
-    'title': string;
-    'description'?: string;
-    'guide': string;
-    'startDate': string;
-    'endDate': string;
+export interface PeerReviewCreateRequest {
+    'comment': string;
 }
 

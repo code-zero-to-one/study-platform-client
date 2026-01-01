@@ -14,7 +14,7 @@
 
 
 
-export interface MissionTaskDto {
-    'task'?: string;
+export interface PeerReviewCreationResponse {
+    'generatedPeerReviewId'?: number;
 }
 

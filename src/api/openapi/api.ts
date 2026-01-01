@@ -39,6 +39,7 @@ export * from './api/member-tmp-controller-api';
 export * from './api/mission-api';
 export * from './api/notification-api';
 export * from './api/payment-user-api';
+export * from './api/peer-review-api';
 export * from './api/phone-auth-api';
 export * from './api/refund-user-api';
 export * from './api/settlement-account-api';

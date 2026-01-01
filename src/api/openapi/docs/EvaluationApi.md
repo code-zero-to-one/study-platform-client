@@ -4,13 +4,13 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**createEvaluation**](#createevaluation) | **POST** /homeworks/{homeworkId}/evaluations | 과제 평가 생성|
-|[**deleteEvaluation**](#deleteevaluation) | **DELETE** /evaluations/{evaluationId} | 과제 평가 삭제|
-|[**getEvaluation**](#getevaluation) | **GET** /homeworks/{homeworkId}/evaluation | 과제 평가 조회|
-|[**updateEvaluation**](#updateevaluation) | **PUT** /evaluations/{evaluationId} | 과제 평가 수정|
+|[**createEvaluation**](#createevaluation) | **POST** /api/v1/homeworks/{homeworkId}/evaluations | 과제 평가 생성|
+|[**deleteEvaluation**](#deleteevaluation) | **DELETE** /api/v1/evaluations/{evaluationId} | 과제 평가 삭제|
+|[**getEvaluation**](#getevaluation) | **GET** /api/v1/homeworks/{homeworkId}/evaluation | 과제 평가 조회|
+|[**updateEvaluation**](#updateevaluation) | **PUT** /api/v1/evaluations/{evaluationId} | 과제 평가 수정|
 
 # **createEvaluation**
-> BaseResponse createEvaluation(evaluationRequest)
+> EvaluationCreationResponseSchema createEvaluation(evaluationRequest)
 
 특정 과제에 대한 평가를 생성합니다.
 
@@ -45,7 +45,7 @@ const { status, data } = await apiInstance.createEvaluation(
 
 ### Return type
 
-**BaseResponse**
+**EvaluationCreationResponseSchema**
 
 ### Authorization
 
@@ -67,7 +67,7 @@ const { status, data } = await apiInstance.createEvaluation(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **deleteEvaluation**
-> BaseResponse deleteEvaluation()
+> NoContentResponse deleteEvaluation()
 
 특정 과제 평가를 삭제합니다.
 
@@ -98,7 +98,7 @@ const { status, data } = await apiInstance.deleteEvaluation(
 
 ### Return type
 
-**BaseResponse**
+**NoContentResponse**
 
 ### Authorization
 
@@ -119,7 +119,7 @@ const { status, data } = await apiInstance.deleteEvaluation(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getEvaluation**
-> BaseResponse getEvaluation()
+> EvaluationResponseSchema getEvaluation()
 
 특정 과제에 대한 평가를 조회합니다.
 
@@ -150,7 +150,7 @@ const { status, data } = await apiInstance.getEvaluation(
 
 ### Return type
 
-**BaseResponse**
+**EvaluationResponseSchema**
 
 ### Authorization
 
@@ -171,7 +171,7 @@ const { status, data } = await apiInstance.getEvaluation(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **updateEvaluation**
-> BaseResponse updateEvaluation(evaluationRequest)
+> NoContentResponse updateEvaluation(evaluationRequest)
 
 기존 과제 평가의 등급과 댓글을 수정합니다.
 
@@ -206,7 +206,7 @@ const { status, data } = await apiInstance.updateEvaluation(
 
 ### Return type
 
-**BaseResponse**
+**NoContentResponse**
 
 ### Authorization
 

@@ -15,12 +15,24 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { GroupStudyMemberProgressGradeResponse } from './group-study-member-progress-grade-response';
+import type { EvaluationResponse } from './evaluation-response';
 
-export interface GroupStudyMemberProgressHistoryResponse {
-    'id'?: number;
-    'acquiredAt'?: string;
-    'grade'?: GroupStudyMemberProgressGradeResponse;
-    'reason'?: string;
+export interface EvaluationResponseSchema {
+    /**
+     * Status Code
+     */
+    'statusCode': number;
+    /**
+     * Timestamp
+     */
+    'timestamp': string;
+    /**
+     * Content
+     */
+    'content'?: EvaluationResponse;
+    /**
+     * Message
+     */
+    'message'?: string;
 }
 

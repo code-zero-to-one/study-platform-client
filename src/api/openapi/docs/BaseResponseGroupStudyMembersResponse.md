@@ -1,4 +1,4 @@
-# BaseResponseHomeworkSubmissionResponse
+# BaseResponseGroupStudyMembersResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** | Status Code | [default to undefined]
 **timestamp** | **string** | Timestamp | [default to undefined]
-**content** | [**HomeworkSubmissionResponse**](HomeworkSubmissionResponse.md) | Content | [optional] [default to undefined]
+**content** | [**GroupStudyMembersResponse**](GroupStudyMembersResponse.md) | Content | [optional] [default to undefined]
 **message** | **string** | Message | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { BaseResponseHomeworkSubmissionResponse } from './api';
+import { BaseResponseGroupStudyMembersResponse } from './api';
 
-const instance: BaseResponseHomeworkSubmissionResponse = {
+const instance: BaseResponseGroupStudyMembersResponse = {
     statusCode,
     timestamp,
     content,

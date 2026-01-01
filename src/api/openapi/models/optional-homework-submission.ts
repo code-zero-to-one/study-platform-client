@@ -16,6 +16,5 @@
 
 export interface OptionalHomeworkSubmission {
     'link'?: string;
-    'empty'?: boolean;
 }
 

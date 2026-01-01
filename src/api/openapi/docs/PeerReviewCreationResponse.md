@@ -1,19 +1,19 @@
-# OptionalHomeworkSubmission
+# PeerReviewCreationResponse
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**link** | **string** |  | [optional] [default to undefined]
+**generatedPeerReviewId** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { OptionalHomeworkSubmission } from './api';
+import { PeerReviewCreationResponse } from './api';
 
-const instance: OptionalHomeworkSubmission = {
-    link,
+const instance: PeerReviewCreationResponse = {
+    generatedPeerReviewId,
 };
 ```
 

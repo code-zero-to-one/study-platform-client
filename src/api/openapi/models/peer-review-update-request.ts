@@ -14,10 +14,7 @@
 
 
 
-export interface GroupStudyMemberProgressGradeResponse {
-    'id'?: number;
-    'code'?: string;
-    'name'?: string;
-    'score'?: number;
+export interface PeerReviewUpdateRequest {
+    'comment': string;
 }
 

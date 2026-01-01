@@ -15,9 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { HomeworkSubmissionResponse } from './homework-submission-response';
+import type { GroupStudyMembersResponse } from './group-study-members-response';
 
-export interface BaseResponseHomeworkSubmissionResponse {
+export interface BaseResponseGroupStudyMembersResponse {
     /**
      * Status Code
      */
@@ -29,7 +29,7 @@ export interface BaseResponseHomeworkSubmissionResponse {
     /**
      * Content
      */
-    'content'?: HomeworkSubmissionResponse;
+    'content'?: GroupStudyMembersResponse;
     /**
      * Message
      */

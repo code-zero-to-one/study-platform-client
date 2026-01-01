@@ -1,19 +1,19 @@
-# HomeworkSubmissionResponse
+# EvaluationCreationResponseDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**homeworkId** | **number** |  | [optional] [default to undefined]
+**evaluationId** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { HomeworkSubmissionResponse } from './api';
+import { EvaluationCreationResponseDto } from './api';
 
-const instance: HomeworkSubmissionResponse = {
-    homeworkId,
+const instance: EvaluationCreationResponseDto = {
+    evaluationId,
 };
 ```
 

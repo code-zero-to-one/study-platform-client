@@ -22,9 +22,15 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { ErrorResponse } from '../models';
+// @ts-ignore
+import type { EvaluationCreationResponseSchema } from '../models';
 // @ts-ignore
 import type { EvaluationRequest } from '../models';
+// @ts-ignore
+import type { EvaluationResponseSchema } from '../models';
+// @ts-ignore
+import type { NoContentResponse } from '../models';
 /**
  * EvaluationApi - axios parameter creator
  */
@@ -43,7 +49,7 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
             assertParamExists('createEvaluation', 'homeworkId', homeworkId)
             // verify required parameter 'evaluationRequest' is not null or undefined
             assertParamExists('createEvaluation', 'evaluationRequest', evaluationRequest)
-            const localVarPath = `/homeworks/{homeworkId}/evaluations`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}/evaluations`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -84,7 +90,7 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
         deleteEvaluation: async (evaluationId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'evaluationId' is not null or undefined
             assertParamExists('deleteEvaluation', 'evaluationId', evaluationId)
-            const localVarPath = `/evaluations/{evaluationId}`
+            const localVarPath = `/api/v1/evaluations/{evaluationId}`
                 .replace(`{${"evaluationId"}}`, encodeURIComponent(String(evaluationId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -122,7 +128,7 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
         getEvaluation: async (homeworkId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'homeworkId' is not null or undefined
             assertParamExists('getEvaluation', 'homeworkId', homeworkId)
-            const localVarPath = `/homeworks/{homeworkId}/evaluation`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}/evaluation`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -163,7 +169,7 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
             assertParamExists('updateEvaluation', 'evaluationId', evaluationId)
             // verify required parameter 'evaluationRequest' is not null or undefined
             assertParamExists('updateEvaluation', 'evaluationRequest', evaluationRequest)
-            const localVarPath = `/evaluations/{evaluationId}`
+            const localVarPath = `/api/v1/evaluations/{evaluationId}`
                 .replace(`{${"evaluationId"}}`, encodeURIComponent(String(evaluationId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -211,7 +217,7 @@ export const EvaluationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createEvaluation(homeworkId: number, evaluationRequest: EvaluationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async createEvaluation(homeworkId: number, evaluationRequest: EvaluationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EvaluationCreationResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createEvaluation(homeworkId, evaluationRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EvaluationApi.createEvaluation']?.[localVarOperationServerIndex]?.url;
@@ -224,7 +230,7 @@ export const EvaluationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async deleteEvaluation(evaluationId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async deleteEvaluation(evaluationId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NoContentResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.deleteEvaluation(evaluationId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EvaluationApi.deleteEvaluation']?.[localVarOperationServerIndex]?.url;
@@ -237,7 +243,7 @@ export const EvaluationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getEvaluation(homeworkId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async getEvaluation(homeworkId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EvaluationResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getEvaluation(homeworkId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EvaluationApi.getEvaluation']?.[localVarOperationServerIndex]?.url;
@@ -251,7 +257,7 @@ export const EvaluationApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateEvaluation(evaluationId: number, evaluationRequest: EvaluationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async updateEvaluation(evaluationId: number, evaluationRequest: EvaluationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NoContentResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateEvaluation(evaluationId, evaluationRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['EvaluationApi.updateEvaluation']?.[localVarOperationServerIndex]?.url;
@@ -274,7 +280,7 @@ export const EvaluationApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createEvaluation(homeworkId: number, evaluationRequest: EvaluationRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        createEvaluation(homeworkId: number, evaluationRequest: EvaluationRequest, options?: RawAxiosRequestConfig): AxiosPromise<EvaluationCreationResponseSchema> {
             return localVarFp.createEvaluation(homeworkId, evaluationRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -284,7 +290,7 @@ export const EvaluationApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        deleteEvaluation(evaluationId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        deleteEvaluation(evaluationId: number, options?: RawAxiosRequestConfig): AxiosPromise<NoContentResponse> {
             return localVarFp.deleteEvaluation(evaluationId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -294,7 +300,7 @@ export const EvaluationApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getEvaluation(homeworkId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        getEvaluation(homeworkId: number, options?: RawAxiosRequestConfig): AxiosPromise<EvaluationResponseSchema> {
             return localVarFp.getEvaluation(homeworkId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -305,7 +311,7 @@ export const EvaluationApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateEvaluation(evaluationId: number, evaluationRequest: EvaluationRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        updateEvaluation(evaluationId: number, evaluationRequest: EvaluationRequest, options?: RawAxiosRequestConfig): AxiosPromise<NoContentResponse> {
             return localVarFp.updateEvaluation(evaluationId, evaluationRequest, options).then((request) => request(axios, basePath));
         },
     };

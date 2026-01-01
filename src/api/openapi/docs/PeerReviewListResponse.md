@@ -1,4 +1,4 @@
-# GroupStudyMembersResponse
+# PeerReviewListResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** | Status Code | [default to undefined]
 **timestamp** | **string** | Timestamp | [default to undefined]
-**content** | [**GroupStudyMembersResponse**](GroupStudyMembersResponse.md) | Content | [optional] [default to undefined]
+**content** | [**Array&lt;PeerReviewResponse&gt;**](PeerReviewResponse.md) | Content | [optional] [default to undefined]
 **message** | **string** | Message | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { GroupStudyMembersResponse } from './api';
+import { PeerReviewListResponse } from './api';
 
-const instance: GroupStudyMembersResponse = {
+const instance: PeerReviewListResponse = {
     statusCode,
     timestamp,
     content,
