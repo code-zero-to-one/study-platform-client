@@ -241,7 +241,6 @@ export default function Step1OpenGroupStudy() {
         <FormField<GroupStudyFormValues, 'price'>
           name="price"
           label="참가비"
-          helper="참가비가 있다면 입력해주세요. (0원 가능)"
           direction="vertical"
           size="medium"
         >
@@ -251,8 +250,8 @@ export default function Step1OpenGroupStudy() {
             render={({ field }) => (
               <BaseInput
                 type="number"
-                min={0}
-                placeholder="0"
+                min={10000}
+                placeholder="10,000"
                 value={field.value}
                 onChange={field.onChange}
               />
