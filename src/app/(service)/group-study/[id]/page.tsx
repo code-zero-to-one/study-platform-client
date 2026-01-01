@@ -6,7 +6,7 @@ import {
 import type { Metadata } from 'next';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
-import type { GroupStudyDetailResponseContent } from '@/api/openapi/models';
+import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
 import { getGroupStudyDetailInServer } from '@/features/study/group/api/get-group-study-detail.server';
 import { getGroupStudyMyStatusInServer } from '@/features/study/group/api/get-group-study-my-status.server';
 import { GroupStudyDetailResponse } from '@/features/study/group/api/group-study-types';
@@ -18,7 +18,7 @@ interface Props {
 }
 
 interface GroupStudyResponse {
-  content?: GroupStudyDetailResponseContent;
+  content?: GroupStudyFullResponseDto;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

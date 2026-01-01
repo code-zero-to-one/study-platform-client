@@ -88,9 +88,11 @@ export function buildOpenGroupDefaultValues(
 }
 
 export function toOpenGroupRequest(
-  v: OpenGroupParsedValues,
+  v: GroupStudyFormValues,
 ): GroupStudyFormRequest {
   const isPremiumStudy = v.classification === 'PREMIUM_STUDY';
+  const thumbnailExt =
+    v.thumbnailExtension === 'DEFAULT' ? 'JPG' : v.thumbnailExtension;
 
   return {
     basicInfo: {
@@ -107,7 +109,7 @@ export function toOpenGroupRequest(
       price: isPremiumStudy ? Number(v.price) || 0 : 0,
     },
     detailInfo: {
-      thumbnailExtension: v.thumbnailExtension,
+      thumbnailExtension: thumbnailExt,
       title: v.title,
       description: v.description,
       summary: v.summary,
@@ -115,6 +117,6 @@ export function toOpenGroupRequest(
     interviewPost: {
       interviewPost: v.interviewPost ?? [],
     },
-    thumbnailExtension: v.thumbnailExtension,
+    thumbnailExtension: thumbnailExt,
   };
 }

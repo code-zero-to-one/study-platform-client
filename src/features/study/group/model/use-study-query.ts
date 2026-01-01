@@ -2,7 +2,6 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { deleteGroupStudy } from '../api/delete-group-study';
-import { getGroupStudyDetail } from '../api/get-group-study-detail';
 import { DeleteGroupStudyRequest } from '../api/group-study-types';
 import { patchGroupStudyComplete } from '../api/patch-group-study-complete';
 

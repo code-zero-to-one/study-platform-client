@@ -8,6 +8,7 @@ import {
   StudySettlementSummaryResponse,
 } from '@/api/openapi/models';
 import AdminApproveSettlementModal from '@/components/modals/admin-approve-settlement-modal';
+import AdminCompleteSettlementModal from '@/components/modals/admin-complete-settlement-modal';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
@@ -16,7 +17,6 @@ import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
 import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
 import { formatToKST } from '@/utils/time';
-import AdminCompleteSettlementModal from '@/components/modals/admin-complete-settlement-modal';
 
 const SETTLEMENT_STATUS_MAP: Record<
   StudySettlementSummaryResponse['status'],

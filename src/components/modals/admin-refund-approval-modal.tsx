@@ -6,15 +6,14 @@ import {
 import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
-interface AdminRefundApprovalModalProps
-  extends Pick<
-    AdminTransactionListResponse,
-    | 'refundId'
-    | 'groupStudyName'
-    | 'paymentMemberName'
-    | 'paymentMemberId'
-    | 'transactionAmount'
-  > {
+interface AdminRefundApprovalModalProps extends Pick<
+  AdminTransactionListResponse,
+  | 'refundId'
+  | 'groupStudyName'
+  | 'paymentMemberName'
+  | 'paymentMemberId'
+  | 'transactionAmount'
+> {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

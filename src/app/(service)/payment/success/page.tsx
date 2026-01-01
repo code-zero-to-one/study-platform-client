@@ -1,7 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Button from '@/components/ui/button';
 
 interface PaymentConfirmResponse {
@@ -41,7 +41,7 @@ async function confirmPayment(
   };
 }
 
-export default function PaymentSuccessPage() {
+function PaymentSuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -82,7 +82,7 @@ export default function PaymentSuccessPage() {
       }
     }
 
-    confirm();
+    confirm().catch(() => {});
   }, [paymentKey, orderId, amount]);
 
   if (status === 'loading') {
@@ -167,5 +167,24 @@ export default function PaymentSuccessPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-background-alternative flex min-h-dvh items-center justify-center">
+          <div className="text-center">
+            <div className="border-border-default mx-auto mb-400 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+            <p className="font-designer-16m text-text-subtle">
+              결제를 처리하고 있습니다...
+            </p>
+          </div>
+        </div>
+      }
+    >
+      <PaymentSuccessContent />
+    </Suspense>
   );
 }

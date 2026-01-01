@@ -2,28 +2,30 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
+
+import { GroupStudyListItemDto } from '@/api/openapi';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import { GroupStudyData } from '../api/group-study-types';
 import StudyCard from '../../../../components/study/study-card';
+import { GroupStudyData } from '../api/group-study-types';
 
 interface GroupStudyListProps {
-  studies: GroupStudyData[];
+  studies: GroupStudyListItemDto[];
 }
 
 export default function GroupStudyList({ studies }: GroupStudyListProps) {
   const { data: authData } = useAuth();
 
-  const handleStudyClick = (study: GroupStudyData) => {
+  const handleStudyClick = (study: GroupStudyListItemDto) => {
     sendGTMEvent({
       event: 'group_study_detail_view',
       dl_timestamp: new Date().toISOString(),
       ...(authData?.memberId && {
         dl_member_id: hashValue(String(authData.memberId)),
       }),
-      dl_study_id: String(study.basicInfo.groupStudyId),
-      dl_study_title: study.simpleDetailInfo.title,
+      dl_study_id: String(study.basicInfo?.groupStudyId),
+      dl_study_title: study.simpleDetailInfo?.title,
     });
   };
 
@@ -52,9 +54,9 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
     <div className="grid grid-cols-3 gap-300">
       {studies.map((study) => (
         <StudyCard
-          key={study.basicInfo.groupStudyId}
+          key={study.basicInfo?.groupStudyId}
           study={study}
-          href={`/group-study/${study.basicInfo.groupStudyId}`}
+          href={`/group-study/${study.basicInfo?.groupStudyId}`}
           onClick={() => handleStudyClick(study)}
         />
       ))}

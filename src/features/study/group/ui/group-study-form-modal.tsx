@@ -5,12 +5,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { GroupStudyFullResponseDto } from '@/api/openapi';
 import { Modal } from '@/components/ui/modal';
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import GroupStudyForm from './group-study-form';
-
-import { GroupStudyDetailResponse } from '../api/group-study-types';
 
 import {
   useCreateGroupStudyMutation,
@@ -82,32 +81,34 @@ export default function GroupStudyFormModal({
     }
   };
 
-  const refineStudyDetail = (value: GroupStudyDetailResponse) => {
+  const refineStudyDetail = (value: GroupStudyFullResponseDto) => {
     if (isLoading) return;
 
     return {
-      classification,
-      type: value.basicInfo.type,
-      targetRoles: value.basicInfo.targetRoles,
-      maxMembersCount: value.basicInfo.maxMembersCount.toString(),
-      experienceLevels: value.basicInfo.experienceLevels,
-      method: value.basicInfo.method,
-      location: value.basicInfo.location,
-      regularMeeting: value.basicInfo.regularMeeting,
-      startDate: value.basicInfo.startDate,
-      endDate: value.basicInfo.endDate,
-      price: value.basicInfo.price.toString(),
-      classification: value.basicInfo.classification,
-      title: value.detailInfo.title,
-      description: value.detailInfo.description,
-      summary: value.detailInfo.summary,
-      interviewPost: value.interviewPost.interviewPost.map((q) => q.question),
+      classification: value.basicInfo?.classification,
+      type: value.basicInfo?.type,
+      targetRoles: value.basicInfo?.targetRoles,
+      maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
+      experienceLevels: value.basicInfo?.experienceLevels,
+      method: value.basicInfo?.method,
+      location: value.basicInfo?.location,
+      regularMeeting: value.basicInfo?.regularMeeting,
+      startDate: value.basicInfo?.startDate,
+      endDate: value.basicInfo?.endDate,
+      price: value.basicInfo?.price?.toString() ?? '',
+      title: value.detailInfo?.title,
+      description: value.detailInfo?.description,
+      summary: value.detailInfo?.summary,
+      interviewPost: value.interviewPost?.interviewPost?.map(
+        (q: { question?: string }) => q.question,
+      ),
       thumbnailExtension:
-        value.detailInfo.image.resizedImages[0].resizedImageUrl
+        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
           ?.split('.')
           .pop()
           ?.toUpperCase() as GroupStudyFormValues['thumbnailExtension'],
-      thumbnailUrl: value.detailInfo.image.resizedImages[0].resizedImageUrl,
+      thumbnailUrl:
+        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
     };
   };
 

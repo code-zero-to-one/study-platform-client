@@ -3,6 +3,7 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
+import { GroupStudyFullResponseDto } from '@/api/openapi';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
@@ -12,12 +13,10 @@ import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
 import SummaryStudyInfo from '../../../../components/study/summary-study-info';
 
-import { GroupStudyDetailResponse } from '../api/group-study-types';
-
 import { useApplicantsByStatusQuery } from '../application/model/use-applicant-qeury';
 
 interface StudyInfoSectionProps {
-  study: GroupStudyDetailResponse;
+  study: GroupStudyFullResponseDto;
   isLeader: boolean;
 }
 
@@ -47,7 +46,10 @@ export default function StudyInfoSection({
       <div className="flex flex-1 flex-col gap-500">
         <div className="relative h-[430px] w-full">
           <Image
-            src={studyDetail?.detailInfo.image.resizedImages[0].resizedImageUrl}
+            src={
+              studyDetail?.detailInfo?.image?.resizedImages[0]
+                .resizedImageUrl ?? ''
+            }
             alt="썸네일"
             fill
             className="object-contain"
@@ -73,7 +75,7 @@ export default function StudyInfoSection({
                     </span>
                     <div className="font-designer-15r text-text-subtle flex items-center gap-100">
                       <span>스터디 리더</span>
-                      <span className="h-[8px] w-[1px] bg-[#E9EAEB]" />
+                      <span className="h-100 w-px bg-[#E9EAEB]" />
                       <span>
                         {studyDetail.basicInfo.leader.simpleIntroduction}
                       </span>
@@ -103,7 +105,7 @@ export default function StudyInfoSection({
               </div>
               {isLeader && (
                 <Button
-                  className="h-[40px] w-[80px] text-[16px] font-bold"
+                  className="h-500 w-[80px] text-[16px] font-bold"
                   onClick={() =>
                     router.push(`/application-list/${groupStudyId}`)
                   }

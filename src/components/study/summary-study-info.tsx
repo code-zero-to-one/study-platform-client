@@ -5,8 +5,8 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/button';
+import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
-import { GroupStudyDetailResponse } from '../../features/study/group/api/group-study-types';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -18,7 +18,7 @@ import {
 import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
 
 interface Props {
-  data: GroupStudyDetailResponse;
+  data: GroupStudyFullResponse;
   memberId?: number;
 }
 
@@ -43,14 +43,14 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
     type,
     targetRoles,
     experienceLevels,
-  } = basicInfo;
-  const { title } = detailInfo;
-  const { interviewPost: questions } = interviewPost;
+  } = basicInfo ?? {};
+  const { title } = detailInfo ?? {};
+  const { interviewPost: questions } = interviewPost ?? {};
   console.log('interviewPost', interviewPost);
 
-  const isLeader = leader.memberId === memberId;
-  const isLoggedIn = typeof memberId === 'number';
-  const isPremium = hostType === 'ZEROONE' || hostType === 'METOR';
+  const isLeader = leader?.memberId === memberId;
+  // const isLoggedIn = typeof memberId === 'number';
+  // const isPremium = hostType === 'ZEROONE' || hostType === 'METOR';
 
   const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
     groupStudyId,
@@ -169,7 +169,7 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
         ))}
       </div>
 
-      <div className="mt-200 h-[1px] w-full bg-[#D5D7DA]" />
+      <div className="mt-200 h-px w-full bg-[#D5D7DA]" />
 
       {/* 더보기/접기 버튼 */}
       {infoItems.length > 4 && (
@@ -181,12 +181,12 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
           {isExpanded ? (
             <>
               접기
-              <ChevronUp className="h-[16px] w-[16px]" />
+              <ChevronUp className="h-200 w-200" />
             </>
           ) : (
             <>
               더보기
-              <ChevronDown className="h-[16px] w-[16px]" />
+              <ChevronDown className="h-200 w-200" />
             </>
           )}
         </button>
@@ -205,7 +205,7 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
             <Button
               size="large"
               color="primary"
-              className="h-[48px]"
+              className="h-600"
               disabled={isApplyDisabled}
             >
               {getButtonText()}
@@ -216,7 +216,7 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
         <Button
           color="secondary"
           size="large"
-          className="font-designer-16b h-[48px]"
+          className="font-designer-16b h-600"
           onClick={handleCopyURL}
         >
           공유하기

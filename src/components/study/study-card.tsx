@@ -1,14 +1,12 @@
 'use client';
 
-import { Clock5, User, Users } from 'lucide-react';
+import { Clock5, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { GroupStudyListItemDto } from '@/api/openapi';
 import Badge from '@/components/ui/badge';
 
-import {
-  GroupStudyData,
-  StudyType,
-} from '../../features/study/group/api/group-study-types';
+import { StudyType } from '../../features/study/group/api/group-study-types';
 import {
   REGULAR_MEETING_LABELS,
   STUDY_TYPE_LABELS,
@@ -34,31 +32,31 @@ const STUDY_TYPE_BADGE_COLORS: Record<StudyType, BadgeColor> = {
 };
 
 interface StudyCardProps {
-  study: GroupStudyData;
+  study: GroupStudyListItemDto;
   href: string;
   onClick?: () => void;
 }
 
 export default function StudyCard({ study, href, onClick }: StudyCardProps) {
-  const studyType = study.basicInfo.type;
-  const badgeColor = STUDY_TYPE_BADGE_COLORS[studyType];
-  const price = study.basicInfo.price;
+  const studyType = study.basicInfo?.type as StudyType;
+  const badgeColor = studyType ? STUDY_TYPE_BADGE_COLORS[studyType] : 'default';
+  const price = study.basicInfo?.price ?? 0;
 
   return (
     <Link
       href={href}
       onClick={onClick}
-      className="hover:shadow-2 hover:border-border-brand cursor-pointer overflow-hidden rounded-[12px] border border-[#E5E7EB] bg-white transition-all"
+      className="hover:shadow-2 hover:border-border-brand rounded-150 cursor-pointer overflow-hidden border border-[#E5E7EB] bg-white transition-all"
     >
       {/* 썸네일 영역 */}
-      <div className="relative flex h-[180px] items-center justify-center bg-gradient-to-br from-[#F87171] to-[#EC4899]">
-        {study.simpleDetailInfo.thumbnail?.resizedImages?.[0]
+      <div className="relative flex h-[180px] items-center justify-center bg-linear-to-br from-[#F87171] to-[#EC4899]">
+        {study.simpleDetailInfo?.thumbnail?.resizedImages?.[0]
           ?.resizedImageUrl ? (
           <Image
             src={
               study.simpleDetailInfo.thumbnail.resizedImages[0].resizedImageUrl
             }
-            alt={study.simpleDetailInfo.title}
+            alt={study.simpleDetailInfo?.title ?? '스터디'}
             fill
             className="object-cover"
           />
@@ -73,17 +71,19 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
       <div className="px-300 py-200">
         {/* 뱃지 */}
         <div className="mb-100">
-          <Badge color={badgeColor}>{STUDY_TYPE_LABELS[studyType]}</Badge>
+          <Badge color={badgeColor}>
+            {studyType ? STUDY_TYPE_LABELS[studyType] : '스터디'}
+          </Badge>
         </div>
 
         {/* 제목 */}
         <h3 className="font-designer-20b text-text-default mb-100 truncate">
-          {study.simpleDetailInfo.title}
+          {study.simpleDetailInfo?.title}
         </h3>
 
         {/* 설명 */}
         <p className="font-designer-16r text-text-subtle mb-150 line-clamp-2">
-          {study.simpleDetailInfo.summary}
+          {study.simpleDetailInfo?.summary}
         </p>
 
         {/* 하단 정보 */}
@@ -91,13 +91,15 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
           <div className="flex items-center gap-50">
             <Users width={20} height={20} />
             <span className="font-designer-13r">
-              {study.basicInfo.maxMembersCount}명
+              {study.basicInfo?.maxMembersCount}명
             </span>
           </div>
           <div className="flex items-center gap-50">
             <Clock5 width={20} height={20} />
             <span className="font-designer-13r">
-              {REGULAR_MEETING_LABELS[study.basicInfo.regularMeeting]}
+              {study.basicInfo?.regularMeeting
+                ? REGULAR_MEETING_LABELS[study.basicInfo.regularMeeting]
+                : ''}
             </span>
           </div>
         </div>
@@ -105,8 +107,8 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
         {/* 리더 정보 & 가격 */}
         <div className="mt-500 flex items-center justify-between">
           <div className="flex items-center gap-150">
-            <div className="flex h-[32px] w-[32px] items-center justify-center overflow-hidden rounded-full bg-[#E5E7EB]">
-              {study.basicInfo.leader?.profileImage?.resizedImages?.[0]
+            <div className="flex h-400 w-400 items-center justify-center overflow-hidden rounded-full bg-[#E5E7EB]">
+              {study.basicInfo?.leader?.profileImage?.resizedImages?.[0]
                 ?.resizedImageUrl ? (
                 <Image
                   src={
@@ -129,7 +131,19 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
             </div>
             <div>
               <p className="font-designer-15m">
-                {study.basicInfo.leader?.memberName || '스터디장'}
+                {(
+                  study.basicInfo?.leader as {
+                    memberName?: string;
+                    memberNickname?: string;
+                  }
+                )?.memberName ||
+                  (
+                    study.basicInfo?.leader as {
+                      memberName?: string;
+                      memberNickname?: string;
+                    }
+                  )?.memberNickname ||
+                  '스터디장'}
               </p>
               <p className="font-designer-12r text-text-subtlest">스터디장</p>
             </div>

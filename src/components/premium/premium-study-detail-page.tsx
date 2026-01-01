@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
+import {
+  GroupStudyFullResponse,
+  Leader,
+} from '@/features/study/group/api/group-study-types';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
-import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
-import GroupStudyMemberList from '../../features/study/group/ui/group-study-member-list';
 import PremiumStudyInfoSection from './premium-study-info-section';
 import ChannelSection from '../../features/study/group/channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
@@ -17,6 +18,9 @@ import {
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
 } from '../../features/study/group/model/use-study-query';
+import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
+import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
+import GroupStudyMemberList from '../../features/study/group/ui/group-study-member-list';
 
 type ActiveTab = 'intro' | 'members' | 'channel';
 
@@ -59,7 +63,7 @@ export default function PremiumStudyDetailPage({
   });
 
   useEffect(() => {
-    const leader = studyDetail.basicInfo.leader;
+    const leader = studyDetail.basicInfo.leader as Leader;
     setLeaderInfo(leader);
   }, [studyDetail, setLeaderInfo]);
 
@@ -212,7 +216,10 @@ export default function PremiumStudyDetailPage({
         }}
       />
       {active === 'intro' && (
-        <PremiumStudyInfoSection study={studyDetail} isLeader={isLeader} />
+        <PremiumStudyInfoSection
+          study={studyDetail as GroupStudyFullResponse}
+          isLeader={isLeader}
+        />
       )}
       {active === 'members' && (
         <GroupStudyMemberList

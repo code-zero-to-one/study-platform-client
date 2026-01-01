@@ -1,6 +1,7 @@
 'use client';
 
 import { useSearchParams, useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 import Button from '@/components/ui/button';
 
 // 토스페이먼츠 에러 코드별 사용자 친화적 메시지
@@ -35,7 +36,7 @@ function getErrorMessage(code: string | null, message: string | null): string {
   return '결제 중 오류가 발생했습니다. 다시 시도해주세요.';
 }
 
-export default function PaymentFailPage() {
+function PaymentFailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -95,5 +96,22 @@ export default function PaymentFailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PaymentFailPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="bg-background-alternative flex min-h-dvh items-center justify-center">
+          <div className="text-center">
+            <div className="border-border-default mx-auto mb-400 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+            <p className="font-designer-16m text-text-subtle">로딩 중...</p>
+          </div>
+        </div>
+      }
+    >
+      <PaymentFailContent />
+    </Suspense>
   );
 }

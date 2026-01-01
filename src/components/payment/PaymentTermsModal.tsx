@@ -74,8 +74,8 @@ export default function PaymentTermsModal() {
                       회수 불가능한 가치 제공이 완료된 경우
                     </li>
                     <li>
-                      회원의 과실, 단순 변심, 개인 일정 등의 사유로 서비스 이용이
-                      어려운 경우
+                      회원의 과실, 단순 변심, 개인 일정 등의 사유로 서비스
+                      이용이 어려운 경우
                     </li>
                   </ul>
                 </div>
