@@ -1,17 +1,33 @@
+import { useDeletePeerReview } from '@/hooks/queries/peer-review-api';
 import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
 interface DeletePeerReviewModalProps {
+  peerReviewId: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-// todo api 연결
 // 피어 리뷰 삭제 모달
 export default function DeletePeerReviewModal({
+  peerReviewId,
   open,
   onOpenChange,
 }: DeletePeerReviewModalProps) {
+  const { mutate: deletePeerReview } = useDeletePeerReview();
+
+  const handleDelete = () => {
+    deletePeerReview(peerReviewId, {
+      onSuccess: () => {
+        alert('피어 리뷰가 삭제되었습니다!');
+        onOpenChange(false);
+      },
+      onError: () => {
+        alert('피어 리뷰 삭제에 실패했습니다. 다시 시도해주세요.');
+      },
+    });
+  };
+
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
@@ -38,9 +54,7 @@ export default function DeletePeerReviewModal({
               color="primary"
               className="font-designer-14b w-[160px]"
               size="medium"
-              onClick={() => {
-                // 과제 삭제 로직
-              }}
+              onClick={handleDelete}
             >
               삭제하기
             </Button>
