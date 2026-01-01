@@ -94,23 +94,18 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
   const { mutate: createMission } = useCreateMission();
 
   const onValidSubmit = (values: CreateMissionFormValues) => {
-    // todo api guide가 반영 안됨 - 임시로 description과 guide 합침
-
-    const content = values.description
-      ? `${values.description}\n\n${values.guide}`
-      : values.guide;
-
-    const startTime = values.dateRange.from.toISOString();
-    const endTime = values.dateRange.to.toISOString();
+    const startDate = values.dateRange.from.toISOString();
+    const endDate = values.dateRange.to.toISOString();
 
     createMission(
       {
         groupStudyId,
         request: {
           title: values.title,
-          content,
-          startTime,
-          endTime,
+          guide: values.guide,
+          description: values.description,
+          startDate,
+          endDate,
         },
       },
       {
