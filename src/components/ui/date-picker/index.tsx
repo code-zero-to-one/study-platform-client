@@ -98,6 +98,7 @@ export function DatePicker({
   return (
     <div className="relative" ref={containerRef}>
       <button
+        type="button"
         onClick={() => setShowCalendar(!showCalendar)}
         className="rounded-100 border-border-default flex h-[40px] w-[230px] items-center justify-between gap-100 border bg-white px-150"
       >
