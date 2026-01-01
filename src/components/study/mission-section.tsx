@@ -144,7 +144,9 @@ export default function MissionSection({
         </button>
 
         {/* TODO: TaskDetail 컴포넌트 추가 */}
-        <div>과제 상세 (missionId: {missionId}, taskId: {taskId})</div>
+        <div>
+          과제 상세 (missionId: {missionId}, taskId: {taskId})
+        </div>
       </section>
     );
   }
