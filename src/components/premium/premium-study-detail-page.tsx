@@ -1,10 +1,11 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
+import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import {
   GroupStudyFullResponse,
   Leader,
@@ -20,9 +21,8 @@ import {
 } from '../../features/study/group/model/use-study-query';
 import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
-import GroupStudyMemberList from '../../features/study/group/ui/group-study-member-list';
-
-type ActiveTab = 'intro' | 'members' | 'channel';
+import MissionSection from '../study/mission-section';
+import GroupStudyMemberList from '../study/study-member-list';
 
 type ActionKey = 'end' | 'delete';
 
@@ -31,17 +31,15 @@ interface PremiumStudyDetailPageProps {
   memberId?: number;
 }
 
-const TABS = [
-  { label: '스터디 소개', value: 'intro' },
-  { label: '참가자', value: 'members' },
-  { label: '채널', value: 'channel' },
-];
-
 export default function PremiumStudyDetailPage({
   groupStudyId,
   memberId,
 }: PremiumStudyDetailPageProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const activeTab = (searchParams.get('tab') as StudyTabValue) || 'intro';
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
@@ -49,8 +47,6 @@ export default function PremiumStudyDetailPage({
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
   const isLeader = leaderId === memberId;
-
-  const [active, setActive] = useState<ActiveTab>('intro');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
@@ -202,12 +198,14 @@ export default function PremiumStudyDetailPage({
 
       {/** 탭리스트 */}
       <Tabs
-        tabs={TABS.filter(
+        tabs={STUDY_DETAIL_TABS.filter(
           (tab) => tab.value === 'intro' || isLeader || isMember,
         )}
-        activeTab={active}
-        onChange={(value: ActiveTab) => {
-          setActive(value);
+        activeTab={activeTab}
+        onChange={(value: StudyTabValue) => {
+          const params = new URLSearchParams(searchParams.toString());
+          params.set('tab', value);
+          router.push(`${pathname}?${params.toString()}`, { scroll: false });
           sendGTMEvent({
             event: 'premium_study_tab_change',
             group_study_id: String(groupStudyId),
@@ -215,20 +213,23 @@ export default function PremiumStudyDetailPage({
           });
         }}
       />
-      {active === 'intro' && (
+      {activeTab === 'intro' && (
         <PremiumStudyInfoSection
           study={studyDetail as GroupStudyFullResponse}
           isLeader={isLeader}
         />
       )}
-      {active === 'members' && (
+      {activeTab === 'members' && (
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
           myApplicationStatus={myApplicationStatus}
         />
       )}
-      {active === 'channel' && (
+      {activeTab === 'mission' && (
+        <MissionSection groupStudyId={groupStudyId} isLeader={isLeader} />
+      )}
+      {activeTab === 'channel' && (
         <ChannelSection
           groupStudyId={groupStudyId}
           memberId={memberId}
