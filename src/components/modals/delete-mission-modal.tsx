@@ -5,7 +5,7 @@ import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
 interface DeleteMissionModalProps {
-  missionId: MissionListResponse['id'];
+  missionId: MissionListResponse['missionId'];
 }
 
 // 미션 삭제 모달
