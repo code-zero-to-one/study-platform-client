@@ -8,7 +8,8 @@ Name | Type | Description | Notes
 **missionId** | **number** |  | [optional] [default to undefined]
 **weekNum** | **number** |  | [optional] [default to undefined]
 **missionTitle** | **string** |  | [optional] [default to undefined]
-**missionContent** | **string** |  | [optional] [default to undefined]
+**missionDescription** | **string** |  | [optional] [default to undefined]
+**missionGuide** | **string** |  | [optional] [default to undefined]
 **missionStartDate** | **string** |  | [optional] [default to undefined]
 **missionEndDate** | **string** |  | [optional] [default to undefined]
 **maxHomeworkSubmissionCount** | **number** |  | [optional] [default to undefined]
@@ -24,7 +25,8 @@ const instance: MissionResponseDto = {
     missionId,
     weekNum,
     missionTitle,
-    missionContent,
+    missionDescription,
+    missionGuide,
     missionStartDate,
     missionEndDate,
     maxHomeworkSubmissionCount,

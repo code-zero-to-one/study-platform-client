@@ -17,7 +17,8 @@
 export interface MissionListResponse {
     'missionId'?: number;
     'title'?: string;
-    'content'?: string;
+    'description'?: string;
+    'guide'?: string;
     'startDate'?: string;
     'endDate'?: string;
     'status'?: MissionListResponseStatusEnum;

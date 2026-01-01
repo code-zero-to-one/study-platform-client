@@ -16,8 +16,9 @@
 
 export interface MissionUpdateRequest {
     'title': string;
-    'content': string;
+    'description'?: string;
+    'guide': string;
     'startDate': string;
-    'endDate'?: string;
+    'endDate': string;
 }
 

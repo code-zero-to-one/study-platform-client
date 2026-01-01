@@ -45,7 +45,7 @@ import type { UpdateMissionResponseSchema } from '../models';
 export const MissionApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
          * @summary 그룹스터디 미션 생성
          * @param {number} groupStudyId 그룹스터디 ID
          * @param {MissionCreationRequest} missionCreationRequest 미션 생성 요청 정보
@@ -220,7 +220,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
          * @summary 그룹스터디 미션 수정
          * @param {number} missionId 미션 ID
          * @param {MissionUpdateRequest} missionUpdateRequest 미션 수정 요청 정보
@@ -273,7 +273,7 @@ export const MissionApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = MissionApiAxiosParamCreator(configuration)
     return {
         /**
-         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
          * @summary 그룹스터디 미션 생성
          * @param {number} groupStudyId 그룹스터디 ID
          * @param {MissionCreationRequest} missionCreationRequest 미션 생성 요청 정보
@@ -329,7 +329,7 @@ export const MissionApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
          * @summary 그룹스터디 미션 수정
          * @param {number} missionId 미션 ID
          * @param {MissionUpdateRequest} missionUpdateRequest 미션 수정 요청 정보
@@ -352,7 +352,7 @@ export const MissionApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = MissionApiFp(configuration)
     return {
         /**
-         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
          * @summary 그룹스터디 미션 생성
          * @param {number} groupStudyId 그룹스터디 ID
          * @param {MissionCreationRequest} missionCreationRequest 미션 생성 요청 정보
@@ -396,7 +396,7 @@ export const MissionApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.getMissions(groupStudyId, searchType, page, pageSize, options).then((request) => request(axios, basePath));
         },
         /**
-         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
          * @summary 그룹스터디 미션 수정
          * @param {number} missionId 미션 ID
          * @param {MissionUpdateRequest} missionUpdateRequest 미션 수정 요청 정보
@@ -414,7 +414,7 @@ export const MissionApiFactory = function (configuration?: Configuration, basePa
  */
 export class MissionApi extends BaseAPI {
     /**
-     * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+     * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
      * @summary 그룹스터디 미션 생성
      * @param {number} groupStudyId 그룹스터디 ID
      * @param {MissionCreationRequest} missionCreationRequest 미션 생성 요청 정보
@@ -462,7 +462,7 @@ export class MissionApi extends BaseAPI {
     }
 
     /**
-     * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+     * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
      * @summary 그룹스터디 미션 수정
      * @param {number} missionId 미션 ID
      * @param {MissionUpdateRequest} missionUpdateRequest 미션 수정 요청 정보

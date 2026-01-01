@@ -21,7 +21,8 @@ export interface MissionResponseDto {
     'missionId'?: number;
     'weekNum'?: number;
     'missionTitle'?: string;
-    'missionContent'?: string;
+    'missionDescription'?: string;
+    'missionGuide'?: string;
     'missionStartDate'?: string;
     'missionEndDate'?: string;
     'maxHomeworkSubmissionCount'?: number;

@@ -6,9 +6,10 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **title** | **string** |  | [default to undefined]
-**content** | **string** |  | [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**guide** | **string** |  | [default to undefined]
 **startDate** | **string** |  | [default to undefined]
-**endDate** | **string** |  | [optional] [default to undefined]
+**endDate** | **string** |  | [default to undefined]
 
 ## Example
 
@@ -17,7 +18,8 @@ import { MissionUpdateRequest } from './api';
 
 const instance: MissionUpdateRequest = {
     title,
-    content,
+    description,
+    guide,
     startDate,
     endDate,
 };

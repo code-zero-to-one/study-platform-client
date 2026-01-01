@@ -22,7 +22,11 @@ export interface MissionCreationRequest {
     /**
      * 미션 내용
      */
-    'content': string;
+    'description'?: string;
+    /**
+     * 미션 가이드
+     */
+    'guide': string;
     /**
      * 미션 시작 시간
      */
