@@ -2,6 +2,7 @@ import React, { type ComponentType, type ReactNode } from 'react';
 import ToggleButton from './button';
 
 type Value = string | number;
+type ToggleVariant = 'round' | 'square';
 
 export interface ToggleOption {
   value: Value;
@@ -9,6 +10,7 @@ export interface ToggleOption {
 }
 
 interface MultiProps {
+  variant?: ToggleVariant;
   options: ToggleOption[];
   multiple?: true;
   value?: Value[];
@@ -17,6 +19,7 @@ interface MultiProps {
 }
 
 interface SingleProps {
+  variant?: ToggleVariant;
   options: ToggleOption[];
   multiple: false;
   value?: Value;
@@ -29,21 +32,27 @@ interface SingleProps {
 export type ToggleGroupProps = MultiProps | SingleProps;
 
 export interface ItemRendererProps {
+  variant?: ToggleVariant;
   pressed: boolean;
   onPress: () => void;
   children: ReactNode;
 }
 
-function ToggleGroup({ pressed, onPress, children }: ItemRendererProps) {
+function ToggleGroup({
+  variant = 'round',
+  pressed,
+  onPress,
+  children,
+}: ItemRendererProps) {
   return (
-    <ToggleButton variant="round" pressed={pressed} onPressedChange={onPress}>
+    <ToggleButton variant={variant} pressed={pressed} onPressedChange={onPress}>
       {children}
     </ToggleButton>
   );
 }
 
 function GroupItems(props: ToggleGroupProps) {
-  const { options } = props;
+  const { variant = 'round', options } = props;
   const isMulti = props.multiple !== false;
   const Item = props.renderItem ?? ToggleGroup;
 
@@ -73,8 +82,14 @@ function GroupItems(props: ToggleGroupProps) {
       role="group"
       aria-label="toggle-group"
     >
+      {}
       {options.map(({ value: v, label }) => (
-        <Item key={v} pressed={selectedSet.has(v)} onPress={() => toggle(v)}>
+        <Item
+          key={v}
+          variant={variant}
+          pressed={selectedSet.has(v)}
+          onPress={() => toggle(v)}
+        >
           {label}
         </Item>
       ))}
