@@ -1,4 +1,4 @@
-# BaseResponseGroupStudyProgressGradesResponse
+# BaseResponseGroupStudyDiscretionGradeResponse
 
 
 ## Properties
@@ -7,15 +7,15 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **statusCode** | **number** | Status Code | [default to undefined]
 **timestamp** | **string** | Timestamp | [default to undefined]
-**content** | [**GroupStudyProgressGradesResponse**](GroupStudyProgressGradesResponse.md) | Content | [optional] [default to undefined]
+**content** | [**GroupStudyDiscretionGradeResponse**](GroupStudyDiscretionGradeResponse.md) | Content | [optional] [default to undefined]
 **message** | **string** | Message | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { BaseResponseGroupStudyProgressGradesResponse } from './api';
+import { BaseResponseGroupStudyDiscretionGradeResponse } from './api';
 
-const instance: BaseResponseGroupStudyProgressGradesResponse = {
+const instance: BaseResponseGroupStudyDiscretionGradeResponse = {
     statusCode,
     timestamp,
     content,

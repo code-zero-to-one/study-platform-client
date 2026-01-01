@@ -15,9 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { GroupStudyProgressGradesResponse } from './group-study-progress-grades-response';
+import type { PeerReviewResponse } from './peer-review-response';
 
-export interface BaseResponseGroupStudyProgressGradesResponse {
+export interface PeerReviewResponseSchema {
     /**
      * Status Code
      */
@@ -29,7 +29,7 @@ export interface BaseResponseGroupStudyProgressGradesResponse {
     /**
      * Content
      */
-    'content'?: GroupStudyProgressGradesResponse;
+    'content'?: PeerReviewResponse;
     /**
      * Message
      */

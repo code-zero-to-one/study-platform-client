@@ -173,7 +173,7 @@ const { status, data } = await apiInstance.getPeerReviews(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **toggleThumbsUp**
-> PeerReviewResponse toggleThumbsUp()
+> PeerReviewResponseSchema toggleThumbsUp()
 
 피어리뷰에 👍 또는 👎 반응을 토글합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 참가자만 반응 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestParam: reaction-type (필수) - 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)  **[Response]** - 200 OK: 반응 토글 성공 (업데이트된 피어리뷰 정보 반환)  **[참고]** - 같은 반응을 다시 호출하면 토글됩니다 (추가/취소) - 향후 사용자별 반응 추적 기능 추가 예정 
 
@@ -207,7 +207,7 @@ const { status, data } = await apiInstance.toggleThumbsUp(
 
 ### Return type
 
-**PeerReviewResponse**
+**PeerReviewResponseSchema**
 
 ### Authorization
 

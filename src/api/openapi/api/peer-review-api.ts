@@ -32,7 +32,7 @@ import type { PeerReviewCreationResponseSchema } from '../models';
 // @ts-ignore
 import type { PeerReviewListResponse } from '../models';
 // @ts-ignore
-import type { PeerReviewResponse } from '../models';
+import type { PeerReviewResponseSchema } from '../models';
 // @ts-ignore
 import type { PeerReviewUpdateRequest } from '../models';
 /**
@@ -306,7 +306,7 @@ export const PeerReviewApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async toggleThumbsUp(peerReviewId: number, reactionType: ToggleThumbsUpReactionTypeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PeerReviewResponse>> {
+        async toggleThumbsUp(peerReviewId: number, reactionType: ToggleThumbsUpReactionTypeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PeerReviewResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.toggleThumbsUp(peerReviewId, reactionType, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['PeerReviewApi.toggleThumbsUp']?.[localVarOperationServerIndex]?.url;
@@ -374,7 +374,7 @@ export const PeerReviewApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        toggleThumbsUp(peerReviewId: number, reactionType: ToggleThumbsUpReactionTypeEnum, options?: RawAxiosRequestConfig): AxiosPromise<PeerReviewResponse> {
+        toggleThumbsUp(peerReviewId: number, reactionType: ToggleThumbsUpReactionTypeEnum, options?: RawAxiosRequestConfig): AxiosPromise<PeerReviewResponseSchema> {
             return localVarFp.toggleThumbsUp(peerReviewId, reactionType, options).then((request) => request(axios, basePath));
         },
         /**

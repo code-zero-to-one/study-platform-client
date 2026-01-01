@@ -13,10 +13,11 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { GroupStudyProgressGradeResponse } from './group-study-progress-grade-response';
 
-export interface UpdateGroupStudyMemberProgressRequest {
-    'targetMemberId': number;
-    'gradeId': number;
-    'reason'?: string;
+export interface GroupStudyDiscretionGradeResponse {
+    'grades'?: Array<GroupStudyProgressGradeResponse>;
 }
 

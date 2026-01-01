@@ -64,8 +64,8 @@ docs/BankResponse.md
 docs/BankSearchApi.md
 docs/BaseResponse.md
 docs/BaseResponseGrantedTokenInfo.md
+docs/BaseResponseGroupStudyDiscretionGradeResponse.md
 docs/BaseResponseGroupStudyMembersResponse.md
-docs/BaseResponseGroupStudyProgressGradesResponse.md
 docs/BaseResponseMatchingRequestResponse.md
 docs/BaseResponseMemberAccountHistoryResponseDto.md
 docs/BaseResponseObject.md
@@ -131,6 +131,7 @@ docs/GroupStudyCreationResponseDto.md
 docs/GroupStudyDetailInfoRequestDto.md
 docs/GroupStudyDetailInfoResponseDto.md
 docs/GroupStudyDetailResponse.md
+docs/GroupStudyDiscretionGradeResponse.md
 docs/GroupStudyFullResponseDto.md
 docs/GroupStudyHomeworkApi.md
 docs/GroupStudyInterviewPostRequest.md
@@ -146,7 +147,6 @@ docs/GroupStudyNoticeRequest.md
 docs/GroupStudyNoticeResponse.md
 docs/GroupStudyNoticeResponseContent.md
 docs/GroupStudyProgressGradeResponse.md
-docs/GroupStudyProgressGradesResponse.md
 docs/GroupStudySimpleInfoResponseDto.md
 docs/GroupStudyThreadApi.md
 docs/GroupStudyThreadCommentRequest.md
@@ -241,6 +241,7 @@ docs/PeerReviewCreationResponse.md
 docs/PeerReviewCreationResponseSchema.md
 docs/PeerReviewListResponse.md
 docs/PeerReviewResponse.md
+docs/PeerReviewResponseSchema.md
 docs/PeerReviewUpdateRequest.md
 docs/PhoneAuthApi.md
 docs/PhoneAuthResponseDto.md
@@ -311,8 +312,8 @@ docs/TokenAPIApi.md
 docs/TossPaymentConfirmRequest.md
 docs/TossWebhookApi.md
 docs/TossWebhookPayload.md
+docs/UpdateGroupStudyMemberDiscretionRequest.md
 docs/UpdateGroupStudyMemberGreetingRequest.md
-docs/UpdateGroupStudyMemberProgressRequest.md
 docs/UpdateMissionResponseSchema.md
 docs/UpdateStudySpaceRequest.md
 docs/UploadProfileImageRequest.md
@@ -335,8 +336,8 @@ models/available-study-time-list-response.ts
 models/bank-list-response-schema.ts
 models/bank-response.ts
 models/base-response-granted-token-info.ts
+models/base-response-group-study-discretion-grade-response.ts
 models/base-response-group-study-members-response.ts
-models/base-response-group-study-progress-grades-response.ts
 models/base-response-matching-request-response.ts
 models/base-response-member-account-history-response-dto.ts
 models/base-response-object.ts
@@ -398,6 +399,7 @@ models/group-study-creation-response.ts
 models/group-study-detail-info-request-dto.ts
 models/group-study-detail-info-response-dto.ts
 models/group-study-detail-response.ts
+models/group-study-discretion-grade-response.ts
 models/group-study-full-response-dto.ts
 models/group-study-interview-post-request.ts
 models/group-study-interview-post-response-dto.ts
@@ -409,7 +411,6 @@ models/group-study-notice-request.ts
 models/group-study-notice-response-content.ts
 models/group-study-notice-response.ts
 models/group-study-progress-grade-response.ts
-models/group-study-progress-grades-response.ts
 models/group-study-simple-info-response-dto.ts
 models/group-study-thread-comment-request.ts
 models/group-study-thread-request.ts
@@ -495,6 +496,7 @@ models/peer-review-create-request.ts
 models/peer-review-creation-response-schema.ts
 models/peer-review-creation-response.ts
 models/peer-review-list-response.ts
+models/peer-review-response-schema.ts
 models/peer-review-response.ts
 models/peer-review-update-request.ts
 models/phone-auth-response-dto.ts
@@ -556,8 +558,8 @@ models/thread-summary-response.ts
 models/today-study-data-response.ts
 models/toss-payment-confirm-request.ts
 models/toss-webhook-payload.ts
+models/update-group-study-member-discretion-request.ts
 models/update-group-study-member-greeting-request.ts
-models/update-group-study-member-progress-request.ts
 models/update-mission-response-schema.ts
 models/update-study-space-request.ts
 models/upload-profile-image-request.ts

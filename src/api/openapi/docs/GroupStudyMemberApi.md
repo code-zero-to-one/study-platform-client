@@ -4,12 +4,61 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
+|[**getDiscretionGrades**](#getdiscretiongrades) | **GET** /api/v1/group-studies/members/discretions | 진행 점수 등급 목록 조회|
 |[**getGroupStudyMembers**](#getgroupstudymembers) | **GET** /api/v1/group-studies/{id}/members | 참여자 목록 조회|
 |[**getMemberStatus**](#getmemberstatus) | **GET** /api/v1/group-studies/{id}/members/status | 그룹스터디 회원의 현재 상태 및 사유 조회|
-|[**getProgressGrades**](#getprogressgrades) | **GET** /api/v1/group-studies/members/progress-grades | 진행 점수 등급 목록 조회|
 |[**kickMember**](#kickmember) | **DELETE** /api/v1/group-studies/{id}/members | 참여자 탈퇴/추방|
 |[**updateGreeting**](#updategreeting) | **PUT** /api/v1/group-studies/{id}/members/greeting | 가입인사 등록/수정|
-|[**updateMemberProgress**](#updatememberprogress) | **PUT** /api/v1/group-studies/{id}/members/progress | 진행 점수 부여/수정|
+|[**updateMemberDiscretion**](#updatememberdiscretion) | **PUT** /api/v1/group-studies/{id}/members/discretions | 진행 점수 부여/수정|
+
+# **getDiscretionGrades**
+> getDiscretionGrades()
+
+작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+
+### Example
+
+```typescript
+import {
+    GroupStudyMemberApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new GroupStudyMemberApi(configuration);
+
+const { status, data } = await apiInstance.getDiscretionGrades();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+void (empty response body)
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | 진행 점수 등급 목록 조회 성공 |  -  |
+|**400** | 클라이언트 요청 오류 |  -  |
+|**404** | 리소스 조회 실패 |  -  |
+|**500** | 그 외 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getGroupStudyMembers**
 > GroupStudyMembersResponse getGroupStudyMembers()
@@ -124,55 +173,6 @@ const { status, data } = await apiInstance.getMemberStatus(
 |**200** | 그룹스터디 회원의 현재 상태 및 사유 조회 성공 |  -  |
 |**400** | 클라이언트 요청 오류 |  -  |
 |**404** | 그룹스터디 조회 실패 |  -  |
-|**500** | 그 외 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
-|**403** | You are authenticated but not allowed authorization |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **getProgressGrades**
-> getProgressGrades()
-
-작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
-
-### Example
-
-```typescript
-import {
-    GroupStudyMemberApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new GroupStudyMemberApi(configuration);
-
-const { status, data } = await apiInstance.getProgressGrades();
-```
-
-### Parameters
-This endpoint does not have any parameters.
-
-
-### Return type
-
-void (empty response body)
-
-### Authorization
-
-[bearer](../README.md#bearer)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json, */*
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | 진행 점수 등급 목록 조회 성공 |  -  |
-|**400** | 클라이언트 요청 오류 |  -  |
-|**404** | 리소스 조회 실패 |  -  |
 |**500** | 그 외 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
@@ -300,8 +300,8 @@ const { status, data } = await apiInstance.updateGreeting(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **updateMemberProgress**
-> StringResponseSchema updateMemberProgress(updateGroupStudyMemberProgressRequest)
+# **updateMemberDiscretion**
+> StringResponseSchema updateMemberDiscretion(updateGroupStudyMemberDiscretionRequest)
 
 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  - 그룹 스터디 리더가 특정 참여자에게 진행 점수를 부여하거나 수정합니다.  - 최초 요청 시 생성, 이후 요청 시 수정합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | targetMemberId | number | 대상자 ID | Y | 101 | | gradeId | number | 획득 등급 ID | Y | 1 | | reason | string | 사유 | Y | \"출석\" |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T20:35:41.12345\" | | content | string | 응답 본문 | null | | message | string | 처리 결과 | \"진행 점수 업데이트 성공\" | 
 
@@ -311,18 +311,18 @@ const { status, data } = await apiInstance.updateGreeting(
 import {
     GroupStudyMemberApi,
     Configuration,
-    UpdateGroupStudyMemberProgressRequest
+    UpdateGroupStudyMemberDiscretionRequest
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new GroupStudyMemberApi(configuration);
 
 let id: number; //그룹 스터디 ID (default to undefined)
-let updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest; //
+let updateGroupStudyMemberDiscretionRequest: UpdateGroupStudyMemberDiscretionRequest; //
 
-const { status, data } = await apiInstance.updateMemberProgress(
+const { status, data } = await apiInstance.updateMemberDiscretion(
     id,
-    updateGroupStudyMemberProgressRequest
+    updateGroupStudyMemberDiscretionRequest
 );
 ```
 
@@ -330,7 +330,7 @@ const { status, data } = await apiInstance.updateMemberProgress(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **updateGroupStudyMemberProgressRequest** | **UpdateGroupStudyMemberProgressRequest**|  | |
+| **updateGroupStudyMemberDiscretionRequest** | **UpdateGroupStudyMemberDiscretionRequest**|  | |
 | **id** | [**number**] | 그룹 스터디 ID | defaults to undefined|
 
 
@@ -355,6 +355,7 @@ const { status, data } = await apiInstance.updateMemberProgress(
 |**400** | 클라이언트 요청 오류 |  -  |
 |**402** | 인가 실패 |  -  |
 |**404** | 리소스 조회 실패 |  -  |
+|**409** | 서버 상태와 요청 충돌 |  -  |
 |**500** | 그 외 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
