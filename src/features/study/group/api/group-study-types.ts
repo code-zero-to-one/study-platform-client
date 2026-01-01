@@ -40,6 +40,7 @@ export const EXTENSION_TO_MIME: Record<
 };
 
 export interface BasicInfo {
+  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
   type: StudyType;
   targetRoles: TargetRole[];
   maxMembersCount: number;
@@ -50,7 +51,6 @@ export interface BasicInfo {
   startDate: string;
   endDate: string;
   price: number;
-  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
   createdAt: string;
   updatedAt: string;
 }
@@ -71,10 +71,10 @@ export interface BasicInfoDetail extends BasicInfo {
 }
 
 export interface Leader {
-  memberId: number;
-  memberName: string;
-  profileImage: ProfileImage | null;
-  simpleIntroduction: string | null;
+  memberId?: number;
+  memberNickname?: string;
+  profileImage?: ProfileImage;
+  simpleIntroduction?: string;
 }
 
 export interface ProfileImage {
@@ -149,7 +149,7 @@ export interface DetailInfoDetail extends SimpleDetailInfo, Timestamps {
 
 /** 상세 화면용 InterviewPost */
 export interface InterviewPostDetail extends Timestamps {
-  interviewPost: { question: string; id: number }[];
+  interviewPost: { question?: string; id?: number }[];
 }
 
 // 그룹 스터디 신청 Response 타입
@@ -169,6 +169,8 @@ export interface GroupStudyFormRequest {
   };
   thumbnailExtension: ThumbnailExtension;
 }
+
+export type { GroupStudyCreationRequestDto } from '@/api/openapi/models/group-study-creation-request-dto';
 
 // 그룹 리스트 타입
 export interface GroupStudyListRequest {
@@ -196,6 +198,9 @@ export interface GroupStudyDetailResponse {
   detailInfo: DetailInfoDetail; // DetailInfo 확장
   interviewPost: InterviewPostDetail; // InterviewPost 확장
 }
+
+// OpenAPI에서 자동 생성된 DTO 타입 (API 응답용)
+export type { GroupStudyFullResponseDto as GroupStudyFullResponse } from '@/api/openapi';
 
 export type DeleteGroupStudyRequest = GroupStudyDetailRequest;
 export type CompleteGroupStudyRequest = GroupStudyDetailRequest;

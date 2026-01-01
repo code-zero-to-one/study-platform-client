@@ -20,6 +20,7 @@ interface Props {
   error?: boolean;
   disabled?: boolean;
   className?: string;
+  size?: 's' | 'm' | 'l';
 }
 
 function SingleDropdown({
@@ -30,6 +31,7 @@ function SingleDropdown({
   error = false,
   disabled = false,
   className,
+  size = 'l',
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -38,6 +40,12 @@ function SingleDropdown({
     [options, value],
   );
   const displayText = selected?.label ?? placeholder ?? '';
+
+  const sizeStyles = {
+    s: { height: 'h-[32px]', iconSize: 'size-5' },
+    m: { height: 'h-[40px]', iconSize: 'size-6' },
+    l: { height: 'h-[48px]', iconSize: 'size-4' },
+  }[size];
 
   const handleSelect = useCallback(
     (v: string | undefined) => {
@@ -59,7 +67,8 @@ function SingleDropdown({
       >
         <div
           className={[
-            'rounded-100 flex h-[48px] w-full items-center justify-between border px-150',
+            'rounded-100 flex w-full items-center justify-between border px-150',
+            sizeStyles.height,
             error ? 'border-border-error' : 'border-border-default',
             'bg-fill-neutral-subtle-default',
             disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
@@ -72,9 +81,9 @@ function SingleDropdown({
             {displayText}
           </span>
           {isOpen ? (
-            <ChevronUp className="size-4" />
+            <ChevronUp className={sizeStyles.iconSize} />
           ) : (
-            <ChevronDown className="size-4" />
+            <ChevronDown className={sizeStyles.iconSize} />
           )}
         </div>
       </DropdownMenuTrigger>
@@ -92,7 +101,8 @@ function SingleDropdown({
               onSelect={() => handleSelect(o.value)}
               aria-selected={isSelected}
               className={[
-                'rounded-100 h-[48px] w-full cursor-pointer p-150',
+                'rounded-100 w-full cursor-pointer p-150',
+                sizeStyles.height,
                 'data-[highlighted]:bg-fill-neutral-subtle-pressed',
                 isSelected ? 'bg-fill-neutral-subtle-default' : '',
               ].join(' ')}

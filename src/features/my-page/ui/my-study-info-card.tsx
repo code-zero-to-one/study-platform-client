@@ -27,7 +27,10 @@ export default function MyStudyInfoCard({
 
   return (
     <li className="flex w-full flex-col gap-100">
-      <Link href={`/study/${studyId}`} className="flex w-full flex-col gap-100">
+      <Link
+        href={`/group-study/${studyId}`}
+        className="flex w-full flex-col gap-100"
+      >
         <div className="relative">
           <Image
             src={thumbnail?.resizedImages[0].resizedImageUrl}

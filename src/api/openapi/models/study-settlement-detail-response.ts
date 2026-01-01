@@ -27,6 +27,7 @@ export interface StudySettlementDetailResponse {
     'taxRate'?: number;
     'settlementAmount'?: number;
     'scheduledAt'?: string;
+    'approvedAt'?: string;
     'settledAt'?: string;
     'status'?: StudySettlementDetailResponseStatusEnum;
 }

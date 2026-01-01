@@ -5,12 +5,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { GroupStudyFullResponseDto } from '@/api/openapi';
 import { Modal } from '@/components/ui/modal';
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import GroupStudyForm from './group-study-form';
-
-import { GroupStudyDetailResponse } from '../api/group-study-types';
 
 import {
   useCreateGroupStudyMutation,
@@ -19,9 +18,12 @@ import {
 import {
   buildOpenGroupDefaultValues,
   GroupStudyFormValues,
+  StudyClassification,
   toOpenGroupRequest,
 } from '../model/group-study-form.schema';
 import { useGroupStudyDetailQuery } from '../model/use-study-query';
+
+export type { StudyClassification };
 
 interface GroupStudyModalProps {
   trigger?: React.ReactNode;
@@ -29,6 +31,7 @@ interface GroupStudyModalProps {
   onOpenChange?: () => void;
   mode: 'create' | 'edit';
   groupStudyId?: number;
+  classification?: StudyClassification;
 }
 
 export default function GroupStudyFormModal({
@@ -37,6 +40,7 @@ export default function GroupStudyFormModal({
   open: controlledOpen = false,
   groupStudyId,
   onOpenChange: onControlledOpen,
+  classification = 'GROUP_STUDY',
 }: GroupStudyModalProps) {
   const qc = useQueryClient();
   const [open, setOpen] = useState<boolean>(false);
@@ -77,31 +81,34 @@ export default function GroupStudyFormModal({
     }
   };
 
-  const refineStudyDetail = (value: GroupStudyDetailResponse) => {
+  const refineStudyDetail = (value: GroupStudyFullResponseDto) => {
     if (isLoading) return;
 
     return {
-      type: value.basicInfo.type,
-      targetRoles: value.basicInfo.targetRoles,
-      maxMembersCount: value.basicInfo.maxMembersCount.toString(),
-      experienceLevels: value.basicInfo.experienceLevels,
-      method: value.basicInfo.method,
-      location: value.basicInfo.location,
-      regularMeeting: value.basicInfo.regularMeeting,
-      startDate: value.basicInfo.startDate,
-      endDate: value.basicInfo.endDate,
-      price: value.basicInfo.price.toString(),
-      classification: value.basicInfo.classification,
-      title: value.detailInfo.title,
-      description: value.detailInfo.description,
-      summary: value.detailInfo.summary,
-      interviewPost: value.interviewPost.interviewPost.map((q) => q.question),
+      classification: value.basicInfo?.classification,
+      type: value.basicInfo?.type,
+      targetRoles: value.basicInfo?.targetRoles,
+      maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
+      experienceLevels: value.basicInfo?.experienceLevels,
+      method: value.basicInfo?.method,
+      location: value.basicInfo?.location,
+      regularMeeting: value.basicInfo?.regularMeeting,
+      startDate: value.basicInfo?.startDate,
+      endDate: value.basicInfo?.endDate,
+      price: value.basicInfo?.price?.toString() ?? '',
+      title: value.detailInfo?.title,
+      description: value.detailInfo?.description,
+      summary: value.detailInfo?.summary,
+      interviewPost: value.interviewPost?.interviewPost?.map(
+        (q: { question?: string }) => q.question,
+      ),
       thumbnailExtension:
-        value.detailInfo.image.resizedImages[0].resizedImageUrl
+        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
           ?.split('.')
           .pop()
           ?.toUpperCase() as GroupStudyFormValues['thumbnailExtension'],
-      thumbnailUrl: value.detailInfo.image.resizedImages[0].resizedImageUrl,
+      thumbnailUrl:
+        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
     };
   };
 
@@ -129,6 +136,7 @@ export default function GroupStudyFormModal({
   const handleCreate = async (values: GroupStudyFormValues) => {
     try {
       const body = toOpenGroupRequest(values);
+      console.log('body', body);
       const created = await createGroupStudy(body);
 
       if (values.thumbnailFile) {
@@ -214,7 +222,7 @@ export default function GroupStudyFormModal({
             <GroupStudyForm
               defaultValues={
                 mode === 'create'
-                  ? buildOpenGroupDefaultValues()
+                  ? buildOpenGroupDefaultValues(classification)
                   : refineStudyDetail(groupStudyInfo!)
               }
               onSubmit={handleSubmitForm}

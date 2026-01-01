@@ -10,6 +10,7 @@ import ConfirmDeleteModal from './confirm-delete-modal';
 import GroupStudyFormModal from './group-study-form-modal';
 import GroupStudyMemberList from './group-study-member-list';
 import StudyInfoSection from './study-info-section';
+import { Leader } from '../api/group-study-types';
 import ChannelSection from '../channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
 import {
@@ -60,7 +61,7 @@ export default function StudyDetailPage({
 
   useEffect(() => {
     const leader = studyDetail.basicInfo.leader;
-    setLeaderInfo(leader);
+    setLeaderInfo(leader as Leader);
   }, [studyDetail, setLeaderInfo]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
@@ -211,12 +212,7 @@ export default function StudyDetailPage({
         }}
       />
       {active === 'intro' && (
-        <StudyInfoSection
-          study={studyDetail}
-          memberId={memberId}
-          groupStudyId={groupStudyId}
-          isLeader={isLeader}
-        />
+        <StudyInfoSection study={studyDetail} isLeader={isLeader} />
       )}
       {active === 'members' && (
         <GroupStudyMemberList

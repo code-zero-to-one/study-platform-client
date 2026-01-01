@@ -7,7 +7,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**generateToken**](#generatetoken) | **GET** /api/v1/tokens/token | |
 
 # **generateToken**
-> BaseResponse generateToken()
+> BaseResponseTemporalToken generateToken()
 
 
 ### Example
@@ -40,7 +40,7 @@ const { status, data } = await apiInstance.generateToken(
 
 ### Return type
 
-**BaseResponse**
+**BaseResponseTemporalToken**
 
 ### Authorization
 

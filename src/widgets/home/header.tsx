@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import NotificationDropdown from '@/components/modals/notification-dropdown';
 import Button from '@/components/ui/button';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
@@ -45,16 +46,14 @@ export default async function Header() {
         {/* 1차 MVP에선 사용하지 않아 제외 */}
         <nav className="font-designer-14m text-text-default flex flex-grow items-center gap-300 px-600">
           <Link href={isLoggedIn ? '/home' : '/login'}>1:1 스터디</Link>
-          <Link href="/study">그룹스터디</Link>
-          {/* <Link href="/">팀소개하기로 했었구나</Link> */}
+          <Link href="/group-study">그룹스터디</Link>
+          <Link href="/premium-study">멘토스터디</Link>
           <Link href="/insights">인사이트</Link>
         </nav>
 
-        {/* 알림 기능을 구현하지 못해 주석 처리 */}
-        {/* <div>
-            <NotiIcon />
-          </div> */}
-        <div>
+        {accessTokenStr && <NotificationDropdown />}
+
+        <div className="ml-150">
           {isLoggedIn ? (
             <HeaderUserDropdown userImg={userImg} />
           ) : (

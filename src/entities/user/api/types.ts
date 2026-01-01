@@ -113,6 +113,7 @@ export interface GetUserProfileResponse {
   memberInfo: MemberInfo;
   memberProfile: MemberProfile;
   sincerityTemp: SincerityTemp;
+  premiumCreator: boolean;
 }
 
 export interface PatchAutoMatchingParams {
