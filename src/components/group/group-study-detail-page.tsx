@@ -5,21 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
+import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import ConfirmDeleteModal from './confirm-delete-modal';
-import GroupStudyFormModal from './group-study-form-modal';
-import GroupStudyMemberList from './group-study-member-list';
-import StudyInfoSection from './study-info-section';
-import { Leader } from '../api/group-study-types';
-import ChannelSection from '../channel/ui/channel-section';
-import { useGroupStudyMyStatusQuery } from '../model/use-group-study-my-status-query';
+import StudyInfoSection from './group-study-info-section';
+import { Leader } from '../../features/study/group/api/group-study-types';
+import ChannelSection from '../../features/study/group/channel/ui/channel-section';
+import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
-} from '../model/use-study-query';
-
-type ActiveTab = 'intro' | 'members' | 'channel';
+} from '../../features/study/group/model/use-study-query';
+import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
+import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
+import MissionSection from '../study/mission-section';
+import GroupStudyMemberList from '../study/study-member-list';
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
@@ -27,12 +27,6 @@ interface StudyDetailPageProps {
   groupStudyId: number;
   memberId?: number;
 }
-
-const TABS = [
-  { label: '스터디 소개', value: 'intro' },
-  { label: '참가자', value: 'members' },
-  { label: '채널', value: 'channel' },
-];
 
 export default function StudyDetailPage({
   groupStudyId,
@@ -47,7 +41,7 @@ export default function StudyDetailPage({
 
   const isLeader = leaderId === memberId;
 
-  const [active, setActive] = useState<ActiveTab>('intro');
+  const [active, setActive] = useState<StudyTabValue>('intro');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
@@ -198,11 +192,11 @@ export default function StudyDetailPage({
 
       {/** 탭리스트 */}
       <Tabs
-        tabs={TABS.filter(
+        tabs={STUDY_DETAIL_TABS.filter(
           (tab) => tab.value === 'intro' || isLeader || isMember,
         )}
         activeTab={active}
-        onChange={(value: ActiveTab) => {
+        onChange={(value: StudyTabValue) => {
           setActive(value);
           sendGTMEvent({
             event: 'group_study_tab_change',
@@ -220,6 +214,10 @@ export default function StudyDetailPage({
           leaderId={studyDetail.basicInfo.leader.memberId}
           myApplicationStatus={myApplicationStatus}
         />
+      )}
+
+      {active === 'mission' && (
+        <MissionSection groupStudyId={groupStudyId} isLeader={isLeader} />
       )}
       {active === 'channel' && (
         <ChannelSection

@@ -9,11 +9,11 @@ import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import { useAuth } from '@/hooks/use-auth';
 import { hashValue } from '@/utils/hash';
-import SummaryStudyInfo from '../../../../components/study/summary-study-info';
 
-import { useApplicantsByStatusQuery } from '../application/model/use-applicant-qeury';
+import SummaryStudyInfo from '../study/summary-study-info';
 
 interface StudyInfoSectionProps {
   study: GroupStudyFullResponseDto;

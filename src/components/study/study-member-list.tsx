@@ -4,13 +4,13 @@ import Image from 'next/image';
 import { useState } from 'react';
 import Pagination from '@/components/ui/pagination';
 import { useAuth } from '@/hooks/use-auth';
-import GroupStudyMemberItem from './group-study-member-item';
-import KickedReasonModal from './kicked-reason-modal';
 import {
   GroupStudyMember,
   GroupStudyMyStatusResponse,
-} from '../api/group-study-types';
-import { useGroupStudyMemberListQuery } from '../model/use-group-study-member-list-query';
+} from '../../features/study/group/api/group-study-types';
+import { useGroupStudyMemberListQuery } from '../../features/study/group/model/use-group-study-member-list-query';
+import GroupStudyMemberItem from '../../features/study/group/ui/group-study-member-item';
+import KickedReasonModal from '../../features/study/group/ui/kicked-reason-modal';
 
 interface GroupStudyMemberListProps {
   groupStudyId: number;
@@ -18,7 +18,7 @@ interface GroupStudyMemberListProps {
   myApplicationStatus?: GroupStudyMyStatusResponse;
 }
 
-export default function GroupStudyMemberList({
+export default function StudyMemberList({
   groupStudyId,
   leaderId,
   myApplicationStatus,

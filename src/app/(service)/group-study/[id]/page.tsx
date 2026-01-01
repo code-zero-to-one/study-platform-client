@@ -7,10 +7,10 @@ import type { Metadata } from 'next';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
+import StudyDetailPage from '@/components/group/group-study-detail-page';
 import { getGroupStudyDetailInServer } from '@/features/study/group/api/get-group-study-detail.server';
 import { getGroupStudyMyStatusInServer } from '@/features/study/group/api/get-group-study-my-status.server';
 import { GroupStudyDetailResponse } from '@/features/study/group/api/group-study-types';
-import StudyDetailPage from '@/features/study/group/ui/group-study-detail-page';
 import { getServerCookie } from '@/utils/server-cookie';
 
 interface Props {
@@ -130,12 +130,7 @@ export default async function Page({
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <StudyDetailPage
-        memberId={memberId}
-        groupStudyId={Number(id)}
-        // studyDetail={data}
-        // leader={data.basicInfo.leader}
-      />
+      <StudyDetailPage memberId={memberId} groupStudyId={Number(id)} />
     </HydrationBoundary>
   );
 }
