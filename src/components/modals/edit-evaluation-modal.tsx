@@ -3,6 +3,7 @@ import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { EvaluationResponse } from '@/api/openapi';
 import Button from '@/components/ui/button';
 import FormField from '@/components/ui/form/form-field';
 import { Modal } from '@/components/ui/modal';
@@ -41,7 +42,7 @@ const EditEvaluationFormSchema = z.object({
 type EditEvaluationFormValues = z.infer<typeof EditEvaluationFormSchema>;
 
 interface EditEvaluationModalProps {
-  evaluationId: number; // todo api response 타입 적용
+  evaluationId: EvaluationResponse['evaluationId'];
 }
 
 export default function EditEvaluationModal({
@@ -84,7 +85,7 @@ export default function EditEvaluationModal({
 }
 
 interface EditEvaluationFormProps {
-  evaluationId: number;
+  evaluationId: EvaluationResponse['evaluationId'];
   onClose: () => void;
 }
 

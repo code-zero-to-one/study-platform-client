@@ -1,11 +1,31 @@
 import { useState } from 'react';
+import { useDeleteHomework } from '@/hooks/queries/group-study-homework-api';
 import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
-// todo api 연결
+interface DeleteHomeworkModalProps {
+  homeworkId: number;
+}
+
 // 과제 삭제 모달
-export default function DeleteHomeworkModal() {
+export default function DeleteHomeworkModal({
+  homeworkId,
+}: DeleteHomeworkModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+
+  const { mutate: deleteHomework } = useDeleteHomework();
+
+  const handleDelete = () => {
+    deleteHomework(homeworkId, {
+      onSuccess: () => {
+        alert('과제가 성공적으로 삭제되었습니다!');
+        setOpen(false);
+      },
+      onError: () => {
+        alert('과제 삭제에 실패했습니다. 다시 시도해주세요.');
+      },
+    });
+  };
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -43,9 +63,7 @@ export default function DeleteHomeworkModal() {
               color="primary"
               className="font-designer-14b w-[160px]"
               size="medium"
-              onClick={() => {
-                // 과제 삭제 로직
-              }}
+              onClick={handleDelete}
             >
               삭제하기
             </Button>

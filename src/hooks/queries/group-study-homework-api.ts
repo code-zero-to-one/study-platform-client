@@ -59,3 +59,20 @@ export const useEditHomework = () => {
     },
   });
 };
+
+export const useDeleteHomework = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (homeworkId: number) => {
+      const { data } = await groupStudyHomeworkApi.deleteHomework(homeworkId);
+
+      return data.content;
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ['homeworks'],
+      });
+    },
+  });
+};
