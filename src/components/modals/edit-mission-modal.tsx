@@ -106,30 +106,31 @@ function EditMissionForm({
       ? `${values.description}\n\n${values.guide}`
       : values.guide;
 
-    const startTime = values.dateRange.from.toISOString();
-    const endTime = values.dateRange.to.toISOString();
+    const startDate = values.dateRange.from.toISOString();
+    const endDate = values.dateRange.to.toISOString();
 
     // todo guide 반영
-    // updateMission(
-    //   {
-    //     missionId,
-    //     request: {
-    //       title: values.title,
-    //       content,
-    //       startTime,
-    //       endTime,
-    //     },
-    //   },
-    //   {
-    //     onSuccess: () => {
-    //       alert('미션이 성공적으로 생성되었습니다!');
-    //       onClose();
-    //     },
-    //     onError: () => {
-    //       alert('미션 생성에 실패했습니다. 다시 시도해주세요.');
-    //     },
-    //   },
-    // );
+    updateMission(
+      {
+        missionId,
+        request: {
+          title: values.title,
+          guide: values.guide,
+          description: values.description,
+          startDate,
+          endDate,
+        },
+      },
+      {
+        onSuccess: () => {
+          alert('미션이 성공적으로 생성되었습니다!');
+          onClose();
+        },
+        onError: () => {
+          alert('미션 생성에 실패했습니다. 다시 시도해주세요.');
+        },
+      },
+    );
   };
 
   return (
