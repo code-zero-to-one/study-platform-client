@@ -3,43 +3,7 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import Button from '@/components/ui/button';
-
-interface PaymentConfirmResponse {
-  success: boolean;
-  message?: string;
-  data?: {
-    orderId: string;
-    amount: number;
-    paymentKey: string;
-  };
-}
-
-// TODO: 백엔드 API 호출 함수 - 실제 API 엔드포인트로 교체 필요
-async function confirmPayment(
-  paymentKey: string,
-  orderId: string,
-  amount: number,
-): Promise<PaymentConfirmResponse> {
-  // TODO: 실제 백엔드 API로 교체
-  // const response = await fetch('/api/payment/confirm', {
-  //   method: 'POST',
-  //   headers: { 'Content-Type': 'application/json' },
-  //   body: JSON.stringify({ paymentKey, orderId, amount }),
-  // });
-  // return response.json();
-
-  // 임시 성공 응답
-  console.log('결제 승인 요청:', { paymentKey, orderId, amount });
-
-  return {
-    success: true,
-    data: {
-      orderId,
-      amount,
-      paymentKey,
-    },
-  };
-}
+import { useConfirmTossPayment } from '@/hooks/queries/payment-user-api';
 
 function PaymentSuccessContent() {
   const searchParams = useSearchParams();
@@ -48,42 +12,56 @@ function PaymentSuccessContent() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>(
     'loading',
   );
+
+  const { mutateAsync, isPending, isError } = useConfirmTossPayment();
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const paymentId = Number(searchParams.get('paymentId'));
   const paymentKey = searchParams.get('paymentKey');
   const orderId = searchParams.get('orderId');
   const amount = searchParams.get('amount');
 
   useEffect(() => {
-    async function confirm() {
-      if (!paymentKey || !orderId || !amount) {
-        setStatus('error');
-        setErrorMessage('결제 정보가 올바르지 않습니다.');
+    if (!paymentKey || !orderId || !amount) {
+      setStatus('error');
+      setErrorMessage('결제 검증에 필요한 정보가 없습니다.');
 
-        return;
-      }
-
-      try {
-        const result = await confirmPayment(
-          paymentKey,
-          orderId,
-          Number(amount),
-        );
-
-        if (result.success) {
-          setStatus('success');
-        } else {
-          setStatus('error');
-          setErrorMessage(result.message || '결제 승인에 실패했습니다.');
-        }
-      } catch {
-        setStatus('error');
-        setErrorMessage('결제 승인 중 오류가 발생했습니다.');
-      }
+      return;
     }
 
-    confirm().catch(() => {});
-  }, [paymentKey, orderId, amount]);
+    let isMounted = true;
+
+    const verifyPaymentWithBackend = async () => {
+      try {
+        setStatus('loading');
+
+        await mutateAsync({
+          paymentId,
+          paymentKey,
+          orderId,
+          amount: Number(amount),
+        });
+
+        if (isMounted) {
+          setStatus('success');
+        }
+      } catch (error) {
+        if (isMounted) {
+          setStatus('error');
+          setErrorMessage('결제 검증에 실패했습니다.');
+        }
+      }
+    };
+
+    verifyPaymentWithBackend().catch((error) => {
+      console.error('Error in verifyPaymentWithBackend:', error);
+    });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [paymentKey, orderId, amount, mutateAsync]);
 
   if (status === 'loading') {
     return (
@@ -102,15 +80,12 @@ function PaymentSuccessContent() {
     return (
       <div className="bg-background-alternative flex min-h-dvh items-center justify-center">
         <div className="rounded-150 border-border-default bg-fill-neutral-subtle-default mx-auto max-w-md border p-600 text-center">
-          <div className="bg-fill-danger-subtle-default mx-auto mb-400 flex h-16 w-16 items-center justify-center rounded-full">
-            <span className="text-3xl">✕</span>
-          </div>
           <h1 className="font-designer-24b mb-200">결제 승인 실패</h1>
           <p className="text-text-subtle mb-400">{errorMessage}</p>
           <Button
             type="button"
             color="primary"
-            size="large"
+            size="medium"
             className="w-full"
             onClick={() => router.back()}
           >

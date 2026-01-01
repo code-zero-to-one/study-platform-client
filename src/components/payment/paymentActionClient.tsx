@@ -8,13 +8,6 @@ import Button from '../ui/button';
 import Checkbox from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
 
-// interface Study {
-//   paymentId: number;
-//   tossOrderId: string;
-//   groupStudyTitle: string;
-//   amount: number;
-// }
-
 interface Props {
   study: StudyPaymentPrepareResponse;
 }
@@ -32,8 +25,6 @@ export default function PaymentCheckoutPage({ study }: Props) {
   const [payment, setPayment] = useState(null);
   const [isAgreed, setIsAgreed] = useState(false);
 
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD');
 
   const canPay = isAgreed && !!paymentMethod;
@@ -43,20 +34,6 @@ export default function PaymentCheckoutPage({ study }: Props) {
   };
 
   const onPay = async () => {
-    setErrorMsg(null);
-
-    if (!isAgreed) {
-      setErrorMsg('필수 약관에 동의해 주세요.');
-
-      return;
-    }
-
-    if (!paymentMethod) {
-      setErrorMsg('결제 수단을 선택해 주세요.');
-
-      return;
-    }
-
     try {
       await payment.requestPayment({
         method: paymentMethod,
@@ -71,9 +48,9 @@ export default function PaymentCheckoutPage({ study }: Props) {
           `/payment/success?paymentId=${study.paymentId}`,
         failUrl:
           window.location.origin + `/payment/fail?paymentId=${study.paymentId}`,
-        customerEmail: 'customer123@gmail.com',
-        customerName: '김토스',
-        customerMobilePhone: '01012341234',
+        // customerEmail: 'customer123@gmail.com',
+        // customerName: '김토스',
+        // customerMobilePhone: '01012341234',
         card: {
           useEscrow: false,
           flowMode: 'DEFAULT',
@@ -87,7 +64,6 @@ export default function PaymentCheckoutPage({ study }: Props) {
       // const data: { redirectUrl: string } = await res.json();
       // window.location.href = data.redirectUrl;
     } catch {
-      setErrorMsg('결제 요청에 실패했어요. 잠시 후 다시 시도해 주세요.');
     } finally {
     }
   };
@@ -151,10 +127,10 @@ export default function PaymentCheckoutPage({ study }: Props) {
               <label
                 key={m.id}
                 htmlFor={m.id}
-                className={`rounded-100 flex w-full cursor-pointer items-center justify-start px-400 py-300 ${
+                className={`rounded-100 font-designer-16b flex h-500 w-full cursor-pointer items-center justify-start border px-150 ${
                   selected
-                    ? 'bg-fill-primary-default text-text-on-color'
-                    : 'border-border-default hover:bg-fill-neutral-subtle-hover border bg-white'
+                    ? 'bg-fill-brand-default-default text-text-inverse'
+                    : 'border-border-default hover:bg-fill-neutral-subtle-hover bg-fill-neutral-default-default'
                 }`}
               >
                 <RadioGroupItem value={m.id} id={m.id} size="large" />

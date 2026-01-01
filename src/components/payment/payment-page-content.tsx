@@ -17,9 +17,7 @@ export default function PaymentPageContent({ id }: PaymentPageContentProps) {
   const { data } = useQuery({
     queryKey: ['payment', id],
     queryFn: async () => {
-      const { data } = await paymentUserApi.preparePayment(Number(id), {
-        amount: 2000,
-      });
+      const { data } = await paymentUserApi.preparePayment(Number(id), {});
 
       return data.content;
     },
