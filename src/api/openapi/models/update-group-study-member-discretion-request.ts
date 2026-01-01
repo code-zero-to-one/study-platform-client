@@ -16,7 +16,6 @@
 
 export interface UpdateGroupStudyMemberDiscretionRequest {
     'targetMemberId': number;
-    'gradeId': number;
     'reason'?: string;
 }
 
