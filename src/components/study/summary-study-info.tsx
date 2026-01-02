@@ -46,7 +46,6 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
   } = basicInfo ?? {};
   const { title } = detailInfo ?? {};
   const { interviewPost: questions } = interviewPost ?? {};
-  console.log('interviewPost', interviewPost);
 
   const isLeader = leader?.memberId === memberId;
   // const isLoggedIn = typeof memberId === 'number';
@@ -56,8 +55,6 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
     groupStudyId,
     isLeader,
   });
-
-  console.log('myApplicationStatus', myApplicationStatus);
 
   const getDurationText = (start: string, end: string): string => {
     const startDateObj = new Date(start);
