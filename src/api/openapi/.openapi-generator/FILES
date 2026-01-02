@@ -8,6 +8,7 @@ api/admin-matching-api.ts
 api/admin-payment-api.ts
 api/admin-refund-api.ts
 api/admin-settlement-api.ts
+api/aligo-kakao-api.ts
 api/auth-api.ts
 api/bank-search-api.ts
 api/daily-study-api.ts
@@ -50,11 +51,15 @@ docs/AdminPaymentApi.md
 docs/AdminRefundApi.md
 docs/AdminSettlementApi.md
 docs/AdminTransactionListResponse.md
+docs/AligoKakaoApi.md
 docs/AligoListDetailDto.md
 docs/AligoListResponseDto.md
 docs/AligoListResponseSchema.md
 docs/AligoRemainResponseDto.md
 docs/AligoRemainResponseSchema.md
+docs/AlimtalkHeartInfoResponseDto.md
+docs/AlimtalkHistoryDetailResponseDto.md
+docs/AlimtalkHistoryListResponseDto.md
 docs/AuthApi.md
 docs/AutoRunMatchingRequestDto.md
 docs/AvailableStudyTimeDto.md
@@ -73,6 +78,7 @@ docs/BaseResponseString.md
 docs/BaseResponseStudySpaceIsParticipateResponse.md
 docs/BaseResponseTemporalToken.md
 docs/BaseResponseVoid.md
+docs/ButtonDto.md
 docs/CalendarDayStatus.md
 docs/CancelData.md
 docs/CareerListResponse.md
@@ -86,6 +92,7 @@ docs/CursorResponseDtoDailyStudyResponse.md
 docs/CursorResponseDtoStudyReservationMemberDto.md
 docs/DailyStudyApi.md
 docs/DailyStudyResponse.md
+docs/DetailItem.md
 docs/DocumentedErrorCodeControllerApi.md
 docs/ErrorResponse.md
 docs/EvaluationApi.md
@@ -156,6 +163,8 @@ docs/GroupStudyUpdateResponse.md
 docs/GrowthMetricResponse.md
 docs/HasMemberNewNotificationResponse.md
 docs/HasMemberNewNotificationResponseSchema.md
+docs/HeartInfo.md
+docs/HistoryItem.md
 docs/HomeworkDetailResponseDto.md
 docs/HomeworkEditRequest.md
 docs/HomeworkSubmissionRequest.md
@@ -166,6 +175,9 @@ docs/InterviewAnswer.md
 docs/InterviewQuestion.md
 docs/JobListResponse.md
 docs/JobResponseDto.md
+docs/KakaoChannelListResponseDto.md
+docs/KakaoChannelProfileDto.md
+docs/KakaoTemplateListResponseDto.md
 docs/LocalTime.md
 docs/MatchingApi.md
 docs/MatchingAttributes.md
@@ -301,6 +313,9 @@ docs/StudySubjectDto.md
 docs/StudySubjectListResponse.md
 docs/TechStackApi.md
 docs/TechStackResponse.md
+docs/TemplateDto.md
+docs/TemplateInfo.md
+docs/TemplatesSyncStatusDto.md
 docs/TemporalToken.md
 docs/ThreadCommentResponseContent.md
 docs/ThreadCommentResponseSchema.md
@@ -329,6 +344,9 @@ models/aligo-list-response-dto.ts
 models/aligo-list-response-schema.ts
 models/aligo-remain-response-dto.ts
 models/aligo-remain-response-schema.ts
+models/alimtalk-heart-info-response-dto.ts
+models/alimtalk-history-detail-response-dto.ts
+models/alimtalk-history-list-response-dto.ts
 models/auto-run-matching-request-dto.ts
 models/available-study-time-dto.ts
 models/available-study-time-list-response.ts
@@ -345,6 +363,7 @@ models/base-response-study-space-is-participate-response.ts
 models/base-response-temporal-token.ts
 models/base-response-void.ts
 models/base-response.ts
+models/button-dto.ts
 models/calendar-day-status.ts
 models/cancel-data.ts
 models/career-list-response.ts
@@ -357,6 +376,7 @@ models/create-study-space-request.ts
 models/cursor-response-dto-daily-study-response.ts
 models/cursor-response-dto-study-reservation-member-dto.ts
 models/daily-study-response.ts
+models/detail-item.ts
 models/error-response.ts
 models/evaluation-creation-response-dto.ts
 models/evaluation-creation-response-schema.ts
@@ -418,6 +438,8 @@ models/group-study-update-response.ts
 models/growth-metric-response.ts
 models/has-member-new-notification-response-schema.ts
 models/has-member-new-notification-response.ts
+models/heart-info.ts
+models/history-item.ts
 models/homework-detail-response-dto.ts
 models/homework-edit-request.ts
 models/homework-submission-request.ts
@@ -429,6 +451,9 @@ models/interview-answer.ts
 models/interview-question.ts
 models/job-list-response.ts
 models/job-response-dto.ts
+models/kakao-channel-list-response-dto.ts
+models/kakao-channel-profile-dto.ts
+models/kakao-template-list-response-dto.ts
 models/local-time.ts
 models/matching-attributes.ts
 models/matching-request-response.ts
@@ -548,6 +573,9 @@ models/study-space-is-participate-response.ts
 models/study-subject-dto.ts
 models/study-subject-list-response.ts
 models/tech-stack-response.ts
+models/template-dto.ts
+models/template-info.ts
+models/templates-sync-status-dto.ts
 models/temporal-token.ts
 models/thread-comment-response-content.ts
 models/thread-comment-response-schema.ts
