@@ -3,6 +3,7 @@
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { useEffect, useState } from 'react';
 import { StudyPaymentPrepareResponse } from '@/api/openapi';
+import { useUserStore } from '@/features/auth/model/store';
 import PaymentTermsModal from './PaymentTermsModal';
 import Button from '../ui/button';
 import Checkbox from '../ui/checkbox';
@@ -12,30 +13,41 @@ interface Props {
   study: StudyPaymentPrepareResponse;
 }
 
-type PaymentMethod = 'CARD' | 'VBANK';
-const clientKey = 'test_ck_ORzdMaqN3wEbO04g0xNNr5AkYXQG';
-const customerKey = 'TwG7MSXwcuFlMaug2sHpf';
+type PaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
+const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
 
 const methods: { id: PaymentMethod; label: string }[] = [
   { id: 'CARD', label: '신용카드 결제' },
-  { id: 'VBANK', label: '무통장 입금 (가상계좌)' },
+  { id: 'VIRTUAL_ACCOUNT', label: '무통장 입금 (가상계좌)' },
 ];
 
 export default function PaymentCheckoutPage({ study }: Props) {
   const [payment, setPayment] = useState(null);
   const [isAgreed, setIsAgreed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const { memberName, tel } = useUserStore();
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD');
 
-  const canPay = isAgreed && !!paymentMethod;
+  console.log('paymentMethod', paymentMethod);
+
+  const canPay = isAgreed && !!paymentMethod && !!payment && !isLoading;
 
   const toggleTerm = () => {
     setIsAgreed((prev) => !prev);
   };
 
   const onPay = async () => {
+    if (!payment) {
+      alert('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+
+      return;
+    }
+
+    setIsLoading(true);
+
     try {
-      await payment.requestPayment({
+      const basePaymentParams = {
         method: paymentMethod,
         amount: {
           currency: 'KRW',
@@ -45,26 +57,49 @@ export default function PaymentCheckoutPage({ study }: Props) {
         orderName: study.groupStudyTitle,
         successUrl:
           window.location.origin +
-          `/payment/success?paymentId=${study.paymentId}`,
+          `/payment/success?paymentId=${study.paymentId}&method=${paymentMethod}`,
         failUrl:
-          window.location.origin + `/payment/fail?paymentId=${study.paymentId}`,
-        // customerEmail: 'customer123@gmail.com',
-        // customerName: '김토스',
-        // customerMobilePhone: '01012341234',
-        card: {
-          useEscrow: false,
-          flowMode: 'DEFAULT',
-          useCardPoint: false,
-          useAppCardOnly: false,
-        },
-      });
+          window.location.origin +
+          `/payment/fail?paymentId=${study.paymentId}&groupStudyId=${study.groupStudyId}`,
+        customerName: memberName ?? undefined,
+        customerMobilePhone: tel ?? undefined,
+      };
 
-      // if (!res.ok) throw new Error('PAYMENT_SESSION_FAILED');
+      if (paymentMethod === 'CARD') {
+        await payment.requestPayment({
+          ...basePaymentParams,
+          card: {
+            useEscrow: false,
+            flowMode: 'DEFAULT',
+            useCardPoint: false,
+            useAppCardOnly: false,
+          },
+        });
+      } else {
+        await payment.requestPayment({
+          ...basePaymentParams,
+          virtualAccount: {
+            cashReceipt: {
+              type: '소득공제',
+            },
+            useEscrow: false,
+          },
+        });
+      }
+    } catch (error: unknown) {
+      // 사용자가 결제창을 닫은 경우는 에러 메시지를 표시하지 않음
+      if (
+        error instanceof Error &&
+        (error.message.includes('USER_CANCEL') ||
+          error.message.includes('PAY_PROCESS_CANCELED'))
+      ) {
+        return;
+      }
 
-      // const data: { redirectUrl: string } = await res.json();
-      // window.location.href = data.redirectUrl;
-    } catch {
+      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      console.error('Payment error:', error);
     } finally {
+      setIsLoading(false);
     }
   };
 
@@ -76,7 +111,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
         // 회원 결제
         // @docs https://docs.tosspayments.com/sdk/v2/js#tosspaymentspayment
         const payment = tossPayments.payment({
-          customerKey,
+          customerKey: String(study.memberId),
         });
 
         setPayment(payment);
@@ -88,7 +123,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
     fetchPayment().catch((error) => {
       console.error('Error in fetchPayment:', error);
     });
-  }, [clientKey, customerKey]);
+  }, [study.memberId]);
 
   return (
     <div className="space-y-200">
@@ -148,7 +183,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
           onClick={onPay}
           className="font-designer-16b mt-400 w-full"
         >
-          결제하기
+          {isLoading ? '결제 처리 중...' : '결제하기'}
         </Button>
       </div>
     </div>
