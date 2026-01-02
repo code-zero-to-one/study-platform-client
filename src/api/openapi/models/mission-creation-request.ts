@@ -28,6 +28,10 @@ export interface MissionCreationRequest {
      */
     'guide': string;
     /**
+     * 주차
+     */
+    'weekNum'?: number;
+    /**
      * 미션 시작 시간
      */
     'startDate': string;

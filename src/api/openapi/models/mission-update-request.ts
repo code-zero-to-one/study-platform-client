@@ -18,6 +18,10 @@ export interface MissionUpdateRequest {
     'title': string;
     'description'?: string;
     'guide': string;
+    /**
+     * 주차
+     */
+    'weekNum'?: number;
     'startDate': string;
     'endDate': string;
 }
