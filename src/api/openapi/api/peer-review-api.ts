@@ -32,8 +32,6 @@ import type { PeerReviewCreationResponseSchema } from '../models';
 // @ts-ignore
 import type { PeerReviewListResponse } from '../models';
 // @ts-ignore
-import type { PeerReviewResponseSchema } from '../models';
-// @ts-ignore
 import type { PeerReviewUpdateRequest } from '../models';
 /**
  * PeerReviewApi - axios parameter creator
@@ -161,51 +159,6 @@ export const PeerReviewApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
-         * 피어리뷰에 👍 또는 👎 반응을 토글합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 참가자만 반응 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestParam: reaction-type (필수) - 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)  **[Response]** - 200 OK: 반응 토글 성공 (업데이트된 피어리뷰 정보 반환)  **[참고]** - 같은 반응을 다시 호출하면 토글됩니다 (추가/취소) - 향후 사용자별 반응 추적 기능 추가 예정 
-         * @summary 피어리뷰 반응 토글
-         * @param {number} peerReviewId 피어리뷰 ID
-         * @param {ToggleThumbsUpReactionTypeEnum} reactionType 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        toggleThumbsUp: async (peerReviewId: number, reactionType: ToggleThumbsUpReactionTypeEnum, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'peerReviewId' is not null or undefined
-            assertParamExists('toggleThumbsUp', 'peerReviewId', peerReviewId)
-            // verify required parameter 'reactionType' is not null or undefined
-            assertParamExists('toggleThumbsUp', 'reactionType', reactionType)
-            const localVarPath = `/api/v1/peer-reviews/{peerReviewId}/reactions`
-                .replace(`{${"peerReviewId"}}`, encodeURIComponent(String(peerReviewId)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-            if (reactionType !== undefined) {
-                localVarQueryParameter['reaction-type'] = reactionType;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
          * 작성한 피어리뷰를 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 본인이 작성한 피어리뷰만 수정 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestBody: PeerReviewUpdateRequest (필수)   - comment (필수): 수정할 피어리뷰 내용  **[Response]** - 204 No Content: 피어리뷰 수정 성공 
          * @summary 피어리뷰 수정
          * @param {number} peerReviewId 피어리뷰 ID
@@ -299,20 +252,6 @@ export const PeerReviewApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 피어리뷰에 👍 또는 👎 반응을 토글합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 참가자만 반응 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestParam: reaction-type (필수) - 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)  **[Response]** - 200 OK: 반응 토글 성공 (업데이트된 피어리뷰 정보 반환)  **[참고]** - 같은 반응을 다시 호출하면 토글됩니다 (추가/취소) - 향후 사용자별 반응 추적 기능 추가 예정 
-         * @summary 피어리뷰 반응 토글
-         * @param {number} peerReviewId 피어리뷰 ID
-         * @param {ToggleThumbsUpReactionTypeEnum} reactionType 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async toggleThumbsUp(peerReviewId: number, reactionType: ToggleThumbsUpReactionTypeEnum, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<PeerReviewResponseSchema>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.toggleThumbsUp(peerReviewId, reactionType, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['PeerReviewApi.toggleThumbsUp']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
          * 작성한 피어리뷰를 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 본인이 작성한 피어리뷰만 수정 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestBody: PeerReviewUpdateRequest (필수)   - comment (필수): 수정할 피어리뷰 내용  **[Response]** - 204 No Content: 피어리뷰 수정 성공 
          * @summary 피어리뷰 수정
          * @param {number} peerReviewId 피어리뷰 ID
@@ -367,17 +306,6 @@ export const PeerReviewApiFactory = function (configuration?: Configuration, bas
             return localVarFp.getPeerReviews(homeworkId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 피어리뷰에 👍 또는 👎 반응을 토글합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 참가자만 반응 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestParam: reaction-type (필수) - 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)  **[Response]** - 200 OK: 반응 토글 성공 (업데이트된 피어리뷰 정보 반환)  **[참고]** - 같은 반응을 다시 호출하면 토글됩니다 (추가/취소) - 향후 사용자별 반응 추적 기능 추가 예정 
-         * @summary 피어리뷰 반응 토글
-         * @param {number} peerReviewId 피어리뷰 ID
-         * @param {ToggleThumbsUpReactionTypeEnum} reactionType 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        toggleThumbsUp(peerReviewId: number, reactionType: ToggleThumbsUpReactionTypeEnum, options?: RawAxiosRequestConfig): AxiosPromise<PeerReviewResponseSchema> {
-            return localVarFp.toggleThumbsUp(peerReviewId, reactionType, options).then((request) => request(axios, basePath));
-        },
-        /**
          * 작성한 피어리뷰를 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 본인이 작성한 피어리뷰만 수정 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestBody: PeerReviewUpdateRequest (필수)   - comment (필수): 수정할 피어리뷰 내용  **[Response]** - 204 No Content: 피어리뷰 수정 성공 
          * @summary 피어리뷰 수정
          * @param {number} peerReviewId 피어리뷰 ID
@@ -430,18 +358,6 @@ export class PeerReviewApi extends BaseAPI {
     }
 
     /**
-     * 피어리뷰에 👍 또는 👎 반응을 토글합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 참가자만 반응 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestParam: reaction-type (필수) - 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)  **[Response]** - 200 OK: 반응 토글 성공 (업데이트된 피어리뷰 정보 반환)  **[참고]** - 같은 반응을 다시 호출하면 토글됩니다 (추가/취소) - 향후 사용자별 반응 추적 기능 추가 예정 
-     * @summary 피어리뷰 반응 토글
-     * @param {number} peerReviewId 피어리뷰 ID
-     * @param {ToggleThumbsUpReactionTypeEnum} reactionType 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public toggleThumbsUp(peerReviewId: number, reactionType: ToggleThumbsUpReactionTypeEnum, options?: RawAxiosRequestConfig) {
-        return PeerReviewApiFp(this.configuration).toggleThumbsUp(peerReviewId, reactionType, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
      * 작성한 피어리뷰를 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 본인이 작성한 피어리뷰만 수정 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestBody: PeerReviewUpdateRequest (필수)   - comment (필수): 수정할 피어리뷰 내용  **[Response]** - 204 No Content: 피어리뷰 수정 성공 
      * @summary 피어리뷰 수정
      * @param {number} peerReviewId 피어리뷰 ID
@@ -454,8 +370,3 @@ export class PeerReviewApi extends BaseAPI {
     }
 }
 
-export const ToggleThumbsUpReactionTypeEnum = {
-    ThumbsUp: 'THUMBS_UP',
-    ThumbsDown: 'THUMBS_DOWN'
-} as const;
-export type ToggleThumbsUpReactionTypeEnum = typeof ToggleThumbsUpReactionTypeEnum[keyof typeof ToggleThumbsUpReactionTypeEnum];

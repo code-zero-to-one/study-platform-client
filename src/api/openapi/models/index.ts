@@ -172,7 +172,6 @@ export * from './peer-review-creation-response';
 export * from './peer-review-creation-response-schema';
 export * from './peer-review-list-response';
 export * from './peer-review-response';
-export * from './peer-review-response-schema';
 export * from './peer-review-update-request';
 export * from './phone-auth-response-dto';
 export * from './phone-auth-response-schema';

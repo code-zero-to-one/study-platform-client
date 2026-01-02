@@ -5,7 +5,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**comment** | **string** |  | [default to undefined]
+**parentId** | **number** | Parent Peer Review ID - null if root | [optional] [default to undefined]
+**comment** | **string** | Peer review comment | [default to undefined]
 
 ## Example
 
@@ -13,6 +14,7 @@ Name | Type | Description | Notes
 import { PeerReviewCreateRequest } from './api';
 
 const instance: PeerReviewCreateRequest = {
+    parentId,
     comment,
 };
 ```

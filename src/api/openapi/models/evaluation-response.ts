@@ -21,6 +21,7 @@ export interface EvaluationResponse {
     'comment'?: string;
     'createdAt'?: string;
     'updatedAt'?: string;
+    'updated'?: boolean;
 }
 
 export const EvaluationResponseGradeEnum = {

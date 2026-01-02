@@ -241,7 +241,6 @@ docs/PeerReviewCreationResponse.md
 docs/PeerReviewCreationResponseSchema.md
 docs/PeerReviewListResponse.md
 docs/PeerReviewResponse.md
-docs/PeerReviewResponseSchema.md
 docs/PeerReviewUpdateRequest.md
 docs/PhoneAuthApi.md
 docs/PhoneAuthResponseDto.md
@@ -496,7 +495,6 @@ models/peer-review-create-request.ts
 models/peer-review-creation-response-schema.ts
 models/peer-review-creation-response.ts
 models/peer-review-list-response.ts
-models/peer-review-response-schema.ts
 models/peer-review-response.ts
 models/peer-review-update-request.ts
 models/phone-auth-response-dto.ts

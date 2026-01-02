@@ -27,6 +27,5 @@ export interface PeerReviewResponse {
     'createdAt'?: string;
     'updatedAt'?: string;
     'updated'?: boolean;
-    'reactionCount'?: { [key: string]: number | undefined; };
 }
 
