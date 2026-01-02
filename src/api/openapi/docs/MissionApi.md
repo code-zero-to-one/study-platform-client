@@ -65,6 +65,7 @@ const { status, data } = await apiInstance.createMission(
 |**400** | 잘못된 요청 (validation 실패 또는 미션 생성 실패) |  -  |
 |**403** | 권한 없음 (리더가 아님) |  -  |
 |**404** | 그룹스터디를 찾을 수 없음 |  -  |
+|**409** | 미션 기간 중복 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -288,6 +289,7 @@ const { status, data } = await apiInstance.updateMission(
 |**400** | 잘못된 요청 (validation 실패, 미션 수정 실패, 또는 파라미터 검증 실패) |  -  |
 |**403** | 권한 없음 (리더가 아님) |  -  |
 |**404** | 미션을 찾을 수 없음 (MIS002) |  -  |
+|**409** | 미션 기간 중복 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
