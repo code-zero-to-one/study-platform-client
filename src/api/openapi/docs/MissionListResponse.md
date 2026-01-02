@@ -9,7 +9,6 @@ Name | Type | Description | Notes
 **weekNum** | **number** |  | [optional] [default to undefined]
 **title** | **string** |  | [optional] [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
-**guide** | **string** |  | [optional] [default to undefined]
 **startDate** | **string** |  | [optional] [default to undefined]
 **endDate** | **string** |  | [optional] [default to undefined]
 **status** | **string** |  | [optional] [default to undefined]
@@ -26,7 +25,6 @@ const instance: MissionListResponse = {
     weekNum,
     title,
     description,
-    guide,
     startDate,
     endDate,
     status,

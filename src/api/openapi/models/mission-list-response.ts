@@ -19,7 +19,6 @@ export interface MissionListResponse {
     'weekNum'?: number;
     'title'?: string;
     'description'?: string;
-    'guide'?: string;
     'startDate'?: string;
     'endDate'?: string;
     'status'?: MissionListResponseStatusEnum;
