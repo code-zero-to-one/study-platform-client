@@ -16,6 +16,7 @@
 
 export interface MissionListResponse {
     'missionId'?: number;
+    'weekNum'?: number;
     'title'?: string;
     'description'?: string;
     'guide'?: string;
