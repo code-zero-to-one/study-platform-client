@@ -1,6 +1,7 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { startTransition, useState } from 'react';
 import { useDeleteGroupStudyMemberMutation } from '@/features/study/group/model/use-delete-group-study-member';
 import Button from '../ui/button';
@@ -235,6 +236,8 @@ function Step3Modal({
   targetMemberId,
   onClose,
 }: Step3ModalProps) {
+  const router = useRouter();
+
   const { mutate: endGroupStudy } =
     useDeleteGroupStudyMemberMutation(groupStudyId);
 
@@ -247,6 +250,7 @@ function Step3Modal({
       {
         onSuccess: () => {
           alert('중도하차 처리가 완료되었습니다.');
+          router.push('/payment-management');
           onClose();
         },
         onError: () => {
