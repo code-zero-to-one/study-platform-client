@@ -33,6 +33,10 @@ import type { KakaoChannelListResponseDto } from '../models';
 import type { KakaoTemplateListResponseDto } from '../models';
 // @ts-ignore
 import type { TemplatesSyncStatusDto } from '../models';
+// @ts-ignore
+import type { TestAlimtalkResponseSchema } from '../models';
+// @ts-ignore
+import type { TestAlimtalkSendRequestDto } from '../models';
 /**
  * AligoKakaoApi - axios parameter creator
  */
@@ -267,6 +271,46 @@ export const AligoKakaoApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
+         * 관리자가 직접 알림톡을 발송하여 테스트할 수 있는 API입니다. Aligo 템플릿 코드를 직접 지정하여 발송합니다.
+         * @summary 테스트용 알림톡 발송 (관리자)
+         * @param {TestAlimtalkSendRequestDto} testAlimtalkSendRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendTestAlimtalk: async (testAlimtalkSendRequestDto: TestAlimtalkSendRequestDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'testAlimtalkSendRequestDto' is not null or undefined
+            assertParamExists('sendTestAlimtalk', 'testAlimtalkSendRequestDto', testAlimtalkSendRequestDto)
+            const localVarPath = `/api/v1/admin/aligo/kakao/test/send-alimtalk`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            localVarHeaderParameter['Content-Type'] = 'application/json';
+
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+            localVarRequestOptions.data = serializeDataIfNeeded(testAlimtalkSendRequestDto, localVarRequestOptions, configuration)
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * Kakao API에서 최신 템플릿을 조회하여 서버 캐시에 동기화합니다. 기존 캐시를 삭제 후 새로운 템플릿으로 교체합니다. 
          * @summary 템플릿 동기화 실행
          * @param {*} [options] Override http request option.
@@ -387,6 +431,19 @@ export const AligoKakaoApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 관리자가 직접 알림톡을 발송하여 테스트할 수 있는 API입니다. Aligo 템플릿 코드를 직접 지정하여 발송합니다.
+         * @summary 테스트용 알림톡 발송 (관리자)
+         * @param {TestAlimtalkSendRequestDto} testAlimtalkSendRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async sendTestAlimtalk(testAlimtalkSendRequestDto: TestAlimtalkSendRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<TestAlimtalkResponseSchema>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.sendTestAlimtalk(testAlimtalkSendRequestDto, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AligoKakaoApi.sendTestAlimtalk']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * Kakao API에서 최신 템플릿을 조회하여 서버 캐시에 동기화합니다. 기존 캐시를 삭제 후 새로운 템플릿으로 교체합니다. 
          * @summary 템플릿 동기화 실행
          * @param {*} [options] Override http request option.
@@ -467,6 +524,16 @@ export const AligoKakaoApiFactory = function (configuration?: Configuration, bas
             return localVarFp.getTemplatesSyncStatus(options).then((request) => request(axios, basePath));
         },
         /**
+         * 관리자가 직접 알림톡을 발송하여 테스트할 수 있는 API입니다. Aligo 템플릿 코드를 직접 지정하여 발송합니다.
+         * @summary 테스트용 알림톡 발송 (관리자)
+         * @param {TestAlimtalkSendRequestDto} testAlimtalkSendRequestDto 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        sendTestAlimtalk(testAlimtalkSendRequestDto: TestAlimtalkSendRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<TestAlimtalkResponseSchema> {
+            return localVarFp.sendTestAlimtalk(testAlimtalkSendRequestDto, options).then((request) => request(axios, basePath));
+        },
+        /**
          * Kakao API에서 최신 템플릿을 조회하여 서버 캐시에 동기화합니다. 기존 캐시를 삭제 후 새로운 템플릿으로 교체합니다. 
          * @summary 템플릿 동기화 실행
          * @param {*} [options] Override http request option.
@@ -545,6 +612,17 @@ export class AligoKakaoApi extends BaseAPI {
      */
     public getTemplatesSyncStatus(options?: RawAxiosRequestConfig) {
         return AligoKakaoApiFp(this.configuration).getTemplatesSyncStatus(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 관리자가 직접 알림톡을 발송하여 테스트할 수 있는 API입니다. Aligo 템플릿 코드를 직접 지정하여 발송합니다.
+     * @summary 테스트용 알림톡 발송 (관리자)
+     * @param {TestAlimtalkSendRequestDto} testAlimtalkSendRequestDto 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public sendTestAlimtalk(testAlimtalkSendRequestDto: TestAlimtalkSendRequestDto, options?: RawAxiosRequestConfig) {
+        return AligoKakaoApiFp(this.configuration).sendTestAlimtalk(testAlimtalkSendRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

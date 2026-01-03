@@ -10,6 +10,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**getHistoryDetail**](#gethistorydetail) | **GET** /api/v1/admin/aligo/kakao/history/{mid} | 알림톡 전송 상세 결과 조회|
 |[**getTemplates**](#gettemplates) | **GET** /api/v1/admin/aligo/kakao/templates | 등록된 알림톡 템플릿 목록 조회|
 |[**getTemplatesSyncStatus**](#gettemplatessyncstatus) | **GET** /api/v1/admin/aligo/kakao/templates/sync-status | 템플릿 동기화 상태 확인|
+|[**sendTestAlimtalk**](#sendtestalimtalk) | **POST** /api/v1/admin/aligo/kakao/test/send-alimtalk | 테스트용 알림톡 발송 (관리자)|
 |[**syncTemplates**](#synctemplates) | **PUT** /api/v1/admin/aligo/kakao/templates/sync | 템플릿 동기화 실행|
 
 # **getChannels**
@@ -312,6 +313,62 @@ void (empty response body)
 |-------------|-------------|------------------|
 |**200** | 동기화 상태 조회 성공 |  -  |
 |**500** | API 호출 실패 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **sendTestAlimtalk**
+> TestAlimtalkResponseSchema sendTestAlimtalk(testAlimtalkSendRequestDto)
+
+관리자가 직접 알림톡을 발송하여 테스트할 수 있는 API입니다. Aligo 템플릿 코드를 직접 지정하여 발송합니다.
+
+### Example
+
+```typescript
+import {
+    AligoKakaoApi,
+    Configuration,
+    TestAlimtalkSendRequestDto
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AligoKakaoApi(configuration);
+
+let testAlimtalkSendRequestDto: TestAlimtalkSendRequestDto; //
+
+const { status, data } = await apiInstance.sendTestAlimtalk(
+    testAlimtalkSendRequestDto
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **testAlimtalkSendRequestDto** | **TestAlimtalkSendRequestDto**|  | |
+
+
+### Return type
+
+**TestAlimtalkResponseSchema**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json, */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | 알림톡 발송 성공 |  -  |
+|**400** | 요청 파라미터 오류 |  -  |
+|**500** | 알림톡 발송 실패 (Aligo API 오류) |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**403** | You are authenticated but not allowed authorization |  -  |
 

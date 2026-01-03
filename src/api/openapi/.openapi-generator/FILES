@@ -171,6 +171,7 @@ docs/HomeworkSubmissionRequest.md
 docs/IdNameDto.md
 docs/ImageDto.md
 docs/ImageSizeType.md
+docs/Info.md
 docs/InterviewAnswer.md
 docs/InterviewQuestion.md
 docs/JobListResponse.md
@@ -317,6 +318,8 @@ docs/TemplateDto.md
 docs/TemplateInfo.md
 docs/TemplatesSyncStatusDto.md
 docs/TemporalToken.md
+docs/TestAlimtalkResponseSchema.md
+docs/TestAlimtalkSendRequestDto.md
 docs/ThreadCommentResponseContent.md
 docs/ThreadCommentResponseSchema.md
 docs/ThreadSummaryResponse.md
@@ -447,6 +450,7 @@ models/id-name-dto.ts
 models/image-dto.ts
 models/image-size-type.ts
 models/index.ts
+models/info.ts
 models/interview-answer.ts
 models/interview-question.ts
 models/job-list-response.ts
@@ -577,6 +581,8 @@ models/template-dto.ts
 models/template-info.ts
 models/templates-sync-status-dto.ts
 models/temporal-token.ts
+models/test-alimtalk-response-schema.ts
+models/test-alimtalk-send-request-dto.ts
 models/thread-comment-response-content.ts
 models/thread-comment-response-schema.ts
 models/thread-summary-response-content.ts
