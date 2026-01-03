@@ -1,28 +1,24 @@
 'use client';
 
 import { useState } from 'react';
+import DiscretionGradeHistoryList from '@/components/lists/discretion-grade-history-list';
+import MissionProgressHistoryList from '@/components/lists/mission-progress-history-list';
+import DiscretionaryEvaluationModal from '@/components/modals/discretionary-evaluation-modal';
 import UserAvatar from '@/components/ui/avatar';
-import MoreMenu from '@/components/ui/dropdown/more-menu';
+
+import Button from '@/components/ui/button';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useAuth } from '@/hooks/use-auth';
-import {
-  formatHHMM,
-  formatKoreaRelativeTime,
-  formatYYYYMMDD,
-} from '@/utils/time';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
 import GoldRankIcon from 'public/icons/gold-rank.svg';
-import SealCheckIcon from 'public/icons/seal-check.svg';
+
 import SilverRankIcon from 'public/icons/silver-rank.svg';
+
 import DeleteGroupStudyMemberModal from './delete-group-study-member';
-import ProgressScoreModal from './progress-score-modal';
 import WriteGreetingModal from './write-greeting-modal';
-import {
-  GroupStudyMember,
-  ProgressHistoryItem,
-} from '../api/group-study-types';
+import { GroupStudyMember } from '../api/group-study-types';
 
 type GroupStudyMemberItemProps = GroupStudyMember & {
   groupStudyId: number;
@@ -37,12 +33,9 @@ export default function GroupStudyMemberItem({
   const { data: authData } = useAuth();
   const myId = authData?.memberId;
 
-  const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
+  const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
     useState<boolean>(false);
   const [isDeleteMemberModalOpen, setIsDeleteMemberModalOpen] =
-    useState<boolean>(false);
-
-  const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
     useState<boolean>(false);
 
   const isMe = member.id === myId;
@@ -51,7 +44,7 @@ export default function GroupStudyMemberItem({
   return (
     <li className="border-border-default rounded-150 flex border">
       <div
-        className={`border-r-border-default flex flex-col items-center gap-200 border-r p-400 ${isMe ? 'bg-background-accent-rose-subtle' : 'bg-background-alternative'} rounded-tl-150 rounded-bl-150 w-[240px] shrink-0`}
+        className={`flex flex-col items-center gap-200 px-300 py-400 ${isMe ? 'bg-background-accent-rose-subtle' : 'bg-background-alternative'} rounded-tl-150 rounded-bl-150 w-[240px] shrink-0`}
       >
         {/* 사용자 프로필 */}
         <div className="relative inline-block">
@@ -81,9 +74,6 @@ export default function GroupStudyMemberItem({
           <span className="text-text-default font-designer-20b">
             {member.memberName}
           </span>
-          <span className="font-designer-14r text-text-subtlest">
-            최근 접속 시간: {formatKoreaRelativeTime(member.lastAccessedAt)}
-          </span>
         </div>
       </div>
 
@@ -91,41 +81,7 @@ export default function GroupStudyMemberItem({
         <div className="text-text-default flex flex-col gap-150">
           <div className="flex items-center justify-between">
             <span className="font-designer-16b">가입 인사</span>
-            {isLeader && (
-              <>
-                <MoreMenu
-                  iconSize={24}
-                  options={[
-                    {
-                      label: '평가하기',
-                      value: 'edit',
-                      onMenuClick: () => {
-                        setIsProgressScoreModalOpen(true);
-                      },
-                    },
-                    {
-                      label: '내보내기',
-                      value: 'delete-member',
-                      onMenuClick: () => {
-                        setIsDeleteMemberModalOpen(true);
-                      },
-                    },
-                  ]}
-                />
-                <ProgressScoreModal
-                  open={isProgressScoreModalOpen}
-                  onChangeOpen={setIsProgressScoreModalOpen}
-                  groupStudyId={groupStudyId}
-                  targetMemberId={member.id}
-                />
-                <DeleteGroupStudyMemberModal
-                  open={isDeleteMemberModalOpen}
-                  onChangeOpen={setIsDeleteMemberModalOpen}
-                  groupStudyId={groupStudyId}
-                  targetMemberId={member.id}
-                />
-              </>
-            )}
+            {isLeader && <DiscretionaryEvaluationModal memberId={member.id} />}
           </div>
 
           <GreetingBox
@@ -135,18 +91,11 @@ export default function GroupStudyMemberItem({
           />
         </div>
 
-        <div className="bg-border-subtle h-[1px] w-full" />
-
-        <div>
+        <div className="flex flex-col gap-200">
           <div className="flex justify-between">
-            <div>
-              <span className="font-designer-16b text-text-default mr-100">
-                스터디 진행도
-              </span>
-              <span className="font-designer-16b text-text-brand">
-                {member.progress.score}%
-              </span>
-            </div>
+            <span className="font-designer-16b text-text-default mr-100">
+              획득한 경험치
+            </span>
 
             <button
               aria-label={`${member.memberName} 스터디 진행도 열기`}
@@ -160,26 +109,51 @@ export default function GroupStudyMemberItem({
             </button>
           </div>
 
-          <ProgressBar value={member.progress.score} className="mt-200" />
+          <div className="flex items-center gap-200">
+            <div className="bg-background-alternative rounded-100 flex w-[120px] shrink-0 flex-col items-center justify-center gap-200 p-100">
+              <span className="font-designer-14m text-text-subtle">
+                총 획득 경험치
+              </span>
+              <span className="font-designer-18b text-text-strong">
+                {member.progress.score} 점 / {member.progress.maxScore} 점
+              </span>
+            </div>
 
-          {isProgressHistoryOpen &&
-            (member.progress.progressHistory.length > 0 ? (
-              <ul className="mt-300 flex flex-col gap-300">
-                {member.progress.progressHistory.map((history) => (
-                  <ProgressScoreItem key={history.id} {...history} />
-                ))}
-              </ul>
-            ) : (
-              <div className="rounded-100 bg-background-alternative mt-300 flex h-[130px] flex-col items-center justify-center gap-100">
-                <span className="font-designer-14b text-text-subtle">
-                  진행한 스터디가 없습니다.
-                </span>
-                <span className="font-designer-13m text-text-subtlest">
-                  스터디를 시작하고 활동 내역을 쌓아보세요.
-                </span>
-              </div>
-            ))}
+            <ProgressBar value={member.progress.score} className="mt-200" />
+          </div>
         </div>
+
+        {isProgressHistoryOpen && (
+          <DiscretionGradeHistoryList
+            discretionGradeHistory={member.progress.discretionGradeHistory}
+          />
+        )}
+
+        {isProgressHistoryOpen && (
+          <MissionProgressHistoryList
+            missionProgressHistory={member.progress.missionProgressHistory}
+          />
+        )}
+
+        {isProgressHistoryOpen && (
+          <>
+            <Button
+              color="outlined"
+              className="border-border-error text-text-error font-designer-14r w-fit"
+              size="small"
+              onClick={() => setIsDeleteMemberModalOpen(true)}
+            >
+              내보내기
+            </Button>
+
+            <DeleteGroupStudyMemberModal
+              open={isDeleteMemberModalOpen}
+              onChangeOpen={setIsDeleteMemberModalOpen}
+              groupStudyId={groupStudyId}
+              targetMemberId={member.id}
+            />
+          </>
+        )}
       </div>
     </li>
   );
@@ -210,64 +184,6 @@ function ProgressBar({
         />
       </div>
     </div>
-  );
-}
-
-const renderGradeIcon = (code: ProgressHistoryItem['grade']['code']) => {
-  switch (code) {
-    case 'A+':
-    case 'A-':
-      return (
-        <div className="bg-background-success-default rounded-50 p-150">
-          <SealCheckIcon className="text-text-inverse" width={24} height={24} />
-        </div>
-      );
-    case 'B+':
-    case 'B-':
-      return (
-        <div className="bg-fill-information-default-default rounded-50 p-150">
-          <SealCheckIcon className="text-text-inverse" width={24} height={24} />
-        </div>
-      );
-    case 'C+':
-    case 'C-':
-      return (
-        <div className="bg-fill-warning-default-default rounded-50 p-150">
-          <SealCheckIcon className="text-text-inverse" width={24} height={24} />
-        </div>
-      );
-    default:
-      return null;
-  }
-};
-
-function ProgressScoreItem({
-  grade,
-  reason,
-  acquiredAt,
-  id,
-}: ProgressHistoryItem) {
-  return (
-    <li
-      className={`border-b-border-subtle flex items-center gap-200 border-b pb-300 last:border-b-0 last:pb-0`}
-    >
-      {renderGradeIcon(grade.code)}
-
-      <div>
-        <div className="font-designer-15m text-text-default mb-50 flex items-center gap-100">
-          <span>
-            {grade.code} : {grade.name} (
-            {`${grade.score > 0 ? '+' : ''}${grade.score}`})
-          </span>
-
-          <div className="bg-border-subtle h-[12px] w-[1px]" />
-
-          <p className="break-all">{reason}</p>
-        </div>
-
-        <span className="font-designer-13r text-text-subtlest">{`${formatYYYYMMDD(acquiredAt, 'dot')} ${formatHHMM(acquiredAt)}`}</span>
-      </div>
-    </li>
   );
 }
 
