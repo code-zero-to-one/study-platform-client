@@ -1,45 +1,13 @@
 'use client';
 
 import { ChevronLeft, Plus } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MissionListResponse } from '@/api/openapi/models';
 import Button from '@/components/ui/button';
+import { useGetMissions } from '@/hooks/queries/mission-api';
 import HomeworkDetailContent from './homework-detail-content';
 import MissionCard from './mission-card';
 import MissionDetailContent from './mission-detail-content';
-
-// 목 데이터
-const MOCK_MISSIONS: MissionListResponse[] = [
-  {
-    id: 1,
-    title: '1주차 과제 제출',
-    status: 'IN_PROGRESS',
-    startTime: '2026-01-01T00:00:00',
-    endTime: '2026-01-07T23:59:59',
-  },
-  {
-    id: 2,
-    title: '2주차 과제 제출',
-    status: 'SCHEDULED',
-    startTime: '2026-01-08T00:00:00',
-    endTime: '2026-01-14T23:59:59',
-  },
-  {
-    id: 3,
-    title: '킥오프 미팅 참석 인증',
-    status: 'SUBMISSION_CLOSED',
-    startTime: '2025-12-20T00:00:00',
-    endTime: '2025-12-25T23:59:59',
-  },
-  {
-    id: 4,
-    title: '자기소개 작성하기',
-    status: 'SUBMISSION_CLOSED',
-    startTime: '2025-12-15T00:00:00',
-    endTime: '2025-12-19T23:59:59',
-  },
-];
 
 interface MissionSectionProps {
   groupStudyId: number;
@@ -58,38 +26,37 @@ export default function MissionSection({
   const taskId = searchParams.get('taskId');
 
   // TODO: API 연결 시 주석 해제
-  // const { data: missions, isLoading } = useGetMissions({
-  //   groupStudyId,
-  // });
-  // if (isLoading) {
-  //   return null;
-  // }
+  const { data, isLoading } = useGetMissions({
+    groupStudyId,
+  });
+  if (isLoading) {
+    return null;
+  }
 
-  // 목 데이터 사용
-  const missions = MOCK_MISSIONS;
+  const missionList = data.content;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // endTime이 오늘 기준으로 지났으면 완료된 미션
+  // endDate가 오늘 기준으로 지났으면 완료된 미션
   const completedMissions =
-    missions?.filter((mission) => {
-      if (!mission.endTime) return false;
-      const endDate = new Date(mission.endTime);
+    missionList?.filter((mission) => {
+      if (!mission.endDate) return false;
+      const endDate = new Date(mission.endDate);
 
       return endDate < today;
     }) || [];
 
-  // endTime이 오늘 이후이면 진행 중인 미션
+  // endDate가 오늘 이후이면 진행 중인 미션
   const inProgressMissions =
-    missions?.filter((mission) => {
-      if (!mission.endTime) return true;
-      const endDate = new Date(mission.endTime);
+    missionList?.filter((mission) => {
+      if (!mission.endDate) return true;
+      const endDate = new Date(mission.endDate);
 
       return endDate >= today;
     }) || [];
 
-  const hasMissions = missions && missions.length > 0;
+  const hasMissions = missionList && missionList.length > 0;
 
   const handleSelectMission = (id: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -234,7 +201,7 @@ function MissionList({
       <ul className="flex flex-col gap-200">
         {missions.map((mission) => (
           <MissionCard
-            key={mission.id}
+            key={mission.missionId}
             mission={mission}
             isLeader={isLeader}
             onSelectMission={onSelectMission}
@@ -248,13 +215,7 @@ function MissionList({
 function EmptyMissionState() {
   return (
     <div className="bg-background-alternative rounded-100 flex h-[400px] flex-col items-center justify-center gap-200">
-      <Image
-        src="/images/default-thumbnail.svg"
-        alt="no-mission"
-        width={120}
-        height={120}
-      />
-      <p className="text-text-subtlest font-designer-14r text-center">
+      <p className="text-text-subtle font-designer-14r text-center">
         생성된 미션이 없습니다.
         <br />
         최소 1개 이상의 미션을 생성해 주세요.

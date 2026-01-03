@@ -51,8 +51,8 @@ export default function MissionCard({
       : STATUS_CONFIG.NOT_STARTED;
 
   const handleSelectMission = () => {
-    if (mission.id) {
-      onSelectMission(mission.id);
+    if (mission.missionId) {
+      onSelectMission(mission.missionId);
     }
   };
 
@@ -66,8 +66,8 @@ export default function MissionCard({
           <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
         </div>
         <span className="text-text-subtlest font-designer-12r">
-          미션 기간 : {formatDate(mission.startTime)} ~{' '}
-          {formatDate(mission.endTime)}
+          미션 기간 : {formatDate(mission.startDate)} ~{' '}
+          {formatDate(mission.endDate)}
         </span>
       </div>
 
