@@ -38,7 +38,14 @@ export const GroupStudyFormSchema = z.object({
     .string()
     .trim()
     .regex(ISO_DATE_REGEX, 'YYYY-MM-DD 형식의 종료일을 입력해 주세요.'),
-  price: z.string().trim().optional(),
+  price: z
+    .string()
+    .trim()
+    .optional()
+    .refine(
+      (val) => !val || Number(val) >= 10000,
+      '참가비는 10,000원 이상이어야 합니다.',
+    ),
   title: z.string().trim().min(1, '스터디 제목을 입력해주세요.'),
   summary: z.string().trim().min(1, '한 줄 소개를 입력해주세요.'),
   description: z.string().trim().min(1, '스터디 소개를 입력해주세요.'),

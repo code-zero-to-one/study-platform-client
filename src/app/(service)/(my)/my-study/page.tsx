@@ -17,8 +17,6 @@ interface MemberGroupStudyList extends MemberStudyItem {
 export default function MyStudy() {
   const { data: authData } = useAuth();
 
-  console.log('data', authData);
-
   const { data, isLoading } = useMemberStudyListQuery({
     memberId: authData?.memberId,
     studyType: 'GROUP_STUDY',

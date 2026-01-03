@@ -3,6 +3,7 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { GroupStudyFullResponseDto } from '@/api/openapi';
@@ -42,6 +43,7 @@ export default function GroupStudyFormModal({
   onOpenChange: onControlledOpen,
   classification = 'GROUP_STUDY',
 }: GroupStudyModalProps) {
+  const router = useRouter();
   const qc = useQueryClient();
   const [open, setOpen] = useState<boolean>(false);
   const { mutateAsync: createGroupStudy } = useCreateGroupStudyMutation();
@@ -113,8 +115,9 @@ export default function GroupStudyFormModal({
   };
 
   const invalidateGroupStudyQueries = async () => {
-    await qc.invalidateQueries({ queryKey: ['groupStudies'] });
+    await qc.invalidateQueries({ queryKey: ['studies'] });
     await qc.invalidateQueries({ queryKey: ['memberStudies'] });
+    router.refresh();
   };
 
   const uploadThumbnail = async (uploadUrl: string, file: File) => {
@@ -136,7 +139,6 @@ export default function GroupStudyFormModal({
   const handleCreate = async (values: GroupStudyFormValues) => {
     try {
       const body = toOpenGroupRequest(values);
-      console.log('body', body);
       const created = await createGroupStudy(body);
 
       if (values.thumbnailFile) {

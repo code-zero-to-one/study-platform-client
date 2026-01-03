@@ -1,10 +1,17 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { PaymentUserApi } from '@/api/openapi/api/payment-user-api';
 import type {
   StudyPaymentPrepareRequest,
+  StudyPaymentPrepareResponse,
   TossPaymentConfirmRequest,
 } from '@/api/openapi/models';
+
+interface PreparePaymentResult {
+  data: StudyPaymentPrepareResponse | undefined;
+  errorMessage?: string;
+}
 
 const paymentUserApi = createApiInstance(PaymentUserApi);
 
@@ -104,6 +111,42 @@ export const usePreparePayment = () => {
       );
 
       return data.content;
+    },
+  });
+};
+
+export const usePreparePaymentQuery = (groupStudyId: number) => {
+  return useQuery<PreparePaymentResult>({
+    queryKey: ['payment', groupStudyId],
+    queryFn: async () => {
+      try {
+        const { data } = await paymentUserApi.preparePayment(groupStudyId, {});
+
+        return { data: data.content };
+      } catch (error) {
+        if (isAxiosError(error)) {
+          const status = error.response?.status;
+
+          if (status === 409) {
+            return {
+              data: undefined,
+              errorMessage: '이미 결제가 완료되었습니다.',
+            };
+          }
+
+          if (status === 404) {
+            return {
+              data: undefined,
+              errorMessage: '회원 정보가 존재하지 않습니다.',
+            };
+          }
+        }
+
+        return {
+          data: undefined,
+          errorMessage: '결제 정보를 불러오는 중 오류가 발생했습니다.',
+        };
+      }
     },
   });
 };

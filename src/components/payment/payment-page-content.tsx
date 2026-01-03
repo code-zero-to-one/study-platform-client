@@ -1,31 +1,30 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
-import { createApiInstance } from '@/api/client/open-api-instance';
-import { PaymentUserApi } from '@/api/openapi';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 import OrderSummary from '@/components/payment/orderSummary';
 import PaymentCheckoutPage from '@/components/payment/paymentActionClient';
 import PriceSummary from '@/components/payment/priceSummary';
-
-const paymentUserApi = createApiInstance(PaymentUserApi);
+import { usePreparePaymentQuery } from '@/hooks/queries/payment-user-api';
 
 interface PaymentPageContentProps {
   id: string;
 }
 
 export default function PaymentPageContent({ id }: PaymentPageContentProps) {
-  const { data } = useQuery({
-    queryKey: ['payment', id],
-    queryFn: async () => {
-      const { data } = await paymentUserApi.preparePayment(Number(id), {
-        amount: 2000,
-      });
+  const router = useRouter();
+  const { data: result } = usePreparePaymentQuery(Number(id));
 
-      return data.content;
-    },
-  });
+  useEffect(() => {
+    if (result?.errorMessage) {
+      alert(result.errorMessage);
+      router.back();
+    }
+  }, [result, router]);
 
-  if (!data) return null;
+  if (!result?.data) return null;
+
+  const data = result.data;
 
   return (
     <div className="bg-background-alternative min-h-dvh">
