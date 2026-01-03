@@ -13,29 +13,17 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { GradeInstanceDto } from './grade-instance-dto';
 
 export interface EvaluationResponse {
     'evaluationId'?: number;
     'homeworkId'?: number;
-    'grade'?: EvaluationResponseGradeEnum;
+    'grade'?: GradeInstanceDto;
     'comment'?: string;
     'createdAt'?: string;
     'updatedAt'?: string;
     'updated'?: boolean;
 }
-
-export const EvaluationResponseGradeEnum = {
-    APlus: 'A_PLUS',
-    A: 'A',
-    BPlus: 'B_PLUS',
-    B: 'B',
-    CPlus: 'C_PLUS',
-    C: 'C',
-    DPlus: 'D_PLUS',
-    D: 'D',
-    F: 'F'
-} as const;
-
-export type EvaluationResponseGradeEnum = typeof EvaluationResponseGradeEnum[keyof typeof EvaluationResponseGradeEnum];
-
 

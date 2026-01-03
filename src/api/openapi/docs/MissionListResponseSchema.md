@@ -1,4 +1,4 @@
-# GetMissionsResponseSchema
+# MissionListResponseSchema
 
 
 ## Properties
@@ -13,9 +13,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { GetMissionsResponseSchema } from './api';
+import { MissionListResponseSchema } from './api';
 
-const instance: GetMissionsResponseSchema = {
+const instance: MissionListResponseSchema = {
     statusCode,
     timestamp,
     content,

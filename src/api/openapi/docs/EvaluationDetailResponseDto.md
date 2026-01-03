@@ -6,7 +6,9 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **evaluationId** | **number** |  | [optional] [default to undefined]
-**evaluationGrade** | **string** |  | [optional] [default to undefined]
+**evaluationGradeCode** | **string** |  | [optional] [default to undefined]
+**evaluationGradeScore** | **number** |  | [optional] [default to undefined]
+**evaluationGradeLabel** | **string** |  | [optional] [default to undefined]
 **evaluationComment** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -16,7 +18,9 @@ import { EvaluationDetailResponseDto } from './api';
 
 const instance: EvaluationDetailResponseDto = {
     evaluationId,
-    evaluationGrade,
+    evaluationGradeCode,
+    evaluationGradeScore,
+    evaluationGradeLabel,
     evaluationComment,
 };
 ```

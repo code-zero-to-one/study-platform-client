@@ -5,7 +5,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**grade** | **string** |  | [default to undefined]
+**gradeCode** | **string** |  | [default to undefined]
 **comment** | **string** |  | [optional] [default to undefined]
 
 ## Example
@@ -14,7 +14,7 @@ Name | Type | Description | Notes
 import { EvaluationRequest } from './api';
 
 const instance: EvaluationRequest = {
-    grade,
+    gradeCode,
     comment,
 };
 ```

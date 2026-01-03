@@ -15,9 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { PageResponseMissionListResponse } from './page-response-mission-list-response';
+import type { GradeDto } from './grade-dto';
 
-export interface GetMissionsResponseSchema {
+export interface GradeListResponseSchema {
     /**
      * Status Code
      */
@@ -29,7 +29,7 @@ export interface GetMissionsResponseSchema {
     /**
      * Content
      */
-    'content'?: PageResponseMissionListResponse;
+    'content'?: Array<GradeDto>;
     /**
      * Message
      */

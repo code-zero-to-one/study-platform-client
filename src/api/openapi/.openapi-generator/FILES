@@ -108,12 +108,14 @@ docs/FullMemberProfileResponseDto.md
 docs/GetDailyStudiesResponseSchema.md
 docs/GetGroupStudyMemberStatusResponse.md
 docs/GetGroupStudyMemberStatusResponseContent.md
-docs/GetMissionsResponseSchema.md
 docs/GetMyDailyStudyCalenderResponseSchema.md
 docs/GetStudyDashboardResponseSchema.md
 docs/GetStudySpaceResponseSchema.md
 docs/GetStudySpacesResponseSchema.md
 docs/GetTodayMyDailyStudyResponseSchema.md
+docs/GradeDto.md
+docs/GradeInstanceDto.md
+docs/GradeListResponseSchema.md
 docs/GrantedTokenInfo.md
 docs/GroupStudyApplicant.md
 docs/GroupStudyApplyApi.md
@@ -208,6 +210,7 @@ docs/MissionApi.md
 docs/MissionCreationRequest.md
 docs/MissionCreationResult.md
 docs/MissionListResponse.md
+docs/MissionListResponseSchema.md
 docs/MissionResponse.md
 docs/MissionResponseDto.md
 docs/MissionUpdateRequest.md
@@ -392,12 +395,14 @@ models/full-member-profile-response.ts
 models/get-daily-studies-response-schema.ts
 models/get-group-study-member-status-response-content.ts
 models/get-group-study-member-status-response.ts
-models/get-missions-response-schema.ts
 models/get-my-daily-study-calender-response-schema.ts
 models/get-study-dashboard-response-schema.ts
 models/get-study-space-response-schema.ts
 models/get-study-spaces-response-schema.ts
 models/get-today-my-daily-study-response-schema.ts
+models/grade-dto.ts
+models/grade-instance-dto.ts
+models/grade-list-response-schema.ts
 models/granted-token-info.ts
 models/group-study-applicant.ts
 models/group-study-apply-creation-response-content.ts
@@ -481,6 +486,7 @@ models/member-profile-update-response-dto.ts
 models/member-profile-update-response.ts
 models/mission-creation-request.ts
 models/mission-creation-result.ts
+models/mission-list-response-schema.ts
 models/mission-list-response.ts
 models/mission-response-dto.ts
 models/mission-response.ts
