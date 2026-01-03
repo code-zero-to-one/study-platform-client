@@ -15,12 +15,15 @@ export default function ReservationCard({
   const isCurrentUser =
     currentMemberId !== null && participant.id === currentMemberId;
 
+  // 참여자 리스트에서는 닉네임 우선, 없으면 이름
+  const displayName = participant.nickname || participant.name;
+
   return (
     <div className="rounded-100 border-border-subtle flex h-[100px] items-center justify-between gap-150 border px-200 py-300">
       <UserAvatar size={48} image={participant.avatarUrl?.trim() || ''} />
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex flex-row items-center gap-1">
-          <div className="font-designer-16b">{participant.nickname}</div>
+          <div className="font-designer-16b">{displayName}</div>
           {isCurrentUser && (
             <Badge color="blue" className="ml-100">
               본인
