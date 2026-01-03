@@ -51,8 +51,8 @@ export default function MissionCard({
       : STATUS_CONFIG.NOT_STARTED;
 
   const handleSelectMission = () => {
-    if (mission.id) {
-      onSelectMission(mission.id);
+    if (mission.missionId) {
+      onSelectMission(mission.missionId);
     }
   };
 
@@ -66,8 +66,8 @@ export default function MissionCard({
           <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
         </div>
         <span className="text-text-subtlest font-designer-12r">
-          미션 기간 : {formatDate(mission.startTime)} ~{' '}
-          {formatDate(mission.endTime)}
+          미션 기간 : {formatDate(mission.startDate)} ~{' '}
+          {formatDate(mission.endDate)}
         </span>
       </div>
 
@@ -89,12 +89,13 @@ function MissionActionButton({
   isLeader?: boolean;
   onSelectMission: () => void;
 }) {
-  if (status === 'SCHEDULED') {
+  // 진행 예정
+  if (status === 'NOT_STARTED') {
     return null;
   }
 
-  // 진행 중인 미션 - 리더에게 평가하기 버튼 표시
-  if (status === 'IN_PROGRESS' || status === 'SUBMISSION_CLOSED') {
+  // 진행 중 또는 종료된 미션 - 리더에게 평가하기 버튼 표시
+  if (status === 'IN_PROGRESS' || status === 'ENDED') {
     if (!isLeader) return null;
 
     return (
