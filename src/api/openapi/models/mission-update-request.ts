@@ -13,16 +13,16 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { MissionTaskDto } from './mission-task-dto';
 
 export interface MissionUpdateRequest {
     'title': string;
-    'content': string;
-    'startTime': string;
-    'endTime'?: string;
-    'tasks': Array<MissionTaskDto>;
-    'scoreAllocation'?: number;
+    'description'?: string;
+    'guide': string;
+    /**
+     * 주차
+     */
+    'weekNum'?: number;
+    'startDate': string;
+    'endDate': string;
 }
 

@@ -15,17 +15,22 @@
 
 
 export interface MissionListResponse {
-    'id'?: number;
+    'missionId'?: number;
+    'weekNum'?: number;
     'title'?: string;
-    'startTime'?: string;
-    'endTime'?: string;
+    'description'?: string;
+    'startDate'?: string;
+    'endDate'?: string;
     'status'?: MissionListResponseStatusEnum;
+    'maxEvaluationCount'?: number;
+    'evaluatedCount'?: number;
 }
 
 export const MissionListResponseStatusEnum = {
-    Scheduled: 'SCHEDULED',
+    NotStarted: 'NOT_STARTED',
     InProgress: 'IN_PROGRESS',
-    SubmissionClosed: 'SUBMISSION_CLOSED'
+    Ended: 'ENDED',
+    EvaluationCompleted: 'EVALUATION_COMPLETED'
 } as const;
 
 export type MissionListResponseStatusEnum = typeof MissionListResponseStatusEnum[keyof typeof MissionListResponseStatusEnum];

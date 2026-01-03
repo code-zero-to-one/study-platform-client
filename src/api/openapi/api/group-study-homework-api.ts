@@ -22,21 +22,62 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponseHomeworkSubmissionResponse } from '../models';
+import type { BaseResponse } from '../models';
 // @ts-ignore
-import type { BaseResponseVoid } from '../models';
+import type { ErrorResponse } from '../models';
 // @ts-ignore
 import type { HomeworkEditRequest } from '../models';
 // @ts-ignore
 import type { HomeworkSubmissionRequest } from '../models';
+// @ts-ignore
+import type { NoContentResponse } from '../models';
 /**
  * GroupStudyHomeworkApi - axios parameter creator
  */
 export const GroupStudyHomeworkApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 
-         * @param {number} homeworkId 
+         * 제출한 과제를 삭제합니다. 평가가 완료되지 않았고 미션 기간 내에만 삭제할 수 있습니다.
+         * @summary 과제 삭제
+         * @param {number} homeworkId 과제 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteHomework: async (homeworkId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'homeworkId' is not null or undefined
+            assertParamExists('deleteHomework', 'homeworkId', homeworkId)
+            const localVarPath = `/api/v1/homeworks/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 제출한 과제의 내용을 수정합니다. 평가가 완료되지 않았고 미션 기간 내에만 수정할 수 있습니다. 텍스트 내용은 최소 100자 이상이어야 합니다.
+         * @summary 과제 수정
+         * @param {number} homeworkId 과제 ID
          * @param {HomeworkEditRequest} homeworkEditRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -46,7 +87,7 @@ export const GroupStudyHomeworkApiAxiosParamCreator = function (configuration?: 
             assertParamExists('editHomework', 'homeworkId', homeworkId)
             // verify required parameter 'homeworkEditRequest' is not null or undefined
             assertParamExists('editHomework', 'homeworkEditRequest', homeworkEditRequest)
-            const localVarPath = `/homeworks/{homeworkId}`
+            const localVarPath = `/api/v1/homeworks/{homeworkId}`
                 .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -78,8 +119,9 @@ export const GroupStudyHomeworkApiAxiosParamCreator = function (configuration?: 
             };
         },
         /**
-         * 
-         * @param {number} missionId 
+         * 특정 미션에 대한 과제를 제출합니다. 텍스트 내용은 최소 100자 이상이어야 하며, 선택적으로 링크를 포함할 수 있습니다.
+         * @summary 과제 제출
+         * @param {number} missionId 미션 ID
          * @param {HomeworkSubmissionRequest} homeworkSubmissionRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -89,7 +131,7 @@ export const GroupStudyHomeworkApiAxiosParamCreator = function (configuration?: 
             assertParamExists('submitHomework', 'missionId', missionId)
             // verify required parameter 'homeworkSubmissionRequest' is not null or undefined
             assertParamExists('submitHomework', 'homeworkSubmissionRequest', homeworkSubmissionRequest)
-            const localVarPath = `/missions/{missionId}/homeworks`
+            const localVarPath = `/api/v1/missions/{missionId}/homeworks`
                 .replace(`{${"missionId"}}`, encodeURIComponent(String(missionId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -130,26 +172,41 @@ export const GroupStudyHomeworkApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = GroupStudyHomeworkApiAxiosParamCreator(configuration)
     return {
         /**
-         * 
-         * @param {number} homeworkId 
+         * 제출한 과제를 삭제합니다. 평가가 완료되지 않았고 미션 기간 내에만 삭제할 수 있습니다.
+         * @summary 과제 삭제
+         * @param {number} homeworkId 과제 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async deleteHomework(homeworkId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NoContentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteHomework(homeworkId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GroupStudyHomeworkApi.deleteHomework']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 제출한 과제의 내용을 수정합니다. 평가가 완료되지 않았고 미션 기간 내에만 수정할 수 있습니다. 텍스트 내용은 최소 100자 이상이어야 합니다.
+         * @summary 과제 수정
+         * @param {number} homeworkId 과제 ID
          * @param {HomeworkEditRequest} homeworkEditRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
+        async editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.editHomework(homeworkId, homeworkEditRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyHomeworkApi.editHomework']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 
-         * @param {number} missionId 
+         * 특정 미션에 대한 과제를 제출합니다. 텍스트 내용은 최소 100자 이상이어야 하며, 선택적으로 링크를 포함할 수 있습니다.
+         * @summary 과제 제출
+         * @param {number} missionId 미션 ID
          * @param {HomeworkSubmissionRequest} homeworkSubmissionRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async submitHomework(missionId: number, homeworkSubmissionRequest: HomeworkSubmissionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseHomeworkSubmissionResponse>> {
+        async submitHomework(missionId: number, homeworkSubmissionRequest: HomeworkSubmissionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.submitHomework(missionId, homeworkSubmissionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyHomeworkApi.submitHomework']?.[localVarOperationServerIndex]?.url;
@@ -165,23 +222,35 @@ export const GroupStudyHomeworkApiFactory = function (configuration?: Configurat
     const localVarFp = GroupStudyHomeworkApiFp(configuration)
     return {
         /**
-         * 
-         * @param {number} homeworkId 
+         * 제출한 과제를 삭제합니다. 평가가 완료되지 않았고 미션 기간 내에만 삭제할 수 있습니다.
+         * @summary 과제 삭제
+         * @param {number} homeworkId 과제 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        deleteHomework(homeworkId: number, options?: RawAxiosRequestConfig): AxiosPromise<NoContentResponse> {
+            return localVarFp.deleteHomework(homeworkId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 제출한 과제의 내용을 수정합니다. 평가가 완료되지 않았고 미션 기간 내에만 수정할 수 있습니다. 텍스트 내용은 최소 100자 이상이어야 합니다.
+         * @summary 과제 수정
+         * @param {number} homeworkId 과제 ID
          * @param {HomeworkEditRequest} homeworkEditRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
+        editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
             return localVarFp.editHomework(homeworkId, homeworkEditRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * 
-         * @param {number} missionId 
+         * 특정 미션에 대한 과제를 제출합니다. 텍스트 내용은 최소 100자 이상이어야 하며, 선택적으로 링크를 포함할 수 있습니다.
+         * @summary 과제 제출
+         * @param {number} missionId 미션 ID
          * @param {HomeworkSubmissionRequest} homeworkSubmissionRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        submitHomework(missionId: number, homeworkSubmissionRequest: HomeworkSubmissionRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseHomeworkSubmissionResponse> {
+        submitHomework(missionId: number, homeworkSubmissionRequest: HomeworkSubmissionRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
             return localVarFp.submitHomework(missionId, homeworkSubmissionRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -192,8 +261,20 @@ export const GroupStudyHomeworkApiFactory = function (configuration?: Configurat
  */
 export class GroupStudyHomeworkApi extends BaseAPI {
     /**
-     * 
-     * @param {number} homeworkId 
+     * 제출한 과제를 삭제합니다. 평가가 완료되지 않았고 미션 기간 내에만 삭제할 수 있습니다.
+     * @summary 과제 삭제
+     * @param {number} homeworkId 과제 ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public deleteHomework(homeworkId: number, options?: RawAxiosRequestConfig) {
+        return GroupStudyHomeworkApiFp(this.configuration).deleteHomework(homeworkId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 제출한 과제의 내용을 수정합니다. 평가가 완료되지 않았고 미션 기간 내에만 수정할 수 있습니다. 텍스트 내용은 최소 100자 이상이어야 합니다.
+     * @summary 과제 수정
+     * @param {number} homeworkId 과제 ID
      * @param {HomeworkEditRequest} homeworkEditRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -203,8 +284,9 @@ export class GroupStudyHomeworkApi extends BaseAPI {
     }
 
     /**
-     * 
-     * @param {number} missionId 
+     * 특정 미션에 대한 과제를 제출합니다. 텍스트 내용은 최소 100자 이상이어야 하며, 선택적으로 링크를 포함할 수 있습니다.
+     * @summary 과제 제출
+     * @param {number} missionId 미션 ID
      * @param {HomeworkSubmissionRequest} homeworkSubmissionRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}

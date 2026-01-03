@@ -22,9 +22,9 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponseGroupStudyMembersResponseContent } from '../models';
+import type { BaseResponseGroupStudyDiscretionGradeResponse } from '../models';
 // @ts-ignore
-import type { BaseResponseGroupStudyProgressGradesResponse } from '../models';
+import type { BaseResponseGroupStudyMembersResponse } from '../models';
 // @ts-ignore
 import type { BaseResponseString } from '../models';
 // @ts-ignore
@@ -36,16 +36,51 @@ import type { GroupStudyMembersResponse } from '../models';
 // @ts-ignore
 import type { StringResponseSchema } from '../models';
 // @ts-ignore
-import type { UpdateGroupStudyMemberGreetingRequest } from '../models';
+import type { UpdateGroupStudyMemberDiscretionRequest } from '../models';
 // @ts-ignore
-import type { UpdateGroupStudyMemberProgressRequest } from '../models';
+import type { UpdateGroupStudyMemberGreetingRequest } from '../models';
 /**
  * GroupStudyMemberApi - axios parameter creator
  */
 export const GroupStudyMemberApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 작성일자: 2025-09-28  작성자: 성효빈  ## Description  - 그룹 스터디의 사용자 목록을 조회합니다.  - 진행률 내림차순, 참여일시 오름차순으로 정렬됩니다.  - **현재 로그인 사용자는 최상단에 한 번 더 표시**됩니다(ranking: 0).      - 현재 로그인 사용자가 리더이면서 참여자가 아닌 경우에는 제외됩니다.  - **랭킹 1·2·3위 사용자는 모든 페이지 응답에 포함**됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | isPaging | boolean | 페이지네이션 사용 여부 | N | default: true | | pageSize | number | 페이지 크기 | N | default: 5 | | pageNumber | number | 페이지 번호(1부터) | N | default: 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-08-17T12:08:35.54579\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"그룹 스터디 참여자 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | pageSize | number | 페이지 크기 | 5 | | pageNumber | number | 현재 페이지 | 1 | | totalElements | number | 총 아이템 수(명예의 전당 제외) | 127 | | totalMemberCount | number | 총 참여자 수 | 130 | | hasPrevious | boolean | 이전 페이지 존재 여부 | true / false | | hasNext | boolean | 다음 페이지 존재 여부 | true / false | | members | array | 현재 페이지의 사용자 목록 | [ ... ] |  ---  ### Response > content > members  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 사용자 ID | 1 | | profileImageUrl | string | 프로필 이미지 URL | \"[https://test-api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp\"](https://api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp) | | memberName | string | 이름 | \"성효빈\" | | tel | string | 전화번호 | \"010-1234-5678\" | | progress | object | 진행률 정보 | { ... } | | ranking | number | 랭킹 | 12 | | greeting | string | 가입인사 내용 | \"안녕하세요. 20자 이상이어야 합니다. 가나다라마바사\" | | lastAccessedAt | string(datetime) | 마지막 접속 일시 | \"2025-10-07T15:04:04\" |  ---  ### Response > content > members > progress  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | score | number | 진행 점수 | 75.5 | | progressHistory | array | 진행 점수 획득 내역 | [ ... ] |  ---  ### Response > content > members > progress > progressHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 획득 내역 ID | 1 | | acquiredAt | string(datetime) | 획득 일시 | \"2025-09-15 21:34:10\" | | grade | object | 획득 등급 | { ... } | | reason | string | 사유(성공한 Task) | \"PR 리뷰 3건 완료\" |  ### Response > content > members > progress > progressHistory > grade  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+         * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+         * @summary 진행 점수 등급 목록 조회
+         * @param {*} [options] Override http request option.
+         * @deprecated
+         * @throws {RequiredError}
+         */
+        getDiscretionGrades: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/group-studies/members/discretions`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 작성일자: 2025-09-28  작성자: 성효빈  ## Description  - 그룹 스터디의 사용자 목록을 조회합니다.  - 진행률 내림차순, 참여일시 오름차순으로 정렬됩니다.  - **현재 로그인 사용자는 최상단에 한 번 더 표시**됩니다(ranking: 0).      - 현재 로그인 사용자가 리더이면서 참여자가 아닌 경우에는 제외됩니다.  - **랭킹 1·2·3위 사용자는 모든 페이지 응답에 포함**됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | isPaging | boolean | 페이지네이션 사용 여부 | N | default: true | | pageSize | number | 페이지 크기 | N | default: 5 | | pageNumber | number | 페이지 번호(1부터) | N | default: 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-08-17T12:08:35.54579\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"그룹 스터디 참여자 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | pageSize | number | 페이지 크기 | 5 | | pageNumber | number | 현재 페이지 | 1 | | totalElements | number | 총 아이템 수(명예의 전당 제외) | 127 | | totalMemberCount | number | 총 참여자 수 | 130 | | hasPrevious | boolean | 이전 페이지 존재 여부 | true / false | | hasNext | boolean | 다음 페이지 존재 여부 | true / false | | members | array | 현재 페이지의 사용자 목록 | [ ... ] |  ---  ### Response > content > members  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 사용자 ID | 1 | | profileImageUrl | string | 프로필 이미지 URL | \"[https://test-api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp\"](https://api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp) | | memberName | string | 이름 | \"성효빈\" | | tel | string | 전화번호 | \"010-1234-5678\" | | progress | object | 진행률 정보 | { ... } | | ranking | number | 랭킹 | 12 | | greeting | string | 가입인사 내용 | \"안녕하세요. 20자 이상이어야 합니다. 가나다라마바사\" | | lastAccessedAt | string(datetime) | 마지막 접속 일시 | \"2025-10-07T15:04:04\" |  ---  ### Response > content > members > progress  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | score | number | 진행 점수 | 75.5 | | maxProgressScore | number | 최대 진행 점수 | 100.0 | | discretionGradeHistory | array | 재량 점수 획득 내역 | [ ... ] | | missionProgressHistory | array | 미션 평가 내역 | [ ... ] |  ---  ### Response > content > members > progress > discretionGradeHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 획득 내역 ID | 1 | | acquiredAt | string(datetime) | 획득 일시 | \"2025-09-15 21:34:10\" | | grade | object | 획득 등급 | { ... } | | reason | string | 사유(성공한 Task) | \"PR 리뷰 3건 완료\" |  ---  ### Response > content > members > progress > missionProgressHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 평가 ID | 1 | | acquiredAt | string(datetime) | 평가 일시 | \"2025-10-07T19:09:58\" | | grade | object | 평가 등급 | { ... } | | reason | string | 평가 사유(코멘트) | \"잘 작성하셨습니다\" | 
          * @summary 참여자 목록 조회
          * @param {number} id 그룹 스터디 ID
          * @param {boolean} [isPaging] 페이지네이션 사용 여부
@@ -109,40 +144,6 @@ export const GroupStudyMemberApiAxiosParamCreator = function (configuration?: Co
             assertParamExists('getMemberStatus', 'id', id)
             const localVarPath = `/api/v1/group-studies/{id}/members/status`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            // authentication bearer required
-            // http bearer authentication required
-            await setBearerAuthToObject(localVarHeaderParameter, configuration)
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
-        /**
-         * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
-         * @summary 진행 점수 등급 목록 조회
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getProgressGrades: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            const localVarPath = `/api/v1/group-studies/members/progress-grades`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -269,16 +270,16 @@ export const GroupStudyMemberApiAxiosParamCreator = function (configuration?: Co
          * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  - 그룹 스터디 리더가 특정 참여자에게 진행 점수를 부여하거나 수정합니다.  - 최초 요청 시 생성, 이후 요청 시 수정합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | targetMemberId | number | 대상자 ID | Y | 101 | | gradeId | number | 획득 등급 ID | Y | 1 | | reason | string | 사유 | Y | \"출석\" |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T20:35:41.12345\" | | content | string | 응답 본문 | null | | message | string | 처리 결과 | \"진행 점수 업데이트 성공\" | 
          * @summary 진행 점수 부여/수정
          * @param {number} id 그룹 스터디 ID
-         * @param {UpdateGroupStudyMemberProgressRequest} updateGroupStudyMemberProgressRequest 
+         * @param {UpdateGroupStudyMemberDiscretionRequest} updateGroupStudyMemberDiscretionRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateMemberProgress: async (id: number, updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateMemberDiscretion: async (id: number, updateGroupStudyMemberDiscretionRequest: UpdateGroupStudyMemberDiscretionRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
-            assertParamExists('updateMemberProgress', 'id', id)
-            // verify required parameter 'updateGroupStudyMemberProgressRequest' is not null or undefined
-            assertParamExists('updateMemberProgress', 'updateGroupStudyMemberProgressRequest', updateGroupStudyMemberProgressRequest)
-            const localVarPath = `/api/v1/group-studies/{id}/members/progress`
+            assertParamExists('updateMemberDiscretion', 'id', id)
+            // verify required parameter 'updateGroupStudyMemberDiscretionRequest' is not null or undefined
+            assertParamExists('updateMemberDiscretion', 'updateGroupStudyMemberDiscretionRequest', updateGroupStudyMemberDiscretionRequest)
+            const localVarPath = `/api/v1/group-studies/{id}/members/discretions`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -302,7 +303,7 @@ export const GroupStudyMemberApiAxiosParamCreator = function (configuration?: Co
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(updateGroupStudyMemberProgressRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(updateGroupStudyMemberDiscretionRequest, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -319,7 +320,20 @@ export const GroupStudyMemberApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = GroupStudyMemberApiAxiosParamCreator(configuration)
     return {
         /**
-         * 작성일자: 2025-09-28  작성자: 성효빈  ## Description  - 그룹 스터디의 사용자 목록을 조회합니다.  - 진행률 내림차순, 참여일시 오름차순으로 정렬됩니다.  - **현재 로그인 사용자는 최상단에 한 번 더 표시**됩니다(ranking: 0).      - 현재 로그인 사용자가 리더이면서 참여자가 아닌 경우에는 제외됩니다.  - **랭킹 1·2·3위 사용자는 모든 페이지 응답에 포함**됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | isPaging | boolean | 페이지네이션 사용 여부 | N | default: true | | pageSize | number | 페이지 크기 | N | default: 5 | | pageNumber | number | 페이지 번호(1부터) | N | default: 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-08-17T12:08:35.54579\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"그룹 스터디 참여자 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | pageSize | number | 페이지 크기 | 5 | | pageNumber | number | 현재 페이지 | 1 | | totalElements | number | 총 아이템 수(명예의 전당 제외) | 127 | | totalMemberCount | number | 총 참여자 수 | 130 | | hasPrevious | boolean | 이전 페이지 존재 여부 | true / false | | hasNext | boolean | 다음 페이지 존재 여부 | true / false | | members | array | 현재 페이지의 사용자 목록 | [ ... ] |  ---  ### Response > content > members  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 사용자 ID | 1 | | profileImageUrl | string | 프로필 이미지 URL | \"[https://test-api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp\"](https://api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp) | | memberName | string | 이름 | \"성효빈\" | | tel | string | 전화번호 | \"010-1234-5678\" | | progress | object | 진행률 정보 | { ... } | | ranking | number | 랭킹 | 12 | | greeting | string | 가입인사 내용 | \"안녕하세요. 20자 이상이어야 합니다. 가나다라마바사\" | | lastAccessedAt | string(datetime) | 마지막 접속 일시 | \"2025-10-07T15:04:04\" |  ---  ### Response > content > members > progress  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | score | number | 진행 점수 | 75.5 | | progressHistory | array | 진행 점수 획득 내역 | [ ... ] |  ---  ### Response > content > members > progress > progressHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 획득 내역 ID | 1 | | acquiredAt | string(datetime) | 획득 일시 | \"2025-09-15 21:34:10\" | | grade | object | 획득 등급 | { ... } | | reason | string | 사유(성공한 Task) | \"PR 리뷰 3건 완료\" |  ### Response > content > members > progress > progressHistory > grade  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+         * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+         * @summary 진행 점수 등급 목록 조회
+         * @param {*} [options] Override http request option.
+         * @deprecated
+         * @throws {RequiredError}
+         */
+        async getDiscretionGrades(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getDiscretionGrades(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.getDiscretionGrades']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 작성일자: 2025-09-28  작성자: 성효빈  ## Description  - 그룹 스터디의 사용자 목록을 조회합니다.  - 진행률 내림차순, 참여일시 오름차순으로 정렬됩니다.  - **현재 로그인 사용자는 최상단에 한 번 더 표시**됩니다(ranking: 0).      - 현재 로그인 사용자가 리더이면서 참여자가 아닌 경우에는 제외됩니다.  - **랭킹 1·2·3위 사용자는 모든 페이지 응답에 포함**됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | isPaging | boolean | 페이지네이션 사용 여부 | N | default: true | | pageSize | number | 페이지 크기 | N | default: 5 | | pageNumber | number | 페이지 번호(1부터) | N | default: 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-08-17T12:08:35.54579\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"그룹 스터디 참여자 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | pageSize | number | 페이지 크기 | 5 | | pageNumber | number | 현재 페이지 | 1 | | totalElements | number | 총 아이템 수(명예의 전당 제외) | 127 | | totalMemberCount | number | 총 참여자 수 | 130 | | hasPrevious | boolean | 이전 페이지 존재 여부 | true / false | | hasNext | boolean | 다음 페이지 존재 여부 | true / false | | members | array | 현재 페이지의 사용자 목록 | [ ... ] |  ---  ### Response > content > members  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 사용자 ID | 1 | | profileImageUrl | string | 프로필 이미지 URL | \"[https://test-api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp\"](https://api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp) | | memberName | string | 이름 | \"성효빈\" | | tel | string | 전화번호 | \"010-1234-5678\" | | progress | object | 진행률 정보 | { ... } | | ranking | number | 랭킹 | 12 | | greeting | string | 가입인사 내용 | \"안녕하세요. 20자 이상이어야 합니다. 가나다라마바사\" | | lastAccessedAt | string(datetime) | 마지막 접속 일시 | \"2025-10-07T15:04:04\" |  ---  ### Response > content > members > progress  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | score | number | 진행 점수 | 75.5 | | maxProgressScore | number | 최대 진행 점수 | 100.0 | | discretionGradeHistory | array | 재량 점수 획득 내역 | [ ... ] | | missionProgressHistory | array | 미션 평가 내역 | [ ... ] |  ---  ### Response > content > members > progress > discretionGradeHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 획득 내역 ID | 1 | | acquiredAt | string(datetime) | 획득 일시 | \"2025-09-15 21:34:10\" | | grade | object | 획득 등급 | { ... } | | reason | string | 사유(성공한 Task) | \"PR 리뷰 3건 완료\" |  ---  ### Response > content > members > progress > missionProgressHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 평가 ID | 1 | | acquiredAt | string(datetime) | 평가 일시 | \"2025-10-07T19:09:58\" | | grade | object | 평가 등급 | { ... } | | reason | string | 평가 사유(코멘트) | \"잘 작성하셨습니다\" | 
          * @summary 참여자 목록 조회
          * @param {number} id 그룹 스터디 ID
          * @param {boolean} [isPaging] 페이지네이션 사용 여부
@@ -345,18 +359,6 @@ export const GroupStudyMemberApiFp = function(configuration?: Configuration) {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMemberStatus(id, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.getMemberStatus']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
-        /**
-         * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
-         * @summary 진행 점수 등급 목록 조회
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async getProgressGrades(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getProgressGrades(options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.getProgressGrades']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -392,14 +394,14 @@ export const GroupStudyMemberApiFp = function(configuration?: Configuration) {
          * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  - 그룹 스터디 리더가 특정 참여자에게 진행 점수를 부여하거나 수정합니다.  - 최초 요청 시 생성, 이후 요청 시 수정합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | targetMemberId | number | 대상자 ID | Y | 101 | | gradeId | number | 획득 등급 ID | Y | 1 | | reason | string | 사유 | Y | \"출석\" |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T20:35:41.12345\" | | content | string | 응답 본문 | null | | message | string | 처리 결과 | \"진행 점수 업데이트 성공\" | 
          * @summary 진행 점수 부여/수정
          * @param {number} id 그룹 스터디 ID
-         * @param {UpdateGroupStudyMemberProgressRequest} updateGroupStudyMemberProgressRequest 
+         * @param {UpdateGroupStudyMemberDiscretionRequest} updateGroupStudyMemberDiscretionRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateMemberProgress(id: number, updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringResponseSchema>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateMemberProgress(id, updateGroupStudyMemberProgressRequest, options);
+        async updateMemberDiscretion(id: number, updateGroupStudyMemberDiscretionRequest: UpdateGroupStudyMemberDiscretionRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<StringResponseSchema>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateMemberDiscretion(id, updateGroupStudyMemberDiscretionRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.updateMemberProgress']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['GroupStudyMemberApi.updateMemberDiscretion']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
     }
@@ -412,7 +414,17 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
     const localVarFp = GroupStudyMemberApiFp(configuration)
     return {
         /**
-         * 작성일자: 2025-09-28  작성자: 성효빈  ## Description  - 그룹 스터디의 사용자 목록을 조회합니다.  - 진행률 내림차순, 참여일시 오름차순으로 정렬됩니다.  - **현재 로그인 사용자는 최상단에 한 번 더 표시**됩니다(ranking: 0).      - 현재 로그인 사용자가 리더이면서 참여자가 아닌 경우에는 제외됩니다.  - **랭킹 1·2·3위 사용자는 모든 페이지 응답에 포함**됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | isPaging | boolean | 페이지네이션 사용 여부 | N | default: true | | pageSize | number | 페이지 크기 | N | default: 5 | | pageNumber | number | 페이지 번호(1부터) | N | default: 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-08-17T12:08:35.54579\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"그룹 스터디 참여자 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | pageSize | number | 페이지 크기 | 5 | | pageNumber | number | 현재 페이지 | 1 | | totalElements | number | 총 아이템 수(명예의 전당 제외) | 127 | | totalMemberCount | number | 총 참여자 수 | 130 | | hasPrevious | boolean | 이전 페이지 존재 여부 | true / false | | hasNext | boolean | 다음 페이지 존재 여부 | true / false | | members | array | 현재 페이지의 사용자 목록 | [ ... ] |  ---  ### Response > content > members  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 사용자 ID | 1 | | profileImageUrl | string | 프로필 이미지 URL | \"[https://test-api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp\"](https://api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp) | | memberName | string | 이름 | \"성효빈\" | | tel | string | 전화번호 | \"010-1234-5678\" | | progress | object | 진행률 정보 | { ... } | | ranking | number | 랭킹 | 12 | | greeting | string | 가입인사 내용 | \"안녕하세요. 20자 이상이어야 합니다. 가나다라마바사\" | | lastAccessedAt | string(datetime) | 마지막 접속 일시 | \"2025-10-07T15:04:04\" |  ---  ### Response > content > members > progress  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | score | number | 진행 점수 | 75.5 | | progressHistory | array | 진행 점수 획득 내역 | [ ... ] |  ---  ### Response > content > members > progress > progressHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 획득 내역 ID | 1 | | acquiredAt | string(datetime) | 획득 일시 | \"2025-09-15 21:34:10\" | | grade | object | 획득 등급 | { ... } | | reason | string | 사유(성공한 Task) | \"PR 리뷰 3건 완료\" |  ### Response > content > members > progress > progressHistory > grade  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+         * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+         * @summary 진행 점수 등급 목록 조회
+         * @param {*} [options] Override http request option.
+         * @deprecated
+         * @throws {RequiredError}
+         */
+        getDiscretionGrades(options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.getDiscretionGrades(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 작성일자: 2025-09-28  작성자: 성효빈  ## Description  - 그룹 스터디의 사용자 목록을 조회합니다.  - 진행률 내림차순, 참여일시 오름차순으로 정렬됩니다.  - **현재 로그인 사용자는 최상단에 한 번 더 표시**됩니다(ranking: 0).      - 현재 로그인 사용자가 리더이면서 참여자가 아닌 경우에는 제외됩니다.  - **랭킹 1·2·3위 사용자는 모든 페이지 응답에 포함**됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | isPaging | boolean | 페이지네이션 사용 여부 | N | default: true | | pageSize | number | 페이지 크기 | N | default: 5 | | pageNumber | number | 페이지 번호(1부터) | N | default: 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-08-17T12:08:35.54579\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"그룹 스터디 참여자 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | pageSize | number | 페이지 크기 | 5 | | pageNumber | number | 현재 페이지 | 1 | | totalElements | number | 총 아이템 수(명예의 전당 제외) | 127 | | totalMemberCount | number | 총 참여자 수 | 130 | | hasPrevious | boolean | 이전 페이지 존재 여부 | true / false | | hasNext | boolean | 다음 페이지 존재 여부 | true / false | | members | array | 현재 페이지의 사용자 목록 | [ ... ] |  ---  ### Response > content > members  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 사용자 ID | 1 | | profileImageUrl | string | 프로필 이미지 URL | \"[https://test-api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp\"](https://api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp) | | memberName | string | 이름 | \"성효빈\" | | tel | string | 전화번호 | \"010-1234-5678\" | | progress | object | 진행률 정보 | { ... } | | ranking | number | 랭킹 | 12 | | greeting | string | 가입인사 내용 | \"안녕하세요. 20자 이상이어야 합니다. 가나다라마바사\" | | lastAccessedAt | string(datetime) | 마지막 접속 일시 | \"2025-10-07T15:04:04\" |  ---  ### Response > content > members > progress  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | score | number | 진행 점수 | 75.5 | | maxProgressScore | number | 최대 진행 점수 | 100.0 | | discretionGradeHistory | array | 재량 점수 획득 내역 | [ ... ] | | missionProgressHistory | array | 미션 평가 내역 | [ ... ] |  ---  ### Response > content > members > progress > discretionGradeHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 획득 내역 ID | 1 | | acquiredAt | string(datetime) | 획득 일시 | \"2025-09-15 21:34:10\" | | grade | object | 획득 등급 | { ... } | | reason | string | 사유(성공한 Task) | \"PR 리뷰 3건 완료\" |  ---  ### Response > content > members > progress > missionProgressHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 평가 ID | 1 | | acquiredAt | string(datetime) | 평가 일시 | \"2025-10-07T19:09:58\" | | grade | object | 평가 등급 | { ... } | | reason | string | 평가 사유(코멘트) | \"잘 작성하셨습니다\" | 
          * @summary 참여자 목록 조회
          * @param {number} id 그룹 스터디 ID
          * @param {boolean} [isPaging] 페이지네이션 사용 여부
@@ -433,15 +445,6 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
          */
         getMemberStatus(id: number, options?: RawAxiosRequestConfig): AxiosPromise<GetGroupStudyMemberStatusResponse> {
             return localVarFp.getMemberStatus(id, options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
-         * @summary 진행 점수 등급 목록 조회
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        getProgressGrades(options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.getProgressGrades(options).then((request) => request(axios, basePath));
         },
         /**
          * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 나가거나, 그룹 스터디 리더가 특정 참여자를 내보냅니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | targetMemberId | number | 대상자 ID | Y | 101 | | reason | string | 사유 | Y | 그룹 스터디 리더가 특정 참여자를 내보냅니다. |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:18:45.67890\" | | content | string | 응답 본문 | null | | message | string | 처리 결과 | \"그룹 스터디 참여자 탈퇴 처리 성공\" | 
@@ -470,12 +473,12 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
          * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  - 그룹 스터디 리더가 특정 참여자에게 진행 점수를 부여하거나 수정합니다.  - 최초 요청 시 생성, 이후 요청 시 수정합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | targetMemberId | number | 대상자 ID | Y | 101 | | gradeId | number | 획득 등급 ID | Y | 1 | | reason | string | 사유 | Y | \"출석\" |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T20:35:41.12345\" | | content | string | 응답 본문 | null | | message | string | 처리 결과 | \"진행 점수 업데이트 성공\" | 
          * @summary 진행 점수 부여/수정
          * @param {number} id 그룹 스터디 ID
-         * @param {UpdateGroupStudyMemberProgressRequest} updateGroupStudyMemberProgressRequest 
+         * @param {UpdateGroupStudyMemberDiscretionRequest} updateGroupStudyMemberDiscretionRequest 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateMemberProgress(id: number, updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest, options?: RawAxiosRequestConfig): AxiosPromise<StringResponseSchema> {
-            return localVarFp.updateMemberProgress(id, updateGroupStudyMemberProgressRequest, options).then((request) => request(axios, basePath));
+        updateMemberDiscretion(id: number, updateGroupStudyMemberDiscretionRequest: UpdateGroupStudyMemberDiscretionRequest, options?: RawAxiosRequestConfig): AxiosPromise<StringResponseSchema> {
+            return localVarFp.updateMemberDiscretion(id, updateGroupStudyMemberDiscretionRequest, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -485,7 +488,18 @@ export const GroupStudyMemberApiFactory = function (configuration?: Configuratio
  */
 export class GroupStudyMemberApi extends BaseAPI {
     /**
-     * 작성일자: 2025-09-28  작성자: 성효빈  ## Description  - 그룹 스터디의 사용자 목록을 조회합니다.  - 진행률 내림차순, 참여일시 오름차순으로 정렬됩니다.  - **현재 로그인 사용자는 최상단에 한 번 더 표시**됩니다(ranking: 0).      - 현재 로그인 사용자가 리더이면서 참여자가 아닌 경우에는 제외됩니다.  - **랭킹 1·2·3위 사용자는 모든 페이지 응답에 포함**됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | isPaging | boolean | 페이지네이션 사용 여부 | N | default: true | | pageSize | number | 페이지 크기 | N | default: 5 | | pageNumber | number | 페이지 번호(1부터) | N | default: 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-08-17T12:08:35.54579\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"그룹 스터디 참여자 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | pageSize | number | 페이지 크기 | 5 | | pageNumber | number | 현재 페이지 | 1 | | totalElements | number | 총 아이템 수(명예의 전당 제외) | 127 | | totalMemberCount | number | 총 참여자 수 | 130 | | hasPrevious | boolean | 이전 페이지 존재 여부 | true / false | | hasNext | boolean | 다음 페이지 존재 여부 | true / false | | members | array | 현재 페이지의 사용자 목록 | [ ... ] |  ---  ### Response > content > members  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 사용자 ID | 1 | | profileImageUrl | string | 프로필 이미지 URL | \"[https://test-api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp\"](https://api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp) | | memberName | string | 이름 | \"성효빈\" | | tel | string | 전화번호 | \"010-1234-5678\" | | progress | object | 진행률 정보 | { ... } | | ranking | number | 랭킹 | 12 | | greeting | string | 가입인사 내용 | \"안녕하세요. 20자 이상이어야 합니다. 가나다라마바사\" | | lastAccessedAt | string(datetime) | 마지막 접속 일시 | \"2025-10-07T15:04:04\" |  ---  ### Response > content > members > progress  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | score | number | 진행 점수 | 75.5 | | progressHistory | array | 진행 점수 획득 내역 | [ ... ] |  ---  ### Response > content > members > progress > progressHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 획득 내역 ID | 1 | | acquiredAt | string(datetime) | 획득 일시 | \"2025-09-15 21:34:10\" | | grade | object | 획득 등급 | { ... } | | reason | string | 사유(성공한 Task) | \"PR 리뷰 3건 완료\" |  ### Response > content > members > progress > progressHistory > grade  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+     * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
+     * @summary 진행 점수 등급 목록 조회
+     * @param {*} [options] Override http request option.
+     * @deprecated
+     * @throws {RequiredError}
+     */
+    public getDiscretionGrades(options?: RawAxiosRequestConfig) {
+        return GroupStudyMemberApiFp(this.configuration).getDiscretionGrades(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 작성일자: 2025-09-28  작성자: 성효빈  ## Description  - 그룹 스터디의 사용자 목록을 조회합니다.  - 진행률 내림차순, 참여일시 오름차순으로 정렬됩니다.  - **현재 로그인 사용자는 최상단에 한 번 더 표시**됩니다(ranking: 0).      - 현재 로그인 사용자가 리더이면서 참여자가 아닌 경우에는 제외됩니다.  - **랭킹 1·2·3위 사용자는 모든 페이지 응답에 포함**됩니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | isPaging | boolean | 페이지네이션 사용 여부 | N | default: true | | pageSize | number | 페이지 크기 | N | default: 5 | | pageNumber | number | 페이지 번호(1부터) | N | default: 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-08-17T12:08:35.54579\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"그룹 스터디 참여자 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | pageSize | number | 페이지 크기 | 5 | | pageNumber | number | 현재 페이지 | 1 | | totalElements | number | 총 아이템 수(명예의 전당 제외) | 127 | | totalMemberCount | number | 총 참여자 수 | 130 | | hasPrevious | boolean | 이전 페이지 존재 여부 | true / false | | hasNext | boolean | 다음 페이지 존재 여부 | true / false | | members | array | 현재 페이지의 사용자 목록 | [ ... ] |  ---  ### Response > content > members  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 사용자 ID | 1 | | profileImageUrl | string | 프로필 이미지 URL | \"[https://test-api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp\"](https://api.zeroone.it.kr/profile-image/db8aaf70-7791-4134-9ea1-98b774b12056_1755342010720.webp) | | memberName | string | 이름 | \"성효빈\" | | tel | string | 전화번호 | \"010-1234-5678\" | | progress | object | 진행률 정보 | { ... } | | ranking | number | 랭킹 | 12 | | greeting | string | 가입인사 내용 | \"안녕하세요. 20자 이상이어야 합니다. 가나다라마바사\" | | lastAccessedAt | string(datetime) | 마지막 접속 일시 | \"2025-10-07T15:04:04\" |  ---  ### Response > content > members > progress  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | score | number | 진행 점수 | 75.5 | | maxProgressScore | number | 최대 진행 점수 | 100.0 | | discretionGradeHistory | array | 재량 점수 획득 내역 | [ ... ] | | missionProgressHistory | array | 미션 평가 내역 | [ ... ] |  ---  ### Response > content > members > progress > discretionGradeHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 획득 내역 ID | 1 | | acquiredAt | string(datetime) | 획득 일시 | \"2025-09-15 21:34:10\" | | grade | object | 획득 등급 | { ... } | | reason | string | 사유(성공한 Task) | \"PR 리뷰 3건 완료\" |  ---  ### Response > content > members > progress > missionProgressHistory  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 평가 ID | 1 | | acquiredAt | string(datetime) | 평가 일시 | \"2025-10-07T19:09:58\" | | grade | object | 평가 등급 | { ... } | | reason | string | 평가 사유(코멘트) | \"잘 작성하셨습니다\" | 
      * @summary 참여자 목록 조회
      * @param {number} id 그룹 스터디 ID
      * @param {boolean} [isPaging] 페이지네이션 사용 여부
@@ -507,16 +521,6 @@ export class GroupStudyMemberApi extends BaseAPI {
      */
     public getMemberStatus(id: number, options?: RawAxiosRequestConfig) {
         return GroupStudyMemberApiFp(this.configuration).getMemberStatus(id, options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  그룹 스터디에서 사용 가능한 진행 점수 등급 목록을 조회합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T21:45:22.12345\" | | content | object | 응답 본문 | { ... } | | message | string | 처리 결과 | \"진행 점수 등급 목록 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | grades | array | 등급 목록 | [ ... ] |  ### Response > content > grades  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | id | number | 진행 점수 등급 ID | 1 | | code | string | 등급 코드 | \"A+\" | | name | string | 등급명 | \"Great\" | | score | number | 등급 점수 | 4.5 | 
-     * @summary 진행 점수 등급 목록 조회
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     */
-    public getProgressGrades(options?: RawAxiosRequestConfig) {
-        return GroupStudyMemberApiFp(this.configuration).getProgressGrades(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -548,12 +552,12 @@ export class GroupStudyMemberApi extends BaseAPI {
      * 작성일자: 2025-09-28  작성자: 성효빈  ---  ## Description  - 그룹 스터디 리더가 특정 참여자에게 진행 점수를 부여하거나 수정합니다.  - 최초 요청 시 생성, 이후 요청 시 수정합니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹 스터디 ID | Y | 1 | | targetMemberId | number | 대상자 ID | Y | 101 | | gradeId | number | 획득 등급 ID | Y | 1 | | reason | string | 사유 | Y | \"출석\" |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2025-09-28T20:35:41.12345\" | | content | string | 응답 본문 | null | | message | string | 처리 결과 | \"진행 점수 업데이트 성공\" | 
      * @summary 진행 점수 부여/수정
      * @param {number} id 그룹 스터디 ID
-     * @param {UpdateGroupStudyMemberProgressRequest} updateGroupStudyMemberProgressRequest 
+     * @param {UpdateGroupStudyMemberDiscretionRequest} updateGroupStudyMemberDiscretionRequest 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public updateMemberProgress(id: number, updateGroupStudyMemberProgressRequest: UpdateGroupStudyMemberProgressRequest, options?: RawAxiosRequestConfig) {
-        return GroupStudyMemberApiFp(this.configuration).updateMemberProgress(id, updateGroupStudyMemberProgressRequest, options).then((request) => request(this.axios, this.basePath));
+    public updateMemberDiscretion(id: number, updateGroupStudyMemberDiscretionRequest: UpdateGroupStudyMemberDiscretionRequest, options?: RawAxiosRequestConfig) {
+        return GroupStudyMemberApiFp(this.configuration).updateMemberDiscretion(id, updateGroupStudyMemberDiscretionRequest, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

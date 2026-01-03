@@ -5,11 +5,15 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**id** | **number** |  | [optional] [default to undefined]
+**missionId** | **number** |  | [optional] [default to undefined]
+**weekNum** | **number** |  | [optional] [default to undefined]
 **title** | **string** |  | [optional] [default to undefined]
-**startTime** | **string** |  | [optional] [default to undefined]
-**endTime** | **string** |  | [optional] [default to undefined]
+**description** | **string** |  | [optional] [default to undefined]
+**startDate** | **string** |  | [optional] [default to undefined]
+**endDate** | **string** |  | [optional] [default to undefined]
 **status** | **string** |  | [optional] [default to undefined]
+**maxEvaluationCount** | **number** |  | [optional] [default to undefined]
+**evaluatedCount** | **number** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -17,11 +21,15 @@ Name | Type | Description | Notes
 import { MissionListResponse } from './api';
 
 const instance: MissionListResponse = {
-    id,
+    missionId,
+    weekNum,
     title,
-    startTime,
-    endTime,
+    description,
+    startDate,
+    endDate,
     status,
+    maxEvaluationCount,
+    evaluatedCount,
 };
 ```
 

@@ -4,14 +4,16 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 
 |Method | HTTP request | Description|
 |------------- | ------------- | -------------|
-|[**createMission**](#createmission) | **POST** /group-studies/{groupStudyId}/missions | 그룹스터디 미션 생성|
-|[**getMissions**](#getmissions) | **GET** /group-studies/{groupStudyId}/missions | 그룹스터디 미션 목록 조회|
-|[**updateMission**](#updatemission) | **PUT** /missions/{missionId} | 그룹스터디 미션 수정|
+|[**createMission**](#createmission) | **POST** /api/v1/group-studies/{groupStudyId}/missions | 그룹스터디 미션 생성|
+|[**deleteMission**](#deletemission) | **DELETE** /api/v1/missions/{missionId} | 미션 삭제|
+|[**getMission**](#getmission) | **GET** /api/v1/missions/{missionId} | 그룹스터디 미션 조회|
+|[**getMissions**](#getmissions) | **GET** /api/v1/group-studies/{groupStudyId}/missions | 그룹스터디 미션 목록 조회|
+|[**updateMission**](#updatemission) | **PUT** /api/v1/missions/{missionId} | 그룹스터디 미션 수정|
 
 # **createMission**
 > CreateMissionResponseSchema createMission(missionCreationRequest)
 
-그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
 
 ### Example
 
@@ -60,9 +62,114 @@ const { status, data } = await apiInstance.createMission(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | 미션 생성 성공 |  -  |
-|**400** | 잘못된 요청 (validation 실패) |  -  |
+|**400** | 잘못된 요청 (validation 실패 또는 미션 생성 실패) |  -  |
 |**403** | 권한 없음 (리더가 아님) |  -  |
 |**404** | 그룹스터디를 찾을 수 없음 |  -  |
+|**409** | 미션 기간 중복 |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **deleteMission**
+> NoContentResponse deleteMission()
+
+특정 미션을 삭제합니다.
+
+### Example
+
+```typescript
+import {
+    MissionApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new MissionApi(configuration);
+
+let missionId: number; //미션 ID (default to undefined)
+
+const { status, data } = await apiInstance.deleteMission(
+    missionId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **missionId** | [**number**] | 미션 ID | defaults to undefined|
+
+
+### Return type
+
+**NoContentResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**204** | 미션 삭제 성공 |  -  |
+|**404** | 미션을 찾을 수 없음 |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getMission**
+> MissionResponse getMission()
+
+미션 ID를 통해 특정 미션의 상세 정보를 조회합니다.  **[권한]** - 인증된 사용자만 접근 가능  **[Request]** - PathVariable: missionId (필수) - 미션 ID 
+
+### Example
+
+```typescript
+import {
+    MissionApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new MissionApi(configuration);
+
+let missionId: number; //미션 ID (default to undefined)
+
+const { status, data } = await apiInstance.getMission(
+    missionId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **missionId** | [**number**] | 미션 ID | defaults to undefined|
+
+
+### Return type
+
+**MissionResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | 미션 조회 성공 |  -  |
+|**404** | 미션을 찾을 수 없음 (MIS002) |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -83,13 +190,15 @@ const configuration = new Configuration();
 const apiInstance = new MissionApi(configuration);
 
 let groupStudyId: number; //그룹스터디 ID (default to undefined)
+let searchType: 'ALL' | 'COMPLETED_MISSION' | 'IN_PROGRESS_MISSION'; //검색 타입 - 진행 중인 미션 혹은 완료된 미션 (default to undefined)
 let page: number; //페이지 번호 (1부터 시작, 기본값: 1) (optional) (default to 1)
-let size: number; //페이지 크기 (기본값: 10) (optional) (default to 10)
+let pageSize: number; //페이지 크기 (기본값: 10) (optional) (default to 10)
 
 const { status, data } = await apiInstance.getMissions(
     groupStudyId,
+    searchType,
     page,
-    size
+    pageSize
 );
 ```
 
@@ -98,8 +207,9 @@ const { status, data } = await apiInstance.getMissions(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **groupStudyId** | [**number**] | 그룹스터디 ID | defaults to undefined|
+| **searchType** | [**&#39;ALL&#39; | &#39;COMPLETED_MISSION&#39; | &#39;IN_PROGRESS_MISSION&#39;**]**Array<&#39;ALL&#39; &#124; &#39;COMPLETED_MISSION&#39; &#124; &#39;IN_PROGRESS_MISSION&#39;>** | 검색 타입 - 진행 중인 미션 혹은 완료된 미션 | defaults to undefined|
 | **page** | [**number**] | 페이지 번호 (1부터 시작, 기본값: 1) | (optional) defaults to 1|
-| **size** | [**number**] | 페이지 크기 (기본값: 10) | (optional) defaults to 10|
+| **pageSize** | [**number**] | 페이지 크기 (기본값: 10) | (optional) defaults to 10|
 
 
 ### Return type
@@ -127,7 +237,7 @@ const { status, data } = await apiInstance.getMissions(
 # **updateMission**
 > UpdateMissionResponseSchema updateMission(missionUpdateRequest)
 
-그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
 
 ### Example
 
@@ -176,9 +286,10 @@ const { status, data } = await apiInstance.updateMission(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | 미션 수정 성공 |  -  |
-|**400** | 잘못된 요청 (validation 실패) |  -  |
+|**400** | 잘못된 요청 (validation 실패, 미션 수정 실패, 또는 파라미터 검증 실패) |  -  |
 |**403** | 권한 없음 (리더가 아님) |  -  |
-|**404** | 미션을 찾을 수 없음 |  -  |
+|**404** | 미션을 찾을 수 없음 (MIS002) |  -  |
+|**409** | 미션 기간 중복 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

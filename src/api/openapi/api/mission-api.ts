@@ -26,11 +26,17 @@ import type { BaseResponse } from '../models';
 // @ts-ignore
 import type { CreateMissionResponseSchema } from '../models';
 // @ts-ignore
+import type { ErrorResponse } from '../models';
+// @ts-ignore
 import type { GetMissionsResponseSchema } from '../models';
 // @ts-ignore
 import type { MissionCreationRequest } from '../models';
 // @ts-ignore
+import type { MissionResponse } from '../models';
+// @ts-ignore
 import type { MissionUpdateRequest } from '../models';
+// @ts-ignore
+import type { NoContentResponse } from '../models';
 // @ts-ignore
 import type { UpdateMissionResponseSchema } from '../models';
 /**
@@ -39,7 +45,7 @@ import type { UpdateMissionResponseSchema } from '../models';
 export const MissionApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
          * @summary 그룹스터디 미션 생성
          * @param {number} groupStudyId 그룹스터디 ID
          * @param {MissionCreationRequest} missionCreationRequest 미션 생성 요청 정보
@@ -51,7 +57,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('createMission', 'groupStudyId', groupStudyId)
             // verify required parameter 'missionCreationRequest' is not null or undefined
             assertParamExists('createMission', 'missionCreationRequest', missionCreationRequest)
-            const localVarPath = `/group-studies/{groupStudyId}/missions`
+            const localVarPath = `/api/v1/group-studies/{groupStudyId}/missions`
                 .replace(`{${"groupStudyId"}}`, encodeURIComponent(String(groupStudyId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -83,18 +89,97 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
-         * @summary 그룹스터디 미션 목록 조회
-         * @param {number} groupStudyId 그룹스터디 ID
-         * @param {number} [page] 페이지 번호 (1부터 시작, 기본값: 1)
-         * @param {number} [size] 페이지 크기 (기본값: 10)
+         * 특정 미션을 삭제합니다.
+         * @summary 미션 삭제
+         * @param {number} missionId 미션 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMissions: async (groupStudyId: number, page?: number, size?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        deleteMission: async (missionId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'missionId' is not null or undefined
+            assertParamExists('deleteMission', 'missionId', missionId)
+            const localVarPath = `/api/v1/missions/{missionId}`
+                .replace(`{${"missionId"}}`, encodeURIComponent(String(missionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'DELETE', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 미션 ID를 통해 특정 미션의 상세 정보를 조회합니다.  **[권한]** - 인증된 사용자만 접근 가능  **[Request]** - PathVariable: missionId (필수) - 미션 ID 
+         * @summary 그룹스터디 미션 조회
+         * @param {number} missionId 미션 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMission: async (missionId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'missionId' is not null or undefined
+            assertParamExists('getMission', 'missionId', missionId)
+            const localVarPath = `/api/v1/missions/{missionId}`
+                .replace(`{${"missionId"}}`, encodeURIComponent(String(missionId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
+         * @summary 그룹스터디 미션 목록 조회
+         * @param {number} groupStudyId 그룹스터디 ID
+         * @param {GetMissionsSearchTypeEnum} searchType 검색 타입 - 진행 중인 미션 혹은 완료된 미션
+         * @param {number} [page] 페이지 번호 (1부터 시작, 기본값: 1)
+         * @param {number} [pageSize] 페이지 크기 (기본값: 10)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMissions: async (groupStudyId: number, searchType: GetMissionsSearchTypeEnum, page?: number, pageSize?: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'groupStudyId' is not null or undefined
             assertParamExists('getMissions', 'groupStudyId', groupStudyId)
-            const localVarPath = `/group-studies/{groupStudyId}/missions`
+            // verify required parameter 'searchType' is not null or undefined
+            assertParamExists('getMissions', 'searchType', searchType)
+            const localVarPath = `/api/v1/group-studies/{groupStudyId}/missions`
                 .replace(`{${"groupStudyId"}}`, encodeURIComponent(String(groupStudyId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -115,8 +200,12 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
                 localVarQueryParameter['page'] = page;
             }
 
-            if (size !== undefined) {
-                localVarQueryParameter['size'] = size;
+            if (pageSize !== undefined) {
+                localVarQueryParameter['page-size'] = pageSize;
+            }
+
+            if (searchType !== undefined) {
+                localVarQueryParameter['search-type'] = searchType;
             }
 
 
@@ -131,7 +220,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             };
         },
         /**
-         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
          * @summary 그룹스터디 미션 수정
          * @param {number} missionId 미션 ID
          * @param {MissionUpdateRequest} missionUpdateRequest 미션 수정 요청 정보
@@ -143,7 +232,7 @@ export const MissionApiAxiosParamCreator = function (configuration?: Configurati
             assertParamExists('updateMission', 'missionId', missionId)
             // verify required parameter 'missionUpdateRequest' is not null or undefined
             assertParamExists('updateMission', 'missionUpdateRequest', missionUpdateRequest)
-            const localVarPath = `/missions/{missionId}`
+            const localVarPath = `/api/v1/missions/{missionId}`
                 .replace(`{${"missionId"}}`, encodeURIComponent(String(missionId)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -184,7 +273,7 @@ export const MissionApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = MissionApiAxiosParamCreator(configuration)
     return {
         /**
-         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
          * @summary 그룹스터디 미션 생성
          * @param {number} groupStudyId 그룹스터디 ID
          * @param {MissionCreationRequest} missionCreationRequest 미션 생성 요청 정보
@@ -198,22 +287,49 @@ export const MissionApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
-         * @summary 그룹스터디 미션 목록 조회
-         * @param {number} groupStudyId 그룹스터디 ID
-         * @param {number} [page] 페이지 번호 (1부터 시작, 기본값: 1)
-         * @param {number} [size] 페이지 크기 (기본값: 10)
+         * 특정 미션을 삭제합니다.
+         * @summary 미션 삭제
+         * @param {number} missionId 미션 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMissions(groupStudyId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetMissionsResponseSchema>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getMissions(groupStudyId, page, size, options);
+        async deleteMission(missionId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<NoContentResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.deleteMission(missionId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MissionApi.deleteMission']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 미션 ID를 통해 특정 미션의 상세 정보를 조회합니다.  **[권한]** - 인증된 사용자만 접근 가능  **[Request]** - PathVariable: missionId (필수) - 미션 ID 
+         * @summary 그룹스터디 미션 조회
+         * @param {number} missionId 미션 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getMission(missionId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MissionResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMission(missionId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['MissionApi.getMission']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
+         * @summary 그룹스터디 미션 목록 조회
+         * @param {number} groupStudyId 그룹스터디 ID
+         * @param {GetMissionsSearchTypeEnum} searchType 검색 타입 - 진행 중인 미션 혹은 완료된 미션
+         * @param {number} [page] 페이지 번호 (1부터 시작, 기본값: 1)
+         * @param {number} [pageSize] 페이지 크기 (기본값: 10)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getMissions(groupStudyId: number, searchType: GetMissionsSearchTypeEnum, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetMissionsResponseSchema>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMissions(groupStudyId, searchType, page, pageSize, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MissionApi.getMissions']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
          * @summary 그룹스터디 미션 수정
          * @param {number} missionId 미션 ID
          * @param {MissionUpdateRequest} missionUpdateRequest 미션 수정 요청 정보
@@ -236,7 +352,7 @@ export const MissionApiFactory = function (configuration?: Configuration, basePa
     const localVarFp = MissionApiFp(configuration)
     return {
         /**
-         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+         * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
          * @summary 그룹스터디 미션 생성
          * @param {number} groupStudyId 그룹스터디 ID
          * @param {MissionCreationRequest} missionCreationRequest 미션 생성 요청 정보
@@ -247,19 +363,40 @@ export const MissionApiFactory = function (configuration?: Configuration, basePa
             return localVarFp.createMission(groupStudyId, missionCreationRequest, options).then((request) => request(axios, basePath));
         },
         /**
-         * 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
-         * @summary 그룹스터디 미션 목록 조회
-         * @param {number} groupStudyId 그룹스터디 ID
-         * @param {number} [page] 페이지 번호 (1부터 시작, 기본값: 1)
-         * @param {number} [size] 페이지 크기 (기본값: 10)
+         * 특정 미션을 삭제합니다.
+         * @summary 미션 삭제
+         * @param {number} missionId 미션 ID
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMissions(groupStudyId: number, page?: number, size?: number, options?: RawAxiosRequestConfig): AxiosPromise<GetMissionsResponseSchema> {
-            return localVarFp.getMissions(groupStudyId, page, size, options).then((request) => request(axios, basePath));
+        deleteMission(missionId: number, options?: RawAxiosRequestConfig): AxiosPromise<NoContentResponse> {
+            return localVarFp.deleteMission(missionId, options).then((request) => request(axios, basePath));
         },
         /**
-         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+         * 미션 ID를 통해 특정 미션의 상세 정보를 조회합니다.  **[권한]** - 인증된 사용자만 접근 가능  **[Request]** - PathVariable: missionId (필수) - 미션 ID 
+         * @summary 그룹스터디 미션 조회
+         * @param {number} missionId 미션 ID
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMission(missionId: number, options?: RawAxiosRequestConfig): AxiosPromise<MissionResponse> {
+            return localVarFp.getMission(missionId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
+         * @summary 그룹스터디 미션 목록 조회
+         * @param {number} groupStudyId 그룹스터디 ID
+         * @param {GetMissionsSearchTypeEnum} searchType 검색 타입 - 진행 중인 미션 혹은 완료된 미션
+         * @param {number} [page] 페이지 번호 (1부터 시작, 기본값: 1)
+         * @param {number} [pageSize] 페이지 크기 (기본값: 10)
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMissions(groupStudyId: number, searchType: GetMissionsSearchTypeEnum, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<GetMissionsResponseSchema> {
+            return localVarFp.getMissions(groupStudyId, searchType, page, pageSize, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
          * @summary 그룹스터디 미션 수정
          * @param {number} missionId 미션 ID
          * @param {MissionUpdateRequest} missionUpdateRequest 미션 수정 요청 정보
@@ -277,7 +414,7 @@ export const MissionApiFactory = function (configuration?: Configuration, basePa
  */
 export class MissionApi extends BaseAPI {
     /**
-     * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
+     * 그룹스터디 리더가 새로운 미션을 생성합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - RequestBody: MissionCreationRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간 (현재 또는 미래)   - endTime (필수): 미션 종료 시간 (현재 또는 미래)  **[Response]** - MissionCreationResult: 생성된 미션 ID - Location 헤더: /missions/{missionId} 
      * @summary 그룹스터디 미션 생성
      * @param {number} groupStudyId 그룹스터디 ID
      * @param {MissionCreationRequest} missionCreationRequest 미션 생성 요청 정보
@@ -289,20 +426,43 @@ export class MissionApi extends BaseAPI {
     }
 
     /**
-     * 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
-     * @summary 그룹스터디 미션 목록 조회
-     * @param {number} groupStudyId 그룹스터디 ID
-     * @param {number} [page] 페이지 번호 (1부터 시작, 기본값: 1)
-     * @param {number} [size] 페이지 크기 (기본값: 10)
+     * 특정 미션을 삭제합니다.
+     * @summary 미션 삭제
+     * @param {number} missionId 미션 ID
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getMissions(groupStudyId: number, page?: number, size?: number, options?: RawAxiosRequestConfig) {
-        return MissionApiFp(this.configuration).getMissions(groupStudyId, page, size, options).then((request) => request(this.axios, this.basePath));
+    public deleteMission(missionId: number, options?: RawAxiosRequestConfig) {
+        return MissionApiFp(this.configuration).deleteMission(missionId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
-     * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - content (필수): 미션 내용   - startTime (필수): 미션 시작 시간   - endTime (선택): 미션 종료 시간   - tasks (필수): 미션 작업 목록   - scoreAllocation (선택): 점수 배분 (1~10)  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
+     * 미션 ID를 통해 특정 미션의 상세 정보를 조회합니다.  **[권한]** - 인증된 사용자만 접근 가능  **[Request]** - PathVariable: missionId (필수) - 미션 ID 
+     * @summary 그룹스터디 미션 조회
+     * @param {number} missionId 미션 ID
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getMission(missionId: number, options?: RawAxiosRequestConfig) {
+        return MissionApiFp(this.configuration).getMission(missionId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
+     * @summary 그룹스터디 미션 목록 조회
+     * @param {number} groupStudyId 그룹스터디 ID
+     * @param {GetMissionsSearchTypeEnum} searchType 검색 타입 - 진행 중인 미션 혹은 완료된 미션
+     * @param {number} [page] 페이지 번호 (1부터 시작, 기본값: 1)
+     * @param {number} [pageSize] 페이지 크기 (기본값: 10)
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getMissions(groupStudyId: number, searchType: GetMissionsSearchTypeEnum, page?: number, pageSize?: number, options?: RawAxiosRequestConfig) {
+        return MissionApiFp(this.configuration).getMissions(groupStudyId, searchType, page, pageSize, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 그룹스터디 리더가 기존 미션을 수정합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 리더 권한 필요  **[Request]** - PathVariable: missionId (필수) - 미션 ID - RequestBody: MissionUpdateRequest (필수)   - title (필수): 미션 제목   - description (선택): 미션 설명   - guide (필수): 미션 가이드   - startTime (필수): 미션 시작 시간   - endTime (필수): 미션 종료 시간  **[Response]** - 204 No Content: 수정 성공 시 응답 본문 없음 
      * @summary 그룹스터디 미션 수정
      * @param {number} missionId 미션 ID
      * @param {MissionUpdateRequest} missionUpdateRequest 미션 수정 요청 정보
@@ -314,3 +474,9 @@ export class MissionApi extends BaseAPI {
     }
 }
 
+export const GetMissionsSearchTypeEnum = {
+    All: 'ALL',
+    CompletedMission: 'COMPLETED_MISSION',
+    InProgressMission: 'IN_PROGRESS_MISSION'
+} as const;
+export type GetMissionsSearchTypeEnum = typeof GetMissionsSearchTypeEnum[keyof typeof GetMissionsSearchTypeEnum];

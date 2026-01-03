@@ -19,6 +19,7 @@ export interface StudyPaymentPrepareResponse {
     'paymentCode'?: string;
     'groupStudyId'?: number;
     'groupStudyTitle'?: string;
+    'groupStudyDescription'?: string;
     'memberId'?: number;
     'memberName'?: string;
     'amount'?: number;

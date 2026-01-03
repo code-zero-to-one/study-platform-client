@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
-import { MissionApi } from '@/api/openapi';
+import { GetMissionsSearchTypeEnum, MissionApi } from '@/api/openapi';
 import type {
   MissionCreationRequest,
   MissionUpdateRequest,
@@ -10,19 +10,26 @@ const missionApi = createApiInstance(MissionApi);
 
 interface GetMissionsParams {
   groupStudyId: number;
+  searchType?: GetMissionsSearchTypeEnum;
   page?: number;
-  size?: number;
+  pageSize?: number;
 }
 
 export const useGetMissions = ({
   groupStudyId,
+  searchType = GetMissionsSearchTypeEnum.All,
   page = 1,
-  size = 10,
+  pageSize = 10,
 }: GetMissionsParams) => {
   return useQuery({
-    queryKey: ['missions', groupStudyId, page, size],
+    queryKey: ['missions', groupStudyId, searchType, page, pageSize],
     queryFn: async () => {
-      const { data } = await missionApi.getMissions(groupStudyId, page, size);
+      const { data } = await missionApi.getMissions(
+        groupStudyId,
+        searchType,
+        page,
+        pageSize,
+      );
 
       return data.content;
     },
@@ -48,6 +55,17 @@ export const useCreateMission = () => {
       await queryClient.invalidateQueries({
         queryKey: ['missions', variables.groupStudyId],
       });
+    },
+  });
+};
+
+export const useGetMission = (missionId: number) => {
+  return useQuery({
+    queryKey: ['mission', missionId],
+    queryFn: async () => {
+      const { data } = await missionApi.getMission(missionId);
+
+      return data.content;
     },
   });
 };
