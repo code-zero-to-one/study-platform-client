@@ -60,7 +60,7 @@ export default function StudyMemberList({
         <span className="font-designer-20b text-text-default">
           스터디 참가자
         </span>
-        <span className="text-text-subtlest font-designer-20b">
+        <span className="text-text-subtle font-designer-14r">
           {data?.totalMemberCount}명
         </span>
       </div>
