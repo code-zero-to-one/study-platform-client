@@ -20,6 +20,7 @@ export * from './api/admin-matching-api';
 export * from './api/admin-payment-api';
 export * from './api/admin-refund-api';
 export * from './api/admin-settlement-api';
+export * from './api/aligo-kakao-api';
 export * from './api/auth-api';
 export * from './api/bank-search-api';
 export * from './api/daily-study-api';

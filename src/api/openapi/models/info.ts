@@ -14,15 +14,13 @@
 
 
 
-export interface MissionUpdateRequest {
-    'title': string;
-    'description'?: string;
-    'guide': string;
-    /**
-     * 주차
-     */
-    'weekNum'?: number;
-    'startDate': string;
-    'endDate': string;
+export interface Info {
+    'type'?: string;
+    'mid'?: string;
+    'current'?: number;
+    'unit'?: number;
+    'total'?: number;
+    'scnt'?: number;
+    'fcnt'?: number;
 }
 

@@ -14,15 +14,10 @@
 
 
 
-export interface MissionUpdateRequest {
-    'title': string;
-    'description'?: string;
-    'guide': string;
-    /**
-     * 주차
-     */
-    'weekNum'?: number;
-    'startDate': string;
-    'endDate': string;
+export interface TemplateInfo {
+    'REG'?: number;
+    'REQ'?: number;
+    'APR'?: number;
+    'REJ'?: number;
 }
 

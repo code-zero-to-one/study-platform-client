@@ -9,6 +9,7 @@ Name | Type | Description | Notes
 **paymentCode** | **string** |  | [optional] [default to undefined]
 **groupStudyId** | **number** |  | [optional] [default to undefined]
 **groupStudyTitle** | **string** |  | [optional] [default to undefined]
+**groupStudyDescription** | **string** |  | [optional] [default to undefined]
 **memberId** | **number** |  | [optional] [default to undefined]
 **memberName** | **string** |  | [optional] [default to undefined]
 **amount** | **number** |  | [optional] [default to undefined]
@@ -26,6 +27,7 @@ const instance: StudyPaymentPrepareResponse = {
     paymentCode,
     groupStudyId,
     groupStudyTitle,
+    groupStudyDescription,
     memberId,
     memberName,
     amount,

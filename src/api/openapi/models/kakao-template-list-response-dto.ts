@@ -15,17 +15,15 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ImageDto } from './image-dto';
+import type { TemplateDto } from './template-dto';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { TemplateInfo } from './template-info';
 
-export interface PeerReviewResponse {
-    'peerReviewId'?: number;
-    'homeworkId'?: number;
-    'reviewerId'?: number;
-    'reviewerNickname'?: string;
-    'reviewerProfileImage'?: ImageDto;
-    'comment'?: string;
-    'createdAt'?: string;
-    'updatedAt'?: string;
-    'updated'?: boolean;
+export interface KakaoTemplateListResponseDto {
+    'code'?: number;
+    'message'?: string;
+    'list'?: Array<TemplateDto>;
+    'info'?: TemplateInfo;
 }
 

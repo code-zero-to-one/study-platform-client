@@ -10,6 +10,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**getMatchingRequest**](#getmatchingrequest) | **GET** /api/v1/admin/matching/requests/{matchingRequestId} | 관리자 매칭 상세 조회|
 |[**resetWeeklyMatching**](#resetweeklymatching) | **DELETE** /api/v1/admin/matching/reset-weekly | 주차 매칭 데이터 초기화|
 |[**runAutoMatchingJob**](#runautomatchingjob) | **POST** /api/v1/admin/matching/run | 자동 매칭 수동 트리거|
+|[**startStudyCycle**](#startstudycycle) | **POST** /api/v1/admin/matching/start-cycle | 스터디 사이클 시작|
 |[**updateMatchingRequestByAdmin**](#updatematchingrequestbyadmin) | **PATCH** /api/v1/admin/matching/requests/{matchingRequestId} | 관리자 매칭 변경/취소|
 
 # **createMatchingRequestByAdmin**
@@ -328,6 +329,52 @@ const { status, data } = await apiInstance.runAutoMatchingJob(
 |**401** | Bearer Token is invalid or no bearer token |  -  |
 |**409** | 작업 충돌 (이미 동일 파라미터 Job이 실행 중이거나 완료됨) |  -  |
 |**500** | 서버 내부 오류 (Job 실행 실패 등) |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **startStudyCycle**
+> BaseResponse startStudyCycle()
+
+매칭 시스템 상태를 RECRUITING에서 STUDYING으로 변경합니다. **관리자 권한(ROLE_ADMIN)이 필요합니다.**
+
+### Example
+
+```typescript
+import {
+    AdminMatchingApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminMatchingApi(configuration);
+
+const { status, data } = await apiInstance.startStudyCycle();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**BaseResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**403** | You are authenticated but not allowed authorization |  -  |
+|**200** | 스터디 사이클 시작 성공 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

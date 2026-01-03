@@ -14,15 +14,12 @@
 
 
 
-export interface MissionUpdateRequest {
-    'title': string;
-    'description'?: string;
-    'guide': string;
-    /**
-     * 주차
-     */
-    'weekNum'?: number;
-    'startDate': string;
-    'endDate': string;
+export interface TestAlimtalkSendRequestDto {
+    'phoneNumber'?: string;
+    'receiverName'?: string;
+    'tplCode'?: string;
+    'subject'?: string;
+    'message'?: string;
+    'fallbackMessage'?: string;
 }
 

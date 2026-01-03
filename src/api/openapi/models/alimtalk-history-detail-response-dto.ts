@@ -15,17 +15,14 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ImageDto } from './image-dto';
+import type { DetailItem } from './detail-item';
 
-export interface PeerReviewResponse {
-    'peerReviewId'?: number;
-    'homeworkId'?: number;
-    'reviewerId'?: number;
-    'reviewerNickname'?: string;
-    'reviewerProfileImage'?: ImageDto;
-    'comment'?: string;
-    'createdAt'?: string;
-    'updatedAt'?: string;
-    'updated'?: boolean;
+export interface AlimtalkHistoryDetailResponseDto {
+    'code'?: number;
+    'message'?: string;
+    'list'?: Array<DetailItem>;
+    'currentPage'?: number;
+    'totalPage'?: number;
+    'totalCount'?: number;
 }
 

@@ -65,6 +65,7 @@ const { status, data } = await apiInstance.createMission(
 |**400** | 잘못된 요청 (validation 실패 또는 미션 생성 실패) |  -  |
 |**403** | 권한 없음 (리더가 아님) |  -  |
 |**404** | 그룹스터디를 찾을 수 없음 |  -  |
+|**409** | 미션 기간 중복 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -189,7 +190,7 @@ const configuration = new Configuration();
 const apiInstance = new MissionApi(configuration);
 
 let groupStudyId: number; //그룹스터디 ID (default to undefined)
-let searchType: 'COMPLETED_MISSION' | 'IN_PROGRESS_MISSION'; //검색 타입 - 진행 중인 미션 혹은 완료된 미션 (default to undefined)
+let searchType: 'ALL' | 'COMPLETED_MISSION' | 'IN_PROGRESS_MISSION'; //검색 타입 - 진행 중인 미션 혹은 완료된 미션 (default to undefined)
 let page: number; //페이지 번호 (1부터 시작, 기본값: 1) (optional) (default to 1)
 let pageSize: number; //페이지 크기 (기본값: 10) (optional) (default to 10)
 
@@ -206,7 +207,7 @@ const { status, data } = await apiInstance.getMissions(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **groupStudyId** | [**number**] | 그룹스터디 ID | defaults to undefined|
-| **searchType** | [**&#39;COMPLETED_MISSION&#39; | &#39;IN_PROGRESS_MISSION&#39;**]**Array<&#39;COMPLETED_MISSION&#39; &#124; &#39;IN_PROGRESS_MISSION&#39;>** | 검색 타입 - 진행 중인 미션 혹은 완료된 미션 | defaults to undefined|
+| **searchType** | [**&#39;ALL&#39; | &#39;COMPLETED_MISSION&#39; | &#39;IN_PROGRESS_MISSION&#39;**]**Array<&#39;ALL&#39; &#124; &#39;COMPLETED_MISSION&#39; &#124; &#39;IN_PROGRESS_MISSION&#39;>** | 검색 타입 - 진행 중인 미션 혹은 완료된 미션 | defaults to undefined|
 | **page** | [**number**] | 페이지 번호 (1부터 시작, 기본값: 1) | (optional) defaults to 1|
 | **pageSize** | [**number**] | 페이지 크기 (기본값: 10) | (optional) defaults to 10|
 
@@ -288,6 +289,7 @@ const { status, data } = await apiInstance.updateMission(
 |**400** | 잘못된 요청 (validation 실패, 미션 수정 실패, 또는 파라미터 검증 실패) |  -  |
 |**403** | 권한 없음 (리더가 아님) |  -  |
 |**404** | 미션을 찾을 수 없음 (MIS002) |  -  |
+|**409** | 미션 기간 중복 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -475,6 +475,7 @@ export class MissionApi extends BaseAPI {
 }
 
 export const GetMissionsSearchTypeEnum = {
+    All: 'ALL',
     CompletedMission: 'COMPLETED_MISSION',
     InProgressMission: 'IN_PROGRESS_MISSION'
 } as const;

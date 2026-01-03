@@ -15,17 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { ImageDto } from './image-dto';
+import type { GroupStudyProgressGradeResponse } from './group-study-progress-grade-response';
 
-export interface PeerReviewResponse {
-    'peerReviewId'?: number;
-    'homeworkId'?: number;
-    'reviewerId'?: number;
-    'reviewerNickname'?: string;
-    'reviewerProfileImage'?: ImageDto;
-    'comment'?: string;
-    'createdAt'?: string;
-    'updatedAt'?: string;
-    'updated'?: boolean;
+export interface GroupStudyDiscretionGradeResponse {
+    'grades'?: Array<GroupStudyProgressGradeResponse>;
 }
 

@@ -6,9 +6,9 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **missionId** | **number** |  | [optional] [default to undefined]
+**weekNum** | **number** |  | [optional] [default to undefined]
 **title** | **string** |  | [optional] [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
-**guide** | **string** |  | [optional] [default to undefined]
 **startDate** | **string** |  | [optional] [default to undefined]
 **endDate** | **string** |  | [optional] [default to undefined]
 **status** | **string** |  | [optional] [default to undefined]
@@ -22,9 +22,9 @@ import { MissionListResponse } from './api';
 
 const instance: MissionListResponse = {
     missionId,
+    weekNum,
     title,
     description,
-    guide,
     startDate,
     endDate,
     status,

@@ -14,7 +14,6 @@ Name | Type | Description | Notes
 **createdAt** | **string** |  | [optional] [default to undefined]
 **updatedAt** | **string** |  | [optional] [default to undefined]
 **updated** | **boolean** |  | [optional] [default to undefined]
-**reactionCount** | **{ [key: string]: number | undefined; }** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -31,7 +30,6 @@ const instance: PeerReviewResponse = {
     createdAt,
     updatedAt,
     updated,
-    reactionCount,
 };
 ```
 

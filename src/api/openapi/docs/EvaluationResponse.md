@@ -11,6 +11,7 @@ Name | Type | Description | Notes
 **comment** | **string** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
 **updatedAt** | **string** |  | [optional] [default to undefined]
+**updated** | **boolean** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -24,6 +25,7 @@ const instance: EvaluationResponse = {
     comment,
     createdAt,
     updatedAt,
+    updated,
 };
 ```
 

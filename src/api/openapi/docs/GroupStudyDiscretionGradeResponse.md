@@ -1,4 +1,4 @@
-# GroupStudyProgressGradesResponse
+# GroupStudyDiscretionGradeResponse
 
 
 ## Properties
@@ -10,9 +10,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { GroupStudyProgressGradesResponse } from './api';
+import { GroupStudyDiscretionGradeResponse } from './api';
 
-const instance: GroupStudyProgressGradesResponse = {
+const instance: GroupStudyDiscretionGradeResponse = {
     grades,
 };
 ```

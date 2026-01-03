@@ -8,6 +8,7 @@ Name | Type | Description | Notes
 **title** | **string** |  | [default to undefined]
 **description** | **string** |  | [optional] [default to undefined]
 **guide** | **string** |  | [default to undefined]
+**weekNum** | **number** | 주차 | [optional] [default to undefined]
 **startDate** | **string** |  | [default to undefined]
 **endDate** | **string** |  | [default to undefined]
 
@@ -20,6 +21,7 @@ const instance: MissionUpdateRequest = {
     title,
     description,
     guide,
+    weekNum,
     startDate,
     endDate,
 };

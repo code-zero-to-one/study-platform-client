@@ -15,6 +15,13 @@
 
 
 export interface PeerReviewCreateRequest {
+    /**
+     * Parent Peer Review ID - null if root
+     */
+    'parent_id'?: number;
+    /**
+     * Peer review comment
+     */
     'comment': string;
 }
 

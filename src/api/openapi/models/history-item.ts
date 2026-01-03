@@ -14,9 +14,14 @@
 
 
 
-export interface UpdateGroupStudyMemberProgressRequest {
-    'targetMemberId': number;
-    'gradeId': number;
-    'reason'?: string;
+export interface HistoryItem {
+    'mid'?: string;
+    'type'?: string;
+    'sender'?: string;
+    'msg_count'?: number;
+    'mbody'?: string;
+    'reserve_date'?: string;
+    'reserve_state'?: string;
+    'regdate'?: string;
 }
 

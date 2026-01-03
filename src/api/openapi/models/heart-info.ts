@@ -14,15 +14,15 @@
 
 
 
-export interface MissionUpdateRequest {
-    'title': string;
-    'description'?: string;
-    'guide': string;
-    /**
-     * 주차
-     */
-    'weekNum'?: number;
-    'startDate': string;
-    'endDate': string;
+export interface HeartInfo {
+    'SMS_CNT'?: number;
+    'LMS_CNT'?: number;
+    'MMS_CNT'?: number;
+    'ALT_CNT'?: number;
+    'FTS_CNT'?: number;
+    'FTM_CNT'?: number;
+    'FTW_CNT'?: number;
+    'FTL_CNT'?: number;
+    'FTC_CNT'?: number;
 }
 

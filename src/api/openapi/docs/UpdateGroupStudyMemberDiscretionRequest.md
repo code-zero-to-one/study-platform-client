@@ -1,4 +1,4 @@
-# UpdateGroupStudyMemberProgressRequest
+# UpdateGroupStudyMemberDiscretionRequest
 
 
 ## Properties
@@ -6,17 +6,15 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **targetMemberId** | **number** |  | [default to undefined]
-**gradeId** | **number** |  | [default to undefined]
 **reason** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { UpdateGroupStudyMemberProgressRequest } from './api';
+import { UpdateGroupStudyMemberDiscretionRequest } from './api';
 
-const instance: UpdateGroupStudyMemberProgressRequest = {
+const instance: UpdateGroupStudyMemberDiscretionRequest = {
     targetMemberId,
-    gradeId,
     reason,
 };
 ```

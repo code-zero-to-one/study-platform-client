@@ -7,7 +7,6 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**createPeerReview**](#createpeerreview) | **POST** /api/v1/homeworks/{homeworkId}/peer-reviews | 피어리뷰 작성|
 |[**deletePeerReview**](#deletepeerreview) | **DELETE** /api/v1/peer-reviews/{peerReviewId} | 피어리뷰 삭제|
 |[**getPeerReviews**](#getpeerreviews) | **GET** /api/v1/homeworks/{homeworkId}/peer-reviews | 과제별 피어리뷰 목록 조회|
-|[**toggleThumbsUp**](#togglethumbsup) | **POST** /api/v1/peer-reviews/{peerReviewId}/reactions | 피어리뷰 반응 토글|
 |[**updatePeerReview**](#updatepeerreview) | **PUT** /api/v1/peer-reviews/{peerReviewId} | 피어리뷰 수정|
 
 # **createPeerReview**
@@ -63,7 +62,8 @@ const { status, data } = await apiInstance.createPeerReview(
 |-------------|-------------|------------------|
 |**201** | 피어리뷰 작성 성공 |  -  |
 |**400** | 잘못된 요청 (validation 실패) |  -  |
-|**404** | 과제를 찾을 수 없음 |  -  |
+|**404** | 리소스를 찾을 수 없음 |  -  |
+|**409** | Conflict |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -169,61 +169,6 @@ const { status, data } = await apiInstance.getPeerReviews(
 |-------------|-------------|------------------|
 |**200** | 피어리뷰 목록 조회 성공 |  -  |
 |**404** | 과제를 찾을 수 없음 |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
-
-# **toggleThumbsUp**
-> PeerReviewResponse toggleThumbsUp()
-
-피어리뷰에 👍 또는 👎 반응을 토글합니다.  **[권한]** - 인증된 사용자만 접근 가능 - 그룹스터디 참가자만 반응 가능  **[Request]** - PathVariable: peerReviewId (필수) - 피어리뷰 ID - RequestParam: reaction-type (필수) - 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN)  **[Response]** - 200 OK: 반응 토글 성공 (업데이트된 피어리뷰 정보 반환)  **[참고]** - 같은 반응을 다시 호출하면 토글됩니다 (추가/취소) - 향후 사용자별 반응 추적 기능 추가 예정 
-
-### Example
-
-```typescript
-import {
-    PeerReviewApi,
-    Configuration
-} from './api';
-
-const configuration = new Configuration();
-const apiInstance = new PeerReviewApi(configuration);
-
-let peerReviewId: number; //피어리뷰 ID (default to undefined)
-let reactionType: 'THUMBS_UP' | 'THUMBS_DOWN'; //반응 타입 (THUMBS_UP 또는 THUMBS_DOWN) (default to undefined)
-
-const { status, data } = await apiInstance.toggleThumbsUp(
-    peerReviewId,
-    reactionType
-);
-```
-
-### Parameters
-
-|Name | Type | Description  | Notes|
-|------------- | ------------- | ------------- | -------------|
-| **peerReviewId** | [**number**] | 피어리뷰 ID | defaults to undefined|
-| **reactionType** | [**&#39;THUMBS_UP&#39; | &#39;THUMBS_DOWN&#39;**]**Array<&#39;THUMBS_UP&#39; &#124; &#39;THUMBS_DOWN&#39;>** | 반응 타입 (THUMBS_UP 또는 THUMBS_DOWN) | defaults to undefined|
-
-
-### Return type
-
-**PeerReviewResponse**
-
-### Authorization
-
-[bearer](../README.md#bearer)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-|**200** | 반응 토글 성공 |  -  |
-|**404** | 피어리뷰를 찾을 수 없음 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
