@@ -24,7 +24,7 @@ const GRADE_SCORE_CONFIG: Record<
 
 interface MyHomeworkStatusProps {
   missionId: number;
-  myHomework: HomeworkDetailResponseDto | null;
+  myHomework?: HomeworkDetailResponseDto;
   onSelectHomework: (homeworkId: number) => void;
 }
 
@@ -84,7 +84,8 @@ export default function MyHomeworkStatus({
     myHomework.homeworkStatus === 'EVALUATION_COMPLETED' &&
     myHomework.evaluation?.evaluationGrade
   ) {
-    const gradeConfig = GRADE_SCORE_CONFIG[myHomework.evaluation.evaluationGrade];
+    const gradeConfig =
+      GRADE_SCORE_CONFIG[myHomework.evaluation.evaluationGrade];
 
     return (
       <div className="flex flex-col gap-300">
