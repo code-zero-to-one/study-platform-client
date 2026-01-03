@@ -89,12 +89,13 @@ function MissionActionButton({
   isLeader?: boolean;
   onSelectMission: () => void;
 }) {
-  if (status === 'SCHEDULED') {
+  // 진행 예정
+  if (status === 'NOT_STARTED') {
     return null;
   }
 
-  // 진행 중인 미션 - 리더에게 평가하기 버튼 표시
-  if (status === 'IN_PROGRESS' || status === 'SUBMISSION_CLOSED') {
+  // 진행 중 또는 종료된 미션 - 리더에게 평가하기 버튼 표시
+  if (status === 'IN_PROGRESS' || status === 'ENDED') {
     if (!isLeader) return null;
 
     return (

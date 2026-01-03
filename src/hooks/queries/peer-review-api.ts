@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
-import { PeerReviewApi, ToggleThumbsUpReactionTypeEnum } from '@/api/openapi';
+import { PeerReviewApi } from '@/api/openapi';
 import type {
   PeerReviewCreateRequest,
   PeerReviewUpdateRequest,
@@ -88,31 +88,3 @@ export const useDeletePeerReview = () => {
   });
 };
 
-export const useToggleThumbsUp = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({
-      peerReviewId,
-      reactionType,
-    }: {
-      peerReviewId: number;
-      reactionType: ToggleThumbsUpReactionTypeEnum;
-    }) => {
-      const { data } = await peerReviewApi.toggleThumbsUp(
-        peerReviewId,
-        reactionType,
-      );
-
-      // ? api 응답 타입에서 content가 없어서 임시로 주석처리
-      // return data.content;
-    },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ['peerReviews'],
-      });
-    },
-  });
-};
-
-export { ToggleThumbsUpReactionTypeEnum };
