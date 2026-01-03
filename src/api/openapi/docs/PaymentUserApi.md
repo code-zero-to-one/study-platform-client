@@ -313,7 +313,7 @@ const { status, data } = await apiInstance.preparePayment(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | 결제 준비 성공 |  -  |
-|**400** | 잘못된 요청 (금액 불일치, 무료 스터디, 모집중이 아닌 스터디 등) |  -  |
+|**400** | 잘못된 요청 (금액 불일치, 무료 스터디, 스터디 시작 후 결제 시도, 미신청 스터디 등) |  -  |
 |**404** | 존재하지 않는 회원 요청 |  -  |
 |**409** | 이미 결제 완료된 스터디 |  -  |
 |**401** | Bearer Token is invalid or no bearer token |  -  |
