@@ -59,6 +59,17 @@ export const useCreateMission = () => {
   });
 };
 
+export const useGetMission = (missionId: number) => {
+  return useQuery({
+    queryKey: ['mission', missionId],
+    queryFn: async () => {
+      const { data } = await missionApi.getMission(missionId);
+
+      return data.content;
+    },
+  });
+};
+
 export const useUpdateMission = () => {
   const queryClient = useQueryClient();
 

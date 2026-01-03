@@ -1,13 +1,13 @@
 'use client';
 
-import { ChevronLeft, Plus } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MissionListResponse } from '@/api/openapi/models';
-import Button from '@/components/ui/button';
 import { useGetMissions } from '@/hooks/queries/mission-api';
 import HomeworkDetailContent from './homework-detail-content';
 import MissionCard from './mission-card';
 import MissionDetailContent from './mission-detail-content';
+import CreateMissionModal from '../modals/create-mission-modal';
 
 interface MissionSectionProps {
   groupStudyId: number;
@@ -144,16 +144,7 @@ export default function MissionSection({
     <section className="flex flex-col gap-300">
       <div className="flex items-center justify-between">
         <span className="font-designer-20b text-text-default">미션 목록</span>
-        {isLeader && (
-          <Button
-            color="primary"
-            size="medium"
-            className="font-designer-16b"
-            icon={<Plus />}
-          >
-            새 미션 만들기
-          </Button>
-        )}
+        {isLeader && <CreateMissionModal groupStudyId={groupStudyId} />}
       </div>
 
       {hasMissions ? (
