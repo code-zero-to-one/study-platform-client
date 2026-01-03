@@ -135,7 +135,7 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
 
   const getButtonText = () => {
     if (
-      myApplicationStatus?.status === 'APPROVED' ||
+      myApplicationStatus?.status === 'APPROVED' &&
       groupStudyStatus === 'IN_PROGRESS'
     ) {
       return '참여 중인 스터디';
