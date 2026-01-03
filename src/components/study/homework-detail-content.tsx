@@ -1,9 +1,21 @@
 'use client';
 
-import { MoreHorizontal, ThumbsDown, ThumbsUp } from 'lucide-react';
+import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
+
+import type {
+  EvaluationDetailResponseDto,
+  EvaluationDetailResponseDtoEvaluationGradeEnum,
+  HomeworkDetailResponseDto,
+  PeerReviewResponse,
+} from '@/api/openapi/models';
 import Avatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
+import { useGetMission } from '@/hooks/queries/mission-api';
+import {
+  useCreatePeerReview,
+  useGetPeerReviews,
+} from '@/hooks/queries/peer-review-api';
 
 interface HomeworkDetailContentProps {
   groupStudyId: number;
@@ -12,127 +24,45 @@ interface HomeworkDetailContentProps {
   isLeader?: boolean;
 }
 
-interface ResizedImage {
-  resizedImageId: number;
-  imageUrl: string;
-  width: number;
-  height: number;
-}
-
-interface ProfileImage {
-  imageId: number;
-  resizedImages: ResizedImage[];
-}
-
-interface Evaluation {
-  evaluationId: number;
-  evaluationGrade:
-    | 'A_PLUS'
-    | 'A'
-    | 'B_PLUS'
-    | 'B'
-    | 'C_PLUS'
-    | 'C'
-    | 'D_PLUS'
-    | 'D'
-    | 'F';
-  evaluationComment: string;
-}
-
-interface PeerReview {
-  peerReviewId: number;
-  reviewerId: number;
-  reviewerNickname: string;
-  reviewerProfileImage?: ProfileImage;
-  content: string;
-  createdAt: string;
-  likeCount: number;
-  dislikeCount: number;
-}
-
-interface HomeworkDetail {
-  homeworkId: number;
-  homeworkStatus: 'EVALUATION_COMPLETED' | 'SUBMITTED' | 'NOT_SUBMITTED';
-  submissionTime: string;
-  submitterId: number;
-  submitterNickname: string;
-  submitterProfileImage?: ProfileImage;
-  homeworkTextContent: string;
-  homeworkLink?: string;
-  evaluation?: Evaluation;
-  peerReviews: PeerReview[];
-}
-
-// TODO: API 연결 시 삭제
-const MOCK_HOMEWORK_DETAIL: HomeworkDetail = {
-  homeworkId: 1,
-  homeworkStatus: 'SUBMITTED',
-  submissionTime: '2025-01-08T14:30:00',
-  submitterId: 10,
-  submitterNickname: '최현우',
-  submitterProfileImage: {
-    imageId: 5,
-    resizedImages: [
-      {
-        resizedImageId: 15,
-        imageUrl: 'https://example.com/profile_small.jpg',
-        width: 100,
-        height: 100,
-      },
-    ],
-  },
-  homeworkTextContent: `운영체제의 기초 개념에 대해 학습한 내용을 정리했습니다.
-
-1. 운영체제의 역할
-- 하드웨어와 소프트웨어의 중재자
-- 자원 관리 및 할당
-- 사용자 인터페이스 제공
-
-2. 프로세스와 스레드
-프로세스는 실행 중인 프로그램의 인스턴스이며, 독립적인 메모리 공간을 가집니다. 반면 스레드는 프로세스 내에서 실행되는 작업 단위로, 같은 프로세스의 스레드들은 메모리를 공유합니다.
-
-3. 메모리 관리
-운영체제는 메모리를 효율적으로 관리하기 위해 페이징, 세그멘테이션 등의 기법을 사용합니다.`,
-  homeworkLink: 'https://notion.so/my-os-study',
-  evaluation: undefined,
-  peerReviews: [
-    {
-      peerReviewId: 1,
-      reviewerId: 11,
-      reviewerNickname: '최수연',
-      reviewerProfileImage: undefined,
-      content: '프로세스와 스레드의 차이점을 명확하게 정리하셨네요!',
-      createdAt: '2025-09-08T10:00:00',
-      likeCount: 2,
-      dislikeCount: 1,
-    },
-    {
-      peerReviewId: 2,
-      reviewerId: 12,
-      reviewerNickname: '최수연',
-      reviewerProfileImage: undefined,
-      content: '프로세스와 스레드의 차이점을 명확하게 정리하셨네요!',
-      createdAt: '2025-09-08T11:00:00',
-      likeCount: 2,
-      dislikeCount: 1,
-    },
-  ],
+const GRADE_LABEL_CONFIG: Record<
+  EvaluationDetailResponseDtoEvaluationGradeEnum,
+  string
+> = {
+  A_PLUS: 'A+',
+  A: 'A',
+  B_PLUS: 'B+',
+  B: 'B',
+  C_PLUS: 'C+',
+  C: 'C',
+  D_PLUS: 'D+',
+  D: 'D',
+  F: 'F',
 };
 
 export default function HomeworkDetailContent({
-  groupStudyId: _groupStudyId,
-  missionId: _missionId,
-  homeworkId: _homeworkId,
+  missionId,
+  homeworkId,
   isLeader = false,
 }: HomeworkDetailContentProps) {
-  // TODO: API 연결
-  const homework = MOCK_HOMEWORK_DETAIL;
+  const { data: mission, isLoading: isMissionLoading } =
+    useGetMission(missionId);
+  const { data: peerReviews, isLoading: isPeerReviewsLoading } =
+    useGetPeerReviews(homeworkId);
+
+  const homework = mission?.homeworks?.find(
+    (hw) => hw.homeworkId === homeworkId,
+  );
+
+  if (isMissionLoading || isPeerReviewsLoading || !homework) {
+    return null;
+  }
 
   const profileImageUrl =
-    homework.submitterProfileImage?.resizedImages[0]?.imageUrl ??
+    homework.submitterProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
     '/profile-default.svg';
 
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
 
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} 제출`;
@@ -185,13 +115,16 @@ export default function HomeworkDetailContent({
       />
 
       {/* 피어 리뷰 */}
-      <PeerReviewSection peerReviews={homework.peerReviews} />
+      <PeerReviewSection
+        homeworkId={homeworkId}
+        peerReviews={peerReviews ?? []}
+      />
     </div>
   );
 }
 
 interface LeaderEvaluationSectionProps {
-  evaluation?: Evaluation;
+  evaluation?: EvaluationDetailResponseDto;
   isLeader: boolean;
 }
 
@@ -214,25 +147,19 @@ function LeaderEvaluationSection({
   );
 }
 
-function EvaluationResult({ evaluation }: { evaluation: Evaluation }) {
-  const GRADE_LABEL_CONFIG: Record<Evaluation['evaluationGrade'], string> = {
-    A_PLUS: 'A+',
-    A: 'A',
-    B_PLUS: 'B+',
-    B: 'B',
-    C_PLUS: 'C+',
-    C: 'C',
-    D_PLUS: 'D+',
-    D: 'D',
-    F: 'F',
-  };
-
+function EvaluationResult({
+  evaluation,
+}: {
+  evaluation: EvaluationDetailResponseDto;
+}) {
   return (
     <div className="flex w-full flex-col gap-200">
       <div className="flex items-center gap-200">
         <span className="font-designer-14b text-text-default">평가 등급</span>
         <span className="text-text-brand font-designer-16b">
-          {GRADE_LABEL_CONFIG[evaluation.evaluationGrade]}
+          {evaluation.evaluationGrade
+            ? GRADE_LABEL_CONFIG[evaluation.evaluationGrade]
+            : '-'}
         </span>
       </div>
       <div className="flex flex-col gap-100">
@@ -261,17 +188,31 @@ function EvaluationPending({ isLeader }: { isLeader: boolean }) {
 }
 
 interface PeerReviewSectionProps {
-  peerReviews: PeerReview[];
+  homeworkId: number;
+  peerReviews: PeerReviewResponse[];
 }
 
-function PeerReviewSection({ peerReviews }: PeerReviewSectionProps) {
+function PeerReviewSection({
+  homeworkId,
+  peerReviews,
+}: PeerReviewSectionProps) {
   const [reviewText, setReviewText] = useState('');
+  const { mutate: createPeerReview, isPending } = useCreatePeerReview();
 
   const handleSubmitReview = () => {
     if (!reviewText.trim()) return;
-    // TODO: API 연결
-    console.log('Submit review:', reviewText);
-    setReviewText('');
+
+    createPeerReview(
+      {
+        homeworkId,
+        request: { comment: reviewText },
+      },
+      {
+        onSuccess: () => {
+          setReviewText('');
+        },
+      },
+    );
   };
 
   return (
@@ -298,6 +239,7 @@ function PeerReviewSection({ peerReviews }: PeerReviewSectionProps) {
           value={reviewText}
           onChange={setReviewText}
           onSubmit={handleSubmitReview}
+          isLoading={isPending}
         />
       </div>
     </div>
@@ -305,15 +247,16 @@ function PeerReviewSection({ peerReviews }: PeerReviewSectionProps) {
 }
 
 interface PeerReviewItemProps {
-  review: PeerReview;
+  review: PeerReviewResponse;
 }
 
 function PeerReviewItem({ review }: PeerReviewItemProps) {
   const profileImageUrl =
-    review.reviewerProfileImage?.resizedImages[0]?.imageUrl ??
+    review.reviewerProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
     '/profile-default.svg';
 
-  const formatDateTime = (dateString: string) => {
+  const formatDateTime = (dateString?: string) => {
+    if (!dateString) return '';
     const date = new Date(dateString);
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -335,6 +278,7 @@ function PeerReviewItem({ review }: PeerReviewItemProps) {
             </span>
             <span className="text-text-subtlest font-designer-12r">
               {formatDateTime(review.createdAt)}
+              {review.updated && ' (수정됨)'}
             </span>
           </div>
         </div>
@@ -343,18 +287,7 @@ function PeerReviewItem({ review }: PeerReviewItemProps) {
         </button>
       </div>
 
-      <p className="text-text-default font-designer-14r">{review.content}</p>
-
-      <div className="flex items-center gap-200">
-        <button className="text-text-subtlest hover:text-text-default flex items-center gap-50">
-          <ThumbsUp size={16} />
-          <span className="font-designer-12r">{review.likeCount}</span>
-        </button>
-        <button className="text-text-subtlest hover:text-text-default flex items-center gap-50">
-          <ThumbsDown size={16} />
-          <span className="font-designer-12r">{review.dislikeCount}</span>
-        </button>
-      </div>
+      <p className="text-text-default font-designer-14r">{review.comment}</p>
     </div>
   );
 }
@@ -363,9 +296,15 @@ interface PeerReviewInputProps {
   value: string;
   onChange: (value: string) => void;
   onSubmit: () => void;
+  isLoading?: boolean;
 }
 
-function PeerReviewInput({ value, onChange, onSubmit }: PeerReviewInputProps) {
+function PeerReviewInput({
+  value,
+  onChange,
+  onSubmit,
+  isLoading,
+}: PeerReviewInputProps) {
   return (
     <div className="border-border-default rounded-100 flex flex-col gap-150 border p-300">
       <textarea
@@ -383,9 +322,9 @@ function PeerReviewInput({ value, onChange, onSubmit }: PeerReviewInputProps) {
           color="secondary"
           size="xsmall"
           onClick={onSubmit}
-          disabled={!value.trim()}
+          disabled={!value.trim() || isLoading}
         >
-          등록
+          {isLoading ? '등록 중...' : '등록'}
         </Button>
       </div>
     </div>
