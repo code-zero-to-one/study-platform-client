@@ -1,9 +1,15 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+
+import type {
+  EvaluationDetailResponseDtoEvaluationGradeEnum,
+  HomeworkDetailResponseDto,
+} from '@/api/openapi/models';
 import Avatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
+import { useGetMission } from '@/hooks/queries/mission-api';
 
 interface MissionDetailContentProps {
   groupStudyId: number;
@@ -11,117 +17,16 @@ interface MissionDetailContentProps {
   isLeader?: boolean;
 }
 
-interface ResizedImage {
-  resizedImageId: number;
-  imageUrl: string;
-  width: number;
-  height: number;
-}
-
-interface ProfileImage {
-  imageId: number;
-  resizedImages: ResizedImage[];
-}
-
-interface Evaluation {
-  evaluationId: number;
-  evaluationGrade:
-    | 'A_PLUS'
-    | 'A'
-    | 'B_PLUS'
-    | 'B'
-    | 'C_PLUS'
-    | 'C'
-    | 'D_PLUS'
-    | 'D'
-    | 'F';
-  evaluationComment: string;
-}
-
-interface Homework {
-  homeworkId: number;
-  homeworkStatus: 'EVALUATION_COMPLETED' | 'SUBMITTED' | 'NOT_SUBMITTED';
-  submissionTime: string;
-  submitterId: number;
-  submitterApplyRole: 'PARTICIPANT' | 'LEADER';
-  submitterNickname: string;
-  submitterProfileImage?: ProfileImage;
-  homeworkTextContent: string;
-  homeworkLink?: string;
-  evaluation?: Evaluation;
-}
-
-interface MissionDetail {
-  missionId: number;
-  weekNum: number;
-  missionTitle: string;
-  missionContent: string;
-  missionStartDate: string;
-  missionEndDate: string;
-  maxHomeworkSubmissionCount: number;
-  currentHomeworkSubmissionCount: number;
-  homeworks: Homework[];
-}
-
-// TODO: API 연결 시 삭제
-const MOCK_MISSION_DETAIL: MissionDetail = {
-  missionId: 1,
-  weekNum: 1,
-  missionTitle: 'Spring Boot 프로젝트 세팅',
-  missionContent: 'Spring Boot 프로젝트를 생성하고 기본 설정을 완료하세요.',
-  missionStartDate: '2025-12-20',
-  missionEndDate: '2025-12-27',
-  maxHomeworkSubmissionCount: 3,
-  currentHomeworkSubmissionCount: 2,
-  homeworks: [
-    {
-      homeworkId: 1,
-      homeworkStatus: 'EVALUATION_COMPLETED',
-      submissionTime: '2025-12-21T14:30:00',
-      submitterId: 10,
-      submitterApplyRole: 'PARTICIPANT',
-      submitterNickname: '김철수',
-      submitterProfileImage: {
-        imageId: 5,
-        resizedImages: [
-          {
-            resizedImageId: 15,
-            imageUrl: 'https://example.com/profile_small.jpg',
-            width: 100,
-            height: 100,
-          },
-        ],
-      },
-      homeworkTextContent: '프로젝트 세팅을 완료했습니다.',
-      homeworkLink: 'https://github.com/user/spring-boot-project',
-      evaluation: {
-        evaluationId: 1,
-        evaluationGrade: 'A_PLUS',
-        evaluationComment: '잘 작성하셨습니다.',
-      },
-    },
-    {
-      homeworkId: 2,
-      homeworkStatus: 'SUBMITTED',
-      submissionTime: '2025-12-22T09:15:00',
-      submitterId: 11,
-      submitterApplyRole: 'PARTICIPANT',
-      submitterNickname: '이영희',
-      submitterProfileImage: undefined,
-      homeworkTextContent: '기본 설정 완료',
-      homeworkLink: undefined,
-      evaluation: undefined,
-    },
-  ],
-};
-
 const HOMEWORK_STATUS_CONFIG = {
   SUBMITTED: { label: '제출 완료', color: 'blue' },
   NOT_SUBMITTED: { label: '미제출', color: 'gray' },
   EVALUATION_COMPLETED: { label: '평가 완료', color: 'green' },
 } as const;
 
-const GRADE_LABEL_CONFIG: Record<Evaluation['evaluationGrade'], string> = {
+const GRADE_LABEL_CONFIG: Record<
+  EvaluationDetailResponseDtoEvaluationGradeEnum,
+  string
+> = {
   A_PLUS: 'A+',
   A: 'A',
   B_PLUS: 'B+',
@@ -134,26 +39,27 @@ const GRADE_LABEL_CONFIG: Record<Evaluation['evaluationGrade'], string> = {
 };
 
 export default function MissionDetailContent({
-  groupStudyId: _groupStudyId,
-  missionId: _missionId,
-  isLeader: _isLeader,
+  missionId,
 }: MissionDetailContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  // TODO: API 연결
-  const mission = MOCK_MISSION_DETAIL;
-
-  const progressValue =
-    (mission.currentHomeworkSubmissionCount /
-      mission.maxHomeworkSubmissionCount) *
-    100;
+  const { data: mission, isLoading } = useGetMission(missionId);
 
   const handleSelectHomework = (homeworkId: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('homeworkId', String(homeworkId));
     router.push(`?${params.toString()}`);
   };
+
+  if (isLoading || !mission) {
+    return null;
+  }
+
+  const progressValue =
+    ((mission.currentHomeworkSubmissionCount ?? 0) /
+      (mission.maxHomeworkSubmissionCount ?? 1)) *
+    100;
 
   return (
     <div className="flex flex-col gap-400">
@@ -169,7 +75,7 @@ export default function MissionDetailContent({
         </p>
         <div className="bg-background-alternative rounded-100 mt-100 p-300 whitespace-pre-wrap">
           <p className="text-text-default font-designer-14r">
-            {mission.missionContent}
+            {mission.missionGuide}
           </p>
         </div>
       </div>
@@ -180,8 +86,8 @@ export default function MissionDetailContent({
           <span className="font-designer-18b text-text-default">제출 현황</span>
           <div className="flex items-center gap-200">
             <span className="text-text-subtlest font-designer-14r">
-              {mission.currentHomeworkSubmissionCount} /{' '}
-              {mission.maxHomeworkSubmissionCount} 제출
+              {mission.currentHomeworkSubmissionCount ?? 0} /{' '}
+              {mission.maxHomeworkSubmissionCount ?? 0} 제출
             </span>
             <div className="w-[120px]">
               <Progress
@@ -193,7 +99,7 @@ export default function MissionDetailContent({
         </div>
 
         <div className="grid grid-cols-3 gap-200">
-          {mission.homeworks.map((homework) => (
+          {mission.homeworks?.map((homework) => (
             <HomeworkCard
               key={homework.homeworkId}
               homework={homework}
@@ -207,25 +113,29 @@ export default function MissionDetailContent({
 }
 
 interface HomeworkCardProps {
-  homework: Homework;
+  homework: HomeworkDetailResponseDto;
   onSelectHomework: (homeworkId: number) => void;
 }
 
 function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
   const statusConfig =
-    HOMEWORK_STATUS_CONFIG[homework.homeworkStatus] ||
+    HOMEWORK_STATUS_CONFIG[homework.homeworkStatus ?? 'NOT_SUBMITTED'] ||
     HOMEWORK_STATUS_CONFIG.NOT_SUBMITTED;
 
   const profileImageUrl =
-    homework.submitterProfileImage?.resizedImages[0]?.imageUrl ??
+    homework.submitterProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
     '/profile-default.svg';
 
-  const formatSubmissionTime = (time: string) => {
+  const formatSubmissionTime = (time?: string) => {
+    if (!time) return '';
+
     return time.split('T')[0];
   };
 
   const handleClick = () => {
-    onSelectHomework(homework.homeworkId);
+    if (homework.homeworkId) {
+      onSelectHomework(homework.homeworkId);
+    }
   };
 
   return (
@@ -247,7 +157,7 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
 
       <div className="flex items-center gap-100">
         {homework.homeworkStatus === 'EVALUATION_COMPLETED' &&
-        homework.evaluation ? (
+        homework.evaluation?.evaluationGrade ? (
           <div className="flex flex-col items-center gap-50">
             <span className="text-text-brand font-designer-16m">
               {GRADE_LABEL_CONFIG[homework.evaluation.evaluationGrade]}
