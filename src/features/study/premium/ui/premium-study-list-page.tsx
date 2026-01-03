@@ -145,7 +145,7 @@ export default function PremiumStudyListPage() {
             <Button
               color="primary"
               size="small"
-              icon={<Plus className="h-[16px] w-[16px]" />}
+              icon={<Plus className="h-200 w-200" />}
               iconPosition="left"
             >
               스터디 개설하기

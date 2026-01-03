@@ -8,7 +8,7 @@ import {
   GetGroupStudiesMethodEnum,
 } from '@/api/openapi/api/group-study-management-api';
 
-const studyApi = createApiInstance(GroupStudyManagementApi);
+const groupStudyManagementApi = createApiInstance(GroupStudyManagementApi);
 
 interface GetStudiesParams {
   classification: GetGroupStudiesClassificationEnum;
@@ -41,7 +41,7 @@ export const useGetStudies = ({
       inProgress,
     ],
     queryFn: async () => {
-      const { data } = await studyApi.getGroupStudies(
+      const { data } = await groupStudyManagementApi.getGroupStudies(
         classification,
         page,
         pageSize,

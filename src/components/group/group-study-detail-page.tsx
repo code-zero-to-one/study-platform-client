@@ -1,7 +1,7 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
@@ -33,6 +33,9 @@ export default function StudyDetailPage({
   memberId,
 }: StudyDetailPageProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const tabFromUrl = searchParams.get('tab') as StudyTabValue | null;
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
@@ -41,7 +44,7 @@ export default function StudyDetailPage({
 
   const isLeader = leaderId === memberId;
 
-  const [active, setActive] = useState<StudyTabValue>('intro');
+  const [active, setActive] = useState<StudyTabValue>(tabFromUrl || 'intro');
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
@@ -198,6 +201,10 @@ export default function StudyDetailPage({
         activeTab={active}
         onChange={(value: StudyTabValue) => {
           setActive(value);
+
+          // 탭 변경 시 URL 파라미터 초기화 및 탭 값 설정
+          router.replace(`?tab=${value}`);
+
           sendGTMEvent({
             event: 'group_study_tab_change',
             group_study_id: String(groupStudyId),

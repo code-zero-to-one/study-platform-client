@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 
 import type {
   EvaluationDetailResponseDtoEvaluationGradeEnum,
@@ -9,7 +10,9 @@ import type {
 import Avatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
+import { useUserStore } from '@/features/auth/model/store';
 import { useGetMission } from '@/hooks/queries/mission-api';
+import MyHomeworkStatus from './my-homework-status';
 
 interface MissionDetailContentProps {
   groupStudyId: number;
@@ -39,12 +42,22 @@ const GRADE_LABEL_CONFIG: Record<
 };
 
 export default function MissionDetailContent({
+  groupStudyId,
   missionId,
+  isLeader,
 }: MissionDetailContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const memberId = useUserStore((state) => state.memberId);
 
   const { data: mission, isLoading } = useGetMission(missionId);
+
+  // homeworks에서 내 과제 정보 찾기
+  const myHomework = useMemo(() => {
+    if (!mission?.homeworks || !memberId) return null;
+
+    return mission.homeworks.find((hw) => hw.submitterId === memberId) ?? null;
+  }, [mission?.homeworks, memberId]);
 
   const handleSelectHomework = (homeworkId: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -79,6 +92,15 @@ export default function MissionDetailContent({
           </p>
         </div>
       </div>
+
+      {/* 내 과제 현황 - 리더가 아닐 경우에만 표시 */}
+      {!isLeader && (
+        <MyHomeworkStatus
+          missionId={missionId}
+          myHomework={myHomework}
+          onSelectHomework={handleSelectHomework}
+        />
+      )}
 
       {/* 제출 현황 */}
       <div className="flex flex-col gap-300">
