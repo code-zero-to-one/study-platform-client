@@ -1,21 +1,19 @@
-# EvaluationRequest
+# HomeworkOptionalContentDto
 
 
 ## Properties
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**gradeCode** | **string** |  | [default to undefined]
-**comment** | **string** |  | [optional] [default to undefined]
+**link** | **string** |  | [optional] [default to undefined]
 
 ## Example
 
 ```typescript
-import { EvaluationRequest } from './api';
+import { HomeworkOptionalContentDto } from './api';
 
-const instance: EvaluationRequest = {
-    gradeCode,
-    comment,
+const instance: HomeworkOptionalContentDto = {
+    link,
 };
 ```
 

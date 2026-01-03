@@ -14,11 +14,9 @@
 
 
 
-export interface EvaluationDetailResponseDto {
-    'evaluationId'?: number;
-    'evaluationGradeCode'?: string;
-    'evaluationGradeScore'?: number;
-    'evaluationGradeLabel'?: string;
-    'evaluationComment'?: string;
+export interface GradeInstanceDto {
+    'gradeCode'?: string;
+    'gradeScore'?: number;
+    'gradeLabel'?: string;
 }
 

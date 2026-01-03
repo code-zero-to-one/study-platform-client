@@ -28,9 +28,9 @@ import type { CreateMissionResponseSchema } from '../models';
 // @ts-ignore
 import type { ErrorResponse } from '../models';
 // @ts-ignore
-import type { GetMissionsResponseSchema } from '../models';
-// @ts-ignore
 import type { MissionCreationRequest } from '../models';
+// @ts-ignore
+import type { MissionListResponseSchema } from '../models';
 // @ts-ignore
 import type { MissionResponse } from '../models';
 // @ts-ignore
@@ -322,7 +322,7 @@ export const MissionApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMissions(groupStudyId: number, searchType: GetMissionsSearchTypeEnum, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GetMissionsResponseSchema>> {
+        async getMissions(groupStudyId: number, searchType: GetMissionsSearchTypeEnum, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MissionListResponseSchema>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMissions(groupStudyId, searchType, page, pageSize, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MissionApi.getMissions']?.[localVarOperationServerIndex]?.url;
@@ -392,7 +392,7 @@ export const MissionApiFactory = function (configuration?: Configuration, basePa
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMissions(groupStudyId: number, searchType: GetMissionsSearchTypeEnum, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<GetMissionsResponseSchema> {
+        getMissions(groupStudyId: number, searchType: GetMissionsSearchTypeEnum, page?: number, pageSize?: number, options?: RawAxiosRequestConfig): AxiosPromise<MissionListResponseSchema> {
             return localVarFp.getMissions(groupStudyId, searchType, page, pageSize, options).then((request) => request(axios, basePath));
         },
         /**

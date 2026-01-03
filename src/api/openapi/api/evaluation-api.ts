@@ -30,6 +30,8 @@ import type { EvaluationRequest } from '../models';
 // @ts-ignore
 import type { EvaluationResponseSchema } from '../models';
 // @ts-ignore
+import type { GradeListResponseSchema } from '../models';
+// @ts-ignore
 import type { NoContentResponse } from '../models';
 /**
  * EvaluationApi - axios parameter creator
@@ -157,6 +159,40 @@ export const EvaluationApiAxiosParamCreator = function (configuration?: Configur
             };
         },
         /**
+         * 미션 평가에 사용 가능한 등급 목록을 조회합니다.
+         * @summary 미션 평가 등급 목록 조회
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMissionEvaluationGrades: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/evaluations/grades`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 기존 과제 평가의 등급과 댓글을 수정합니다.
          * @summary 과제 평가 수정
          * @param {number} evaluationId 평가 ID
@@ -250,6 +286,18 @@ export const EvaluationApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 미션 평가에 사용 가능한 등급 목록을 조회합니다.
+         * @summary 미션 평가 등급 목록 조회
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getMissionEvaluationGrades(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GradeListResponseSchema>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMissionEvaluationGrades(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['EvaluationApi.getMissionEvaluationGrades']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 기존 과제 평가의 등급과 댓글을 수정합니다.
          * @summary 과제 평가 수정
          * @param {number} evaluationId 평가 ID
@@ -304,6 +352,15 @@ export const EvaluationApiFactory = function (configuration?: Configuration, bas
             return localVarFp.getEvaluation(homeworkId, options).then((request) => request(axios, basePath));
         },
         /**
+         * 미션 평가에 사용 가능한 등급 목록을 조회합니다.
+         * @summary 미션 평가 등급 목록 조회
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMissionEvaluationGrades(options?: RawAxiosRequestConfig): AxiosPromise<GradeListResponseSchema> {
+            return localVarFp.getMissionEvaluationGrades(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 기존 과제 평가의 등급과 댓글을 수정합니다.
          * @summary 과제 평가 수정
          * @param {number} evaluationId 평가 ID
@@ -353,6 +410,16 @@ export class EvaluationApi extends BaseAPI {
      */
     public getEvaluation(homeworkId: number, options?: RawAxiosRequestConfig) {
         return EvaluationApiFp(this.configuration).getEvaluation(homeworkId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 미션 평가에 사용 가능한 등급 목록을 조회합니다.
+     * @summary 미션 평가 등급 목록 조회
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getMissionEvaluationGrades(options?: RawAxiosRequestConfig) {
+        return EvaluationApiFp(this.configuration).getMissionEvaluationGrades(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
