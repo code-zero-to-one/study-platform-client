@@ -4,6 +4,7 @@ import { useState } from 'react';
 import DiscretionGradeHistoryList from '@/components/lists/discretion-grade-history-list';
 import MissionProgressHistoryList from '@/components/lists/mission-progress-history-list';
 import DiscretionaryEvaluationModal from '@/components/modals/discretionary-evaluation-modal';
+import EndGroupStudyModal from '@/components/modals/end-group-study';
 import UserAvatar from '@/components/ui/avatar';
 
 import Button from '@/components/ui/button';
@@ -81,7 +82,9 @@ export default function GroupStudyMemberItem({
         <div className="text-text-default flex flex-col gap-150">
           <div className="flex items-center justify-between">
             <span className="font-designer-16b">가입 인사</span>
-            {isLeader && <DiscretionaryEvaluationModal memberId={member.id} />}
+            {isLeader && member.id !== myId && (
+              <DiscretionaryEvaluationModal memberId={member.id} />
+            )}
           </div>
 
           <GreetingBox
@@ -137,14 +140,23 @@ export default function GroupStudyMemberItem({
 
         {isProgressHistoryOpen && (
           <>
-            <Button
-              color="outlined"
-              className="border-border-error text-text-error font-designer-14r w-fit"
-              size="small"
-              onClick={() => setIsDeleteMemberModalOpen(true)}
-            >
-              내보내기
-            </Button>
+            {!isLeader && (
+              <EndGroupStudyModal
+                groupStudyId={groupStudyId}
+                targetMemberId={member.id}
+              />
+            )}
+
+            {isLeader && member.id !== myId && (
+              <Button
+                color="outlined"
+                className="border-border-error text-text-error font-designer-14r w-fit"
+                size="small"
+                onClick={() => setIsDeleteMemberModalOpen(true)}
+              >
+                내보내기
+              </Button>
+            )}
 
             <DeleteGroupStudyMemberModal
               open={isDeleteMemberModalOpen}
