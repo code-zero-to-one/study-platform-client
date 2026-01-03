@@ -71,6 +71,7 @@ docs/BaseResponse.md
 docs/BaseResponseGrantedTokenInfo.md
 docs/BaseResponseGroupStudyDiscretionGradeResponse.md
 docs/BaseResponseGroupStudyMembersResponse.md
+docs/BaseResponseHomeworkResponseDto.md
 docs/BaseResponseMatchingRequestResponse.md
 docs/BaseResponseMemberAccountHistoryResponseDto.md
 docs/BaseResponseObject.md
@@ -108,6 +109,7 @@ docs/FullMemberProfileResponseDto.md
 docs/GetDailyStudiesResponseSchema.md
 docs/GetGroupStudyMemberStatusResponse.md
 docs/GetGroupStudyMemberStatusResponseContent.md
+docs/GetMemberRoleResponse.md
 docs/GetMyDailyStudyCalenderResponseSchema.md
 docs/GetStudyDashboardResponseSchema.md
 docs/GetStudySpaceResponseSchema.md
@@ -167,8 +169,11 @@ docs/HasMemberNewNotificationResponse.md
 docs/HasMemberNewNotificationResponseSchema.md
 docs/HeartInfo.md
 docs/HistoryItem.md
+docs/HomeworkContentDto.md
 docs/HomeworkDetailResponseDto.md
 docs/HomeworkEditRequest.md
+docs/HomeworkOptionalContentDto.md
+docs/HomeworkResponseDto.md
 docs/HomeworkSubmissionRequest.md
 docs/IdNameDto.md
 docs/ImageDto.md
@@ -361,6 +366,7 @@ models/bank-response.ts
 models/base-response-granted-token-info.ts
 models/base-response-group-study-discretion-grade-response.ts
 models/base-response-group-study-members-response.ts
+models/base-response-homework-response-dto.ts
 models/base-response-matching-request-response.ts
 models/base-response-member-account-history-response-dto.ts
 models/base-response-object.ts
@@ -395,6 +401,7 @@ models/full-member-profile-response.ts
 models/get-daily-studies-response-schema.ts
 models/get-group-study-member-status-response-content.ts
 models/get-group-study-member-status-response.ts
+models/get-member-role-response.ts
 models/get-my-daily-study-calender-response-schema.ts
 models/get-study-dashboard-response-schema.ts
 models/get-study-space-response-schema.ts
@@ -448,8 +455,11 @@ models/has-member-new-notification-response-schema.ts
 models/has-member-new-notification-response.ts
 models/heart-info.ts
 models/history-item.ts
+models/homework-content-dto.ts
 models/homework-detail-response-dto.ts
 models/homework-edit-request.ts
+models/homework-optional-content-dto.ts
+models/homework-response-dto.ts
 models/homework-submission-request.ts
 models/id-name-dto.ts
 models/image-dto.ts

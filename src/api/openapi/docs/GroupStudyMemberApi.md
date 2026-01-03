@@ -6,6 +6,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |------------- | ------------- | -------------|
 |[**getDiscretionGrades**](#getdiscretiongrades) | **GET** /api/v1/group-studies/members/discretions | 진행 점수 등급 목록 조회|
 |[**getGroupStudyMembers**](#getgroupstudymembers) | **GET** /api/v1/group-studies/{id}/members | 참여자 목록 조회|
+|[**getMemberRole**](#getmemberrole) | **GET** /api/v1/group-studies/{id}/members/role | 그룹스터디 내 요청자 역할 조회|
 |[**getMemberStatus**](#getmemberstatus) | **GET** /api/v1/group-studies/{id}/members/status | 그룹스터디 회원의 현재 상태 및 사유 조회|
 |[**kickMember**](#kickmember) | **DELETE** /api/v1/group-studies/{id}/members | 참여자 탈퇴/추방|
 |[**updateGreeting**](#updategreeting) | **PUT** /api/v1/group-studies/{id}/members/greeting | 가입인사 등록/수정|
@@ -120,6 +121,62 @@ const { status, data } = await apiInstance.getGroupStudyMembers(
 |**400** | 클라이언트 요청 오류 |  -  |
 |**404** | 리소스 조회 실패 |  -  |
 |**500** | 그 외 |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getMemberRole**
+> GetMemberRoleResponse getMemberRole()
+
+작성일자: 2026-01-04  작성자: Claude Code  ---  ## Description  - 그룹스터디 내 요청자(API 호출자)의 역할을 조회합니다.  - 역할은 PARTICIPANT(참여자) 또는 LEADER(리더)입니다.  ---  ## Request  | **키** | **타입** | **설명** | **필수 여부** | **예시** | | --- | --- | --- | --- | --- | | id(path) | number | 그룹스터디 ID | Y | 1 |  ---  ## Response  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | statusCode | number | 상태 코드 | 200: 성공 / 400: 클라이언트 요청 오류 / 401: 인증 실패 / 403: 인가 실패 / 404: 리소스 조회 실패 / 500: 그 외 | | timestamp | string(datetime) | 응답 일시 | \"2026-01-04T10:00:00.12345\" | | content | object | 응답 본문 | { \"role\": \"LEADER\" } | | message | string | 처리 결과 | \"그룹스터디 내 요청자 역할 조회 성공\" |  ---  ### Response > content  | **키** | **타입** | **설명** | **예시** | | --- | --- | --- | --- | | role | string | 그룹스터디 내 역할 | \"PARTICIPANT\" 또는 \"LEADER\" | 
+
+### Example
+
+```typescript
+import {
+    GroupStudyMemberApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new GroupStudyMemberApi(configuration);
+
+let id: number; //그룹스터디 ID (default to undefined)
+
+const { status, data } = await apiInstance.getMemberRole(
+    id
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **id** | [**number**] | 그룹스터디 ID | defaults to undefined|
+
+
+### Return type
+
+**GetMemberRoleResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json, */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | 그룹스터디 내 요청자 역할 조회 성공 |  -  |
+|**400** | 클라이언트 요청 오류 |  -  |
+|**404** | 그룹스터디 회원 조회 실패 |  -  |
+|**500** | 그 외 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
