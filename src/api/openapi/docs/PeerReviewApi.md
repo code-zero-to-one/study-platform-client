@@ -168,7 +168,6 @@ const { status, data } = await apiInstance.getPeerReviews(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 피어리뷰 목록 조회 성공 |  -  |
-|**404** | 과제를 찾을 수 없음 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -224,6 +223,7 @@ const { status, data } = await apiInstance.updatePeerReview(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | 피어리뷰 수정 성공 |  -  |
+|**400** | 잘못된 요청 (validation 실패) |  -  |
 |**403** | 권한 없음 (본인 피어리뷰가 아님) |  -  |
 |**404** | 피어리뷰를 찾을 수 없음 |  -  |
 

@@ -57,7 +57,8 @@ const { status, data } = await apiInstance.deleteHomework(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | 과제 삭제 성공 |  -  |
-|**400** | 잘못된 요청 (이미 평가됨, 제출 기간 오류 등) |  -  |
+|**400** | 잘못된 요청 (이미 평가됨, 이미 삭제됨, 제출 기간 오류 등) |  -  |
+|**403** | Illegal access to homework |  -  |
 |**404** | 과제를 찾을 수 없음 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
@@ -115,6 +116,7 @@ const { status, data } = await apiInstance.editHomework(
 |-------------|-------------|------------------|
 |**204** | 과제 수정 성공 |  -  |
 |**400** | 잘못된 요청 (이미 평가됨, 텍스트 내용 길이 부족, 제출 기간 오류 등) |  -  |
+|**403** | Illegal access to homework |  -  |
 |**404** | 과제를 찾을 수 없음 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
