@@ -3,18 +3,25 @@ import {
   MemberProgress,
   MissionProgressHistory,
 } from '@/features/study/group/api/group-study-types';
+import { useGetMissionEvaluationGrades } from '@/hooks/queries/evaluation-api';
 import { formatToKST } from '@/utils/time';
 
 export default function MissionProgressHistoryList({
   missionProgressHistory,
 }: Pick<MemberProgress, 'missionProgressHistory'>) {
+  const { data } = useGetMissionEvaluationGrades();
+  const MAX_POINTS = missionProgressHistory.length * 4.5;
+  const points = missionProgressHistory.reduce((acc, curr) => {
+    return acc + data?.find((grade) => grade.code === curr.grade)?.score || 0;
+  }, 0);
+
   return (
     <div className="flex flex-col gap-400">
       <div className="flex flex-col gap-200">
         <div className="font-designer-16b flex items-center gap-100">
           <span className="text-text-default">미션 평가</span>
           <span className="text-text-brand">
-            1점 / {missionProgressHistory.length * 4.5}점
+            {points}점 / {MAX_POINTS}점
           </span>
         </div>
 

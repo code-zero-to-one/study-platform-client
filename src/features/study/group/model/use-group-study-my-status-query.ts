@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/use-auth';
 import { getGroupStudyMyStatus } from '../api/get-group-study-my-status';
-import { GroupStudyMyStatusRequest } from '../api/group-study-types';
 
 export const useGroupStudyMyStatusQuery = ({
   groupStudyId,
   isLeader,
-}: Pick<GroupStudyMyStatusRequest, 'groupStudyId'> & {
+}: {
+  groupStudyId: number;
   isLeader: boolean;
 }) => {
   const { data } = useAuth();

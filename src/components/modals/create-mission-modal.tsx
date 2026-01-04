@@ -14,6 +14,7 @@ import { useCreateMission } from '@/hooks/queries/mission-api';
 const CreateMissionFormSchema = z.object({
   title: z.string().min(1, '미션 제목을 입력해주세요.'),
   description: z.string().optional(),
+  weekNum: z.string().optional(),
   guide: z.string().min(1, '수행 가이드를 입력해주세요.'),
   dateRange: z
     .object({
@@ -84,6 +85,7 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
     defaultValues: {
       title: '',
       description: '',
+      weekNum: '',
       guide: '',
       dateRange: undefined,
     },
@@ -104,6 +106,7 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
           title: values.title,
           guide: values.guide,
           description: values.description,
+          weekNum: values.weekNum ? Number(values.weekNum) : undefined,
           startDate,
           endDate,
         },
@@ -150,6 +153,19 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
               id="description"
               placeholder="미션 설명을 입력해 주세요."
               maxLength={100}
+            />
+          </FormField>
+
+          <FormField<CreateMissionFormValues, 'weekNum'>
+            name="weekNum"
+            label="미션 주차"
+            direction="vertical"
+          >
+            <BaseInput
+              type="number"
+              min={0}
+              id="weekNum"
+              placeholder="커리큘럼 미션인 경우 주차를 입력해 주세요. (예: 1)"
             />
           </FormField>
 

@@ -8,13 +8,16 @@ import { formatToKST } from '@/utils/time';
 export default function DiscretionGradeHistoryList({
   discretionGradeHistory,
 }: Pick<MemberProgress, 'discretionGradeHistory'>) {
+  const MAX_POINTS = 15;
+  const totalPoints = discretionGradeHistory.length * 5;
+
   return (
     <div className="flex flex-col gap-400">
       <div className="flex flex-col gap-200">
         <div className="font-designer-16b flex items-center gap-100">
           <span className="text-text-default">재량 평가</span>
           <span className="text-text-brand">
-            {discretionGradeHistory.length * 5}점 / 15점
+            {totalPoints}점 / {MAX_POINTS}점
           </span>
         </div>
 
