@@ -7,6 +7,7 @@ import type {
 } from '@/api/openapi/models';
 // TEMPORARY: Keep until OpenAPI types fixed
 import type { GroupStudyMembersResponse } from '@/features/study/group/api/group-study-types';
+import { useAuth } from '../use-auth';
 
 const groupStudyMemberApi = createApiInstance(GroupStudyMemberApi);
 
@@ -50,15 +51,23 @@ export const useGetMemberRole = (id: number) => {
   });
 };
 
-export const useGetMemberStatus = (id: number) => {
+export const useGetGroupStudyMyStatus = ({
+  groupStudyId,
+  isLeader,
+}: {
+  groupStudyId: number;
+  isLeader: boolean;
+}) => {
+  const { data } = useAuth();
+
   return useQuery({
-    queryKey: ['groupStudyMemberStatus', id],
+    queryKey: ['groupStudyMemberStatus', groupStudyId],
     queryFn: async () => {
-      const { data } = await groupStudyMemberApi.getMemberStatus(id);
+      const { data } = await groupStudyMemberApi.getMemberStatus(groupStudyId);
 
       return data.content;
     },
-    enabled: !!id,
+    enabled: !!groupStudyId && !isLeader && data?.memberId !== undefined,
   });
 };
 
