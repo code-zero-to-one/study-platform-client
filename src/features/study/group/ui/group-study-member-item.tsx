@@ -42,6 +42,9 @@ export default function GroupStudyMemberItem({
   const isMe = member.id === myId;
   const isLeader = leaderId === myId;
 
+  // 재량 평가 받은 횟수 (3번까지만 받을 수 있음)
+  const discretionCount = member.progress.discretionGradeHistory.length;
+
   return (
     <li className="border-border-default rounded-150 flex border">
       <div
@@ -82,7 +85,7 @@ export default function GroupStudyMemberItem({
         <div className="text-text-default flex flex-col gap-150">
           <div className="flex items-center justify-between">
             <span className="font-designer-16b">가입 인사</span>
-            {isLeader && member.id !== myId && (
+            {isLeader && member.id !== myId && discretionCount < 3 && (
               <DiscretionaryEvaluationModal
                 groupStudyId={groupStudyId}
                 memberId={member.id}
