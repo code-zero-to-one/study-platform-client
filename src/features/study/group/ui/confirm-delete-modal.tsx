@@ -40,14 +40,14 @@ export default function ConfirmDeleteModal({
           <Modal.Footer className="flex justify-end gap-100 border-none px-400 py-200">
             <Button
               color="secondary"
-              className="font-designer-16b h-[48px] px-200"
+              className="font-designer-16b h-600 px-200"
               onClick={onOpenChange}
             >
               취소
             </Button>
             <Button
               color="primary"
-              className="font-designer-16b h-[48px] px-200"
+              className="font-designer-16b h-600 px-200"
               onClick={onConfirm}
             >
               {confirmText}

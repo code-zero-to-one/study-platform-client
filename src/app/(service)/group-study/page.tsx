@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import GroupStudyListPage from '@/features/study/group/ui/group-study-list-page';
+import GroupStudyListPage from '@/components/pages/group-study-list-page';
 
 export default function GroupStudyPage() {
   return (

@@ -2,13 +2,11 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import { StudyLeaderProvider } from '@/providers/study-leader-context';
-import { useLeaderStore } from '@/stores/useLeaderStore';
-import StudyInfoSection from './group-study-info-section';
 import { Leader } from '../../features/study/group/api/group-study-types';
 import ChannelSection from '../../features/study/group/channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
@@ -19,8 +17,9 @@ import {
 } from '../../features/study/group/model/use-study-query';
 import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
-import MissionSection from '../study/mission-section';
-import GroupStudyMemberList from '../study/study-member-list';
+import GroupStudyMemberList from '../lists/study-member-list';
+import StudyInfoSection from '../section/group-study-info-section';
+import MissionSection from '../section/mission-section';
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
@@ -50,17 +49,10 @@ export default function StudyDetailPage({
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
-  const setLeaderInfo = useLeaderStore((s) => s.setLeaderInfo);
-
   const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
     groupStudyId,
     isLeader,
   });
-
-  useEffect(() => {
-    const leader = studyDetail.basicInfo.leader;
-    setLeaderInfo(leader as Leader);
-  }, [studyDetail, setLeaderInfo]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();

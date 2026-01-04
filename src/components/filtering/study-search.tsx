@@ -34,7 +34,7 @@ export default function StudySearch({
   }, [inputValue, onChange]);
 
   return (
-    <div className="border-border-default bg-background-default rounded-100 flex h-[40px] w-[280px] items-center gap-100 border px-150">
+    <div className="border-border-default bg-background-default rounded-100 flex h-500 w-[280px] items-center gap-100 border px-150">
       <button
         type="button"
         onClick={handleSearchClick}

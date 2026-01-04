@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { deleteCookie, getCookie } from '@/api/client/cookie';
 import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
 import { hashValue } from '@/utils/hash';
-import { useUserStore } from './store';
+import { useUserStore } from '../../../stores/useUserStore';
 import { SignUpRequest, SignUpResponse } from './types';
 
 // 회원가입 요청 커스텀 훅

@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import PremiumStudyListPage from '@/features/study/premium/ui/premium-study-list-page';
+import PremiumStudyListPage from '@/components/pages/premium-study-list-page';
 
 export default function PremiumStudyPage() {
   return (

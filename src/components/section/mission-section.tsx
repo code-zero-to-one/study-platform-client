@@ -2,24 +2,26 @@
 
 import { ChevronLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { MissionListResponse } from '@/api/openapi/models';
+import { useState } from 'react';
 import { useGetMissions } from '@/hooks/queries/mission-api';
 import { useIsLeader } from '@/providers/study-leader-context';
-import HomeworkDetailContent from './homework-detail-content';
-import MissionCard from './mission-card';
-import MissionDetailContent from './mission-detail-content';
+import MissionCard from '../card/mission-card';
 import CreateMissionModal from '../modals/create-mission-modal';
+import HomeworkDetailContent from '../contents/homework-detail-content';
+import MissionDetailContent from '../contents/mission-detail-content';
+import { cn } from '../ui/(shadcn)/lib/utils';
+
+type FilterType = 'all' | 'inProgress' | 'completed';
 
 interface MissionSectionProps {
   groupStudyId: number;
 }
 
-export default function MissionSection({
-  groupStudyId,
-}: MissionSectionProps) {
+export default function MissionSection({ groupStudyId }: MissionSectionProps) {
   const isLeader = useIsLeader();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [filter, setFilter] = useState<FilterType>('all');
 
   const missionId = searchParams.get('missionId');
   const homeworkId = searchParams.get('homeworkId');
@@ -57,6 +59,19 @@ export default function MissionSection({
     }) || [];
 
   const hasMissions = missionList && missionList.length > 0;
+
+  const getFilteredMissions = () => {
+    switch (filter) {
+      case 'inProgress':
+        return inProgressMissions;
+      case 'completed':
+        return completedMissions;
+      default:
+        return missionList || [];
+    }
+  };
+
+  const filteredMissions = getFilteredMissions();
 
   const handleSelectMission = (id: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -145,23 +160,28 @@ export default function MissionSection({
         {isLeader && <CreateMissionModal groupStudyId={groupStudyId} />}
       </div>
 
+      <MissionFilterTabs
+        filter={filter}
+        onFilterChange={setFilter}
+        totalCount={missionList?.length || 0}
+        inProgressCount={inProgressMissions.length}
+        completedCount={completedMissions.length}
+      />
+
       {hasMissions ? (
-        <div className="flex flex-col gap-400">
-          {inProgressMissions.length > 0 && (
-            <MissionList
-              title="진행 중인 미션"
-              missions={inProgressMissions}
+        <ul className="flex flex-col gap-200">
+          {filteredMissions.map((mission) => (
+            <MissionCard
+              key={mission.missionId}
+              mission={mission}
               onSelectMission={handleSelectMission}
+              showDeadline={
+                mission.status === 'IN_PROGRESS' ||
+                mission.status === 'NOT_STARTED'
+              }
             />
-          )}
-          {completedMissions.length > 0 && (
-            <MissionList
-              title="완료된 미션"
-              missions={completedMissions}
-              onSelectMission={handleSelectMission}
-            />
-          )}
-        </div>
+          ))}
+        </ul>
       ) : (
         <EmptyMissionState />
       )}
@@ -169,29 +189,41 @@ export default function MissionSection({
   );
 }
 
-function MissionList({
-  title,
-  missions,
-  onSelectMission,
+function MissionFilterTabs({
+  filter,
+  onFilterChange,
+  totalCount,
+  inProgressCount,
+  completedCount,
 }: {
-  title: string;
-  missions: MissionListResponse[];
-  onSelectMission: (missionId: number) => void;
+  filter: FilterType;
+  onFilterChange: (filter: FilterType) => void;
+  totalCount: number;
+  inProgressCount: number;
+  completedCount: number;
 }) {
+  const tabs = [
+    { key: 'all' as const, label: '전체', count: totalCount },
+    { key: 'inProgress' as const, label: '진행중', count: inProgressCount },
+    { key: 'completed' as const, label: '완료', count: completedCount },
+  ];
+
   return (
-    <div className="flex flex-col gap-200">
-      <span className="text-text-subtlest font-designer-14b">
-        {title} {missions.length}
-      </span>
-      <ul className="flex flex-col gap-200">
-        {missions.map((mission) => (
-          <MissionCard
-            key={mission.missionId}
-            mission={mission}
-            onSelectMission={onSelectMission}
-          />
-        ))}
-      </ul>
+    <div className="flex gap-100">
+      {tabs.map((tab) => (
+        <button
+          key={tab.key}
+          onClick={() => onFilterChange(tab.key)}
+          className={cn(
+            'font-designer-14b rounded-full px-200 py-100 transition-colors',
+            filter === tab.key
+              ? 'bg-fill-neutral-strong-default text-text-inverse'
+              : 'bg-fill-neutral-subtle-default text-text-default border-border-default border',
+          )}
+        >
+          {tab.label} {tab.count}
+        </button>
+      ))}
     </div>
   );
 }

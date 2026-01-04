@@ -4,8 +4,8 @@ import { useState } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useUserStore } from '@/features/auth/model/store';
-import { useLeaderStore } from '@/stores/useLeaderStore';
+import { useLeaderInfo } from '@/providers/study-leader-context';
+import { useUserStore } from '@/stores/useUserStore';
 import CommentInput from './comment-input';
 import { ResizedImage } from '../../api/group-study-types';
 import ConfirmDeleteModal from '../../ui/confirm-delete-modal';
@@ -39,7 +39,7 @@ interface CommentProps {
 // 스레드용이냐 커맨트용이냐에 따라서 호출하는 함수가 달라짐
 export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const memberId = useUserStore((state) => state.memberId);
-  const leader = useLeaderStore((state) => state.leaderInfo);
+  const leader = useLeaderInfo();
 
   const qc = useQueryClient();
 
@@ -237,7 +237,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
             <div className="flex items-center gap-100">
               <span className="font-designer-15b">{data.authorName}</span>
               {data.isLeader && (
-                <div className="text-text-brand font-designer-12m bg-fill-brand-subtle-default rounded-[3px] px-[6px] py-[2.5px]">
+                <div className="text-text-brand font-designer-12m bg-fill-brand-subtle-default rounded-[3px] px-75 py-[2.5px]">
                   스터디 리더
                 </div>
               )}

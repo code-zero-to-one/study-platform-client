@@ -7,10 +7,10 @@ import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
 import Avatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
-import { useUserStore } from '@/features/auth/model/store';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import { useIsLeader } from '@/providers/study-leader-context';
-import MyHomeworkStatus from './my-homework-status';
+import { useUserStore } from '@/stores/useUserStore';
+import MyHomeworkStatus from '../card/my-homework-status-card';
 
 interface MissionDetailContentProps {
   groupStudyId: number;
@@ -59,7 +59,7 @@ export default function MissionDetailContent({
     100;
 
   // TODO: 백엔드에서 MissionResponseDto에 status 필드 추가 후 교체 필요
-  const isMissionClosed = true;
+  const isMissionClosed = mission.status === '';
 
   return (
     <div className="flex flex-col gap-400">

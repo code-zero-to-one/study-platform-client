@@ -15,7 +15,7 @@ import { hashValue } from '@/utils/hash';
 import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
 
 import { useApplicantsByStatusQuery } from '../../features/study/group/application/model/use-applicant-qeury';
-import SummaryStudyInfo from '../study/summary-study-info';
+import SummaryStudyInfo from '../summary/study-info-summary';
 
 function getApplicantsList<T>(pages: { content: T[] }[] | undefined) {
   if (!pages) return [];

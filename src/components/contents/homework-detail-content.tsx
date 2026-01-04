@@ -9,7 +9,7 @@ import type {
 import Avatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
-import { useUserStore } from '@/features/auth/model/store';
+import { useUserStore } from '@/stores/useUserStore';
 import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
 import {
   useDeleteHomework,

@@ -14,7 +14,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useIsLeader } from '@/providers/study-leader-context';
 import { hashValue } from '@/utils/hash';
 
-import SummaryStudyInfo from '../study/summary-study-info';
+import SummaryStudyInfo from '../summary/study-info-summary';
 
 interface StudyInfoSectionProps {
   study: GroupStudyFullResponseDto;

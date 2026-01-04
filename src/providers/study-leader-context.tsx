@@ -44,9 +44,7 @@ export function useStudyLeader(): StudyLeaderContextValue {
   const context = useContext(StudyLeaderContext);
 
   if (context === null) {
-    throw new Error(
-      'useStudyLeader must be used within a StudyLeaderProvider',
-    );
+    throw new Error('useStudyLeader must be used within a StudyLeaderProvider');
   }
 
   return context;
@@ -54,10 +52,12 @@ export function useStudyLeader(): StudyLeaderContextValue {
 
 export function useIsLeader(): boolean {
   const { isLeader } = useStudyLeader();
+
   return isLeader;
 }
 
 export function useLeaderInfo(): Leader | null {
   const { leaderInfo } = useStudyLeader();
+
   return leaderInfo;
 }

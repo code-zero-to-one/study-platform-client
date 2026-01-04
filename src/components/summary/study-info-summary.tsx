@@ -5,7 +5,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/button';
-import { useUserStore } from '@/features/auth/model/store';
+import { useUserStore } from '@/stores/useUserStore';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import {

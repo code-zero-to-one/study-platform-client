@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Button from '@/components/ui/button';
-import { useUserStore } from '@/features/auth/model/store';
+import { useUserStore } from '@/stores/useUserStore';
 
 interface CommentInputProps {
   mode: 'edit' | 'save';
@@ -24,7 +24,7 @@ export default function CommentInput({
 
   return (
     <div
-      className={`rounded-150 border-border-default flex w-full flex-col gap-150 border-[1px] p-300 ${isActive && 'border-border-strong'}`}
+      className={`rounded-150 border-border-default flex w-full flex-col gap-150 border p-300 ${isActive && 'border-border-strong'}`}
     >
       <div className="flex justify-between">
         <span>{memberName}</span>

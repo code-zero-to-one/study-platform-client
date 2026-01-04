@@ -4,7 +4,6 @@ import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
 import Button from '@/components/ui/button';
 import SubmitHomeworkModal from '../modals/submit-homework-modal';
 
-
 interface MyHomeworkStatusProps {
   missionId: number;
   myHomework?: HomeworkDetailResponseDto;
@@ -12,7 +11,7 @@ interface MyHomeworkStatusProps {
   onSelectHomework: (homeworkId: number) => void;
 }
 
-export default function MyHomeworkStatus({
+export default function MyHomeworkStatusCard({
   missionId,
   myHomework,
   isMissionClosed = false,
