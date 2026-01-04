@@ -3,12 +3,12 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import Pagination from '@/components/ui/pagination';
+import { useGetGroupStudyMembers } from '@/hooks/queries/group-study-member-api';
 import { useAuth } from '@/hooks/use-auth';
-import {
+import type {
   GroupStudyMember,
   GroupStudyMyStatusResponse,
 } from '../../features/study/group/api/group-study-types';
-import { useGroupStudyMemberListQuery } from '../../features/study/group/model/use-group-study-member-list-query';
 import GroupStudyMemberItem from '../../features/study/group/ui/group-study-member-item';
 import KickedReasonModal from '../../features/study/group/ui/kicked-reason-modal';
 
@@ -26,8 +26,9 @@ export default function StudyMemberList({
   const [pageNumber, setPageNumber] = useState<number>(1);
   const PAGE_SIZE = 10;
 
-  const { data, isLoading } = useGroupStudyMemberListQuery({
+  const { data, isLoading } = useGetGroupStudyMembers({
     id: groupStudyId,
+    isPaging: true,
     pageNumber: pageNumber,
     pageSize: PAGE_SIZE,
   });

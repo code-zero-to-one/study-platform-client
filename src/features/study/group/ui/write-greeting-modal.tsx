@@ -6,7 +6,7 @@ import Button from '@/components/ui/button';
 import FormField from '@/components/ui/form/form-field';
 import { TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { useUpdateGreetingMutation } from '../model/use-write-greeting-mutation';
+import { useUpdateGreeting } from '@/hooks/queries/group-study-member-api';
 import {
   WriteGreetingFormSchema,
   WriteGreetingFormValues,
@@ -63,11 +63,14 @@ function WriteGreetingForm({ onClose, groupStudyId }: WriteGreetingFormProps) {
 
   const { handleSubmit, formState } = methods;
 
-  const { mutate: updateGreeting } = useUpdateGreetingMutation(groupStudyId);
+  const { mutate: updateGreeting } = useUpdateGreeting();
 
   const onValidSubmit = (values: WriteGreetingFormValues) => {
     updateGreeting(
-      { content: values.greeting },
+      {
+        id: groupStudyId,
+        request: { content: values.greeting },
+      },
       {
         onSuccess: () => {
           alert('가입인사를 작성하였습니다!');

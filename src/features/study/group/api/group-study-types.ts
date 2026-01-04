@@ -205,13 +205,7 @@ export type { GroupStudyFullResponseDto as GroupStudyFullResponse } from '@/api/
 export type DeleteGroupStudyRequest = GroupStudyDetailRequest;
 export type CompleteGroupStudyRequest = GroupStudyDetailRequest;
 
-// 그룹 스터디 참여자 목록 API 타입
-export interface GroupStudyMembersRequest {
-  id: number;
-  pageNumber?: number;
-  pageSize?: number;
-}
-
+// 그룹 스터디 참여자 목록 API 타입 (OpenAPI 타입 버그로 인해 임시 유지)
 export interface GroupStudyMembersResponse {
   pageSize: number;
   pageNumber: number;
@@ -251,13 +245,11 @@ export interface MissionProgressHistory {
   acquiredAt: string;
   grade:
     | 'A_PLUS'
-    | 'A'
+    | 'A_MINUS'
     | 'B_PLUS'
-    | 'B'
+    | 'B_MINUS'
     | 'C_PLUS'
-    | 'C'
-    | 'D_PLUS'
-    | 'D'
+    | 'C_MINUS'
     | 'F';
   reason: string;
 }
@@ -269,39 +261,9 @@ export interface Grade {
   score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
 }
 
-// 가입인사 작성&수정 API 타입
-export interface UpdateGreetingRequest {
-  groupStudyId: number; // 그룹 스터디 ID
-  content: string; // 20~100자 문자열
-}
-
-// 진행점수 부여/수정 API 타입
-export interface UpdateProgressScoreRequest {
-  groupStudyId: number;
-  targetMemberId: number;
-  gradeId: number;
-  reason: string;
-}
-
-// 진행점수 등급 목록 조회 API 타입
-export interface ProgressGradesResponse {
-  grades: Grade[];
-}
-
-// 그룹 스터디 내 상태 조회 API 타입
-export interface GroupStudyMyStatusRequest {
-  groupStudyId: number;
-}
-
+// 그룹 스터디 내 상태 조회 API 타입 (OpenAPI 타입 버그로 인해 임시 유지)
 export interface GroupStudyMyStatusResponse {
   status: ApplicationStatus;
-  reason: string;
-}
-
-// 그룹스터디 참여자 추방 API 타입
-export interface DeleteGroupStudyMemberRequest {
-  groupStudyId: number;
-  targetMemberId: number;
   reason: string;
 }
 
