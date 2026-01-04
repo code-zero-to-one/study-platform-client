@@ -7,32 +7,20 @@ import Button from '@/components/ui/button';
 import FormField from '@/components/ui/form/form-field';
 import { Modal } from '@/components/ui/modal';
 import { GroupItems } from '@/components/ui/toggle';
-import { useCreateEvaluation } from '@/hooks/queries/evaluation-api';
+import {
+  useCreateEvaluation,
+  useGetMissionEvaluationGrades,
+} from '@/hooks/queries/evaluation-api';
 import { TextAreaInput } from '../ui/input';
 
-// 평가 등급 옵션
-const GRADE_OPTIONS = [
-  { value: 'A_PLUS', label: 'A+ (4.5)' },
-  { value: 'A', label: 'A (4.0)' },
-  { value: 'B_PLUS', label: 'B+ (3.5)' },
-  { value: 'B', label: 'B (3.0)' },
-  { value: 'C_PLUS', label: 'C+ (2.5)' },
-  { value: 'C', label: 'C (2.0)' },
-  { value: 'D_PLUS', label: 'D+ (1.5)' },
-  { value: 'D', label: 'D (1.0)' },
-  { value: 'F', label: 'F (0)' },
-];
-
 const CreateEvaluationFormSchema = z.object({
-  grade: z.enum([
+  gradeCode: z.enum([
     'A_PLUS',
-    'A',
+    'A_MINUS',
     'B_PLUS',
-    'B',
+    'B_MINUS',
     'C_PLUS',
-    'C',
-    'D_PLUS',
-    'D',
+    'C_MINUS',
     'F',
   ]),
   comment: z.string().min(1, '정성 코멘트를 입력해주세요.'),
@@ -92,13 +80,14 @@ function CreateEvaluationForm({
     resolver: zodResolver(CreateEvaluationFormSchema),
     mode: 'onChange',
     defaultValues: {
-      grade: undefined,
+      gradeCode: undefined,
       comment: '',
     },
   });
 
   const { handleSubmit, formState } = methods;
 
+  const { data: grades } = useGetMissionEvaluationGrades();
   const { mutate: createEvaluation } = useCreateEvaluation();
 
   const onValidSubmit = (values: CreateEvaluationFormValues) => {
@@ -119,6 +108,13 @@ function CreateEvaluationForm({
     );
   };
 
+  const gradeOptions = grades
+    ?.sort((a, b) => a.orderNum - b.orderNum)
+    .map((grade) => ({
+      value: grade.code,
+      label: `${grade.code} (${grade.score})`,
+    }));
+
   return (
     <FormProvider {...methods}>
       <Modal.Body className="flex flex-col gap-400 px-400 py-300">
@@ -127,15 +123,15 @@ function CreateEvaluationForm({
           className="flex flex-col gap-300"
           onSubmit={handleSubmit(onValidSubmit)}
         >
-          <FormField<CreateEvaluationFormValues, 'grade'>
-            name="grade"
+          <FormField<CreateEvaluationFormValues, 'gradeCode'>
+            name="gradeCode"
             label="평가 점수 선택"
             direction="vertical"
             required
           >
             <GroupItems
               variant="square"
-              options={GRADE_OPTIONS}
+              options={gradeOptions}
               multiple={false}
               allowDeselect={false}
             />

@@ -16,6 +16,17 @@ export const useGetEvaluation = (homeworkId: number) => {
   });
 };
 
+export const useGetMissionEvaluationGrades = () => {
+  return useQuery({
+    queryKey: ['missionEvaluationGrades'],
+    queryFn: async () => {
+      const { data } = await evaluationApi.getMissionEvaluationGrades();
+
+      return data.content;
+    },
+  });
+};
+
 export const useCreateEvaluation = () => {
   const queryClient = useQueryClient();
 
