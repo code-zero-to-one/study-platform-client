@@ -2,9 +2,9 @@
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect } from 'react';
-import { useUserStore } from '@/stores/useUserStore';
 import { useAuth } from '@/hooks/use-auth';
 import QueryProvider from '@/providers/query-provider';
+import { useUserStore } from '@/stores/useUserStore';
 
 interface ProviderProps {
   children: React.ReactNode;
@@ -16,7 +16,7 @@ function UserInitializer({ children }: ProviderProps) {
 
   useEffect(() => {
     if (isAuthenticated && authData?.memberId && !memberId) {
-      fetchAndSetUser(authData.memberId);
+      fetchAndSetUser(authData.memberId).catch(console.error);
     }
   }, [isAuthenticated, authData?.memberId, memberId, fetchAndSetUser]);
 
