@@ -31,10 +31,12 @@ type EditEvaluationFormValues = z.infer<typeof EditEvaluationFormSchema>;
 
 interface EditEvaluationModalProps {
   evaluationId: EvaluationResponse['evaluationId'];
+  defaultValues?: EditEvaluationFormValues;
 }
 
 export default function EditEvaluationModal({
   evaluationId,
+  defaultValues,
 }: EditEvaluationModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
@@ -64,6 +66,7 @@ export default function EditEvaluationModal({
 
           <EditEvaluationForm
             evaluationId={evaluationId}
+            defaultValues={defaultValues}
             onClose={() => setOpen(false)}
           />
         </Modal.Content>
@@ -74,19 +77,21 @@ export default function EditEvaluationModal({
 
 interface EditEvaluationFormProps {
   evaluationId: EvaluationResponse['evaluationId'];
+  defaultValues?: Partial<EditEvaluationFormValues>;
   onClose: () => void;
 }
 
 function EditEvaluationForm({
   evaluationId,
+  defaultValues,
   onClose,
 }: EditEvaluationFormProps) {
   const methods = useForm<EditEvaluationFormValues>({
     resolver: zodResolver(EditEvaluationFormSchema),
     mode: 'onChange',
     defaultValues: {
-      gradeCode: undefined,
-      comment: '',
+      gradeCode: defaultValues?.gradeCode ?? undefined,
+      comment: defaultValues?.comment ?? '',
     },
   });
 
