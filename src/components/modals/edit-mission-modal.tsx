@@ -14,6 +14,7 @@ import { useUpdateMission } from '@/hooks/queries/mission-api';
 const EditMissionFormSchema = z.object({
   title: z.string().min(1, '미션 제목을 입력해주세요.'),
   description: z.string().optional(),
+  weekNum: z.string().optional(),
   guide: z.string().min(1, '수행 가이드를 입력해주세요.'),
   dateRange: z
     .object({
@@ -87,12 +88,7 @@ function EditMissionForm({
   const methods = useForm<EditMissionFormValues>({
     resolver: zodResolver(EditMissionFormSchema),
     mode: 'onChange',
-    defaultValues: {
-      title: '',
-      description: '',
-      guide: '',
-      dateRange: undefined,
-    },
+    defaultValues: defaultValue,
   });
 
   const { handleSubmit, formState, control } = methods;
@@ -100,16 +96,9 @@ function EditMissionForm({
   const { mutate: updateMission } = useUpdateMission();
 
   const onValidSubmit = (values: EditMissionFormValues) => {
-    // todo api guide가 반영 안됨 - 임시로 description과 guide 합침
-
-    const content = values.description
-      ? `${values.description}\n\n${values.guide}`
-      : values.guide;
-
     const startDate = values.dateRange.from.toISOString();
     const endDate = values.dateRange.to.toISOString();
 
-    // todo guide 반영
     updateMission(
       {
         missionId,
@@ -117,17 +106,18 @@ function EditMissionForm({
           title: values.title,
           guide: values.guide,
           description: values.description,
+          weekNum: values.weekNum ? Number(values.weekNum) : undefined,
           startDate,
           endDate,
         },
       },
       {
         onSuccess: () => {
-          alert('미션이 성공적으로 생성되었습니다!');
+          alert('미션이 성공적으로 수정되었습니다!');
           onClose();
         },
         onError: () => {
-          alert('미션 생성에 실패했습니다. 다시 시도해주세요.');
+          alert('미션 수정에 실패했습니다. 다시 시도해주세요.');
         },
       },
     );
@@ -163,6 +153,19 @@ function EditMissionForm({
               id="description"
               placeholder="미션 설명을 입력해 주세요."
               maxLength={100}
+            />
+          </FormField>
+
+          <FormField<EditMissionFormValues, 'weekNum'>
+            name="weekNum"
+            label="미션 주차"
+            direction="vertical"
+          >
+            <BaseInput
+              type="number"
+              min={0}
+              id="weekNum"
+              placeholder="커리큘럼 미션인 경우 주차를 입력해 주세요. (예: 1)"
             />
           </FormField>
 
