@@ -3,34 +3,27 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
+import { GroupStudyFullResponseDto } from '@/api/openapi';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import { useAuth } from '@/hooks/use-auth';
+import { useIsLeader } from '@/providers/study-leader-context';
 import { hashValue } from '@/utils/hash';
 
-import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
+import SummaryStudyInfo from '../summary/study-info-summary';
 
-import { useApplicantsByStatusQuery } from '../../features/study/group/application/model/use-applicant-qeury';
-import SummaryStudyInfo from '../study/summary-study-info';
-
-function getApplicantsList<T>(pages: { content: T[] }[] | undefined) {
-  if (!pages) return [];
-
-  return pages.reduce<T[]>((acc, page) => [...acc, ...page.content], []);
+interface StudyInfoSectionProps {
+  study: GroupStudyFullResponseDto;
 }
 
-interface PremiumStudyInfoSectionProps {
-  study: GroupStudyFullResponse;
-  isLeader: boolean;
-}
-
-export default function PremiumStudyInfoSection({
+export default function StudyInfoSection({
   study: studyDetail,
-  isLeader,
-}: PremiumStudyInfoSectionProps) {
+}: StudyInfoSectionProps) {
+  const isLeader = useIsLeader();
   const router = useRouter();
   const params = useParams();
   const { data: authData } = useAuth();
@@ -42,14 +35,21 @@ export default function PremiumStudyInfoSection({
     status: 'APPROVED',
   });
 
-  const applicantsList = getApplicantsList(approvedApplicants?.pages);
+  const applicants = [
+    ...(approvedApplicants?.pages.flatMap(({ content }) => content) || []),
+  ];
 
   return (
+    // todo: 스터디 공지 모달 추가
+    // <GroupStudyNoticeModal groupStudyId={groupStudyId} />
     <div className="flex w-full gap-600">
       <div className="flex flex-1 flex-col gap-500">
         <div className="relative h-[430px] w-full">
           <Image
-            src={studyDetail?.detailInfo.image.resizedImages[0].resizedImageUrl}
+            src={
+              studyDetail?.detailInfo?.image?.resizedImages[0]
+                .resizedImageUrl ?? ''
+            }
             alt="썸네일"
             fill
             className="object-contain"
@@ -101,7 +101,7 @@ export default function PremiumStudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>실시간 신청자 목록</span>
-                <span className="text-[#A4A7AE]">{`${applicantsList.length}명`}</span>
+                <span className="text-[#A4A7AE]">{`${approvedApplicants?.pages.length}명`}</span>
               </div>
               {isLeader && (
                 <Button
@@ -116,7 +116,7 @@ export default function PremiumStudyInfoSection({
             </div>
 
             <div className="grid grid-cols-2 grid-rows-2 gap-200">
-              {applicantsList.map((data) => {
+              {applicants.map((data) => {
                 const temperPreset = getSincerityPresetByLevelName(
                   data.applicantInfo.sincerityTemp.levelName as string,
                 );
@@ -136,6 +136,7 @@ export default function PremiumStudyInfoSection({
                     <div className="flex min-w-0 flex-1 flex-col">
                       <div className="flex flex-row items-center gap-50">
                         <div className="font-designer-16b">
+                          {/* 닉네임 존재하지않을시 익명처리 (이름 -> 닉네임 migration 이후 삭제) */}
                           {data.applicantInfo.memberNickname !== ''
                             ? data.applicantInfo.memberNickname
                             : '익명'}
@@ -158,7 +159,7 @@ export default function PremiumStudyInfoSection({
                           className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50"
                           onClick={() => {
                             sendGTMEvent({
-                              event: 'premium_study_member_profile_click',
+                              event: 'group_study_member_profile_click',
                               dl_timestamp: new Date().toISOString(),
                               ...(authData?.memberId && {
                                 dl_member_id: hashValue(

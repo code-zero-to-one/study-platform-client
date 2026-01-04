@@ -82,7 +82,7 @@ function FilterDropdown({
         <button
           type="button"
           className={[
-            'rounded-100 flex h-[40px] items-center gap-50 border px-150',
+            'rounded-100 h-500ems-center flex gap-50 border px-150',
             hasSelection
               ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
               : 'border-border-default bg-background-default text-text-default',

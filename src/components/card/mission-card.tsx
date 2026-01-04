@@ -1,0 +1,247 @@
+'use client';
+
+import { ComponentProps } from 'react';
+import { MissionListResponse } from '@/api/openapi/models';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
+import { useIsLeader } from '@/providers/study-leader-context';
+
+import DeleteMissionModal from '../modals/delete-mission-modal';
+import EditMissionModal from '../modals/edit-mission-modal';
+import { cn } from '../ui/(shadcn)/lib/utils';
+
+interface MissionCardProps {
+  mission: MissionListResponse;
+  onSelectMission: (missionId: number) => void;
+  showDeadline?: boolean;
+}
+
+const STATUS_CONFIG = {
+  NOT_STARTED: {
+    label: '진행 예정',
+    color: 'gray',
+  },
+  IN_PROGRESS: {
+    label: '진행중',
+    color: 'blue',
+  },
+  ENDED: {
+    label: '제출 마감',
+    color: 'blue',
+  },
+  EVALUATION_COMPLETED: {
+    label: '평가 완료',
+    color: 'green',
+  },
+} as const satisfies Record<
+  string,
+  { label: string; color: ComponentProps<typeof Badge>['color'] }
+>;
+
+function formatDate(dateString?: string) {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
+function getDeadlineInfo(endDate?: string): {
+  text: string;
+  isUrgent: boolean;
+} | null {
+  if (!endDate) return null;
+
+  const now = new Date();
+  const end = new Date(endDate);
+  end.setHours(23, 59, 59, 999);
+
+  const diffMs = end.getTime() - now.getTime();
+  if (diffMs < 0) return null;
+
+  const diffHours = diffMs / (1000 * 60 * 60);
+  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffHours <= 24) {
+    return { text: '오늘 제출 마감', isUrgent: true };
+  }
+
+  return { text: `제출 마감까지 D-${diffDays}`, isUrgent: false };
+}
+
+function isCardClickable(
+  status: MissionListResponse['status'],
+  isLeader: boolean,
+): boolean {
+  // 진행 예정은 리더/비리더 모두 클릭 불가
+  if (status === 'NOT_STARTED') {
+    return false;
+  }
+
+  if (isLeader) {
+    // 리더: 진행중, 평가완료, 제출마감(평가하기) 시 클릭 가능
+    return (
+      status === 'IN_PROGRESS' ||
+      status === 'EVALUATION_COMPLETED' ||
+      status === 'ENDED'
+    );
+  }
+
+  // 비리더: 진행중, 평가완료만 클릭 가능 (제출마감은 클릭 불가)
+  return status === 'IN_PROGRESS' || status === 'EVALUATION_COMPLETED';
+}
+
+export default function MissionCard({
+  mission,
+  onSelectMission,
+  showDeadline = false,
+}: MissionCardProps) {
+  const isLeader = useIsLeader();
+  const statusConfig =
+    mission.status && mission.status in STATUS_CONFIG
+      ? STATUS_CONFIG[mission.status as keyof typeof STATUS_CONFIG]
+      : STATUS_CONFIG.NOT_STARTED;
+
+  const handleSelectMission = () => {
+    if (mission.missionId) {
+      onSelectMission(mission.missionId);
+    }
+  };
+
+  const clickable = isCardClickable(mission.status, isLeader);
+  const deadlineInfo =
+    showDeadline && mission.status === 'IN_PROGRESS'
+      ? getDeadlineInfo(mission.endDate)
+      : null;
+
+  // 리더 + 진행 예정: 수정/삭제 버튼만 노출
+  if (isLeader && mission.status === 'NOT_STARTED') {
+    return (
+      <li className="border-border-default rounded-100 flex items-center justify-between border p-300">
+        <MissionCardContent
+          title={mission.title}
+          statusConfig={statusConfig}
+          startDate={mission.startDate}
+          endDate={mission.endDate}
+          deadlineInfo={null}
+        />
+        <div className="flex flex-col gap-100">
+          <EditMissionModal
+            missionId={mission.missionId}
+            defaultValue={{
+              title: mission.title,
+              description: mission.description,
+              guide: mission.description,
+              dateRange: {
+                from: new Date(mission.startDate),
+                to: new Date(mission.endDate),
+              },
+            }}
+          />
+          <DeleteMissionModal missionId={mission.missionId} />
+        </div>
+      </li>
+    );
+  }
+
+  // 리더 + 제출 마감: 평가하기 버튼 노출
+  if (isLeader && mission.status === 'ENDED') {
+    return (
+      <li
+        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border p-300"
+        onClick={handleSelectMission}
+      >
+        <MissionCardContent
+          title={mission.title}
+          statusConfig={statusConfig}
+          startDate={mission.startDate}
+          endDate={mission.endDate}
+          deadlineInfo={null}
+        />
+        <Button
+          color="outlined"
+          size="medium"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSelectMission();
+          }}
+        >
+          평가하기
+        </Button>
+      </li>
+    );
+  }
+
+  // 클릭 가능한 카드 (리더: 진행중/평가완료, 비리더: 진행중/평가완료)
+  if (clickable) {
+    return (
+      <li
+        className={cn(
+          'rounded-100 flex cursor-pointer items-center justify-between border p-300',
+          deadlineInfo?.isUrgent
+            ? 'border-status-error'
+            : 'border-border-default',
+        )}
+        onClick={handleSelectMission}
+      >
+        <MissionCardContent
+          title={mission.title}
+          statusConfig={statusConfig}
+          startDate={mission.startDate}
+          endDate={mission.endDate}
+          deadlineInfo={deadlineInfo}
+        />
+      </li>
+    );
+  }
+
+  // 클릭 불가능한 카드 (비리더: 진행예정/제출마감)
+  return (
+    <li
+      className={cn(
+        'rounded-100 flex items-center justify-between border p-300',
+        deadlineInfo?.isUrgent
+          ? 'border-border-brand'
+          : 'border-border-default',
+      )}
+    >
+      <MissionCardContent
+        title={mission.title}
+        statusConfig={statusConfig}
+        startDate={mission.startDate}
+        endDate={mission.endDate}
+        deadlineInfo={deadlineInfo}
+      />
+    </li>
+  );
+}
+
+function MissionCardContent({
+  title,
+  statusConfig,
+  startDate,
+  endDate,
+  deadlineInfo,
+}: {
+  title?: string;
+  statusConfig: { label: string; color: ComponentProps<typeof Badge>['color'] };
+  startDate?: string;
+  endDate?: string;
+  deadlineInfo: { text: string; isUrgent: boolean } | null;
+}) {
+  return (
+    <div className="flex flex-col gap-100">
+      {deadlineInfo && (
+        <span className={cn('font-designer-12b', 'text-text-brand')}>
+          {deadlineInfo.text}
+        </span>
+      )}
+      <div className="flex items-center gap-100">
+        <span className="font-designer-16b text-text-default">{title}</span>
+        <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
+      </div>
+      <span className="text-text-subtlest font-designer-12r">
+        제출 기간 : {formatDate(startDate)} ~ {formatDate(endDate)}
+      </span>
+    </div>
+  );
+}

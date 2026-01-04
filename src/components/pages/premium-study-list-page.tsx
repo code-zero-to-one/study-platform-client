@@ -8,17 +8,17 @@ import type {
   GetGroupStudiesTargetRolesEnum,
   GetGroupStudiesMethodEnum,
 } from '@/api/openapi/api/group-study-management-api';
+import PremiumStudyList from '@/components/premium/premium-study-list';
+import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
 import StudyFilter, {
   StudyFilterValues,
-} from '@/components/study/study-filter';
-import StudySearch from '@/components/study/study-search';
+} from '@/components/filtering/study-filter';
+import StudySearch from '@/components/filtering/study-search';
 import Button from '@/components/ui/button';
+import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
 import { useGetStudies } from '@/hooks/queries/study-query';
-import GroupStudyFormModal from './group-study-form-modal';
-import GroupStudyList from './group-study-list';
-import GroupStudyPagination from './group-study-pagination';
 
-export default function GroupStudyListPage() {
+export default function PremiumStudyListPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -39,9 +39,9 @@ export default function GroupStudyListPage() {
 
   // API 호출
   const { data, isLoading } = useGetStudies({
-    classification: 'GROUP_STUDY',
+    classification: 'PREMIUM_STUDY',
     page: currentPage,
-    pageSize: 15,
+    pageSize: 9,
     type:
       filterValues.type.length > 0
         ? (filterValues.type as GetGroupStudiesTypeEnum[])
@@ -79,7 +79,7 @@ export default function GroupStudyListPage() {
       }
 
       const queryString = params.toString();
-      router.push(queryString ? `?${queryString}` : '/group-study');
+      router.push(queryString ? `?${queryString}` : '/premium-study');
     },
     [router, searchParams],
   );
@@ -136,11 +136,11 @@ export default function GroupStudyListPage() {
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">
-          그룹스터디 둘러보기
+          멘토스터디 둘러보기
         </h1>
         <GroupStudyFormModal
           mode="create"
-          classification="GROUP_STUDY"
+          classification="PREMIUM_STUDY"
           trigger={
             <Button
               color="primary"
@@ -161,11 +161,11 @@ export default function GroupStudyListPage() {
       </div>
 
       {/* 스터디 카드 그리드 */}
-      <GroupStudyList studies={filteredStudies} />
+      <PremiumStudyList studies={filteredStudies} />
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
-        <GroupStudyPagination
+        <PremiumStudyPagination
           currentPage={currentPage}
           totalPages={totalPages}
         />

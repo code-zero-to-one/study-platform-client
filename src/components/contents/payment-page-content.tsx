@@ -2,9 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import OrderSummary from '@/components/payment/orderSummary';
 import PaymentCheckoutPage from '@/components/payment/paymentActionClient';
-import PriceSummary from '@/components/payment/priceSummary';
+import OrderSummary from '@/components/summary/order-summary';
+import PriceSummary from '@/components/summary/price-summary';
 import { usePreparePaymentQuery } from '@/hooks/queries/payment-user-api';
 
 interface PaymentPageContentProps {

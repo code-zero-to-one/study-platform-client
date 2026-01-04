@@ -3,8 +3,8 @@
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { useEffect, useState } from 'react';
 import { StudyPaymentPrepareResponse } from '@/api/openapi';
-import { useUserStore } from '@/features/auth/model/store';
-import PaymentTermsModal from './PaymentTermsModal';
+import { useUserStore } from '@/stores/useUserStore';
+import PaymentTermsModal from '../modals/payment-terms-modal';
 import Button from '../ui/button';
 import Checkbox from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';

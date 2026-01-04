@@ -1,61 +1,64 @@
 'use client';
 
-import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 
 import type {
-  EvaluationDetailResponseDto,
-  EvaluationDetailResponseDtoEvaluationGradeEnum,
-  HomeworkDetailResponseDto,
+  EvaluationResponse,
   PeerReviewResponse,
 } from '@/api/openapi/models';
 import Avatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
-import { useGetMission } from '@/hooks/queries/mission-api';
+import MoreMenu from '@/components/ui/dropdown/more-menu';
+import { useUserStore } from '@/stores/useUserStore';
+import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
+import {
+  useDeleteHomework,
+  useGetHomework,
+} from '@/hooks/queries/group-study-homework-api';
 import {
   useCreatePeerReview,
-  useGetPeerReviews,
+  useDeletePeerReview,
+  useUpdatePeerReview,
 } from '@/hooks/queries/peer-review-api';
+import { useIsLeader } from '@/providers/study-leader-context';
+import DeleteHomeworkModal from '../modals/delete-homework-modal';
+import EditHomeworkModal from '../modals/edit-homework-modal';
 
 interface HomeworkDetailContentProps {
   groupStudyId: number;
   missionId: number;
   homeworkId: number;
-  isLeader?: boolean;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-const GRADE_LABEL_CONFIG: Record<
-  EvaluationDetailResponseDtoEvaluationGradeEnum,
-  string
-> = {
-  A_PLUS: 'A+',
-  A: 'A',
-  B_PLUS: 'B+',
-  B: 'B',
-  C_PLUS: 'C+',
-  C: 'C',
-  D_PLUS: 'D+',
-  D: 'D',
-  F: 'F',
-};
-
 export default function HomeworkDetailContent({
-  missionId,
   homeworkId,
-  isLeader = false,
+  onEdit,
+  onDelete,
 }: HomeworkDetailContentProps) {
-  const { data: mission, isLoading: isMissionLoading } =
-    useGetMission(missionId);
-  const { data: peerReviews, isLoading: isPeerReviewsLoading } =
-    useGetPeerReviews(homeworkId);
+  const isLeader = useIsLeader();
+  const currentUserId = useUserStore((state) => state.memberId);
+  const { data: homework, isLoading: isHomeworkLoading } =
+    useGetHomework(homeworkId);
+  const { mutate: deleteHomework, isPending: isDeleting } = useDeleteHomework();
 
-  const homework = mission?.homeworks?.find(
-    (hw) => hw.homeworkId === homeworkId,
-  );
+  const handleDelete = () => {
+    if (window.confirm('정말 삭제하시겠습니까?')) {
+      deleteHomework(homeworkId, {
+        onSuccess: () => {
+          onDelete?.();
+        },
+      });
+    }
+  };
 
-  if (isMissionLoading || isPeerReviewsLoading || !homework) {
+  if (isHomeworkLoading || !homework) {
     return null;
   }
+
+  const peerReviews = homework.peerReviews ?? [];
+  const isEvaluated = !!homework.evaluation;
 
   const profileImageUrl =
     homework.submitterProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
@@ -73,36 +76,52 @@ export default function HomeworkDetailContent({
       {/* 제출자 정보 및 과제 내용 */}
       <div className="border-border-default rounded-100 flex flex-col gap-300 border p-400">
         {/* 제출자 정보 */}
-        <div className="flex items-center gap-150">
-          <Avatar image={profileImageUrl} size={40} />
-          <div className="flex flex-col">
-            <span className="font-designer-14b text-text-default">
-              {homework.submitterNickname}
-            </span>
-            <span className="text-text-subtlest font-designer-12r">
-              {formatDate(homework.submissionTime)}
-            </span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-150">
+            <Avatar image={profileImageUrl} size={40} />
+            <div className="flex flex-col">
+              <span className="font-designer-14b text-text-default">
+                {homework.submitterNickname}
+              </span>
+              <span className="text-text-subtlest font-designer-12r">
+                {formatDate(homework.submissionTime)}
+              </span>
+            </div>
           </div>
+
+          {/* 수정/삭제 버튼 - 평가 전에만 노출 */}
+          {!isEvaluated && (
+            <div className="flex items-center gap-100">
+              <EditHomeworkModal
+                homeworkId={homeworkId}
+                defaultValue={{
+                  textContent: homework.homeworkContent.textContent,
+                  attachmentLink: homework.homeworkContent.optionalContent.link,
+                }}
+              />
+              <DeleteHomeworkModal homeworkId={homeworkId} />
+            </div>
+          )}
         </div>
 
         {/* 과제 내용 */}
         <div className="text-text-default font-designer-14r whitespace-pre-wrap">
-          {homework.homeworkTextContent}
+          {homework.homeworkContent?.textContent}
         </div>
 
         {/* 제출한 과제 링크 */}
-        {homework.homeworkLink && (
+        {homework.homeworkContent?.optionalContent?.link && (
           <div className="flex flex-col gap-100">
             <span className="font-designer-14b text-text-default">
               제출한 과제
             </span>
             <a
-              href={homework.homeworkLink}
+              href={homework.homeworkContent.optionalContent.link}
               target="_blank"
               rel="noopener noreferrer"
               className="text-text-brand font-designer-14r hover:underline"
             >
-              {homework.homeworkLink}
+              {homework.homeworkContent.optionalContent.link}
             </a>
           </div>
         )}
@@ -118,13 +137,15 @@ export default function HomeworkDetailContent({
       <PeerReviewSection
         homeworkId={homeworkId}
         peerReviews={peerReviews ?? []}
+        isLeader={isLeader}
+        isMyHomework={homework.submitterId === currentUserId}
       />
     </div>
   );
 }
 
 interface LeaderEvaluationSectionProps {
-  evaluation?: EvaluationDetailResponseDto;
+  evaluation?: EvaluationResponse;
   isLeader: boolean;
 }
 
@@ -147,25 +168,19 @@ function LeaderEvaluationSection({
   );
 }
 
-function EvaluationResult({
-  evaluation,
-}: {
-  evaluation: EvaluationDetailResponseDto;
-}) {
+function EvaluationResult({ evaluation }: { evaluation: EvaluationResponse }) {
   return (
     <div className="flex w-full flex-col gap-200">
       <div className="flex items-center gap-200">
         <span className="font-designer-14b text-text-default">평가 등급</span>
         <span className="text-text-brand font-designer-16b">
-          {evaluation.evaluationGrade
-            ? GRADE_LABEL_CONFIG[evaluation.evaluationGrade]
-            : '-'}
+          {evaluation.grade?.gradeLabel ?? '-'}
         </span>
       </div>
       <div className="flex flex-col gap-100">
         <span className="font-designer-14b text-text-default">평가 코멘트</span>
         <p className="text-text-default font-designer-14r">
-          {evaluation.evaluationComment}
+          {evaluation.comment}
         </p>
       </div>
     </div>
@@ -190,12 +205,17 @@ function EvaluationPending({ isLeader }: { isLeader: boolean }) {
 interface PeerReviewSectionProps {
   homeworkId: number;
   peerReviews: PeerReviewResponse[];
+  isLeader: boolean;
+  isMyHomework: boolean;
 }
 
 function PeerReviewSection({
   homeworkId,
   peerReviews,
+  isLeader,
+  isMyHomework,
 }: PeerReviewSectionProps) {
+  const canWriteReview = !isLeader && !isMyHomework;
   const [reviewText, setReviewText] = useState('');
   const { mutate: createPeerReview, isPending } = useCreatePeerReview();
 
@@ -229,18 +249,24 @@ function PeerReviewSection({
         {peerReviews.length > 0 && (
           <div className="flex flex-col gap-200">
             {peerReviews.map((review) => (
-              <PeerReviewItem key={review.peerReviewId} review={review} />
+              <PeerReviewItem
+                key={review.peerReviewId}
+                review={review}
+                homeworkId={homeworkId}
+              />
             ))}
           </div>
         )}
 
-        {/* 리뷰 입력 */}
-        <PeerReviewInput
-          value={reviewText}
-          onChange={setReviewText}
-          onSubmit={handleSubmitReview}
-          isLoading={isPending}
-        />
+        {/* 리뷰 입력 - 리더가 아니고 자기 과제가 아닌 경우에만 표시 */}
+        {canWriteReview && (
+          <PeerReviewInput
+            value={reviewText}
+            onChange={setReviewText}
+            onSubmit={handleSubmitReview}
+            isLoading={isPending}
+          />
+        )}
       </div>
     </div>
   );
@@ -248,9 +274,22 @@ function PeerReviewSection({
 
 interface PeerReviewItemProps {
   review: PeerReviewResponse;
+  homeworkId: number;
 }
 
-function PeerReviewItem({ review }: PeerReviewItemProps) {
+function PeerReviewItem({ review, homeworkId }: PeerReviewItemProps) {
+  const currentUserId = useUserStore((state) => state.memberId);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(review.comment ?? '');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const { mutate: updatePeerReview, isPending: isUpdating } =
+    useUpdatePeerReview();
+  const { mutate: deletePeerReview, isPending: isDeleting } =
+    useDeletePeerReview();
+
+  const isMyReview = review.reviewerId === currentUserId;
+
   const profileImageUrl =
     review.reviewerProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
     '/profile-default.svg';
@@ -267,8 +306,69 @@ function PeerReviewItem({ review }: PeerReviewItemProps) {
     return `${year}.${month}.${day} ${hours}:${minutes}`;
   };
 
+  const handleUpdate = () => {
+    if (!editValue.trim() || !review.peerReviewId) return;
+
+    updatePeerReview(
+      {
+        peerReviewId: review.peerReviewId,
+        request: { comment: editValue },
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+        },
+      },
+    );
+  };
+
+  const handleDelete = () => {
+    if (!review.peerReviewId) return;
+
+    deletePeerReview(review.peerReviewId, {
+      onSuccess: () => {
+        setShowDeleteModal(false);
+      },
+    });
+  };
+
+  const getMenuOptions = () => {
+    if (!isMyReview) return [];
+
+    return [
+      {
+        label: '수정하기',
+        value: 'edit',
+        onMenuClick: () => {
+          setEditValue(review.comment ?? '');
+          setIsEditing(true);
+        },
+      },
+      {
+        label: '삭제하기',
+        value: 'delete',
+        onMenuClick: () => {
+          setShowDeleteModal(true);
+        },
+      },
+    ];
+  };
+
   return (
     <div className="flex flex-col gap-150">
+      <ConfirmDeleteModal
+        open={showDeleteModal}
+        onOpenChange={() => setShowDeleteModal(false)}
+        title="피어 리뷰를 삭제하시겠습니까?"
+        content={
+          <>
+            삭제 시 모든 데이터가 영구적으로 제거됩니다.
+            <br />이 동작은 되돌릴 수 없습니다.
+          </>
+        }
+        confirmText="삭제"
+        onConfirm={handleDelete}
+      />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-150">
           <Avatar image={profileImageUrl} size={32} />
@@ -282,12 +382,43 @@ function PeerReviewItem({ review }: PeerReviewItemProps) {
             </span>
           </div>
         </div>
-        <button className="text-text-subtlest hover:text-text-default">
-          <MoreHorizontal size={20} />
-        </button>
+        {isMyReview && <MoreMenu options={getMenuOptions()} iconSize={20} />}
       </div>
 
-      <p className="text-text-default font-designer-14r">{review.comment}</p>
+      {isEditing ? (
+        <div className="border-border-default rounded-100 flex flex-col gap-150 border p-300">
+          <textarea
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            className="text-text-default font-designer-14r min-h-[60px] resize-none outline-none"
+            maxLength={1000}
+          />
+          <div className="flex items-center justify-between">
+            <span className="text-text-subtlest font-designer-12r">
+              {editValue.length}/1,000
+            </span>
+            <div className="flex gap-100">
+              <Button
+                color="secondary"
+                size="xsmall"
+                onClick={() => setIsEditing(false)}
+              >
+                취소
+              </Button>
+              <Button
+                color="primary"
+                size="xsmall"
+                onClick={handleUpdate}
+                disabled={!editValue.trim() || isUpdating}
+              >
+                {isUpdating ? '수정 중...' : '수정'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className="text-text-default font-designer-14r">{review.comment}</p>
+      )}
     </div>
   );
 }

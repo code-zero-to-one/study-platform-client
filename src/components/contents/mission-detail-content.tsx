@@ -1,20 +1,20 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
 
-import type {
-  EvaluationDetailResponseDtoEvaluationGradeEnum,
-  HomeworkDetailResponseDto,
-} from '@/api/openapi/models';
+import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
 import Avatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
 import { useGetMission } from '@/hooks/queries/mission-api';
+import { useIsLeader } from '@/providers/study-leader-context';
+import { useUserStore } from '@/stores/useUserStore';
+import MyHomeworkStatus from '../card/my-homework-status-card';
 
 interface MissionDetailContentProps {
   groupStudyId: number;
   missionId: number;
-  isLeader?: boolean;
 }
 
 const HOMEWORK_STATUS_CONFIG = {
@@ -23,28 +23,25 @@ const HOMEWORK_STATUS_CONFIG = {
   EVALUATION_COMPLETED: { label: '평가 완료', color: 'green' },
 } as const;
 
-const GRADE_LABEL_CONFIG: Record<
-  EvaluationDetailResponseDtoEvaluationGradeEnum,
-  string
-> = {
-  A_PLUS: 'A+',
-  A: 'A',
-  B_PLUS: 'B+',
-  B: 'B',
-  C_PLUS: 'C+',
-  C: 'C',
-  D_PLUS: 'D+',
-  D: 'D',
-  F: 'F',
-};
-
 export default function MissionDetailContent({
+  groupStudyId,
   missionId,
 }: MissionDetailContentProps) {
+  const isLeader = useIsLeader();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const memberId = useUserStore((state) => state.memberId);
+
+  console.log('memberId', memberId);
 
   const { data: mission, isLoading } = useGetMission(missionId);
+
+  // homeworks에서 내 과제 정보 찾기
+  const myHomework = useMemo(() => {
+    if (!mission?.homeworks || !memberId) return null;
+
+    return mission.homeworks.find((hw) => hw.submitterId === memberId) ?? null;
+  }, [mission?.homeworks, memberId]);
 
   const handleSelectHomework = (homeworkId: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -60,6 +57,9 @@ export default function MissionDetailContent({
     ((mission.currentHomeworkSubmissionCount ?? 0) /
       (mission.maxHomeworkSubmissionCount ?? 1)) *
     100;
+
+  // TODO: 백엔드에서 MissionResponseDto에 status 필드 추가 후 교체 필요
+  const isMissionClosed = true;
 
   return (
     <div className="flex flex-col gap-400">
@@ -79,6 +79,16 @@ export default function MissionDetailContent({
           </p>
         </div>
       </div>
+
+      {/* 내 과제 현황 - 리더가 아닐 경우에만 표시 */}
+      {!isLeader && (
+        <MyHomeworkStatus
+          missionId={missionId}
+          myHomework={myHomework}
+          isMissionClosed={isMissionClosed}
+          onSelectHomework={handleSelectHomework}
+        />
+      )}
 
       {/* 제출 현황 */}
       <div className="flex flex-col gap-300">
@@ -132,16 +142,23 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
     return time.split('T')[0];
   };
 
+  const isNotSubmitted = homework.homeworkStatus === 'NOT_SUBMITTED';
+
   const handleClick = () => {
+    if (isNotSubmitted) return;
     if (homework.homeworkId) {
       onSelectHomework(homework.homeworkId);
     }
   };
 
   return (
-    <button
+    <div
       onClick={handleClick}
-      className="border-border-default hover:bg-background-alternative rounded-100 flex w-full cursor-pointer items-center justify-between border p-200 transition-colors"
+      className={`border-border-subtle rounded-100 flex w-full items-center justify-between border p-200 transition-colors ${
+        isNotSubmitted
+          ? 'cursor-default'
+          : 'hover:bg-background-alternative cursor-pointer'
+      }`}
     >
       <div className="flex items-center gap-150">
         <Avatar image={profileImageUrl} size={40} />
@@ -157,10 +174,10 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
 
       <div className="flex items-center gap-100">
         {homework.homeworkStatus === 'EVALUATION_COMPLETED' &&
-        homework.evaluation?.evaluationGrade ? (
+        homework.evaluation?.evaluationGradeLabel ? (
           <div className="flex flex-col items-center gap-50">
             <span className="text-text-brand font-designer-16m">
-              {GRADE_LABEL_CONFIG[homework.evaluation.evaluationGrade]}
+              {homework.evaluation.evaluationGradeLabel}
             </span>
             <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
           </div>
@@ -172,6 +189,6 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
           <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
         )}
       </div>
-    </button>
+    </div>
   );
 }
