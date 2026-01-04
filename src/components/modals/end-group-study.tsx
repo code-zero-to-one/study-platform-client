@@ -3,7 +3,7 @@
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { startTransition, useState } from 'react';
-import { useDeleteGroupStudyMemberMutation } from '@/features/study/group/model/use-delete-group-study-member';
+import { useKickMember } from '@/hooks/queries/group-study-member-api';
 import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
@@ -238,12 +238,12 @@ function Step3Modal({
 }: Step3ModalProps) {
   const router = useRouter();
 
-  const { mutate: endGroupStudy } =
-    useDeleteGroupStudyMemberMutation(groupStudyId);
+  const { mutate: kickMember } = useKickMember();
 
   const handleEndGroupStudy = () => {
-    endGroupStudy(
+    kickMember(
       {
+        id: groupStudyId,
         reason: '중도하차',
         targetMemberId,
       },

@@ -10,7 +10,7 @@ import CommentInput from './comment-input';
 import { ResizedImage } from '../../api/group-study-types';
 import ConfirmDeleteModal from '../../ui/confirm-delete-modal';
 import DeleteGroupStudyMemberModal from '../../ui/delete-group-study-member';
-import ProgressScoreModal from '../../ui/progress-score-modal';
+
 import {
   useDeleteCommentMutation,
   useDeleteThreadMutation,
@@ -38,13 +38,11 @@ interface CommentProps {
 
 // 스레드용이냐 커맨트용이냐에 따라서 호출하는 함수가 달라짐
 export default function Comment({ data, groupStudyId, mode }: CommentProps) {
-  const { userId, userName } = useUser();
+  const { userId } = useUser();
   const leader = useLeaderStore((state) => state.leaderInfo);
 
   const qc = useQueryClient();
 
-  const [isProgressScoreModalOpen, setIsProgressScoreModalOpen] =
-    useState<boolean>(false);
   const [isDeleteMemberModalOpen, setIsDeleteMemberModalOpen] =
     useState<boolean>(false);
 
@@ -172,16 +170,8 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
       ];
     }
 
-    // 여기는 수아님과 동일한 기능
     if (data.authorId !== userId && leader.memberId === userId) {
       return [
-        {
-          label: '평가하기',
-          value: 'edit',
-          onMenuClick: () => {
-            setIsProgressScoreModalOpen(true);
-          },
-        },
         {
           label: '내보내기',
           value: 'remove',
@@ -254,12 +244,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
           <MoreMenu options={getMenuOptions()} iconSize={24} />
         )}
       </div>
-      <ProgressScoreModal
-        open={isProgressScoreModalOpen}
-        onChangeOpen={setIsProgressScoreModalOpen}
-        groupStudyId={groupStudyId}
-        targetMemberId={data.authorId}
-      />
+
       <DeleteGroupStudyMemberModal
         open={isDeleteMemberModalOpen}
         onChangeOpen={setIsDeleteMemberModalOpen}

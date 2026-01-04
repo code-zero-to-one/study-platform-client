@@ -19,7 +19,7 @@ import SilverRankIcon from 'public/icons/silver-rank.svg';
 
 import DeleteGroupStudyMemberModal from './delete-group-study-member';
 import WriteGreetingModal from './write-greeting-modal';
-import { GroupStudyMember } from '../api/group-study-types';
+import type { GroupStudyMember } from '../api/group-study-types';
 
 type GroupStudyMemberItemProps = GroupStudyMember & {
   groupStudyId: number;
@@ -83,7 +83,10 @@ export default function GroupStudyMemberItem({
           <div className="flex items-center justify-between">
             <span className="font-designer-16b">가입 인사</span>
             {isLeader && member.id !== myId && (
-              <DiscretionaryEvaluationModal memberId={member.id} />
+              <DiscretionaryEvaluationModal
+                groupStudyId={groupStudyId}
+                memberId={member.id}
+              />
             )}
           </div>
 

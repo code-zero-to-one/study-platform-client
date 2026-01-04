@@ -7,11 +7,11 @@ import Button from '@/components/ui/button';
 import FormField from '@/components/ui/form/form-field';
 import { TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { useKickMember } from '@/hooks/queries/group-study-member-api';
 import {
   DeleteGroupStudyMemberFormSchema,
   DeleteGroupStudyMemberFormValues,
 } from '../model/delete-group-study-member-form.schema';
-import { useDeleteGroupStudyMemberMutation } from '../model/use-delete-group-study-member';
 
 interface DeleteGroupStudyMemberModalProps {
   groupStudyId: number;
@@ -70,11 +70,11 @@ function DeleteGroupStudyMemberForm({
 
   const { handleSubmit, formState } = methods;
 
-  const { mutate: deleteGroupStudyMember } =
-    useDeleteGroupStudyMemberMutation(groupStudyId);
+  const { mutate: kickMember } = useKickMember();
 
   const onValidSubmit = (values: DeleteGroupStudyMemberFormValues) => {
-    deleteGroupStudyMember({
+    kickMember({
+      id: groupStudyId,
       reason: values.reason,
       targetMemberId: targetMemberId,
     });
