@@ -20,6 +20,7 @@ import type { HomeworkDetailResponseDto } from './homework-detail-response-dto';
 export interface MissionResponseDto {
     'missionId'?: number;
     'weekNum'?: number;
+    'status'?: MissionResponseDtoStatusEnum;
     'missionTitle'?: string;
     'missionDescription'?: string;
     'missionGuide'?: string;
@@ -29,4 +30,14 @@ export interface MissionResponseDto {
     'currentHomeworkSubmissionCount'?: number;
     'homeworks'?: Array<HomeworkDetailResponseDto>;
 }
+
+export const MissionResponseDtoStatusEnum = {
+    NotStarted: 'NOT_STARTED',
+    InProgress: 'IN_PROGRESS',
+    Ended: 'ENDED',
+    EvaluationCompleted: 'EVALUATION_COMPLETED'
+} as const;
+
+export type MissionResponseDtoStatusEnum = typeof MissionResponseDtoStatusEnum[keyof typeof MissionResponseDtoStatusEnum];
+
 

@@ -7,6 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **missionId** | **number** |  | [optional] [default to undefined]
 **weekNum** | **number** |  | [optional] [default to undefined]
+**status** | **string** |  | [optional] [default to undefined]
 **missionTitle** | **string** |  | [optional] [default to undefined]
 **missionDescription** | **string** |  | [optional] [default to undefined]
 **missionGuide** | **string** |  | [optional] [default to undefined]
@@ -24,6 +25,7 @@ import { MissionResponseDto } from './api';
 const instance: MissionResponseDto = {
     missionId,
     weekNum,
+    status,
     missionTitle,
     missionDescription,
     missionGuide,
