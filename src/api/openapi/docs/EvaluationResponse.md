@@ -7,7 +7,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **evaluationId** | **number** |  | [optional] [default to undefined]
 **homeworkId** | **number** |  | [optional] [default to undefined]
-**grade** | **string** |  | [optional] [default to undefined]
+**grade** | [**GradeInstanceDto**](GradeInstanceDto.md) |  | [optional] [default to undefined]
 **comment** | **string** |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
 **updatedAt** | **string** |  | [optional] [default to undefined]

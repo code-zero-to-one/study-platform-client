@@ -231,26 +231,34 @@ export interface GroupStudyMember {
   ranking: number;
   greeting: string | null;
   lastAccessedAt: string; // ISO datetime string
-  missionProgressHistory: {
-    id: number;
-    acquiredAt: string;
-    grade: {
-      displayName: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F';
-      score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
-    };
-    reason: string;
-  }[];
 }
 
 export interface MemberProgress {
   score: number;
-  progressHistory: ProgressHistoryItem[];
+  maxScore: number;
+  discretionGradeHistory: DiscretionGradeHistory[];
+  missionProgressHistory: MissionProgressHistory[];
 }
 
-export interface ProgressHistoryItem {
+export interface DiscretionGradeHistory {
   id: number;
-  acquiredAt: string; // ISO datetime string
-  grade: Grade;
+  acquiredAt: string;
+  reason: string;
+}
+
+export interface MissionProgressHistory {
+  id: number;
+  acquiredAt: string;
+  grade:
+    | 'A_PLUS'
+    | 'A'
+    | 'B_PLUS'
+    | 'B'
+    | 'C_PLUS'
+    | 'C'
+    | 'D_PLUS'
+    | 'D'
+    | 'F';
   reason: string;
 }
 

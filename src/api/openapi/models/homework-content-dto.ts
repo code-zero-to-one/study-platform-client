@@ -15,15 +15,10 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
-import type { GradeInstanceDto } from './grade-instance-dto';
+import type { HomeworkOptionalContentDto } from './homework-optional-content-dto';
 
-export interface EvaluationResponse {
-    'evaluationId'?: number;
-    'homeworkId'?: number;
-    'grade'?: GradeInstanceDto;
-    'comment'?: string;
-    'createdAt'?: string;
-    'updatedAt'?: string;
-    'updated'?: boolean;
+export interface HomeworkContentDto {
+    'textContent'?: string;
+    'optionalContent'?: HomeworkOptionalContentDto;
 }
 

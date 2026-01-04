@@ -7,6 +7,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**createEvaluation**](#createevaluation) | **POST** /api/v1/homeworks/{homeworkId}/evaluations | 과제 평가 생성|
 |[**deleteEvaluation**](#deleteevaluation) | **DELETE** /api/v1/evaluations/{evaluationId} | 과제 평가 삭제|
 |[**getEvaluation**](#getevaluation) | **GET** /api/v1/homeworks/{homeworkId}/evaluation | 과제 평가 조회|
+|[**getMissionEvaluationGrades**](#getmissionevaluationgrades) | **GET** /api/v1/evaluations/grades | 미션 평가 등급 목록 조회|
 |[**updateEvaluation**](#updateevaluation) | **PUT** /api/v1/evaluations/{evaluationId} | 과제 평가 수정|
 
 # **createEvaluation**
@@ -167,6 +168,51 @@ const { status, data } = await apiInstance.getEvaluation(
 |-------------|-------------|------------------|
 |**200** | 평가 조회 성공 |  -  |
 |**404** | 과제 또는 평가를 찾을 수 없음 |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getMissionEvaluationGrades**
+> GradeListResponseSchema getMissionEvaluationGrades()
+
+미션 평가에 사용 가능한 등급 목록을 조회합니다.
+
+### Example
+
+```typescript
+import {
+    EvaluationApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new EvaluationApi(configuration);
+
+const { status, data } = await apiInstance.getMissionEvaluationGrades();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**GradeListResponseSchema**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | 등급 목록 조회 성공 |  -  |
+|**500** | 서버 내부 오류 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

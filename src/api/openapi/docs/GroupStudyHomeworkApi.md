@@ -6,6 +6,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |------------- | ------------- | -------------|
 |[**deleteHomework**](#deletehomework) | **DELETE** /api/v1/homeworks/{homeworkId} | 과제 삭제|
 |[**editHomework**](#edithomework) | **PUT** /api/v1/homeworks/{homeworkId} | 과제 수정|
+|[**getHomework**](#gethomework) | **GET** /api/v1/homeworks/{homeworkId} | |
 |[**submitHomework**](#submithomework) | **POST** /api/v1/missions/{missionId}/homeworks | 과제 제출|
 
 # **deleteHomework**
@@ -115,6 +116,56 @@ const { status, data } = await apiInstance.editHomework(
 |**204** | 과제 수정 성공 |  -  |
 |**400** | 잘못된 요청 (이미 평가됨, 텍스트 내용 길이 부족, 제출 기간 오류 등) |  -  |
 |**404** | 과제를 찾을 수 없음 |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+# **getHomework**
+> BaseResponseHomeworkResponseDto getHomework()
+
+
+### Example
+
+```typescript
+import {
+    GroupStudyHomeworkApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new GroupStudyHomeworkApi(configuration);
+
+let homeworkId: number; // (default to undefined)
+
+const { status, data } = await apiInstance.getHomework(
+    homeworkId
+);
+```
+
+### Parameters
+
+|Name | Type | Description  | Notes|
+|------------- | ------------- | ------------- | -------------|
+| **homeworkId** | [**number**] |  | defaults to undefined|
+
+
+### Return type
+
+**BaseResponseHomeworkResponseDto**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**200** | OK |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

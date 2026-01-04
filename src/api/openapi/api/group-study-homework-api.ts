@@ -24,6 +24,8 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { BaseResponse } from '../models';
 // @ts-ignore
+import type { BaseResponseHomeworkResponseDto } from '../models';
+// @ts-ignore
 import type { ErrorResponse } from '../models';
 // @ts-ignore
 import type { HomeworkEditRequest } from '../models';
@@ -119,6 +121,43 @@ export const GroupStudyHomeworkApiAxiosParamCreator = function (configuration?: 
             };
         },
         /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getHomework: async (homeworkId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'homeworkId' is not null or undefined
+            assertParamExists('getHomework', 'homeworkId', homeworkId)
+            const localVarPath = `/api/v1/homeworks/{homeworkId}`
+                .replace(`{${"homeworkId"}}`, encodeURIComponent(String(homeworkId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 특정 미션에 대한 과제를 제출합니다. 텍스트 내용은 최소 100자 이상이어야 하며, 선택적으로 링크를 포함할 수 있습니다.
          * @summary 과제 제출
          * @param {number} missionId 미션 ID
@@ -199,6 +238,18 @@ export const GroupStudyHomeworkApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getHomework(homeworkId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseHomeworkResponseDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getHomework(homeworkId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['GroupStudyHomeworkApi.getHomework']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 특정 미션에 대한 과제를 제출합니다. 텍스트 내용은 최소 100자 이상이어야 하며, 선택적으로 링크를 포함할 수 있습니다.
          * @summary 과제 제출
          * @param {number} missionId 미션 ID
@@ -243,6 +294,15 @@ export const GroupStudyHomeworkApiFactory = function (configuration?: Configurat
             return localVarFp.editHomework(homeworkId, homeworkEditRequest, options).then((request) => request(axios, basePath));
         },
         /**
+         * 
+         * @param {number} homeworkId 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getHomework(homeworkId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseHomeworkResponseDto> {
+            return localVarFp.getHomework(homeworkId, options).then((request) => request(axios, basePath));
+        },
+        /**
          * 특정 미션에 대한 과제를 제출합니다. 텍스트 내용은 최소 100자 이상이어야 하며, 선택적으로 링크를 포함할 수 있습니다.
          * @summary 과제 제출
          * @param {number} missionId 미션 ID
@@ -281,6 +341,16 @@ export class GroupStudyHomeworkApi extends BaseAPI {
      */
     public editHomework(homeworkId: number, homeworkEditRequest: HomeworkEditRequest, options?: RawAxiosRequestConfig) {
         return GroupStudyHomeworkApiFp(this.configuration).editHomework(homeworkId, homeworkEditRequest, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {number} homeworkId 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public getHomework(homeworkId: number, options?: RawAxiosRequestConfig) {
+        return GroupStudyHomeworkApiFp(this.configuration).getHomework(homeworkId, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

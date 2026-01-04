@@ -174,7 +174,7 @@ const { status, data } = await apiInstance.getMission(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMissions**
-> GetMissionsResponseSchema getMissions()
+> MissionListResponseSchema getMissions()
 
 특정 그룹스터디의 미션 목록을 페이지네이션으로 조회합니다.  **[Request]** - PathVariable: groupStudyId (필수) - 그룹스터디 ID - QueryParam: page (선택, 기본값: 1) - 페이지 번호 (1부터 시작) - QueryParam: size (선택, 기본값: 10) - 페이지 크기  **[Response]** - PageResponseDto<MissionListResponse>: 미션 목록과 페이지 정보 - 각 미션 정보: id, title, startTime, endTime, status 
 
@@ -214,7 +214,7 @@ const { status, data } = await apiInstance.getMissions(
 
 ### Return type
 
-**GetMissionsResponseSchema**
+**MissionListResponseSchema**
 
 ### Authorization
 
