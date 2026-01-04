@@ -1,6 +1,5 @@
 'use client';
 
-import { MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 
 import type {
@@ -9,12 +8,18 @@ import type {
 } from '@/api/openapi/models';
 import Avatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
+import MoreMenu from '@/components/ui/dropdown/more-menu';
+import { useUserStore } from '@/features/auth/model/store';
+import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
 import {
   useDeleteHomework,
   useGetHomework,
 } from '@/hooks/queries/group-study-homework-api';
-import { useCreatePeerReview } from '@/hooks/queries/peer-review-api';
-import { useUserStore } from '@/features/auth/model/store';
+import {
+  useCreatePeerReview,
+  useDeletePeerReview,
+  useUpdatePeerReview,
+} from '@/hooks/queries/peer-review-api';
 import { useIsLeader } from '@/providers/study-leader-context';
 import DeleteHomeworkModal from '../modals/delete-homework-modal';
 import EditHomeworkModal from '../modals/edit-homework-modal';
@@ -47,8 +52,6 @@ export default function HomeworkDetailContent({
       });
     }
   };
-
-  console.log('homework', homework);
 
   if (isHomeworkLoading || !homework) {
     return null;
@@ -246,7 +249,11 @@ function PeerReviewSection({
         {peerReviews.length > 0 && (
           <div className="flex flex-col gap-200">
             {peerReviews.map((review) => (
-              <PeerReviewItem key={review.peerReviewId} review={review} />
+              <PeerReviewItem
+                key={review.peerReviewId}
+                review={review}
+                homeworkId={homeworkId}
+              />
             ))}
           </div>
         )}
@@ -267,9 +274,22 @@ function PeerReviewSection({
 
 interface PeerReviewItemProps {
   review: PeerReviewResponse;
+  homeworkId: number;
 }
 
-function PeerReviewItem({ review }: PeerReviewItemProps) {
+function PeerReviewItem({ review, homeworkId }: PeerReviewItemProps) {
+  const currentUserId = useUserStore((state) => state.memberId);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState(review.comment ?? '');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const { mutate: updatePeerReview, isPending: isUpdating } =
+    useUpdatePeerReview();
+  const { mutate: deletePeerReview, isPending: isDeleting } =
+    useDeletePeerReview();
+
+  const isMyReview = review.reviewerId === currentUserId;
+
   const profileImageUrl =
     review.reviewerProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
     '/profile-default.svg';
@@ -286,8 +306,69 @@ function PeerReviewItem({ review }: PeerReviewItemProps) {
     return `${year}.${month}.${day} ${hours}:${minutes}`;
   };
 
+  const handleUpdate = () => {
+    if (!editValue.trim() || !review.peerReviewId) return;
+
+    updatePeerReview(
+      {
+        peerReviewId: review.peerReviewId,
+        request: { comment: editValue },
+      },
+      {
+        onSuccess: () => {
+          setIsEditing(false);
+        },
+      },
+    );
+  };
+
+  const handleDelete = () => {
+    if (!review.peerReviewId) return;
+
+    deletePeerReview(review.peerReviewId, {
+      onSuccess: () => {
+        setShowDeleteModal(false);
+      },
+    });
+  };
+
+  const getMenuOptions = () => {
+    if (!isMyReview) return [];
+
+    return [
+      {
+        label: '수정하기',
+        value: 'edit',
+        onMenuClick: () => {
+          setEditValue(review.comment ?? '');
+          setIsEditing(true);
+        },
+      },
+      {
+        label: '삭제하기',
+        value: 'delete',
+        onMenuClick: () => {
+          setShowDeleteModal(true);
+        },
+      },
+    ];
+  };
+
   return (
     <div className="flex flex-col gap-150">
+      <ConfirmDeleteModal
+        open={showDeleteModal}
+        onOpenChange={() => setShowDeleteModal(false)}
+        title="피어 리뷰를 삭제하시겠습니까?"
+        content={
+          <>
+            삭제 시 모든 데이터가 영구적으로 제거됩니다.
+            <br />이 동작은 되돌릴 수 없습니다.
+          </>
+        }
+        confirmText="삭제"
+        onConfirm={handleDelete}
+      />
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-150">
           <Avatar image={profileImageUrl} size={32} />
@@ -301,12 +382,43 @@ function PeerReviewItem({ review }: PeerReviewItemProps) {
             </span>
           </div>
         </div>
-        <button className="text-text-subtlest hover:text-text-default">
-          <MoreHorizontal size={20} />
-        </button>
+        {isMyReview && <MoreMenu options={getMenuOptions()} iconSize={20} />}
       </div>
 
-      <p className="text-text-default font-designer-14r">{review.comment}</p>
+      {isEditing ? (
+        <div className="border-border-default rounded-100 flex flex-col gap-150 border p-300">
+          <textarea
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            className="text-text-default font-designer-14r min-h-[60px] resize-none outline-none"
+            maxLength={1000}
+          />
+          <div className="flex items-center justify-between">
+            <span className="text-text-subtlest font-designer-12r">
+              {editValue.length}/1,000
+            </span>
+            <div className="flex gap-100">
+              <Button
+                color="secondary"
+                size="xsmall"
+                onClick={() => setIsEditing(false)}
+              >
+                취소
+              </Button>
+              <Button
+                color="primary"
+                size="xsmall"
+                onClick={handleUpdate}
+                disabled={!editValue.trim() || isUpdating}
+              >
+                {isUpdating ? '수정 중...' : '수정'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <p className="text-text-default font-designer-14r">{review.comment}</p>
+      )}
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/button';
+import { useUserStore } from '@/features/auth/model/store';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import {
@@ -19,17 +20,16 @@ import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use
 
 interface Props {
   data: GroupStudyFullResponse;
-  memberId?: number;
 }
 
-export default function SummaryStudyInfo({ data, memberId }: Props) {
+export default function SummaryStudyInfo({ data }: Props) {
   const router = useRouter();
   const [isExpanded, setIsExpanded] = useState(false);
+  const memberId = useUserStore((state) => state.memberId);
 
   const { basicInfo, detailInfo, interviewPost } = data;
   const {
     groupStudyId,
-    hostType,
     status: groupStudyStatus,
     maxMembersCount,
     approvedCount,
@@ -48,8 +48,6 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
   const { interviewPost: questions } = interviewPost ?? {};
 
   const isLeader = leader?.memberId === memberId;
-  // const isLoggedIn = typeof memberId === 'number';
-  // const isPremium = hostType === 'ZEROONE' || hostType === 'METOR';
 
   const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
     groupStudyId,
@@ -129,6 +127,7 @@ export default function SummaryStudyInfo({ data, memberId }: Props) {
   };
 
   const isApplyDisabled =
+    isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
     groupStudyStatus === 'IN_PROGRESS' ||
     approvedCount >= maxMembersCount;

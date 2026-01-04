@@ -59,9 +59,7 @@ export default function MissionDetailContent({
     100;
 
   // TODO: 백엔드에서 MissionResponseDto에 status 필드 추가 후 교체 필요
-  const isMissionClosed = mission.missionEndDate
-    ? new Date(mission.missionEndDate) < new Date()
-    : false;
+  const isMissionClosed = true;
 
   return (
     <div className="flex flex-col gap-400">

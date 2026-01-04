@@ -1,26 +1,9 @@
 'use client';
 
-import type {
-  EvaluationDetailResponseDtoEvaluationGradeEnum,
-  HomeworkDetailResponseDto,
-} from '@/api/openapi/models';
+import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
 import Button from '@/components/ui/button';
 import SubmitHomeworkModal from '../modals/submit-homework-modal';
 
-const GRADE_SCORE_CONFIG: Record<
-  EvaluationDetailResponseDtoEvaluationGradeEnum,
-  { label: string; score: number; name: string }
-> = {
-  A_PLUS: { label: 'A+', score: 4.5, name: 'Great' },
-  A: { label: 'A', score: 4.0, name: 'Good' },
-  B_PLUS: { label: 'B+', score: 3.5, name: 'Nice' },
-  B: { label: 'B', score: 3.0, name: 'Fine' },
-  C_PLUS: { label: 'C+', score: 2.5, name: 'OK' },
-  C: { label: 'C', score: 2.0, name: 'Try' },
-  D_PLUS: { label: 'D+', score: 1.5, name: 'Weak' },
-  D: { label: 'D', score: 1.0, name: 'Poor' },
-  F: { label: 'F', score: 0, name: 'Fail' },
-};
 
 interface MyHomeworkStatusProps {
   missionId: number;
@@ -96,11 +79,8 @@ export default function MyHomeworkStatus({
   // 평가 완료 상태
   if (
     myHomework.homeworkStatus === 'EVALUATION_COMPLETED' &&
-    myHomework.evaluation?.evaluationGrade
+    myHomework.evaluation
   ) {
-    const gradeConfig =
-      GRADE_SCORE_CONFIG[myHomework.evaluation.evaluationGrade];
-
     return (
       <div className="flex flex-col gap-300">
         <span className="font-designer-18b text-text-default">
@@ -110,10 +90,11 @@ export default function MyHomeworkStatus({
           <div className="flex items-center gap-300">
             <div className="border-border-default flex flex-col items-center border-r pr-300">
               <span className="text-text-brand font-designer-28b">
-                {gradeConfig.label}
+                {myHomework.evaluation.evaluationGradeLabel}
               </span>
               <span className="text-text-subtlest font-designer-12r">
-                {gradeConfig.name} ({gradeConfig.score})
+                {myHomework.evaluation.evaluationGradeCode} (
+                {myHomework.evaluation.evaluationGradeScore})
               </span>
             </div>
             <span className="text-text-default font-designer-14r">

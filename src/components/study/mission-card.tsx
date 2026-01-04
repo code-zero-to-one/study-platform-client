@@ -5,6 +5,8 @@ import { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { useIsLeader } from '@/providers/study-leader-context';
+import DeleteMissionModal from '../modals/delete-mission-modal';
+import EditMissionModal from '../modals/edit-mission-modal';
 
 interface MissionCardProps {
   mission: MissionListResponse;
@@ -42,7 +44,7 @@ function formatDate(dateString?: string) {
 
 function isCardClickable(
   status: MissionListResponse['status'],
-  isLeader: boolean
+  isLeader: boolean,
 ): boolean {
   // 진행 예정은 리더/비리더 모두 클릭 불가
   if (status === 'NOT_STARTED') {
@@ -78,6 +80,8 @@ export default function MissionCard({
     }
   };
 
+  console.log('mission', mission);
+
   const clickable = isCardClickable(mission.status, isLeader);
 
   // 리더 + 진행 예정: 수정/삭제 버튼만 노출
@@ -91,12 +95,19 @@ export default function MissionCard({
           endDate={mission.endDate}
         />
         <div className="flex flex-col gap-100">
-          <Button color="outlined" size="small">
-            수정하기
-          </Button>
-          <Button color="outlined" size="small">
-            삭제하기
-          </Button>
+          <EditMissionModal
+            missionId={mission.missionId}
+            defaultValue={{
+              title: mission.title,
+              description: mission.description,
+              guide: mission.description,
+              dateRange: {
+                from: new Date(mission.startDate),
+                to: new Date(mission.endDate),
+              },
+            }}
+          />
+          <DeleteMissionModal missionId={mission.missionId} />
         </div>
       </li>
     );
