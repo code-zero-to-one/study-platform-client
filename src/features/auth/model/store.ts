@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { getUserProfile } from '@/entities/user/api/get-user-profile';
 
 interface UserInfo {
   memberId: number | null;
@@ -10,6 +11,7 @@ interface UserInfo {
 
 interface UserStore extends UserInfo {
   setUserInfo: (info: Partial<UserInfo>) => void;
+  fetchAndSetUser: (memberId: number) => Promise<void>;
   reset: () => void;
 }
 
@@ -25,6 +27,19 @@ export const useUserStore = create<UserStore>()(
     (set) => ({
       ...initialState,
       setUserInfo: (info) => set((state) => ({ ...state, ...info })),
+      fetchAndSetUser: async (memberId: number) => {
+        try {
+          const profile = await getUserProfile(memberId);
+          set({
+            memberId: profile.memberId,
+            nickname: profile.memberProfile.nickname,
+            memberName: profile.memberProfile.memberName,
+            tel: profile.memberProfile.tel ?? null,
+          });
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+        }
+      },
       reset: () => set(initialState),
     }),
     {

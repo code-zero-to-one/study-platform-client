@@ -4,7 +4,7 @@ import { useState } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useUser } from '@/features/auth/model/use-user';
+import { useUserStore } from '@/features/auth/model/store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import CommentInput from './comment-input';
 import { ResizedImage } from '../../api/group-study-types';
@@ -38,7 +38,7 @@ interface CommentProps {
 
 // 스레드용이냐 커맨트용이냐에 따라서 호출하는 함수가 달라짐
 export default function Comment({ data, groupStudyId, mode }: CommentProps) {
-  const { userId, userName } = useUser();
+  const memberId = useUserStore((state) => state.memberId);
   const leader = useLeaderStore((state) => state.leaderInfo);
 
   const qc = useQueryClient();
@@ -153,7 +153,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   };
 
   const getMenuOptions = () => {
-    if (data.authorId === userId) {
+    if (data.authorId === memberId) {
       return [
         {
           label: '수정하기',
@@ -173,7 +173,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     }
 
     // 여기는 수아님과 동일한 기능
-    if (data.authorId !== userId && leader.memberId === userId) {
+    if (data.authorId !== memberId && leader.memberId === memberId) {
       return [
         {
           label: '평가하기',

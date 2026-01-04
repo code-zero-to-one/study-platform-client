@@ -4,10 +4,10 @@ import { ComponentProps } from 'react';
 import { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
+import { useIsLeader } from '@/providers/study-leader-context';
 
 interface MissionCardProps {
   mission: MissionListResponse;
-  isLeader?: boolean;
   onSelectMission: (missionId: number) => void;
 }
 
@@ -40,11 +40,33 @@ function formatDate(dateString?: string) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 }
 
+function isCardClickable(
+  status: MissionListResponse['status'],
+  isLeader: boolean
+): boolean {
+  // 진행 예정은 리더/비리더 모두 클릭 불가
+  if (status === 'NOT_STARTED') {
+    return false;
+  }
+
+  if (isLeader) {
+    // 리더: 진행중, 평가완료, 제출마감(평가하기) 시 클릭 가능
+    return (
+      status === 'IN_PROGRESS' ||
+      status === 'EVALUATION_COMPLETED' ||
+      status === 'ENDED'
+    );
+  }
+
+  // 비리더: 진행중, 평가완료만 클릭 가능 (제출마감은 클릭 불가)
+  return status === 'IN_PROGRESS' || status === 'EVALUATION_COMPLETED';
+}
+
 export default function MissionCard({
   mission,
-  isLeader,
   onSelectMission,
 }: MissionCardProps) {
+  const isLeader = useIsLeader();
   const statusConfig =
     mission.status && mission.status in STATUS_CONFIG
       ? STATUS_CONFIG[mission.status as keyof typeof STATUS_CONFIG]
@@ -56,63 +78,107 @@ export default function MissionCard({
     }
   };
 
+  const clickable = isCardClickable(mission.status, isLeader);
+
+  // 리더 + 진행 예정: 수정/삭제 버튼만 노출
+  if (isLeader && mission.status === 'NOT_STARTED') {
+    return (
+      <li className="border-border-default rounded-100 flex items-center justify-between border p-300">
+        <MissionCardContent
+          title={mission.title}
+          statusConfig={statusConfig}
+          startDate={mission.startDate}
+          endDate={mission.endDate}
+        />
+        <div className="flex flex-col gap-100">
+          <Button color="outlined" size="small">
+            수정하기
+          </Button>
+          <Button color="outlined" size="small">
+            삭제하기
+          </Button>
+        </div>
+      </li>
+    );
+  }
+
+  // 리더 + 제출 마감: 평가하기 버튼 노출
+  if (isLeader && mission.status === 'ENDED') {
+    return (
+      <li
+        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border p-300"
+        onClick={handleSelectMission}
+      >
+        <MissionCardContent
+          title={mission.title}
+          statusConfig={statusConfig}
+          startDate={mission.startDate}
+          endDate={mission.endDate}
+        />
+        <Button
+          color="outlined"
+          size="medium"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSelectMission();
+          }}
+        >
+          평가하기
+        </Button>
+      </li>
+    );
+  }
+
+  // 클릭 가능한 카드 (리더: 진행중/평가완료, 비리더: 진행중/평가완료)
+  if (clickable) {
+    return (
+      <li
+        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border p-300"
+        onClick={handleSelectMission}
+      >
+        <MissionCardContent
+          title={mission.title}
+          statusConfig={statusConfig}
+          startDate={mission.startDate}
+          endDate={mission.endDate}
+        />
+      </li>
+    );
+  }
+
+  // 클릭 불가능한 카드 (비리더: 진행예정/제출마감)
   return (
     <li className="border-border-default rounded-100 flex items-center justify-between border p-300">
-      <div className="flex flex-col gap-100">
-        <div className="flex items-center gap-100">
-          <span className="font-designer-16b text-text-default">
-            {mission.title}
-          </span>
-          <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
-        </div>
-        <span className="text-text-subtlest font-designer-12r">
-          미션 기간 : {formatDate(mission.startDate)} ~{' '}
-          {formatDate(mission.endDate)}
-        </span>
-      </div>
-
-      <MissionActionButton
-        status={mission.status}
-        isLeader={isLeader}
-        onSelectMission={handleSelectMission}
+      <MissionCardContent
+        title={mission.title}
+        statusConfig={statusConfig}
+        startDate={mission.startDate}
+        endDate={mission.endDate}
       />
     </li>
   );
 }
 
-function MissionActionButton({
-  status,
-  isLeader,
-  onSelectMission,
+function MissionCardContent({
+  title,
+  statusConfig,
+  startDate,
+  endDate,
 }: {
-  status?: MissionListResponse['status'];
-  isLeader?: boolean;
-  onSelectMission: () => void;
+  title?: string;
+  statusConfig: { label: string; color: ComponentProps<typeof Badge>['color'] };
+  startDate?: string;
+  endDate?: string;
 }) {
-  // 진행 예정
-  if (status === 'NOT_STARTED') {
-    return null;
-  }
-
-  // 진행 중 또는 종료된 미션 - 리더에게 평가하기 버튼 표시
-  if (status === 'IN_PROGRESS' || status === 'ENDED') {
-    if (!isLeader) return null;
-
-    return (
-      <Button color="outlined" size="medium" onClick={onSelectMission}>
-        평가하기
-      </Button>
-    );
-  }
-
-  // 평가 완료
-  if (status === 'EVALUATION_COMPLETED') {
-    return (
-      <Button color="outlined" size="small" onClick={onSelectMission}>
-        결과 보기
-      </Button>
-    );
-  }
-
-  return null;
+  return (
+    <div className="flex flex-col gap-100">
+      <div className="flex items-center gap-100">
+        <span className="font-designer-16b text-text-default">{title}</span>
+        <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
+      </div>
+      <span className="text-text-subtlest font-designer-12r">
+        미션 기간 : {formatDate(startDate)} ~ {formatDate(endDate)}
+      </span>
+    </div>
+  );
 }

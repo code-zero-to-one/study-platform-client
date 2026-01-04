@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Button from '@/components/ui/button';
-import { useUser } from '@/features/auth/model/use-user';
+import { useUserStore } from '@/features/auth/model/store';
 
 interface CommentInputProps {
   mode: 'edit' | 'save';
@@ -17,7 +17,7 @@ export default function CommentInput({
   onConfirm,
   onChange,
 }: CommentInputProps) {
-  const { userName } = useUser();
+  const memberName = useUserStore((state) => state.memberName);
   const [text, setText] = useState<string>(content ?? '');
 
   const [isActive, setIsActive] = useState(false);
@@ -27,7 +27,7 @@ export default function CommentInput({
       className={`rounded-150 border-border-default flex w-full flex-col gap-150 border-[1px] p-300 ${isActive && 'border-border-strong'}`}
     >
       <div className="flex justify-between">
-        <span>{userName}</span>
+        <span>{memberName}</span>
         <span>{text.length}/1000</span>
       </div>
 

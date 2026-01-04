@@ -3,21 +3,18 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
-import type {
-  EvaluationDetailResponseDtoEvaluationGradeEnum,
-  HomeworkDetailResponseDto,
-} from '@/api/openapi/models';
+import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
 import Avatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
 import { useUserStore } from '@/features/auth/model/store';
 import { useGetMission } from '@/hooks/queries/mission-api';
+import { useIsLeader } from '@/providers/study-leader-context';
 import MyHomeworkStatus from './my-homework-status';
 
 interface MissionDetailContentProps {
   groupStudyId: number;
   missionId: number;
-  isLeader?: boolean;
 }
 
 const HOMEWORK_STATUS_CONFIG = {
@@ -26,29 +23,16 @@ const HOMEWORK_STATUS_CONFIG = {
   EVALUATION_COMPLETED: { label: '평가 완료', color: 'green' },
 } as const;
 
-const GRADE_LABEL_CONFIG: Record<
-  EvaluationDetailResponseDtoEvaluationGradeEnum,
-  string
-> = {
-  A_PLUS: 'A+',
-  A: 'A',
-  B_PLUS: 'B+',
-  B: 'B',
-  C_PLUS: 'C+',
-  C: 'C',
-  D_PLUS: 'D+',
-  D: 'D',
-  F: 'F',
-};
-
 export default function MissionDetailContent({
   groupStudyId,
   missionId,
-  isLeader,
 }: MissionDetailContentProps) {
+  const isLeader = useIsLeader();
   const router = useRouter();
   const searchParams = useSearchParams();
   const memberId = useUserStore((state) => state.memberId);
+
+  console.log('memberId', memberId);
 
   const { data: mission, isLoading } = useGetMission(missionId);
 
@@ -74,6 +58,11 @@ export default function MissionDetailContent({
       (mission.maxHomeworkSubmissionCount ?? 1)) *
     100;
 
+  // TODO: 백엔드에서 MissionResponseDto에 status 필드 추가 후 교체 필요
+  const isMissionClosed = mission.missionEndDate
+    ? new Date(mission.missionEndDate) < new Date()
+    : false;
+
   return (
     <div className="flex flex-col gap-400">
       {/* 미션 상세 정보 */}
@@ -98,6 +87,7 @@ export default function MissionDetailContent({
         <MyHomeworkStatus
           missionId={missionId}
           myHomework={myHomework}
+          isMissionClosed={isMissionClosed}
           onSelectHomework={handleSelectHomework}
         />
       )}
@@ -154,16 +144,23 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
     return time.split('T')[0];
   };
 
+  const isNotSubmitted = homework.homeworkStatus === 'NOT_SUBMITTED';
+
   const handleClick = () => {
+    if (isNotSubmitted) return;
     if (homework.homeworkId) {
       onSelectHomework(homework.homeworkId);
     }
   };
 
   return (
-    <button
+    <div
       onClick={handleClick}
-      className="border-border-default hover:bg-background-alternative rounded-100 flex w-full cursor-pointer items-center justify-between border p-200 transition-colors"
+      className={`border-border-subtle rounded-100 flex w-full items-center justify-between border p-200 transition-colors ${
+        isNotSubmitted
+          ? 'cursor-default'
+          : 'hover:bg-background-alternative cursor-pointer'
+      }`}
     >
       <div className="flex items-center gap-150">
         <Avatar image={profileImageUrl} size={40} />
@@ -179,10 +176,10 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
 
       <div className="flex items-center gap-100">
         {homework.homeworkStatus === 'EVALUATION_COMPLETED' &&
-        homework.evaluation?.evaluationGrade ? (
+        homework.evaluation?.evaluationGradeLabel ? (
           <div className="flex flex-col items-center gap-50">
             <span className="text-text-brand font-designer-16m">
-              {GRADE_LABEL_CONFIG[homework.evaluation.evaluationGrade]}
+              {homework.evaluation.evaluationGradeLabel}
             </span>
             <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
           </div>
@@ -194,6 +191,6 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
           <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
         )}
       </div>
-    </button>
+    </div>
   );
 }

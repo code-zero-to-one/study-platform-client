@@ -9,6 +9,7 @@ import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useAuth } from '@/hooks/use-auth';
+import { useIsLeader } from '@/providers/study-leader-context';
 import { hashValue } from '@/utils/hash';
 
 import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
@@ -24,13 +25,12 @@ function getApplicantsList<T>(pages: { content: T[] }[] | undefined) {
 
 interface PremiumStudyInfoSectionProps {
   study: GroupStudyFullResponse;
-  isLeader: boolean;
 }
 
 export default function PremiumStudyInfoSection({
   study: studyDetail,
-  isLeader,
 }: PremiumStudyInfoSectionProps) {
+  const isLeader = useIsLeader();
   const router = useRouter();
   const params = useParams();
   const { data: authData } = useAuth();

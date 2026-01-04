@@ -25,12 +25,14 @@ const GRADE_SCORE_CONFIG: Record<
 interface MyHomeworkStatusProps {
   missionId: number;
   myHomework?: HomeworkDetailResponseDto;
+  isMissionClosed?: boolean;
   onSelectHomework: (homeworkId: number) => void;
 }
 
 export default function MyHomeworkStatus({
   missionId,
   myHomework,
+  isMissionClosed = false,
   onSelectHomework,
 }: MyHomeworkStatusProps) {
   // 미제출 상태
@@ -75,6 +77,18 @@ export default function MyHomeworkStatus({
             과제 상세 보기
           </Button>
         </div>
+        {isMissionClosed && (
+          <div className="flex flex-col gap-300">
+            <span className="font-designer-18b text-text-default">
+              리더 평가
+            </span>
+            <div className="border-border-default rounded-100 flex flex-col items-center justify-center border py-400">
+              <span className="text-text-subtlest font-designer-14r">
+                리더의 과제 평가를 기다려 주세요.
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

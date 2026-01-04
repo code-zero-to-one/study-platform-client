@@ -11,19 +11,19 @@ import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import { useAuth } from '@/hooks/use-auth';
+import { useIsLeader } from '@/providers/study-leader-context';
 import { hashValue } from '@/utils/hash';
 
 import SummaryStudyInfo from '../study/summary-study-info';
 
 interface StudyInfoSectionProps {
   study: GroupStudyFullResponseDto;
-  isLeader: boolean;
 }
 
 export default function StudyInfoSection({
   study: studyDetail,
-  isLeader,
 }: StudyInfoSectionProps) {
+  const isLeader = useIsLeader();
   const router = useRouter();
   const params = useParams();
   const { data: authData } = useAuth();

@@ -4,6 +4,7 @@ import { ChevronLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { MissionListResponse } from '@/api/openapi/models';
 import { useGetMissions } from '@/hooks/queries/mission-api';
+import { useIsLeader } from '@/providers/study-leader-context';
 import HomeworkDetailContent from './homework-detail-content';
 import MissionCard from './mission-card';
 import MissionDetailContent from './mission-detail-content';
@@ -11,13 +12,12 @@ import CreateMissionModal from '../modals/create-mission-modal';
 
 interface MissionSectionProps {
   groupStudyId: number;
-  isLeader: boolean;
 }
 
 export default function MissionSection({
   groupStudyId,
-  isLeader,
 }: MissionSectionProps) {
+  const isLeader = useIsLeader();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -92,7 +92,6 @@ export default function MissionSection({
           groupStudyId={groupStudyId}
           missionId={Number(missionId)}
           homeworkId={Number(homeworkId)}
-          isLeader={isLeader}
         />
       </section>
     );
@@ -133,7 +132,6 @@ export default function MissionSection({
         <MissionDetailContent
           groupStudyId={groupStudyId}
           missionId={Number(missionId)}
-          isLeader={isLeader}
         />
       </section>
     );
@@ -153,7 +151,6 @@ export default function MissionSection({
             <MissionList
               title="진행 중인 미션"
               missions={inProgressMissions}
-              isLeader={isLeader}
               onSelectMission={handleSelectMission}
             />
           )}
@@ -161,7 +158,6 @@ export default function MissionSection({
             <MissionList
               title="완료된 미션"
               missions={completedMissions}
-              isLeader={isLeader}
               onSelectMission={handleSelectMission}
             />
           )}
@@ -176,12 +172,10 @@ export default function MissionSection({
 function MissionList({
   title,
   missions,
-  isLeader,
   onSelectMission,
 }: {
   title: string;
   missions: MissionListResponse[];
-  isLeader?: boolean;
   onSelectMission: (missionId: number) => void;
 }) {
   return (
@@ -194,7 +188,6 @@ function MissionList({
           <MissionCard
             key={mission.missionId}
             mission={mission}
-            isLeader={isLeader}
             onSelectMission={onSelectMission}
           />
         ))}
