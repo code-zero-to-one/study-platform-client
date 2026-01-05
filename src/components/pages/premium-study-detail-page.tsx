@@ -10,9 +10,9 @@ import {
   GroupStudyFullResponse,
   Leader,
 } from '@/features/study/group/api/group-study-types';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { StudyLeaderProvider } from '@/providers/study-leader-context';
 import ChannelSection from '../../features/study/group/channel/ui/channel-section';
-import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
@@ -51,7 +51,7 @@ export default function PremiumStudyDetailPage({
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
-  const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
+  const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
     groupStudyId,
     isLeader,
   });

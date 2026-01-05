@@ -2,20 +2,18 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import Pagination from '@/components/ui/pagination';
 import { useGetGroupStudyMembers } from '@/hooks/queries/group-study-member-api';
 import { useAuth } from '@/hooks/use-auth';
-import type {
-  GroupStudyMember,
-  GroupStudyMyStatusResponse,
-} from '../../features/study/group/api/group-study-types';
+import type { GroupStudyMember } from '../../features/study/group/api/group-study-types';
 import GroupStudyMemberItem from '../../features/study/group/ui/group-study-member-item';
 import KickedReasonModal from '../../features/study/group/ui/kicked-reason-modal';
 
 interface GroupStudyMemberListProps {
   groupStudyId: number;
   leaderId: number;
-  myApplicationStatus?: GroupStudyMyStatusResponse;
+  myApplicationStatus?: GetGroupStudyMemberStatusResponseContent;
 }
 
 export default function StudyMemberList({

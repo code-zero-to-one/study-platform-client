@@ -6,10 +6,11 @@ import { useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { StudyLeaderProvider } from '@/providers/study-leader-context';
 import { Leader } from '../../features/study/group/api/group-study-types';
 import ChannelSection from '../../features/study/group/channel/ui/channel-section';
-import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
+
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
@@ -49,7 +50,7 @@ export default function StudyDetailPage({
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
-  const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
+  const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
     groupStudyId,
     isLeader,
   });
