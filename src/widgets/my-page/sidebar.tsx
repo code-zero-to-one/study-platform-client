@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import { useLogoutMutation } from '@/features/auth/model/use-auth-mutation';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/common/use-auth';
 
 export default function Sidebar() {
   const router = useRouter();

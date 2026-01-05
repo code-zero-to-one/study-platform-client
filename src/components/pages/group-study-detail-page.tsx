@@ -2,11 +2,11 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
-import { StudyLeaderProvider } from '@/providers/study-leader-context';
+import { useLeaderStore } from '@/stores/useLeaderStore';
 import { Leader } from '../../features/study/group/api/group-study-types';
 import ChannelSection from '../../features/study/group/channel/ui/channel-section';
 import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
@@ -34,6 +34,7 @@ export default function StudyDetailPage({
 }: StudyDetailPageProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
 
   const tabFromUrl = searchParams.get('tab') as StudyTabValue | null;
 
@@ -43,6 +44,13 @@ export default function StudyDetailPage({
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
   const isLeader = leaderId === memberId;
+
+  // 리더 정보를 Zustand store에 저장
+  useEffect(() => {
+    if (studyDetail?.basicInfo.leader) {
+      setLeaderInfo(studyDetail.basicInfo.leader as Leader);
+    }
+  }, [studyDetail?.basicInfo.leader, setLeaderInfo]);
 
   const [active, setActive] = useState<StudyTabValue>(tabFromUrl || 'intro');
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -128,104 +136,101 @@ export default function StudyDetailPage({
     return <div>로딩중...</div>;
   }
 
-  const leaderInfo = studyDetail.basicInfo.leader as Leader;
-
   return (
-    <StudyLeaderProvider leaderInfo={leaderInfo} memberId={memberId}>
-      <div className="m-auto flex w-full max-w-[1164px] flex-col gap-400 py-500">
-        <ConfirmDeleteModal
-          open={showModal}
-          onOpenChange={() => setShowModal(!showModal)}
-          title={ModalContent[action]?.title}
-          content={ModalContent[action]?.content}
-          confirmText={ModalContent[action]?.confirmText}
-          onConfirm={ModalContent[action]?.onConfirm}
-        />
-        <GroupStudyFormModal
-          open={showStudyFormModal}
-          mode="edit"
-          groupStudyId={groupStudyId}
-          onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
-        />
+    <div className="flex h-full w-full flex-col items-center">
+      <ConfirmDeleteModal
+        open={showModal}
+        onOpenChange={() => setShowModal(!showModal)}
+        title={ModalContent[action]?.title}
+        content={ModalContent[action]?.content}
+        confirmText={ModalContent[action]?.confirmText}
+        onConfirm={ModalContent[action]?.onConfirm}
+      />
+      <GroupStudyFormModal
+        open={showStudyFormModal}
+        mode="edit"
+        groupStudyId={groupStudyId}
+        onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
+      />
 
-        <div className="flex w-full items-start justify-between">
-          <div className="flex w-full flex-col gap-150">
-            <p className="font-designer-28b text-[#181D27]">
-              {studyDetail?.detailInfo.title}
-            </p>
-            <p className="font-designer-18r text-[#252B37]">
-              {studyDetail?.detailInfo.summary}
-            </p>
-          </div>
-          {isLeader && (
-            <MoreMenu
-              options={[
-                {
-                  label: '스터디 수정하기',
-                  value: 'edit',
-                  onMenuClick: () => {
-                    setShowStudyFormModal(true);
-                  },
-                },
-                {
-                  label: '스터디 종료',
-                  value: 'end',
-                  onMenuClick: () => {
-                    setAction('end');
-                    setShowModal(true);
-                  },
-                },
-                {
-                  label: '스터디 삭제',
-                  value: 'delete',
-                  onMenuClick: () => {
-                    setAction('delete');
-                    setShowModal(true);
-                  },
-                },
-              ]}
-              iconSize={35}
-            />
-          )}
+      <div className="my-500 flex w-[1164px] items-start justify-between">
+        <div className="flex w-full flex-col gap-150">
+          <p className="font-designer-28b text-[#181D27]">
+            {studyDetail?.detailInfo.title}
+          </p>
+          <p className="font-designer-18r text-[#252B37]">
+            {studyDetail?.detailInfo.summary}
+          </p>
         </div>
-
-        {/** 탭리스트 */}
-        <Tabs
-          tabs={STUDY_DETAIL_TABS.filter(
-            (tab) => tab.value === 'intro' || isLeader || isMember,
-          )}
-          activeTab={active}
-          onChange={(value: StudyTabValue) => {
-            setActive(value);
-
-            // 탭 변경 시 URL 파라미터 초기화 및 탭 값 설정
-            router.replace(`?tab=${value}`);
-
-            sendGTMEvent({
-              event: 'group_study_tab_change',
-              group_study_id: String(groupStudyId),
-              tab: value,
-            });
-          }}
-        />
-        {active === 'intro' && <StudyInfoSection study={studyDetail} />}
-        {active === 'members' && (
-          <GroupStudyMemberList
-            groupStudyId={groupStudyId}
-            leaderId={studyDetail.basicInfo.leader.memberId}
-            myApplicationStatus={myApplicationStatus}
-          />
-        )}
-
-        {active === 'mission' && <MissionSection groupStudyId={groupStudyId} />}
-        {active === 'channel' && (
-          <ChannelSection
-            groupStudyId={groupStudyId}
-            memberId={memberId}
-            myApplicationStatus={myApplicationStatus}
+        {isLeader && (
+          <MoreMenu
+            options={[
+              {
+                label: '스터디 수정하기',
+                value: 'edit',
+                onMenuClick: () => {
+                  setShowStudyFormModal(true);
+                },
+              },
+              {
+                label: '스터디 종료',
+                value: 'end',
+                onMenuClick: () => {
+                  setAction('end');
+                  setShowModal(true);
+                },
+              },
+              {
+                label: '스터디 삭제',
+                value: 'delete',
+                onMenuClick: () => {
+                  setAction('delete');
+                  setShowModal(true);
+                },
+              },
+            ]}
+            iconSize={35}
           />
         )}
       </div>
-    </StudyLeaderProvider>
+
+      {/** 탭리스트 */}
+      <Tabs
+        className="w-[1164px]"
+        tabs={STUDY_DETAIL_TABS.filter(
+          (tab) => tab.value === 'intro' || isLeader || isMember,
+        )}
+        activeTab={active}
+        onChange={(value: StudyTabValue) => {
+          setActive(value);
+
+          // 탭 변경 시 URL 파라미터 초기화 및 탭 값 설정
+          router.replace(`?tab=${value}`);
+
+          sendGTMEvent({
+            event: 'group_study_tab_change',
+            group_study_id: String(groupStudyId),
+            tab: value,
+          });
+        }}
+      />
+      {active === 'intro' && <StudyInfoSection study={studyDetail} />}
+      {active === 'members' && (
+        <GroupStudyMemberList
+          groupStudyId={groupStudyId}
+          leaderId={studyDetail.basicInfo.leader.memberId}
+          myApplicationStatus={myApplicationStatus}
+        />
+      )}
+
+      {active === 'mission' && <MissionSection groupStudyId={groupStudyId} />}
+      {active === 'channel' && (
+        <ChannelSection
+          groupStudyId={groupStudyId}
+          memberId={memberId}
+          myApplicationStatus={myApplicationStatus}
+        />
+      )}
+    </div>
   );
 }

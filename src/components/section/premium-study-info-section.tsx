@@ -8,8 +8,9 @@ import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useAuth } from '@/hooks/use-auth';
-import { useIsLeader } from '@/providers/study-leader-context';
+import { useAuth } from '@/hooks/common/use-auth';
+import { useIsLeader } from '@/stores/useLeaderStore';
+import { useUserStore } from '@/stores/useUserStore';
 import { hashValue } from '@/utils/hash';
 
 import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
@@ -30,10 +31,11 @@ interface PremiumStudyInfoSectionProps {
 export default function PremiumStudyInfoSection({
   study: studyDetail,
 }: PremiumStudyInfoSectionProps) {
-  const isLeader = useIsLeader();
   const router = useRouter();
   const params = useParams();
   const { data: authData } = useAuth();
+  const memberId = useUserStore((state) => state.memberId);
+  const isLeader = useIsLeader(memberId);
 
   const groupStudyId = Number(params.id);
 
@@ -45,7 +47,7 @@ export default function PremiumStudyInfoSection({
   const applicantsList = getApplicantsList(approvedApplicants?.pages);
 
   return (
-    <div className="flex w-full gap-600">
+    <div className="mt-500 flex w-[1164px] gap-600">
       <div className="flex flex-1 flex-col gap-500">
         <div className="relative h-[430px] w-full">
           <Image

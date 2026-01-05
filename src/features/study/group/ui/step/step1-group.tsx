@@ -250,6 +250,7 @@ export default function Step1OpenGroupStudy() {
             render={({ field }) => (
               <BaseInput
                 type="number"
+                step={10000}
                 min={10000}
                 placeholder="10,000"
                 value={field.value}

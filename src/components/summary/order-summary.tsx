@@ -1,9 +1,14 @@
 interface Props {
   groupStudyTitle: string;
+  description: string;
   amount: number;
 }
 
-export default function OrderSummary({ groupStudyTitle, amount }: Props) {
+export default function OrderSummary({
+  groupStudyTitle,
+  amount,
+  description,
+}: Props) {
   return (
     <div className="flex flex-col gap-300">
       <div className="flex items-center gap-250">
@@ -11,8 +16,9 @@ export default function OrderSummary({ groupStudyTitle, amount }: Props) {
         <div className="flex flex-1 flex-row items-end justify-between">
           <div className="space-y-1">
             <p className="font-designer-16m">{groupStudyTitle}</p>
+            <p className="font-designer-14r text-text-subtle">{description}</p>
           </div>
-          <p className="font-designer-14r text-text-subtle">
+          <p className="font-designer-15r text-text-subtle">
             {amount.toLocaleString()}원
           </p>
         </div>

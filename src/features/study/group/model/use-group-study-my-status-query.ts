@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/common/use-auth';
 import { getGroupStudyMyStatus } from '../api/get-group-study-my-status';
 
 export const useGroupStudyMyStatusQuery = ({

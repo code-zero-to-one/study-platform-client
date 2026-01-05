@@ -9,7 +9,7 @@ import {
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
 import ReservationCard from '@/features/study/participation/ui/reservation-user-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/common/use-auth';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {

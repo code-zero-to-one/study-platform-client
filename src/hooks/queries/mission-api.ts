@@ -85,9 +85,34 @@ export const useUpdateMission = () => {
 
       return data.content;
     },
-    onSuccess: async () => {
+    onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ['missions'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['mission', variables.missionId],
+      });
+    },
+  });
+};
+
+export const useDeleteMission = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      missionId,
+    }: {
+      missionId: number;
+      groupStudyId: number;
+    }) => {
+      const { data } = await missionApi.deleteMission(missionId);
+
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['missions', variables.groupStudyId],
       });
     },
   });

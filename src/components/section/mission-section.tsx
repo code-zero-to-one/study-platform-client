@@ -4,11 +4,12 @@ import { ChevronLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { useGetMissions } from '@/hooks/queries/mission-api';
-import { useIsLeader } from '@/providers/study-leader-context';
+import { useIsLeader } from '@/stores/useLeaderStore';
+import { useUserStore } from '@/stores/useUserStore';
 import MissionCard from '../card/mission-card';
-import CreateMissionModal from '../modals/create-mission-modal';
 import HomeworkDetailContent from '../contents/homework-detail-content';
 import MissionDetailContent from '../contents/mission-detail-content';
+import CreateMissionModal from '../modals/create-mission-modal';
 import { cn } from '../ui/(shadcn)/lib/utils';
 
 type FilterType = 'all' | 'inProgress' | 'completed';
@@ -18,9 +19,10 @@ interface MissionSectionProps {
 }
 
 export default function MissionSection({ groupStudyId }: MissionSectionProps) {
-  const isLeader = useIsLeader();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const memberId = useUserStore((state) => state.memberId);
+  const isLeader = useIsLeader(memberId);
   const [filter, setFilter] = useState<FilterType>('all');
 
   const missionId = searchParams.get('missionId');
@@ -154,37 +156,40 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
 
   // 미션 목록 (기본)
   return (
-    <section className="flex flex-col gap-300">
-      <div className="flex items-center justify-between">
-        <span className="font-designer-20b text-text-default">미션 목록</span>
-        {isLeader && <CreateMissionModal groupStudyId={groupStudyId} />}
+    <section className="bg-background-alternative flex h-full w-full flex-col gap-300">
+      <div className="m-auto mt-500 w-[1164px]">
+        <div className="flex items-center justify-between">
+          <span className="font-designer-20b text-text-default">미션 목록</span>
+          {isLeader && <CreateMissionModal groupStudyId={groupStudyId} />}
+        </div>
+
+        <MissionFilterTabs
+          filter={filter}
+          onFilterChange={setFilter}
+          totalCount={missionList?.length || 0}
+          inProgressCount={inProgressMissions.length}
+          completedCount={completedMissions.length}
+        />
+
+        {hasMissions ? (
+          <ul className="flex flex-col gap-200">
+            {filteredMissions.map((mission) => (
+              <MissionCard
+                key={mission.missionId}
+                mission={mission}
+                groupStudyId={groupStudyId}
+                onSelectMission={handleSelectMission}
+                showDeadline={
+                  mission.status === 'IN_PROGRESS' ||
+                  mission.status === 'NOT_STARTED'
+                }
+              />
+            ))}
+          </ul>
+        ) : (
+          <EmptyMissionState />
+        )}
       </div>
-
-      <MissionFilterTabs
-        filter={filter}
-        onFilterChange={setFilter}
-        totalCount={missionList?.length || 0}
-        inProgressCount={inProgressMissions.length}
-        completedCount={completedMissions.length}
-      />
-
-      {hasMissions ? (
-        <ul className="flex flex-col gap-200">
-          {filteredMissions.map((mission) => (
-            <MissionCard
-              key={mission.missionId}
-              mission={mission}
-              onSelectMission={handleSelectMission}
-              showDeadline={
-                mission.status === 'IN_PROGRESS' ||
-                mission.status === 'NOT_STARTED'
-              }
-            />
-          ))}
-        </ul>
-      ) : (
-        <EmptyMissionState />
-      )}
     </section>
   );
 }
@@ -209,7 +214,7 @@ function MissionFilterTabs({
   ];
 
   return (
-    <div className="flex gap-100">
+    <div className="mt-400 mb-200 flex gap-100">
       {tabs.map((tab) => (
         <button
           key={tab.key}
