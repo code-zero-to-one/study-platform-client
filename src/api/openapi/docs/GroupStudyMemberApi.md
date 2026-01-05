@@ -352,8 +352,6 @@ const { status, data } = await apiInstance.updateGreeting(
 |**400** | 가입인사 내용 길이 유효성 검사 실패 |  -  |
 |**404** | 리소스 조회 실패 |  -  |
 |**500** | 그 외 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
-|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -414,8 +412,6 @@ const { status, data } = await apiInstance.updateMemberDiscretion(
 |**404** | 리소스 조회 실패 |  -  |
 |**409** | 서버 상태와 요청 충돌 |  -  |
 |**500** | 그 외 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
-|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
