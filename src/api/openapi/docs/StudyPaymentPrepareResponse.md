@@ -12,6 +12,7 @@ Name | Type | Description | Notes
 **groupStudyDescription** | **string** |  | [optional] [default to undefined]
 **memberId** | **number** |  | [optional] [default to undefined]
 **memberName** | **string** |  | [optional] [default to undefined]
+**groupStudyImage** | [**ImageDto**](ImageDto.md) |  | [optional] [default to undefined]
 **amount** | **number** |  | [optional] [default to undefined]
 **currency** | **string** |  | [optional] [default to undefined]
 **pgProvider** | **string** |  | [optional] [default to undefined]
@@ -30,6 +31,7 @@ const instance: StudyPaymentPrepareResponse = {
     groupStudyDescription,
     memberId,
     memberName,
+    groupStudyImage,
     amount,
     currency,
     pgProvider,

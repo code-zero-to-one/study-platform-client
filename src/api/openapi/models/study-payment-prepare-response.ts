@@ -13,6 +13,9 @@
  */
 
 
+// May contain unused imports in some cases
+// @ts-ignore
+import type { ImageDto } from './image-dto';
 
 export interface StudyPaymentPrepareResponse {
     'paymentId'?: number;
@@ -22,6 +25,7 @@ export interface StudyPaymentPrepareResponse {
     'groupStudyDescription'?: string;
     'memberId'?: number;
     'memberName'?: string;
+    'groupStudyImage'?: ImageDto;
     'amount'?: number;
     'currency'?: string;
     'pgProvider'?: string;
