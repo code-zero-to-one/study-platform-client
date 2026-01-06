@@ -7,6 +7,7 @@ import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
 import LoginModal from '@/features/auth/ui/login-modal';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
+import HeaderNav from '@/components/layout/header-nav';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');
@@ -43,13 +44,7 @@ export default async function Header() {
           </span>
         </div>
 
-        {/* 1차 MVP에선 사용하지 않아 제외 */}
-        <nav className="font-designer-14m text-text-default flex flex-grow items-center gap-300 px-600">
-          <Link href={isLoggedIn ? '/home' : '/login'}>1:1 스터디</Link>
-          <Link href="/group-study">그룹스터디</Link>
-          <Link href="/premium-study">멘토스터디</Link>
-          <Link href="/insights">인사이트</Link>
-        </nav>
+        <HeaderNav isLoggedIn={isLoggedIn} />
 
         {accessTokenStr && <NotificationDropdown />}
 

@@ -82,10 +82,10 @@ function FilterDropdown({
         <button
           type="button"
           className={[
-            'rounded-100 h-500ems-center flex gap-50 border px-150',
+            'rounded-full h-500ems-center flex gap-50 border px-200 py-100',
             hasSelection
               ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
-              : 'border-border-default bg-background-default text-text-default',
+              : 'border-border-default bg-fill-neutral-subtle-default text-text-default',
           ].join(' ')}
         >
           <span className="font-designer-14m">{label}</span>

@@ -38,7 +38,7 @@ export default function PaymentPageContent({ id }: PaymentPageContentProps) {
               groupStudyTitle={data?.groupStudyTitle}
               amount={data.amount}
               description={data.groupStudyDescription}
-              thumbnailUrl={data?.groupStudyThumbnailUrl}
+              thumbnailUrl={data?.groupStudyImage.resizedImages[0].resizedImageUrl}
             />
           </section>
 

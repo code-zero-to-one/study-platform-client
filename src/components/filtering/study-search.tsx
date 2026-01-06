@@ -1,7 +1,7 @@
 'use client';
 
 import { Search } from 'lucide-react';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface StudySearchProps {
   value: string;
@@ -12,41 +12,44 @@ interface StudySearchProps {
 export default function StudySearch({
   value,
   onChange,
-  placeholder = '제목, 스터디명을 검색해주세요.',
+  placeholder = '스터디명을 검색해주세요.',
 }: StudySearchProps) {
   const [inputValue, setInputValue] = useState(value);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        onChange(inputValue);
+  // 디바운스된 검색 실행
+  useEffect(() => {
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = setTimeout(() => {
+      onChange(inputValue);
+    }, 300);
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current);
       }
-    },
-    [inputValue, onChange],
-  );
+    };
+  }, [inputValue, onChange]);
+
+  // 외부에서 value가 변경되면 inputValue 동기화
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   }, []);
 
-  const handleSearchClick = useCallback(() => {
-    onChange(inputValue);
-  }, [inputValue, onChange]);
-
   return (
     <div className="border-border-default bg-background-default rounded-100 flex h-500 w-[280px] items-center gap-100 border px-150">
-      <button
-        type="button"
-        onClick={handleSearchClick}
-        className="text-text-subtlest hover:text-text-subtle"
-      >
-        <Search className="size-4" />
-      </button>
+      <Search className="text-text-subtlest size-4" />
       <input
         type="text"
         value={inputValue}
         onChange={handleChange}
-        onKeyDown={handleKeyDown}
         placeholder={placeholder}
         className="font-designer-14r text-text-default placeholder:text-text-subtlest w-full bg-transparent outline-none"
       />

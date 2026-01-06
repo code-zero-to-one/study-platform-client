@@ -5,9 +5,10 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/button';
-import { useUserStore } from '@/stores/useUserStore';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useUserStore } from '@/stores/useUserStore';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -16,7 +17,6 @@ import {
   STUDY_STATUS_LABELS,
   STUDY_TYPE_LABELS,
 } from '../../features/study/group/const/group-study-const';
-import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 
 interface Props {
   data: GroupStudyFullResponse;
@@ -47,6 +47,7 @@ export default function SummaryStudyInfo({ data }: Props) {
   const { title } = detailInfo ?? {};
   const { interviewPost: questions } = interviewPost ?? {};
 
+  const isLoggedIn = !!memberId;
   const isLeader = leader?.memberId === memberId;
 
   const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
@@ -77,6 +78,18 @@ export default function SummaryStudyInfo({ data }: Props) {
       value: targetRoles.map((role) => ROLE_LABELS[role]).join(', '),
     },
     {
+      label: '스터디 기간',
+      value: `${dayjs(startDate).format('YYYY.MM.DD')} ~ ${dayjs(endDate).format('YYYY.MM.DD')}`,
+    },
+    {
+      label: '참가비',
+      value: price === 0 ? '무료' : `${price.toLocaleString()}원`,
+    },
+    {
+      label: '모집인원',
+      value: `${maxMembersCount}명`,
+    },
+    {
       label: '진행 방식',
       value: STUDY_METHOD_LABELS[method],
     },
@@ -103,14 +116,6 @@ export default function SummaryStudyInfo({ data }: Props) {
       label: '모집인원',
       value: `${maxMembersCount}명`,
     },
-    {
-      label: '스터디 기간',
-      value: `${dayjs(startDate).format('YYYY.MM.DD')} ~ ${dayjs(endDate).format('YYYY.MM.DD')}`,
-    },
-    {
-      label: '참가비',
-      value: price === 0 ? '무료' : `${price.toLocaleString()}원`,
-    },
   ];
 
   const visibleItems = isExpanded ? infoItems : infoItems.slice(0, 4);
@@ -127,23 +132,30 @@ export default function SummaryStudyInfo({ data }: Props) {
   };
 
   const isApplyDisabled =
+    !isLoggedIn ||
     isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
-    groupStudyStatus === 'IN_PROGRESS' ||
+    groupStudyStatus !== 'RECRUITING' ||
     approvedCount >= maxMembersCount;
 
   const getButtonText = () => {
-    if (
-      myApplicationStatus?.status === 'APPROVED' &&
-      groupStudyStatus === 'IN_PROGRESS'
-    ) {
+    if (myApplicationStatus?.status === 'APPROVED') {
       return '참여 중인 스터디';
     }
     if (myApplicationStatus?.status === 'PENDING') {
       return '승인 대기중';
     }
+    if (myApplicationStatus?.status === 'REJECTED') {
+      return '신청 거절됨';
+    }
 
     return '신청하기';
+  };
+
+  const handleApplyClick = () => {
+    if (!isLoggedIn) {
+      router.push('/login');
+    }
   };
 
   return (
@@ -192,22 +204,33 @@ export default function SummaryStudyInfo({ data }: Props) {
       <div className="flex flex-col gap-100">
         {/* 스터디 신청 모달 (유료/무료 공통) */}
 
-        <ApplyGroupStudyModal
-          groupStudyId={groupStudyId}
-          title={title}
-          questions={questions}
-          onSuccess={handleApplySuccess}
-          trigger={
-            <Button
-              size="large"
-              color="primary"
-              className="h-600"
-              disabled={isApplyDisabled}
-            >
-              {getButtonText()}
-            </Button>
-          }
-        />
+        {isLoggedIn ? (
+          <ApplyGroupStudyModal
+            groupStudyId={groupStudyId}
+            title={title}
+            questions={questions}
+            onSuccess={handleApplySuccess}
+            trigger={
+              <Button
+                size="large"
+                color="primary"
+                className="h-600"
+                disabled={isApplyDisabled}
+              >
+                {getButtonText()}
+              </Button>
+            }
+          />
+        ) : (
+          <Button
+            size="large"
+            color="primary"
+            className="h-600"
+            onClick={handleApplyClick}
+          >
+            신청하기
+          </Button>
+        )}
 
         <Button
           color="secondary"
