@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/ui/button';
@@ -8,7 +8,7 @@ import DatePicker from '@/components/ui/date-picker';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { useUpdateMission } from '@/hooks/queries/mission-api';
+import { useGetMission, useUpdateMission } from '@/hooks/queries/mission-api';
 
 // Form Schema
 const EditMissionFormSchema = z.object({
@@ -29,15 +29,12 @@ const EditMissionFormSchema = z.object({
 type EditMissionFormValues = z.infer<typeof EditMissionFormSchema>;
 
 interface EditMissionModalProps {
-  defaultValue: EditMissionFormValues;
   missionId: number;
 }
 
-export default function EditMissionModal({
-  defaultValue,
-  missionId,
-}: EditMissionModalProps) {
+export default function EditMissionModal({ missionId }: EditMissionModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const { data: missionData, isLoading } = useGetMission(missionId);
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -63,11 +60,17 @@ export default function EditMissionModal({
             </Modal.Close>
           </Modal.Header>
 
-          <EditMissionForm
-            defaultValue={defaultValue}
-            missionId={missionId}
-            onClose={() => setOpen(false)}
-          />
+          {isLoading ? (
+            <Modal.Body className="flex items-center justify-center py-500">
+              <span className="text-text-subtle">로딩 중...</span>
+            </Modal.Body>
+          ) : missionData ? (
+            <EditMissionForm
+              missionData={missionData}
+              missionId={missionId}
+              onClose={() => setOpen(false)}
+            />
+          ) : null}
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
@@ -75,21 +78,58 @@ export default function EditMissionModal({
 }
 
 interface EditMissionFormProps {
-  defaultValue: EditMissionFormValues;
+  missionData: {
+    missionTitle?: string;
+    missionDescription?: string;
+    weekNum?: number;
+    missionGuide?: string;
+    missionStartDate?: string;
+    missionEndDate?: string;
+  };
   missionId: number;
   onClose: () => void;
 }
 
 function EditMissionForm({
-  defaultValue,
+  missionData,
   missionId,
   onClose,
 }: EditMissionFormProps) {
   const methods = useForm<EditMissionFormValues>({
     resolver: zodResolver(EditMissionFormSchema),
     mode: 'onChange',
-    defaultValues: defaultValue,
+    defaultValues: {
+      title: missionData.missionTitle || '',
+      description: missionData.missionDescription || '',
+      weekNum: missionData.weekNum?.toString() || '',
+      guide: missionData.missionGuide || '',
+      dateRange: {
+        from: missionData.missionStartDate
+          ? new Date(missionData.missionStartDate)
+          : new Date(),
+        to: missionData.missionEndDate
+          ? new Date(missionData.missionEndDate)
+          : new Date(),
+      },
+    },
   });
+
+  useEffect(() => {
+    methods.reset({
+      title: missionData.missionTitle || '',
+      description: missionData.missionDescription || '',
+      weekNum: missionData.weekNum?.toString() || '',
+      guide: missionData.missionGuide || '',
+      dateRange: {
+        from: missionData.missionStartDate
+          ? new Date(missionData.missionStartDate)
+          : new Date(),
+        to: missionData.missionEndDate
+          ? new Date(missionData.missionEndDate)
+          : new Date(),
+      },
+    });
+  }, [missionData, methods]);
 
   const { handleSubmit, formState, control } = methods;
 

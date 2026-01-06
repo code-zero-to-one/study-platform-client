@@ -51,7 +51,10 @@ export default function PremiumStudyInfoSection({
       <div className="flex flex-1 flex-col gap-500">
         <div className="relative h-[430px] w-full">
           <Image
-            src={studyDetail?.detailInfo.image.resizedImages[0].resizedImageUrl}
+            src={
+              studyDetail?.detailInfo.image?.resizedImages[0].resizedImageUrl ??
+              ''
+            }
             alt="썸네일"
             fill
             className="object-contain"

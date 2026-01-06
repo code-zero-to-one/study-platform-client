@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import {
   GroupStudyManagementApi,
@@ -53,5 +53,6 @@ export const useGetStudies = ({
 
       return data.content;
     },
+    placeholderData: keepPreviousData,
   });
 };

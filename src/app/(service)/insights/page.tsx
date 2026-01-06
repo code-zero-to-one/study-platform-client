@@ -6,6 +6,7 @@ import {
   fetchArticles,
   fetchCategories,
 } from '@/api/strapi/api/fetch-articles';
+import PageContainer from '@/components/layout/page-container';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import { getServerCookie } from '@/utils/server-cookie';
 import Sidebar from '@/widgets/home/sidebar';
@@ -58,7 +59,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const articles = articlesRes.data ?? [];
 
   return (
-    <div className="flex w-full gap-600 py-600">
+    <PageContainer className="flex gap-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
         <div className="flex justify-between">
           <span className="font-designer-28b text-[#181D27]">
@@ -144,6 +145,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         )}
       </div>
       {isLoggedIn && <Sidebar />}
-    </div>
+    </PageContainer>
   );
 }

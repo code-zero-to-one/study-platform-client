@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import PageContainer from '@/components/layout/page-container';
 import Button from '@/components/ui/button';
 
 interface PaymentResult {
@@ -26,8 +27,8 @@ export default function PaymentCompletePage() {
   const formatKRW = (n: number) => `${n.toLocaleString('ko-KR')}원`;
 
   return (
-    <div className="mx-auto">
-      <div className="bg-fill-neutral-subtle-default border-border-default rounded-150 w-[840px] border p-500">
+    <PageContainer className="py-600">
+      <div className="bg-fill-neutral-subtle-default border-border-default rounded-150 mx-auto w-[840px] border p-500">
         {/* 아이콘 */}
         <div className="flex justify-center">
           <div className="relative h-[90px] w-[140px]">
@@ -93,7 +94,7 @@ export default function PaymentCompletePage() {
           </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

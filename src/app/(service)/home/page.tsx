@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import PageContainer from '@/components/layout/page-container';
 import StudyCard from '@/features/study/schedule/ui/study-card';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import Banner from '@/widgets/home/banner';
@@ -15,7 +16,7 @@ export const metadata: Metadata = generateSEOMetadata({
 
 export default async function Home() {
   return (
-    <div className="flex gap-600 py-600">
+    <PageContainer className="flex gap-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
         <Banner />
         <StudyCard />
@@ -24,6 +25,6 @@ export default async function Home() {
       <aside className="w-[335px] shrink-0">
         <Sidebar />
       </aside>
-    </div>
+    </PageContainer>
   );
 }

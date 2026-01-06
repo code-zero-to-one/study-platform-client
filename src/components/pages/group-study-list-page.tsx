@@ -2,7 +2,7 @@
 
 import { Plus } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import type {
   GetGroupStudiesTypeEnum,
   GetGroupStudiesTargetRolesEnum,
@@ -12,15 +12,21 @@ import StudyFilter, {
   StudyFilterValues,
 } from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
+import PageContainer from '@/components/layout/page-container';
 import Button from '@/components/ui/button';
 import { useGetStudies } from '@/hooks/queries/study-query';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyPagination from '../../features/study/group/ui/group-study-pagination';
 import GroupStudyList from '../lists/group-study-list';
 
+const PAGE_SIZE = 15;
+
 export default function GroupStudyListPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // 로컬 검색 상태
+  const [searchQuery, setSearchQuery] = useState('');
 
   // URL에서 필터 값 읽기
   const filterValues = useMemo<StudyFilterValues>(() => {
@@ -33,15 +39,13 @@ export default function GroupStudyListPage() {
     return { type, targetRoles, method, inProgress };
   }, [searchParams]);
 
-  // URL에서 검색어 읽기
-  const searchQuery = searchParams.get('search') ?? '';
   const currentPage = Number(searchParams.get('page')) || 1;
 
-  // API 호출
+  // 검색어가 있으면 전체 데이터를 가져오고, 없으면 페이지네이션된 데이터를 가져옴
   const { data, isLoading } = useGetStudies({
     classification: 'GROUP_STUDY',
-    page: currentPage,
-    pageSize: 15,
+    page: searchQuery ? 1 : currentPage,
+    pageSize: searchQuery ? 10000 : PAGE_SIZE,
     type:
       filterValues.type.length > 0
         ? (filterValues.type as GetGroupStudiesTypeEnum[])
@@ -57,8 +61,7 @@ export default function GroupStudyListPage() {
     inProgress: filterValues.inProgress || undefined,
   });
 
-  const studies = data?.content ?? [];
-  const totalPages = data?.totalPages ?? 1;
+  const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
 
   // URL 파라미터 업데이트 함수
   const updateSearchParams = useCallback(
@@ -100,39 +103,47 @@ export default function GroupStudyListPage() {
     [updateSearchParams],
   );
 
-  // 검색 핸들러
-  const handleSearch = useCallback(
-    (query: string) => {
-      updateSearchParams({ search: query || undefined });
-    },
-    [updateSearchParams],
-  );
+  // 검색 핸들러 (로컬 상태만 업데이트)
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
 
-  // 클라이언트 사이드 검색 필터링 (API에서 검색을 지원하지 않는 경우)
+  // 클라이언트 사이드 검색 필터링 (스터디명만 검색)
   const filteredStudies = useMemo(() => {
-    if (!searchQuery) return studies;
+    if (!searchQuery) return allStudies;
 
     const lowerQuery = searchQuery.toLowerCase();
 
-    return studies.filter(
-      (study) =>
-        study.simpleDetailInfo?.title?.toLowerCase().includes(lowerQuery) ||
-        study.simpleDetailInfo?.summary?.toLowerCase().includes(lowerQuery),
+    return allStudies.filter((study) =>
+      study.simpleDetailInfo?.title?.toLowerCase().includes(lowerQuery),
     );
-  }, [studies, searchQuery]);
+  }, [allStudies, searchQuery]);
+
+  // 검색어가 있을 때는 클라이언트에서 페이지네이션, 없으면 서버 페이지네이션 사용
+  const totalPages = searchQuery
+    ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
+    : (data?.totalPages ?? 1);
+
+  const displayStudies = useMemo(() => {
+    if (!searchQuery) return filteredStudies;
+
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+
+    return filteredStudies.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [filteredStudies, searchQuery, currentPage]);
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-[1200px] px-400 py-600">
+      <PageContainer className="py-600">
         <div className="flex h-[400px] items-center justify-center">
           <span className="text-text-subtle">로딩 중...</span>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="mx-auto max-w-[1200px] px-400 py-600">
+    <PageContainer className="py-600">
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">
@@ -161,7 +172,7 @@ export default function GroupStudyListPage() {
       </div>
 
       {/* 스터디 카드 그리드 */}
-      <GroupStudyList studies={filteredStudies} />
+      <GroupStudyList studies={displayStudies} />
 
       {/* 페이지네이션 */}
       {totalPages > 1 && (
@@ -170,6 +181,6 @@ export default function GroupStudyListPage() {
           totalPages={totalPages}
         />
       )}
-    </div>
+    </PageContainer>
   );
 }
