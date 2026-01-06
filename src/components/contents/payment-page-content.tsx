@@ -26,8 +26,6 @@ export default function PaymentPageContent({ id }: PaymentPageContentProps) {
 
   const data = result.data;
 
-  console.log(data);
-
   return (
     <div className="bg-background-alternative min-h-dvh">
       <div className="mx-auto max-w-[840px] pt-600">
@@ -40,6 +38,7 @@ export default function PaymentPageContent({ id }: PaymentPageContentProps) {
               groupStudyTitle={data?.groupStudyTitle}
               amount={data.amount}
               description={data.groupStudyDescription}
+              thumbnailUrl={data?.groupStudyThumbnailUrl}
             />
           </section>
 

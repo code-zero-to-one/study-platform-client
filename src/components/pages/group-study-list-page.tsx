@@ -12,6 +12,7 @@ import StudyFilter, {
   StudyFilterValues,
 } from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
+import PageContainer from '@/components/layout/page-container';
 import Button from '@/components/ui/button';
 import { useGetStudies } from '@/hooks/queries/study-query';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
@@ -123,16 +124,16 @@ export default function GroupStudyListPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-[1200px] px-400 py-600">
+      <PageContainer className="py-600">
         <div className="flex h-[400px] items-center justify-center">
           <span className="text-text-subtle">로딩 중...</span>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="mx-auto max-w-[1200px] px-400 py-600">
+    <PageContainer className="py-600">
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">
@@ -170,6 +171,6 @@ export default function GroupStudyListPage() {
           totalPages={totalPages}
         />
       )}
-    </div>
+    </PageContainer>
   );
 }

@@ -8,12 +8,13 @@ import type {
   GetGroupStudiesTargetRolesEnum,
   GetGroupStudiesMethodEnum,
 } from '@/api/openapi/api/group-study-management-api';
-import PremiumStudyList from '@/components/premium/premium-study-list';
-import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
 import StudyFilter, {
   StudyFilterValues,
 } from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
+import PageContainer from '@/components/layout/page-container';
+import PremiumStudyList from '@/components/premium/premium-study-list';
+import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
 import Button from '@/components/ui/button';
 import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
 import { useGetStudies } from '@/hooks/queries/study-query';
@@ -123,16 +124,16 @@ export default function PremiumStudyListPage() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-[1200px] px-400 py-600">
+      <PageContainer className="py-600">
         <div className="flex h-[400px] items-center justify-center">
           <span className="text-text-subtle">로딩 중...</span>
         </div>
-      </div>
+      </PageContainer>
     );
   }
 
   return (
-    <div className="mx-auto max-w-[1200px] px-400 py-600">
+    <PageContainer className="py-600">
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">
@@ -170,6 +171,6 @@ export default function PremiumStudyListPage() {
           totalPages={totalPages}
         />
       )}
-    </div>
+    </PageContainer>
   );
 }

@@ -14,7 +14,7 @@ interface Props {
 }
 
 type PaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
-const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
+const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '';
 
 const methods: { id: PaymentMethod; label: string }[] = [
   { id: 'CARD', label: '신용카드 결제' },
@@ -103,6 +103,11 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
   useEffect(() => {
     async function fetchPayment() {
+      if (!clientKey) {
+        console.error('NEXT_PUBLIC_TOSS_CLIENT_KEY 환경변수가 설정되지 않았습니다.');
+        return;
+      }
+
       try {
         const tossPayments = await loadTossPayments(clientKey);
 
