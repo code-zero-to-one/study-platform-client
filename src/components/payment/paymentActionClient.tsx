@@ -31,8 +31,6 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
   const canPay = isAgreed && !!paymentMethod && !isLoading;
 
-  console.log(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY);
-
   const toggleTerm = () => {
     setIsAgreed((prev) => !prev);
   };

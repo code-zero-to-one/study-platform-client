@@ -18,7 +18,6 @@ export default function DeleteMissionModal({
   onSuccess,
 }: DeleteMissionModalProps) {
   const [open, setOpen] = useState<boolean>(false);
-  console.log('missionId', missionId);
 
   const { mutate: deleteMission } = useDeleteMission();
 
