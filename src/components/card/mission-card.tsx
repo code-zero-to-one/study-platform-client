@@ -4,7 +4,8 @@ import { ComponentProps } from 'react';
 import { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import { useIsLeader } from '@/providers/study-leader-context';
+import { useIsLeader } from '@/stores/useLeaderStore';
+import { useUserStore } from '@/stores/useUserStore';
 
 import DeleteMissionModal from '../modals/delete-mission-modal';
 import EditMissionModal from '../modals/edit-mission-modal';
@@ -12,6 +13,7 @@ import { cn } from '../ui/(shadcn)/lib/utils';
 
 interface MissionCardProps {
   mission: MissionListResponse;
+  groupStudyId: number;
   onSelectMission: (missionId: number) => void;
   showDeadline?: boolean;
 }
@@ -92,10 +94,12 @@ function isCardClickable(
 
 export default function MissionCard({
   mission,
+  groupStudyId,
   onSelectMission,
   showDeadline = false,
 }: MissionCardProps) {
-  const isLeader = useIsLeader();
+  const memberId = useUserStore((state) => state.memberId);
+  const isLeader = useIsLeader(memberId);
   const statusConfig =
     mission.status && mission.status in STATUS_CONFIG
       ? STATUS_CONFIG[mission.status as keyof typeof STATUS_CONFIG]
@@ -116,7 +120,7 @@ export default function MissionCard({
   // 리더 + 진행 예정: 수정/삭제 버튼만 노출
   if (isLeader && mission.status === 'NOT_STARTED') {
     return (
-      <li className="border-border-default rounded-100 flex items-center justify-between border p-300">
+      <li className="border-border-default rounded-100 flex items-center justify-between border bg-[#fff] p-300">
         <MissionCardContent
           title={mission.title}
           statusConfig={statusConfig}
@@ -137,7 +141,10 @@ export default function MissionCard({
               },
             }}
           />
-          <DeleteMissionModal missionId={mission.missionId} />
+          <DeleteMissionModal
+            missionId={mission.missionId}
+            groupStudyId={groupStudyId}
+          />
         </div>
       </li>
     );
@@ -147,7 +154,7 @@ export default function MissionCard({
   if (isLeader && mission.status === 'ENDED') {
     return (
       <li
-        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border p-300"
+        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
         onClick={handleSelectMission}
       >
         <MissionCardContent
@@ -176,7 +183,7 @@ export default function MissionCard({
     return (
       <li
         className={cn(
-          'rounded-100 flex cursor-pointer items-center justify-between border p-300',
+          'rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300',
           deadlineInfo?.isUrgent
             ? 'border-status-error'
             : 'border-border-default',
@@ -198,7 +205,7 @@ export default function MissionCard({
   return (
     <li
       className={cn(
-        'rounded-100 flex items-center justify-between border p-300',
+        'rounded-100 flex items-center justify-between border bg-[#fff] p-300',
         deadlineInfo?.isUrgent
           ? 'border-border-brand'
           : 'border-border-default',

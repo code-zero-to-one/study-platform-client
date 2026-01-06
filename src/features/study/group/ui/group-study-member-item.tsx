@@ -9,7 +9,7 @@ import UserAvatar from '@/components/ui/avatar';
 
 import Button from '@/components/ui/button';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/common/use-auth';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';

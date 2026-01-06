@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/(shadcn)/ui/dropdown-menu';
 import UserAvatar from '@/components/ui/avatar';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/common/use-auth';
 import { useLogoutMutation } from '../model/use-auth-mutation';
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {

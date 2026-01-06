@@ -29,7 +29,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD');
 
-  const canPay = isAgreed && !!paymentMethod && !!payment && !isLoading;
+  const canPay = isAgreed && !!paymentMethod && !isLoading;
 
   const toggleTerm = () => {
     setIsAgreed((prev) => !prev);

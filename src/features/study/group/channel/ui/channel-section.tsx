@@ -25,7 +25,7 @@ export default function ChannelSection({
 
   // 등록되지 않은 경우
   if (!data?.isRegistered) {
-    return memberId === leader.memberId ? (
+    return memberId === leader?.memberId ? (
       <CreatePost groupStudyId={groupStudyId} />
     ) : (
       <PostNotFound />
@@ -34,7 +34,7 @@ export default function ChannelSection({
 
   // 등록된 경우
   return (
-    <>
+    <div className="mt-500 w-[1164px]">
       <div className="flex flex-col gap-500">
         <Post data={data} />
         <Comments groupStudyId={groupStudyId} />
@@ -43,6 +43,6 @@ export default function ChannelSection({
       {myApplicationStatus?.status === 'KICKED' && (
         <KickedReasonModal reason={myApplicationStatus.reason} />
       )}
-    </>
+    </div>
   );
 }

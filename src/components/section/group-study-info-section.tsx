@@ -10,8 +10,9 @@ import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
-import { useAuth } from '@/hooks/use-auth';
-import { useIsLeader } from '@/providers/study-leader-context';
+import { useAuth } from '@/hooks/common/use-auth';
+import { useIsLeader } from '@/stores/useLeaderStore';
+import { useUserStore } from '@/stores/useUserStore';
 import { hashValue } from '@/utils/hash';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
@@ -23,10 +24,11 @@ interface StudyInfoSectionProps {
 export default function StudyInfoSection({
   study: studyDetail,
 }: StudyInfoSectionProps) {
-  const isLeader = useIsLeader();
   const router = useRouter();
   const params = useParams();
   const { data: authData } = useAuth();
+  const memberId = useUserStore((state) => state.memberId);
+  const isLeader = useIsLeader(memberId);
 
   const groupStudyId = Number(params.id);
 
@@ -42,7 +44,7 @@ export default function StudyInfoSection({
   return (
     // todo: 스터디 공지 모달 추가
     // <GroupStudyNoticeModal groupStudyId={groupStudyId} />
-    <div className="flex w-full gap-600">
+    <div className="m-auto mt-500 flex w-[1164px] gap-600">
       <div className="flex flex-1 flex-col gap-500">
         <div className="relative h-[430px] w-full">
           <Image

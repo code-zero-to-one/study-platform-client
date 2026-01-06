@@ -5,7 +5,7 @@ import UserAvatar from '@/components/ui/avatar';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 
-import { useLeaderInfo } from '@/providers/study-leader-context';
+import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import CommentInput from './comment-input';
 import { ResizedImage } from '../../api/group-study-types';

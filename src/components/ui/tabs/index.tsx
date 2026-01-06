@@ -26,7 +26,7 @@ export default function Tabs({
   return (
     <div
       className={cn(
-        'border-border-subtle flex w-full cursor-pointer gap-200 border-b-[1px]',
+        'border-border-subtle flex w-full cursor-pointer gap-200 border-b',
         className,
       )}
     >

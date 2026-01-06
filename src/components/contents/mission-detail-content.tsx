@@ -8,7 +8,7 @@ import Avatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
 import { useGetMission } from '@/hooks/queries/mission-api';
-import { useIsLeader } from '@/providers/study-leader-context';
+import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import MyHomeworkStatus from '../card/my-homework-status-card';
 
@@ -27,12 +27,10 @@ export default function MissionDetailContent({
   groupStudyId,
   missionId,
 }: MissionDetailContentProps) {
-  const isLeader = useIsLeader();
   const router = useRouter();
   const searchParams = useSearchParams();
   const memberId = useUserStore((state) => state.memberId);
-
-  console.log('memberId', memberId);
+  const isLeader = useIsLeader(memberId);
 
   const { data: mission, isLoading } = useGetMission(missionId);
 
@@ -58,8 +56,7 @@ export default function MissionDetailContent({
       (mission.maxHomeworkSubmissionCount ?? 1)) *
     100;
 
-  // TODO: 백엔드에서 MissionResponseDto에 status 필드 추가 후 교체 필요
-  const isMissionClosed = true;
+  const isMissionClosed = mission.status === 'ENDED';
 
   return (
     <div className="flex flex-col gap-400">

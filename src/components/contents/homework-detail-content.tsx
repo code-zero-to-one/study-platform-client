@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import type {
@@ -20,7 +21,7 @@ import {
   useDeletePeerReview,
   useUpdatePeerReview,
 } from '@/hooks/queries/peer-review-api';
-import { useIsLeader } from '@/providers/study-leader-context';
+import { useIsLeader } from '@/stores/useLeaderStore';
 import DeleteHomeworkModal from '../modals/delete-homework-modal';
 import EditHomeworkModal from '../modals/edit-homework-modal';
 
@@ -28,29 +29,22 @@ interface HomeworkDetailContentProps {
   groupStudyId: number;
   missionId: number;
   homeworkId: number;
-  onEdit?: () => void;
-  onDelete?: () => void;
 }
 
 export default function HomeworkDetailContent({
   homeworkId,
-  onEdit,
-  onDelete,
 }: HomeworkDetailContentProps) {
-  const isLeader = useIsLeader();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const currentUserId = useUserStore((state) => state.memberId);
+  const isLeader = useIsLeader(currentUserId);
   const { data: homework, isLoading: isHomeworkLoading } =
     useGetHomework(homeworkId);
-  const { mutate: deleteHomework, isPending: isDeleting } = useDeleteHomework();
 
-  const handleDelete = () => {
-    if (window.confirm('정말 삭제하시겠습니까?')) {
-      deleteHomework(homeworkId, {
-        onSuccess: () => {
-          onDelete?.();
-        },
-      });
-    }
+  const handleDeleteSuccess = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('homeworkId');
+    router.push(`?${params.toString()}`);
   };
 
   if (isHomeworkLoading || !homework) {
@@ -99,7 +93,10 @@ export default function HomeworkDetailContent({
                   attachmentLink: homework.homeworkContent.optionalContent.link,
                 }}
               />
-              <DeleteHomeworkModal homeworkId={homeworkId} />
+              <DeleteHomeworkModal
+                homeworkId={homeworkId}
+                onSuccess={handleDeleteSuccess}
+              />
             </div>
           )}
         </div>

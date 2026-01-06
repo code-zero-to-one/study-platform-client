@@ -2,7 +2,7 @@
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect } from 'react';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/common/use-auth';
 import QueryProvider from '@/providers/query-provider';
 import { useUserStore } from '@/stores/useUserStore';
 
