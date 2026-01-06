@@ -123,24 +123,14 @@ export default function MissionCard({
       <li className="border-border-default rounded-100 flex items-center justify-between border bg-[#fff] p-300">
         <MissionCardContent
           title={mission.title}
+          weekNum={mission.weekNum}
           statusConfig={statusConfig}
           startDate={mission.startDate}
           endDate={mission.endDate}
           deadlineInfo={null}
         />
         <div className="flex flex-col gap-100">
-          <EditMissionModal
-            missionId={mission.missionId}
-            defaultValue={{
-              title: mission.title,
-              description: mission.description,
-              guide: mission.description,
-              dateRange: {
-                from: new Date(mission.startDate),
-                to: new Date(mission.endDate),
-              },
-            }}
-          />
+          <EditMissionModal missionId={mission.missionId} />
           <DeleteMissionModal
             missionId={mission.missionId}
             groupStudyId={groupStudyId}
@@ -159,6 +149,7 @@ export default function MissionCard({
       >
         <MissionCardContent
           title={mission.title}
+          weekNum={mission.weekNum}
           statusConfig={statusConfig}
           startDate={mission.startDate}
           endDate={mission.endDate}
@@ -192,6 +183,7 @@ export default function MissionCard({
       >
         <MissionCardContent
           title={mission.title}
+          weekNum={mission.weekNum}
           statusConfig={statusConfig}
           startDate={mission.startDate}
           endDate={mission.endDate}
@@ -213,6 +205,7 @@ export default function MissionCard({
     >
       <MissionCardContent
         title={mission.title}
+        weekNum={mission.weekNum}
         statusConfig={statusConfig}
         startDate={mission.startDate}
         endDate={mission.endDate}
@@ -224,17 +217,21 @@ export default function MissionCard({
 
 function MissionCardContent({
   title,
+  weekNum,
   statusConfig,
   startDate,
   endDate,
   deadlineInfo,
 }: {
   title?: string;
+  weekNum?: number;
   statusConfig: { label: string; color: ComponentProps<typeof Badge>['color'] };
   startDate?: string;
   endDate?: string;
   deadlineInfo: { text: string; isUrgent: boolean } | null;
 }) {
+  const displayTitle = weekNum ? `${weekNum}주차 미션 : ${title}` : title;
+
   return (
     <div className="flex flex-col gap-100">
       {deadlineInfo && (
@@ -243,7 +240,9 @@ function MissionCardContent({
         </span>
       )}
       <div className="flex items-center gap-100">
-        <span className="font-designer-16b text-text-default">{title}</span>
+        <span className="font-designer-16b text-text-default">
+          {displayTitle}
+        </span>
         <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
       </div>
       <span className="text-text-subtlest font-designer-12r">

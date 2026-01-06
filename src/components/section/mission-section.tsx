@@ -9,6 +9,7 @@ import { useUserStore } from '@/stores/useUserStore';
 import MissionCard from '../card/mission-card';
 import HomeworkDetailContent from '../contents/homework-detail-content';
 import MissionDetailContent from '../contents/mission-detail-content';
+import PageContainer from '../layout/page-container';
 import CreateMissionModal from '../modals/create-mission-modal';
 import { cn } from '../ui/(shadcn)/lib/utils';
 
@@ -137,7 +138,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
   // 미션 상세 보기
   if (missionId) {
     return (
-      <section className="flex flex-col gap-300">
+      <PageContainer className="flex flex-col gap-300 py-500">
         <button
           onClick={handleBack}
           className="text-text-default font-designer-16b flex w-fit items-center gap-50"
@@ -150,14 +151,14 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
           groupStudyId={groupStudyId}
           missionId={Number(missionId)}
         />
-      </section>
+      </PageContainer>
     );
   }
 
   // 미션 목록 (기본)
   return (
     <section className="bg-background-alternative flex h-full w-full flex-col gap-300">
-      <div className="m-auto mt-500 w-[1164px]">
+      <div className="m-auto my-500 w-[1164px]">
         <div className="flex items-center justify-between">
           <span className="font-designer-20b text-text-default">미션 목록</span>
           {isLeader && <CreateMissionModal groupStudyId={groupStudyId} />}

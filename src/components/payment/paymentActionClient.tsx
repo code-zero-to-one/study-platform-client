@@ -104,7 +104,10 @@ export default function PaymentCheckoutPage({ study }: Props) {
   useEffect(() => {
     async function fetchPayment() {
       if (!clientKey) {
-        console.error('NEXT_PUBLIC_TOSS_CLIENT_KEY 환경변수가 설정되지 않았습니다.');
+        console.error(
+          'NEXT_PUBLIC_TOSS_CLIENT_KEY 환경변수가 설정되지 않았습니다.',
+        );
+
         return;
       }
 

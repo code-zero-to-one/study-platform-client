@@ -28,7 +28,7 @@ export default function PaymentPageContent({ id }: PaymentPageContentProps) {
 
   return (
     <div className="bg-background-alternative min-h-dvh">
-      <div className="mx-auto max-w-[840px] pt-600">
+      <div className="mx-auto max-w-[840px] py-600">
         <div className="space-y-200">
           {/* 선택한 스터디 */}
           <section className="rounded-150 border-border-default bg-fill-neutral-subtle-default border px-500 py-400">
@@ -38,7 +38,9 @@ export default function PaymentPageContent({ id }: PaymentPageContentProps) {
               groupStudyTitle={data?.groupStudyTitle}
               amount={data.amount}
               description={data.groupStudyDescription}
-              thumbnailUrl={data?.groupStudyImage.resizedImages[0].resizedImageUrl}
+              thumbnailUrl={
+                data?.groupStudyImage.resizedImages[0].resizedImageUrl
+              }
             />
           </section>
 
