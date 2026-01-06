@@ -1,18 +1,16 @@
+import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import Comments from './comment-section';
 import CreatePost from './create-post';
 import Post from './post';
 import PostNotFound from './post-not-found';
-
-import { GroupStudyMyStatusResponse } from '../../api/group-study-types';
 import KickedReasonModal from '../../ui/kicked-reason-modal';
-
 import { usePostQuery } from '../model/use-channel-query';
 
 interface ChannelSectionProps {
   groupStudyId: number;
   memberId: number;
-  myApplicationStatus?: GroupStudyMyStatusResponse;
+  myApplicationStatus?: GetGroupStudyMemberStatusResponseContent;
 }
 
 export default function ChannelSection({

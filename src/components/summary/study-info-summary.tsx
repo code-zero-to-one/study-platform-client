@@ -16,7 +16,7 @@ import {
   STUDY_STATUS_LABELS,
   STUDY_TYPE_LABELS,
 } from '../../features/study/group/const/group-study-const';
-import { useGroupStudyMyStatusQuery } from '../../features/study/group/model/use-group-study-my-status-query';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 
 interface Props {
   data: GroupStudyFullResponse;
@@ -49,7 +49,7 @@ export default function SummaryStudyInfo({ data }: Props) {
 
   const isLeader = leader?.memberId === memberId;
 
-  const { data: myApplicationStatus } = useGroupStudyMyStatusQuery({
+  const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
     groupStudyId,
     isLeader,
   });
