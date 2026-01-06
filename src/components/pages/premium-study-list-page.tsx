@@ -122,7 +122,7 @@ export default function PremiumStudyListPage() {
   // 검색어가 있을 때는 클라이언트에서 페이지네이션, 없으면 서버 페이지네이션 사용
   const totalPages = searchQuery
     ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
-    : data?.totalPages ?? 1;
+    : (data?.totalPages ?? 1);
 
   const displayStudies = useMemo(() => {
     if (!searchQuery) return filteredStudies;
