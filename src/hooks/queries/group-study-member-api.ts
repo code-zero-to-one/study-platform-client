@@ -7,7 +7,7 @@ import type {
 } from '@/api/openapi/models';
 // TEMPORARY: Keep until OpenAPI types fixed
 import type { GroupStudyMembersResponse } from '@/features/study/group/api/group-study-types';
-import { useAuth } from '../use-auth';
+import { useAuth } from '../common/use-auth';
 
 const groupStudyMemberApi = createApiInstance(GroupStudyMemberApi);
 
