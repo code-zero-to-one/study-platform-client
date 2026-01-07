@@ -86,10 +86,13 @@ export default function StudyDetailPage({
                 group_study_id: String(groupStudyId),
               });
               alert('스터디가 종료되었습니다.');
+              router.push('/group-study');
+            },
+            onError: () => {
+              alert('스터디 종료에 실패하였습니다.');
             },
             onSettled: () => {
               setShowModal(false);
-              router.push('/study');
             },
           },
         );
@@ -114,12 +117,12 @@ export default function StudyDetailPage({
                 group_study_id: String(groupStudyId),
               });
               alert('스터디가 삭제되었습니다.');
+              router.push('/group-study');
             },
             onError: () => {
               alert('스터디 삭제에 실패하였습니다.');
             },
             onSettled: () => {
-              router.push('/study');
               setShowModal(false);
             },
           },
