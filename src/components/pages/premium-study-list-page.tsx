@@ -18,10 +18,13 @@ import PremiumStudyPagination from '@/components/premium/premium-study-paginatio
 import Button from '@/components/ui/button';
 import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
 import { useGetStudies } from '@/hooks/queries/study-query';
+import { useAuth } from '@/hooks/common/use-auth';
 
 const PAGE_SIZE = 15;
 
 export default function PremiumStudyListPage() {
+  const { isAuthenticated } = useAuth();
+
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -158,6 +161,7 @@ export default function PremiumStudyListPage() {
               size="small"
               icon={<Plus className="h-200 w-200" />}
               iconPosition="left"
+              disabled={!isAuthenticated}
             >
               스터디 개설하기
             </Button>
