@@ -32,7 +32,8 @@ export const mockPeerReviews: PeerReviewResponse[] = [
         },
       ],
     },
-    comment: '과제 내용이 정말 잘 정리되어 있네요! 특히 핵심 개념을 명확하게 설명한 부분이 좋았습니다.',
+    comment:
+      '과제 내용이 정말 잘 정리되어 있네요! 특히 핵심 개념을 명확하게 설명한 부분이 좋았습니다.',
     createdAt: '2026-01-07T10:30:00',
     updatedAt: '2026-01-07T10:30:00',
     updated: false,
@@ -49,7 +50,8 @@ export const mockPeerReviews: PeerReviewResponse[] = [
         },
       ],
     },
-    comment: '코드 예제가 이해하기 쉬웠어요. 다음에는 더 복잡한 케이스도 다뤄보면 좋을 것 같습니다!',
+    comment:
+      '코드 예제가 이해하기 쉬웠어요. 다음에는 더 복잡한 케이스도 다뤄보면 좋을 것 같습니다!',
     createdAt: '2026-01-07T14:20:00',
     updatedAt: '2026-01-07T14:20:00',
     updated: false,
@@ -65,7 +67,8 @@ export const mockEvaluation: EvaluationResponse = {
     gradeLabel: 'A+',
     gradeScore: 95,
   },
-  comment: '과제를 매우 성실하게 수행했습니다. 개념 이해도가 높고 코드 품질도 우수합니다. 계속 이런 식으로 학습하면 좋은 결과가 있을 것입니다!',
+  comment:
+    '과제를 매우 성실하게 수행했습니다. 개념 이해도가 높고 코드 품질도 우수합니다. 계속 이런 식으로 학습하면 좋은 결과가 있을 것입니다!',
   createdAt: '2026-01-07T09:00:00',
   updatedAt: '2026-01-07T09:00:00',
   updated: false,
@@ -296,19 +299,23 @@ export const getMockHomework = (homeworkId: number): HomeworkResponseDto => {
       homeworkId,
       submitterId: homeworkId,
       submitterNickname: homeworkId === 1 ? '홍길동' : '이민수',
-      evaluation: homeworkId === 1 ? mockEvaluation : {
-        evaluationId: 2,
-        homeworkId: 4,
-        grade: {
-          gradeCode: 'B_PLUS',
-          gradeLabel: 'B+',
-          gradeScore: 85,
-        },
-        comment: '과제를 잘 수행했습니다. 기본 개념은 잘 이해하고 있으나, 조금 더 깊이 있는 학습이 필요합니다.',
-        createdAt: '2026-01-07T10:00:00',
-        updatedAt: '2026-01-07T10:00:00',
-        updated: false,
-      },
+      evaluation:
+        homeworkId === 1
+          ? mockEvaluation
+          : {
+              evaluationId: 2,
+              homeworkId: 4,
+              grade: {
+                gradeCode: 'B_PLUS',
+                gradeLabel: 'B+',
+                gradeScore: 85,
+              },
+              comment:
+                '과제를 잘 수행했습니다. 기본 개념은 잘 이해하고 있으나, 조금 더 깊이 있는 학습이 필요합니다.',
+              createdAt: '2026-01-07T10:00:00',
+              updatedAt: '2026-01-07T10:00:00',
+              updated: false,
+            },
     };
   }
 
@@ -322,10 +329,15 @@ export const getMockHomework = (homeworkId: number): HomeworkResponseDto => {
 };
 
 export const saveMockHomework = (homework: HomeworkResponseDto) => {
-  localStorage.setItem(`homework_${homework.homeworkId}`, JSON.stringify(homework));
+  localStorage.setItem(
+    `homework_${homework.homeworkId}`,
+    JSON.stringify(homework),
+  );
 };
 
-export const getMockPeerReviews = (homeworkId: number): PeerReviewResponse[] => {
+export const getMockPeerReviews = (
+  homeworkId: number,
+): PeerReviewResponse[] => {
   const stored = localStorage.getItem(`peerReviews_${homeworkId}`);
   if (stored) {
     return JSON.parse(stored);
@@ -333,13 +345,25 @@ export const getMockPeerReviews = (homeworkId: number): PeerReviewResponse[] => 
   return mockPeerReviews;
 };
 
-export const saveMockPeerReviews = (homeworkId: number, peerReviews: PeerReviewResponse[]) => {
-  localStorage.setItem(`peerReviews_${homeworkId}`, JSON.stringify(peerReviews));
+export const saveMockPeerReviews = (
+  homeworkId: number,
+  peerReviews: PeerReviewResponse[],
+) => {
+  localStorage.setItem(
+    `peerReviews_${homeworkId}`,
+    JSON.stringify(peerReviews),
+  );
 };
 
-export const addMockPeerReview = (homeworkId: number, newReview: Omit<PeerReviewResponse, 'peerReviewId' | 'createdAt' | 'updatedAt'>): PeerReviewResponse => {
+export const addMockPeerReview = (
+  homeworkId: number,
+  newReview: Omit<
+    PeerReviewResponse,
+    'peerReviewId' | 'createdAt' | 'updatedAt'
+  >,
+): PeerReviewResponse => {
   const existing = getMockPeerReviews(homeworkId);
-  const newId = Math.max(...existing.map(r => r.peerReviewId || 0), 0) + 1;
+  const newId = Math.max(...existing.map((r) => r.peerReviewId || 0), 0) + 1;
   const review: PeerReviewResponse = {
     ...newReview,
     peerReviewId: newId,
@@ -351,12 +375,19 @@ export const addMockPeerReview = (homeworkId: number, newReview: Omit<PeerReview
   return review;
 };
 
-export const updateMockPeerReview = (peerReviewId: number, comment: string): PeerReviewResponse | null => {
+export const updateMockPeerReview = (
+  peerReviewId: number,
+  comment: string,
+): PeerReviewResponse | null => {
   // 모든 숙제의 피어 리뷰를 순회하며 찾기
-  const keys = Object.keys(localStorage).filter(k => k.startsWith('peerReviews_'));
+  const keys = Object.keys(localStorage).filter((k) =>
+    k.startsWith('peerReviews_'),
+  );
   for (const key of keys) {
-    const reviews: PeerReviewResponse[] = JSON.parse(localStorage.getItem(key) || '[]');
-    const index = reviews.findIndex(r => r.peerReviewId === peerReviewId);
+    const reviews: PeerReviewResponse[] = JSON.parse(
+      localStorage.getItem(key) || '[]',
+    );
+    const index = reviews.findIndex((r) => r.peerReviewId === peerReviewId);
     if (index !== -1) {
       reviews[index] = {
         ...reviews[index],
@@ -372,10 +403,14 @@ export const updateMockPeerReview = (peerReviewId: number, comment: string): Pee
 };
 
 export const deleteMockPeerReview = (peerReviewId: number): boolean => {
-  const keys = Object.keys(localStorage).filter(k => k.startsWith('peerReviews_'));
+  const keys = Object.keys(localStorage).filter((k) =>
+    k.startsWith('peerReviews_'),
+  );
   for (const key of keys) {
-    const reviews: PeerReviewResponse[] = JSON.parse(localStorage.getItem(key) || '[]');
-    const filtered = reviews.filter(r => r.peerReviewId !== peerReviewId);
+    const reviews: PeerReviewResponse[] = JSON.parse(
+      localStorage.getItem(key) || '[]',
+    );
+    const filtered = reviews.filter((r) => r.peerReviewId !== peerReviewId);
     if (filtered.length !== reviews.length) {
       localStorage.setItem(key, JSON.stringify(filtered));
       return true;
