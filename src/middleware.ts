@@ -118,7 +118,7 @@ export async function middleware(request: NextRequest) {
       // 갱신 성공
       response.cookies.set('accessToken', newAccessToken, {
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'lax', // strict에서 lax로 변경: 외부 사이트에서 redirect 시 쿠키 전송 허용
         path: '/',
       });
     } else {
@@ -156,6 +156,7 @@ export const config = {
     '/my-study',
     '/my-study-review',
     '/sign-up',
+    '/payment/:path*', // 결제 관련 모든 경로
     '/admin/:path*',
   ],
 };
