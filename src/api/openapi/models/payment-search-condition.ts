@@ -24,6 +24,7 @@ export interface PaymentSearchCondition {
 
 export const PaymentSearchConditionTypeEnum = {
     PaymentRequested: 'PAYMENT_REQUESTED',
+    PaymentWaitingForDeposit: 'PAYMENT_WAITING_FOR_DEPOSIT',
     PaymentSuccess: 'PAYMENT_SUCCESS',
     PaymentFailed: 'PAYMENT_FAILED',
     PaymentCanceled: 'PAYMENT_CANCELED',

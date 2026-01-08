@@ -63,15 +63,14 @@ const { status, data } = await apiInstance.createComment(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json, */*
+ - **Accept**: application/json
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**201** | 스레드 댓글 등록 성공 |  -  |
-|**403** | You are authenticated but not allowed authorization |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | 스티더 리더나 멤버가 아닌 경우 |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
