@@ -13,6 +13,7 @@ export const useGetHomework = (homeworkId: number) => {
     queryKey: ['homework', homeworkId],
     queryFn: async () => {
       const { data } = await groupStudyHomeworkApi.getHomework(homeworkId);
+
       return data.content;
     },
     enabled: !!homeworkId,
@@ -34,17 +35,12 @@ export const useSubmitHomework = () => {
         missionId,
         request,
       );
+
       return data.content;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ['homeworks'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['missions'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['mission'],
       });
     },
   });
@@ -65,6 +61,7 @@ export const useEditHomework = () => {
         homeworkId,
         request,
       );
+
       return data.content;
     },
     onSuccess: async (_, variables) => {
@@ -84,17 +81,12 @@ export const useDeleteHomework = () => {
   return useMutation({
     mutationFn: async (homeworkId: number) => {
       const { data } = await groupStudyHomeworkApi.deleteHomework(homeworkId);
+
       return data.content;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ['homeworks'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['missions'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['mission'],
       });
     },
   });

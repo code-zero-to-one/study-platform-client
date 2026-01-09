@@ -15,7 +15,7 @@ export const setCookie = (
   const {
     path = '/',
     secure = true,
-    sameSite = 'Lax', // Strict에서 Lax로 변경: 외부 사이트에서 redirect 시 쿠키 전송 허용
+    sameSite = 'Strict',
     maxAge = 86400, // 1일
     httpOnly = false,
   } = options;

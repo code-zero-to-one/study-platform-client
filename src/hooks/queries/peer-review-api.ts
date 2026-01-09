@@ -13,6 +13,7 @@ export const useGetPeerReviews = (homeworkId: number) => {
     queryKey: ['peerReviews', homeworkId],
     queryFn: async () => {
       const { data } = await peerReviewApi.getPeerReviews(homeworkId);
+
       return data.content;
     },
   });
@@ -33,14 +34,12 @@ export const useCreatePeerReview = () => {
         homeworkId,
         request,
       );
+
       return data.content;
     },
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ['peerReviews', variables.homeworkId],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['homework', variables.homeworkId],
       });
     },
   });
@@ -61,6 +60,7 @@ export const useUpdatePeerReview = () => {
         peerReviewId,
         request,
       );
+
       return data.content;
     },
     onSuccess: async () => {
@@ -80,6 +80,7 @@ export const useDeletePeerReview = () => {
   return useMutation({
     mutationFn: async (peerReviewId: number) => {
       const { data } = await peerReviewApi.deletePeerReview(peerReviewId);
+
       return data.content;
     },
     onSuccess: async () => {

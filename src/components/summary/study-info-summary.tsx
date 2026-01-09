@@ -43,7 +43,6 @@ export default function SummaryStudyInfo({ data }: Props) {
     type,
     targetRoles,
     experienceLevels,
-    pendingCount,
   } = basicInfo ?? {};
   const { title } = detailInfo ?? {};
   const { interviewPost: questions } = interviewPost ?? {};
@@ -137,7 +136,7 @@ export default function SummaryStudyInfo({ data }: Props) {
     isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
     groupStudyStatus !== 'RECRUITING' ||
-    approvedCount + pendingCount >= maxMembersCount;
+    approvedCount >= maxMembersCount;
 
   const getButtonText = () => {
     if (myApplicationStatus?.status === 'APPROVED') {

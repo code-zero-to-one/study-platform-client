@@ -10,6 +10,7 @@ export const useGetEvaluation = (homeworkId: number) => {
     queryKey: ['evaluation', homeworkId],
     queryFn: async () => {
       const { data } = await evaluationApi.getEvaluation(homeworkId);
+
       return data.content;
     },
   });
@@ -20,6 +21,7 @@ export const useGetMissionEvaluationGrades = () => {
     queryKey: ['missionEvaluationGrades'],
     queryFn: async () => {
       const { data } = await evaluationApi.getMissionEvaluationGrades();
+
       return data.content;
     },
   });
@@ -40,20 +42,12 @@ export const useCreateEvaluation = () => {
         homeworkId,
         request,
       );
+
       return data.content;
     },
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ['evaluation', variables.homeworkId],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['homework', variables.homeworkId],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['missions'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['mission'],
       });
     },
   });
@@ -74,14 +68,12 @@ export const useUpdateEvaluation = () => {
         evaluationId,
         request,
       );
+
       return data.content;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ['evaluation'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['homework'],
       });
     },
   });
@@ -93,14 +85,12 @@ export const useDeleteEvaluation = () => {
   return useMutation({
     mutationFn: async (evaluationId: number) => {
       const { data } = await evaluationApi.deleteEvaluation(evaluationId);
+
       return data.content;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ['evaluation'],
-      });
-      await queryClient.invalidateQueries({
-        queryKey: ['homework'],
       });
     },
   });

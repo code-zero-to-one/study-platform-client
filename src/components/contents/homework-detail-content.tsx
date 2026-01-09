@@ -1,6 +1,5 @@
 'use client';
 
-import dayjs from 'dayjs';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
@@ -11,6 +10,7 @@ import type {
 import Avatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
+import { useUserStore } from '@/stores/useUserStore';
 import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
 import {
   useDeleteHomework,
@@ -22,8 +22,6 @@ import {
   useUpdatePeerReview,
 } from '@/hooks/queries/peer-review-api';
 import { useIsLeader } from '@/stores/useLeaderStore';
-import { useUserStore } from '@/stores/useUserStore';
-import CreateEvaluationModal from '../modals/create-evaluation-modal';
 import DeleteHomeworkModal from '../modals/delete-homework-modal';
 import EditHomeworkModal from '../modals/edit-homework-modal';
 
@@ -62,8 +60,9 @@ export default function HomeworkDetailContent({
 
   const formatDate = (dateString?: string) => {
     if (!dateString) return '';
+    const date = new Date(dateString);
 
-    return `${dayjs(dateString).format('YYYY-MM-DD')} 제출`;
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} 제출`;
   };
 
   return (
@@ -129,7 +128,6 @@ export default function HomeworkDetailContent({
       <LeaderEvaluationSection
         evaluation={homework.evaluation}
         isLeader={isLeader}
-        homeworkId={homeworkId}
       />
 
       {/* 피어 리뷰 */}
@@ -146,13 +144,11 @@ export default function HomeworkDetailContent({
 interface LeaderEvaluationSectionProps {
   evaluation?: EvaluationResponse;
   isLeader: boolean;
-  homeworkId: number;
 }
 
 function LeaderEvaluationSection({
   evaluation,
   isLeader,
-  homeworkId,
 }: LeaderEvaluationSectionProps) {
   return (
     <div className="flex flex-col gap-200">
@@ -162,7 +158,7 @@ function LeaderEvaluationSection({
         {evaluation ? (
           <EvaluationResult evaluation={evaluation} />
         ) : (
-          <EvaluationPending isLeader={isLeader} homeworkId={homeworkId} />
+          <EvaluationPending isLeader={isLeader} />
         )}
       </div>
     </div>
@@ -188,19 +184,17 @@ function EvaluationResult({ evaluation }: { evaluation: EvaluationResponse }) {
   );
 }
 
-function EvaluationPending({
-  isLeader,
-  homeworkId,
-}: {
-  isLeader: boolean;
-  homeworkId: number;
-}) {
+function EvaluationPending({ isLeader }: { isLeader: boolean }) {
   return (
     <>
       <span className="text-text-subtlest font-designer-14r">
         아직 평가하지 않은 과제입니다.
       </span>
-      {isLeader && <CreateEvaluationModal homeworkId={homeworkId} />}
+      {isLeader && (
+        <Button color="primary" size="small">
+          과제 평가하기
+        </Button>
+      )}
     </>
   );
 }
@@ -299,8 +293,14 @@ function PeerReviewItem({ review, homeworkId }: PeerReviewItemProps) {
 
   const formatDateTime = (dateString?: string) => {
     if (!dateString) return '';
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
 
-    return dayjs(dateString).format('YYYY.MM.DD HH:mm');
+    return `${year}.${month}.${day} ${hours}:${minutes}`;
   };
 
   const handleUpdate = () => {
