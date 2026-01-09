@@ -17,8 +17,8 @@ import PremiumStudyList from '@/components/premium/premium-study-list';
 import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
 import Button from '@/components/ui/button';
 import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
-import { useGetStudies } from '@/hooks/queries/study-query';
 import { useAuth } from '@/hooks/common/use-auth';
+import { useGetStudies } from '@/hooks/queries/study-query';
 
 const PAGE_SIZE = 15;
 

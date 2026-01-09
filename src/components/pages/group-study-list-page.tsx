@@ -14,11 +14,11 @@ import StudyFilter, {
 import StudySearch from '@/components/filtering/study-search';
 import PageContainer from '@/components/layout/page-container';
 import Button from '@/components/ui/button';
+import { useAuth } from '@/hooks/common/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyPagination from '../../features/study/group/ui/group-study-pagination';
 import GroupStudyList from '../lists/group-study-list';
-import { useAuth } from '@/hooks/common/use-auth';
 
 const PAGE_SIZE = 15;
 
