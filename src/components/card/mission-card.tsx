@@ -1,6 +1,8 @@
 'use client';
 
+import dayjs from 'dayjs';
 import { ComponentProps } from 'react';
+
 import { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -42,9 +44,8 @@ const STATUS_CONFIG = {
 
 function formatDate(dateString?: string) {
   if (!dateString) return '';
-  const date = new Date(dateString);
 
-  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  return dayjs(dateString).format('YYYY-MM-DD');
 }
 
 function getDeadlineInfo(endDate?: string): {
@@ -53,15 +54,13 @@ function getDeadlineInfo(endDate?: string): {
 } | null {
   if (!endDate) return null;
 
-  const now = new Date();
-  const end = new Date(endDate);
-  end.setHours(23, 59, 59, 999);
+  const now = dayjs();
+  const end = dayjs(endDate).endOf('day');
 
-  const diffMs = end.getTime() - now.getTime();
-  if (diffMs < 0) return null;
+  if (end.isBefore(now)) return null;
 
-  const diffHours = diffMs / (1000 * 60 * 60);
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+  const diffHours = end.diff(now, 'hour');
+  const diffDays = Math.ceil(end.diff(now, 'day', true));
 
   if (diffHours <= 24) {
     return { text: '오늘 제출 마감', isUrgent: true };
