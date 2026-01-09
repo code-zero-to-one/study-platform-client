@@ -27,6 +27,7 @@ export interface MemberNotificationResponse {
 export const MemberNotificationResponseTopicTypeEnum = {
     OneOnOneStudy: 'ONE_ON_ONE_STUDY',
     GroupStudy: 'GROUP_STUDY',
+    Notice: 'NOTICE',
     Comment: 'COMMENT',
     Payment: 'PAYMENT',
     Etc: 'ETC'
