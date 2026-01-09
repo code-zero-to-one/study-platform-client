@@ -204,7 +204,7 @@ export default function SummaryStudyInfo({ data }: Props) {
       <div className="flex flex-col gap-100">
         {/* 스터디 신청 모달 (유료/무료 공통) */}
 
-        {isLoggedIn ? (
+        {isLeader ? (
           <ApplyGroupStudyModal
             groupStudyId={groupStudyId}
             title={title}
