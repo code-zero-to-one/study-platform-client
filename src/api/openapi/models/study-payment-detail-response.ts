@@ -16,6 +16,9 @@
 // May contain unused imports in some cases
 // @ts-ignore
 import type { PaymentHistoryResponse } from './payment-history-response';
+// May contain unused imports in some cases
+// @ts-ignore
+import type { VirtualAccountInfo } from './virtual-account-info';
 
 export interface StudyPaymentDetailResponse {
     'paymentId'?: number;
@@ -34,6 +37,7 @@ export interface StudyPaymentDetailResponse {
     'tossOrderId'?: string;
     'tossPaymentKey'?: string;
     'receiptUrl'?: string;
+    'virtualAccount'?: VirtualAccountInfo;
     'createdAt'?: string;
     'paidAt'?: string;
     'canceledAt'?: string;
@@ -43,6 +47,7 @@ export interface StudyPaymentDetailResponse {
 export const StudyPaymentDetailResponseStatusEnum = {
     Requested: 'REQUESTED',
     Pending: 'PENDING',
+    WaitingForDeposit: 'WAITING_FOR_DEPOSIT',
     Success: 'SUCCESS',
     Failed: 'FAILED',
     Canceled: 'CANCELED'

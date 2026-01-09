@@ -263,4 +263,5 @@ export * from './update-study-space-request';
 export * from './upload-profile-image-request';
 export * from './user-transaction-detail-response';
 export * from './user-transaction-list-response';
+export * from './virtual-account-info';
 export * from './void-response-schema';

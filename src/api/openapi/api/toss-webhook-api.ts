@@ -22,8 +22,6 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponseVoid } from '../models';
-// @ts-ignore
 import type { TossWebhookPayload } from '../models';
 /**
  * TossWebhookApi - axios parameter creator
@@ -31,9 +29,9 @@ import type { TossWebhookPayload } from '../models';
 export const TossWebhookApiAxiosParamCreator = function (configuration?: Configuration) {
     return {
         /**
-         * Toss Payments에서 발생한 이벤트를 수신합니다. secret 값으로 검증합니다.
+         * 작성일자: 2026-01-08  작성자: 이도현  ---  ## Description  - Toss Payments에서 결제/환불 상태 변경 시 호출되는 Webhook 엔드포인트입니다. - **인증 없이 호출**되며, `secret` 값으로 요청의 유효성을 검증합니다. - 멱등키(idempotencyKey)를 사용하여 중복 웹훅 이벤트를 방지합니다.  ---  ## 지원 이벤트 타입  | 이벤트 타입              | 설명                           | |--------------------------|--------------------------------| | PAYMENT_STATUS_CHANGED   | 결제 상태 변경 (입금 완료 등)   |  ---  ## 가상계좌 입금 완료 처리  - 가상계좌 결제 시 `WAITING_FOR_DEPOSIT` 상태로 대기합니다. - 사용자가 입금을 완료하면 Toss에서 `PAYMENT_STATUS_CHANGED` 이벤트를 전송합니다. - Webhook 수신 시 `status: \"DONE\"`이면 결제 상태를 `SUCCESS`로 변경합니다. - 입금 기한 만료 시 `status: \"EXPIRED\"`로 전송되며, 결제 상태를 `FAILED`로 변경합니다.  ---  ## 상태 전이 규칙  | 현재 상태             | 전이 가능한 상태                                   | |-----------------------|---------------------------------------------------| | REQUESTED             | SUCCESS, WAITING_FOR_DEPOSIT, CANCELED, FAILED    | | PENDING               | SUCCESS, WAITING_FOR_DEPOSIT, CANCELED, FAILED    | | WAITING_FOR_DEPOSIT   | SUCCESS, CANCELED, FAILED (입금완료/취소/만료)     | | SUCCESS               | CANCELED (환불 시)                                | | CANCELED              | (종료 상태)                                        | | FAILED                | (종료 상태)                                        |  ---  ## Request Body (TossWebhookPayload)  | 키        | 타입     | 설명                                   | |-----------|----------|----------------------------------------| | eventType | string   | 이벤트 타입 (PAYMENT_STATUS_CHANGED)    | | createdAt | datetime | 이벤트 발생 시각 (ISO 8601)             | | data      | object   | 결제 정보                              |  ### data (PaymentData)  | 키           | 타입   | 설명                                      | |--------------|--------|-------------------------------------------| | paymentKey   | string | Toss 결제 키                              | | orderId      | string | 주문 ID                                   | | status       | string | 결제 상태 (DONE, EXPIRED, CANCELED 등)   | | method       | string | 결제 수단                                 | | totalAmount  | number | 총 결제 금액                              | | secret       | string | 검증용 secret                             | | cancels      | array  | 취소 정보 배열 (환불 시)                   |  ---  ## Response  - 항상 200 OK를 반환합니다. - 중복 웹훅 이벤트는 자동으로 무시됩니다. 
          * @summary Toss Webhook 수신
-         * @param {TossWebhookPayload} tossWebhookPayload 
+         * @param {TossWebhookPayload} tossWebhookPayload Toss Webhook 페이로드
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -80,13 +78,13 @@ export const TossWebhookApiFp = function(configuration?: Configuration) {
     const localVarAxiosParamCreator = TossWebhookApiAxiosParamCreator(configuration)
     return {
         /**
-         * Toss Payments에서 발생한 이벤트를 수신합니다. secret 값으로 검증합니다.
+         * 작성일자: 2026-01-08  작성자: 이도현  ---  ## Description  - Toss Payments에서 결제/환불 상태 변경 시 호출되는 Webhook 엔드포인트입니다. - **인증 없이 호출**되며, `secret` 값으로 요청의 유효성을 검증합니다. - 멱등키(idempotencyKey)를 사용하여 중복 웹훅 이벤트를 방지합니다.  ---  ## 지원 이벤트 타입  | 이벤트 타입              | 설명                           | |--------------------------|--------------------------------| | PAYMENT_STATUS_CHANGED   | 결제 상태 변경 (입금 완료 등)   |  ---  ## 가상계좌 입금 완료 처리  - 가상계좌 결제 시 `WAITING_FOR_DEPOSIT` 상태로 대기합니다. - 사용자가 입금을 완료하면 Toss에서 `PAYMENT_STATUS_CHANGED` 이벤트를 전송합니다. - Webhook 수신 시 `status: \"DONE\"`이면 결제 상태를 `SUCCESS`로 변경합니다. - 입금 기한 만료 시 `status: \"EXPIRED\"`로 전송되며, 결제 상태를 `FAILED`로 변경합니다.  ---  ## 상태 전이 규칙  | 현재 상태             | 전이 가능한 상태                                   | |-----------------------|---------------------------------------------------| | REQUESTED             | SUCCESS, WAITING_FOR_DEPOSIT, CANCELED, FAILED    | | PENDING               | SUCCESS, WAITING_FOR_DEPOSIT, CANCELED, FAILED    | | WAITING_FOR_DEPOSIT   | SUCCESS, CANCELED, FAILED (입금완료/취소/만료)     | | SUCCESS               | CANCELED (환불 시)                                | | CANCELED              | (종료 상태)                                        | | FAILED                | (종료 상태)                                        |  ---  ## Request Body (TossWebhookPayload)  | 키        | 타입     | 설명                                   | |-----------|----------|----------------------------------------| | eventType | string   | 이벤트 타입 (PAYMENT_STATUS_CHANGED)    | | createdAt | datetime | 이벤트 발생 시각 (ISO 8601)             | | data      | object   | 결제 정보                              |  ### data (PaymentData)  | 키           | 타입   | 설명                                      | |--------------|--------|-------------------------------------------| | paymentKey   | string | Toss 결제 키                              | | orderId      | string | 주문 ID                                   | | status       | string | 결제 상태 (DONE, EXPIRED, CANCELED 등)   | | method       | string | 결제 수단                                 | | totalAmount  | number | 총 결제 금액                              | | secret       | string | 검증용 secret                             | | cancels      | array  | 취소 정보 배열 (환불 시)                   |  ---  ## Response  - 항상 200 OK를 반환합니다. - 중복 웹훅 이벤트는 자동으로 무시됩니다. 
          * @summary Toss Webhook 수신
-         * @param {TossWebhookPayload} tossWebhookPayload 
+         * @param {TossWebhookPayload} tossWebhookPayload Toss Webhook 페이로드
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async handleTossWebhook(tossWebhookPayload: TossWebhookPayload, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
+        async handleTossWebhook(tossWebhookPayload: TossWebhookPayload, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.handleTossWebhook(tossWebhookPayload, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TossWebhookApi.handleTossWebhook']?.[localVarOperationServerIndex]?.url;
@@ -102,13 +100,13 @@ export const TossWebhookApiFactory = function (configuration?: Configuration, ba
     const localVarFp = TossWebhookApiFp(configuration)
     return {
         /**
-         * Toss Payments에서 발생한 이벤트를 수신합니다. secret 값으로 검증합니다.
+         * 작성일자: 2026-01-08  작성자: 이도현  ---  ## Description  - Toss Payments에서 결제/환불 상태 변경 시 호출되는 Webhook 엔드포인트입니다. - **인증 없이 호출**되며, `secret` 값으로 요청의 유효성을 검증합니다. - 멱등키(idempotencyKey)를 사용하여 중복 웹훅 이벤트를 방지합니다.  ---  ## 지원 이벤트 타입  | 이벤트 타입              | 설명                           | |--------------------------|--------------------------------| | PAYMENT_STATUS_CHANGED   | 결제 상태 변경 (입금 완료 등)   |  ---  ## 가상계좌 입금 완료 처리  - 가상계좌 결제 시 `WAITING_FOR_DEPOSIT` 상태로 대기합니다. - 사용자가 입금을 완료하면 Toss에서 `PAYMENT_STATUS_CHANGED` 이벤트를 전송합니다. - Webhook 수신 시 `status: \"DONE\"`이면 결제 상태를 `SUCCESS`로 변경합니다. - 입금 기한 만료 시 `status: \"EXPIRED\"`로 전송되며, 결제 상태를 `FAILED`로 변경합니다.  ---  ## 상태 전이 규칙  | 현재 상태             | 전이 가능한 상태                                   | |-----------------------|---------------------------------------------------| | REQUESTED             | SUCCESS, WAITING_FOR_DEPOSIT, CANCELED, FAILED    | | PENDING               | SUCCESS, WAITING_FOR_DEPOSIT, CANCELED, FAILED    | | WAITING_FOR_DEPOSIT   | SUCCESS, CANCELED, FAILED (입금완료/취소/만료)     | | SUCCESS               | CANCELED (환불 시)                                | | CANCELED              | (종료 상태)                                        | | FAILED                | (종료 상태)                                        |  ---  ## Request Body (TossWebhookPayload)  | 키        | 타입     | 설명                                   | |-----------|----------|----------------------------------------| | eventType | string   | 이벤트 타입 (PAYMENT_STATUS_CHANGED)    | | createdAt | datetime | 이벤트 발생 시각 (ISO 8601)             | | data      | object   | 결제 정보                              |  ### data (PaymentData)  | 키           | 타입   | 설명                                      | |--------------|--------|-------------------------------------------| | paymentKey   | string | Toss 결제 키                              | | orderId      | string | 주문 ID                                   | | status       | string | 결제 상태 (DONE, EXPIRED, CANCELED 등)   | | method       | string | 결제 수단                                 | | totalAmount  | number | 총 결제 금액                              | | secret       | string | 검증용 secret                             | | cancels      | array  | 취소 정보 배열 (환불 시)                   |  ---  ## Response  - 항상 200 OK를 반환합니다. - 중복 웹훅 이벤트는 자동으로 무시됩니다. 
          * @summary Toss Webhook 수신
-         * @param {TossWebhookPayload} tossWebhookPayload 
+         * @param {TossWebhookPayload} tossWebhookPayload Toss Webhook 페이로드
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        handleTossWebhook(tossWebhookPayload: TossWebhookPayload, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
+        handleTossWebhook(tossWebhookPayload: TossWebhookPayload, options?: RawAxiosRequestConfig): AxiosPromise<void> {
             return localVarFp.handleTossWebhook(tossWebhookPayload, options).then((request) => request(axios, basePath));
         },
     };
@@ -119,9 +117,9 @@ export const TossWebhookApiFactory = function (configuration?: Configuration, ba
  */
 export class TossWebhookApi extends BaseAPI {
     /**
-     * Toss Payments에서 발생한 이벤트를 수신합니다. secret 값으로 검증합니다.
+     * 작성일자: 2026-01-08  작성자: 이도현  ---  ## Description  - Toss Payments에서 결제/환불 상태 변경 시 호출되는 Webhook 엔드포인트입니다. - **인증 없이 호출**되며, `secret` 값으로 요청의 유효성을 검증합니다. - 멱등키(idempotencyKey)를 사용하여 중복 웹훅 이벤트를 방지합니다.  ---  ## 지원 이벤트 타입  | 이벤트 타입              | 설명                           | |--------------------------|--------------------------------| | PAYMENT_STATUS_CHANGED   | 결제 상태 변경 (입금 완료 등)   |  ---  ## 가상계좌 입금 완료 처리  - 가상계좌 결제 시 `WAITING_FOR_DEPOSIT` 상태로 대기합니다. - 사용자가 입금을 완료하면 Toss에서 `PAYMENT_STATUS_CHANGED` 이벤트를 전송합니다. - Webhook 수신 시 `status: \"DONE\"`이면 결제 상태를 `SUCCESS`로 변경합니다. - 입금 기한 만료 시 `status: \"EXPIRED\"`로 전송되며, 결제 상태를 `FAILED`로 변경합니다.  ---  ## 상태 전이 규칙  | 현재 상태             | 전이 가능한 상태                                   | |-----------------------|---------------------------------------------------| | REQUESTED             | SUCCESS, WAITING_FOR_DEPOSIT, CANCELED, FAILED    | | PENDING               | SUCCESS, WAITING_FOR_DEPOSIT, CANCELED, FAILED    | | WAITING_FOR_DEPOSIT   | SUCCESS, CANCELED, FAILED (입금완료/취소/만료)     | | SUCCESS               | CANCELED (환불 시)                                | | CANCELED              | (종료 상태)                                        | | FAILED                | (종료 상태)                                        |  ---  ## Request Body (TossWebhookPayload)  | 키        | 타입     | 설명                                   | |-----------|----------|----------------------------------------| | eventType | string   | 이벤트 타입 (PAYMENT_STATUS_CHANGED)    | | createdAt | datetime | 이벤트 발생 시각 (ISO 8601)             | | data      | object   | 결제 정보                              |  ### data (PaymentData)  | 키           | 타입   | 설명                                      | |--------------|--------|-------------------------------------------| | paymentKey   | string | Toss 결제 키                              | | orderId      | string | 주문 ID                                   | | status       | string | 결제 상태 (DONE, EXPIRED, CANCELED 등)   | | method       | string | 결제 수단                                 | | totalAmount  | number | 총 결제 금액                              | | secret       | string | 검증용 secret                             | | cancels      | array  | 취소 정보 배열 (환불 시)                   |  ---  ## Response  - 항상 200 OK를 반환합니다. - 중복 웹훅 이벤트는 자동으로 무시됩니다. 
      * @summary Toss Webhook 수신
-     * @param {TossWebhookPayload} tossWebhookPayload 
+     * @param {TossWebhookPayload} tossWebhookPayload Toss Webhook 페이로드
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */

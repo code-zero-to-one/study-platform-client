@@ -344,6 +344,7 @@ docs/UpdateStudySpaceRequest.md
 docs/UploadProfileImageRequest.md
 docs/UserTransactionDetailResponse.md
 docs/UserTransactionListResponse.md
+docs/VirtualAccountInfo.md
 docs/VoidResponseSchema.md
 git_push.sh
 index.ts
@@ -613,4 +614,5 @@ models/update-study-space-request.ts
 models/upload-profile-image-request.ts
 models/user-transaction-detail-response.ts
 models/user-transaction-list-response.ts
+models/virtual-account-info.ts
 models/void-response-schema.ts
