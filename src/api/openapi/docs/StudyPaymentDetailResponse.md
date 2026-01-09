@@ -21,6 +21,7 @@ Name | Type | Description | Notes
 **tossOrderId** | **string** |  | [optional] [default to undefined]
 **tossPaymentKey** | **string** |  | [optional] [default to undefined]
 **receiptUrl** | **string** |  | [optional] [default to undefined]
+**virtualAccount** | [**VirtualAccountInfo**](VirtualAccountInfo.md) |  | [optional] [default to undefined]
 **createdAt** | **string** |  | [optional] [default to undefined]
 **paidAt** | **string** |  | [optional] [default to undefined]
 **canceledAt** | **string** |  | [optional] [default to undefined]
@@ -48,6 +49,7 @@ const instance: StudyPaymentDetailResponse = {
     tossOrderId,
     tossPaymentKey,
     receiptUrl,
+    virtualAccount,
     createdAt,
     paidAt,
     canceledAt,
