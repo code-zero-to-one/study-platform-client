@@ -26,6 +26,7 @@ const PAYMENT_HISTORY_TYPE_MAP: Record<
   }
 > = {
   PAYMENT_REQUESTED: { label: '결제대기', color: 'blue' },
+  PAYMENT_WAITING_FOR_DEPOSIT: { label: '입금대기', color: 'blue' },
   PAYMENT_SUCCESS: { label: '결제완료', color: 'green' },
   PAYMENT_FAILED: { label: '결제실패', color: 'red' },
   PAYMENT_CANCELED: { label: '결제취소', color: 'red' },

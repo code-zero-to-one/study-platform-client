@@ -132,7 +132,6 @@ export default function SummaryStudyInfo({ data }: Props) {
   };
 
   const isApplyDisabled =
-    !isLoggedIn ||
     isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
     groupStudyStatus !== 'RECRUITING' ||
