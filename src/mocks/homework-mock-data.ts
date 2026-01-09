@@ -342,6 +342,7 @@ export const getMockPeerReviews = (
   if (stored) {
     return JSON.parse(stored);
   }
+
   return mockPeerReviews;
 };
 
@@ -372,6 +373,7 @@ export const addMockPeerReview = (
     updated: false,
   };
   saveMockPeerReviews(homeworkId, [...existing, review]);
+
   return review;
 };
 
@@ -396,9 +398,11 @@ export const updateMockPeerReview = (
         updated: true,
       };
       localStorage.setItem(key, JSON.stringify(reviews));
+
       return reviews[index];
     }
   }
+
   return null;
 };
 
@@ -413,8 +417,10 @@ export const deleteMockPeerReview = (peerReviewId: number): boolean => {
     const filtered = reviews.filter((r) => r.peerReviewId !== peerReviewId);
     if (filtered.length !== reviews.length) {
       localStorage.setItem(key, JSON.stringify(filtered));
+
       return true;
     }
   }
+
   return false;
 };

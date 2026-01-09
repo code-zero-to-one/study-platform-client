@@ -10,7 +10,6 @@ import type {
 import Avatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
-import { useUserStore } from '@/stores/useUserStore';
 import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
 import {
   useDeleteHomework,
@@ -22,6 +21,7 @@ import {
   useUpdatePeerReview,
 } from '@/hooks/queries/peer-review-api';
 import { useIsLeader } from '@/stores/useLeaderStore';
+import { useUserStore } from '@/stores/useUserStore';
 import DeleteHomeworkModal from '../modals/delete-homework-modal';
 import EditHomeworkModal from '../modals/edit-homework-modal';
 
