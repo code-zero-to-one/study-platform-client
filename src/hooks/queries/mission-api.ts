@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
-import { GetMissionsSearchTypeEnum, MissionApi } from '@/api/openapi';
+import { GetMissionsSearchTypeEnum } from '@/api/openapi';
+import { MissionApi } from '@/api/openapi';
 import type {
   MissionCreationRequest,
   MissionUpdateRequest,
@@ -30,7 +31,6 @@ export const useGetMissions = ({
         page,
         pageSize,
       );
-
       return data.content;
     },
   });
@@ -64,7 +64,6 @@ export const useGetMission = (missionId: number) => {
     queryKey: ['mission', missionId],
     queryFn: async () => {
       const { data } = await missionApi.getMission(missionId);
-
       return data.content;
     },
   });
