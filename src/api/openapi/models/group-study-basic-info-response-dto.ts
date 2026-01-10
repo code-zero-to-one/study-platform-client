@@ -31,6 +31,10 @@ export interface GroupStudyBasicInfoResponseDto {
      */
     'leader'?: StudyReservationMemberDto;
     /**
+     * 스터디 리더 참가 여부
+     */
+    'studyLeaderParticipation'?: boolean;
+    /**
      * 스터디 타입
      */
     'type'?: GroupStudyBasicInfoResponseDtoTypeEnum;
