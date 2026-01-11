@@ -22,6 +22,7 @@ interface GroupStudyFormProps {
 
 const STEP_FIELDS: Record<1 | 2 | 3, (keyof GroupStudyFormValues)[]> = {
   1: [
+    'studyLeaderParticipation',
     'type',
     'targetRoles',
     'maxMembersCount',
@@ -81,6 +82,17 @@ export default function GroupStudyForm({
       if (error) return true;
 
       // 필수 필드가 비어있으면 비활성화
+      if (field === 'studyLeaderParticipation') {
+        return value !== true;
+      }
+      if (field === 'price') {
+        // PREMIUM_STUDY일 때만 price 필수
+        if (classification === 'PREMIUM_STUDY') {
+          return !value || (typeof value === 'string' && value.trim() === '');
+        }
+
+        return false;
+      }
       if (field === 'targetRoles' || field === 'experienceLevels') {
         return !value || (Array.isArray(value) && value.length === 0);
       }
@@ -108,7 +120,7 @@ export default function GroupStudyForm({
 
       return false;
     });
-  }, [step, currentValues, formState.errors]);
+  }, [step, currentValues, formState.errors, classification]);
 
   return (
     <ClassificationContext.Provider value={classification}>

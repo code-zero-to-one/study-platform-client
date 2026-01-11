@@ -63,12 +63,14 @@ export default function PaymentManagement() {
   const { data: paymentListData } = useGetMyTransactions({
     page: page - 1,
     size: 8,
-    startDate: dateRange?.from
-      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
-      : undefined,
-    endDate: dateRange?.to
-      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
-      : undefined,
+    startDate:
+      dateRange?.from && dateRange.from.toISOString()
+        ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
+        : undefined,
+    endDate:
+      dateRange?.to && dateRange.to.toISOString()
+        ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
+        : undefined,
     studyTitle: isPaymentCode ? undefined : keyword,
     paymentCode: isPaymentCode ? keyword : undefined,
   });
@@ -134,8 +136,8 @@ export default function PaymentManagement() {
                 const isExpanded = expandedGroupStudyIds.has(
                   transaction.groupStudyId!,
                 );
-                const beforeStarting =
-                  formatToKST(transaction.groupStudyStartDate) < new Date();
+                const kstDate = formatToKST(transaction.groupStudyStartDate);
+                const beforeStarting = kstDate ? kstDate < new Date() : false;
 
                 return (
                   <React.Fragment key={transaction.groupStudyId}>
@@ -184,10 +186,12 @@ export default function PaymentManagement() {
                             원
                           </div>
                           <div className="font-designer-13r text-text-subtlest">
-                            {format(
-                              formatToKST(transaction.paidAt),
-                              'yyyy.MM.dd HH:mm',
-                            ) || '-'}{' '}
+                            {formatToKST(transaction.paidAt)
+                              ? format(
+                                  formatToKST(transaction.paidAt)!,
+                                  'yyyy.MM.dd HH:mm',
+                                )
+                              : '-'}{' '}
                             {transaction.paymentMethod}
                           </div>
                         </div>
@@ -284,10 +288,12 @@ function TransactionHistory({ groupStudyId }: { groupStudyId: number }) {
                   {transaction.reason && ` / ${transaction.reason}`}
                 </span>
                 <span className="text-text-subtlest">
-                  {format(
-                    formatToKST(transaction.transactionedAt),
-                    'yyyy.MM.dd HH:mm',
-                  ) || '-'}
+                  {formatToKST(transaction.transactionedAt)
+                    ? format(
+                        formatToKST(transaction.transactionedAt)!,
+                        'yyyy.MM.dd HH:mm',
+                      )
+                    : '-'}
                 </span>
               </div>
             ))

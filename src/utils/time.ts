@@ -16,7 +16,11 @@ import {
  * - UTC 문자열이면 +9시간
  * - 이미 KST면 그대로 사용
  */
-export const formatToKST = (dateString: string): Date => {
+export const formatToKST = (dateString?: string): Date | undefined => {
+  if (!dateString) {
+    return undefined;
+  }
+
   const date = parseISO(dateString);
 
   // UTC 여부 판단

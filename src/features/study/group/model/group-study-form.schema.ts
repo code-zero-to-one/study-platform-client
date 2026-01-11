@@ -16,6 +16,8 @@ export type StudyClassification = (typeof STUDY_CLASSIFICATION)[number];
 
 export const GroupStudyFormSchema = z.object({
   classification: z.enum(STUDY_CLASSIFICATION),
+  // 스터디 리더 참여 여부(1)
+  studyLeaderParticipation: z.boolean(),
   // 스터디 유형(1)
   type: z.enum(STUDY_TYPES),
   // 모집 대상(1)
@@ -91,6 +93,7 @@ export function buildOpenGroupDefaultValues(
 ): GroupStudyFormValues {
   return {
     classification,
+    studyLeaderParticipation: false,
     type: 'PROJECT',
     targetRoles: [],
     maxMembersCount: '',
@@ -117,6 +120,7 @@ export function toOpenGroupRequest(
     v.thumbnailExtension === 'DEFAULT' ? 'JPG' : v.thumbnailExtension;
 
   return {
+    studyLeaderParticipation: v.studyLeaderParticipation,
     basicInfo: {
       classification: v.classification,
       type: v.type,

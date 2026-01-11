@@ -1,3 +1,4 @@
+import PageContainer from '@/components/layout/page-container';
 import Button from '@/components/ui/button';
 import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
@@ -7,7 +8,7 @@ interface CreatePostProps {
 
 export default function CreatePost({ groupStudyId }: CreatePostProps) {
   return (
-    <div className="bg-background-alternative rounded-100 mt-500 flex h-[640px] w-[1164px] items-center justify-center border-2 border-dashed border-[#D5D7DA]">
+    <PageContainer className="bg-background-alternative rounded-100 my-500 flex h-[640px] items-center justify-center border-2 border-dashed border-[#D5D7DA]">
       <div className="flex flex-col gap-200 text-center">
         <p className="font-designer-20b">스터디에 대한 공지를 남겨주세요</p>
         <div className="font-designer-14r">
@@ -25,6 +26,6 @@ export default function CreatePost({ groupStudyId }: CreatePostProps) {
           groupStudyId={groupStudyId}
         />
       </div>
-    </div>
+    </PageContainer>
   );
 }

@@ -59,7 +59,9 @@ function MissionProgressHistoryItem({
           {history.reason}
         </span>
         <span className="font-designer-13r text-text-subtlest">
-          {format(formatToKST(history.acquiredAt), 'yyyy.MM.dd HH:mm')}
+          {formatToKST(history.acquiredAt)
+            ? format(formatToKST(history.acquiredAt)!, 'yyyy.MM.dd HH:mm')
+            : '-'}
         </span>
       </div>
     </li>

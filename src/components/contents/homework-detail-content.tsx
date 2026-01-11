@@ -11,10 +11,8 @@ import Avatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
-import {
-  useDeleteHomework,
-  useGetHomework,
-} from '@/hooks/queries/group-study-homework-api';
+import { useGetHomework } from '@/hooks/queries/group-study-homework-api';
+import { useGetMission } from '@/hooks/queries/mission-api';
 import {
   useCreatePeerReview,
   useDeletePeerReview,
@@ -22,6 +20,7 @@ import {
 } from '@/hooks/queries/peer-review-api';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
+import CreateEvaluationModal from '../modals/create-evaluation-modal';
 import DeleteHomeworkModal from '../modals/delete-homework-modal';
 import EditHomeworkModal from '../modals/edit-homework-modal';
 
@@ -33,6 +32,7 @@ interface HomeworkDetailContentProps {
 
 export default function HomeworkDetailContent({
   homeworkId,
+  missionId,
 }: HomeworkDetailContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,6 +40,8 @@ export default function HomeworkDetailContent({
   const isLeader = useIsLeader(currentUserId);
   const { data: homework, isLoading: isHomeworkLoading } =
     useGetHomework(homeworkId);
+  const { data: mission, isLoading: isMissionLoading } =
+    useGetMission(missionId);
 
   const handleDeleteSuccess = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -47,12 +49,18 @@ export default function HomeworkDetailContent({
     router.push(`?${params.toString()}`);
   };
 
-  if (isHomeworkLoading || !homework) {
+  if (isHomeworkLoading || !homework || isMissionLoading || !mission) {
     return null;
   }
 
   const peerReviews = homework.peerReviews ?? [];
   const isEvaluated = !!homework.evaluation;
+
+  // 미션 제출 가능 기간이 지나지 않았는지 확인
+  const isMissionActive = mission.status !== 'ENDED';
+
+  // 삭제 가능 조건: 평가 전이면서 미션 제출 가능 기간이 지나지 않은 상태
+  const canDelete = !isEvaluated && isMissionActive;
 
   const profileImageUrl =
     homework.submitterProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
@@ -83,8 +91,8 @@ export default function HomeworkDetailContent({
             </div>
           </div>
 
-          {/* 수정/삭제 버튼 - 평가 전에만 노출 */}
-          {!isEvaluated && (
+          {/* 수정/삭제 버튼 - 평가 전이면서 미션 제출 가능 기간이 지나지 않은 경우에만 노출 */}
+          {canDelete && (
             <div className="flex items-center gap-100">
               <EditHomeworkModal
                 homeworkId={homeworkId}
@@ -128,6 +136,7 @@ export default function HomeworkDetailContent({
       <LeaderEvaluationSection
         evaluation={homework.evaluation}
         isLeader={isLeader}
+        homeworkId={homeworkId}
       />
 
       {/* 피어 리뷰 */}
@@ -144,11 +153,13 @@ export default function HomeworkDetailContent({
 interface LeaderEvaluationSectionProps {
   evaluation?: EvaluationResponse;
   isLeader: boolean;
+  homeworkId: number;
 }
 
 function LeaderEvaluationSection({
   evaluation,
   isLeader,
+  homeworkId,
 }: LeaderEvaluationSectionProps) {
   return (
     <div className="flex flex-col gap-200">
@@ -158,7 +169,7 @@ function LeaderEvaluationSection({
         {evaluation ? (
           <EvaluationResult evaluation={evaluation} />
         ) : (
-          <EvaluationPending isLeader={isLeader} />
+          <EvaluationPending isLeader={isLeader} homeworkId={homeworkId} />
         )}
       </div>
     </div>
@@ -184,17 +195,19 @@ function EvaluationResult({ evaluation }: { evaluation: EvaluationResponse }) {
   );
 }
 
-function EvaluationPending({ isLeader }: { isLeader: boolean }) {
+function EvaluationPending({
+  isLeader,
+  homeworkId,
+}: {
+  isLeader: boolean;
+  homeworkId: number;
+}) {
   return (
     <>
       <span className="text-text-subtlest font-designer-14r">
         아직 평가하지 않은 과제입니다.
       </span>
-      {isLeader && (
-        <Button color="primary" size="small">
-          과제 평가하기
-        </Button>
-      )}
+      {isLeader && <CreateEvaluationModal homeworkId={homeworkId} />}
     </>
   );
 }

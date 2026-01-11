@@ -164,7 +164,7 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
             {homework.submitterNickname}
           </span>
           <span className="text-text-subtlest font-designer-12r">
-            {formatSubmissionTime(homework.submissionTime)} 제출
+            {formatSubmissionTime(homework.submissionTime) && '제출'}
           </span>
         </div>
       </div>

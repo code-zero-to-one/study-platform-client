@@ -75,12 +75,14 @@ export default function PaymentRefundPage() {
 
   const { data: transactionsData } = useGetTransactionsForAdmin({
     type,
-    startDate: dateRange?.from
-      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
-      : undefined,
-    endDate: dateRange?.to
-      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
-      : undefined,
+    startDate:
+      dateRange?.from && dateRange.from.toISOString()
+        ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
+        : undefined,
+    endDate:
+      dateRange?.to && dateRange.to.toISOString()
+        ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
+        : undefined,
     studyTitle: !isPaymentId && keyword ? keyword : undefined,
     paymentCode: isPaymentId && keyword ? keyword : undefined,
     page: page - 1,
@@ -208,10 +210,12 @@ export default function PaymentRefundPage() {
                     {/* 일시 */}
                     <td className="py-200 pl-[10px]">
                       <span className="font-designer-14r text-text-default">
-                        {format(
-                          formatToKST(transaction.transactionedAt),
-                          'yyyy.MM.dd HH:mm',
-                        )}
+                        {formatToKST(transaction.transactionedAt)
+                          ? format(
+                              formatToKST(transaction.transactionedAt)!,
+                              'yyyy.MM.dd HH:mm',
+                            )
+                          : '-'}
                       </span>
                     </td>
 
