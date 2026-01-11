@@ -88,7 +88,8 @@ export default function GroupStudyFormModal({
 
     return {
       classification: value.basicInfo?.classification,
-      studyLeaderParticipation: value.studyLeaderParticipation ?? false,
+      studyLeaderParticipation:
+        value.basicInfo.studyLeaderParticipation ?? false,
       type: value.basicInfo?.type,
       targetRoles: value.basicInfo?.targetRoles,
       maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',

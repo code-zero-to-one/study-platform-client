@@ -1,5 +1,8 @@
 import { z } from 'zod';
-import { GroupStudyFormRequest } from '../api/group-study-types';
+import {
+  GroupStudyCreationRequestDto,
+  GroupStudyFormRequest,
+} from '../api/group-study-types';
 import {
   STUDY_TYPES,
   TARGET_ROLE_OPTIONS,
@@ -114,7 +117,7 @@ export function buildOpenGroupDefaultValues(
 
 export function toOpenGroupRequest(
   v: GroupStudyFormValues,
-): GroupStudyFormRequest {
+): GroupStudyCreationRequestDto {
   const isPremiumStudy = v.classification === 'PREMIUM_STUDY';
   const thumbnailExt =
     v.thumbnailExtension === 'DEFAULT' ? 'JPG' : v.thumbnailExtension;

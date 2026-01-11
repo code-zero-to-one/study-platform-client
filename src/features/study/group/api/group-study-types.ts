@@ -51,6 +51,7 @@ export interface BasicInfo {
   startDate: string;
   endDate: string;
   price: number;
+  studyLeaderParticipation: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -171,6 +172,8 @@ export interface GroupStudyFormRequest {
 }
 
 export type { GroupStudyCreationRequestDto } from '@/api/openapi/models/group-study-creation-request-dto';
+export type { GroupStudyCreationResponse } from '@/api/openapi/models/group-study-creation-response';
+export type { GroupStudyCreationResponseDto } from '@/api/openapi/models/group-study-creation-response-dto';
 
 // 그룹 리스트 타입
 export interface GroupStudyListRequest {
