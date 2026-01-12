@@ -28,6 +28,7 @@ export const MemberNotificationResponseTopicTypeEnum = {
     OneOnOneStudy: 'ONE_ON_ONE_STUDY',
     GroupStudy: 'GROUP_STUDY',
     Notice: 'NOTICE',
+    Thread: 'THREAD',
     Comment: 'COMMENT',
     Payment: 'PAYMENT',
     Etc: 'ETC'
