@@ -19,6 +19,10 @@
  */
 export interface GroupStudyBasicInfoRequestDto {
     /**
+     * 스터디 리더 스터디 참가 여부
+     */
+    'studyLeaderParticipation'?: boolean;
+    /**
      * 스터디 분류 (그룹스터디 / 프리미엄 스터디)
      */
     'classification': GroupStudyBasicInfoRequestDtoClassificationEnum;

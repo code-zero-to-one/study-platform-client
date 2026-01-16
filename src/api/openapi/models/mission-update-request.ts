@@ -15,14 +15,29 @@
 
 
 export interface MissionUpdateRequest {
+    /**
+     * 미션 제목
+     */
     'title': string;
+    /**
+     * 미션 내용
+     */
     'description'?: string;
+    /**
+     * 미션 가이드
+     */
     'guide': string;
     /**
      * 주차
      */
     'weekNum'?: number;
+    /**
+     * 미션 시작 시간
+     */
     'startDate': string;
+    /**
+     * 미션 종료 시간
+     */
     'endDate': string;
 }
 

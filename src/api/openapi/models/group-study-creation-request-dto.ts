@@ -28,10 +28,6 @@ import type { GroupStudyInterviewPostRequest } from './group-study-interview-pos
  */
 export interface GroupStudyCreationRequestDto {
     /**
-     * 스터디 리더 스터디 참가 여부
-     */
-    'studyLeaderParticipation'?: boolean;
-    /**
      * 그룹스터디 기본 정보
      */
     'basicInfo'?: GroupStudyBasicInfoRequestDto;

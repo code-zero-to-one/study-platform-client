@@ -173,11 +173,11 @@ export const GroupStudyManagementApiAxiosParamCreator = function (configuration?
          * @param {Array<GetGroupStudiesTypeEnum>} [type] 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능.
          * @param {Array<GetGroupStudiesTargetRolesEnum>} [targetRoles] 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능.
          * @param {Array<GetGroupStudiesMethodEnum>} [method] 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능.
-         * @param {boolean} [inProgress] 진행중인 스터디만 조회할지 여부.
+         * @param {boolean} [recruiting] 모집 중인 스터디만 조회할지 여부.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupStudies: async (classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getGroupStudies: async (classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, recruiting?: boolean, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'classification' is not null or undefined
             assertParamExists('getGroupStudies', 'classification', classification)
             const localVarPath = `/api/v1/group-studies`;
@@ -220,8 +220,8 @@ export const GroupStudyManagementApiAxiosParamCreator = function (configuration?
                 localVarQueryParameter['method'] = method;
             }
 
-            if (inProgress !== undefined) {
-                localVarQueryParameter['in-progress'] = inProgress;
+            if (recruiting !== undefined) {
+                localVarQueryParameter['recruiting'] = recruiting;
             }
 
 
@@ -471,12 +471,12 @@ export const GroupStudyManagementApiFp = function(configuration?: Configuration)
          * @param {Array<GetGroupStudiesTypeEnum>} [type] 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능.
          * @param {Array<GetGroupStudiesTargetRolesEnum>} [targetRoles] 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능.
          * @param {Array<GetGroupStudiesMethodEnum>} [method] 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능.
-         * @param {boolean} [inProgress] 진행중인 스터디만 조회할지 여부.
+         * @param {boolean} [recruiting] 모집 중인 스터디만 조회할지 여부.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyListResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getGroupStudies(classification, page, pageSize, type, targetRoles, method, inProgress, options);
+        async getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, recruiting?: boolean, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<GroupStudyListResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getGroupStudies(classification, page, pageSize, type, targetRoles, method, recruiting, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['GroupStudyManagementApi.getGroupStudies']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -586,12 +586,12 @@ export const GroupStudyManagementApiFactory = function (configuration?: Configur
          * @param {Array<GetGroupStudiesTypeEnum>} [type] 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능.
          * @param {Array<GetGroupStudiesTargetRolesEnum>} [targetRoles] 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능.
          * @param {Array<GetGroupStudiesMethodEnum>} [method] 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능.
-         * @param {boolean} [inProgress] 진행중인 스터디만 조회할지 여부.
+         * @param {boolean} [recruiting] 모집 중인 스터디만 조회할지 여부.
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyListResponse> {
-            return localVarFp.getGroupStudies(classification, page, pageSize, type, targetRoles, method, inProgress, options).then((request) => request(axios, basePath));
+        getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, recruiting?: boolean, options?: RawAxiosRequestConfig): AxiosPromise<GroupStudyListResponse> {
+            return localVarFp.getGroupStudies(classification, page, pageSize, type, targetRoles, method, recruiting, options).then((request) => request(axios, basePath));
         },
         /**
          * 특정 그룹스터디의 상세 정보를 조회합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
@@ -687,12 +687,12 @@ export class GroupStudyManagementApi extends BaseAPI {
      * @param {Array<GetGroupStudiesTypeEnum>} [type] 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능.
      * @param {Array<GetGroupStudiesTargetRolesEnum>} [targetRoles] 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능.
      * @param {Array<GetGroupStudiesMethodEnum>} [method] 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능.
-     * @param {boolean} [inProgress] 진행중인 스터디만 조회할지 여부.
+     * @param {boolean} [recruiting] 모집 중인 스터디만 조회할지 여부.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, inProgress?: boolean, options?: RawAxiosRequestConfig) {
-        return GroupStudyManagementApiFp(this.configuration).getGroupStudies(classification, page, pageSize, type, targetRoles, method, inProgress, options).then((request) => request(this.axios, this.basePath));
+    public getGroupStudies(classification: GetGroupStudiesClassificationEnum, page?: number, pageSize?: number, type?: Array<GetGroupStudiesTypeEnum>, targetRoles?: Array<GetGroupStudiesTargetRolesEnum>, method?: Array<GetGroupStudiesMethodEnum>, recruiting?: boolean, options?: RawAxiosRequestConfig) {
+        return GroupStudyManagementApiFp(this.configuration).getGroupStudies(classification, page, pageSize, type, targetRoles, method, recruiting, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
