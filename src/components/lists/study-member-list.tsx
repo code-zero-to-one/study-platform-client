@@ -10,6 +10,7 @@ import type { GroupStudyMember } from '../../features/study/group/api/group-stud
 
 import GroupStudyMemberItem from '../../features/study/group/ui/group-study-member-item';
 import KickedReasonModal from '../../features/study/group/ui/kicked-reason-modal';
+import PageContainer from '../layout/page-container';
 
 interface GroupStudyMemberListProps {
   groupStudyId: number;
@@ -46,7 +47,7 @@ export default function StudyMemberList({
   const totalPages = Math.ceil((data?.totalMemberCount || 0) / PAGE_SIZE) || 1;
 
   return (
-    <section className="mt-500 flex w-[1164px] flex-col gap-300">
+    <PageContainer className="flex flex-col gap-300 py-500">
       {/* 리더가 아닌 참가자에게 내 정보 상단에 노출 */}
       {!isLeader && (
         <SelfMemberInfo
@@ -104,7 +105,7 @@ export default function StudyMemberList({
         onChangePage={setPageNumber}
         totalPages={totalPages}
       />
-    </section>
+    </PageContainer>
   );
 }
 

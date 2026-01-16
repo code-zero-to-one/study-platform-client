@@ -146,7 +146,7 @@ export default function GroupStudyListPage() {
   }
 
   return (
-    <PageContainer className="py-600">
+    <div className="mx-auto w-[1280px] py-600">
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">
@@ -185,6 +185,6 @@ export default function GroupStudyListPage() {
           totalPages={totalPages}
         />
       )}
-    </PageContainer>
+    </div>
   );
 }

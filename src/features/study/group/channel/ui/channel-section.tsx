@@ -1,4 +1,5 @@
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
+import PageContainer from '@/components/layout/page-container';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import Comments from './comment-section';
 import CreatePost from './create-post';
@@ -34,7 +35,7 @@ export default function ChannelSection({
 
   // 등록된 경우
   return (
-    <div className="mt-500 w-[1164px]">
+    <PageContainer className="py-500">
       <div className="flex flex-col gap-500">
         <Post data={data} />
         <Comments groupStudyId={groupStudyId} />
@@ -43,6 +44,6 @@ export default function ChannelSection({
       {myApplicationStatus?.status === 'KICKED' && (
         <KickedReasonModal reason={myApplicationStatus.reason} />
       )}
-    </div>
+    </PageContainer>
   );
 }

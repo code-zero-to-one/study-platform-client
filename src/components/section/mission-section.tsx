@@ -97,7 +97,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
   // 과제(homework) 상세 보기
   if (missionId && homeworkId) {
     return (
-      <section className="flex flex-col gap-300">
+      <PageContainer className="my-500 flex flex-col gap-300">
         <button
           onClick={handleBack}
           className="text-text-default font-designer-16b flex w-fit items-center gap-50"
@@ -111,7 +111,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
           missionId={Number(missionId)}
           homeworkId={Number(homeworkId)}
         />
-      </section>
+      </PageContainer>
     );
   }
 

@@ -6,6 +6,7 @@ import {
   useFormContext,
   useWatch,
 } from 'react-hook-form';
+import Checkbox from '@/components/ui/checkbox';
 import { SingleDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput } from '@/components/ui/input';
@@ -49,6 +50,10 @@ export default function Step1OpenGroupStudy() {
     name: 'regularMeeting',
     control,
   });
+  const { field: studyLeaderParticipationField } = useController({
+    name: 'studyLeaderParticipation',
+    control,
+  });
   const methodValue = useWatch({
     name: 'method',
     control,
@@ -57,6 +62,32 @@ export default function Step1OpenGroupStudy() {
   return (
     <>
       <div className="font-designer-20b text-text-default">기본 정보 설정</div>
+      <FormField<GroupStudyFormValues, 'studyLeaderParticipation'>
+        name="studyLeaderParticipation"
+        label="리더 참여 여부"
+        helper="스터디 리더가 직접 스터디에 참여하는지 선택해주세요."
+        direction="vertical"
+        size="medium"
+        required
+      >
+        <div className="flex items-center gap-100">
+          <Checkbox
+            id="studyLeaderParticipation"
+            checked={studyLeaderParticipationField.value}
+            onToggle={() =>
+              studyLeaderParticipationField.onChange(
+                !studyLeaderParticipationField.value,
+              )
+            }
+          />
+          <label
+            htmlFor="studyLeaderParticipation"
+            className="font-designer-14m text-text-default cursor-pointer"
+          >
+            리더가 스터디에 참여합니다
+          </label>
+        </div>
+      </FormField>
       <FormField<GroupStudyFormValues, 'type'>
         name="type"
         label="스터디 유형"

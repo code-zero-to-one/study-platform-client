@@ -43,12 +43,14 @@ export default function SettlementManagementPage() {
   const { data } = useGetMySettlements({
     page: page - 1,
     size: 8,
-    startDate: dateRange?.from
-      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
-      : undefined,
-    endDate: dateRange?.to
-      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
-      : undefined,
+    startDate:
+      dateRange?.from && dateRange.from.toISOString()
+        ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
+        : undefined,
+    endDate:
+      dateRange?.to && dateRange.to.toISOString()
+        ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
+        : undefined,
     studyTitle: isSettlementCode ? undefined : keyword,
     settlementCode: isSettlementCode ? keyword : undefined,
   });
@@ -182,10 +184,12 @@ export default function SettlementManagementPage() {
                         {settlement.settlementAmount?.toLocaleString() || 0}원
                       </div>
                       <div className="font-designer-13r text-text-subtlest">
-                        {format(
-                          formatToKST(settlement.settledAt),
-                          'yyyy-MM-dd HH:mm',
-                        ) || '-'}
+                        {formatToKST(settlement.settledAt)
+                          ? format(
+                              formatToKST(settlement.settledAt)!,
+                              'yyyy-MM-dd HH:mm',
+                            )
+                          : '-'}
                       </div>
                     </div>
                   </td>

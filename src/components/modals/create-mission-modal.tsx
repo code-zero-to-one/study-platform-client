@@ -12,10 +12,16 @@ import { useCreateMission } from '@/hooks/queries/mission-api';
 
 // Form Schema
 const CreateMissionFormSchema = z.object({
-  title: z.string().min(1, '미션 제목을 입력해주세요.'),
+  title: z
+    .string()
+    .min(1, '미션 제목을 입력해주세요.')
+    .max(80, '80자 이하로 작성 가능합니다.'),
   description: z.string().optional(),
-  weekNum: z.string().optional(),
-  guide: z.string().min(1, '수행 가이드를 입력해주세요.'),
+  weekNum: z.string().max(100, '100자 이하로 작성 가능합니다.').optional(),
+  guide: z
+    .string()
+    .min(1, '수행 가이드를 입력해주세요.')
+    .max(1000, '1000자 이하로 작성가능합니다.'),
   dateRange: z
     .object({
       from: z.date({ error: '시작일을 선택해주세요.' }),
