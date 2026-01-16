@@ -74,7 +74,11 @@ export default function Step1OpenGroupStudy() {
           <Checkbox
             id="studyLeaderParticipation"
             checked={studyLeaderParticipationField.value}
-            onToggle={() => studyLeaderParticipationField.onChange(!studyLeaderParticipationField.value)}
+            onToggle={() =>
+              studyLeaderParticipationField.onChange(
+                !studyLeaderParticipationField.value,
+              )
+            }
           />
           <label
             htmlFor="studyLeaderParticipation"

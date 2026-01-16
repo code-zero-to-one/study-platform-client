@@ -149,10 +149,23 @@ function PaymentSuccessContent() {
 
         {/* 결제 정보 */}
         <div className="text-14 space-y-12 rounded-md border p-16">
-          <InfoRow label="주문 정보" value={paymentData?.groupStudyTitle ?? '-'} />
-          <InfoRow label="상품 금액" value={`${paymentData?.amount?.toLocaleString()}원`} />
-          <InfoRow label="결제 수단" value={getMethodLabel(paymentData?.method)} />
-          <InfoRow label="총 결제 금액" value={`${paymentData?.amount?.toLocaleString()}원`} bold />
+          <InfoRow
+            label="주문 정보"
+            value={paymentData?.groupStudyTitle ?? '-'}
+          />
+          <InfoRow
+            label="상품 금액"
+            value={`${paymentData?.amount?.toLocaleString()}원`}
+          />
+          <InfoRow
+            label="결제 수단"
+            value={getMethodLabel(paymentData?.method)}
+          />
+          <InfoRow
+            label="총 결제 금액"
+            value={`${paymentData?.amount?.toLocaleString()}원`}
+            bold
+          />
         </div>
 
         {/* 안내 문구 */}
@@ -222,7 +235,7 @@ function VirtualAccountWaiting({
 
   return (
     <div className="bg-background-alternative flex min-h-dvh items-center justify-center">
-      <div className="rounded-150 border-border-default bg-fill-neutral-subtle-default mx-auto w-full max-w-[600px] border p-600 shadow-2">
+      <div className="rounded-150 border-border-default bg-fill-neutral-subtle-default shadow-2 mx-auto w-full max-w-[600px] border p-600">
         {/* 상태 아이콘 영역 */}
         <div className="mb-600 text-center">
           <div className="bg-fill-warning-subtle-default mx-auto mb-300 flex h-[80px] w-[80px] items-center justify-center rounded-full">
