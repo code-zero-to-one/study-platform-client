@@ -145,7 +145,6 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
                   )?.memberNickname ||
                   '스터디장'}
               </p>
-              <p className="font-designer-12r text-text-subtlest">스터디장</p>
             </div>
           </div>
 
