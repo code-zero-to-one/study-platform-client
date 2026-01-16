@@ -6,7 +6,6 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**studyLeaderParticipation** | **boolean** | 스터디 리더 스터디 참가 여부 | [optional] [default to undefined]
 **basicInfo** | [**GroupStudyBasicInfoRequestDto**](GroupStudyBasicInfoRequestDto.md) | 그룹스터디 기본 정보 | [optional] [default to undefined]
 **detailInfo** | [**GroupStudyDetailInfoRequestDto**](GroupStudyDetailInfoRequestDto.md) | 그룹스터디 상세 정보 | [optional] [default to undefined]
 **interviewPost** | [**GroupStudyInterviewPostRequest**](GroupStudyInterviewPostRequest.md) | 그룹스터디 개설질문 | [optional] [default to undefined]
@@ -18,7 +17,6 @@ Name | Type | Description | Notes
 import { GroupStudyCreationRequestDto } from './api';
 
 const instance: GroupStudyCreationRequestDto = {
-    studyLeaderParticipation,
     basicInfo,
     detailInfo,
     interviewPost,

@@ -31,6 +31,11 @@ const STUDY_TYPE_BADGE_COLORS: Record<StudyType, BadgeColor> = {
   LECTURE_STUDY: 'primary',
 };
 
+interface Badge {
+  memberName?: string;
+  memberNickname?: string;
+}
+
 interface StudyCardProps {
   study: GroupStudyListItemDto;
   href: string;
@@ -131,18 +136,8 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
             </div>
             <div>
               <p className="font-designer-15m">
-                {(
-                  study.basicInfo?.leader as {
-                    memberName?: string;
-                    memberNickname?: string;
-                  }
-                )?.memberName ||
-                  (
-                    study.basicInfo?.leader as {
-                      memberName?: string;
-                      memberNickname?: string;
-                    }
-                  )?.memberNickname ||
+                {(study.basicInfo?.leader as Badge)?.memberName ||
+                  (study.basicInfo?.leader as Badge)?.memberNickname ||
                   '스터디장'}
               </p>
             </div>
