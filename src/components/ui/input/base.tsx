@@ -62,7 +62,7 @@ export const BaseInput = React.forwardRef<HTMLInputElement, BaseInputProps>(
       appearance = 'boxed',
       onValueChange,
       onChange,
-      maxLength = 50,
+      maxLength,
       minLength = 0,
       hideMeta = true,
       guideText,
