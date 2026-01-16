@@ -83,7 +83,7 @@ export default function GroupStudyForm({
 
       // 필수 필드가 비어있으면 비활성화
       if (field === 'studyLeaderParticipation') {
-        return value !== true;
+        return typeof value !== 'boolean';
       }
       if (field === 'price') {
         // PREMIUM_STUDY일 때만 price 필수
