@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
-import { GroupStudyFormRequest } from '../api/group-study-types';
 import { createGroupStudy } from '../api/creat-group-study';
+import { GroupStudyFormRequest } from '../api/group-study-types';
 import { updateGroupStudy } from '../api/update-group-study';
 
 // 그룹 스터디 개설 mutation
