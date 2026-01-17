@@ -130,7 +130,7 @@ function EditMissionForm({
     studyStartDate,
     studyEndDate,
     existingMissions,
-    excludeMissionId: missionId,
+    editingMissionId: missionId,
   });
   const methods = useForm<EditMissionFormValues>({
     resolver: zodResolver(EditMissionFormSchema),

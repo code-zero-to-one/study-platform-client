@@ -101,13 +101,14 @@ interface CreateMissionDateDisabledMatcherOptions {
   studyStartDate?: string;
   studyEndDate?: string;
   existingMissions?: MissionPeriod[];
-  excludeMissionId?: number;
+  editingMissionId?: number; // 편집 중인 미션 ID
 }
 
 export const createMissionDateDisabledMatcher = (
   options: CreateMissionDateDisabledMatcherOptions,
 ) => {
-  const { studyStartDate, studyEndDate, existingMissions, excludeMissionId } = options;
+  const { studyStartDate, studyEndDate, existingMissions, editingMissionId } = options;
+	console.log(editingMissionId,'editingMissionId')
 
   return (date: Date) => {
     const normalizedDate = new Date(date);
@@ -139,7 +140,7 @@ export const createMissionDateDisabledMatcher = (
     if (existingMissions) {
       const targetTime = normalizedDate.getTime();
       for (const mission of existingMissions) {
-        if (excludeMissionId && mission.missionId === excludeMissionId) continue;
+        if (editingMissionId && mission.missionId === editingMissionId) continue;
 
         if (mission.startDate && mission.endDate) {
           const missionStart = new Date(mission.startDate);

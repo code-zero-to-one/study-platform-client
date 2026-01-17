@@ -11,14 +11,14 @@ export interface UseMissionDateDisabledMatcherOptions {
   studyStartDate?: string;
   studyEndDate?: string;
   existingMissions?: MissionPeriod[];
-  excludeMissionId?: number;
+  editingMissionId?: number;
 }
 
 export function useMissionDateDisabledMatcher({
   studyStartDate,
   studyEndDate,
   existingMissions,
-  excludeMissionId,
+  editingMissionId,
 }: UseMissionDateDisabledMatcherOptions) {
   return useMemo(
     () =>
@@ -26,8 +26,8 @@ export function useMissionDateDisabledMatcher({
         studyStartDate,
         studyEndDate,
         existingMissions,
-        excludeMissionId,
+        editingMissionId,
       }),
-    [studyStartDate, studyEndDate, existingMissions, excludeMissionId],
+    [studyStartDate, studyEndDate, existingMissions, editingMissionId],
   );
 }
