@@ -8,6 +8,7 @@ import DatePicker from '@/components/ui/date-picker';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
 import { useCreateMission } from '@/hooks/queries/mission-api';
 
 // Form Schema
@@ -42,6 +43,9 @@ export default function CreateMissionModal({
   groupStudyId,
 }: CreateMissionModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const { data: studyData } = useGroupStudyDetailQuery(groupStudyId);
+
+  const studyEndDate = studyData?.basicInfo?.endDate;
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -71,6 +75,7 @@ export default function CreateMissionModal({
 
           <CreateMissionForm
             groupStudyId={groupStudyId}
+            studyEndDate={studyEndDate}
             onClose={() => setOpen(false)}
           />
         </Modal.Content>
@@ -81,10 +86,15 @@ export default function CreateMissionModal({
 
 interface CreateMissionFormProps {
   groupStudyId: number;
+  studyEndDate?: string;
   onClose: () => void;
 }
 
-function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
+function CreateMissionForm({
+  groupStudyId,
+  studyEndDate,
+  onClose,
+}: CreateMissionFormProps) {
   const methods = useForm<CreateMissionFormValues>({
     resolver: zodResolver(CreateMissionFormSchema),
     mode: 'onChange',
@@ -206,6 +216,26 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => field.onChange(date)}
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    // 미션 시작일: 오늘 이전 날짜 비활성화
+                    if (date < today) {
+                      return true;
+                    }
+
+                    // 미션 마감일: 스터디 종료일 이후 날짜 비활성화
+                    if (studyEndDate) {
+                      const endDate = new Date(studyEndDate);
+                      endDate.setHours(23, 59, 59, 999);
+                      if (date > endDate) {
+                        return true;
+                      }
+                    }
+
+                    return false;
+                  }}
                 />
               )}
             />

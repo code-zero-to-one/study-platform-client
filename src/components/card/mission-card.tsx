@@ -129,7 +129,10 @@ export default function MissionCard({
           deadlineInfo={null}
         />
         <div className="flex flex-col gap-100">
-          <EditMissionModal missionId={mission.missionId} />
+          <EditMissionModal
+            missionId={mission.missionId}
+            groupStudyId={groupStudyId}
+          />
           <DeleteMissionModal
             missionId={mission.missionId}
             groupStudyId={groupStudyId}
