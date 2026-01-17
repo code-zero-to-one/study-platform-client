@@ -107,8 +107,9 @@ interface CreateMissionDateDisabledMatcherOptions {
 export const createMissionDateDisabledMatcher = (
   options: CreateMissionDateDisabledMatcherOptions,
 ) => {
-  const { studyStartDate, studyEndDate, existingMissions, editingMissionId } = options;
-	console.log(editingMissionId,'editingMissionId')
+  const { studyStartDate, studyEndDate, existingMissions, editingMissionId } =
+    options;
+  console.log(editingMissionId, 'editingMissionId');
 
   return (date: Date) => {
     const normalizedDate = new Date(date);
@@ -140,7 +141,8 @@ export const createMissionDateDisabledMatcher = (
     if (existingMissions) {
       const targetTime = normalizedDate.getTime();
       for (const mission of existingMissions) {
-        if (editingMissionId && mission.missionId === editingMissionId) continue;
+        if (editingMissionId && mission.missionId === editingMissionId)
+          continue;
 
         if (mission.startDate && mission.endDate) {
           const missionStart = new Date(mission.startDate);
