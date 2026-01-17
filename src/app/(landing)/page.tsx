@@ -220,7 +220,7 @@ export default async function Landing() {
 
             <div className="mt-200 flex flex-col gap-300">
               <p className="font-bold-h2 text-text-strong flex flex-col">
-                <span>당신을 위한 스터디가 준비중입니다!</span>
+                <span>당신을 위한 스터디가 준비중입니다.</span>
                 {/* <span>연락드릴게요!</span> */}
               </p>
 
