@@ -10,11 +10,11 @@ import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
-import {
-  MissionPeriod,
-  useMissionDateDisabledMatcher,
-} from '@/hooks/common/use-mission-date-disabled-matcher';
 import { useCreateMission, useGetMissions } from '@/hooks/queries/mission-api';
+import {
+  createDisabledDateMatcherForMission,
+  MissionPeriod,
+} from '@/utils/time';
 
 // Form Schema
 const CreateMissionFormSchema = z.object({
@@ -111,12 +111,6 @@ function CreateMissionForm({
   existingMissions,
   onClose,
 }: CreateMissionFormProps) {
-  const disabledMatcher = useMissionDateDisabledMatcher({
-    studyStartDate,
-    studyEndDate,
-    existingMissions,
-  });
-
   const methods = useForm<CreateMissionFormValues>({
     resolver: zodResolver(CreateMissionFormSchema),
     mode: 'onChange',
@@ -238,7 +232,11 @@ function CreateMissionForm({
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => field.onChange(date)}
-                  disabled={disabledMatcher}
+                  disabled={createDisabledDateMatcherForMission({
+                    studyStartDate,
+                    studyEndDate,
+                    existingMissions,
+                  })}
                 />
               )}
             />

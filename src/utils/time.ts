@@ -91,25 +91,24 @@ export const getKoreaDisplayMonday = (base?: Date) => {
   return dow === 0 || dow === 6 ? addDays(monday, 7) : monday;
 };
 
-interface MissionPeriod {
+export interface MissionPeriod {
   missionId?: number;
   startDate?: string;
   endDate?: string;
 }
 
-interface CreateMissionDateDisabledMatcherOptions {
+export interface CreateDisabledDateMatcherForMissionOptions {
   studyStartDate?: string;
   studyEndDate?: string;
   existingMissions?: MissionPeriod[];
-  editingMissionId?: number; // 편집 중인 미션 ID
+  editingMissionId?: number;
 }
 
-export const createMissionDateDisabledMatcher = (
-  options: CreateMissionDateDisabledMatcherOptions,
+export const createDisabledDateMatcherForMission = (
+  options: CreateDisabledDateMatcherForMissionOptions,
 ) => {
   const { studyStartDate, studyEndDate, existingMissions, editingMissionId } =
     options;
-  console.log(editingMissionId, 'editingMissionId');
 
   return (date: Date) => {
     const normalizedDate = new Date(date);
