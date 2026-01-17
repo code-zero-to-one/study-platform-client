@@ -14,7 +14,7 @@
 
 
 
-export interface MemberCreationRequest {
+export interface MemberCreationRequestDto {
     /**
      * 회원의 로그인 아이디(소셜 로그인 시 비어있음)
      */
@@ -30,15 +30,15 @@ export interface MemberCreationRequest {
     /**
      * 직무 리스트 (최대 5개) (예: [IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_FRONTEND])
      */
-    'jobs'?: Array<MemberCreationRequestJobsEnum>;
+    'jobs'?: Array<MemberCreationRequestDtoJobsEnum>;
     /**
      * 경력 (예: JUNIOR)
      */
-    'career'?: MemberCreationRequestCareerEnum;
+    'career'?: MemberCreationRequestDtoCareerEnum;
     /**
      * 관심 스터디 유형 리스트 (예: [\"PROJECT\", \"SEMINAR\"])
      */
-    'studyFormatTypes'?: Array<MemberCreationRequestStudyFormatTypesEnum>;
+    'studyFormatTypes'?: Array<MemberCreationRequestDtoStudyFormatTypesEnum>;
     /**
      * 목표 및 다짐 (최대 100자)
      */
@@ -46,10 +46,10 @@ export interface MemberCreationRequest {
     /**
      * 이미지 확장자 - DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG
      */
-    'imageExtension'?: MemberCreationRequestImageExtensionEnum;
+    'imageExtension'?: MemberCreationRequestDtoImageExtensionEnum;
 }
 
-export const MemberCreationRequestJobsEnum = {
+export const MemberCreationRequestDtoJobsEnum = {
     ItNobaseBusinessStartup: 'IT_NOBASE_BUSINESS_STARTUP',
     ItNobaseAutomation: 'IT_NOBASE_AUTOMATION',
     ItNobaseMyService: 'IT_NOBASE_MY_SERVICE',
@@ -68,8 +68,8 @@ export const MemberCreationRequestJobsEnum = {
     ItPractitionerEtc: 'IT_PRACTITIONER_ETC'
 } as const;
 
-export type MemberCreationRequestJobsEnum = typeof MemberCreationRequestJobsEnum[keyof typeof MemberCreationRequestJobsEnum];
-export const MemberCreationRequestCareerEnum = {
+export type MemberCreationRequestDtoJobsEnum = typeof MemberCreationRequestDtoJobsEnum[keyof typeof MemberCreationRequestDtoJobsEnum];
+export const MemberCreationRequestDtoCareerEnum = {
     Beginner: 'BEGINNER',
     JobSeeker: 'JOB_SEEKER',
     Junior: 'JUNIOR',
@@ -77,8 +77,8 @@ export const MemberCreationRequestCareerEnum = {
     Senior: 'SENIOR'
 } as const;
 
-export type MemberCreationRequestCareerEnum = typeof MemberCreationRequestCareerEnum[keyof typeof MemberCreationRequestCareerEnum];
-export const MemberCreationRequestStudyFormatTypesEnum = {
+export type MemberCreationRequestDtoCareerEnum = typeof MemberCreationRequestDtoCareerEnum[keyof typeof MemberCreationRequestDtoCareerEnum];
+export const MemberCreationRequestDtoStudyFormatTypesEnum = {
     Project: 'PROJECT',
     Mentoring: 'MENTORING',
     Seminar: 'SEMINAR',
@@ -86,8 +86,8 @@ export const MemberCreationRequestStudyFormatTypesEnum = {
     BookLecture: 'BOOK_LECTURE'
 } as const;
 
-export type MemberCreationRequestStudyFormatTypesEnum = typeof MemberCreationRequestStudyFormatTypesEnum[keyof typeof MemberCreationRequestStudyFormatTypesEnum];
-export const MemberCreationRequestImageExtensionEnum = {
+export type MemberCreationRequestDtoStudyFormatTypesEnum = typeof MemberCreationRequestDtoStudyFormatTypesEnum[keyof typeof MemberCreationRequestDtoStudyFormatTypesEnum];
+export const MemberCreationRequestDtoImageExtensionEnum = {
     Default: 'DEFAULT',
     Jpg: 'JPG',
     Png: 'PNG',
@@ -97,6 +97,6 @@ export const MemberCreationRequestImageExtensionEnum = {
     Jpeg: 'JPEG'
 } as const;
 
-export type MemberCreationRequestImageExtensionEnum = typeof MemberCreationRequestImageExtensionEnum[keyof typeof MemberCreationRequestImageExtensionEnum];
+export type MemberCreationRequestDtoImageExtensionEnum = typeof MemberCreationRequestDtoImageExtensionEnum[keyof typeof MemberCreationRequestDtoImageExtensionEnum];
 
 

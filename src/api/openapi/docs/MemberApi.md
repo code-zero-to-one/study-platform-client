@@ -194,7 +194,7 @@ const { status, data } = await apiInstance.getParticipatingStudies(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **signUp**
-> MemberCreationResponse signUp(memberCreationRequest)
+> MemberCreationResponse signUp(memberCreationRequestDto)
 
 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
 
@@ -204,16 +204,16 @@ const { status, data } = await apiInstance.getParticipatingStudies(
 import {
     MemberApi,
     Configuration,
-    MemberCreationRequest
+    MemberCreationRequestDto
 } from './api';
 
 const configuration = new Configuration();
 const apiInstance = new MemberApi(configuration);
 
-let memberCreationRequest: MemberCreationRequest; //
+let memberCreationRequestDto: MemberCreationRequestDto; //
 
 const { status, data } = await apiInstance.signUp(
-    memberCreationRequest
+    memberCreationRequestDto
 );
 ```
 
@@ -221,7 +221,7 @@ const { status, data } = await apiInstance.signUp(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **memberCreationRequest** | **MemberCreationRequest**|  | |
+| **memberCreationRequestDto** | **MemberCreationRequestDto**|  | |
 
 
 ### Return type
