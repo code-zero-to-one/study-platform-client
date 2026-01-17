@@ -90,3 +90,24 @@ export const getKoreaDisplayMonday = (base?: Date) => {
 
   return dow === 0 || dow === 6 ? addDays(monday, 7) : monday;
 };
+
+export const createDateDisabledMatcher = (endDateString?: string) => {
+  return (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (date < today) {
+      return true;
+    }
+
+    if (endDateString) {
+      const endDate = new Date(endDateString);
+      endDate.setHours(23, 59, 59, 999);
+      if (date > endDate) {
+        return true;
+      }
+    }
+
+    return false;
+  };
+};

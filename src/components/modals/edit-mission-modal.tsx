@@ -10,6 +10,7 @@ import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
 import { useGetMission, useUpdateMission } from '@/hooks/queries/mission-api';
+import { createDateDisabledMatcher } from '@/utils/time';
 
 // Form Schema
 const EditMissionFormSchema = z.object({
@@ -251,26 +252,7 @@ function EditMissionForm({
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => field.onChange(date)}
-                  disabled={(date) => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    // 미션 시작일: 오늘 이전 날짜 비활성화
-                    if (date < today) {
-                      return true;
-                    }
-
-                    // 미션 마감일: 스터디 종료일 이후 날짜 비활성화
-                    if (studyEndDate) {
-                      const endDate = new Date(studyEndDate);
-                      endDate.setHours(23, 59, 59, 999);
-                      if (date > endDate) {
-                        return true;
-                      }
-                    }
-
-                    return false;
-                  }}
+                  disabled={createDateDisabledMatcher(studyEndDate)}
                 />
               )}
             />
