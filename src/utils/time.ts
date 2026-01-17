@@ -91,20 +91,69 @@ export const getKoreaDisplayMonday = (base?: Date) => {
   return dow === 0 || dow === 6 ? addDays(monday, 7) : monday;
 };
 
-export const createDateDisabledMatcher = (endDateString?: string) => {
+interface MissionPeriod {
+  missionId?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+interface CreateMissionDateDisabledMatcherOptions {
+  studyStartDate?: string;
+  studyEndDate?: string;
+  existingMissions?: MissionPeriod[];
+  excludeMissionId?: number;
+}
+
+export const createMissionDateDisabledMatcher = (
+  options: CreateMissionDateDisabledMatcherOptions,
+) => {
+  const { studyStartDate, studyEndDate, existingMissions, excludeMissionId } = options;
+
   return (date: Date) => {
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    if (date < today) {
+    if (normalizedDate < today) {
       return true;
     }
 
-    if (endDateString) {
-      const endDate = new Date(endDateString);
-      endDate.setHours(23, 59, 59, 999);
-      if (date > endDate) {
+    if (studyStartDate) {
+      const startDate = new Date(studyStartDate);
+      startDate.setHours(0, 0, 0, 0);
+      if (normalizedDate < startDate) {
         return true;
+      }
+    }
+
+    if (studyEndDate) {
+      const endDate = new Date(studyEndDate);
+      endDate.setHours(0, 0, 0, 0);
+      if (normalizedDate > endDate) {
+        return true;
+      }
+    }
+
+    if (existingMissions) {
+      const targetTime = normalizedDate.getTime();
+      for (const mission of existingMissions) {
+        if (excludeMissionId && mission.missionId === excludeMissionId) continue;
+
+        if (mission.startDate && mission.endDate) {
+          const missionStart = new Date(mission.startDate);
+          missionStart.setHours(0, 0, 0, 0);
+          const missionEnd = new Date(mission.endDate);
+          missionEnd.setHours(0, 0, 0, 0);
+
+          if (
+            targetTime >= missionStart.getTime() &&
+            targetTime <= missionEnd.getTime()
+          ) {
+            return true;
+          }
+        }
       }
     }
 
