@@ -1,5 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import HeaderNav from '@/components/layout/header-nav';
+import NotificationDropdown from '@/components/modals/notification-dropdown';
 import Button from '@/components/ui/button';
 import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
@@ -25,7 +27,7 @@ export default async function Header() {
     : undefined;
 
   return (
-    <header className="w-full bg-white px-600 py-[11px] mix-blend-multiply">
+    <header className="mx-auto w-[1496px] bg-white px-600 py-[11px] mix-blend-multiply">
       <div className="flex w-full items-center justify-between">
         <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
@@ -42,19 +44,11 @@ export default async function Header() {
           </span>
         </div>
 
-        {/* 1차 MVP에선 사용하지 않아 제외 */}
-        <nav className="font-designer-14m text-text-default flex flex-grow items-center gap-300 px-600">
-          <Link href={isLoggedIn ? '/home' : '/login'}>1:1 스터디</Link>
-          <Link href="/study">그룹스터디</Link>
-          {/* <Link href="/">팀소개하기로 했었구나</Link> */}
-          <Link href="/insights">인사이트</Link>
-        </nav>
+        <HeaderNav isLoggedIn={isLoggedIn} />
 
-        {/* 알림 기능을 구현하지 못해 주석 처리 */}
-        {/* <div>
-            <NotiIcon />
-          </div> */}
-        <div>
+        {accessTokenStr && <NotificationDropdown />}
+
+        <div className="ml-150">
           {isLoggedIn ? (
             <HeaderUserDropdown userImg={userImg} />
           ) : (

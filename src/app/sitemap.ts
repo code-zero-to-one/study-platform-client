@@ -1,7 +1,7 @@
 import type { MetadataRoute } from 'next';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
-import type { GroupStudyListItem } from '@/api/openapi/models';
+import type { GroupStudyListItemDto } from '@/api/openapi/models';
 import { fetchArticles } from '@/api/strapi/api/fetch-articles';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -69,11 +69,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ),
     ]);
 
-    const normalStudyItems: GroupStudyListItem[] =
+    const normalStudyItems: GroupStudyListItemDto[] =
       normalStudies.data?.content?.content ?? [];
-    const premiumStudyItems: GroupStudyListItem[] =
+    const premiumStudyItems: GroupStudyListItemDto[] =
       premiumStudies.data?.content?.content ?? [];
-    const allStudies: GroupStudyListItem[] = [
+    const allStudies: GroupStudyListItemDto[] = [
       ...normalStudyItems,
       ...premiumStudyItems,
     ];

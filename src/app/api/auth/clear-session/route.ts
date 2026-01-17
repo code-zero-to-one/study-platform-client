@@ -28,8 +28,6 @@ export async function GET(request: NextRequest) {
     process.env.NEXT_PUBLIC_API_BASE_URL?.replace('/api/v1', '') ||
     request.url.split('/api')[0];
 
-  console.log('baseUrl', baseUrl);
-
   // 리다이렉트
   return NextResponse.redirect(new URL(redirectTo, baseUrl));
 }

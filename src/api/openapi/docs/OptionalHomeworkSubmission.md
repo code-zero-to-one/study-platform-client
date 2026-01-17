@@ -6,7 +6,6 @@
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **link** | **string** |  | [optional] [default to undefined]
-**empty** | **boolean** |  | [optional] [default to undefined]
 
 ## Example
 
@@ -15,7 +14,6 @@ import { OptionalHomeworkSubmission } from './api';
 
 const instance: OptionalHomeworkSubmission = {
     link,
-    empty,
 };
 ```
 

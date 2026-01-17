@@ -40,6 +40,7 @@ export const EXTENSION_TO_MIME: Record<
 };
 
 export interface BasicInfo {
+  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
   type: StudyType;
   targetRoles: TargetRole[];
   maxMembersCount: number;
@@ -50,7 +51,7 @@ export interface BasicInfo {
   startDate: string;
   endDate: string;
   price: number;
-  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
+  studyLeaderParticipation: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -71,10 +72,10 @@ export interface BasicInfoDetail extends BasicInfo {
 }
 
 export interface Leader {
-  memberId: number;
-  memberName: string;
-  profileImage: ProfileImage | null;
-  simpleIntroduction: string | null;
+  memberId?: number;
+  memberNickname?: string;
+  profileImage?: ProfileImage;
+  simpleIntroduction?: string;
 }
 
 export interface ProfileImage {
@@ -149,7 +150,7 @@ export interface DetailInfoDetail extends SimpleDetailInfo, Timestamps {
 
 /** 상세 화면용 InterviewPost */
 export interface InterviewPostDetail extends Timestamps {
-  interviewPost: { question: string; id: number }[];
+  interviewPost: { question?: string; id?: number }[];
 }
 
 // 그룹 스터디 신청 Response 타입
@@ -169,6 +170,10 @@ export interface GroupStudyFormRequest {
   };
   thumbnailExtension: ThumbnailExtension;
 }
+
+export type { GroupStudyCreationRequestDto } from '@/api/openapi/models/group-study-creation-request-dto';
+export type { GroupStudyCreationResponse } from '@/api/openapi/models/group-study-creation-response';
+export type { GroupStudyCreationResponseDto } from '@/api/openapi/models/group-study-creation-response-dto';
 
 // 그룹 리스트 타입
 export interface GroupStudyListRequest {
@@ -197,16 +202,13 @@ export interface GroupStudyDetailResponse {
   interviewPost: InterviewPostDetail; // InterviewPost 확장
 }
 
+// OpenAPI에서 자동 생성된 DTO 타입 (API 응답용)
+export type { GroupStudyFullResponseDto as GroupStudyFullResponse } from '@/api/openapi';
+
 export type DeleteGroupStudyRequest = GroupStudyDetailRequest;
 export type CompleteGroupStudyRequest = GroupStudyDetailRequest;
 
-// 그룹 스터디 참여자 목록 API 타입
-export interface GroupStudyMembersRequest {
-  id: number;
-  pageNumber?: number;
-  pageSize?: number;
-}
-
+// 그룹 스터디 참여자 목록 API 타입 (OpenAPI 타입 버그로 인해 임시 유지)
 export interface GroupStudyMembersResponse {
   pageSize: number;
   pageNumber: number;
@@ -230,13 +232,28 @@ export interface GroupStudyMember {
 
 export interface MemberProgress {
   score: number;
-  progressHistory: ProgressHistoryItem[];
+  maxScore: number;
+  discretionGradeHistory: DiscretionGradeHistory[];
+  missionProgressHistory: MissionProgressHistory[];
 }
 
-export interface ProgressHistoryItem {
+export interface DiscretionGradeHistory {
   id: number;
-  acquiredAt: string; // ISO datetime string
-  grade: Grade;
+  acquiredAt: string;
+  reason: string;
+}
+
+export interface MissionProgressHistory {
+  id: number;
+  acquiredAt: string;
+  grade:
+    | 'A_PLUS'
+    | 'A_MINUS'
+    | 'B_PLUS'
+    | 'B_MINUS'
+    | 'C_PLUS'
+    | 'C_MINUS'
+    | 'F';
   reason: string;
 }
 
@@ -247,39 +264,9 @@ export interface Grade {
   score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
 }
 
-// 가입인사 작성&수정 API 타입
-export interface UpdateGreetingRequest {
-  groupStudyId: number; // 그룹 스터디 ID
-  content: string; // 20~100자 문자열
-}
-
-// 진행점수 부여/수정 API 타입
-export interface UpdateProgressScoreRequest {
-  groupStudyId: number;
-  targetMemberId: number;
-  gradeId: number;
-  reason: string;
-}
-
-// 진행점수 등급 목록 조회 API 타입
-export interface ProgressGradesResponse {
-  grades: Grade[];
-}
-
-// 그룹 스터디 내 상태 조회 API 타입
-export interface GroupStudyMyStatusRequest {
-  groupStudyId: number;
-}
-
+// 그룹 스터디 내 상태 조회 API 타입 (OpenAPI 타입 버그로 인해 임시 유지)
 export interface GroupStudyMyStatusResponse {
   status: ApplicationStatus;
-  reason: string;
-}
-
-// 그룹스터디 참여자 추방 API 타입
-export interface DeleteGroupStudyMemberRequest {
-  groupStudyId: number;
-  targetMemberId: number;
   reason: string;
 }
 

@@ -6,6 +6,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
+**studyLeaderParticipation** | **boolean** | 스터디 리더 스터디 참가 여부 | [optional] [default to undefined]
 **classification** | **string** | 스터디 분류 (그룹스터디 / 프리미엄 스터디) | [default to undefined]
 **type** | **string** | 스터디 타입 | [default to undefined]
 **hostType** | **string** | 스터디 주최자 구분(미입력 시 일반회원 GENERAL) | [optional] [default to undefined]
@@ -25,6 +26,7 @@ Name | Type | Description | Notes
 import { GroupStudyBasicInfoRequestDto } from './api';
 
 const instance: GroupStudyBasicInfoRequestDto = {
+    studyLeaderParticipation,
     classification,
     type,
     hostType,

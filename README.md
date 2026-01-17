@@ -35,10 +35,10 @@ src/
 │
 ├── hooks/                    # React Hooks
 │   ├── queries/             # TanStack Query 훅
-│   │   ├── use-user-queries.ts
-│   │   ├── use-study-queries.ts
-│   │   ├── use-review-queries.ts
-│   │   └── use-admin-queries.ts
+│   │   ├── admin-payment-api.ts
+│   │   ├── admin-refund-api.ts
+│   │   ├── bank-search-api.ts
+│   │   └── evaluation-api.ts
 │   │
 │   └── common/              # 공통 커스텀 훅
 │       ├── use-intersection-observer.ts
@@ -82,9 +82,6 @@ src/
 │   │   ├── study-list-table.tsx
 │   │   └── todo-list.tsx
 │   │
-│   ├── calendars/           # 캘린더 컴포넌트
-│   │   └── calendar.tsx
-│   │
 │   └── admin/               # 관리자 전용 컴포넌트
 │       ├── admin-sidebar.tsx
 │       └── member-table.tsx
@@ -119,11 +116,6 @@ src/
     │   ├── study.ts         # Study Zod 스키마
     │   ├── review.ts        # Review Zod 스키마
     │   └── admin.ts         # Admin Zod 스키마
-    │
-    └── api/                 # API 응답 타입 (OpenAPI 생성될 때까지)
-        ├── user.types.ts
-        ├── study.types.ts
-        └── review.types.ts
 ```
 
 ## 🚀 시작하기
@@ -132,19 +124,6 @@ src/
 
 ```bash
 yarn run dev
-```
-
-### 백엔드 API 서버 (Docker)
-
-```bash
-# API 서버 시작
-yarn run api:on
-
-# API 서버 종료
-yarn run api:off
-
-# 로그 확인
-yarn run api:logs
 ```
 
 ### 코드 품질
@@ -180,6 +159,61 @@ yarn run prettier:fix
 OpenAPI Generator로 생성된 클라이언트 사용법과 환경변수 설정은 다음 문서를 참고하세요:
 
 - [docs/openapi-usage.md](docs/openapi-usage.md)
+
+### 새로운 API 추가
+
+1. **새 파일 생성**
+
+`src/hooks/queries` 디렉토리에 새로운 파일이 생성되면 자동으로 API 인스턴스 보일러플레이트 코드를 추가하는 코드 제너레이터를 사용해줍니다.
+
+```bash
+yarn generate:api bank-search-api
+```
+
+swagger에서 api 타이틀 이름이 bank search라면 셸에 위와 같은 명령어를 쳐주세요.
+
+<img width="1452" height="135" alt="스크린샷 2026-01-05 오전 12 47 35" src="https://github.com/user-attachments/assets/4cfba002-ab6b-4b60-b048-554653e6dcc1" />
+
+이 명령어는 `src/hooks/queries/bank-search-api.ts` 파일을 생성하고 자동으로 보일러플레이트 코드를 추가합니다.
+
+```typescript
+import { createApiInstance } from '@/api/client/open-api-instance';
+import { BankSearchApi } from '@/api/openapi';
+
+const bankSearchApi = createApiInstance(BankSearchApi);
+```
+
+여러 파일 동시 생성도 가능합니다.
+
+```bash
+yarn generate:api payment-api settlement-api user-api
+```
+
+2. **hook 작성**
+
+파일을 만들었다면 hook을 작성해주세요.
+
+```typescript
+// src/hooks/queries/bank-search-api.ts
+import { useQuery } from '@tanstack/react-query';
+import { createApiInstance } from '@/api/client/open-api-instance';
+import { BankSearchApi } from '@/api/openapi';
+
+const bankSearchApi = createApiInstance(BankSearchApi);
+
+// 훅 작성
+export const useSearchBanks = () => {
+  return useQuery({
+    queryKey: ['bankSearch'],
+    queryFn: async () => {
+      const { data } = await bankSearchApi.getBanks();
+
+      return data.content;
+    },
+    staleTime: 1000 * 60 * 60, // 1 hour
+  });
+};
+```
 
 ### 새로운 컴포넌트 추가
 
@@ -219,71 +253,9 @@ OpenAPI Generator로 생성된 클라이언트 사용법과 환경변수 설정�
    }
    ```
 
-### 새로운 API 추가
-
-1. **API 함수 작성** (`api/endpoints/`)
-
-   ```typescript
-   // api/endpoints/study.api.ts
-   import { axiosInstance } from '@/api/client/axios';
-   import type { Study } from '@/models/study.model';
-
-   export const StudyAPI = {
-     getList: async (): Promise<Study[]> => {
-       const res = await axiosInstance.get('/studies');
-       return res.data.content;
-     },
-   };
-   ```
-
-2. **Query Hook 추가** (`hooks/queries/`)
-
-   ```typescript
-   // hooks/queries/use-study-queries.ts
-   import { useQuery } from '@tanstack/react-query';
-   import { StudyAPI } from '@/api/endpoints/study.api';
-
-   export const useStudyQueries = {
-     useList: () =>
-       useQuery({
-         queryKey: ['study', 'list'],
-         queryFn: StudyAPI.getList,
-       }),
-   };
-   ```
-
-3. **컴포넌트에서 사용**
-
-   ```tsx
-   import { useStudyQueries } from '@/hooks/queries/use-study-queries';
-
-   export default function StudyList() {
-     const { data: studies } = useStudyQueries.useList();
-     return <div>{/* ... */}</div>;
-   }
-   ```
-
 ### 새로운 타입/스키마 추가
 
-1. **API 응답 타입 정의** (`types/api/`)
-
-   ```typescript
-   // types/api/study.types.ts
-   export interface GetStudyListResponse {
-     content: Study[];
-     totalPages: number;
-     totalElements: number;
-   }
-
-   export interface Study {
-     id: number;
-     title: string;
-     summary: string;
-     maxMembersCount: number;
-   }
-   ```
-
-2. **Zod 스키마 정의** (`types/schemas/`)
+1. **Zod 스키마 정의** (`types/schemas/`)
 
    ```typescript
    // types/schemas/study.ts
@@ -299,61 +271,6 @@ OpenAPI Generator로 생성된 클라이언트 사용법과 환경변수 설정�
    export type StudyFormData = z.infer<typeof StudyFormSchema>;
    ```
 
-### OpenAPI Generator 설정 (추후)
-
-1. **패키지 설치**
-
-   ```bash
-   npm install --save-dev openapi-typescript-codegen
-   ```
-
-2. **package.json에 스크립트 추가**
-
-   ```json
-   {
-     "scripts": {
-       "generate:api": "openapi --input ./openapi.yaml --output ./src/api/openapi --client axios"
-     }
-   }
-   ```
-
-3. **타입 자동 생성**
-   ```bash
-   yarn run generate:api
-   ```
-
-### 타입 정의 규칙
-
-| 타입 종류          | 위치                   | 설명                 | 예시                       |
-| ------------------ | ---------------------- | -------------------- | -------------------------- |
-| **API 응답 타입**  | `types/api/*.types.ts` | 백엔드 API 응답 구조 | GetUserProfileResponse     |
-| **도메인 타입**    | `types/domains/*.ts`   | 비즈니스 도메인 타입 | User, Study                |
-| **Zod 스키마**     | `types/domains/*.ts`   | 폼 검증 스키마       | UserFormSchema             |
-| **UI 타입**        | `types/ui.ts`          | UI 상태, Props 타입  | ButtonVariant, ModalState  |
-| **Form 타입**      | `types/form.ts`        | 폼 관련 타입         | FormState, ValidationError |
-| **컴포넌트 Props** | 컴포넌트 파일 내부     | 컴포넌트별 Props     | ProfileCardProps           |
-
-**추후 OpenAPI 도입 시**:
-
-- API 응답 타입: `api/openapi/models/` (자동 생성으로 대체)
-- Zod 스키마: `types/schemas/` (수동 관리 유지)
-
-### Import 경로 규칙
-
-```typescript
-// ✅ 올바른 import
-import { Button } from '@/components/ui/button';
-import { ProfileCard } from '@/components/common/profile-card';
-import { StudyList } from '@/components/features/study-list';
-import { useUserQueries } from '@/hooks/queries/use-user-queries';
-import { UserAPI } from '@/api/endpoints/user.api';
-import type { GetUserProfileResponse } from '@/types/api/user.types';
-import { UserFormSchema } from '@/types/schemas/user';
-
-// ❌ 잘못된 import (상대 경로 사용 금지)
-import { Button } from '../../components/ui/button';
-```
-
 ## 📝 커밋 컨벤션
 
 ```
@@ -364,16 +281,6 @@ style: 코드 포맷팅, 세미콜론 누락 등
 docs: 문서 수정
 test: 테스트 코드
 chore: 빌드 업무 수정, 패키지 매니저 수정
-```
-
-## 🧪 테스트
-
-```bash
-# 단위 테스트
-yarn run test
-
-# E2E 테스트
-yarn run test:e2e
 ```
 
 ## 📚 Storybook
@@ -419,10 +326,10 @@ yarn run chromatic
 
 ### 🚀 배포 & 테스트 서버
 
-| 환경              | 링크                                                              | 상태                     |
-| ----------------- | ----------------------------------------------------------------- | ------------------------ |
-| **프론트 테스트** | [test.zeroone.it.kr](https://test.zeroone.it.kr)                  | develop 브랜치 자동 배포 |
-| **프론트 운영**   | https://www.zeroone.it.kr                                         | 예정                     |
-| **백엔드 테스트** | [test-api.zeroone.it.kr](https://test-api.zeroone.it.kr)          | dev 브랜치 자동 배포     |
-| **백엔드 운영**   | https://api.zeroone.it.kr                                         | main 브랜치 자동 배포    |
-| **API 문서**      | [Swagger UI](http://test-api.zeroone.it.kr/swagger-ui/index.html) | 백엔드 API 명세서        |
+| 환경                       | 링크                                                              | 상태                     |
+| -------------------------- | ----------------------------------------------------------------- | ------------------------ |
+| **프론트 테스트**          | [test.zeroone.it.kr](https://test.zeroone.it.kr)                  | develop 브랜치 자동 배포 |
+| **프론트 운영**            | https://www.zeroone.it.kr                                         | main 브랜치 자동 배포    |
+| **백엔드 테스트**          | [test-api.zeroone.it.kr](https://test-api.zeroone.it.kr)          | dev 브랜치 자동 배포     |
+| **백엔드 운영**            | https://api.zeroone.it.kr                                         | main 브랜치 자동 배포    |
+| **백엔드 테스트 API 문서** | [Swagger UI](http://test-api.zeroone.it.kr/swagger-ui/index.html) | 백엔드 API 명세서        |

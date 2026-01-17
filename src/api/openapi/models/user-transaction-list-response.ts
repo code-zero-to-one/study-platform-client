@@ -32,6 +32,7 @@ export interface UserTransactionListResponse {
 
 export const UserTransactionListResponseLatestTransactionTypeEnum = {
     PaymentRequested: 'PAYMENT_REQUESTED',
+    PaymentWaitingForDeposit: 'PAYMENT_WAITING_FOR_DEPOSIT',
     PaymentSuccess: 'PAYMENT_SUCCESS',
     PaymentFailed: 'PAYMENT_FAILED',
     PaymentCanceled: 'PAYMENT_CANCELED',

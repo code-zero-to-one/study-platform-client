@@ -7,6 +7,7 @@ import { deleteCookie, getCookie } from '@/api/client/cookie';
 import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
 import { hashValue } from '@/utils/hash';
 import { SignUpRequest, SignUpResponse } from './types';
+import { useUserStore } from '../../../stores/useUserStore';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
@@ -29,6 +30,7 @@ export function useUploadProfileImageMutation() {
 export const useLogoutMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
+  const resetUserStore = useUserStore((state) => state.reset);
 
   return useMutation({
     mutationFn: logout,
@@ -46,6 +48,7 @@ export const useLogoutMutation = () => {
       deleteCookie('memberId');
       deleteCookie('socialImageURL');
 
+      resetUserStore();
       queryClient.clear();
 
       router.push('/home');

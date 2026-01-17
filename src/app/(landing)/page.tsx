@@ -220,7 +220,7 @@ export default async function Landing() {
 
             <div className="mt-200 flex flex-col gap-300">
               <p className="font-bold-h2 text-text-strong flex flex-col">
-                <span>당신을 위한 스터디가 준비중입니다!</span>
+                <span>당신을 위한 스터디가 준비중입니다.</span>
                 {/* <span>연락드릴게요!</span> */}
               </p>
 
@@ -246,7 +246,7 @@ export default async function Landing() {
       <footer className="bg-background-neutral-strong flex flex-col items-center gap-500 px-[80px] py-[64px]">
         <div className="text-text-inverse font-bold-h3 flex flex-col items-center justify-center gap-200">
           <span>제로원을 방문해주신 모든 분들에게 감사드립니다.</span>
-          <span>더욱 더 좋은 서비스와 기회로 보답하도록 하겠습니다.</span>
+          <span>더욱 더 좋은 서비스와 기회로 보답하도록 하겠습니다!</span>
         </div>
 
         <div className="flex gap-200">

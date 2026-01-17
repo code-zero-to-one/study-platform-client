@@ -1,7 +1,7 @@
-import TempType1 from '@/shared/icons/temp_1.svg';
-import TempType2 from '@/shared/icons/temp_2.svg';
-import TempType3 from '@/shared/icons/temp_3.svg';
-import TempType4 from '@/shared/icons/temp_4.svg';
+import TempType1 from 'public/icons/temp_1.svg';
+import TempType2 from 'public/icons/temp_2.svg';
+import TempType3 from 'public/icons/temp_3.svg';
+import TempType4 from 'public/icons/temp_4.svg';
 
 export type SincerityLabel = '1단계' | '2단계' | '3단계' | '4단계';
 

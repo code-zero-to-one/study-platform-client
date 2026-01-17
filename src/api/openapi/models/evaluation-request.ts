@@ -15,22 +15,7 @@
 
 
 export interface EvaluationRequest {
-    'grade': EvaluationRequestGradeEnum;
+    'gradeCode': string;
     'comment'?: string;
 }
-
-export const EvaluationRequestGradeEnum = {
-    APlus: 'A_PLUS',
-    A: 'A',
-    BPlus: 'B_PLUS',
-    B: 'B',
-    CPlus: 'C_PLUS',
-    C: 'C',
-    DPlus: 'D_PLUS',
-    D: 'D',
-    F: 'F'
-} as const;
-
-export type EvaluationRequestGradeEnum = typeof EvaluationRequestGradeEnum[keyof typeof EvaluationRequestGradeEnum];
-
 

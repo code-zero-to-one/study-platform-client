@@ -22,7 +22,9 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { BaseResponseGrantedTokenInfo } from '../models';
+// @ts-ignore
+import type { BaseResponseVoid } from '../models';
 // @ts-ignore
 import type { NumberResponse } from '../models';
 // @ts-ignore
@@ -111,16 +113,15 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
          * OAuth 2.0 스펙에 따라 로그인을 진행할 때, 리다이렉트되는 엔드포인트. 프론트에서 이 엔드포인트에 직접 요청할 일은 없고, Auth server (카카오, 구글 등 소셜 로그인 서버)에서 이 엔드포인트로 리다이렉션한다.
          * @summary OAuth 2.0 소셜 로그인 리다이렉트 URI
          * @param {string} authVendor OAuth 2.0 Auth server
-         * @param {string} code 
+         * @param {string} [code] 
          * @param {string} [state] 
+         * @param {string} [error] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        oauth2Login: async (authVendor: string, code: string, state?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        oauth2Login: async (authVendor: string, code?: string, state?: string, error?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'authVendor' is not null or undefined
             assertParamExists('oauth2Login', 'authVendor', authVendor)
-            // verify required parameter 'code' is not null or undefined
-            assertParamExists('oauth2Login', 'code', code)
             const localVarPath = `/api/v1/auth/{authVendor}/redirect-uri`
                 .replace(`{${"authVendor"}}`, encodeURIComponent(String(authVendor)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -144,6 +145,10 @@ export const AuthApiAxiosParamCreator = function (configuration?: Configuration)
 
             if (state !== undefined) {
                 localVarQueryParameter['state'] = state;
+            }
+
+            if (error !== undefined) {
+                localVarQueryParameter['error'] = error;
             }
 
 
@@ -220,7 +225,7 @@ export const AuthApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async logout(referer?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async logout(referer?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseVoid>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.logout(referer, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthApi.logout']?.[localVarOperationServerIndex]?.url;
@@ -230,13 +235,14 @@ export const AuthApiFp = function(configuration?: Configuration) {
          * OAuth 2.0 스펙에 따라 로그인을 진행할 때, 리다이렉트되는 엔드포인트. 프론트에서 이 엔드포인트에 직접 요청할 일은 없고, Auth server (카카오, 구글 등 소셜 로그인 서버)에서 이 엔드포인트로 리다이렉션한다.
          * @summary OAuth 2.0 소셜 로그인 리다이렉트 URI
          * @param {string} authVendor OAuth 2.0 Auth server
-         * @param {string} code 
+         * @param {string} [code] 
          * @param {string} [state] 
+         * @param {string} [error] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async oauth2Login(authVendor: string, code: string, state?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.oauth2Login(authVendor, code, state, options);
+        async oauth2Login(authVendor: string, code?: string, state?: string, error?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.oauth2Login(authVendor, code, state, error, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AuthApi.oauth2Login']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -279,20 +285,21 @@ export const AuthApiFactory = function (configuration?: Configuration, basePath?
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        logout(referer?: string, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        logout(referer?: string, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseVoid> {
             return localVarFp.logout(referer, options).then((request) => request(axios, basePath));
         },
         /**
          * OAuth 2.0 스펙에 따라 로그인을 진행할 때, 리다이렉트되는 엔드포인트. 프론트에서 이 엔드포인트에 직접 요청할 일은 없고, Auth server (카카오, 구글 등 소셜 로그인 서버)에서 이 엔드포인트로 리다이렉션한다.
          * @summary OAuth 2.0 소셜 로그인 리다이렉트 URI
          * @param {string} authVendor OAuth 2.0 Auth server
-         * @param {string} code 
+         * @param {string} [code] 
          * @param {string} [state] 
+         * @param {string} [error] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        oauth2Login(authVendor: string, code: string, state?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.oauth2Login(authVendor, code, state, options).then((request) => request(axios, basePath));
+        oauth2Login(authVendor: string, code?: string, state?: string, error?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.oauth2Login(authVendor, code, state, error, options).then((request) => request(axios, basePath));
         },
         /**
          * Access token으로부터 사용자 정보를 가져와 반환. memberId만 반환한다.
@@ -336,13 +343,14 @@ export class AuthApi extends BaseAPI {
      * OAuth 2.0 스펙에 따라 로그인을 진행할 때, 리다이렉트되는 엔드포인트. 프론트에서 이 엔드포인트에 직접 요청할 일은 없고, Auth server (카카오, 구글 등 소셜 로그인 서버)에서 이 엔드포인트로 리다이렉션한다.
      * @summary OAuth 2.0 소셜 로그인 리다이렉트 URI
      * @param {string} authVendor OAuth 2.0 Auth server
-     * @param {string} code 
+     * @param {string} [code] 
      * @param {string} [state] 
+     * @param {string} [error] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public oauth2Login(authVendor: string, code: string, state?: string, options?: RawAxiosRequestConfig) {
-        return AuthApiFp(this.configuration).oauth2Login(authVendor, code, state, options).then((request) => request(this.axios, this.basePath));
+    public oauth2Login(authVendor: string, code?: string, state?: string, error?: string, options?: RawAxiosRequestConfig) {
+        return AuthApiFp(this.configuration).oauth2Login(authVendor, code, state, error, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

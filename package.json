@@ -21,7 +21,7 @@
     "chromatic": "chromatic --project-token=chpt_bc3a617b8073f9f",
     "api:on": "sh ./scripts/setup-backend.sh",
     "api:off": "docker-compose -f ../study-platform-mvp/docker-compose.yml down",
-    "api:logs": "docker-compose -f ../study-platform-mvp/docker-compose.yml logs -f mvp-app"
+    "generate:api": "node scripts/api-generator.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -37,6 +37,7 @@
     "@radix-ui/react-toggle": "^1.1.9",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tailwindcss/postcss": "^4.0.6",
+    "@tosspayments/tosspayments-sdk": "^2.5.0",
     "axios": "^1.9.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -100,8 +101,13 @@
     "prettier-plugin-tailwindcss": "^0.6.11",
     "shadcn": "^2.4.0-canary.6",
     "storybook": "^8.6.12",
+    "strip-ansi": "6",
     "typescript": "^5",
     "typescript-eslint": "^8.24.0",
     "vitest": "^3.1.1"
+  },
+    "resolutions": {
+    "strip-ansi": "6.0.1"
   }
+
 }

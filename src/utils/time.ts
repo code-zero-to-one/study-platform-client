@@ -1,5 +1,6 @@
 import {
   addDays,
+  addHours,
   differenceInDays,
   differenceInHours,
   differenceInMinutes,
@@ -8,6 +9,29 @@ import {
   parseISO,
   startOfWeek,
 } from 'date-fns';
+
+// todo: formatToKST로 통일하도록 리팩토링 필요 (getKoreaDate와 혼용 중)
+/**
+ * 날짜 문자열을 한국시간 Date 객체로 변환
+ * - UTC 문자열이면 +9시간
+ * - 이미 KST면 그대로 사용
+ */
+export const formatToKST = (dateString?: string): Date | undefined => {
+  if (!dateString) {
+    return undefined;
+  }
+
+  const date = parseISO(dateString);
+
+  // UTC 여부 판단
+  // 1) Z 포함 → UTC
+  // 2) +00:00 포함 → UTC
+  const isUTC = dateString.endsWith('Z') || dateString.includes('+00:00');
+
+  const kstDate = isUTC ? addHours(date, 9) : date;
+
+  return kstDate;
+};
 
 export const getKoreaDate = (targetDate?: Date) => {
   const date = targetDate || new Date();
@@ -65,4 +89,25 @@ export const getKoreaDisplayMonday = (base?: Date) => {
   const dow = getDay(todayKST); // 0=일, 6=토
 
   return dow === 0 || dow === 6 ? addDays(monday, 7) : monday;
+};
+
+export const createDateDisabledMatcher = (endDateString?: string) => {
+  return (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (date < today) {
+      return true;
+    }
+
+    if (endDateString) {
+      const endDate = new Date(endDateString);
+      endDate.setHours(23, 59, 59, 999);
+      if (date > endDate) {
+        return true;
+      }
+    }
+
+    return false;
+  };
 };

@@ -15,7 +15,7 @@ export const metadata: Metadata = generateSEOMetadata({
 
 export default async function Home() {
   return (
-    <div className="flex gap-600 py-600">
+    <div className="mx-auto flex w-[1496px] gap-600 px-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
         <Banner />
         <StudyCard />

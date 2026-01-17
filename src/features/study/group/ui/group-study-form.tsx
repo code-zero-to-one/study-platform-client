@@ -1,15 +1,19 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import {
   GroupStudyFormSchema,
   GroupStudyFormValues,
+  StudyClassification,
 } from '../model/group-study-form.schema';
 import Step1OpenGroupStudy from './step/step1-group';
 import Step2OpenGroupStudy from './step/step2-group';
 import Step3OpenGroupStudy from './step/step3-group';
+
+const ClassificationContext = createContext<StudyClassification>('GROUP_STUDY');
+export const useClassification = () => useContext(ClassificationContext);
 
 interface GroupStudyFormProps {
   defaultValues: GroupStudyFormValues;
@@ -18,6 +22,7 @@ interface GroupStudyFormProps {
 
 const STEP_FIELDS: Record<1 | 2 | 3, (keyof GroupStudyFormValues)[]> = {
   1: [
+    'studyLeaderParticipation',
     'type',
     'targetRoles',
     'maxMembersCount',
@@ -27,6 +32,7 @@ const STEP_FIELDS: Record<1 | 2 | 3, (keyof GroupStudyFormValues)[]> = {
     'regularMeeting',
     'startDate',
     'endDate',
+    'price',
   ],
   2: ['thumbnailExtension', 'title', 'description', 'summary'],
   3: ['interviewPost'],
@@ -42,7 +48,8 @@ export default function GroupStudyForm({
     defaultValues: defaultValues,
   });
 
-  const { handleSubmit, trigger, formState } = methods;
+  const { handleSubmit, trigger, formState, watch } = methods;
+  const classification = watch('classification');
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
 
@@ -62,8 +69,61 @@ export default function GroupStudyForm({
     if (step > 1) setStep((s) => (s - 1) as 1 | 2 | 3);
   };
 
+  const currentValues = watch();
+
+  const isNextButtonDisabled = useMemo(() => {
+    const currentStepFields = STEP_FIELDS[step];
+
+    return currentStepFields.some((field) => {
+      const value = currentValues[field];
+      const error = formState.errors[field];
+
+      // 에러가 있으면 비활성화
+      if (error) return true;
+
+      // 필수 필드가 비어있으면 비활성화
+      if (field === 'studyLeaderParticipation') {
+        return typeof value !== 'boolean';
+      }
+      if (field === 'price') {
+        // PREMIUM_STUDY일 때만 price 필수
+        if (classification === 'PREMIUM_STUDY') {
+          return !value || (typeof value === 'string' && value.trim() === '');
+        }
+
+        return false;
+      }
+      if (field === 'targetRoles' || field === 'experienceLevels') {
+        return !value || (Array.isArray(value) && value.length === 0);
+      }
+      if (
+        field === 'maxMembersCount' ||
+        field === 'startDate' ||
+        field === 'endDate' ||
+        field === 'title' ||
+        field === 'summary' ||
+        field === 'description'
+      ) {
+        return !value || (typeof value === 'string' && value.trim() === '');
+      }
+      if (field === 'thumbnailExtension') {
+        return !value || value === 'DEFAULT';
+      }
+      if (field === 'interviewPost') {
+        return (
+          !value ||
+          !Array.isArray(value) ||
+          value.length === 0 ||
+          value.some((q) => !q || q.trim() === '')
+        );
+      }
+
+      return false;
+    });
+  }, [step, currentValues, formState.errors, classification]);
+
   return (
-    <>
+    <ClassificationContext.Provider value={classification}>
       <Modal.Body className="flex flex-col gap-150">
         <Stepper step={step} />
         <FormProvider {...methods}>
@@ -107,6 +167,7 @@ export default function GroupStudyForm({
               color="primary"
               type="button"
               onClick={goNext}
+              disabled={isNextButtonDisabled}
             >
               다음
             </Button>
@@ -124,7 +185,7 @@ export default function GroupStudyForm({
           )}
         </div>
       </Modal.Footer>
-    </>
+    </ClassificationContext.Provider>
   );
 }
 

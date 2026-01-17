@@ -10,10 +10,11 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |[**getMatchingRequest**](#getmatchingrequest) | **GET** /api/v1/admin/matching/requests/{matchingRequestId} | 관리자 매칭 상세 조회|
 |[**resetWeeklyMatching**](#resetweeklymatching) | **DELETE** /api/v1/admin/matching/reset-weekly | 주차 매칭 데이터 초기화|
 |[**runAutoMatchingJob**](#runautomatchingjob) | **POST** /api/v1/admin/matching/run | 자동 매칭 수동 트리거|
+|[**startStudyCycle**](#startstudycycle) | **POST** /api/v1/admin/matching/start-cycle | 스터디 사이클 시작|
 |[**updateMatchingRequestByAdmin**](#updatematchingrequestbyadmin) | **PATCH** /api/v1/admin/matching/requests/{matchingRequestId} | 관리자 매칭 변경/취소|
 
 # **createMatchingRequestByAdmin**
-> BaseResponse createMatchingRequestByAdmin(adminMatchingCreateRequest)
+> BaseResponseMatchingRequestResponse createMatchingRequestByAdmin(adminMatchingCreateRequest)
 
 관리자가 수동으로 매칭 요청을 생성합니다. weeklyPeriodIdentifier는 매칭이 속할 주간을 지정하며, 해당 주간의 토요일 날짜를 사용합니다.
 
@@ -45,7 +46,7 @@ const { status, data } = await apiInstance.createMatchingRequestByAdmin(
 
 ### Return type
 
-**BaseResponse**
+**BaseResponseMatchingRequestResponse**
 
 ### Authorization
 
@@ -166,7 +167,7 @@ This endpoint does not have any parameters.
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **getMatchingRequest**
-> BaseResponse getMatchingRequest()
+> BaseResponseMatchingRequestResponse getMatchingRequest()
 
 관리자가 특정 매칭 요청을 조회합니다.
 
@@ -197,7 +198,7 @@ const { status, data } = await apiInstance.getMatchingRequest(
 
 ### Return type
 
-**BaseResponse**
+**BaseResponseMatchingRequestResponse**
 
 ### Authorization
 
@@ -331,8 +332,54 @@ const { status, data } = await apiInstance.runAutoMatchingJob(
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
+# **startStudyCycle**
+> BaseResponse startStudyCycle()
+
+매칭 시스템 상태를 RECRUITING에서 STUDYING으로 변경합니다. **관리자 권한(ROLE_ADMIN)이 필요합니다.**
+
+### Example
+
+```typescript
+import {
+    AdminMatchingApi,
+    Configuration
+} from './api';
+
+const configuration = new Configuration();
+const apiInstance = new AdminMatchingApi(configuration);
+
+const { status, data } = await apiInstance.startStudyCycle();
+```
+
+### Parameters
+This endpoint does not have any parameters.
+
+
+### Return type
+
+**BaseResponse**
+
+### Authorization
+
+[bearer](../README.md#bearer)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+|**403** | You are authenticated but not allowed authorization |  -  |
+|**200** | 스터디 사이클 시작 성공 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
 # **updateMatchingRequestByAdmin**
-> BaseResponse updateMatchingRequestByAdmin(adminMatchingUpdateRequest)
+> BaseResponseMatchingRequestResponse updateMatchingRequestByAdmin(adminMatchingUpdateRequest)
 
 관리자가 특정 매칭 요청의 상태, 파트너 등을 변경합니다.
 
@@ -367,7 +414,7 @@ const { status, data } = await apiInstance.updateMatchingRequestByAdmin(
 
 ### Return type
 
-**BaseResponse**
+**BaseResponseMatchingRequestResponse**
 
 ### Authorization
 

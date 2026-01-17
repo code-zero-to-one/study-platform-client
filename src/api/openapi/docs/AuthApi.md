@@ -62,7 +62,7 @@ const { status, data } = await apiInstance.accessToken(
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
 # **logout**
-> BaseResponse logout()
+> BaseResponseVoid logout()
 
 Cookie에 저장된 Refresh token을 제거함으로써 로그아웃 진행. 프론트에서 Access token을 제거할 필요가 있음
 
@@ -93,7 +93,7 @@ const { status, data } = await apiInstance.logout(
 
 ### Return type
 
-**BaseResponse**
+**BaseResponseVoid**
 
 ### Authorization
 
@@ -129,13 +129,15 @@ const configuration = new Configuration();
 const apiInstance = new AuthApi(configuration);
 
 let authVendor: string; //OAuth 2.0 Auth server (default to undefined)
-let code: string; // (default to undefined)
+let code: string; // (optional) (default to undefined)
 let state: string; // (optional) (default to undefined)
+let error: string; // (optional) (default to undefined)
 
 const { status, data } = await apiInstance.oauth2Login(
     authVendor,
     code,
-    state
+    state,
+    error
 );
 ```
 
@@ -144,8 +146,9 @@ const { status, data } = await apiInstance.oauth2Login(
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
 | **authVendor** | [**string**] | OAuth 2.0 Auth server | defaults to undefined|
-| **code** | [**string**] |  | defaults to undefined|
+| **code** | [**string**] |  | (optional) defaults to undefined|
 | **state** | [**string**] |  | (optional) defaults to undefined|
+| **error** | [**string**] |  | (optional) defaults to undefined|
 
 
 ### Return type

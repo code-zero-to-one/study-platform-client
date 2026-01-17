@@ -30,6 +30,8 @@ import type { AutoRunMatchingRequestDto } from '../models';
 // @ts-ignore
 import type { BaseResponse } from '../models';
 // @ts-ignore
+import type { BaseResponseMatchingRequestResponse } from '../models';
+// @ts-ignore
 import type { ErrorResponse } from '../models';
 // @ts-ignore
 import type { ResetWeeklyMatchingRequest } from '../models';
@@ -271,6 +273,40 @@ export const AdminMatchingApiAxiosParamCreator = function (configuration?: Confi
             };
         },
         /**
+         * 매칭 시스템 상태를 RECRUITING에서 STUDYING으로 변경합니다. **관리자 권한(ROLE_ADMIN)이 필요합니다.**
+         * @summary 스터디 사이클 시작
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        startStudyCycle: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/admin/matching/start-cycle`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'POST', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+            // authentication bearer required
+            // http bearer authentication required
+            await setBearerAuthToObject(localVarHeaderParameter, configuration)
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
          * 관리자가 특정 매칭 요청의 상태, 파트너 등을 변경합니다.
          * @summary 관리자 매칭 변경/취소
          * @param {number} matchingRequestId 
@@ -330,7 +366,7 @@ export const AdminMatchingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createMatchingRequestByAdmin(adminMatchingCreateRequest: AdminMatchingCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async createMatchingRequestByAdmin(adminMatchingCreateRequest: AdminMatchingCreateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseMatchingRequestResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.createMatchingRequestByAdmin(adminMatchingCreateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMatchingApi.createMatchingRequestByAdmin']?.[localVarOperationServerIndex]?.url;
@@ -368,7 +404,7 @@ export const AdminMatchingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMatchingRequest(matchingRequestId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async getMatchingRequest(matchingRequestId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseMatchingRequestResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMatchingRequest(matchingRequestId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMatchingApi.getMatchingRequest']?.[localVarOperationServerIndex]?.url;
@@ -401,6 +437,18 @@ export const AdminMatchingApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
+         * 매칭 시스템 상태를 RECRUITING에서 STUDYING으로 변경합니다. **관리자 권한(ROLE_ADMIN)이 필요합니다.**
+         * @summary 스터디 사이클 시작
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async startStudyCycle(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.startStudyCycle(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['AdminMatchingApi.startStudyCycle']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
          * 관리자가 특정 매칭 요청의 상태, 파트너 등을 변경합니다.
          * @summary 관리자 매칭 변경/취소
          * @param {number} matchingRequestId 
@@ -408,7 +456,7 @@ export const AdminMatchingApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateMatchingRequestByAdmin(matchingRequestId: number, adminMatchingUpdateRequest: AdminMatchingUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async updateMatchingRequestByAdmin(matchingRequestId: number, adminMatchingUpdateRequest: AdminMatchingUpdateRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseMatchingRequestResponse>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.updateMatchingRequestByAdmin(matchingRequestId, adminMatchingUpdateRequest, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['AdminMatchingApi.updateMatchingRequestByAdmin']?.[localVarOperationServerIndex]?.url;
@@ -430,7 +478,7 @@ export const AdminMatchingApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createMatchingRequestByAdmin(adminMatchingCreateRequest: AdminMatchingCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        createMatchingRequestByAdmin(adminMatchingCreateRequest: AdminMatchingCreateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseMatchingRequestResponse> {
             return localVarFp.createMatchingRequestByAdmin(adminMatchingCreateRequest, options).then((request) => request(axios, basePath));
         },
         /**
@@ -459,7 +507,7 @@ export const AdminMatchingApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMatchingRequest(matchingRequestId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        getMatchingRequest(matchingRequestId: number, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseMatchingRequestResponse> {
             return localVarFp.getMatchingRequest(matchingRequestId, options).then((request) => request(axios, basePath));
         },
         /**
@@ -483,6 +531,15 @@ export const AdminMatchingApiFactory = function (configuration?: Configuration, 
             return localVarFp.runAutoMatchingJob(autoRunMatchingRequestDto, options).then((request) => request(axios, basePath));
         },
         /**
+         * 매칭 시스템 상태를 RECRUITING에서 STUDYING으로 변경합니다. **관리자 권한(ROLE_ADMIN)이 필요합니다.**
+         * @summary 스터디 사이클 시작
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        startStudyCycle(options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+            return localVarFp.startStudyCycle(options).then((request) => request(axios, basePath));
+        },
+        /**
          * 관리자가 특정 매칭 요청의 상태, 파트너 등을 변경합니다.
          * @summary 관리자 매칭 변경/취소
          * @param {number} matchingRequestId 
@@ -490,7 +547,7 @@ export const AdminMatchingApiFactory = function (configuration?: Configuration, 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateMatchingRequestByAdmin(matchingRequestId: number, adminMatchingUpdateRequest: AdminMatchingUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        updateMatchingRequestByAdmin(matchingRequestId: number, adminMatchingUpdateRequest: AdminMatchingUpdateRequest, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseMatchingRequestResponse> {
             return localVarFp.updateMatchingRequestByAdmin(matchingRequestId, adminMatchingUpdateRequest, options).then((request) => request(axios, basePath));
         },
     };
@@ -563,6 +620,16 @@ export class AdminMatchingApi extends BaseAPI {
      */
     public runAutoMatchingJob(autoRunMatchingRequestDto: AutoRunMatchingRequestDto, options?: RawAxiosRequestConfig) {
         return AdminMatchingApiFp(this.configuration).runAutoMatchingJob(autoRunMatchingRequestDto, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 매칭 시스템 상태를 RECRUITING에서 STUDYING으로 변경합니다. **관리자 권한(ROLE_ADMIN)이 필요합니다.**
+     * @summary 스터디 사이클 시작
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     */
+    public startStudyCycle(options?: RawAxiosRequestConfig) {
+        return AdminMatchingApiFp(this.configuration).startStudyCycle(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -44,6 +44,7 @@ export const AdminTransactionListResponseGroupStudyStatusEnum = {
 export type AdminTransactionListResponseGroupStudyStatusEnum = typeof AdminTransactionListResponseGroupStudyStatusEnum[keyof typeof AdminTransactionListResponseGroupStudyStatusEnum];
 export const AdminTransactionListResponsePaymentHistoryTypeEnum = {
     PaymentRequested: 'PAYMENT_REQUESTED',
+    PaymentWaitingForDeposit: 'PAYMENT_WAITING_FOR_DEPOSIT',
     PaymentSuccess: 'PAYMENT_SUCCESS',
     PaymentFailed: 'PAYMENT_FAILED',
     PaymentCanceled: 'PAYMENT_CANCELED',

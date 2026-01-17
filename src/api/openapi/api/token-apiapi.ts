@@ -22,7 +22,7 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError, operationServerMap } from '../base';
 // @ts-ignore
-import type { BaseResponse } from '../models';
+import type { BaseResponseTemporalToken } from '../models';
 /**
  * TokenAPIApi - axios parameter creator
  */
@@ -91,7 +91,7 @@ export const TokenAPIApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async generateToken(memberId: number, roleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponse>> {
+        async generateToken(memberId: number, roleId: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<BaseResponseTemporalToken>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.generateToken(memberId, roleId, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TokenAPIApi.generateToken']?.[localVarOperationServerIndex]?.url;
@@ -113,7 +113,7 @@ export const TokenAPIApiFactory = function (configuration?: Configuration, baseP
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        generateToken(memberId: number, roleId: string, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponse> {
+        generateToken(memberId: number, roleId: string, options?: RawAxiosRequestConfig): AxiosPromise<BaseResponseTemporalToken> {
             return localVarFp.generateToken(memberId, roleId, options).then((request) => request(axios, basePath));
         },
     };

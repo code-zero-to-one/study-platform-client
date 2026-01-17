@@ -6,6 +6,7 @@ import {
   useFormContext,
   useWatch,
 } from 'react-hook-form';
+import Checkbox from '@/components/ui/checkbox';
 import { SingleDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput } from '@/components/ui/input';
@@ -23,6 +24,7 @@ import {
   REGULAR_MEETING_LABELS,
 } from '../../const/group-study-const';
 import { GroupStudyFormValues } from '../../model/group-study-form.schema';
+import { useClassification } from '../group-study-form';
 
 const methodOptions = STUDY_METHODS.map((v) => ({
   label: STUDY_METHOD_LABELS[v],
@@ -37,12 +39,19 @@ const memberOptions = Array.from({ length: 20 }, (_, i) => {
 
 export default function Step1OpenGroupStudy() {
   const { control, formState, watch } = useFormContext<GroupStudyFormValues>();
+  const classification = useClassification();
+  const isPremiumStudy = classification === 'PREMIUM_STUDY';
+
   const { field: typeField } = useController({
     name: 'type',
     control,
   });
   const { field: regularMeetingField } = useController({
     name: 'regularMeeting',
+    control,
+  });
+  const { field: studyLeaderParticipationField } = useController({
+    name: 'studyLeaderParticipation',
     control,
   });
   const methodValue = useWatch({
@@ -53,6 +62,32 @@ export default function Step1OpenGroupStudy() {
   return (
     <>
       <div className="font-designer-20b text-text-default">기본 정보 설정</div>
+      <FormField<GroupStudyFormValues, 'studyLeaderParticipation'>
+        name="studyLeaderParticipation"
+        label="리더 참여 여부"
+        helper="스터디 리더가 직접 스터디에 참여하는지 선택해주세요."
+        direction="vertical"
+        size="medium"
+        required
+      >
+        <div className="flex items-center gap-100">
+          <Checkbox
+            id="studyLeaderParticipation"
+            checked={studyLeaderParticipationField.value}
+            onToggle={() =>
+              studyLeaderParticipationField.onChange(
+                !studyLeaderParticipationField.value,
+              )
+            }
+          />
+          <label
+            htmlFor="studyLeaderParticipation"
+            className="font-designer-14m text-text-default cursor-pointer"
+          >
+            리더가 스터디에 참여합니다
+          </label>
+        </div>
+      </FormField>
       <FormField<GroupStudyFormValues, 'type'>
         name="type"
         label="스터디 유형"
@@ -233,17 +268,29 @@ export default function Step1OpenGroupStudy() {
           )}
         </div>
       </div>
-      {/* API에는 있는데 디자인에는 없음. 뭐지??? */}
-      {/* <FormField<OpenGroupFormValues, 'price'>
-        name="price"
-        label="참가비"
-        helper="참가비가 있다면 입력해주세요. (0원 가능)"
-        direction="vertical"
-        size="medium"
-        required
-      >
-        <BaseInput type="number" min={0} placeholder="0" />
-      </FormField> */}
+      {isPremiumStudy && (
+        <FormField<GroupStudyFormValues, 'price'>
+          name="price"
+          label="참가비"
+          direction="vertical"
+          size="medium"
+        >
+          <Controller
+            name="price"
+            control={control}
+            render={({ field }) => (
+              <BaseInput
+                type="number"
+                step={10000}
+                min={10000}
+                placeholder="10,000"
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </FormField>
+      )}
     </>
   );
 }

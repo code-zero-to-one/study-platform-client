@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **memberId** | **number** | 신청자 ID | [optional] [default to undefined]
 **memberNickname** | **string** | 신청자 닉네임 | [optional] [default to undefined]
-**profileImage** | [**Image**](Image.md) | 신청자 프로필 이미지 | [optional] [default to undefined]
+**profileImage** | [**ImageDto**](ImageDto.md) | 신청자 프로필 이미지 | [optional] [default to undefined]
 **simpleIntroduction** | **string** | 신청자 한줄 소개 | [optional] [default to undefined]
 **sincerityTemp** | [**SincerityTempResponse**](SincerityTempResponse.md) | 성실온도 | [optional] [default to undefined]
 

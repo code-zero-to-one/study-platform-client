@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IoMdPeople } from 'react-icons/io';
@@ -5,7 +6,6 @@ import { LuDot } from 'react-icons/lu';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { MemberStudyItem } from '@/features/study/group/api/group-study-types';
-import { formatYYYYMMDD } from '@/utils/time';
 
 interface MyStudyInfoCardProps extends MemberStudyItem {
   type: 'GROUP_STUDY';
@@ -22,12 +22,15 @@ export default function MyStudyInfoCard({
   studyRole,
   title,
 }: MyStudyInfoCardProps) {
-  const startDate = formatYYYYMMDD(startTime, 'dot');
-  const endDate = endTime ? formatYYYYMMDD(endTime, 'dot') : null;
+  const startDate = dayjs(startTime).format('YYYY.MM.DD');
+  const endDate = endTime ? dayjs(endTime).format('YYYY.MM.DD') : null;
 
   return (
     <li className="flex w-full flex-col gap-100">
-      <Link href={`/study/${studyId}`} className="flex w-full flex-col gap-100">
+      <Link
+        href={`/group-study/${studyId}`}
+        className="flex w-full flex-col gap-100"
+      >
         <div className="relative">
           <Image
             src={thumbnail?.resizedImages[0].resizedImageUrl}

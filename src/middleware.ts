@@ -81,7 +81,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // 회원가입 페이지는 accessToken만 체크 (memberId는 회원가입 후에 생성됨)
-  if (request.nextUrl.pathname === '/sign-up') {
+  if (
+    request.nextUrl.pathname === '/sign-up' ||
+    request.nextUrl.pathname === '/login'
+  ) {
     if (hasAccessToken && hasMemberId) {
       // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
       const mainUrl = new URL('/home', request.url);
@@ -118,7 +121,7 @@ export async function middleware(request: NextRequest) {
       // 갱신 성공
       response.cookies.set('accessToken', newAccessToken, {
         secure: true,
-        sameSite: 'strict',
+        sameSite: 'lax', // strict에서 lax로 변경: 외부 사이트에서 redirect 시 쿠키 전송 허용
         path: '/',
       });
     } else {
@@ -149,11 +152,15 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/',
+    '/login',
     '/home',
     '/my-page',
+    '/payment-management',
+    '/settlement-management',
     '/my-study',
     '/my-study-review',
     '/sign-up',
+    '/payment/:path*', // 결제 관련 모든 경로
     '/admin/:path*',
   ],
 };

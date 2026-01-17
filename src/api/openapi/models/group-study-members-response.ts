@@ -13,9 +13,6 @@
  */
 
 
-// May contain unused imports in some cases
-// @ts-ignore
-import type { GroupStudyMembersResponseContent } from './group-study-members-response-content';
 
 export interface GroupStudyMembersResponse {
     /**
@@ -29,7 +26,7 @@ export interface GroupStudyMembersResponse {
     /**
      * Content
      */
-    'content'?: GroupStudyMembersResponseContent;
+    'content'?: GroupStudyMembersResponse;
     /**
      * Message
      */
