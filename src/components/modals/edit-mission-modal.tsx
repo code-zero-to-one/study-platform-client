@@ -8,7 +8,9 @@ import DatePicker from '@/components/ui/date-picker';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
 import { useGetMission, useUpdateMission } from '@/hooks/queries/mission-api';
+import { createDateDisabledMatcher } from '@/utils/time';
 
 // Form Schema
 const EditMissionFormSchema = z.object({
@@ -30,11 +32,18 @@ type EditMissionFormValues = z.infer<typeof EditMissionFormSchema>;
 
 interface EditMissionModalProps {
   missionId: number;
+  groupStudyId: number;
 }
 
-export default function EditMissionModal({ missionId }: EditMissionModalProps) {
+export default function EditMissionModal({
+  missionId,
+  groupStudyId,
+}: EditMissionModalProps) {
   const [open, setOpen] = useState<boolean>(false);
   const { data: missionData, isLoading } = useGetMission(missionId);
+  const { data: studyData } = useGroupStudyDetailQuery(groupStudyId);
+
+  const studyEndDate = studyData?.basicInfo?.endDate;
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -68,6 +77,7 @@ export default function EditMissionModal({ missionId }: EditMissionModalProps) {
             <EditMissionForm
               missionData={missionData}
               missionId={missionId}
+              studyEndDate={studyEndDate}
               onClose={() => setOpen(false)}
             />
           ) : null}
@@ -87,12 +97,14 @@ interface EditMissionFormProps {
     missionEndDate?: string;
   };
   missionId: number;
+  studyEndDate?: string;
   onClose: () => void;
 }
 
 function EditMissionForm({
   missionData,
   missionId,
+  studyEndDate,
   onClose,
 }: EditMissionFormProps) {
   const methods = useForm<EditMissionFormValues>({
@@ -240,6 +252,7 @@ function EditMissionForm({
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => field.onChange(date)}
+                  disabled={createDateDisabledMatcher(studyEndDate)}
                 />
               )}
             />
