@@ -111,9 +111,13 @@ export default function SignupModal({
 
     signUp.mutate(signUpPayload, {
       onSuccess: async (data) => {
-        const memberId = data.content.generatedMemberId;
-        if (memberId) {
+        const { generatedMemberId: memberId, accessToken, refreshToken } = data.content;
+        
+        if (memberId && accessToken && refreshToken) {
           setCookie('memberId', memberId);
+          setCookie('accessToken', accessToken);
+          // refreshToken도 쿠키에 저장 (필요 시 secure, httpOnly 설정 등 고려)
+          setCookie('refresh_token', refreshToken);
 
           // 이미지 업로드
           if (signupData.file) {
@@ -147,6 +151,12 @@ export default function SignupModal({
   };
 
   const handleNext = () => {
+    // goal 단계에서는 바로 완료 처리
+    if (currentStep === 'goal') {
+      handleComplete();
+      return;
+    }
+
     const currentIndex = STEPS.indexOf(currentStep);
     if (currentIndex < STEPS.length - 1) {
       setCurrentStep(STEPS[currentIndex + 1]);
