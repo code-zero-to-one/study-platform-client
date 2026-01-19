@@ -42,8 +42,11 @@ export default function PremiumStudyDetailPage({
 
   const activeTab = (searchParams.get('tab') as StudyTabValue) || 'intro';
 
-  const { data: studyDetail, isLoading } =
-    useGroupStudyDetailQuery(groupStudyId);
+  const {
+    data: studyDetail,
+    isLoading,
+    refetch: refetchStudyDetail,
+  } = useGroupStudyDetailQuery(groupStudyId);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
@@ -120,6 +123,7 @@ export default function PremiumStudyDetailPage({
               alert('스터디 삭제에 실패하였습니다.');
             },
             onSettled: () => {
+              refetchStudyDetail().catch(() => {});
               router.push('/premium-study');
               setShowModal(false);
             },
