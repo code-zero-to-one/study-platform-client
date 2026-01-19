@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { Plus, XIcon } from 'lucide-react';
 import { useState } from 'react';
@@ -111,6 +112,7 @@ function CreateMissionForm({
   existingMissions,
   onClose,
 }: CreateMissionFormProps) {
+  const queryClient = useQueryClient();
   const methods = useForm<CreateMissionFormValues>({
     resolver: zodResolver(CreateMissionFormSchema),
     mode: 'onChange',
@@ -144,7 +146,10 @@ function CreateMissionForm({
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ['missions', groupStudyId],
+          });
           alert('미션이 성공적으로 생성되었습니다!');
           onClose();
         },

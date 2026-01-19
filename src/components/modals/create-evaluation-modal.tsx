@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -76,6 +77,7 @@ function CreateEvaluationForm({
   homeworkId,
   onClose,
 }: CreateEvaluationFormProps) {
+  const queryClient = useQueryClient();
   const methods = useForm<CreateEvaluationFormValues>({
     resolver: zodResolver(CreateEvaluationFormSchema),
     mode: 'onChange',
@@ -97,7 +99,10 @@ function CreateEvaluationForm({
         request: values,
       },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ['homework', homeworkId],
+          });
           alert('평가가 성공적으로 제출되었습니다!');
           onClose();
         },
