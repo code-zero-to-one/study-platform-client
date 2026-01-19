@@ -111,9 +111,17 @@ export default function SignupModal({
 
     signUp.mutate(signUpPayload, {
       onSuccess: async (data) => {
-        const memberId = data.content.generatedMemberId;
-        if (memberId) {
+
+        const content = data?.content;
+        const memberId = content?.generatedMemberId;
+        const accessToken = content?.accessToken;
+        const refreshToken = content?.refreshToken;
+        
+        if (memberId && accessToken && refreshToken) {
           setCookie('memberId', memberId);
+          setCookie('accessToken', accessToken);
+          // refreshToken도 쿠키에 저장 (필요 시 secure, httpOnly 설정 등 고려)
+          setCookie('refresh_token', refreshToken);
 
           // 이미지 업로드
           if (signupData.file) {
@@ -134,10 +142,10 @@ export default function SignupModal({
             dl_member_id: hashValue(memberId),
             ...attributionParams,
           });
-
-          // 모달 닫지 않고 success step으로 이동
-          setCurrentStep('success');
         }
+
+        // 모달 닫지 않고 success step으로 이동 (토큰 여부와 관계없이 성공 시 이동)
+        setCurrentStep('success');
       },
       onError: (error) => {
         console.error('회원가입 실패:', error);
@@ -147,6 +155,12 @@ export default function SignupModal({
   };
 
   const handleNext = () => {
+    // goal 단계에서는 바로 완료 처리
+    if (currentStep === 'goal') {
+      handleComplete();
+      return;
+    }
+
     const currentIndex = STEPS.indexOf(currentStep);
     if (currentIndex < STEPS.length - 1) {
       setCurrentStep(STEPS[currentIndex + 1]);
