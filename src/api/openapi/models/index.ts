@@ -129,7 +129,7 @@ export * from './matching-request-response';
 export * from './matching-system-status-response';
 export * from './matching-system-status-schema';
 export * from './member-account-history-response-dto';
-export * from './member-creation-request';
+export * from './member-creation-request-dto';
 export * from './member-creation-response';
 export * from './member-creation-response-content';
 export * from './member-feature';

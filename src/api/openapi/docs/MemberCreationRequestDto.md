@@ -1,4 +1,4 @@
-# MemberCreationRequest
+# MemberCreationRequestDto
 
 
 ## Properties
@@ -17,9 +17,9 @@ Name | Type | Description | Notes
 ## Example
 
 ```typescript
-import { MemberCreationRequest } from './api';
+import { MemberCreationRequestDto } from './api';
 
-const instance: MemberCreationRequest = {
+const instance: MemberCreationRequestDto = {
     loginId,
     nickname,
     name,
