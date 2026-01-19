@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { createGroupStudy } from '../api/creat-group-study';
+import { createGroupStudy } from '../api/create-group-study';
 import { GroupStudyFormRequest } from '../api/group-study-types';
 import { updateGroupStudy } from '../api/update-group-study';
 
