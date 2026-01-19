@@ -111,7 +111,6 @@ export default function SignupModal({
 
     signUp.mutate(signUpPayload, {
       onSuccess: async (data) => {
-        console.log('Sign up response:', data);
 
         const content = data?.content;
         const memberId = content?.generatedMemberId;
