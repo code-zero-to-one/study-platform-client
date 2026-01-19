@@ -1,5 +1,6 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -24,6 +25,7 @@ interface Props {
 
 export default function SummaryStudyInfo({ data }: Props) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(false);
   const memberId = useUserStore((state) => state.memberId);
 
@@ -125,7 +127,10 @@ export default function SummaryStudyInfo({ data }: Props) {
     alert('스터디 링크가 복사되었습니다!');
   };
 
-  const handleApplySuccess = () => {
+  const handleApplySuccess = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ['groupStudyMemberStatus', groupStudyId],
+    });
     if (price > 0) {
       router.push(`/payment/${groupStudyId}`);
     }
