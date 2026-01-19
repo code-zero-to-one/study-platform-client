@@ -1,13 +1,13 @@
 import { axiosInstance } from '@/api/client/axios';
 import {
   GroupStudyCreationResponse,
-  GroupStudyFormRequest,
+  GroupStudyUpdateRequest,
 } from './group-study-types';
 
 // 그룹 스터디 수정
 export const updateGroupStudy = async (
   groupStudyId: number,
-  payload: GroupStudyFormRequest,
+  payload: GroupStudyUpdateRequest,
 ): Promise<GroupStudyCreationResponse> => {
   try {
     const res = await axiosInstance.put<GroupStudyCreationResponse>(
