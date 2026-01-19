@@ -25,7 +25,12 @@ function isDecodedToken(value: unknown): value is DecodedToken {
 
   // roleIds가 배열이고, 모든 요소가 유효한 RoleId인지 확인
   if (!Array.isArray(obj.roleIds)) return false;
-  const validRoles: RoleId[] = ['ROLE_MEMBER', 'ROLE_ADMIN', 'ROLE_MENTOR', 'ROLE_GUEST'];
+  const validRoles: RoleId[] = [
+    'ROLE_MEMBER',
+    'ROLE_ADMIN',
+    'ROLE_MENTOR',
+    'ROLE_GUEST',
+  ];
   if (!obj.roleIds.every((role) => validRoles.includes(role))) return false;
 
   // authVendor가 유효한 값인지 확인

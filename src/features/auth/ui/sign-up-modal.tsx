@@ -111,12 +111,11 @@ export default function SignupModal({
 
     signUp.mutate(signUpPayload, {
       onSuccess: async (data) => {
-
         const content = data?.content;
         const memberId = content?.generatedMemberId;
         const accessToken = content?.accessToken;
         const refreshToken = content?.refreshToken;
-        
+
         if (memberId && accessToken && refreshToken) {
           setCookie('memberId', memberId);
           setCookie('accessToken', accessToken);
