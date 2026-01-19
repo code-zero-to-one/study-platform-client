@@ -3,13 +3,13 @@ import { useMemo } from 'react';
 import { getCookie } from '@/api/client/cookie';
 import { decodeJwt } from '@/utils/jwt';
 
-type RoleId = 'ROLE_MEMBER' | 'ROLE_ADMIN' | 'ROLE_MENTOR' | 'ROLE_GUEST';
+type RoleId = 'ROLE_MEMBER' | 'ROLE_ADMIN' | 'ROLE_MENTOR';
 type AuthVendor = 'GOOGLE' | 'KAKAO';
 
 interface DecodedToken {
   roleIds: RoleId[];
   authVendor: AuthVendor;
-  memberId: number | null;
+  memberId: number;
 }
 
 interface UseAuthReturn {
@@ -25,20 +25,15 @@ function isDecodedToken(value: unknown): value is DecodedToken {
 
   // roleIds가 배열이고, 모든 요소가 유효한 RoleId인지 확인
   if (!Array.isArray(obj.roleIds)) return false;
-  const validRoles: RoleId[] = ['ROLE_MEMBER', 'ROLE_ADMIN', 'ROLE_MENTOR', 'ROLE_GUEST'];
+  const validRoles: RoleId[] = ['ROLE_MEMBER', 'ROLE_ADMIN', 'ROLE_MENTOR'];
   if (!obj.roleIds.every((role) => validRoles.includes(role))) return false;
 
   // authVendor가 유효한 값인지 확인
   const validVendors: AuthVendor[] = ['GOOGLE', 'KAKAO'];
   if (!validVendors.includes(obj.authVendor as AuthVendor)) return false;
 
-  // memberId가 숫자이거나 null인지 확인
-  if (
-    typeof obj.memberId !== 'number' &&
-    obj.memberId !== null &&
-    obj.memberId !== undefined
-  )
-    return false;
+  // memberId가 숫자인지 확인
+  if (typeof obj.memberId !== 'number') return false;
 
   return true;
 }
@@ -66,11 +61,9 @@ export function useAuth(): UseAuthReturn {
     }
   }, [accessToken]);
 
-  const isGuest = decodedToken?.roleIds.includes('ROLE_GUEST');
-
   return {
     accessToken,
     data: decodedToken,
-    isAuthenticated: !!accessToken && !!decodedToken && !isGuest,
+    isAuthenticated: !!accessToken && !!decodedToken,
   };
 }

@@ -2,8 +2,6 @@
 export interface SignUpResponse {
   content: {
     generatedMemberId: string;
-    accessToken: string;
-    refreshToken: string;
   };
   status: number;
   message: string;
