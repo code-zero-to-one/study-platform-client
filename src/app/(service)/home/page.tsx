@@ -3,7 +3,6 @@ import StudyCard from '@/features/study/schedule/ui/study-card';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import Banner from '@/widgets/home/banner';
 import Sidebar from '@/widgets/home/sidebar';
-import WeeklyPick from '@/widgets/home/weekly-pick';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: '홈 - ZERO-ONE',
@@ -19,7 +18,6 @@ export default async function Home() {
     <div className="mx-auto flex w-[1496px] gap-600 px-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
         <Banner />
-        <WeeklyPick />
         <StudyCard />
       </div>
 
