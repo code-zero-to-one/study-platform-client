@@ -111,7 +111,12 @@ export default function SignupModal({
 
     signUp.mutate(signUpPayload, {
       onSuccess: async (data) => {
-        const { generatedMemberId: memberId, accessToken, refreshToken } = data.content;
+        console.log('Sign up response:', data);
+
+        const content = data?.content;
+        const memberId = content?.generatedMemberId;
+        const accessToken = content?.accessToken;
+        const refreshToken = content?.refreshToken;
         
         if (memberId && accessToken && refreshToken) {
           setCookie('memberId', memberId);
@@ -138,10 +143,10 @@ export default function SignupModal({
             dl_member_id: hashValue(memberId),
             ...attributionParams,
           });
-
-          // 모달 닫지 않고 success step으로 이동
-          setCurrentStep('success');
         }
+
+        // 모달 닫지 않고 success step으로 이동 (토큰 여부와 관계없이 성공 시 이동)
+        setCurrentStep('success');
       },
       onError: (error) => {
         console.error('회원가입 실패:', error);
