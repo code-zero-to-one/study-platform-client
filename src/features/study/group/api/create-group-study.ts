@@ -1,8 +1,8 @@
 import { axiosInstance } from '@/api/client/axios';
-import { GroupStudyFormRequest } from './group-study-types';
+import { GroupStudyCreateRequest } from './group-study-types';
 
-// CS 스터디 매칭 신청
-export const createGroupStudy = async (payload: GroupStudyFormRequest) => {
+// 그룹 스터디 개설
+export const createGroupStudy = async (payload: GroupStudyCreateRequest) => {
   try {
     const res = await axiosInstance.post('/group-studies', payload);
 
