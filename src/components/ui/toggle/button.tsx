@@ -13,8 +13,8 @@ export const toggleButtonVariants = cva(
     variants: {
       color: {
         primary: [
-          'data-[state=on]:bg-fill-brand-default-default',
-          'data-[state=on]:text-text-inverse',
+          'data-[state=on]:bg-fill-brand-subtle-default',
+          'data-[state=on]:text-text-brand',
           'data-[state=on]:border-border-brand',
         ],
         gray: [
