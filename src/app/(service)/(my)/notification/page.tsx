@@ -62,7 +62,9 @@ export default function NotificationPage() {
     readNotifications(ids);
   };
 
-  const handleNotificationClick = (notification: MemberNotificationResponse) => {
+  const handleNotificationClick = (
+    notification: MemberNotificationResponse,
+  ) => {
     if (!notification.isRead) {
       readNotifications([notification.id]);
     }
@@ -90,10 +92,10 @@ export default function NotificationPage() {
         <div className="flex gap-100">
           <Button
             color="outlined"
-            className="font-designer-13r h-[32px]"
+            className="font-designer-13r h-400"
             onClick={handleMarkAllAsRead}
           >
-            모든 읽음 처리
+            모두 읽음 처리
           </Button>
 
           <div className="w-[120px]">
