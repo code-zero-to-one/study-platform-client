@@ -1,17 +1,28 @@
 import React from 'react';
 import { DiscussionComment } from '@/types/discussion';
-import { MoreVertical, Trash2, Edit } from 'lucide-react';
+import { VotingComment, VotingOption } from '@/types/voting';
+import { MoreVertical, Trash2, Edit, CheckCircle2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface CommentListProps {
-  comments: DiscussionComment[];
+  comments: (DiscussionComment | VotingComment)[];
   onDelete?: (commentId: number) => void;
   onEdit?: (commentId: number, content: string) => void;
+  votingOptions?: VotingOption[]; // 투표 옵션 목록 (색상 매칭용)
 }
 
-export default function CommentList({ comments, onDelete, onEdit }: CommentListProps) {
+// 옵션별 색상 정의
+const OPTION_BADGE_COLORS = [
+  { bg: 'bg-blue-100', text: 'text-blue-600', icon: 'text-blue-500' },
+  { bg: 'bg-green-100', text: 'text-green-600', icon: 'text-green-500' },
+  { bg: 'bg-purple-100', text: 'text-purple-600', icon: 'text-purple-500' },
+  { bg: 'bg-orange-100', text: 'text-orange-600', icon: 'text-orange-500' },
+  { bg: 'bg-pink-100', text: 'text-pink-600', icon: 'text-pink-500' },
+];
+
+export default function CommentList({ comments, onDelete, onEdit, votingOptions }: CommentListProps) {
   const [openMenuId, setOpenMenuId] = React.useState<number | null>(null);
 
   if (comments.length === 0) {
@@ -31,6 +42,18 @@ export default function CommentList({ comments, onDelete, onEdit }: CommentListP
           locale: ko,
         });
 
+        // VotingComment 타입인지 확인
+        const votedOption = 'votedOption' in comment ? comment.votedOption : undefined;
+
+        // 투표 옵션의 색상 찾기
+        let optionColor = { bg: 'bg-fill-brand-subtle-default', text: 'text-text-brand', icon: 'text-text-brand' };
+        if (votedOption && votingOptions) {
+          const optionIndex = votingOptions.findIndex((opt) => opt.label === votedOption);
+          if (optionIndex !== -1) {
+            optionColor = OPTION_BADGE_COLORS[optionIndex % OPTION_BADGE_COLORS.length];
+          }
+        }
+
         return (
           <div
             key={comment.id}
@@ -42,10 +65,18 @@ export default function CommentList({ comments, onDelete, onEdit }: CommentListP
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-fill-neutral-strong-default text-xs font-bold text-text-inverse">
                   {comment.author.nickname.charAt(0)}
                 </div>
-                <div className="flex flex-col">
-                  <span className="font-designer-13b text-text-strong">
-                    {comment.author.nickname}
-                  </span>
+                <div className="flex flex-col gap-50">
+                  <div className="flex items-center gap-100">
+                    <span className="font-designer-13b text-text-strong">
+                      {comment.author.nickname}
+                    </span>
+                    {votedOption && (
+                      <div className={cn('flex items-center gap-50 rounded-100 px-150 py-50', optionColor.bg)}>
+                        <CheckCircle2 className={cn('h-3 w-3', optionColor.icon)} />
+                        <span className={cn('font-designer-11b', optionColor.text)}>{votedOption}</span>
+                      </div>
+                    )}
+                  </div>
                   <span className="font-designer-11r text-text-subtlest">{timeAgo}</span>
                 </div>
               </div>

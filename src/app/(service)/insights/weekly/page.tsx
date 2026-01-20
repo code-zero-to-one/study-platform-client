@@ -2,16 +2,14 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Loader2, Vote, SearchX } from 'lucide-react';
-import { Voting, VotingComment } from '@/types/voting';
-import { mockFetchVotings, mockFetchVotingDetail } from '@/mocks/voting-mock-data';
+import { Voting } from '@/types/voting';
+import { mockFetchVotings } from '@/mocks/voting-mock-data';
 import VotingCard from '@/components/cards/voting-card';
-import VotingDetailModal from '@/components/voting/voting-detail-modal';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 export default function VotingPage() {
   // 상태 관리
   const [votings, setVotings] = useState<Voting[]>([]);
-  const [selectedVoting, setSelectedVoting] = useState<Voting | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -83,114 +81,6 @@ export default function VotingPage() {
     };
   }, [hasMore, isLoadingMore, isLoading, page, loadVotings]);
 
-  // 투표 상세 열기
-  const handleOpenVoting = async (voting: Voting) => {
-    // 상세 데이터 가져오기 (댓글 포함)
-    const detailVoting = await mockFetchVotingDetail(voting.id);
-    if (detailVoting) {
-      setSelectedVoting(detailVoting);
-    }
-  };
-
-  // 투표 핸들러
-  const handleVote = (votingId: number, optionId: number) => {
-    setVotings((prev) =>
-      prev.map((v) => {
-        if (v.id !== votingId) return v;
-
-        // 기존 투표 취소 (있으면)
-        const oldVote = v.myVote;
-        const updatedOptions = v.options.map((opt) => {
-          let newVoteCount = opt.voteCount;
-
-          // 기존 투표 취소
-          if (oldVote === opt.id) {
-            newVoteCount--;
-          }
-
-          // 새 투표 추가
-          if (opt.id === optionId) {
-            newVoteCount++;
-          }
-
-          return { ...opt, voteCount: newVoteCount };
-        });
-
-        // 퍼센트 재계산
-        const newTotalVotes = oldVote ? v.totalVotes : v.totalVotes + 1;
-        const optionsWithPercentage = updatedOptions.map((opt) => ({
-          ...opt,
-          percentage: (opt.voteCount / newTotalVotes) * 100,
-        }));
-
-        const updatedVoting = {
-          ...v,
-          myVote: optionId,
-          options: optionsWithPercentage,
-          totalVotes: newTotalVotes,
-        };
-
-        // 선택된 투표도 업데이트
-        if (selectedVoting?.id === votingId) {
-          setSelectedVoting(updatedVoting);
-        }
-
-        return updatedVoting;
-      }),
-    );
-  };
-
-  // 댓글 추가 핸들러
-  const handleAddComment = (votingId: number, content: string) => {
-    const newComment: VotingComment = {
-      id: Date.now(),
-      author: { id: 999, nickname: '나' },
-      content,
-      createdAt: new Date().toISOString(),
-      isAuthor: true,
-      votedOption: selectedVoting?.options.find((opt) => opt.id === selectedVoting.myVote)?.label,
-    };
-
-    setVotings((prev) =>
-      prev.map((v) => {
-        if (v.id !== votingId) return v;
-
-        const updatedVoting = {
-          ...v,
-          comments: [...v.comments, newComment],
-          commentCount: v.commentCount + 1,
-        };
-
-        if (selectedVoting?.id === votingId) {
-          setSelectedVoting(updatedVoting);
-        }
-
-        return updatedVoting;
-      }),
-    );
-  };
-
-  // 댓글 삭제 핸들러
-  const handleDeleteComment = (votingId: number, commentId: number) => {
-    setVotings((prev) =>
-      prev.map((v) => {
-        if (v.id !== votingId) return v;
-
-        const updatedVoting = {
-          ...v,
-          comments: v.comments.filter((c) => c.id !== commentId),
-          commentCount: v.commentCount - 1,
-        };
-
-        if (selectedVoting?.id === votingId) {
-          setSelectedVoting(updatedVoting);
-        }
-
-        return updatedVoting;
-      }),
-    );
-  };
-
   // 로딩 상태
   if (isLoading) {
     return (
@@ -231,10 +121,10 @@ export default function VotingPage() {
             <div className="flex flex-col gap-50">
               <div className="flex items-center gap-100">
                 <Vote className="h-5 w-5 text-text-brand" />
-                <h1 className="font-bold-h5 text-text-strong tracking-tight">스파링</h1>
+                <h1 className="font-bold-h5 text-text-strong tracking-tight">밸런스 게임</h1>
               </div>
               <span className="font-designer-13r text-text-subtle tracking-tight">
-                뜨거운 논쟁에 투표하고 토론하기
+                선택하고 의견을 나눠보세요
               </span>
             </div>
           </aside>
@@ -292,7 +182,7 @@ export default function VotingPage() {
               <>
                 <div className="flex flex-col gap-300">
                   {votings.map((voting) => (
-                    <VotingCard key={voting.id} voting={voting} onClick={() => handleOpenVoting(voting)} />
+                    <VotingCard key={voting.id} voting={voting} />
                   ))}
                 </div>
 
@@ -313,17 +203,6 @@ export default function VotingPage() {
           </main>
         </div>
       </div>
-
-      {/* 투표 상세 모달 */}
-      {selectedVoting && (
-        <VotingDetailModal
-          voting={selectedVoting}
-          onClose={() => setSelectedVoting(null)}
-          onVote={handleVote}
-          onAddComment={handleAddComment}
-          onDeleteComment={handleDeleteComment}
-        />
-      )}
     </div>
   );
 }

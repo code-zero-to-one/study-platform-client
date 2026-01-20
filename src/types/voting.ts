@@ -22,6 +22,11 @@ export interface VotingComment {
   votedOption?: string; // 작성자가 어떤 선택지에 투표했는지
 }
 
+export interface DailyStatistic {
+  date: string; // 날짜 (예: "1일", "2일")
+  percentages: { [optionId: number]: number }; // 각 선택지의 퍼센트
+}
+
 export interface Voting {
   id: number;
   round: number; // 라운드 번호
@@ -36,6 +41,7 @@ export interface Voting {
   endsAt?: string; // 투표 마감 시간 (선택)
   isActive: boolean; // 진행 중인지 종료되었는지
   tags: string[];
+  dailyStats?: DailyStatistic[]; // 일별 통계
 }
 
 export interface VotingListResponse {

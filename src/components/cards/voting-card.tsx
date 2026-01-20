@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Voting } from '@/types/voting';
 import { MessageCircle, Users, TrendingUp, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
@@ -6,10 +7,9 @@ import VoteTimer from '../voting/vote-timer';
 
 interface VotingCardProps {
   voting: Voting;
-  onClick?: () => void;
 }
 
-export default function VotingCard({ voting, onClick }: VotingCardProps) {
+export default function VotingCard({ voting }: VotingCardProps) {
   const topOption = voting.options.reduce((prev, current) =>
     prev.percentage > current.percentage ? prev : current,
   );
@@ -17,10 +17,10 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
   const hasVoted = voting.myVote !== undefined;
 
   return (
-    <div
-      onClick={onClick}
+    <Link
+      href={`/insights/weekly/${voting.id}`}
       className={cn(
-        'group cursor-pointer rounded-200 border-2 bg-background-default p-500 transition-all duration-200',
+        'group block cursor-pointer rounded-200 border-2 bg-background-default p-500 transition-all duration-200',
         hasVoted ? 'border-border-brand shadow-2' : 'border-border-subtle hover:border-border-brand hover:shadow-2',
       )}
     >
@@ -40,7 +40,8 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
           )}
         </div>
 
-        <VoteTimer endsAt={voting.endsAt} isActive={voting.isActive} />
+        {/* 투표 안 한 항목에만 타이머 표시 */}
+        {!hasVoted && <VoteTimer endsAt={voting.endsAt} isActive={voting.isActive} />}
       </div>
 
       {/* 제목 */}
@@ -103,6 +104,6 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
           </button>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
