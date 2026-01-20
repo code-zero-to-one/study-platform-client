@@ -237,14 +237,37 @@ export const mockFetchVotings = async (params: {
   page?: number;
   limit?: number;
   activeOnly?: boolean;
+  sortBy?: 'latest' | 'popular';
 }): Promise<{ items: Voting[]; hasMore: boolean; total: number }> => {
   await new Promise((resolve) => setTimeout(resolve, 500));
 
-  let filtered = [...MOCK_VOTINGS];
+  // localStorage에서 커스텀 투표 가져오기
+  const customVotings = localStorage.getItem('customVotings');
+  const customVotingsList = customVotings ? JSON.parse(customVotings) : [];
+
+  // 커스텀 투표 + Mock 투표 합치기 (커스텀 투표가 먼저)
+  let filtered = [...customVotingsList, ...MOCK_VOTINGS];
 
   // 진행 중인 투표만 필터
   if (params.activeOnly) {
     filtered = filtered.filter((v) => v.isActive);
+  }
+
+  // 정렬
+  const sortBy = params.sortBy || 'latest';
+  if (sortBy === 'popular') {
+    // 인기순: 총 투표 수 내림차순 → 댓글 수 내림차순
+    filtered.sort((a, b) => {
+      if (b.totalVotes !== a.totalVotes) {
+        return b.totalVotes - a.totalVotes;
+      }
+      return b.commentCount - a.commentCount;
+    });
+  } else {
+    // 최신순: 생성일 내림차순
+    filtered.sort((a, b) => {
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
   }
 
   const page = params.page || 1;
@@ -265,7 +288,18 @@ export const mockFetchVotings = async (params: {
 export const mockFetchVotingDetail = async (id: number): Promise<Voting | null> => {
   await new Promise((resolve) => setTimeout(resolve, 300));
 
-  const voting = MOCK_VOTINGS.find((v) => v.id === id);
+  // 1. 먼저 기존 Mock 데이터에서 찾기
+  let voting = MOCK_VOTINGS.find((v) => v.id === id);
+  
+  // 2. 없으면 로컬 스토리지에서 찾기 (새로 만든 투표)
+  if (!voting) {
+    const customVotings = localStorage.getItem('customVotings');
+    if (customVotings) {
+      const parsed = JSON.parse(customVotings) as Voting[];
+      voting = parsed.find((v) => v.id === id);
+    }
+  }
+
   if (!voting) return null;
 
   // 댓글 추가

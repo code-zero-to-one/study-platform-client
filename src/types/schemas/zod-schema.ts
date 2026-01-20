@@ -47,3 +47,36 @@ export const DiscussionFormSchema = z.object({
 });
 
 export type DiscussionFormData = z.infer<typeof DiscussionFormSchema>;
+
+// Voting 생성 폼 스키마
+export const VotingCreateFormSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(5, '제목은 5자 이상 입력해주세요.')
+    .max(200, '제목은 200자 이하로 입력해주세요.'),
+  description: z
+    .string()
+    .trim()
+    .max(500, '설명은 500자 이하로 입력해주세요.')
+    .optional(),
+  options: z
+    .array(
+      z.object({
+        label: z
+          .string()
+          .trim()
+          .min(1, '선택지를 입력해주세요.')
+          .max(100, '선택지는 100자 이하로 입력해주세요.'),
+      })
+    )
+    .min(2, '선택지는 최소 2개 이상 입력해주세요.')
+    .max(5, '선택지는 최대 5개까지 입력 가능합니다.'),
+  tags: z
+    .array(z.string().trim().min(1))
+    .max(3, '태그는 최대 3개까지 입력 가능합니다.')
+    .optional(),
+  endsAt: z.string().optional(), // ISO date string
+});
+
+export type VotingCreateFormData = z.infer<typeof VotingCreateFormSchema>;

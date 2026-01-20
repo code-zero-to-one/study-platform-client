@@ -1,10 +1,12 @@
 'use client';
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Loader2, Vote, SearchX } from 'lucide-react';
+import { Loader2, Vote, SearchX, Plus } from 'lucide-react';
 import { Voting } from '@/types/voting';
 import { mockFetchVotings } from '@/mocks/voting-mock-data';
 import VotingCard from '@/components/cards/voting-card';
+import VotingCreateModal from '@/components/voting/voting-create-modal';
+import { VotingCreateFormData } from '@/types/schemas/zod-schema';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 export default function VotingPage() {
@@ -15,7 +17,8 @@ export default function VotingPage() {
   const [hasMore, setHasMore] = useState(true);
   const [page, setPage] = useState(1);
   const [error, setError] = useState<string | null>(null);
-  const [showActiveOnly, setShowActiveOnly] = useState(true);
+  const [filterMode, setFilterMode] = useState<'active' | 'all' | 'popular'>('active');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
   // 무한 스크롤용 ref
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -31,10 +34,14 @@ export default function VotingPage() {
           setIsLoadingMore(true);
         }
 
+        const activeOnly = filterMode === 'active';
+        const sortBy = filterMode === 'popular' ? 'popular' : 'latest';
+
         const result = await mockFetchVotings({
           page: pageNum,
           limit: 10,
-          activeOnly: showActiveOnly,
+          activeOnly: activeOnly,
+          sortBy: sortBy,
         });
 
         setVotings((prev) => (reset ? result.items : [...prev, ...result.items]));
@@ -47,8 +54,51 @@ export default function VotingPage() {
         setIsLoadingMore(false);
       }
     },
-    [showActiveOnly],
+    [filterMode],
   );
+
+  // 투표 생성 핸들러
+  const handleCreateVoting = async (data: VotingCreateFormData) => {
+    try {
+      // Mock API 호출 (실제로는 서버에 요청)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      // 새 투표 객체 생성
+      const newVoting: Voting = {
+        id: Date.now(), // 임시 ID
+        round: votings.length > 0 ? Math.max(...votings.map(v => v.round)) + 1 : 1,
+        title: data.title,
+        description: data.description || undefined,
+        options: data.options.map((opt, index) => ({
+          id: Date.now() + index,
+          label: opt.label,
+          voteCount: 0,
+          percentage: 0,
+        })),
+        totalVotes: 0,
+        myVote: undefined,
+        commentCount: 0,
+        comments: [],
+        createdAt: new Date().toISOString(),
+        endsAt: data.endsAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7일 후
+        isActive: true,
+        tags: data.tags || [],
+      };
+      
+      // localStorage에 저장 (상세 페이지에서 조회 가능하도록)
+      const customVotings = localStorage.getItem('customVotings');
+      const existingVotings = customVotings ? JSON.parse(customVotings) : [];
+      localStorage.setItem('customVotings', JSON.stringify([newVoting, ...existingVotings]));
+      
+      // 목록 맨 앞에 추가
+      setVotings((prev) => [newVoting, ...prev]);
+      
+      console.log('새 투표 생성 완료:', newVoting);
+    } catch (error) {
+      console.error('투표 생성 실패:', error);
+      throw error;
+    }
+  };
 
   // 필터 변경 시 첫 페이지 로드
   useEffect(() => {
@@ -112,10 +162,11 @@ export default function VotingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background-alternative">
-      <div className="mx-auto w-full max-w-screen-xl px-400 py-600">
-        {/* 사이드바 + 메인 컨텐츠 */}
-        <div className="flex gap-600">
+    <>
+      <div className="min-h-screen bg-background-alternative">
+        <div className="mx-auto w-full max-w-screen-xl px-400 py-600">
+          {/* 사이드바 + 메인 컨텐츠 */}
+          <div className="flex gap-600">
           {/* Left Sidebar */}
           <aside className="sticky top-400 h-fit w-[200px] shrink-0 pt-100">
             <div className="flex flex-col gap-50">
@@ -141,29 +192,52 @@ export default function VotingPage() {
               </p>
             </div>
 
-            {/* 필터 */}
-            <div className="mb-400 flex items-center gap-200">
+            {/* 필터 + 주제 생성 버튼 */}
+            <div className="mb-400 flex items-center justify-between gap-200">
+              {/* 필터 버튼 */}
+              <div className="flex items-center gap-200">
+                <button
+                  onClick={() => setFilterMode('active')}
+                  className={cn(
+                    'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                    filterMode === 'active'
+                      ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
+                      : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+                  )}
+                >
+                  진행 중
+                </button>
+                <button
+                  onClick={() => setFilterMode('all')}
+                  className={cn(
+                    'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                    filterMode === 'all'
+                      ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
+                      : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+                  )}
+                >
+                  전체
+                </button>
+                <button
+                  onClick={() => setFilterMode('popular')}
+                  className={cn(
+                    'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                    filterMode === 'popular'
+                      ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
+                      : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+                  )}
+                >
+                  인기순
+                </button>
+              </div>
+
+              {/* 주제 생성 버튼 */}
               <button
-                onClick={() => setShowActiveOnly(true)}
-                className={cn(
-                  'rounded-100 px-300 py-150 font-designer-13b transition-all',
-                  showActiveOnly
-                    ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                    : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
-                )}
+                onClick={() => setIsCreateModalOpen(true)}
+                className="flex items-center gap-100 rounded-100 bg-fill-brand-default-default px-400 py-200 font-designer-13b text-text-inverse shadow-1 transition-all hover:scale-105 hover:bg-fill-brand-default-hover hover:shadow-2"
               >
-                진행 중
-              </button>
-              <button
-                onClick={() => setShowActiveOnly(false)}
-                className={cn(
-                  'rounded-100 px-300 py-150 font-designer-13b transition-all',
-                  !showActiveOnly
-                    ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                    : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
-                )}
-              >
-                전체
+                <Plus className="h-4 w-4" />
+                주제 생성
               </button>
             </div>
 
@@ -204,5 +278,13 @@ export default function VotingPage() {
         </div>
       </div>
     </div>
+
+      {/* 주제 생성 모달 */}
+      <VotingCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateVoting}
+      />
+    </>
   );
 }
