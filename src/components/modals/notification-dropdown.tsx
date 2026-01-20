@@ -3,11 +3,12 @@
 import { DotIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { MemberNotificationResponse } from '@/api/openapi';
 import NotificationList from '@/components/lists/notification-list';
 
 import {
   useGetNotifications,
-  useHasNewNotification,
+  useReadNotifications,
 } from '@/hooks/queries/notification-api';
 import NotiIcon from 'public/icons/notifications_none.svg';
 import {
@@ -30,9 +31,14 @@ export default function NotificationDropdown() {
     size: 5,
     hasRead: false,
   });
-  const { data: newData } = useHasNewNotification();
 
-  const isRead = newData?.isRead;
+  const { mutate: readNotifications } = useReadNotifications();
+
+  const handleNotificationClick = (notification: MemberNotificationResponse) => {
+    if (!notification.isRead) {
+      readNotifications([notification.id]);
+    }
+  };
 
   const notifications =
     mode === 'all'
@@ -48,8 +54,8 @@ export default function NotificationDropdown() {
         <div className="relative cursor-pointer">
           <NotiIcon />
 
-          {!isRead && (
-            <DotIcon className="absolute -top-100 -left-100 fill-red-500 stroke-red-500" />
+          {totalUnreadCount !== undefined && totalUnreadCount > 0 && (
+            <DotIcon className="absolute -top-100 -right-100 fill-red-500 stroke-red-500" />
           )}
         </div>
       </DropdownMenuTrigger>
@@ -87,7 +93,10 @@ export default function NotificationDropdown() {
               </p>
             </div>
           ) : (
-            <NotificationList notifications={notifications} />
+            <NotificationList
+                notifications={notifications}
+                onNotificationClick={handleNotificationClick}
+              />
           )}
         </div>
 
