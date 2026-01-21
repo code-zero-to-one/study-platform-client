@@ -1,197 +1,274 @@
 'use client';
 
-import Link from 'next/link';
-import { MessageSquareText, ExternalLink, Users, Calendar, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Loader2, Vote, SearchX, Plus, MessageSquareText } from 'lucide-react';
+import { Voting } from '@/types/voting';
+import { mockFetchVotings } from '@/mocks/voting-mock-data';
+import VotingCard from '@/components/cards/voting-card';
+import VotingCreateModal from '@/components/voting/voting-create-modal';
+import { VotingCreateFormData } from '@/types/schemas/zod-schema';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 export default function CommunityTab() {
+  // 상태 관리
+  const [votings, setVotings] = useState<Voting[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const [error, setError] = useState<string | null>(null);
+  const [filterMode, setFilterMode] = useState<'active' | 'all' | 'popular'>('active');
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  // 무한 스크롤용 ref
+  const observerTarget = useRef<HTMLDivElement>(null);
+
+  // 데이터 로딩 함수
+  const loadVotings = useCallback(
+    async (pageNum: number, reset: boolean = false) => {
+      try {
+        if (reset) {
+          setIsLoading(true);
+          setError(null);
+        } else {
+          setIsLoadingMore(true);
+        }
+
+        const activeOnly = filterMode === 'active';
+        const sortBy = filterMode === 'popular' ? 'popular' : 'latest';
+
+        const result = await mockFetchVotings({
+          page: pageNum,
+          limit: 10,
+          activeOnly: activeOnly,
+          sortBy: sortBy,
+        });
+
+        setVotings((prev) => (reset ? result.items : [...prev, ...result.items]));
+        setHasMore(result.hasMore);
+      } catch (err) {
+        setError('데이터를 불러오는데 실패했습니다.');
+        console.error(err);
+      } finally {
+        setIsLoading(false);
+        setIsLoadingMore(false);
+      }
+    },
+    [filterMode],
+  );
+
+  // 투표 생성 핸들러
+  const handleCreateVoting = async (data: VotingCreateFormData) => {
+    try {
+      // Mock API 호출 (실제로는 서버에 요청)
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      
+      // 새 투표 객체 생성
+      const newVoting: Voting = {
+        id: Date.now(), // 임시 ID
+        round: votings.length > 0 ? Math.max(...votings.map(v => v.round)) + 1 : 1,
+        title: data.title,
+        description: data.description || undefined,
+        options: data.options.map((opt, index) => ({
+          id: Date.now() + index,
+          label: opt.label,
+          voteCount: 0,
+          percentage: 0,
+        })),
+        totalVotes: 0,
+        myVote: undefined,
+        commentCount: 0,
+        comments: [],
+        createdAt: new Date().toISOString(),
+        endsAt: data.endsAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7일 후
+        isActive: true,
+        tags: data.tags || [],
+      };
+      
+      // localStorage에 저장 (상세 페이지에서 조회 가능하도록)
+      const customVotings = localStorage.getItem('customVotings');
+      const existingVotings = customVotings ? JSON.parse(customVotings) : [];
+      localStorage.setItem('customVotings', JSON.stringify([newVoting, ...existingVotings]));
+      
+      // 목록 맨 앞에 추가
+      setVotings((prev) => [newVoting, ...prev]);
+      
+      console.log('새 투표 생성 완료:', newVoting);
+    } catch (error) {
+      console.error('투표 생성 실패:', error);
+      throw error;
+    }
+  };
+
+  // 필터 변경 시 첫 페이지 로드
+  useEffect(() => {
+    setPage(1);
+    loadVotings(1, true);
+  }, [loadVotings]);
+
+  // 무한 스크롤 Intersection Observer
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isLoading) {
+          const nextPage = page + 1;
+          setPage(nextPage);
+          loadVotings(nextPage, false);
+        }
+      },
+      { threshold: 0.1 },
+    );
+
+    const currentTarget = observerTarget.current;
+    if (currentTarget) {
+      observer.observe(currentTarget);
+    }
+
+    return () => {
+      if (currentTarget) {
+        observer.unobserve(currentTarget);
+      }
+    };
+  }, [hasMore, isLoadingMore, isLoading, page, loadVotings]);
+
+  // 로딩 상태
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-800">
+        <div className="flex flex-col items-center gap-400">
+          <Loader2 className="h-8 w-8 animate-spin text-text-brand" />
+          <p className="font-designer-16m text-text-subtle">투표를 불러오는 중...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // 에러 상태
+  if (error) {
+    return (
+      <div className="flex items-center justify-center py-800">
+        <div className="flex flex-col items-center gap-400">
+          <SearchX className="h-12 w-12 text-text-subtlest" />
+          <p className="font-designer-16m text-text-subtle">{error}</p>
+          <button
+            onClick={() => loadVotings(1, true)}
+            className="rounded-100 bg-fill-brand-default-default px-400 py-200 font-designer-14b text-text-inverse transition-colors hover:bg-fill-brand-default-hover"
+          >
+            다시 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-500">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
-          밸런스게임
-          <MessageSquareText className="w-8 h-8 text-text-brand" />
-        </h2>
-      </div>
-
-      {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-400">
-        {/* 밸런스게임 카드 */}
-        <Link href="/insights/weekly" className="group">
-          <div className="flex flex-col gap-300 rounded-200 border border-border-subtle bg-background-default p-500 shadow-1 transition-all hover:-translate-y-50 hover:shadow-3 hover:border-border-brand">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-200">
-                <div className="w-[60px] h-[60px] rounded-200 bg-fill-brand-subtle-default flex items-center justify-center">
-                  <MessageSquareText className="w-8 h-8 text-text-brand" />
-                </div>
-                <div className="flex flex-col gap-50">
-                  <h3 className="font-bold-h4 text-text-strong group-hover:text-text-brand transition-colors">
-                    밸런스게임
-                  </h3>
-                  <span className="animate-pulse text-[12px] bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white px-150 py-50 rounded-full font-bold w-fit">
-                    NEW
-                  </span>
-                </div>
-              </div>
-              <ExternalLink className="w-5 h-5 text-text-subtle group-hover:text-text-brand transition-colors" />
-            </div>
-
-            <p className="font-designer-16r text-text-subtle leading-relaxed">
-              매주 진행되는 커뮤니티 투표와 토론에 참여해보세요. 
-              다른 멤버들과 소통하며 함께 성장할 수 있습니다.
-            </p>
-
-            <div className="flex items-center gap-300 pt-200 border-t border-border-subtle">
-              <div className="flex items-center gap-100 text-text-subtle">
-                <Users className="w-4 h-4" />
-                <span className="font-designer-13m">활발한 커뮤니티</span>
-              </div>
-              <div className="flex items-center gap-100 text-text-subtle">
-                <Calendar className="w-4 h-4" />
-                <span className="font-designer-13m">매주 업데이트</span>
-              </div>
-            </div>
-          </div>
-        </Link>
-
-        {/* 커뮤니티 통계 카드 */}
-        <div className="flex flex-col gap-300 rounded-200 border border-border-subtle bg-background-default p-500 shadow-1">
-          <div className="flex items-center gap-200">
-            <div className="w-[60px] h-[60px] rounded-200 bg-fill-information-subtle-default flex items-center justify-center">
-              <TrendingUp className="w-8 h-8 text-text-information" />
-            </div>
-            <div className="flex flex-col gap-50">
-              <h3 className="font-bold-h4 text-text-strong">
-                커뮤니티 현황
-              </h3>
-              <span className="font-designer-13r text-text-subtle">
-                실시간 업데이트
-              </span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-300">
-            <div className="flex flex-col gap-100 p-300 rounded-100 bg-fill-neutral-subtle-default">
-              <span className="font-designer-12r text-text-subtle">이번 주 참여자</span>
-              <span className="font-bold-h3 text-text-brand">127명</span>
-            </div>
-            <div className="flex flex-col gap-100 p-300 rounded-100 bg-fill-neutral-subtle-default">
-              <span className="font-designer-12r text-text-subtle">진행 중인 투표</span>
-              <span className="font-bold-h3 text-text-information">3개</span>
-            </div>
-            <div className="flex flex-col gap-100 p-300 rounded-100 bg-fill-neutral-subtle-default">
-              <span className="font-designer-12r text-text-subtle">총 토론 주제</span>
-              <span className="font-bold-h3 text-text-warning">24개</span>
-            </div>
-            <div className="flex flex-col gap-100 p-300 rounded-100 bg-fill-neutral-subtle-default">
-              <span className="font-designer-12r text-text-subtle">활성 사용자</span>
-              <span className="font-bold-h3 text-text-success">89%</span>
-            </div>
-          </div>
+    <>
+      <div className="flex flex-col gap-500">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
+            밸런스게임
+            <MessageSquareText className="w-8 h-8 text-text-brand" />
+          </h2>
         </div>
-      </div>
 
-      {/* 최근 활동 섹션 */}
-      <div className="flex flex-col gap-300">
-        <h3 className="font-designer-18b text-text-strong">최근 커뮤니티 활동</h3>
-        
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-300">
-          {/* 최근 투표 */}
-          <div className="flex flex-col gap-200 p-400 rounded-200 border border-border-subtle bg-background-default">
-            <div className="flex items-center gap-150">
-              <div className="w-[40px] h-[40px] rounded-100 bg-fill-brand-subtle-default flex items-center justify-center">
-                <MessageSquareText className="w-5 h-5 text-text-brand" />
-              </div>
-              <div>
-                <h4 className="font-designer-15b text-text-strong">최근 투표</h4>
-                <span className="font-designer-12r text-text-subtle">2시간 전</span>
-              </div>
-            </div>
-            <p className="font-designer-14r text-text-default">
-              "다음 주 스터디 주제는 무엇이 좋을까요?"
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="font-designer-12r text-text-subtle">참여자 45명</span>
-              <Link 
-                href="/insights/weekly"
-                className="font-designer-12b text-text-brand hover:text-text-information transition-colors"
-              >
-                참여하기 →
-              </Link>
-            </div>
-          </div>
-
-          {/* 인기 토론 */}
-          <div className="flex flex-col gap-200 p-400 rounded-200 border border-border-subtle bg-background-default">
-            <div className="flex items-center gap-150">
-              <div className="w-[40px] h-[40px] rounded-100 bg-fill-warning-subtle-default flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 text-text-warning" />
-              </div>
-              <div>
-                <h4 className="font-designer-15b text-text-strong">인기 토론</h4>
-                <span className="font-designer-12r text-text-subtle">1일 전</span>
-              </div>
-            </div>
-            <p className="font-designer-14r text-text-default">
-              "개발자 취업 시장 전망과 준비 방법"
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="font-designer-12r text-text-subtle">댓글 23개</span>
-              <Link 
-                href="/insights/weekly"
-                className="font-designer-12b text-text-brand hover:text-text-information transition-colors"
-              >
-                참여하기 →
-              </Link>
-            </div>
-          </div>
-
-          {/* 주간 하이라이트 */}
-          <div className="flex flex-col gap-200 p-400 rounded-200 border border-border-subtle bg-background-default">
-            <div className="flex items-center gap-150">
-              <div className="w-[40px] h-[40px] rounded-100 bg-fill-success-subtle-default flex items-center justify-center">
-                <Calendar className="w-5 h-5 text-text-success" />
-              </div>
-              <div>
-                <h4 className="font-designer-15b text-text-strong">주간 하이라이트</h4>
-                <span className="font-designer-12r text-text-subtle">3일 전</span>
-              </div>
-            </div>
-            <p className="font-designer-14r text-text-default">
-              "이번 주 베스트 학습 자료 모음"
-            </p>
-            <div className="flex items-center justify-between">
-              <span className="font-designer-12r text-text-subtle">조회수 156회</span>
-              <Link 
-                href="/insights/weekly"
-                className="font-designer-12b text-text-brand hover:text-text-information transition-colors"
-              >
-                보러가기 →
-              </Link>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* CTA 섹션 */}
-      <div className="flex flex-col items-center gap-300 p-600 rounded-200 bg-gradient-to-r from-fill-brand-subtle-default to-fill-information-subtle-default border border-border-brand">
-        <div className="text-center">
-          <h3 className="font-bold-h4 text-text-strong mb-100">
-            지금 바로 커뮤니티에 참여해보세요!
-          </h3>
-          <p className="font-designer-16r text-text-subtle">
-            다른 멤버들과 소통하며 함께 성장하는 경험을 만들어보세요.
+        {/* 헤더 설명 */}
+        <div className="mb-300">
+          <p className="font-designer-14r text-text-subtle">
+            다양한 주제에 투표하고 댓글로 자유롭게 토론할 수 있습니다.
           </p>
         </div>
-        
-        <Link href="/insights/weekly">
-          <button className="flex items-center gap-150 px-400 py-200 bg-fill-brand-default-default text-text-inverse font-designer-16b rounded-100 hover:bg-fill-brand-strong-default transition-colors shadow-2">
-            <MessageSquareText className="w-5 h-5" />
-            밸런스게임 입장하기
-            <ExternalLink className="w-4 h-4" />
+
+        {/* 필터 + 주제 생성 버튼 */}
+        <div className="mb-400 flex items-center justify-between gap-200">
+          {/* 필터 버튼 */}
+          <div className="flex items-center gap-200">
+            <button
+              onClick={() => setFilterMode('active')}
+              className={cn(
+                'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                filterMode === 'active'
+                  ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
+                  : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+              )}
+            >
+              진행 중
+            </button>
+            <button
+              onClick={() => setFilterMode('all')}
+              className={cn(
+                'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                filterMode === 'all'
+                  ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
+                  : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+              )}
+            >
+              전체
+            </button>
+            <button
+              onClick={() => setFilterMode('popular')}
+              className={cn(
+                'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                filterMode === 'popular'
+                  ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
+                  : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+              )}
+            >
+              인기순
+            </button>
+          </div>
+
+          {/* 주제 생성 버튼 */}
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center gap-100 rounded-100 bg-fill-brand-default-default px-400 py-200 font-designer-13b text-text-inverse shadow-1 transition-all hover:scale-105 hover:bg-fill-brand-default-hover hover:shadow-2"
+          >
+            <Plus className="h-4 w-4" />
+            주제 생성
           </button>
-        </Link>
+        </div>
+
+        {/* 투표 목록 */}
+        {votings.length === 0 ? (
+          <div className="flex flex-col items-center justify-center gap-300 rounded-200 border border-border-subtle bg-background-default py-1200">
+            <Vote className="h-12 w-12 text-text-subtlest opacity-30" />
+            <div className="flex flex-col items-center gap-100">
+              <p className="font-designer-16m text-text-subtle">투표가 없습니다</p>
+              <p className="font-designer-14r text-text-subtlest">
+                곧 새로운 투표가 등록될 예정입니다
+              </p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex flex-col gap-300">
+              {votings.map((voting) => (
+                <VotingCard key={voting.id} voting={voting} />
+              ))}
+            </div>
+
+            {/* 무한 스크롤 트리거 */}
+            <div ref={observerTarget} className="py-400 text-center">
+              {isLoadingMore && (
+                <div className="flex items-center justify-center gap-200">
+                  <Loader2 className="h-5 w-5 animate-spin text-text-brand" />
+                  <span className="font-designer-14r text-text-subtle">불러오는 중...</span>
+                </div>
+              )}
+              {!hasMore && votings.length > 0 && (
+                <p className="font-designer-13r text-text-subtlest">모든 투표를 불러왔습니다</p>
+              )}
+            </div>
+          </>
+        )}
       </div>
-    </div>
+
+      {/* 주제 생성 모달 */}
+      <VotingCreateModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSubmit={handleCreateVoting}
+      />
+    </>
   );
 }

@@ -1,7 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { Voting } from '@/types/voting';
-import { MessageCircle, Users, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, Users, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import VoteTimer from '../voting/vote-timer';
 
@@ -24,14 +24,9 @@ export default function VotingCard({ voting }: VotingCardProps) {
         hasVoted ? 'border-border-brand shadow-2' : 'border-border-subtle hover:border-border-brand hover:shadow-2',
       )}
     >
-      {/* 헤더: 라운드 번호 & 상태 */}
+      {/* 헤더: 상태 */}
       <div className="mb-300 flex items-center justify-between">
         <div className="flex items-center gap-200">
-          <div className="flex items-center gap-100 rounded-100 bg-fill-brand-default-default px-250 py-100">
-            <TrendingUp className="h-4 w-4 text-text-inverse" />
-            <span className="font-designer-13b text-text-inverse">{voting.round} 라운드</span>
-          </div>
-
           {hasVoted && (
             <div className="flex items-center gap-50 rounded-100 bg-green-50 px-200 py-100">
               <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
