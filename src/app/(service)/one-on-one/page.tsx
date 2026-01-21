@@ -643,7 +643,7 @@ export default function OneOnOnePage() {
             >
               <MessageSquareText className="w-5 h-5" />
               <span className="flex items-center gap-100">
-                위클리 소통 공간
+                밸런스게임
                 <span className="animate-pulse text-[10px] bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white px-100 py-25 rounded-full font-bold">
                   NEW
                 </span>

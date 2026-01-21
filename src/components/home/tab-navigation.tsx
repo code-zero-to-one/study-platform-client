@@ -35,7 +35,7 @@ const TABS = [
   },
   {
     id: 'community',
-    label: '위클리 소통 공간',
+    label: '밸런스게임',
     icon: MessageSquareText,
     description: '커뮤니티'
   }

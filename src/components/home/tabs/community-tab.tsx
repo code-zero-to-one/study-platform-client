@@ -9,14 +9,14 @@ export default function CommunityTab() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
-          위클리 소통 공간
+          밸런스게임
           <MessageSquareText className="w-8 h-8 text-text-brand" />
         </h2>
       </div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-400">
-        {/* 위클리 소통 공간 카드 */}
+        {/* 밸런스게임 카드 */}
         <Link href="/insights/weekly" className="group">
           <div className="flex flex-col gap-300 rounded-200 border border-border-subtle bg-background-default p-500 shadow-1 transition-all hover:-translate-y-50 hover:shadow-3 hover:border-border-brand">
             <div className="flex items-center justify-between">
@@ -26,7 +26,7 @@ export default function CommunityTab() {
                 </div>
                 <div className="flex flex-col gap-50">
                   <h3 className="font-bold-h4 text-text-strong group-hover:text-text-brand transition-colors">
-                    위클리 소통 공간
+                    밸런스게임
                   </h3>
                   <span className="animate-pulse text-[12px] bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white px-150 py-50 rounded-full font-bold w-fit">
                     NEW
@@ -187,7 +187,7 @@ export default function CommunityTab() {
         <Link href="/insights/weekly">
           <button className="flex items-center gap-150 px-400 py-200 bg-fill-brand-default-default text-text-inverse font-designer-16b rounded-100 hover:bg-fill-brand-strong-default transition-colors shadow-2">
             <MessageSquareText className="w-5 h-5" />
-            위클리 소통 공간 입장하기
+            밸런스게임 입장하기
             <ExternalLink className="w-4 h-4" />
           </button>
         </Link>
