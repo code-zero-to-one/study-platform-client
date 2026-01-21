@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 
 export default function LandingForm() {
@@ -231,7 +230,7 @@ export default function LandingForm() {
                 htmlFor="MISSION_CHALLENGE"
                 className="font-designer-16m text-[#767676]"
               >
-                미션인증 챌린지 스터디
+                미션 인증 챌린지 스터디
               </label>
             </div>
             <div className="flex flex-row gap-[11px]">
@@ -251,7 +250,7 @@ export default function LandingForm() {
                 htmlFor="FUNDED_PROJECT"
                 className="font-designer-16m text-[#767676]"
               >
-                펀딩받는 실전프로젝트 스터디
+                펀딩 받는 실전 프로젝트 스터디
               </label>
             </div>
             <div className="flex flex-row gap-[11px]">
@@ -271,7 +270,7 @@ export default function LandingForm() {
                 htmlFor="OUTSOURCING"
                 className="font-designer-16m text-[#767676]"
               >
-                SI 외주 프로젝트
+                SI 외주 프로젝트 스터디
               </label>
             </div>
           </div>
@@ -281,7 +280,7 @@ export default function LandingForm() {
             진심을 다해 돕겠습니다.
           </div>
           <textarea
-            placeholder="Ex) 3년차 프론트엔드 개발자고 외주를 하고 싶은데 어디서부터 시작해야할지 잘 모르겠어요. 그럴 실력이 되는지도 모르겠고... 팀을 찾고 같이 하면 좋을 것 같아요"
+            placeholder="Ex) 3년차 프론트엔드 개발자고 외주를 하고 싶은데 어디서부터 시작해야 할 지 잘 모르겠어요. 그럴 실력이 되는 지도 모르겠고... 팀을 찾아 같이 하면 좋을 것 같아요"
             value={consultation}
             onChange={(e) => setConsultation(e.target.value)}
             className="placeholder:font-designer-16m h-[120px] w-full resize-none rounded-[16px] bg-[#F2F2F2] px-[24px] py-[18px] placeholder:text-[#999999]"
@@ -323,14 +322,13 @@ export default function LandingForm() {
             </button>
           </div>
 
-          <Button
+          <button
             type="submit"
-            color="primary"
-            className="text-font-designer-18m mt-[60px] h-[60px] w-full rounded-[16px] py-[16px]"
             disabled={isSubmitting}
+            className="mt-[60px] h-[60px] w-full rounded-[15.111px] bg-[#f63d68] py-[16px] text-[18px] font-bold tracking-[-0.48px] !text-[#ffffff] shadow-lg transition-all hover:scale-105 disabled:cursor-not-allowed disabled:bg-[#dbdbdb]"
           >
-            내 관심분야 스터디 오픈 알림 신청하기
-          </Button>
+            관심 분야 스터디 오픈 소식 받기
+          </button>
         </div>
       </form>
     </div>

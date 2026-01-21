@@ -2,6 +2,8 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
+import LandingForm from '@/components/ui/form/landing-form';
+import { CountingNumber } from '@/components/ui/counting-number';
 import {
   HERO_SECTION,
   STATS_SECTION,
@@ -12,9 +14,6 @@ import {
   NOTIFICATION_SECTION,
   FOOTER_DATA,
 } from '@/constants/landing';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import LandingForm from '@/components/ui/form/landing-form';
 
 /**
  * B안: 사용자 후기 중심 (Reviews First)
@@ -27,171 +26,213 @@ export default function LandingVariantB() {
         {/* ====================================== */}
         {/* Hero Section */}
         {/* ====================================== */}
-        <section className="relative flex flex-col items-center gap-600 py-[80px]">
-          <div className="pointer-events-none absolute top-0 left-0 z-0 h-full w-full bg-gradient-to-b from-white via-[#fff1f3] to-white" />
-
-          <div className="relative z-10 flex flex-col items-center justify-center gap-400">
-            <div>
-              <p className="font-bold-h1 text-text-strong flex flex-col items-center">
+        <section className="relative flex flex-col items-center gap-[64px] pt-[96px] pb-[40px]">
+          <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-[#ffffff] via-[#fff1f3] via-[50.481%] to-[#ffffff]" />
+          <div className="relative z-10 flex flex-col items-center justify-center gap-[40px] text-center">
+            <div className="flex flex-col gap-[24px]">
+              <h1 className="text-text-strong flex flex-col items-center text-[52px] leading-[72px] font-bold tracking-[-1.56px]">
                 <span>{HERO_SECTION.title.main}</span>
                 <span>{HERO_SECTION.title.sub}</span>
-              </p>
+              </h1>
 
-              <p className="text-text-subtle font-designer-16m mt-200 flex flex-col items-center">
+              <p className="max-w-[700px] text-[20px] leading-[1.5] font-medium tracking-[-0.6px] text-[#444]">
                 {HERO_SECTION.description.map((line, idx) => (
-                  <span key={idx}>{line}</span>
+                  <span key={idx} className="block">
+                    {line}
+                  </span>
                 ))}
               </p>
             </div>
 
             <Link href="/login">
-              <Button
-                color="primary"
-                className="w-[190px] py-[12px] text-[20px]"
-              >
-                {HERO_SECTION.cta}
-              </Button>
+              <button className="shadow-primary-default/20 flex items-center gap-[12px] rounded-[15.111px] bg-[#f63d68] py-[11.333px] pr-[15.111px] pl-[22.667px] text-[16px] leading-[1.5] font-bold tracking-[-0.48px] !text-[#ffffff] shadow-lg transition-all hover:scale-105">
+                <span className="!text-[#ffffff]">{HERO_SECTION.cta}</span>
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M9 18L15 12L9 6"
+                    stroke="#ffffff"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
             </Link>
-          </div>
-
-          <div className="relative h-[591px] w-[1000px]">
-            <Image
-              src="/images/one-by-one-study.png"
-              alt="제로원 대표 이미지"
-              className="rounded-100"
-              width={1000}
-              height={590}
-            />
-            {/* TODO: [B안] 실제 히어로 이미지 경로 교체 필요 */}
-            <div className="pointer-events-none absolute bottom-0 left-0 h-[120px] w-full bg-gradient-to-t from-[#ffffff] to-transparent" />
           </div>
         </section>
 
         {/* ====================================== */}
-        {/* Reviews Section (B안의 핵심: 먼저 보여줌) */}
+        {/* Reviews Section */}
         {/* ====================================== */}
-        <section className="mx-auto flex w-[1160px] max-w-7xl flex-col items-center gap-600 bg-gradient-to-b from-white via-[#fff8f9] to-white py-[120px]">
-          <h2 className="font-bold-h2 text-text-strong text-center">
-            {REVIEWS_SECTION.title}
-          </h2>
-
-          <div className="grid grid-cols-2 gap-x-[120px] gap-y-400 w-full">
+        <section className="mx-auto flex w-[1440px] max-w-7xl flex-col items-center gap-[64px] pt-[40px] pb-[112px] bg-white">
+          <div className="flex w-full flex-col gap-[32px] px-[240px]">
             {REVIEWS_SECTION.reviews.map((review) => (
               <div
                 key={review.id}
-                className={`flex items-start gap-300 ${
-                  review.position === 'right' ? 'justify-end' : ''
+                className={`flex items-center gap-[24px] ${
+                  review.position === 'right'
+                    ? 'flex-row-reverse self-end'
+                    : 'self-start'
                 }`}
               >
-                {review.position === 'left' && (
-                  <div className="relative h-[64px] w-[64px] flex-shrink-0">
-                    {/* TODO: [B안] 실제 아바타 이미지 경로 교체 필요 */}
-                    <div className="rounded-full bg-gradient-to-br from-blue-200 to-purple-200 h-full w-full" />
-                  </div>
-                )}
+                <div className="relative size-[80px] flex-shrink-0 overflow-hidden rounded-full border-2 border-white shadow-md">
+                  <Image
+                    src={review.avatar}
+                    alt={review.name}
+                    width={80}
+                    height={80}
+                    className="object-cover"
+                  />
+                </div>
 
                 <div
-                  className={`rounded-300 bg-background-subtle max-w-[400px] px-400 py-300 shadow-[0_4px_12px_rgba(0,0,0,0.08)] ${
-                    review.position === 'right' ? 'text-right' : ''
+                  className={`relative rounded-[16px] bg-[#fff3f5] px-[24px] py-[18px] text-[#000] !shadow-none ${
+                    review.position === 'right' ? 'text-right' : 'text-left'
                   }`}
                 >
-                  <p className="font-designer-16m text-text-default">
+                  <p className="text-[16px] leading-[1.5] font-medium tracking-[-0.48px] text-black">
                     {review.text}
                   </p>
                 </div>
-
-                {review.position === 'right' && (
-                  <div className="relative h-[64px] w-[64px] flex-shrink-0">
-                    {/* TODO: [B안] 실제 아바타 이미지 경로 교체 필요 */}
-                    <div className="rounded-full bg-gradient-to-br from-pink-200 to-orange-200 h-full w-full" />
-                  </div>
-                )}
               </div>
             ))}
           </div>
         </section>
 
         {/* ====================================== */}
-        {/* Stats Section (B안에서는 나중에) */}
+        {/* Stats Section */}
         {/* ====================================== */}
-        <section className="flex flex-col items-center gap-500 py-[120px]">
-          <h2 className="font-bold-h2 text-text-strong text-center">
-            {STATS_SECTION.title}
+        <section className="relative flex flex-col items-center py-[80px]">
+          <div className="pointer-events-none absolute inset-0 z-0 bg-gradient-to-b from-[#ffffff] via-[#fff1f3] via-[50.481%] to-[#ffffff]" />
+          <h2 className="relative z-10 text-center text-[36px] leading-[1.2] font-bold tracking-[-1.08px] text-[#111] mb-[64px]">
+            {REVIEWS_SECTION.title}
           </h2>
-
-          <ul className="grid grid-cols-3 gap-300">
+          <div className="relative z-10 flex w-full max-w-[1200px] items-center justify-center gap-[20px] px-[24px]">
             {STATS_SECTION.stats.map((stat, index) => (
-              <li
+              <div
                 key={index}
-                className="rounded-300 bg-background-default flex min-w-[280px] flex-col items-center gap-300 px-500 py-600 shadow-[0_8px_30px_rgb(0,0,0,0.12)]"
+                className="flex h-[390px] w-[306px] flex-shrink-0 flex-col items-center justify-center rounded-[24px] !bg-[#ffffff] px-[30px] py-[40px] shadow-[0px_10px_30px_rgba(0,0,0,0.05)] transition-all hover:scale-105 hover:shadow-xl"
               >
-                <div className="flex flex-col items-center gap-200">
-                  <span className="font-designer-14m text-text-subtle">
+                <div className="flex flex-col items-center gap-[12px]">
+                  <span className="text-[20px] font-bold tracking-[-0.6px] text-[#111]">
                     {stat.label}
                   </span>
-                  <span className="font-bold-h1 text-primary-strong">
-                    {stat.value}
-                    <span className="text-primary-default">{stat.suffix}</span>
-                  </span>
-                </div>
-
-                {/* 아이콘 이미지 */}
-                <div className="relative h-[120px] w-[120px]">
-                  <div className="rounded-full bg-gradient-to-br from-pink-100 to-purple-100 h-full w-full flex items-center justify-center">
-                    {/* TODO: [B안] 실제 아이콘 이미지 경로 교체 필요 */}
-                    <span className="text-[64px]">
-                      {index === 0 ? '⏰' : index === 1 ? '📚' : '👏'}
-                    </span>
+                  <div className="flex items-center gap-[4px] text-[48px] leading-none font-bold tracking-[-1.44px] text-[#111]">
+                    <CountingNumber value={Number(stat.value)} />
+                    <span className="text-[60px] leading-none">{stat.suffix}</span>
                   </div>
                 </div>
-              </li>
+
+                <div className="relative mt-[32px] flex size-[160px] items-center justify-center">
+                  <Image
+                    src={stat.icon}
+                    alt={stat.label}
+                    width={160}
+                    height={160}
+                    className="object-contain scale-110"
+                  />
+                </div>
+              </div>
             ))}
-          </ul>
+          </div>
         </section>
 
         {/* ====================================== */}
         {/* Growth Section */}
         {/* ====================================== */}
-        <section className="bg-background-subtle flex flex-col items-center gap-500 py-[120px]">
-          <Badge className="rounded-200 w-fit">{GROWTH_SECTION.badge}</Badge>
+        <section className="flex flex-col items-center gap-[48px] bg-white py-[112px]">
+          <div className="mx-auto flex w-[1440px] max-w-7xl flex-col items-start gap-[24px] px-[24px]">
+            <div className="inline-flex items-center justify-center rounded-full border border-[#dbdbdb] !bg-[#ffffff] px-[10px] py-[4px]">
+              <span className="text-[14px] font-medium tracking-[-0.42px] text-[#111]">
+                {GROWTH_SECTION.badge}
+              </span>
+            </div>
 
-          <p className="flex flex-col items-center gap-100">
-            <span className="font-bold-h2 text-text-strong">
-              {GROWTH_SECTION.title}
-            </span>
-            <span className="text-text-subtle font-designer-16m text-center">
-              {GROWTH_SECTION.description.map((line, idx) => (
-                <span key={idx} className="block">
-                  {line}
+            <div className="flex flex-col items-start gap-[16px]">
+              <span className="text-left text-[36px] leading-[1.2] font-bold tracking-[-1.08px] text-[#111]">
+                {GROWTH_SECTION.title}
+              </span>
+              <div className="flex flex-col items-start gap-[24px]">
+                <span className="max-w-[800px] text-left text-[20px] leading-[1.5] font-medium tracking-[-0.6px] text-[#444]">
+                  {GROWTH_SECTION.description.map((line, idx) => (
+                    <span key={idx} className="block">
+                      {line}
+                    </span>
+                  ))}
                 </span>
-              ))}
-            </span>
-          </p>
+                <Link href="/groups">
+                  <button className="shadow-primary-default/20 flex items-center gap-[12px] rounded-[15.111px] bg-[#f63d68] py-[11.333px] pr-[15.111px] pl-[22.667px] text-[16px] leading-[1.5] font-bold tracking-[-0.48px] !text-[#ffffff] shadow-lg transition-all hover:scale-105">
+                    <span className="!text-[#ffffff]">{GROWTH_SECTION.cta}</span>
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M9 18L15 12L9 6"
+                        stroke="#ffffff"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
 
-          <ul className="grid grid-cols-3 gap-300 mt-400">
+          <ul className="scrollbar-hide flex w-full snap-x overflow-x-auto gap-[24px] px-[120px] pb-[40px]">
             {GROWTH_SECTION.cards.map((card, index) => (
               <li
                 key={index}
-                className="rounded-300 bg-background-default flex flex-col gap-250 px-400 py-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)]"
+                className="flex h-fit min-h-[380px] w-[280px] flex-shrink-0 snap-center flex-col rounded-[20px] bg-[#ffffff] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)]"
               >
-                <Badge className="rounded-200 w-fit">{card.badge}</Badge>
-
-                <div className="flex flex-col gap-200">
-                  <span className="font-bold-h5 text-text-default">
-                    {card.title}
-                  </span>
-                  <div className="font-designer-14m text-text-subtlest">
-                    {card.description.map((des, idx) => (
-                      <span key={idx} className="block">
-                        {des}
-                      </span>
-                    ))}
+                {/* Image Area */}
+                <div className="p-[12px] pb-0">
+                  <div className="relative h-[180px] w-full overflow-hidden rounded-[16px]">
+                    <Image
+                      src={card.imageSrc}
+                      alt={card.title}
+                      fill
+                      className="object-cover"
+                    />
                   </div>
                 </div>
 
-                <div className="relative h-[200px] w-full">
-                  {/* TODO: [B안] 실제 카드 이미지 경로 교체 필요 */}
-                  <div className="rounded-200 bg-gradient-to-br from-slate-100 to-slate-200 h-full w-full" />
+                {/* Content Area */}
+                <div className="flex flex-1 flex-col justify-between bg-[#ffffff] p-[20px] pt-[16px]">
+                  <div className="flex flex-col gap-[6px]">
+                    <span className="text-[17px] font-bold tracking-[-0.51px] text-[#111]">
+                      {card.title}
+                    </span>
+                    <div className="text-[14px] font-medium text-[#767676]">
+                      {card.description.map((des, idx) => (
+                        <span key={idx} className="block">
+                          {des}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Footer Area */}
+                  <div className="flex items-center gap-[8px] text-[13px] font-medium text-[#999]">
+                    <span>{(card as any).location}</span>
+                    <span className="text-[#dbdbdb]">|</span>
+                    <div className="rounded-full border border-[#dbdbdb] px-[8px] py-[2px] bg-[#ffffff]">
+                      <span className="text-[12px] font-bold text-[#111]">
+                        {card.badge}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </li>
             ))}
@@ -201,78 +242,141 @@ export default function LandingVariantB() {
         {/* ====================================== */}
         {/* Mentoring Section */}
         {/* ====================================== */}
-        <section className="mx-auto flex w-[1160px] max-w-7xl items-center justify-between gap-400 py-[120px]">
-          <div className="flex-1">
-            <Badge className="rounded-200 w-fit">
-              {ONE_ON_ONE_STUDY_SECTION.badge}
-            </Badge>
+        <section className="mx-auto flex w-[1440px] max-w-7xl items-center justify-between gap-[40px] px-[24px] py-[112px] bg-white">
+          <div className="flex flex-1 flex-col gap-[24px]">
+            <div className="w-fit rounded-full border border-[#dbdbdb] !bg-[#ffffff] px-[10px] py-[4px]">
+              <span className="text-[14px] font-medium tracking-[-0.42px] text-[#111]">
+                {ONE_ON_ONE_STUDY_SECTION.badge}
+              </span>
+            </div>
 
-            <div className="mt-200 flex flex-col gap-300">
-              <p className="font-bold-h2 text-text-strong flex flex-col">
+            <div className="flex flex-col gap-[32px]">
+              <h2 className="flex flex-col text-[36px] leading-[1.2] font-bold tracking-[-1.08px] text-[#111]">
                 {ONE_ON_ONE_STUDY_SECTION.title.map((t, idx) => (
                   <span key={idx}>{t}</span>
                 ))}
-              </p>
+              </h2>
 
-              <p className="text-text-subtle font-designer-16m flex flex-col">
+              <p className="flex flex-col text-[20px] leading-[1.5] font-medium tracking-[-0.6px] text-[#444]">
                 {ONE_ON_ONE_STUDY_SECTION.description.map((des, idx) => (
                   <span key={idx}>{des}</span>
                 ))}
               </p>
+
+              <Link href="/one-on-one">
+                <button className="shadow-primary-default/20 flex items-center gap-[12px] rounded-[15.111px] bg-[#f63d68] py-[11.333px] pr-[15.111px] pl-[22.667px] text-[16px] leading-[1.5] font-bold tracking-[-0.48px] !text-[#ffffff] shadow-lg transition-all hover:scale-105">
+                  <span className="!text-[#ffffff]">
+                    {ONE_ON_ONE_STUDY_SECTION.cta}
+                  </span>
+                  <svg
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M9 18L15 12L9 6"
+                      stroke="#ffffff"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </Link>
             </div>
           </div>
 
-          <div className="relative h-[400px] w-[600px]">
-            {/* TODO: [B안] 실제 멘토링 이미지 경로 교체 필요 */}
-            <div className="rounded-200 bg-gradient-to-br from-gray-100 to-gray-200 h-full w-full" />
+          <div className="relative h-[477px] w-[720px] overflow-hidden rounded-[24px] border border-[#dbdbdb] shadow-xl">
+            <Image
+              src={ONE_ON_ONE_STUDY_SECTION.imageSrc}
+              alt="1:1 스터디"
+              fill
+              className="object-cover"
+            />
           </div>
         </section>
 
         {/* ====================================== */}
         {/* Mentor Section */}
         {/* ====================================== */}
-        <section className="bg-background-subtle flex flex-col items-center gap-500 py-[120px]">
-          <Badge className="rounded-200 w-fit">{MENTOR_SECTION.badge}</Badge>
+        <section className="flex flex-col items-center gap-[48px] bg-white py-[112px]">
+          <div className="mx-auto flex w-[1440px] max-w-7xl flex-col items-start gap-[24px] px-[24px]">
+            <div className="inline-flex items-center justify-center rounded-full border border-[#dbdbdb] !bg-[#ffffff] px-[10px] py-[4px]">
+              <span className="text-[14px] font-medium tracking-[-0.42px] text-[#111]">
+                {MENTOR_SECTION.badge}
+              </span>
+            </div>
 
-          <p className="flex flex-col items-center gap-100">
-            <span className="font-bold-h2 text-text-strong text-center">
-              {MENTOR_SECTION.title}
-            </span>
-            <span className="text-text-subtle font-designer-16m text-center max-w-[800px]">
-              {MENTOR_SECTION.description.map((line, idx) => (
-                <span key={idx} className="block">
-                  {line}
-                </span>
-              ))}
-            </span>
-          </p>
+            <div className="flex flex-col items-start gap-[16px]">
+              <span className="max-w-[900px] text-left text-[36px] leading-[1.2] font-bold tracking-[-1.08px] text-[#111]">
+                {MENTOR_SECTION.title}
+              </span>
+              <span className="max-w-[900px] text-left text-[20px] leading-[1.5] font-medium tracking-[-0.6px] text-[#444]">
+                {MENTOR_SECTION.description.map((line, idx) => (
+                  <span key={idx} className="block">
+                    {line}
+                  </span>
+                ))}
+              </span>
+            </div>
+          </div>
 
-          <ul className="grid grid-cols-4 gap-300 mt-400">
+          <ul className="scrollbar-hide flex w-full snap-x overflow-x-auto gap-[24px] px-[120px] pb-[40px]">
             {MENTOR_SECTION.mentors.map((mentor) => (
               <li
                 key={mentor.id}
-                className="rounded-300 bg-background-default flex flex-col items-center gap-300 px-400 py-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)]"
+                className={`flex h-fit min-h-[380px] w-[280px] flex-shrink-0 snap-center flex-col rounded-[20px] ${
+                  mentor.name ? 'bg-[#ffffff] shadow-[0px_4px_20px_0px_rgba(0,0,0,0.05)]' : 'bg-[#cccccc]'
+                }`}
               >
-                <div className="relative h-[120px] w-[120px]">
-                  {/* TODO: [B안] 실제 멘토 아바타 이미지 경로 교체 필요 */}
-                  <div className="rounded-full bg-gradient-to-br from-indigo-200 to-pink-200 h-full w-full" />
-                </div>
+                {mentor.name ? (
+                  <>
+                    <div className="relative h-[200px] w-full bg-[#f2f2f2]">
+                      <Image
+                        src={mentor.avatar}
+                        alt={mentor.name}
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
 
-                <div className="flex flex-col items-center gap-100">
-                  <span className="font-bold-h5 text-text-strong">
-                    {mentor.name}
-                  </span>
-                  <span className="font-designer-14m text-text-subtle">
-                    {mentor.title}
-                  </span>
-                  <div className="font-designer-12m text-text-subtlest text-center">
-                    {mentor.description.map((desc, idx) => (
-                      <span key={idx} className="block">
-                        {desc}
+                    <div className="flex flex-1 flex-col gap-[8px] bg-[#ffffff] p-[20px] pt-[16px]">
+                      <div className="flex flex-col gap-[4px]">
+                        <span className="text-[18px] font-bold tracking-[-0.54px] text-[#111]">
+                          {mentor.name}
+                        </span>
+                        <span className="text-[14px] font-medium text-[#444]">
+                          {mentor.title}
+                        </span>
+                      </div>
+                      <div className="mt-[4px] text-[12px] font-medium leading-[1.6] tracking-[-0.36px] text-[#767676]">
+                        {mentor.description.map((desc, idx) => (
+                          <span key={idx} className="block">
+                            {desc}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="relative flex h-full w-full flex-col items-center justify-between pb-[40px]">
+                    <div className="relative h-[240px] w-full">
+                      <Image
+                        src={mentor.avatar}
+                        alt="멘토 모집 중"
+                        fill
+                        className="object-contain"
+                      />
+                    </div>
+                    <button className="rounded-full border border-[#111] bg-white px-[24px] py-[12px] shadow-sm transition-all hover:scale-105 active:scale-95">
+                      <span className="text-[16px] font-bold tracking-[-0.48px] text-[#111]">
+                        멘토 모집 중입니다.
                       </span>
-                    ))}
+                    </button>
                   </div>
-                </div>
+                )}
               </li>
             ))}
           </ul>
@@ -281,28 +385,33 @@ export default function LandingVariantB() {
         {/* ====================================== */}
         {/* Notification Form Section */}
         {/* ====================================== */}
-        <section className="mx-auto flex w-[1160px] max-w-7xl items-center justify-between gap-400 py-[120px]">
+        <section className="mx-auto flex w-[1440px] max-w-7xl items-center justify-between gap-[60px] px-[24px] py-[128px] bg-white">
           <div className="flex-1">
-            <Badge className="rounded-200 w-fit">
-              {NOTIFICATION_SECTION.badge}
-            </Badge>
-
-            <div className="mt-200 flex flex-col gap-300">
-              <p className="font-bold-h2 text-text-strong">
+            <div className="flex flex-col gap-[32px]">
+              {(NOTIFICATION_SECTION as any).badge && (
+                <div className="w-fit rounded-full border border-[#dbdbdb] !bg-[#ffffff] px-[10px] py-[4px]">
+                  <span className="text-[14px] font-medium tracking-[-0.42px] text-[#111]">
+                    {(NOTIFICATION_SECTION as any).badge}
+                  </span>
+                </div>
+              )}
+              <h2 className="text-[36px] leading-[1.2] font-bold tracking-[-1.08px] text-[#111]">
                 {NOTIFICATION_SECTION.title}
-              </p>
+              </h2>
 
-              <p className="text-text-subtle font-designer-16m">
+              <div className="flex flex-col gap-[8px] text-[20px] leading-[1.5] font-medium tracking-[-0.6px] text-[#444]">
                 {NOTIFICATION_SECTION.description.map((line, idx) => (
                   <span key={idx} className="block">
                     {line}
                   </span>
                 ))}
-              </p>
+              </div>
             </div>
           </div>
 
-          <LandingForm />
+          <div className="flex flex-1 justify-end">
+            <LandingForm />
+          </div>
         </section>
       </div>
 
@@ -355,4 +464,3 @@ export default function LandingVariantB() {
     </>
   );
 }
-
