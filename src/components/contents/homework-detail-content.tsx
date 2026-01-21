@@ -59,8 +59,9 @@ export default function HomeworkDetailContent({
   // 미션 제출 가능 기간이 지나지 않았는지 확인
   const isMissionActive = mission.status !== 'ENDED';
 
-  // 삭제 가능 조건: 평가 전이면서 미션 제출 가능 기간이 지나지 않은 상태
-  const canDelete = !isEvaluated && isMissionActive;
+  // 수정/삭제 가능 조건: 본인 과제이면서 평가 전이면서 미션 제출 가능 기간이 지나지 않은 상태
+  const isMyHomework = homework.submitterId === currentUserId;
+  const canEditOrDelete = isMyHomework && !isEvaluated && isMissionActive;
 
   const profileImageUrl =
     homework.submitterProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
@@ -91,8 +92,8 @@ export default function HomeworkDetailContent({
             </div>
           </div>
 
-          {/* 수정/삭제 버튼 - 평가 전이면서 미션 제출 가능 기간이 지나지 않은 경우에만 노출 */}
-          {canDelete && (
+          {/* 수정/삭제 버튼 - 본인 과제이면서 평가 전이면서 미션 제출 가능 기간이 지나지 않은 경우에만 노출 */}
+          {canEditOrDelete && (
             <div className="flex items-center gap-100">
               <EditHomeworkModal
                 homeworkId={homeworkId}
@@ -144,7 +145,7 @@ export default function HomeworkDetailContent({
         homeworkId={homeworkId}
         peerReviews={peerReviews ?? []}
         isLeader={isLeader}
-        isMyHomework={homework.submitterId === currentUserId}
+        isMyHomework={isMyHomework}
       />
     </div>
   );
