@@ -8,7 +8,6 @@ import {
   List,
   ArrowUpDown,
   Bookmark,
-  Sparkles,
   Search,
   Eye,
   Heart,
@@ -21,9 +20,7 @@ import {
 // Types & Mock Data (Library)
 // ----------------------------------------------------------------------
 
-type CurationType = 'ARTICLE' | 'VIDEO' | 'PROBLEM' | 'REFERENCE';
 type CurationLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
-type CurationBenefit = 'CONCEPT' | 'PRACTICE' | 'REVIEW';
 
 interface LibraryItem {
   id: number;
@@ -39,43 +36,8 @@ interface LibraryItem {
   tags: string[];
   isBookmarked: boolean;
   isRecommended?: boolean;
+  isHidden?: boolean;
 }
-
-interface CurationItem {
-  id: number;
-  title: string;
-  description: string;
-  type: CurationType;
-  level: CurationLevel;
-  tags: string[];
-  benefit: CurationBenefit;
-  link: string;
-  isBookmarked: boolean;
-  isRecommended?: boolean;
-  author: string;
-  views: number;
-  likes: number;
-  isLiked: boolean;
-}
-
-const CURATION_LABELS = {
-  type: {
-    ARTICLE: '글',
-    VIDEO: '강의',
-    PROBLEM: '문제',
-    REFERENCE: '레퍼런스',
-  },
-  level: {
-    BEGINNER: '초급',
-    INTERMEDIATE: '중급',
-    ADVANCED: '고급',
-  },
-  benefit: {
-    CONCEPT: '개념 정리',
-    PRACTICE: '실전 적용',
-    REVIEW: '복습용',
-  },
-} as const;
 
 const MOCK_LIBRARY_DATA: LibraryItem[] = [
   {
@@ -166,70 +128,6 @@ const MOCK_LIBRARY_DATA: LibraryItem[] = [
   })),
 ];
 
-const MOCK_CURATION_DATA: CurationItem[] = [
-  {
-    id: 101,
-    title: 'Spring JPA 기본기, 실무에서 바로 쓰는 패턴',
-    description: '기본 엔티티 설계부터 N+1 대응까지 핵심 패턴을 빠르게 정리합니다.',
-    type: 'ARTICLE',
-    level: 'INTERMEDIATE',
-    tags: ['Spring', 'JPA', 'DB 설계'],
-    benefit: 'PRACTICE',
-    link: 'https://velog.io',
-    isBookmarked: true,
-    isRecommended: true,
-    author: '제로원 운영진',
-    views: 2340,
-    likes: 580,
-    isLiked: true,
-  },
-  {
-    id: 102,
-    title: 'React 성능 최적화 30분 요약',
-    description: '렌더링 병목, 메모이제이션, 번들 최적화까지 압축 정리.',
-    type: 'VIDEO',
-    level: 'BEGINNER',
-    tags: ['React', '성능', '최적화'],
-    benefit: 'CONCEPT',
-    link: 'https://youtube.com',
-    isBookmarked: false,
-    author: 'FrontendMaster',
-    views: 1890,
-    likes: 340,
-    isLiked: false,
-  },
-  {
-    id: 103,
-    title: 'CS 면접 핵심 30제',
-    description: '운영체제·네트워크·자료구조를 한 번에 복습하세요.',
-    type: 'PROBLEM',
-    level: 'INTERMEDIATE',
-    tags: ['면접', 'CS', '자료구조'],
-    benefit: 'REVIEW',
-    link: 'https://notion.so',
-    isBookmarked: false,
-    author: 'CS_Master',
-    views: 3200,
-    likes: 720,
-    isLiked: true,
-  },
-  {
-    id: 104,
-    title: '서비스 설계 레퍼런스 모음',
-    description: '요구사항 정의부터 아키텍처 설계까지 참고할 수 있는 실무 모음.',
-    type: 'REFERENCE',
-    level: 'ADVANCED',
-    tags: ['설계', '아키텍처', '문서화'],
-    benefit: 'PRACTICE',
-    link: 'https://medium.com',
-    isBookmarked: false,
-    author: 'TechLead_Kim',
-    views: 1560,
-    likes: 290,
-    isLiked: false,
-  },
-];
-
 // ----------------------------------------------------------------------
 // Components
 // ----------------------------------------------------------------------
@@ -239,61 +137,60 @@ const LibraryCard = ({
   onLike, 
   onView,
   onBookmark,
-  onSimilar,
+  onHide,
+  isAdmin,
 }: { 
   item: LibraryItem;
   onLike: (e: React.MouseEvent, id: number) => void;
   onView: (link: string) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
-  onSimilar: (e: React.MouseEvent, tag: string) => void;
+  onHide?: (e: React.MouseEvent, id: number) => void;
+  isAdmin?: boolean;
 }) => {
   return (
-    <div className="flex h-full flex-col gap-250 rounded-200 border border-border-subtle bg-background-default p-400 shadow-1 transition-all hover:-translate-y-50 hover:shadow-2">
+    <div className={cn(
+      "flex h-full flex-col gap-250 rounded-200 border border-border-subtle bg-background-default p-400 shadow-1 transition-all hover:-translate-y-50 hover:shadow-2",
+      item.isHidden && "opacity-50"
+    )}>
       <div className="flex items-start justify-between gap-200">
         <div className="flex flex-wrap items-center gap-100">
-          <span className="rounded-100 border border-border-subtle px-200 py-50 font-designer-12m text-text-subtle">
-            {CURATION_LABELS.level[item.level]}
-          </span>
-          {item.isRecommended && (
-            <span className="flex items-center gap-50 rounded-100 bg-fill-brand-subtle-default px-200 py-50 font-designer-12b text-text-brand">
-              <Sparkles className="h-3.5 w-3.5" />
-              추천
+          {item.isHidden && (
+            <span className="rounded-100 bg-fill-neutral-subtle-default px-200 py-50 font-designer-12m text-text-subtle">
+              숨김됨
             </span>
           )}
         </div>
-        <button
-          onClick={(e) => onBookmark(e, item.id)}
-          className={cn(
-            'flex items-center gap-50 rounded-100 px-150 py-50 font-designer-12m transition-colors',
-            item.isBookmarked
-              ? 'bg-fill-neutral-strong-default text-text-inverse'
-              : 'bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover',
+        <div className="flex items-center gap-100">
+          {isAdmin && onHide && (
+            <button
+              onClick={(e) => onHide(e, item.id)}
+              className="flex items-center gap-50 rounded-100 px-150 py-50 font-designer-12m transition-colors bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover"
+            >
+              {item.isHidden ? '보이기' : '숨기기'}
+            </button>
           )}
-        >
-          <Bookmark className="h-3.5 w-3.5" />
-          {item.isBookmarked ? '저장됨' : '저장'}
-        </button>
+          <button
+            onClick={(e) => onBookmark(e, item.id)}
+            className={cn(
+              'flex items-center gap-50 rounded-100 px-150 py-50 font-designer-12m transition-colors',
+              item.isBookmarked
+                ? 'bg-fill-neutral-strong-default text-text-inverse'
+                : 'bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover',
+            )}
+          >
+            <Bookmark className="h-3.5 w-3.5" />
+            {item.isBookmarked ? '저장됨' : '저장'}
+          </button>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-150">
+      <div className="flex flex-col gap-150 mb-auto">
         <h3 className="font-bold-h5 text-text-strong line-clamp-2">
           {item.title}
         </h3>
         <p className="font-designer-13r text-text-subtle line-clamp-2">
           {item.description}
         </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-100">
-        {item.tags.map((tag) => (
-          <button
-            key={tag}
-            onClick={(e) => onSimilar(e, tag)}
-            className="rounded-100 bg-fill-neutral-subtle-default px-200 py-50 font-designer-12r text-text-subtle hover:bg-fill-neutral-subtle-hover"
-          >
-            #{tag}
-          </button>
-        ))}
       </div>
 
       <div className="mt-auto flex items-center justify-between border-t border-border-subtle pt-300">
@@ -330,16 +227,23 @@ const LibraryRow = ({
   onLike, 
   onView,
   onBookmark,
+  onHide,
+  isAdmin,
 }: { 
   item: LibraryItem;
   onLike: (e: React.MouseEvent, id: number) => void;
   onView: (link: string) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
+  onHide?: (e: React.MouseEvent, id: number) => void;
+  isAdmin?: boolean;
 }) => {
   return (
     <div 
       onClick={() => onView(item.link)}
-      className="group flex items-center gap-300 px-300 py-200 border-b border-border-subtlest hover:bg-fill-neutral-subtle-hover transition-colors cursor-pointer last:border-0"
+      className={cn(
+        "group flex items-center gap-300 px-300 py-200 border-b border-border-subtlest hover:bg-fill-neutral-subtle-hover transition-colors cursor-pointer last:border-0",
+        item.isHidden && "opacity-50"
+      )}
     >
       {/* Title Area */}
       <div className="flex-1 min-w-0 flex flex-col gap-100">
@@ -347,13 +251,9 @@ const LibraryRow = ({
           <h3 className="font-designer-15b text-text-strong group-hover:text-text-information truncate transition-colors">
             {item.title}
           </h3>
-          <span className="shrink-0 rounded-100 border border-border-subtle px-150 py-25 font-designer-11m text-text-subtle">
-            {CURATION_LABELS.level[item.level]}
-          </span>
-          {item.isRecommended && (
-            <span className="shrink-0 flex items-center gap-25 rounded-100 bg-fill-brand-subtle-default px-150 py-25 font-designer-11b text-text-brand">
-              <Sparkles className="h-3 w-3" />
-              추천
+          {item.isHidden && (
+            <span className="shrink-0 rounded-100 bg-fill-neutral-subtle-default px-150 py-25 font-designer-11m text-text-subtle">
+              숨김됨
             </span>
           )}
         </div>
@@ -366,6 +266,17 @@ const LibraryRow = ({
 
       {/* Stats Area */}
       <div className="flex items-center gap-200 shrink-0">
+        {isAdmin && onHide && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onHide(e, item.id);
+            }}
+            className="flex items-center gap-25 rounded-100 px-100 py-50 font-designer-11m transition-colors bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover"
+          >
+            {item.isHidden ? '보이기' : '숨기기'}
+          </button>
+        )}
         <button
           onClick={(e) => onBookmark(e, item.id)}
           className={cn(
@@ -403,109 +314,21 @@ const LibraryRow = ({
   );
 };
 
-const CurationCard = ({
-  item,
-  onBookmark,
-  onView,
-  onSimilar,
-  onLike,
-}: {
-  item: CurationItem;
-  onBookmark: (e: React.MouseEvent, id: number) => void;
-  onView: (e: React.MouseEvent, link: string) => void;
-  onSimilar: (e: React.MouseEvent, tag: string) => void;
-  onLike: (e: React.MouseEvent, id: number) => void;
-}) => {
-  return (
-    <div className="flex h-full flex-col gap-250 rounded-200 border border-border-subtle bg-background-default p-400 shadow-1 transition-all hover:-translate-y-50 hover:shadow-2">
-      <div className="flex items-start justify-between gap-200">
-        <div className="flex flex-wrap items-center gap-100">
-          <span className="rounded-100 border border-border-subtle px-200 py-50 font-designer-12m text-text-subtle">
-            {CURATION_LABELS.level[item.level]}
-          </span>
-          {item.isRecommended && (
-            <span className="flex items-center gap-50 rounded-100 bg-fill-brand-subtle-default px-200 py-50 font-designer-12b text-text-brand">
-              <Sparkles className="h-3.5 w-3.5" />
-              추천
-            </span>
-          )}
-        </div>
-        <button
-          onClick={(e) => onBookmark(e, item.id)}
-          className={cn(
-            'flex items-center gap-50 rounded-100 px-150 py-50 font-designer-12m transition-colors',
-            item.isBookmarked
-              ? 'bg-fill-neutral-strong-default text-text-inverse'
-              : 'bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover',
-          )}
-        >
-          <Bookmark className="h-3.5 w-3.5" />
-          {item.isBookmarked ? '저장됨' : '저장'}
-        </button>
-      </div>
-
-      <div className="flex flex-col gap-150">
-        <h3 className="font-bold-h5 text-text-strong line-clamp-2">
-          {item.title}
-        </h3>
-        <p className="font-designer-13r text-text-subtle line-clamp-2">
-          {item.description}
-        </p>
-      </div>
-
-      <div className="flex flex-wrap items-center gap-100">
-        {item.tags.map((tag) => (
-          <button
-            key={tag}
-            onClick={(e) => onSimilar(e, tag)}
-            className="rounded-100 bg-fill-neutral-subtle-default px-200 py-50 font-designer-12r text-text-subtle hover:bg-fill-neutral-subtle-hover"
-          >
-            #{tag}
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-auto flex items-center justify-between border-t border-border-subtle pt-300">
-        <span className="font-designer-13m text-text-subtle">
-          by <span className="text-text-default font-medium">{item.author}</span>
-        </span>
-        <div className="flex items-center gap-200 text-text-subtle">
-          <div className="flex items-center gap-50 font-designer-12r">
-            <Eye className="w-3.5 h-3.5" />
-            {item.views.toLocaleString()}
-          </div>
-          <button 
-            onClick={(e) => onLike(e, item.id)}
-            className="flex items-center gap-50 font-designer-12r hover:scale-110 transition-transform p-1 rounded-full hover:bg-red-50"
-          >
-            <Heart 
-              className={cn(
-                "w-3.5 h-3.5 transition-colors",
-                item.isLiked ? "fill-red-500 text-red-500" : "text-text-subtle"
-              )} 
-            />
-            <span className={cn(item.isLiked && "text-red-500 font-bold")}>
-              {item.likes.toLocaleString()}
-            </span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 // ----------------------------------------------------------------------
 // Main Component
 // ----------------------------------------------------------------------
 
 export default function ArchiveTab() {
   const [libraryItems, setLibraryItems] = useState<LibraryItem[]>([]);
-  const [curationItems, setCurationItems] = useState<CurationItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [librarySort, setLibrarySort] = useState<'LATEST' | 'VIEWS' | 'LIKES'>('LATEST');
   const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>('GRID');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // New States
+  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // Mock Admin Mode
 
   const ITEMS_PER_PAGE = viewMode === 'LIST' ? 15 : 10;
 
@@ -516,7 +339,6 @@ export default function ArchiveTab() {
 
     const timer = setTimeout(() => {
       setLibraryItems(MOCK_LIBRARY_DATA);
-      setCurationItems(MOCK_CURATION_DATA);
       setIsLoading(false);
     }, 400);
 
@@ -538,44 +360,8 @@ export default function ArchiveTab() {
     }));
   };
 
-  const handleBookmark = (e: React.MouseEvent, id: number) => {
-    e.stopPropagation();
-    setCurationItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, isBookmarked: !item.isBookmarked } : item,
-      ),
-    );
-  };
-
   const handleView = (link: string) => {
     window.open(link, '_blank');
-  };
-
-  const handleCurationView = (e: React.MouseEvent, link: string) => {
-    e.stopPropagation();
-    handleView(link);
-  };
-
-  const handleSimilar = (e: React.MouseEvent, tag: string) => {
-    e.stopPropagation();
-    setSearchTerm(tag);
-    setCurrentPage(1);
-  };
-
-  const handleCurationLike = (e: React.MouseEvent, id: number) => {
-    e.stopPropagation();
-    setCurationItems(prev =>
-      prev.map(item => {
-        if (item.id === id) {
-          return {
-            ...item,
-            isLiked: !item.isLiked,
-            likes: item.isLiked ? item.likes - 1 : item.likes + 1,
-          };
-        }
-        return item;
-      }),
-    );
   };
 
   const handleLibraryBookmark = (e: React.MouseEvent, id: number) => {
@@ -587,10 +373,23 @@ export default function ArchiveTab() {
     );
   };
 
+  const handleHide = (e: React.MouseEvent, id: number) => {
+    e.stopPropagation();
+    setLibraryItems(prev =>
+      prev.map(item =>
+        item.id === id ? { ...item, isHidden: !item.isHidden } : item,
+      ),
+    );
+  };
+
   // Filtering Logic
-  const filteredLibrary = libraryItems.filter((item) =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredLibrary = libraryItems.filter((item) => {
+    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesBookmark = showBookmarkedOnly ? item.isBookmarked : true;
+    const matchesHidden = isAdmin ? true : !item.isHidden;
+
+    return matchesSearch && matchesBookmark && matchesHidden;
+  });
 
   const sortedLibrary = [...filteredLibrary].sort((a, b) => {
     if (librarySort === 'VIEWS') return b.views - a.views;
@@ -615,20 +414,43 @@ export default function ArchiveTab() {
           제로원 아카이브
           <LibraryBig className="w-8 h-8 text-text-brand" />
         </h2>
+        
+        {/* Admin Toggle (Hidden/Dev feature) */}
+        <button 
+          onClick={() => setIsAdmin(!isAdmin)}
+          className={cn(
+            "px-200 py-100 rounded-100 text-xs font-mono transition-colors",
+            isAdmin ? "bg-red-100 text-red-600" : "bg-transparent text-transparent hover:text-gray-300"
+          )}
+        >
+          {isAdmin ? 'Admin Mode ON' : 'Admin'}
+        </button>
       </div>
 
       {/* Filters & Search */}
       <div className="flex flex-col gap-300">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-300">
-          {/* Total Count */}
-          <div className="font-designer-16m text-text-subtle whitespace-nowrap hidden md:block">
-            총 <span className="font-bold text-text-strong">{totalItems}</span>개의 자료가 있습니다.
+          {/* Left Side Filters */}
+          <div className="flex items-center gap-200 overflow-x-auto pb-100 md:pb-0 hide-scrollbar">
+             {/* Bookmark Filter */}
+             <button
+              onClick={() => setShowBookmarkedOnly(!showBookmarkedOnly)}
+              className={cn(
+                "flex items-center gap-50 px-300 py-150 rounded-100 border transition-all whitespace-nowrap font-designer-14b",
+                showBookmarkedOnly
+                  ? "bg-fill-brand-default-default border-transparent text-text-inverse shadow-1"
+                  : "bg-background-default border-border-subtle text-text-subtle hover:border-border-brand hover:text-text-brand"
+              )}
+            >
+              <Bookmark className={cn("w-4 h-4", showBookmarkedOnly && "fill-current")} />
+              저장한 글
+            </button>
           </div>
           
           {/* Right Side Controls */}
           <div className="flex flex-col md:flex-row gap-200 w-full md:w-auto items-start md:items-center ml-auto">
             {/* Search Bar */}
-            <div className="relative w-full md:w-[320px]">
+            <div className="relative w-full md:w-[240px]">
               <input
                 type="text"
                 placeholder="제목, 내용으로 검색"
@@ -670,6 +492,7 @@ export default function ArchiveTab() {
                     "p-100 rounded-75 transition-colors",
                     viewMode === 'GRID' ? "bg-fill-neutral-default-default text-text-strong shadow-sm" : "text-text-subtlest hover:text-text-subtle"
                   )}
+                  title="2열 보기"
                 >
                   <LayoutGrid className="w-4 h-4" />
                 </button>
@@ -679,6 +502,7 @@ export default function ArchiveTab() {
                     "p-100 rounded-75 transition-colors",
                     viewMode === 'LIST' ? "bg-fill-neutral-default-default text-text-strong shadow-sm" : "text-text-subtlest hover:text-text-subtle"
                   )}
+                  title="1열 보기 (촘촘하게)"
                 >
                   <List className="w-4 h-4" />
                 </button>
@@ -695,31 +519,6 @@ export default function ArchiveTab() {
         </div>
       ) : (
         <>
-          {/* Curation Section */}
-          <div className="flex flex-col gap-250">
-            <div className="flex items-center justify-between">
-              <h3 className="font-designer-18b text-text-strong">
-                자료 큐레이션
-              </h3>
-              <span className="flex items-center gap-100 font-designer-13m text-text-subtle">
-                <Sparkles className="h-4 w-4 text-text-brand" />
-                취향 맞춤 추천
-              </span>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-300">
-              {curationItems.map((item) => (
-                <CurationCard
-                  key={item.id}
-                  item={item}
-                  onBookmark={handleBookmark}
-                  onView={handleCurationView}
-                  onSimilar={handleSimilar}
-                  onLike={handleCurationLike}
-                />
-              ))}
-            </div>
-          </div>
-
           {/* Library Content */}
           {viewMode === 'GRID' ? (
             /* Grid View */
@@ -732,7 +531,8 @@ export default function ArchiveTab() {
                     onLike={handleLike}
                     onView={handleView}
                     onBookmark={handleLibraryBookmark}
-                    onSimilar={handleSimilar}
+                    onHide={handleHide}
+                    isAdmin={isAdmin}
                   />
                 ))
               ) : (
@@ -754,6 +554,8 @@ export default function ArchiveTab() {
                       onLike={handleLike}
                       onView={handleView}
                       onBookmark={handleLibraryBookmark}
+                      onHide={handleHide}
+                      isAdmin={isAdmin}
                     />
                   ))}
                 </div>

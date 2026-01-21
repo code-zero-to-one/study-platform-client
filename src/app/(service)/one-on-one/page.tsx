@@ -825,10 +825,6 @@ export default function OneOnOnePage() {
                               <span className="font-bold-h4 text-text-strong group-hover:text-text-information transition-colors">
                                 {ranker.rank}
                               </span>
-                              <RankChangeIndicator
-                                change={ranker.change}
-                                value={ranker.changeValue}
-                              />
                             </div>
 
                             <div className="col-span-6 md:col-span-5 flex items-center gap-300">

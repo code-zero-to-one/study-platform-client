@@ -11,9 +11,6 @@ import {
   Thermometer, 
   Search, 
   Loader2,
-  ChevronUp,
-  ChevronDown,
-  Minus,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -176,32 +173,6 @@ const ProfileAvatar = ({
           className="object-cover"
         />
       )}
-    </div>
-  );
-};
-
-const RankChangeIndicator = ({
-  change,
-  value,
-}: {
-  change?: 'up' | 'down' | 'same';
-  value?: number;
-}) => {
-  if (change === 'same' || !value) {
-    return <Minus className="w-3 h-3 text-text-subtlest" />;
-  }
-  if (change === 'up') {
-    return (
-      <div className="flex items-center gap-25 font-designer-11m text-text-error">
-        <ChevronUp className="w-3 h-3" />
-        {value}
-      </div>
-    );
-  }
-  return (
-    <div className="flex items-center gap-25 font-designer-11m text-text-information">
-      <ChevronDown className="w-3 h-3" />
-      {value}
     </div>
   );
 };
@@ -461,10 +432,6 @@ export default function HallOfFameTab() {
                         <span className="font-bold-h4 text-text-strong group-hover:text-text-information transition-colors">
                           {ranker.rank}
                         </span>
-                        <RankChangeIndicator
-                          change={ranker.change}
-                          value={ranker.changeValue}
-                        />
                       </div>
 
                       <div className="col-span-6 md:col-span-5 flex items-center gap-300">
