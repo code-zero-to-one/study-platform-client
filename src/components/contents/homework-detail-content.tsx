@@ -40,13 +40,14 @@ export default function HomeworkDetailContent({
   const isLeader = useIsLeader(currentUserId);
   const { data: homework, isLoading: isHomeworkLoading } =
     useGetHomework(homeworkId);
-  const { data: mission, isLoading: isMissionLoading } =
+  const { data: mission, isLoading: isMissionLoading, refetch: refetchMission } =
     useGetMission(missionId);
 
   const handleDeleteSuccess = () => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete('homeworkId');
     router.push(`?${params.toString()}`);
+    refetchMission();
   };
 
   if (isHomeworkLoading || !homework || isMissionLoading || !mission) {
