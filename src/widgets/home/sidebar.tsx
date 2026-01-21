@@ -36,15 +36,7 @@ export default async function Sidebar() {
         sincerityTemp={userProfile.sincerityTemp}
       />
       
-      {/* 랭킹 & 도서관 바로가기 (통합 페이지로 연결) */}
-      <div className="flex gap-100">
-        <Link href="/one-on-one" className="flex-1">
-          <button className="bg-white hover:bg-fill-neutral-subtle-hover transition-colors rounded-100 border border-border-subtle w-full py-200 flex flex-col items-center gap-50">
-            <span className="text-[24px]">✨</span>
-            <span className="font-designer-14b text-text-default">1:1 인사이트</span>
-          </button>
-        </Link>
-      </div>
+      {/* 1:1 인사이트 버튼 제거됨 - 이제 홈 페이지 탭에서 접근 가능 */}
 
       {userProfile.studyApplied ? (
         <TodoList statusList={[false, false, false]} />
