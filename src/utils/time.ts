@@ -114,7 +114,7 @@ export const createDisabledDateMatcherForMission = (
     const normalizedDate = new Date(date);
     normalizedDate.setHours(0, 0, 0, 0);
 
-    const today = new Date();
+    const today = getKoreaDate();
     today.setHours(0, 0, 0, 0);
 
     if (normalizedDate < today) {

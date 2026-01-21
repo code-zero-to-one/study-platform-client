@@ -12,6 +12,7 @@ import FormField from '@/components/ui/form/form-field';
 import { BaseInput } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio';
 import { GroupItems } from '@/components/ui/toggle';
+import { formatKoreaYMD } from '@/utils/time';
 import { TargetRole } from '../../api/group-study-types';
 import {
   STUDY_TYPES,
@@ -101,11 +102,11 @@ export default function Step1OpenGroupStudy() {
           value={typeField.value}
           onValueChange={typeField.onChange}
         >
-          {STUDY_TYPES.map((type, index) => (
+          {STUDY_TYPES.map((type) => (
             <div key={type} className="flex items-center gap-100">
-              <RadioGroupItem value={type} id={`option${index}`} />
+              <RadioGroupItem value={type} id={`study-type-${type}`} />
               <label
-                htmlFor={`option${index}`}
+                htmlFor={`study-type-${type}`}
                 className="font-designer-14m text-text-default"
               >
                 {STUDY_TYPE_LABELS[type]}
@@ -238,7 +239,7 @@ export default function Step1OpenGroupStudy() {
                   type="date"
                   value={field.value}
                   onChange={field.onChange}
-                  min={new Date().toISOString().split('T')[0]}
+                  min={formatKoreaYMD()}
                   max={watch('endDate') || undefined}
                 />
               )}
@@ -252,9 +253,7 @@ export default function Step1OpenGroupStudy() {
                   type="date"
                   value={field.value}
                   onChange={field.onChange}
-                  min={
-                    watch('startDate') || new Date().toISOString().split('T')[0]
-                  }
+                  min={watch('startDate') || formatKoreaYMD()}
                 />
               )}
             />
