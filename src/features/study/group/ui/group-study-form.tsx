@@ -3,6 +3,7 @@ import { createContext, useContext, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import {
   GroupStudyFormSchema,
   GroupStudyFormValues,
@@ -204,26 +205,22 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
       <div key={n} className="flex items-center gap-75">
         <div
           aria-current={isActive ? 'step' : undefined}
-          className={[
+          className={cn(
             'font-designer-13b flex h-300 w-300 items-center justify-center rounded-full',
-            isActive
-              ? 'bg-background-brand-default text-text-inverse'
-              : isCompleted
-                ? 'bg-background-brand-subtle text-text-brand'
-                : 'bg-background-disabled text-text-disabled',
-          ].join(' ')}
+            isActive && 'bg-background-brand-default text-text-inverse',
+            isCompleted && 'bg-background-brand-subtle text-text-brand',
+            !isActive && !isCompleted && 'bg-background-disabled text-text-disabled',
+          )}
         >
           {n}
         </div>
         <span
-          className={[
+          className={cn(
             'font-designer-14m',
-            isActive
-              ? 'text-text-default'
-              : isCompleted
-                ? 'text-text-subtle'
-                : 'text-text-disabled',
-          ].join(' ')}
+            isActive && 'text-text-default',
+            isCompleted && 'text-text-subtle',
+            !isActive && !isCompleted && 'text-text-disabled',
+          )}
         >
           {STEP_LABELS[n]}
         </span>
