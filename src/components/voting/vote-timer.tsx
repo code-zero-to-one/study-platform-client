@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Clock } from 'lucide-react';
+import { Clock, Timer } from 'lucide-react';
 
 interface VoteTimerProps {
   endsAt?: string;
@@ -50,49 +50,49 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
 
   if (!isActive) {
     return (
-      <div className="flex items-center justify-center gap-100 rounded-100 bg-fill-neutral-subtle-default px-300 py-150">
-        <Clock className="h-4 w-4 text-text-subtle" />
-        <span className="font-designer-13b text-text-subtle">종료된 투표</span>
+      <div className="flex items-center justify-center gap-1.5 rounded-full bg-fill-neutral-subtle-default px-3 py-1.5">
+        <Clock className="h-3.5 w-3.5 text-text-subtle" />
+        <span className="text-xs font-bold text-text-subtle">종료된 투표</span>
       </div>
     );
   }
 
   if (!endsAt) {
     return (
-      <div className="flex items-center justify-center gap-100 rounded-100 bg-fill-brand-subtle-default px-300 py-150">
-        <Clock className="h-4 w-4 text-text-brand" />
-        <span className="font-designer-13b text-text-brand">진행 중</span>
+      <div className="flex items-center justify-center gap-1.5 rounded-full bg-fill-brand-subtle-default px-3 py-1.5">
+        <Clock className="h-3.5 w-3.5 text-text-brand" />
+        <span className="text-xs font-bold text-text-brand">진행 중</span>
       </div>
     );
   }
 
   if (!timeLeft) {
     return (
-      <div className="flex items-center justify-center gap-100 rounded-100 bg-fill-neutral-subtle-default px-300 py-150">
-        <Clock className="h-4 w-4 text-text-subtle" />
-        <span className="font-designer-13b text-text-subtle">종료</span>
+      <div className="flex items-center justify-center gap-1.5 rounded-full bg-fill-neutral-subtle-default px-3 py-1.5">
+        <Clock className="h-3.5 w-3.5 text-text-subtle" />
+        <span className="text-xs font-bold text-text-subtle">종료</span>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center gap-100">
-      <div className="flex items-center gap-100 rounded-100 bg-red-50 px-300 py-150">
-        <Clock className="h-4 w-4 text-red-600" />
-        <span className="font-designer-13b text-red-600">남은 시간</span>
-      </div>
-      <div className="flex items-center gap-100 font-mono text-2xl font-bold text-text-strong">
-        {timeLeft.days > 0 && (
-          <>
-            <span>{timeLeft.days}일</span>
-            <span className="text-text-subtle">:</span>
-          </>
-        )}
-        <span>{String(timeLeft.hours).padStart(2, '0')}</span>
-        <span className="text-text-subtle">:</span>
-        <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
-        <span className="text-text-subtle">:</span>
-        <span>{String(timeLeft.seconds).padStart(2, '0')}</span>
+    <div className="flex items-center gap-100 rounded-full bg-orange-50 px-200 py-100 text-orange-600 border border-orange-100">
+      <Timer className="h-4 w-4" />
+      <div className="flex items-baseline gap-150">
+        <span className="font-designer-12b">남은 시간</span>
+        <span className="font-mono font-designer-14b tabular-nums">
+          {timeLeft.days > 0 && (
+            <>
+              <span>{timeLeft.days}일</span>
+              <span className="mx-0.5 opacity-50">:</span>
+            </>
+          )}
+          <span>{String(timeLeft.hours).padStart(2, '0')}</span>
+          <span className="mx-0.5 opacity-50">:</span>
+          <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
+          <span className="mx-0.5 opacity-50">:</span>
+          <span>{String(timeLeft.seconds).padStart(2, '0')}</span>
+        </span>
       </div>
     </div>
   );
