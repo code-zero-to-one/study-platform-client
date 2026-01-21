@@ -32,7 +32,7 @@ export default async function Home() {
         </Suspense>
       </div>
 
-      <aside className="w-[335px] shrink-0">
+      <aside className="sticky top-600 h-fit w-[335px] shrink-0">
         <Sidebar />
       </aside>
     </div>
