@@ -145,52 +145,50 @@ export default function Step1OpenGroupStudy() {
       >
         <GroupItems options={EXPERIENCE_LEVEL_OPTIONS_UI} />
       </FormField>
-      <div className="flex flex-col gap-75">
-        <div className="flex w-full flex-col gap-75">
-          <div className="flex w-full items-center gap-75">
-            <label className="font-designer-16b text-text-default">
-              진행 방식
-            </label>
-            <div className="font-designer-13r text-text-error">필수</div>
-          </div>
-          <div className="font-designer-14r text-text-subtle mb-100">
-            스터디가 진행되는 방식을 선택해주세요.
-          </div>
-
-          <div className="flex flex-row items-center gap-200">
-            <Controller
-              name="method"
-              control={control}
-              render={({ field }) => (
-                <SingleDropdown
-                  options={methodOptions}
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="선택해주세요"
-                />
-              )}
-            />
-            <Controller
-              name="location"
-              control={control}
-              render={({ field }) => (
-                <BaseInput
-                  value={field.value}
-                  onChange={field.onChange}
-                  placeholder="위치를 입력하세요."
-                  disabled={!methodValue || methodValue === 'ONLINE'}
-                />
-              )}
-            />
-          </div>
-
-          {(formState.errors.method || formState.errors.location) && (
-            <div className="font-designer-14r text-text-error" role="alert">
-              {formState.errors.method?.message ||
-                formState.errors.location?.message}
-            </div>
-          )}
+      <div className="flex flex-col gap-100">
+        <div className="flex items-center gap-75">
+          <label className="font-designer-16b text-text-default">
+            진행 방식
+          </label>
+          <span className="font-designer-13r text-text-error">필수</span>
         </div>
+        <p className="font-designer-14r text-text-subtle">
+          스터디가 진행되는 방식을 선택해주세요.
+        </p>
+
+        <div className="mt-100 flex flex-row items-center gap-200">
+          <Controller
+            name="method"
+            control={control}
+            render={({ field }) => (
+              <SingleDropdown
+                options={methodOptions}
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="선택해주세요"
+              />
+            )}
+          />
+          <Controller
+            name="location"
+            control={control}
+            render={({ field }) => (
+              <BaseInput
+                value={field.value}
+                onChange={field.onChange}
+                placeholder="위치를 입력하세요."
+                disabled={!methodValue || methodValue === 'ONLINE'}
+              />
+            )}
+          />
+        </div>
+
+        {(formState.errors.method || formState.errors.location) && (
+          <p className="font-designer-14r text-text-error" role="alert">
+            {formState.errors.method?.message ||
+              formState.errors.location?.message}
+          </p>
+        )}
       </div>
       <FormField<GroupStudyFormValues, 'regularMeeting'>
         name="regularMeeting"
@@ -205,11 +203,11 @@ export default function Step1OpenGroupStudy() {
           value={regularMeetingField.value}
           onValueChange={regularMeetingField.onChange}
         >
-          {REGULAR_MEETINGS.map((type, index) => (
+          {REGULAR_MEETINGS.map((type) => (
             <div key={type} className="flex items-center gap-100">
-              <RadioGroupItem value={type} id={`option${index}`} />
+              <RadioGroupItem value={type} id={`regular-meeting-${type}`} />
               <label
-                htmlFor={`option${index}`}
+                htmlFor={`regular-meeting-${type}`}
                 className="font-designer-14m text-text-default"
               >
                 {REGULAR_MEETING_LABELS[type]}
@@ -218,54 +216,52 @@ export default function Step1OpenGroupStudy() {
           ))}
         </RadioGroup>
       </FormField>
-      <div className="flex flex-col gap-75">
-        <div className="flex w-full flex-col gap-75">
-          <div className="flex w-full items-center gap-75">
-            <label className="font-designer-16b text-text-default">
-              진행 기간
-            </label>
-            <div className="font-designer-13r text-text-error">필수</div>
-          </div>
-          <div className="font-designer-14r text-text-subtle mb-100">
-            스터디 진행 시작일과 종료일을 선택해주세요.
-          </div>
-
-          <div className="flex flex-row items-center gap-200">
-            <Controller
-              name="startDate"
-              control={control}
-              render={({ field }) => (
-                <BaseInput
-                  type="date"
-                  value={field.value}
-                  onChange={field.onChange}
-                  min={formatKoreaYMD()}
-                  max={watch('endDate') || undefined}
-                />
-              )}
-            />
-            <div className="font-designer-14r text-text-subtle">~</div>
-            <Controller
-              name="endDate"
-              control={control}
-              render={({ field }) => (
-                <BaseInput
-                  type="date"
-                  value={field.value}
-                  onChange={field.onChange}
-                  min={watch('startDate') || formatKoreaYMD()}
-                />
-              )}
-            />
-          </div>
-
-          {(formState.errors.startDate || formState.errors.endDate) && (
-            <div className="font-designer-14r text-text-error" role="alert">
-              {formState.errors.startDate?.message ||
-                formState.errors.endDate?.message}
-            </div>
-          )}
+      <div className="flex flex-col gap-100">
+        <div className="flex items-center gap-75">
+          <label className="font-designer-16b text-text-default">
+            진행 기간
+          </label>
+          <span className="font-designer-13r text-text-error">필수</span>
         </div>
+        <p className="font-designer-14r text-text-subtle">
+          스터디 진행 시작일과 종료일을 선택해주세요.
+        </p>
+
+        <div className="mt-100 flex flex-row items-center gap-200">
+          <Controller
+            name="startDate"
+            control={control}
+            render={({ field }) => (
+              <BaseInput
+                type="date"
+                value={field.value}
+                onChange={field.onChange}
+                min={formatKoreaYMD()}
+                max={watch('endDate') || undefined}
+              />
+            )}
+          />
+          <span className="font-designer-14r text-text-subtle">~</span>
+          <Controller
+            name="endDate"
+            control={control}
+            render={({ field }) => (
+              <BaseInput
+                type="date"
+                value={field.value}
+                onChange={field.onChange}
+                min={watch('startDate') || formatKoreaYMD()}
+              />
+            )}
+          />
+        </div>
+
+        {(formState.errors.startDate || formState.errors.endDate) && (
+          <p className="font-designer-14r text-text-error" role="alert">
+            {formState.errors.startDate?.message ||
+              formState.errors.endDate?.message}
+          </p>
+        )}
       </div>
       {isPremiumStudy && (
         <FormField<GroupStudyFormValues, 'price'>

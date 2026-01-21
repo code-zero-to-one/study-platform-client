@@ -1,5 +1,6 @@
 'use client';
 
+import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import Button from '@/components/ui/button';
@@ -20,7 +21,7 @@ export default function Step3OpenGroupStudy() {
       questions.map((q) => q.trim()),
       { shouldValidate: true },
     );
-  }, [questions]);
+  }, [questions, setValue]);
 
   const handleAdd = () => setQuestions((prev) => [...prev, '']);
   const handleRemove = (index: number) =>
@@ -50,12 +51,14 @@ export default function Step3OpenGroupStudy() {
                 onChange={(e) => handleChange(index, e.target.value)}
               />
               {index > 0 && (
-                <div
-                  className="rounded-75 border-border-default font-designer-16m text-icon-default flex h-600 w-600 cursor-pointer items-center justify-center border p-150"
+                <button
+                  type="button"
+                  aria-label={`질문 ${index + 1} 삭제`}
+                  className="rounded-75 border-border-default text-icon-default hover:bg-background-alternative hover:border-border-hover flex h-600 w-600 shrink-0 items-center justify-center border transition-colors"
                   onClick={() => handleRemove(index)}
                 >
-                  X
-                </div>
+                  <XIcon size={16} />
+                </button>
               )}
             </div>
           ))}
