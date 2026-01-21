@@ -2,11 +2,25 @@ import { create } from 'zustand';
 import { Leader } from '@/features/study/group/api/group-study-types';
 
 interface LeaderStore {
-  leaderInfo: Leader; // 전역으로 들고 있을 값
-  setLeaderInfo: (v: Leader) => void; // 값을 세팅하는 액션
+  leaderInfo: Leader | null;
+  setLeaderInfo: (v: Leader | null) => void;
+  reset: () => void;
 }
 
 export const useLeaderStore = create<LeaderStore>((set) => ({
   leaderInfo: null,
   setLeaderInfo: (v) => set({ leaderInfo: v }),
+  reset: () => set({ leaderInfo: null }),
 }));
+
+// Context에서 제공하던 훅들을 Zustand 기반으로 구현
+export function useLeaderInfo(): Leader | null {
+  return useLeaderStore((state) => state.leaderInfo);
+}
+
+export function useIsLeader(memberId: number | null): boolean {
+  const leaderInfo = useLeaderStore((state) => state.leaderInfo);
+  if (!leaderInfo || !memberId) return false;
+
+  return leaderInfo.memberId === memberId;
+}

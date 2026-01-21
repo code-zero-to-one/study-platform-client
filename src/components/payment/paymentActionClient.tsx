@@ -3,8 +3,8 @@
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { useEffect, useState } from 'react';
 import { StudyPaymentPrepareResponse } from '@/api/openapi';
-import { useUserStore } from '@/features/auth/model/store';
-import PaymentTermsModal from './PaymentTermsModal';
+import { useUserStore } from '@/stores/useUserStore';
+import PaymentTermsModal from '../modals/payment-terms-modal';
 import Button from '../ui/button';
 import Checkbox from '../ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../ui/radio';
@@ -14,7 +14,7 @@ interface Props {
 }
 
 type PaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
-const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!;
+const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY ?? '';
 
 const methods: { id: PaymentMethod; label: string }[] = [
   { id: 'CARD', label: '신용카드 결제' },
@@ -29,7 +29,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD');
 
-  const canPay = isAgreed && !!paymentMethod && !!payment && !isLoading;
+  const canPay = isAgreed && !!paymentMethod && !isLoading;
 
   const toggleTerm = () => {
     setIsAgreed((prev) => !prev);
@@ -103,6 +103,14 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
   useEffect(() => {
     async function fetchPayment() {
+      if (!clientKey) {
+        console.error(
+          'NEXT_PUBLIC_TOSS_CLIENT_KEY 환경변수가 설정되지 않았습니다.',
+        );
+
+        return;
+      }
+
       try {
         const tossPayments = await loadTossPayments(clientKey);
 

@@ -26,6 +26,7 @@ const PAYMENT_HISTORY_TYPE_MAP: Record<
   }
 > = {
   PAYMENT_REQUESTED: { label: '결제대기', color: 'blue' },
+  PAYMENT_WAITING_FOR_DEPOSIT: { label: '입금대기', color: 'blue' },
   PAYMENT_SUCCESS: { label: '결제완료', color: 'green' },
   PAYMENT_FAILED: { label: '결제실패', color: 'red' },
   PAYMENT_CANCELED: { label: '결제취소', color: 'red' },
@@ -74,12 +75,14 @@ export default function PaymentRefundPage() {
 
   const { data: transactionsData } = useGetTransactionsForAdmin({
     type,
-    startDate: dateRange?.from
-      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
-      : undefined,
-    endDate: dateRange?.to
-      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
-      : undefined,
+    startDate:
+      dateRange?.from && dateRange.from.toISOString()
+        ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
+        : undefined,
+    endDate:
+      dateRange?.to && dateRange.to.toISOString()
+        ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
+        : undefined,
     studyTitle: !isPaymentId && keyword ? keyword : undefined,
     paymentCode: isPaymentId && keyword ? keyword : undefined,
     page: page - 1,
@@ -207,10 +210,12 @@ export default function PaymentRefundPage() {
                     {/* 일시 */}
                     <td className="py-200 pl-[10px]">
                       <span className="font-designer-14r text-text-default">
-                        {format(
-                          formatToKST(transaction.transactionedAt),
-                          'yyyy.MM.dd HH:mm',
-                        )}
+                        {formatToKST(transaction.transactionedAt)
+                          ? format(
+                              formatToKST(transaction.transactionedAt)!,
+                              'yyyy.MM.dd HH:mm',
+                            )
+                          : '-'}
                       </span>
                     </td>
 

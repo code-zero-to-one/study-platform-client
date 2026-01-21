@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import dayjs from 'dayjs';
 import { XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/ui/button';
@@ -8,12 +9,22 @@ import DatePicker from '@/components/ui/date-picker';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { useUpdateMission } from '@/hooks/queries/mission-api';
+import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
+import {
+  useGetMission,
+  useGetMissions,
+  useUpdateMission,
+} from '@/hooks/queries/mission-api';
+import {
+  createDisabledDateMatcherForMission,
+  MissionPeriod,
+} from '@/utils/time';
 
 // Form Schema
 const EditMissionFormSchema = z.object({
   title: z.string().min(1, '미션 제목을 입력해주세요.'),
   description: z.string().optional(),
+  weekNum: z.string().optional(),
   guide: z.string().min(1, '수행 가이드를 입력해주세요.'),
   dateRange: z
     .object({
@@ -28,15 +39,24 @@ const EditMissionFormSchema = z.object({
 type EditMissionFormValues = z.infer<typeof EditMissionFormSchema>;
 
 interface EditMissionModalProps {
-  defaultValue: EditMissionFormValues;
   missionId: number;
+  groupStudyId: number;
 }
 
 export default function EditMissionModal({
-  defaultValue,
   missionId,
+  groupStudyId,
 }: EditMissionModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const { data: missionData, isLoading } = useGetMission(missionId);
+  const { data: studyData } = useGroupStudyDetailQuery(groupStudyId);
+  const { data: existingMissions } = useGetMissions({
+    groupStudyId,
+    pageSize: 100,
+  });
+
+  const studyStartDate = studyData?.basicInfo?.startDate;
+  const studyEndDate = studyData?.basicInfo?.endDate;
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -62,11 +82,20 @@ export default function EditMissionModal({
             </Modal.Close>
           </Modal.Header>
 
-          <EditMissionForm
-            defaultValue={defaultValue}
-            missionId={missionId}
-            onClose={() => setOpen(false)}
-          />
+          {isLoading ? (
+            <Modal.Body className="flex items-center justify-center py-500">
+              <span className="text-text-subtle">로딩 중...</span>
+            </Modal.Body>
+          ) : missionData ? (
+            <EditMissionForm
+              missionData={missionData}
+              missionId={missionId}
+              studyStartDate={studyStartDate}
+              studyEndDate={studyEndDate}
+              existingMissions={existingMissions?.content}
+              onClose={() => setOpen(false)}
+            />
+          ) : null}
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
@@ -74,42 +103,73 @@ export default function EditMissionModal({
 }
 
 interface EditMissionFormProps {
-  defaultValue: EditMissionFormValues;
+  missionData: {
+    missionTitle?: string;
+    missionDescription?: string;
+    weekNum?: number;
+    missionGuide?: string;
+    missionStartDate?: string;
+    missionEndDate?: string;
+  };
   missionId: number;
+  studyStartDate?: string;
+  studyEndDate?: string;
+  existingMissions?: MissionPeriod[];
   onClose: () => void;
 }
 
 function EditMissionForm({
-  defaultValue,
+  missionData,
   missionId,
+  studyStartDate,
+  studyEndDate,
+  existingMissions,
   onClose,
 }: EditMissionFormProps) {
   const methods = useForm<EditMissionFormValues>({
     resolver: zodResolver(EditMissionFormSchema),
     mode: 'onChange',
     defaultValues: {
-      title: '',
-      description: '',
-      guide: '',
-      dateRange: undefined,
+      title: missionData.missionTitle || '',
+      description: missionData.missionDescription || '',
+      weekNum: missionData.weekNum?.toString() || '',
+      guide: missionData.missionGuide || '',
+      dateRange: {
+        from: missionData.missionStartDate
+          ? new Date(missionData.missionStartDate)
+          : new Date(),
+        to: missionData.missionEndDate
+          ? new Date(missionData.missionEndDate)
+          : new Date(),
+      },
     },
   });
 
-  const { handleSubmit, formState, control } = methods;
+  const { handleSubmit, formState, control, reset } = methods;
+
+  useEffect(() => {
+    reset({
+      title: missionData.missionTitle || '',
+      description: missionData.missionDescription || '',
+      weekNum: missionData.weekNum?.toString() || '',
+      guide: missionData.missionGuide || '',
+      dateRange: {
+        from: missionData.missionStartDate
+          ? new Date(missionData.missionStartDate)
+          : new Date(),
+        to: missionData.missionEndDate
+          ? new Date(missionData.missionEndDate)
+          : new Date(),
+      },
+    });
+  }, [missionData, reset]);
 
   const { mutate: updateMission } = useUpdateMission();
 
   const onValidSubmit = (values: EditMissionFormValues) => {
-    // todo api guide가 반영 안됨 - 임시로 description과 guide 합침
+    const startDate = dayjs(values.dateRange.from).format('YYYY-MM-DD');
+    const endDate = dayjs(values.dateRange.to).format('YYYY-MM-DD');
 
-    const content = values.description
-      ? `${values.description}\n\n${values.guide}`
-      : values.guide;
-
-    const startDate = values.dateRange.from.toISOString();
-    const endDate = values.dateRange.to.toISOString();
-
-    // todo guide 반영
     updateMission(
       {
         missionId,
@@ -117,17 +177,18 @@ function EditMissionForm({
           title: values.title,
           guide: values.guide,
           description: values.description,
+          weekNum: values.weekNum ? Number(values.weekNum) : undefined,
           startDate,
           endDate,
         },
       },
       {
         onSuccess: () => {
-          alert('미션이 성공적으로 생성되었습니다!');
+          alert('미션이 성공적으로 수정되었습니다!');
           onClose();
         },
         onError: () => {
-          alert('미션 생성에 실패했습니다. 다시 시도해주세요.');
+          alert('미션 수정에 실패했습니다. 다시 시도해주세요.');
         },
       },
     );
@@ -166,6 +227,19 @@ function EditMissionForm({
             />
           </FormField>
 
+          <FormField<EditMissionFormValues, 'weekNum'>
+            name="weekNum"
+            label="미션 주차"
+            direction="vertical"
+          >
+            <BaseInput
+              type="number"
+              min={0}
+              id="weekNum"
+              placeholder="커리큘럼 미션인 경우 주차를 입력해 주세요. (예: 1)"
+            />
+          </FormField>
+
           <FormField<EditMissionFormValues, 'guide'>
             name="guide"
             label="수행 가이드"
@@ -197,6 +271,12 @@ function EditMissionForm({
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => field.onChange(date)}
+                  disabled={createDisabledDateMatcherForMission({
+                    studyStartDate,
+                    studyEndDate,
+                    existingMissions,
+                    editingMissionId: missionId,
+                  })}
                 />
               )}
             />

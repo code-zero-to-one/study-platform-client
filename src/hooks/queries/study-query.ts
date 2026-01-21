@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import {
   GroupStudyManagementApi,
@@ -8,7 +8,7 @@ import {
   GetGroupStudiesMethodEnum,
 } from '@/api/openapi/api/group-study-management-api';
 
-const studyApi = createApiInstance(GroupStudyManagementApi);
+const groupStudyManagementApi = createApiInstance(GroupStudyManagementApi);
 
 interface GetStudiesParams {
   classification: GetGroupStudiesClassificationEnum;
@@ -17,7 +17,7 @@ interface GetStudiesParams {
   type?: GetGroupStudiesTypeEnum[];
   targetRoles?: GetGroupStudiesTargetRolesEnum[];
   method?: GetGroupStudiesMethodEnum[];
-  inProgress?: boolean;
+  recruiting?: boolean;
 }
 
 export const useGetStudies = ({
@@ -27,7 +27,7 @@ export const useGetStudies = ({
   type,
   targetRoles,
   method,
-  inProgress,
+  recruiting,
 }: GetStudiesParams) => {
   return useQuery({
     queryKey: [
@@ -38,20 +38,21 @@ export const useGetStudies = ({
       type,
       targetRoles,
       method,
-      inProgress,
+      recruiting,
     ],
     queryFn: async () => {
-      const { data } = await studyApi.getGroupStudies(
+      const { data } = await groupStudyManagementApi.getGroupStudies(
         classification,
         page,
         pageSize,
         type,
         targetRoles,
         method,
-        inProgress,
+        recruiting,
       );
 
       return data.content;
     },
+    placeholderData: keepPreviousData,
   });
 };

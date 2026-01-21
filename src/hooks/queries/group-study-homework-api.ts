@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { GroupStudyHomeworkApi } from '@/api/openapi';
 import type {
@@ -7,6 +7,18 @@ import type {
 } from '@/api/openapi/models';
 
 const groupStudyHomeworkApi = createApiInstance(GroupStudyHomeworkApi);
+
+export const useGetHomework = (homeworkId: number) => {
+  return useQuery({
+    queryKey: ['homework', homeworkId],
+    queryFn: async () => {
+      const { data } = await groupStudyHomeworkApi.getHomework(homeworkId);
+
+      return data.content;
+    },
+    enabled: !!homeworkId,
+  });
+};
 
 export const useSubmitHomework = () => {
   const queryClient = useQueryClient();
@@ -52,9 +64,12 @@ export const useEditHomework = () => {
 
       return data.content;
     },
-    onSuccess: async () => {
+    onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ['homeworks'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['homework', variables.homeworkId],
       });
     },
   });

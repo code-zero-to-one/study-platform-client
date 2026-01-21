@@ -141,6 +141,7 @@ export function DatePicker({
               row: 'flex w-full',
               weekday: 'pt-150',
               week: 'pt-100',
+              disabled: 'cursor-not-allowed opacity-50',
             }}
             components={{
               Chevron: (props) => {

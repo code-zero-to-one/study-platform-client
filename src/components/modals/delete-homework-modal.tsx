@@ -5,11 +5,13 @@ import { Modal } from '../ui/modal';
 
 interface DeleteHomeworkModalProps {
   homeworkId: number;
+  onSuccess?: () => void;
 }
 
 // 과제 삭제 모달
 export default function DeleteHomeworkModal({
   homeworkId,
+  onSuccess,
 }: DeleteHomeworkModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
@@ -20,6 +22,7 @@ export default function DeleteHomeworkModal({
       onSuccess: () => {
         alert('과제가 성공적으로 삭제되었습니다!');
         setOpen(false);
+        onSuccess?.();
       },
       onError: () => {
         alert('과제 삭제에 실패했습니다. 다시 시도해주세요.');

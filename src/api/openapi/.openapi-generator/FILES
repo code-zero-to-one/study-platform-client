@@ -194,7 +194,7 @@ docs/MatchingSystemStatusResponse.md
 docs/MatchingSystemStatusSchema.md
 docs/MemberAccountHistoryResponseDto.md
 docs/MemberApi.md
-docs/MemberCreationRequest.md
+docs/MemberCreationRequestDto.md
 docs/MemberCreationResponse.md
 docs/MemberCreationResponseContent.md
 docs/MemberFeature.md
@@ -344,6 +344,7 @@ docs/UpdateStudySpaceRequest.md
 docs/UploadProfileImageRequest.md
 docs/UserTransactionDetailResponse.md
 docs/UserTransactionListResponse.md
+docs/VirtualAccountInfo.md
 docs/VoidResponseSchema.md
 git_push.sh
 index.ts
@@ -479,7 +480,7 @@ models/matching-request-response.ts
 models/matching-system-status-response.ts
 models/matching-system-status-schema.ts
 models/member-account-history-response-dto.ts
-models/member-creation-request.ts
+models/member-creation-request-dto.ts
 models/member-creation-response-content.ts
 models/member-creation-response.ts
 models/member-feature.ts
@@ -613,4 +614,5 @@ models/update-study-space-request.ts
 models/upload-profile-image-request.ts
 models/user-transaction-detail-response.ts
 models/user-transaction-list-response.ts
+models/virtual-account-info.ts
 models/void-response-schema.ts

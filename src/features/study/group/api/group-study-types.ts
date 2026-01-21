@@ -51,11 +51,70 @@ export interface BasicInfo {
   startDate: string;
   endDate: string;
   price: number;
+  studyLeaderParticipation: boolean;
   createdAt: string;
   updatedAt: string;
 }
 
-// 요청용 BasicInfo (백엔드 request body에서 createdAt, updatedAt 제외됨)
+// ============================================================
+// Create/Update API 공통 타입
+// ============================================================
+
+/** Create/Update API에서 공통으로 사용되는 BasicInfo 필드 */
+export interface BasicInfoCommon {
+  type: StudyType;
+  targetRoles: TargetRole[];
+  maxMembersCount: number;
+  experienceLevels: ExperienceLevel[];
+  method: StudyMethod;
+  regularMeeting: RegularMeeting;
+  location: string;
+  startDate: string;
+  endDate: string;
+  price: number;
+  studyLeaderParticipation: boolean;
+}
+
+/** Create/Update API에서 공통으로 사용되는 Request 구조 */
+export interface GroupStudyRequestCommon {
+  detailInfo: DetailInfo;
+  interviewPost: {
+    interviewPost: string[];
+  };
+  thumbnailExtension: ThumbnailExtension;
+}
+
+// ============================================================
+// Create API 전용 타입
+// ============================================================
+
+/** Create API용 BasicInfo (classification 필수) */
+export interface BasicInfoCreateRequest extends BasicInfoCommon {
+  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
+}
+
+/** Create API 전체 Request */
+export interface GroupStudyCreateRequest extends GroupStudyRequestCommon {
+  basicInfo: BasicInfoCreateRequest;
+}
+
+// ============================================================
+// Update API 전용 타입
+// ============================================================
+
+/** Update API용 BasicInfo (classification 없음 - 수정 불가) */
+export type BasicInfoUpdateRequest = BasicInfoCommon;
+
+/** Update API 전체 Request */
+export interface GroupStudyUpdateRequest extends GroupStudyRequestCommon {
+  basicInfo: BasicInfoUpdateRequest;
+}
+
+// ============================================================
+// 기존 타입 (하위 호환성 유지)
+// ============================================================
+
+/** @deprecated BasicInfoCreateRequest 사용 권장 */
 export type BasicInfoRequest = Omit<BasicInfo, 'createdAt' | 'updatedAt'>;
 
 export interface BasicInfoDetail extends BasicInfo {
@@ -161,6 +220,7 @@ export interface ApplyGroupStudyResponse {
   createdAt: string;
 }
 
+/** @deprecated GroupStudyCreateRequest 또는 GroupStudyUpdateRequest 사용 권장 */
 export interface GroupStudyFormRequest {
   basicInfo: BasicInfoRequest;
   detailInfo: DetailInfo;
@@ -171,6 +231,8 @@ export interface GroupStudyFormRequest {
 }
 
 export type { GroupStudyCreationRequestDto } from '@/api/openapi/models/group-study-creation-request-dto';
+export type { GroupStudyCreationResponse } from '@/api/openapi/models/group-study-creation-response';
+export type { GroupStudyCreationResponseDto } from '@/api/openapi/models/group-study-creation-response-dto';
 
 // 그룹 리스트 타입
 export interface GroupStudyListRequest {
@@ -205,13 +267,7 @@ export type { GroupStudyFullResponseDto as GroupStudyFullResponse } from '@/api/
 export type DeleteGroupStudyRequest = GroupStudyDetailRequest;
 export type CompleteGroupStudyRequest = GroupStudyDetailRequest;
 
-// 그룹 스터디 참여자 목록 API 타입
-export interface GroupStudyMembersRequest {
-  id: number;
-  pageNumber?: number;
-  pageSize?: number;
-}
-
+// 그룹 스터디 참여자 목록 API 타입 (OpenAPI 타입 버그로 인해 임시 유지)
 export interface GroupStudyMembersResponse {
   pageSize: number;
   pageNumber: number;
@@ -251,13 +307,11 @@ export interface MissionProgressHistory {
   acquiredAt: string;
   grade:
     | 'A_PLUS'
-    | 'A'
+    | 'A_MINUS'
     | 'B_PLUS'
-    | 'B'
+    | 'B_MINUS'
     | 'C_PLUS'
-    | 'C'
-    | 'D_PLUS'
-    | 'D'
+    | 'C_MINUS'
     | 'F';
   reason: string;
 }
@@ -269,39 +323,9 @@ export interface Grade {
   score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
 }
 
-// 가입인사 작성&수정 API 타입
-export interface UpdateGreetingRequest {
-  groupStudyId: number; // 그룹 스터디 ID
-  content: string; // 20~100자 문자열
-}
-
-// 진행점수 부여/수정 API 타입
-export interface UpdateProgressScoreRequest {
-  groupStudyId: number;
-  targetMemberId: number;
-  gradeId: number;
-  reason: string;
-}
-
-// 진행점수 등급 목록 조회 API 타입
-export interface ProgressGradesResponse {
-  grades: Grade[];
-}
-
-// 그룹 스터디 내 상태 조회 API 타입
-export interface GroupStudyMyStatusRequest {
-  groupStudyId: number;
-}
-
+// 그룹 스터디 내 상태 조회 API 타입 (OpenAPI 타입 버그로 인해 임시 유지)
 export interface GroupStudyMyStatusResponse {
   status: ApplicationStatus;
-  reason: string;
-}
-
-// 그룹스터디 참여자 추방 API 타입
-export interface DeleteGroupStudyMemberRequest {
-  groupStudyId: number;
-  targetMemberId: number;
   reason: string;
 }
 

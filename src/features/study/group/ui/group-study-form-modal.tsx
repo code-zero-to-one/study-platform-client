@@ -20,7 +20,8 @@ import {
   buildOpenGroupDefaultValues,
   GroupStudyFormValues,
   StudyClassification,
-  toOpenGroupRequest,
+  toCreateRequest,
+  toUpdateRequest,
 } from '../model/group-study-form.schema';
 import { useGroupStudyDetailQuery } from '../model/use-study-query';
 
@@ -87,7 +88,9 @@ export default function GroupStudyFormModal({
     if (isLoading) return;
 
     return {
-      classification: value.basicInfo?.classification,
+      classification: value.basicInfo?.classification ?? classification,
+      studyLeaderParticipation:
+        value.basicInfo.studyLeaderParticipation ?? false,
       type: value.basicInfo?.type,
       targetRoles: value.basicInfo?.targetRoles,
       maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
@@ -138,7 +141,7 @@ export default function GroupStudyFormModal({
 
   const handleCreate = async (values: GroupStudyFormValues) => {
     try {
-      const body = toOpenGroupRequest(values);
+      const body = toCreateRequest(values);
       const created = await createGroupStudy(body);
 
       if (values.thumbnailFile) {
@@ -164,7 +167,7 @@ export default function GroupStudyFormModal({
 
   const handleEdit = async (values: GroupStudyFormValues) => {
     try {
-      const body = toOpenGroupRequest(values);
+      const body = toUpdateRequest(values);
       const updated = await updateGroupStudy(body);
 
       if (values.thumbnailFile) {

@@ -64,7 +64,7 @@ export default function ProfileCard(props: ProfileCardProps) {
         <div>
           <div className="flex items-center gap-50">
             <span className="font-designer-14b">
-              {applicant.applicantInfo.memberName}
+              {applicant.applicantInfo.memberNickname}
             </span>
             <span
               className={cn(

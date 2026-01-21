@@ -24,7 +24,7 @@ import { BASE_PATH, COLLECTION_FORMATS, type RequestArgs, BaseAPI, RequiredError
 // @ts-ignore
 import type { ErrorResponse } from '../models';
 // @ts-ignore
-import type { MemberCreationRequest } from '../models';
+import type { MemberCreationRequestDto } from '../models';
 // @ts-ignore
 import type { MemberCreationResponse } from '../models';
 // @ts-ignore
@@ -203,13 +203,13 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
         /**
          * 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
          * @summary [회원가입/로그인 팝업] 회원가입
-         * @param {MemberCreationRequest} memberCreationRequest 
+         * @param {MemberCreationRequestDto} memberCreationRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        signUp: async (memberCreationRequest: MemberCreationRequest, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'memberCreationRequest' is not null or undefined
-            assertParamExists('signUp', 'memberCreationRequest', memberCreationRequest)
+        signUp: async (memberCreationRequestDto: MemberCreationRequestDto, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'memberCreationRequestDto' is not null or undefined
+            assertParamExists('signUp', 'memberCreationRequestDto', memberCreationRequestDto)
             const localVarPath = `/api/v1/members`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -233,7 +233,7 @@ export const MemberApiAxiosParamCreator = function (configuration?: Configuratio
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(memberCreationRequest, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(memberCreationRequestDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -300,12 +300,12 @@ export const MemberApiFp = function(configuration?: Configuration) {
         /**
          * 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
          * @summary [회원가입/로그인 팝업] 회원가입
-         * @param {MemberCreationRequest} memberCreationRequest 
+         * @param {MemberCreationRequestDto} memberCreationRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async signUp(memberCreationRequest: MemberCreationRequest, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberCreationResponse>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.signUp(memberCreationRequest, options);
+        async signUp(memberCreationRequestDto: MemberCreationRequestDto, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<MemberCreationResponse>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.signUp(memberCreationRequestDto, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['MemberApi.signUp']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -361,12 +361,12 @@ export const MemberApiFactory = function (configuration?: Configuration, basePat
         /**
          * 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
          * @summary [회원가입/로그인 팝업] 회원가입
-         * @param {MemberCreationRequest} memberCreationRequest 
+         * @param {MemberCreationRequestDto} memberCreationRequestDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        signUp(memberCreationRequest: MemberCreationRequest, options?: RawAxiosRequestConfig): AxiosPromise<MemberCreationResponse> {
-            return localVarFp.signUp(memberCreationRequest, options).then((request) => request(axios, basePath));
+        signUp(memberCreationRequestDto: MemberCreationRequestDto, options?: RawAxiosRequestConfig): AxiosPromise<MemberCreationResponse> {
+            return localVarFp.signUp(memberCreationRequestDto, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -420,12 +420,12 @@ export class MemberApi extends BaseAPI {
     /**
      * 회원가입을 진행하는 엔드포인트 - nickname: 필수, 2~20자 한글/영문/숫자, 특수문자 불가 (중복 체크 필수) - loginId: 선택(소셜 로그인 시 비움), 일반 로그인용 식별자 - jobs: 선택, Enum 리스트 (최대 5개) 값 = [IT_NOBASE_BUSINESS_STARTUP, IT_NOBASE_AUTOMATION, IT_NOBASE_MY_SERVICE, IT_PRACTITIONER_PM_PO_PLANNING, IT_PRACTITIONER_FRONTEND, IT_PRACTITIONER_BACKEND, IT_PRACTITIONER_AI_ML, IT_PRACTITIONER_IOS, IT_PRACTITIONER_ANDROID, IT_PRACTITIONER_DEVOPS, IT_PRACTITIONER_DATA_ANALYSIS, IT_PRACTITIONER_QA, IT_PRACTITIONER_GAME_DEV, IT_PRACTITIONER_DESIGN, IT_PRACTITIONER_MARKETING, IT_PRACTITIONER_ETC] - career: 선택, Enum 값 = [BEGINNER, JOB_SEEKER, JUNIOR, MIDDLE, SENIOR] - studyFormatTypes: 선택, Enum 값 = [PROJECT, MENTORING, SEMINAR, CHALLENGE, BOOK_LECTURE] - goal: 선택, 자유 텍스트 입력(최대 100자) - imageExtension: 선택, Enum 값 = [DEFAULT, JPG, PNG, GIF, WEBP, SVG, JPEG] 
      * @summary [회원가입/로그인 팝업] 회원가입
-     * @param {MemberCreationRequest} memberCreationRequest 
+     * @param {MemberCreationRequestDto} memberCreationRequestDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public signUp(memberCreationRequest: MemberCreationRequest, options?: RawAxiosRequestConfig) {
-        return MemberApiFp(this.configuration).signUp(memberCreationRequest, options).then((request) => request(this.axios, this.basePath));
+    public signUp(memberCreationRequestDto: MemberCreationRequestDto, options?: RawAxiosRequestConfig) {
+        return MemberApiFp(this.configuration).signUp(memberCreationRequestDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 

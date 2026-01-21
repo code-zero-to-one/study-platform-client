@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import dayjs from 'dayjs';
 import { Plus, XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -8,13 +9,25 @@ import DatePicker from '@/components/ui/date-picker';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { useCreateMission } from '@/hooks/queries/mission-api';
+import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
+import { useCreateMission, useGetMissions } from '@/hooks/queries/mission-api';
+import {
+  createDisabledDateMatcherForMission,
+  MissionPeriod,
+} from '@/utils/time';
 
 // Form Schema
 const CreateMissionFormSchema = z.object({
-  title: z.string().min(1, '미션 제목을 입력해주세요.'),
+  title: z
+    .string()
+    .min(1, '미션 제목을 입력해주세요.')
+    .max(80, '80자 이하로 작성 가능합니다.'),
   description: z.string().optional(),
-  guide: z.string().min(1, '수행 가이드를 입력해주세요.'),
+  weekNum: z.string().max(100, '100자 이하로 작성 가능합니다.').optional(),
+  guide: z
+    .string()
+    .min(1, '수행 가이드를 입력해주세요.')
+    .max(1000, '1000자 이하로 작성가능합니다.'),
   dateRange: z
     .object({
       from: z.date({ error: '시작일을 선택해주세요.' }),
@@ -35,6 +48,14 @@ export default function CreateMissionModal({
   groupStudyId,
 }: CreateMissionModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const { data: studyData } = useGroupStudyDetailQuery(groupStudyId);
+  const { data: existingMissions } = useGetMissions({
+    groupStudyId,
+    pageSize: 100,
+  });
+
+  const studyStartDate = studyData?.basicInfo?.startDate;
+  const studyEndDate = studyData?.basicInfo?.endDate;
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -64,6 +85,9 @@ export default function CreateMissionModal({
 
           <CreateMissionForm
             groupStudyId={groupStudyId}
+            studyStartDate={studyStartDate}
+            studyEndDate={studyEndDate}
+            existingMissions={existingMissions?.content}
             onClose={() => setOpen(false)}
           />
         </Modal.Content>
@@ -74,16 +98,26 @@ export default function CreateMissionModal({
 
 interface CreateMissionFormProps {
   groupStudyId: number;
+  studyStartDate?: string;
+  studyEndDate?: string;
+  existingMissions?: MissionPeriod[];
   onClose: () => void;
 }
 
-function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
+function CreateMissionForm({
+  groupStudyId,
+  studyStartDate,
+  studyEndDate,
+  existingMissions,
+  onClose,
+}: CreateMissionFormProps) {
   const methods = useForm<CreateMissionFormValues>({
     resolver: zodResolver(CreateMissionFormSchema),
     mode: 'onChange',
     defaultValues: {
       title: '',
       description: '',
+      weekNum: '',
       guide: '',
       dateRange: undefined,
     },
@@ -94,8 +128,8 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
   const { mutate: createMission } = useCreateMission();
 
   const onValidSubmit = (values: CreateMissionFormValues) => {
-    const startDate = values.dateRange.from.toISOString();
-    const endDate = values.dateRange.to.toISOString();
+    const startDate = dayjs(values.dateRange.from).format('YYYY-MM-DD');
+    const endDate = dayjs(values.dateRange.to).format('YYYY-MM-DD');
 
     createMission(
       {
@@ -104,6 +138,7 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
           title: values.title,
           guide: values.guide,
           description: values.description,
+          weekNum: values.weekNum ? Number(values.weekNum) : undefined,
           startDate,
           endDate,
         },
@@ -153,6 +188,19 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
             />
           </FormField>
 
+          <FormField<CreateMissionFormValues, 'weekNum'>
+            name="weekNum"
+            label="미션 주차"
+            direction="vertical"
+          >
+            <BaseInput
+              type="number"
+              min={0}
+              id="weekNum"
+              placeholder="커리큘럼 미션인 경우 주차를 입력해 주세요. (예: 1)"
+            />
+          </FormField>
+
           <FormField<CreateMissionFormValues, 'guide'>
             name="guide"
             label="수행 가이드"
@@ -184,6 +232,11 @@ function CreateMissionForm({ groupStudyId, onClose }: CreateMissionFormProps) {
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => field.onChange(date)}
+                  disabled={createDisabledDateMatcherForMission({
+                    studyStartDate,
+                    studyEndDate,
+                    existingMissions,
+                  })}
                 />
               )}
             />

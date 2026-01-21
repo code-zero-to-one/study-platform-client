@@ -195,7 +195,7 @@ let pageSize: number; //페이지 크기 (optional) (default to 20)
 let type: Array<'PROJECT' | 'MENTORING' | 'SEMINAR' | 'CHALLENGE' | 'BOOK_STUDY' | 'LECTURE_STUDY'>; //스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능. (optional) (default to undefined)
 let targetRoles: Array<'BACKEND' | 'FRONTEND' | 'PLANNER' | 'DESIGNER'>; //모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능. (optional) (default to undefined)
 let method: Array<'ONLINE' | 'OFFLINE' | 'HYBRID'>; //진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능. (optional) (default to undefined)
-let inProgress: boolean; //진행중인 스터디만 조회할지 여부. (optional) (default to undefined)
+let recruiting: boolean; //모집 중인 스터디만 조회할지 여부. (optional) (default to undefined)
 
 const { status, data } = await apiInstance.getGroupStudies(
     classification,
@@ -204,7 +204,7 @@ const { status, data } = await apiInstance.getGroupStudies(
     type,
     targetRoles,
     method,
-    inProgress
+    recruiting
 );
 ```
 
@@ -218,7 +218,7 @@ const { status, data } = await apiInstance.getGroupStudies(
 | **type** | **Array<&#39;PROJECT&#39; &#124; &#39;MENTORING&#39; &#124; &#39;SEMINAR&#39; &#124; &#39;CHALLENGE&#39; &#124; &#39;BOOK_STUDY&#39; &#124; &#39;LECTURE_STUDY&#39;>** | 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능. | (optional) defaults to undefined|
 | **targetRoles** | **Array<&#39;BACKEND&#39; &#124; &#39;FRONTEND&#39; &#124; &#39;PLANNER&#39; &#124; &#39;DESIGNER&#39;>** | 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능. | (optional) defaults to undefined|
 | **method** | **Array<&#39;ONLINE&#39; &#124; &#39;OFFLINE&#39; &#124; &#39;HYBRID&#39;>** | 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능. | (optional) defaults to undefined|
-| **inProgress** | [**boolean**] | 진행중인 스터디만 조회할지 여부. | (optional) defaults to undefined|
+| **recruiting** | [**boolean**] | 모집 중인 스터디만 조회할지 여부. | (optional) defaults to undefined|
 
 
 ### Return type

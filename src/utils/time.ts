@@ -16,7 +16,11 @@ import {
  * - UTC 문자열이면 +9시간
  * - 이미 KST면 그대로 사용
  */
-export const formatToKST = (dateString: string): Date => {
+export const formatToKST = (dateString?: string): Date | undefined => {
+  if (!dateString) {
+    return undefined;
+  }
+
   const date = parseISO(dateString);
 
   // UTC 여부 판단
@@ -85,4 +89,76 @@ export const getKoreaDisplayMonday = (base?: Date) => {
   const dow = getDay(todayKST); // 0=일, 6=토
 
   return dow === 0 || dow === 6 ? addDays(monday, 7) : monday;
+};
+
+export interface MissionPeriod {
+  missionId?: number;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface CreateDisabledDateMatcherForMissionOptions {
+  studyStartDate?: string;
+  studyEndDate?: string;
+  existingMissions?: MissionPeriod[];
+  editingMissionId?: number;
+}
+
+export const createDisabledDateMatcherForMission = (
+  options: CreateDisabledDateMatcherForMissionOptions,
+) => {
+  const { studyStartDate, studyEndDate, existingMissions, editingMissionId } =
+    options;
+
+  return (date: Date) => {
+    const normalizedDate = new Date(date);
+    normalizedDate.setHours(0, 0, 0, 0);
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (normalizedDate < today) {
+      return true;
+    }
+
+    if (studyStartDate) {
+      const startDate = new Date(studyStartDate);
+      startDate.setHours(0, 0, 0, 0);
+      if (normalizedDate < startDate) {
+        return true;
+      }
+    }
+
+    if (studyEndDate) {
+      const endDate = new Date(studyEndDate);
+      endDate.setHours(0, 0, 0, 0);
+      if (normalizedDate > endDate) {
+        return true;
+      }
+    }
+
+    if (existingMissions) {
+      const targetTime = normalizedDate.getTime();
+      for (const mission of existingMissions) {
+        if (editingMissionId && mission.missionId === editingMissionId)
+          continue;
+
+        if (mission.startDate && mission.endDate) {
+          const missionStart = new Date(mission.startDate);
+          missionStart.setHours(0, 0, 0, 0);
+          const missionEnd = new Date(mission.endDate);
+          missionEnd.setHours(0, 0, 0, 0);
+
+          if (
+            targetTime >= missionStart.getTime() &&
+            targetTime <= missionEnd.getTime()
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  };
 };

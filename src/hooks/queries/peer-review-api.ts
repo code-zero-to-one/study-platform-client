@@ -41,6 +41,9 @@ export const useCreatePeerReview = () => {
       await queryClient.invalidateQueries({
         queryKey: ['peerReviews', variables.homeworkId],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ['homework', variables.homeworkId],
+      });
     },
   });
 };
@@ -67,6 +70,9 @@ export const useUpdatePeerReview = () => {
       await queryClient.invalidateQueries({
         queryKey: ['peerReviews'],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ['homework'],
+      });
     },
   });
 };
@@ -83,6 +89,9 @@ export const useDeletePeerReview = () => {
     onSuccess: async () => {
       await queryClient.invalidateQueries({
         queryKey: ['peerReviews'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['homework'],
       });
     },
   });

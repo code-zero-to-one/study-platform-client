@@ -5,10 +5,10 @@ import Image from 'next/image';
 
 import { GroupStudyListItemDto } from '@/api/openapi';
 import { GroupStudyData } from '@/features/study/group/api/group-study-types';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/common/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import StudyCard from '../study/study-card';
+import StudyCard from '../card/study-card';
 
 interface PremiumStudyListProps {
   studies: GroupStudyListItemDto[];

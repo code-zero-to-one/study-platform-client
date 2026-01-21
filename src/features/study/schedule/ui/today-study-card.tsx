@@ -6,7 +6,7 @@ import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import UserPhoneNumberCopyModal from '@/entities/user/ui/user-phone-number-copy-modal';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from '@/hooks/common/use-auth';
 import { DailyStudyDetail } from '../../interview/api/interview-types';
 import { useDailyStudyDetailQuery } from '../../interview/model/use-interview-query';
 import { getStatusBadge } from '../../interview/ui/status-badge-map';

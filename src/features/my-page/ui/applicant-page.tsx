@@ -45,7 +45,7 @@ export default function ApplicantPage(props: ApplicantListProps) {
   };
 
   return (
-    <div className="w-720px flex flex-col gap-300">
+    <div className="m-auto flex w-[720px] flex-col gap-300">
       <div className="font-designer-20b flex items-center">
         <Image
           src="/icons/arrow-left-line.svg"

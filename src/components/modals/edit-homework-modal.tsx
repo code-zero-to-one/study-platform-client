@@ -11,7 +11,7 @@ import { useEditHomework } from '@/hooks/queries/group-study-homework-api';
 import { BaseInput, TextAreaInput } from '../ui/input';
 
 const EditHomeworkFormSchema = z.object({
-  textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.'),
+  textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.').max(1000),
   attachmentLink: z.string().optional(),
 });
 
@@ -19,13 +19,15 @@ type EditHomeworkFormValues = z.infer<typeof EditHomeworkFormSchema>;
 
 interface EditHomeworkModalProps {
   defaultValue: EditHomeworkFormValues;
-  homeworkId: number; // todo api response 타입 적용
+  homeworkId: number;
+  onSuccess?: () => void;
 }
 
 // 과제 수정 모달
 export default function EditHomeworkModal({
   defaultValue,
   homeworkId,
+  onSuccess,
 }: EditHomeworkModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
@@ -57,6 +59,7 @@ export default function EditHomeworkModal({
             defaultValue={defaultValue}
             homeworkId={homeworkId}
             onClose={() => setOpen(false)}
+            onSuccess={onSuccess}
           />
         </Modal.Content>
       </Modal.Portal>
@@ -68,12 +71,14 @@ interface EditHomeworkFormProps {
   defaultValue: EditHomeworkFormValues;
   homeworkId: number;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 function EditHomeworkForm({
   defaultValue,
   homeworkId,
   onClose,
+  onSuccess,
 }: EditHomeworkFormProps) {
   const methods = useForm<EditHomeworkFormValues>({
     resolver: zodResolver(EditHomeworkFormSchema),
@@ -101,6 +106,7 @@ function EditHomeworkForm({
         onSuccess: async () => {
           alert('과제가 성공적으로 수정되었습니다!');
           onClose();
+          onSuccess?.();
         },
         onError: () => {
           alert('과제 수정에 실패했습니다. 다시 시도해주세요.');
@@ -129,7 +135,7 @@ function EditHomeworkForm({
               id="textContent"
               className="min-h-[230px]"
               placeholder="학습한 내용을 자세히 작성해 주세요."
-              maxLength={5000}
+              maxLength={1000}
             />
           </FormField>
 

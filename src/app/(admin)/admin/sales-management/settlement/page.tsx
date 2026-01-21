@@ -43,12 +43,14 @@ export default function SettlementPage() {
 
   // API 호출
   const { data } = useGetSettlementsForAdmin({
-    startDate: dateRange?.from
-      ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
-      : undefined,
-    endDate: dateRange?.to
-      ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
-      : undefined,
+    startDate:
+      dateRange?.from && dateRange.from.toISOString()
+        ? format(formatToKST(dateRange.from.toISOString()), 'yyyy-MM-dd')
+        : undefined,
+    endDate:
+      dateRange?.to && dateRange.to.toISOString()
+        ? format(formatToKST(dateRange.to.toISOString()), 'yyyy-MM-dd')
+        : undefined,
     studyTitle: keyword || undefined,
     settlementCode: keyword || undefined,
     status,
@@ -178,10 +180,12 @@ export default function SettlementPage() {
                   {/* 일시 */}
                   <td className="py-200 pl-[10px]">
                     <span className="font-designer-14r text-text-default">
-                      {format(
-                        formatToKST(settlement.settledAt),
-                        'yyyy.MM.dd HH:mm',
-                      )}
+                      {formatToKST(settlement.settledAt)
+                        ? format(
+                            formatToKST(settlement.settledAt)!,
+                            'yyyy.MM.dd HH:mm',
+                          )
+                        : '-'}
                     </span>
                   </td>
 
