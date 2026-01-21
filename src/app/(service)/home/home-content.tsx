@@ -33,6 +33,11 @@ const CommunityTab = dynamic(() => import('@/components/home/tabs/community-tab'
   ssr: false
 });
 
+const StudyHistoryTab = dynamic(() => import('@/components/home/tabs/study-history-tab'), {
+  loading: () => <div className="py-800 text-center text-text-subtlest">로딩 중...</div>,
+  ssr: false
+});
+
 function HomeContentInner() {
   const searchParams = useSearchParams();
   const activeTab = searchParams?.get('tab') || 'study'; // 기본값을 'study'로 설정
@@ -42,6 +47,8 @@ function HomeContentInner() {
     switch (activeTab) {
       case 'study':
         return <StudyTab />;
+      case 'history':
+        return <StudyHistoryTab />;
       case 'ranking':
         return <HallOfFameTab />;
       case 'archive':

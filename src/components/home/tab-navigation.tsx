@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { Trophy, BookOpen, MessageSquareText, Calendar } from 'lucide-react';
+import { Trophy, BookOpen, MessageSquareText, Calendar, History } from 'lucide-react';
 
 interface TabNavigationProps {
   activeTab: string;
@@ -26,6 +26,12 @@ const TABS = [
     label: '제로원 아카이브',
     icon: BookOpen,
     description: '학습 자료'
+  },
+  {
+    id: 'history',
+    label: '나의 스터디 기록',
+    icon: History,
+    description: '1:1 스터디 히스토리'
   },
   {
     id: 'community',
