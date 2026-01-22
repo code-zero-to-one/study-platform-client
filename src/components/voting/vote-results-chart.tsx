@@ -97,10 +97,10 @@ export default function VoteResultsChart({
                 {/* 순위 배지 */}
                 <div
                   className={cn(
-                    'flex h-10 w-10 shrink-0 items-center justify-center rounded-full font-bold text-lg transition-all',
+                    'flex h-10 w-10 shrink-0 items-center justify-center font-bold text-lg transition-all',
                     isTopVote
-                      ? 'bg-gradient-to-br from-yellow-400 to-orange-500 text-white shadow-lg'
-                      : cn('text-white', colors.primary),
+                      ? 'text-yellow-500'
+                      : cn(colors.text),
                   )}
                 >
                   {isTopVote ? <Crown className="h-5 w-5" /> : rank}
@@ -178,7 +178,7 @@ export default function VoteResultsChart({
 
       {/* 총 투표 수 - 더 강조된 디자인 */}
       <div className="mt-200 flex items-center justify-center gap-200 rounded-200 border border-border-subtle bg-background-alternative p-400">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-fill-brand-default-default">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-fill-brand-default-default">
           <TrendingUp className="h-5 w-5 text-text-inverse" />
         </div>
         <div className="flex flex-col">

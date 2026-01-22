@@ -127,6 +127,36 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
     });
   };
 
+  // 재투표 핸들러
+  const handleRevote = () => {
+    if (!voting || !voting.myVote) return;
+
+    setVoting((prev) => {
+      if (!prev) return prev;
+
+      const oldVoteId = prev.myVote;
+      const updatedOptions = prev.options.map((opt) => {
+        if (opt.id === oldVoteId) {
+          return { ...opt, voteCount: opt.voteCount - 1 };
+        }
+        return opt;
+      });
+
+      const newTotalVotes = prev.totalVotes - 1;
+      const optionsWithPercentage = updatedOptions.map((opt) => ({
+        ...opt,
+        percentage: newTotalVotes > 0 ? (opt.voteCount / newTotalVotes) * 100 : 0,
+      }));
+
+      return {
+        ...prev,
+        myVote: undefined,
+        options: optionsWithPercentage,
+        totalVotes: newTotalVotes,
+      };
+    });
+  };
+
   // 로딩 상태
   if (isLoading) {
     return (
@@ -320,7 +350,17 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
           </>
         ) : (
           <>
-            <h2 className="mb-400 font-designer-18b text-text-strong">투표 결과</h2>
+            <div className="mb-400 flex items-center justify-between">
+              <h2 className="font-designer-18b text-text-strong">투표 결과</h2>
+              {voting.isActive && (
+                <button
+                  onClick={handleRevote}
+                  className="font-designer-12r text-text-subtle underline hover:text-text-default"
+                >
+                  재투표하기
+                </button>
+              )}
+            </div>
             <VoteResultsChart
               options={voting.options}
               myVote={voting.myVote}
