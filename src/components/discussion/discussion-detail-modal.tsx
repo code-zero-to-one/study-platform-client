@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Discussion, VoteType } from '@/types/discussion';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
 import { X, ThumbsUp, ThumbsDown, Eye, Clock, MessageCircle } from 'lucide-react';
+import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
@@ -74,8 +76,11 @@ export default function DiscussionDetailModal({
             <div className="flex items-center gap-300">
               {/* 작성자 */}
               <div className="flex items-center gap-150">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-fill-neutral-strong-default text-sm font-bold text-text-inverse">
-                  {discussion.author.nickname.charAt(0)}
+                <div onClick={(e) => e.stopPropagation()}>
+                  <UserProfileModal
+                    memberId={discussion.author.id}
+                    trigger={<UserAvatar size={32} image={discussion.author.avatar} />}
+                  />
                 </div>
                 <span className="font-designer-13b text-text-default">
                   {discussion.author.nickname}

@@ -2,6 +2,8 @@ import React from 'react';
 import Link from 'next/link';
 import { Voting } from '@/types/voting';
 import { MessageCircle, Users } from 'lucide-react';
+import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import VoteTimer from '../voting/vote-timer';
 
@@ -29,8 +31,11 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
       <div className="mb-300 flex items-center justify-between">
         {/* 작성자 정보 */}
         <div className="flex items-center gap-200">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fill-neutral-strong-default text-sm font-bold text-text-inverse">
-            {voting.author.nickname.charAt(0)}
+          <div onClick={(e) => e.stopPropagation()}>
+            <UserProfileModal
+              memberId={voting.author.id}
+              trigger={<UserAvatar size={32} image={voting.author.avatar} />}
+            />
           </div>
           <span className="font-designer-13b text-text-default">{voting.author.nickname}</span>
         </div>

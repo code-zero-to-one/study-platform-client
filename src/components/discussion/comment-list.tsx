@@ -2,6 +2,8 @@ import React from 'react';
 import { DiscussionComment } from '@/types/discussion';
 import { VotingComment, VotingOption } from '@/types/voting';
 import { MoreVertical, Trash2, Edit, CheckCircle2 } from 'lucide-react';
+import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
@@ -62,8 +64,11 @@ export default function CommentList({ comments, onDelete, onEdit, votingOptions 
             <div className="mb-100 flex items-start justify-between">
               {/* 작성자 정보 */}
               <div className="flex items-center gap-150">
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-fill-neutral-strong-default text-xs font-bold text-text-inverse">
-                  {comment.author.nickname.charAt(0)}
+                <div onClick={(e) => e.stopPropagation()}>
+                  <UserProfileModal
+                    memberId={comment.author.id}
+                    trigger={<UserAvatar size={28} image={comment.author.avatar} />}
+                  />
                 </div>
                 <div className="flex flex-col gap-50">
                   <div className="flex items-center gap-100">

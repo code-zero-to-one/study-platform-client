@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Voting } from '@/types/voting';
 import { X, TrendingUp, Info, MessageCircle } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import VoteResultsChart from './vote-results-chart';
 import VoteTimer from './vote-timer';
 import CommentList from '../discussion/comment-list';
@@ -61,6 +63,15 @@ export default function VotingDetailModal({
 
             {/* 제목 */}
             <h2 className="mb-200 font-bold-h4 text-text-strong">{voting.title}</h2>
+
+            {/* 작성자 정보 */}
+            <div className="mb-200 flex items-center gap-200" onClick={(e) => e.stopPropagation()}>
+              <UserProfileModal
+                memberId={voting.author.id}
+                trigger={<UserAvatar size={32} image={voting.author.avatar} />}
+              />
+              <span className="font-designer-13b text-text-default">{voting.author.nickname}</span>
+            </div>
 
             {/* 설명 토글 */}
             {voting.description && (

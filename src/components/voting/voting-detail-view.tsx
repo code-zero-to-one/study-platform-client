@@ -4,6 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { Loader2, ArrowLeft, TrendingUp, MessageCircle, Check } from 'lucide-react';
 import { Voting, VotingComment } from '@/types/voting';
 import { mockFetchVotingDetail } from '@/mocks/voting-mock-data';
+import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import VoteResultsChart from '@/components/voting/vote-results-chart';
 import VoteTimer from '@/components/voting/vote-timer';
 import DailyStatsChart from '@/components/voting/daily-stats-chart';
@@ -173,8 +175,11 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
         <div className="mb-300 flex items-center justify-between">
           {/* 작성자 정보 */}
           <div className="flex items-center gap-200">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fill-neutral-strong-default text-sm font-bold text-text-inverse">
-              {voting.author.nickname.charAt(0)}
+            <div onClick={(e) => e.stopPropagation()}>
+              <UserProfileModal
+                memberId={voting.author.id}
+                trigger={<UserAvatar size={32} image={voting.author.avatar} />}
+              />
             </div>
             <span className="font-designer-13b text-text-default">{voting.author.nickname}</span>
           </div>
@@ -218,8 +223,14 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
               
               {/* 현재 투표 참여 인원 */}
               <div className="flex items-center gap-200 rounded-100 border border-border-subtle bg-background-alternative px-300 py-150">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-fill-brand-default-default">
-                  <TrendingUp className="h-4 w-4 text-text-inverse" />
+                <div 
+                  className="flex items-center justify-center rounded-full bg-fill-brand-default-default"
+                  style={{ width: '32px', height: '32px' }}
+                >
+                  <TrendingUp 
+                    className="text-text-inverse" 
+                    style={{ width: '20px', height: '20px' }}
+                  />
                 </div>
                 <div className="flex flex-col">
                   <span className="font-designer-11r text-text-subtle">현재 참여</span>
@@ -235,11 +246,11 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
               {voting.options.map((option, index) => {
                 const isSelected = selectedOption === option.id;
                 const colors = [
-                  { border: 'border-blue-500', bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-500' },
-                  { border: 'border-green-500', bg: 'bg-green-50', text: 'text-green-600', ring: 'ring-green-500' },
-                  { border: 'border-purple-500', bg: 'bg-purple-50', text: 'text-purple-600', ring: 'ring-purple-500' },
-                  { border: 'border-orange-500', bg: 'bg-orange-50', text: 'text-orange-600', ring: 'ring-orange-500' },
-                  { border: 'border-pink-500', bg: 'bg-pink-50', text: 'text-pink-600', ring: 'ring-pink-500' },
+                  { border: 'border-blue-500', bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-500', primary: 'bg-blue-500' },
+                  { border: 'border-green-500', bg: 'bg-green-50', text: 'text-green-600', ring: 'ring-green-500', primary: 'bg-green-500' },
+                  { border: 'border-purple-500', bg: 'bg-purple-50', text: 'text-purple-600', ring: 'ring-purple-500', primary: 'bg-purple-500' },
+                  { border: 'border-orange-500', bg: 'bg-orange-50', text: 'text-orange-600', ring: 'ring-orange-500', primary: 'bg-orange-500' },
+                  { border: 'border-pink-500', bg: 'bg-pink-50', text: 'text-pink-600', ring: 'ring-pink-500', primary: 'bg-pink-500' },
                 ];
                 const color = colors[index % colors.length];
 
@@ -256,37 +267,20 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
                       isSubmitting && 'cursor-not-allowed opacity-50',
                     )}
                   >
-                    <div className="flex items-center justify-between">
-                      {/* 선택지 텍스트 */}
-                      <div className="flex items-center gap-200">
-                        {/* 번호 배지 */}
-                        <div
-                          className={cn(
-                            'flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold transition-all',
-                            isSelected
-                              ? cn('text-white', color.border.replace('border-', 'bg-'))
-                              : 'bg-fill-neutral-subtle-default text-text-subtle group-hover:bg-fill-neutral-strong-default group-hover:text-text-inverse',
-                          )}
-                        >
-                          {index + 1}
-                        </div>
-                        
-                        <span
-                          className={cn(
-                            'font-designer-15b transition-colors',
-                            isSelected ? color.text : 'text-text-default',
-                          )}
-                        >
-                          {option.label}
-                        </span>
+                    <div className="flex items-center gap-200">
+                      {/* 번호 배지 */}
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fill-neutral-subtle-default font-bold text-text-subtle">
+                        {index + 1}
                       </div>
-
-                      {/* 선택 체크 표시 */}
-                      {isSelected && (
-                        <div className={cn('flex h-7 w-7 items-center justify-center rounded-full', color.border.replace('border-', 'bg-'))}>
-                          <Check className="h-4 w-4 text-white" />
-                        </div>
-                      )}
+                      
+                      <span
+                        className={cn(
+                          'font-designer-15b transition-colors',
+                          isSelected ? color.text : 'text-text-default',
+                        )}
+                      >
+                        {option.label}
+                      </span>
                     </div>
                   </button>
                 );

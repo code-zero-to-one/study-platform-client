@@ -1,5 +1,7 @@
 import React from 'react';
 import { MessageCircle, ThumbsUp, ThumbsDown, Eye, Clock } from 'lucide-react';
+import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { Discussion } from '@/types/discussion';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
 import { formatDistanceToNow } from 'date-fns';
@@ -29,8 +31,11 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
       <div className="mb-200 flex items-center justify-between">
         <div className="flex items-center gap-200">
           {/* 아바타 */}
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fill-neutral-strong-default text-sm font-bold text-text-inverse">
-            {discussion.author.nickname.charAt(0)}
+          <div onClick={(e) => e.stopPropagation()}>
+            <UserProfileModal
+              memberId={discussion.author.id}
+              trigger={<UserAvatar size={32} image={discussion.author.avatar} />}
+            />
           </div>
 
           {/* 작성자 & 시간 */}
