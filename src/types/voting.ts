@@ -42,6 +42,7 @@ export interface Voting {
   isActive: boolean; // 진행 중인지 종료되었는지
   tags: string[];
   dailyStats?: DailyStatistic[]; // 일별 통계
+  author: VotingAuthor; // 작성자 정보
 }
 
 export interface VotingListResponse {

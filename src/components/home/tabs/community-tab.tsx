@@ -6,6 +6,7 @@ import { Voting } from '@/types/voting';
 import { mockFetchVotings } from '@/mocks/voting-mock-data';
 import VotingCard from '@/components/cards/voting-card';
 import VotingCreateModal from '@/components/voting/voting-create-modal';
+import VotingDetailView from '@/components/voting/voting-detail-view';
 import { VotingCreateFormData } from '@/types/schemas/zod-schema';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
@@ -19,6 +20,7 @@ export default function CommunityTab() {
   const [error, setError] = useState<string | null>(null);
   const [filterMode, setFilterMode] = useState<'active' | 'all' | 'popular'>('active');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [selectedVotingId, setSelectedVotingId] = useState<number | null>(null);
 
   // 무한 스크롤용 ref
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -83,6 +85,7 @@ export default function CommunityTab() {
         endsAt: data.endsAt || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7일 후
         isActive: true,
         tags: data.tags || [],
+        author: { id: 999, nickname: '나' }, // TODO: 실제 사용자 정보로 교체
       };
       
       // localStorage에 저장 (상세 페이지에서 조회 가능하도록)
@@ -131,6 +134,28 @@ export default function CommunityTab() {
     };
   }, [hasMore, isLoadingMore, isLoading, page, loadVotings]);
 
+  // 상세 화면으로 전환
+  const handleVotingClick = (votingId: number) => {
+    setSelectedVotingId(votingId);
+  };
+
+  // 목록으로 돌아가기
+  const handleBackToList = () => {
+    setSelectedVotingId(null);
+  };
+
+  // 상세 화면이 열려있으면 상세 화면 표시
+  if (selectedVotingId) {
+    return (
+      <div className="transition-all duration-300">
+        <VotingDetailView 
+          votingId={selectedVotingId} 
+          onBack={handleBackToList}
+        />
+      </div>
+    );
+  }
+
   // 로딩 상태
   if (isLoading) {
     return (
@@ -163,7 +188,7 @@ export default function CommunityTab() {
 
   return (
     <>
-      <div className="flex flex-col gap-500">
+      <div className="flex flex-col gap-500 transition-all duration-300">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
@@ -243,7 +268,11 @@ export default function CommunityTab() {
           <>
             <div className="flex flex-col gap-300">
               {votings.map((voting) => (
-                <VotingCard key={voting.id} voting={voting} />
+                <VotingCard 
+                  key={voting.id} 
+                  voting={voting} 
+                  onClick={() => handleVotingClick(voting.id)}
+                />
               ))}
             </div>
 

@@ -1,42 +1,42 @@
 import React from 'react';
 import Link from 'next/link';
 import { Voting } from '@/types/voting';
-import { MessageCircle, Users, CheckCircle2 } from 'lucide-react';
+import { MessageCircle, Users } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import VoteTimer from '../voting/vote-timer';
 
 interface VotingCardProps {
   voting: Voting;
+  onClick?: () => void;
 }
 
-export default function VotingCard({ voting }: VotingCardProps) {
+export default function VotingCard({ voting, onClick }: VotingCardProps) {
   const topOption = voting.options.reduce((prev, current) =>
     prev.percentage > current.percentage ? prev : current,
   );
 
   const hasVoted = voting.myVote !== undefined;
 
-  return (
-    <Link
-      href={`/insights/weekly/${voting.id}`}
+  const cardContent = (
+    <div
       className={cn(
         'group block cursor-pointer rounded-200 border-2 bg-background-default p-500 transition-all duration-200',
         hasVoted ? 'border-border-brand shadow-2' : 'border-border-subtle hover:border-border-brand hover:shadow-2',
       )}
+      onClick={onClick ? (e) => { e.preventDefault(); onClick(); } : undefined}
     >
-      {/* 헤더: 상태 */}
+      {/* 헤더: 작성자 & 상태 */}
       <div className="mb-300 flex items-center justify-between">
+        {/* 작성자 정보 */}
         <div className="flex items-center gap-200">
-          {hasVoted && (
-            <div className="flex items-center gap-50 rounded-100 bg-green-50 px-200 py-100">
-              <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-              <span className="font-designer-12b text-green-600">투표 완료</span>
-            </div>
-          )}
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fill-neutral-strong-default text-sm font-bold text-text-inverse">
+            {voting.author.nickname.charAt(0)}
+          </div>
+          <span className="font-designer-13b text-text-default">{voting.author.nickname}</span>
         </div>
 
-        {/* 투표 안 한 항목에만 타이머 표시 */}
-        {!hasVoted && <VoteTimer endsAt={voting.endsAt} isActive={voting.isActive} />}
+        {/* 타이머 표시 */}
+        <VoteTimer endsAt={voting.endsAt} isActive={voting.isActive} />
       </div>
 
       {/* 제목 */}
@@ -99,6 +99,17 @@ export default function VotingCard({ voting }: VotingCardProps) {
           </button>
         )}
       </div>
+    </div>
+  );
+
+  // onClick이 있으면 Link 없이 렌더링, 없으면 Link로 감싸기
+  if (onClick) {
+    return cardContent;
+  }
+
+  return (
+    <Link href={`/insights/weekly/${voting.id}`}>
+      {cardContent}
     </Link>
   );
 }

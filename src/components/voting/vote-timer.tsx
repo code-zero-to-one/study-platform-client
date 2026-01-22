@@ -50,9 +50,9 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
 
   if (!isActive) {
     return (
-      <div className="flex items-center justify-center gap-1.5 rounded-full bg-fill-neutral-subtle-default px-3 py-1.5">
-        <Clock className="h-3.5 w-3.5 text-text-subtle" />
-        <span className="text-xs font-bold text-text-subtle">종료된 투표</span>
+      <div className="flex items-center gap-100 rounded-full bg-orange-50 px-200 py-100 text-orange-600 border border-orange-100">
+        <Clock className="h-4 w-4" />
+        <span className="font-designer-12b">종료된 투표</span>
       </div>
     );
   }
@@ -68,9 +68,9 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
 
   if (!timeLeft) {
     return (
-      <div className="flex items-center justify-center gap-1.5 rounded-full bg-fill-neutral-subtle-default px-3 py-1.5">
-        <Clock className="h-3.5 w-3.5 text-text-subtle" />
-        <span className="text-xs font-bold text-text-subtle">종료</span>
+      <div className="flex items-center gap-100 rounded-full bg-orange-50 px-200 py-100 text-orange-600 border border-orange-100">
+        <Clock className="h-4 w-4" />
+        <span className="font-designer-12b">종료</span>
       </div>
     );
   }

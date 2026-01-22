@@ -20,6 +20,7 @@ export const MOCK_VOTINGS: Voting[] = [
     endsAt: '2026-01-25T23:59:59Z',
     isActive: true,
     tags: ['AI', '개발도구'],
+    author: { id: 1, nickname: 'AI개발자' },
   },
   {
     id: 2,
@@ -39,6 +40,7 @@ export const MOCK_VOTINGS: Voting[] = [
     endsAt: '2026-01-22T23:59:59Z',
     isActive: true,
     tags: ['라이프스타일', '워라밸'],
+    author: { id: 2, nickname: '워라밸중시' },
   },
   {
     id: 3,
@@ -59,6 +61,7 @@ export const MOCK_VOTINGS: Voting[] = [
     endsAt: '2026-01-21T23:59:59Z',
     isActive: true,
     tags: ['코드리뷰', '개발문화'],
+    author: { id: 3, nickname: '시니어개발자' },
   },
   {
     id: 4,
@@ -78,6 +81,7 @@ export const MOCK_VOTINGS: Voting[] = [
     endsAt: '2026-01-27T23:59:59Z',
     isActive: true,
     tags: ['프로그래밍', '언어'],
+    author: { id: 4, nickname: '주니어개발자' },
   },
   {
     id: 5,
@@ -96,6 +100,7 @@ export const MOCK_VOTINGS: Voting[] = [
     endsAt: '2026-01-26T23:59:59Z',
     isActive: true,
     tags: ['IDE', '취향'],
+    author: { id: 5, nickname: '프론트개발자' },
   },
   {
     id: 6,
@@ -116,6 +121,7 @@ export const MOCK_VOTINGS: Voting[] = [
     endsAt: '2026-01-28T23:59:59Z',
     isActive: true,
     tags: ['백엔드', 'Node.js'],
+    author: { id: 6, nickname: '백엔드개발자' },
   },
 ];
 
