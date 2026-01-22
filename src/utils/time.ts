@@ -114,17 +114,19 @@ export const createDisabledDateMatcherForMission = (
     const normalizedDate = new Date(date);
     normalizedDate.setHours(0, 0, 0, 0);
 
-    const today = new Date();
+    const today = getKoreaDate();
     today.setHours(0, 0, 0, 0);
 
-    if (normalizedDate < today) {
+    if (normalizedDate <= today) {
       return true;
     }
 
     if (studyStartDate) {
       const startDate = new Date(studyStartDate);
       startDate.setHours(0, 0, 0, 0);
-      if (normalizedDate < startDate) {
+      // 스터디 개설일 다음날부터 선택 가능
+      const minDate = addDays(startDate, 1);
+      if (normalizedDate < minDate) {
         return true;
       }
     }
