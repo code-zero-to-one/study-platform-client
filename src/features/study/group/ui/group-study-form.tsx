@@ -1,9 +1,9 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import {
   GroupStudyFormSchema,
   GroupStudyFormValues,
@@ -209,7 +209,9 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
             'font-designer-13b flex h-300 w-300 items-center justify-center rounded-full',
             isActive && 'bg-background-brand-default text-text-inverse',
             isCompleted && 'bg-background-brand-subtle text-text-brand',
-            !isActive && !isCompleted && 'bg-background-disabled text-text-disabled',
+            !isActive &&
+              !isCompleted &&
+              'bg-background-disabled text-text-disabled',
           )}
         >
           {n}
