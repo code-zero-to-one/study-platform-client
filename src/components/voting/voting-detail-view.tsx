@@ -174,14 +174,24 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
         {/* 작성자 & 상태 */}
         <div className="mb-300 flex items-center justify-between">
           {/* 작성자 정보 */}
-          <div className="flex items-center gap-200">
-            <div onClick={(e) => e.stopPropagation()}>
-              <UserProfileModal
-                memberId={voting.author.id}
-                trigger={<UserAvatar size={32} image={voting.author.avatar} />}
-              />
-            </div>
-            <span className="font-designer-13b text-text-default">{voting.author.nickname}</span>
+          <div onClick={(e) => e.stopPropagation()}>
+            <UserProfileModal
+              memberId={voting.author.id}
+              trigger={
+                <div className="flex items-center gap-200 cursor-pointer rounded-full px-200 py-100 transition-shadow duration-100 ring-1 ring-inset ring-transparent hover:ring-fill-brand-default-default">
+                  <div>
+                    <UserAvatar 
+                      size={32} 
+                      image={voting.author.avatar}
+                      className="relative z-10"
+                    />
+                  </div>
+                  <span className="font-designer-13b text-text-default">
+                    {voting.author.nickname}
+                  </span>
+                </div>
+              }
+            />
           </div>
 
           {/* 타이머 표시 */}

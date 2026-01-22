@@ -75,16 +75,24 @@ export default function DiscussionDetailModal({
             {/* 메타 정보 */}
             <div className="flex items-center gap-300">
               {/* 작성자 */}
-              <div className="flex items-center gap-150">
-                <div onClick={(e) => e.stopPropagation()}>
-                  <UserProfileModal
-                    memberId={discussion.author.id}
-                    trigger={<UserAvatar size={32} image={discussion.author.avatar} />}
-                  />
-                </div>
-                <span className="font-designer-13b text-text-default">
-                  {discussion.author.nickname}
-                </span>
+              <div onClick={(e) => e.stopPropagation()}>
+                <UserProfileModal
+                  memberId={discussion.author.id}
+                  trigger={
+                    <div className="flex items-center gap-200 cursor-pointer rounded-full px-200 py-100 transition-shadow duration-100 ring-1 ring-inset ring-transparent hover:ring-fill-brand-default-default">
+                      <div>
+                        <UserAvatar 
+                          size={32} 
+                          image={discussion.author.avatar}
+                          className="relative z-10"
+                        />
+                      </div>
+                      <span className="font-designer-13b text-text-default">
+                        {discussion.author.nickname}
+                      </span>
+                    </div>
+                  }
+                />
               </div>
 
               {/* 시간 */}
