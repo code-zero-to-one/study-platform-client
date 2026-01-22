@@ -124,7 +124,9 @@ export const createDisabledDateMatcherForMission = (
     if (studyStartDate) {
       const startDate = new Date(studyStartDate);
       startDate.setHours(0, 0, 0, 0);
-      if (normalizedDate < startDate) {
+      // 스터디 개설일 다음날부터 선택 가능
+      const minDate = addDays(startDate, 1);
+      if (normalizedDate < minDate) {
         return true;
       }
     }
