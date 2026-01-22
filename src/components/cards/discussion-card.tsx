@@ -23,24 +23,36 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
     <div
       onClick={onClick}
       className={cn(
-        'group cursor-pointer rounded-200 border border-border-subtle bg-background-default p-400',
-        'transition-all duration-200 hover:border-border-brand hover:shadow-2',
+        'group cursor-pointer rounded-200 bg-background-default p-400 ring-1 ring-inset ring-border-subtle',
+        'transition-shadow duration-150 hover:ring-border-brand',
       )}
     >
       {/* 헤더: 작성자 정보 & 주제 */}
       <div className="mb-200 flex items-center justify-between">
         <div className="flex items-center gap-200">
-          {/* 아바타 */}
+          {/* 아바타 & 닉네임 */}
           <div onClick={(e) => e.stopPropagation()}>
             <UserProfileModal
               memberId={discussion.author.id}
-              trigger={<UserAvatar size={32} image={discussion.author.avatar} />}
+              trigger={
+                <div className="flex items-center gap-200 cursor-pointer rounded-full px-200 py-100 transition-shadow duration-100 ring-1 ring-inset ring-transparent hover:ring-fill-brand-default-default">
+                  <div>
+                    <UserAvatar 
+                      size={32} 
+                      image={discussion.author.avatar}
+                      className="relative z-10"
+                    />
+                  </div>
+                  <span className="font-designer-13b text-text-default">
+                    {discussion.author.nickname}
+                  </span>
+                </div>
+              }
             />
           </div>
 
-          {/* 작성자 & 시간 */}
+          {/* 시간 */}
           <div className="flex items-center gap-100">
-            <span className="font-designer-13b text-text-default">{discussion.author.nickname}</span>
             <span className="h-[10px] w-[1px] bg-border-subtle"></span>
             <div className="flex items-center gap-50 font-designer-12r text-text-subtlest">
               <Clock className="h-3 w-3" />
