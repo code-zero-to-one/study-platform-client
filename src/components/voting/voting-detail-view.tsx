@@ -25,6 +25,8 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editingCommentContent, setEditingCommentContent] = useState<string>('');
 
   // 데이터 로드
   useEffect(() => {
@@ -125,6 +127,39 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
         commentCount: prev.commentCount - 1,
       };
     });
+  };
+
+  // 댓글 수정 시작 핸들러
+  const handleStartEditComment = (commentId: number, content: string) => {
+    setEditingCommentId(commentId);
+    setEditingCommentContent(content);
+  };
+
+  // 댓글 수정 취소 핸들러
+  const handleCancelEditComment = () => {
+    setEditingCommentId(null);
+    setEditingCommentContent('');
+  };
+
+  // 댓글 수정 제출 핸들러
+  const handleUpdateComment = async (data: CommentFormData) => {
+    if (!editingCommentId) return;
+
+    setVoting((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        comments: prev.comments.map((c) =>
+          c.id === editingCommentId
+            ? { ...c, content: data.content }
+            : c
+        ),
+      };
+    });
+
+    // 수정 모드 종료
+    setEditingCommentId(null);
+    setEditingCommentContent('');
   };
 
   // 재투표 핸들러
@@ -393,7 +428,12 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
           <CommentList 
             comments={voting.comments} 
             onDelete={handleDeleteComment}
+            onEdit={handleStartEditComment}
             votingOptions={voting.options}
+            editingCommentId={editingCommentId}
+            editingCommentContent={editingCommentContent}
+            onUpdateComment={handleUpdateComment}
+            onCancelEdit={handleCancelEditComment}
           />
         </div>
 
@@ -406,11 +446,11 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
                   투표 후 댓글을 작성할 수 있습니다
                 </p>
               </div>
-            ) : (
+            ) : editingCommentId === null ? (
               <div className="rounded-200 border border-border-subtle bg-background-alternative p-300">
                 <CommentForm onSubmit={handleAddComment} />
               </div>
-            )}
+            ) : null}
           </>
         )}
       </div>

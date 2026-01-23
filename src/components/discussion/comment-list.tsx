@@ -4,6 +4,8 @@ import { VotingComment, VotingOption } from '@/types/voting';
 import { MoreVertical, Trash2, Edit, CheckCircle2 } from 'lucide-react';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import CommentForm from '@/components/discussion/comment-form';
+import { CommentFormData } from '@/types/schemas/zod-schema';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
@@ -13,6 +15,10 @@ interface CommentListProps {
   onDelete?: (commentId: number) => void;
   onEdit?: (commentId: number, content: string) => void;
   votingOptions?: VotingOption[]; // 투표 옵션 목록 (색상 매칭용)
+  editingCommentId?: number | null;
+  editingCommentContent?: string;
+  onUpdateComment?: (data: CommentFormData) => void | Promise<void>;
+  onCancelEdit?: () => void;
 }
 
 // 옵션별 색상 정의
@@ -24,7 +30,16 @@ const OPTION_BADGE_COLORS = [
   { bg: 'bg-pink-100', text: 'text-pink-600', icon: 'text-pink-500' },
 ];
 
-export default function CommentList({ comments, onDelete, onEdit, votingOptions }: CommentListProps) {
+export default function CommentList({ 
+  comments, 
+  onDelete, 
+  onEdit, 
+  votingOptions, 
+  editingCommentId, 
+  editingCommentContent, 
+  onUpdateComment, 
+  onCancelEdit 
+}: CommentListProps) {
   const [openMenuId, setOpenMenuId] = React.useState<number | null>(null);
 
   if (comments.length === 0) {
@@ -39,6 +54,7 @@ export default function CommentList({ comments, onDelete, onEdit, votingOptions 
   return (
     <div className="flex flex-col gap-200">
       {comments.map((comment) => {
+        const isEditing = editingCommentId === comment.id;
         const timeAgo = formatDistanceToNow(new Date(comment.createdAt), {
           addSuffix: true,
           locale: ko,
@@ -133,10 +149,22 @@ export default function CommentList({ comments, onDelete, onEdit, votingOptions 
               )}
             </div>
 
-            {/* 댓글 내용 */}
-            <p className="whitespace-pre-wrap font-designer-14r leading-relaxed text-text-default">
-              {comment.content}
-            </p>
+            {/* 댓글 내용 또는 수정 폼 */}
+            {isEditing ? (
+              <div className="mt-200">
+                <CommentForm 
+                  onSubmit={onUpdateComment!}
+                  initialValue={editingCommentContent}
+                  placeholder="댓글을 수정하세요..."
+                  autoFocus={true}
+                  onCancel={onCancelEdit}
+                />
+              </div>
+            ) : (
+              <p className="whitespace-pre-wrap font-designer-14r leading-relaxed text-text-default">
+                {comment.content}
+              </p>
+            )}
           </div>
         );
       })}

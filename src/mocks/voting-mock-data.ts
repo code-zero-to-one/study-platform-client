@@ -249,7 +249,26 @@ export const mockFetchVotings = async (params: {
 
   // localStorage에서 커스텀 투표 가져오기
   const customVotings = localStorage.getItem('customVotings');
-  const customVotingsList = customVotings ? JSON.parse(customVotings) : [];
+  let customVotingsList: Voting[] = [];
+  
+  try {
+    const parsed = customVotings ? JSON.parse(customVotings) : [];
+    // 배열이고 각 항목이 유효한지 확인
+    customVotingsList = Array.isArray(parsed) 
+      ? parsed.filter((v): v is Voting => 
+          v !== null && 
+          v !== undefined && 
+          typeof v === 'object' &&
+          'id' in v && 
+          'author' in v &&
+          v.author !== null &&
+          v.author !== undefined
+        )
+      : [];
+  } catch (error) {
+    console.error('Failed to parse customVotings from localStorage:', error);
+    customVotingsList = [];
+  }
 
   // 커스텀 투표 + Mock 투표 합치기 (커스텀 투표가 먼저)
   let filtered = [...customVotingsList, ...MOCK_VOTINGS];

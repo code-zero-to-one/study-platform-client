@@ -267,13 +267,15 @@ export default function CommunityTab() {
         ) : (
           <>
             <div className="flex flex-col gap-300">
-              {votings.map((voting) => (
-                <VotingCard 
-                  key={voting.id} 
-                  voting={voting} 
-                  onClick={() => handleVotingClick(voting.id)}
-                />
-              ))}
+              {votings
+                .filter((voting) => voting && voting.id !== undefined && voting.author)
+                .map((voting) => (
+                  <VotingCard 
+                    key={voting.id} 
+                    voting={voting} 
+                    onClick={() => handleVotingClick(voting.id)}
+                  />
+                ))}
             </div>
 
             {/* 무한 스크롤 트리거 */}
