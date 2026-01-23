@@ -92,27 +92,18 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
       )}
 
       {/* 하단 메타 정보 */}
-      <div className="flex items-center justify-between border-t border-border-subtlest pt-300">
-        <div className="flex items-center gap-300">
-          {/* 총 투표 수 */}
-          <div className="flex items-center gap-50 font-designer-13m text-text-brand">
-            <Users className="h-4 w-4" />
-            <span>{voting.totalVotes.toLocaleString()}</span>
-          </div>
-
-          {/* 댓글 수 */}
-          <div className="flex items-center gap-50 font-designer-13m text-text-subtle">
-            <MessageCircle className="h-4 w-4" />
-            <span>{voting.commentCount}</span>
-          </div>
+      <div className="flex items-center gap-300 border-t border-border-subtlest pt-300">
+        {/* 총 투표 수 */}
+        <div className="flex items-center gap-50 font-designer-13m text-text-brand">
+          <Users className="h-4 w-4" />
+          <span>{voting.totalVotes.toLocaleString()}</span>
         </div>
 
-        {/* CTA */}
-        {!hasVoted && voting.isActive && (
-          <button className="rounded-100 bg-fill-brand-default-default px-300 py-150 font-designer-13b text-text-inverse transition-colors hover:bg-fill-brand-default-hover">
-            투표하기
-          </button>
-        )}
+        {/* 댓글 수 */}
+        <div className="flex items-center gap-50 font-designer-13m text-text-subtle">
+          <MessageCircle className="h-4 w-4" />
+          <span>{voting.commentCount}</span>
+        </div>
       </div>
     </div>
   );
