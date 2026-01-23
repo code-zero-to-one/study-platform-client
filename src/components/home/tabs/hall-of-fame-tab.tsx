@@ -342,6 +342,18 @@ export default function HallOfFameTab() {
         {/* Section 1: Top 5 Rankers */}
         <div className="flex flex-col gap-300">
           <div className="flex flex-col gap-150 items-start">
+             <div className="flex items-center gap-100">
+               <h3 className="font-display-headings6 text-text-strong flex items-center gap-100">
+                 <span className={TAB_CONFIG[rankingType].colorClass}>
+                   {TAB_CONFIG[rankingType].icon}
+                 </span>
+                 {TAB_CONFIG[rankingType].label} TOP 5
+               </h3>
+               <span className="font-designer-13r text-text-subtlest mt-50">
+                 {new Date().toLocaleDateString()} 기준
+               </span>
+             </div>
+
              <div className="flex flex-wrap gap-100 p-100 bg-background-default rounded-200 border border-border-subtle w-fit mb-100">
                {(Object.keys(TAB_CONFIG) as RankingType[]).map((type) => (
                  <button
@@ -360,18 +372,6 @@ export default function HallOfFameTab() {
                    {TAB_CONFIG[type].label}
                  </button>
                ))}
-             </div>
-             
-             <div className="flex items-center gap-100">
-               <h3 className="font-display-headings6 text-text-strong flex items-center gap-100">
-                 <span className={TAB_CONFIG[rankingType].colorClass}>
-                   {TAB_CONFIG[rankingType].icon}
-                 </span>
-                 {TAB_CONFIG[rankingType].label} TOP 5
-               </h3>
-               <span className="font-designer-13r text-text-subtlest mt-50">
-                 {new Date().toLocaleDateString()} 기준
-               </span>
              </div>
           </div>
           
