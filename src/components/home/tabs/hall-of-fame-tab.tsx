@@ -175,14 +175,14 @@ const ProfileAvatar = ({
   );
 };
 
-const MVPTeamCard = ({ team }: { team: MVPTeam }) => {
+const MVPTeamCard = ({ team, className }: { team: MVPTeam; className?: string }) => {
   return (
-    <div className="relative overflow-hidden rounded-200 bg-gradient-to-br from-[#FFF8E7] to-[#FFF] border border-[#FFEBA4] p-500 shadow-2">
+    <div className={cn("relative overflow-hidden rounded-200 bg-gradient-to-br from-[#FFF8E7] to-[#FFF] border border-[#FFEBA4] p-500 shadow-2", className)}>
       <div className="absolute top-0 right-0 p-300 opacity-10">
         <Trophy className="w-[120px] h-[120px] text-text-warning" />
       </div>
       
-      <div className="relative z-10 flex flex-col gap-400 items-center justify-center text-center">
+      <div className="relative z-10 flex flex-col gap-400 items-center justify-center text-center h-full">
         <div className="flex flex-col items-center gap-100">
            <span className="px-150 py-50 rounded-[9999px] bg-fill-warning-subtle-default text-text-warning font-designer-12b border border-border-warning-subtle">
              {team.weekDate} MVP 팀
@@ -220,7 +220,7 @@ const MVPTeamCard = ({ team }: { team: MVPTeam }) => {
           ))}
         </div>
 
-        <div className="w-full bg-white/60 rounded-100 border border-border-warning-subtle/30 p-300 mt-200">
+        <div className="w-full bg-white/60 rounded-100 border border-border-warning-subtle/30 p-300 mt-auto">
           <div className="flex items-center gap-100 mb-200">
             <Flame className="w-4 h-4 text-text-brand" />
             <span className="font-designer-14b text-text-strong">이번 주 공유한 자료</span>
@@ -333,9 +333,10 @@ export default function HallOfFameTab() {
           명예의 전당
           <Trophy className="w-6 h-6 text-text-warning" fill="currentColor" />
         </h2>
-        <p className="font-designer-16r text-text-subtle">
-          제로원을 빛낸 열정적인 멤버들과 최고의 팀을 소개합니다.
-        </p>
+        <div className="flex flex-col font-designer-16r text-text-subtle">
+           <p>제로원을 빛낸 열정적인 멤버들과 최고의 유저들을 소개합니다.</p>
+           <p>꾸준한 1:1 스터디를 통해 제로원 명예의 전당에 이름을 올려보세요!</p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-500">
@@ -388,18 +389,8 @@ export default function HallOfFameTab() {
              <Users className="w-5 h-5 text-text-information" />
              저번 주 스터디 MVP 팀
           </h3>
-          {mvpTeam && <MVPTeamCard team={mvpTeam} />}
-          
-          {/* Motivation Card / Info */}
-          <div className="flex-1 bg-fill-neutral-default-default rounded-200 p-400 border border-border-subtle flex flex-col justify-center items-center text-center gap-200">
-            <h4 className="font-designer-18b text-text-strong">
-              랭킹에 도전해보세요!
-            </h4>
-            <p className="font-designer-14r text-text-subtle max-w-[300px]">
-              꾸준한 1:1 스터디와 열정적인 팀 활동으로<br/>
-              제로원 명예의 전당에 이름을 올릴 수 있습니다.
-            </p>
-          </div>
+
+          {mvpTeam && <MVPTeamCard team={mvpTeam} className="flex-1" />}
         </div>
       </div>
     </div>
