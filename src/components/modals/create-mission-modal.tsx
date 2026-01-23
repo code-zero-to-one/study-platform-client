@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
 import { Plus, XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/ui/button';
@@ -155,6 +155,13 @@ function CreateMissionForm({
     );
   };
 
+  const handlePreventInvalidValue = (event: ChangeEvent<HTMLInputElement>) => {
+    event.currentTarget.value = event.currentTarget.value.replace(
+      /[^0-9]/g,
+      '',
+    );
+  };
+
   return (
     <FormProvider {...methods}>
       <Modal.Body className="flex flex-col gap-400 px-400 py-300">
@@ -196,6 +203,7 @@ function CreateMissionForm({
             <BaseInput
               type="number"
               min={0}
+              onInput={handlePreventInvalidValue}
               id="weekNum"
               placeholder="커리큘럼 미션인 경우 주차를 입력해 주세요. (예: 1)"
             />
