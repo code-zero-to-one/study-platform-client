@@ -54,5 +54,8 @@ export const useGetStudies = ({
       return data.content;
     },
     placeholderData: keepPreviousData,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 };

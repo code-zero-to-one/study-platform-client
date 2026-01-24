@@ -36,10 +36,7 @@ export default function StudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
-
-  const applicants = [
-    ...(approvedApplicants?.pages.flatMap(({ content }) => content) || []),
-  ];
+  const applicants = approvedApplicants?.pages[0]?.content;
 
   return (
     // todo: 스터디 공지 모달 추가
@@ -103,7 +100,7 @@ export default function StudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>실시간 신청자 목록</span>
-                <span className="text-[#A4A7AE]">{`${approvedApplicants?.pages.length}명`}</span>
+                <span className="text-[#A4A7AE]">{`${applicants?.length}명`}</span>
               </div>
               {isLeader && (
                 <Button
@@ -118,7 +115,7 @@ export default function StudyInfoSection({
             </div>
 
             <div className="grid grid-cols-2 grid-rows-2 gap-200">
-              {applicants.map((data) => {
+              {applicants?.map((data) => {
                 const temperPreset = getSincerityPresetByLevelName(
                   data.applicantInfo.sincerityTemp.levelName as string,
                 );
