@@ -14,7 +14,7 @@ interface ChannelSectionProps {
   myApplicationStatus?: GetGroupStudyMemberStatusResponseContent;
 }
 
-export default function ChannelSection({
+export default function LoungeSection({
   groupStudyId,
   memberId,
   myApplicationStatus,
