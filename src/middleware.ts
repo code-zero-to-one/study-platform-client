@@ -80,8 +80,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 회원가입 페이지는 accessToken만 체크 (memberId는 회원가입 후에 생성됨)
-  if (
-    request.nextUrl.pathname === '/sign-up') {
+  if (request.nextUrl.pathname === '/sign-up') {
     if (hasAccessToken && hasMemberId) {
       // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
       const mainUrl = new URL('/home', request.url);
@@ -98,9 +97,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (
-    request.nextUrl.pathname === '/login'
-  ) {
+  if (request.nextUrl.pathname === '/login') {
     if (hasAccessToken && hasMemberId) {
       // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
       const mainUrl = new URL('/home', request.url);
