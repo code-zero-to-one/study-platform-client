@@ -40,6 +40,7 @@ CI 파이프라인: lint → typecheck → prettier → build → build-storyboo
 2. **OpenAPI 자동 생성** (`src/api/openapi/`): 백엔드 Swagger에서 자동 생성된 타입과 서비스. **`src/api/openapi/` 내 파일을 직접 수정 금지** — 재생성됨. ESLint에서 이 디렉토리 제외됨.
 
 새 API 훅 추가 방법:
+
 ```bash
 yarn generate:api <swagger-api-타이틀-이름>
 # src/hooks/queries/<이름>.ts 파일 생성 (createApiInstance 보일러플레이트 포함)
@@ -89,6 +90,7 @@ yarn generate:api <swagger-api-타이틀-이름>
 ## 환경 변수
 
 개발에 필요한 주요 `NEXT_PUBLIC_*` 변수:
+
 - `NEXT_PUBLIC_API_BASE_URL` — 백엔드 API 엔드포인트
 - `NEXT_PUBLIC_KAKAO_CLIENT_ID` — 카카오 OAuth
 - `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — 구글 OAuth
