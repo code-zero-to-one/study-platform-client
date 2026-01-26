@@ -195,13 +195,11 @@ export default function StudyHistoryTab() {
 
         {viewMode === 'LIST' ? (
           <div className="bg-background-default rounded-200 border border-border-subtle overflow-hidden shadow-1">
-            <div className="grid grid-cols-12 gap-200 px-400 py-250 bg-background-alternative/80 border-b border-border-subtlest font-designer-13b text-text-subtle uppercase tracking-wider">
-              <div className="col-span-2">날짜</div>
-              <div className="col-span-4">오늘의 주제</div>
-              <div className="col-span-2">내 역할</div>
-              <div className="col-span-1 text-center">출석</div>
-              <div className="col-span-1 text-center">링크</div>
-              <div className="col-span-2 text-right">진행 상태</div>
+            <div className="flex gap-400 px-400 py-250 bg-background-alternative/80 border-b border-border-subtlest font-designer-13b text-text-subtle uppercase tracking-wider">
+              <div className="w-[150px] shrink-0">날짜</div>
+              <div className="flex-1 min-w-0">오늘의 주제</div>
+              <div className="w-[120px] shrink-0 text-center">내 역할</div>
+              <div className="w-[100px] shrink-0 text-center">출석</div>
             </div>
 
             <div className="divide-y divide-border-subtlest">

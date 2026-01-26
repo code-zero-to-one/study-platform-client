@@ -171,15 +171,16 @@ const LibraryCard = ({
           )}
           <button
             onClick={(e) => onBookmark(e, item.id)}
-            className={cn(
-              'flex items-center gap-50 rounded-100 px-150 py-50 font-designer-12m transition-colors',
-              item.isBookmarked
-                ? 'bg-fill-neutral-strong-default text-text-inverse'
-                : 'bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover',
-            )}
+            className="flex items-center gap-50 font-designer-12r hover:scale-110 transition-transform p-1 rounded-full hover:bg-fill-neutral-subtle-hover"
           >
-            <Bookmark className="h-3.5 w-3.5" />
-            {item.isBookmarked ? '저장됨' : '저장'}
+            <Bookmark 
+              className={cn(
+                "h-3.5 w-3.5 transition-colors",
+                item.isBookmarked 
+                  ? "fill-text-strong text-text-strong" 
+                  : "text-text-subtle"
+              )} 
+            />
           </button>
         </div>
       </div>
@@ -279,15 +280,16 @@ const LibraryRow = ({
         )}
         <button
           onClick={(e) => onBookmark(e, item.id)}
-          className={cn(
-            'flex items-center gap-25 rounded-100 px-100 py-50 font-designer-11m transition-colors',
-            item.isBookmarked
-              ? 'bg-fill-neutral-strong-default text-text-inverse'
-              : 'bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover',
-          )}
+          className="flex items-center gap-50 font-designer-12r hover:scale-110 transition-transform p-1 rounded-full hover:bg-fill-neutral-subtle-hover"
         >
-          <Bookmark className="h-3 w-3" />
-          {item.isBookmarked ? '저장됨' : '저장'}
+          <Bookmark 
+            className={cn(
+              "h-3.5 w-3.5 transition-colors",
+              item.isBookmarked 
+                ? "fill-text-strong text-text-strong" 
+                : "text-text-subtle"
+            )} 
+          />
         </button>
         
         <div className="flex items-center gap-50 font-designer-13m text-text-subtle min-w-[60px] justify-end">
@@ -443,7 +445,7 @@ export default function ArchiveTab() {
               )}
             >
               <Bookmark className={cn("w-4 h-4", showBookmarkedOnly && "fill-current")} />
-              저장한 글
+              북마크
             </button>
           </div>
           
