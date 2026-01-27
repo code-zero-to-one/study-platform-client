@@ -5,8 +5,15 @@ import { ChevronLeft, ChevronRight, CheckCircle, Clock } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { StudyHistoryItem } from '@/types/study-history';
 
-export const StudyCalendar = ({ items }: { items: StudyHistoryItem[] }) => {
-  const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1));
+export const StudyCalendar = ({ 
+  items, 
+  currentDate, 
+  onDateChange 
+}: { 
+  items: StudyHistoryItem[]; 
+  currentDate: Date;
+  onDateChange: (date: Date) => void;
+}) => {
   const [activeTooltip, setActiveTooltip] = useState<{ id: number; text: string; rect: DOMRect } | null>(null);
 
   const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
@@ -81,11 +88,11 @@ export const StudyCalendar = ({ items }: { items: StudyHistoryItem[] }) => {
   return (
     <div className="bg-background-default rounded-200 border border-border-subtle shadow-1">
       <div className="flex items-center justify-between p-400 border-b border-border-subtle bg-background-alternative/50 rounded-t-200">
-        <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} className="p-100 hover:bg-fill-neutral-subtle-hover rounded-100 transition-colors">
+        <button onClick={() => onDateChange(new Date(year, month - 1, 1))} className="p-100 hover:bg-fill-neutral-subtle-hover rounded-100 transition-colors">
           <ChevronLeft className="w-5 h-5 text-text-subtle" />
         </button>
         <h3 className="font-bold-h5 text-text-strong">{year}년 {monthNames[month]}</h3>
-        <button onClick={() => setCurrentDate(new Date(year, month + 1, 1))} className="p-100 hover:bg-fill-neutral-subtle-hover rounded-100 transition-colors">
+        <button onClick={() => onDateChange(new Date(year, month + 1, 1))} className="p-100 hover:bg-fill-neutral-subtle-hover rounded-100 transition-colors">
           <ChevronRight className="w-5 h-5 text-text-subtle" />
         </button>
       </div>

@@ -1,216 +1,70 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { History, List, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { StudyHistoryRow } from '@/components/study-history/study-history-row';
 import { StudyCalendar } from '@/components/study-history/study-calendar';
-import { StudyHistoryItem } from '@/types/study-history';
+import { StudyHistoryItem, StudyHistoryContent } from '@/types/study-history';
+import { useMyStudyHistory } from '@/features/study/history/model/use-my-study-history-query';
 
-const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
-  {
-    id: 1,
-    date: '2025.01.20 (월)',
-    subject: 'JPA 영속성 컨텍스트 학습',
-    role: 'INTERVIEWER',
-    attendance: 'ATTENDED',
-    link: 'https://notion.so',
-    status: 'COMPLETED',
+// 데이터 매핑 함수 (API Response -> UI Model)
+const mapHistoryItem = (data: StudyHistoryContent): StudyHistoryItem => {
+  const dateObj = new Date(data.scheduledAt);
+  const dateStr = `${dateObj.getFullYear()}.${String(dateObj.getMonth() + 1).padStart(2, '0')}.${String(dateObj.getDate()).padStart(2, '0')}`;
+  const dayName = ['일', '월', '화', '수', '목', '금', '토'][dateObj.getDay()];
+
+  return {
+    id: data.studyId,
+    date: `${dateStr} (${dayName})`,
+    subject: data.title,
+    role: data.participation.role,
+    attendance: data.participation.attendance === 'PRESENT' ? 'ATTENDED' : 'NOT_STARTED',
+    link: data.studyLink,
+    status: data.status === 'COMPLETE' ? 'COMPLETED' : 'IN_PROGRESS',
     partner: {
-      id: 101,
-      name: '김서준',
-      profileImage: null
-    }
-  },
-  {
-    id: 2,
-    date: '2025.01.19 (일)',
-    subject: 'Spring Security 인증 필터 체인',
-    role: 'INTERVIEWEE',
-    attendance: 'ATTENDED',
-    link: 'https://github.com',
-    status: 'COMPLETED',
-    partner: {
-      id: 102,
-      name: '이지은',
-      profileImage: null
-    }
-  },
-  {
-    id: 3,
-    date: '2025.01.18 (토)',
-    subject: 'OS - 프로세스와 스레드 차이',
-    role: 'INTERVIEWER',
-    attendance: 'NOT_STARTED',
-    link: null,
-    status: 'COMPLETED',
-    partner: {
-      id: 103,
-      name: '박지민',
-      profileImage: null
-    }
-  },
-  {
-    id: 4,
-    date: '2025.01.17 (금)',
-    subject: 'Java GC 알고리즘 종류',
-    role: 'INTERVIEWEE',
-    attendance: 'NOT_STARTED',
-    link: null,
-    status: 'IN_PROGRESS',
-    partner: {
-      id: 104,
-      name: '최민수',
-      profileImage: null
-    }
-  },
-  {
-    id: 5,
-    date: '2025.01.16 (목)',
-    subject: '네트워크 - TCP 3-way Handshake',
-    role: 'INTERVIEWER',
-    attendance: 'ATTENDED',
-    link: 'https://velog.io',
-    status: 'COMPLETED',
-    partner: {
-      id: 105,
-      name: '정수빈',
-      profileImage: null
-    }
-  },
-  {
-    id: 6,
-    date: '2025.01.15 (수)',
-    subject: 'Spring Boot Auto Configuration',
-    role: 'INTERVIEWEE',
-    attendance: 'ATTENDED',
-    link: 'https://notion.so',
-    status: 'COMPLETED',
-    partner: {
-      id: 106,
-      name: '강다니엘',
-      profileImage: null
-    }
-  },
-  {
-    id: 7,
-    date: '2025.01.14 (화)',
-    subject: 'Database Index 설계 원칙',
-    role: 'INTERVIEWER',
-    attendance: 'NOT_STARTED',
-    link: null,
-    status: 'COMPLETED',
-    partner: {
-      id: 107,
-      name: '윤하은',
-      profileImage: null
-    }
-  },
-  {
-    id: 8,
-    date: '2025.01.13 (월)',
-    subject: 'Redis 캐싱 전략',
-    role: 'INTERVIEWEE',
-    attendance: 'ATTENDED',
-    link: 'https://github.com',
-    status: 'COMPLETED',
-    partner: {
-      id: 108,
-      name: '오세훈',
-      profileImage: null
-    }
-  },
-  {
-    id: 9,
-    date: '2025.01.12 (일)',
-    subject: 'Docker 컨테이너 최적화',
-    role: 'INTERVIEWER',
-    attendance: 'NOT_STARTED',
-    link: null,
-    status: 'COMPLETED',
-    partner: {
-      id: 109,
-      name: '임재범',
-      profileImage: null
-    }
-  },
-  {
-    id: 10,
-    date: '2025.01.11 (토)',
-    subject: 'Kubernetes Pod 라이프사이클',
-    role: 'INTERVIEWEE',
-    attendance: 'ATTENDED',
-    link: 'https://velog.io',
-    status: 'COMPLETED',
-    partner: {
-      id: 110,
-      name: '송민호',
-      profileImage: null
-    }
-  },
-  {
-    id: 11,
-    date: '2024.12.30 (월)',
-    subject: 'React Hook 최적화 패턴',
-    role: 'INTERVIEWER',
-    attendance: 'ATTENDED',
-    link: 'https://notion.so',
-    status: 'COMPLETED',
-    partner: {
-      id: 111,
-      name: '김태리',
-      profileImage: null
-    }
-  },
-  {
-    id: 12,
-    date: '2024.12.29 (일)',
-    subject: 'TypeScript 고급 타입 시스템',
-    role: 'INTERVIEWEE',
-    attendance: 'NOT_STARTED',
-    link: null,
-    status: 'COMPLETED',
-    partner: {
-      id: 112,
-      name: '박서준',
-      profileImage: null
-    }
-  },
-  ...Array.from({ length: 10 }, (_, i) => ({
-    id: 20 + i,
-    date: `2024.12.${20 - i} (${['월', '화', '수', '목', '금', '토', '일'][i % 7]})`,
-    subject: `백엔드 면접 스터디 ${i + 1}주차 - 심화 질문`,
-    role: i % 2 === 0 ? 'INTERVIEWEE' : 'INTERVIEWER' as const,
-    attendance: Math.random() > 0.3 ? 'ATTENDED' : 'NOT_STARTED' as const,
-    link: Math.random() > 0.5 ? 'https://google.com' : null,
-    status: 'COMPLETED' as const,
-    partner: {
-      id: 200 + i,
-      name: `스터디원${i + 1}`,
-      profileImage: null
-    }
-  })),
-];
+      id: data.partner.memberId,
+      name: data.partner.nickname,
+      profileImage: data.partner.profileImageUrl,
+    },
+  };
+};
 
 export default function StudyHistoryTab() {
-  const [historyItems, setHistoryItems] = useState<StudyHistoryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [viewMode, setViewMode] = useState<'LIST' | 'CALENDAR'>('LIST');
   const [currentPage, setCurrentPage] = useState(1);
-
+  const [currentCalendarDate, setCurrentCalendarDate] = useState(new Date());
   const ITEMS_PER_PAGE = 15;
 
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setHistoryItems(MOCK_HISTORY_DATA);
-      setIsLoading(false);
-    }, 300);
-    return () => clearTimeout(timer);
-  }, []);
+  // API 파라미터 동적 생성
+  const getQueryParams = () => {
+    if (viewMode === 'CALENDAR') {
+      const year = currentCalendarDate.getFullYear();
+      const month = currentCalendarDate.getMonth() + 1;
+      const lastDay = new Date(year, month, 0).getDate(); // 해당 월의 마지막 날짜
 
-  const totalPages = Math.ceil(historyItems.length / ITEMS_PER_PAGE) || 1;
-  const currentHistory = historyItems.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+      return {
+        page: 0,
+        size: 100, // 한 달치 데이터를 충분히 가져오기 위해 크게 설정
+        startDate: `${year}-${String(month).padStart(2, '0')}-01`,
+        endDate: `${year}-${String(month).padStart(2, '0')}-${lastDay}`,
+        sort: 'createdAt,desc' // 요청대로 createdAt 사용 (단, 캘린더 뷰라면 scheduledAt이 더 적절할 수 있음)
+      };
+    }
+    
+    return {
+      page: currentPage - 1,
+      size: ITEMS_PER_PAGE,
+      sort: 'createdAt,desc'
+    };
+  };
+
+  const { data: historyData, isLoading } = useMyStudyHistory(getQueryParams());
+
+  // 데이터 변환
+  const historyItems = historyData?.content?.map(mapHistoryItem) || [];
+  const totalPages = historyData?.totalPages || 1;
+  const totalElements = historyData?.totalElements || 0;
 
   if (isLoading) {
     return (
@@ -255,7 +109,7 @@ export default function StudyHistoryTab() {
 
       <div className="flex flex-col gap-300">
         <div className="font-designer-16m text-text-subtle whitespace-nowrap">
-          총 <span className="font-bold text-text-strong">{historyItems.length}</span>개의 1:1 스터디 기록이 있습니다.
+          총 <span className="font-bold text-text-strong">{totalElements}</span>개의 1:1 스터디 기록이 있습니다.
         </div>
 
         {viewMode === 'LIST' ? (
@@ -269,8 +123,8 @@ export default function StudyHistoryTab() {
             </div>
 
             <div className="divide-y divide-border-subtlest">
-              {currentHistory.length > 0 ? (
-                currentHistory.map((item) => <StudyHistoryRow key={item.id} item={item} />)
+              {historyItems.length > 0 ? (
+                historyItems.map((item) => <StudyHistoryRow key={item.id} item={item} />)
               ) : (
                 <div className="py-800 text-center text-text-subtlest flex flex-col items-center gap-200">
                   <History className="w-10 h-10 opacity-20" />
@@ -280,7 +134,11 @@ export default function StudyHistoryTab() {
             </div>
           </div>
         ) : (
-          <StudyCalendar items={historyItems} />
+          <StudyCalendar 
+            items={historyItems} 
+            currentDate={currentCalendarDate}
+            onDateChange={setCurrentCalendarDate}
+          />
         )}
 
         {viewMode === 'LIST' && totalPages > 1 && (
@@ -308,5 +166,3 @@ export default function StudyHistoryTab() {
     </div>
   );
 }
-
-
