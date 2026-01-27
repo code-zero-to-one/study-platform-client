@@ -1,12 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CheckCircle, Clock } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { StudyHistoryItem } from '@/types/study-history';
 
 export const StudyCalendar = ({ items }: { items: StudyHistoryItem[] }) => {
   const [currentDate, setCurrentDate] = useState(new Date(2025, 0, 1));
+  const [activeTooltip, setActiveTooltip] = useState<{ id: number; text: string; rect: DOMRect } | null>(null);
 
   const getDaysInMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const getFirstDayOfMonth = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1).getDay();
@@ -39,22 +40,35 @@ export const StudyCalendar = ({ items }: { items: StudyHistoryItem[] }) => {
       <div
         key={day}
         className={cn(
-          'min-h-[80px] p-100 border border-border-subtlest bg-background-default hover:bg-fill-neutral-subtle-hover transition-colors relative',
+          'min-h-[120px] p-100 border border-border-subtlest bg-background-default hover:bg-fill-neutral-subtle-hover transition-colors relative hover:z-10',
           hasItems && 'bg-fill-neutral-subtle-default',
         )}
       >
         <div className="font-designer-14b text-text-strong mb-100">{day}</div>
-        {dayItems.map((item) => (
+        {dayItems.map((item, itemIndex) => (
           <div
             key={item.id}
+            onClick={() => item.link && window.open(item.link, '_blank')}
+            onMouseEnter={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              setActiveTooltip({ id: item.id, text: item.subject, rect });
+            }}
+            onMouseLeave={() => {
+              setActiveTooltip(null);
+            }}
             className={cn(
-              'text-[10px] px-50 py-25 rounded-25 mb-25 truncate font-medium',
-              item.attendance === 'ATTENDED' && 'bg-fill-success-subtle-default text-text-success',
-              item.attendance === 'NOT_STARTED' && 'bg-fill-warning-subtle-default text-text-warning',
+              'relative flex items-center gap-50 text-[11px] px-100 py-50 rounded-50 mb-50 truncate font-medium border cursor-pointer transition-all hover:z-20',
+              item.attendance === 'ATTENDED' 
+                ? 'bg-fill-success-subtle-default border-transparent text-text-success hover:bg-fill-success-default'
+                : 'bg-fill-warning-subtle-default border-transparent text-text-warning hover:bg-fill-warning-default',
             )}
-            title={`${item.subject} - ${item.role === 'INTERVIEWER' ? '면접자' : '답변자'}`}
           >
-            {item.role === 'INTERVIEWER' ? '🎤' : '🙋'} {item.subject.slice(0, 8)}...
+            {item.attendance === 'ATTENDED' ? (
+              <CheckCircle className="w-3 h-3 shrink-0" />
+            ) : (
+              <Clock className="w-3 h-3 shrink-0" />
+            )}
+            <span className="truncate pointer-events-none">{item.subject}</span>
           </div>
         ))}
         {dayItems.length > 2 && (
@@ -65,8 +79,8 @@ export const StudyCalendar = ({ items }: { items: StudyHistoryItem[] }) => {
   };
 
   return (
-    <div className="bg-background-default rounded-200 border border-border-subtle overflow-hidden shadow-1">
-      <div className="flex items-center justify-between p-400 border-b border-border-subtle bg-background-alternative/50">
+    <div className="bg-background-default rounded-200 border border-border-subtle shadow-1">
+      <div className="flex items-center justify-between p-400 border-b border-border-subtle bg-background-alternative/50 rounded-t-200">
         <button onClick={() => setCurrentDate(new Date(year, month - 1, 1))} className="p-100 hover:bg-fill-neutral-subtle-hover rounded-100 transition-colors">
           <ChevronLeft className="w-5 h-5 text-text-subtle" />
         </button>
@@ -97,6 +111,23 @@ export const StudyCalendar = ({ items }: { items: StudyHistoryItem[] }) => {
         ))}
         {Array.from({ length: daysInMonth }, (_, i) => renderCalendarDay(i + 1))}
       </div>
+
+      {/* Global Tooltip Portal (Fixed Position) */}
+      {activeTooltip && (
+        <div 
+          className="fixed z-[9999] bg-fill-neutral-strong-default text-text-inverse px-200 py-150 rounded-100 text-[12px] font-medium leading-relaxed shadow-3 border border-border-subtle break-words pointer-events-none max-w-[240px]"
+          style={{
+            top: activeTooltip.rect.top - 8,
+            left: activeTooltip.rect.left + (activeTooltip.rect.width / 2),
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
+          {/* Arrow (Bottom) */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-fill-neutral-strong-default"></div>
+          
+          {activeTooltip.text}
+        </div>
+      )}
     </div>
   );
 };

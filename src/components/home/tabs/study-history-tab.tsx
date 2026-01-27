@@ -16,6 +16,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'ATTENDED',
     link: 'https://notion.so',
     status: 'COMPLETED',
+    partner: {
+      id: 101,
+      name: '김서준',
+      profileImage: null
+    }
   },
   {
     id: 2,
@@ -25,6 +30,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'ATTENDED',
     link: 'https://github.com',
     status: 'COMPLETED',
+    partner: {
+      id: 102,
+      name: '이지은',
+      profileImage: null
+    }
   },
   {
     id: 3,
@@ -34,6 +44,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'NOT_STARTED',
     link: null,
     status: 'COMPLETED',
+    partner: {
+      id: 103,
+      name: '박지민',
+      profileImage: null
+    }
   },
   {
     id: 4,
@@ -43,6 +58,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'NOT_STARTED',
     link: null,
     status: 'IN_PROGRESS',
+    partner: {
+      id: 104,
+      name: '최민수',
+      profileImage: null
+    }
   },
   {
     id: 5,
@@ -52,6 +72,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'ATTENDED',
     link: 'https://velog.io',
     status: 'COMPLETED',
+    partner: {
+      id: 105,
+      name: '정수빈',
+      profileImage: null
+    }
   },
   {
     id: 6,
@@ -61,6 +86,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'ATTENDED',
     link: 'https://notion.so',
     status: 'COMPLETED',
+    partner: {
+      id: 106,
+      name: '강다니엘',
+      profileImage: null
+    }
   },
   {
     id: 7,
@@ -70,6 +100,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'NOT_STARTED',
     link: null,
     status: 'COMPLETED',
+    partner: {
+      id: 107,
+      name: '윤하은',
+      profileImage: null
+    }
   },
   {
     id: 8,
@@ -79,6 +114,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'ATTENDED',
     link: 'https://github.com',
     status: 'COMPLETED',
+    partner: {
+      id: 108,
+      name: '오세훈',
+      profileImage: null
+    }
   },
   {
     id: 9,
@@ -88,6 +128,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'NOT_STARTED',
     link: null,
     status: 'COMPLETED',
+    partner: {
+      id: 109,
+      name: '임재범',
+      profileImage: null
+    }
   },
   {
     id: 10,
@@ -97,6 +142,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'ATTENDED',
     link: 'https://velog.io',
     status: 'COMPLETED',
+    partner: {
+      id: 110,
+      name: '송민호',
+      profileImage: null
+    }
   },
   {
     id: 11,
@@ -106,6 +156,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'ATTENDED',
     link: 'https://notion.so',
     status: 'COMPLETED',
+    partner: {
+      id: 111,
+      name: '김태리',
+      profileImage: null
+    }
   },
   {
     id: 12,
@@ -115,6 +170,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: 'NOT_STARTED',
     link: null,
     status: 'COMPLETED',
+    partner: {
+      id: 112,
+      name: '박서준',
+      profileImage: null
+    }
   },
   ...Array.from({ length: 10 }, (_, i) => ({
     id: 20 + i,
@@ -124,6 +184,11 @@ const MOCK_HISTORY_DATA: StudyHistoryItem[] = [
     attendance: Math.random() > 0.3 ? 'ATTENDED' : 'NOT_STARTED' as const,
     link: Math.random() > 0.5 ? 'https://google.com' : null,
     status: 'COMPLETED' as const,
+    partner: {
+      id: 200 + i,
+      name: `스터디원${i + 1}`,
+      profileImage: null
+    }
   })),
 ];
 
@@ -198,6 +263,7 @@ export default function StudyHistoryTab() {
             <div className="flex gap-400 px-400 py-250 bg-background-alternative/80 border-b border-border-subtlest font-designer-13b text-text-subtle uppercase tracking-wider">
               <div className="w-[150px] shrink-0">날짜</div>
               <div className="flex-1 min-w-0">오늘의 주제</div>
+              <div className="w-[150px] shrink-0">상대방</div>
               <div className="w-[120px] shrink-0 text-center">내 역할</div>
               <div className="w-[100px] shrink-0 text-center">출석</div>
             </div>

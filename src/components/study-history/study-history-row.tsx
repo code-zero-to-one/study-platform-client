@@ -3,6 +3,8 @@
 import { Calendar, Mic, User, CheckCircle, Clock } from 'lucide-react';
 import { StudyHistoryItem } from '@/types/study-history';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { ProfileAvatar } from '@/components/ui/profile-avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 
 export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
   return (
@@ -22,6 +24,27 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
       {/* 주제 */}
       <div className="flex-1 min-w-0 text-text-strong font-bold truncate pr-200" title={item.subject}>
         {item.subject}
+      </div>
+
+      {/* 상대방 */}
+      <div className="w-[150px] shrink-0 flex items-center gap-100">
+        <UserProfileModal
+          memberId={item.partner.id}
+          trigger={
+            <div 
+              className="flex items-center gap-100 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={(e) => e.stopPropagation()} // 행 클릭 이벤트(링크 이동) 방지
+            >
+              <ProfileAvatar 
+                src={item.partner.profileImage || undefined}
+                alt={item.partner.name}
+                size="sm"
+                className="w-8 h-8"
+              />
+              <span className="text-text-default font-medium truncate">{item.partner.name}</span>
+            </div>
+          }
+        />
       </div>
 
       {/* 역할 */}

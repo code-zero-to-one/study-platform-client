@@ -8,6 +8,9 @@ export interface StudyHistoryItem {
   attendance: 'ATTENDED' | 'NOT_STARTED';
   link: string | null;
   status: 'COMPLETED' | 'IN_PROGRESS';
+  partner: {
+    id: number;
+    name: string;
+    profileImage: string | null;
+  };
 }
-
-
