@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { 
   LibraryBig,
@@ -15,118 +15,10 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-
-// ----------------------------------------------------------------------
-// Types & Mock Data (Library)
-// ----------------------------------------------------------------------
-
-type CurationLevel = 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
-
-interface LibraryItem {
-  id: number;
-  title: string;
-  description: string;
-  author: string;
-  date: string;
-  views: number;
-  likes: number;
-  link: string;
-  isLiked: boolean;
-  level: CurationLevel;
-  tags: string[];
-  isBookmarked: boolean;
-  isRecommended?: boolean;
-  isHidden?: boolean;
-}
-
-const MOCK_LIBRARY_DATA: LibraryItem[] = [
-  {
-    id: 1,
-    title: '2025년 상반기 백엔드 개발자 면접 질문 모음 (네카라쿠배)',
-    description: '네이버, 카카오, 라인, 쿠팡, 배민 등 주요 기업의 실제 면접 질문을 분석했습니다.',
-    author: '제로원 운영진',
-    date: '2025.01.10',
-    views: 1250,
-    likes: 342,
-    link: 'https://velog.io',
-    isLiked: true,
-    level: 'INTERMEDIATE',
-    tags: ['면접', '백엔드', '취업'],
-    isBookmarked: false,
-    isRecommended: true,
-  },
-  {
-    id: 2,
-    title: '프론트엔드 성능 최적화: React 19 도입 가이드',
-    description: '최신 React 19의 성능 개선 포인트와 마이그레이션 전략을 소개합니다.',
-    author: 'TechLead_Kim',
-    date: '2025.01.12',
-    views: 890,
-    likes: 120,
-    link: 'https://medium.com',
-    isLiked: false,
-    level: 'ADVANCED',
-    tags: ['React', '성능', '최적화'],
-    isBookmarked: true,
-  },
-  {
-    id: 3,
-    title: '비전공자가 6개월 만에 개발자로 취업한 현실적인 공부법',
-    description: '비전공 출신이 실제로 경험한 학습 로드맵과 포트폴리오 전략을 공유합니다.',
-    author: 'NewDeveloper',
-    date: '2025.01.05',
-    views: 2100,
-    likes: 560,
-    link: 'https://brunch.co.kr',
-    isLiked: true,
-    level: 'BEGINNER',
-    tags: ['비전공', '취업', '학습법'],
-    isBookmarked: false,
-    isRecommended: true,
-  },
-  {
-    id: 4,
-    title: 'CS 기초: 운영체제와 네트워크 핵심 요약 (PDF 다운로드)',
-    description: '면접 대비를 위한 운영체제와 네트워크 핵심 개념 정리 자료입니다.',
-    author: 'CS_Master',
-    date: '2024.12.28',
-    views: 1500,
-    likes: 410,
-    link: 'https://tistory.com',
-    isLiked: false,
-    level: 'INTERMEDIATE',
-    tags: ['CS', '운영체제', '네트워크'],
-    isBookmarked: false,
-  },
-  {
-    id: 5,
-    title: '주니어 개발자를 위한 이력서 첨삭 가이드 101',
-    description: '합격하는 개발자 이력서 작성법과 실제 첨삭 사례를 소개합니다.',
-    author: 'HR_Manager',
-    date: '2025.01.15',
-    views: 750,
-    likes: 230,
-    link: 'https://linkedin.com',
-    isLiked: false,
-    level: 'BEGINNER',
-    tags: ['이력서', '취업', '포트폴리오'],
-    isBookmarked: true,
-  },
-  ...Array.from({ length: 10 }, (_, i): LibraryItem => ({
-    id: 10 + i,
-    title: `개발자 면접 대비 - 자료구조 핵심 질문 ${i + 1}탄`,
-    description: '자주 출제되는 자료구조 면접 질문과 모범 답변을 정리했습니다.',
-    author: 'Admin',
-    date: `2024.12.${20 - i}`,
-    views: 100 + i * 10,
-    likes: 10 + i,
-    link: 'https://google.com',
-    isLiked: Math.random() > 0.5,
-    level: i % 3 === 0 ? 'BEGINNER' : i % 3 === 1 ? 'INTERMEDIATE' : 'ADVANCED',
-    tags: ['면접', '자료구조', 'CS'],
-    isBookmarked: Math.random() > 0.7,
-  })),
-];
+import { ArchiveItem } from '@/types/archive';
+import { useArchive } from '@/features/archive/model/use-archive-query';
+import { useToggleArchiveBookmark } from '@/features/archive/model/use-bookmark-mutation';
+import { useDebounce } from '@/hooks/use-debounce'; // Assuming this hook exists, or I will create it/use raw
 
 // ----------------------------------------------------------------------
 // Components
@@ -140,21 +32,24 @@ const LibraryCard = ({
   onHide,
   isAdmin,
 }: { 
-  item: LibraryItem;
+  item: ArchiveItem;
   onLike: (e: React.MouseEvent, id: number) => void;
   onView: (link: string) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
   onHide?: (e: React.MouseEvent, id: number) => void;
   isAdmin?: boolean;
 }) => {
+  // 임시: isHidden은 API 응답에 없으므로 optional 처리
+  const isHidden = (item as any).isHidden;
+
   return (
     <div className={cn(
       "flex h-full flex-col gap-250 rounded-200 border border-border-subtle bg-background-default p-400 shadow-1 transition-all hover:-translate-y-50 hover:shadow-2",
-      item.isHidden && "opacity-50"
+      isHidden && "opacity-50"
     )}>
       <div className="flex items-start justify-between gap-200">
         <div className="flex flex-wrap items-center gap-100">
-          {item.isHidden && (
+          {isHidden && (
             <span className="rounded-100 bg-fill-neutral-subtle-default px-200 py-50 font-designer-12m text-text-subtle">
               숨김됨
             </span>
@@ -166,7 +61,7 @@ const LibraryCard = ({
               onClick={(e) => onHide(e, item.id)}
               className="flex items-center gap-50 rounded-100 px-150 py-50 font-designer-12m transition-colors bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover"
             >
-              {item.isHidden ? '보이기' : '숨기기'}
+              {isHidden ? '보이기' : '숨기기'}
             </button>
           )}
           <button
@@ -231,19 +126,22 @@ const LibraryRow = ({
   onHide,
   isAdmin,
 }: { 
-  item: LibraryItem;
+  item: ArchiveItem;
   onLike: (e: React.MouseEvent, id: number) => void;
   onView: (link: string) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
   onHide?: (e: React.MouseEvent, id: number) => void;
   isAdmin?: boolean;
 }) => {
+  // 임시: isHidden은 API 응답에 없으므로 optional 처리
+  const isHidden = (item as any).isHidden;
+
   return (
     <div 
       onClick={() => onView(item.link)}
       className={cn(
         "group flex items-center gap-300 px-300 py-200 border-b border-border-subtlest hover:bg-fill-neutral-subtle-hover transition-colors cursor-pointer last:border-0",
-        item.isHidden && "opacity-50"
+        isHidden && "opacity-50"
       )}
     >
       {/* Title Area */}
@@ -252,7 +150,7 @@ const LibraryRow = ({
           <h3 className="font-designer-15b text-text-strong group-hover:text-text-information truncate transition-colors">
             {item.title}
           </h3>
-          {item.isHidden && (
+          {isHidden && (
             <span className="shrink-0 rounded-100 bg-fill-neutral-subtle-default px-150 py-25 font-designer-11m text-text-subtle">
               숨김됨
             </span>
@@ -275,7 +173,7 @@ const LibraryRow = ({
             }}
             className="flex items-center gap-25 rounded-100 px-100 py-50 font-designer-11m transition-colors bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover"
           >
-            {item.isHidden ? '보이기' : '숨기기'}
+            {isHidden ? '보이기' : '숨기기'}
           </button>
         )}
         <button
@@ -321,12 +219,11 @@ const LibraryRow = ({
 // ----------------------------------------------------------------------
 
 export default function ArchiveTab() {
-  const [libraryItems, setLibraryItems] = useState<LibraryItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [librarySort, setLibrarySort] = useState<'LATEST' | 'VIEWS' | 'LIKES'>('LATEST');
   const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>('GRID');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
   
   // New States
   const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
@@ -334,32 +231,25 @@ export default function ArchiveTab() {
 
   const ITEMS_PER_PAGE = viewMode === 'LIST' ? 15 : 10;
 
-  // Data Loading Simulation
-  useEffect(() => {
-    setIsLoading(true);
-    setCurrentPage(1);
+  // React Query Hook
+  const { data: archiveData, isLoading } = useArchive({
+    page: currentPage - 1,
+    size: ITEMS_PER_PAGE,
+    sort: librarySort,
+    search: debouncedSearchTerm || undefined,
+    bookmarkedOnly: showBookmarkedOnly || undefined,
+  });
 
-    const timer = setTimeout(() => {
-      setLibraryItems(MOCK_LIBRARY_DATA);
-      setIsLoading(false);
-    }, 400);
+  const { mutate: toggleBookmark } = useToggleArchiveBookmark();
 
-    return () => clearTimeout(timer);
-  }, []);
+  const libraryItems = archiveData?.content || [];
+  const totalPages = archiveData?.totalPages || 1;
 
   // Handler for Likes
   const handleLike = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    setLibraryItems(prev => prev.map(item => {
-      if (item.id === id) {
-        return {
-          ...item,
-          isLiked: !item.isLiked,
-          likes: item.isLiked ? item.likes - 1 : item.likes + 1
-        };
-      }
-      return item;
-    }));
+    // TODO: Implement Like Mutation
+    alert('좋아요 기능은 아직 개발 중입니다.');
   };
 
   const handleView = (link: string) => {
@@ -368,45 +258,14 @@ export default function ArchiveTab() {
 
   const handleLibraryBookmark = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    setLibraryItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, isBookmarked: !item.isBookmarked } : item,
-      ),
-    );
+    toggleBookmark(id);
   };
 
   const handleHide = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    setLibraryItems(prev =>
-      prev.map(item =>
-        item.id === id ? { ...item, isHidden: !item.isHidden } : item,
-      ),
-    );
+    // TODO: Implement Hide Mutation (Admin Only)
+    console.log('Hide', id);
   };
-
-  // Filtering Logic
-  const filteredLibrary = libraryItems.filter((item) => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesBookmark = showBookmarkedOnly ? item.isBookmarked : true;
-    const matchesHidden = isAdmin ? true : !item.isHidden;
-
-    return matchesSearch && matchesBookmark && matchesHidden;
-  });
-
-  const sortedLibrary = [...filteredLibrary].sort((a, b) => {
-    if (librarySort === 'VIEWS') return b.views - a.views;
-    if (librarySort === 'LIKES') return b.likes - a.likes;
-    return new Date(b.date).getTime() - new Date(a.date).getTime();
-  });
-
-  // Pagination Logic
-  const totalItems = sortedLibrary.length;
-  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
-  const currentLibrary = sortedLibrary.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
-  );
 
   return (
     <div className="flex flex-col gap-400">
@@ -525,8 +384,8 @@ export default function ArchiveTab() {
           {viewMode === 'GRID' ? (
             /* Grid View */
             <div className="grid grid-cols-1 md:grid-cols-2 gap-300">
-              {currentLibrary.length > 0 ? (
-                currentLibrary.map((item) => (
+              {libraryItems.length > 0 ? (
+                libraryItems.map((item) => (
                   <LibraryCard 
                     key={item.id} 
                     item={item} 
@@ -547,9 +406,9 @@ export default function ArchiveTab() {
           ) : (
             /* List View */
             <div className="bg-background-default rounded-200 border border-border-subtle overflow-hidden">
-              {currentLibrary.length > 0 ? (
+              {libraryItems.length > 0 ? (
                 <div className="divide-y divide-border-subtlest">
-                  {currentLibrary.map((item) => (
+                  {libraryItems.map((item) => (
                     <LibraryRow 
                       key={item.id} 
                       item={item} 
