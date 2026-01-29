@@ -3,6 +3,7 @@ import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.ser
 import MyProfileCard from '@/entities/user/ui/my-profile-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { getServerCookie } from '@/utils/server-cookie';
+import { isNumeric } from '@/utils/validation';
 import Calendar from '@/widgets/home/calendar';
 import FeedbackLink from '@/widgets/home/feedback-link';
 import TodoList from '@/widgets/home/todo-list';
@@ -11,7 +12,19 @@ export default async function Sidebar() {
   const memberIdStr = await getServerCookie('memberId');
   const memberId = Number(memberIdStr);
 
-  const userProfile = await getUserProfileInServer(memberId);
+  console.log('memberId', memberId);
+  console.log('memberIdStr', memberIdStr);
+  // 비회원 접근시 사이드바 빈 페이지 반환
+  let userProfile = null;
+  try {
+    if (!memberIdStr || !isNumeric(memberIdStr)) {
+      return null;
+    }
+
+    userProfile = await getUserProfileInServer(memberId);
+  } catch (error) {
+    console.error(error);
+  }
 
   return (
     <aside className="flex w-[335px] flex-col gap-300">

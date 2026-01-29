@@ -15,6 +15,7 @@ import {
   getKoreaDisplayMonday,
 } from '@/utils/time';
 import StudyListSection from '../../../../widgets/home/study-list-table';
+import { useAuth } from '@/hooks/common/use-auth';
 
 // 스터디 주차 구하는 함수
 function getWeekly(date: Date): { month: number; week: number } {
@@ -62,12 +63,19 @@ function getWeekly(date: Date): { month: number; week: number } {
 
 export default function StudyCard() {
   const [selectedDate, setSelectedDate] = useState(new Date());
-
+  
   const studyDate = formatKoreaYMD(selectedDate);
 
+  // 로그인 여부 확인
+  const { data: authData } = useAuth();
+  const isLoggedIn = !!authData?.memberId;
+
+  // 공개 API
   const { data: status } = useStudyStatusQuery();
 
-  const { data: participationData } = useWeeklyParticipation(studyDate);
+  // 인증 API (로그인 한 사용자만 호출)
+  const { data: participationData } = useWeeklyParticipation(studyDate, isLoggedIn,);
+
   const isParticipate = participationData?.isParticipate ?? false;
 
   const displayMonday = useMemo(
