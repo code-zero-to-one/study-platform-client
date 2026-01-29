@@ -204,7 +204,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
           handleDelete(data.threadId, data.commentId);
         }}
       />
-      <div className="flex flex-1 items-start gap-150">
+      <div className="flex min-w-0 flex-1 items-start gap-150">
         <UserProfileModal
           memberId={data.authorId}
           trigger={
@@ -225,7 +225,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
             }}
           />
         ) : (
-          <div className="flex flex-1 flex-col gap-100">
+          <div className="flex min-w-0 flex-1 flex-col gap-100">
             <div className="flex items-center gap-100">
               <span className="font-designer-15b">{data.authorName}</span>
               {data.isLeader && (
