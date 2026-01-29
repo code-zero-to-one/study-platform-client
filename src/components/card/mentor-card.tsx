@@ -18,14 +18,13 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface Mentor {
   id: number;
-  name: string;
+  // name: string;
   nickname: string;
   imageUrl?: string;
   field: string;
   keywords: string[];
   description: string;
   notionUrl: string;
-  googleFormUrl: string;
   availableMethods: {
     chat: boolean; // 채팅상담
     call: boolean; // 전화/온라인 상담
@@ -182,7 +181,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
           className="w-full"
           onClick={handleApplyClick}
         >
-          멘토에게 도움 요청
+          도움 요청
         </Button>
       </div>
 
