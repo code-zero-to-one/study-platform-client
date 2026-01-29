@@ -225,7 +225,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
             }}
           />
         ) : (
-          <div className="flex min-w-0 flex-1 flex-col gap-100">
+          <div className="flex flex-1 flex-col gap-100">
             <div className="flex items-center gap-100">
               <span className="font-designer-15b">{data.authorName}</span>
               {data.isLeader && (
