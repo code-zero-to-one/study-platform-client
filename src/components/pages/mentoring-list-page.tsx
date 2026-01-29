@@ -18,7 +18,7 @@ export default function MentoringListPage() {
   const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false);
 
   return (
-    <div className="mx-auto w-[1280px] py-600">
+    <div className="mx-auto w-[1280px] px-400 py-600">
         {/* 배너 */}
         <div className="mb-600">
           <Banner />

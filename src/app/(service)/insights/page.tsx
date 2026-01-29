@@ -6,7 +6,6 @@ import {
   fetchArticles,
   fetchCategories,
 } from '@/api/strapi/api/fetch-articles';
-import PageContainer from '@/components/layout/page-container';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import { getServerCookie } from '@/utils/server-cookie';
 import Banner from '@/widgets/home/banner';
@@ -59,7 +58,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const articles = articlesRes.data ?? [];
 
   return (
-    <PageContainer className="flex gap-600 py-600">
+    <div className="mx-auto w-[1280px] px-400 py-600">
       <div className="flex flex-1 flex-col gap-500">
         {/* 배너 */}
         <div className="mb-600">
@@ -149,6 +148,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </ul>
         )}
       </div>
-    </PageContainer>
+    </div>
   );
 }

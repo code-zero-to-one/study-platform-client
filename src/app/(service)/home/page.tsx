@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import StudyCard from '@/features/study/schedule/ui/study-card';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import Banner from '@/widgets/home/banner';
-import Sidebar from '@/widgets/home/sidebar';
+// import Sidebar from '@/widgets/home/sidebar';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: '홈 - ZERO-ONE',
@@ -15,15 +15,15 @@ export const metadata: Metadata = generateSEOMetadata({
 
 export default async function Home() {
   return (
-    <div className="mx-auto flex w-[1496px] gap-600 px-600 py-600">
+    <div className="mx-auto flex w-[1280px] px-400 py-600">
       <div className="flex flex-1 flex-col gap-500">
         <Banner />
         <StudyCard />
       </div>
-
-      <aside className="w-[335px] shrink-0">
+      {/* 사이드바 제거 결정 (추후 재도입 가능성있음) */}
+      {/* <aside className="w-[335px] shrink-0">
         <Sidebar />
-      </aside>
+      </aside> */}
     </div>
   );
 }
