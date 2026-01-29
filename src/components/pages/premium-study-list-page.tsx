@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Plus } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
@@ -19,6 +20,11 @@ import Button from '@/components/ui/button';
 import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
 import { useAuth } from '@/hooks/common/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
+
+// Carousel이 클라이언트 전용이므로 dynamic import로 로드
+const Banner = dynamic(() => import('@/widgets/home/banner'), {
+  ssr: false,
+});
 
 const PAGE_SIZE = 15;
 
@@ -147,6 +153,11 @@ export default function PremiumStudyListPage() {
 
   return (
     <div className="mx-auto w-[1280px] py-600">
+      {/* 배너 */}
+      <div className="mb-600">
+        <Banner />
+      </div>
+
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">

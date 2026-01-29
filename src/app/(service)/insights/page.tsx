@@ -9,7 +9,7 @@ import {
 import PageContainer from '@/components/layout/page-container';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import { getServerCookie } from '@/utils/server-cookie';
-import Sidebar from '@/widgets/home/sidebar';
+import Banner from '@/widgets/home/banner';
 
 export const revalidate = 60;
 
@@ -61,6 +61,11 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   return (
     <PageContainer className="flex gap-600 py-600">
       <div className="flex flex-1 flex-col gap-500">
+        {/* 배너 */}
+        <div className="mb-600">
+          <Banner />
+        </div>
+
         <div className="flex justify-between">
           <span className="font-designer-28b text-[#181D27]">
             ZERO-ONE 인사이트
@@ -144,7 +149,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </ul>
         )}
       </div>
-      {isLoggedIn && <Sidebar />}
     </PageContainer>
   );
 }
