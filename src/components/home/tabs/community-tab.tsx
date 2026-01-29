@@ -43,7 +43,7 @@ export default function CommunityTab() {
         title: data.title,
         description: data.description || '',
         options: data.options.map((opt) => opt.label),
-        endsAt: data.endsAt,
+        endsAt: data.endsAt && data.endsAt.trim() !== '' ? data.endsAt : undefined,
         tags: data.tags || [],
       };
 

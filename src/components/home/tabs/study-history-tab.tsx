@@ -120,6 +120,7 @@ export default function StudyHistoryTab() {
               <div className="w-[150px] shrink-0">상대방</div>
               <div className="w-[120px] shrink-0 text-center">내 역할</div>
               <div className="w-[100px] shrink-0 text-center">출석</div>
+              <div className="w-[80px] shrink-0 text-center">링크</div>
             </div>
 
             <div className="divide-y divide-border-subtlest">

@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Mic, User, CheckCircle, Clock } from 'lucide-react';
+import { Calendar, Mic, User, CheckCircle, Clock, ExternalLink } from 'lucide-react';
 import { StudyHistoryItem } from '@/types/study-history';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { ProfileAvatar } from '@/components/ui/profile-avatar';
@@ -9,11 +9,7 @@ import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
   return (
     <div 
-      onClick={() => item.link && window.open(item.link, '_blank')}
-      className={cn(
-        "flex gap-400 px-400 py-300 border-b border-border-subtlest transition-colors items-center last:border-0 text-designer-14m",
-        item.link ? "cursor-pointer hover:bg-fill-neutral-subtle-hover" : ""
-      )}
+      className="flex gap-400 px-400 py-300 border-b border-border-subtlest transition-colors items-center last:border-0 text-designer-14m"
     >
       {/* 날짜 */}
       <div className="w-[150px] shrink-0 text-text-subtle font-medium flex items-center gap-50">
@@ -74,6 +70,26 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
             <Clock className="w-4 h-4" />
             <span className="text-[10px] font-bold">미진행</span>
           </span>
+        )}
+      </div>
+
+      {/* 링크 */}
+      <div className="w-[80px] shrink-0 flex justify-center">
+        {item.link ? (
+          <a
+            href={item.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center p-100 text-text-subtle hover:text-text-strong transition-all group"
+            title="참고 자료 링크"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink className="h-5 w-5 transition-transform group-hover:scale-125" />
+          </a>
+        ) : (
+          <div className="flex items-center justify-center p-100 text-text-subtlest cursor-not-allowed">
+            <ExternalLink className="h-5 w-5 opacity-20" />
+          </div>
         )}
       </div>
     </div>

@@ -103,7 +103,12 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
   const handleFormSubmit = async (data: VotingCreateFormData) => {
     setIsSubmitting(true);
     try {
-      await onSubmit(data);
+      // endsAt이 빈 문자열이면 undefined로 변환
+      const submitData = {
+        ...data,
+        endsAt: data.endsAt && data.endsAt.trim() !== '' ? data.endsAt : undefined,
+      };
+      await onSubmit(submitData);
       reset();
       onClose();
     } catch (error) {
