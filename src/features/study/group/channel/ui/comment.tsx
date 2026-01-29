@@ -204,7 +204,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
           handleDelete(data.threadId, data.commentId);
         }}
       />
-      <div className="flex min-w-0 flex-1 items-start gap-150">
+      <div className="flex flex-1 items-start gap-150">
         <UserProfileModal
           memberId={data.authorId}
           trigger={
