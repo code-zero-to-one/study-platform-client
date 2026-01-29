@@ -237,7 +237,7 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
                 {dayjs(data.updatedAt).format('YYYY.MM.DD  HH:mm')}
               </span>
             </div>
-            <p className="font-designer-15r break-all whitespace-pre-wrap">
+            <p className="font-designer-15r wrap-anywhere whitespace-pre-wrap">
               {data.content}
             </p>
           </div>
