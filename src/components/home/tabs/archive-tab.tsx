@@ -86,12 +86,9 @@ const LibraryCard = ({
       </div>
 
       <div className="flex flex-col gap-150 mb-auto">
-        <h3 className="font-bold-h5 text-text-strong line-clamp-2">
+        <h3 className="font-bold-h4 text-text-strong line-clamp-2">
           {item.title}
         </h3>
-        <p className="font-designer-13r text-text-subtle line-clamp-2">
-          {item.description}
-        </p>
       </div>
 
       <div className="mt-auto flex items-center justify-between border-t border-border-subtle pt-300">
@@ -324,7 +321,7 @@ export default function ArchiveTab() {
             <div className="relative w-full md:w-[240px]">
               <input
                 type="text"
-                placeholder="제목, 내용으로 검색"
+                placeholder="제목으로 검색"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="h-600 w-full rounded-100 border border-border-subtle bg-background-default pl-200 pr-500 font-designer-14m outline-none focus:border-border-default focus:ring-2 focus:ring-fill-neutral-default-default transition-all"
