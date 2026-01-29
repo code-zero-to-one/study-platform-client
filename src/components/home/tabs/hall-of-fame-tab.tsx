@@ -1,48 +1,23 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { Trophy, Flame, Crown, Users, FileText, Thermometer } from 'lucide-react';
 import { ProfileAvatar } from '@/components/ui/profile-avatar';
+import { useHallOfFameQuery } from '@/features/hall-of-fame/model/use-hall-of-fame-query';
+import type { Ranker, MVPTeam } from '@/features/hall-of-fame/types';
 
 // ----------------------------------------------------------------------
-// Types & Mock Data (Hall of Fame)
+// Types & Constants
 // ----------------------------------------------------------------------
 
 type RankingType = 'ATTENDANCE' | 'STUDY_LOG' | 'SINCERITY';
 
-interface Ranker {
-  rank: number;
-  userId: number;
-  nickname: string;
-  profileImage: string | null;
-  score: number;
+interface RankerWithLabel extends Ranker {
   scoreLabel: string;
-  change?: 'up' | 'down' | 'same';
-  lastActive: string;
-  major: string;
 }
-
-interface MVPTeam {
-  id: number;
-  members: [
-    { userId: number; nickname: string; profileImage: string | null },
-    { userId: number; nickname: string; profileImage: string | null },
-  ];
-  sharedLinks: { title: string; url: string }[];
-  weekDate: string;
-}
-
-const JOBS = [
-  'IT 노베이스 - 비지니스/창업',
-  'IT 노베이스 - 업무 자동화',
-  'IT 노베이스 - 내 서비스 개발',
-  'IT 실무자 - PM/PO/기획',
-  'IT 실무자 - 프론트엔드',
-  'IT 실무자 - 백엔드',
-];
 
 const TAB_CONFIG: Record<
   RankingType,
@@ -68,52 +43,26 @@ const TAB_CONFIG: Record<
   },
 };
 
-// Mock Data Generators
-const generateMockTop5 = (type: RankingType): Ranker[] => {
-  return Array.from({ length: 5 }, (_, i) => {
-    let score = 0;
-    let scoreLabel = '';
-
-    if (type === 'ATTENDANCE') {
-      score = 150 - i * 12;
-      scoreLabel = `${score}회`;
-    } else if (type === 'STUDY_LOG') {
-      score = 85 - i * 5;
-      scoreLabel = `${score}건`;
-    } else {
-      score = parseFloat((99.5 - i * 0.5).toFixed(1));
-      scoreLabel = `${score}℃`;
-    }
-
-    return {
-      rank: i + 1,
-      userId: 100 + i,
-      nickname: `User_${100 + i}`,
-      profileImage: null as string | null,
-      score,
-      scoreLabel,
-      change: Math.random() > 0.7 ? 'up' : 'same',
-      lastActive: i < 2 ? '방금 전' : `${i * 10 + 5}분 전`,
-      major: JOBS[i % JOBS.length],
-    };
-  });
+/**
+ * 랭커 데이터에 scoreLabel 추가
+ */
+const addScoreLabel = (ranker: Ranker, type: RankingType): RankerWithLabel => {
+  let scoreLabel = '';
+  
+  if (type === 'ATTENDANCE') {
+    scoreLabel = `${ranker.score}회`;
+  } else if (type === 'STUDY_LOG') {
+    scoreLabel = `${ranker.score}건`;
+  } else {
+    // SINCERITY
+    scoreLabel = `${ranker.score}℃`;
+  }
+  
+  return {
+    ...ranker,
+    scoreLabel,
+  };
 };
-
-const generateMockMVPTeam = (): MVPTeam => ({
-  id: 1,
-  members: [
-    { userId: 201, nickname: '새벽코딩', profileImage: null },
-    { userId: 202, nickname: '알고리즘마스터', profileImage: null },
-  ],
-  sharedLinks: [
-    { title: 'useEffect 완벽 가이드', url: '#' },
-    { title: 'Next.js 13 App Router 마이그레이션 후기', url: '#' },
-    { title: '프론트엔드 성능 최적화 팁 5가지', url: '#' },
-    { title: '타입스크립트 제네릭 활용하기', url: '#' },
-    { title: '리액트 상태관리 라이브러리 비교', url: '#' },
-  ],
-  weekDate: '1월 3주차',
-});
 
 // ----------------------------------------------------------------------
 // Components
@@ -189,8 +138,10 @@ const MVPTeamCard = ({ team, className }: { team: MVPTeam; className?: string })
           <div className="flex flex-col gap-100 text-left">
             {team.sharedLinks.map((link, i) => (
               <a 
-                key={i} 
+                key={link.id} 
                 href={link.url} 
+                target="_blank"
+                rel="noopener noreferrer"
                 className="flex items-center gap-100 font-designer-13r text-text-subtle hover:text-text-information hover:underline transition-all truncate"
               >
                 <span className="w-4 h-4 flex items-center justify-center rounded-full bg-fill-neutral-subtle-default text-[10px] text-text-subtle shrink-0">
@@ -206,7 +157,7 @@ const MVPTeamCard = ({ team, className }: { team: MVPTeam; className?: string })
   );
 };
 
-const RankerListItem = ({ ranker }: { ranker: Ranker }) => {
+const RankerListItem = ({ ranker }: { ranker: RankerWithLabel }) => {
   return (
     <UserProfileModal
       memberId={ranker.userId}
@@ -247,40 +198,54 @@ const RankerListItem = ({ ranker }: { ranker: Ranker }) => {
 
 export default function HallOfFameTab() {
   const [rankingType, setRankingType] = useState<RankingType>('ATTENDANCE');
-  const [allRankers, setAllRankers] = useState<Record<RankingType, Ranker[]>>({
-    ATTENDANCE: [],
-    STUDY_LOG: [],
-    SINCERITY: [],
-  });
-  const [mvpTeam, setMvpTeam] = useState<MVPTeam | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { data, isLoading, error } = useHallOfFameQuery();
 
-  useEffect(() => {
-    // Simulate API fetch
-    const fetchData = async () => {
-      setIsLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 600)); // Delay
-      
-      setAllRankers({
-        ATTENDANCE: generateMockTop5('ATTENDANCE'),
-        STUDY_LOG: generateMockTop5('STUDY_LOG'),
-        SINCERITY: generateMockTop5('SINCERITY'),
-      });
-      setMvpTeam(generateMockMVPTeam());
-      
-      setIsLoading(false);
+  // 랭킹 데이터 변환 및 scoreLabel 추가
+  const allRankers = useMemo(() => {
+    if (!data) {
+      return {
+        ATTENDANCE: [] as RankerWithLabel[],
+        STUDY_LOG: [] as RankerWithLabel[],
+        SINCERITY: [] as RankerWithLabel[],
+      };
+    }
+
+    return {
+      ATTENDANCE: data.rankings.attendanceRankings.map((r) =>
+        addScoreLabel(r, 'ATTENDANCE')
+      ),
+      STUDY_LOG: data.rankings.studyLogRankings.map((r) =>
+        addScoreLabel(r, 'STUDY_LOG')
+      ),
+      SINCERITY: data.rankings.sincerityRankings.map((r) =>
+        addScoreLabel(r, 'SINCERITY')
+      ),
     };
-    fetchData();
-  }, []);
+  }, [data]);
 
   const currentRankers = allRankers[rankingType];
+  const baseDate = data?.rankings.baseDate
+    ? new Date(data.rankings.baseDate).toLocaleDateString('ko-KR')
+    : new Date().toLocaleDateString('ko-KR');
 
   if (isLoading) {
     return (
       <div className="w-full h-[400px] flex items-center justify-center">
         <div className="animate-pulse flex flex-col items-center gap-200 text-text-subtle">
-           <div className="w-8 h-8 rounded-full border-2 border-current border-t-transparent animate-spin" />
-           <p className="font-designer-14m">명예의 전당을 불러오고 있습니다...</p>
+          <div className="w-8 h-8 rounded-full border-2 border-current border-t-transparent animate-spin" />
+          <p className="font-designer-14m">명예의 전당을 불러오고 있습니다...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="w-full h-[400px] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-200 text-text-subtle">
+          <p className="font-designer-14m text-text-error">
+            명예의 전당 정보를 불러오는 중 오류가 발생했습니다.
+          </p>
         </div>
       </div>
     );
@@ -312,7 +277,7 @@ export default function HallOfFameTab() {
                  {TAB_CONFIG[rankingType].label} TOP 5
                </h3>
                <span className="font-designer-13r text-text-subtlest mt-50">
-                 {new Date().toLocaleDateString()} 기준
+                 {baseDate} 기준
                </span>
              </div>
 
@@ -338,9 +303,17 @@ export default function HallOfFameTab() {
           </div>
           
           <div className="flex flex-col gap-150">
-            {currentRankers.map((ranker) => (
-              <RankerListItem key={ranker.userId} ranker={ranker} />
-            ))}
+            {currentRankers.length > 0 ? (
+              currentRankers.map((ranker) => (
+                <RankerListItem key={ranker.userId} ranker={ranker} />
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-[400px] bg-background-default border border-border-subtle rounded-200">
+                <p className="font-designer-14m text-text-subtle">
+                  랭킹이 없습니다.
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -351,7 +324,15 @@ export default function HallOfFameTab() {
              저번 주 스터디 MVP 팀
           </h3>
 
-          {mvpTeam && <MVPTeamCard team={mvpTeam} className="flex-1" />}
+          {data?.mvpTeam ? (
+            <MVPTeamCard team={data.mvpTeam} className="flex-1" />
+          ) : (
+            <div className="flex items-center justify-center h-[400px] bg-background-default border border-border-subtle rounded-200">
+              <p className="font-designer-14m text-text-subtle">
+                이번 주 MVP 팀이 없습니다.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
