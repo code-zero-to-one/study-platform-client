@@ -1,9 +1,8 @@
 import { Metadata } from 'next';
+import StartStudyButton from '@/components/home/start-study-button';
 import StudyCard from '@/features/study/schedule/ui/study-card';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import Banner from '@/widgets/home/banner';
-
-import StartStudyButton from '@/components/home/start-study-button';
 import FeedbackLink from '@/widgets/home/feedback-link';
 
 export const metadata: Metadata = generateSEOMetadata({

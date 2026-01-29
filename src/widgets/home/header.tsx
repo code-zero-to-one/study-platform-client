@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import HeaderNav from '@/components/layout/header-nav';
 import NotificationDropdown from '@/components/modals/notification-dropdown';
 import Button from '@/components/ui/button';
@@ -8,7 +9,6 @@ import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
 import LoginModal from '@/features/auth/ui/login-modal';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
-import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');

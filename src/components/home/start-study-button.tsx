@@ -1,9 +1,9 @@
 'use client';
 
 import Image from 'next/image';
+import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { useAuth } from '@/hooks/common/use-auth';
-import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 
 export default function StartStudyButton() {
   const { data: authData } = useAuth();
@@ -20,7 +20,7 @@ export default function StartStudyButton() {
     <StartStudyModal
       memberId={memberId}
       trigger={
-        <button className="bg-background-alternative rounded-100 flex items-center justify-between px-250 py-300 transition-colors hover:bg-background-alternative-hover">
+        <button className="bg-background-alternative rounded-100 hover:bg-background-alternative-hover flex items-center justify-between px-250 py-300 transition-colors">
           <p className="flex flex-col items-start gap-50">
             <span className="font-designer-15b text-text-default">
               CS 스터디를 시작해 보세요!
@@ -40,4 +40,3 @@ export default function StartStudyButton() {
     />
   );
 }
-

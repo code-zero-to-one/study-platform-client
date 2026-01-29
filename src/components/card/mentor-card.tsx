@@ -1,7 +1,5 @@
 'use client';
 
-import { useState } from 'react';
-import Image from 'next/image';
 import {
   ExternalLink,
   Sparkles,
@@ -10,11 +8,13 @@ import {
   Phone,
   Users,
 } from 'lucide-react';
-import UserAvatar from '@/components/ui/avatar';
-import Button from '@/components/ui/button';
-import Badge from '@/components/ui/badge';
-import { Modal } from '@/components/ui/modal';
+import Image from 'next/image';
+import { useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 
 interface Mentor {
   id: number;
@@ -88,7 +88,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
           <h3 className="font-designer-20b text-text-default truncate">
             {mentor.nickname}
           </h3>
-          <ExternalLink className="h-16 w-16 shrink-0 text-text-subtle" />
+          <ExternalLink className="text-text-subtle h-16 w-16 shrink-0" />
         </div>
 
         {/* 설명 */}
@@ -192,10 +192,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       >
         <Modal.Portal>
           <Modal.Overlay />
-          <Modal.Content
-            size="small"
-            onClick={(e) => e.stopPropagation()}
-          >
+          <Modal.Content size="small" onClick={(e) => e.stopPropagation()}>
             <Modal.Header className="border-border-default flex items-center justify-between border-b">
               <Modal.Title className="font-designer-20b text-text-strong">
                 멘토링 서비스
@@ -245,4 +242,3 @@ export default function MentorCard({ mentor }: MentorCardProps) {
     </div>
   );
 }
-

@@ -7,7 +7,6 @@ import {
   fetchCategories,
 } from '@/api/strapi/api/fetch-articles';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
-import { getServerCookie } from '@/utils/server-cookie';
 import Banner from '@/widgets/home/banner';
 
 export const revalidate = 60;
@@ -43,9 +42,6 @@ interface BlogPageProps {
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const memberIdStr = await getServerCookie('memberId');
-  const isLoggedIn = !!memberIdStr;
-
   const { category: selectedCategorySlug } = await searchParams;
 
   // 카테고리 목록과 아티클 목록을 병렬로 가져오기

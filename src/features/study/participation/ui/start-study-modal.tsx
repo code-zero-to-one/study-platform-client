@@ -25,7 +25,6 @@ import {
 
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
-import { studySteps } from '@/features/study/participation/const/participation-const';
 
 import {
   StartStudyFormSchema,
@@ -202,7 +201,6 @@ function StartStudyForm({
   const { mutate: updateProfileInfo } =
     useUpdateUserProfileInfoMutation(memberId);
 
-  const { isVerified, phoneNumber } = usePhoneVerificationStore();
   const { data: profile } = useUserProfileQuery(memberId);
 
   const methods = useForm<StartStudyFormValues>({
@@ -211,7 +209,7 @@ function StartStudyForm({
     defaultValues: buildStartStudyDefaultValues(profile),
   });
 
-  const { handleSubmit, setValue, reset } = methods;
+  const { handleSubmit, reset } = methods;
 
   // 프로필 정보가 로드되면 폼 기본값 업데이트
   useEffect(() => {
