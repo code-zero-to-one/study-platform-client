@@ -42,9 +42,9 @@ export default function ServiceLayout({
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider>
           <PageViewTracker />
-          <div className="w-full overflow-auto">
+          <div className="flex h-screen w-full flex-col overflow-hidden">
             <Header />
-            <main className="h-[calc(100vh-62px)] w-full">{children}</main>
+            <main className="flex-1 w-full overflow-auto">{children}</main>
           </div>
         </MainProvider>
       </body>

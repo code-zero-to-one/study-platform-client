@@ -177,7 +177,12 @@ const RankerListItem = ({ ranker }: { ranker: RankerWithLabel }) => {
               {ranker.rank === 1 && <Crown className="w-3 h-3 text-text-warning" fill="currentColor" />}
             </div>
             <span className="font-designer-13r text-text-subtle truncate">
-              {ranker.major}
+              {ranker.jobs && ranker.jobs.length > 0
+                ? ranker.jobs
+                    .map((job) => job.description || job.job || '')
+                    .filter(Boolean)
+                    .join(', ')
+                : ranker.major}
             </span>
           </div>
 

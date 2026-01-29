@@ -18,15 +18,16 @@ export const getBalanceGameList = async (params: {
   sort?: 'latest' | 'popular';
   status?: 'active' | 'closed';
 }): Promise<BalanceGameListResponse> => {
-  const { page = 0, size = 10, sort = 'latest', status } = params;
+  // 백엔드는 page를 1부터 시작하고 limit을 사용함
+  const { page = 1, size = 10, sort = 'latest', status } = params;
   try {
-    console.log('[BalanceGame] getBalanceGameList request params:', { page, size, sort, status });
+    console.log('[BalanceGame] getBalanceGameList request params:', { page, limit: size, sort, status });
     const response = await axiosInstance.get<ApiResponse<BalanceGameListResponse>>(
       '/balance-games',
       {
         params: {
           page,
-          size,
+          limit: size, // 백엔드는 limit 파라미터를 사용
           sort,
           status,
         },
@@ -158,5 +159,12 @@ export const updateBalanceGame = async (
   await axiosInstance.put<ApiResponse<null>>(
     `/balance-games/${gameId}`,
     body
+  );
+};
+
+// 11. 밸런스 게임 삭제
+export const deleteBalanceGame = async (gameId: number): Promise<void> => {
+  await axiosInstance.delete<ApiResponse<null>>(
+    `/balance-games/${gameId}`
   );
 };

@@ -103,11 +103,11 @@ export default function VotingDetailModal({
             )}
 
             {/* 태그 */}
-            {voting.tags.length > 0 && (
+            {voting.tags && Array.isArray(voting.tags) && voting.tags.length > 0 && (
               <div className="mt-200 flex flex-wrap gap-100">
-                {voting.tags.map((tag) => (
+                {voting.tags.map((tag, index) => (
                   <span
-                    key={tag}
+                    key={tag || index}
                     className="rounded-100 bg-fill-neutral-subtle-default px-150 py-50 font-designer-12r text-text-subtle"
                   >
                     #{tag}

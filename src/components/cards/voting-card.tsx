@@ -60,6 +60,20 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
         {voting.title}
       </h3>
 
+      {/* 태그 - 제목 바로 아래에 표시 */}
+      {voting.tags && Array.isArray(voting.tags) && voting.tags.length > 0 && (
+        <div className="mb-200 flex flex-wrap gap-100">
+          {voting.tags.map((tag, index) => (
+            <span
+              key={tag || index}
+              className="rounded-100 bg-fill-neutral-subtle-default px-150 py-50 font-designer-12r text-text-subtle"
+            >
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+
       {/* 설명 (있으면) */}
       {voting.description && (
         <p className="mb-300 line-clamp-2 font-designer-14r text-text-subtle">
@@ -75,20 +89,6 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
             <span className="font-designer-15b text-text-strong">{topOption.label}</span>
             <span className="font-designer-18b text-text-brand">{topOption.percentage.toFixed(1)}%</span>
           </div>
-        </div>
-      )}
-
-      {/* 태그 */}
-      {voting.tags && voting.tags.length > 0 && (
-        <div className="mb-300 flex flex-wrap gap-100">
-          {voting.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-100 bg-fill-neutral-subtle-default px-150 py-50 font-designer-12r text-text-subtle"
-            >
-              #{tag}
-            </span>
-          ))}
         </div>
       )}
 

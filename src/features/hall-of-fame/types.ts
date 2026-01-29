@@ -7,6 +7,11 @@ export interface ApiResponse<T> {
   message: string;
 }
 
+export interface Job {
+  job?: string; // Enum 값 (예: "IT_PRACTITIONER_GAME_DEV")
+  description?: string; // 설명 (예: "게임 개발자")
+}
+
 export interface Ranker {
   rank: number;
   userId: number;
@@ -15,6 +20,7 @@ export interface Ranker {
   score: number;
   sincerity: number | null;
   major: string;
+  jobs?: Job[] | null; // 직무 정보
   lastActive: string;
 }
 

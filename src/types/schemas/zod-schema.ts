@@ -41,7 +41,7 @@ export const DiscussionFormSchema = z.object({
     .min(10, '내용은 10자 이상 입력해주세요.')
     .max(5000, '내용은 5000자 이하로 입력해주세요.'),
   topic: z.enum(['development', 'study', 'free', 'question'], {
-    errorMap: () => ({ message: '주제를 선택해주세요.' }),
+    message: '주제를 선택해주세요.',
   }),
   tags: z.array(z.string()).min(1, '태그를 1개 이상 입력해주세요.').max(5, '태그는 5개까지만 입력 가능합니다.').optional(),
 });
@@ -80,3 +80,11 @@ export const VotingCreateFormSchema = z.object({
 });
 
 export type VotingCreateFormData = z.infer<typeof VotingCreateFormSchema>;
+
+// Voting 수정 폼 스키마 (옵션/마감일 수정 불가)
+export const VotingEditFormSchema = VotingCreateFormSchema.omit({
+  options: true,
+  endsAt: true,
+});
+
+export type VotingEditFormData = z.infer<typeof VotingEditFormSchema>;

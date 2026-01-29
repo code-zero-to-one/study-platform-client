@@ -10,6 +10,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { useBalanceGameListQuery } from '@/features/balance-game/model/use-balance-game-query';
 import { useCreateBalanceGameMutation } from '@/features/balance-game/model/use-balance-game-mutation';
 import { CreateBalanceGameRequest } from '@/features/balance-game/types';
+import Toast from '@/components/ui/toast';
 
 export default function CommunityTab() {
   // 상태 관리
@@ -17,6 +18,7 @@ export default function CommunityTab() {
   const [sortMode, setSortMode] = useState<'latest' | 'popular'>('latest');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedVotingId, setSelectedVotingId] = useState<number | null>(null);
+  const [showToast, setShowToast] = useState(false);
 
   // React Query Hooks
   const {
@@ -47,6 +49,7 @@ export default function CommunityTab() {
 
       await createMutation.mutateAsync(requestBody);
       setIsCreateModalOpen(false);
+      setShowToast(true);
     } catch (error) {
       console.error('투표 생성 실패:', error);
       throw error;
@@ -55,6 +58,9 @@ export default function CommunityTab() {
 
   // 무한 스크롤 Intersection Observer
   useEffect(() => {
+    const currentTarget = observerTarget.current;
+    if (!currentTarget) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (
@@ -69,15 +75,10 @@ export default function CommunityTab() {
       { threshold: 0.1 }
     );
 
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
+    observer.observe(currentTarget);
 
     return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
+      observer.disconnect();
     };
   }, [hasNextPage, isFetchingNextPage, isFetching, fetchNextPage]);
 
@@ -283,6 +284,13 @@ export default function CommunityTab() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateVoting}
+      />
+
+      {/* 토스트 */}
+      <Toast
+        message="투표 주제가 생성되었습니다"
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
       />
     </>
   );

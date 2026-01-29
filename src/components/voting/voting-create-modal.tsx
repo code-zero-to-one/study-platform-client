@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { VotingCreateFormSchema, VotingCreateFormData } from '@/types/schemas/zod-schema';
@@ -16,6 +16,18 @@ interface VotingCreateModalProps {
 export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingCreateModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagInput, setTagInput] = useState('');
+
+  // 모달이 열릴 때 배경 스크롤 방지 (스크롤바 2개 문제 해결)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen]);
 
   const {
     register,
@@ -44,6 +56,31 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
   const watchedTags = watch('tags') || [];
   const watchedTitle = watch('title') || '';
   const watchedDescription = watch('description') || '';
+  const watchedEndsAt = watch('endsAt') || '';
+
+  // 날짜만 선택하고 시간은 23:59로 고정하는 핸들러
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedDate = e.target.value;
+    if (selectedDate) {
+      // 선택한 날짜의 23:59로 설정
+      const dateTimeString = `${selectedDate}T23:59`;
+      setValue('endsAt', dateTimeString);
+    } else {
+      setValue('endsAt', '');
+    }
+  };
+
+  // 날짜만 추출 (표시용)
+  const selectedDateOnly = watchedEndsAt ? watchedEndsAt.split('T')[0] : '';
+
+  // 오늘 날짜를 YYYY-MM-DD 형식으로 가져오기
+  const getTodayDateString = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   // 태그 추가
   const handleAddTag = () => {
@@ -122,7 +159,7 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
             />
             <div className="mt-100 flex items-center justify-between">
               {errors.title && (
-                <p className="font-designer-12r text-text-critical">{errors.title.message}</p>
+                <p className="font-designer-12r text-text-critical text-red-600">{errors.title.message}</p>
               )}
               <span className="ml-auto font-designer-12r text-text-subtlest">
                 {watchedTitle.length}/200
@@ -272,13 +309,22 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
               투표 마감 시간 (선택)
             </label>
             <input
-              {...register('endsAt')}
-              type="datetime-local"
+              type="date"
+              value={selectedDateOnly}
+              onChange={handleDateChange}
+              min={getTodayDateString()}
               className="w-full rounded-100 border border-border-subtle bg-background-default px-300 py-200 font-designer-14r outline-none transition-colors focus:border-border-brand"
             />
-            <p className="mt-100 font-designer-12r text-text-subtlest">
-              미입력 시 7일 후 자동 마감됩니다
-            </p>
+            {selectedDateOnly && (
+              <p className="mt-100 font-designer-12r text-text-subtle">
+                선택한 날짜의 23시 59분에 마감됩니다
+              </p>
+            )}
+            {!selectedDateOnly && (
+              <p className="mt-100 font-designer-12r text-text-subtlest">
+                미입력 시 7일 후 자동 마감됩니다
+              </p>
+            )}
           </div>
 
           {/* 액션 버튼 */}

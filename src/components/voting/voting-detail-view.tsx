@@ -11,6 +11,7 @@ import {
   useCancelVoteBalanceGameMutation,
   useCreateBalanceGameCommentMutation,
   useDeleteBalanceGameCommentMutation,
+  useDeleteBalanceGameMutation,
   useUpdateBalanceGameCommentMutation,
   useUpdateBalanceGameMutation,
 } from '@/features/balance-game/model/use-balance-game-mutation';
@@ -27,6 +28,8 @@ import { BalanceGameComment } from '@/features/balance-game/types';
 import { VotingOption } from '@/types/voting';
 import VotingEditModal from './voting-edit-modal';
 import { useUserStore } from '@/stores/useUserStore';
+import { Modal } from '@/components/ui/modal';
+import Button from '@/components/ui/button';
 
 interface VotingDetailViewProps {
   votingId: number;
@@ -41,6 +44,7 @@ export default function VotingDetailView({
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentContent, setEditingCommentContent] = useState<string>('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // User Info
@@ -66,6 +70,7 @@ export default function VotingDetailView({
   const updateCommentMutation = useUpdateBalanceGameCommentMutation(votingId);
   const deleteCommentMutation = useDeleteBalanceGameCommentMutation(votingId);
   const updateGameMutation = useUpdateBalanceGameMutation(votingId);
+  const deleteGameMutation = useDeleteBalanceGameMutation(votingId);
 
   // Set selected option when voting loads
   useEffect(() => {
@@ -159,11 +164,23 @@ export default function VotingDetailView({
           await updateGameMutation.mutateAsync({
               title: data.title,
               description: data.description,
-              tags: data.tags
+              tags: data.tags || [] // tags가 undefined일 경우 빈 배열로 전달
           });
+          setIsEditModalOpen(false);
       } catch (error) {
           console.error('Update game failed:', error);
       }
+  };
+
+  const handleDeleteGame = async () => {
+    try {
+      await deleteGameMutation.mutateAsync();
+      setIsDeleteModalOpen(false);
+      onBack(); // 삭제 후 목록으로 돌아가기
+    } catch (error) {
+      console.error('Delete game failed:', error);
+      alert('투표 삭제에 실패했습니다. 다시 시도해주세요.');
+    }
   };
   
   // Check if current user is author
@@ -283,7 +300,16 @@ export default function VotingDetailView({
                         <Edit className="h-4 w-4" />
                         수정
                       </button>
-                      {/* 삭제 기능은 API 명세에 없었으므로 일단 생략하거나 추후 추가 */}
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsDeleteModalOpen(true);
+                        }}
+                        className="flex w-full items-center gap-200 px-300 py-200 font-designer-13r text-text-critical hover:bg-fill-critical-subtle-default"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        삭제
+                      </button>
                     </div>
                   </>
                 )}
@@ -295,25 +321,25 @@ export default function VotingDetailView({
         {/* 제목 */}
         <h1 className="mb-200 font-bold-h3 text-text-strong">{voting.title}</h1>
 
-        {/* 설명 */}
-        {voting.description && (
-          <p className="mb-200 rounded-100 border border-border-subtle bg-background-alternative p-300 font-designer-14r text-text-default">
-            {voting.description}
-          </p>
-        )}
-
-        {/* 태그 */}
-        {voting.tags && voting.tags.length > 0 && (
-          <div className="flex flex-wrap gap-100">
-            {voting.tags.map((tag) => (
+        {/* 태그 - 제목 바로 아래에 표시 */}
+        {voting.tags && Array.isArray(voting.tags) && voting.tags.length > 0 && (
+          <div className="mb-200 flex flex-wrap gap-100">
+            {voting.tags.map((tag, index) => (
               <span
-                key={tag}
+                key={tag || index}
                 className="rounded-100 bg-fill-neutral-subtle-default px-150 py-50 font-designer-12r text-text-subtle"
               >
                 #{tag}
               </span>
             ))}
           </div>
+        )}
+
+        {/* 설명 */}
+        {voting.description && (
+          <p className="mb-200 rounded-100 border border-border-subtle bg-background-alternative p-300 font-designer-14r text-text-default">
+            {voting.description}
+          </p>
         )}
       </div>
 
@@ -502,6 +528,42 @@ export default function VotingDetailView({
           onSubmit={handleUpdateGame}
           initialData={voting}
       />
+
+      {/* 삭제 확인 모달 */}
+      <Modal.Root open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content size="small" className="w-[423px]">
+            <Modal.Header className="border-border-default flex justify-center border-b py-200">
+              <Modal.Title>투표 주제를 삭제하시겠습니까?</Modal.Title>
+            </Modal.Header>
+
+            <Modal.Body className="font-designer-14r text-text-default flex justify-center py-250">
+              작성하신 투표 주제가 영구적으로 삭제됩니다.
+            </Modal.Body>
+
+            <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
+              <Button
+                color="secondary"
+                className="font-designer-14b w-[160px]"
+                size="medium"
+                onClick={() => setIsDeleteModalOpen(false)}
+              >
+                취소
+              </Button>
+              <Button
+                color="primary"
+                className="font-designer-14b w-[160px]"
+                size="medium"
+                onClick={handleDeleteGame}
+                disabled={deleteGameMutation.isPending}
+              >
+                {deleteGameMutation.isPending ? '삭제 중...' : '삭제하기'}
+              </Button>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal.Root>
     </div>
   );
 }

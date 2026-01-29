@@ -3,6 +3,7 @@ import {
   cancelVoteBalanceGame,
   createBalanceGame,
   createBalanceGameComment,
+  deleteBalanceGame,
   deleteBalanceGameComment,
   updateBalanceGame,
   updateBalanceGameComment,
@@ -93,6 +94,17 @@ export const useUpdateBalanceGameMutation = (gameId: number) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: BALANCE_GAME_KEYS.detail(gameId) });
       queryClient.invalidateQueries({ queryKey: BALANCE_GAME_KEYS.lists() });
+    },
+  });
+};
+
+export const useDeleteBalanceGameMutation = (gameId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => deleteBalanceGame(gameId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BALANCE_GAME_KEYS.lists() });
+      queryClient.removeQueries({ queryKey: BALANCE_GAME_KEYS.detail(gameId) });
     },
   });
 };

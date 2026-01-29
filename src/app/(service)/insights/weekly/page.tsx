@@ -9,12 +9,14 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { useBalanceGameListQuery } from '@/features/balance-game/model/use-balance-game-query';
 import { useCreateBalanceGameMutation } from '@/features/balance-game/model/use-balance-game-mutation';
 import { CreateBalanceGameRequest } from '@/features/balance-game/types';
+import Toast from '@/components/ui/toast';
 
 export default function VotingPage() {
   // 상태 관리
   const [statusFilter, setStatusFilter] = useState<'active' | 'closed' | 'all'>('active');
   const [sortMode, setSortMode] = useState<'latest' | 'popular'>('latest');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
 
   // React Query Hooks
   const {
@@ -45,6 +47,7 @@ export default function VotingPage() {
 
       await createMutation.mutateAsync(requestBody);
       setIsCreateModalOpen(false);
+      setShowToast(true);
     } catch (error) {
       console.error('투표 생성 실패:', error);
       throw error;
@@ -53,6 +56,9 @@ export default function VotingPage() {
 
   // 무한 스크롤 Intersection Observer
   useEffect(() => {
+    const currentTarget = observerTarget.current;
+    if (!currentTarget) return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         if (
@@ -67,15 +73,10 @@ export default function VotingPage() {
       { threshold: 0.1 }
     );
 
-    const currentTarget = observerTarget.current;
-    if (currentTarget) {
-      observer.observe(currentTarget);
-    }
+    observer.observe(currentTarget);
 
     return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
+      observer.disconnect();
     };
   }, [hasNextPage, isFetchingNextPage, isFetching, fetchNextPage]);
 
@@ -115,7 +116,7 @@ export default function VotingPage() {
 
   return (
     <>
-      <div className="min-h-screen bg-background-alternative">
+      <div className="bg-background-alternative">
         <div className="mx-auto w-full max-w-screen-xl px-400 py-600">
           {/* 사이드바 + 메인 컨텐츠 */}
           <div className="flex gap-600">
@@ -280,6 +281,13 @@ export default function VotingPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         onSubmit={handleCreateVoting}
+      />
+
+      {/* 토스트 */}
+      <Toast
+        message="투표 주제가 생성되었습니다"
+        isVisible={showToast}
+        onClose={() => setShowToast(false)}
       />
     </>
   );

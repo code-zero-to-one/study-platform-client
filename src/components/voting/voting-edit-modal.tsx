@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { VotingCreateFormSchema, VotingCreateFormData } from '@/types/schemas/zod-schema';
+import { VotingEditFormSchema, VotingEditFormData, VotingCreateFormData } from '@/types/schemas/zod-schema';
 import { X, Loader2 } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { BalanceGame } from '@/features/balance-game/types';
@@ -19,19 +19,30 @@ export default function VotingEditModal({ isOpen, onClose, onSubmit, initialData
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagInput, setTagInput] = useState('');
 
+  // 모달이 열릴 때 배경 스크롤 방지 (스크롤바 2개 문제 해결)
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, [isOpen]);
+
   const {
     register,
     handleSubmit,
     watch,
     setValue,
     formState: { errors },
-  } = useForm<VotingCreateFormData>({
-    resolver: zodResolver(VotingCreateFormSchema.omit({ options: true, endsAt: true })), // 옵션과 마감일은 수정 불가
+  } = useForm<VotingEditFormData>({
+    resolver: zodResolver(VotingEditFormSchema), // 옵션과 마감일은 수정 불가
     defaultValues: {
       title: initialData.title,
       description: initialData.description || '',
       tags: initialData.tags || [],
-      options: [], // Not used but required by schema type if not handled carefully
     },
   });
 
@@ -66,14 +77,14 @@ export default function VotingEditModal({ isOpen, onClose, onSubmit, initialData
   };
 
   // 폼 제출
-  const handleFormSubmit = async (data: VotingCreateFormData) => {
+  const handleFormSubmit = async (data: VotingEditFormData) => {
     setIsSubmitting(true);
     try {
       // Only pass editable fields
       await onSubmit({
         title: data.title,
         description: data.description,
-        tags: data.tags,
+        tags: data.tags || [], // tags가 undefined일 경우 빈 배열로 전달
       });
       onClose();
     } catch (error) {
@@ -86,7 +97,7 @@ export default function VotingEditModal({ isOpen, onClose, onSubmit, initialData
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-400">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-400">
       <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-300 bg-background-default shadow-xl">
         {/* 헤더 */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border-subtle bg-background-default px-600 py-400">
@@ -120,7 +131,7 @@ export default function VotingEditModal({ isOpen, onClose, onSubmit, initialData
             />
             <div className="mt-100 flex items-center justify-between">
               {errors.title && (
-                <p className="font-designer-12r text-text-critical">{errors.title.message}</p>
+                <p className="font-designer-12r text-text-critical text-red-600">{errors.title.message}</p>
               )}
               <span className="ml-auto font-designer-12r text-text-subtlest">
                 {watchedTitle.length}/200
