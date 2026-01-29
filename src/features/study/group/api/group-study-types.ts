@@ -318,7 +318,7 @@ export interface MissionProgressHistory {
 
 export interface Grade {
   id: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-  code: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
+  label: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
   name: string; // e.g. "Great", "Cheer up"
   score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
 }
