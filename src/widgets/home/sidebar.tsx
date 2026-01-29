@@ -12,8 +12,6 @@ export default async function Sidebar() {
   const memberIdStr = await getServerCookie('memberId');
   const memberId = Number(memberIdStr);
 
-  console.log('memberId', memberId);
-  console.log('memberIdStr', memberIdStr);
   // 비회원 접근시 사이드바 빈 페이지 반환
   let userProfile = null;
   try {

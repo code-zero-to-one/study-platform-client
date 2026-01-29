@@ -8,6 +8,7 @@ import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
 import LoginModal from '@/features/auth/ui/login-modal';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
+import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');
@@ -46,7 +47,12 @@ export default async function Header() {
 
         <HeaderNav isLoggedIn={isLoggedIn} />
 
-        {accessTokenStr && <NotificationDropdown />}
+        {accessTokenStr && (
+          <div className="flex items-center gap-200">
+            <StudyMatchingToggle />
+            <NotificationDropdown />
+          </div>
+        )}
 
         <div className="ml-150">
           {isLoggedIn ? (
