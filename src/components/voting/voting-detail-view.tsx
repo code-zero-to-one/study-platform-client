@@ -1,9 +1,19 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Loader2, ArrowLeft, TrendingUp, MessageCircle, Check } from 'lucide-react';
-import { Voting, VotingComment } from '@/types/voting';
-import { mockFetchVotingDetail } from '@/mocks/voting-mock-data';
+import { Loader2, ArrowLeft, TrendingUp, MessageCircle, MoreVertical, Edit, Trash2 } from 'lucide-react';
+import {
+  useBalanceGameDetailQuery,
+  useBalanceGameCommentsQuery,
+} from '@/features/balance-game/model/use-balance-game-query';
+import {
+  useVoteBalanceGameMutation,
+  useCancelVoteBalanceGameMutation,
+  useCreateBalanceGameCommentMutation,
+  useDeleteBalanceGameCommentMutation,
+  useUpdateBalanceGameCommentMutation,
+  useUpdateBalanceGameMutation,
+} from '@/features/balance-game/model/use-balance-game-mutation';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import VoteResultsChart from '@/components/voting/vote-results-chart';
@@ -11,186 +21,153 @@ import VoteTimer from '@/components/voting/vote-timer';
 import DailyStatsChart from '@/components/voting/daily-stats-chart';
 import CommentList from '@/components/discussion/comment-list';
 import CommentForm from '@/components/discussion/comment-form';
-import { CommentFormData } from '@/types/schemas/zod-schema';
+import { CommentFormData, VotingCreateFormData } from '@/types/schemas/zod-schema';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { BalanceGameComment } from '@/features/balance-game/types';
+import { VotingOption } from '@/types/voting';
+import VotingEditModal from './voting-edit-modal';
+import { useUserStore } from '@/stores/useUserStore';
 
 interface VotingDetailViewProps {
   votingId: number;
   onBack: () => void;
 }
 
-export default function VotingDetailView({ votingId, onBack }: VotingDetailViewProps) {
-  const [voting, setVoting] = useState<Voting | null>(null);
+export default function VotingDetailView({
+  votingId,
+  onBack,
+}: VotingDetailViewProps) {
   const [selectedOption, setSelectedOption] = useState<number | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editingCommentContent, setEditingCommentContent] = useState<string>('');
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // 데이터 로드
+  // User Info
+  const memberId = useUserStore((state) => state.memberId);
+
+  // Queries
+  const { data: voting, isLoading, error } = useBalanceGameDetailQuery(votingId);
+  
+  // 투표 여부 확인 (투표를 한 경우에만 댓글 목록 가져오기)
+  const hasVoted = voting?.myVote !== undefined && voting?.myVote !== null;
+  
+  const {
+    data: commentsData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useBalanceGameCommentsQuery(votingId, { enabled: !!hasVoted });
+
+  // Mutations
+  const voteMutation = useVoteBalanceGameMutation(votingId);
+  const cancelVoteMutation = useCancelVoteBalanceGameMutation(votingId);
+  const createCommentMutation = useCreateBalanceGameCommentMutation(votingId);
+  const updateCommentMutation = useUpdateBalanceGameCommentMutation(votingId);
+  const deleteCommentMutation = useDeleteBalanceGameCommentMutation(votingId);
+  const updateGameMutation = useUpdateBalanceGameMutation(votingId);
+
+  // Set selected option when voting loads
   useEffect(() => {
-    const loadVoting = async () => {
-      try {
-        setIsLoading(true);
-        const data = await mockFetchVotingDetail(votingId);
-        if (data) {
-          setVoting(data);
-          setSelectedOption(data.myVote);
-        } else {
-          setError('투표를 찾을 수 없습니다.');
-        }
-      } catch (err) {
-        setError('데이터를 불러오는데 실패했습니다.');
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    if (voting?.myVote) {
+      setSelectedOption(voting.myVote);
+    }
+  }, [voting?.myVote]);
 
-    loadVoting();
-  }, [votingId]);
+  const comments = React.useMemo(() => {
+    const allComments = commentsData?.pages.flatMap((page) => page.content) || [];
+    // 중복 제거 (key prop warning 방지)
+    const seen = new Set();
+    return allComments.filter(comment => {
+        if (seen.has(comment.id)) return false;
+        seen.add(comment.id);
+        return true;
+    });
+  }, [commentsData]);
 
-  // 투표 핸들러
+  // isActive는 백엔드가 내려줄 수도 있고(권장), 없으면 endsAt 기준으로 프론트에서 계산
+  // VoteTimer도 endsAt으로 "종료"를 판단하므로, 두 로직이 어긋나지 않게 맞춘다.
+  const isActiveByEndsAt = React.useMemo(() => {
+    if (!voting?.endsAt) return true;
+    return new Date(voting.endsAt).getTime() > Date.now();
+  }, [voting?.endsAt]);
+
+  const isActive = voting?.isActive ?? isActiveByEndsAt;
+
   const handleVote = async () => {
-    if (!selectedOption || !voting?.isActive) return;
-
-    setIsSubmitting(true);
+    if (!selectedOption || !isActive) return;
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-
-      setVoting((prev) => {
-        if (!prev) return prev;
-
-        const oldVote = prev.myVote;
-        const updatedOptions = prev.options.map((opt) => {
-          let newVoteCount = opt.voteCount;
-
-          if (oldVote === opt.id) {
-            newVoteCount--;
-          }
-          if (opt.id === selectedOption) {
-            newVoteCount++;
-          }
-
-          return { ...opt, voteCount: newVoteCount };
-        });
-
-        const newTotalVotes = oldVote ? prev.totalVotes : prev.totalVotes + 1;
-        const optionsWithPercentage = updatedOptions.map((opt) => ({
-          ...opt,
-          percentage: (opt.voteCount / newTotalVotes) * 100,
-        }));
-
-        return {
-          ...prev,
-          myVote: selectedOption,
-          options: optionsWithPercentage,
-          totalVotes: newTotalVotes,
-        };
-      });
-    } finally {
-      setIsSubmitting(false);
+      await voteMutation.mutateAsync(selectedOption);
+    } catch (error) {
+      console.error('Vote failed:', error);
     }
   };
 
-  // 댓글 추가 핸들러
+  const handleRevote = async () => {
+     try {
+         if (voting?.myVote) {
+             await cancelVoteMutation.mutateAsync();
+             setSelectedOption(undefined);
+         }
+     } catch (error) {
+         console.error('Cancel vote failed:', error);
+     }
+  };
+
   const handleAddComment = async (data: CommentFormData) => {
     if (!voting) return;
-
-    const newComment: VotingComment = {
-      id: Date.now(),
-      author: { id: 999, nickname: '나' },
-      content: data.content,
-      createdAt: new Date().toISOString(),
-      isAuthor: true,
-      votedOption: voting.options.find((opt) => opt.id === voting.myVote)?.label,
-    };
-
-    setVoting((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        comments: [...prev.comments, newComment],
-        commentCount: prev.commentCount + 1,
-      };
-    });
+    try {
+      await createCommentMutation.mutateAsync(data.content);
+    } catch (error) {
+      console.error('Add comment failed:', error);
+    }
   };
 
-  // 댓글 삭제 핸들러
-  const handleDeleteComment = (commentId: number) => {
-    setVoting((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        comments: prev.comments.filter((c) => c.id !== commentId),
-        commentCount: prev.commentCount - 1,
-      };
-    });
+  const handleDeleteComment = async (commentId: number) => {
+    try {
+      await deleteCommentMutation.mutateAsync(commentId);
+    } catch (error) {
+      console.error('Delete comment failed:', error);
+    }
   };
 
-  // 댓글 수정 시작 핸들러
   const handleStartEditComment = (commentId: number, content: string) => {
     setEditingCommentId(commentId);
     setEditingCommentContent(content);
   };
 
-  // 댓글 수정 취소 핸들러
   const handleCancelEditComment = () => {
     setEditingCommentId(null);
     setEditingCommentContent('');
   };
 
-  // 댓글 수정 제출 핸들러
   const handleUpdateComment = async (data: CommentFormData) => {
     if (!editingCommentId) return;
-
-    setVoting((prev) => {
-      if (!prev) return prev;
-      return {
-        ...prev,
-        comments: prev.comments.map((c) =>
-          c.id === editingCommentId
-            ? { ...c, content: data.content }
-            : c
-        ),
-      };
-    });
-
-    // 수정 모드 종료
-    setEditingCommentId(null);
-    setEditingCommentContent('');
-  };
-
-  // 재투표 핸들러
-  const handleRevote = () => {
-    if (!voting || !voting.myVote) return;
-
-    setVoting((prev) => {
-      if (!prev) return prev;
-
-      const oldVoteId = prev.myVote;
-      const updatedOptions = prev.options.map((opt) => {
-        if (opt.id === oldVoteId) {
-          return { ...opt, voteCount: opt.voteCount - 1 };
-        }
-        return opt;
+    try {
+      await updateCommentMutation.mutateAsync({
+        commentId: editingCommentId,
+        content: data.content,
       });
-
-      const newTotalVotes = prev.totalVotes - 1;
-      const optionsWithPercentage = updatedOptions.map((opt) => ({
-        ...opt,
-        percentage: newTotalVotes > 0 ? (opt.voteCount / newTotalVotes) * 100 : 0,
-      }));
-
-      return {
-        ...prev,
-        myVote: undefined,
-        options: optionsWithPercentage,
-        totalVotes: newTotalVotes,
-      };
-    });
+      handleCancelEditComment();
+    } catch (error) {
+      console.error('Update comment failed:', error);
+    }
   };
+
+  const handleUpdateGame = async (data: Partial<VotingCreateFormData>) => {
+      try {
+          await updateGameMutation.mutateAsync({
+              title: data.title,
+              description: data.description,
+              tags: data.tags
+          });
+      } catch (error) {
+          console.error('Update game failed:', error);
+      }
+  };
+  
+  // Check if current user is author
+  const isAuthor = voting?.author.id === memberId;
 
   // 로딩 상태
   if (isLoading) {
@@ -209,7 +186,9 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-400">
-          <p className="font-designer-16m text-text-subtle">{error || '투표를 찾을 수 없습니다.'}</p>
+          <p className="font-designer-16m text-text-subtle">
+            데이터를 불러오는데 실패했습니다.
+          </p>
           <button
             onClick={onBack}
             className="rounded-100 bg-fill-brand-default-default px-400 py-200 font-designer-14b text-text-inverse transition-colors hover:bg-fill-brand-default-hover"
@@ -221,7 +200,22 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
     );
   }
 
-  const hasVoted = voting.myVote !== undefined;
+  // Adapt BalanceGame options to VotingOption for compatibility
+  const votingOptions: VotingOption[] = voting.options.map(opt => ({
+      ...opt,
+  }));
+  
+  // 디버깅용 로그 추가
+  console.log('Voting Data:', {
+    myVote: voting.myVote,
+    hasVoted,
+    endsAt: voting.endsAt,
+    rawIsActive: voting.isActive,
+    isActiveByEndsAt,
+    isActive,
+  });
+
+  const showVoteOptions = !hasVoted && isActive;
 
   return (
     <div className="transition-all duration-300">
@@ -237,7 +231,7 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
       {/* 헤더 */}
       <div className="mb-500 rounded-200 border border-border-subtle bg-background-default p-500 shadow-1">
         {/* 작성자 & 상태 */}
-        <div className="mb-300 flex items-center justify-between">
+        <div className="mb-300 flex items-center justify-between gap-300">
           {/* 작성자 정보 */}
           <div onClick={(e) => e.stopPropagation()}>
             <UserProfileModal
@@ -247,7 +241,7 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
                   <div>
                     <UserAvatar 
                       size={32} 
-                      image={voting.author.avatar}
+                      image={voting.author.profileImage || undefined}
                       className="relative z-10"
                     />
                   </div>
@@ -259,8 +253,43 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
             />
           </div>
 
-          {/* 타이머 표시 */}
-          <VoteTimer endsAt={voting.endsAt} isActive={voting.isActive} />
+          {/* 우측 컨트롤: 타이머 + 작성자 메뉴 (겹침 방지) */}
+          <div className="flex items-center gap-150">
+            <VoteTimer endsAt={voting.endsAt} isActive={isActive} />
+
+            {isAuthor && (
+              <div className="relative shrink-0">
+                <button
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="rounded-100 p-100 text-text-subtle hover:bg-fill-neutral-subtle-default transition-colors"
+                >
+                  <MoreVertical className="h-5 w-5" />
+                </button>
+
+                {isMenuOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setIsMenuOpen(false)}
+                    />
+                    <div className="absolute right-0 top-full z-20 mt-100 w-[120px] rounded-100 border border-border-subtle bg-background-default py-100 shadow-3">
+                      <button
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          setIsEditModalOpen(true);
+                        }}
+                        className="flex w-full items-center gap-200 px-300 py-200 font-designer-13r text-text-default hover:bg-fill-neutral-subtle-default"
+                      >
+                        <Edit className="h-4 w-4" />
+                        수정
+                      </button>
+                      {/* 삭제 기능은 API 명세에 없었으므로 일단 생략하거나 추후 추가 */}
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* 제목 */}
@@ -274,7 +303,7 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
         )}
 
         {/* 태그 */}
-        {voting.tags.length > 0 && (
+        {voting.tags && voting.tags.length > 0 && (
           <div className="flex flex-wrap gap-100">
             {voting.tags.map((tag) => (
               <span
@@ -290,7 +319,7 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
 
       {/* 투표 섹션 */}
       <div className="mb-500 rounded-200 border border-border-subtle bg-background-default p-500 shadow-1">
-        {!hasVoted && voting.isActive ? (
+        {showVoteOptions ? (
           <>
             {/* 헤더 */}
             <div className="mb-400 flex items-center justify-between">
@@ -333,13 +362,13 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
                   <button
                     key={option.id}
                     onClick={() => setSelectedOption(option.id)}
-                    disabled={isSubmitting}
+                    disabled={voteMutation.isPending}
                     className={cn(
                       'group relative rounded-200 border-2 p-300 text-left transition-all duration-200',
                       isSelected
                         ? cn('shadow-lg', color.border, color.bg)
                         : 'border-border-subtle bg-background-default hover:border-border-brand hover:shadow-1',
-                      isSubmitting && 'cursor-not-allowed opacity-50',
+                      voteMutation.isPending && 'cursor-not-allowed opacity-50',
                     )}
                   >
                     <div className="flex items-center gap-200">
@@ -365,7 +394,7 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
             {/* 투표하기 버튼 */}
             <button
               onClick={handleVote}
-              disabled={!selectedOption || isSubmitting}
+              disabled={!selectedOption || voteMutation.isPending}
               className={cn(
                 'w-full rounded-100 py-300 font-designer-15b text-text-inverse shadow-lg transition-all duration-200',
                 'bg-gradient-to-r from-fill-brand-default-default to-fill-brand-default-hover',
@@ -373,7 +402,7 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
                 'hover:scale-[1.02] hover:shadow-xl',
               )}
             >
-              {isSubmitting ? (
+              {voteMutation.isPending ? (
                 <div className="flex items-center justify-center gap-200">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   투표 중...
@@ -387,18 +416,19 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
           <>
             <div className="mb-400 flex items-center justify-between">
               <h2 className="font-designer-18b text-text-strong">투표 결과</h2>
-              {voting.isActive && (
+              {isActive && hasVoted && (
                 <button
                   onClick={handleRevote}
-                  className="font-designer-12r text-text-subtle underline hover:text-text-default"
+                  disabled={cancelVoteMutation.isPending}
+                  className="font-designer-12r text-text-subtle underline hover:text-text-default disabled:opacity-50"
                 >
-                  재투표하기
+                  {cancelVoteMutation.isPending ? '취소 중...' : '투표 취소하고 다시하기'}
                 </button>
               )}
             </div>
             <VoteResultsChart
-              options={voting.options}
-              myVote={voting.myVote}
+              options={votingOptions}
+              myVote={voting.myVote || undefined}
               totalVotes={voting.totalVotes}
             />
           </>
@@ -410,8 +440,8 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
         <div className="mb-500">
           <DailyStatsChart
             dailyStats={voting.dailyStats}
-            options={voting.options}
-            myVote={voting.myVote}
+            options={votingOptions}
+            myVote={voting.myVote || undefined}
           />
         </div>
       )}
@@ -420,25 +450,35 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
       <div className="rounded-200 border border-border-subtle bg-background-default p-500 shadow-1">
         <div className="mb-400 flex items-center gap-100 font-designer-16b text-text-strong">
           <MessageCircle className="h-5 w-5" />
-          <span>댓글 {voting.commentCount}</span>
+          <span>댓글 {voting.commentCount || 0}</span>
         </div>
 
         {/* 댓글 목록 (항상 표시) */}
         <div className="mb-400">
           <CommentList 
-            comments={voting.comments} 
+            comments={comments} 
             onDelete={handleDeleteComment}
             onEdit={handleStartEditComment}
-            votingOptions={voting.options}
+            votingOptions={votingOptions}
             editingCommentId={editingCommentId}
             editingCommentContent={editingCommentContent}
             onUpdateComment={handleUpdateComment}
             onCancelEdit={handleCancelEditComment}
           />
+          
+          {hasNextPage && (
+              <button 
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="mt-300 w-full rounded-100 border border-border-subtle py-200 font-designer-13r text-text-subtle hover:bg-background-alternative"
+              >
+                  {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
+              </button>
+          )}
         </div>
 
         {/* 댓글 작성 폼 */}
-        {voting.isActive && (
+        {isActive && (
           <>
             {!hasVoted ? (
               <div className="rounded-200 border border-border-subtle bg-background-alternative p-400 text-center">
@@ -448,13 +488,20 @@ export default function VotingDetailView({ votingId, onBack }: VotingDetailViewP
               </div>
             ) : editingCommentId === null ? (
               <div className="rounded-200 border border-border-subtle bg-background-alternative p-300">
-                <CommentForm onSubmit={handleAddComment} />
+                <CommentForm onSubmit={handleAddComment} isSubmitting={createCommentMutation.isPending} />
               </div>
             ) : null}
           </>
         )}
       </div>
+
+      {/* 수정 모달 */}
+      <VotingEditModal 
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSubmit={handleUpdateGame}
+          initialData={voting}
+      />
     </div>
   );
 }
-

@@ -25,7 +25,14 @@ export default function Avatar({
 }: UserAvatarProps) {
   const [isError, setIsError] = useState(false);
 
-  const showImage = !!image && !isError;
+  // 유효하지 않은 이미지 URL 필터링 (LOCAL, 빈 문자열, 상대 경로만 있는 경우 등)
+  const isValidImage = image && 
+    typeof image === 'string' && 
+    image.trim() !== '' && 
+    image.toUpperCase() !== 'LOCAL' &&
+    (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('/'));
+
+  const showImage = isValidImage && !isError;
 
   return (
     <RadixAvatar

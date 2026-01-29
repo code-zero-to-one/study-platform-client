@@ -1,6 +1,7 @@
 import React from 'react';
 import { DiscussionComment } from '@/types/discussion';
 import { VotingComment, VotingOption } from '@/types/voting';
+import { BalanceGameComment } from '@/features/balance-game/types';
 import { MoreVertical, Trash2, Edit, CheckCircle2 } from 'lucide-react';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
@@ -11,7 +12,7 @@ import { ko } from 'date-fns/locale';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface CommentListProps {
-  comments: (DiscussionComment | VotingComment)[];
+  comments: (DiscussionComment | VotingComment | BalanceGameComment)[];
   onDelete?: (commentId: number) => void;
   onEdit?: (commentId: number, content: string) => void;
   votingOptions?: VotingOption[]; // 투표 옵션 목록 (색상 매칭용)
@@ -72,6 +73,13 @@ export default function CommentList({
           }
         }
 
+        // Author image handling
+        const authorImage = 'avatar' in comment.author 
+            ? comment.author.avatar 
+            : 'profileImage' in comment.author 
+                ? (comment.author as any).profileImage 
+                : undefined;
+
         return (
           <div
             key={comment.id}
@@ -83,7 +91,7 @@ export default function CommentList({
                 <div onClick={(e) => e.stopPropagation()}>
                   <UserProfileModal
                     memberId={comment.author.id}
-                    trigger={<UserAvatar size={28} image={comment.author.avatar} />}
+                    trigger={<UserAvatar size={28} image={authorImage} />}
                   />
                 </div>
                 <div className="flex flex-col gap-50">

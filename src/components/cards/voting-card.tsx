@@ -1,6 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
-import { Voting } from '@/types/voting';
+import { BalanceGame } from '@/features/balance-game/types';
 import { MessageCircle, Users } from 'lucide-react';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
@@ -8,7 +8,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import VoteTimer from '../voting/vote-timer';
 
 interface VotingCardProps {
-  voting: Voting;
+  voting: BalanceGame;
   onClick?: () => void;
 }
 
@@ -17,7 +17,8 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
     prev.percentage > current.percentage ? prev : current,
   );
 
-  const hasVoted = voting.myVote !== undefined;
+  // myVote can be null or number (optionId)
+  const hasVoted = voting.myVote !== undefined && voting.myVote !== null;
 
   const cardContent = (
     <div
@@ -38,7 +39,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
                 <div>
                   <UserAvatar 
                     size={32} 
-                    image={voting.author.avatar}
+                    image={voting.author.profileImage || undefined}
                     className="relative z-10"
                   />
                 </div>
@@ -51,7 +52,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
         </div>
 
         {/* 타이머 표시 */}
-        <VoteTimer endsAt={voting.endsAt} isActive={voting.isActive} />
+        <VoteTimer endsAt={voting.endsAt} isActive={voting.isActive ?? true} />
       </div>
 
       {/* 제목 */}
@@ -78,7 +79,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
       )}
 
       {/* 태그 */}
-      {voting.tags.length > 0 && (
+      {voting.tags && voting.tags.length > 0 && (
         <div className="mb-300 flex flex-wrap gap-100">
           {voting.tags.map((tag) => (
             <span
@@ -102,7 +103,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
         {/* 댓글 수 */}
         <div className="flex items-center gap-50 font-designer-13m text-text-subtle">
           <MessageCircle className="h-4 w-4" />
-          <span>{voting.commentCount}</span>
+          <span>{voting.commentCount || 0}</span>
         </div>
       </div>
     </div>

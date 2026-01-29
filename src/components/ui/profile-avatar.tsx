@@ -27,6 +27,8 @@ export const ProfileAvatar = ({
     if (!src || typeof src !== 'string') return null;
     const s = src.trim();
     if (!s) return null;
+    // 유효하지 않은 값 필터링 (LOCAL, null 등)
+    if (s.toUpperCase() === 'LOCAL' || s === 'null' || s === 'undefined') return null;
     if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('/')) return s;
     return `/${s}`;
   }, [src]);
