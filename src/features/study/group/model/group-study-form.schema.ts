@@ -1,5 +1,11 @@
 import { z } from 'zod';
-import { GroupStudyFormRequest } from '../api/group-study-types';
+import {
+  BasicInfoCommon,
+  GroupStudyCreateRequest,
+  GroupStudyFormRequest,
+  GroupStudyRequestCommon,
+  GroupStudyUpdateRequest,
+} from '../api/group-study-types';
 import {
   STUDY_TYPES,
   TARGET_ROLE_OPTIONS,
@@ -127,28 +133,35 @@ export function buildOpenGroupDefaultValues(
   };
 }
 
-export function toOpenGroupRequest(
-  v: GroupStudyFormValues,
-): GroupStudyFormRequest {
+// ============================================================
+// 변환 함수 (내부 헬퍼)
+// ============================================================
+
+/** 공통 BasicInfo 필드 변환 */
+function buildBasicInfoCommon(v: GroupStudyFormValues): BasicInfoCommon {
   const isPremiumStudy = v.classification === 'PREMIUM_STUDY';
+
+  return {
+    studyLeaderParticipation: v.studyLeaderParticipation,
+    type: v.type,
+    targetRoles: v.targetRoles,
+    maxMembersCount: Number(v.maxMembersCount),
+    experienceLevels: v.experienceLevels ?? [],
+    method: v.method,
+    regularMeeting: v.regularMeeting,
+    location: v.location.trim(),
+    startDate: v.startDate.trim(),
+    endDate: v.endDate.trim(),
+    price: isPremiumStudy ? Number(v.price) || 0 : 0,
+  };
+}
+
+/** 공통 Request 구조 변환 */
+function buildCommonRequest(v: GroupStudyFormValues): GroupStudyRequestCommon {
   const thumbnailExt =
     v.thumbnailExtension === 'DEFAULT' ? 'JPG' : v.thumbnailExtension;
 
   return {
-    basicInfo: {
-      studyLeaderParticipation: v.studyLeaderParticipation,
-      classification: v.classification,
-      type: v.type,
-      targetRoles: v.targetRoles,
-      maxMembersCount: Number(v.maxMembersCount),
-      experienceLevels: v.experienceLevels ?? [],
-      method: v.method,
-      regularMeeting: v.regularMeeting,
-      location: v.location.trim(),
-      startDate: v.startDate.trim(),
-      endDate: v.endDate.trim(),
-      price: isPremiumStudy ? Number(v.price) || 0 : 0,
-    },
     detailInfo: {
       thumbnailExtension: thumbnailExt,
       title: v.title,
@@ -160,4 +173,42 @@ export function toOpenGroupRequest(
     },
     thumbnailExtension: thumbnailExt,
   };
+}
+
+// ============================================================
+// Create/Update 전용 변환 함수
+// ============================================================
+
+/** Create API용 Request 변환 */
+export function toCreateRequest(
+  v: GroupStudyFormValues,
+): GroupStudyCreateRequest {
+  return {
+    ...buildCommonRequest(v),
+    basicInfo: {
+      ...buildBasicInfoCommon(v),
+      classification: v.classification,
+    },
+  };
+}
+
+/** Update API용 Request 변환 */
+export function toUpdateRequest(
+  v: GroupStudyFormValues,
+): GroupStudyUpdateRequest {
+  return {
+    ...buildCommonRequest(v),
+    basicInfo: buildBasicInfoCommon(v),
+  };
+}
+
+// ============================================================
+// 기존 함수 (하위 호환성 유지)
+// ============================================================
+
+/** @deprecated toCreateRequest 또는 toUpdateRequest 사용 권장 */
+export function toOpenGroupRequest(
+  v: GroupStudyFormValues,
+): GroupStudyFormRequest {
+  return toCreateRequest(v);
 }
