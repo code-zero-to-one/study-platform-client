@@ -18,6 +18,8 @@ import {
 import { ArchiveItem } from '@/types/archive';
 import { useArchive } from '@/features/archive/model/use-archive-query';
 import { useToggleArchiveBookmark } from '@/features/archive/model/use-bookmark-mutation';
+import { useToggleArchiveLike } from '@/features/archive/model/use-like-mutation';
+import { useRecordArchiveView } from '@/features/archive/model/use-view-mutation';
 import { useDebounce } from '@/hooks/use-debounce'; // Assuming this hook exists, or I will create it/use raw
 
 // ----------------------------------------------------------------------
@@ -34,7 +36,7 @@ const LibraryCard = ({
 }: { 
   item: ArchiveItem;
   onLike: (e: React.MouseEvent, id: number) => void;
-  onView: (link: string) => void;
+  onView: (id: number, link: string) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
   onHide?: (e: React.MouseEvent, id: number) => void;
   isAdmin?: boolean;
@@ -43,10 +45,13 @@ const LibraryCard = ({
   const isHidden = (item as any).isHidden;
 
   return (
-    <div className={cn(
-      "flex h-full flex-col gap-250 rounded-200 border border-border-subtle bg-background-default p-400 shadow-1 transition-all hover:-translate-y-50 hover:shadow-2",
-      isHidden && "opacity-50"
-    )}>
+    <div 
+      onClick={() => onView(item.id, item.link)}
+      className={cn(
+        "flex h-full flex-col gap-250 rounded-200 border border-border-subtle bg-background-default p-400 shadow-1 transition-all hover:-translate-y-50 hover:shadow-2 cursor-pointer",
+        isHidden && "opacity-50"
+      )}
+    >
       <div className="flex items-start justify-between gap-200">
         <div className="flex flex-wrap items-center gap-100">
           {isHidden && (
@@ -81,12 +86,9 @@ const LibraryCard = ({
       </div>
 
       <div className="flex flex-col gap-150 mb-auto">
-        <h3 className="font-bold-h5 text-text-strong line-clamp-2">
+        <h3 className="font-bold-h4 text-text-strong line-clamp-2">
           {item.title}
         </h3>
-        <p className="font-designer-13r text-text-subtle line-clamp-2">
-          {item.description}
-        </p>
       </div>
 
       <div className="mt-auto flex items-center justify-between border-t border-border-subtle pt-300">
@@ -138,7 +140,7 @@ const LibraryRow = ({
 
   return (
     <div 
-      onClick={() => onView(item.link)}
+      onClick={() => onView(item.id, item.link)}
       className={cn(
         "group flex items-center gap-300 px-300 py-200 border-b border-border-subtlest hover:bg-fill-neutral-subtle-hover transition-colors cursor-pointer last:border-0",
         isHidden && "opacity-50"
@@ -241,6 +243,8 @@ export default function ArchiveTab() {
   });
 
   const { mutate: toggleBookmark } = useToggleArchiveBookmark();
+  const { mutate: toggleLike } = useToggleArchiveLike();
+  const { mutate: recordView } = useRecordArchiveView();
 
   const libraryItems = archiveData?.content || [];
   const totalPages = archiveData?.totalPages || 1;
@@ -248,12 +252,15 @@ export default function ArchiveTab() {
   // Handler for Likes
   const handleLike = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    // TODO: Implement Like Mutation
-    alert('좋아요 기능은 아직 개발 중입니다.');
+    toggleLike(id);
   };
 
-  const handleView = (link: string) => {
+  const handleView = (id: number, link: string) => {
+    // 1. 링크 바로 열기 (사용자 대기 시간 없음)
     window.open(link, '_blank');
+    
+    // 2. 백그라운드에서 조회수 기록 (Fire-and-forget)
+    recordView(id);
   };
 
   const handleLibraryBookmark = (e: React.MouseEvent, id: number) => {
@@ -314,7 +321,7 @@ export default function ArchiveTab() {
             <div className="relative w-full md:w-[240px]">
               <input
                 type="text"
-                placeholder="제목, 내용으로 검색"
+                placeholder="제목으로 검색"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="h-600 w-full rounded-100 border border-border-subtle bg-background-default pl-200 pr-500 font-designer-14m outline-none focus:border-border-default focus:ring-2 focus:ring-fill-neutral-default-default transition-all"
