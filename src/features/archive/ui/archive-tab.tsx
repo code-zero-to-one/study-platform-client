@@ -1,11 +1,12 @@
 import ArchiveTabClient from './archive-tab-client';
 import { getArchiveServer } from '@/features/archive/api/get-archive.server';
+import { ARCHIVE_PAGE_SIZE } from '@/features/archive/const/archive';
 import { GetArchiveParams } from '@/types/archive';
 
 export default async function ArchiveTab() {
   const initialParams: GetArchiveParams = {
     page: 0,
-    size: 10,
+    size: ARCHIVE_PAGE_SIZE.GRID,
     sort: 'LATEST',
   };
 
