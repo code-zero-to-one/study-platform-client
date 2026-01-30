@@ -23,7 +23,7 @@ const CreateEvaluationFormSchema = z.object({
     'C_MINUS',
     'F',
   ]),
-  comment: z.string().min(1, '정성 코멘트를 입력해주세요.'),
+  comment: z.string().min(1, '정성 코멘트를 입력해주세요.').max(1000),
 });
 
 type CreateEvaluationFormValues = z.infer<typeof CreateEvaluationFormSchema>;
@@ -147,7 +147,7 @@ function CreateEvaluationForm({
               id="comment"
               placeholder="정성 코멘트를 입력해 주세요."
               className="min-h-[230px]"
-              maxLength={5000}
+              maxLength={1000}
             />
           </FormField>
         </form>

@@ -9,7 +9,7 @@ import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import { Leader } from '../../features/study/group/api/group-study-types';
-import ChannelSection from '../../features/study/group/channel/ui/channel-section';
+import ChannelSection from '../../features/study/group/channel/ui/lounge-section';
 
 import {
   useCompleteGroupStudyMutation,
@@ -228,7 +228,7 @@ export default function StudyDetailPage({
       )}
 
       {active === 'mission' && <MissionSection groupStudyId={groupStudyId} />}
-      {active === 'channel' && (
+      {active === 'lounge' && (
         <ChannelSection
           groupStudyId={groupStudyId}
           memberId={memberId}

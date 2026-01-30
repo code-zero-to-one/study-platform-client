@@ -56,7 +56,65 @@ export interface BasicInfo {
   updatedAt: string;
 }
 
-// 요청용 BasicInfo (백엔드 request body에서 createdAt, updatedAt 제외됨)
+// ============================================================
+// Create/Update API 공통 타입
+// ============================================================
+
+/** Create/Update API에서 공통으로 사용되는 BasicInfo 필드 */
+export interface BasicInfoCommon {
+  type: StudyType;
+  targetRoles: TargetRole[];
+  maxMembersCount: number;
+  experienceLevels: ExperienceLevel[];
+  method: StudyMethod;
+  regularMeeting: RegularMeeting;
+  location: string;
+  startDate: string;
+  endDate: string;
+  price: number;
+  studyLeaderParticipation: boolean;
+}
+
+/** Create/Update API에서 공통으로 사용되는 Request 구조 */
+export interface GroupStudyRequestCommon {
+  detailInfo: DetailInfo;
+  interviewPost: {
+    interviewPost: string[];
+  };
+  thumbnailExtension: ThumbnailExtension;
+}
+
+// ============================================================
+// Create API 전용 타입
+// ============================================================
+
+/** Create API용 BasicInfo (classification 필수) */
+export interface BasicInfoCreateRequest extends BasicInfoCommon {
+  classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
+}
+
+/** Create API 전체 Request */
+export interface GroupStudyCreateRequest extends GroupStudyRequestCommon {
+  basicInfo: BasicInfoCreateRequest;
+}
+
+// ============================================================
+// Update API 전용 타입
+// ============================================================
+
+/** Update API용 BasicInfo (classification 없음 - 수정 불가) */
+export type BasicInfoUpdateRequest = BasicInfoCommon;
+
+/** Update API 전체 Request */
+export interface GroupStudyUpdateRequest extends GroupStudyRequestCommon {
+  basicInfo: BasicInfoUpdateRequest;
+}
+
+// ============================================================
+// 기존 타입 (하위 호환성 유지)
+// ============================================================
+
+/** @deprecated BasicInfoCreateRequest 사용 권장 */
 export type BasicInfoRequest = Omit<BasicInfo, 'createdAt' | 'updatedAt'>;
 
 export interface BasicInfoDetail extends BasicInfo {
@@ -162,6 +220,7 @@ export interface ApplyGroupStudyResponse {
   createdAt: string;
 }
 
+/** @deprecated GroupStudyCreateRequest 또는 GroupStudyUpdateRequest 사용 권장 */
 export interface GroupStudyFormRequest {
   basicInfo: BasicInfoRequest;
   detailInfo: DetailInfo;
@@ -259,7 +318,7 @@ export interface MissionProgressHistory {
 
 export interface Grade {
   id: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-  code: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
+  label: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
   name: string; // e.g. "Great", "Cheer up"
   score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
 }

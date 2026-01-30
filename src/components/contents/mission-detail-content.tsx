@@ -32,7 +32,7 @@ export default function MissionDetailContent({
   const memberId = useUserStore((state) => state.memberId);
   const isLeader = useIsLeader(memberId);
 
-  const { data: mission, isLoading } = useGetMission(missionId);
+  const { data: mission, isLoading, refetch } = useGetMission(missionId);
 
   // homeworks에서 내 과제 정보 찾기
   const myHomework = useMemo(() => {
@@ -84,6 +84,7 @@ export default function MissionDetailContent({
           myHomework={myHomework}
           isMissionClosed={isMissionClosed}
           onSelectHomework={handleSelectHomework}
+          onRefetch={refetch}
         />
       )}
 

@@ -19,11 +19,13 @@ type SubmitHomeworkFormValues = z.infer<typeof SubmitHomeworkFormSchema>;
 
 interface SubmitHomeworkModalProps {
   missionId: number; // todo api response 타입 적용
+  onSuccess?: () => void;
 }
 
 // 과제 제출 모달
 export default function SubmitHomeworkModal({
   missionId,
+  onSuccess,
 }: SubmitHomeworkModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
@@ -54,6 +56,7 @@ export default function SubmitHomeworkModal({
           <SubmitHomeworkForm
             missionId={missionId}
             onClose={() => setOpen(false)}
+            onSuccess={onSuccess}
           />
         </Modal.Content>
       </Modal.Portal>
@@ -64,9 +67,14 @@ export default function SubmitHomeworkModal({
 interface SubmitHomeworkFormProps {
   missionId: number;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-function SubmitHomeworkForm({ missionId, onClose }: SubmitHomeworkFormProps) {
+function SubmitHomeworkForm({
+  missionId,
+  onClose,
+  onSuccess,
+}: SubmitHomeworkFormProps) {
   const methods = useForm<SubmitHomeworkFormValues>({
     resolver: zodResolver(SubmitHomeworkFormSchema),
     mode: 'onChange',
@@ -93,6 +101,7 @@ function SubmitHomeworkForm({ missionId, onClose }: SubmitHomeworkFormProps) {
         onSuccess: async () => {
           alert('과제가 성공적으로 제출되었습니다!');
           onClose();
+          onSuccess?.();
         },
         onError: () => {
           alert('과제 제출에 실패했습니다. 다시 시도해주세요.');

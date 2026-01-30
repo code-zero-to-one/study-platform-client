@@ -11,7 +11,7 @@ import { useEditHomework } from '@/hooks/queries/group-study-homework-api';
 import { BaseInput, TextAreaInput } from '../ui/input';
 
 const EditHomeworkFormSchema = z.object({
-  textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.'),
+  textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.').max(1000),
   attachmentLink: z.string().optional(),
 });
 
@@ -135,7 +135,7 @@ function EditHomeworkForm({
               id="textContent"
               className="min-h-[230px]"
               placeholder="학습한 내용을 자세히 작성해 주세요."
-              maxLength={5000}
+              maxLength={1000}
             />
           </FormField>
 

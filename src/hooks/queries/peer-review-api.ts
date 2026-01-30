@@ -41,6 +41,9 @@ export const useCreatePeerReview = () => {
       await queryClient.invalidateQueries({
         queryKey: ['peerReviews', variables.homeworkId],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ['homework', variables.homeworkId],
+      });
     },
   });
 };

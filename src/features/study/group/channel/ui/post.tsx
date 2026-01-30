@@ -2,7 +2,8 @@ import dayjs from 'dayjs';
 import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useLeaderStore } from '@/stores/useLeaderStore';
+import { useIsLeader, useLeaderStore } from '@/stores/useLeaderStore';
+import { useUserStore } from '@/stores/useUserStore';
 import GroupStudyNoticeModal from '../../ui/group-notice-modal';
 
 interface PostProps {
@@ -15,6 +16,8 @@ interface PostProps {
 }
 export default function Post({ data }: PostProps) {
   const leader = useLeaderStore((state) => state.leaderInfo);
+  const myMemberId = useUserStore((state) => state.memberId);
+  const isLeader = useIsLeader(myMemberId);
 
   if (!leader) return null;
 
@@ -26,14 +29,16 @@ export default function Post({ data }: PostProps) {
             {data?.noticeTitle}
           </p>
 
-          <GroupStudyNoticeModal
-            trigger={<Button size="medium">공지 수정하기</Button>}
-            groupStudyId={data.groupStudyId}
-            defaultValues={{
-              noticeTitle: data.noticeTitle,
-              noticeContent: data.noticeContent,
-            }}
-          />
+          {isLeader && (
+            <GroupStudyNoticeModal
+              trigger={<Button size="medium">공지 수정하기</Button>}
+              groupStudyId={data.groupStudyId}
+              defaultValues={{
+                noticeTitle: data.noticeTitle,
+                noticeContent: data.noticeContent,
+              }}
+            />
+          )}
         </div>
 
         <div className="flex gap-150">

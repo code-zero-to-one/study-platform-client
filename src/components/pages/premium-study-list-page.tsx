@@ -37,9 +37,9 @@ export default function PremiumStudyListPage() {
     const targetRoles =
       searchParams.get('targetRoles')?.split(',').filter(Boolean) ?? [];
     const method = searchParams.get('method')?.split(',').filter(Boolean) ?? [];
-    const inProgress = searchParams.get('inProgress') === 'true';
+    const recruiting = searchParams.get('recruiting') === 'true';
 
-    return { type, targetRoles, method, inProgress };
+    return { type, targetRoles, method, recruiting };
   }, [searchParams]);
 
   const currentPage = Number(searchParams.get('page')) || 1;
@@ -61,7 +61,7 @@ export default function PremiumStudyListPage() {
       filterValues.method.length > 0
         ? (filterValues.method as GetGroupStudiesMethodEnum[])
         : undefined,
-    inProgress: filterValues.inProgress || undefined,
+    recruiting: filterValues.recruiting || undefined,
   });
 
   const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
@@ -100,7 +100,7 @@ export default function PremiumStudyListPage() {
             ? values.targetRoles.join(',')
             : undefined,
         method: values.method.length > 0 ? values.method.join(',') : undefined,
-        inProgress: values.inProgress ? 'true' : undefined,
+        recruiting: values.recruiting ? 'true' : undefined,
       });
     },
     [updateSearchParams],
@@ -146,7 +146,7 @@ export default function PremiumStudyListPage() {
   }
 
   return (
-    <PageContainer className="py-600">
+    <div className="mx-auto w-[1280px] py-600">
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">
@@ -185,6 +185,6 @@ export default function PremiumStudyListPage() {
           totalPages={totalPages}
         />
       )}
-    </PageContainer>
+    </div>
   );
 }

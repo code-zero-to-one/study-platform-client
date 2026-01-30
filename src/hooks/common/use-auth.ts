@@ -24,6 +24,7 @@ type AuthVendor = 'GOOGLE' | 'KAKAO' | 'TEST'; // NATIVE -> TEST 변경
 export interface DecodedToken {
   roleIds: RoleId[];
   authVendor: AuthVendor;
+
   memberId: number;
   sub: string;
   iat: number;

@@ -15,7 +15,7 @@ export interface StudyFilterValues {
   type: string[];
   targetRoles: string[];
   method: string[];
-  inProgress: boolean;
+  recruiting: boolean;
 }
 
 interface StudyFilterProps {
@@ -155,9 +155,9 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
     [values, onChange],
   );
 
-  const handleInProgressChange = useCallback(
+  const handleRecruitingChange = useCallback(
     (pressed: boolean) => {
-      onChange({ ...values, inProgress: pressed });
+      onChange({ ...values, recruiting: pressed });
     },
     [values, onChange],
   );
@@ -167,7 +167,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
       type: [],
       targetRoles: [],
       method: [],
-      inProgress: false,
+      recruiting: false,
     });
   }, [onChange]);
 
@@ -175,7 +175,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
     values.type.length > 0 ||
     values.targetRoles.length > 0 ||
     values.method.length > 0 ||
-    values.inProgress;
+    values.recruiting;
 
   return (
     <div className="flex items-center gap-100">
@@ -203,11 +203,11 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
       <ToggleButton
         size="md"
         variant="round"
-        color="gray"
-        pressed={values.inProgress}
-        onPressedChange={handleInProgressChange}
+        color="primary"
+        pressed={values.recruiting}
+        onPressedChange={handleRecruitingChange}
       >
-        진행 중만 보기
+        모집 중만 보기
       </ToggleButton>
 
       {hasAnyFilter && (
