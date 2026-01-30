@@ -1,5 +1,6 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import {
   ExternalLink,
   Sparkles,
@@ -40,6 +41,15 @@ export default function MentorCard({ mentor }: MentorCardProps) {
   const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false);
 
   const handleProfileClick = () => {
+    // GA4 이벤트 전송 (멘토 프로필 클릭)
+    sendGTMEvent({
+      event: 'mentor_profile_click',
+      mentor_id: mentor.id,
+      mentor_nickname: mentor.nickname,
+      mentor_field: mentor.field,
+      location: 'mentoring_page',
+    });
+
     if (mentor.notionUrl) {
       window.open(mentor.notionUrl, '_blank', 'noopener,noreferrer');
     }
@@ -47,6 +57,16 @@ export default function MentorCard({ mentor }: MentorCardProps) {
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // GA4 이벤트 전송
+    sendGTMEvent({
+      event: 'mentoring_help_request_click',
+      mentor_id: mentor.id,
+      mentor_nickname: mentor.nickname,
+      mentor_field: mentor.field,
+      location: 'mentoring_page',
+    });
+    
     setIsComingSoonModalOpen(true);
   };
 

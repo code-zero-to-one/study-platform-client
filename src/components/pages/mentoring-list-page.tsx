@@ -1,5 +1,6 @@
 'use client';
 
+import { sendGTMEvent } from '@next/third-parties/google';
 import { Plus, Sparkles, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
@@ -33,7 +34,16 @@ export default function MentoringListPage() {
           icon={<Plus className="h-200 w-200" />}
           iconPosition="left"
           disabled={!isAuthenticated}
-          onClick={() => setIsComingSoonModalOpen(true)}
+          onClick={() => {
+            // GA4 이벤트 전송
+            sendGTMEvent({
+              event: 'mentor_register_click',
+              location: 'mentoring_page',
+              is_authenticated: isAuthenticated,
+            });
+            
+            setIsComingSoonModalOpen(true);
+          }}
         >
           멘토 등록하기
         </Button>
