@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { ProfileAvatar } from '@/components/ui/profile-avatar';
 import { 
   Trophy, 
   BookOpen, 
@@ -228,45 +229,6 @@ const RankBadge = ({ rank }: { rank: number }) => {
   );
 };
 
-const ProfileAvatar = ({
-  src,
-  alt,
-  size = 'md',
-  className = '',
-}: {
-  src: string | null;
-  alt: string;
-  size?: 'sm' | 'md' | 'lg' | 'xl';
-  className?: string;
-}) => {
-  const sizeClass = {
-    sm: 'w-[40px] h-[40px]',
-    md: 'w-[48px] h-[48px]',
-    lg: 'w-[80px] h-[80px]',
-    xl: 'w-[120px] h-[120px]',
-  }[size];
-
-  return (
-    <div
-      className={cn(
-        'relative shrink-0 overflow-hidden rounded-[9999px] bg-fill-neutral-default-default shadow-1',
-        sizeClass,
-        className,
-      )}
-    >
-      {src ? (
-        <Image src={src} alt={alt} fill className="object-cover" />
-      ) : (
-        <Image
-          src="/profile-default.svg"
-          alt="default profile"
-          fill
-          className="object-cover"
-        />
-      )}
-    </div>
-  );
-};
 
 const RankChangeIndicator = ({
   change,
