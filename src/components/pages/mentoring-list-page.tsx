@@ -41,7 +41,7 @@ export default function MentoringListPage() {
               location: 'mentoring_page',
               is_authenticated: isAuthenticated,
             });
-            
+
             setIsComingSoonModalOpen(true);
           }}
         >

@@ -57,7 +57,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
 
   const handleApplyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     // GA4 이벤트 전송
     sendGTMEvent({
       event: 'mentoring_help_request_click',
@@ -66,7 +66,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       mentor_field: mentor.field,
       location: 'mentoring_page',
     });
-    
+
     setIsComingSoonModalOpen(true);
   };
 
