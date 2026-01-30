@@ -10,7 +10,7 @@ import {
   updateBalanceGameComment,
   voteBalanceGame,
 } from '../api/balance-game-api';
-import { UpdateBalanceGameRequest } from '../types';
+import { UpdateBalanceGameRequest } from '@/types/balance-game';
 
 export const useCreateBalanceGameMutation = () => {
   const queryClient = useQueryClient();

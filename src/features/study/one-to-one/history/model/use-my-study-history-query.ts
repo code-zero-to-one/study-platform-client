@@ -10,7 +10,7 @@ export const STUDY_HISTORY_QUERY_KEY = {
     [...STUDY_HISTORY_QUERY_KEY.all, params] as const,
 };
 
-export const useMyStudyHistory = (
+export const useMyStudyHistoryQuery = (
   params: GetMyStudyHistoryParams,
   options?: { initialData?: Awaited<ReturnType<typeof getMyStudyHistory>> },
 ) => {

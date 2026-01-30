@@ -4,7 +4,7 @@ import type {
   BalanceGame,
   BalanceGameCommentListResponse,
   BalanceGameListResponse,
-} from '../types';
+} from '@/types/balance-game';
 
 export const getBalanceGameListServer = async (params: {
   page?: number;

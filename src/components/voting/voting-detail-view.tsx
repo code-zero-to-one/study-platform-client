@@ -33,7 +33,7 @@ import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
 } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
-import { BalanceGameComment } from '@/features/study/one-to-one/balance-game/types';
+import { BalanceGameComment } from '@/types/balance-game';
 import { useUserStore } from '@/stores/useUserStore';
 import {
   CommentFormData,

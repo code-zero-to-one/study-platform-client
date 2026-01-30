@@ -8,7 +8,7 @@ export const ARCHIVE_QUERY_KEY = {
     [...ARCHIVE_QUERY_KEY.all, params] as const,
 };
 
-export const useArchive = (
+export const useArchiveQuery = (
   params: GetArchiveParams,
   options?: { initialData?: Awaited<ReturnType<typeof getArchive>> },
 ) => {

@@ -3,7 +3,7 @@ import { toggleArchiveBookmark } from '@/features/study/one-to-one/archive/api/t
 import { ArchiveResponse } from '@/types/archive';
 import { ARCHIVE_QUERY_KEY } from './use-archive-query';
 
-export const useToggleArchiveBookmark = () => {
+export const useToggleArchiveBookmarkMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({

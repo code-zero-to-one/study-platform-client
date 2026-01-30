@@ -19,8 +19,9 @@ import { useBalanceGameListQuery } from '@/features/study/one-to-one/balance-gam
 import type {
   BalanceGameListResponse,
   CreateBalanceGameRequest,
-} from '@/features/study/one-to-one/balance-game/types';
+} from '@/types/balance-game';
 import { VotingCreateFormData } from '@/types/schemas/zod-schema';
+import FilterPillButton from './filter-pill-button';
 
 interface CommunityTabClientProps {
   initialList?: BalanceGameListResponse;
@@ -192,39 +193,24 @@ export default function CommunityTabClient({
         <div className="mb-400 flex items-center justify-between gap-200">
           {/* 필터(상태) + 정렬 */}
           <div className="flex items-center gap-200">
-            <button
+            <FilterPillButton
+              isActive={statusFilter === 'active'}
               onClick={() => setStatusFilter('active')}
-              className={cn(
-                'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                statusFilter === 'active'
-                  ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                  : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-              )}
             >
               진행 중
-            </button>
-            <button
+            </FilterPillButton>
+            <FilterPillButton
+              isActive={statusFilter === 'closed'}
               onClick={() => setStatusFilter('closed')}
-              className={cn(
-                'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                statusFilter === 'closed'
-                  ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                  : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-              )}
             >
               종료됨
-            </button>
-            <button
+            </FilterPillButton>
+            <FilterPillButton
+              isActive={statusFilter === 'all'}
               onClick={() => setStatusFilter('all')}
-              className={cn(
-                'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                statusFilter === 'all'
-                  ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                  : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-              )}
             >
               전체
-            </button>
+            </FilterPillButton>
 
             {/* divider */}
             <div className="bg-border-subtle mx-100 h-6 w-px" />

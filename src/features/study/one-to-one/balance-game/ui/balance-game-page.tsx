@@ -3,13 +3,13 @@
 import { Loader2, Vote, SearchX, Plus, ArrowUpDown } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
 import VotingCard from '@/components/card/voting-card';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Toast from '@/components/ui/toast';
 import VotingCreateModal from '@/components/voting/voting-create-modal';
 import { useCreateBalanceGameMutation } from '@/features/study/one-to-one/balance-game/model/use-balance-game-mutation';
 import { useBalanceGameListQuery } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
-import { CreateBalanceGameRequest } from '@/features/study/one-to-one/balance-game/types';
+import { CreateBalanceGameRequest } from '@/types/balance-game';
 import { VotingCreateFormData } from '@/types/schemas/zod-schema';
+import FilterPillButton from './filter-pill-button';
 
 export default function BalanceGamePage() {
   // 상태 관리
@@ -162,65 +162,40 @@ export default function BalanceGamePage() {
               <div className="mb-400 flex items-center justify-between gap-200">
                 {/* 필터(상태) + 정렬 */}
                 <div className="flex items-center gap-200">
-                  <button
+                  <FilterPillButton
+                    isActive={statusFilter === 'active'}
                     onClick={() => setStatusFilter('active')}
-                    className={cn(
-                      'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                      statusFilter === 'active'
-                        ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                        : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-                    )}
                   >
                     진행 중
-                  </button>
-                  <button
+                  </FilterPillButton>
+                  <FilterPillButton
+                    isActive={statusFilter === 'closed'}
                     onClick={() => setStatusFilter('closed')}
-                    className={cn(
-                      'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                      statusFilter === 'closed'
-                        ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                        : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-                    )}
                   >
                     종료됨
-                  </button>
-                  <button
+                  </FilterPillButton>
+                  <FilterPillButton
+                    isActive={statusFilter === 'all'}
                     onClick={() => setStatusFilter('all')}
-                    className={cn(
-                      'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                      statusFilter === 'all'
-                        ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                        : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-                    )}
                   >
                     전체
-                  </button>
+                  </FilterPillButton>
 
                   {/* divider */}
                   <div className="bg-border-subtle mx-100 h-6 w-px" />
 
-                  <button
+                  <FilterPillButton
+                    isActive={sortMode === 'latest'}
                     onClick={() => setSortMode('latest')}
-                    className={cn(
-                      'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                      sortMode === 'latest'
-                        ? 'bg-fill-neutral-default-default text-text-strong shadow-1'
-                        : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-                    )}
                   >
                     최신순
-                  </button>
-                  <button
+                  </FilterPillButton>
+                  <FilterPillButton
+                    isActive={sortMode === 'popular'}
                     onClick={() => setSortMode('popular')}
-                    className={cn(
-                      'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                      sortMode === 'popular'
-                        ? 'bg-fill-neutral-default-default text-text-strong shadow-1'
-                        : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-                    )}
                   >
                     인기순
-                  </button>
+                  </FilterPillButton>
                 </div>
 
                 {/* 주제 생성 버튼 */}

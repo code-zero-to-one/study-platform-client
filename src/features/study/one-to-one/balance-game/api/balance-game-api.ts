@@ -9,7 +9,7 @@ import {
   UpdateBalanceGameRequest,
   UpdateCommentRequest,
   VoteRequest,
-} from '../types';
+} from '@/types/balance-game';
 
 // 1. 밸런스 게임 목록 조회
 export const getBalanceGameList = async (params: {
@@ -20,57 +20,41 @@ export const getBalanceGameList = async (params: {
 }): Promise<BalanceGameListResponse> => {
   // 백엔드는 page를 1부터 시작하고 limit을 사용함
   const { page = 1, size = 10, sort = 'latest', status } = params;
-  try {
-    console.log('[BalanceGame] getBalanceGameList request params:', {
-      page,
-      limit: size,
-      sort,
-      status,
-    });
-    const response = await axiosInstance.get<
-      ApiResponse<BalanceGameListResponse>
-    >('/balance-games', {
+
+  const response = await axiosInstance.get<ApiResponse<BalanceGameListResponse>>(
+    '/balance-games',
+    {
       params: {
         page,
         limit: size, // 백엔드는 limit 파라미터를 사용
         sort,
         status,
       },
-    });
-    console.log('getBalanceGameList response data:', response.data);
+    },
+  );
 
-    // content 필드 사용 (실제 백엔드 응답 구조 반영)
-    if (response.data && 'content' in response.data) {
-      return response.data.content;
-    }
-
-    // Fallback: 혹시 content 없이 바로 데이터가 오는 경우
-    return response.data as unknown as BalanceGameListResponse;
-  } catch (error) {
-    console.error('Failed to fetch balance game list:', error);
-    throw error;
+  // content 필드 사용 (실제 백엔드 응답 구조 반영)
+  if (response.data && 'content' in response.data) {
+    return response.data.content;
   }
+
+  // Fallback: 혹시 content 없이 바로 데이터가 오는 경우
+  return response.data as unknown as BalanceGameListResponse;
 };
 
 // 2. 밸런스 게임 상세 조회
 export const getBalanceGameDetail = async (
   gameId: number,
 ): Promise<BalanceGame> => {
-  try {
-    const response = await axiosInstance.get<ApiResponse<BalanceGame>>(
-      `/balance-games/${gameId}`,
-    );
-    console.log('getBalanceGameDetail response data:', response.data);
+  const response = await axiosInstance.get<ApiResponse<BalanceGame>>(
+    `/balance-games/${gameId}`,
+  );
 
-    if (response.data && 'content' in response.data) {
-      return response.data.content;
-    }
-
-    return response.data as unknown as BalanceGame;
-  } catch (error) {
-    console.error('Failed to fetch balance game detail:', error);
-    throw error;
+  if (response.data && 'content' in response.data) {
+    return response.data.content;
   }
+
+  return response.data as unknown as BalanceGame;
 };
 
 // 3. 밸런스 게임 생성
@@ -109,22 +93,18 @@ export const getBalanceGameComments = async (
   params: { page?: number; size?: number },
 ): Promise<BalanceGameCommentListResponse> => {
   const { page = 0, size = 10 } = params;
-  try {
-    const response = await axiosInstance.get<
-      ApiResponse<BalanceGameCommentListResponse>
-    >(`/balance-games/${gameId}/comments`, {
-      params: { page, size },
-    });
 
-    if (response.data && 'content' in response.data) {
-      return response.data.content;
-    }
+  const response = await axiosInstance.get<
+    ApiResponse<BalanceGameCommentListResponse>
+  >(`/balance-games/${gameId}/comments`, {
+    params: { page, size },
+  });
 
-    return response.data as unknown as BalanceGameCommentListResponse;
-  } catch (error) {
-    console.error('Failed to fetch comments:', error);
-    throw error;
+  if (response.data && 'content' in response.data) {
+    return response.data.content;
   }
+
+  return response.data as unknown as BalanceGameCommentListResponse;
 };
 
 // 7. 댓글 작성

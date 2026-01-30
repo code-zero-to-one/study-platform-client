@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import ReservationList from '@/features/study/participation/ui/reservation-list';
 import {
   useStudyStatusQuery,
-  useWeeklyParticipation,
+  useWeeklyParticipationQuery,
 } from '@/features/study/one-to-one/schedule/model/use-schedule-query';
 import DateSelector from '@/features/study/one-to-one/schedule/ui/data-selector';
 import TodayStudyCard from '@/features/study/one-to-one/schedule/ui/today-study-card';
@@ -67,7 +67,7 @@ export default function StudyCard() {
 
   const { data: status } = useStudyStatusQuery();
 
-  const { data: participationData } = useWeeklyParticipation(studyDate);
+  const { data: participationData } = useWeeklyParticipationQuery(studyDate);
   const isParticipate = participationData?.isParticipate ?? false;
 
   const displayMonday = useMemo(

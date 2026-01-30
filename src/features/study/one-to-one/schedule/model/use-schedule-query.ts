@@ -13,7 +13,7 @@ import {
 } from '@/features/study/one-to-one/schedule/api/schedule-types';
 
 // 스터디 주간 참여 유무 확인 query
-export const useWeeklyParticipation = (params: string) => {
+export const useWeeklyParticipationQuery = (params: string) => {
   return useQuery({
     queryKey: ['weeklyParticipation', params],
     queryFn: () => getWeeklyParticipation(params),

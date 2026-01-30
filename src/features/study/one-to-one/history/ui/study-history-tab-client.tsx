@@ -5,13 +5,14 @@ import { useState } from 'react';
 import { StudyCalendar } from '@/components/study-history/study-calendar';
 import { StudyHistoryRow } from '@/components/study-history/study-history-row';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { useMyStudyHistory } from '@/features/study/one-to-one/history/model/use-my-study-history-query';
+import { useMyStudyHistoryQuery } from '@/features/study/one-to-one/history/model/use-my-study-history-query';
 import {
   PageableResponse,
   StudyHistoryItem,
   StudyHistoryContent,
 } from '@/types/study-history';
 import { GetMyStudyHistoryParams } from '@/features/study/one-to-one/history/api/get-my-study-history';
+import PaginationCircleButton from '@/features/study/one-to-one/ui/pagination-circle-button';
 
 // 데이터 매핑 함수 (API Response -> UI Model)
 const mapHistoryItem = (data: StudyHistoryContent): StudyHistoryItem => {
@@ -81,7 +82,7 @@ export default function StudyHistoryTabClient({
     queryParams.endDate === initialParams.endDate &&
     queryParams.sort === initialParams.sort;
 
-  const { data: historyData, isLoading } = useMyStudyHistory(queryParams, {
+  const { data: historyData, isLoading } = useMyStudyHistoryQuery(queryParams, {
     initialData: shouldUseInitialData ? initialData : undefined,
   });
 
@@ -180,25 +181,23 @@ export default function StudyHistoryTabClient({
 
         {viewMode === 'LIST' && totalPages > 1 && (
           <div className="flex justify-center gap-100 py-600">
-            <button
+            <PaginationCircleButton
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="border-border-subtle hover:bg-fill-neutral-subtle-hover text-text-subtle flex h-[40px] w-[40px] items-center justify-center rounded-[9999px] border transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
             >
               ←
-            </button>
+            </PaginationCircleButton>
             <span className="font-designer-15m text-text-subtle bg-background-default border-border-subtle flex h-[40px] items-center justify-center rounded-[9999px] border px-300">
               {currentPage} / {totalPages}
             </span>
-            <button
+            <PaginationCircleButton
               onClick={() =>
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
-              className="border-border-subtle hover:bg-fill-neutral-subtle-hover text-text-subtle flex h-[40px] w-[40px] items-center justify-center rounded-[9999px] border transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
             >
               →
-            </button>
+            </PaginationCircleButton>
           </div>
         )}
       </div>

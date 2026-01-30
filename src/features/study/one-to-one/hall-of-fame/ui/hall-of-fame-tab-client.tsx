@@ -18,7 +18,8 @@ import type {
   HallOfFameData,
   Ranker,
   MVPTeam,
-} from '@/features/study/one-to-one/hall-of-fame/types';
+} from '@/types/hall-of-fame';
+import RankingTabButton from './ranking-tab-button';
 
 // ----------------------------------------------------------------------
 // Types & Constants
@@ -340,15 +341,10 @@ export default function HallOfFameTabClient({
 
             <div className="bg-background-default rounded-200 border-border-subtle mb-100 flex w-fit flex-wrap gap-100 border p-100">
               {(Object.keys(TAB_CONFIG) as RankingType[]).map((type) => (
-                <button
+                <RankingTabButton
                   key={type}
+                  isActive={rankingType === type}
                   onClick={() => setRankingType(type)}
-                  className={cn(
-                    'font-designer-14m rounded-100 flex items-center gap-50 px-200 py-100 whitespace-nowrap transition-all',
-                    rankingType === type
-                      ? 'bg-fill-neutral-strong-default text-text-inverse shadow-1'
-                      : 'text-text-subtle hover:bg-fill-neutral-subtle-hover',
-                  )}
                 >
                   <span
                     className={cn(
@@ -358,7 +354,7 @@ export default function HallOfFameTabClient({
                     {TAB_CONFIG[type].icon}
                   </span>
                   {TAB_CONFIG[type].label}
-                </button>
+                </RankingTabButton>
               ))}
             </div>
           </div>

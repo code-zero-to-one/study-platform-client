@@ -34,7 +34,7 @@ const hasViewed = (id: number): boolean => {
   return !!viewed[id];
 };
 
-export const useRecordArchiveView = () => {
+export const useRecordArchiveViewMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({

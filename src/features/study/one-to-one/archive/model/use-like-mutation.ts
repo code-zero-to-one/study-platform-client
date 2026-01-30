@@ -3,7 +3,7 @@ import { toggleArchiveLike } from '@/features/study/one-to-one/archive/api/toggl
 import { ArchiveResponse } from '@/types/archive';
 import { ARCHIVE_QUERY_KEY } from './use-archive-query';
 
-export const useToggleArchiveLike = () => {
+export const useToggleArchiveLikeMutation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({

@@ -6,7 +6,7 @@ import CommentForm from '@/components/discussion/comment-form';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { BalanceGameComment } from '@/features/study/one-to-one/balance-game/types';
+import { BalanceGameComment } from '@/types/balance-game';
 import { DiscussionComment } from '@/types/discussion';
 import { CommentFormData } from '@/types/schemas/zod-schema';
 import { VotingComment, VotingOption } from '@/types/voting';

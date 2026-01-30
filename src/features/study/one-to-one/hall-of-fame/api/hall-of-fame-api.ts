@@ -1,5 +1,5 @@
 import { axiosInstance } from '@/api/client/axios';
-import type { HallOfFameResponse, HallOfFameData } from '../types';
+import type { HallOfFameResponse, HallOfFameData } from '@/types/hall-of-fame';
 
 /**
  * 명예의 전당 정보 조회

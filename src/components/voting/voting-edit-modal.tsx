@@ -5,7 +5,7 @@ import { X, Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { BalanceGame } from '@/features/study/one-to-one/balance-game/types';
+import { BalanceGame } from '@/types/balance-game';
 import {
   VotingEditFormSchema,
   VotingEditFormData,
