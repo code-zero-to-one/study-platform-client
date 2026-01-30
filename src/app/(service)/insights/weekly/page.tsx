@@ -2,7 +2,7 @@
 
 import { Loader2, Vote, SearchX, Plus, ArrowUpDown } from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
-import VotingCard from '@/components/cards/voting-card';
+import VotingCard from '@/components/card/voting-card';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Toast from '@/components/ui/toast';
 import VotingCreateModal from '@/components/voting/voting-create-modal';
