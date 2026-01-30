@@ -1,9 +1,11 @@
 # 백엔드 API 명세 변경 요청서
 
 ## 요청 일자
+
 2024년 (작성 시점 기준)
 
 ## 요청 항목
+
 1대1 스터디 기록 조회 API (`GET /api/v1/study/daily/history`) 관련 명세 확인 및 변경 요청
 
 ---
@@ -11,6 +13,7 @@
 ## 1. 변경 배경
 
 프론트엔드에서 "나의 1대1 스터디 기록" 페이지의 UI 개선을 위해 다음 변경이 필요합니다:
+
 - 테이블 컬럼명 변경: "출석" → "역할수행여부"
 - 테이블에 "진행상태" 컬럼 추가
 
@@ -19,11 +22,13 @@
 ## 2. 현재 API 사용 현황
 
 ### 2.1 API 엔드포인트
+
 ```
 GET /api/v1/study/daily/history
 ```
 
 ### 2.2 요청 파라미터
+
 ```typescript
 {
   page?: number;        // 페이지 번호 (0부터 시작)
@@ -76,17 +81,19 @@ interface StudyHistoryContent {
 현재 프론트엔드에서 사용 중인 필드들의 명확한 정의를 확인하고 싶습니다:
 
 #### 3.1.1 `participation.attendance` 필드
+
 - **현재 사용 값**: `PRESENT`, `PENDING`, `ABSENT`
-- **요청 사항**: 
+- **요청 사항**:
   - 각 값의 정확한 의미 확인
   - `PRESENT`: 역할을 수행했는지 여부를 나타내는가?
   - `PENDING`: 아직 진행 전인 상태인가?
   - `ABSENT`: 불참 상태인가?
-- **프론트엔드 표시**: 
+- **프론트엔드 표시**:
   - `PRESENT` → "역할수행" (성공 아이콘)
   - `PENDING` 또는 `ABSENT` → "미진행" (경고 아이콘)
 
 #### 3.1.2 `status` 필드
+
 - **현재 사용 값**: `COMPLETE`, `IN_PROGRESS`, `PENDING`
 - **요청 사항**:
   - 각 값의 정확한 의미 확인
@@ -100,7 +107,7 @@ interface StudyHistoryContent {
 
 ### 3.2 API 명세 문서화 요청
 
-현재 `GET /api/v1/study/daily/history` API가 OpenAPI 스펙에 포함되어 있지 않은 것으로 보입니다. 
+현재 `GET /api/v1/study/daily/history` API가 OpenAPI 스펙에 포함되어 있지 않은 것으로 보입니다.
 다음 내용을 포함한 명세 문서화를 요청합니다:
 
 1. **엔드포인트 정보**
@@ -125,11 +132,13 @@ interface StudyHistoryContent {
 ## 4. 프론트엔드 변경 사항
 
 ### 4.1 UI 변경
+
 - ✅ 테이블 헤더: "출석" → "역할수행여부"
 - ✅ 테이블 행: "출석" 텍스트 → "역할수행" 텍스트
 - ✅ 테이블에 "진행상태" 컬럼 추가
 
 ### 4.2 데이터 매핑
+
 ```typescript
 // API 응답 → UI 표시
 attendance: 'PRESENT' → "역할수행" (성공 아이콘)
@@ -181,12 +190,14 @@ status: 'PENDING' → "대기중" (시계 아이콘) - 필요시
 ## 8. 참고 자료
 
 ### 프론트엔드 파일 위치
+
 - 컴포넌트: `src/components/study-history/study-history-row.tsx`
 - 탭 컴포넌트: `src/components/home/tabs/study-history-tab.tsx`
 - 타입 정의: `src/types/study-history.ts`
 - API 호출: `src/features/study/history/api/get-my-study-history.ts`
 
 ### 현재 사용 중인 타입 정의
+
 ```typescript
 // src/types/study-history.ts
 export type StudyRole = 'INTERVIEWER' | 'INTERVIEWEE';
@@ -197,5 +208,5 @@ export type StudyStatus = 'COMPLETE' | 'IN_PROGRESS' | 'PENDING';
 ---
 
 ## 작성자
-프론트엔드 개발팀
 
+프론트엔드 개발팀

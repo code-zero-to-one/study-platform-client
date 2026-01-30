@@ -1,11 +1,14 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
+import { X, Plus, Trash2, Loader2, Calendar } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { VotingCreateFormSchema, VotingCreateFormData } from '@/types/schemas/zod-schema';
-import { X, Plus, Trash2, Loader2, Calendar } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import {
+  VotingCreateFormSchema,
+  VotingCreateFormData,
+} from '@/types/schemas/zod-schema';
 
 interface VotingCreateModalProps {
   isOpen: boolean;
@@ -13,7 +16,11 @@ interface VotingCreateModalProps {
   onSubmit: (data: VotingCreateFormData) => Promise<void>;
 }
 
-export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingCreateModalProps) {
+export default function VotingCreateModal({
+  isOpen,
+  onClose,
+  onSubmit,
+}: VotingCreateModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagInput, setTagInput] = useState('');
 
@@ -79,13 +86,18 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
+
     return `${year}-${month}-${day}`;
   };
 
   // 태그 추가
   const handleAddTag = () => {
     const trimmedTag = tagInput.trim();
-    if (trimmedTag && watchedTags.length < 3 && !watchedTags.includes(trimmedTag)) {
+    if (
+      trimmedTag &&
+      watchedTags.length < 3 &&
+      !watchedTags.includes(trimmedTag)
+    ) {
       setValue('tags', [...watchedTags, trimmedTag]);
       setTagInput('');
     }
@@ -95,7 +107,7 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
   const handleRemoveTag = (tagToRemove: string) => {
     setValue(
       'tags',
-      watchedTags.filter((tag) => tag !== tagToRemove)
+      watchedTags.filter((tag) => tag !== tagToRemove),
     );
   };
 
@@ -106,7 +118,8 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
       // endsAt이 빈 문자열이면 undefined로 변환
       const submitData = {
         ...data,
-        endsAt: data.endsAt && data.endsAt.trim() !== '' ? data.endsAt : undefined,
+        endsAt:
+          data.endsAt && data.endsAt.trim() !== '' ? data.endsAt : undefined,
       };
       await onSubmit(submitData);
       reset();
@@ -131,14 +144,14 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-400">
-      <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-300 bg-background-default shadow-xl">
+      <div className="rounded-300 bg-background-default relative max-h-[90vh] w-full max-w-2xl overflow-y-auto shadow-xl">
         {/* 헤더 */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border-subtle bg-background-default px-600 py-400">
+        <div className="border-border-subtle bg-background-default sticky top-0 z-10 flex items-center justify-between border-b px-600 py-400">
           <h2 className="font-bold-h4 text-text-strong">새 투표 주제 만들기</h2>
           <button
             onClick={handleClose}
             disabled={isSubmitting}
-            className="rounded-100 p-100 text-text-subtle transition-colors hover:bg-fill-neutral-subtle-default hover:text-text-strong disabled:cursor-not-allowed"
+            className="rounded-100 text-text-subtle hover:bg-fill-neutral-subtle-default hover:text-text-strong p-100 transition-colors disabled:cursor-not-allowed"
           >
             <X className="h-5 w-5" />
           </button>
@@ -148,7 +161,7 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
         <form onSubmit={handleSubmit(handleFormSubmit)} className="p-600">
           {/* 제목 */}
           <div className="mb-500">
-            <label className="mb-200 block font-designer-14b text-text-strong">
+            <label className="font-designer-14b text-text-strong mb-200 block">
               제목 <span className="text-text-critical">*</span>
             </label>
             <input
@@ -156,17 +169,19 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
               type="text"
               placeholder="투표 주제를 입력해주세요 (예: 내가 자주 쓰는 생성형 AI는?)"
               className={cn(
-                'w-full rounded-100 border px-300 py-250 font-designer-14r outline-none transition-colors',
+                'rounded-100 font-designer-14r w-full border px-300 py-250 transition-colors outline-none',
                 errors.title
                   ? 'border-border-critical bg-background-critical'
-                  : 'border-border-subtle bg-background-default focus:border-border-brand'
+                  : 'border-border-subtle bg-background-default focus:border-border-brand',
               )}
             />
             <div className="mt-100 flex items-center justify-between">
               {errors.title && (
-                <p className="font-designer-12r text-text-critical text-red-600">{errors.title.message}</p>
+                <p className="font-designer-12r text-text-critical text-red-600">
+                  {errors.title.message}
+                </p>
               )}
-              <span className="ml-auto font-designer-12r text-text-subtlest">
+              <span className="font-designer-12r text-text-subtlest ml-auto">
                 {watchedTitle.length}/200
               </span>
             </div>
@@ -174,7 +189,7 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
 
           {/* 설명 */}
           <div className="mb-500">
-            <label className="mb-200 block font-designer-14b text-text-strong">
+            <label className="font-designer-14b text-text-strong mb-200 block">
               설명 (선택)
             </label>
             <textarea
@@ -182,17 +197,19 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
               placeholder="주제에 대한 부연 설명을 입력해주세요"
               rows={3}
               className={cn(
-                'w-full resize-none rounded-100 border px-300 py-250 font-designer-14r outline-none transition-colors',
+                'rounded-100 font-designer-14r w-full resize-none border px-300 py-250 transition-colors outline-none',
                 errors.description
                   ? 'border-border-critical bg-background-critical'
-                  : 'border-border-subtle bg-background-default focus:border-border-brand'
+                  : 'border-border-subtle bg-background-default focus:border-border-brand',
               )}
             />
             <div className="mt-100 flex items-center justify-between">
               {errors.description && (
-                <p className="font-designer-12r text-text-critical">{errors.description.message}</p>
+                <p className="font-designer-12r text-text-critical">
+                  {errors.description.message}
+                </p>
               )}
-              <span className="ml-auto font-designer-12r text-text-subtlest">
+              <span className="font-designer-12r text-text-subtlest ml-auto">
                 {watchedDescription.length}/500
               </span>
             </div>
@@ -200,14 +217,16 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
 
           {/* 선택지 */}
           <div className="mb-500">
-            <label className="mb-200 block font-designer-14b text-text-strong">
+            <label className="font-designer-14b text-text-strong mb-200 block">
               선택지 <span className="text-text-critical">*</span>
-              <span className="ml-100 font-designer-12r text-text-subtle">(최소 2개, 최대 5개)</span>
+              <span className="font-designer-12r text-text-subtle ml-100">
+                (최소 2개, 최대 5개)
+              </span>
             </label>
             <div className="flex flex-col gap-200">
               {fields.map((field, index) => (
                 <div key={field.id} className="flex items-start gap-200">
-                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-fill-brand-subtle-default font-designer-13b text-text-brand">
+                  <div className="bg-fill-brand-subtle-default font-designer-13b text-text-brand flex h-9 w-9 shrink-0 items-center justify-center rounded-full">
                     {index + 1}
                   </div>
                   <div className="flex-1">
@@ -216,14 +235,14 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
                       type="text"
                       placeholder={`선택지 ${index + 1}`}
                       className={cn(
-                        'w-full rounded-100 border px-300 py-200 font-designer-14r outline-none transition-colors',
+                        'rounded-100 font-designer-14r w-full border px-300 py-200 transition-colors outline-none',
                         errors.options?.[index]?.label
                           ? 'border-border-critical bg-background-critical'
-                          : 'border-border-subtle bg-background-default focus:border-border-brand'
+                          : 'border-border-subtle bg-background-default focus:border-border-brand',
                       )}
                     />
                     {errors.options?.[index]?.label && (
-                      <p className="mt-50 font-designer-12r text-text-critical">
+                      <p className="font-designer-12r text-text-critical mt-50">
                         {errors.options[index]?.label?.message}
                       </p>
                     )}
@@ -232,7 +251,7 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
                     <button
                       type="button"
                       onClick={() => remove(index)}
-                      className="rounded-100 p-150 text-text-subtle transition-colors hover:bg-fill-critical-subtle-default hover:text-text-critical"
+                      className="rounded-100 text-text-subtle hover:bg-fill-critical-subtle-default hover:text-text-critical p-150 transition-colors"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -241,7 +260,7 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
               ))}
             </div>
             {errors.options && (
-              <p className="mt-200 font-designer-12r text-text-critical">
+              <p className="font-designer-12r text-text-critical mt-200">
                 {errors.options.message || errors.options.root?.message}
               </p>
             )}
@@ -249,7 +268,7 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
               <button
                 type="button"
                 onClick={() => append({ label: '' })}
-                className="mt-200 flex items-center gap-100 rounded-100 border border-dashed border-border-brand px-300 py-200 font-designer-13b text-text-brand transition-colors hover:bg-fill-brand-subtle-default"
+                className="rounded-100 border-border-brand font-designer-13b text-text-brand hover:bg-fill-brand-subtle-default mt-200 flex items-center gap-100 border border-dashed px-300 py-200 transition-colors"
               >
                 <Plus className="h-4 w-4" />
                 선택지 추가
@@ -259,9 +278,11 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
 
           {/* 태그 */}
           <div className="mb-500">
-            <label className="mb-200 block font-designer-14b text-text-strong">
+            <label className="font-designer-14b text-text-strong mb-200 block">
               태그 (선택)
-              <span className="ml-100 font-designer-12r text-text-subtle">(최대 3개)</span>
+              <span className="font-designer-12r text-text-subtle ml-100">
+                (최대 3개)
+              </span>
             </label>
             <div className="flex gap-200">
               <input
@@ -276,13 +297,13 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
                 }}
                 placeholder="태그 입력 후 Enter"
                 disabled={watchedTags.length >= 3}
-                className="flex-1 rounded-100 border border-border-subtle bg-background-default px-300 py-200 font-designer-14r outline-none transition-colors focus:border-border-brand disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-100 border-border-subtle bg-background-default font-designer-14r focus:border-border-brand flex-1 border px-300 py-200 transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50"
               />
               <button
                 type="button"
                 onClick={handleAddTag}
                 disabled={watchedTags.length >= 3 || !tagInput.trim()}
-                className="rounded-100 bg-fill-brand-default-default px-300 py-200 font-designer-13b text-text-inverse transition-colors hover:bg-fill-brand-default-hover disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-100 bg-fill-brand-default-default font-designer-13b text-text-inverse hover:bg-fill-brand-default-hover px-300 py-200 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
               >
                 추가
               </button>
@@ -292,13 +313,15 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
                 {watchedTags.map((tag) => (
                   <div
                     key={tag}
-                    className="flex items-center gap-50 rounded-100 bg-fill-neutral-subtle-default px-200 py-100"
+                    className="rounded-100 bg-fill-neutral-subtle-default flex items-center gap-50 px-200 py-100"
                   >
-                    <span className="font-designer-12r text-text-default">#{tag}</span>
+                    <span className="font-designer-12r text-text-default">
+                      #{tag}
+                    </span>
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
-                      className="text-text-subtle transition-colors hover:text-text-strong"
+                      className="text-text-subtle hover:text-text-strong transition-colors"
                     >
                       <X className="h-3 w-3" />
                     </button>
@@ -310,7 +333,7 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
 
           {/* 마감 시간 */}
           <div className="mb-500">
-            <label className="mb-200 block font-designer-14b text-text-strong">
+            <label className="font-designer-14b text-text-strong mb-200 block">
               투표 마감 시간 (선택)
             </label>
             <input
@@ -318,15 +341,15 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
               value={selectedDateOnly}
               onChange={handleDateChange}
               min={getTodayDateString()}
-              className="w-full rounded-100 border border-border-subtle bg-background-default px-300 py-200 font-designer-14r outline-none transition-colors focus:border-border-brand"
+              className="rounded-100 border-border-subtle bg-background-default font-designer-14r focus:border-border-brand w-full border px-300 py-200 transition-colors outline-none"
             />
             {selectedDateOnly && (
-              <p className="mt-100 font-designer-12r text-text-subtle">
+              <p className="font-designer-12r text-text-subtle mt-100">
                 선택한 날짜의 23시 59분에 마감됩니다
               </p>
             )}
             {!selectedDateOnly && (
-              <p className="mt-100 font-designer-12r text-text-subtlest">
+              <p className="font-designer-12r text-text-subtlest mt-100">
                 미입력 시 7일 후 자동 마감됩니다
               </p>
             )}
@@ -338,14 +361,14 @@ export default function VotingCreateModal({ isOpen, onClose, onSubmit }: VotingC
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="flex-1 rounded-100 border border-border-subtle bg-background-default px-400 py-300 font-designer-14b text-text-default transition-colors hover:border-border-brand hover:text-text-brand disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-100 border-border-subtle bg-background-default font-designer-14b text-text-default hover:border-border-brand hover:text-text-brand flex-1 border px-400 py-300 transition-colors disabled:cursor-not-allowed disabled:opacity-50"
             >
               취소
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 rounded-100 bg-fill-brand-default-default px-400 py-300 font-designer-14b text-text-inverse shadow-1 transition-all hover:bg-fill-brand-default-hover hover:shadow-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-100 bg-fill-brand-default-default font-designer-14b text-text-inverse shadow-1 hover:bg-fill-brand-default-hover hover:shadow-2 flex-1 px-400 py-300 transition-all disabled:cursor-not-allowed disabled:opacity-50"
             >
               {isSubmitting ? (
                 <span className="flex items-center justify-center gap-200">

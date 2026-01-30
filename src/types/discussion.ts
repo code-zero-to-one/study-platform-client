@@ -1,6 +1,11 @@
 // Discussion 관련 타입 정의
 
-export type DiscussionTopic = 'all' | 'development' | 'study' | 'free' | 'question';
+export type DiscussionTopic =
+  | 'all'
+  | 'development'
+  | 'study'
+  | 'free'
+  | 'question';
 export type SortOption = 'latest' | 'popular';
 export type VoteType = 'agree' | 'disagree';
 

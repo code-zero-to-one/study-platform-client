@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
 import { Search, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface SearchBarProps {
@@ -37,22 +37,22 @@ export default function SearchBar({
 
   return (
     <div className={cn('relative', className)}>
-      <Search className="absolute left-300 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+      <Search className="text-text-subtle absolute top-1/2 left-300 h-4 w-4 -translate-y-1/2" />
       <input
         type="text"
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         placeholder={placeholder}
         className={cn(
-          'w-full rounded-100 border border-border-subtle bg-background-default py-200 pl-800 pr-800',
+          'rounded-100 border-border-subtle bg-background-default w-full border py-200 pr-800 pl-800',
           'font-designer-14r text-text-strong placeholder:text-text-subtlest',
-          'outline-none transition-colors focus:border-border-brand focus:ring-2 focus:ring-fill-brand-subtle-default',
+          'focus:border-border-brand focus:ring-fill-brand-subtle-default transition-colors outline-none focus:ring-2',
         )}
       />
       {localValue && (
         <button
           onClick={handleClear}
-          className="absolute right-300 top-1/2 -translate-y-1/2 text-text-subtle transition-colors hover:text-text-strong"
+          className="text-text-subtle hover:text-text-strong absolute top-1/2 right-300 -translate-y-1/2 transition-colors"
         >
           <X className="h-4 w-4" />
         </button>

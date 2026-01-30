@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleArchiveLike } from '@/features/archive/api/toggle-like';
-import { ARCHIVE_QUERY_KEY } from './use-archive-query';
 import { ArchiveResponse } from '@/types/archive';
+import { ARCHIVE_QUERY_KEY } from './use-archive-query';
 
 export const useToggleArchiveLike = () => {
   const queryClient = useQueryClient();
@@ -13,26 +13,29 @@ export const useToggleArchiveLike = () => {
       await queryClient.cancelQueries({ queryKey: ARCHIVE_QUERY_KEY.all });
 
       // 이전 데이터 스냅샷
-      const previousData = queryClient.getQueriesData<ArchiveResponse>({ queryKey: ARCHIVE_QUERY_KEY.all });
+      const previousData = queryClient.getQueriesData<ArchiveResponse>({
+        queryKey: ARCHIVE_QUERY_KEY.all,
+      });
 
       // 낙관적 업데이트
       queryClient.setQueriesData<ArchiveResponse>(
         { queryKey: ARCHIVE_QUERY_KEY.all },
         (oldData) => {
           if (!oldData) return oldData;
+
           return {
             ...oldData,
             content: oldData.content.map((item) =>
-              item.id === id 
-                ? { 
-                    ...item, 
+              item.id === id
+                ? {
+                    ...item,
                     isLiked: !item.isLiked,
-                    likes: item.isLiked ? item.likes - 1 : item.likes + 1
-                  } 
-                : item
+                    likes: item.isLiked ? item.likes - 1 : item.likes + 1,
+                  }
+                : item,
             ),
           };
-        }
+        },
       );
 
       return { previousData };
@@ -47,7 +50,11 @@ export const useToggleArchiveLike = () => {
     },
     onSettled: () => {
       // 완료 후 리프레시
-      queryClient.invalidateQueries({ queryKey: ARCHIVE_QUERY_KEY.all });
+      queryClient
+        .invalidateQueries({ queryKey: ARCHIVE_QUERY_KEY.all })
+        .catch(() => {
+          // 쿼리 무효화 실패 시 무시
+        });
     },
   });
 };

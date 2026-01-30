@@ -14,7 +14,8 @@ export const MOCK_DISCUSSIONS: Discussion[] = [
 3. 상태 관리가 필요한 컴포넌트
 
 여러분의 경험과 노하우를 공유해주세요!`,
-    summary: 'Next.js 15의 App Router를 사용하면서 서버 컴포넌트와 클라이언트 컴포넌트를 어떻게 나눠야 할지 고민이 많습니다.',
+    summary:
+      'Next.js 15의 App Router를 사용하면서 서버 컴포넌트와 클라이언트 컴포넌트를 어떻게 나눠야 할지 고민이 많습니다.',
     author: {
       id: 1,
       nickname: '프론트엔드개발자',
@@ -32,14 +33,16 @@ export const MOCK_DISCUSSIONS: Discussion[] = [
       {
         id: 101,
         author: { id: 2, nickname: '시니어개발자' },
-        content: '저는 데이터 페칭은 무조건 서버 컴포넌트에서 하고, useState나 useEffect가 필요한 부분만 클라이언트 컴포넌트로 분리합니다.',
+        content:
+          '저는 데이터 페칭은 무조건 서버 컴포넌트에서 하고, useState나 useEffect가 필요한 부분만 클라이언트 컴포넌트로 분리합니다.',
         createdAt: '2026-01-19T10:30:00Z',
         isAuthor: false,
       },
       {
         id: 102,
         author: { id: 3, nickname: '주니어개발자' },
-        content: '저도 같은 고민을 했었는데, 결국 성능 측정해보고 결정하는게 제일 좋더라구요!',
+        content:
+          '저도 같은 고민을 했었는데, 결국 성능 측정해보고 결정하는게 제일 좋더라구요!',
         createdAt: '2026-01-19T11:15:00Z',
         isAuthor: false,
       },
@@ -63,7 +66,8 @@ export const MOCK_DISCUSSIONS: Discussion[] = [
 - 작은 목표부터 시작하기
 
 여러분은 어떤 방법을 사용하시나요?`,
-    summary: '저는 3개월간 매일 아침 6시에 일어나서 1시간씩 알고리즘 문제를 풀었습니다. 처음에는 정말 힘들었지만, 2주가 지나니 습관이 되더라구요.',
+    summary:
+      '저는 3개월간 매일 아침 6시에 일어나서 1시간씩 알고리즘 문제를 풀었습니다. 처음에는 정말 힘들었지만, 2주가 지나니 습관이 되더라구요.',
     author: {
       id: 4,
       nickname: '아침형인간',
@@ -89,7 +93,8 @@ export const MOCK_DISCUSSIONS: Discussion[] = [
 
 어떤 상황에서 제네릭을 사용하는 것이 좋을까요?
 그리고 제네릭을 잘 사용하는 팁이 있다면 공유해주세요!`,
-    summary: 'TypeScript를 배우고 있는데 제네릭 개념이 너무 어렵습니다. 어떤 상황에서 제네릭을 사용하는 것이 좋을까요?',
+    summary:
+      'TypeScript를 배우고 있는데 제네릭 개념이 너무 어렵습니다. 어떤 상황에서 제네릭을 사용하는 것이 좋을까요?',
     author: {
       id: 5,
       nickname: 'TS초보',
@@ -121,7 +126,8 @@ export const MOCK_DISCUSSIONS: Discussion[] = [
 5. 네트워킹 (개발자 밋업 참석)
 
 가장 도움이 된 것은 역시 실전 프로젝트 경험이었습니다.`,
-    summary: '6개월간 개발자 취업 준비를 하고 드디어 합격했습니다! 제가 한 것들과 가장 도움이 된 것을 공유합니다.',
+    summary:
+      '6개월간 개발자 취업 준비를 하고 드디어 합격했습니다! 제가 한 것들과 가장 도움이 된 것을 공유합니다.',
     author: {
       id: 6,
       nickname: '신입개발자',
@@ -148,7 +154,8 @@ export const MOCK_DISCUSSIONS: Discussion[] = [
 React Query (TanStack Query)와 SWR 중 어떤 것이 더 좋을까요?
 
 각각의 장단점과 실제 사용 경험을 공유해주시면 감사하겠습니다.`,
-    summary: '새 프로젝트를 시작하는데 데이터 페칭 라이브러리를 고민 중입니다. React Query와 SWR 중 어떤 것이 더 좋을까요?',
+    summary:
+      '새 프로젝트를 시작하는데 데이터 페칭 라이브러리를 고민 중입니다. React Query와 SWR 중 어떤 것이 더 좋을까요?',
     author: {
       id: 7,
       nickname: '기술선택고민중',
@@ -174,7 +181,8 @@ React Query (TanStack Query)와 SWR 중 어떤 것이 더 좋을까요?
 
 어떻게 시작하면 좋을까요?
 그리고 효과적인 코드 리뷰 방법이 있다면 공유해주세요!`,
-    summary: '팀에 코드 리뷰 문화가 없어서 도입하려고 합니다. 어떻게 시작하면 좋을까요?',
+    summary:
+      '팀에 코드 리뷰 문화가 없어서 도입하려고 합니다. 어떻게 시작하면 좋을까요?',
     author: {
       id: 8,
       nickname: '팀리더',
@@ -200,7 +208,8 @@ React Query (TanStack Query)와 SWR 중 어떤 것이 더 좋을까요?
 
 여러분은 어떤 방식을 선호하시나요?
 각각의 장단점을 경험해보신 분들의 의견이 궁금합니다!`,
-    summary: '코로나 이후로 계속 온라인 스터디만 했는데, 요즘 오프라인도 고려 중입니다. 여러분은 어떤 방식을 선호하시나요?',
+    summary:
+      '코로나 이후로 계속 온라인 스터디만 했는데, 요즘 오프라인도 고려 중입니다. 여러분은 어떤 방식을 선호하시나요?',
     author: {
       id: 9,
       nickname: '스터디장',
@@ -228,7 +237,8 @@ Conventional Commits를 사용하시나요?
 아니면 다른 컨벤션을 사용하시나요?
 
 실제로 사용하시는 커밋 메시지 예시와 함께 공유해주시면 감사하겠습니다!`,
-    summary: '팀 프로젝트를 시작하는데 Git 커밋 메시지 규칙을 정하려고 합니다. 어떤 컨벤션을 추천하시나요?',
+    summary:
+      '팀 프로젝트를 시작하는데 Git 커밋 메시지 규칙을 정하려고 합니다. 어떤 컨벤션을 추천하시나요?',
     author: {
       id: 10,
       nickname: 'Git초보',
@@ -293,7 +303,9 @@ export const mockFetchDiscussions = async (params: {
   } else {
     // latest (기본값)
     filtered.sort(
-      (a, b) => new Date(b.lastActivityAt).getTime() - new Date(a.lastActivityAt).getTime(),
+      (a, b) =>
+        new Date(b.lastActivityAt).getTime() -
+        new Date(a.lastActivityAt).getTime(),
     );
   }
 

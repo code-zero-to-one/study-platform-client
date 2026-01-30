@@ -94,11 +94,11 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           ))}
           <Link
             href="/insights/weekly"
-            className="px-300 pb-200 transition-colors relative font-designer-15r text-[#535862] hover:text-[#6366f1]"
+            className="font-designer-15r relative px-300 pb-200 text-[#535862] transition-colors hover:text-[#6366f1]"
           >
             <span className="flex items-center gap-100">
               위클리
-              <span className="animate-pulse text-[10px] bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] text-white px-100 py-25 rounded-full font-bold">
+              <span className="animate-pulse rounded-full bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] px-100 py-25 text-[10px] font-bold text-white">
                 NEW
               </span>
             </span>

@@ -1,5 +1,5 @@
-import Banner from '@/widgets/home/banner';
 import StudyCard from '@/features/study/schedule/ui/study-card';
+import Banner from '@/widgets/home/banner';
 
 export default function StudyTab() {
   return (

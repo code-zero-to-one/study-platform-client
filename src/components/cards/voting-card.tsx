@@ -1,10 +1,10 @@
-import React from 'react';
-import Link from 'next/link';
-import { BalanceGame } from '@/features/balance-game/types';
 import { MessageCircle, Users } from 'lucide-react';
+import Link from 'next/link';
+import React from 'react';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { BalanceGame } from '@/features/balance-game/types';
 import VoteTimer from '../voting/vote-timer';
 
 interface VotingCardProps {
@@ -23,10 +23,19 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
   const cardContent = (
     <div
       className={cn(
-        'group block cursor-pointer rounded-200 bg-background-default p-500 transition-shadow duration-200 ring-2 ring-inset',
-        hasVoted ? 'ring-border-brand shadow-2' : 'ring-border-subtle hover:ring-border-brand hover:shadow-2',
+        'group rounded-200 bg-background-default block cursor-pointer p-500 ring-2 transition-shadow duration-200 ring-inset',
+        hasVoted
+          ? 'ring-border-brand shadow-2'
+          : 'ring-border-subtle hover:ring-border-brand hover:shadow-2',
       )}
-      onClick={onClick ? (e) => { e.preventDefault(); onClick(); } : undefined}
+      onClick={
+        onClick
+          ? (e) => {
+              e.preventDefault();
+              onClick();
+            }
+          : undefined
+      }
     >
       {/* 헤더: 작성자 & 상태 */}
       <div className="mb-300 flex items-center justify-between">
@@ -35,10 +44,10 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
           <UserProfileModal
             memberId={voting.author.id}
             trigger={
-              <div className="flex items-center gap-200 cursor-pointer rounded-full px-200 py-100 transition-shadow duration-100 ring-1 ring-inset ring-transparent hover:ring-fill-brand-default-default">
+              <div className="hover:ring-fill-brand-default-default flex cursor-pointer items-center gap-200 rounded-full px-200 py-100 ring-1 ring-transparent transition-shadow duration-100 ring-inset">
                 <div>
-                  <UserAvatar 
-                    size={32} 
+                  <UserAvatar
+                    size={32}
                     image={voting.author.profileImage || undefined}
                     className="relative z-10"
                   />
@@ -56,7 +65,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
       </div>
 
       {/* 제목 */}
-      <h3 className="mb-200 line-clamp-2 font-bold-h5 text-text-strong transition-colors group-hover:text-text-brand">
+      <h3 className="font-bold-h5 text-text-strong group-hover:text-text-brand mb-200 line-clamp-2 transition-colors">
         {voting.title}
       </h3>
 
@@ -66,7 +75,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
           {voting.tags.map((tag, index) => (
             <span
               key={tag || index}
-              className="rounded-100 bg-fill-neutral-subtle-default px-150 py-50 font-designer-12r text-text-subtle"
+              className="rounded-100 bg-fill-neutral-subtle-default font-designer-12r text-text-subtle px-150 py-50"
             >
               #{tag}
             </span>
@@ -76,32 +85,38 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
 
       {/* 설명 (있으면) */}
       {voting.description && (
-        <p className="mb-300 line-clamp-2 font-designer-14r text-text-subtle">
+        <p className="font-designer-14r text-text-subtle mb-300 line-clamp-2">
           {voting.description}
         </p>
       )}
 
       {/* 간단한 투표 결과 미리보기 (투표했을 때만) */}
       {hasVoted && (
-        <div className="mb-300 rounded-100 border border-border-subtle bg-background-alternative p-300">
-          <div className="mb-100 font-designer-12b text-text-subtle">현재 1위</div>
+        <div className="rounded-100 border-border-subtle bg-background-alternative mb-300 border p-300">
+          <div className="font-designer-12b text-text-subtle mb-100">
+            현재 1위
+          </div>
           <div className="flex items-center justify-between">
-            <span className="font-designer-15b text-text-strong">{topOption.label}</span>
-            <span className="font-designer-18b text-text-brand">{topOption.percentage.toFixed(1)}%</span>
+            <span className="font-designer-15b text-text-strong">
+              {topOption.label}
+            </span>
+            <span className="font-designer-18b text-text-brand">
+              {topOption.percentage.toFixed(1)}%
+            </span>
           </div>
         </div>
       )}
 
       {/* 하단 메타 정보 */}
-      <div className="flex items-center gap-300 border-t border-border-subtlest pt-300">
+      <div className="border-border-subtlest flex items-center gap-300 border-t pt-300">
         {/* 총 투표 수 */}
-        <div className="flex items-center gap-50 font-designer-13m text-text-brand">
+        <div className="font-designer-13m text-text-brand flex items-center gap-50">
           <Users className="h-4 w-4" />
           <span>{voting.totalVotes.toLocaleString()}</span>
         </div>
 
         {/* 댓글 수 */}
-        <div className="flex items-center gap-50 font-designer-13m text-text-subtle">
+        <div className="font-designer-13m text-text-subtle flex items-center gap-50">
           <MessageCircle className="h-4 w-4" />
           <span>{voting.commentCount || 0}</span>
         </div>
@@ -114,9 +129,5 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
     return cardContent;
   }
 
-  return (
-    <Link href={`/insights/weekly/${voting.id}`}>
-      {cardContent}
-    </Link>
-  );
+  return <Link href={`/insights/weekly/${voting.id}`}>{cardContent}</Link>;
 }

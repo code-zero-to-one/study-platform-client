@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
 import { Clock, Timer } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
 
 interface VoteTimerProps {
   endsAt?: string;
@@ -50,7 +50,7 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
 
   if (!isActive) {
     return (
-      <div className="flex items-center gap-100 rounded-full bg-orange-50 px-200 py-100 text-orange-600 border border-orange-100">
+      <div className="flex items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
         <Clock className="h-4 w-4" />
         <span className="font-designer-12b">종료된 투표</span>
       </div>
@@ -59,16 +59,16 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
 
   if (!endsAt) {
     return (
-      <div className="flex items-center justify-center gap-1.5 rounded-full bg-fill-brand-subtle-default px-3 py-1.5">
-        <Clock className="h-3.5 w-3.5 text-text-brand" />
-        <span className="text-xs font-bold text-text-brand">진행 중</span>
+      <div className="bg-fill-brand-subtle-default flex items-center justify-center gap-1.5 rounded-full px-3 py-1.5">
+        <Clock className="text-text-brand h-3.5 w-3.5" />
+        <span className="text-text-brand text-xs font-bold">진행 중</span>
       </div>
     );
   }
 
   if (!timeLeft) {
     return (
-      <div className="flex items-center gap-100 rounded-full bg-orange-50 px-200 py-100 text-orange-600 border border-orange-100">
+      <div className="flex items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
         <Clock className="h-4 w-4" />
         <span className="font-designer-12b">종료</span>
       </div>
@@ -76,11 +76,11 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
   }
 
   return (
-    <div className="flex items-center gap-100 rounded-full bg-orange-50 px-200 py-100 text-orange-600 border border-orange-100">
+    <div className="flex items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
       <Timer className="h-4 w-4" />
       <div className="flex items-baseline gap-150">
         <span className="font-designer-12b">남은 시간</span>
-        <span className="font-mono font-designer-14b tabular-nums">
+        <span className="font-designer-14b font-mono tabular-nums">
           {timeLeft.days > 0 && (
             <>
               <span>{timeLeft.days}일</span>

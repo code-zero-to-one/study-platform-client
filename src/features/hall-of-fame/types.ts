@@ -62,4 +62,3 @@ export interface HallOfFameData {
 }
 
 export type HallOfFameResponse = ApiResponse<HallOfFameData>;
-

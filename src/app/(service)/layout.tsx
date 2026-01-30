@@ -44,7 +44,7 @@ export default function ServiceLayout({
           <PageViewTracker />
           <div className="flex h-screen w-full flex-col overflow-hidden">
             <Header />
-            <main className="flex-1 w-full overflow-auto">{children}</main>
+            <main className="w-full flex-1 overflow-auto">{children}</main>
           </div>
         </MainProvider>
       </body>

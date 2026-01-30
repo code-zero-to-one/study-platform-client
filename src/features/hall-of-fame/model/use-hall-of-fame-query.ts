@@ -17,4 +17,3 @@ export const useHallOfFameQuery = () => {
     staleTime: 1000 * 60 * 5, // 5분간 캐시 유지
   });
 };
-

@@ -156,6 +156,7 @@ export default function SignupModal({
     // goal 단계에서는 바로 완료 처리
     if (currentStep === 'goal') {
       handleComplete();
+
       return;
     }
 

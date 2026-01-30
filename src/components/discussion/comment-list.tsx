@@ -1,15 +1,15 @@
-import React from 'react';
-import { DiscussionComment } from '@/types/discussion';
-import { VotingComment, VotingOption } from '@/types/voting';
-import { BalanceGameComment } from '@/features/balance-game/types';
-import { MoreVertical, Trash2, Edit, CheckCircle2 } from 'lucide-react';
-import UserAvatar from '@/components/ui/avatar';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import CommentForm from '@/components/discussion/comment-form';
-import { CommentFormData } from '@/types/schemas/zod-schema';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { MoreVertical, Trash2, Edit, CheckCircle2 } from 'lucide-react';
+import React from 'react';
+import CommentForm from '@/components/discussion/comment-form';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { BalanceGameComment } from '@/features/balance-game/types';
+import { DiscussionComment } from '@/types/discussion';
+import { CommentFormData } from '@/types/schemas/zod-schema';
+import { VotingComment, VotingOption } from '@/types/voting';
 
 interface CommentListProps {
   comments: (DiscussionComment | VotingComment | BalanceGameComment)[];
@@ -31,23 +31,27 @@ const OPTION_BADGE_COLORS = [
   { bg: 'bg-pink-100', text: 'text-pink-600', icon: 'text-pink-500' },
 ];
 
-export default function CommentList({ 
-  comments, 
-  onDelete, 
-  onEdit, 
-  votingOptions, 
-  editingCommentId, 
-  editingCommentContent, 
-  onUpdateComment, 
-  onCancelEdit 
+export default function CommentList({
+  comments,
+  onDelete,
+  onEdit,
+  votingOptions,
+  editingCommentId,
+  editingCommentContent,
+  onUpdateComment,
+  onCancelEdit,
 }: CommentListProps) {
   const [openMenuId, setOpenMenuId] = React.useState<number | null>(null);
 
   if (comments.length === 0) {
     return (
       <div className="py-800 text-center">
-        <p className="font-designer-14r text-text-subtlest">아직 댓글이 없습니다.</p>
-        <p className="font-designer-13r text-text-subtlest">첫 번째 댓글을 작성해보세요!</p>
+        <p className="font-designer-14r text-text-subtlest">
+          아직 댓글이 없습니다.
+        </p>
+        <p className="font-designer-13r text-text-subtlest">
+          첫 번째 댓글을 작성해보세요!
+        </p>
       </div>
     );
   }
@@ -62,28 +66,37 @@ export default function CommentList({
         });
 
         // VotingComment 타입인지 확인
-        const votedOption = 'votedOption' in comment ? comment.votedOption : undefined;
+        const votedOption =
+          'votedOption' in comment ? comment.votedOption : undefined;
 
         // 투표 옵션의 색상 찾기
-        let optionColor = { bg: 'bg-fill-brand-subtle-default', text: 'text-text-brand', icon: 'text-text-brand' };
+        let optionColor = {
+          bg: 'bg-fill-brand-subtle-default',
+          text: 'text-text-brand',
+          icon: 'text-text-brand',
+        };
         if (votedOption && votingOptions) {
-          const optionIndex = votingOptions.findIndex((opt) => opt.label === votedOption);
+          const optionIndex = votingOptions.findIndex(
+            (opt) => opt.label === votedOption,
+          );
           if (optionIndex !== -1) {
-            optionColor = OPTION_BADGE_COLORS[optionIndex % OPTION_BADGE_COLORS.length];
+            optionColor =
+              OPTION_BADGE_COLORS[optionIndex % OPTION_BADGE_COLORS.length];
           }
         }
 
         // Author image handling
-        const authorImage = 'avatar' in comment.author 
-            ? comment.author.avatar 
-            : 'profileImage' in comment.author 
-                ? (comment.author as any).profileImage 
-                : undefined;
+        const authorImage =
+          'avatar' in comment.author
+            ? comment.author.avatar
+            : 'profileImage' in comment.author
+              ? (comment.author as any).profileImage
+              : undefined;
 
         return (
           <div
             key={comment.id}
-            className="rounded-100 border border-border-subtle bg-background-default p-300 transition-colors hover:border-border-brand"
+            className="rounded-100 border-border-subtle bg-background-default hover:border-border-brand border p-300 transition-colors"
           >
             <div className="mb-100 flex items-start justify-between">
               {/* 작성자 정보 */}
@@ -100,13 +113,26 @@ export default function CommentList({
                       {comment.author.nickname}
                     </span>
                     {votedOption && (
-                      <div className={cn('flex items-center gap-50 rounded-100 px-150 py-50', optionColor.bg)}>
-                        <CheckCircle2 className={cn('h-3 w-3', optionColor.icon)} />
-                        <span className={cn('font-designer-11b', optionColor.text)}>{votedOption}</span>
+                      <div
+                        className={cn(
+                          'rounded-100 flex items-center gap-50 px-150 py-50',
+                          optionColor.bg,
+                        )}
+                      >
+                        <CheckCircle2
+                          className={cn('h-3 w-3', optionColor.icon)}
+                        />
+                        <span
+                          className={cn('font-designer-11b', optionColor.text)}
+                        >
+                          {votedOption}
+                        </span>
                       </div>
                     )}
                   </div>
-                  <span className="font-designer-11r text-text-subtlest">{timeAgo}</span>
+                  <span className="font-designer-11r text-text-subtlest">
+                    {timeAgo}
+                  </span>
                 </div>
               </div>
 
@@ -114,8 +140,12 @@ export default function CommentList({
               {comment.isAuthor && (
                 <div className="relative">
                   <button
-                    onClick={() => setOpenMenuId(openMenuId === comment.id ? null : comment.id)}
-                    className="rounded-100 p-100 text-text-subtle transition-colors hover:bg-fill-neutral-subtle-hover hover:text-text-strong"
+                    onClick={() =>
+                      setOpenMenuId(
+                        openMenuId === comment.id ? null : comment.id,
+                      )
+                    }
+                    className="rounded-100 text-text-subtle hover:bg-fill-neutral-subtle-hover hover:text-text-strong p-100 transition-colors"
                   >
                     <MoreVertical className="h-4 w-4" />
                   </button>
@@ -126,16 +156,16 @@ export default function CommentList({
                       <div
                         className="fixed inset-0 z-10"
                         onClick={() => setOpenMenuId(null)}
-                      ></div>
+                      />
 
                       {/* 메뉴 */}
-                      <div className="absolute right-0 top-full z-20 mt-50 min-w-[120px] rounded-100 border border-border-subtle bg-background-default shadow-3">
+                      <div className="rounded-100 border-border-subtle bg-background-default shadow-3 absolute top-full right-0 z-20 mt-50 min-w-[120px] border">
                         <button
                           onClick={() => {
                             onEdit?.(comment.id, comment.content);
                             setOpenMenuId(null);
                           }}
-                          className="flex w-full items-center gap-150 px-300 py-200 font-designer-13r text-text-default transition-colors hover:bg-fill-neutral-subtle-hover"
+                          className="font-designer-13r text-text-default hover:bg-fill-neutral-subtle-hover flex w-full items-center gap-150 px-300 py-200 transition-colors"
                         >
                           <Edit className="h-4 w-4" />
                           수정
@@ -145,7 +175,7 @@ export default function CommentList({
                             onDelete?.(comment.id);
                             setOpenMenuId(null);
                           }}
-                          className="flex w-full items-center gap-150 px-300 py-200 font-designer-13r text-red-600 transition-colors hover:bg-red-50"
+                          className="font-designer-13r flex w-full items-center gap-150 px-300 py-200 text-red-600 transition-colors hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4" />
                           삭제
@@ -160,7 +190,7 @@ export default function CommentList({
             {/* 댓글 내용 또는 수정 폼 */}
             {isEditing ? (
               <div className="mt-200">
-                <CommentForm 
+                <CommentForm
                   onSubmit={onUpdateComment!}
                   initialValue={editingCommentContent}
                   placeholder="댓글을 수정하세요..."
@@ -169,7 +199,7 @@ export default function CommentList({
                 />
               </div>
             ) : (
-              <p className="whitespace-pre-wrap font-designer-14r leading-relaxed text-text-default">
+              <p className="font-designer-14r text-text-default leading-relaxed whitespace-pre-wrap">
                 {comment.content}
               </p>
             )}

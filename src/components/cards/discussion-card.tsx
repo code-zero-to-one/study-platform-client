@@ -1,19 +1,22 @@
-import React from 'react';
-import { MessageCircle, ThumbsUp, ThumbsDown, Eye, Clock } from 'lucide-react';
-import UserAvatar from '@/components/ui/avatar';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { Discussion } from '@/types/discussion';
-import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { MessageCircle, ThumbsUp, ThumbsDown, Eye, Clock } from 'lucide-react';
+import React from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
+import { Discussion } from '@/types/discussion';
 
 interface DiscussionCardProps {
   discussion: Discussion;
   onClick?: () => void;
 }
 
-export default function DiscussionCard({ discussion, onClick }: DiscussionCardProps) {
+export default function DiscussionCard({
+  discussion,
+  onClick,
+}: DiscussionCardProps) {
   const timeAgo = formatDistanceToNow(new Date(discussion.lastActivityAt), {
     addSuffix: true,
     locale: ko,
@@ -23,8 +26,8 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
     <div
       onClick={onClick}
       className={cn(
-        'group cursor-pointer rounded-200 bg-background-default p-400 ring-1 ring-inset ring-border-subtle',
-        'transition-shadow duration-150 hover:ring-border-brand',
+        'group rounded-200 bg-background-default ring-border-subtle cursor-pointer p-400 ring-1 ring-inset',
+        'hover:ring-border-brand transition-shadow duration-150',
       )}
     >
       {/* 헤더: 작성자 정보 & 주제 */}
@@ -35,10 +38,10 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
             <UserProfileModal
               memberId={discussion.author.id}
               trigger={
-                <div className="flex items-center gap-200 cursor-pointer rounded-full px-200 py-100 transition-shadow duration-100 ring-1 ring-inset ring-transparent hover:ring-fill-brand-default-default">
+                <div className="hover:ring-fill-brand-default-default flex cursor-pointer items-center gap-200 rounded-full px-200 py-100 ring-1 ring-transparent transition-shadow duration-100 ring-inset">
                   <div>
-                    <UserAvatar 
-                      size={32} 
+                    <UserAvatar
+                      size={32}
                       image={discussion.author.avatar}
                       className="relative z-10"
                     />
@@ -53,8 +56,8 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
 
           {/* 시간 */}
           <div className="flex items-center gap-100">
-            <span className="h-[10px] w-[1px] bg-border-subtle"></span>
-            <div className="flex items-center gap-50 font-designer-12r text-text-subtlest">
+            <span className="bg-border-subtle h-[10px] w-[1px]" />
+            <div className="font-designer-12r text-text-subtlest flex items-center gap-50">
               <Clock className="h-3 w-3" />
               {timeAgo}
             </div>
@@ -64,7 +67,7 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
         {/* 주제 배지 */}
         <div
           className={cn(
-            'rounded-100 px-200 py-50 font-designer-12b',
+            'rounded-100 font-designer-12b px-200 py-50',
             discussion.topic === 'development' && 'bg-blue-50 text-blue-600',
             discussion.topic === 'study' && 'bg-green-50 text-green-600',
             discussion.topic === 'free' && 'bg-purple-50 text-purple-600',
@@ -76,12 +79,12 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
       </div>
 
       {/* 제목 */}
-      <h3 className="mb-150 line-clamp-2 font-bold-h5 text-text-strong transition-colors group-hover:text-text-brand">
+      <h3 className="font-bold-h5 text-text-strong group-hover:text-text-brand mb-150 line-clamp-2 transition-colors">
         {discussion.title}
       </h3>
 
       {/* 요약 */}
-      <p className="mb-300 line-clamp-2 font-designer-14r leading-relaxed text-text-subtle">
+      <p className="font-designer-14r text-text-subtle mb-300 line-clamp-2 leading-relaxed">
         {discussion.summary}
       </p>
 
@@ -91,7 +94,7 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
           {discussion.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-100 bg-fill-neutral-subtle-default px-150 py-50 font-designer-12r text-text-subtle"
+              className="rounded-100 bg-fill-neutral-subtle-default font-designer-12r text-text-subtle px-150 py-50"
             >
               #{tag}
             </span>
@@ -100,28 +103,28 @@ export default function DiscussionCard({ discussion, onClick }: DiscussionCardPr
       )}
 
       {/* 하단 메타 정보 */}
-      <div className="flex items-center justify-between border-t border-border-subtlest pt-200">
+      <div className="border-border-subtlest flex items-center justify-between border-t pt-200">
         <div className="flex items-center gap-300">
           {/* 찬성 */}
-          <div className="flex items-center gap-50 font-designer-13m text-green-600">
+          <div className="font-designer-13m flex items-center gap-50 text-green-600">
             <ThumbsUp className="h-4 w-4" />
             <span>{discussion.vote.agreeCount}</span>
           </div>
 
           {/* 반대 */}
-          <div className="flex items-center gap-50 font-designer-13m text-red-500">
+          <div className="font-designer-13m flex items-center gap-50 text-red-500">
             <ThumbsDown className="h-4 w-4" />
             <span>{discussion.vote.disagreeCount}</span>
           </div>
 
           {/* 댓글 */}
-          <div className="flex items-center gap-50 font-designer-13m text-text-brand">
+          <div className="font-designer-13m text-text-brand flex items-center gap-50">
             <MessageCircle className="h-4 w-4" />
             <span>{discussion.commentCount}</span>
           </div>
 
           {/* 조회수 */}
-          <div className="flex items-center gap-50 font-designer-13m text-text-subtle">
+          <div className="font-designer-13m text-text-subtle flex items-center gap-50">
             <Eye className="h-4 w-4" />
             <span>{discussion.viewCount.toLocaleString()}</span>
           </div>

@@ -27,4 +27,3 @@ export interface ArchiveResponse {
   first: boolean;
   last: boolean;
 }
-

@@ -1,11 +1,25 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Loader2, ArrowLeft, TrendingUp, MessageCircle, MoreVertical, Edit, Trash2 } from 'lucide-react';
 import {
-  useBalanceGameDetailQuery,
-  useBalanceGameCommentsQuery,
-} from '@/features/balance-game/model/use-balance-game-query';
+  Loader2,
+  ArrowLeft,
+  TrendingUp,
+  MessageCircle,
+  MoreVertical,
+  Edit,
+  Trash2,
+} from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import CommentForm from '@/components/discussion/comment-form';
+import CommentList from '@/components/discussion/comment-list';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
+import Button from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
+import DailyStatsChart from '@/components/voting/daily-stats-chart';
+import VoteResultsChart from '@/components/voting/vote-results-chart';
+import VoteTimer from '@/components/voting/vote-timer';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import {
   useVoteBalanceGameMutation,
   useCancelVoteBalanceGameMutation,
@@ -15,21 +29,18 @@ import {
   useUpdateBalanceGameCommentMutation,
   useUpdateBalanceGameMutation,
 } from '@/features/balance-game/model/use-balance-game-mutation';
-import UserAvatar from '@/components/ui/avatar';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import VoteResultsChart from '@/components/voting/vote-results-chart';
-import VoteTimer from '@/components/voting/vote-timer';
-import DailyStatsChart from '@/components/voting/daily-stats-chart';
-import CommentList from '@/components/discussion/comment-list';
-import CommentForm from '@/components/discussion/comment-form';
-import { CommentFormData, VotingCreateFormData } from '@/types/schemas/zod-schema';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import {
+  useBalanceGameDetailQuery,
+  useBalanceGameCommentsQuery,
+} from '@/features/balance-game/model/use-balance-game-query';
 import { BalanceGameComment } from '@/features/balance-game/types';
+import { useUserStore } from '@/stores/useUserStore';
+import {
+  CommentFormData,
+  VotingCreateFormData,
+} from '@/types/schemas/zod-schema';
 import { VotingOption } from '@/types/voting';
 import VotingEditModal from './voting-edit-modal';
-import { useUserStore } from '@/stores/useUserStore';
-import { Modal } from '@/components/ui/modal';
-import Button from '@/components/ui/button';
 
 interface VotingDetailViewProps {
   votingId: number;
@@ -42,7 +53,8 @@ export default function VotingDetailView({
 }: VotingDetailViewProps) {
   const [selectedOption, setSelectedOption] = useState<number | undefined>();
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
-  const [editingCommentContent, setEditingCommentContent] = useState<string>('');
+  const [editingCommentContent, setEditingCommentContent] =
+    useState<string>('');
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -51,16 +63,20 @@ export default function VotingDetailView({
   const memberId = useUserStore((state) => state.memberId);
 
   // Queries
-  const { data: voting, isLoading, error } = useBalanceGameDetailQuery(votingId);
-  
+  const {
+    data: voting,
+    isLoading,
+    error,
+  } = useBalanceGameDetailQuery(votingId);
+
   // 투표 여부 확인 (투표를 한 경우에만 댓글 목록 가져오기)
   const hasVoted = voting?.myVote !== undefined && voting?.myVote !== null;
-  
+
   const {
     data: commentsData,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
   } = useBalanceGameCommentsQuery(votingId, { enabled: !!hasVoted });
 
   // Mutations
@@ -80,13 +96,16 @@ export default function VotingDetailView({
   }, [voting?.myVote]);
 
   const comments = React.useMemo(() => {
-    const allComments = commentsData?.pages.flatMap((page) => page.content) || [];
+    const allComments =
+      commentsData?.pages.flatMap((page) => page.content) || [];
     // 중복 제거 (key prop warning 방지)
     const seen = new Set();
-    return allComments.filter(comment => {
-        if (seen.has(comment.id)) return false;
-        seen.add(comment.id);
-        return true;
+
+    return allComments.filter((comment) => {
+      if (seen.has(comment.id)) return false;
+      seen.add(comment.id);
+
+      return true;
     });
   }, [commentsData]);
 
@@ -94,6 +113,7 @@ export default function VotingDetailView({
   // VoteTimer도 endsAt으로 "종료"를 판단하므로, 두 로직이 어긋나지 않게 맞춘다.
   const isActiveByEndsAt = React.useMemo(() => {
     if (!voting?.endsAt) return true;
+
     return new Date(voting.endsAt).getTime() > Date.now();
   }, [voting?.endsAt]);
 
@@ -109,14 +129,14 @@ export default function VotingDetailView({
   };
 
   const handleRevote = async () => {
-     try {
-         if (voting?.myVote) {
-             await cancelVoteMutation.mutateAsync();
-             setSelectedOption(undefined);
-         }
-     } catch (error) {
-         console.error('Cancel vote failed:', error);
-     }
+    try {
+      if (voting?.myVote) {
+        await cancelVoteMutation.mutateAsync();
+        setSelectedOption(undefined);
+      }
+    } catch (error) {
+      console.error('Cancel vote failed:', error);
+    }
   };
 
   const handleAddComment = async (data: CommentFormData) => {
@@ -160,16 +180,16 @@ export default function VotingDetailView({
   };
 
   const handleUpdateGame = async (data: Partial<VotingCreateFormData>) => {
-      try {
-          await updateGameMutation.mutateAsync({
-              title: data.title,
-              description: data.description,
-              tags: data.tags || [] // tags가 undefined일 경우 빈 배열로 전달
-          });
-          setIsEditModalOpen(false);
-      } catch (error) {
-          console.error('Update game failed:', error);
-      }
+    try {
+      await updateGameMutation.mutateAsync({
+        title: data.title,
+        description: data.description,
+        tags: data.tags || [], // tags가 undefined일 경우 빈 배열로 전달
+      });
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Update game failed:', error);
+    }
   };
 
   const handleDeleteGame = async () => {
@@ -182,7 +202,7 @@ export default function VotingDetailView({
       alert('투표 삭제에 실패했습니다. 다시 시도해주세요.');
     }
   };
-  
+
   // Check if current user is author
   const isAuthor = voting?.author.id === memberId;
 
@@ -191,8 +211,10 @@ export default function VotingDetailView({
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="flex flex-col items-center gap-400">
-          <Loader2 className="h-8 w-8 animate-spin text-text-brand" />
-          <p className="font-designer-16m text-text-subtle">투표를 불러오는 중...</p>
+          <Loader2 className="text-text-brand h-8 w-8 animate-spin" />
+          <p className="font-designer-16m text-text-subtle">
+            투표를 불러오는 중...
+          </p>
         </div>
       </div>
     );
@@ -208,7 +230,7 @@ export default function VotingDetailView({
           </p>
           <button
             onClick={onBack}
-            className="rounded-100 bg-fill-brand-default-default px-400 py-200 font-designer-14b text-text-inverse transition-colors hover:bg-fill-brand-default-hover"
+            className="rounded-100 bg-fill-brand-default-default font-designer-14b text-text-inverse hover:bg-fill-brand-default-hover px-400 py-200 transition-colors"
           >
             목록으로 돌아가기
           </button>
@@ -218,10 +240,10 @@ export default function VotingDetailView({
   }
 
   // Adapt BalanceGame options to VotingOption for compatibility
-  const votingOptions: VotingOption[] = voting.options.map(opt => ({
-      ...opt,
+  const votingOptions: VotingOption[] = voting.options.map((opt) => ({
+    ...opt,
   }));
-  
+
   // 디버깅용 로그 추가
   console.log('Voting Data:', {
     myVote: voting.myVote,
@@ -239,14 +261,14 @@ export default function VotingDetailView({
       {/* 뒤로가기 버튼 */}
       <button
         onClick={onBack}
-        className="mb-400 flex items-center gap-100 font-designer-14m text-text-subtle transition-colors hover:text-text-strong"
+        className="font-designer-14m text-text-subtle hover:text-text-strong mb-400 flex items-center gap-100 transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
         돌아가기
       </button>
 
       {/* 헤더 */}
-      <div className="mb-500 rounded-200 border border-border-subtle bg-background-default p-500 shadow-1">
+      <div className="rounded-200 border-border-subtle bg-background-default shadow-1 mb-500 border p-500">
         {/* 작성자 & 상태 */}
         <div className="mb-300 flex items-center justify-between gap-300">
           {/* 작성자 정보 */}
@@ -254,10 +276,10 @@ export default function VotingDetailView({
             <UserProfileModal
               memberId={voting.author.id}
               trigger={
-                <div className="flex items-center gap-200 cursor-pointer rounded-full px-200 py-100 transition-shadow duration-100 ring-1 ring-inset ring-transparent hover:ring-fill-brand-default-default">
+                <div className="hover:ring-fill-brand-default-default flex cursor-pointer items-center gap-200 rounded-full px-200 py-100 ring-1 ring-transparent transition-shadow duration-100 ring-inset">
                   <div>
-                    <UserAvatar 
-                      size={32} 
+                    <UserAvatar
+                      size={32}
                       image={voting.author.profileImage || undefined}
                       className="relative z-10"
                     />
@@ -278,7 +300,7 @@ export default function VotingDetailView({
               <div className="relative shrink-0">
                 <button
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="rounded-100 p-100 text-text-subtle hover:bg-fill-neutral-subtle-default transition-colors"
+                  className="rounded-100 text-text-subtle hover:bg-fill-neutral-subtle-default p-100 transition-colors"
                 >
                   <MoreVertical className="h-5 w-5" />
                 </button>
@@ -289,13 +311,13 @@ export default function VotingDetailView({
                       className="fixed inset-0 z-10"
                       onClick={() => setIsMenuOpen(false)}
                     />
-                    <div className="absolute right-0 top-full z-20 mt-100 w-[120px] rounded-100 border border-border-subtle bg-background-default py-100 shadow-3">
+                    <div className="rounded-100 border-border-subtle bg-background-default shadow-3 absolute top-full right-0 z-20 mt-100 w-[120px] border py-100">
                       <button
                         onClick={() => {
                           setIsMenuOpen(false);
                           setIsEditModalOpen(true);
                         }}
-                        className="flex w-full items-center gap-200 px-300 py-200 font-designer-13r text-text-default hover:bg-fill-neutral-subtle-default"
+                        className="font-designer-13r text-text-default hover:bg-fill-neutral-subtle-default flex w-full items-center gap-200 px-300 py-200"
                       >
                         <Edit className="h-4 w-4" />
                         수정
@@ -305,7 +327,7 @@ export default function VotingDetailView({
                           setIsMenuOpen(false);
                           setIsDeleteModalOpen(true);
                         }}
-                        className="flex w-full items-center gap-200 px-300 py-200 font-designer-13r text-text-critical hover:bg-fill-critical-subtle-default"
+                        className="font-designer-13r text-text-critical hover:bg-fill-critical-subtle-default flex w-full items-center gap-200 px-300 py-200"
                       >
                         <Trash2 className="h-4 w-4" />
                         삭제
@@ -319,51 +341,57 @@ export default function VotingDetailView({
         </div>
 
         {/* 제목 */}
-        <h1 className="mb-200 font-bold-h3 text-text-strong">{voting.title}</h1>
+        <h1 className="font-bold-h3 text-text-strong mb-200">{voting.title}</h1>
 
         {/* 태그 - 제목 바로 아래에 표시 */}
-        {voting.tags && Array.isArray(voting.tags) && voting.tags.length > 0 && (
-          <div className="mb-200 flex flex-wrap gap-100">
-            {voting.tags.map((tag, index) => (
-              <span
-                key={tag || index}
-                className="rounded-100 bg-fill-neutral-subtle-default px-150 py-50 font-designer-12r text-text-subtle"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
+        {voting.tags &&
+          Array.isArray(voting.tags) &&
+          voting.tags.length > 0 && (
+            <div className="mb-200 flex flex-wrap gap-100">
+              {voting.tags.map((tag, index) => (
+                <span
+                  key={tag || index}
+                  className="rounded-100 bg-fill-neutral-subtle-default font-designer-12r text-text-subtle px-150 py-50"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
 
         {/* 설명 */}
         {voting.description && (
-          <p className="mb-200 rounded-100 border border-border-subtle bg-background-alternative p-300 font-designer-14r text-text-default">
+          <p className="rounded-100 border-border-subtle bg-background-alternative font-designer-14r text-text-default mb-200 border p-300">
             {voting.description}
           </p>
         )}
       </div>
 
       {/* 투표 섹션 */}
-      <div className="mb-500 rounded-200 border border-border-subtle bg-background-default p-500 shadow-1">
+      <div className="rounded-200 border-border-subtle bg-background-default shadow-1 mb-500 border p-500">
         {showVoteOptions ? (
           <>
             {/* 헤더 */}
             <div className="mb-400 flex items-center justify-between">
-              <h2 className="font-designer-18b text-text-strong">투표해주세요</h2>
-              
+              <h2 className="font-designer-18b text-text-strong">
+                투표해주세요
+              </h2>
+
               {/* 현재 투표 참여 인원 */}
-              <div className="flex items-center gap-200 rounded-100 border border-border-subtle bg-background-alternative px-300 py-150">
-                <div 
-                  className="flex items-center justify-center rounded-full bg-fill-brand-default-default"
+              <div className="rounded-100 border-border-subtle bg-background-alternative flex items-center gap-200 border px-300 py-150">
+                <div
+                  className="bg-fill-brand-default-default flex items-center justify-center rounded-full"
                   style={{ width: '32px', height: '32px' }}
                 >
-                  <TrendingUp 
-                    className="text-text-inverse" 
+                  <TrendingUp
+                    className="text-text-inverse"
                     style={{ width: '20px', height: '20px' }}
                   />
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-designer-11r text-text-subtle">현재 참여</span>
+                  <span className="font-designer-11r text-text-subtle">
+                    현재 참여
+                  </span>
                   <span className="font-designer-14b text-text-strong">
                     {voting.totalVotes.toLocaleString()}명
                   </span>
@@ -376,11 +404,41 @@ export default function VotingDetailView({
               {voting.options.map((option, index) => {
                 const isSelected = selectedOption === option.id;
                 const colors = [
-                  { border: 'border-blue-500', bg: 'bg-blue-50', text: 'text-blue-600', ring: 'ring-blue-500', primary: 'bg-blue-500' },
-                  { border: 'border-green-500', bg: 'bg-green-50', text: 'text-green-600', ring: 'ring-green-500', primary: 'bg-green-500' },
-                  { border: 'border-purple-500', bg: 'bg-purple-50', text: 'text-purple-600', ring: 'ring-purple-500', primary: 'bg-purple-500' },
-                  { border: 'border-orange-500', bg: 'bg-orange-50', text: 'text-orange-600', ring: 'ring-orange-500', primary: 'bg-orange-500' },
-                  { border: 'border-pink-500', bg: 'bg-pink-50', text: 'text-pink-600', ring: 'ring-pink-500', primary: 'bg-pink-500' },
+                  {
+                    border: 'border-blue-500',
+                    bg: 'bg-blue-50',
+                    text: 'text-blue-600',
+                    ring: 'ring-blue-500',
+                    primary: 'bg-blue-500',
+                  },
+                  {
+                    border: 'border-green-500',
+                    bg: 'bg-green-50',
+                    text: 'text-green-600',
+                    ring: 'ring-green-500',
+                    primary: 'bg-green-500',
+                  },
+                  {
+                    border: 'border-purple-500',
+                    bg: 'bg-purple-50',
+                    text: 'text-purple-600',
+                    ring: 'ring-purple-500',
+                    primary: 'bg-purple-500',
+                  },
+                  {
+                    border: 'border-orange-500',
+                    bg: 'bg-orange-50',
+                    text: 'text-orange-600',
+                    ring: 'ring-orange-500',
+                    primary: 'bg-orange-500',
+                  },
+                  {
+                    border: 'border-pink-500',
+                    bg: 'bg-pink-50',
+                    text: 'text-pink-600',
+                    ring: 'ring-pink-500',
+                    primary: 'bg-pink-500',
+                  },
                 ];
                 const color = colors[index % colors.length];
 
@@ -390,7 +448,7 @@ export default function VotingDetailView({
                     onClick={() => setSelectedOption(option.id)}
                     disabled={voteMutation.isPending}
                     className={cn(
-                      'group relative rounded-200 border-2 p-300 text-left transition-all duration-200',
+                      'group rounded-200 relative border-2 p-300 text-left transition-all duration-200',
                       isSelected
                         ? cn('shadow-lg', color.border, color.bg)
                         : 'border-border-subtle bg-background-default hover:border-border-brand hover:shadow-1',
@@ -399,10 +457,10 @@ export default function VotingDetailView({
                   >
                     <div className="flex items-center gap-200">
                       {/* 번호 배지 */}
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fill-neutral-subtle-default font-bold text-text-subtle">
+                      <div className="bg-fill-neutral-subtle-default text-text-subtle flex h-8 w-8 shrink-0 items-center justify-center rounded-full font-bold">
                         {index + 1}
                       </div>
-                      
+
                       <span
                         className={cn(
                           'font-designer-15b transition-colors',
@@ -422,8 +480,8 @@ export default function VotingDetailView({
               onClick={handleVote}
               disabled={!selectedOption || voteMutation.isPending}
               className={cn(
-                'w-full rounded-100 py-300 font-designer-15b text-text-inverse shadow-lg transition-all duration-200',
-                'bg-gradient-to-r from-fill-brand-default-default to-fill-brand-default-hover',
+                'rounded-100 font-designer-15b text-text-inverse w-full py-300 shadow-lg transition-all duration-200',
+                'from-fill-brand-default-default to-fill-brand-default-hover bg-gradient-to-r',
                 'disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none',
                 'hover:scale-[1.02] hover:shadow-xl',
               )}
@@ -446,9 +504,11 @@ export default function VotingDetailView({
                 <button
                   onClick={handleRevote}
                   disabled={cancelVoteMutation.isPending}
-                  className="font-designer-12r text-text-subtle underline hover:text-text-default disabled:opacity-50"
+                  className="font-designer-12r text-text-subtle hover:text-text-default underline disabled:opacity-50"
                 >
-                  {cancelVoteMutation.isPending ? '취소 중...' : '투표 취소하고 다시하기'}
+                  {cancelVoteMutation.isPending
+                    ? '취소 중...'
+                    : '투표 취소하고 다시하기'}
                 </button>
               )}
             </div>
@@ -473,16 +533,16 @@ export default function VotingDetailView({
       )}
 
       {/* 댓글 섹션 */}
-      <div className="rounded-200 border border-border-subtle bg-background-default p-500 shadow-1">
-        <div className="mb-400 flex items-center gap-100 font-designer-16b text-text-strong">
+      <div className="rounded-200 border-border-subtle bg-background-default shadow-1 border p-500">
+        <div className="font-designer-16b text-text-strong mb-400 flex items-center gap-100">
           <MessageCircle className="h-5 w-5" />
           <span>댓글 {voting.commentCount || 0}</span>
         </div>
 
         {/* 댓글 목록 (항상 표시) */}
         <div className="mb-400">
-          <CommentList 
-            comments={comments} 
+          <CommentList
+            comments={comments}
             onDelete={handleDeleteComment}
             onEdit={handleStartEditComment}
             votingOptions={votingOptions}
@@ -491,15 +551,15 @@ export default function VotingDetailView({
             onUpdateComment={handleUpdateComment}
             onCancelEdit={handleCancelEditComment}
           />
-          
+
           {hasNextPage && (
-              <button 
-                  onClick={() => fetchNextPage()}
-                  disabled={isFetchingNextPage}
-                  className="mt-300 w-full rounded-100 border border-border-subtle py-200 font-designer-13r text-text-subtle hover:bg-background-alternative"
-              >
-                  {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
-              </button>
+            <button
+              onClick={() => fetchNextPage()}
+              disabled={isFetchingNextPage}
+              className="rounded-100 border-border-subtle font-designer-13r text-text-subtle hover:bg-background-alternative mt-300 w-full border py-200"
+            >
+              {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
+            </button>
           )}
         </div>
 
@@ -507,14 +567,17 @@ export default function VotingDetailView({
         {isActive && (
           <>
             {!hasVoted ? (
-              <div className="rounded-200 border border-border-subtle bg-background-alternative p-400 text-center">
+              <div className="rounded-200 border-border-subtle bg-background-alternative border p-400 text-center">
                 <p className="font-designer-14m text-text-subtle">
                   투표 후 댓글을 작성할 수 있습니다
                 </p>
               </div>
             ) : editingCommentId === null ? (
-              <div className="rounded-200 border border-border-subtle bg-background-alternative p-300">
-                <CommentForm onSubmit={handleAddComment} isSubmitting={createCommentMutation.isPending} />
+              <div className="rounded-200 border-border-subtle bg-background-alternative border p-300">
+                <CommentForm
+                  onSubmit={handleAddComment}
+                  isSubmitting={createCommentMutation.isPending}
+                />
               </div>
             ) : null}
           </>
@@ -522,11 +585,11 @@ export default function VotingDetailView({
       </div>
 
       {/* 수정 모달 */}
-      <VotingEditModal 
-          isOpen={isEditModalOpen}
-          onClose={() => setIsEditModalOpen(false)}
-          onSubmit={handleUpdateGame}
-          initialData={voting}
+      <VotingEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleUpdateGame}
+        initialData={voting}
       />
 
       {/* 삭제 확인 모달 */}

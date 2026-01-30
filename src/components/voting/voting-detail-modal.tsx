@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import { Voting } from '@/types/voting';
 import { X, TrendingUp, Info, MessageCircle } from 'lucide-react';
+import React, { useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { CommentFormData } from '@/types/schemas/zod-schema';
+import { Voting } from '@/types/voting';
 import VoteResultsChart from './vote-results-chart';
 import VoteTimer from './vote-timer';
-import CommentList from '../discussion/comment-list';
 import CommentForm from '../discussion/comment-form';
-import { CommentFormData } from '@/types/schemas/zod-schema';
+import CommentList from '../discussion/comment-list';
 
 interface VotingDetailModalProps {
   voting: Voting;
@@ -25,7 +25,9 @@ export default function VotingDetailModal({
   onAddComment,
   onDeleteComment,
 }: VotingDetailModalProps) {
-  const [selectedOption, setSelectedOption] = useState<number | undefined>(voting.myVote);
+  const [selectedOption, setSelectedOption] = useState<number | undefined>(
+    voting.myVote,
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showDescription, setShowDescription] = useState(false);
 
@@ -48,31 +50,35 @@ export default function VotingDetailModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-400">
-      <div className="flex max-h-[90vh] w-full max-w-[900px] flex-col rounded-200 bg-background-default shadow-4">
+      <div className="rounded-200 bg-background-default shadow-4 flex max-h-[90vh] w-full max-w-[900px] flex-col">
         {/* 헤더 */}
-        <div className="flex shrink-0 items-start justify-between border-b border-border-subtle p-500">
+        <div className="border-border-subtle flex shrink-0 items-start justify-between border-b p-500">
           <div className="flex-1">
             {/* 라운드 & 상태 */}
             <div className="mb-200 flex items-center gap-200">
-              <div className="flex items-center gap-100 rounded-100 bg-fill-brand-default-default px-250 py-100">
-                <TrendingUp className="h-4 w-4 text-text-inverse" />
-                <span className="font-designer-13b text-text-inverse">{voting.round} 라운드</span>
+              <div className="rounded-100 bg-fill-brand-default-default flex items-center gap-100 px-250 py-100">
+                <TrendingUp className="text-text-inverse h-4 w-4" />
+                <span className="font-designer-13b text-text-inverse">
+                  {voting.round} 라운드
+                </span>
               </div>
               <VoteTimer endsAt={voting.endsAt} isActive={voting.isActive} />
             </div>
 
             {/* 제목 */}
-            <h2 className="mb-200 font-bold-h4 text-text-strong">{voting.title}</h2>
+            <h2 className="font-bold-h4 text-text-strong mb-200">
+              {voting.title}
+            </h2>
 
             {/* 작성자 정보 */}
             <div className="mb-200" onClick={(e) => e.stopPropagation()}>
               <UserProfileModal
                 memberId={voting.author.id}
                 trigger={
-                  <div className="flex items-center gap-200 cursor-pointer rounded-full px-200 py-100 transition-shadow duration-100 ring-1 ring-inset ring-transparent hover:ring-fill-brand-default-default">
+                  <div className="hover:ring-fill-brand-default-default flex cursor-pointer items-center gap-200 rounded-full px-200 py-100 ring-1 ring-transparent transition-shadow duration-100 ring-inset">
                     <div>
-                      <UserAvatar 
-                        size={32} 
+                      <UserAvatar
+                        size={32}
                         image={voting.author.avatar}
                         className="relative z-10"
                       />
@@ -89,7 +95,7 @@ export default function VotingDetailModal({
             {voting.description && (
               <button
                 onClick={() => setShowDescription(!showDescription)}
-                className="flex items-center gap-100 rounded-100 border border-border-subtle px-200 py-100 font-designer-12r text-text-subtle transition-colors hover:border-border-brand hover:text-text-brand"
+                className="rounded-100 border-border-subtle font-designer-12r text-text-subtle hover:border-border-brand hover:text-text-brand flex items-center gap-100 border px-200 py-100 transition-colors"
               >
                 <Info className="h-3.5 w-3.5" />
                 주제 설명 {showDescription ? '숨기기' : '보기'}
@@ -97,30 +103,32 @@ export default function VotingDetailModal({
             )}
 
             {showDescription && voting.description && (
-              <p className="mt-200 rounded-100 border border-border-subtle bg-background-alternative p-300 font-designer-14r text-text-default">
+              <p className="rounded-100 border-border-subtle bg-background-alternative font-designer-14r text-text-default mt-200 border p-300">
                 {voting.description}
               </p>
             )}
 
             {/* 태그 */}
-            {voting.tags && Array.isArray(voting.tags) && voting.tags.length > 0 && (
-              <div className="mt-200 flex flex-wrap gap-100">
-                {voting.tags.map((tag, index) => (
-                  <span
-                    key={tag || index}
-                    className="rounded-100 bg-fill-neutral-subtle-default px-150 py-50 font-designer-12r text-text-subtle"
-                  >
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            {voting.tags &&
+              Array.isArray(voting.tags) &&
+              voting.tags.length > 0 && (
+                <div className="mt-200 flex flex-wrap gap-100">
+                  {voting.tags.map((tag, index) => (
+                    <span
+                      key={tag || index}
+                      className="rounded-100 bg-fill-neutral-subtle-default font-designer-12r text-text-subtle px-150 py-50"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
           </div>
 
           {/* 닫기 버튼 */}
           <button
             onClick={onClose}
-            className="shrink-0 rounded-100 p-100 text-text-subtle transition-colors hover:bg-fill-neutral-subtle-hover hover:text-text-strong"
+            className="rounded-100 text-text-subtle hover:bg-fill-neutral-subtle-hover hover:text-text-strong shrink-0 p-100 transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
@@ -131,7 +139,9 @@ export default function VotingDetailModal({
           {/* 투표 섹션 */}
           {!hasVoted && voting.isActive ? (
             <div className="mb-600">
-              <h3 className="mb-300 font-designer-16b text-text-strong">투표해주세요</h3>
+              <h3 className="font-designer-16b text-text-strong mb-300">
+                투표해주세요
+              </h3>
               <div className="mb-300 flex flex-col gap-200">
                 {voting.options.map((option) => (
                   <button
@@ -139,7 +149,7 @@ export default function VotingDetailModal({
                     onClick={() => setSelectedOption(option.id)}
                     disabled={isSubmitting}
                     className={cn(
-                      'rounded-200 border-2 p-400 text-left font-designer-15b transition-all',
+                      'rounded-200 font-designer-15b border-2 p-400 text-left transition-all',
                       selectedOption === option.id
                         ? 'border-fill-brand-default-default bg-fill-brand-subtle-default text-text-brand'
                         : 'border-border-subtle bg-background-default text-text-default hover:border-border-brand',
@@ -155,7 +165,7 @@ export default function VotingDetailModal({
                 onClick={handleVote}
                 disabled={!selectedOption || isSubmitting}
                 className={cn(
-                  'w-full rounded-100 bg-fill-brand-default-default py-300 font-designer-15b text-text-inverse transition-colors',
+                  'rounded-100 bg-fill-brand-default-default font-designer-15b text-text-inverse w-full py-300 transition-colors',
                   'disabled:cursor-not-allowed disabled:opacity-50',
                   'hover:bg-fill-brand-default-hover',
                 )}
@@ -165,7 +175,9 @@ export default function VotingDetailModal({
             </div>
           ) : (
             <div className="mb-600">
-              <h3 className="mb-300 font-designer-16b text-text-strong">투표 결과</h3>
+              <h3 className="font-designer-16b text-text-strong mb-300">
+                투표 결과
+              </h3>
               <VoteResultsChart
                 options={voting.options}
                 myVote={voting.myVote}
@@ -175,15 +187,15 @@ export default function VotingDetailModal({
           )}
 
           {/* 댓글 섹션 */}
-          <div className="border-t border-border-subtle pt-400">
-            <div className="mb-300 flex items-center gap-100 font-designer-15b text-text-strong">
+          <div className="border-border-subtle border-t pt-400">
+            <div className="font-designer-15b text-text-strong mb-300 flex items-center gap-100">
               <MessageCircle className="h-5 w-5" />
               <span>댓글 {voting.commentCount}</span>
             </div>
 
             {/* 투표 안 했으면 댓글 작성 불가 안내 */}
             {!hasVoted && voting.isActive ? (
-              <div className="mb-400 rounded-200 border border-border-subtle bg-background-alternative p-400 text-center">
+              <div className="rounded-200 border-border-subtle bg-background-alternative mb-400 border p-400 text-center">
                 <p className="font-designer-14m text-text-subtle">
                   투표 후 댓글을 작성할 수 있습니다
                 </p>
@@ -194,13 +206,15 @@ export default function VotingDetailModal({
                 <div className="mb-400">
                   <CommentList
                     comments={voting.comments}
-                    onDelete={(commentId) => onDeleteComment?.(voting.id, commentId)}
+                    onDelete={(commentId) =>
+                      onDeleteComment?.(voting.id, commentId)
+                    }
                   />
                 </div>
 
                 {/* 댓글 작성 폼 */}
                 {voting.isActive && (
-                  <div className="rounded-200 border border-border-subtle bg-background-alternative p-300">
+                  <div className="rounded-200 border-border-subtle bg-background-alternative border p-300">
                     <CommentForm onSubmit={handleCommentSubmit} />
                   </div>
                 )}

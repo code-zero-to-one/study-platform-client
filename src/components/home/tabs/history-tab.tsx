@@ -49,35 +49,34 @@ export default function HistoryTab() {
       <div className="flex items-center justify-between">
         <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
           제로원 히스토리
-          <History className="w-8 h-8 text-text-brand" />
+          <History className="text-text-brand h-8 w-8" />
         </h2>
       </div>
 
       {/* 임시 데이터 기반 1:1 스터디 히스토리 목록 */}
-      <div className="rounded-200 border border-border-subtle bg-background-default p-300 shadow-1 flex flex-col gap-200">
+      <div className="rounded-200 border-border-subtle bg-background-default shadow-1 flex flex-col gap-200 border p-300">
         <div className="flex items-center gap-150">
-          <div className="w-[52px] h-[52px] rounded-150 bg-fill-brand-subtle-default flex items-center justify-center">
-            <MessageSquareText className="w-6 h-6 text-text-brand" />
+          <div className="rounded-150 bg-fill-brand-subtle-default flex h-[52px] w-[52px] items-center justify-center">
+            <MessageSquareText className="text-text-brand h-6 w-6" />
           </div>
-        <div className="flex flex-col gap-50">
-            <h3 className="font-bold-h4 text-text-strong">나의 1:1 스터디 기록</h3>
+          <div className="flex flex-col gap-50">
+            <h3 className="font-bold-h4 text-text-strong">
+              나의 1:1 스터디 기록
+            </h3>
             <p className="font-designer-13m text-text-subtle">
               최근 진행한 1:1 스터디 히스토리를 임시 데이터로 보여줍니다.
             </p>
           </div>
         </div>
 
-        <div className="divide-y divide-border-subtlest">
+        <div className="divide-border-subtlest divide-y">
           {historyItems.map((item) => (
-            <div
-              key={item.id}
-              className="flex flex-col gap-100 py-200"
-            >
-              <div className="flex flex-wrap items-center gap-150 justify-between">
+            <div key={item.id} className="flex flex-col gap-100 py-200">
+              <div className="flex flex-wrap items-center justify-between gap-150">
                 <div className="flex items-center gap-100">
                   <CheckCircle2
                     className={cn(
-                      'w-5 h-5',
+                      'h-5 w-5',
                       item.status === '완료'
                         ? 'text-text-success'
                         : 'text-text-warning',
@@ -88,18 +87,18 @@ export default function HistoryTab() {
                   </div>
                 </div>
                 <div className="font-designer-12m text-text-subtle flex items-center gap-75">
-                  <Clock className="w-4 h-4" />
+                  <Clock className="h-4 w-4" />
                   {item.date} · {item.time}
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-150 text-text-subtle font-designer-13m">
-                <span className="px-150 py-50 rounded-100 bg-fill-neutral-subtle-default text-text-default">
+              <div className="text-text-subtle font-designer-13m flex flex-wrap items-center gap-150">
+                <span className="rounded-100 bg-fill-neutral-subtle-default text-text-default px-150 py-50">
                   파트너: {item.partner}
                 </span>
                 <span
                   className={cn(
-                    'px-150 py-50 rounded-100',
+                    'rounded-100 px-150 py-50',
                     item.status === '완료'
                       ? 'bg-fill-success-subtle-default text-text-success'
                       : 'bg-fill-warning-subtle-default text-text-warning',
@@ -109,9 +108,7 @@ export default function HistoryTab() {
                 </span>
               </div>
 
-              <p className="font-designer-14r text-text-default">
-                {item.note}
-              </p>
+              <p className="font-designer-14r text-text-default">{item.note}</p>
             </div>
           ))}
         </div>
@@ -123,5 +120,3 @@ export default function HistoryTab() {
     </div>
   );
 }
-
-

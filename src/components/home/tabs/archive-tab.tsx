@@ -1,8 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { 
+import {
   LibraryBig,
   LayoutGrid,
   List,
@@ -15,25 +13,27 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
-import { ArchiveItem } from '@/types/archive';
+import React, { useState } from 'react';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { useArchive } from '@/features/archive/model/use-archive-query';
 import { useToggleArchiveBookmark } from '@/features/archive/model/use-bookmark-mutation';
 import { useToggleArchiveLike } from '@/features/archive/model/use-like-mutation';
 import { useRecordArchiveView } from '@/features/archive/model/use-view-mutation';
 import { useDebounce } from '@/hooks/use-debounce'; // Assuming this hook exists, or I will create it/use raw
+import { ArchiveItem } from '@/types/archive';
 
 // ----------------------------------------------------------------------
 // Components
 // ----------------------------------------------------------------------
 
-const LibraryCard = ({ 
-  item, 
-  onLike, 
+const LibraryCard = ({
+  item,
+  onLike,
   onView,
   onBookmark,
   onHide,
   isAdmin,
-}: { 
+}: {
   item: ArchiveItem;
   onLike: (e: React.MouseEvent, id: number) => void;
   onView: (id: number, link: string) => void;
@@ -45,17 +45,17 @@ const LibraryCard = ({
   const isHidden = (item as any).isHidden;
 
   return (
-    <div 
+    <div
       onClick={() => onView(item.id, item.link)}
       className={cn(
-        "flex h-full flex-col gap-250 rounded-200 border border-border-subtle bg-background-default p-400 shadow-1 transition-all hover:-translate-y-50 hover:shadow-2 cursor-pointer",
-        isHidden && "opacity-50"
+        'rounded-200 border-border-subtle bg-background-default shadow-1 hover:shadow-2 flex h-full cursor-pointer flex-col gap-250 border p-400 transition-all hover:-translate-y-50',
+        isHidden && 'opacity-50',
       )}
     >
       <div className="flex items-start justify-between gap-200">
         <div className="flex flex-wrap items-center gap-100">
           {isHidden && (
-            <span className="rounded-100 bg-fill-neutral-subtle-default px-200 py-50 font-designer-12m text-text-subtle">
+            <span className="rounded-100 bg-fill-neutral-subtle-default font-designer-12m text-text-subtle px-200 py-50">
               숨김됨
             </span>
           )}
@@ -64,53 +64,54 @@ const LibraryCard = ({
           {isAdmin && onHide && (
             <button
               onClick={(e) => onHide(e, item.id)}
-              className="flex items-center gap-50 rounded-100 px-150 py-50 font-designer-12m transition-colors bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover"
+              className="rounded-100 font-designer-12m bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover flex items-center gap-50 px-150 py-50 transition-colors"
             >
               {isHidden ? '보이기' : '숨기기'}
             </button>
           )}
           <button
             onClick={(e) => onBookmark(e, item.id)}
-            className="flex items-center gap-50 font-designer-12r hover:scale-110 transition-transform p-1 rounded-full hover:bg-fill-neutral-subtle-hover"
+            className="font-designer-12r hover:bg-fill-neutral-subtle-hover flex items-center gap-50 rounded-full p-1 transition-transform hover:scale-110"
           >
-            <Bookmark 
+            <Bookmark
               className={cn(
-                "h-3.5 w-3.5 transition-colors",
-                item.isBookmarked 
-                  ? "fill-text-strong text-text-strong" 
-                  : "text-text-subtle"
-              )} 
+                'h-3.5 w-3.5 transition-colors',
+                item.isBookmarked
+                  ? 'fill-text-strong text-text-strong'
+                  : 'text-text-subtle',
+              )}
             />
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col gap-150 mb-auto">
+      <div className="mb-auto flex flex-col gap-150">
         <h3 className="font-bold-h4 text-text-strong line-clamp-2">
           {item.title}
         </h3>
       </div>
 
-      <div className="mt-auto flex items-center justify-between border-t border-border-subtle pt-300">
+      <div className="border-border-subtle mt-auto flex items-center justify-between border-t pt-300">
         <span className="font-designer-13m text-text-subtle">
-          by <span className="text-text-default font-medium">{item.author}</span>
+          by{' '}
+          <span className="text-text-default font-medium">{item.author}</span>
         </span>
-        <div className="flex items-center gap-200 text-text-subtle">
-          <div className="flex items-center gap-50 font-designer-12r">
-            <Eye className="w-3.5 h-3.5" />
+        <div className="text-text-subtle flex items-center gap-200">
+          <div className="font-designer-12r flex items-center gap-50">
+            <Eye className="h-3.5 w-3.5" />
             {item.views.toLocaleString()}
           </div>
-          <button 
+          <button
             onClick={(e) => onLike(e, item.id)}
-            className="flex items-center gap-50 font-designer-12r hover:scale-110 transition-transform p-1 rounded-full hover:bg-red-50"
+            className="font-designer-12r flex items-center gap-50 rounded-full p-1 transition-transform hover:scale-110 hover:bg-red-50"
           >
-            <Heart 
+            <Heart
               className={cn(
-                "w-3.5 h-3.5 transition-colors",
-                item.isLiked ? "fill-red-500 text-red-500" : "text-text-subtle"
-              )} 
+                'h-3.5 w-3.5 transition-colors',
+                item.isLiked ? 'fill-red-500 text-red-500' : 'text-text-subtle',
+              )}
             />
-            <span className={cn(item.isLiked && "text-red-500 font-bold")}>
+            <span className={cn(item.isLiked && 'font-bold text-red-500')}>
               {item.likes.toLocaleString()}
             </span>
           </button>
@@ -120,14 +121,14 @@ const LibraryCard = ({
   );
 };
 
-const LibraryRow = ({ 
-  item, 
-  onLike, 
+const LibraryRow = ({
+  item,
+  onLike,
   onView,
   onBookmark,
   onHide,
   isAdmin,
-}: { 
+}: {
   item: ArchiveItem;
   onLike: (e: React.MouseEvent, id: number) => void;
   onView: (link: string) => void;
@@ -139,75 +140,79 @@ const LibraryRow = ({
   const isHidden = (item as any).isHidden;
 
   return (
-    <div 
-      onClick={() => onView(item.id, item.link)}
+    <div
+      onClick={() => onView(item.link)}
       className={cn(
-        "group flex items-center gap-300 px-300 py-200 border-b border-border-subtlest hover:bg-fill-neutral-subtle-hover transition-colors cursor-pointer last:border-0",
-        isHidden && "opacity-50"
+        'group border-border-subtlest hover:bg-fill-neutral-subtle-hover flex cursor-pointer items-center gap-300 border-b px-300 py-200 transition-colors last:border-0',
+        isHidden && 'opacity-50',
       )}
     >
       {/* Title Area */}
-      <div className="flex-1 min-w-0 flex flex-col gap-100">
+      <div className="flex min-w-0 flex-1 flex-col gap-100">
         <div className="flex items-center gap-100">
           <h3 className="font-designer-15b text-text-strong group-hover:text-text-information truncate transition-colors">
             {item.title}
           </h3>
           {isHidden && (
-            <span className="shrink-0 rounded-100 bg-fill-neutral-subtle-default px-150 py-25 font-designer-11m text-text-subtle">
+            <span className="rounded-100 bg-fill-neutral-subtle-default font-designer-11m text-text-subtle shrink-0 px-150 py-25">
               숨김됨
             </span>
           )}
         </div>
-        <div className="flex items-center gap-100 font-designer-12r text-text-subtle">
+        <div className="font-designer-12r text-text-subtle flex items-center gap-100">
           <span>{item.author}</span>
-          <span className="w-[1px] h-[10px] bg-border-subtle"></span>
+          <span className="bg-border-subtle h-[10px] w-[1px]" />
           <span>{item.date}</span>
         </div>
       </div>
 
       {/* Stats Area */}
-      <div className="flex items-center gap-200 shrink-0">
+      <div className="flex shrink-0 items-center gap-200">
         {isAdmin && onHide && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onHide(e, item.id);
             }}
-            className="flex items-center gap-25 rounded-100 px-100 py-50 font-designer-11m transition-colors bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover"
+            className="rounded-100 font-designer-11m bg-background-alternative text-text-subtle hover:bg-fill-neutral-subtle-hover flex items-center gap-25 px-100 py-50 transition-colors"
           >
             {isHidden ? '보이기' : '숨기기'}
           </button>
         )}
         <button
           onClick={(e) => onBookmark(e, item.id)}
-          className="flex items-center gap-50 font-designer-12r hover:scale-110 transition-transform p-1 rounded-full hover:bg-fill-neutral-subtle-hover"
+          className="font-designer-12r hover:bg-fill-neutral-subtle-hover flex items-center gap-50 rounded-full p-1 transition-transform hover:scale-110"
         >
-          <Bookmark 
+          <Bookmark
             className={cn(
-              "h-3.5 w-3.5 transition-colors",
-              item.isBookmarked 
-                ? "fill-text-strong text-text-strong" 
-                : "text-text-subtle"
-            )} 
+              'h-3.5 w-3.5 transition-colors',
+              item.isBookmarked
+                ? 'fill-text-strong text-text-strong'
+                : 'text-text-subtle',
+            )}
           />
         </button>
-        
-        <div className="flex items-center gap-50 font-designer-13m text-text-subtle min-w-[60px] justify-end">
-          <Eye className="w-3.5 h-3.5" />
+
+        <div className="font-designer-13m text-text-subtle flex min-w-[60px] items-center justify-end gap-50">
+          <Eye className="h-3.5 w-3.5" />
           {item.views.toLocaleString()}
         </div>
-        
-        <button 
+
+        <button
           onClick={(e) => onLike(e, item.id)}
-          className="flex items-center gap-50 font-designer-13m min-w-[50px] justify-end hover:scale-110 transition-transform p-1 rounded-full hover:bg-red-50"
+          className="font-designer-13m flex min-w-[50px] items-center justify-end gap-50 rounded-full p-1 transition-transform hover:scale-110 hover:bg-red-50"
         >
-          <Heart 
+          <Heart
             className={cn(
-              "w-3.5 h-3.5 transition-colors",
-              item.isLiked ? "fill-red-500 text-red-500" : "text-text-subtle"
-            )} 
+              'h-3.5 w-3.5 transition-colors',
+              item.isLiked ? 'fill-red-500 text-red-500' : 'text-text-subtle',
+            )}
           />
-          <span className={cn(item.isLiked ? "text-red-500 font-bold" : "text-text-subtle")}>
+          <span
+            className={cn(
+              item.isLiked ? 'font-bold text-red-500' : 'text-text-subtle',
+            )}
+          >
             {item.likes.toLocaleString()}
           </span>
         </button>
@@ -221,12 +226,14 @@ const LibraryRow = ({
 // ----------------------------------------------------------------------
 
 export default function ArchiveTab() {
-  const [librarySort, setLibrarySort] = useState<'LATEST' | 'VIEWS' | 'LIKES'>('LATEST');
+  const [librarySort, setLibrarySort] = useState<'LATEST' | 'VIEWS' | 'LIKES'>(
+    'LATEST',
+  );
   const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>('GRID');
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  
+
   // New States
   const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false); // Mock Admin Mode
@@ -258,7 +265,7 @@ export default function ArchiveTab() {
   const handleView = (id: number, link: string) => {
     // 1. 링크 바로 열기 (사용자 대기 시간 없음)
     window.open(link, '_blank');
-    
+
     // 2. 백그라운드에서 조회수 기록 (Fire-and-forget)
     recordView(id);
   };
@@ -280,15 +287,17 @@ export default function ArchiveTab() {
       <div className="flex items-center justify-between">
         <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
           제로원 아카이브
-          <LibraryBig className="w-8 h-8 text-text-brand" />
+          <LibraryBig className="text-text-brand h-8 w-8" />
         </h2>
-        
+
         {/* Admin Toggle (Hidden/Dev feature) */}
-        <button 
+        <button
           onClick={() => setIsAdmin(!isAdmin)}
           className={cn(
-            "px-200 py-100 rounded-100 text-xs font-mono transition-colors",
-            isAdmin ? "bg-red-100 text-red-600" : "bg-transparent text-transparent hover:text-gray-300"
+            'rounded-100 px-200 py-100 font-mono text-xs transition-colors',
+            isAdmin
+              ? 'bg-red-100 text-red-600'
+              : 'bg-transparent text-transparent hover:text-gray-300',
           )}
         >
           {isAdmin ? 'Admin Mode ON' : 'Admin'}
@@ -297,26 +306,28 @@ export default function ArchiveTab() {
 
       {/* Filters & Search */}
       <div className="flex flex-col gap-300">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-300">
+        <div className="flex flex-col gap-300 md:flex-row md:items-center md:justify-between">
           {/* Left Side Filters */}
-          <div className="flex items-center gap-200 overflow-x-auto pb-100 md:pb-0 hide-scrollbar">
-             {/* Bookmark Filter */}
-             <button
+          <div className="hide-scrollbar flex items-center gap-200 overflow-x-auto pb-100 md:pb-0">
+            {/* Bookmark Filter */}
+            <button
               onClick={() => setShowBookmarkedOnly(!showBookmarkedOnly)}
               className={cn(
-                "flex items-center gap-50 px-300 py-150 rounded-100 border transition-all whitespace-nowrap font-designer-14b",
+                'rounded-100 font-designer-14b flex items-center gap-50 border px-300 py-150 whitespace-nowrap transition-all',
                 showBookmarkedOnly
-                  ? "bg-fill-brand-default-default border-transparent text-text-inverse shadow-1"
-                  : "bg-background-default border-border-subtle text-text-subtle hover:border-border-brand hover:text-text-brand"
+                  ? 'bg-fill-brand-default-default text-text-inverse shadow-1 border-transparent'
+                  : 'bg-background-default border-border-subtle text-text-subtle hover:border-border-brand hover:text-text-brand',
               )}
             >
-              <Bookmark className={cn("w-4 h-4", showBookmarkedOnly && "fill-current")} />
+              <Bookmark
+                className={cn('h-4 w-4', showBookmarkedOnly && 'fill-current')}
+              />
               북마크
             </button>
           </div>
-          
+
           {/* Right Side Controls */}
-          <div className="flex flex-col md:flex-row gap-200 w-full md:w-auto items-start md:items-center ml-auto">
+          <div className="ml-auto flex w-full flex-col items-start gap-200 md:w-auto md:flex-row md:items-center">
             {/* Search Bar */}
             <div className="relative w-full md:w-[240px]">
               <input
@@ -324,55 +335,78 @@ export default function ArchiveTab() {
                 placeholder="제목으로 검색"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="h-600 w-full rounded-100 border border-border-subtle bg-background-default pl-200 pr-500 font-designer-14m outline-none focus:border-border-default focus:ring-2 focus:ring-fill-neutral-default-default transition-all"
+                className="rounded-100 border-border-subtle bg-background-default font-designer-14m focus:border-border-default focus:ring-fill-neutral-default-default h-600 w-full border pr-500 pl-200 transition-all outline-none focus:ring-2"
               />
-              <span className="absolute right-200 top-1/2 -translate-y-1/2 text-text-subtlest">
-                <Search className="w-4 h-4" />
+              <span className="text-text-subtlest absolute top-1/2 right-200 -translate-y-1/2">
+                <Search className="h-4 w-4" />
               </span>
             </div>
 
             {/* Sort & View Toggle */}
-            <div className="flex items-center gap-200 w-full md:w-auto justify-end">
+            <div className="flex w-full items-center justify-end gap-200 md:w-auto">
               {/* Sort Dropdown */}
-              <div className="relative group">
-                <button className="flex items-center gap-50 px-200 py-150 rounded-100 bg-background-default border border-border-subtle font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover transition-colors whitespace-nowrap">
-                  <ArrowUpDown className="w-4 h-4" />
-                  {librarySort === 'LATEST' ? '최신순' : librarySort === 'VIEWS' ? '조회순' : '좋아요순'}
+              <div className="group relative">
+                <button className="rounded-100 bg-background-default border-border-subtle font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors">
+                  <ArrowUpDown className="h-4 w-4" />
+                  {librarySort === 'LATEST'
+                    ? '최신순'
+                    : librarySort === 'VIEWS'
+                      ? '조회순'
+                      : '좋아요순'}
                 </button>
-                
+
                 {/* Dropdown */}
-                <div className="absolute top-full right-0 pt-50 w-[120px] hidden group-hover:block z-20">
-                  <div className="bg-background-default border border-border-subtle rounded-100 shadow-2 overflow-hidden">
-                    <button onClick={() => setLibrarySort('LATEST')} className="w-full text-left px-200 py-150 hover:bg-fill-neutral-subtle-hover font-designer-14r transition-colors">최신순</button>
-                    <button onClick={() => setLibrarySort('VIEWS')} className="w-full text-left px-200 py-150 hover:bg-fill-neutral-subtle-hover font-designer-14r transition-colors">조회순</button>
-                    <button onClick={() => setLibrarySort('LIKES')} className="w-full text-left px-200 py-150 hover:bg-fill-neutral-subtle-hover font-designer-14r transition-colors">좋아요순</button>
+                <div className="absolute top-full right-0 z-20 hidden w-[120px] pt-50 group-hover:block">
+                  <div className="bg-background-default border-border-subtle rounded-100 shadow-2 overflow-hidden border">
+                    <button
+                      onClick={() => setLibrarySort('LATEST')}
+                      className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                    >
+                      최신순
+                    </button>
+                    <button
+                      onClick={() => setLibrarySort('VIEWS')}
+                      className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                    >
+                      조회순
+                    </button>
+                    <button
+                      onClick={() => setLibrarySort('LIKES')}
+                      className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                    >
+                      좋아요순
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <div className="w-[1px] h-[24px] bg-border-subtle"></div>
+              <div className="bg-border-subtle h-[24px] w-[1px]" />
 
               {/* View Mode Toggle */}
-              <div className="flex bg-background-default rounded-100 border border-border-subtle p-50 shrink-0">
-                <button 
+              <div className="bg-background-default rounded-100 border-border-subtle flex shrink-0 border p-50">
+                <button
                   onClick={() => setViewMode('GRID')}
                   className={cn(
-                    "p-100 rounded-75 transition-colors",
-                    viewMode === 'GRID' ? "bg-fill-neutral-default-default text-text-strong shadow-sm" : "text-text-subtlest hover:text-text-subtle"
+                    'rounded-75 p-100 transition-colors',
+                    viewMode === 'GRID'
+                      ? 'bg-fill-neutral-default-default text-text-strong shadow-sm'
+                      : 'text-text-subtlest hover:text-text-subtle',
                   )}
                   title="2열 보기"
                 >
-                  <LayoutGrid className="w-4 h-4" />
+                  <LayoutGrid className="h-4 w-4" />
                 </button>
-                <button 
+                <button
                   onClick={() => setViewMode('LIST')}
                   className={cn(
-                    "p-100 rounded-75 transition-colors",
-                    viewMode === 'LIST' ? "bg-fill-neutral-default-default text-text-strong shadow-sm" : "text-text-subtlest hover:text-text-subtle"
+                    'rounded-75 p-100 transition-colors',
+                    viewMode === 'LIST'
+                      ? 'bg-fill-neutral-default-default text-text-strong shadow-sm'
+                      : 'text-text-subtlest hover:text-text-subtle',
                   )}
                   title="1열 보기 (촘촘하게)"
                 >
-                  <List className="w-4 h-4" />
+                  <List className="h-4 w-4" />
                 </button>
               </div>
             </div>
@@ -381,8 +415,8 @@ export default function ArchiveTab() {
       </div>
 
       {isLoading ? (
-        <div className="py-800 text-center text-text-subtlest flex flex-col items-center gap-200">
-          <Loader2 className="w-8 h-8 animate-spin" />
+        <div className="text-text-subtlest flex flex-col items-center gap-200 py-800 text-center">
+          <Loader2 className="h-8 w-8 animate-spin" />
           <div className="font-designer-16m">데이터를 불러오는 중입니다...</div>
         </div>
       ) : (
@@ -390,12 +424,12 @@ export default function ArchiveTab() {
           {/* Library Content */}
           {viewMode === 'GRID' ? (
             /* Grid View */
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-300">
+            <div className="grid grid-cols-1 gap-300 md:grid-cols-2">
               {libraryItems.length > 0 ? (
                 libraryItems.map((item) => (
-                  <LibraryCard 
-                    key={item.id} 
-                    item={item} 
+                  <LibraryCard
+                    key={item.id}
+                    item={item}
                     onLike={handleLike}
                     onView={handleView}
                     onBookmark={handleLibraryBookmark}
@@ -404,23 +438,23 @@ export default function ArchiveTab() {
                   />
                 ))
               ) : (
-                <div className="col-span-full py-800 text-center text-text-subtlest flex flex-col items-center gap-200">
-                  <Search className="w-10 h-10 opacity-20" />
+                <div className="text-text-subtlest col-span-full flex flex-col items-center gap-200 py-800 text-center">
+                  <Search className="h-10 w-10 opacity-20" />
                   <p className="font-designer-16m">검색 결과가 없습니다.</p>
                 </div>
               )}
             </div>
           ) : (
             /* List View */
-            <div className="bg-background-default rounded-200 border border-border-subtle overflow-hidden">
+            <div className="bg-background-default rounded-200 border-border-subtle overflow-hidden border">
               {libraryItems.length > 0 ? (
-                <div className="divide-y divide-border-subtlest">
+                <div className="divide-border-subtlest divide-y">
                   {libraryItems.map((item) => (
-                    <LibraryRow 
-                      key={item.id} 
-                      item={item} 
+                    <LibraryRow
+                      key={item.id}
+                      item={item}
                       onLike={handleLike}
-                      onView={handleView}
+                      onView={(link) => handleView(item.id, link)}
                       onBookmark={handleLibraryBookmark}
                       onHide={handleHide}
                       isAdmin={isAdmin}
@@ -428,8 +462,8 @@ export default function ArchiveTab() {
                   ))}
                 </div>
               ) : (
-                <div className="py-800 text-center text-text-subtlest flex flex-col items-center gap-200">
-                  <Search className="w-10 h-10 opacity-20" />
+                <div className="text-text-subtlest flex flex-col items-center gap-200 py-800 text-center">
+                  <Search className="h-10 w-10 opacity-20" />
                   <p className="font-designer-16m">검색 결과가 없습니다.</p>
                 </div>
               )}
@@ -444,19 +478,21 @@ export default function ArchiveTab() {
           <button
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className="w-[40px] h-[40px] flex items-center justify-center border border-border-subtle rounded-[9999px] hover:bg-fill-neutral-subtle-hover disabled:opacity-50 disabled:hover:bg-transparent transition-colors text-text-subtle"
+            className="border-border-subtle hover:bg-fill-neutral-subtle-hover text-text-subtle flex h-[40px] w-[40px] items-center justify-center rounded-[9999px] border transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
-          <span className="flex items-center justify-center px-300 h-[40px] font-designer-15m text-text-subtle bg-background-default border border-border-subtle rounded-[9999px]">
+          <span className="font-designer-15m text-text-subtle bg-background-default border-border-subtle flex h-[40px] items-center justify-center rounded-[9999px] border px-300">
             {currentPage} / {totalPages}
           </span>
           <button
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            onClick={() =>
+              setCurrentPage(Math.min(totalPages, currentPage + 1))
+            }
             disabled={currentPage === totalPages}
-            className="w-[40px] h-[40px] flex items-center justify-center border border-border-subtle rounded-[9999px] hover:bg-fill-neutral-subtle-hover disabled:opacity-50 disabled:hover:bg-transparent transition-colors text-text-subtle"
+            className="border-border-subtle hover:bg-fill-neutral-subtle-hover text-text-subtle flex h-[40px] w-[40px] items-center justify-center rounded-[9999px] border transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
           >
-            <ChevronRight className="w-5 h-5" />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       )}

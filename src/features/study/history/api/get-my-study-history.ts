@@ -10,10 +10,9 @@ export interface GetMyStudyHistoryParams {
 }
 
 export const getMyStudyHistory = async (params: GetMyStudyHistoryParams) => {
-  const { data } = await axiosInstance.get<PageableResponse<StudyHistoryContent>>(
-    'study/daily/history',
-    { params }
-  );
+  const { data } = await axiosInstance.get<
+    PageableResponse<StudyHistoryContent>
+  >('study/daily/history', { params });
+
   return data;
 };
-

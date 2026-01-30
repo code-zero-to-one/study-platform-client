@@ -6,12 +6,13 @@ export interface TestLoginResponse {
   profileImageUrl?: string;
 }
 
-export const testLogin = async (memberId: number): Promise<TestLoginResponse> => {
+export const testLogin = async (
+  memberId: number,
+): Promise<TestLoginResponse> => {
   const { data } = await axiosInstance.post<{ content: TestLoginResponse }>(
     '/growth/test/login',
-    { memberId }
+    { memberId },
   );
-  
+
   return data.content;
 };
-

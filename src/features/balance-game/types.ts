@@ -88,7 +88,7 @@ export interface VoteRequest {
 
 // Common Response Wrapper (Actual Backend Structure)
 export interface ApiResponse<T> {
-  content: T;      // Changed from data to content
+  content: T; // Changed from data to content
   statusCode: number; // Changed from status to statusCode
   message: string;
   timestamp?: string; // Added timestamp

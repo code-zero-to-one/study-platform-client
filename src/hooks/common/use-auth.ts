@@ -4,9 +4,9 @@
 // 한편, prefetchQuery 는 서버컴포넌트에서 사용하는 함수로 데이터를 미리 가져와서 캐시에 저장함
 
 import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
 import { getCookie } from '@/api/client/cookie';
 import { getMemberId } from '@/features/auth/api/auth';
-import { useMemo } from 'react';
 import { decodeJwt } from '@/utils/jwt';
 
 // 회원 Id 조회
@@ -65,7 +65,8 @@ function isDecodedToken(value: unknown): value is DecodedToken {
 
 export function useAuth(): UseAuthReturn {
   // getCookie는 클라이언트 사이드에서만 실행되어야 함
-  const accessToken = typeof window !== 'undefined' ? getCookie('accessToken') : undefined;
+  const accessToken =
+    typeof window !== 'undefined' ? getCookie('accessToken') : undefined;
 
   const decodedToken: DecodedToken | undefined = useMemo(() => {
     if (!accessToken) return undefined;
@@ -76,12 +77,14 @@ export function useAuth(): UseAuthReturn {
       // decoded가 null이거나 형식이 안 맞으면 에러 출력
       if (!decoded || !isDecodedToken(decoded)) {
         console.error('Invalid token structure', decoded);
+
         return undefined;
       }
 
       return decoded;
     } catch (error) {
       console.error('Failed to decode JWT:', error);
+
       return undefined;
     }
   }, [accessToken]);

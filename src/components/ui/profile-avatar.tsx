@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
 import Image from 'next/image';
+import React, { useMemo, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface ProfileAvatarProps {
@@ -28,23 +28,35 @@ export const ProfileAvatar = ({
     const s = src.trim();
     if (!s) return null;
     // 유효하지 않은 값 필터링 (LOCAL, null 등)
-    if (s.toUpperCase() === 'LOCAL' || s === 'null' || s === 'undefined') return null;
+    if (s.toUpperCase() === 'LOCAL' || s === 'null' || s === 'undefined')
+      return null;
     // LOCAL/로 시작하는 경우 처리 (예: LOCAL/https:/picsum.photos/202)
     if (s.toUpperCase().startsWith('LOCAL/')) {
       const afterLocal = s.substring(6); // 'LOCAL/'.length = 6
       // LOCAL/ 뒤에 실제 URL이 있는 경우
-      if (afterLocal.startsWith('http://') || afterLocal.startsWith('https://')) {
+      if (
+        afterLocal.startsWith('http://') ||
+        afterLocal.startsWith('https://')
+      ) {
         return afterLocal;
       }
+
       // LOCAL/ 뒤에 유효하지 않은 값인 경우
       return null;
     }
-    if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('/')) return s;
+    if (
+      s.startsWith('http://') ||
+      s.startsWith('https://') ||
+      s.startsWith('/')
+    )
+      return s;
+
     return `/${s}`;
   }, [src]);
 
   const [broken, setBroken] = useState(false);
-  const finalSrc = !broken && normalizedSrc ? normalizedSrc : '/profile-default.svg';
+  const finalSrc =
+    !broken && normalizedSrc ? normalizedSrc : '/profile-default.svg';
 
   return (
     <Image
@@ -52,7 +64,10 @@ export const ProfileAvatar = ({
       alt={effectiveAlt}
       width={px}
       height={px}
-      className={cn('shrink-0 rounded-full object-cover bg-fill-neutral-default-default shadow-1', className)}
+      className={cn(
+        'bg-fill-neutral-default-default shadow-1 shrink-0 rounded-full object-cover',
+        className,
+      )}
       loading="eager"
       unoptimized
       onError={() => setBroken(true)}

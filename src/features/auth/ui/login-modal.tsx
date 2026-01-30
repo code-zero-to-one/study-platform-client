@@ -3,12 +3,12 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { ReactNode, useEffect, useState } from 'react';
-import { Modal } from '@/components/ui/modal';
-import { getAttributionParams } from '@/utils/attribution-tracker';
-import { testLogin } from '@/features/auth/api/test-login';
-import { setCookie } from '@/api/client/cookie';
 import { useRouter } from 'next/navigation';
+import { ReactNode, useEffect, useState } from 'react';
+import { setCookie } from '@/api/client/cookie';
+import { Modal } from '@/components/ui/modal';
+import { testLogin } from '@/features/auth/api/test-login';
+import { getAttributionParams } from '@/utils/attribution-tracker';
 
 export default function LoginModal({
   openTrigger,
@@ -22,25 +22,29 @@ export default function LoginModal({
   // Test Login State
   const [testMemberId, setTestMemberId] = useState('1');
   const [isTestLoading, setIsTestLoading] = useState(false);
-  const isDev = process.env.NODE_ENV === 'development' || process.env.NEXT_PUBLIC_ENABLE_TEST_LOGIN === 'true';
+  const isDev =
+    process.env.NODE_ENV === 'development' ||
+    process.env.NEXT_PUBLIC_ENABLE_TEST_LOGIN === 'true';
 
   const handleTestLogin = async () => {
     if (!testMemberId) return;
-    
+
     setIsTestLoading(true);
     try {
-      const { accessToken, memberId, profileImageUrl } = await testLogin(Number(testMemberId));
-      
+      const { accessToken, memberId, profileImageUrl } = await testLogin(
+        Number(testMemberId),
+      );
+
       setCookie('accessToken', accessToken);
       setCookie('memberId', memberId);
       if (profileImageUrl) {
         setCookie('socialImageURL', profileImageUrl);
       }
-      
+
       setIsOpen(false);
       router.push('/home');
       router.refresh();
-      
+
       // alert(`테스트 로그인 성공! (ID: ${memberId})`);
     } catch (error) {
       console.error('Test login failed:', error);
@@ -162,28 +166,30 @@ export default function LoginModal({
 
             {/* Test Login Section (Dev Only) */}
             {isDev && (
-              <div className="mt-2 border-t border-border-default pt-4 w-full">
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-xs font-bold text-text-subtle">🧪 개발자 테스트 로그인</span>
+              <div className="border-border-default mt-2 w-full border-t pt-4">
+                <div className="mb-2 flex items-center justify-center gap-2">
+                  <span className="text-text-subtle text-xs font-bold">
+                    🧪 개발자 테스트 로그인
+                  </span>
                 </div>
-                <div className="flex gap-2 justify-center h-[40px]">
+                <div className="flex h-[40px] justify-center gap-2">
                   <input
                     type="number"
                     value={testMemberId}
                     onChange={(e) => setTestMemberId(e.target.value)}
                     placeholder="Member ID"
-                    className="w-full max-w-[120px] px-3 py-1 text-sm border border-border-default rounded-md focus:outline-none focus:ring-2 focus:ring-fill-brand-default-default"
+                    className="border-border-default focus:ring-fill-brand-default-default w-full max-w-[120px] rounded-md border px-3 py-1 text-sm focus:ring-2 focus:outline-none"
                     min="1"
                   />
                   <button
                     onClick={handleTestLogin}
                     disabled={isTestLoading}
-                    className="px-4 py-1 text-sm bg-fill-neutral-default-default text-text-default font-medium rounded-md hover:bg-fill-neutral-default-hover disabled:opacity-50 transition-colors whitespace-nowrap border border-border-default"
+                    className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover border-border-default rounded-md border px-4 py-1 text-sm font-medium whitespace-nowrap transition-colors disabled:opacity-50"
                   >
                     {isTestLoading ? '...' : '로그인'}
                   </button>
                 </div>
-                <p className="text-[10px] text-text-subtlest text-center mt-2">
+                <p className="text-text-subtlest mt-2 text-center text-[10px]">
                   * 로컬/개발 환경에서만 보입니다 (Member ID 입력)
                 </p>
               </div>

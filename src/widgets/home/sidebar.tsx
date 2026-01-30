@@ -35,7 +35,7 @@ export default async function Sidebar() {
         studyApplied={userProfile?.studyApplied ?? false}
         sincerityTemp={userProfile.sincerityTemp}
       />
-      
+
       {/* 1:1 인사이트 버튼 제거됨 - 이제 홈 페이지 탭에서 접근 가능 */}
 
       {userProfile.studyApplied ? (

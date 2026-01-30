@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import React from 'react';
 import VotingDetailView from '@/components/voting/voting-detail-view';
 
 export default function VotingDetailPage() {
@@ -9,10 +9,5 @@ export default function VotingDetailPage() {
   const router = useRouter();
   const votingId = Number(params.id);
 
-  return (
-    <VotingDetailView 
-      votingId={votingId} 
-      onBack={() => router.back()} 
-    />
-  );
+  return <VotingDetailView votingId={votingId} onBack={() => router.back()} />;
 }

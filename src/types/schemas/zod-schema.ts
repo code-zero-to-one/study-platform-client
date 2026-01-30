@@ -43,7 +43,11 @@ export const DiscussionFormSchema = z.object({
   topic: z.enum(['development', 'study', 'free', 'question'], {
     message: '주제를 선택해주세요.',
   }),
-  tags: z.array(z.string()).min(1, '태그를 1개 이상 입력해주세요.').max(5, '태그는 5개까지만 입력 가능합니다.').optional(),
+  tags: z
+    .array(z.string())
+    .min(1, '태그를 1개 이상 입력해주세요.')
+    .max(5, '태그는 5개까지만 입력 가능합니다.')
+    .optional(),
 });
 
 export type DiscussionFormData = z.infer<typeof DiscussionFormSchema>;
@@ -68,7 +72,7 @@ export const VotingCreateFormSchema = z.object({
           .trim()
           .min(1, '선택지를 입력해주세요.')
           .max(100, '선택지는 100자 이하로 입력해주세요.'),
-      })
+      }),
     )
     .min(2, '선택지는 최소 2개 이상 입력해주세요.')
     .max(5, '선택지는 최대 5개까지 입력 가능합니다.'),

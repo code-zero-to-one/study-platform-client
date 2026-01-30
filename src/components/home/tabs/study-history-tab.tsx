@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
 import { History, List, Calendar as CalendarIcon, Loader2 } from 'lucide-react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { StudyHistoryRow } from '@/components/study-history/study-history-row';
+import { useState } from 'react';
 import { StudyCalendar } from '@/components/study-history/study-calendar';
-import { StudyHistoryItem, StudyHistoryContent } from '@/types/study-history';
+import { StudyHistoryRow } from '@/components/study-history/study-history-row';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { useMyStudyHistory } from '@/features/study/history/model/use-my-study-history-query';
+import { StudyHistoryItem, StudyHistoryContent } from '@/types/study-history';
 
 // 데이터 매핑 함수 (API Response -> UI Model)
 const mapHistoryItem = (data: StudyHistoryContent): StudyHistoryItem => {
@@ -19,7 +19,8 @@ const mapHistoryItem = (data: StudyHistoryContent): StudyHistoryItem => {
     date: `${dateStr} (${dayName})`,
     subject: data.title,
     role: data.participation.role,
-    attendance: data.participation.attendance === 'PRESENT' ? 'ATTENDED' : 'NOT_STARTED',
+    attendance:
+      data.participation.attendance === 'PRESENT' ? 'ATTENDED' : 'NOT_STARTED',
     link: data.studyLink,
     status: data.status === 'COMPLETE' ? 'COMPLETED' : 'IN_PROGRESS',
     partner: {
@@ -48,14 +49,14 @@ export default function StudyHistoryTab() {
         size: 100, // 한 달치 데이터를 충분히 가져오기 위해 크게 설정
         startDate: `${year}-${String(month).padStart(2, '0')}-01`,
         endDate: `${year}-${String(month).padStart(2, '0')}-${lastDay}`,
-        sort: 'createdAt,desc' // 요청대로 createdAt 사용 (단, 캘린더 뷰라면 scheduledAt이 더 적절할 수 있음)
+        sort: 'createdAt,desc', // 요청대로 createdAt 사용 (단, 캘린더 뷰라면 scheduledAt이 더 적절할 수 있음)
       };
     }
-    
+
     return {
       page: currentPage - 1,
       size: ITEMS_PER_PAGE,
-      sort: 'createdAt,desc'
+      sort: 'createdAt,desc',
     };
   };
 
@@ -68,9 +69,11 @@ export default function StudyHistoryTab() {
 
   if (isLoading) {
     return (
-      <div className="py-800 text-center text-text-subtlest flex flex-col items-center gap-200">
-        <Loader2 className="w-8 h-8 animate-spin" />
-        <div className="font-designer-16m">1:1 스터디 기록을 불러오는 중입니다...</div>
+      <div className="text-text-subtlest flex flex-col items-center gap-200 py-800 text-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="font-designer-16m">
+          1:1 스터디 기록을 불러오는 중입니다...
+        </div>
       </div>
     );
   }
@@ -80,28 +83,32 @@ export default function StudyHistoryTab() {
       <div className="flex items-center justify-between">
         <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
           나의 1:1 스터디 기록
-          <History className="w-8 h-8 text-text-brand" />
+          <History className="text-text-brand h-8 w-8" />
         </h2>
 
-        <div className="flex bg-background-default rounded-100 border border-border-subtle p-50 shrink-0">
+        <div className="bg-background-default rounded-100 border-border-subtle flex shrink-0 border p-50">
           <button
             onClick={() => setViewMode('LIST')}
             className={cn(
-              'p-100 rounded-75 transition-colors flex items-center gap-50',
-              viewMode === 'LIST' ? 'bg-fill-neutral-default-default text-text-strong shadow-sm' : 'text-text-subtlest hover:text-text-subtle',
+              'rounded-75 flex items-center gap-50 p-100 transition-colors',
+              viewMode === 'LIST'
+                ? 'bg-fill-neutral-default-default text-text-strong shadow-sm'
+                : 'text-text-subtlest hover:text-text-subtle',
             )}
           >
-            <List className="w-4 h-4" />
+            <List className="h-4 w-4" />
             <span className="font-designer-13m hidden sm:inline">리스트</span>
           </button>
           <button
             onClick={() => setViewMode('CALENDAR')}
             className={cn(
-              'p-100 rounded-75 transition-colors flex items-center gap-50',
-              viewMode === 'CALENDAR' ? 'bg-fill-neutral-default-default text-text-strong shadow-sm' : 'text-text-subtlest hover:text-text-subtle',
+              'rounded-75 flex items-center gap-50 p-100 transition-colors',
+              viewMode === 'CALENDAR'
+                ? 'bg-fill-neutral-default-default text-text-strong shadow-sm'
+                : 'text-text-subtlest hover:text-text-subtle',
             )}
           >
-            <CalendarIcon className="w-4 h-4" />
+            <CalendarIcon className="h-4 w-4" />
             <span className="font-designer-13m hidden sm:inline">달력</span>
           </button>
         </div>
@@ -109,14 +116,15 @@ export default function StudyHistoryTab() {
 
       <div className="flex flex-col gap-300">
         <div className="font-designer-16m text-text-subtle whitespace-nowrap">
-          총 <span className="font-bold text-text-strong">{totalElements}</span>개의 1:1 스터디 기록이 있습니다.
+          총 <span className="text-text-strong font-bold">{totalElements}</span>
+          개의 1:1 스터디 기록이 있습니다.
         </div>
 
         {viewMode === 'LIST' ? (
-          <div className="bg-background-default rounded-200 border border-border-subtle overflow-hidden shadow-1">
-            <div className="flex gap-400 px-400 py-250 bg-background-alternative/80 border-b border-border-subtlest font-designer-13b text-text-subtle uppercase tracking-wider">
+          <div className="bg-background-default rounded-200 border-border-subtle shadow-1 overflow-hidden border">
+            <div className="bg-background-alternative/80 border-border-subtlest font-designer-13b text-text-subtle flex gap-400 border-b px-400 py-250 tracking-wider uppercase">
               <div className="w-[150px] shrink-0">날짜</div>
-              <div className="flex-1 min-w-0">오늘의 주제</div>
+              <div className="min-w-0 flex-1">오늘의 주제</div>
               <div className="w-[150px] shrink-0">상대방</div>
               <div className="w-[120px] shrink-0 text-center">내 역할</div>
               <div className="w-[100px] shrink-0 text-center">역할수행여부</div>
@@ -124,20 +132,24 @@ export default function StudyHistoryTab() {
               <div className="w-[80px] shrink-0 text-center">링크</div>
             </div>
 
-            <div className="divide-y divide-border-subtlest">
+            <div className="divide-border-subtlest divide-y">
               {historyItems.length > 0 ? (
-                historyItems.map((item) => <StudyHistoryRow key={item.id} item={item} />)
+                historyItems.map((item) => (
+                  <StudyHistoryRow key={item.id} item={item} />
+                ))
               ) : (
-                <div className="py-800 text-center text-text-subtlest flex flex-col items-center gap-200">
-                  <History className="w-10 h-10 opacity-20" />
-                  <p className="font-designer-16m">아직 1:1 스터디 기록이 없습니다.</p>
+                <div className="text-text-subtlest flex flex-col items-center gap-200 py-800 text-center">
+                  <History className="h-10 w-10 opacity-20" />
+                  <p className="font-designer-16m">
+                    아직 1:1 스터디 기록이 없습니다.
+                  </p>
                 </div>
               )}
             </div>
           </div>
         ) : (
-          <StudyCalendar 
-            items={historyItems} 
+          <StudyCalendar
+            items={historyItems}
             currentDate={currentCalendarDate}
             onDateChange={setCurrentCalendarDate}
           />
@@ -148,17 +160,19 @@ export default function StudyHistoryTab() {
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="w-[40px] h-[40px] flex items-center justify-center border border-border-subtle rounded-[9999px] hover:bg-fill-neutral-subtle-hover disabled:opacity-50 disabled:hover:bg-transparent transition-colors text-text-subtle"
+              className="border-border-subtle hover:bg-fill-neutral-subtle-hover text-text-subtle flex h-[40px] w-[40px] items-center justify-center rounded-[9999px] border transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
             >
               ←
             </button>
-            <span className="flex items-center justify-center px-300 h-[40px] font-designer-15m text-text-subtle bg-background-default border border-border-subtle rounded-[9999px]">
+            <span className="font-designer-15m text-text-subtle bg-background-default border-border-subtle flex h-[40px] items-center justify-center rounded-[9999px] border px-300">
               {currentPage} / {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
               disabled={currentPage === totalPages}
-              className="w-[40px] h-[40px] flex items-center justify-center border border-border-subtle rounded-[9999px] hover:bg-fill-neutral-subtle-hover disabled:opacity-50 disabled:hover:bg-transparent transition-colors text-text-subtle"
+              className="border-border-subtle hover:bg-fill-neutral-subtle-hover text-text-subtle flex h-[40px] w-[40px] items-center justify-center rounded-[9999px] border transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
             >
               →
             </button>

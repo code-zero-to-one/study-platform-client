@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { recordArchiveView } from '@/features/archive/api/record-view';
-import { ARCHIVE_QUERY_KEY } from './use-archive-query';
 import { ArchiveResponse } from '@/types/archive';
+import { ARCHIVE_QUERY_KEY } from './use-archive-query';
 
 const VIEWED_ARCHIVES_KEY = 'viewed_archives';
 
@@ -9,6 +9,7 @@ const VIEWED_ARCHIVES_KEY = 'viewed_archives';
 const getViewedArchives = (): Record<number, number> => {
   try {
     const stored = localStorage.getItem(VIEWED_ARCHIVES_KEY);
+
     return stored ? JSON.parse(stored) : {};
   } catch {
     return {};
@@ -29,6 +30,7 @@ const setViewedArchive = (id: number) => {
 // 이미 조회했는지 확인
 const hasViewed = (id: number): boolean => {
   const viewed = getViewedArchives();
+
   return !!viewed[id];
 };
 
@@ -40,12 +42,13 @@ export const useRecordArchiveView = () => {
       // 이미 조회한 아카이브인지 확인
       if (hasViewed(id)) {
         console.log(`Archive ${id} already viewed, skipping API call`);
+
         return; // API 호출하지 않음
       }
 
       // API 호출
       await recordArchiveView(id);
-      
+
       // localStorage에 기록
       setViewedArchive(id);
     },
@@ -60,15 +63,14 @@ export const useRecordArchiveView = () => {
         { queryKey: ARCHIVE_QUERY_KEY.all },
         (oldData) => {
           if (!oldData) return oldData;
+
           return {
             ...oldData,
             content: oldData.content.map((item) =>
-              item.id === id 
-                ? { ...item, views: item.views + 1 } 
-                : item
+              item.id === id ? { ...item, views: item.views + 1 } : item,
             ),
           };
-        }
+        },
       );
     },
     // 에러 발생해도 무시 (Fire-and-forget)

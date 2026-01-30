@@ -1,20 +1,29 @@
 'use client';
 
+import {
+  Loader2,
+  Vote,
+  SearchX,
+  Plus,
+  MessageSquareText,
+  ArrowUpDown,
+} from 'lucide-react';
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Vote, SearchX, Plus, MessageSquareText, ArrowUpDown } from 'lucide-react';
 import VotingCard from '@/components/cards/voting-card';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import Toast from '@/components/ui/toast';
 import VotingCreateModal from '@/components/voting/voting-create-modal';
 import VotingDetailView from '@/components/voting/voting-detail-view';
-import { VotingCreateFormData } from '@/types/schemas/zod-schema';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { useBalanceGameListQuery } from '@/features/balance-game/model/use-balance-game-query';
 import { useCreateBalanceGameMutation } from '@/features/balance-game/model/use-balance-game-mutation';
+import { useBalanceGameListQuery } from '@/features/balance-game/model/use-balance-game-query';
 import { CreateBalanceGameRequest } from '@/features/balance-game/types';
-import Toast from '@/components/ui/toast';
+import { VotingCreateFormData } from '@/types/schemas/zod-schema';
 
 export default function CommunityTab() {
   // 상태 관리
-  const [statusFilter, setStatusFilter] = useState<'active' | 'closed' | 'all'>('active');
+  const [statusFilter, setStatusFilter] = useState<'active' | 'closed' | 'all'>(
+    'active',
+  );
   const [sortMode, setSortMode] = useState<'latest' | 'popular'>('latest');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedVotingId, setSelectedVotingId] = useState<number | null>(null);
@@ -29,7 +38,10 @@ export default function CommunityTab() {
     isFetchingNextPage,
     status,
     error,
-  } = useBalanceGameListQuery(sortMode, statusFilter === 'all' ? undefined : statusFilter);
+  } = useBalanceGameListQuery(
+    sortMode,
+    statusFilter === 'all' ? undefined : statusFilter,
+  );
 
   const createMutation = useCreateBalanceGameMutation();
 
@@ -43,7 +55,8 @@ export default function CommunityTab() {
         title: data.title,
         description: data.description || '',
         options: data.options.map((opt) => opt.label),
-        endsAt: data.endsAt && data.endsAt.trim() !== '' ? data.endsAt : undefined,
+        endsAt:
+          data.endsAt && data.endsAt.trim() !== '' ? data.endsAt : undefined,
         tags: data.tags || [],
       };
 
@@ -69,10 +82,12 @@ export default function CommunityTab() {
           !isFetchingNextPage &&
           !isFetching
         ) {
-          fetchNextPage();
+          fetchNextPage().catch(() => {
+            // 무한 스크롤 실패 시 무시
+          });
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(currentTarget);
@@ -96,8 +111,8 @@ export default function CommunityTab() {
   if (selectedVotingId) {
     return (
       <div className="transition-all duration-300">
-        <VotingDetailView 
-          votingId={selectedVotingId} 
+        <VotingDetailView
+          votingId={selectedVotingId}
           onBack={handleBackToList}
         />
       </div>
@@ -109,8 +124,10 @@ export default function CommunityTab() {
     return (
       <div className="flex items-center justify-center py-800">
         <div className="flex flex-col items-center gap-400">
-          <Loader2 className="h-8 w-8 animate-spin text-text-brand" />
-          <p className="font-designer-16m text-text-subtle">투표를 불러오는 중...</p>
+          <Loader2 className="text-text-brand h-8 w-8 animate-spin" />
+          <p className="font-designer-16m text-text-subtle">
+            투표를 불러오는 중...
+          </p>
         </div>
       </div>
     );
@@ -121,13 +138,13 @@ export default function CommunityTab() {
     return (
       <div className="flex items-center justify-center py-800">
         <div className="flex flex-col items-center gap-400">
-          <SearchX className="h-12 w-12 text-text-subtlest" />
+          <SearchX className="text-text-subtlest h-12 w-12" />
           <p className="font-designer-16m text-text-subtle">
             데이터를 불러오는데 실패했습니다.
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="rounded-100 bg-fill-brand-default-default px-400 py-200 font-designer-14b text-text-inverse transition-colors hover:bg-fill-brand-default-hover"
+            className="rounded-100 bg-fill-brand-default-default font-designer-14b text-text-inverse hover:bg-fill-brand-default-hover px-400 py-200 transition-colors"
           >
             다시 시도
           </button>
@@ -145,7 +162,7 @@ export default function CommunityTab() {
         <div className="flex items-center justify-between">
           <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
             밸런스게임
-            <MessageSquareText className="w-8 h-8 text-text-brand" />
+            <MessageSquareText className="text-text-brand h-8 w-8" />
           </h2>
         </div>
 
@@ -163,10 +180,10 @@ export default function CommunityTab() {
             <button
               onClick={() => setStatusFilter('active')}
               className={cn(
-                'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                'rounded-100 font-designer-13b px-300 py-150 transition-all',
                 statusFilter === 'active'
                   ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                  : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+                  : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
               )}
             >
               진행 중
@@ -174,10 +191,10 @@ export default function CommunityTab() {
             <button
               onClick={() => setStatusFilter('closed')}
               className={cn(
-                'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                'rounded-100 font-designer-13b px-300 py-150 transition-all',
                 statusFilter === 'closed'
                   ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                  : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+                  : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
               )}
             >
               종료됨
@@ -185,42 +202,43 @@ export default function CommunityTab() {
             <button
               onClick={() => setStatusFilter('all')}
               className={cn(
-                'rounded-100 px-300 py-150 font-designer-13b transition-all',
+                'rounded-100 font-designer-13b px-300 py-150 transition-all',
                 statusFilter === 'all'
                   ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                  : 'border border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand',
+                  : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
               )}
             >
               전체
             </button>
 
             {/* divider */}
-            <div className="mx-100 h-6 w-px bg-border-subtle" />
+            <div className="bg-border-subtle mx-100 h-6 w-px" />
 
             {/* Sort Dropdown */}
-            <div className="relative group">
-              <button className="flex items-center gap-50 px-200 py-150 rounded-100 bg-background-default border border-border-subtle font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover transition-colors whitespace-nowrap">
-                <ArrowUpDown className="w-4 h-4" />
+            <div className="group relative">
+              <button className="rounded-100 bg-background-default border-border-subtle font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors">
+                <ArrowUpDown className="h-4 w-4" />
                 {sortMode === 'latest' ? '최신순' : '인기순'}
               </button>
-              
+
               {/* Dropdown */}
-              <div className="absolute top-full left-0 pt-50 w-[120px] hidden group-hover:block z-20">
-                <div className="bg-background-default border border-border-subtle rounded-100 shadow-2 overflow-hidden">
-                  <button 
-                    onClick={() => setSortMode('latest')} 
+              <div className="absolute top-full left-0 z-20 hidden w-[120px] pt-50 group-hover:block">
+                <div className="bg-background-default border-border-subtle rounded-100 shadow-2 overflow-hidden border">
+                  <button
+                    onClick={() => setSortMode('latest')}
                     className={cn(
-                      "w-full text-left px-200 py-150 hover:bg-fill-neutral-subtle-hover font-designer-14r transition-colors",
-                      sortMode === 'latest' && 'bg-fill-neutral-subtle-default'
+                      'hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors',
+                      sortMode === 'latest' && 'bg-fill-neutral-subtle-default',
                     )}
                   >
                     최신순
                   </button>
-                  <button 
-                    onClick={() => setSortMode('popular')} 
+                  <button
+                    onClick={() => setSortMode('popular')}
                     className={cn(
-                      "w-full text-left px-200 py-150 hover:bg-fill-neutral-subtle-hover font-designer-14r transition-colors",
-                      sortMode === 'popular' && 'bg-fill-neutral-subtle-default'
+                      'hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors',
+                      sortMode === 'popular' &&
+                        'bg-fill-neutral-subtle-default',
                     )}
                   >
                     인기순
@@ -233,7 +251,7 @@ export default function CommunityTab() {
           {/* 주제 생성 버튼 */}
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-100 rounded-100 bg-fill-brand-default-default px-400 py-200 font-designer-13b text-text-inverse shadow-1 transition-all hover:scale-105 hover:bg-fill-brand-default-hover hover:shadow-2"
+            className="rounded-100 bg-fill-brand-default-default font-designer-13b text-text-inverse shadow-1 hover:bg-fill-brand-default-hover hover:shadow-2 flex items-center gap-100 px-400 py-200 transition-all hover:scale-105"
           >
             <Plus className="h-4 w-4" />
             주제 생성
@@ -242,10 +260,12 @@ export default function CommunityTab() {
 
         {/* 투표 목록 */}
         {votings.length === 0 ? (
-          <div className="flex flex-col items-center justify-center gap-300 rounded-200 border border-border-subtle bg-background-default py-1200">
-            <Vote className="h-12 w-12 text-text-subtlest opacity-30" />
+          <div className="rounded-200 border-border-subtle bg-background-default flex flex-col items-center justify-center gap-300 border py-1200">
+            <Vote className="text-text-subtlest h-12 w-12 opacity-30" />
             <div className="flex flex-col items-center gap-100">
-              <p className="font-designer-16m text-text-subtle">투표가 없습니다</p>
+              <p className="font-designer-16m text-text-subtle">
+                투표가 없습니다
+              </p>
               <p className="font-designer-14r text-text-subtlest">
                 곧 새로운 투표가 등록될 예정입니다
               </p>
@@ -255,9 +275,9 @@ export default function CommunityTab() {
           <>
             <div className="flex flex-col gap-300">
               {votings.map((voting) => (
-                <VotingCard 
-                  key={voting.id} 
-                  voting={voting} 
+                <VotingCard
+                  key={voting.id}
+                  voting={voting}
                   onClick={() => handleVotingClick(voting.id)}
                 />
               ))}
@@ -267,12 +287,16 @@ export default function CommunityTab() {
             <div ref={observerTarget} className="py-400 text-center">
               {isFetchingNextPage && (
                 <div className="flex items-center justify-center gap-200">
-                  <Loader2 className="h-5 w-5 animate-spin text-text-brand" />
-                  <span className="font-designer-14r text-text-subtle">불러오는 중...</span>
+                  <Loader2 className="text-text-brand h-5 w-5 animate-spin" />
+                  <span className="font-designer-14r text-text-subtle">
+                    불러오는 중...
+                  </span>
                 </div>
               )}
               {!hasNextPage && votings.length > 0 && (
-                <p className="font-designer-13r text-text-subtlest">모든 투표를 불러왔습니다</p>
+                <p className="font-designer-13r text-text-subtlest">
+                  모든 투표를 불러왔습니다
+                </p>
               )}
             </div>
           </>

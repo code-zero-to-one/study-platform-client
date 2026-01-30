@@ -1,9 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
-import { getMyStudyHistory, GetMyStudyHistoryParams } from '@/features/study/history/api/get-my-study-history';
+import {
+  getMyStudyHistory,
+  GetMyStudyHistoryParams,
+} from '@/features/study/history/api/get-my-study-history';
 
 export const STUDY_HISTORY_QUERY_KEY = {
   all: ['myStudyHistory'] as const,
-  list: (params: GetMyStudyHistoryParams) => [...STUDY_HISTORY_QUERY_KEY.all, params] as const,
+  list: (params: GetMyStudyHistoryParams) =>
+    [...STUDY_HISTORY_QUERY_KEY.all, params] as const,
 };
 
 export const useMyStudyHistory = (params: GetMyStudyHistoryParams) => {
@@ -13,4 +17,3 @@ export const useMyStudyHistory = (params: GetMyStudyHistoryParams) => {
     select: (data) => data.content, // API 응답에서 content 부분만 추출해서 사용하기 편하게 함
   });
 };
-
