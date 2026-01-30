@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import HeaderNav from '@/components/layout/header-nav';
 import NotificationDropdown from '@/components/modals/notification-dropdown';
 import Button from '@/components/ui/button';
@@ -46,7 +47,12 @@ export default async function Header() {
 
         <HeaderNav isLoggedIn={isLoggedIn} />
 
-        {accessTokenStr && <NotificationDropdown />}
+        {accessTokenStr && (
+          <div className="flex items-center gap-200">
+            <StudyMatchingToggle />
+            <NotificationDropdown />
+          </div>
+        )}
 
         <div className="ml-150">
           {isLoggedIn ? (
