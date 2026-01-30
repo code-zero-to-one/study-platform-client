@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Mic, User, CheckCircle, Clock, ExternalLink } from 'lucide-react';
+import { Calendar, Mic, User, CheckCircle, Clock, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { StudyHistoryItem } from '@/types/study-history';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { ProfileAvatar } from '@/components/ui/profile-avatar';
@@ -58,17 +58,32 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
         )}
       </div>
 
-      {/* 출석 */}
+      {/* 역할수행여부 */}
       <div className="w-[100px] shrink-0 flex justify-center">
         {item.attendance === 'ATTENDED' ? (
           <span className="text-text-success flex flex-col items-center gap-25">
             <CheckCircle className="w-4 h-4" />
-            <span className="text-[10px] font-bold">출석</span>
+            <span className="text-[10px] font-bold">역할수행</span>
           </span>
         ) : (
           <span className="text-text-warning flex flex-col items-center gap-25">
             <Clock className="w-4 h-4" />
             <span className="text-[10px] font-bold">미진행</span>
+          </span>
+        )}
+      </div>
+
+      {/* 진행상태 */}
+      <div className="w-[100px] shrink-0 flex justify-center">
+        {item.status === 'COMPLETED' ? (
+          <span className="text-text-success flex flex-col items-center gap-25">
+            <CheckCircle2 className="w-4 h-4" />
+            <span className="text-[10px] font-bold">완료</span>
+          </span>
+        ) : (
+          <span className="text-text-warning flex flex-col items-center gap-25">
+            <Clock className="w-4 h-4" />
+            <span className="text-[10px] font-bold">진행중</span>
           </span>
         )}
       </div>

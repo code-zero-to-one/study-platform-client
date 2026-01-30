@@ -119,7 +119,8 @@ export default function StudyHistoryTab() {
               <div className="flex-1 min-w-0">오늘의 주제</div>
               <div className="w-[150px] shrink-0">상대방</div>
               <div className="w-[120px] shrink-0 text-center">내 역할</div>
-              <div className="w-[100px] shrink-0 text-center">출석</div>
+              <div className="w-[100px] shrink-0 text-center">역할수행여부</div>
+              <div className="w-[100px] shrink-0 text-center">진행상태</div>
               <div className="w-[80px] shrink-0 text-center">링크</div>
             </div>
 
