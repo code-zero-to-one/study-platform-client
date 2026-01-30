@@ -7,7 +7,7 @@ interface ArchiveListProps {
   items: ArchiveItem[];
   isAdmin: boolean;
   onLike: (e: React.MouseEvent, id: number) => void;
-  onView: (id: number, link: string) => void;
+  onView: (item: ArchiveItem) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
   onHide?: (e: React.MouseEvent, id: number) => void;
 }
@@ -58,7 +58,7 @@ const LibraryRow = ({
 }: {
   item: ArchiveItem;
   onLike: (e: React.MouseEvent, id: number) => void;
-  onView: (id: number, link: string) => void;
+  onView: (item: ArchiveItem) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
   onHide?: (e: React.MouseEvent, id: number) => void;
   isAdmin?: boolean;
@@ -67,7 +67,7 @@ const LibraryRow = ({
 
   return (
     <div
-      onClick={() => onView(item.id, item.link)}
+      onClick={() => onView(item)}
       className={cn(
         'group border-border-subtlest hover:bg-fill-neutral-subtle-hover flex cursor-pointer items-center gap-300 border-b px-300 py-200 transition-colors last:border-0',
         isHidden && 'opacity-50',

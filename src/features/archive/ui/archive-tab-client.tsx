@@ -3,11 +3,9 @@
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
 import { useArchive } from '@/features/archive/model/use-archive-query';
-import { useToggleArchiveBookmark } from '@/features/archive/model/use-bookmark-mutation';
-import { useToggleArchiveLike } from '@/features/archive/model/use-like-mutation';
-import { useRecordArchiveView } from '@/features/archive/model/use-view-mutation';
+import { useArchiveActions } from '@/features/archive/model/use-archive-actions';
 import { useDebounce } from '@/hooks/use-debounce'; // Assuming this hook exists, or I will create it/use raw
-import { ArchiveResponse, GetArchiveParams } from '@/types/archive';
+import { ArchiveItem, ArchiveResponse, GetArchiveParams } from '@/types/archive';
 import ArchiveHeader from './archive-header';
 import ArchiveFilters from './archive-filters';
 import ArchiveGrid from './archive-grid';
@@ -69,9 +67,8 @@ export default function ArchiveTabClient({
     initialData: shouldUseInitialData ? initialData : undefined,
   });
 
-  const { mutate: toggleBookmark } = useToggleArchiveBookmark();
-  const { mutate: toggleLike } = useToggleArchiveLike();
-  const { mutate: recordView } = useRecordArchiveView();
+  const { toggleBookmark, toggleLike, openAndRecordView } =
+    useArchiveActions();
 
   const libraryItems = archiveData?.content || [];
   const totalPages = archiveData?.totalPages || 1;
@@ -82,12 +79,8 @@ export default function ArchiveTabClient({
     toggleLike(id);
   };
 
-  const handleView = (id: number, link: string) => {
-    // 1. 링크 바로 열기 (사용자 대기 시간 없음)
-    window.open(link, '_blank');
-
-    // 2. 백그라운드에서 조회수 기록 (Fire-and-forget)
-    recordView(id);
+  const handleView = (item: ArchiveItem) => {
+    openAndRecordView(item);
   };
 
   const handleLibraryBookmark = (e: React.MouseEvent, id: number) => {

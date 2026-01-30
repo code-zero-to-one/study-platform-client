@@ -7,7 +7,7 @@ interface ArchiveGridProps {
   items: ArchiveItem[];
   isAdmin: boolean;
   onLike: (e: React.MouseEvent, id: number) => void;
-  onView: (id: number, link: string) => void;
+  onView: (item: ArchiveItem) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
   onHide?: (e: React.MouseEvent, id: number) => void;
 }
@@ -56,7 +56,7 @@ const LibraryCard = ({
 }: {
   item: ArchiveItem;
   onLike: (e: React.MouseEvent, id: number) => void;
-  onView: (id: number, link: string) => void;
+  onView: (item: ArchiveItem) => void;
   onBookmark: (e: React.MouseEvent, id: number) => void;
   onHide?: (e: React.MouseEvent, id: number) => void;
   isAdmin?: boolean;
@@ -65,7 +65,7 @@ const LibraryCard = ({
 
   return (
     <div
-      onClick={() => onView(item.id, item.link)}
+      onClick={() => onView(item)}
       className={cn(
         'rounded-200 border-border-subtle bg-background-default shadow-1 hover:shadow-2 flex h-full cursor-pointer flex-col gap-250 border p-400 transition-all hover:-translate-y-50',
         isHidden && 'opacity-50',
