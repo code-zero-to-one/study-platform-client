@@ -1,4 +1,4 @@
-import VotingDetailPageClient from '@/components/insights/weekly/voting-detail-page-client';
+import VotingDetailPageClient from '@/features/balance-game/ui/voting-detail-page-client';
 
 export default function VotingDetailPage({
   params,
