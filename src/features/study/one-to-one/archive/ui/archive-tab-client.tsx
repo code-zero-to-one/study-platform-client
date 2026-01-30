@@ -2,19 +2,23 @@
 
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
-import { useArchiveQuery } from '@/features/study/one-to-one/archive/model/use-archive-query';
-import { useArchiveActions } from '@/features/study/one-to-one/archive/model/use-archive-actions';
-import { useDebounce } from '@/hooks/use-debounce'; // Assuming this hook exists, or I will create it/use raw
-import { ArchiveItem, ArchiveResponse, GetArchiveParams } from '@/types/archive';
-import ArchiveHeader from './archive-header';
-import ArchiveFilters from './archive-filters';
-import ArchiveGrid from './archive-grid';
-import ArchiveList from './archive-list';
 import {
   ARCHIVE_PAGE_SIZE,
   ARCHIVE_VIEW_MODES,
 } from '@/features/study/one-to-one/archive/const/archive';
+import { useArchiveActions } from '@/features/study/one-to-one/archive/model/use-archive-actions';
+import { useArchiveQuery } from '@/features/study/one-to-one/archive/model/use-archive-query';
 import PaginationCircleButton from '@/features/study/one-to-one/ui/pagination-circle-button';
+import { useDebounce } from '@/hooks/use-debounce'; // Assuming this hook exists, or I will create it/use raw
+import {
+  ArchiveItem,
+  ArchiveResponse,
+  GetArchiveParams,
+} from '@/types/archive';
+import ArchiveFilters from './archive-filters';
+import ArchiveGrid from './archive-grid';
+import ArchiveHeader from './archive-header';
+import ArchiveList from './archive-list';
 
 // ----------------------------------------------------------------------
 // Main Component
@@ -68,8 +72,7 @@ export default function ArchiveTabClient({
     initialData: shouldUseInitialData ? initialData : undefined,
   });
 
-  const { toggleBookmark, toggleLike, openAndRecordView } =
-    useArchiveActions();
+  const { toggleBookmark, toggleLike, openAndRecordView } = useArchiveActions();
 
   const libraryItems = archiveData?.content || [];
   const totalPages = archiveData?.totalPages || 1;

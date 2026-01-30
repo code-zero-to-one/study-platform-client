@@ -2,13 +2,13 @@
 
 import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
 import { useMemo, useState } from 'react';
-import ReservationList from '@/features/study/participation/ui/reservation-list';
 import {
   useStudyStatusQuery,
   useWeeklyParticipationQuery,
 } from '@/features/study/one-to-one/schedule/model/use-schedule-query';
 import DateSelector from '@/features/study/one-to-one/schedule/ui/data-selector';
 import TodayStudyCard from '@/features/study/one-to-one/schedule/ui/today-study-card';
+import ReservationList from '@/features/study/participation/ui/reservation-list';
 import {
   formatKoreaYMD,
   getKoreaDate,

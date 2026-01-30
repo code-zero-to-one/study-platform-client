@@ -1,5 +1,5 @@
-import CommunityTabClient from './community-tab-client';
 import { getBalanceGameListServer } from '@/features/study/one-to-one/balance-game/api/balance-game-api.server';
+import CommunityTabClient from './community-tab-client';
 
 export default async function CommunityTab() {
   const initialList = await getBalanceGameListServer({

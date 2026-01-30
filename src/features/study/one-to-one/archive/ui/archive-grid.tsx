@@ -78,7 +78,8 @@ const LibraryCard = ({
 
       <div className="border-border-subtle mt-auto flex items-center justify-between border-t pt-300">
         <span className="font-designer-13m text-text-subtle">
-          by <span className="text-text-default font-medium">{item.author}</span>
+          by{' '}
+          <span className="text-text-default font-medium">{item.author}</span>
         </span>
         <div className="text-text-subtle flex items-center gap-200">
           <div className="font-designer-12r flex items-center gap-50">

@@ -1,11 +1,11 @@
 import { useCallback } from 'react';
-import { useRecordArchiveViewMutation } from '@/features/study/one-to-one/archive/model/use-view-mutation';
 import { useToggleArchiveBookmarkMutation } from '@/features/study/one-to-one/archive/model/use-bookmark-mutation';
 import { useToggleArchiveLikeMutation } from '@/features/study/one-to-one/archive/model/use-like-mutation';
-type ArchiveViewTarget = {
+import { useRecordArchiveViewMutation } from '@/features/study/one-to-one/archive/model/use-view-mutation';
+interface ArchiveViewTarget {
   id: number;
   link: string;
-};
+}
 
 export const useArchiveActions = () => {
   const { mutate: toggleBookmark } = useToggleArchiveBookmarkMutation();

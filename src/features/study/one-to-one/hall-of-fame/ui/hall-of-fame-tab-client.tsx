@@ -14,11 +14,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { ProfileAvatar } from '@/components/ui/profile-avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useHallOfFameQuery } from '@/features/study/one-to-one/hall-of-fame/model/use-hall-of-fame-query';
-import type {
-  HallOfFameData,
-  Ranker,
-  MVPTeam,
-} from '@/types/hall-of-fame';
+import type { HallOfFameData, Ranker, MVPTeam } from '@/types/hall-of-fame';
 import RankingTabButton from './ranking-tab-button';
 
 // ----------------------------------------------------------------------

@@ -5,14 +5,14 @@ import { useState } from 'react';
 import { StudyCalendar } from '@/components/study-history/study-calendar';
 import { StudyHistoryRow } from '@/components/study-history/study-history-row';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { GetMyStudyHistoryParams } from '@/features/study/one-to-one/history/api/get-my-study-history';
 import { useMyStudyHistoryQuery } from '@/features/study/one-to-one/history/model/use-my-study-history-query';
+import PaginationCircleButton from '@/features/study/one-to-one/ui/pagination-circle-button';
 import {
   PageableResponse,
   StudyHistoryItem,
   StudyHistoryContent,
 } from '@/types/study-history';
-import { GetMyStudyHistoryParams } from '@/features/study/one-to-one/history/api/get-my-study-history';
-import PaginationCircleButton from '@/features/study/one-to-one/ui/pagination-circle-button';
 
 // 데이터 매핑 함수 (API Response -> UI Model)
 const mapHistoryItem = (data: StudyHistoryContent): StudyHistoryItem => {

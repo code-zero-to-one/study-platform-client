@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { getHallOfFame } from '../api/hall-of-fame-api';
 import type { HallOfFameData } from '@/types/hall-of-fame';
+import { getHallOfFame } from '../api/hall-of-fame-api';
 
 export const HALL_OF_FAME_KEYS = {
   all: ['hallOfFame'] as const,
@@ -10,7 +10,9 @@ export const HALL_OF_FAME_KEYS = {
 /**
  * 명예의 전당 정보 조회 훅
  */
-export const useHallOfFameQuery = (options?: { initialData?: HallOfFameData }) => {
+export const useHallOfFameQuery = (options?: {
+  initialData?: HallOfFameData;
+}) => {
   return useQuery<HallOfFameData>({
     queryKey: HALL_OF_FAME_KEYS.detail(),
     queryFn: getHallOfFame,

@@ -1,5 +1,8 @@
 import { axiosServerInstance } from '@/api/client/axios.server';
-import type { PageableResponse, StudyHistoryContent } from '@/types/study-history';
+import type {
+  PageableResponse,
+  StudyHistoryContent,
+} from '@/types/study-history';
 import type { GetMyStudyHistoryParams } from './get-my-study-history';
 
 export const getMyStudyHistoryServer = async (

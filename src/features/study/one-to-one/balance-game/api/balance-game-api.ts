@@ -21,17 +21,16 @@ export const getBalanceGameList = async (params: {
   // 백엔드는 page를 1부터 시작하고 limit을 사용함
   const { page = 1, size = 10, sort = 'latest', status } = params;
 
-  const response = await axiosInstance.get<ApiResponse<BalanceGameListResponse>>(
-    '/balance-games',
-    {
-      params: {
-        page,
-        limit: size, // 백엔드는 limit 파라미터를 사용
-        sort,
-        status,
-      },
+  const response = await axiosInstance.get<
+    ApiResponse<BalanceGameListResponse>
+  >('/balance-games', {
+    params: {
+      page,
+      limit: size, // 백엔드는 limit 파라미터를 사용
+      sort,
+      status,
     },
-  );
+  });
 
   // content 필드 사용 (실제 백엔드 응답 구조 반영)
   if (response.data && 'content' in response.data) {

@@ -1,7 +1,7 @@
-import ArchiveTabClient from './archive-tab-client';
 import { getArchiveServer } from '@/features/study/one-to-one/archive/api/get-archive.server';
 import { ARCHIVE_PAGE_SIZE } from '@/features/study/one-to-one/archive/const/archive';
 import { GetArchiveParams } from '@/types/archive';
+import ArchiveTabClient from './archive-tab-client';
 
 export default async function ArchiveTab() {
   const initialParams: GetArchiveParams = {

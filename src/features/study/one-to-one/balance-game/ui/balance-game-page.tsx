@@ -203,8 +203,7 @@ export default function BalanceGamePage() {
                   onClick={() => setIsCreateModalOpen(true)}
                   className="rounded-100 bg-fill-brand-default-default font-designer-14b text-text-inverse hover:bg-fill-brand-default-hover flex items-center gap-100 px-400 py-250 transition-colors"
                 >
-                  <Plus className="h-4 w-4" />
-                  새 주제 만들기
+                  <Plus className="h-4 w-4" />새 주제 만들기
                 </button>
               </div>
 

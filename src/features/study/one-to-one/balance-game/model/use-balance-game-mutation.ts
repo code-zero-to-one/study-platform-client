@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { UpdateBalanceGameRequest } from '@/types/balance-game';
 import { BALANCE_GAME_KEYS } from './use-balance-game-query';
 import {
   cancelVoteBalanceGame,
@@ -10,7 +11,6 @@ import {
   updateBalanceGameComment,
   voteBalanceGame,
 } from '../api/balance-game-api';
-import { UpdateBalanceGameRequest } from '@/types/balance-game';
 
 export const useCreateBalanceGameMutation = () => {
   const queryClient = useQueryClient();
