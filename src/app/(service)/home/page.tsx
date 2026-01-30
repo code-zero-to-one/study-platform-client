@@ -15,9 +15,10 @@ export const metadata: Metadata = generateSEOMetadata({
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: { tab?: string };
+  searchParams?: Promise<{ tab?: string }>;
 }) {
-  const activeTab = searchParams?.tab || 'study';
+  const resolvedSearchParams = await searchParams;
+  const activeTab = resolvedSearchParams?.tab || 'study';
 
   return (
     <div className="mx-auto flex w-[1496px] gap-600 px-600 py-600">

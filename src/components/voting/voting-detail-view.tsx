@@ -28,12 +28,12 @@ import {
   useDeleteBalanceGameMutation,
   useUpdateBalanceGameCommentMutation,
   useUpdateBalanceGameMutation,
-} from '@/features/balance-game/model/use-balance-game-mutation';
+} from '@/features/study/one-to-one/balance-game/model/use-balance-game-mutation';
 import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
-} from '@/features/balance-game/model/use-balance-game-query';
-import { BalanceGameComment } from '@/features/balance-game/types';
+} from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
+import { BalanceGameComment } from '@/features/study/one-to-one/balance-game/types';
 import { useUserStore } from '@/stores/useUserStore';
 import {
   CommentFormData,

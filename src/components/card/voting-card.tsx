@@ -4,7 +4,7 @@ import React from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { BalanceGame } from '@/features/balance-game/types';
+import { BalanceGame } from '@/features/study/one-to-one/balance-game/types';
 import VoteTimer from '../voting/vote-timer';
 
 interface VotingCardProps {

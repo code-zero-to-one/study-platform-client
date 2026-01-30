@@ -1,11 +1,12 @@
-import VotingDetailPageClient from '@/features/balance-game/ui/voting-detail-page-client';
+import VotingDetailPageClient from '@/features/study/one-to-one/balance-game/ui/voting-detail-page-client';
 
-export default function VotingDetailPage({
+export default async function VotingDetailPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const votingId = Number(params.id);
+  const { id } = await params;
+  const votingId = Number(id);
 
   return <VotingDetailPageClient votingId={votingId} />;
 }
