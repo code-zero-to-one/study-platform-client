@@ -8,10 +8,14 @@ export const ARCHIVE_QUERY_KEY = {
     [...ARCHIVE_QUERY_KEY.all, params] as const,
 };
 
-export const useArchive = (params: GetArchiveParams) => {
+export const useArchive = (
+  params: GetArchiveParams,
+  options?: { initialData?: Awaited<ReturnType<typeof getArchive>> },
+) => {
   return useQuery({
     queryKey: ARCHIVE_QUERY_KEY.list(params),
     queryFn: () => getArchive(params),
     placeholderData: keepPreviousData,
+    initialData: options?.initialData,
   });
 };

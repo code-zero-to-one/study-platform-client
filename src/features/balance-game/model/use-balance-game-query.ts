@@ -19,6 +19,9 @@ export const BALANCE_GAME_KEYS = {
 export const useBalanceGameListQuery = (
   sort: 'latest' | 'popular' = 'latest',
   status?: 'active' | 'closed',
+  options?: {
+    initialPage?: Awaited<ReturnType<typeof getBalanceGameList>>;
+  },
 ) => {
   return useInfiniteQuery({
     queryKey: BALANCE_GAME_KEYS.list({ sort, status }),
@@ -51,6 +54,9 @@ export const useBalanceGameListQuery = (
       return undefined;
     },
     initialPageParam: 1, // 백엔드는 1부터 시작
+    initialData: options?.initialPage
+      ? { pages: [options.initialPage], pageParams: [1] }
+      : undefined,
   });
 };
 

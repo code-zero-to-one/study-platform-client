@@ -10,10 +10,14 @@ export const STUDY_HISTORY_QUERY_KEY = {
     [...STUDY_HISTORY_QUERY_KEY.all, params] as const,
 };
 
-export const useMyStudyHistory = (params: GetMyStudyHistoryParams) => {
+export const useMyStudyHistory = (
+  params: GetMyStudyHistoryParams,
+  options?: { initialData?: Awaited<ReturnType<typeof getMyStudyHistory>> },
+) => {
   return useQuery({
     queryKey: STUDY_HISTORY_QUERY_KEY.list(params),
     queryFn: () => getMyStudyHistory(params),
     select: (data) => data.content, // API 응답에서 content 부분만 추출해서 사용하기 편하게 함
+    initialData: options?.initialData,
   });
 };

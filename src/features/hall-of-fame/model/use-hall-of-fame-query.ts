@@ -10,10 +10,11 @@ export const HALL_OF_FAME_KEYS = {
 /**
  * 명예의 전당 정보 조회 훅
  */
-export const useHallOfFameQuery = () => {
+export const useHallOfFameQuery = (options?: { initialData?: HallOfFameData }) => {
   return useQuery<HallOfFameData>({
     queryKey: HALL_OF_FAME_KEYS.detail(),
     queryFn: getHallOfFame,
     staleTime: 1000 * 60 * 5, // 5분간 캐시 유지
+    initialData: options?.initialData,
   });
 };
