@@ -29,12 +29,15 @@ const CreateMissionFormSchema = z.object({
     .min(1, '수행 가이드를 입력해주세요.')
     .max(1000, '1000자 이하로 작성가능합니다.'),
   dateRange: z
-    .object({
-      from: z.date({ error: '시작일을 선택해주세요.' }),
-      to: z.date({ error: '종료일을 선택해주세요.' }),
-    })
+    .object(
+      {
+        from: z.date({ message: '시작일을 선택해주세요.' }),
+        to: z.date({ message: '종료일을 선택해주세요.' }),
+      },
+      { message: '시작일과 종료일을 선택해주세요.' },
+    )
     .refine((data) => data.from && data.to && data.from <= data.to, {
-      message: '미션이 시작되면 수정 및 삭제가 불가합니다.',
+      message: '종료일은 시작일 이후여야 합니다.',
     }),
 });
 

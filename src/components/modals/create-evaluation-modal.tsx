@@ -111,8 +111,8 @@ function CreateEvaluationForm({
   const gradeOptions = grades
     ?.sort((a, b) => a.orderNum - b.orderNum)
     .map((grade) => ({
-      value: grade.label,
-      label: `${grade.label} (${grade.score})`,
+      value: grade.code,
+      label: `${grade.label} (${grade.score === 0 ? '0' : grade.score.toFixed(1)})`,
     }));
 
   return (
