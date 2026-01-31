@@ -112,7 +112,7 @@ function CreateEvaluationForm({
     ?.sort((a, b) => a.orderNum - b.orderNum)
     .map((grade) => ({
       value: grade.code,
-      label: `${grade.code} (${grade.score})`,
+      label: `${grade.label} (${grade.score === 0 ? '0' : grade.score.toFixed(1)})`,
     }));
 
   return (

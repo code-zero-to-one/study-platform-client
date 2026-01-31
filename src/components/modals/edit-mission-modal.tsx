@@ -28,11 +28,11 @@ const EditMissionFormSchema = z.object({
   guide: z.string().min(1, '수행 가이드를 입력해주세요.'),
   dateRange: z
     .object({
-      from: z.date({ error: '시작일을 선택해주세요.' }),
-      to: z.date({ error: '종료일을 선택해주세요.' }),
+      from: z.date({ message: '시작일을 선택해주세요.' }),
+      to: z.date({ message: '종료일을 선택해주세요.' }),
     })
     .refine((data) => data.from && data.to && data.from <= data.to, {
-      message: '미션이 시작되면 수정 및 삭제가 불가합니다.',
+      message: '종료일은 시작일 이후여야 합니다.',
     }),
 });
 
