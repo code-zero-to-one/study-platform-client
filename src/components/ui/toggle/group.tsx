@@ -82,7 +82,6 @@ function GroupItems(props: ToggleGroupProps) {
       role="group"
       aria-label="toggle-group"
     >
-      {}
       {options?.map(({ value: v, label }) => (
         <Item
           key={v}

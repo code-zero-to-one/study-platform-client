@@ -21,7 +21,7 @@ export function CommentReaction({
     retry: 0,
   });
 
-  const { reaction, counts, like, dislike, reconcile } = useReactionLogic({
+  const { reaction, counts, like, dislike } = useReactionLogic({
     initialReaction,
     initialCounts,
     mode: 'debounce',
