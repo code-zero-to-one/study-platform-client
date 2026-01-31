@@ -6,10 +6,8 @@ import {
   fetchArticles,
   fetchCategories,
 } from '@/api/strapi/api/fetch-articles';
-import PageContainer from '@/components/layout/page-container';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
-import { getServerCookie } from '@/utils/server-cookie';
-import Sidebar from '@/widgets/home/sidebar';
+import Banner from '@/widgets/home/banner';
 
 export const revalidate = 60;
 
@@ -44,9 +42,6 @@ interface BlogPageProps {
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const memberIdStr = await getServerCookie('memberId');
-  const isLoggedIn = !!memberIdStr;
-
   const { category: selectedCategorySlug } = await searchParams;
 
   // 카테고리 목록과 아티클 목록을 병렬로 가져오기
@@ -59,8 +54,13 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const articles = articlesRes.data ?? [];
 
   return (
-    <PageContainer className="flex gap-600 py-600">
+    <div className="mx-auto w-[1280px] px-400 py-600">
       <div className="flex flex-1 flex-col gap-500">
+        {/* 배너 */}
+        <div className="mb-600">
+          <Banner />
+        </div>
+
         <div className="flex justify-between">
           <span className="font-designer-28b text-[#181D27]">
             ZERO-ONE 인사이트
@@ -92,6 +92,17 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               {category.name}
             </Link>
           ))}
+          <Link
+            href="/insights/weekly"
+            className="font-designer-15r relative px-300 pb-200 text-[#535862] transition-colors hover:text-[#6366f1]"
+          >
+            <span className="flex items-center gap-100">
+              위클리
+              <span className="animate-pulse rounded-full bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] px-100 py-25 text-[10px] font-bold text-white">
+                NEW
+              </span>
+            </span>
+          </Link>
         </div>
 
         {/* 아티클 목록 */}
@@ -144,7 +155,6 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
           </ul>
         )}
       </div>
-      {isLoggedIn && <Sidebar />}
-    </PageContainer>
+    </div>
   );
 }

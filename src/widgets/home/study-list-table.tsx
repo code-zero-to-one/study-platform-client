@@ -4,8 +4,8 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import UserAvatar from '@/components/ui/avatar';
 import TableList from '@/components/ui/table';
 import { getStatusBadge } from '@/features/study/interview/ui/status-badge-map';
-import { DailyStudy } from '@/features/study/schedule/api/schedule-types';
-import { useDailyStudiesQuery } from '@/features/study/schedule/model/use-schedule-query';
+import { DailyStudy } from '@/features/study/one-to-one/schedule/api/schedule-types';
+import { useDailyStudiesQuery } from '@/features/study/one-to-one/schedule/model/use-schedule-query';
 import LinkIcon from 'public/icons/Link.svg';
 
 const headers = [

@@ -2,19 +2,20 @@
 
 import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
 import { useMemo, useState } from 'react';
-import ReservationList from '@/features/study/participation/ui/reservation-list';
 import {
   useStudyStatusQuery,
-  useWeeklyParticipation,
-} from '@/features/study/schedule/model/use-schedule-query';
-import DateSelector from '@/features/study/schedule/ui/data-selector';
-import TodayStudyCard from '@/features/study/schedule/ui/today-study-card';
+  useWeeklyParticipationQuery,
+} from '@/features/study/one-to-one/schedule/model/use-schedule-query';
+import DateSelector from '@/features/study/one-to-one/schedule/ui/data-selector';
+import TodayStudyCard from '@/features/study/one-to-one/schedule/ui/today-study-card';
+import ReservationList from '@/features/study/participation/ui/reservation-list';
+import { useAuth } from '@/hooks/common/use-auth';
 import {
   formatKoreaYMD,
   getKoreaDate,
   getKoreaDisplayMonday,
 } from '@/utils/time';
-import StudyListSection from '../../../../widgets/home/study-list-table';
+import StudyListSection from '@/widgets/home/study-list-table';
 
 // 스터디 주차 구하는 함수
 function getWeekly(date: Date): { month: number; week: number } {
@@ -65,9 +66,18 @@ export default function StudyCard() {
 
   const studyDate = formatKoreaYMD(selectedDate);
 
+  // 로그인 여부 확인
+  const { data: authData } = useAuth();
+  const isLoggedIn = !!authData?.memberId;
+
+  // 공개 API
   const { data: status } = useStudyStatusQuery();
 
-  const { data: participationData } = useWeeklyParticipation(studyDate);
+  // 인증 API (로그인 한 사용자만 호출)
+  const { data: participationData } = useWeeklyParticipationQuery(
+    studyDate,
+    isLoggedIn,
+  );
   const isParticipate = participationData?.isParticipate ?? false;
 
   const displayMonday = useMemo(

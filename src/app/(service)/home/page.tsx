@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
-import StudyCard from '@/features/study/schedule/ui/study-card';
+import StartStudyButton from '@/components/home/start-study-button';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import Banner from '@/widgets/home/banner';
-import Sidebar from '@/widgets/home/sidebar';
+import FeedbackLink from '@/widgets/home/feedback-link';
+import HomeContent from './home-content';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: '홈 - ZERO-ONE',
@@ -13,17 +14,20 @@ export const metadata: Metadata = generateSEOMetadata({
   canonicalUrl: 'https://www.zeroone.it.kr/home',
 });
 
-export default async function Home() {
-  return (
-    <div className="mx-auto flex w-[1496px] gap-600 px-600 py-600">
-      <div className="flex flex-1 flex-col gap-500">
-        <Banner />
-        <StudyCard />
-      </div>
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: Promise<{ tab?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const activeTab = resolvedSearchParams?.tab || 'study';
 
-      <aside className="w-[335px] shrink-0">
-        <Sidebar />
-      </aside>
+  return (
+    <div className="mx-auto flex w-[1496px] flex-col gap-500 px-600 py-600">
+      <Banner />
+      <FeedbackLink />
+      <StartStudyButton />
+      <HomeContent activeTab={activeTab} />
     </div>
   );
 }

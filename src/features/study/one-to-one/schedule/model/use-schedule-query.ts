@@ -4,21 +4,21 @@ import {
   getMonthlyStudyCalendar,
   getStudyStatus,
   getWeeklyParticipation,
-} from '@/features/study/schedule/api/get-study-schedule';
+} from '@/features/study/one-to-one/schedule/api/get-study-schedule';
 import {
   GetDailyStudiesParams,
   GetMonthlyCalendarParams,
   MonthlyCalendarResponse,
   StudyStatus,
-} from '@/features/study/schedule/api/schedule-types';
+} from '@/features/study/one-to-one/schedule/api/schedule-types';
 
 // 스터디 주간 참여 유무 확인 query
-export const useWeeklyParticipation = (params: string) => {
+export const useWeeklyParticipationQuery = (params: string, enabled = true) => {
   return useQuery({
     queryKey: ['weeklyParticipation', params],
     queryFn: () => getWeeklyParticipation(params),
     staleTime: 60 * 1000,
-    enabled: !!params,
+    enabled: !!params && enabled,
   });
 };
 

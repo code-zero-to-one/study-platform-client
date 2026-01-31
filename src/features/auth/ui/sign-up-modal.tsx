@@ -115,7 +115,6 @@ export default function SignupModal({
         const memberId = content?.generatedMemberId;
         const accessToken = content?.accessToken;
         const refreshToken = content?.refreshToken;
-
         if (memberId && accessToken && refreshToken) {
           setCookie('memberId', memberId);
           setCookie('accessToken', accessToken);
