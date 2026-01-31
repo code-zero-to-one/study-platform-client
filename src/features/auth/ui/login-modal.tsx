@@ -3,8 +3,11 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
+import { setCookie } from '@/api/client/cookie';
 import { Modal } from '@/components/ui/modal';
+import { testLogin } from '@/features/auth/api/test-login';
 import { getAttributionParams } from '@/utils/attribution-tracker';
 
 export default function LoginModal({
@@ -14,6 +17,42 @@ export default function LoginModal({
 }) {
   const [state, setState] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  // Test Login State
+  const [testMemberId, setTestMemberId] = useState('1');
+  const [isTestLoading, setIsTestLoading] = useState(false);
+  const isDev =
+    process.env.NODE_ENV === 'development' ||
+    process.env.NEXT_PUBLIC_ENABLE_TEST_LOGIN === 'true';
+
+  const handleTestLogin = async () => {
+    if (!testMemberId) return;
+
+    setIsTestLoading(true);
+    try {
+      const { accessToken, memberId, profileImageUrl } = await testLogin(
+        Number(testMemberId),
+      );
+
+      setCookie('accessToken', accessToken);
+      setCookie('memberId', memberId);
+      if (profileImageUrl) {
+        setCookie('socialImageURL', profileImageUrl);
+      }
+
+      setIsOpen(false);
+      router.push('/home');
+      router.refresh();
+
+      // alert(`테스트 로그인 성공! (ID: ${memberId})`);
+    } catch (error) {
+      console.error('Test login failed:', error);
+      alert('테스트 로그인 실패 (백엔드 실행 여부를 확인하세요)');
+    } finally {
+      setIsTestLoading(false);
+    }
+  };
 
   useEffect(() => {
     const origin = window.location.origin;
@@ -124,6 +163,37 @@ export default function LoginModal({
                 </span>
               </button>
             </div>
+
+            {/* Test Login Section (Dev Only) */}
+            {isDev && (
+              <div className="border-border-default mt-2 w-full border-t pt-4">
+                <div className="mb-2 flex items-center justify-center gap-2">
+                  <span className="text-text-subtle text-xs font-bold">
+                    🧪 개발자 테스트 로그인
+                  </span>
+                </div>
+                <div className="flex h-[40px] justify-center gap-2">
+                  <input
+                    type="number"
+                    value={testMemberId}
+                    onChange={(e) => setTestMemberId(e.target.value)}
+                    placeholder="Member ID"
+                    className="border-border-default focus:ring-fill-brand-default-default w-full max-w-[120px] rounded-md border px-3 py-1 text-sm focus:ring-2 focus:outline-none"
+                    min="1"
+                  />
+                  <button
+                    onClick={handleTestLogin}
+                    disabled={isTestLoading}
+                    className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover border-border-default rounded-md border px-4 py-1 text-sm font-medium whitespace-nowrap transition-colors disabled:opacity-50"
+                  >
+                    {isTestLoading ? '...' : '로그인'}
+                  </button>
+                </div>
+                <p className="text-text-subtlest mt-2 text-center text-[10px]">
+                  * 로컬/개발 환경에서만 보입니다 (Member ID 입력)
+                </p>
+              </div>
+            )}
           </Modal.Body>
         </Modal.Content>
       </Modal.Portal>

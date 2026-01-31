@@ -6,12 +6,12 @@ import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import UserPhoneNumberCopyModal from '@/entities/user/ui/user-phone-number-copy-modal';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { DailyStudyDetail } from '@/features/study/interview/api/interview-types';
+import { useDailyStudyDetailQuery } from '@/features/study/interview/model/use-interview-query';
+import { getStatusBadge } from '@/features/study/interview/ui/status-badge-map';
+import StudyDoneModal from '@/features/study/interview/ui/study-done-modal';
+import StudyReadyModal from '@/features/study/interview/ui/study-ready-modal';
 import { useAuth } from '@/hooks/common/use-auth';
-import { DailyStudyDetail } from '../../interview/api/interview-types';
-import { useDailyStudyDetailQuery } from '../../interview/model/use-interview-query';
-import { getStatusBadge } from '../../interview/ui/status-badge-map';
-import StudyDoneModal from '../../interview/ui/study-done-modal';
-import StudyReadyModal from '../../interview/ui/study-ready-modal';
 
 export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
   const { data: authData } = useAuth();

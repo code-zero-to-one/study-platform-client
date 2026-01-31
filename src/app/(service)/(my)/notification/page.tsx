@@ -1,6 +1,5 @@
 'use client';
 
-import NotificationIcon from 'public/images/notification.svg';
 import { useState } from 'react';
 
 import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/notification-api';
@@ -13,6 +12,7 @@ import {
   useGetNotificationCategories,
   useReadNotifications,
 } from '@/hooks/queries/notification-api';
+import NotificationIcon from 'public/images/notification.svg';
 
 const READ_STATUS_OPTIONS = [
   { value: 'all', label: '상태 전체' },

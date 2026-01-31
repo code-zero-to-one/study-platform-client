@@ -7,7 +7,7 @@ import {
   MonthlyCalendarResponse,
   StudyStatus,
   WeeklyParticipationResponse,
-} from '@/features/study/schedule/api/schedule-types';
+} from '@/features/study/one-to-one/schedule/api/schedule-types';
 
 // 스터디 전체 조회
 export const getDailyStudies = async (
