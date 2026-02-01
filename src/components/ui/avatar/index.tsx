@@ -33,6 +33,8 @@ export default function Avatar({
     image.toUpperCase() !== 'LOCAL' &&
     (image.startsWith('http://') ||
       image.startsWith('https://') ||
+      image.startsWith('blob:') ||
+      image.startsWith('data:') ||
       image.startsWith('/'));
 
   const showImage = isValidImage && !isError;

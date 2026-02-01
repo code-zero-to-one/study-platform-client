@@ -5,18 +5,24 @@ import CommunityTab from '@/features/study/one-to-one/balance-game/ui/community-
 import HallOfFameTab from '@/features/study/one-to-one/hall-of-fame/ui/hall-of-fame-tab';
 import StudyHistoryTab from '@/features/study/one-to-one/history/ui/study-history-tab';
 import StudyTab from '@/features/study/one-to-one/schedule/ui/home-study-tab';
+import { getServerCookie } from '@/utils/server-cookie';
+import { isNumeric } from '@/utils/validation';
 
 interface HomeContentProps {
   activeTab: string;
 }
 
-export default function HomeContent({ activeTab }: HomeContentProps) {
+export default async function HomeContent({ activeTab }: HomeContentProps) {
+  const isHistoryTab = activeTab === 'history';
+  const memberIdStr = isHistoryTab ? await getServerCookie('memberId') : null;
+  const isLoggedIn = !!memberIdStr && isNumeric(memberIdStr);
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'study':
         return <StudyTab />;
       case 'history':
-        return <StudyHistoryTab />;
+        return isLoggedIn ? <StudyHistoryTab /> : <StudyTab />;
       case 'ranking':
         return <HallOfFameTab />;
       case 'archive':

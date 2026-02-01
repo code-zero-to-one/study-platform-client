@@ -8,7 +8,9 @@ import {
   History,
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { getCookie } from '@/api/client/cookie';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { useAuth } from '@/hooks/common/use-auth';
 
 interface TabNavigationProps {
   activeTab: string;
@@ -50,6 +52,12 @@ const TABS = [
 export default function TabNavigation({ activeTab }: TabNavigationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { isAuthenticated } = useAuth();
+  const hasMemberId = !!getCookie('memberId');
+  const canViewHistory = isAuthenticated && hasMemberId;
+  const visibleTabs = canViewHistory
+    ? TABS
+    : TABS.filter((tab) => tab.id !== 'history');
 
   const handleTabChange = (tabId: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -64,7 +72,7 @@ export default function TabNavigation({ activeTab }: TabNavigationProps) {
       </div>
 
       <nav className="border-border-subtle flex gap-100 border-b">
-        {TABS.map((tab) => {
+        {visibleTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
 

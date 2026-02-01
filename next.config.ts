@@ -1,4 +1,7 @@
 import type { NextConfig } from 'next';
+import type { RemotePattern } from 'next/dist/shared/lib/image-config';
+
+const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
   // output: 'standalone',
@@ -31,7 +34,16 @@ const nextConfig: NextConfig = {
         hostname: 'www.zeroone.it.kr',
         pathname: '/**',
       },
-      // CMS 개발 환경에서 사용하는 이미지 도메인 허용 설정
+      ...(isProd
+        ? ([] as RemotePattern[])
+        : ([
+            {
+              protocol: 'http',
+              hostname: 'localhost',
+              port: '8080',
+              pathname: '/**',
+            },
+          ] as RemotePattern[])),
       {
         protocol: 'http',
         hostname: 'localhost',
