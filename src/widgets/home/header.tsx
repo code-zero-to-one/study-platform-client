@@ -28,8 +28,8 @@ export default async function Header() {
     : undefined;
 
   return (
-    <header className="mx-auto w-[1496px] bg-white px-600 py-[11px] mix-blend-multiply">
-      <div className="flex w-full items-center justify-between">
+    <header className="bg-white py-[11px] mix-blend-multiply">
+      <div className="mx-auto flex w-[1496px] items-center justify-between px-600">
         <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
           <Link href="/">
