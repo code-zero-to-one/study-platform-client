@@ -9,9 +9,11 @@ export interface DailyStudyDetail {
   dailyStudyId: number;
   interviewerId: number;
   interviewerName: string;
+  interviewerRealName?: string;
   interviewerImage: string;
   intervieweeId: number;
   intervieweeName: string;
+  intervieweeRealName?: string;
   intervieweeImage: string;
   partnerTel: string;
   studySpaceId: number;

@@ -14,6 +14,7 @@ interface ArchiveFiltersProps {
   onSearchChange: (value: string) => void;
   showBookmarkedOnly: boolean;
   onToggleBookmarkedOnly: () => void;
+  isAuthenticated: boolean;
 }
 
 export default function ArchiveFilters({
@@ -25,6 +26,7 @@ export default function ArchiveFilters({
   onSearchChange,
   showBookmarkedOnly,
   onToggleBookmarkedOnly,
+  isAuthenticated,
 }: ArchiveFiltersProps) {
   const sortLabel =
     ARCHIVE_SORT_OPTIONS.find((option) => option.value === librarySort)
@@ -36,11 +38,13 @@ export default function ArchiveFilters({
         <div className="hide-scrollbar flex items-center gap-200 overflow-x-auto pb-100 md:pb-0">
           <button
             onClick={onToggleBookmarkedOnly}
+            disabled={!isAuthenticated}
             className={cn(
               'rounded-100 font-designer-14b flex items-center gap-50 border px-300 py-150 whitespace-nowrap transition-all',
               showBookmarkedOnly
                 ? 'bg-fill-brand-default-default text-text-inverse shadow-1 border-transparent'
                 : 'bg-background-default border-border-subtle text-text-subtle hover:border-border-brand hover:text-text-brand',
+              !isAuthenticated && 'cursor-not-allowed opacity-50',
             )}
           >
             <Bookmark

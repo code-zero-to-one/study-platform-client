@@ -12,11 +12,13 @@ export interface Job {
   description?: string; // 설명 (예: "게임 개발자")
 }
 
+import type { ProfileImage } from '@/entities/user/api/types';
+
 export interface Ranker {
   rank: number;
   userId: number;
   nickname: string;
-  profileImage: string | null;
+  profileImage: ProfileImage | null;
   score: number;
   sincerity: number | null;
   major: string;
@@ -34,7 +36,7 @@ export interface Rankings {
 export interface MVPTeamMember {
   userId: number;
   nickname: string;
-  profileImage: string | null;
+  profileImage: ProfileImage | null;
 }
 
 export interface SharedLink {
