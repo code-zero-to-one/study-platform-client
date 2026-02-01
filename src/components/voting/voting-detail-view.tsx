@@ -8,6 +8,7 @@ import {
   MoreVertical,
   Edit,
   Trash2,
+  Lock,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import CommentForm from '@/components/discussion/comment-form';
@@ -20,6 +21,7 @@ import DailyStatsChart from '@/components/voting/daily-stats-chart';
 import VoteResultsChart from '@/components/voting/vote-results-chart';
 import VoteTimer from '@/components/voting/vote-timer';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import LoginModal from '@/features/auth/ui/login-modal';
 import {
   useVoteBalanceGameMutation,
   useCancelVoteBalanceGameMutation,
@@ -33,6 +35,7 @@ import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
 } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
+import { useAuth } from '@/hooks/common/use-auth';
 import { useUserStore } from '@/stores/useUserStore';
 import { BalanceGameComment } from '@/types/balance-game';
 import {
@@ -61,6 +64,7 @@ export default function VotingDetailView({
 
   // User Info
   const memberId = useUserStore((state) => state.memberId);
+  const { isAuthenticated } = useAuth();
 
   // Queries
   const {
@@ -108,6 +112,9 @@ export default function VotingDetailView({
       return true;
     });
   }, [commentsData]);
+
+  const commentTotalCount =
+    commentsData?.pages?.[0]?.totalElements ?? comments.length;
 
   // isActive는 백엔드가 내려줄 수도 있고(권장), 없으면 endsAt 기준으로 프론트에서 계산
   // VoteTimer도 endsAt으로 "종료"를 판단하므로, 두 로직이 어긋나지 않게 맞춘다.
@@ -254,7 +261,7 @@ export default function VotingDetailView({
     isActive,
   });
 
-  const showVoteOptions = !hasVoted && isActive;
+  const showVoteOptions = isAuthenticated && !hasVoted && isActive;
 
   return (
     <div className="transition-all duration-300">
@@ -512,31 +519,50 @@ export default function VotingDetailView({
                 </button>
               )}
             </div>
-            <VoteResultsChart
-              options={votingOptions}
-              myVote={voting.myVote || undefined}
-              totalVotes={voting.totalVotes}
-            />
+            <div className="relative">
+              <div className={cn(!isAuthenticated && 'blur-[6px]')}>
+                <VoteResultsChart
+                  options={votingOptions}
+                  myVote={voting.myVote || undefined}
+                  totalVotes={voting.totalVotes}
+                />
+              </div>
+              {!isAuthenticated && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <LoginModal
+                    openTrigger={
+                      <button className="rounded-100 bg-background-default/90 text-text-strong border-border-subtle flex items-center gap-100 border px-200 py-100 text-[12px] font-medium">
+                        <Lock className="h-3 w-3" />
+                        회원가입 후 결과 보기
+                      </button>
+                    }
+                  />
+                </div>
+              )}
+            </div>
           </>
         )}
       </div>
 
       {/* 일별 통계 (투표 후에만 표시) */}
-      {hasVoted && voting.dailyStats && voting.dailyStats.length > 0 && (
-        <div className="mb-500">
-          <DailyStatsChart
-            dailyStats={voting.dailyStats}
-            options={votingOptions}
-            myVote={voting.myVote || undefined}
-          />
-        </div>
-      )}
+      {isAuthenticated &&
+        hasVoted &&
+        voting.dailyStats &&
+        voting.dailyStats.length > 0 && (
+          <div className="mb-500">
+            <DailyStatsChart
+              dailyStats={voting.dailyStats}
+              options={votingOptions}
+              myVote={voting.myVote || undefined}
+            />
+          </div>
+        )}
 
       {/* 댓글 섹션 */}
       <div className="rounded-200 border-border-subtle bg-background-default shadow-1 border p-500">
         <div className="font-designer-16b text-text-strong mb-400 flex items-center gap-100">
           <MessageCircle className="h-5 w-5" />
-          <span>댓글 {voting.commentCount || 0}</span>
+          <span>댓글 {commentTotalCount}</span>
         </div>
 
         {/* 댓글 목록 (항상 표시) */}
@@ -564,7 +590,7 @@ export default function VotingDetailView({
         </div>
 
         {/* 댓글 작성 폼 */}
-        {isActive && (
+        {isAuthenticated && isActive && (
           <>
             {!hasVoted ? (
               <div className="rounded-200 border-border-subtle bg-background-alternative border p-400 text-center">

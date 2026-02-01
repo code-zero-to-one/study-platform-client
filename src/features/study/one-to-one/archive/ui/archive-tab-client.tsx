@@ -72,7 +72,8 @@ export default function ArchiveTabClient({
     initialData: shouldUseInitialData ? initialData : undefined,
   });
 
-  const { toggleBookmark, toggleLike, openAndRecordView } = useArchiveActions();
+  const { toggleBookmark, toggleLike, openAndRecordView, isAuthenticated } =
+    useArchiveActions();
 
   const libraryItems = archiveData?.content || [];
   const totalPages = archiveData?.totalPages || 1;
@@ -80,6 +81,7 @@ export default function ArchiveTabClient({
   // Handler for Likes
   const handleLike = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
+    if (!isAuthenticated) return;
     toggleLike(id);
   };
 
@@ -89,6 +91,7 @@ export default function ArchiveTabClient({
 
   const handleLibraryBookmark = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
+    if (!isAuthenticated) return;
     toggleBookmark(id);
   };
 
@@ -116,6 +119,7 @@ export default function ArchiveTabClient({
         onToggleBookmarkedOnly={() =>
           setShowBookmarkedOnly(!showBookmarkedOnly)
         }
+        isAuthenticated={isAuthenticated}
       />
 
       {isLoading ? (

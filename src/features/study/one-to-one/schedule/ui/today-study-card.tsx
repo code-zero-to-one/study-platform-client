@@ -31,6 +31,9 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
     name: isInterviewee
       ? todayStudyData.interviewerName
       : todayStudyData.intervieweeName,
+    realName: isInterviewee
+      ? todayStudyData.interviewerRealName
+      : todayStudyData.intervieweeRealName,
     image: isInterviewee
       ? todayStudyData.interviewerImage
       : todayStudyData.intervieweeImage,
@@ -195,12 +198,14 @@ function IntervieweeStudyDetail({
 function PartnerInfo({
   id,
   name,
+  realName,
   image,
   phoneNumber,
   isInterviewee,
 }: {
   id: number;
   name: string;
+  realName?: string;
   image?: string;
   phoneNumber: string;
   isInterviewee: boolean;
@@ -230,15 +235,16 @@ function PartnerInfo({
       <div className="rounded-75 border-border-subtle font-designer-14m text-text-default flex h-[44px] w-[200px] border">
         <UserPhoneNumberCopyModal
           phoneNumber={phoneNumber}
+          realName={realName ?? name}
           trigger={
             <button className="border-r-border-subtle rounded-l-75 hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-[10px] pl-150 transition">
               <Image
                 src="/icons/phone.svg"
-                alt="전화걸기"
+                alt="연락하기"
                 width={16}
                 height={16}
               />
-              전화걸기
+              연락하기
             </button>
           }
         />
