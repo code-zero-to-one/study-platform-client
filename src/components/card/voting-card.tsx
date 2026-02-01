@@ -90,7 +90,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
         </p>
       )}
 
-      {/* 간단한 투표 결과 미리보기 (투표했을 때만) */}
+      {/* 간단한 투표 결과 미리보기 */}
       {hasVoted && (
         <div className="rounded-100 border-border-subtle bg-background-alternative mb-300 border p-300">
           <div className="font-designer-12b text-text-subtle mb-100">

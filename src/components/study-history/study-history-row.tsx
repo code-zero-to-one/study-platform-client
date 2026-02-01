@@ -10,7 +10,7 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { ProfileAvatar } from '@/components/ui/profile-avatar';
+import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { StudyHistoryItem } from '@/types/study-history';
 
@@ -43,10 +43,10 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
                 className="flex cursor-pointer items-center gap-100 transition-opacity hover:opacity-80"
                 onClick={(e) => e.stopPropagation()} // 행 클릭 이벤트(링크 이동) 방지
               >
-                <ProfileAvatar
-                  src={partner.profileImage || undefined}
+                <UserAvatar
+                  image={partner.profileImage || undefined}
                   alt={partner.name}
-                  size="sm"
+                  size={32}
                   className="h-8 w-8"
                 />
                 <span className="text-text-default truncate font-medium">
@@ -57,10 +57,10 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
           />
         ) : (
           <div className="text-text-subtlest flex items-center gap-100">
-            <ProfileAvatar
-              src={undefined}
+            <UserAvatar
+              image={undefined}
               alt="상대방 정보 없음"
-              size="sm"
+              size={32}
               className="h-8 w-8 opacity-60"
             />
             <span className="truncate font-medium">상대방 정보 없음</span>

@@ -26,7 +26,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { ProfileAvatar } from '@/components/ui/profile-avatar';
+import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 
 // ----------------------------------------------------------------------
@@ -283,10 +283,10 @@ const TopRankerCard = ({ ranker }: { ranker: Ranker }) => {
             </div>
           )}
 
-          <ProfileAvatar
-            src={ranker.profileImage}
+          <UserAvatar
+            image={ranker.profileImage || undefined}
             alt={ranker.nickname}
-            size={isFirst ? 'xl' : 'lg'}
+            size={isFirst ? 120 : 80}
             className={cn(
               'shadow-3 mb-300 border-4 border-white',
               isFirst && 'border-fill-brand-default-default',
@@ -866,10 +866,10 @@ export default function OneOnOnePage() {
                             </div>
 
                             <div className="col-span-6 flex items-center gap-300 md:col-span-5">
-                              <ProfileAvatar
-                                src={ranker.profileImage}
+                              <UserAvatar
+                                image={ranker.profileImage || undefined}
                                 alt={ranker.nickname}
-                                size="md"
+                                size={48}
                               />
                               <div className="flex min-w-0 flex-col gap-50">
                                 <div className="font-designer-18b text-text-strong group-hover:text-text-information truncate transition-colors">

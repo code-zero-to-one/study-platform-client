@@ -11,7 +11,7 @@ import {
 import Image from 'next/image';
 import React, { useState, useMemo } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { ProfileAvatar } from '@/components/ui/profile-avatar';
+import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { useHallOfFameQuery } from '@/features/study/one-to-one/hall-of-fame/model/use-hall-of-fame-query';
 import type { HallOfFameData, Ranker, MVPTeam } from '@/types/hall-of-fame';
@@ -134,10 +134,13 @@ const MVPTeamCard = ({
                   memberId={member.userId}
                   trigger={
                     <div className="relative cursor-pointer transition-transform hover:-translate-y-50">
-                      <ProfileAvatar
-                        src={member.profileImage}
+                      <UserAvatar
+                        image={
+                          member.profileImage?.resizedImages?.[0]
+                            ?.resizedImageUrl ?? undefined
+                        }
                         alt={member.nickname}
-                        size="lg"
+                        size={80}
                         className="shadow-2 border-4 border-white"
                       />
                       <div className="border-border-subtle shadow-1 absolute -bottom-100 left-1/2 z-10 -translate-x-1/2 rounded-[9999px] border bg-white px-100 py-25 whitespace-nowrap">
@@ -197,10 +200,13 @@ const RankerListItem = ({ ranker }: { ranker: RankerWithLabel }) => {
             <RankBadge rank={ranker.rank} />
           </div>
 
-          <ProfileAvatar
-            src={ranker.profileImage}
+          <UserAvatar
+            image={
+              ranker.profileImage?.resizedImages?.[0]?.resizedImageUrl ??
+              undefined
+            }
             alt={ranker.nickname}
-            size="md"
+            size={48}
           />
 
           <div className="flex min-w-0 flex-1 flex-col">
