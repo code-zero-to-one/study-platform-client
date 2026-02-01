@@ -15,6 +15,8 @@ import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { StudyHistoryItem } from '@/types/study-history';
 
 export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
+  const partner = item.partner;
+
   return (
     <div className="border-border-subtlest text-designer-14m flex items-center gap-400 border-b px-400 py-300 transition-colors last:border-0">
       {/* 날짜 */}
@@ -33,25 +35,37 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
 
       {/* 상대방 */}
       <div className="flex w-[150px] shrink-0 items-center gap-100">
-        <UserProfileModal
-          memberId={item.partner.id}
-          trigger={
-            <div
-              className="flex cursor-pointer items-center gap-100 transition-opacity hover:opacity-80"
-              onClick={(e) => e.stopPropagation()} // 행 클릭 이벤트(링크 이동) 방지
-            >
-              <ProfileAvatar
-                src={item.partner.profileImage || undefined}
-                alt={item.partner.name}
-                size="sm"
-                className="h-8 w-8"
-              />
-              <span className="text-text-default truncate font-medium">
-                {item.partner.name}
-              </span>
-            </div>
-          }
-        />
+        {partner ? (
+          <UserProfileModal
+            memberId={partner.id}
+            trigger={
+              <div
+                className="flex cursor-pointer items-center gap-100 transition-opacity hover:opacity-80"
+                onClick={(e) => e.stopPropagation()} // 행 클릭 이벤트(링크 이동) 방지
+              >
+                <ProfileAvatar
+                  src={partner.profileImage || undefined}
+                  alt={partner.name}
+                  size="sm"
+                  className="h-8 w-8"
+                />
+                <span className="text-text-default truncate font-medium">
+                  {partner.name}
+                </span>
+              </div>
+            }
+          />
+        ) : (
+          <div className="text-text-subtlest flex items-center gap-100">
+            <ProfileAvatar
+              src={undefined}
+              alt="상대방 정보 없음"
+              size="sm"
+              className="h-8 w-8 opacity-60"
+            />
+            <span className="truncate font-medium">상대방 정보 없음</span>
+          </div>
+        )}
       </div>
 
       {/* 역할 */}
