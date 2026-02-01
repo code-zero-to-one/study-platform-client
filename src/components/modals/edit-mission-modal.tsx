@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import dayjs from 'dayjs';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
@@ -9,8 +10,15 @@ import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
-import { useGetMission, useUpdateMission } from '@/hooks/queries/mission-api';
-import { createDateDisabledMatcher } from '@/utils/time';
+import {
+  useGetMission,
+  useGetMissions,
+  useUpdateMission,
+} from '@/hooks/queries/mission-api';
+import {
+  createDisabledDateMatcherForMission,
+  MissionPeriod,
+} from '@/utils/time';
 
 // Form Schema
 const EditMissionFormSchema = z.object({
@@ -20,11 +28,11 @@ const EditMissionFormSchema = z.object({
   guide: z.string().min(1, '수행 가이드를 입력해주세요.'),
   dateRange: z
     .object({
-      from: z.date({ error: '시작일을 선택해주세요.' }),
-      to: z.date({ error: '종료일을 선택해주세요.' }),
+      from: z.date({ message: '시작일을 선택해주세요.' }),
+      to: z.date({ message: '종료일을 선택해주세요.' }),
     })
     .refine((data) => data.from && data.to && data.from <= data.to, {
-      message: '미션이 시작되면 수정 및 삭제가 불가합니다.',
+      message: '종료일은 시작일 이후여야 합니다.',
     }),
 });
 
@@ -42,7 +50,12 @@ export default function EditMissionModal({
   const [open, setOpen] = useState<boolean>(false);
   const { data: missionData, isLoading } = useGetMission(missionId);
   const { data: studyData } = useGroupStudyDetailQuery(groupStudyId);
+  const { data: existingMissions } = useGetMissions({
+    groupStudyId,
+    pageSize: 100,
+  });
 
+  const studyStartDate = studyData?.basicInfo?.startDate;
   const studyEndDate = studyData?.basicInfo?.endDate;
 
   return (
@@ -77,7 +90,9 @@ export default function EditMissionModal({
             <EditMissionForm
               missionData={missionData}
               missionId={missionId}
+              studyStartDate={studyStartDate}
               studyEndDate={studyEndDate}
+              existingMissions={existingMissions?.content}
               onClose={() => setOpen(false)}
             />
           ) : null}
@@ -97,14 +112,18 @@ interface EditMissionFormProps {
     missionEndDate?: string;
   };
   missionId: number;
+  studyStartDate?: string;
   studyEndDate?: string;
+  existingMissions?: MissionPeriod[];
   onClose: () => void;
 }
 
 function EditMissionForm({
   missionData,
   missionId,
+  studyStartDate,
   studyEndDate,
+  existingMissions,
   onClose,
 }: EditMissionFormProps) {
   const methods = useForm<EditMissionFormValues>({
@@ -126,8 +145,10 @@ function EditMissionForm({
     },
   });
 
+  const { handleSubmit, formState, control, reset } = methods;
+
   useEffect(() => {
-    methods.reset({
+    reset({
       title: missionData.missionTitle || '',
       description: missionData.missionDescription || '',
       weekNum: missionData.weekNum?.toString() || '',
@@ -141,15 +162,13 @@ function EditMissionForm({
           : new Date(),
       },
     });
-  }, [missionData, methods]);
-
-  const { handleSubmit, formState, control } = methods;
+  }, [missionData, reset]);
 
   const { mutate: updateMission } = useUpdateMission();
 
   const onValidSubmit = (values: EditMissionFormValues) => {
-    const startDate = values.dateRange.from.toISOString();
-    const endDate = values.dateRange.to.toISOString();
+    const startDate = dayjs(values.dateRange.from).format('YYYY-MM-DD');
+    const endDate = dayjs(values.dateRange.to).format('YYYY-MM-DD');
 
     updateMission(
       {
@@ -252,7 +271,12 @@ function EditMissionForm({
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => field.onChange(date)}
-                  disabled={createDateDisabledMatcher(studyEndDate)}
+                  disabled={createDisabledDateMatcherForMission({
+                    studyStartDate,
+                    studyEndDate,
+                    existingMissions,
+                    editingMissionId: missionId,
+                  })}
                 />
               )}
             />

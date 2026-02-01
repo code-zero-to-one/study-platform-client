@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import dayjs from 'dayjs';
 import { Plus, XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/ui/button';
@@ -9,8 +10,11 @@ import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
-import { useCreateMission } from '@/hooks/queries/mission-api';
-import { createDateDisabledMatcher } from '@/utils/time';
+import { useCreateMission, useGetMissions } from '@/hooks/queries/mission-api';
+import {
+  createDisabledDateMatcherForMission,
+  MissionPeriod,
+} from '@/utils/time';
 
 // Form Schema
 const CreateMissionFormSchema = z.object({
@@ -25,12 +29,15 @@ const CreateMissionFormSchema = z.object({
     .min(1, '수행 가이드를 입력해주세요.')
     .max(1000, '1000자 이하로 작성가능합니다.'),
   dateRange: z
-    .object({
-      from: z.date({ error: '시작일을 선택해주세요.' }),
-      to: z.date({ error: '종료일을 선택해주세요.' }),
-    })
+    .object(
+      {
+        from: z.date({ message: '시작일을 선택해주세요.' }),
+        to: z.date({ message: '종료일을 선택해주세요.' }),
+      },
+      { message: '시작일과 종료일을 선택해주세요.' },
+    )
     .refine((data) => data.from && data.to && data.from <= data.to, {
-      message: '미션이 시작되면 수정 및 삭제가 불가합니다.',
+      message: '종료일은 시작일 이후여야 합니다.',
     }),
 });
 
@@ -45,7 +52,12 @@ export default function CreateMissionModal({
 }: CreateMissionModalProps) {
   const [open, setOpen] = useState<boolean>(false);
   const { data: studyData } = useGroupStudyDetailQuery(groupStudyId);
+  const { data: existingMissions } = useGetMissions({
+    groupStudyId,
+    pageSize: 100,
+  });
 
+  const studyStartDate = studyData?.basicInfo?.startDate;
   const studyEndDate = studyData?.basicInfo?.endDate;
 
   return (
@@ -76,7 +88,9 @@ export default function CreateMissionModal({
 
           <CreateMissionForm
             groupStudyId={groupStudyId}
+            studyStartDate={studyStartDate}
             studyEndDate={studyEndDate}
+            existingMissions={existingMissions?.content}
             onClose={() => setOpen(false)}
           />
         </Modal.Content>
@@ -87,13 +101,17 @@ export default function CreateMissionModal({
 
 interface CreateMissionFormProps {
   groupStudyId: number;
+  studyStartDate?: string;
   studyEndDate?: string;
+  existingMissions?: MissionPeriod[];
   onClose: () => void;
 }
 
 function CreateMissionForm({
   groupStudyId,
+  studyStartDate,
   studyEndDate,
+  existingMissions,
   onClose,
 }: CreateMissionFormProps) {
   const methods = useForm<CreateMissionFormValues>({
@@ -113,8 +131,8 @@ function CreateMissionForm({
   const { mutate: createMission } = useCreateMission();
 
   const onValidSubmit = (values: CreateMissionFormValues) => {
-    const startDate = values.dateRange.from.toISOString();
-    const endDate = values.dateRange.to.toISOString();
+    const startDate = dayjs(values.dateRange.from).format('YYYY-MM-DD');
+    const endDate = dayjs(values.dateRange.to).format('YYYY-MM-DD');
 
     createMission(
       {
@@ -137,6 +155,13 @@ function CreateMissionForm({
           alert('미션 생성에 실패했습니다. 다시 시도해주세요.');
         },
       },
+    );
+  };
+
+  const handlePreventInvalidValue = (event: ChangeEvent<HTMLInputElement>) => {
+    event.currentTarget.value = event.currentTarget.value.replace(
+      /[^0-9]/g,
+      '',
     );
   };
 
@@ -181,6 +206,7 @@ function CreateMissionForm({
             <BaseInput
               type="number"
               min={0}
+              onInput={handlePreventInvalidValue}
               id="weekNum"
               placeholder="커리큘럼 미션인 경우 주차를 입력해 주세요. (예: 1)"
             />
@@ -217,7 +243,11 @@ function CreateMissionForm({
                   mode="range"
                   selected={field.value}
                   onSelect={(date) => field.onChange(date)}
-                  disabled={createDateDisabledMatcher(studyEndDate)}
+                  disabled={createDisabledDateMatcherForMission({
+                    studyStartDate,
+                    studyEndDate,
+                    existingMissions,
+                  })}
                 />
               )}
             />

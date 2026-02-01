@@ -7,6 +7,8 @@ import {
   useUserProfileQuery,
 } from '@/entities/user/model/use-user-profile-query';
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
+import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import ReservationCard from '@/features/study/participation/ui/reservation-user-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { useAuth } from '@/hooks/common/use-auth';
@@ -32,6 +34,9 @@ export default function ReservationList({
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
   const autoMatching = userProfile?.autoMatching ?? false;
+
+  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const firstMemberId = useMemo(
     () => (autoMatching && memberId !== null ? memberId : null),
@@ -69,8 +74,27 @@ export default function ReservationList({
   const items = data?.items ?? [];
   const studyApplied = userProfile?.studyApplied ?? false;
 
+  const handleVerificationComplete = (phoneNumber: string) => {
+    setVerified(phoneNumber);
+    setIsVerificationModalOpen(false);
+
+    // 인증 완료 후 원래 동작 수행
+    if (studyApplied) {
+      patchAutoMatching({ memberId: memberId!, autoMatching: true });
+    } else {
+      setIsModalOpen(true);
+    }
+  };
+
   const handleApplyClick = () => {
     if (!memberId) return;
+
+    // 본인인증이 안되어 있으면 본인인증 모달 먼저 열기
+    if (!isVerified) {
+      setIsVerificationModalOpen(true);
+
+      return;
+    }
 
     if (studyApplied) {
       if (isPending) return;
@@ -143,11 +167,19 @@ export default function ReservationList({
       </div>
 
       {memberId && (
-        <StartStudyModal
-          memberId={memberId}
-          open={isModalOpen}
-          onOpenChange={setIsModalOpen}
-        />
+        <>
+          <StartStudyModal
+            memberId={memberId}
+            open={isModalOpen}
+            onOpenChange={setIsModalOpen}
+          />
+          <PhoneVerificationModal
+            open={isVerificationModalOpen}
+            onOpenChange={setIsVerificationModalOpen}
+            onVerificationComplete={handleVerificationComplete}
+            memberId={memberId}
+          />
+        </>
       )}
     </div>
   );

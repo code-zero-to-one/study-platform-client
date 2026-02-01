@@ -65,7 +65,6 @@ export async function middleware(request: NextRequest) {
 
   const hasAccessToken = request.cookies.has('accessToken');
   const hasMemberId = request.cookies.has('memberId') && isNumeric(memberId);
-
   // 랜딩 페이지(/)는 인증 체크를 하지 않음
   if (request.nextUrl.pathname === '/') {
     // 이미 로그인된 사용자가 랜딩 페이지에 접근하면 1:1 스터디 화면인 /home 으로 리디렉션시키는 코드
@@ -81,10 +80,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 회원가입 페이지는 accessToken만 체크 (memberId는 회원가입 후에 생성됨)
-  if (
-    request.nextUrl.pathname === '/sign-up' ||
-    request.nextUrl.pathname === '/login'
-  ) {
+  if (request.nextUrl.pathname === '/sign-up') {
     if (hasAccessToken && hasMemberId) {
       // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
       const mainUrl = new URL('/home', request.url);
@@ -96,6 +92,17 @@ export async function middleware(request: NextRequest) {
       const landingUrl = new URL('/', request.url);
 
       return NextResponse.redirect(landingUrl);
+    }
+
+    return NextResponse.next();
+  }
+
+  if (request.nextUrl.pathname === '/login') {
+    if (hasAccessToken && hasMemberId) {
+      // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
+      const mainUrl = new URL('/home', request.url);
+
+      return NextResponse.redirect(mainUrl);
     }
 
     return NextResponse.next();
@@ -153,7 +160,7 @@ export const config = {
   matcher: [
     '/',
     '/login',
-    '/home',
+    // '/home', // 공개 페이지로 변경하여 제거
     '/my-page',
     '/payment-management',
     '/settlement-management',

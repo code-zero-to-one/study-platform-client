@@ -17,7 +17,7 @@ interface GetStudiesParams {
   type?: GetGroupStudiesTypeEnum[];
   targetRoles?: GetGroupStudiesTargetRolesEnum[];
   method?: GetGroupStudiesMethodEnum[];
-  inProgress?: boolean;
+  recruiting?: boolean;
 }
 
 export const useGetStudies = ({
@@ -27,7 +27,7 @@ export const useGetStudies = ({
   type,
   targetRoles,
   method,
-  inProgress,
+  recruiting,
 }: GetStudiesParams) => {
   return useQuery({
     queryKey: [
@@ -38,7 +38,7 @@ export const useGetStudies = ({
       type,
       targetRoles,
       method,
-      inProgress,
+      recruiting,
     ],
     queryFn: async () => {
       const { data } = await groupStudyManagementApi.getGroupStudies(
@@ -48,11 +48,14 @@ export const useGetStudies = ({
         type,
         targetRoles,
         method,
-        inProgress,
+        recruiting,
       );
 
       return data.content;
     },
     placeholderData: keepPreviousData,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
   });
 };

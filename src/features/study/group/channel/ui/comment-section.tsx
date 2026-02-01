@@ -61,7 +61,7 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
           return (
             <div
               key={comment.threadId}
-              className="border-b-[1px] border-[#D5D7DA] pb-300"
+              className="border-b border-[#D5D7DA] pb-300"
             >
               <div className="flex flex-col gap-200">
                 <Comment

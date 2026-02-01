@@ -86,7 +86,7 @@ export default function NotificationPage() {
             className="font-designer-13r h-[32px]"
             onClick={handleMarkAllAsRead}
           >
-            모든 읽음 처리
+            모두 읽음 처리
           </Button>
 
           <div className="w-[120px]">

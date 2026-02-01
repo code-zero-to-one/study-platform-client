@@ -7,7 +7,6 @@ import { GroupStudyListItemDto } from '@/api/openapi';
 import { useAuth } from '@/hooks/common/use-auth';
 import { hashValue } from '@/utils/hash';
 
-import { GroupStudyData } from '../../features/study/group/api/group-study-types';
 import StudyCard from '../card/study-card';
 
 interface GroupStudyListProps {

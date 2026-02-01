@@ -12,7 +12,7 @@ import {
 } from '@/features/study/group/api/group-study-types';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import ChannelSection from '../../features/study/group/channel/ui/channel-section';
+import ChannelSection from '../../features/study/group/channel/ui/lounge-section';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
@@ -42,8 +42,11 @@ export default function PremiumStudyDetailPage({
 
   const activeTab = (searchParams.get('tab') as StudyTabValue) || 'intro';
 
-  const { data: studyDetail, isLoading } =
-    useGroupStudyDetailQuery(groupStudyId);
+  const {
+    data: studyDetail,
+    isLoading,
+    refetch: refetchStudyDetail,
+  } = useGroupStudyDetailQuery(groupStudyId);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
@@ -120,6 +123,7 @@ export default function PremiumStudyDetailPage({
               alert('스터디 삭제에 실패하였습니다.');
             },
             onSettled: () => {
+              refetchStudyDetail().catch(() => {});
               router.push('/premium-study');
               setShowModal(false);
             },
@@ -230,7 +234,7 @@ export default function PremiumStudyDetailPage({
       {activeTab === 'mission' && (
         <MissionSection groupStudyId={groupStudyId} />
       )}
-      {activeTab === 'channel' && (
+      {activeTab === 'lounge' && (
         <ChannelSection
           groupStudyId={groupStudyId}
           memberId={memberId}

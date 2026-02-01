@@ -122,7 +122,7 @@ function EditEvaluationForm({
     ?.sort((a, b) => a.orderNum - b.orderNum)
     .map((grade) => ({
       value: grade.code,
-      label: `${grade.code} (${grade.score})`,
+      label: `${grade.label} (${grade.score === 0 ? '0' : grade.score.toFixed(1)})`,
     }));
 
   return (
@@ -157,7 +157,7 @@ function EditEvaluationForm({
               id="comment"
               placeholder="정성 코멘트를 입력해 주세요."
               className="min-h-[230px]"
-              maxLength={5000}
+              maxLength={1000}
             />
           </FormField>
         </form>

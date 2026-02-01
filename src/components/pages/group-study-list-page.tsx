@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import type {
@@ -20,6 +21,11 @@ import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-
 import GroupStudyPagination from '../../features/study/group/ui/group-study-pagination';
 import GroupStudyList from '../lists/group-study-list';
 
+// Carousel이 클라이언트 전용이므로 dynamic import로 로드
+const Banner = dynamic(() => import('@/widgets/home/banner'), {
+  ssr: false,
+});
+
 const PAGE_SIZE = 15;
 
 export default function GroupStudyListPage() {
@@ -37,9 +43,9 @@ export default function GroupStudyListPage() {
     const targetRoles =
       searchParams.get('targetRoles')?.split(',').filter(Boolean) ?? [];
     const method = searchParams.get('method')?.split(',').filter(Boolean) ?? [];
-    const inProgress = searchParams.get('inProgress') === 'true';
+    const recruiting = searchParams.get('recruiting') === 'true';
 
-    return { type, targetRoles, method, inProgress };
+    return { type, targetRoles, method, recruiting };
   }, [searchParams]);
 
   const currentPage = Number(searchParams.get('page')) || 1;
@@ -61,7 +67,7 @@ export default function GroupStudyListPage() {
       filterValues.method.length > 0
         ? (filterValues.method as GetGroupStudiesMethodEnum[])
         : undefined,
-    inProgress: filterValues.inProgress || undefined,
+    recruiting: filterValues.recruiting || undefined,
   });
 
   const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
@@ -100,7 +106,7 @@ export default function GroupStudyListPage() {
             ? values.targetRoles.join(',')
             : undefined,
         method: values.method.length > 0 ? values.method.join(',') : undefined,
-        inProgress: values.inProgress ? 'true' : undefined,
+        recruiting: values.recruiting ? 'true' : undefined,
       });
     },
     [updateSearchParams],
@@ -146,7 +152,12 @@ export default function GroupStudyListPage() {
   }
 
   return (
-    <div className="mx-auto w-[1280px] py-600">
+    <div className="mx-auto w-[1280px] px-400 py-600">
+      {/* 배너 */}
+      <div className="mb-600">
+        <Banner />
+      </div>
+
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">
