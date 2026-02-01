@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface ProfileAvatarProps {
@@ -22,41 +22,63 @@ export const ProfileAvatar = ({
   const px = { sm: 32, md: 48, lg: 80, xl: 120 }[size]; // 기존 명예의 전당 사이즈와 최대한 비슷하게 매핑 (sm:32px는 기존 row에 맞춤)
   const effectiveAlt = alt || name || 'profile';
 
-  // src 정리(공백/이상한 상대경로 방지)
-  const normalizedSrc = useMemo(() => {
-    if (!src || typeof src !== 'string') return null;
+  const imageCandidates = useMemo(() => {
+    if (!src || typeof src !== 'string') return [] as string[];
     const s = src.trim();
-    if (!s) return null;
-    // 유효하지 않은 값 필터링 (LOCAL, null 등)
+    if (!s) return [];
     if (s.toUpperCase() === 'LOCAL' || s === 'null' || s === 'undefined')
-      return null;
-    // LOCAL/로 시작하는 경우 처리 (예: LOCAL/https:/picsum.photos/202)
+      return [];
     if (s.toUpperCase().startsWith('LOCAL/')) {
-      const afterLocal = s.substring(6); // 'LOCAL/'.length = 6
-      // LOCAL/ 뒤에 실제 URL이 있는 경우
+      const afterLocal = s.substring(6);
       if (
         afterLocal.startsWith('http://') ||
         afterLocal.startsWith('https://')
       ) {
-        return afterLocal;
+        return [afterLocal];
       }
 
-      // LOCAL/ 뒤에 유효하지 않은 값인 경우
-      return null;
+      return [];
     }
-    if (
-      s.startsWith('http://') ||
-      s.startsWith('https://') ||
-      s.startsWith('/')
-    )
-      return s;
 
-    return `/${s}`;
+    if (s.startsWith('http://') || s.startsWith('https://')) return [s];
+
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, '');
+    const candidates: string[] = [];
+
+    const addCandidate = (path: string) => {
+      if (apiBase) candidates.push(`${apiBase}${path}`);
+      candidates.push(path);
+    };
+
+    if (s.startsWith('/')) {
+      addCandidate(s);
+
+      return candidates;
+    }
+
+    if (s.includes('/')) {
+      addCandidate(`/${s}`);
+
+      return candidates;
+    }
+
+    const filename = s;
+    addCandidate(`/${filename}`);
+    addCandidate(`/images/profile-image/${filename}`);
+    addCandidate(`/profile-image/${filename}`);
+    addCandidate(`/files/images/profile-image/${filename}`);
+    addCandidate(`/MEMBER_PROFILE_IMAGE/images/profile-image/${filename}`);
+
+    return candidates;
   }, [src]);
 
-  const [broken, setBroken] = useState(false);
-  const finalSrc =
-    !broken && normalizedSrc ? normalizedSrc : '/profile-default.svg';
+  const [candidateIndex, setCandidateIndex] = useState(0);
+
+  useEffect(() => {
+    setCandidateIndex(0);
+  }, [imageCandidates]);
+
+  const finalSrc = imageCandidates[candidateIndex] ?? '/profile-default.svg';
 
   return (
     <Image
@@ -70,7 +92,11 @@ export const ProfileAvatar = ({
       )}
       loading="eager"
       unoptimized
-      onError={() => setBroken(true)}
+      onError={() => {
+        setCandidateIndex((prev) =>
+          prev < imageCandidates.length ? prev + 1 : prev,
+        );
+      }}
     />
   );
 };
