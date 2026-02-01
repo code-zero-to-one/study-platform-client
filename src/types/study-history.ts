@@ -20,7 +20,7 @@ export interface StudyHistoryContent {
     memberId: number;
     nickname: string;
     profileImageUrl: string | null;
-  };
+  } | null;
 }
 
 export interface PageableResponse<T> {
@@ -70,5 +70,5 @@ export interface StudyHistoryItem {
     id: number;
     name: string;
     profileImage: string | null;
-  };
+  } | null;
 }
