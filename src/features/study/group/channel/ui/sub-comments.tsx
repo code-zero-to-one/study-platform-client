@@ -7,6 +7,7 @@ import {
   useCommentsQuery,
   usePostCommentMutation,
 } from '../model/use-channel-query';
+import Button from '@/components/ui/button';
 
 interface SubCommentsProps {
   threadId: number;
@@ -55,12 +56,14 @@ export default function SubComments({
         <span className="text-text-subtlest text-sm">
           답글을 불러오지 못했습니다.
         </span>
-        <button
+        <Button
+          size="small"
+          color="outlined"
           onClick={() => commentsRefetch()}
-          className="text-text-accent-blue text-sm hover:underline"
+          className="text-text-accent-blue font-designer-14r text-sm hover:underline"
         >
           다시 시도
-        </button>
+        </Button>
       </div>
     );
   }
