@@ -24,6 +24,7 @@ export default function SubComments({
   const {
     data,
     isLoading,
+    isError,
     refetch: commentsRefetch,
   } = useCommentsQuery(groupStudyId, threadId);
 
@@ -48,9 +49,25 @@ export default function SubComments({
 
   if (isLoading) return null;
 
+  if (isError) {
+    return (
+      <div className="flex items-center gap-100 py-200">
+        <span className="text-text-subtlest text-sm">
+          답글을 불러오지 못했습니다.
+        </span>
+        <button
+          onClick={() => commentsRefetch()}
+          className="text-text-accent-blue text-sm hover:underline"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-300">
-      {data.map((subComment) => (
+      {data?.map((subComment) => (
         <div
           key={subComment.commentId}
           className="flex flex-col gap-200 pt-300"

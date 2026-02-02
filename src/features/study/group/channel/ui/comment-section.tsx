@@ -1,5 +1,6 @@
 import { MessageCircle } from 'lucide-react';
 import { useState } from 'react';
+import Pagination from '@/components/ui/pagination';
 import Comment from './comment';
 import CommentInput from './comment-input';
 import SubComments from './sub-comments';
@@ -9,16 +10,20 @@ import {
   useThreadsQuery,
 } from '../model/use-channel-query';
 
+const COMMENTS_PAGE_SIZE = 10;
+
 interface CommentProps {
   groupStudyId: number;
 }
 
 export default function CommentSection({ groupStudyId }: CommentProps) {
+  const [page, setPage] = useState<number>(1);
   const {
     data,
     isLoading,
+    isError,
     refetch: threadRefetch,
-  } = useThreadsQuery(groupStudyId);
+  } = useThreadsQuery({ groupStudyId, page, size: COMMENTS_PAGE_SIZE });
 
   const [threadText, setThreadText] = useState<string>('');
   const [openThreadId, setOpenThreadId] = useState<number | null>(null); // 👈 변경
@@ -30,6 +35,7 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
       { groupStudyId, content },
       {
         onSuccess: async () => {
+          setPage(1);
           await threadRefetch();
           setThreadText('');
         },
@@ -38,7 +44,25 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
     );
   };
 
-  if (isLoading) return null; // 👈 안전 반환
+  if (isLoading) return null;
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center gap-200 py-400">
+        <span className="text-text-subtlest">
+          댓글을 불러오는 중 오류가 발생했습니다.
+        </span>
+        <button
+          onClick={() => threadRefetch()}
+          className="text-text-accent-blue hover:underline"
+        >
+          다시 시도
+        </button>
+      </div>
+    );
+  }
+
+  const hasComments = (data?.content?.length ?? 0) > 0;
 
   return (
     <div className="flex flex-col gap-400">
@@ -46,12 +70,20 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
         <MessageCircle className="mr-100 inline-block" size={24} />
         <span className="font-designer-16b text-text-strong mr-50">댓글</span>
         <span className="font-designer-16b text-text-subtlest">
-          {data?.length ?? 0}개
+          {data?.totalElements ?? 0}개
         </span>
       </div>
 
       <div className="flex flex-col gap-300">
-        {data?.map((comment) => {
+        {!hasComments && (
+          <div className="flex justify-center py-400">
+            <span className="text-text-subtlest">
+              아직 댓글이 없습니다. 첫 번째 댓글을 남겨보세요!
+            </span>
+          </div>
+        )}
+
+        {data?.content?.map((comment) => {
           const isOpen = openThreadId === comment.threadId;
           const toggle = () =>
             setOpenThreadId((prev) =>
@@ -104,6 +136,15 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
           onConfirm={() => handleThreadSubmit(groupStudyId, threadText)}
           onCancel={() => setThreadText('')}
         />
+
+        {(data?.totalPages ?? 0) > 1 && (
+          <Pagination
+            page={page}
+            totalPages={data?.totalPages ?? 1}
+            onChangePage={setPage}
+            className="mt-400"
+          />
+        )}
       </div>
     </div>
   );
