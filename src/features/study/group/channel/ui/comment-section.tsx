@@ -35,7 +35,6 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
       { groupStudyId, content },
       {
         onSuccess: async () => {
-          setPage(1);
           await threadRefetch();
           setThreadText('');
         },
