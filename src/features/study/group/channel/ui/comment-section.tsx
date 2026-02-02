@@ -1,3 +1,4 @@
+import { useQueries } from '@tanstack/react-query';
 import { MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import Pagination from '@/components/ui/pagination';
@@ -5,6 +6,7 @@ import Comment from './comment';
 import CommentInput from './comment-input';
 import SubComments from './sub-comments';
 import { ThreadReaction } from './thread-reaction';
+import { getComments } from '../api/get-comments';
 import {
   usePostThreadMutation,
   useThreadsQuery,
@@ -26,7 +28,27 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
   } = useThreadsQuery({ groupStudyId, page, size: COMMENTS_PAGE_SIZE });
 
   const [threadText, setThreadText] = useState<string>('');
-  const [openThreadId, setOpenThreadId] = useState<number | null>(null); // 👈 변경
+  const [openThreadId, setOpenThreadId] = useState<number | null>(null);
+
+  // 모든 스레드의 답글을 병렬로 조회
+  const commentQueries = useQueries({
+    queries: (data?.content ?? []).map((thread) => ({
+      queryKey: ['comments', groupStudyId, thread.threadId],
+      queryFn: () => getComments({ groupStudyId, threadId: thread.threadId }),
+      enabled: !!data,
+    })),
+  });
+
+  // 모든 답글 쿼리 로딩 완료 여부
+  const allCommentsLoaded = commentQueries.every((q) => !q.isLoading);
+
+  // 총 댓글 수 (메인 댓글 + 답글)
+  const totalReplyCount = commentQueries.reduce(
+    (sum, q) => sum + (q.data?.totalElements ?? 0),
+    0,
+  );
+  console.log(data.content, 'data');
+  const totalCommentCount = (data?.totalElements ?? 0) + totalReplyCount;
 
   const { mutate: createThread } = usePostThreadMutation();
 
@@ -43,7 +65,8 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
     );
   };
 
-  if (isLoading) return null;
+  // threads 로딩 중이거나 답글 로딩 중이면 대기
+  if (isLoading || !allCommentsLoaded) return null;
 
   if (isError) {
     return (
@@ -69,7 +92,7 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
         <MessageCircle className="mr-100 inline-block" size={24} />
         <span className="font-designer-16b text-text-strong mr-50">댓글</span>
         <span className="font-designer-16b text-text-subtlest">
-          {data?.totalElements ?? 0}개
+          {totalCommentCount}개
         </span>
       </div>
 
@@ -120,8 +143,8 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
                 <SubComments
                   threadId={comment.threadId}
                   groupStudyId={groupStudyId}
-                  showInput={isOpen} // 👈 스레드별
-                  handleShowInput={toggle} // 👈 스레드별
+                  showInput={isOpen}
+                  handleShowInput={toggle}
                 />
               </div>
             </div>

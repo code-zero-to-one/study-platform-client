@@ -85,3 +85,9 @@ export interface GetPostResponse {
 export interface GetCommentsResponse extends GetThreadsResponse {
   commentId: number;
 }
+
+export interface PaginatedCommentsResponse {
+  content: GetCommentsResponse[];
+  totalElements: number;
+  totalPages: number;
+}

@@ -1,9 +1,9 @@
 import { axiosInstance } from '@/api/client/axios';
-import { GetCommentsRequest, GetCommentsResponse } from './types';
+import { GetCommentsRequest, PaginatedCommentsResponse } from './types';
 
 export const getComments = async (
   param: GetCommentsRequest,
-): Promise<GetCommentsResponse[]> => {
+): Promise<PaginatedCommentsResponse> => {
   const { groupStudyId, threadId } = param;
 
   try {
@@ -12,12 +12,12 @@ export const getComments = async (
     );
 
     if (data.statusCode !== 200) {
-      throw new Error('Failed to fetch post');
+      throw new Error('Failed to fetch comments');
     }
 
-    return data.content.content;
+    return data.content;
   } catch (err) {
-    console.error('Error fetching post:', err);
+    console.error('Error fetching comments:', err);
     throw err;
   }
 };

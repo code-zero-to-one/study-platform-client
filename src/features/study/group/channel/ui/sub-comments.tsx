@@ -29,6 +29,8 @@ export default function SubComments({
     refetch: commentsRefetch,
   } = useCommentsQuery(groupStudyId, threadId);
 
+  console.log(data, 'subcomment');
+
   const [commentText, setCommentText] = useState('');
 
   const { mutate: createComment } = usePostCommentMutation();
@@ -70,7 +72,7 @@ export default function SubComments({
 
   return (
     <div className="flex flex-col gap-300">
-      {data?.map((subComment) => (
+      {data?.content?.map((subComment) => (
         <div
           key={subComment.commentId}
           className="flex flex-col gap-200 pt-300"
