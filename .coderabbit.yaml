@@ -18,6 +18,9 @@ reviews:
     # drafts: true = 드래프트 PR도 리뷰함 (모든 브랜치에 적용되는 게 아니라 드래프트 PR 포함 여부)
     drafts: true
     auto_incremental_review: true
+    base_branches:
+      - develop
+      - main
   
   # 경로 필터 (필요시 조정)
   path_filters: []
