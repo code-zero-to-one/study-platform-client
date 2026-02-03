@@ -5,3 +5,6 @@ build/
 src/api/openapi
 
 **/*.json
+
+# CodeRabbit config
+.coderabbit.yaml
