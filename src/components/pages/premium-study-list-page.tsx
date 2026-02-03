@@ -37,13 +37,15 @@ export default function PremiumStudyListPage() {
   // 로컬 검색 상태
   const [searchQuery, setSearchQuery] = useState('');
 
-  // URL에서 필터 값 읽기
+  // URL에서 필터 값 읽기 (기본값: recruiting = true, 모집 중만 보기)
   const filterValues = useMemo<StudyFilterValues>(() => {
     const type = searchParams.get('type')?.split(',').filter(Boolean) ?? [];
     const targetRoles =
       searchParams.get('targetRoles')?.split(',').filter(Boolean) ?? [];
     const method = searchParams.get('method')?.split(',').filter(Boolean) ?? [];
-    const recruiting = searchParams.get('recruiting') === 'true';
+    // URL에 recruiting 파라미터가 없으면 기본값 true (모집 중만 보기)
+    const recruitingParam = searchParams.get('recruiting');
+    const recruiting = recruitingParam === null ? true : recruitingParam === 'true';
 
     return { type, targetRoles, method, recruiting };
   }, [searchParams]);
@@ -67,7 +69,8 @@ export default function PremiumStudyListPage() {
       filterValues.method.length > 0
         ? (filterValues.method as GetGroupStudiesMethodEnum[])
         : undefined,
-    recruiting: filterValues.recruiting || undefined,
+    // 기본값: true (모집 중만), false면 전체 조회
+    recruiting: filterValues.recruiting ? true : undefined,
   });
 
   const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
@@ -78,10 +81,16 @@ export default function PremiumStudyListPage() {
       const params = new URLSearchParams(searchParams.toString());
 
       Object.entries(updates).forEach(([key, value]) => {
-        if (value === undefined || value === '' || value === 'false') {
+        if (value === undefined || value === '') {
           params.delete(key);
         } else {
-          params.set(key, value);
+          // recruiting의 경우 'false'도 명시적으로 저장 (기본값이 true이므로)
+          // 다른 필터는 'false'일 때 파라미터 제거
+          if (key === 'recruiting' || value !== 'false') {
+            params.set(key, value);
+          } else {
+            params.delete(key);
+          }
         }
       });
 
@@ -97,6 +106,8 @@ export default function PremiumStudyListPage() {
   );
 
   // 필터 변경 핸들러
+  // recruiting 토글: true면 'true' 저장, false면 'false' 명시적으로 저장
+  // (기본값이 true이므로 false일 때도 명시적으로 저장해야 토글이 정상 작동)
   const handleFilterChange = useCallback(
     (values: StudyFilterValues) => {
       updateSearchParams({
@@ -106,7 +117,9 @@ export default function PremiumStudyListPage() {
             ? values.targetRoles.join(',')
             : undefined,
         method: values.method.length > 0 ? values.method.join(',') : undefined,
-        recruiting: values.recruiting ? 'true' : undefined,
+        // recruiting: true면 'true', false면 'false' 명시적으로 저장
+        // (기본값이 true이므로 false일 때도 URL에 저장해야 토글 해제 가능)
+        recruiting: values.recruiting ? 'true' : 'false',
       });
     },
     [updateSearchParams],
