@@ -20,6 +20,7 @@ import { useGetStudies } from '@/hooks/queries/study-query';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyPagination from '../../features/study/group/ui/group-study-pagination';
 import GroupStudyList from '../lists/group-study-list';
+import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
 
 // Carousel이 클라이언트 전용이므로 dynamic import로 로드
 const Banner = dynamic(() => import('@/widgets/home/banner'), {
@@ -174,6 +175,9 @@ export default function GroupStudyListPage() {
       <div className="mb-600">
         <Banner />
       </div>
+
+      {/* 내가 참여중인 스터디 섹션 */}
+      <MyParticipatingStudiesSection classification="GROUP_STUDY" />
 
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
