@@ -45,7 +45,8 @@ export default function PremiumStudyListPage() {
     const method = searchParams.get('method')?.split(',').filter(Boolean) ?? [];
     // URL에 recruiting 파라미터가 없으면 기본값 true (모집 중만 보기)
     const recruitingParam = searchParams.get('recruiting');
-    const recruiting = recruitingParam === null ? true : recruitingParam === 'true';
+    const recruiting =
+      recruitingParam === null ? true : recruitingParam === 'true';
 
     return { type, targetRoles, method, recruiting };
   }, [searchParams]);
