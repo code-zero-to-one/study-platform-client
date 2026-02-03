@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import { deleteComment } from '../api/delete-comment';
 import { deleteThread } from '../api/delete-thread';
 import { getComments } from '../api/get-comments';
@@ -31,11 +31,22 @@ export const usePostQuery = (groupStudyId: number) => {
 };
 
 // thread
-export const useThreadsQuery = (groupStudyId: number) => {
+interface UseThreadsQueryParams {
+  groupStudyId: number;
+  page?: number;
+  size?: number;
+}
+
+export const useThreadsQuery = ({
+  groupStudyId,
+  page = 1,
+  size = 10,
+}: UseThreadsQueryParams) => {
   return useQuery({
-    queryKey: ['get-threads', groupStudyId],
-    queryFn: () => getThreads({ groupStudyId }),
-    enabled: !!groupStudyId, // id가 존재할 때만 실행
+    queryKey: ['get-threads', groupStudyId, page, size],
+    queryFn: () => getThreads({ groupStudyId, page: page - 1, size }),
+    enabled: !!groupStudyId,
+    placeholderData: keepPreviousData,
   });
 };
 

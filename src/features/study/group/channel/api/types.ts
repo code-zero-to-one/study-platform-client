@@ -28,7 +28,16 @@ export interface DeleteCommentRequest extends GetCommentsRequest {
   commentId: number;
 }
 
-export type GetThreadsRequest = GroupStudyIdParam;
+export interface GetThreadsRequest extends GroupStudyIdParam {
+  page?: number;
+  size?: number;
+}
+
+export interface PaginatedThreadsResponse {
+  content: GetThreadsResponse[];
+  totalElements: number;
+  totalPages: number;
+}
 
 export interface PostThreadRequest extends GroupStudyIdParam {
   content: string;
@@ -75,4 +84,10 @@ export interface GetPostResponse {
 }
 export interface GetCommentsResponse extends GetThreadsResponse {
   commentId: number;
+}
+
+export interface PaginatedCommentsResponse {
+  content: GetCommentsResponse[];
+  totalElements: number;
+  totalPages: number;
 }
