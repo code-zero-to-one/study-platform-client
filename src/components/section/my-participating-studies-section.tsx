@@ -26,21 +26,23 @@ export default function MyParticipatingStudiesSection({
   }
 
   /**
+   * TODO : PREMIUM_STUDY 에서도 동작확인 필요 (BE 미구현)
+   */
+
+  /**
    * TODO: 성능 최적화 필요
-   *
-   * 현재 구현은 모든 스터디를 가져온 후 클라이언트에서 필터링하는 방식
-   *
+   * 
+   * '참여중인 스터디 목록' 과 '전체 스터디 목록' 의 데이터타입이 맞지 않아,
+   * 현재 구현은 '참여중인 스터디 목록' ID set 을 만들고, 모든 '전체 스터디 목록'을 가져온 후 클라이언트에서 필터링하는 방식.
+   * 
    * 개선 방안:
    * 1. 백엔드 API 개선: 스터디 ID 리스트를 받아서 해당 스터디만 반환하는 API
    *    GET /api/v1/group-studies/by-ids?ids=1,2,3&classification=GROUP_STUDY
-   *
+   * 
    * 2. 내 스터디 API 개선: getMemberStudyList에서 카드에 필요한 정보를 모두 반환
-   *
-   * 3. 하이브리드 방식:
-   *    - 내 스터디 ID가 적으면 (10개 이하) → ID 리스트로 상세 정보 조회
-   *    - 내 스터디 ID가 많으면 → 페이지네이션 + 서버 사이드 필터링
+   * 
    */
-
+  
   // 내가 참여중인 스터디 ID 목록만 가져오기
   const { data: myStudiesData } = useMemberStudyListQuery({
     memberId,
@@ -114,10 +116,10 @@ export default function MyParticipatingStudiesSection({
       <section className="mb-600">
         <div className="mb-400 flex items-center justify-between">
           <h2 className="font-designer-24b text-text-default">
-            내가 참여중인 스터디
+            나의 소중한 스터디
           </h2>
         </div>
-        <div className="bg-background-alternative rounded-150 flex min-h-[400px] flex-col items-center justify-center gap-300 border border-[#E5E7EB] py-200">
+        <div className="bg-background-alternative rounded-150 border border-[#E5E7EB] flex min-h-[400px] flex-col items-center justify-center gap-300 py-200">
           <Image
             src="/icons/empty-study-case.svg"
             alt="참여중인 스터디가 없습니다."
@@ -138,8 +140,7 @@ export default function MyParticipatingStudiesSection({
   }
 
   // 전체보기 링크 표시 여부 (3개 이상이거나 더 많은 스터디가 있을 경우)
-  const hasMoreStudies =
-    participatingStudyIds.size > participatingStudies.length;
+  const hasMoreStudies = participatingStudyIds.size > participatingStudies.length;
 
   const handleStudyClick = (studyId: number, title: string) => {
     sendGTMEvent({
@@ -158,7 +159,7 @@ export default function MyParticipatingStudiesSection({
     <section className="mb-600">
       <div className="mb-400 flex items-center justify-between">
         <h2 className="font-designer-24b text-text-default">
-          내가 참여중인 스터디
+          나의 소중한 스터디
         </h2>
         {hasMoreStudies && (
           <Link
@@ -192,3 +193,4 @@ export default function MyParticipatingStudiesSection({
     </section>
   );
 }
+
