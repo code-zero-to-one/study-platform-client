@@ -33,5 +33,6 @@ export const useMemberStudyListQuery = ({
         completedPage,
         completedPageSize,
       }),
+    enabled: memberId > 0, // memberId가 유효할 때만 쿼리 실행
   });
 };
