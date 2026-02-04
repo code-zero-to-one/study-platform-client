@@ -53,14 +53,17 @@ yarn generate:api <swagger-api-타이틀-이름>
 **useQuery (조회):**
 
 ```typescript
-export const useGetMissions = ({ groupStudyId, page = 1 }: GetMissionsParams) => {
+export const useGetMissions = ({
+  groupStudyId,
+  page = 1,
+}: GetMissionsParams) => {
   return useQuery({
-    queryKey: ['missions', groupStudyId, page],  // 리소스명 + 파라미터
+    queryKey: ['missions', groupStudyId, page], // 리소스명 + 파라미터
     queryFn: async () => {
       const { data } = await missionApi.getMissions(groupStudyId, page);
-      return data.content;  // content 추출
+      return data.content; // content 추출
     },
-    enabled: !!groupStudyId,  // 조건부 실행 (선택)
+    enabled: !!groupStudyId, // 조건부 실행 (선택)
   });
 };
 ```
@@ -78,7 +81,7 @@ export const useCreateMission = () => {
     },
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: ['missions', variables.groupStudyId],  // 관련 쿼리 무효화
+        queryKey: ['missions', variables.groupStudyId], // 관련 쿼리 무효화
       });
     },
   });
@@ -99,7 +102,10 @@ export const useCreateMission = () => {
 import { axiosInstance } from '@/api/client/axios';
 
 export const getArchive = async (params: GetArchiveParams) => {
-  const { data } = await axiosInstance.get<{ content: ArchiveResponse }>('/archive', { params });
+  const { data } = await axiosInstance.get<{ content: ArchiveResponse }>(
+    '/archive',
+    { params },
+  );
   return data.content;
 };
 ```
