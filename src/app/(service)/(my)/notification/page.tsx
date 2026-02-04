@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 
+import { MemberNotificationResponse } from '@/api/openapi';
 import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/notification-api';
 import NotificationList from '@/components/lists/notification-list';
 import Button from '@/components/ui/button';
@@ -61,6 +62,14 @@ export default function NotificationPage() {
     readNotifications(ids);
   };
 
+  const handleNotificationClick = (
+    notification: MemberNotificationResponse,
+  ) => {
+    if (!notification.isRead) {
+      readNotifications([notification.id]);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-300">
       {/* Header */}
@@ -83,7 +92,7 @@ export default function NotificationPage() {
         <div className="flex gap-100">
           <Button
             color="outlined"
-            className="font-designer-13r h-[32px]"
+            className="font-designer-13r h-400"
             onClick={handleMarkAllAsRead}
           >
             모두 읽음 처리
@@ -104,7 +113,10 @@ export default function NotificationPage() {
         </div>
       </div>
 
-      <NotificationList notifications={notifications} />
+      <NotificationList
+        notifications={notifications}
+        onNotificationClick={handleNotificationClick}
+      />
 
       {/* Pagination */}
       <div className="mt-200">
