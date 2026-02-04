@@ -100,6 +100,44 @@ export const GroupStudyFormSchema = z
         path: ['price'],
       });
     }
+
+
+    const parseDate = (s: string) => {
+      const [y, m, d] = s.split('-').map(Number);
+
+      return new Date(y, m - 1, d);
+    };
+
+    if (ISO_DATE_REGEX.test(data.startDate)) {
+      const start = parseDate(data.startDate);
+      const today = new Date();
+      const tomorrow = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() + 1,
+      );
+
+      if (start < tomorrow) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: '스터디 시작일은 내일부터 설정할 수 있습니다.',
+          path: ['startDate'],
+        });
+      }
+    }
+
+    // 종료일은 시작일과 같거나 이후여야 함
+    if (ISO_DATE_REGEX.test(data.startDate) && ISO_DATE_REGEX.test(data.endDate)) {
+      const start = parseDate(data.startDate);
+      const end = parseDate(data.endDate);
+      if (end < start) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: '종료일은 시작일과 같거나 이후여야 합니다.',
+          path: ['endDate'],
+        });
+      }
+    }
   });
 
 // 사진 상태 저장을 위한 로컬용 state

@@ -1,5 +1,6 @@
 'use client';
 
+import { addDays } from 'date-fns';
 import {
   Controller,
   useController,
@@ -12,7 +13,7 @@ import FormField from '@/components/ui/form/form-field';
 import { BaseInput } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio';
 import { GroupItems } from '@/components/ui/toggle';
-import { formatKoreaYMD } from '@/utils/time';
+import { formatKoreaYMD, getKoreaDate } from '@/utils/time';
 import { TargetRole } from '../../api/group-study-types';
 import {
   STUDY_TYPES,
@@ -236,7 +237,7 @@ export default function Step1OpenGroupStudy() {
                 type="date"
                 value={field.value}
                 onChange={field.onChange}
-                min={formatKoreaYMD()}
+                min={formatKoreaYMD(addDays(getKoreaDate(), 1))}
                 max={watch('endDate') || undefined}
               />
             )}
@@ -250,7 +251,10 @@ export default function Step1OpenGroupStudy() {
                 type="date"
                 value={field.value}
                 onChange={field.onChange}
-                min={watch('startDate') || formatKoreaYMD()}
+                min={
+                  watch('startDate') ||
+                  formatKoreaYMD(addDays(getKoreaDate(), 1))
+                }
               />
             )}
           />
