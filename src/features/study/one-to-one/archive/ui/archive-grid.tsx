@@ -41,25 +41,30 @@ const LibraryCard = ({
   const [isEditing, setIsEditing] = React.useState(false);
   const [title, setTitle] = React.useState(item.title);
   const [description, setDescription] = React.useState(item.description ?? '');
+  const [link, setLink] = React.useState(item.link ?? '');
   const [nextPrivate, setNextPrivate] = React.useState(!!item.isPrivate);
 
   React.useEffect(() => {
     if (!isEditing) {
       setTitle(item.title);
       setDescription(item.description ?? '');
+      setLink(item.link ?? '');
       setNextPrivate(!!item.isPrivate);
     }
-  }, [isEditing, item.title, item.description, item.isPrivate]);
+  }, [isEditing, item.title, item.description, item.link, item.isPrivate]);
 
   const handleSave = (e: React.MouseEvent) => {
     e.stopPropagation();
     const request: UpdateArchiveRequest = {};
     const trimmedTitle = title.trim();
     const trimmedDesc = description.trim();
+    const trimmedLink = link.trim();
     const currentDesc = item.description ?? '';
+    const currentLink = item.link ?? '';
 
     if (trimmedTitle !== item.title) request.title = trimmedTitle;
     if (trimmedDesc !== currentDesc) request.description = trimmedDesc;
+    if (trimmedLink !== currentLink) request.link = trimmedLink;
     if (nextPrivate !== !!item.isPrivate) request.isPrivate = nextPrivate;
 
     if (Object.keys(request).length === 0) {
@@ -77,6 +82,7 @@ const LibraryCard = ({
     setIsEditing(false);
     setTitle(item.title);
     setDescription(item.description);
+    setLink(item.link ?? '');
     setNextPrivate(!!item.isPrivate);
   };
 
@@ -126,6 +132,13 @@ const LibraryCard = ({
               onChange={(e) => setDescription(e.target.value)}
               className="h-[96px]"
               maxLength={100}
+            />
+            <BaseInput
+              id={`archive-link-${item.id}`}
+              value={link}
+              onChange={(e) => setLink(e.target.value)}
+              placeholder="링크"
+              className="w-full"
             />
           </>
         ) : (

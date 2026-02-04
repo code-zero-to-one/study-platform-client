@@ -27,7 +27,10 @@ export default function SortDropdown<T extends string>({
 
   return (
     <div className={cn('group relative', className)}>
-      <button className="rounded-100 bg-background-default border-border-subtle font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors">
+      <button
+        type="button"
+        className="rounded-100 bg-background-default border-border-subtle font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors"
+      >
         {icon}
         {label}
       </button>
@@ -40,6 +43,7 @@ export default function SortDropdown<T extends string>({
         >
           {options.map((option) => (
             <button
+              type="button"
               key={option.value}
               onClick={() => onChange(option.value)}
               className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"

@@ -29,7 +29,7 @@ export default function ModalShell({
         <Modal.Content>
           <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title>{title}</Modal.Title>
-            <Modal.Close>
+            <Modal.Close aria-label="닫기">
               <XIcon />
             </Modal.Close>
           </Modal.Header>
