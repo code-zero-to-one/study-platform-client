@@ -48,6 +48,64 @@ yarn generate:api <swagger-api-타이틀-이름>
 
 생성된 파일에서 API 인스턴스를 사용해 TanStack Query 훅을 작성.
 
+#### TanStack Query 훅 작성 패턴
+
+**useQuery (조회):**
+
+```typescript
+export const useGetMissions = ({ groupStudyId, page = 1 }: GetMissionsParams) => {
+  return useQuery({
+    queryKey: ['missions', groupStudyId, page],  // 리소스명 + 파라미터
+    queryFn: async () => {
+      const { data } = await missionApi.getMissions(groupStudyId, page);
+      return data.content;  // content 추출
+    },
+    enabled: !!groupStudyId,  // 조건부 실행 (선택)
+  });
+};
+```
+
+**useMutation (생성/수정/삭제):**
+
+```typescript
+export const useCreateMission = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ groupStudyId, request }: CreateMissionParams) => {
+      const { data } = await missionApi.createMission(groupStudyId, request);
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['missions', variables.groupStudyId],  // 관련 쿼리 무효화
+      });
+    },
+  });
+};
+```
+
+**queryKey 컨벤션:**
+
+- 단일 리소스: `['mission', missionId]`
+- 목록 리소스: `['missions', groupStudyId, page, size]`
+- 무효화 시 상위 키 사용: `queryKey: ['missions']` (해당 리소스 전체 무효화)
+
+#### 레거시 방식 (features 내부 API)
+
+`src/features/<도메인>/api/` 디렉토리에 직접 axios 함수 작성:
+
+```typescript
+import { axiosInstance } from '@/api/client/axios';
+
+export const getArchive = async (params: GetArchiveParams) => {
+  const { data } = await axiosInstance.get<{ content: ArchiveResponse }>('/archive', { params });
+  return data.content;
+};
+```
+
+레거시 방식은 기존 코드 유지보수용. 신규 API는 OpenAPI 방식 권장.
+
 ### 상태 관리
 
 - **Zustand** (`src/stores/`): 전역 클라이언트 상태. `useUserStore` (유저 정보 persist), `useLeaderStore`.
