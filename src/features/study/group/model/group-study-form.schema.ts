@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getKoreaDate } from '@/utils/time';
 import {
   BasicInfoCommon,
   GroupStudyCreateRequest,
@@ -108,15 +109,16 @@ export const GroupStudyFormSchema = z
     };
 
     if (ISO_DATE_REGEX.test(data.startDate)) {
-      const start = parseDate(data.startDate);
-      const today = new Date();
-      const tomorrow = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        today.getDate() + 1,
-      );
+      const todayKst = getKoreaDate();
+      const tomorrow = new Date(todayKst);
+      tomorrow.setDate(todayKst.getDate() + 1);
+      const toYmd = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+          d.getDate(),
+        ).padStart(2, '0')}`;
+      const tomorrowYmd = toYmd(tomorrow);
 
-      if (start < tomorrow) {
+      if (data.startDate < tomorrowYmd) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: '스터디 시작일은 내일부터 설정할 수 있습니다.',
