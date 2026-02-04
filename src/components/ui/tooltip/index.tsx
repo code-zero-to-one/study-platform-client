@@ -8,6 +8,7 @@ interface TooltipProps {
   side?: 'top' | 'right' | 'bottom' | 'left';
   align?: 'start' | 'center' | 'end';
   sideOffset?: number;
+  delayDuration?: number;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -21,6 +22,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   side = 'top',
   align = 'center',
   sideOffset = 5,
+  delayDuration,
   open,
   defaultOpen,
   onOpenChange,
@@ -28,7 +30,7 @@ const Tooltip: React.FC<TooltipProps> = ({
   arrowClassName,
 }) => {
   return (
-    <RadixTooltip.Provider>
+    <RadixTooltip.Provider delayDuration={delayDuration}>
       <RadixTooltip.Root
         open={open}
         defaultOpen={defaultOpen}

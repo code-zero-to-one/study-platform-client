@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Button from '@/components/ui/button';
 import Comment from './comment';
 import CommentInput from './comment-input';
 
@@ -7,7 +8,6 @@ import {
   useCommentsQuery,
   usePostCommentMutation,
 } from '../model/use-channel-query';
-import Button from '@/components/ui/button';
 
 interface SubCommentsProps {
   threadId: number;

@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { recordArchiveView } from '@/features/study/one-to-one/archive/api/record-view';
+import { ARCHIVE_QUERY_KEYS } from '@/features/study/one-to-one/archive/model/archive-keys';
 import { ArchiveResponse } from '@/types/archive';
-import { ARCHIVE_QUERY_KEY } from './use-archive-query';
 
 const VIEWED_ARCHIVES_KEY = 'viewed_archives';
 
@@ -60,7 +60,7 @@ export const useRecordArchiveViewMutation = () => {
 
       // 낙관적 업데이트: 조회수 즉시 +1
       queryClient.setQueriesData<ArchiveResponse>(
-        { queryKey: ARCHIVE_QUERY_KEY.all },
+        { queryKey: ARCHIVE_QUERY_KEYS.all },
         (oldData) => {
           if (!oldData) return oldData;
 

@@ -1,27 +1,35 @@
 'use client';
 
-import {
-  Loader2,
-  Vote,
-  SearchX,
-  Plus,
-  MessageSquareText,
-  ArrowUpDown,
-} from 'lucide-react';
-import React, { useState, useEffect, useRef } from 'react';
+import { Loader2, Vote, SearchX, Plus, MessageSquareText } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import React, { useState, useEffect, useMemo } from 'react';
 import VotingCard from '@/components/card/voting-card';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import SectionHeader from '@/components/ui/section-header';
+import SectionShell from '@/components/ui/section-shell';
 import Toast from '@/components/ui/toast';
 import VotingCreateModal from '@/components/voting/voting-create-modal';
 import VotingDetailView from '@/components/voting/voting-detail-view';
+import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/features/study/one-to-one/balance-game/const/tags';
 import { useCreateBalanceGameMutation } from '@/features/study/one-to-one/balance-game/model/use-balance-game-mutation';
-import { useBalanceGameListQuery } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
+import {
+  useBalanceGameListQuery,
+  useBalanceGameTagSuggestionsQuery,
+} from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
+import { useAuth } from '@/hooks/common/use-auth';
+import { useDebounce } from '@/hooks/use-debounce';
+import {
+  useScrollToHomeContentOnChange,
+  useScrollToHomeContentWithStabilize,
+} from '@/hooks/use-scroll-to-home-content';
 import type {
   BalanceGameListResponse,
   CreateBalanceGameRequest,
 } from '@/types/balance-game';
 import { VotingCreateFormData } from '@/types/schemas/zod-schema';
-import FilterPillButton from './filter-pill-button';
+import { decodeVotingId, encodeVotingId } from '@/utils/voting-id';
+import BalanceGameFiltersBar from './balance-game-filters-bar';
+import { useBalanceGameFilters } from './use-balance-game-filters';
+import { useInfiniteScroll } from './use-infinite-scroll';
 
 interface CommunityTabClientProps {
   initialList?: BalanceGameListResponse;
@@ -30,18 +38,38 @@ interface CommunityTabClientProps {
 export default function CommunityTabClient({
   initialList,
 }: CommunityTabClientProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const scrollToHomeContent = useScrollToHomeContentWithStabilize();
+  const { isAuthenticated } = useAuth();
   // 상태 관리
-  const [statusFilter, setStatusFilter] = useState<'active' | 'closed' | 'all'>(
-    'active',
-  );
-  const [sortMode, setSortMode] = useState<'latest' | 'popular'>('latest');
+  const {
+    statusFilter,
+    sortMode,
+    selectedTags,
+    setStatus,
+    setSort,
+    addTag,
+    removeTag,
+  } = useBalanceGameFilters({
+    onChange: () => requestAnimationFrame(scrollToHomeContent),
+  });
+  const [tagFilterInput, setTagFilterInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [selectedVotingId, setSelectedVotingId] = useState<number | null>(null);
   const [showToast, setShowToast] = useState(false);
+  const debouncedTagQuery = useDebounce(tagFilterInput, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 200);
+  useScrollToHomeContentOnChange([statusFilter, sortMode], {
+    stabilize: true,
+  });
 
   // React Query Hooks
   const shouldUseInitialList =
-    sortMode === 'latest' && statusFilter === 'active';
+    sortMode === 'latest' &&
+    statusFilter === 'active' &&
+    selectedTags.length === 0 &&
+    debouncedSearchTerm.trim().length === 0;
   const {
     data,
     fetchNextPage,
@@ -50,19 +78,32 @@ export default function CommunityTabClient({
     isFetchingNextPage,
     status,
     isPending,
-    error,
   } = useBalanceGameListQuery(
     sortMode,
     statusFilter === 'all' ? undefined : statusFilter,
+    selectedTags.length ? selectedTags : undefined,
+    debouncedSearchTerm.trim() || undefined,
     {
       initialPage: shouldUseInitialList ? initialList : undefined,
     },
   );
 
   const createMutation = useCreateBalanceGameMutation();
+  const trimmedTagQuery = debouncedTagQuery.trim();
+  const { data: tagSuggestions = [], isFetching: isTagLoading } =
+    useBalanceGameTagSuggestionsQuery(trimmedTagQuery, {
+      limit: 10,
+      enabled: trimmedTagQuery.length >= BALANCE_GAME_TAG_MIN_QUERY_LEN,
+      minLength: BALANCE_GAME_TAG_MIN_QUERY_LEN,
+      sort: 'popular',
+    });
 
-  // 무한 스크롤용 ref
-  const observerTarget = useRef<HTMLDivElement>(null);
+  const observerTarget = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    isFetching,
+    fetchNextPage,
+  });
 
   // 투표 생성 핸들러
   const handleCreateVoting = async (data: VotingCreateFormData) => {
@@ -85,58 +126,61 @@ export default function CommunityTabClient({
     }
   };
 
-  // 무한 스크롤 Intersection Observer
-  useEffect(() => {
-    const currentTarget = observerTarget.current;
-    if (!currentTarget) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          hasNextPage &&
-          !isFetchingNextPage &&
-          !isFetching
-        ) {
-          fetchNextPage().catch(() => {
-            // 무한 스크롤 실패 시 무시
-          });
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    observer.observe(currentTarget);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [hasNextPage, isFetchingNextPage, isFetching, fetchNextPage]);
-
   // 상세 화면으로 전환
+  const selectedVotingId = useMemo(() => {
+    const votingIdParam = searchParams.get('votingId');
+    if (!votingIdParam) return null;
+
+    const parsedId = Number(votingIdParam);
+    if (Number.isFinite(parsedId) && parsedId > 0) {
+      return parsedId;
+    }
+
+    return decodeVotingId(votingIdParam);
+  }, [searchParams]);
+
   const handleVotingClick = (votingId: number) => {
-    setSelectedVotingId(votingId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('tab', 'community');
+    params.set('votingId', encodeVotingId(votingId));
+    router.push(`/home?${params.toString()}`);
+  };
+
+  const handleAddTag = (value: string) => {
+    addTag(value);
+    setTagFilterInput('');
+  };
+
+  const handleRemoveTagFilter = (tag: string) => {
+    removeTag(tag);
+  };
+
+  const handleTagClick = (tag: string) => {
+    handleAddTag(tag);
   };
 
   // 목록으로 돌아가기
   const handleBackToList = () => {
-    setSelectedVotingId(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('votingId');
+    params.set('tab', 'community');
+    router.push(`/home?${params.toString()}`, { scroll: false });
+    requestAnimationFrame(scrollToHomeContent);
   };
 
   // 상세 화면이 열려있으면 상세 화면 표시
-  if (selectedVotingId) {
+  if (selectedVotingId !== null) {
     return (
-      <div className="transition-all duration-300">
-        <VotingDetailView
-          votingId={selectedVotingId}
-          onBack={handleBackToList}
-        />
-      </div>
+      <CommunityDetailView
+        votingId={selectedVotingId}
+        onBack={handleBackToList}
+        onScrollToAnchor={scrollToHomeContent}
+      />
     );
   }
 
   // 로딩 상태 (첫 로드만)
-  if (isPending) {
+  if (isPending && !data) {
     return (
       <div className="flex items-center justify-center py-800">
         <div className="flex flex-col items-center gap-400">
@@ -170,97 +214,48 @@ export default function CommunityTabClient({
   }
 
   const votings = data?.pages.flatMap((page) => page.content) || [];
+  const visibleVotings = votings;
 
   return (
     <>
-      <div className="flex flex-col gap-500 transition-all duration-300">
+      <SectionShell className="transition-all duration-300">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h2 className="font-display-headings6 text-text-strong flex items-center gap-150">
-            밸런스게임
-            <MessageSquareText className="text-text-brand h-8 w-8" />
-          </h2>
-        </div>
+        <SectionHeader
+          title="밸런스게임"
+          icon={<MessageSquareText className="text-text-brand h-8 w-8" />}
+          description="다양한 주제에 투표하고 댓글로 자유롭게 토론할 수 있습니다."
+        />
 
-        {/* 헤더 설명 */}
-        <div className="mb-300">
-          <p className="font-designer-14r text-text-subtle">
-            다양한 주제에 투표하고 댓글로 자유롭게 토론할 수 있습니다.
-          </p>
-        </div>
-
-        {/* 필터 + 주제 생성 버튼 */}
-        <div className="mb-400 flex items-center justify-between gap-200">
-          {/* 필터(상태) + 정렬 */}
-          <div className="flex items-center gap-200">
-            <FilterPillButton
-              isActive={statusFilter === 'active'}
-              onClick={() => setStatusFilter('active')}
-            >
-              진행 중
-            </FilterPillButton>
-            <FilterPillButton
-              isActive={statusFilter === 'closed'}
-              onClick={() => setStatusFilter('closed')}
-            >
-              종료됨
-            </FilterPillButton>
-            <FilterPillButton
-              isActive={statusFilter === 'all'}
-              onClick={() => setStatusFilter('all')}
-            >
-              전체
-            </FilterPillButton>
-
-            {/* divider */}
-            <div className="bg-border-subtle mx-100 h-6 w-px" />
-
-            {/* Sort Dropdown */}
-            <div className="group relative">
-              <button className="rounded-100 bg-background-default border-border-subtle font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors">
-                <ArrowUpDown className="h-4 w-4" />
-                {sortMode === 'latest' ? '최신순' : '인기순'}
+        <BalanceGameFiltersBar
+          statusFilter={statusFilter}
+          onStatusChange={setStatus}
+          sortMode={sortMode}
+          onSortChange={setSort}
+          searchTerm={searchTerm}
+          onSearchChange={setSearchTerm}
+          tagValue={tagFilterInput}
+          onTagValueChange={setTagFilterInput}
+          onAddTag={handleAddTag}
+          selectedTags={selectedTags}
+          onRemoveTag={handleRemoveTagFilter}
+          tagSuggestions={tagSuggestions}
+          isTagLoading={isTagLoading}
+          sortVariant="dropdown"
+          rightSlot={
+            isAuthenticated ? (
+              <button
+                onClick={() => setIsCreateModalOpen(true)}
+                className="rounded-100 bg-fill-brand-default-default font-designer-13b text-text-inverse shadow-1 hover:bg-fill-brand-default-hover hover:shadow-2 flex items-center gap-100 px-400 py-200 transition-all hover:scale-105"
+              >
+                <Plus className="h-4 w-4" />
+                주제 생성
               </button>
-
-              {/* Dropdown */}
-              <div className="absolute top-full left-0 z-20 hidden w-[120px] pt-50 group-hover:block">
-                <div className="bg-background-default border-border-subtle rounded-100 shadow-2 overflow-hidden border">
-                  <button
-                    onClick={() => setSortMode('latest')}
-                    className={cn(
-                      'hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors',
-                      sortMode === 'latest' && 'bg-fill-neutral-subtle-default',
-                    )}
-                  >
-                    최신순
-                  </button>
-                  <button
-                    onClick={() => setSortMode('popular')}
-                    className={cn(
-                      'hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors',
-                      sortMode === 'popular' &&
-                        'bg-fill-neutral-subtle-default',
-                    )}
-                  >
-                    인기순
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 주제 생성 버튼 */}
-          <button
-            onClick={() => setIsCreateModalOpen(true)}
-            className="rounded-100 bg-fill-brand-default-default font-designer-13b text-text-inverse shadow-1 hover:bg-fill-brand-default-hover hover:shadow-2 flex items-center gap-100 px-400 py-200 transition-all hover:scale-105"
-          >
-            <Plus className="h-4 w-4" />
-            주제 생성
-          </button>
-        </div>
+            ) : null
+          }
+        />
 
         {/* 투표 목록 */}
-        {votings.length === 0 ? (
+        {visibleVotings.length === 0 ? (
           <div className="rounded-200 border-border-subtle bg-background-default flex flex-col items-center justify-center gap-300 border py-1200">
             <Vote className="text-text-subtlest h-12 w-12 opacity-30" />
             <div className="flex flex-col items-center gap-100">
@@ -275,11 +270,12 @@ export default function CommunityTabClient({
         ) : (
           <>
             <div className="flex flex-col gap-300">
-              {votings.map((voting) => (
+              {visibleVotings.map((voting, index) => (
                 <VotingCard
-                  key={voting.id}
+                  key={`${voting.id}-${index}`}
                   voting={voting}
                   onClick={() => handleVotingClick(voting.id)}
+                  onTagClick={handleTagClick}
                 />
               ))}
             </div>
@@ -294,7 +290,7 @@ export default function CommunityTabClient({
                   </span>
                 </div>
               )}
-              {!hasNextPage && votings.length > 0 && (
+              {!hasNextPage && visibleVotings.length > 0 && (
                 <p className="font-designer-13r text-text-subtlest">
                   모든 투표를 불러왔습니다
                 </p>
@@ -302,7 +298,7 @@ export default function CommunityTabClient({
             </div>
           </>
         )}
-      </div>
+      </SectionShell>
 
       {/* 주제 생성 모달 */}
       <VotingCreateModal
@@ -318,5 +314,27 @@ export default function CommunityTabClient({
         onClose={() => setShowToast(false)}
       />
     </>
+  );
+}
+
+interface CommunityDetailViewProps {
+  votingId: number;
+  onBack: () => void;
+  onScrollToAnchor: () => void;
+}
+
+function CommunityDetailView({
+  votingId,
+  onBack,
+  onScrollToAnchor,
+}: CommunityDetailViewProps) {
+  useEffect(() => {
+    requestAnimationFrame(onScrollToAnchor);
+  }, [onScrollToAnchor, votingId]);
+
+  return (
+    <div className="transition-all duration-300">
+      <VotingDetailView votingId={votingId} onBack={onBack} />
+    </div>
   );
 }

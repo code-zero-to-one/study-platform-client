@@ -1,4 +1,5 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
+import { attachApiLogger } from './api-logger';
 import { getServerCookie } from '../../utils/server-cookie';
 
 // * server-side axios 인스턴스
@@ -12,6 +13,8 @@ export const axiosServerInstance = axios.create({
   },
   withCredentials: true,
 });
+
+attachApiLogger(axiosServerInstance, 'server-json');
 
 const onRequestServer = async (config: InternalAxiosRequestConfig) => {
   const accessToken = await getServerCookie('accessToken');

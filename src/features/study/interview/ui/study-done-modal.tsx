@@ -2,7 +2,6 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
-import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -11,6 +10,7 @@ import { SingleDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
 import { TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import ModalShell from '@/components/ui/modal-shell';
 import type {
   CompleteStudyRequest,
   DailyStudyDetail,
@@ -27,51 +27,94 @@ import { useUpdateDailyStudyMutation } from '@/features/study/interview/model/us
 interface StudyDoneModalProps {
   data: DailyStudyDetail;
   studyDate: string;
+  forceOpen?: boolean;
 }
 
 export default function StudyDoneModal({
   data,
   studyDate,
+  forceOpen,
 }: StudyDoneModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [formState, setFormState] = useState({
+    isValid: false,
+    isSubmitting: false,
+    isPending: false,
+  });
+  const resolvedOpen = forceOpen ?? isOpen;
+  const onClose = () => setIsOpen(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (forceOpen !== undefined) {
+      setIsOpen(forceOpen);
+    }
+  }, [forceOpen]);
+
+  useEffect(() => {
+    if (resolvedOpen) {
       sendGTMEvent({
         event: 'study_done_modal_open',
         study_date: studyDate,
       });
     }
-  }, [isOpen, studyDate]);
+  }, [resolvedOpen, studyDate]);
+
+  useEffect(() => {
+    if (!resolvedOpen || !forceOpen) return;
+    const id = window.requestAnimationFrame(() => {
+      const input = document.getElementById(
+        'study-done-feedback',
+      ) as HTMLTextAreaElement | null;
+      input?.focus();
+    });
+
+    return () => window.cancelAnimationFrame(id);
+  }, [resolvedOpen, forceOpen]);
 
   return (
-    <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Button
-        disabled={data.progressStatus === 'PENDING'}
-        size="medium"
-        onClick={() => setIsOpen(true)}
-      >
-        완료하기
-      </Button>
-
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content>
-          <Modal.Header className="border-border-default flex items-center justify-between border-b">
-            <Modal.Title>면접 완료하기</Modal.Title>
-            <Modal.Close>
-              <XIcon />
-            </Modal.Close>
-          </Modal.Header>
-
-          <StudyDoneForm
-            data={data}
-            studyDate={studyDate}
-            onClose={() => setIsOpen(false)}
-          />
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal.Root>
+    <ModalShell
+      open={resolvedOpen}
+      onOpenChange={(nextOpen) => {
+        setIsOpen(nextOpen);
+      }}
+      title="면접 완료하기"
+      trigger={
+        <Button
+          disabled={data.progressStatus === 'PENDING'}
+          size="medium"
+          onClick={() => setIsOpen(true)}
+        >
+          완료하기
+        </Button>
+      }
+      footer={
+        <div className="flex justify-end gap-100">
+          <Button color="secondary" size="large" onClick={onClose}>
+            취소
+          </Button>
+          <Button
+            size="large"
+            color="primary"
+            type="submit"
+            form="study-done-form"
+            disabled={
+              !formState.isValid ||
+              formState.isSubmitting ||
+              formState.isPending
+            }
+          >
+            작성 완료
+          </Button>
+        </div>
+      }
+    >
+      <StudyDoneForm
+        data={data}
+        studyDate={studyDate}
+        onClose={onClose}
+        onFormStateChange={setFormState}
+      />
+    </ModalShell>
   );
 }
 
@@ -79,10 +122,16 @@ function StudyDoneForm({
   data,
   studyDate,
   onClose,
+  onFormStateChange,
 }: {
   data: DailyStudyDetail;
   studyDate: string;
   onClose: () => void;
+  onFormStateChange: (state: {
+    isValid: boolean;
+    isSubmitting: boolean;
+    isPending: boolean;
+  }) => void;
 }) {
   const { mutate, isPending } = useUpdateDailyStudyMutation();
 
@@ -96,6 +145,10 @@ function StudyDoneForm({
     handleSubmit,
     formState: { isValid, isSubmitting },
   } = methods;
+
+  useEffect(() => {
+    onFormStateChange({ isValid, isSubmitting, isPending });
+  }, [isPending, isSubmitting, isValid, onFormStateChange]);
 
   const onSubmit = (values: StudyDoneFormValues) => {
     const form: CompleteStudyRequest = {
@@ -132,27 +185,27 @@ function StudyDoneForm({
   };
 
   return (
-    <>
-      <Modal.Body className="flex flex-col gap-400">
-        <FormProvider {...methods}>
-          <form
-            id="study-done-form"
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-300"
+    <Modal.Body className="flex flex-col gap-400">
+      <FormProvider {...methods}>
+        <form
+          id="study-done-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-300"
+        >
+          <FormField<StudyDoneFormValues, 'progressStatus'>
+            name="progressStatus"
+            label="진행 현황"
+            helper="면접 완료 후 해당 지원자의 상태를 업데이트해 주세요."
+            required
+            direction="vertical"
           >
-            <FormField<StudyDoneFormValues, 'progressStatus'>
-              name="progressStatus"
-              label="진행 현황"
-              helper="면접 완료 후 해당 지원자의 상태를 업데이트해 주세요."
-              required
-              direction="vertical"
-            >
-              <SingleDropdown
-                options={STUDY_PROGRESS_OPTIONS}
-                placeholder="선택해주세요"
-              />
-            </FormField>
+            <SingleDropdown
+              options={STUDY_PROGRESS_OPTIONS}
+              placeholder="선택해주세요"
+            />
+          </FormField>
 
+          <div data-tutorial="study-done-input">
             <FormField<StudyDoneFormValues, 'feedback'>
               name="feedback"
               label="피드백"
@@ -163,31 +216,15 @@ function StudyDoneForm({
               counterMax={100}
             >
               <TextAreaInput
+                id="study-done-feedback"
                 placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
                 maxLength={100}
                 hideMeta
               />
             </FormField>
-          </form>
-        </FormProvider>
-      </Modal.Body>
-
-      <Modal.Footer>
-        <div className="flex justify-end gap-100">
-          <Button color="secondary" size="large" onClick={onClose}>
-            취소
-          </Button>
-          <Button
-            size="large"
-            color="primary"
-            type="submit"
-            form="study-done-form"
-            disabled={!isValid || isSubmitting || isPending}
-          >
-            작성 완료
-          </Button>
-        </div>
-      </Modal.Footer>
-    </>
+          </div>
+        </form>
+      </FormProvider>
+    </Modal.Body>
   );
 }

@@ -1,5 +1,4 @@
 import { MessageCircle, Users } from 'lucide-react';
-import Link from 'next/link';
 import React from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
@@ -10,12 +9,23 @@ import VoteTimer from '../voting/vote-timer';
 interface VotingCardProps {
   voting: BalanceGame;
   onClick?: () => void;
+  onTagClick?: (tag: string) => void;
 }
 
-export default function VotingCard({ voting, onClick }: VotingCardProps) {
+export default function VotingCard({
+  voting,
+  onClick,
+  onTagClick,
+}: VotingCardProps) {
   const topOption = voting.options.reduce((prev, current) =>
     prev.percentage > current.percentage ? prev : current,
   );
+  const isActive = voting.isActive ?? true;
+
+  const authorImage =
+    typeof voting.author.profileImage === 'string'
+      ? voting.author.profileImage
+      : voting.author.profileImage?.resizedImages?.[0]?.resizedImageUrl;
 
   // myVote can be null or number (optionId)
   const hasVoted = voting.myVote !== undefined && voting.myVote !== null;
@@ -27,6 +37,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
         hasVoted
           ? 'ring-border-brand shadow-2'
           : 'ring-border-subtle hover:ring-border-brand hover:shadow-2',
+        !isActive && 'bg-background-default',
       )}
       onClick={
         onClick
@@ -48,7 +59,7 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
                 <div>
                   <UserAvatar
                     size={32}
-                    image={voting.author.profileImage || undefined}
+                    image={authorImage || undefined}
                     className="relative z-10"
                   />
                 </div>
@@ -73,12 +84,18 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
       {voting.tags && Array.isArray(voting.tags) && voting.tags.length > 0 && (
         <div className="mb-200 flex flex-wrap gap-100">
           {voting.tags.map((tag, index) => (
-            <span
+            <button
               key={tag || index}
-              className="rounded-100 bg-fill-neutral-subtle-default font-designer-12r text-text-subtle px-150 py-50"
+              type="button"
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                onTagClick?.(tag);
+              }}
+              className="rounded-100 bg-fill-neutral-subtle-default font-designer-12r text-text-subtle hover:ring-fill-brand-default-default px-150 py-50 ring-1 ring-transparent transition-shadow ring-inset"
             >
               #{tag}
-            </span>
+            </button>
           ))}
         </div>
       )}
@@ -129,5 +146,5 @@ export default function VotingCard({ voting, onClick }: VotingCardProps) {
     return cardContent;
   }
 
-  return <Link href={`/insights/weekly/${voting.id}`}>{cardContent}</Link>;
+  return cardContent;
 }

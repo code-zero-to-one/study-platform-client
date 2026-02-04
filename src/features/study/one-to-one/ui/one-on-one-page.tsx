@@ -20,7 +20,6 @@ import {
   LayoutGrid,
   List,
   ArrowUpDown,
-  MessageSquareText,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -626,18 +625,6 @@ export default function OneOnOnePage() {
               />
               제로원 도서관
             </button>
-            <Link
-              href="/insights/weekly"
-              className="rounded-100 font-designer-16m text-text-subtle hover:text-text-strong hover:bg-fill-neutral-subtle-hover flex items-center gap-150 px-200 py-150 text-left transition-all"
-            >
-              <MessageSquareText className="h-5 w-5" />
-              <span className="flex items-center gap-100">
-                밸런스게임
-                <span className="animate-pulse rounded-full bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] px-100 py-25 text-[10px] font-bold text-white">
-                  NEW
-                </span>
-              </span>
-            </Link>
           </nav>
         </aside>
 
