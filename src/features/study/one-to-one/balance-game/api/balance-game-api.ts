@@ -9,6 +9,7 @@ import {
   UpdateBalanceGameRequest,
   UpdateCommentRequest,
   VoteRequest,
+  BalanceGameTagSuggestion,
 } from '@/types/balance-game';
 
 // 1. 밸런스 게임 목록 조회
@@ -17,18 +18,24 @@ export const getBalanceGameList = async (params: {
   size?: number;
   sort?: 'latest' | 'popular';
   status?: 'active' | 'closed';
+  tags?: string[];
+  q?: string;
 }): Promise<BalanceGameListResponse> => {
-  // 백엔드는 page를 1부터 시작하고 limit을 사용함
-  const { page = 1, size = 10, sort = 'latest', status } = params;
+  // 백엔드는 page를 1부터 시작하고 size를 사용함
+  const { page = 1, size = 10, sort = 'latest', status, tags, q } = params;
+  const tagParam =
+    tags && tags.length > 0 ? tags.filter(Boolean).join(',') : undefined;
 
   const response = await axiosInstance.get<
     ApiResponse<BalanceGameListResponse>
   >('/balance-games', {
     params: {
       page,
-      limit: size, // 백엔드는 limit 파라미터를 사용
+      size,
       sort,
       status,
+      tags: tagParam,
+      q,
     },
   });
 
@@ -152,4 +159,34 @@ export const updateBalanceGame = async (
 // 11. 밸런스 게임 삭제
 export const deleteBalanceGame = async (gameId: number): Promise<void> => {
   await axiosInstance.delete<ApiResponse<null>>(`/balance-games/${gameId}`);
+};
+
+// 12. 밸런스 게임 태그 검색 (prefix)
+export const getBalanceGameTagSuggestions = async (params: {
+  q?: string;
+  minLength?: number;
+  limit?: number;
+  sort?: 'popular' | 'alphabetical';
+}): Promise<BalanceGameTagSuggestion[]> => {
+  const { q, minLength = 1, limit = 10, sort = 'popular' } = params;
+  const response = await axiosInstance.get<
+    ApiResponse<{
+      suggestions?: BalanceGameTagSuggestion[] | string[];
+      tags?: BalanceGameTagSuggestion[] | string[];
+    }>
+  >('/balance-games/tags', {
+    params: { q, minLength, limit, sort },
+  });
+
+  const payload =
+    response.data && 'content' in response.data
+      ? response.data.content
+      : (response.data as unknown as {
+          suggestions?: BalanceGameTagSuggestion[] | string[];
+          tags?: BalanceGameTagSuggestion[] | string[];
+        });
+
+  const rawTags = payload?.suggestions ?? payload?.tags ?? [];
+
+  return rawTags.map((tag) => (typeof tag === 'string' ? { name: tag } : tag));
 };

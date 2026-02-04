@@ -90,7 +90,10 @@ export default function CommentList({
           'avatar' in comment.author
             ? comment.author.avatar
             : 'profileImage' in comment.author
-              ? (comment.author as any).profileImage
+              ? typeof (comment.author as any).profileImage === 'string'
+                ? (comment.author as any).profileImage
+                : (comment.author as any).profileImage?.resizedImages?.[0]
+                    ?.resizedImageUrl
               : undefined;
 
         return (

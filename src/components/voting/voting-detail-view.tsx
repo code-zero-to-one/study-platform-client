@@ -9,6 +9,7 @@ import {
   Edit,
   Trash2,
   Lock,
+  Share2,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import CommentForm from '@/components/discussion/comment-form';
@@ -17,6 +18,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import Toast from '@/components/ui/toast';
 import DailyStatsChart from '@/components/voting/daily-stats-chart';
 import VoteResultsChart from '@/components/voting/vote-results-chart';
 import VoteTimer from '@/components/voting/vote-timer';
@@ -61,6 +63,7 @@ export default function VotingDetailView({
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showShareToast, setShowShareToast] = useState(false);
 
   // User Info
   const memberId = useUserStore((state) => state.memberId);
@@ -114,7 +117,9 @@ export default function VotingDetailView({
   }, [commentsData]);
 
   const commentTotalCount =
-    commentsData?.pages?.[0]?.totalElements ?? comments.length;
+    typeof voting?.commentCount === 'number'
+      ? voting.commentCount
+      : (commentsData?.pages?.[0]?.totalElements ?? comments.length);
 
   // isActive는 백엔드가 내려줄 수도 있고(권장), 없으면 endsAt 기준으로 프론트에서 계산
   // VoteTimer도 endsAt으로 "종료"를 판단하므로, 두 로직이 어긋나지 않게 맞춘다.
@@ -210,8 +215,67 @@ export default function VotingDetailView({
     }
   };
 
+  const fallbackShare = (shareUrl: string) => {
+    try {
+      const textarea = document.createElement('textarea');
+      textarea.value = shareUrl;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.left = '-9999px';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const copied = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      if (copied) {
+        setShowShareToast(true);
+
+        return;
+      }
+    } catch (error) {
+      // ignore and fallback
+    }
+
+    window.prompt('링크를 복사해 공유하세요.', shareUrl);
+  };
+
+  const handleShare = () => {
+    if (!voting) return;
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      navigator
+        .share({
+          title: voting.title,
+          url: shareUrl,
+        })
+        .catch((error) => {
+          if (error instanceof DOMException && error.name === 'AbortError') {
+            return;
+          }
+          fallbackShare(shareUrl);
+        });
+
+      return;
+    }
+
+    if (navigator.clipboard?.writeText) {
+      navigator.clipboard
+        .writeText(shareUrl)
+        .then(() => setShowShareToast(true))
+        .catch(() => fallbackShare(shareUrl));
+
+      return;
+    }
+
+    fallbackShare(shareUrl);
+  };
+
   // Check if current user is author
   const isAuthor = voting?.author.id === memberId;
+  const authorImage =
+    typeof voting?.author.profileImage === 'string'
+      ? voting?.author.profileImage
+      : voting?.author.profileImage?.resizedImages?.[0]?.resizedImageUrl;
 
   // 로딩 상태
   if (isLoading) {
@@ -287,7 +351,7 @@ export default function VotingDetailView({
                   <div>
                     <UserAvatar
                       size={32}
-                      image={voting.author.profileImage || undefined}
+                      image={authorImage || undefined}
                       className="relative z-10"
                     />
                   </div>
@@ -302,6 +366,15 @@ export default function VotingDetailView({
           {/* 우측 컨트롤: 타이머 + 작성자 메뉴 (겹침 방지) */}
           <div className="flex items-center gap-150">
             <VoteTimer endsAt={voting.endsAt} isActive={isActive} />
+
+            <button
+              onClick={handleShare}
+              type="button"
+              className="rounded-100 text-text-subtle hover:bg-fill-neutral-subtle-default p-100 transition-colors"
+              aria-label="공유"
+            >
+              <Share2 className="h-5 w-5" />
+            </button>
 
             {isAuthor && (
               <div className="relative shrink-0">
@@ -653,6 +726,12 @@ export default function VotingDetailView({
           </Modal.Content>
         </Modal.Portal>
       </Modal.Root>
+
+      <Toast
+        message="링크가 복사되었습니다."
+        isVisible={showShareToast}
+        onClose={() => setShowShareToast(false)}
+      />
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { ChevronRight } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import SectionHeader from '@/components/ui/section-header';
 import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
@@ -113,15 +114,17 @@ export default function ReservationList({
   }
 
   return (
-    <div className="space-y-300">
-      <div className="flex justify-between">
-        <div className="text-text-strong font-designer-28b">
-          {`${month}월 ${week}주차 스터디 신청 목록`}
-        </div>
-        <div className="text-text-subtlest font-designer-24b">
-          총 {data?.total}명
-        </div>
-      </div>
+    <div className="space-y-300" data-tutorial="study-recruit-list">
+      <SectionHeader
+        title={`${month}월 ${week}주차 스터디 신청 목록`}
+        rightSlot={
+          <div className="text-text-subtlest font-designer-24b">
+            총 {data?.total}명
+          </div>
+        }
+        className="gap-0"
+        titleClassName="text-text-strong font-designer-28b"
+      />
 
       <div className="grid grid-cols-1 gap-200 md:grid-cols-2 lg:grid-cols-3">
         {items.map((p) => (

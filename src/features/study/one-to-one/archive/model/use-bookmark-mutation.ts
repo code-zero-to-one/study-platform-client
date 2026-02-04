@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleArchiveBookmark } from '@/features/study/one-to-one/archive/api/toggle-bookmark';
+import { ARCHIVE_QUERY_KEYS } from '@/features/study/one-to-one/archive/model/archive-keys';
 import { ArchiveResponse } from '@/types/archive';
-import { ARCHIVE_QUERY_KEY } from './use-archive-query';
 
 export const useToggleArchiveBookmarkMutation = () => {
   const queryClient = useQueryClient();
@@ -10,16 +10,16 @@ export const useToggleArchiveBookmarkMutation = () => {
     mutationFn: toggleArchiveBookmark,
     onMutate: async (id) => {
       // 진행 중인 쿼리 취소
-      await queryClient.cancelQueries({ queryKey: ARCHIVE_QUERY_KEY.all });
+      await queryClient.cancelQueries({ queryKey: ARCHIVE_QUERY_KEYS.all });
 
       // 이전 데이터 스냅샷
       const previousData = queryClient.getQueriesData<ArchiveResponse>({
-        queryKey: ARCHIVE_QUERY_KEY.all,
+        queryKey: ARCHIVE_QUERY_KEYS.all,
       });
 
       // 낙관적 업데이트
       queryClient.setQueriesData<ArchiveResponse>(
-        { queryKey: ARCHIVE_QUERY_KEY.all },
+        { queryKey: ARCHIVE_QUERY_KEYS.all },
         (oldData) => {
           if (!oldData) return oldData;
 
@@ -27,7 +27,13 @@ export const useToggleArchiveBookmarkMutation = () => {
             ...oldData,
             content: oldData.content.map((item) =>
               item.id === id
-                ? { ...item, isBookmarked: !item.isBookmarked }
+                ? {
+                    ...item,
+                    isBookmarked: !item.isBookmarked,
+                    bookmarks: item.isBookmarked
+                      ? (item.bookmarks ?? 0) - 1
+                      : (item.bookmarks ?? 0) + 1,
+                  }
                 : item,
             ),
           };
@@ -47,7 +53,7 @@ export const useToggleArchiveBookmarkMutation = () => {
     onSettled: () => {
       // 완료 후 리프레시
       queryClient
-        .invalidateQueries({ queryKey: ARCHIVE_QUERY_KEY.all })
+        .invalidateQueries({ queryKey: ARCHIVE_QUERY_KEYS.all })
         .catch(() => {
           // 쿼리 무효화 실패 시 무시
         });
