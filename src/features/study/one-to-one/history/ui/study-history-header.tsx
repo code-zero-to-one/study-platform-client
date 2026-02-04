@@ -58,6 +58,7 @@ export default function StudyHistoryHeader({
       rightSlot={
         <div className="bg-background-default rounded-100 border-border-subtle flex shrink-0 border p-50">
           <button
+            type="button"
             onClick={() => onViewModeChange('LIST')}
             className={cn(
               'rounded-75 flex items-center gap-50 p-100 transition-colors',
@@ -65,11 +66,14 @@ export default function StudyHistoryHeader({
                 ? 'bg-fill-neutral-default-default text-text-strong shadow-sm'
                 : 'text-text-subtlest hover:text-text-subtle',
             )}
+            aria-label="리스트 보기"
+            aria-pressed={viewMode === 'LIST'}
           >
             <List className="h-4 w-4" />
             <span className="font-designer-13m hidden sm:inline">리스트</span>
           </button>
           <button
+            type="button"
             onClick={() => onViewModeChange('CALENDAR')}
             className={cn(
               'rounded-75 flex items-center gap-50 p-100 transition-colors',
@@ -77,6 +81,8 @@ export default function StudyHistoryHeader({
                 ? 'bg-fill-neutral-default-default text-text-strong shadow-sm'
                 : 'text-text-subtlest hover:text-text-subtle',
             )}
+            aria-label="달력 보기"
+            aria-pressed={viewMode === 'CALENDAR'}
           >
             <CalendarIcon className="h-4 w-4" />
             <span className="font-designer-13m hidden sm:inline">달력</span>

@@ -56,7 +56,7 @@ export default function ArchiveFilters({
     debouncedSearchTerm,
     {
       minLength: minQueryLength,
-      limit: 10,
+      size: 10,
       enabled: isOpen && debouncedSearchTerm.trim().length >= minQueryLength,
     },
   );

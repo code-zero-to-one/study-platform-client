@@ -33,6 +33,7 @@ export default function ViewModeToggle<T extends string>({
         return (
           <button
             key={option.value}
+            type="button"
             onClick={() => onChange(option.value)}
             className={cn(
               'rounded-75 p-100 transition-colors',
@@ -41,6 +42,8 @@ export default function ViewModeToggle<T extends string>({
                 : 'text-text-subtlest hover:text-text-subtle',
             )}
             title={option.title}
+            aria-label={option.title ?? option.value}
+            aria-pressed={isActive}
           >
             {option.icon}
           </button>

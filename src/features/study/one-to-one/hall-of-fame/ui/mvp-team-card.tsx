@@ -14,6 +14,24 @@ interface MVPTeamCardProps {
 }
 
 export default function MVPTeamCard({ team, className }: MVPTeamCardProps) {
+  const weekLabel = (() => {
+    const dateSource = team.weekDate || team.weekStartDate;
+    if (!dateSource) return 'MVP 팀';
+
+    const date = new Date(dateSource);
+    if (Number.isNaN(date.getTime())) return 'MVP 팀';
+
+    const firstDayOfMonth = new Date(
+      date.getFullYear(),
+      date.getMonth(),
+      1,
+    ).getDay();
+    const weekOfMonth =
+      Math.floor((date.getDate() + firstDayOfMonth - 1) / 7) + 1;
+
+    return `${date.getMonth() + 1}월 ${weekOfMonth}주차 MVP 팀`;
+  })();
+
   return (
     <div
       className={cn(
@@ -47,7 +65,7 @@ export default function MVPTeamCard({ team, className }: MVPTeamCardProps) {
       <div className="relative z-10 flex h-full flex-col items-center justify-center gap-400 text-center">
         <div className="flex flex-col items-center gap-100">
           <span className="bg-fill-warning-subtle-default text-text-warning font-designer-12b border-border-warning-subtle rounded-[9999px] border px-150 py-50">
-            1월 4주차 MVP 팀
+            {weekLabel}
           </span>
           <h3 className="font-display-headings5 text-text-strong">
             최고의 스터디 메이트

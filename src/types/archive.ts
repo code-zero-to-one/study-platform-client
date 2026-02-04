@@ -53,5 +53,5 @@ export interface ArchiveSearchSuggestionResponse {
 export interface GetArchiveSearchSuggestionsParams {
   q?: string;
   minLength?: number;
-  limit?: number;
+  size?: number;
 }
