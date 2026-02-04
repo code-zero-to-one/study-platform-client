@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
 import type {
@@ -19,6 +20,12 @@ import { useGetStudies } from '@/hooks/queries/study-query';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyPagination from '../../features/study/group/ui/group-study-pagination';
 import GroupStudyList from '../lists/group-study-list';
+import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
+
+// Carousel이 클라이언트 전용이므로 dynamic import로 로드
+const Banner = dynamic(() => import('@/widgets/home/banner'), {
+  ssr: false,
+});
 
 const PAGE_SIZE = 15;
 
@@ -32,12 +39,18 @@ export default function GroupStudyListPage() {
   const [searchQuery, setSearchQuery] = useState('');
 
   // URL에서 필터 값 읽기
+  // 기본값: recruiting = true (모집 중만 보기)
+  // 사용자가 토글을 조작하면 URL에 명시적으로 저장됨
   const filterValues = useMemo<StudyFilterValues>(() => {
     const type = searchParams.get('type')?.split(',').filter(Boolean) ?? [];
     const targetRoles =
       searchParams.get('targetRoles')?.split(',').filter(Boolean) ?? [];
     const method = searchParams.get('method')?.split(',').filter(Boolean) ?? [];
-    const recruiting = searchParams.get('recruiting') === 'true';
+    // URL에 recruiting 파라미터가 없으면 기본값 true (모집 중만 보기)
+    // 파라미터가 있으면 그 값 사용 (명시적 사용자 선택)
+    const recruitingParam = searchParams.get('recruiting');
+    const recruiting =
+      recruitingParam === null ? true : recruitingParam === 'true';
 
     return { type, targetRoles, method, recruiting };
   }, [searchParams]);
@@ -61,7 +74,8 @@ export default function GroupStudyListPage() {
       filterValues.method.length > 0
         ? (filterValues.method as GetGroupStudiesMethodEnum[])
         : undefined,
-    recruiting: filterValues.recruiting || undefined,
+    // 기본값: true (모집 중만), false면 전체 조회
+    recruiting: filterValues.recruiting ? true : undefined,
   });
 
   const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
@@ -72,10 +86,16 @@ export default function GroupStudyListPage() {
       const params = new URLSearchParams(searchParams.toString());
 
       Object.entries(updates).forEach(([key, value]) => {
-        if (value === undefined || value === '' || value === 'false') {
+        if (value === undefined || value === '') {
           params.delete(key);
         } else {
-          params.set(key, value);
+          // recruiting의 경우 'false'도 명시적으로 저장 (기본값이 true이므로)
+          // 다른 필터는 'false'일 때 파라미터 제거
+          if (key === 'recruiting' || value !== 'false') {
+            params.set(key, value);
+          } else {
+            params.delete(key);
+          }
         }
       });
 
@@ -91,6 +111,8 @@ export default function GroupStudyListPage() {
   );
 
   // 필터 변경 핸들러
+  // recruiting 토글: true면 'true' 저장, false면 'false' 명시적으로 저장
+  // (기본값이 true이므로 false일 때도 명시적으로 저장해야 토글이 정상 작동)
   const handleFilterChange = useCallback(
     (values: StudyFilterValues) => {
       updateSearchParams({
@@ -100,7 +122,9 @@ export default function GroupStudyListPage() {
             ? values.targetRoles.join(',')
             : undefined,
         method: values.method.length > 0 ? values.method.join(',') : undefined,
-        recruiting: values.recruiting ? 'true' : undefined,
+        // recruiting: true면 'true', false면 'false' 명시적으로 저장
+        // (기본값이 true이므로 false일 때도 URL에 저장해야 토글 해제 가능)
+        recruiting: values.recruiting ? 'true' : 'false',
       });
     },
     [updateSearchParams],
@@ -146,7 +170,15 @@ export default function GroupStudyListPage() {
   }
 
   return (
-    <div className="mx-auto w-[1280px] py-600">
+    <div className="mx-auto w-[1280px] px-400 py-600">
+      {/* 배너 */}
+      <div className="mb-600">
+        <Banner />
+      </div>
+
+      {/* 내가 참여중인 스터디 섹션 */}
+      <MyParticipatingStudiesSection classification="GROUP_STUDY" />
+
       {/* 헤더 */}
       <div className="mb-400 flex items-center justify-between">
         <h1 className="font-designer-24b text-text-default">

@@ -11,7 +11,7 @@ export default function PageContainer({
   className,
 }: PageContainerProps) {
   return (
-    <div className={clsx('mx-auto w-full max-w-[1164px]', className)}>
+    <div className={clsx('mx-auto w-[1280px] px-400 py-600', className)}>
       {children}
     </div>
   );

@@ -318,7 +318,7 @@ export interface MissionProgressHistory {
 
 export interface Grade {
   id: 1 | 2 | 3 | 4 | 5 | 6 | 7;
-  code: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
+  label: 'A+' | 'A-' | 'B+' | 'B-' | 'C+' | 'C-' | 'F'; // e.g. "A+", "C+"
   name: string; // e.g. "Great", "Cheer up"
   score: 4.5 | 4 | 3.5 | 3 | 2.5 | 2 | 0;
 }
@@ -332,7 +332,7 @@ export interface GroupStudyMyStatusResponse {
 // 회원의 스터디 리스트 조회 API 타입
 export interface MemberStudyListRequest {
   memberId: number;
-  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY';
+  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'PREMIUM_STUDY';
   studyStatus?: 'BOTH' | 'NOT_COMPLETED' | 'COMPLETED';
   inProgressPage?: number;
   inProgressPageSize?: number;
@@ -355,7 +355,7 @@ export interface MemberStudyItem {
   endTime: string;
   studyRole: 'PARTICIPANT' | 'LEADER';
   status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
-  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY';
+  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'PREMIUM_STUDY';
 }
 
 export interface MemberStudyListResponse {

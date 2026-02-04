@@ -39,12 +39,12 @@ export default function ServiceLayout({
   return (
     <html lang="ko">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
-      <body className={clsx(pretendard.className, 'h-screen w-screen')}>
+      <body className={clsx(pretendard.className, 'min-h-screen w-screen')}>
         <MainProvider>
           <PageViewTracker />
-          <div className="w-full overflow-auto">
+          <div className="flex min-h-screen w-full flex-col overflow-x-auto">
             <Header />
-            <main className="h-[calc(100vh-62px)] w-full">{children}</main>
+            <main className="w-full flex-1">{children}</main>
           </div>
         </MainProvider>
       </body>

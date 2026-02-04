@@ -1,0 +1,89 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "ko-KR"
+early_access: false
+
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  poem: true
+  review_status: true
+  review_details: false
+  
+  # 자동 리뷰 설정
+  auto_review:
+    enabled: true
+    # drafts: false = 드래프트 PR은 리뷰하지 않음
+    # drafts: true = 드래프트 PR도 리뷰함 (모든 브랜치에 적용되는 게 아니라 드래프트 PR 포함 여부)
+    drafts: true
+    auto_incremental_review: true
+    base_branches:
+      - develop
+      - main
+  
+  # 경로 필터 (필요시 조정)
+  path_filters: []
+  
+  # 도구 설정
+  tools:
+    # ESLint: JavaScript/TypeScript 린터 (프로젝트에서 사용 중)
+    eslint:
+      enabled: true
+    # Biome: 빠른 포맷터/린터 (프로젝트에서 사용 안 함 - 비활성화 권장)
+    biome:
+      enabled: false
+    # Markdownlint: Markdown 파일 린터
+    markdownlint:
+      enabled: true
+    # GitHub Checks: GitHub의 체크 상태 표시
+    github-checks:
+      enabled: true
+    # Gitleaks: 시크릿(API 키, 비밀번호 등) 유출 검사
+    gitleaks:
+      enabled: true
+    # OSV Scanner: 오픈소스 취약점 스캐너
+    osvScanner:
+      enabled: true
+
+chat:
+  auto_reply: true
+  art: true
+
+# 지식 베이스 설정
+knowledge_base:
+  opt_out: false
+  web_search:
+    enabled: true
+  code_guidelines:
+    enabled: true
+    # 코드 가이드라인 파일 패턴 (실제 존재하는 파일만 포함)
+    filePatterns:
+      - "**/CLAUDE.md"  # ✅ 존재함 (루트에 있음)
+      # - "**/.cursorrules"  # ❌ 존재하지 않음
+      # - ".github/copilot-instructions.md"  # ❌ 존재하지 않음
+      # - ".github/instructions/*.instructions.md"  # ❌ 존재하지 않음
+  pull_requests:
+    scope: "auto"
+  issues:
+    scope: "auto"
+
+# 코드 생성 설정
+code_generation:
+  docstrings:
+    language: "ko-KR"
+    path_instructions: []
+  unit_tests:
+    path_instructions: []
+
+# 이슈 풍부화 설정
+issue_enrichment:
+  planning:
+    enabled: true
+    auto_planning:
+      enabled: true
+      labels: []
+  labeling:
+    auto_apply_labels: false
+    labeling_instructions: []
+

@@ -9,7 +9,8 @@ interface HeaderNavProps {
 }
 
 const NAV_ITEMS = [
-  { href: '/home', loginRequired: true, label: '1:1 스터디' },
+  { href: '/home', loginRequired: false, label: '1:1 스터디' },
+  { href: '/mentoring', loginRequired: false, label: '1:1 멘토링' },
   { href: '/group-study', loginRequired: false, label: '그룹스터디' },
   { href: '/premium-study', loginRequired: false, label: '멘토스터디' },
   { href: '/insights', loginRequired: false, label: '인사이트' },

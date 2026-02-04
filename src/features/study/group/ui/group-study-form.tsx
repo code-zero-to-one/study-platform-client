@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import {
@@ -189,30 +190,50 @@ export default function GroupStudyForm({
   );
 }
 
+const STEP_LABELS: Record<1 | 2 | 3, string> = {
+  1: '기본 정보',
+  2: '스터디 소개',
+  3: '지원 & 규칙 설정',
+};
+
 function Stepper({ step }: { step: 1 | 2 | 3 }) {
-  const dot = (n: 1 | 2 | 3) => {
-    const active = step === n;
+  const renderStep = (n: 1 | 2 | 3) => {
+    const isActive = step === n;
+    const isCompleted = step > n;
 
     return (
-      <div
-        key={n}
-        aria-current={active ? 'step' : undefined}
-        className={[
-          'font-designer-13b flex h-300 w-300 items-center justify-center rounded-full',
-          active
-            ? 'bg-background-brand-default text-text-inverse'
-            : 'bg-background-disabled text-text-disabled',
-          'font-bold',
-        ].join(' ')}
-      >
-        {n}
+      <div key={n} className="flex items-center gap-75">
+        <div
+          aria-current={isActive ? 'step' : undefined}
+          className={cn(
+            'font-designer-13b flex h-300 w-300 items-center justify-center rounded-full',
+            isActive && 'bg-background-brand-default text-text-inverse',
+            isCompleted && 'bg-background-brand-subtle text-text-brand',
+            !isActive &&
+              !isCompleted &&
+              'bg-background-disabled text-text-disabled',
+          )}
+        >
+          {n}
+        </div>
+        <span
+          className={cn(
+            'font-designer-14m',
+            isActive && 'text-text-default',
+            isCompleted && 'text-text-subtle',
+            !isActive && !isCompleted && 'text-text-disabled',
+          )}
+        >
+          {STEP_LABELS[n]}
+        </span>
+        {n < 3 && <div className="bg-border-default mx-75 h-px w-300" />}
       </div>
     );
   };
 
   return (
-    <div className="flex items-center gap-75">
-      {[1, 2, 3].map((n) => dot(n as 1 | 2 | 3))}
-    </div>
+    <nav aria-label="스터디 개설 단계" className="flex items-center">
+      {([1, 2, 3] as const).map((n) => renderStep(n))}
+    </nav>
   );
 }

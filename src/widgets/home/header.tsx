@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import HeaderNav from '@/components/layout/header-nav';
 import NotificationDropdown from '@/components/modals/notification-dropdown';
 import Button from '@/components/ui/button';
@@ -27,8 +28,8 @@ export default async function Header() {
     : undefined;
 
   return (
-    <header className="mx-auto w-[1496px] bg-white px-600 py-[11px] mix-blend-multiply">
-      <div className="flex w-full items-center justify-between">
+    <header className="bg-white py-[11px] mix-blend-multiply">
+      <div className="mx-auto flex w-[1496px] items-center justify-between px-600">
         <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
           <Link href="/">
@@ -46,7 +47,12 @@ export default async function Header() {
 
         <HeaderNav isLoggedIn={isLoggedIn} />
 
-        {accessTokenStr && <NotificationDropdown />}
+        {accessTokenStr && (
+          <div className="flex items-center gap-200">
+            <StudyMatchingToggle />
+            <NotificationDropdown />
+          </div>
+        )}
 
         <div className="ml-150">
           {isLoggedIn ? (

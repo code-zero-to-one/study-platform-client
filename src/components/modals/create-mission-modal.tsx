@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
 import { Plus, XIcon } from 'lucide-react';
-import { useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/ui/button';
@@ -29,12 +29,15 @@ const CreateMissionFormSchema = z.object({
     .min(1, '수행 가이드를 입력해주세요.')
     .max(1000, '1000자 이하로 작성가능합니다.'),
   dateRange: z
-    .object({
-      from: z.date({ error: '시작일을 선택해주세요.' }),
-      to: z.date({ error: '종료일을 선택해주세요.' }),
-    })
+    .object(
+      {
+        from: z.date({ message: '시작일을 선택해주세요.' }),
+        to: z.date({ message: '종료일을 선택해주세요.' }),
+      },
+      { message: '시작일과 종료일을 선택해주세요.' },
+    )
     .refine((data) => data.from && data.to && data.from <= data.to, {
-      message: '미션이 시작되면 수정 및 삭제가 불가합니다.',
+      message: '종료일은 시작일 이후여야 합니다.',
     }),
 });
 
@@ -155,6 +158,13 @@ function CreateMissionForm({
     );
   };
 
+  const handlePreventInvalidValue = (event: ChangeEvent<HTMLInputElement>) => {
+    event.currentTarget.value = event.currentTarget.value.replace(
+      /[^0-9]/g,
+      '',
+    );
+  };
+
   return (
     <FormProvider {...methods}>
       <Modal.Body className="flex flex-col gap-400 px-400 py-300">
@@ -196,6 +206,7 @@ function CreateMissionForm({
             <BaseInput
               type="number"
               min={0}
+              onInput={handlePreventInvalidValue}
               id="weekNum"
               placeholder="커리큘럼 미션인 경우 주차를 입력해 주세요. (예: 1)"
             />

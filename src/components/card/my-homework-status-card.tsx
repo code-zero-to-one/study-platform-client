@@ -9,6 +9,7 @@ interface MyHomeworkStatusProps {
   myHomework?: HomeworkDetailResponseDto;
   isMissionClosed?: boolean;
   onSelectHomework: (homeworkId: number) => void;
+  onRefetch?: () => void;
 }
 
 export default function MyHomeworkStatusCard({
@@ -16,6 +17,7 @@ export default function MyHomeworkStatusCard({
   myHomework,
   isMissionClosed = false,
   onSelectHomework,
+  onRefetch,
 }: MyHomeworkStatusProps) {
   // 미제출 상태
   if (!myHomework || myHomework.homeworkStatus === 'NOT_SUBMITTED') {
@@ -28,7 +30,7 @@ export default function MyHomeworkStatusCard({
           <span className="text-text-subtlest font-designer-14r">
             아직 과제를 제출하지 않았습니다.
           </span>
-          <SubmitHomeworkModal missionId={missionId} />
+          <SubmitHomeworkModal missionId={missionId} onSuccess={onRefetch} />
         </div>
       </div>
     );

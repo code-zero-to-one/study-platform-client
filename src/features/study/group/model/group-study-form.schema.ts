@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { getKoreaDate } from '@/utils/time';
 import {
   BasicInfoCommon,
   GroupStudyCreateRequest,
@@ -99,6 +100,47 @@ export const GroupStudyFormSchema = z
         message: '그룹 스터디는 무료만 가능합니다.',
         path: ['price'],
       });
+    }
+
+    const parseDate = (s: string) => {
+      const [y, m, d] = s.split('-').map(Number);
+
+      return new Date(y, m - 1, d);
+    };
+
+    if (ISO_DATE_REGEX.test(data.startDate)) {
+      const todayKst = getKoreaDate();
+      const tomorrow = new Date(todayKst);
+      tomorrow.setDate(todayKst.getDate() + 1);
+      const toYmd = (d: Date) =>
+        `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+          d.getDate(),
+        ).padStart(2, '0')}`;
+      const tomorrowYmd = toYmd(tomorrow);
+
+      if (data.startDate < tomorrowYmd) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: '스터디 시작일은 내일부터 설정할 수 있습니다.',
+          path: ['startDate'],
+        });
+      }
+    }
+
+    // 종료일은 시작일과 같거나 이후여야 함
+    if (
+      ISO_DATE_REGEX.test(data.startDate) &&
+      ISO_DATE_REGEX.test(data.endDate)
+    ) {
+      const start = parseDate(data.startDate);
+      const end = parseDate(data.endDate);
+      if (end < start) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: '종료일은 시작일과 같거나 이후여야 합니다.',
+          path: ['endDate'],
+        });
+      }
     }
   });
 

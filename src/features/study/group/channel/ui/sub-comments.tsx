@@ -7,6 +7,7 @@ import {
   useCommentsQuery,
   usePostCommentMutation,
 } from '../model/use-channel-query';
+import Button from '@/components/ui/button';
 
 interface SubCommentsProps {
   threadId: number;
@@ -24,8 +25,11 @@ export default function SubComments({
   const {
     data,
     isLoading,
+    isError,
     refetch: commentsRefetch,
   } = useCommentsQuery(groupStudyId, threadId);
+
+  console.log(data, 'subcomment');
 
   const [commentText, setCommentText] = useState('');
 
@@ -48,9 +52,27 @@ export default function SubComments({
 
   if (isLoading) return null;
 
+  if (isError) {
+    return (
+      <div className="flex items-center gap-100 py-200">
+        <span className="text-text-subtlest text-sm">
+          답글을 불러오지 못했습니다.
+        </span>
+        <Button
+          size="small"
+          color="outlined"
+          onClick={() => commentsRefetch()}
+          className="text-text-accent-blue font-designer-14r text-sm hover:underline"
+        >
+          다시 시도
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-300">
-      {data.map((subComment) => (
+      {data?.content?.map((subComment) => (
         <div
           key={subComment.commentId}
           className="flex flex-col gap-200 pt-300"
