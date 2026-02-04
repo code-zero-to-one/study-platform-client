@@ -101,7 +101,6 @@ export const GroupStudyFormSchema = z
       });
     }
 
-
     const parseDate = (s: string) => {
       const [y, m, d] = s.split('-').map(Number);
 
@@ -127,7 +126,10 @@ export const GroupStudyFormSchema = z
     }
 
     // 종료일은 시작일과 같거나 이후여야 함
-    if (ISO_DATE_REGEX.test(data.startDate) && ISO_DATE_REGEX.test(data.endDate)) {
+    if (
+      ISO_DATE_REGEX.test(data.startDate) &&
+      ISO_DATE_REGEX.test(data.endDate)
+    ) {
       const start = parseDate(data.startDate);
       const end = parseDate(data.endDate);
       if (end < start) {
