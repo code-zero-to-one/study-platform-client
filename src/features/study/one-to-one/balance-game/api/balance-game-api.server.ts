@@ -11,17 +11,19 @@ export const getBalanceGameListServer = async (params: {
   size?: number;
   sort?: 'latest' | 'popular';
   status?: 'active' | 'closed';
+  q?: string;
 }): Promise<BalanceGameListResponse> => {
-  const { page = 1, size = 10, sort = 'latest', status } = params;
+  const { page = 1, size = 10, sort = 'latest', status, q } = params;
 
   const response = await axiosServerInstance.get<
     ApiResponse<BalanceGameListResponse>
   >('/balance-games', {
     params: {
       page,
-      limit: size,
+      size,
       sort,
       status,
+      q,
     },
   });
 

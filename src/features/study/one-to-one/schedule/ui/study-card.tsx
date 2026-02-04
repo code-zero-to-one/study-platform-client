@@ -2,6 +2,7 @@
 
 import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
 import { useMemo, useState } from 'react';
+import SectionHeader from '@/components/ui/section-header';
 import {
   useStudyStatusQuery,
   useWeeklyParticipationQuery,
@@ -61,7 +62,21 @@ function getWeekly(date: Date): { month: number; week: number } {
   };
 }
 
-export default function StudyCard() {
+interface StudyCardProps {
+  tutorialMode?: boolean;
+  forcedStatus?: 'RECRUITING' | 'STUDYING';
+  forcedRole?: 'INTERVIEWEE' | 'INTERVIEWER';
+  forceOpenReadyModal?: boolean;
+  forceOpenDoneModal?: boolean;
+}
+
+export default function StudyCard({
+  tutorialMode,
+  forcedStatus,
+  forcedRole,
+  forceOpenReadyModal,
+  forceOpenDoneModal,
+}: StudyCardProps) {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const studyDate = formatKoreaYMD(selectedDate);
@@ -78,7 +93,9 @@ export default function StudyCard() {
     studyDate,
     isLoggedIn,
   );
-  const isParticipate = participationData?.isParticipate ?? false;
+  const isParticipate = tutorialMode
+    ? true
+    : (participationData?.isParticipate ?? false);
 
   const displayMonday = useMemo(
     () => getKoreaDisplayMonday(selectedDate),
@@ -86,9 +103,11 @@ export default function StudyCard() {
   );
   const { month, week } = getWeekly(displayMonday);
 
+  const effectiveStatus = forcedStatus ?? status;
+
   return (
     <>
-      {status === 'RECRUITING' && (
+      {effectiveStatus === 'RECRUITING' && (
         <ReservationList
           month={month}
           week={week}
@@ -96,15 +115,30 @@ export default function StudyCard() {
           pageSize={50}
         />
       )}
-      {status === 'STUDYING' && (
+      {effectiveStatus === 'STUDYING' && (
         <>
-          <div className="flex flex-col gap-300">
-            <div className="font-bold-h3">{`${month}월 ${week}주차 스터디`}</div>
-            <DateSelector value={selectedDate} onChange={setSelectedDate} />
-          </div>
+          <SectionHeader
+            title={`${month}월 ${week}주차 스터디`}
+            className="gap-300"
+            titleClassName="font-bold-h3"
+          />
+          <DateSelector value={selectedDate} onChange={setSelectedDate} />
           <div className="border-border-default rounded-200 flex flex-col gap-500 border p-400">
-            {isParticipate && <TodayStudyCard studyDate={studyDate} />}
-            <StudyListSection studyDate={studyDate} />
+            {isParticipate && (
+              <TodayStudyCard
+                studyDate={studyDate}
+                tutorialMode={tutorialMode}
+                forcedRole={forcedRole}
+                forceOpenReadyModal={forceOpenReadyModal}
+                forceOpenDoneModal={forceOpenDoneModal}
+              />
+            )}
+            <div data-tutorial="study-progress-list">
+              <StudyListSection
+                studyDate={studyDate}
+                tutorialMode={tutorialMode}
+              />
+            </div>
           </div>
         </>
       )}

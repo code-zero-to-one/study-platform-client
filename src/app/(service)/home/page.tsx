@@ -28,6 +28,7 @@ export default async function Home({
       <FeedbackLink />
       <StartStudyButton />
       <HomeContent activeTab={activeTab} />
+      <div className="h-[400px]" aria-hidden />
     </div>
   );
 }

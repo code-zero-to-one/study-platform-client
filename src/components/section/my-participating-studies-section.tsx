@@ -1,13 +1,13 @@
 'use client';
 
-import Link from 'next/link';
-import Image from 'next/image';
-import { useMemo } from 'react';
-import { useAuth } from '@/hooks/common/use-auth';
-import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
-import { useGetStudies } from '@/hooks/queries/study-query';
-import StudyCard from '@/components/card/study-card';
 import { sendGTMEvent } from '@next/third-parties/google';
+import Image from 'next/image';
+import Link from 'next/link';
+import { useMemo } from 'react';
+import StudyCard from '@/components/card/study-card';
+import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
+import { useAuth } from '@/hooks/common/use-auth';
+import { useGetStudies } from '@/hooks/queries/study-query';
 import { hashValue } from '@/utils/hash';
 
 interface MyParticipatingStudiesSectionProps {

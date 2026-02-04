@@ -1,15 +1,13 @@
 'use client';
 
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
-import React, { useState } from 'react';
-import {
-  ARCHIVE_PAGE_SIZE,
-  ARCHIVE_VIEW_MODES,
-} from '@/features/study/one-to-one/archive/const/archive';
+import { Loader2 } from 'lucide-react';
+import React from 'react';
+import SectionShell from '@/components/ui/section-shell';
+import { ARCHIVE_VIEW_MODES } from '@/features/study/one-to-one/archive/const/archive';
 import { useArchiveActions } from '@/features/study/one-to-one/archive/model/use-archive-actions';
 import { useArchiveQuery } from '@/features/study/one-to-one/archive/model/use-archive-query';
-import PaginationCircleButton from '@/features/study/one-to-one/ui/pagination-circle-button';
 import { useDebounce } from '@/hooks/use-debounce'; // Assuming this hook exists, or I will create it/use raw
+import { useScrollToHomeContent } from '@/hooks/use-scroll-to-home-content';
 import {
   ArchiveItem,
   ArchiveResponse,
@@ -19,6 +17,8 @@ import ArchiveFilters from './archive-filters';
 import ArchiveGrid from './archive-grid';
 import ArchiveHeader from './archive-header';
 import ArchiveList from './archive-list';
+import ArchivePagination from './archive-pagination';
+import { useArchiveFilters } from './use-archive-filters';
 
 // ----------------------------------------------------------------------
 // Main Component
@@ -33,32 +33,37 @@ export default function ArchiveTabClient({
   initialData,
   initialParams,
 }: ArchiveTabClientProps) {
-  const [librarySort, setLibrarySort] = useState<'LATEST' | 'VIEWS' | 'LIKES'>(
-    'LATEST',
-  );
-  const [viewMode, setViewMode] = useState<'GRID' | 'LIST'>(
-    ARCHIVE_VIEW_MODES.GRID,
-  );
-  const [currentPage, setCurrentPage] = useState(1);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [isClientReady, setIsClientReady] = React.useState(false);
+  const scrollToHomeContent = useScrollToHomeContent();
+  const {
+    librarySort,
+    viewMode,
+    currentPage,
+    searchTerm,
+    showBookmarkedOnly,
+    showMyOnly,
+    itemsPerPage,
+    setLibrarySort,
+    setViewMode,
+    setCurrentPage,
+    setSearchTerm,
+    toggleBookmarkedOnly,
+    toggleMyOnly,
+  } = useArchiveFilters({
+    onToggleScroll: () => requestAnimationFrame(scrollToHomeContent),
+  });
+
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
-  // New States
-  const [showBookmarkedOnly, setShowBookmarkedOnly] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false); // Mock Admin Mode
-
-  const ITEMS_PER_PAGE =
-    viewMode === ARCHIVE_VIEW_MODES.LIST
-      ? ARCHIVE_PAGE_SIZE.LIST
-      : ARCHIVE_PAGE_SIZE.GRID;
-
   // React Query Hook
-  const archiveParams = {
+  const archiveParams: GetArchiveParams = {
     page: currentPage - 1,
-    size: ITEMS_PER_PAGE,
+    size: itemsPerPage,
     sort: librarySort,
     search: debouncedSearchTerm || undefined,
     bookmarkedOnly: showBookmarkedOnly || undefined,
+    authorOnly: showMyOnly || undefined,
+    authorId: undefined,
   };
 
   const shouldUseInitialData =
@@ -66,14 +71,25 @@ export default function ArchiveTabClient({
     archiveParams.size === initialParams.size &&
     archiveParams.sort === initialParams.sort &&
     archiveParams.search === initialParams.search &&
-    archiveParams.bookmarkedOnly === initialParams.bookmarkedOnly;
+    archiveParams.bookmarkedOnly === initialParams.bookmarkedOnly &&
+    archiveParams.authorOnly === initialParams.authorOnly &&
+    archiveParams.authorId === initialParams.authorId;
 
   const { data: archiveData, isLoading } = useArchiveQuery(archiveParams, {
     initialData: shouldUseInitialData ? initialData : undefined,
   });
 
-  const { toggleBookmark, toggleLike, openAndRecordView, isAuthenticated } =
-    useArchiveActions();
+  const {
+    toggleBookmark,
+    toggleLike,
+    updateArchive,
+    openAndRecordView,
+    isAuthenticated,
+  } = useArchiveActions();
+
+  React.useEffect(() => {
+    setIsClientReady(true);
+  }, []);
 
   const libraryItems = archiveData?.content || [];
   const totalPages = archiveData?.totalPages || 1;
@@ -81,7 +97,7 @@ export default function ArchiveTabClient({
   // Handler for Likes
   const handleLike = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    if (!isAuthenticated) return;
+    if (!isClientReady || !isAuthenticated) return;
     toggleLike(id);
   };
 
@@ -91,22 +107,13 @@ export default function ArchiveTabClient({
 
   const handleLibraryBookmark = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
-    if (!isAuthenticated) return;
+    if (!isClientReady || !isAuthenticated) return;
     toggleBookmark(id);
   };
 
-  const handleHide = (e: React.MouseEvent, id: number) => {
-    e.stopPropagation();
-    // TODO: Implement Hide Mutation (Admin Only)
-    console.log('Hide', id);
-  };
-
   return (
-    <div className="flex flex-col gap-400">
-      <ArchiveHeader
-        isAdmin={isAdmin}
-        onToggleAdmin={() => setIsAdmin(!isAdmin)}
-      />
+    <SectionShell>
+      <ArchiveHeader />
 
       <ArchiveFilters
         librarySort={librarySort}
@@ -116,10 +123,10 @@ export default function ArchiveTabClient({
         searchTerm={searchTerm}
         onSearchChange={setSearchTerm}
         showBookmarkedOnly={showBookmarkedOnly}
-        onToggleBookmarkedOnly={() =>
-          setShowBookmarkedOnly(!showBookmarkedOnly)
-        }
-        isAuthenticated={isAuthenticated}
+        onToggleBookmarkedOnly={toggleBookmarkedOnly}
+        showMyOnly={showMyOnly}
+        onToggleMyOnly={toggleMyOnly}
+        isAuthenticated={isClientReady ? isAuthenticated : false}
       />
 
       {isLoading ? (
@@ -133,47 +140,31 @@ export default function ArchiveTabClient({
           {viewMode === ARCHIVE_VIEW_MODES.GRID ? (
             <ArchiveGrid
               items={libraryItems}
-              isAdmin={isAdmin}
+              canEdit={showMyOnly}
               onLike={handleLike}
               onView={handleView}
               onBookmark={handleLibraryBookmark}
-              onHide={handleHide}
+              onUpdate={updateArchive}
             />
           ) : (
             <ArchiveList
               items={libraryItems}
-              isAdmin={isAdmin}
+              canEdit={showMyOnly}
               onLike={handleLike}
               onView={handleView}
               onBookmark={handleLibraryBookmark}
-              onHide={handleHide}
+              onUpdate={updateArchive}
             />
           )}
         </>
       )}
 
       {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-100 py-600">
-          <PaginationCircleButton
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </PaginationCircleButton>
-          <span className="font-designer-15m text-text-subtle bg-background-default border-border-subtle flex h-[40px] items-center justify-center rounded-[9999px] border px-300">
-            {currentPage} / {totalPages}
-          </span>
-          <PaginationCircleButton
-            onClick={() =>
-              setCurrentPage(Math.min(totalPages, currentPage + 1))
-            }
-            disabled={currentPage === totalPages}
-          >
-            <ChevronRight className="h-5 w-5" />
-          </PaginationCircleButton>
-        </div>
-      )}
-    </div>
+      <ArchivePagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
+    </SectionShell>
   );
 }

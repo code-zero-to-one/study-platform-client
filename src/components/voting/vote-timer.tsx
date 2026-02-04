@@ -29,12 +29,23 @@ function calculateTimeLeft(endsAt: string): TimeLeft | null {
 }
 
 export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(
-    endsAt ? calculateTimeLeft(endsAt) : null,
-  );
+  // 초기값을 null로 설정하여 서버와 클라이언트가 동일한 HTML을 렌더링하도록 함
+  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    if (!endsAt || !isActive) return;
+    // 클라이언트에서만 마운트되었음을 표시
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!endsAt || !isActive || !isMounted) return;
+
+    // 초기 시간 계산
+    const initialTimeLeft = calculateTimeLeft(endsAt);
+    setTimeLeft(initialTimeLeft);
+
+    if (!initialTimeLeft) return;
 
     const timer = setInterval(() => {
       const newTimeLeft = calculateTimeLeft(endsAt);
@@ -46,11 +57,11 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [endsAt, isActive]);
+  }, [endsAt, isActive, isMounted]);
 
   if (!isActive) {
     return (
-      <div className="flex items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
+      <div className="bg-fill-brand-subtle-default text-text-brand flex items-center gap-100 rounded-full px-200 py-100">
         <Clock className="h-4 w-4" />
         <span className="font-designer-12b">종료된 투표</span>
       </div>
@@ -66,11 +77,22 @@ export default function VoteTimer({ endsAt, isActive }: VoteTimerProps) {
     );
   }
 
-  if (!timeLeft) {
+  // 서버와 클라이언트가 동일한 HTML을 렌더링하도록 보장
+  // 마운트되지 않았거나 timeLeft가 계산되지 않았을 때는 placeholder 표시
+  if (!isMounted || !timeLeft) {
     return (
       <div className="flex items-center gap-100 rounded-full border border-orange-100 bg-orange-50 px-200 py-100 text-orange-600">
-        <Clock className="h-4 w-4" />
-        <span className="font-designer-12b">종료</span>
+        <Timer className="h-4 w-4" />
+        <div className="flex items-baseline gap-150">
+          <span className="font-designer-12b">남은 시간</span>
+          <span className="font-designer-14b font-mono tabular-nums">
+            <span>00</span>
+            <span className="mx-0.5 opacity-50">:</span>
+            <span>00</span>
+            <span className="mx-0.5 opacity-50">:</span>
+            <span>00</span>
+          </span>
+        </div>
       </div>
     );
   }

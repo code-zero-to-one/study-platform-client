@@ -1,32 +1,30 @@
-import { useInfiniteQuery, useQuery } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useQuery,
+} from '@tanstack/react-query';
+import { BALANCE_GAME_QUERY_KEYS } from '@/features/study/one-to-one/balance-game/model/balance-game-keys';
 import {
   getBalanceGameComments,
   getBalanceGameDetail,
   getBalanceGameList,
+  getBalanceGameTagSuggestions,
 } from '../api/balance-game-api';
-
-export const BALANCE_GAME_KEYS = {
-  all: ['balanceGames'] as const,
-  lists: () => [...BALANCE_GAME_KEYS.all, 'list'] as const,
-  list: (filters: Record<string, any>) =>
-    [...BALANCE_GAME_KEYS.lists(), filters] as const,
-  details: () => [...BALANCE_GAME_KEYS.all, 'detail'] as const,
-  detail: (id: number) => [...BALANCE_GAME_KEYS.details(), id] as const,
-  comments: (id: number) =>
-    [...BALANCE_GAME_KEYS.detail(id), 'comments'] as const,
-};
 
 export const useBalanceGameListQuery = (
   sort: 'latest' | 'popular' = 'latest',
   status?: 'active' | 'closed',
+  tags?: string[],
+  q?: string,
   options?: {
     initialPage?: Awaited<ReturnType<typeof getBalanceGameList>>;
   },
 ) => {
   return useInfiniteQuery({
-    queryKey: BALANCE_GAME_KEYS.list({ sort, status }),
+    queryKey: BALANCE_GAME_QUERY_KEYS.list({ sort, status, tags, q }),
     queryFn: ({ pageParam = 1 }) =>
-      getBalanceGameList({ page: pageParam, size: 10, sort, status }),
+      getBalanceGameList({ page: pageParam, size: 10, sort, status, tags, q }),
+    placeholderData: keepPreviousData,
     getNextPageParam: (lastPage) => {
       // lastPage가 유효하고 pageable 정보가 있는지 확인
       if (
@@ -62,7 +60,7 @@ export const useBalanceGameListQuery = (
 
 export const useBalanceGameDetailQuery = (gameId: number) => {
   return useQuery({
-    queryKey: BALANCE_GAME_KEYS.detail(gameId),
+    queryKey: BALANCE_GAME_QUERY_KEYS.detail(gameId),
     queryFn: () => getBalanceGameDetail(gameId),
     enabled: !!gameId,
   });
@@ -73,7 +71,7 @@ export const useBalanceGameCommentsQuery = (
   options?: { enabled?: boolean },
 ) => {
   return useInfiniteQuery({
-    queryKey: BALANCE_GAME_KEYS.comments(gameId),
+    queryKey: BALANCE_GAME_QUERY_KEYS.comments(gameId),
     queryFn: ({ pageParam = 0 }) =>
       getBalanceGameComments(gameId, { page: pageParam, size: 10 }),
     getNextPageParam: (lastPage) => {
@@ -98,5 +96,28 @@ export const useBalanceGameCommentsQuery = (
     },
     initialPageParam: 0,
     enabled: !!gameId && options?.enabled !== false,
+  });
+};
+
+export const useBalanceGameTagSuggestionsQuery = (
+  query: string,
+  options?: {
+    limit?: number;
+    enabled?: boolean;
+    minLength?: number;
+    sort?: 'popular' | 'alphabetical';
+  },
+) => {
+  const limit = options?.limit ?? 10;
+  const minLength = options?.minLength ?? 1;
+  const sort = options?.sort ?? 'popular';
+  const enabled = options?.enabled ?? query.trim().length >= minLength;
+
+  return useQuery({
+    queryKey: BALANCE_GAME_QUERY_KEYS.tags(query, limit, minLength, sort),
+    queryFn: () =>
+      getBalanceGameTagSuggestions({ q: query, limit, minLength, sort }),
+    enabled,
+    staleTime: 60_000,
   });
 };
