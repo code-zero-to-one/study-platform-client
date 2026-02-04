@@ -77,7 +77,7 @@ export const VotingCreateFormSchema = z.object({
     .min(2, '선택지는 최소 2개 이상 입력해주세요.')
     .max(5, '선택지는 최대 5개까지 입력 가능합니다.'),
   tags: z
-    .array(z.string().trim().min(1))
+    .array(z.string().trim().min(1).max(40, '태그는 40자 이하로 입력해주세요.'))
     .max(3, '태그는 최대 3개까지 입력 가능합니다.')
     .optional(),
   endsAt: z.string().optional(), // ISO date string

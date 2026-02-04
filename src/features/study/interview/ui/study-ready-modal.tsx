@@ -2,14 +2,14 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
-import { XIcon } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import Button from '@/components/ui/button';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import ModalShell from '@/components/ui/modal-shell';
 import type {
   DailyStudyDetail,
   PrepareStudyRequest,
@@ -24,47 +24,85 @@ import { useUpdateDailyStudyMutation } from '@/features/study/interview/model/us
 interface StudyReadyModalProps {
   data: DailyStudyDetail;
   studyDate: string;
+  forceOpen?: boolean;
 }
 
 export default function StudyReadyModal({
   data,
   studyDate,
+  forceOpen,
 }: StudyReadyModalProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [formState, setFormState] = useState({
+    isValid: false,
+    isSubmitting: false,
+    isPending: false,
+  });
+  const subjectInputRef = useRef<HTMLInputElement | null>(null);
+  const resolvedOpen = forceOpen ?? isOpen;
+  const onClose = () => setIsOpen(false);
 
   useEffect(() => {
-    if (isOpen) {
+    if (forceOpen !== undefined) {
+      setIsOpen(forceOpen);
+    }
+  }, [forceOpen]);
+
+  useEffect(() => {
+    if (resolvedOpen) {
       sendGTMEvent({
         event: 'study_ready_modal_open',
         study_date: studyDate,
       });
     }
-  }, [isOpen, studyDate]);
+  }, [resolvedOpen, studyDate]);
+
+  useEffect(() => {
+    if (!resolvedOpen || !forceOpen) return;
+    const id = window.requestAnimationFrame(() => {
+      subjectInputRef.current?.focus();
+    });
+
+    return () => window.cancelAnimationFrame(id);
+  }, [resolvedOpen, forceOpen]);
 
   return (
-    <Modal.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Modal.Trigger asChild>
-        <Button size="medium">준비하기</Button>
-      </Modal.Trigger>
-
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content>
-          <Modal.Header className="border-border-default flex items-center justify-between border-b">
-            <Modal.Title>면접 준비하기</Modal.Title>
-            <Modal.Close>
-              <XIcon />
-            </Modal.Close>
-          </Modal.Header>
-
-          <StudyReadyForm
-            data={data}
-            studyDate={studyDate}
-            onClose={() => setIsOpen(false)}
-          />
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal.Root>
+    <ModalShell
+      open={resolvedOpen}
+      onOpenChange={(nextOpen) => {
+        setIsOpen(nextOpen);
+      }}
+      title="면접 준비하기"
+      trigger={<Button size="medium">준비하기</Button>}
+      footer={
+        <div className="flex justify-end gap-100">
+          <Button color="secondary" size="large" onClick={onClose}>
+            취소
+          </Button>
+          <Button
+            size="large"
+            color="primary"
+            type="submit"
+            form="study-ready-form"
+            disabled={
+              !formState.isValid ||
+              formState.isSubmitting ||
+              formState.isPending
+            }
+          >
+            작성 완료
+          </Button>
+        </div>
+      }
+    >
+      <StudyReadyForm
+        data={data}
+        studyDate={studyDate}
+        onClose={onClose}
+        subjectInputRef={subjectInputRef}
+        onFormStateChange={setFormState}
+      />
+    </ModalShell>
   );
 }
 
@@ -72,10 +110,18 @@ function StudyReadyForm({
   data,
   studyDate,
   onClose,
+  subjectInputRef,
+  onFormStateChange,
 }: {
   data: DailyStudyDetail;
   studyDate: string;
   onClose: () => void;
+  subjectInputRef: React.RefObject<HTMLInputElement | null>;
+  onFormStateChange: (state: {
+    isValid: boolean;
+    isSubmitting: boolean;
+    isPending: boolean;
+  }) => void;
 }) {
   const { mutate, isPending } = useUpdateDailyStudyMutation();
 
@@ -89,6 +135,10 @@ function StudyReadyForm({
     handleSubmit,
     formState: { isValid, isSubmitting },
   } = methods;
+
+  useEffect(() => {
+    onFormStateChange({ isValid, isSubmitting, isPending });
+  }, [isPending, isSubmitting, isValid, onFormStateChange]);
 
   const onSubmit = (values: StudyReadyFormValues) => {
     const form: PrepareStudyRequest = {
@@ -124,14 +174,14 @@ function StudyReadyForm({
   };
 
   return (
-    <>
-      <Modal.Body className="flex flex-col gap-400">
-        <FormProvider {...methods}>
-          <form
-            id="study-ready-form"
-            onSubmit={handleSubmit(onSubmit)}
-            className="flex flex-col gap-300"
-          >
+    <Modal.Body className="flex flex-col gap-400">
+      <FormProvider {...methods}>
+        <form
+          id="study-ready-form"
+          onSubmit={handleSubmit(onSubmit)}
+          className="flex flex-col gap-300"
+        >
+          <div data-tutorial="study-ready-input">
             <FormField<StudyReadyFormValues, 'subject'>
               name="subject"
               label="면접 주제"
@@ -139,38 +189,24 @@ function StudyReadyForm({
               required
               direction="vertical"
             >
-              <BaseInput placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교" />
+              <BaseInput
+                ref={subjectInputRef}
+                placeholder="네트워크 기초, 운영체제 프로세스 관리, 자료구조 시간복잡도 비교"
+              />
             </FormField>
+          </div>
 
-            <FormField<StudyReadyFormValues, 'link'>
-              name="link"
-              label="참고 자료"
-              helper="함께 참고할 문서나 링크가 있다면 입력해 주세요"
-              required
-              direction="vertical"
-            >
-              <BaseInput placeholder="https://github.com/InterviewReady/network-basic" />
-            </FormField>
-          </form>
-        </FormProvider>
-      </Modal.Body>
-
-      <Modal.Footer>
-        <div className="flex justify-end gap-100">
-          <Button color="secondary" size="large" onClick={onClose}>
-            취소
-          </Button>
-          <Button
-            size="large"
-            color="primary"
-            type="submit"
-            form="study-ready-form"
-            disabled={!isValid || isSubmitting || isPending}
+          <FormField<StudyReadyFormValues, 'link'>
+            name="link"
+            label="참고 자료"
+            helper="함께 참고할 문서나 링크가 있다면 입력해 주세요"
+            required
+            direction="vertical"
           >
-            작성 완료
-          </Button>
-        </div>
-      </Modal.Footer>
-    </>
+            <BaseInput placeholder="https://github.com/InterviewReady/network-basic" />
+          </FormField>
+        </form>
+      </FormProvider>
+    </Modal.Body>
   );
 }

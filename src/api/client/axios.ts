@@ -1,5 +1,6 @@
 import axios, { InternalAxiosRequestConfig, isAxiosError } from 'axios';
 import { ApiError, isApiError } from './api-error';
+import { attachApiLogger } from './api-logger';
 import { getCookie, setCookie } from './cookie';
 
 // * client-side axios 인스턴스
@@ -22,6 +23,9 @@ export const axiosInstanceForMultipart = axios.create({
     // JS에서 formData 를 넘길땐 Content-Type 생략해야 자동으로 multipart/form-data + boundary 설정됨
   },
 });
+
+attachApiLogger(axiosInstance, 'client-json');
+attachApiLogger(axiosInstanceForMultipart, 'client-multipart');
 
 const onRequestClient = (config: InternalAxiosRequestConfig) => {
   const accessToken = getCookie('accessToken');

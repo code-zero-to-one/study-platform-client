@@ -27,6 +27,7 @@ export default function VotingEditModal({
 }: VotingEditModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [tagInput, setTagInput] = useState('');
+  const TAG_MAX_LEN = 40;
 
   // 모달이 열릴 때 배경 스크롤 방지 (스크롤바 2개 문제 해결)
   useEffect(() => {
@@ -73,6 +74,7 @@ export default function VotingEditModal({
     const trimmedTag = tagInput.trim();
     if (
       trimmedTag &&
+      trimmedTag.length <= TAG_MAX_LEN &&
       watchedTags.length < 3 &&
       !watchedTags.includes(trimmedTag)
     ) {
@@ -203,6 +205,7 @@ export default function VotingEditModal({
                 }}
                 placeholder="태그 입력 후 Enter"
                 disabled={watchedTags.length >= 3}
+                maxLength={TAG_MAX_LEN}
                 className="rounded-100 border-border-subtle bg-background-default font-designer-14r focus:border-border-brand flex-1 border px-300 py-200 transition-colors outline-none disabled:cursor-not-allowed disabled:opacity-50"
               />
               <button

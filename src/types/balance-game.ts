@@ -5,10 +5,12 @@ export interface BalanceGameOption {
   percentage: number;
 }
 
+import type { ProfileImage } from '@/entities/user/api/types';
+
 export interface BalanceGameAuthor {
   id: number;
   nickname: string;
-  profileImage: string | null;
+  profileImage: ProfileImage | string | null;
 }
 
 export interface DailyStatistic {
@@ -84,6 +86,23 @@ export interface UpdateCommentRequest {
 
 export interface VoteRequest {
   optionId: number;
+}
+
+export interface BalanceGameTagSuggestion {
+  name: string;
+  count?: number;
+}
+
+export interface BalanceGameSearchSuggestionResponse {
+  titles: string[];
+  authors: string[];
+}
+
+export interface GetBalanceGameSearchSuggestionsParams {
+  q?: string;
+  minLength?: number;
+  size?: number;
+  scope?: 'title' | 'author' | 'all';
 }
 
 // Common Response Wrapper (Actual Backend Structure)

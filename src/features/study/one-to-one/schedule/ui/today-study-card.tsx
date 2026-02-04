@@ -4,6 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
+import InlineSectionHeader from '@/components/ui/inline-section-header';
+import SectionHeader from '@/components/ui/section-header';
 import UserPhoneNumberCopyModal from '@/entities/user/ui/user-phone-number-copy-modal';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { DailyStudyDetail } from '@/features/study/interview/api/interview-types';
@@ -11,40 +13,75 @@ import { useDailyStudyDetailQuery } from '@/features/study/interview/model/use-i
 import { getStatusBadge } from '@/features/study/interview/ui/status-badge-map';
 import StudyDoneModal from '@/features/study/interview/ui/study-done-modal';
 import StudyReadyModal from '@/features/study/interview/ui/study-ready-modal';
+import { TUTORIAL_DAILY_STUDY_MOCK } from '@/features/study/one-to-one/schedule/model/tutorial-mock';
 import { useAuth } from '@/hooks/common/use-auth';
 
-export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
+interface TodayStudyCardProps {
+  studyDate: string;
+  tutorialMode?: boolean;
+  forcedRole?: 'INTERVIEWEE' | 'INTERVIEWER';
+  forceOpenReadyModal?: boolean;
+  forceOpenDoneModal?: boolean;
+}
+
+export default function TodayStudyCard({
+  studyDate,
+  tutorialMode,
+  forcedRole,
+  forceOpenReadyModal,
+  forceOpenDoneModal,
+}: TodayStudyCardProps) {
   const { data: authData } = useAuth();
-  const memberId = authData?.memberId ?? null;
+  const memberId = tutorialMode
+    ? forcedRole === 'INTERVIEWER'
+      ? TUTORIAL_DAILY_STUDY_MOCK.interviewerId
+      : TUTORIAL_DAILY_STUDY_MOCK.intervieweeId
+    : (authData?.memberId ?? null);
 
-  const { data: todayStudyData } = useDailyStudyDetailQuery(studyDate);
+  const queryStudyDate = tutorialMode ? '' : studyDate;
+  const { data: todayStudyData } = useDailyStudyDetailQuery(queryStudyDate);
 
-  if (!todayStudyData || memberId === null) return null;
+  const resolvedStudyData = tutorialMode
+    ? (todayStudyData ?? TUTORIAL_DAILY_STUDY_MOCK)
+    : todayStudyData;
+
+  if (!resolvedStudyData || memberId === null) return null;
 
   // 내가 피면접자(답변하는 사람)인지
-  const isInterviewee = memberId === todayStudyData.intervieweeId;
+  const isInterviewee =
+    forcedRole === 'INTERVIEWER'
+      ? false
+      : forcedRole === 'INTERVIEWEE'
+        ? true
+        : memberId === resolvedStudyData.intervieweeId;
 
   const partner = {
     id: isInterviewee
-      ? todayStudyData.interviewerId
-      : todayStudyData.intervieweeId,
+      ? resolvedStudyData.interviewerId
+      : resolvedStudyData.intervieweeId,
     name: isInterviewee
-      ? todayStudyData.interviewerName
-      : todayStudyData.intervieweeName,
+      ? resolvedStudyData.interviewerName
+      : resolvedStudyData.intervieweeName,
     realName: isInterviewee
-      ? todayStudyData.interviewerRealName
-      : todayStudyData.intervieweeRealName,
+      ? resolvedStudyData.interviewerRealName
+      : resolvedStudyData.intervieweeRealName,
     image: isInterviewee
-      ? todayStudyData.interviewerImage
-      : todayStudyData.intervieweeImage,
-    tel: todayStudyData.partnerTel,
+      ? resolvedStudyData.interviewerImage
+      : resolvedStudyData.intervieweeImage,
+    tel: resolvedStudyData.partnerTel,
   };
 
   return (
     <section className="flex w-full flex-col gap-200">
-      <div className="mb-4 flex items-start justify-between">
-        <h3 className="font-bold-h5 text-text-strong">오늘의 스터디</h3>
-      </div>
+      <SectionHeader
+        title="오늘의 스터디"
+        description={
+          isInterviewee ? '당신은 지원자입니다.' : '당신은 면접관입니다.'
+        }
+        className="mb-4"
+        titleClassName="font-bold-h5"
+        descriptionClassName="font-designer-14r"
+      />
 
       <div className="rounded-100 border-border-default flex w-full rounded border">
         <div className="border-r-border-default flex flex-1 items-center justify-between gap-150 border-r p-300">
@@ -55,7 +92,7 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
           </span>
 
           <span className="font-designer-20b text-text-default">
-            {todayStudyData.studySpaceId}조
+            {resolvedStudyData.studySpaceId}조
           </span>
         </div>
 
@@ -65,14 +102,22 @@ export default function TodayStudyCard({ studyDate }: { studyDate: string }) {
           name={partner.name}
           image={partner.image}
           phoneNumber={partner.tel}
-          isInterviewee={partner.id === todayStudyData.intervieweeId}
+          isInterviewee={partner.id === resolvedStudyData.intervieweeId}
         />
       </div>
 
       {isInterviewee ? (
-        <IntervieweeStudyDetail studyDate={studyDate} {...todayStudyData} />
+        <IntervieweeStudyDetail
+          studyDate={studyDate}
+          forceOpenReadyModal={forceOpenReadyModal}
+          {...resolvedStudyData}
+        />
       ) : (
-        <InterviewerStudyDetail studyDate={studyDate} {...todayStudyData} />
+        <InterviewerStudyDetail
+          studyDate={studyDate}
+          forceOpenDoneModal={forceOpenDoneModal}
+          {...resolvedStudyData}
+        />
       )}
     </section>
   );
@@ -114,26 +159,30 @@ const renderFeedback = (
 // 사용자가 면접자(질문하는 사람)이면 보여줄 컴포넌트
 function InterviewerStudyDetail({
   studyDate,
+  forceOpenDoneModal,
   ...todayStudyData
-}: DailyStudyDetail & { studyDate: string }) {
+}: DailyStudyDetail & { studyDate: string; forceOpenDoneModal?: boolean }) {
   return (
     <div className="rounded-100 border-border-default flex flex-col justify-between gap-200 border px-300 py-250">
-      <div className="flex justify-between">
-        <div className="flex items-center gap-150">
+      <InlineSectionHeader
+        title="스터디 상세"
+        icon={
           <Image
             src="/icons/book.svg"
             alt="스터디 상세"
             width={24}
             height={24}
           />
-          <span className="font-designer-16m text-text-default">
-            스터디 상세
-          </span>
-          {getStatusBadge(todayStudyData.progressStatus)}
-        </div>
-
-        <StudyDoneModal data={todayStudyData} studyDate={studyDate} />
-      </div>
+        }
+        badge={getStatusBadge(todayStudyData.progressStatus)}
+        rightSlot={
+          <StudyDoneModal
+            data={todayStudyData}
+            studyDate={studyDate}
+            forceOpen={forceOpenDoneModal}
+          />
+        }
+      />
 
       {todayStudyData.progressStatus === 'PENDING' ? (
         <BeforeStudy description="아직 지원자가 면접 준비하기를 작성하지 않았어요." />
@@ -156,26 +205,30 @@ function InterviewerStudyDetail({
 // 사용자가 피면접자(답변하는 사람)이면 보여줄 컴포넌트
 function IntervieweeStudyDetail({
   studyDate,
+  forceOpenReadyModal,
   ...todayStudyData
-}: DailyStudyDetail & { studyDate: string }) {
+}: DailyStudyDetail & { studyDate: string; forceOpenReadyModal?: boolean }) {
   return (
     <div className="rounded-100 border-border-default flex flex-col justify-between gap-200 border px-300 py-250">
-      <div className="flex justify-between">
-        <div className="flex items-center gap-150">
+      <InlineSectionHeader
+        title="스터디 상세"
+        icon={
           <Image
             src="/icons/book.svg"
             alt="스터디 상세"
             width={24}
             height={24}
           />
-          <span className="font-designer-16m text-text-default">
-            스터디 상세
-          </span>
-          {getStatusBadge(todayStudyData.progressStatus)}
-        </div>
-
-        <StudyReadyModal data={todayStudyData} studyDate={studyDate} />
-      </div>
+        }
+        badge={getStatusBadge(todayStudyData.progressStatus)}
+        rightSlot={
+          <StudyReadyModal
+            data={todayStudyData}
+            studyDate={studyDate}
+            forceOpen={forceOpenReadyModal}
+          />
+        }
+      />
 
       {todayStudyData.progressStatus === 'PENDING' ? (
         <BeforeStudy description="‘준비하기’ 버튼을 눌러 스터디를 시작해 주세요." />
@@ -237,7 +290,10 @@ function PartnerInfo({
           phoneNumber={phoneNumber}
           realName={realName ?? name}
           trigger={
-            <button className="border-r-border-subtle rounded-l-75 hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-[10px] pl-150 transition">
+            <button
+              data-tutorial="study-contact-button"
+              className="border-r-border-subtle rounded-l-75 hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-[10px] pl-150 transition"
+            >
               <Image
                 src="/icons/phone.svg"
                 alt="연락하기"
@@ -251,7 +307,10 @@ function PartnerInfo({
         <UserProfileModal
           memberId={id}
           trigger={
-            <button className="hover:bg-fill-neutral-subtle-hover rounded-r-75 flex-1 px-75 py-75 transition">
+            <button
+              data-tutorial="study-profile-button"
+              className="hover:bg-fill-neutral-subtle-hover rounded-r-75 flex-1 px-75 py-75 transition"
+            >
               프로필 보기
             </button>
           }

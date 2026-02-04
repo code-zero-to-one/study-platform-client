@@ -78,7 +78,7 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
         ) : (
           <span className="rounded-50 bg-fill-information-subtle-default text-text-information inline-flex items-center gap-50 px-150 py-25 text-[12px] font-medium">
             <User className="h-3 w-3" />
-            답변자
+            지원자
           </span>
         )}
       </div>
