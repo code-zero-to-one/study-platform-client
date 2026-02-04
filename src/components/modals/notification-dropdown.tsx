@@ -34,7 +34,9 @@ export default function NotificationDropdown() {
 
   const { mutate: readNotifications } = useReadNotifications();
 
-  const handleNotificationClick = (notification: MemberNotificationResponse) => {
+  const handleNotificationClick = (
+    notification: MemberNotificationResponse,
+  ) => {
     if (!notification.isRead) {
       readNotifications([notification.id]);
     }
@@ -94,9 +96,9 @@ export default function NotificationDropdown() {
             </div>
           ) : (
             <NotificationList
-                notifications={notifications}
-                onNotificationClick={handleNotificationClick}
-              />
+              notifications={notifications}
+              onNotificationClick={handleNotificationClick}
+            />
           )}
         </div>
 
