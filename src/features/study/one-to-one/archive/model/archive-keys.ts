@@ -8,7 +8,7 @@ export const ARCHIVE_QUERY_KEYS = {
     [...ARCHIVE_QUERY_KEYS.all, 'search-suggestions'] as const,
   searchSuggestionList: (params: {
     q: string;
-    limit: number;
+    size: number;
     minLength: number;
   }) => [...ARCHIVE_QUERY_KEYS.searchSuggestions(), params] as const,
 };

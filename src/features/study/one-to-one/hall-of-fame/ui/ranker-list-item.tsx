@@ -16,7 +16,11 @@ export default function RankerListItem({ ranker }: RankerListItemProps) {
     <UserProfileModal
       memberId={ranker.userId}
       trigger={
-        <div className="group bg-background-default border-border-subtle rounded-150 shadow-1 hover:shadow-2 hover:border-border-default flex cursor-pointer items-center gap-300 border p-250 transition-all">
+        <button
+          type="button"
+          aria-label={`${ranker.nickname} 프로필 보기`}
+          className="group bg-background-default border-border-subtle rounded-150 shadow-1 hover:shadow-2 hover:border-border-default flex w-full cursor-pointer items-center gap-300 border p-250 text-left transition-all"
+        >
           <div className="flex w-[50px] shrink-0 items-center justify-center">
             <RankBadge rank={ranker.rank} />
           </div>
@@ -57,7 +61,7 @@ export default function RankerListItem({ ranker }: RankerListItemProps) {
               {ranker.scoreLabel}
             </div>
           </div>
-        </div>
+        </button>
       }
     />
   );

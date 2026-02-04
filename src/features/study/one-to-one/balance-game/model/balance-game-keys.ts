@@ -11,12 +11,12 @@ export const BALANCE_GAME_QUERY_KEYS = {
   detail: (id: number) => [...BALANCE_GAME_QUERY_KEYS.details(), id] as const,
   comments: (id: number) =>
     [...BALANCE_GAME_QUERY_KEYS.detail(id), 'comments'] as const,
-  tags: (query: string, limit: number, minLength: number, sort: string) =>
+  tags: (query: string, size: number, minLength: number, sort: string) =>
     [
       ...BALANCE_GAME_QUERY_KEYS.all,
       'tags',
       query,
-      limit,
+      size,
       minLength,
       sort,
     ] as const,

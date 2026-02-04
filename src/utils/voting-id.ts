@@ -10,5 +10,15 @@ export const decodeVotingId = (hash: string) => {
   const decoded = hashids.decode(hash);
   const id = decoded[0];
 
-  return typeof id === 'number' && Number.isFinite(id) ? id : null;
+  if (typeof id === 'number') {
+    return Number.isFinite(id) ? id : null;
+  }
+
+  if (typeof id === 'bigint') {
+    const asNumber = Number(id);
+
+    return Number.isSafeInteger(asNumber) ? asNumber : null;
+  }
+
+  return null;
 };

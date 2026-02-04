@@ -165,17 +165,17 @@ export const deleteBalanceGame = async (gameId: number): Promise<void> => {
 export const getBalanceGameTagSuggestions = async (params: {
   q?: string;
   minLength?: number;
-  limit?: number;
+  size?: number;
   sort?: 'popular' | 'alphabetical';
 }): Promise<BalanceGameTagSuggestion[]> => {
-  const { q, minLength = 1, limit = 10, sort = 'popular' } = params;
+  const { q, minLength = 1, size = 10, sort = 'popular' } = params;
   const response = await axiosInstance.get<
     ApiResponse<{
       suggestions?: BalanceGameTagSuggestion[] | string[];
       tags?: BalanceGameTagSuggestion[] | string[];
     }>
   >('/balance-games/tags', {
-    params: { q, minLength, limit, sort },
+    params: { q, minLength, size, sort },
   });
 
   const payload =

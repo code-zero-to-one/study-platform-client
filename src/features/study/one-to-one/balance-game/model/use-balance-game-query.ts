@@ -102,21 +102,21 @@ export const useBalanceGameCommentsQuery = (
 export const useBalanceGameTagSuggestionsQuery = (
   query: string,
   options?: {
-    limit?: number;
+    size?: number;
     enabled?: boolean;
     minLength?: number;
     sort?: 'popular' | 'alphabetical';
   },
 ) => {
-  const limit = options?.limit ?? 10;
+  const size = options?.size ?? 10;
   const minLength = options?.minLength ?? 1;
   const sort = options?.sort ?? 'popular';
   const enabled = options?.enabled ?? query.trim().length >= minLength;
 
   return useQuery({
-    queryKey: BALANCE_GAME_QUERY_KEYS.tags(query, limit, minLength, sort),
+    queryKey: BALANCE_GAME_QUERY_KEYS.tags(query, size, minLength, sort),
     queryFn: () =>
-      getBalanceGameTagSuggestions({ q: query, limit, minLength, sort }),
+      getBalanceGameTagSuggestions({ q: query, size, minLength, sort }),
     enabled,
     staleTime: 60_000,
   });

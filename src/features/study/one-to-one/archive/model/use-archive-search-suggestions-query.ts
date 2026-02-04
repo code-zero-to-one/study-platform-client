@@ -5,22 +5,22 @@ import { ARCHIVE_QUERY_KEYS } from '@/features/study/one-to-one/archive/model/ar
 export const useArchiveSearchSuggestionsQuery = (
   query: string,
   options?: {
-    limit?: number;
+    size?: number;
     minLength?: number;
     enabled?: boolean;
   },
 ) => {
-  const limit = options?.limit ?? 10;
+  const size = options?.size ?? 10;
   const minLength = options?.minLength ?? 1;
   const enabled = options?.enabled ?? query.trim().length >= minLength;
 
   return useQuery({
     queryKey: ARCHIVE_QUERY_KEYS.searchSuggestionList({
       q: query,
-      limit,
+      size,
       minLength,
     }),
-    queryFn: () => getArchiveSearchSuggestions({ q: query, limit, minLength }),
+    queryFn: () => getArchiveSearchSuggestions({ q: query, size, minLength }),
     enabled,
     staleTime: 60_000,
   });

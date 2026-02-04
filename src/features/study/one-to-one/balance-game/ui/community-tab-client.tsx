@@ -92,7 +92,7 @@ export default function CommunityTabClient({
   const trimmedTagQuery = debouncedTagQuery.trim();
   const { data: tagSuggestions = [], isFetching: isTagLoading } =
     useBalanceGameTagSuggestionsQuery(trimmedTagQuery, {
-      limit: 10,
+      size: 10,
       enabled: trimmedTagQuery.length >= BALANCE_GAME_TAG_MIN_QUERY_LEN,
       minLength: BALANCE_GAME_TAG_MIN_QUERY_LEN,
       sort: 'popular',

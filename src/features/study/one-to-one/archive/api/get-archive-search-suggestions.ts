@@ -15,7 +15,7 @@ const isArchiveSearchSuggestionResponse = (
 export const getArchiveSearchSuggestions = async ({
   q,
   minLength = 1,
-  limit = 10,
+  size = 10,
 }: GetArchiveSearchSuggestionsParams): Promise<ArchiveSearchSuggestionResponse> => {
   const response = await axiosInstance.get<
     | ArchiveSearchSuggestionResponse
@@ -27,7 +27,7 @@ export const getArchiveSearchSuggestions = async ({
         message?: string;
       }
   >('/archive/suggestions', {
-    params: { q, minLength, limit },
+    params: { q, minLength, size },
   });
 
   const payload =
