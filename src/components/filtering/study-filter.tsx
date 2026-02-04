@@ -167,15 +167,16 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
       type: [],
       targetRoles: [],
       method: [],
-      recruiting: false,
+      recruiting: true, // 기본값: 모집 중만 보기
     });
   }, [onChange]);
 
+  // recruiting은 기본값이므로 필터로 간주하지 않음
   const hasAnyFilter =
     values.type.length > 0 ||
     values.targetRoles.length > 0 ||
     values.method.length > 0 ||
-    values.recruiting;
+    !values.recruiting; // recruiting이 false면 필터 적용 중
 
   return (
     <div className="flex items-center gap-100">
