@@ -58,6 +58,11 @@ export default function Step1OpenGroupStudy() {
     control,
   });
 
+  const shouldFilterMentoring = classification === 'GROUP_STUDY';
+  const filteredStudyTypes = shouldFilterMentoring
+    ? STUDY_TYPES.filter((type) => type !== 'MENTORING')
+    : STUDY_TYPES;
+
   return (
     <>
       <div className="font-designer-20b text-text-default">기본 정보 설정</div>
@@ -74,7 +79,7 @@ export default function Step1OpenGroupStudy() {
           value={typeField.value}
           onValueChange={typeField.onChange}
         >
-          {STUDY_TYPES.map((type) => (
+          {filteredStudyTypes.map((type) => (
             <div key={type} className="flex items-center gap-100">
               <RadioGroupItem value={type} id={`study-type-${type}`} />
               <label
