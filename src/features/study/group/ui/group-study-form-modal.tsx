@@ -87,11 +87,23 @@ export default function GroupStudyFormModal({
   const refineStudyDetail = (value: GroupStudyFullResponseDto) => {
     if (isLoading) return;
 
+    const refinedClassification =
+      value.basicInfo?.classification ?? classification;
+    const originalType = value.basicInfo?.type;
+
+    let refinedType = originalType;
+    if (
+      refinedClassification === 'GROUP_STUDY' &&
+      originalType === 'MENTORING'
+    ) {
+      refinedType = undefined;
+    }
+
     return {
-      classification: value.basicInfo?.classification ?? classification,
+      classification: refinedClassification,
       studyLeaderParticipation:
         value.basicInfo.studyLeaderParticipation ?? false,
-      type: value.basicInfo?.type,
+      type: refinedType,
       targetRoles: value.basicInfo?.targetRoles,
       maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
       experienceLevels: value.basicInfo?.experienceLevels,
