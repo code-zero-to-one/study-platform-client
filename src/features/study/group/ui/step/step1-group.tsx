@@ -1,6 +1,7 @@
 'use client';
 
 import { addDays } from 'date-fns';
+import { useEffect } from 'react';
 import {
   Controller,
   useController,
@@ -58,10 +59,10 @@ export default function Step1OpenGroupStudy() {
     control,
   });
 
-  const shouldFilterMentoring = classification === 'GROUP_STUDY';
-  const filteredStudyTypes = shouldFilterMentoring
-    ? STUDY_TYPES.filter((type) => type !== 'MENTORING')
-    : STUDY_TYPES;
+  const filteredStudyTypes =
+    classification === 'GROUP_STUDY'
+      ? STUDY_TYPES.filter((type) => type !== 'MENTORING')
+      : STUDY_TYPES;
 
   return (
     <>
@@ -86,7 +87,7 @@ export default function Step1OpenGroupStudy() {
                 htmlFor={`study-type-${type}`}
                 className="font-designer-14m text-text-default"
               >
-                {STUDY_TYPE_LABELS[type]}
+                {STUDY_TYPE_LABELS[type as keyof typeof STUDY_TYPE_LABELS]}
               </label>
             </div>
           ))}
