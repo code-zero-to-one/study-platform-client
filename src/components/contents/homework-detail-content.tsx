@@ -192,7 +192,7 @@ function EvaluationResult({ evaluation }: { evaluation: EvaluationResponse }) {
       </div>
       <div className="flex flex-col gap-100">
         <span className="font-designer-14b text-text-default">평가 코멘트</span>
-        <p className="text-text-default font-designer-14r">
+        <p className="text-text-default font-designer-14r wrap-anywhere whitespace-pre-wrap">
           {evaluation.comment}
         </p>
       </div>
@@ -432,7 +432,9 @@ function PeerReviewItem({ review, homeworkId }: PeerReviewItemProps) {
           </div>
         </div>
       ) : (
-        <p className="text-text-default font-designer-14r">{review.comment}</p>
+        <p className="text-text-default font-designer-14r wrap-anywhere whitespace-pre-wrap">
+          {review.comment}
+        </p>
       )}
     </div>
   );
