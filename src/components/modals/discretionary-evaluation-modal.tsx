@@ -108,7 +108,10 @@ function DiscretionaryEvaluationForm({
           onClose();
         },
         onError: () => {
-          showToast('재량 평가 제출에 실패했습니다. 다시 시도해주세요.', 'error');
+          showToast(
+            '재량 평가 제출에 실패했습니다. 다시 시도해주세요.',
+            'error',
+          );
         },
       },
     );
