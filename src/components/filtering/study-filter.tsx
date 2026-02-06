@@ -26,7 +26,6 @@ interface StudyFilterProps {
 // 스터디 유형 옵션
 const STUDY_TYPE_OPTIONS = [
   { value: 'PROJECT', label: '프로젝트' },
-  { value: 'MENTORING', label: '멘토링' },
   { value: 'SEMINAR', label: '세미나' },
   { value: 'CHALLENGE', label: '챌린지' },
   { value: 'BOOK_STUDY', label: '북스터디' },
