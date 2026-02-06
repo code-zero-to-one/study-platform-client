@@ -35,6 +35,7 @@ CI 파이프라인: lint → typecheck → prettier → build → build-storyboo
 ### API 레이어
 
 **백엔드 API 문서 (Swagger):**
+
 - 스테이징: https://test-api.zeroone.it.kr/v3/api-docs
 - Swagger UI: https://test-api.zeroone.it.kr/swagger-ui/index.html
 
