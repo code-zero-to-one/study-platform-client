@@ -12,6 +12,7 @@ import {
   useGetMissionEvaluationGrades,
   useUpdateEvaluation,
 } from '@/hooks/queries/evaluation-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import { TextAreaInput } from '../ui/input';
 
 const EditEvaluationFormSchema = z.object({
@@ -99,6 +100,7 @@ function EditEvaluationForm({
 
   const { data: grades } = useGetMissionEvaluationGrades();
   const { mutate: updateEvaluation } = useUpdateEvaluation();
+  const showToast = useToastStore((state) => state.showToast);
 
   const onValidSubmit = (values: EditEvaluationFormValues) => {
     updateEvaluation(
@@ -108,11 +110,11 @@ function EditEvaluationForm({
       },
       {
         onSuccess: () => {
-          alert('평가가 성공적으로 수정되었습니다!');
+          showToast('평가가 성공적으로 수정되었습니다!');
           onClose();
         },
         onError: () => {
-          alert('평가 수정에 실패했습니다. 다시 시도해주세요.');
+          showToast('평가 수정에 실패했습니다. 다시 시도해주세요.', 'error');
         },
       },
     );

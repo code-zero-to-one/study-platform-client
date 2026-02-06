@@ -34,6 +34,11 @@ CI 파이프라인: lint → typecheck → prettier → build → build-storyboo
 
 ### API 레이어
 
+**백엔드 API 문서 (Swagger):**
+
+- 스테이징: https://test-api.zeroone.it.kr/v3/api-docs
+- Swagger UI: https://test-api.zeroone.it.kr/swagger-ui/index.html
+
 두 가지 통신 패턴이 공존:
 
 1. **레거시 axios** (`src/api/client/axios.ts`): baseURL `/api/v1/`, 토큰 갱신 큐 구현 (AUTH001 에러 시 갱신 트리거). 커스텀 엔드포인트에 사용.

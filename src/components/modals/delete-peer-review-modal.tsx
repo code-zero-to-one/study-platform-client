@@ -1,4 +1,5 @@
 import { useDeletePeerReview } from '@/hooks/queries/peer-review-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
@@ -15,15 +16,16 @@ export default function DeletePeerReviewModal({
   onOpenChange,
 }: DeletePeerReviewModalProps) {
   const { mutate: deletePeerReview } = useDeletePeerReview();
+  const showToast = useToastStore((state) => state.showToast);
 
   const handleDelete = () => {
     deletePeerReview(peerReviewId, {
       onSuccess: () => {
-        alert('피어 리뷰가 삭제되었습니다!');
+        showToast('피어 리뷰가 삭제되었습니다!');
         onOpenChange(false);
       },
       onError: () => {
-        alert('피어 리뷰 삭제에 실패했습니다. 다시 시도해주세요.');
+        showToast('피어 리뷰 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
       },
     });
   };

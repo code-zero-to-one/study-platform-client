@@ -33,6 +33,7 @@ import {
   toJoinStudyRequest,
 } from '@/features/study/participation/model/start-study-form.schema';
 import { useJoinStudyMutation } from '@/features/study/participation/model/use-participation-query';
+import { useToastStore } from '@/stores/use-toast-store';
 
 interface StartStudyModalProps {
   memberId: number;
@@ -200,6 +201,7 @@ function StartStudyForm({
   const { mutate: updateProfile } = useUpdateUserProfileMutation(memberId);
   const { mutate: updateProfileInfo } =
     useUpdateUserProfileInfoMutation(memberId);
+  const showToast = useToastStore((state) => state.showToast);
 
   const { data: profile } = useUserProfileQuery(memberId);
 
@@ -351,7 +353,7 @@ function StartStudyForm({
               available_times_count: values.availableStudyTimeIds.length,
               tech_stacks_count: values.techStackIds.length,
             });
-            alert('스터디 신청이 완료되었습니다!');
+            showToast('스터디 신청이 완료되었습니다!');
             onClose();
             router.refresh();
           },
@@ -360,7 +362,10 @@ function StartStudyForm({
               event: 'study_apply_error',
               location: 'home',
             });
-            alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            showToast(
+              '스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.',
+              'error',
+            );
           },
         });
       })
@@ -375,7 +380,7 @@ function StartStudyForm({
               available_times_count: values.availableStudyTimeIds.length,
               tech_stacks_count: values.techStackIds.length,
             });
-            alert('스터디 신청이 완료되었습니다!');
+            showToast('스터디 신청이 완료되었습니다!');
             onClose();
             router.refresh();
           },
@@ -384,7 +389,10 @@ function StartStudyForm({
               event: 'study_apply_error',
               location: 'home',
             });
-            alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            showToast(
+              '스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.',
+              'error',
+            );
           },
         });
       });

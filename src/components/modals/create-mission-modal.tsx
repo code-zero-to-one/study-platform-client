@@ -11,6 +11,7 @@ import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
 import { useCreateMission, useGetMissions } from '@/hooks/queries/mission-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import {
   createDisabledDateMatcherForMission,
   MissionPeriod,
@@ -129,6 +130,7 @@ function CreateMissionForm({
   const { handleSubmit, formState, control } = methods;
 
   const { mutate: createMission } = useCreateMission();
+  const showToast = useToastStore((state) => state.showToast);
 
   const onValidSubmit = (values: CreateMissionFormValues) => {
     const startDate = dayjs(values.dateRange.from).format('YYYY-MM-DD');
@@ -148,11 +150,11 @@ function CreateMissionForm({
       },
       {
         onSuccess: () => {
-          alert('미션이 성공적으로 생성되었습니다!');
+          showToast('미션이 성공적으로 생성되었습니다!');
           onClose();
         },
         onError: () => {
-          alert('미션 생성에 실패했습니다. 다시 시도해주세요.');
+          showToast('미션 생성에 실패했습니다. 다시 시도해주세요.', 'error');
         },
       },
     );

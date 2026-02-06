@@ -7,6 +7,7 @@ import Button from '@/components/ui/button';
 import FormField from '@/components/ui/form/form-field';
 import { Modal } from '@/components/ui/modal';
 import { useUpdateMemberDiscretion } from '@/hooks/queries/group-study-member-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import { TextAreaInput } from '../ui/input';
 
 const DiscretionaryEvaluationFormSchema = z.object({
@@ -89,8 +90,8 @@ function DiscretionaryEvaluationForm({
 
   const { handleSubmit, formState } = methods;
 
-  // TODO: API hook 연결 필요
   const { mutate: updateMemberDiscretion } = useUpdateMemberDiscretion();
+  const showToast = useToastStore((state) => state.showToast);
 
   const onValidSubmit = (values: DiscretionaryEvaluationFormValues) => {
     updateMemberDiscretion(
@@ -103,11 +104,14 @@ function DiscretionaryEvaluationForm({
       },
       {
         onSuccess: () => {
-          alert('재량 평가가 성공적으로 제출되었습니다!');
+          showToast('재량 평가가 성공적으로 제출되었습니다!');
           onClose();
         },
         onError: () => {
-          alert('재량 평가 제출에 실패했습니다. 다시 시도해주세요.');
+          showToast(
+            '재량 평가 제출에 실패했습니다. 다시 시도해주세요.',
+            'error',
+          );
         },
       },
     );
