@@ -47,7 +47,7 @@ export default function ProfileCard(props: ProfileCardProps) {
         <UserProfileModal
           memberId={applicant.applicantInfo.memberId}
           trigger={
-            <div className="relative h-[48px] w-[48px] shrink-0 cursor-pointer overflow-hidden rounded-full">
+            <div className="relative h-600 w-600 shrink-0 cursor-pointer overflow-hidden rounded-full">
               <Image
                 src={
                   applicant.applicantInfo.profileImage?.resizedImages[0]

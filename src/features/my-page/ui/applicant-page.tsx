@@ -8,6 +8,7 @@ import {
   useApplicantsByStatusQuery,
   useUpdateApplicantByStatusMutation,
 } from '@/features/study/group/application/model/use-applicant-qeury';
+import { useToastStore } from '@/stores/use-toast-store';
 import ProfileCard from './profile-card';
 
 interface ApplicantListProps {
@@ -21,7 +22,9 @@ export default function ApplicantPage(props: ApplicantListProps) {
     status: 'PENDING',
   });
 
-  const { mutate, isPending } = useUpdateApplicantByStatusMutation();
+  const { mutate } = useUpdateApplicantByStatusMutation();
+
+  const showToast = useToastStore((state) => state.showToast);
 
   const handleApprove = (
     studyId: number,
@@ -36,7 +39,7 @@ export default function ApplicantPage(props: ApplicantListProps) {
       },
       {
         onSuccess: async () => {
-          alert('적용되었습니다.');
+          showToast('적용되었습니다.');
           await refetch();
         },
         onError: (err) => console.log(err),
