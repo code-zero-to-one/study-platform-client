@@ -7,6 +7,7 @@ import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import { Leader } from '../../features/study/group/api/group-study-types';
 import ChannelSection from '../../features/study/group/channel/ui/lounge-section';
@@ -36,6 +37,7 @@ export default function StudyDetailPage({
   const router = useRouter();
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
+  const showToast = useToastStore((state) => state.showToast);
 
   const tabFromUrl = searchParams.get('tab') as StudyTabValue | null;
 
@@ -85,11 +87,11 @@ export default function StudyDetailPage({
                 event: 'group_study_end',
                 group_study_id: String(groupStudyId),
               });
-              alert('스터디가 종료되었습니다.');
+              showToast('스터디가 종료되었습니다.');
               router.push('/group-study');
             },
             onError: () => {
-              alert('스터디 종료에 실패하였습니다.');
+              showToast('스터디 종료에 실패하였습니다.', 'error');
             },
             onSettled: () => {
               setShowModal(false);
@@ -116,11 +118,11 @@ export default function StudyDetailPage({
                 event: 'group_study_delete',
                 group_study_id: String(groupStudyId),
               });
-              alert('스터디가 삭제되었습니다.');
+              showToast('스터디가 삭제되었습니다.');
               router.push('/group-study');
             },
             onError: () => {
-              alert('스터디 삭제에 실패하였습니다.');
+              showToast('스터디 삭제에 실패하였습니다.', 'error');
             },
             onSettled: () => {
               setShowModal(false);

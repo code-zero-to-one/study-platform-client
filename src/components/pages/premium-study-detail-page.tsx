@@ -11,6 +11,7 @@ import {
   Leader,
 } from '@/features/study/group/api/group-study-types';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import ChannelSection from '../../features/study/group/channel/ui/lounge-section';
 import {
@@ -39,6 +40,7 @@ export default function PremiumStudyDetailPage({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
+  const showToast = useToastStore((state) => state.showToast);
 
   const activeTab = (searchParams.get('tab') as StudyTabValue) || 'intro';
 
@@ -89,7 +91,7 @@ export default function PremiumStudyDetailPage({
                 event: 'premium_study_end',
                 group_study_id: String(groupStudyId),
               });
-              alert('스터디가 종료되었습니다.');
+              showToast('스터디가 종료되었습니다.');
             },
             onSettled: () => {
               setShowModal(false);
@@ -117,10 +119,10 @@ export default function PremiumStudyDetailPage({
                 event: 'premium_study_delete',
                 group_study_id: String(groupStudyId),
               });
-              alert('스터디가 삭제되었습니다.');
+              showToast('스터디가 삭제되었습니다.');
             },
             onError: () => {
-              alert('스터디 삭제에 실패하였습니다.');
+              showToast('스터디 삭제에 실패하였습니다.', 'error');
             },
             onSettled: () => {
               refetchStudyDetail().catch(() => {});

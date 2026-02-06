@@ -10,6 +10,7 @@ import Button from '@/components/ui/button';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { useToastStore } from '@/stores/use-toast-store';
 import { GroupStudyNoticeRequest } from '../api/group-study-types';
 import {
   buildGroupStudyNoticeDefaults,
@@ -66,6 +67,7 @@ function GroupStudyNoticeForm({
 }) {
   const qc = useQueryClient();
   const { mutate: groupStudyNotice, isPending } = useGroupStudyNoticeMutation();
+  const showToast = useToastStore((state) => state.showToast);
 
   const methods = useForm<GroupStudyNoticeFormValues>({
     resolver: zodResolver(GroupStudyNoticeFormSchema),
@@ -90,15 +92,18 @@ function GroupStudyNoticeForm({
       { groupStudyId, payload: form },
       {
         onSuccess: async () => {
-          alert(`스터디 공지가 ${type === 'add' ? '등록' : '수정'}되었습니다!`);
+          showToast(
+            `스터디 공지가 ${type === 'add' ? '등록' : '수정'}되었습니다!`,
+          );
           onClose();
           await qc.invalidateQueries({
             queryKey: ['post', groupStudyId],
           });
         },
         onError: () => {
-          alert(
+          showToast(
             `공지 ${type === 'add' ? '등록' : '수정'} 중 오류가 발생했습니다. 다시 시도해 주세요.`,
+            'error',
           );
         },
       },

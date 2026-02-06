@@ -15,6 +15,7 @@ import {
   useGetMissions,
   useUpdateMission,
 } from '@/hooks/queries/mission-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import {
   createDisabledDateMatcherForMission,
   MissionPeriod,
@@ -165,6 +166,7 @@ function EditMissionForm({
   }, [missionData, reset]);
 
   const { mutate: updateMission } = useUpdateMission();
+  const showToast = useToastStore((state) => state.showToast);
 
   const onValidSubmit = (values: EditMissionFormValues) => {
     const startDate = dayjs(values.dateRange.from).format('YYYY-MM-DD');
@@ -184,11 +186,11 @@ function EditMissionForm({
       },
       {
         onSuccess: () => {
-          alert('미션이 성공적으로 수정되었습니다!');
+          showToast('미션이 성공적으로 수정되었습니다!');
           onClose();
         },
         onError: () => {
-          alert('미션 수정에 실패했습니다. 다시 시도해주세요.');
+          showToast('미션 수정에 실패했습니다. 다시 시도해주세요.', 'error');
         },
       },
     );

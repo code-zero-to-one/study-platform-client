@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { MissionListResponse } from '@/api/openapi';
 import { useDeleteMission } from '@/hooks/queries/mission-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import Button from '../ui/button';
 import { Modal } from '../ui/modal';
 
@@ -20,18 +21,19 @@ export default function DeleteMissionModal({
   const [open, setOpen] = useState<boolean>(false);
 
   const { mutate: deleteMission } = useDeleteMission();
+  const showToast = useToastStore((state) => state.showToast);
 
   const handleDelete = () => {
     deleteMission(
       { missionId, groupStudyId },
       {
         onSuccess: () => {
-          alert('미션이 성공적으로 삭제되었습니다!');
+          showToast('미션이 성공적으로 삭제되었습니다!');
           setOpen(false);
           onSuccess?.();
         },
         onError: () => {
-          alert('미션 삭제에 실패했습니다. 다시 시도해주세요.');
+          showToast('미션 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
         },
       },
     );

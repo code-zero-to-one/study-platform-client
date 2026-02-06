@@ -9,6 +9,7 @@ import Button from '@/components/ui/button';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
 import {
   EXPERIENCE_LEVEL_LABELS,
@@ -28,6 +29,7 @@ export default function SummaryStudyInfo({ data }: Props) {
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(false);
   const memberId = useUserStore((state) => state.memberId);
+  const showToast = useToastStore((state) => state.showToast);
 
   const { basicInfo, detailInfo, interviewPost } = data;
   const {
@@ -124,7 +126,7 @@ export default function SummaryStudyInfo({ data }: Props) {
 
   const handleCopyURL = async () => {
     await navigator.clipboard.writeText(window.location.href);
-    alert('스터디 링크가 복사되었습니다!');
+    showToast('스터디 링크가 복사되었습니다!');
   };
 
   const handleApplySuccess = async () => {
