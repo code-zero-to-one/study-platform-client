@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 
 import { GroupStudyFullResponseDto } from '@/api/openapi';
 import { Modal } from '@/components/ui/modal';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import GroupStudyForm from './group-study-form';
 
@@ -57,7 +57,8 @@ export default function GroupStudyFormModal({
     refetch: refetchGroupStudyInfo,
   } = useGroupStudyDetailQuery(groupStudyId!);
 
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  // 서버 상태와 동기화된 인증 상태 사용
+  const { isVerified, setVerified } = usePhoneVerificationStatus();
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const handleVerificationComplete = (phoneNumber: string) => {

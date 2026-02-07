@@ -8,7 +8,7 @@ import { useController, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { Modal } from '@/components/ui/modal';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import { useToastStore } from '@/stores/use-toast-store';
 import { GroupStudyDetailResponse } from '../api/group-study-types';
@@ -34,7 +34,8 @@ export default function ApplyGroupStudyModal({
   onSuccess,
 }: ApplyGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  // 서버 상태와 동기화된 인증 상태 사용
+  const { isVerified, setVerified } = usePhoneVerificationStatus();
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const handleOpenChange = (isOpen: boolean) => {
