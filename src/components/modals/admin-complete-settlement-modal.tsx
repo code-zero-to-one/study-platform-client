@@ -19,15 +19,15 @@ export default function AdminCompleteSettlementModal({
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="small" className="w-[423px]">
-          <Modal.Header className="border-border-default flex justify-center border-b">
+          <Modal.Header variant="alert">
             <Modal.Title>정산 완료하기</Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="font-designer-14r text-text-default flex justify-center py-250">
-            <span>정산을 완료하시겠습니까?</span>
+          <Modal.Body variant="alert">
+            <span className="font-designer-14r">정산을 완료하시겠습니까?</span>
           </Modal.Body>
 
-          <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
+          <Modal.Footer variant="alert">
             <Button
               color="secondary"
               className="w-[160px]"

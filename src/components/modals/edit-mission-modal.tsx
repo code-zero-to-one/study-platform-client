@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
-import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -74,13 +73,11 @@ export default function EditMissionModal({
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content className="w-[840px]">
-          <Modal.Header className="border-border-default flex justify-between border-b">
+          <Modal.Header variant="form">
             <Modal.Title className="font-designer-20b text-text-strong">
               미션 수정
             </Modal.Title>
-            <Modal.Close onClick={() => setOpen(false)}>
-              <XIcon />
-            </Modal.Close>
+            <Modal.CloseButton onClick={() => setOpen(false)} />
           </Modal.Header>
 
           {isLoading ? (
@@ -198,7 +195,7 @@ function EditMissionForm({
 
   return (
     <FormProvider {...methods}>
-      <Modal.Body className="flex flex-col gap-400 px-400 py-300">
+      <Modal.Body variant="form">
         <form
           id="edit-mission"
           className="flex flex-col gap-300"
@@ -286,7 +283,7 @@ function EditMissionForm({
         </form>
       </Modal.Body>
 
-      <Modal.Footer className="flex items-center justify-between">
+      <Modal.Footer variant="form" className="justify-between">
         <span className="font-designer-13r text-text-error">
           미션이 시작되기 전까지 수정이 가능합니다.
         </span>

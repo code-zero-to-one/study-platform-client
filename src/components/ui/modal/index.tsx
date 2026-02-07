@@ -1,6 +1,7 @@
 'use client';
 
 import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { XIcon } from 'lucide-react';
 import React from 'react';
 
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
@@ -14,6 +15,13 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/(shadcn)/ui/dialog';
+
+/**
+ * Modal variant types:
+ * - 'alert': 확인/삭제형 모달 (w-[423px], 중앙 정렬, 작은 패딩)
+ * - 'form': 폼 입력 모달 (w-[840px], 양끝 정렬, 큰 패딩)
+ */
+export type ModalVariant = 'alert' | 'form';
 
 function ModalRoot({
   ...props
@@ -113,31 +121,78 @@ function ModalContent({
   );
 }
 
-function ModalHeader({ className, ...props }: React.ComponentProps<'div'>) {
+function ModalHeader({
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<'div'> & {
+  variant?: ModalVariant;
+}) {
+  const variantClass = {
+    alert: 'border-border-default flex justify-center border-b py-200',
+    form: 'border-border-default flex justify-between border-b',
+  };
+
   return (
     <div
       data-slot="modal-header"
-      className={cn('px-400 pt-400 pb-300', className)}
+      className={cn(
+        'px-400 pt-400 pb-300',
+        variant && variantClass[variant],
+        className,
+      )}
       {...props}
     />
   );
 }
 
-function ModalBody({ className, ...props }: React.ComponentProps<'div'>) {
+function ModalBody({
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<'div'> & {
+  variant?: ModalVariant;
+}) {
+  const variantClass = {
+    alert:
+      'font-designer-14r text-text-default flex justify-center py-250 text-center',
+    form: 'flex flex-col gap-400 px-400 py-300',
+  };
+
   return (
     <div
       data-slot="modal-body"
-      className={cn('overflow-auto px-400 py-300', 'flex-1', className)}
+      className={cn(
+        'overflow-auto px-400 py-300',
+        'flex-1',
+        variant && variantClass[variant],
+        className,
+      )}
       {...props}
     />
   );
 }
 
-function ModalFooter({ className, ...props }: React.ComponentProps<'div'>) {
+function ModalFooter({
+  className,
+  variant,
+  ...props
+}: React.ComponentProps<'div'> & {
+  variant?: ModalVariant;
+}) {
+  const variantClass = {
+    alert: 'flex justify-center gap-200 border-t-0 py-250',
+    form: 'flex justify-end gap-100',
+  };
+
   return (
     <div
       data-slot="modal-footer"
-      className={cn('border-border-default border-t px-400 py-200', className)}
+      className={cn(
+        'border-border-default border-t px-400 py-200',
+        variant && variantClass[variant],
+        className,
+      )}
       {...props}
     />
   );
@@ -156,6 +211,29 @@ function ModalTitle({
   );
 }
 
+/**
+ * Form 모달 헤더 닫기 버튼 컴포넌트
+ * form variant 사용 시 헤더에 X 버튼 추가용
+ */
+function ModalCloseButton({
+  className,
+  onClick,
+  ...props
+}: React.ComponentProps<typeof DialogPrimitive.Close> & {
+  className?: string;
+}) {
+  return (
+    <DialogClose
+      data-slot="modal-close-button"
+      className={cn('cursor-pointer', className)}
+      onClick={onClick}
+      {...props}
+    >
+      <XIcon />
+    </DialogClose>
+  );
+}
+
 export const Modal = {
   Root: ModalRoot,
   Trigger: ModalTrigger,
@@ -167,4 +245,5 @@ export const Modal = {
   Footer: ModalFooter,
   Body: ModalBody,
   Title: ModalTitle,
+  CloseButton: ModalCloseButton,
 } as const;

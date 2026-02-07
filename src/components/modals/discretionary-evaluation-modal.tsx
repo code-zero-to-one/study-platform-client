@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -44,7 +43,7 @@ export default function DiscretionaryEvaluationModal({
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content className="w-[840px]">
-          <Modal.Header className="border-border-default flex justify-between border-b">
+          <Modal.Header variant="form">
             <div className="flex flex-col gap-50">
               <Modal.Title className="font-designer-20b text-text-strong">
                 재량 평가
@@ -53,9 +52,7 @@ export default function DiscretionaryEvaluationModal({
                 재량 평가는 최대 3회까지 가능하며, 각 평가별 5점씩 부여됩니다.
               </p>
             </div>
-            <Modal.Close onClick={() => setOpen(false)}>
-              <XIcon />
-            </Modal.Close>
+            <Modal.CloseButton onClick={() => setOpen(false)} />
           </Modal.Header>
 
           <DiscretionaryEvaluationForm
@@ -119,7 +116,7 @@ function DiscretionaryEvaluationForm({
 
   return (
     <FormProvider {...methods}>
-      <Modal.Body className="flex flex-col gap-400 px-400 py-300">
+      <Modal.Body variant="form">
         <form
           id="discretionary-evaluation"
           className="flex flex-col gap-300"
@@ -143,7 +140,7 @@ function DiscretionaryEvaluationForm({
         </form>
       </Modal.Body>
 
-      <Modal.Footer className="flex justify-end gap-100">
+      <Modal.Footer variant="form">
         <Modal.Close asChild>
           <Button color="secondary" size="large" onClick={onClose}>
             취소

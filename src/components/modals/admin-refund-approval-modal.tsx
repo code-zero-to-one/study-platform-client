@@ -35,19 +35,21 @@ export default function AdminRefundApprovalModal({
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="small" className="w-[423px]">
-          <Modal.Header className="border-border-default flex justify-center border-b">
+          <Modal.Header variant="alert">
             <Modal.Title>환불 승인/반려</Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="font-designer-14r text-text-default flex flex-col items-center gap-100 py-250">
-            <span>{groupStudyName}</span>
-            <span>
+          <Modal.Body variant="alert" className="flex-col gap-100">
+            <span className="font-designer-14r">{groupStudyName}</span>
+            <span className="font-designer-14r">
               {paymentMemberName}({paymentMemberId})
             </span>
-            <span>{transactionAmount.toLocaleString()}원(무통장입금)</span>
+            <span className="font-designer-14r">
+              {transactionAmount.toLocaleString()}원(무통장입금)
+            </span>
           </Modal.Body>
 
-          <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
+          <Modal.Footer variant="alert">
             <Button
               color="secondary"
               className="w-[160px]"

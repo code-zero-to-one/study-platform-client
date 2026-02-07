@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -49,13 +48,11 @@ export default function CreateEvaluationModal({
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content className="w-[840px]">
-          <Modal.Header className="border-border-default flex justify-between border-b">
+          <Modal.Header variant="form">
             <Modal.Title className="font-designer-20b text-text-strong">
               평가하기
             </Modal.Title>
-            <Modal.Close onClick={() => setOpen(false)}>
-              <XIcon />
-            </Modal.Close>
+            <Modal.CloseButton onClick={() => setOpen(false)} />
           </Modal.Header>
 
           <CreateEvaluationForm
@@ -119,7 +116,7 @@ function CreateEvaluationForm({
 
   return (
     <FormProvider {...methods}>
-      <Modal.Body className="flex flex-col gap-400 px-400 py-300">
+      <Modal.Body variant="form">
         <form
           id="create-evaluation"
           className="flex flex-col gap-300"
@@ -155,7 +152,7 @@ function CreateEvaluationForm({
         </form>
       </Modal.Body>
 
-      <Modal.Footer className="flex justify-end gap-100">
+      <Modal.Footer variant="form">
         <Modal.Close asChild>
           <Button color="secondary" size="large" onClick={onClose}>
             취소
