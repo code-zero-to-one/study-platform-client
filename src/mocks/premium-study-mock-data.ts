@@ -1,0 +1,768 @@
+import type { GroupStudyFullResponseDto } from '@/api/openapi';
+import { GroupStudyListItemDto } from '@/api/openapi';
+
+/**
+ * 프로토타입용 하드코딩 멘토스터디 목 데이터
+ * 모든 멘토스터디는 유료이므로 price 필드가 필수
+ */
+
+// 현재 날짜 기준으로 동적 계산
+const now = new Date();
+const in23Hours = new Date(now);
+in23Hours.setHours(in23Hours.getHours() + 23); // 23시간 후
+const tomorrow = new Date(now);
+tomorrow.setDate(tomorrow.getDate() + 1);
+tomorrow.setHours(23, 59, 59); // D-1: 내일 23:59:59
+const twoDaysLater = new Date(now);
+twoDaysLater.setDate(twoDaysLater.getDate() + 2);
+const threeDaysLater = new Date(now);
+threeDaysLater.setDate(threeDaysLater.getDate() + 3);
+const sevenDaysLater = new Date(now);
+sevenDaysLater.setDate(sevenDaysLater.getDate() + 7);
+const thirtyDaysLater = new Date(now);
+thirtyDaysLater.setDate(thirtyDaysLater.getDate() + 30);
+const past = new Date(now);
+past.setDate(past.getDate() - 7);
+
+export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
+  _prototype?: {
+    status: 'RECRUITING' | 'DEADLINE_IMMINENT' | 'IN_PROGRESS' | 'COMPLETED';
+    daysLeft?: number;
+    endDate?: string;
+    viewCount: number;
+    applicantCount: number;
+  };
+})[] = [
+  // 케이스 1: 모집 중 (일반)
+  {
+    basicInfo: {
+      groupStudyId: 1001,
+      classification: 'PREMIUM_STUDY',
+      type: 'PROJECT',
+      targetRoles: ['BACKEND', 'FRONTEND', 'DESIGNER', 'PLANNER'],
+      maxMembersCount: 10,
+      experienceLevels: ['JUNIOR'],
+      method: 'HYBRID',
+      regularMeeting: 'WEEKLY',
+      location: '서울 강남',
+      startDate: past.toISOString(),
+      endDate: thirtyDaysLater.toISOString(),
+      price: 150000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'IN_PROGRESS',
+      pendingCount: 0,
+      approvedCount: 10,
+      rejectedCount: 0,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 101,
+        memberNickname: '김태희 멘토',
+        simpleIntroduction: '스타트업 CTO 출신',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1001,
+        resizedImages: [],
+      },
+      title: '주니어 개발자를 위한 실전 프로젝트 멘토링',
+      summary: '실무에서 바로 쓰는 개발 노하우 전수',
+    },
+    _prototype: {
+      status: 'IN_PROGRESS',
+      viewCount: 1234,
+      applicantCount: 0,
+    },
+  },
+  // 케이스 2: 모집 중 D-3
+  {
+    basicInfo: {
+      groupStudyId: 1002,
+      classification: 'PREMIUM_STUDY',
+      type: 'SEMINAR',
+      targetRoles: ['BACKEND'],
+      maxMembersCount: 15,
+      experienceLevels: ['BEGINNER'],
+      method: 'ONLINE',
+      regularMeeting: 'BIWEEKLY',
+      location: '온라인',
+      startDate: sevenDaysLater.toISOString(),
+      endDate: threeDaysLater.toISOString(),
+      price: 89000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'RECRUITING',
+      pendingCount: 5,
+      approvedCount: 10,
+      rejectedCount: 2,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 102,
+        memberNickname: '박준영 멘토',
+        simpleIntroduction: '백엔드 시니어 개발자',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1002,
+        resizedImages: [],
+      },
+      title: 'Spring Boot 실전 멘토링',
+      summary: '입문자를 위한 체계적인 백엔드 학습',
+    },
+    _prototype: {
+      status: 'DEADLINE_IMMINENT',
+      daysLeft: 3,
+      endDate: threeDaysLater.toISOString(),
+      viewCount: 856,
+      applicantCount: 15,
+    },
+  },
+  // 케이스 3: 모집 중 D-2
+  {
+    basicInfo: {
+      groupStudyId: 1003,
+      classification: 'PREMIUM_STUDY',
+      type: 'CHALLENGE',
+      targetRoles: ['FRONTEND'],
+      maxMembersCount: 12,
+      experienceLevels: ['JUNIOR'],
+      method: 'ONLINE',
+      regularMeeting: 'TRIPLE_WEEKLY_OR_MORE',
+      location: '온라인',
+      startDate: sevenDaysLater.toISOString(),
+      endDate: twoDaysLater.toISOString(),
+      price: 120000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'RECRUITING',
+      pendingCount: 4,
+      approvedCount: 7,
+      rejectedCount: 1,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 103,
+        memberNickname: '이서연 멘토',
+        simpleIntroduction: 'React 전문가',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1003,
+        resizedImages: [],
+      },
+      title: 'React 19 완벽 마스터 챌린지',
+      summary: '최신 React 기능을 실전 프로젝트로 학습',
+    },
+    _prototype: {
+      status: 'DEADLINE_IMMINENT',
+      daysLeft: 2,
+      endDate: twoDaysLater.toISOString(),
+      viewCount: 2103,
+      applicantCount: 11,
+    },
+  },
+  // 케이스 4: 진행 중
+  {
+    basicInfo: {
+      groupStudyId: 1004,
+      classification: 'PREMIUM_STUDY',
+      type: 'SEMINAR',
+      targetRoles: ['DESIGNER', 'PLANNER'],
+      maxMembersCount: 15,
+      experienceLevels: ['MIDDLE', 'SENIOR'],
+      method: 'OFFLINE',
+      regularMeeting: 'WEEKLY',
+      location: '서울 역삼',
+      startDate: past.toISOString(),
+      endDate: thirtyDaysLater.toISOString(),
+      price: 200000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'IN_PROGRESS',
+      pendingCount: 0,
+      approvedCount: 12,
+      rejectedCount: 2,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 104,
+        memberNickname: '최민수 멘토',
+        simpleIntroduction: '프로덕트 디자인 리드',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1004,
+        resizedImages: [],
+      },
+      title: '대규모 서비스 디자인 시스템 구축',
+      summary: '실무 프로덕트 디자이너의 노하우 공유',
+    },
+    _prototype: {
+      status: 'IN_PROGRESS',
+      viewCount: 3421,
+      applicantCount: 0,
+    },
+  },
+  // 케이스 5: 모집 중 - 24시간 미만 카운트다운
+  {
+    basicInfo: {
+      groupStudyId: 1005,
+      classification: 'PREMIUM_STUDY',
+      type: 'BOOK_STUDY',
+      targetRoles: ['BACKEND'],
+      maxMembersCount: 10,
+      experienceLevels: ['MIDDLE'],
+      method: 'ONLINE',
+      regularMeeting: 'WEEKLY',
+      location: '온라인',
+      startDate: sevenDaysLater.toISOString(),
+      endDate: in23Hours.toISOString(),
+      price: 75000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'RECRUITING',
+      pendingCount: 2,
+      approvedCount: 8,
+      rejectedCount: 1,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 105,
+        memberNickname: '한지민 멘토',
+        simpleIntroduction: '아키텍처 전문가',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1005,
+        resizedImages: [],
+      },
+      title: '클린 아키텍처 북스터디',
+      summary: 'Robert C. Martin의 명저로 배우는 아키텍처',
+    },
+    _prototype: {
+      status: 'DEADLINE_IMMINENT',
+      daysLeft: undefined,
+      endDate: in23Hours.toISOString(),
+      viewCount: 542,
+      applicantCount: 10,
+    },
+  },
+  // 케이스 6: 종료
+  {
+    basicInfo: {
+      groupStudyId: 1006,
+      classification: 'PREMIUM_STUDY',
+      type: 'LECTURE_STUDY',
+      targetRoles: ['FRONTEND'],
+      maxMembersCount: 20,
+      experienceLevels: ['BEGINNER'],
+      method: 'ONLINE',
+      regularMeeting: 'BIWEEKLY',
+      location: '온라인',
+      startDate: past.toISOString(),
+      endDate: past.toISOString(),
+      price: 99000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'COMPLETED',
+      pendingCount: 0,
+      approvedCount: 20,
+      rejectedCount: 5,
+      kickedCount: 1,
+      deletedAt: null,
+      leader: {
+        memberId: 106,
+        memberNickname: '정우성 멘토',
+        simpleIntroduction: '프론트엔드 강사',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1006,
+        resizedImages: [],
+      },
+      title: 'JavaScript 완벽 가이드',
+      summary: '기초부터 고급까지 JavaScript 마스터',
+    },
+    _prototype: {
+      status: 'COMPLETED',
+      viewCount: 1876,
+      applicantCount: 0,
+    },
+  },
+  // 케이스 7: 모집 중
+  {
+    basicInfo: {
+      groupStudyId: 1007,
+      classification: 'PREMIUM_STUDY',
+      type: 'PROJECT',
+      targetRoles: ['BACKEND', 'FRONTEND', 'PLANNER', 'DESIGNER'],
+      maxMembersCount: 20,
+      experienceLevels: ['JUNIOR', 'MIDDLE'],
+      method: 'HYBRID',
+      regularMeeting: 'BIWEEKLY',
+      location: '서울 판교',
+      startDate: sevenDaysLater.toISOString(),
+      endDate: thirtyDaysLater.toISOString(),
+      price: 180000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'RECRUITING',
+      pendingCount: 10,
+      approvedCount: 15,
+      rejectedCount: 3,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 107,
+        memberNickname: '송혜교 멘토',
+        simpleIntroduction: 'PM/PO 10년차',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1007,
+        resizedImages: [],
+      },
+      title: '실전 스타트업 프로젝트 부트캠프',
+      summary: '0에서 1까지, 실제 서비스를 함께 만들고 런칭',
+    },
+    _prototype: {
+      status: 'RECRUITING',
+      viewCount: 5234,
+      applicantCount: 25,
+    },
+  },
+  // 케이스 8: 모집 중
+  {
+    basicInfo: {
+      groupStudyId: 1008,
+      classification: 'PREMIUM_STUDY',
+      type: 'CHALLENGE',
+      targetRoles: ['BACKEND'],
+      maxMembersCount: 8,
+      experienceLevels: ['BEGINNER', 'JOB_SEEKER'],
+      method: 'ONLINE',
+      regularMeeting: 'TRIPLE_WEEKLY_OR_MORE',
+      location: '온라인',
+      startDate: sevenDaysLater.toISOString(),
+      endDate: thirtyDaysLater.toISOString(),
+      price: 65000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'RECRUITING',
+      pendingCount: 4,
+      approvedCount: 6,
+      rejectedCount: 1,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 108,
+        memberNickname: '강동원 멘토',
+        simpleIntroduction: '취업 멘토링 전문',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1008,
+        resizedImages: [],
+      },
+      title: '취준생을 위한 코딩 테스트 완성',
+      summary: '백준/프로그래머스 문제를 체계적으로 정복',
+    },
+    _prototype: {
+      status: 'RECRUITING',
+      viewCount: 1567,
+      applicantCount: 10,
+    },
+  },
+  // 케이스 9: 진행 중
+  {
+    basicInfo: {
+      groupStudyId: 1009,
+      classification: 'PREMIUM_STUDY',
+      type: 'PROJECT',
+      targetRoles: ['BACKEND'],
+      maxMembersCount: 10,
+      experienceLevels: ['JUNIOR', 'MIDDLE'],
+      method: 'ONLINE',
+      regularMeeting: 'WEEKLY',
+      location: '온라인',
+      startDate: past.toISOString(),
+      endDate: thirtyDaysLater.toISOString(),
+      price: 130000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'IN_PROGRESS',
+      pendingCount: 0,
+      approvedCount: 10,
+      rejectedCount: 2,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 109,
+        memberNickname: '전지현 멘토',
+        simpleIntroduction: 'Node.js 백엔드 전문가',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1009,
+        resizedImages: [],
+      },
+      title: 'Node.js + Express 실전 API 개발',
+      summary: 'RESTful API부터 GraphQL까지 완벽 마스터',
+    },
+    _prototype: {
+      status: 'IN_PROGRESS',
+      viewCount: 2341,
+      applicantCount: 0,
+    },
+  },
+  // 케이스 10: 종료
+  {
+    basicInfo: {
+      groupStudyId: 1010,
+      classification: 'PREMIUM_STUDY',
+      type: 'CHALLENGE',
+      targetRoles: ['BACKEND', 'FRONTEND'],
+      maxMembersCount: 15,
+      experienceLevels: ['BEGINNER', 'JOB_SEEKER'],
+      method: 'ONLINE',
+      regularMeeting: 'TRIPLE_WEEKLY_OR_MORE',
+      location: '온라인',
+      startDate: past.toISOString(),
+      endDate: past.toISOString(),
+      price: 55000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'COMPLETED',
+      pendingCount: 0,
+      approvedCount: 15,
+      rejectedCount: 8,
+      kickedCount: 2,
+      deletedAt: null,
+      leader: {
+        memberId: 110,
+        memberNickname: '현빈 멘토',
+        simpleIntroduction: '알고리즘 전문 강사',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1010,
+        resizedImages: [],
+      },
+      title: '알고리즘 정복 100일 챌린지',
+      summary: '매일 1문제씩, 100일간의 알고리즘 완성',
+    },
+    _prototype: {
+      status: 'COMPLETED',
+      viewCount: 3892,
+      applicantCount: 0,
+    },
+  },
+  // 케이스 11: 종료
+  {
+    basicInfo: {
+      groupStudyId: 1011,
+      classification: 'PREMIUM_STUDY',
+      type: 'PROJECT',
+      targetRoles: ['FRONTEND', 'DESIGNER'],
+      maxMembersCount: 8,
+      experienceLevels: ['JUNIOR'],
+      method: 'HYBRID',
+      regularMeeting: 'BIWEEKLY',
+      location: '서울 강남',
+      startDate: past.toISOString(),
+      endDate: past.toISOString(),
+      price: 110000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'COMPLETED',
+      pendingCount: 0,
+      approvedCount: 8,
+      rejectedCount: 3,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 111,
+        memberNickname: '수지 멘토',
+        simpleIntroduction: 'Flutter 앱 개발자',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1011,
+        resizedImages: [],
+      },
+      title: 'Flutter로 만드는 크로스플랫폼 앱',
+      summary: 'iOS/Android 동시 개발 완벽 마스터',
+    },
+    _prototype: {
+      status: 'COMPLETED',
+      viewCount: 2156,
+      applicantCount: 0,
+    },
+  },
+  // 케이스 12: 종료
+  {
+    basicInfo: {
+      groupStudyId: 1012,
+      classification: 'PREMIUM_STUDY',
+      type: 'SEMINAR',
+      targetRoles: ['BACKEND'],
+      maxMembersCount: 20,
+      experienceLevels: ['MIDDLE', 'SENIOR'],
+      method: 'ONLINE',
+      regularMeeting: 'WEEKLY',
+      location: '온라인',
+      startDate: past.toISOString(),
+      endDate: past.toISOString(),
+      price: 250000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'COMPLETED',
+      pendingCount: 0,
+      approvedCount: 18,
+      rejectedCount: 7,
+      kickedCount: 1,
+      deletedAt: null,
+      leader: {
+        memberId: 112,
+        memberNickname: '공유 멘토',
+        simpleIntroduction: '클라우드 아키텍트',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1012,
+        resizedImages: [],
+      },
+      title: '대규모 시스템 DB 설계 실전',
+      summary: '확장 가능한 데이터베이스 아키텍처 구축',
+    },
+    _prototype: {
+      status: 'COMPLETED',
+      viewCount: 4521,
+      applicantCount: 0,
+    },
+  },
+  // 케이스 13: 모집 중
+  {
+    basicInfo: {
+      groupStudyId: 1013,
+      classification: 'PREMIUM_STUDY',
+      type: 'BOOK_STUDY',
+      targetRoles: ['BACKEND', 'DATA_SCIENTIST'],
+      maxMembersCount: 12,
+      experienceLevels: ['MIDDLE'],
+      method: 'HYBRID',
+      regularMeeting: 'WEEKLY',
+      location: '서울 강남',
+      startDate: sevenDaysLater.toISOString(),
+      endDate: thirtyDaysLater.toISOString(),
+      price: 95000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'RECRUITING',
+      pendingCount: 5,
+      approvedCount: 8,
+      rejectedCount: 1,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 113,
+        memberNickname: '배수지 멘토',
+        simpleIntroduction: 'AI/ML 엔지니어',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1013,
+        resizedImages: [],
+      },
+      title: '머신러닝 완벽 가이드 북스터디',
+      summary: 'Hands-On ML로 배우는 실전 머신러닝',
+    },
+    _prototype: {
+      status: 'RECRUITING',
+      viewCount: 1823,
+      applicantCount: 13,
+    },
+  },
+  // 케이스 14: 모집 중
+  {
+    basicInfo: {
+      groupStudyId: 1014,
+      classification: 'PREMIUM_STUDY',
+      type: 'PROJECT',
+      targetRoles: ['BACKEND', 'DEVOPS'],
+      maxMembersCount: 10,
+      experienceLevels: ['JUNIOR', 'MIDDLE'],
+      method: 'ONLINE',
+      regularMeeting: 'BIWEEKLY',
+      location: '온라인',
+      startDate: sevenDaysLater.toISOString(),
+      endDate: thirtyDaysLater.toISOString(),
+      price: 140000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'RECRUITING',
+      pendingCount: 3,
+      approvedCount: 6,
+      rejectedCount: 0,
+      kickedCount: 0,
+      deletedAt: null,
+      leader: {
+        memberId: 114,
+        memberNickname: '조인성 멘토',
+        simpleIntroduction: 'DevOps 시니어 엔지니어',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1014,
+        resizedImages: [],
+      },
+      title: 'Kubernetes & Docker 실전 멘토링',
+      summary: '컨테이너 오케스트레이션 완벽 정복',
+    },
+    _prototype: {
+      status: 'RECRUITING',
+      viewCount: 2687,
+      applicantCount: 9,
+    },
+  },
+  // 케이스 15: 진행 중
+  {
+    basicInfo: {
+      groupStudyId: 1015,
+      classification: 'PREMIUM_STUDY',
+      type: 'SEMINAR',
+      targetRoles: ['FRONTEND'],
+      maxMembersCount: 15,
+      experienceLevels: ['JUNIOR', 'MIDDLE'],
+      method: 'ONLINE',
+      regularMeeting: 'WEEKLY',
+      location: '온라인',
+      startDate: past.toISOString(),
+      endDate: thirtyDaysLater.toISOString(),
+      price: 105000,
+      studyLeaderParticipation: true,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      hostType: 'ZEROONE',
+      status: 'IN_PROGRESS',
+      pendingCount: 0,
+      approvedCount: 14,
+      rejectedCount: 3,
+      kickedCount: 1,
+      deletedAt: null,
+      leader: {
+        memberId: 115,
+        memberNickname: '아이유 멘토',
+        simpleIntroduction: 'TypeScript 전문가',
+      },
+    },
+    simpleDetailInfo: {
+      thumbnail: {
+        imageId: 1015,
+        resizedImages: [],
+      },
+      title: 'TypeScript 고급 타입 시스템',
+      summary: '제네릭부터 조건부 타입까지 완벽 마스터',
+    },
+    _prototype: {
+      status: 'IN_PROGRESS',
+      viewCount: 3145,
+      applicantCount: 0,
+    },
+  },
+];
+
+/** 프로토타입용: /premium-study/2 상세 페이지 목데이터 (Spring Boot 실전 멘토링) */
+export const MOCK_PREMIUM_STUDY_DETAIL_2: GroupStudyFullResponseDto = {
+  basicInfo: {
+    groupStudyId: 2,
+    classification: 'PREMIUM_STUDY',
+    type: 'SEMINAR',
+    targetRoles: ['BACKEND'],
+    maxMembersCount: 15,
+    experienceLevels: ['BEGINNER'],
+    method: 'ONLINE',
+    regularMeeting: 'BIWEEKLY',
+    location: '온라인',
+    startDate: sevenDaysLater.toISOString(),
+    endDate: threeDaysLater.toISOString(),
+    price: 89000,
+    studyLeaderParticipation: true,
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+    hostType: 'ZEROONE',
+    status: 'RECRUITING',
+    pendingCount: 5,
+    approvedCount: 10,
+    rejectedCount: 2,
+    kickedCount: 0,
+    deletedAt: null,
+    leader: {
+      memberId: 102,
+      memberNickname: '박준영 멘토',
+      simpleIntroduction: '백엔드 시니어 개발자',
+      profileImage: {
+        imageId: 1002,
+        resizedImages: [{ resizedImageUrl: '/images/profile-default.svg' }],
+      },
+    },
+  },
+  detailInfo: {
+    title: 'Spring Boot 실전 멘토링',
+    summary: '입문자를 위한 체계적인 백엔드 학습',
+    description:
+      'Spring Boot 기초부터 실무 활용까지 체계적으로 학습하는 멘토링입니다.\n\n주요 내용:\n- Spring Boot 환경 설정 및 프로젝트 구조\n- JPA와 데이터베이스 연동\n- REST API 설계와 구현\n- 보안 및 인증 처리\n\n입문자도 따라올 수 있도록 단계별로 진행합니다.',
+    image: {
+      imageId: 1002,
+      resizedImages: [
+        { resizedImageUrl: '/images/default-study-thumbnail.png' },
+      ],
+    },
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+  },
+};

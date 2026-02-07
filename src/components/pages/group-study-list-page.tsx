@@ -1,6 +1,6 @@
 'use client';
 
-import { Plus } from 'lucide-react';
+import { ArrowUpDown, ChevronDown, Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
@@ -17,6 +17,7 @@ import PageContainer from '@/components/layout/page-container';
 import Button from '@/components/ui/button';
 import { useAuth } from '@/hooks/common/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
+import { MOCK_GROUP_STUDIES } from '@/mocks/group-study-mock-data';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyPagination from '../../features/study/group/ui/group-study-pagination';
 import GroupStudyList from '../lists/group-study-list';
@@ -38,27 +39,28 @@ export default function GroupStudyListPage() {
   // 로컬 검색 상태
   const [searchQuery, setSearchQuery] = useState('');
 
+  // 프로토타입 모드 (목 데이터 사용)
+  const [usePrototype] = useState(true);
+
   // URL에서 필터 값 읽기
-  // 기본값: recruiting = true (모집 중만 보기)
-  // 사용자가 토글을 조작하면 URL에 명시적으로 저장됨
   const filterValues = useMemo<StudyFilterValues>(() => {
     const type = searchParams.get('type')?.split(',').filter(Boolean) ?? [];
     const targetRoles =
       searchParams.get('targetRoles')?.split(',').filter(Boolean) ?? [];
     const method = searchParams.get('method')?.split(',').filter(Boolean) ?? [];
-    // URL에 recruiting 파라미터가 없으면 기본값 true (모집 중만 보기)
-    // 파라미터가 있으면 그 값 사용 (명시적 사용자 선택)
-    const recruitingParam = searchParams.get('recruiting');
-    const recruiting =
-      recruitingParam === null ? true : recruitingParam === 'true';
+    const experienceLevels =
+      searchParams.get('experienceLevels')?.split(',').filter(Boolean) ?? [];
+    const statusParam = searchParams.get('status');
+    const status = statusParam?.split(',').filter(Boolean) ?? ['RECRUITING'];
 
-    return { type, targetRoles, method, recruiting };
+    return { type, targetRoles, method, experienceLevels, status };
   }, [searchParams]);
 
   const currentPage = Number(searchParams.get('page')) || 1;
 
-  // 검색어가 있으면 전체 데이터를 가져오고, 없으면 페이지네이션된 데이터를 가져옴
-  const { data, isLoading } = useGetStudies({
+  // 프로토타입 모드: 목 데이터 사용
+  // 실제 모드: API 데이터 사용
+  const { data, isLoading: apiLoading } = useGetStudies({
     classification: 'GROUP_STUDY',
     page: searchQuery ? 1 : currentPage,
     pageSize: searchQuery ? 10000 : PAGE_SIZE,
@@ -74,11 +76,42 @@ export default function GroupStudyListPage() {
       filterValues.method.length > 0
         ? (filterValues.method as GetGroupStudiesMethodEnum[])
         : undefined,
-    // 기본값: true (모집 중만), false면 전체 조회
-    recruiting: filterValues.recruiting ? true : undefined,
+    // 프로토타입 모드에서는 status로 필터링, 실제 API는 recruiting 파라미터 사용
+    recruiting: usePrototype
+      ? undefined
+      : filterValues.status.includes('RECRUITING')
+        ? true
+        : undefined,
   });
 
-  const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
+  const isLoading = usePrototype ? false : apiLoading;
+
+  // 프로토타입 데이터 또는 실제 API 데이터
+  const rawStudies = useMemo(
+    () => (usePrototype ? MOCK_GROUP_STUDIES : data?.content ?? []),
+    [usePrototype, data?.content],
+  );
+
+  // 상태 필터링 (프로토타입)
+  const statusFilteredStudies = useMemo(() => {
+    if (!usePrototype) return rawStudies;
+
+    if (filterValues.status.length === 0 || filterValues.status.includes('ALL')) return rawStudies;
+
+    return rawStudies.filter((study) => {
+      const protoStatus = study._prototype?.status;
+      // 선택된 상태 중 하나라도 매치되면 표시
+      return filterValues.status.some((selectedStatus) => {
+        if (selectedStatus === 'RECRUITING') {
+          // RECRUITING은 RECRUITING과 DEADLINE_IMMINENT 모두 포함
+          return protoStatus === 'RECRUITING' || protoStatus === 'DEADLINE_IMMINENT';
+        }
+        return protoStatus === selectedStatus;
+      });
+    });
+  }, [rawStudies, filterValues.status, usePrototype]);
+
+  const allStudies = useMemo(() => statusFilteredStudies, [statusFilteredStudies]);
 
   // URL 파라미터 업데이트 함수
   const updateSearchParams = useCallback(
@@ -89,13 +122,7 @@ export default function GroupStudyListPage() {
         if (value === undefined || value === '') {
           params.delete(key);
         } else {
-          // recruiting의 경우 'false'도 명시적으로 저장 (기본값이 true이므로)
-          // 다른 필터는 'false'일 때 파라미터 제거
-          if (key === 'recruiting' || value !== 'false') {
-            params.set(key, value);
-          } else {
-            params.delete(key);
-          }
+          params.set(key, value);
         }
       });
 
@@ -111,8 +138,6 @@ export default function GroupStudyListPage() {
   );
 
   // 필터 변경 핸들러
-  // recruiting 토글: true면 'true' 저장, false면 'false' 명시적으로 저장
-  // (기본값이 true이므로 false일 때도 명시적으로 저장해야 토글이 정상 작동)
   const handleFilterChange = useCallback(
     (values: StudyFilterValues) => {
       updateSearchParams({
@@ -122,9 +147,16 @@ export default function GroupStudyListPage() {
             ? values.targetRoles.join(',')
             : undefined,
         method: values.method.length > 0 ? values.method.join(',') : undefined,
-        // recruiting: true면 'true', false면 'false' 명시적으로 저장
-        // (기본값이 true이므로 false일 때도 URL에 저장해야 토글 해제 가능)
-        recruiting: values.recruiting ? 'true' : 'false',
+        experienceLevels:
+          values.experienceLevels.length > 0
+            ? values.experienceLevels.join(',')
+            : undefined,
+        status:
+          values.status.length === 1 && values.status[0] === 'RECRUITING'
+            ? undefined
+            : values.status.length > 0
+              ? values.status.join(',')
+              : undefined,
       });
     },
     [updateSearchParams],
@@ -146,18 +178,62 @@ export default function GroupStudyListPage() {
     );
   }, [allStudies, searchQuery]);
 
+  // 정렬 적용
+  const sortedStudies = useMemo(() => {
+    const sortType = searchParams.get('sort') || 'latest';
+    const studies = [...filteredStudies];
+
+    switch (sortType) {
+      case 'deadline':
+        // 마감임박순: endDate가 가까운 순 (모집 중인 것만)
+        return studies.sort((a, b) => {
+          const aStatus = a._prototype?.status;
+          const bStatus = b._prototype?.status;
+          
+          // 모집 중이 아니면 뒤로
+          if (aStatus !== 'RECRUITING' && aStatus !== 'DEADLINE_IMMINENT') return 1;
+          if (bStatus !== 'RECRUITING' && bStatus !== 'DEADLINE_IMMINENT') return -1;
+          
+          const aEnd = a._prototype?.endDate ? new Date(a._prototype.endDate).getTime() : Infinity;
+          const bEnd = b._prototype?.endDate ? new Date(b._prototype.endDate).getTime() : Infinity;
+          return aEnd - bEnd;
+        });
+      
+      case 'views':
+        // 조회수순: viewCount 높은 순
+        return studies.sort((a, b) => {
+          const aViews = a._prototype?.viewCount || 0;
+          const bViews = b._prototype?.viewCount || 0;
+          return bViews - aViews;
+        });
+      
+      case 'latest':
+      default:
+        // 최신순: createdAt 최신 순
+        return studies.sort((a, b) => {
+          const aCreated = a.basicInfo?.createdAt ? new Date(a.basicInfo.createdAt).getTime() : 0;
+          const bCreated = b.basicInfo?.createdAt ? new Date(b.basicInfo.createdAt).getTime() : 0;
+          return bCreated - aCreated;
+        });
+    }
+  }, [filteredStudies, searchParams]);
+
   // 검색어가 있을 때는 클라이언트에서 페이지네이션, 없으면 서버 페이지네이션 사용
-  const totalPages = searchQuery
-    ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
-    : (data?.totalPages ?? 1);
+  const totalPages =
+    searchQuery || usePrototype
+      ? Math.ceil(sortedStudies.length / PAGE_SIZE) || 1
+      : (data?.totalPages ?? 1);
 
   const displayStudies = useMemo(() => {
-    if (!searchQuery) return filteredStudies;
+    // 프로토타입 모드거나 검색어가 있으면 클라이언트 페이지네이션
+    if (searchQuery || usePrototype) {
+      const startIndex = (currentPage - 1) * PAGE_SIZE;
+      return sortedStudies.slice(startIndex, startIndex + PAGE_SIZE);
+    }
 
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
-
-    return filteredStudies.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredStudies, searchQuery, currentPage]);
+    // 실제 API 모드: 서버에서 페이지네이션된 데이터 사용
+    return sortedStudies;
+  }, [sortedStudies, searchQuery, usePrototype, currentPage]);
 
   if (isLoading) {
     return (
@@ -203,8 +279,53 @@ export default function GroupStudyListPage() {
 
       {/* 필터 및 검색 */}
       <div className="mb-400 flex items-center justify-between">
-        <StudyFilter values={filterValues} onChange={handleFilterChange} />
-        <StudySearch value={searchQuery} onChange={handleSearch} />
+        <StudyFilter 
+          values={filterValues} 
+          onChange={handleFilterChange}
+          studyCategory="GROUP"
+        />
+        <div className="flex items-center gap-200">
+          <StudySearch value={searchQuery} onChange={handleSearch} />
+          {/* 정렬 드롭다운 */}
+          <div className="group relative">
+            <button
+              type="button"
+              className="rounded-100 bg-background-default border-border-default font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors h-500"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+              {searchParams.get('sort') === 'deadline'
+                ? '마감임박순'
+                : searchParams.get('sort') === 'views'
+                  ? '조회수순'
+                  : '최신순'}
+            </button>
+            <div className="absolute top-full right-0 z-20 hidden w-[120px] pt-50 group-hover:block">
+              <div className="bg-background-default border-border-subtle rounded-100 shadow-2 overflow-hidden border">
+                <button
+                  type="button"
+                  onClick={() => updateSearchParams({ sort: 'latest', page: '1' })}
+                  className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                >
+                  최신순
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateSearchParams({ sort: 'deadline', page: '1' })}
+                  className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                >
+                  마감임박순
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateSearchParams({ sort: 'views', page: '1' })}
+                  className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                >
+                  조회수순
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* 스터디 카드 그리드 */}

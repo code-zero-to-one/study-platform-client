@@ -22,6 +22,8 @@ import {
 import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyMemberList from '../lists/study-member-list';
+import InquirySection from '../section/inquiry-section';
+import LoungePlaceholder from '../section/lounge-placeholder';
 import MissionSection from '../section/mission-section';
 import PremiumStudyInfoSection from '../section/premium-study-info-section';
 
@@ -207,7 +209,13 @@ export default function PremiumStudyDetailPage({
       <Tabs
         className="w-[1164px]"
         tabs={STUDY_DETAIL_TABS.filter(
-          (tab) => tab.value === 'intro' || isLeader || isMember,
+          (tab) =>
+            tab.value === 'intro' ||
+            tab.value === 'members' ||
+            tab.value === 'mission' ||
+            tab.value === 'lounge' ||
+            isLeader ||
+            isMember,
         )}
         activeTab={activeTab}
         onChange={(value: StudyTabValue) => {
@@ -224,6 +232,12 @@ export default function PremiumStudyDetailPage({
       {activeTab === 'intro' && (
         <PremiumStudyInfoSection
           study={studyDetail as GroupStudyFullResponse}
+          onMissionClick={(missionId) => {
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('tab', 'mission');
+            params.set('missionId', String(missionId));
+            router.push(`${pathname}?${params.toString()}`, { scroll: false });
+          }}
         />
       )}
       {activeTab === 'members' && (
@@ -234,13 +248,29 @@ export default function PremiumStudyDetailPage({
         />
       )}
       {activeTab === 'mission' && (
-        <MissionSection groupStudyId={groupStudyId} />
-      )}
-      {activeTab === 'lounge' && (
-        <ChannelSection
+        <MissionSection
           groupStudyId={groupStudyId}
-          memberId={memberId}
-          myApplicationStatus={myApplicationStatus}
+          isMember={isLeader || isMember}
+        />
+      )}
+      {activeTab === 'lounge' &&
+        (isLeader || isMember ? (
+          <ChannelSection
+            groupStudyId={groupStudyId}
+            memberId={memberId}
+            myApplicationStatus={myApplicationStatus}
+          />
+        ) : (
+          <LoungePlaceholder />
+        ))}
+      {activeTab === 'inquiry' && (
+        <InquirySection
+          studyId={groupStudyId}
+          studyTitle={studyDetail?.detailInfo?.title ?? ''}
+          currentUserId={memberId}
+          isMentor={isLeader}
+          isAdmin={false}
+          isGroupStudy={false}
         />
       )}
     </div>

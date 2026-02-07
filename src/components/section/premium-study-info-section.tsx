@@ -1,39 +1,36 @@
 'use client';
 
-import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
+import AvatarStack from '@/components/ui/avatar/avatar-stack';
 import Button from '@/components/ui/button';
-import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useAuth } from '@/hooks/common/use-auth';
+import CurriculumSummaryCard from '@/components/ui/curriculum-card';
+import FloatingInfoBar from '@/components/ui/floating-info-bar';
+import MockProfileModal from '@/components/modals/mock-profile-modal';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
-import { hashValue } from '@/utils/hash';
+import { MOCK_MISSIONS, MOCK_PARTICIPANTS } from '@/mocks/group-study-mock-data';
 
 import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
 
-import { useApplicantsByStatusQuery } from '../../features/study/group/application/model/use-applicant-qeury';
+import InquirySection from './inquiry-section';
 import SummaryStudyInfo from '../summary/study-info-summary';
 
-function getApplicantsList<T>(pages: { content: T[] }[] | undefined) {
-  if (!pages) return [];
-
-  return pages.reduce<T[]>((acc, page) => [...acc, ...page.content], []);
-}
+import { useState } from 'react';
 
 interface PremiumStudyInfoSectionProps {
   study: GroupStudyFullResponse;
+  onMissionClick?: (missionId: number) => void;
 }
 
 export default function PremiumStudyInfoSection({
   study: studyDetail,
+  onMissionClick,
 }: PremiumStudyInfoSectionProps) {
   const router = useRouter();
   const params = useParams();
-  const { data: authData } = useAuth();
   const memberId = useUserStore((state) => state.memberId);
   const isLeader = useIsLeader(memberId);
 
@@ -43,18 +40,24 @@ export default function PremiumStudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
+  const applicants = approvedApplicants?.pages[0]?.content;
 
-  const applicantsList = getApplicantsList(approvedApplicants?.pages);
+  // 프로토타입: 미가입 시 커리큘럼 잠금
+  const isUserJoined = false;
+  const [selectedParticipantId, setSelectedParticipantId] = useState<
+    number | null
+  >(null);
+
+  const thumbnailSrc =
+    studyDetail?.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl ||
+    '/images/default-study-thumbnail.png';
 
   return (
-    <div className="mt-500 flex w-[1164px] gap-600">
+    <div className="m-auto mt-500 flex w-[1164px] gap-600">
       <div className="flex flex-1 flex-col gap-500">
         <div className="relative h-[430px] w-full">
           <Image
-            src={
-              studyDetail?.detailInfo.image?.resizedImages[0].resizedImageUrl ??
-              ''
-            }
+            src={thumbnailSrc}
             alt="썸네일"
             fill
             className="object-contain"
@@ -69,8 +72,8 @@ export default function PremiumStudyInfoSection({
                 <UserAvatar
                   size={80}
                   image={
-                    studyDetail.basicInfo.leader.profileImage?.resizedImages[0]
-                      .resizedImageUrl ?? ''
+                    studyDetail.basicInfo.leader.profileImage?.resizedImages?.[0]
+                      ?.resizedImageUrl ?? ''
                   }
                 />
                 <div className="flex flex-col">
@@ -88,25 +91,23 @@ export default function PremiumStudyInfoSection({
                   </div>
                 </div>
               </div>
-              <UserProfileModal
-                memberId={studyDetail.basicInfo.leader.memberId}
-                trigger={
-                  <div className="bg-fill-neutral-default-default text-text-default font-designer-14b rounded-75 flex cursor-pointer items-center justify-center p-100">
-                    프로필
-                  </div>
-                }
-              />
+              <div
+                className="bg-fill-neutral-default-default text-text-default font-designer-14b rounded-75 flex cursor-pointer items-center justify-center p-100"
+                onClick={() => setSelectedParticipantId(1)}
+              >
+                프로필
+              </div>
             </div>
             <div className="font-designer-16r whitespace-pre-line text-[#535862]">
-              {studyDetail?.detailInfo.description}
+              {studyDetail?.detailInfo?.description}
             </div>
           </div>
 
           <div className="flex flex-col gap-200">
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
-                <span>실시간 신청자 목록</span>
-                <span className="text-[#A4A7AE]">{`${applicantsList.length}명`}</span>
+                <span>멘티 목록</span>
+                <span className="text-[#A4A7AE]">10명</span>
               </div>
               {isLeader && (
                 <Button
@@ -120,75 +121,60 @@ export default function PremiumStudyInfoSection({
               )}
             </div>
 
-            <div className="grid grid-cols-2 grid-rows-2 gap-200">
-              {applicantsList.map((data) => {
-                const temperPreset = getSincerityPresetByLevelName(
-                  data.applicantInfo.sincerityTemp.levelName as string,
-                );
+            <p className="font-designer-14m text-text-subtle">
+              프로필을 클릭하여 멘티들의 정보를 확인해보세요.
+            </p>
 
-                return (
-                  <div
-                    key={data.applyId}
-                    className="rounded-100 border-border-subtle flex h-[100px] w-[382px] items-center justify-between gap-150 border px-200 py-300"
-                  >
-                    <UserAvatar
-                      size={48}
-                      image={
-                        data.applicantInfo.profileImage?.resizedImages[0]
-                          .resizedImageUrl ?? ''
-                      }
-                    />
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <div className="flex flex-row items-center gap-50">
-                        <div className="font-designer-16b">
-                          {data.applicantInfo.memberNickname !== ''
-                            ? data.applicantInfo.memberNickname
-                            : '익명'}
-                        </div>
-                        <span
-                          className={cn(
-                            'font-designer-13r rounded-full px-150 py-50 leading-250',
-                            temperPreset.bgClass,
-                            temperPreset.textClass,
-                          )}
-                        >
-                          {`${data.applicantInfo.sincerityTemp.temperature}`}℃
-                        </span>
-                      </div>
-                    </div>
-                    <UserProfileModal
-                      memberId={data.applicantInfo.memberId}
-                      trigger={
-                        <div
-                          className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50"
-                          onClick={() => {
-                            sendGTMEvent({
-                              event: 'premium_study_member_profile_click',
-                              dl_timestamp: new Date().toISOString(),
-                              ...(authData?.memberId && {
-                                dl_member_id: hashValue(
-                                  String(authData.memberId),
-                                ),
-                              }),
-                              dl_target_member_id: String(
-                                data.applicantInfo.memberId,
-                              ),
-                              dl_group_study_id: String(groupStudyId),
-                            });
-                          }}
-                        >
-                          프로필
-                        </div>
-                      }
-                    />
-                  </div>
-                );
-              })}
+            <div className="mb-300 mt-100">
+              <AvatarStack
+                participants={MOCK_PARTICIPANTS}
+                maxVisible={5}
+                size={60}
+                showLeaderCrown={false}
+                onProfileClick={(participantId) =>
+                  setSelectedParticipantId(participantId)
+                }
+              />
             </div>
+          </div>
+
+          <div className="pt-500 border-t border-border-default">
+            <InquirySection
+              studyId={groupStudyId}
+              studyTitle={studyDetail?.detailInfo?.title ?? ''}
+              currentUserId={memberId}
+              isMentor={isLeader}
+              isAdmin={false}
+              isEmbedded={true}
+              isGroupStudy={false}
+            />
           </div>
         </div>
       </div>
-      <SummaryStudyInfo data={studyDetail} />
+
+      <div className="flex w-[335px] flex-col gap-400">
+        <FloatingInfoBar
+          currentViewers={12}
+          currentMembers={studyDetail.basicInfo.approvedCount ?? 0}
+          maxMembers={studyDetail.basicInfo.maxMembersCount ?? 15}
+        />
+
+        <SummaryStudyInfo data={studyDetail} />
+
+        <CurriculumSummaryCard
+          missions={MOCK_MISSIONS}
+          isLocked={!isUserJoined}
+          onMissionClick={onMissionClick}
+        />
+      </div>
+
+      {selectedParticipantId && (
+        <MockProfileModal
+          isOpen={true}
+          onClose={() => setSelectedParticipantId(null)}
+          participantId={selectedParticipantId}
+        />
+      )}
     </div>
   );
 }

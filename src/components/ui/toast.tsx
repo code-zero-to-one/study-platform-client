@@ -38,7 +38,7 @@ export default function Toast({
       className={cn(
         'fixed top-24 left-1/2 z-99999 -translate-x-1/2',
         'rounded-200 px-500 py-400',
-        'bg-background-default shadow-2xl',
+        'bg-white shadow-2xl',
         isSuccess ? 'border-2 border-green-500' : 'border-2 border-red-500',
         'font-designer-15b text-gray-900',
         'animate-in fade-in-0 slide-in-from-top-4 duration-300',

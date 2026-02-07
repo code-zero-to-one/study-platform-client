@@ -3,12 +3,14 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import StudyCard from '@/components/card/study-card';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import { useAuth } from '@/hooks/common/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
 import { hashValue } from '@/utils/hash';
+import { MOCK_GROUP_STUDIES } from '@/mocks/group-study-mock-data';
+import { MOCK_PREMIUM_STUDIES } from '@/mocks/premium-study-mock-data';
 
 interface MyParticipatingStudiesSectionProps {
   classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
@@ -19,6 +21,9 @@ export default function MyParticipatingStudiesSection({
 }: MyParticipatingStudiesSectionProps) {
   const { data: authData } = useAuth();
   const memberId = authData?.memberId;
+
+  // 프로토타입 모드
+  const [usePrototype] = useState(true);
 
   /**
    * TODO : PREMIUM_STUDY 에서도 동작확인 필요 (BE 미구현)
@@ -59,6 +64,24 @@ export default function MyParticipatingStudiesSection({
     recruiting: undefined, // 모든 상태 포함 (진행 중, 모집 중 모두)
   });
 
+  // 프로토타입 모드: 목 데이터에서 다양한 상태의 스터디 가져오기 (진행 중, 모집 중, 종료)
+  const prototypeStudies = useMemo(() => {
+    if (!usePrototype) return [];
+    
+    const mockData = classification === 'GROUP_STUDY' 
+      ? MOCK_GROUP_STUDIES 
+      : MOCK_PREMIUM_STUDIES;
+    
+    // 첫 번째: 진행 중
+    const inProgress = mockData.find(study => study._prototype?.status === 'IN_PROGRESS');
+    // 두 번째: 모집 중
+    const recruiting = mockData.find(study => study._prototype?.status === 'RECRUITING');
+    // 세 번째: 종료
+    const completed = mockData.find(study => study._prototype?.status === 'COMPLETED');
+    
+    return [inProgress, recruiting, completed].filter(Boolean).slice(0, 3);
+  }, [usePrototype, classification]);
+
   // 내가 참여중인 스터디 ID Set 생성 (IN_PROGRESS, RECRUITING)
   const participatingStudyIds = useMemo(() => {
     if (!myStudiesData?.notCompleted?.content) return new Set<number>();
@@ -79,6 +102,11 @@ export default function MyParticipatingStudiesSection({
 
   // 내가 참여중인 스터디만 필터링 (최대 3개)
   const participatingStudies = useMemo(() => {
+    // 프로토타입 모드
+    if (usePrototype) {
+      return prototypeStudies;
+    }
+
     if (!allStudiesData?.content || participatingStudyIds.size === 0) {
       return [];
     }
@@ -89,15 +117,15 @@ export default function MyParticipatingStudiesSection({
     );
 
     return filtered.slice(0, 3); // 최대 3개만 표시
-  }, [allStudiesData?.content, participatingStudyIds]);
+  }, [usePrototype, prototypeStudies, allStudiesData?.content, participatingStudyIds]);
 
   // 비회원은 표시하지 않음 (hooks 호출 후 early return)
-  if (!memberId) {
+  if (!memberId && !usePrototype) {
     return null;
   }
 
   // 로딩 중
-  if (isLoading) {
+  if (isLoading && !usePrototype) {
     return (
       <section className="mb-600">
         <div className="mb-400 flex items-center justify-between">
@@ -113,7 +141,7 @@ export default function MyParticipatingStudiesSection({
   }
 
   // 스터디가 없는 경우 빈 상태 표시
-  if (participatingStudies.length === 0 && !isLoading) {
+  if (participatingStudies.length === 0 && !isLoading && !usePrototype) {
     return (
       <section className="mb-600">
         <div className="mb-400 flex items-center justify-between">
@@ -146,16 +174,18 @@ export default function MyParticipatingStudiesSection({
     participatingStudyIds.size > participatingStudies.length;
 
   const handleStudyClick = (studyId: number, title: string) => {
-    sendGTMEvent({
-      event:
-        classification === 'GROUP_STUDY'
-          ? 'group_study_detail_view'
-          : 'premium_study_detail_view',
-      dl_timestamp: new Date().toISOString(),
-      dl_member_id: hashValue(String(memberId)),
-      dl_study_id: String(studyId),
-      dl_study_title: title,
-    });
+    if (!usePrototype && memberId) {
+      sendGTMEvent({
+        event:
+          classification === 'GROUP_STUDY'
+            ? 'group_study_detail_view'
+            : 'premium_study_detail_view',
+        dl_timestamp: new Date().toISOString(),
+        dl_member_id: hashValue(String(memberId)),
+        dl_study_id: String(studyId),
+        dl_study_title: title,
+      });
+    }
   };
 
   return (

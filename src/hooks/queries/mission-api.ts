@@ -13,6 +13,7 @@ interface GetMissionsParams {
   searchType?: GetMissionsSearchTypeEnum;
   page?: number;
   pageSize?: number;
+  enabled?: boolean;
 }
 
 export const useGetMissions = ({
@@ -20,9 +21,11 @@ export const useGetMissions = ({
   searchType = GetMissionsSearchTypeEnum.All,
   page = 1,
   pageSize = 10,
+  enabled = true,
 }: GetMissionsParams) => {
   return useQuery({
     queryKey: ['missions', groupStudyId, searchType, page, pageSize],
+    enabled,
     queryFn: async () => {
       const { data } = await missionApi.getMissions(
         groupStudyId,

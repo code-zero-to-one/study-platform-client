@@ -15,17 +15,29 @@ export interface StudyFilterValues {
   type: string[];
   targetRoles: string[];
   method: string[];
-  recruiting: boolean;
+  experienceLevels: string[];
+  status: string[];
 }
 
 interface StudyFilterProps {
   values: StudyFilterValues;
   onChange: (values: StudyFilterValues) => void;
+  studyCategory?: 'GROUP' | 'PREMIUM'; // 추가: 스터디 카테고리
 }
 
-// 스터디 유형 옵션
-const STUDY_TYPE_OPTIONS = [
+// 그룹스터디 유형 옵션 (멘토링 제외)
+const GROUP_STUDY_TYPE_OPTIONS = [
   { value: 'PROJECT', label: '프로젝트' },
+  { value: 'SEMINAR', label: '세미나' },
+  { value: 'CHALLENGE', label: '챌린지' },
+  { value: 'BOOK_STUDY', label: '북스터디' },
+  { value: 'LECTURE_STUDY', label: '강의스터디' },
+] as const;
+
+// 멘토스터디 유형 옵션 (멘토링 포함)
+const PREMIUM_STUDY_TYPE_OPTIONS = [
+  { value: 'PROJECT', label: '프로젝트' },
+  { value: 'MENTORING', label: '멘토링' },
   { value: 'SEMINAR', label: '세미나' },
   { value: 'CHALLENGE', label: '챌린지' },
   { value: 'BOOK_STUDY', label: '북스터디' },
@@ -45,6 +57,23 @@ const METHOD_OPTIONS = [
   { value: 'ONLINE', label: '온라인' },
   { value: 'OFFLINE', label: '오프라인' },
   { value: 'HYBRID', label: '병행' },
+] as const;
+
+// 스터디 대상 (경력 여부) 옵션
+const EXPERIENCE_LEVEL_OPTIONS = [
+  { value: 'BEGINNER', label: '입문자' },
+  { value: 'JOB_SEEKER', label: '취준생' },
+  { value: 'JUNIOR', label: '주니어' },
+  { value: 'MIDDLE', label: '미들' },
+  { value: 'SENIOR', label: '시니어' },
+] as const;
+
+// 진행 상태 옵션
+const STATUS_OPTIONS = [
+  { value: 'ALL', label: '전체' },
+  { value: 'RECRUITING', label: '모집 중' },
+  { value: 'IN_PROGRESS', label: '진행 중' },
+  { value: 'COMPLETED', label: '종료' },
 ] as const;
 
 interface FilterDropdownProps {
@@ -75,30 +104,41 @@ function FilterDropdown({
 
   const hasSelection = selected.length > 0;
 
+  // 선택된 값들의 라벨을 표시
+  const getDisplayLabel = () => {
+    if (selected.length === 0) return label;
+    const selectedLabels = selected
+      .map((val) => options.find((opt) => opt.value === val)?.label)
+      .filter(Boolean)
+      .join(', ');
+    return `${label}: ${selectedLabels}`;
+  };
+
   return (
-    <DropdownMenu open={open} onOpenChange={setOpen}>
+    <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
           className={[
-            'h-500ems-center flex gap-50 rounded-full border px-200 py-100',
+            'h-500 items-center flex gap-50 rounded-full border px-200 py-100 whitespace-nowrap',
             hasSelection
               ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
               : 'border-border-default bg-fill-neutral-subtle-default text-text-default',
           ].join(' ')}
         >
-          <span className="font-designer-14m">{label}</span>
+          <span className="font-designer-14m">{getDisplayLabel()}</span>
           {open ? (
-            <ChevronUp className="size-4" />
+            <ChevronUp className="size-4 flex-shrink-0" />
           ) : (
-            <ChevronDown className="size-4" />
+            <ChevronDown className="size-4 flex-shrink-0" />
           )}
         </button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="shadow-2 rounded-100 border-border-default bg-background-default flex min-w-[160px] flex-col gap-50 border p-50"
+        className="shadow-2 rounded-100 border-border-default !bg-white flex min-w-[160px] flex-col gap-50 border p-50 z-50"
         align="start"
+        sideOffset={4}
       >
         {options.map((option) => {
           const isSelected = selected.includes(option.value);
@@ -132,7 +172,12 @@ function FilterDropdown({
   );
 }
 
-export default function StudyFilter({ values, onChange }: StudyFilterProps) {
+export default function StudyFilter({ values, onChange, studyCategory = 'GROUP' }: StudyFilterProps) {
+  // 스터디 카테고리에 따라 다른 옵션 사용
+  const studyTypeOptions = studyCategory === 'PREMIUM' 
+    ? PREMIUM_STUDY_TYPE_OPTIONS 
+    : GROUP_STUDY_TYPE_OPTIONS;
+
   const handleTypeChange = useCallback(
     (type: string[]) => {
       onChange({ ...values, type });
@@ -154,9 +199,16 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
     [values, onChange],
   );
 
-  const handleRecruitingChange = useCallback(
-    (pressed: boolean) => {
-      onChange({ ...values, recruiting: pressed });
+  const handleExperienceLevelsChange = useCallback(
+    (experienceLevels: string[]) => {
+      onChange({ ...values, experienceLevels });
+    },
+    [values, onChange],
+  );
+
+  const handleStatusChange = useCallback(
+    (status: string[]) => {
+      onChange({ ...values, status });
     },
     [values, onChange],
   );
@@ -166,28 +218,31 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
       type: [],
       targetRoles: [],
       method: [],
-      recruiting: true, // 기본값: 모집 중만 보기
+      experienceLevels: [],
+      status: ['RECRUITING'], // 기본값: 모집 중
     });
   }, [onChange]);
 
-  // recruiting은 기본값이므로 필터로 간주하지 않음
+  // status가 기본값(RECRUITING만 선택)이 아니거나 다른 필터가 적용되었을 때
   const hasAnyFilter =
     values.type.length > 0 ||
     values.targetRoles.length > 0 ||
     values.method.length > 0 ||
-    !values.recruiting; // recruiting이 false면 필터 적용 중
+    values.experienceLevels.length > 0 ||
+    values.status.length !== 1 ||
+    values.status[0] !== 'RECRUITING';
 
   return (
-    <div className="flex items-center gap-100">
+    <div className="flex items-center gap-100 flex-wrap">
       <FilterDropdown
         label="스터디 유형"
-        options={STUDY_TYPE_OPTIONS}
+        options={studyTypeOptions}
         selected={values.type}
         onChange={handleTypeChange}
       />
 
       <FilterDropdown
-        label="포지션"
+        label="직무"
         options={POSITION_OPTIONS}
         selected={values.targetRoles}
         onChange={handleTargetRolesChange}
@@ -200,15 +255,19 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
         onChange={handleMethodChange}
       />
 
-      <ToggleButton
-        size="md"
-        variant="round"
-        color="primary"
-        pressed={values.recruiting}
-        onPressedChange={handleRecruitingChange}
-      >
-        모집 중만 보기
-      </ToggleButton>
+      <FilterDropdown
+        label="스터디 대상"
+        options={EXPERIENCE_LEVEL_OPTIONS}
+        selected={values.experienceLevels}
+        onChange={handleExperienceLevelsChange}
+      />
+
+      <FilterDropdown
+        label="진행 상태"
+        options={STATUS_OPTIONS}
+        selected={values.status}
+        onChange={handleStatusChange}
+      />
 
       {hasAnyFilter && (
         <button

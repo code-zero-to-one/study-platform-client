@@ -56,7 +56,7 @@ export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
         <StudyCard
           key={study.basicInfo?.groupStudyId}
           study={study}
-          href={`/premium-study/${study.basicInfo?.groupStudyId}`}
+          href="/premium-study/2"
           onClick={() => handleStudyClick(study)}
         />
       ))}

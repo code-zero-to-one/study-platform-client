@@ -90,10 +90,10 @@ export default async function Page({
   const memberIdStr = await getServerCookie('memberId');
   const memberId = memberIdStr ? Number(memberIdStr) : undefined;
 
-  const isLeader = data.basicInfo.leader.memberId === memberId;
+  const isLeader = data?.basicInfo?.leader?.memberId === memberId;
 
-  if (!isLeader && memberId) {
-    // 내가 리더가 아닐 경우에만 내 신청 상태 정보 미리 가져오기
+  // 프로토타입 id=2가 아닐 때만 API로 신청 상태 조회 (목데이터 스터디는 스킵)
+  if (data && Number(id) !== 2 && !isLeader && memberId) {
     await queryClient.prefetchQuery({
       queryKey: ['groupStudyMyStatus', Number(id)],
       queryFn: () =>

@@ -21,6 +21,8 @@ import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-mod
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyMemberList from '../lists/study-member-list';
 import StudyInfoSection from '../section/group-study-info-section';
+import InquirySection from '../section/inquiry-section';
+import LoungePlaceholder from '../section/lounge-placeholder';
 import MissionSection from '../section/mission-section';
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
@@ -56,6 +58,12 @@ export default function StudyDetailPage({
   }, [studyDetail?.basicInfo.leader, setLeaderInfo]);
 
   const [active, setActive] = useState<StudyTabValue>(tabFromUrl || 'intro');
+
+  useEffect(() => {
+    const t = searchParams.get('tab') as StudyTabValue | null;
+    if (t) setActive(t);
+  }, [searchParams]);
+
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
@@ -204,7 +212,13 @@ export default function StudyDetailPage({
       <Tabs
         className="w-[1164px]"
         tabs={STUDY_DETAIL_TABS.filter(
-          (tab) => tab.value === 'intro' || isLeader || isMember,
+          (tab) =>
+            tab.value === 'intro' ||
+            tab.value === 'members' ||
+            tab.value === 'mission' ||
+            tab.value === 'lounge' ||
+            isLeader ||
+            isMember,
         )}
         activeTab={active}
         onChange={(value: StudyTabValue) => {
@@ -220,7 +234,18 @@ export default function StudyDetailPage({
           });
         }}
       />
-      {active === 'intro' && <StudyInfoSection study={studyDetail} />}
+      {active === 'intro' && (
+        <StudyInfoSection
+          study={studyDetail}
+          onMissionClick={(missionId) => {
+            setActive('mission');
+            const params = new URLSearchParams(searchParams.toString());
+            params.set('tab', 'mission');
+            params.set('missionId', String(missionId));
+            router.replace(`?${params.toString()}`);
+          }}
+        />
+      )}
       {active === 'members' && (
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
@@ -229,12 +254,29 @@ export default function StudyDetailPage({
         />
       )}
 
-      {active === 'mission' && <MissionSection groupStudyId={groupStudyId} />}
-      {active === 'lounge' && (
-        <ChannelSection
+      {active === 'mission' && (
+        <MissionSection
           groupStudyId={groupStudyId}
-          memberId={memberId}
-          myApplicationStatus={myApplicationStatus}
+          isMember={isLeader || isMember}
+        />
+      )}
+      {active === 'lounge' &&
+        (isLeader || isMember ? (
+          <ChannelSection
+            groupStudyId={groupStudyId}
+            memberId={memberId}
+            myApplicationStatus={myApplicationStatus}
+          />
+        ) : (
+          <LoungePlaceholder />
+        ))}
+      {active === 'inquiry' && (
+        <InquirySection
+          studyId={groupStudyId}
+          studyTitle={studyDetail?.detailInfo.title || ''}
+          currentUserId={memberId}
+          isMentor={isLeader}
+          isAdmin={false}
         />
       )}
     </div>
