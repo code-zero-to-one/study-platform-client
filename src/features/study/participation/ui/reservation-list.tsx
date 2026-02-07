@@ -8,7 +8,7 @@ import {
   useUserProfileQuery,
 } from '@/entities/user/model/use-user-profile-query';
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import ReservationCard from '@/features/study/participation/ui/reservation-user-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
@@ -36,7 +36,10 @@ export default function ReservationList({
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
   const autoMatching = userProfile?.autoMatching ?? false;
 
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  // 서버 상태와 동기화된 인증 상태 사용
+  const { isVerified, setVerified } = usePhoneVerificationStatus(
+    memberId ?? undefined,
+  );
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const firstMemberId = useMemo(

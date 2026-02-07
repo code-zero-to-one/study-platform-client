@@ -6,7 +6,7 @@ import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
 } from '@/entities/user/model/use-user-profile-query';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { useAuth } from '@/hooks/common/use-auth';
@@ -20,7 +20,9 @@ export default function StudyMatchingToggle() {
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
 
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const { isVerified, setVerified } = usePhoneVerificationStatus(
+    memberId ?? undefined,
+  );
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const [enabled, setEnabled] = useState(false);

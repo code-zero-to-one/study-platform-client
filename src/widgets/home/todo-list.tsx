@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Button from '@/components/ui/button';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import CheckIcon from 'public/icons/check.svg';
 
@@ -17,7 +17,7 @@ const todoItems = [
 ] as const;
 
 export default function TodoList({ statusList }: TodoListProps) {
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const { isVerified, setVerified } = usePhoneVerificationStatus();
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const handleVerificationComplete = (phoneNumber: string) => {

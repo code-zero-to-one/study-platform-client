@@ -37,7 +37,7 @@ export const usePatchAutoMatchingMutation = () => {
       const prev = qc.getQueryData(['userProfile', memberId]);
       if (prev && typeof prev === 'object') {
         qc.setQueryData(['userProfile', memberId], {
-          ...(prev as any),
+          ...prev,
           autoMatching,
         });
       }

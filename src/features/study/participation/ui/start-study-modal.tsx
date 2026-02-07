@@ -23,7 +23,7 @@ import {
   useUpdateUserProfileInfoMutation,
 } from '@/features/my-page/model/use-update-user-profile-mutation';
 
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 import {
@@ -99,7 +99,8 @@ export default function StartStudyModal({
   open,
   onOpenChange,
 }: StartStudyModalProps) {
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  // 서버 상태와 동기화된 인증 상태 사용
+  const { isVerified, setVerified } = usePhoneVerificationStatus(memberId);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const [internalOpen, setInternalOpen] = useState(false);
