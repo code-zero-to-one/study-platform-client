@@ -1,6 +1,5 @@
 'use client';
 
-import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { startTransition, useState } from 'react';
 import { useKickMember } from '@/hooks/queries/group-study-member-api';
@@ -83,16 +82,20 @@ function Step1Modal({ onClose, onNext }: Step1ModalProps) {
         className="w-[423px]"
         onInteractOutside={onClose}
       >
-        <Modal.Header className="border-border-default flex justify-center border-b py-200">
+        <Modal.Header variant="alert">
           <Modal.Title>스터디 참여 종료하기</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className="font-designer-14r text-text-default flex flex-col items-center justify-center gap-100 py-250 text-center">
-          <p>지금까지의 참여 기록이 모두 종료됩니다.</p>
-          <p>조금만 더 도전해보시는 건 어떨까요?</p>
+        <Modal.Body variant="alert" className="flex-col gap-100">
+          <p className="font-designer-14r">
+            지금까지의 참여 기록이 모두 종료됩니다.
+          </p>
+          <p className="font-designer-14r">
+            조금만 더 도전해보시는 건 어떨까요?
+          </p>
         </Modal.Body>
 
-        <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
+        <Modal.Footer variant="alert">
           <Button
             color="primary"
             className="font-designer-14b w-[160px]"
@@ -129,11 +132,9 @@ function Step2Modal({ onClose, onNext }: Step2ModalProps) {
         description="스터디 참여 종료하기"
         onInteractOutside={onClose}
       >
-        <Modal.Header className="border-border-default flex items-center justify-between border-b">
+        <Modal.Header variant="form" className="items-center">
           <Modal.Title>스터디 참여 종료하기</Modal.Title>
-          <button onClick={onClose}>
-            <XIcon className="h-5 w-5" />
-          </button>
+          <Modal.CloseButton onClick={onClose} />
         </Modal.Header>
         <Modal.Body className="space-y-400 text-sm">
           <p className="text-text-subtle">
@@ -207,7 +208,7 @@ function Step2Modal({ onClose, onNext }: Step2ModalProps) {
             </ul>
           </section>
         </Modal.Body>
-        <Modal.Footer className="flex justify-end gap-200">
+        <Modal.Footer variant="form" className="gap-200">
           <Button
             type="button"
             color="secondary"
@@ -268,15 +269,15 @@ function Step3Modal({
         className="w-[423px]"
         onInteractOutside={onClose}
       >
-        <Modal.Header className="border-border-default flex justify-center border-b py-200">
+        <Modal.Header variant="alert">
           <Modal.Title>스터디 참여 종료하기</Modal.Title>
         </Modal.Header>
 
-        <Modal.Body className="font-designer-14r text-text-default flex flex-col items-center justify-center gap-100 py-250 text-center">
+        <Modal.Body variant="alert" className="flex-col gap-100">
           <p>해당 스터디는 마이페이지 결제관리에서 확인하실 수 있습니다.</p>
         </Modal.Body>
 
-        <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
+        <Modal.Footer variant="alert">
           <Button
             color="primary"
             className="font-designer-14b w-[160px]"

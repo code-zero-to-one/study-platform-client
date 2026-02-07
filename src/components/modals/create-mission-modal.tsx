@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
-import { Plus, XIcon } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { ChangeEvent, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -78,13 +78,11 @@ export default function CreateMissionModal({
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content className="w-[840px]">
-          <Modal.Header className="border-border-default flex justify-between border-b">
+          <Modal.Header variant="form">
             <Modal.Title className="font-designer-20b text-text-strong">
               새 미션 만들기
             </Modal.Title>
-            <Modal.Close onClick={() => setOpen(false)}>
-              <XIcon />
-            </Modal.Close>
+            <Modal.CloseButton onClick={() => setOpen(false)} />
           </Modal.Header>
 
           <CreateMissionForm
@@ -169,7 +167,7 @@ function CreateMissionForm({
 
   return (
     <FormProvider {...methods}>
-      <Modal.Body className="flex flex-col gap-400 px-400 py-300">
+      <Modal.Body variant="form">
         <form
           id="create-mission"
           className="flex flex-col gap-300"
@@ -257,7 +255,10 @@ function CreateMissionForm({
         </form>
       </Modal.Body>
 
-      <Modal.Footer className="flex items-center justify-between">
+      <Modal.Footer
+        variant="form"
+        className="flex items-center justify-between"
+      >
         <span className="font-designer-13r text-text-error">
           미션이 시작되면 수정 및 삭제가 불가합니다.
         </span>

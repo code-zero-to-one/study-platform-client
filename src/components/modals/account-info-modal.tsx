@@ -1,4 +1,3 @@
-import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { SettlementAccountResponse } from '@/api/openapi';
 import Button from '@/components/ui/button';
@@ -33,13 +32,11 @@ export default function AccountInfoModal({
         <Modal.Portal>
           <Modal.Overlay />
           <Modal.Content className="w-[840px]">
-            <Modal.Header className="border-border-default flex justify-between border-b">
+            <Modal.Header variant="form">
               <Modal.Title className="font-designer-20b text-text-strong">
                 계좌 정보
               </Modal.Title>
-              <Modal.Close onClick={() => onOpenChange(false)}>
-                <XIcon />
-              </Modal.Close>
+              <Modal.CloseButton onClick={() => onOpenChange(false)} />
             </Modal.Header>
 
             <Modal.Body>
@@ -64,7 +61,7 @@ export default function AccountInfoModal({
               </div>
             </Modal.Body>
 
-            <Modal.Footer className="flex justify-end gap-100">
+            <Modal.Footer variant="form">
               <Modal.Close asChild>
                 <Button
                   color="secondary"

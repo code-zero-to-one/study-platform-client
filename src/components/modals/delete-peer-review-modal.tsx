@@ -35,15 +35,17 @@ export default function DeletePeerReviewModal({
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="small" className="w-[423px]">
-          <Modal.Header className="border-border-default flex justify-center border-b py-200">
+          <Modal.Header variant="alert">
             <Modal.Title>피어 리뷰를 삭제하시겠습니까?</Modal.Title>
           </Modal.Header>
 
-          <Modal.Body className="font-designer-14r text-text-default flex justify-center py-250">
-            작성하신 피어 리뷰가 영구적으로 삭제됩니다.
+          <Modal.Body variant="alert">
+            <span className="font-designer-14r">
+              작성하신 피어 리뷰가 영구적으로 삭제됩니다.
+            </span>
           </Modal.Body>
 
-          <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
+          <Modal.Footer variant="alert">
             <Button
               color="secondary"
               className="font-designer-14b w-[160px]"
