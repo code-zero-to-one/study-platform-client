@@ -99,8 +99,6 @@ export default function GroupStudyFormModal({
   };
 
   const refineStudyDetail = (value: GroupStudyFullResponseDto) => {
-    if (isGroupStudyLoading) return;
-
     const refinedClassification =
       value.basicInfo?.classification ?? classification;
     const originalType = value.basicInfo?.type;
@@ -116,7 +114,7 @@ export default function GroupStudyFormModal({
     return {
       classification: refinedClassification,
       studyLeaderParticipation:
-        value.basicInfo.studyLeaderParticipation ?? false,
+        value.basicInfo?.studyLeaderParticipation ?? false,
       type: refinedType,
       targetRoles: value.basicInfo?.targetRoles,
       maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
@@ -232,6 +230,11 @@ export default function GroupStudyFormModal({
     }
   }, [open, mode]);
 
+  const editDefaultValues =
+    mode === 'edit' && groupStudyInfo
+      ? refineStudyDetail(groupStudyInfo)
+      : null;
+
   return (
     <>
       <Modal.Root
@@ -250,14 +253,23 @@ export default function GroupStudyFormModal({
                 <XIcon />
               </Modal.Close>
             </Modal.Header>
-            <GroupStudyForm
-              defaultValues={
-                mode === 'create'
-                  ? buildOpenGroupDefaultValues(classification)
-                  : refineStudyDetail(groupStudyInfo!)
-              }
-              onSubmit={handleSubmitForm}
-            />
+            {mode === 'create' && (
+              <GroupStudyForm
+                defaultValues={buildOpenGroupDefaultValues(classification)}
+                onSubmit={handleSubmitForm}
+              />
+            )}
+            {mode === 'edit' && isGroupStudyLoading && (
+              <Modal.Body className="font-designer-16m text-text-subtle py-800 text-center">
+                스터디 정보를 불러오는 중입니다...
+              </Modal.Body>
+            )}
+            {mode === 'edit' && !isGroupStudyLoading && editDefaultValues && (
+              <GroupStudyForm
+                defaultValues={editDefaultValues}
+                onSubmit={handleSubmitForm}
+              />
+            )}
           </Modal.Content>
         </Modal.Portal>
       </Modal.Root>

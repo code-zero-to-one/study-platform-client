@@ -1,10 +1,10 @@
 import '../global.css';
 
-import Clarity from '@microsoft/clarity';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+import ClarityInit from '@/components/analytics/clarity-init';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
 import MainProvider from '@/providers';
 import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
@@ -62,10 +62,6 @@ export default async function LandingPageLayout({
   children: React.ReactNode;
 }>) {
   const initialAccessToken = await getServerCookie('accessToken');
-  if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
-    Clarity.init(CLARITY_PROJECT_ID);
-  }
-
   const organizationSchema = getOrganizationSchema();
   const websiteSchema = getWebsiteSchema();
 
@@ -94,6 +90,7 @@ export default async function LandingPageLayout({
       </head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
+          <ClarityInit projectId={CLARITY_PROJECT_ID} />
           <PageViewTracker />
           <div className="w-full overflow-auto">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}

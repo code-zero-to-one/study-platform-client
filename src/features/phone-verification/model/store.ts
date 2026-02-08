@@ -12,6 +12,11 @@ interface PhoneVerificationState {
   setHasHydrated: (hasHydrated: boolean) => void;
 }
 
+type PersistedPhoneVerificationState = Pick<
+  PhoneVerificationState,
+  'isVerified' | 'phoneNumber' | 'verifiedAt' | 'memberId'
+>;
+
 export const usePhoneVerificationStore = create<PhoneVerificationState>()(
   persist(
     (set) => ({
@@ -21,12 +26,12 @@ export const usePhoneVerificationStore = create<PhoneVerificationState>()(
       memberId: null as number | null,
       hasHydrated: false,
       setVerified: (phoneNumber, memberId) =>
-        set({
+        set((state) => ({
           isVerified: true,
           phoneNumber,
           verifiedAt: new Date().toISOString(),
-          ...(memberId !== undefined ? { memberId } : {}),
-        }),
+          memberId: memberId ?? state.memberId,
+        })),
       reset: () =>
         set({
           isVerified: false,
@@ -38,7 +43,7 @@ export const usePhoneVerificationStore = create<PhoneVerificationState>()(
     }),
     {
       name: 'phone-verification-storage',
-      partialize: (state) => ({
+      partialize: (state): PersistedPhoneVerificationState => ({
         isVerified: state.isVerified,
         phoneNumber: state.phoneNumber,
         verifiedAt: state.verifiedAt,
