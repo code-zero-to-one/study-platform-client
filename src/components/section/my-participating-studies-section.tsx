@@ -4,6 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import type { GroupStudyListItemDto } from '@/api/openapi';
 import StudyCard from '@/components/card/study-card';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import { useAuth } from '@/hooks/common/use-auth';
@@ -11,6 +12,13 @@ import { useGetStudies } from '@/hooks/queries/study-query';
 import { hashValue } from '@/utils/hash';
 import { MOCK_GROUP_STUDIES } from '@/mocks/group-study-mock-data';
 import { MOCK_PREMIUM_STUDIES } from '@/mocks/premium-study-mock-data';
+
+/** 목 데이터용 확장 타입 (_prototype 필드 포함) */
+type GroupStudyWithPrototype = GroupStudyListItemDto & {
+  _prototype?: {
+    status: string;
+  };
+};
 
 interface MyParticipatingStudiesSectionProps {
   classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
@@ -73,11 +81,11 @@ export default function MyParticipatingStudiesSection({
       : MOCK_PREMIUM_STUDIES;
     
     // 첫 번째: 진행 중
-    const inProgress = mockData.find(study => study._prototype?.status === 'IN_PROGRESS');
+    const inProgress = mockData.find(study => (study as GroupStudyWithPrototype)._prototype?.status === 'IN_PROGRESS');
     // 두 번째: 모집 중
-    const recruiting = mockData.find(study => study._prototype?.status === 'RECRUITING');
+    const recruiting = mockData.find(study => (study as GroupStudyWithPrototype)._prototype?.status === 'RECRUITING');
     // 세 번째: 종료
-    const completed = mockData.find(study => study._prototype?.status === 'COMPLETED');
+    const completed = mockData.find(study => (study as GroupStudyWithPrototype)._prototype?.status === 'COMPLETED');
     
     return [inProgress, recruiting, completed].filter(Boolean).slice(0, 3);
   }, [usePrototype, classification]);

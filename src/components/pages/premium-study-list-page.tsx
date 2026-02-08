@@ -4,6 +4,7 @@ import { ArrowUpDown, Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
+import type { GroupStudyListItemDto } from '@/api/openapi';
 import type {
   GetGroupStudiesTypeEnum,
   GetGroupStudiesTargetRolesEnum,
@@ -27,6 +28,15 @@ import MyParticipatingStudiesSection from '../section/my-participating-studies-s
 const Banner = dynamic(() => import('@/widgets/home/banner'), {
   ssr: false,
 });
+
+/** 목 데이터용 확장 타입 (_prototype 필드 포함) */
+type GroupStudyWithPrototype = GroupStudyListItemDto & {
+  _prototype?: {
+    status: string;
+    endDate?: string;
+    viewCount?: number;
+  };
+};
 
 const PAGE_SIZE = 15;
 
@@ -97,27 +107,28 @@ export default function PremiumStudyListPage() {
     ) {
       return allStudies.filter(
         (study) =>
-          study._prototype?.status === 'RECRUITING' ||
-          study._prototype?.status === 'DEADLINE_IMMINENT',
+          (study as GroupStudyWithPrototype)._prototype?.status === 'RECRUITING' ||
+          (study as GroupStudyWithPrototype)._prototype?.status === 'DEADLINE_IMMINENT',
       );
     }
 
     // 선택된 status에 맞는 스터디만 필터링
     return allStudies.filter((study) => {
-      if (!study._prototype?.status) return false;
+      const studyProto = (study as GroupStudyWithPrototype)._prototype;
+      if (!studyProto?.status) return false;
 
       // RECRUITING 선택 시 마감 임박도 포함
       if (filterValues.status.includes('RECRUITING')) {
         if (
-          study._prototype.status === 'RECRUITING' ||
-          study._prototype.status === 'DEADLINE_IMMINENT'
+          studyProto.status === 'RECRUITING' ||
+          studyProto.status === 'DEADLINE_IMMINENT'
         ) {
           return true;
         }
       }
 
       // 다른 상태들 체크
-      return filterValues.status.includes(study._prototype.status);
+      return filterValues.status.includes(studyProto.status);
     });
   }, [usePrototype, allStudies, filterValues.status]);
 
@@ -196,23 +207,22 @@ export default function PremiumStudyListPage() {
       case 'deadline':
         // 마감임박순: endDate가 가까운 순 (모집 중인 것만)
         return studies.sort((a, b) => {
-          const aStatus = a._prototype?.status;
-          const bStatus = b._prototype?.status;
-          
+          const aP = (a as GroupStudyWithPrototype)._prototype;
+          const bP = (b as GroupStudyWithPrototype)._prototype;
+          const aStatus = aP?.status;
+          const bStatus = bP?.status;
           // 모집 중이 아니면 뒤로
           if (aStatus !== 'RECRUITING' && aStatus !== 'DEADLINE_IMMINENT') return 1;
           if (bStatus !== 'RECRUITING' && bStatus !== 'DEADLINE_IMMINENT') return -1;
-          
-          const aEnd = a._prototype?.endDate ? new Date(a._prototype.endDate).getTime() : Infinity;
-          const bEnd = b._prototype?.endDate ? new Date(b._prototype.endDate).getTime() : Infinity;
+          const aEnd = aP?.endDate ? new Date(aP.endDate).getTime() : Infinity;
+          const bEnd = bP?.endDate ? new Date(bP.endDate).getTime() : Infinity;
           return aEnd - bEnd;
         });
-      
       case 'views':
         // 조회수순: viewCount 높은 순
         return studies.sort((a, b) => {
-          const aViews = a._prototype?.viewCount || 0;
-          const bViews = b._prototype?.viewCount || 0;
+          const aViews = (a as GroupStudyWithPrototype)._prototype?.viewCount || 0;
+          const bViews = (b as GroupStudyWithPrototype)._prototype?.viewCount || 0;
           return bViews - aViews;
         });
       
