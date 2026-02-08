@@ -4,6 +4,7 @@ import { ArrowUpDown, ChevronDown, Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
+import type { GroupStudyListItemDto } from '@/api/openapi';
 import type {
   GetGroupStudiesTypeEnum,
   GetGroupStudiesTargetRolesEnum,
@@ -27,6 +28,15 @@ import MyParticipatingStudiesSection from '../section/my-participating-studies-s
 const Banner = dynamic(() => import('@/widgets/home/banner'), {
   ssr: false,
 });
+
+/** 목 데이터용 확장 타입 (_prototype 필드 포함) */
+type GroupStudyWithPrototype = GroupStudyListItemDto & {
+  _prototype?: {
+    status: string;
+    endDate?: string;
+    viewCount?: number;
+  };
+};
 
 const PAGE_SIZE = 15;
 
@@ -99,7 +109,7 @@ export default function GroupStudyListPage() {
     if (filterValues.status.length === 0 || filterValues.status.includes('ALL')) return rawStudies;
 
     return rawStudies.filter((study) => {
-      const protoStatus = study._prototype?.status;
+      const protoStatus = (study as GroupStudyWithPrototype)._prototype?.status;
       // 선택된 상태 중 하나라도 매치되면 표시
       return filterValues.status.some((selectedStatus) => {
         if (selectedStatus === 'RECRUITING') {
@@ -187,23 +197,22 @@ export default function GroupStudyListPage() {
       case 'deadline':
         // 마감임박순: endDate가 가까운 순 (모집 중인 것만)
         return studies.sort((a, b) => {
-          const aStatus = a._prototype?.status;
-          const bStatus = b._prototype?.status;
-          
+          const aP = (a as GroupStudyWithPrototype)._prototype;
+          const bP = (b as GroupStudyWithPrototype)._prototype;
+          const aStatus = aP?.status;
+          const bStatus = bP?.status;
           // 모집 중이 아니면 뒤로
           if (aStatus !== 'RECRUITING' && aStatus !== 'DEADLINE_IMMINENT') return 1;
           if (bStatus !== 'RECRUITING' && bStatus !== 'DEADLINE_IMMINENT') return -1;
-          
-          const aEnd = a._prototype?.endDate ? new Date(a._prototype.endDate).getTime() : Infinity;
-          const bEnd = b._prototype?.endDate ? new Date(b._prototype.endDate).getTime() : Infinity;
+          const aEnd = aP?.endDate ? new Date(aP.endDate).getTime() : Infinity;
+          const bEnd = bP?.endDate ? new Date(bP.endDate).getTime() : Infinity;
           return aEnd - bEnd;
         });
-      
       case 'views':
         // 조회수순: viewCount 높은 순
         return studies.sort((a, b) => {
-          const aViews = a._prototype?.viewCount || 0;
-          const bViews = b._prototype?.viewCount || 0;
+          const aViews = (a as GroupStudyWithPrototype)._prototype?.viewCount || 0;
+          const bViews = (b as GroupStudyWithPrototype)._prototype?.viewCount || 0;
           return bViews - aViews;
         });
       
