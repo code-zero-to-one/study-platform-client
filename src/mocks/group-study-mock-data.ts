@@ -97,7 +97,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       studyLeaderParticipation: true,
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
-      hostType: 'METOR',
+      hostType: 'MENTOR',
       status: 'RECRUITING',
       pendingCount: 2,
       approvedCount: 3,
