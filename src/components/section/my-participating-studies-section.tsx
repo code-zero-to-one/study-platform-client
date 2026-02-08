@@ -75,18 +75,28 @@ export default function MyParticipatingStudiesSection({
   // 프로토타입 모드: 목 데이터에서 다양한 상태의 스터디 가져오기 (진행 중, 모집 중, 종료)
   const prototypeStudies = useMemo(() => {
     if (!usePrototype) return [];
-    
-    const mockData = classification === 'GROUP_STUDY' 
-      ? MOCK_GROUP_STUDIES 
-      : MOCK_PREMIUM_STUDIES;
-    
+
+    const mockData =
+      classification === 'GROUP_STUDY'
+        ? MOCK_GROUP_STUDIES
+        : MOCK_PREMIUM_STUDIES;
+
     // 첫 번째: 진행 중
-    const inProgress = mockData.find(study => (study as GroupStudyWithPrototype)._prototype?.status === 'IN_PROGRESS');
+    const inProgress = mockData.find(
+      (study) =>
+        (study as GroupStudyWithPrototype)._prototype?.status === 'IN_PROGRESS',
+    );
     // 두 번째: 모집 중
-    const recruiting = mockData.find(study => (study as GroupStudyWithPrototype)._prototype?.status === 'RECRUITING');
+    const recruiting = mockData.find(
+      (study) =>
+        (study as GroupStudyWithPrototype)._prototype?.status === 'RECRUITING',
+    );
     // 세 번째: 종료
-    const completed = mockData.find(study => (study as GroupStudyWithPrototype)._prototype?.status === 'COMPLETED');
-    
+    const completed = mockData.find(
+      (study) =>
+        (study as GroupStudyWithPrototype)._prototype?.status === 'COMPLETED',
+    );
+
     return [inProgress, recruiting, completed].filter(Boolean).slice(0, 3);
   }, [usePrototype, classification]);
 
@@ -125,7 +135,12 @@ export default function MyParticipatingStudiesSection({
     );
 
     return filtered.slice(0, 3); // 최대 3개만 표시
-  }, [usePrototype, prototypeStudies, allStudiesData?.content, participatingStudyIds]);
+  }, [
+    usePrototype,
+    prototypeStudies,
+    allStudiesData?.content,
+    participatingStudyIds,
+  ]);
 
   // 비회원은 표시하지 않음 (hooks 호출 후 early return)
   if (!memberId && !usePrototype) {

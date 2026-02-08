@@ -33,13 +33,11 @@ export default function CurriculumSummaryCard({
 
   return (
     <div
-      className={`rounded-200 border border-border-default bg-background-default p-400 ${className}`}
+      className={`rounded-200 border-border-default bg-background-default border p-400 ${className}`}
     >
       <div className="font-designer-18b mb-300 flex gap-100">
         <span className="text-text-default">커리큘럼 요약</span>
-        {weekCount > 0 && (
-          <span className="text-[#A4A7AE]">{weekCount}주</span>
-        )}
+        {weekCount > 0 && <span className="text-[#A4A7AE]">{weekCount}주</span>}
       </div>
 
       <div className="relative">
@@ -48,7 +46,7 @@ export default function CurriculumSummaryCard({
           {missions.map((mission) => (
             <div
               key={mission.id}
-              className="group flex cursor-pointer items-center justify-between rounded-100 border border-border-default bg-fill-neutral-subtle-default p-300 text-text-default transition-colors hover:bg-fill-neutral-subtle-hover"
+              className="group rounded-100 border-border-default bg-fill-neutral-subtle-default text-text-default hover:bg-fill-neutral-subtle-hover flex cursor-pointer items-center justify-between border p-300 transition-colors"
               onMouseEnter={() => setHoveredMissionId(mission.id)}
               onMouseLeave={() => setHoveredMissionId(null)}
               onClick={() => onMissionClick?.(mission.id)}
@@ -71,15 +69,15 @@ export default function CurriculumSummaryCard({
                 </span>
               </div>
 
-              <span className="p-50 rounded-50">
-                <ExternalLink className="h-200 w-200 text-text-subtle transition-transform group-hover:scale-125" />
+              <span className="rounded-50 p-50">
+                <ExternalLink className="text-text-subtle h-200 w-200 transition-transform group-hover:scale-125" />
               </span>
 
               {/* 호버 툴팁 (잠김 상태일 때) */}
               {isLocked && hoveredMissionId === mission.id && (
-                <div className="absolute top-full left-1/2 z-50 mt-100 -translate-x-1/2 whitespace-nowrap rounded-100 bg-background-neutral-strong px-200 py-100 text-text-inverse font-designer-12m shadow-lg pointer-events-none">
+                <div className="rounded-100 bg-background-neutral-strong text-text-inverse font-designer-12m pointer-events-none absolute top-full left-1/2 z-50 mt-100 -translate-x-1/2 px-200 py-100 whitespace-nowrap shadow-lg">
                   스터디 가입 후 확인 가능
-                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-background-neutral-strong" />
+                  <div className="border-b-background-neutral-strong absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent" />
                 </div>
               )}
             </div>

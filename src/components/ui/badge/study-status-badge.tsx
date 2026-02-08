@@ -2,7 +2,11 @@
 
 import Badge from './index';
 
-export type StudyStatus = 'RECRUITING' | 'DEADLINE_IMMINENT' | 'IN_PROGRESS' | 'COMPLETED';
+export type StudyStatus =
+  | 'RECRUITING'
+  | 'DEADLINE_IMMINENT'
+  | 'IN_PROGRESS'
+  | 'COMPLETED';
 
 interface StudyStatusBadgeProps {
   status: StudyStatus;
@@ -29,7 +33,9 @@ export default function StudyStatusBadge({
 }: StudyStatusBadgeProps) {
   // 마감 임박 (일자별 색상)
   if (status === 'DEADLINE_IMMINENT' && daysLeft !== undefined) {
-    const badgeColor = daysLeft === 3 ? 'green' : daysLeft === 2 ? 'orange' : 'red';
+    const badgeColor =
+      daysLeft === 3 ? 'green' : daysLeft === 2 ? 'orange' : 'red';
+
     return (
       <Badge color={badgeColor} className={className}>
         마감까지 D-{daysLeft}

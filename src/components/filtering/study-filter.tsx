@@ -111,6 +111,7 @@ function FilterDropdown({
       .map((val) => options.find((opt) => opt.value === val)?.label)
       .filter(Boolean)
       .join(', ');
+
     return `${label}: ${selectedLabels}`;
   };
 
@@ -120,7 +121,7 @@ function FilterDropdown({
         <button
           type="button"
           className={[
-            'h-500 items-center flex gap-50 rounded-full border px-200 py-100 whitespace-nowrap',
+            'flex h-500 items-center gap-50 rounded-full border px-200 py-100 whitespace-nowrap',
             hasSelection
               ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
               : 'border-border-default bg-fill-neutral-subtle-default text-text-default',
@@ -136,7 +137,7 @@ function FilterDropdown({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
-        className="shadow-2 rounded-100 border-border-default !bg-white flex min-w-[160px] flex-col gap-50 border p-50 z-50"
+        className="shadow-2 rounded-100 border-border-default z-50 flex min-w-[160px] flex-col gap-50 border !bg-white p-50"
         align="start"
         sideOffset={4}
       >
@@ -172,11 +173,16 @@ function FilterDropdown({
   );
 }
 
-export default function StudyFilter({ values, onChange, studyCategory = 'GROUP' }: StudyFilterProps) {
+export default function StudyFilter({
+  values,
+  onChange,
+  studyCategory = 'GROUP',
+}: StudyFilterProps) {
   // 스터디 카테고리에 따라 다른 옵션 사용
-  const studyTypeOptions = studyCategory === 'PREMIUM' 
-    ? PREMIUM_STUDY_TYPE_OPTIONS 
-    : GROUP_STUDY_TYPE_OPTIONS;
+  const studyTypeOptions =
+    studyCategory === 'PREMIUM'
+      ? PREMIUM_STUDY_TYPE_OPTIONS
+      : GROUP_STUDY_TYPE_OPTIONS;
 
   const handleTypeChange = useCallback(
     (type: string[]) => {
@@ -233,7 +239,7 @@ export default function StudyFilter({ values, onChange, studyCategory = 'GROUP' 
     values.status[0] !== 'RECRUITING';
 
   return (
-    <div className="flex items-center gap-100 flex-wrap">
+    <div className="flex flex-wrap items-center gap-100">
       <FilterDropdown
         label="스터디 유형"
         options={studyTypeOptions}

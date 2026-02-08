@@ -3,7 +3,13 @@ import { InquiryStatus } from '@/components/ui/badge/inquiry-status-badge';
 /**
  * 문의 타입
  */
-export type InquiryType = 'PAYMENT' | 'STUDY' | 'LEADER' | 'MENTOR' | 'BUG' | 'GENERAL';
+export type InquiryType =
+  | 'PAYMENT'
+  | 'STUDY'
+  | 'LEADER'
+  | 'MENTOR'
+  | 'BUG'
+  | 'GENERAL';
 
 /**
  * 문의 데이터 인터페이스
@@ -198,8 +204,7 @@ export const MOCK_INQUIRIES: Inquiry[] = [
     id: 10,
     type: 'MENTOR',
     title: '1:1 코드리뷰 신청 방법이 궁금합니다',
-    content:
-      '멘토님께 개별적으로 코드리뷰를 받고 싶은데 어떻게 신청하나요?',
+    content: '멘토님께 개별적으로 코드리뷰를 받고 싶은데 어떻게 신청하나요?',
     authorId: 109,
     authorName: '송민호',
     mentorId: 1,

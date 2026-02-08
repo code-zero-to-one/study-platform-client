@@ -13,7 +13,10 @@ import CurriculumSummaryCard from '@/components/ui/curriculum-card';
 import FloatingInfoBar from '@/components/ui/floating-info-bar';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import { useAuth } from '@/hooks/common/use-auth';
-import { MOCK_MISSIONS, MOCK_PARTICIPANTS } from '@/mocks/group-study-mock-data';
+import {
+  MOCK_MISSIONS,
+  MOCK_PARTICIPANTS,
+} from '@/mocks/group-study-mock-data';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
@@ -45,9 +48,11 @@ export default function StudyInfoSection({
 
   // 프로토타입 데이터
   const isUserJoined = false; // 가입 여부 (프로토타입)
-  
+
   // 프로필 모달 상태
-  const [selectedParticipantId, setSelectedParticipantId] = useState<number | null>(null);
+  const [selectedParticipantId, setSelectedParticipantId] = useState<
+    number | null
+  >(null);
 
   return (
     // todo: 스터디 공지 모달 추가
@@ -126,18 +131,20 @@ export default function StudyInfoSection({
             </p>
 
             {/* Avatar Stack (프로토타입) */}
-            <div className="mb-300 mt-100">
-              <AvatarStack 
-                participants={MOCK_PARTICIPANTS} 
-                maxVisible={5} 
+            <div className="mt-100 mb-300">
+              <AvatarStack
+                participants={MOCK_PARTICIPANTS}
+                maxVisible={5}
                 size={60}
-                onProfileClick={(participantId) => setSelectedParticipantId(participantId)}
+                onProfileClick={(participantId) =>
+                  setSelectedParticipantId(participantId)
+                }
               />
             </div>
           </div>
 
           {/* 문의 게시판 (스터디 소개 하단) */}
-          <div className="pt-500 border-t border-border-default">
+          <div className="border-border-default border-t pt-500">
             <InquirySection
               studyId={groupStudyId}
               studyTitle={studyDetail.detailInfo.title}
@@ -169,7 +176,7 @@ export default function StudyInfoSection({
           onMissionClick={onMissionClick}
         />
       </div>
-      
+
       {/* 프로필 모달 */}
       {selectedParticipantId && (
         <MockProfileModal

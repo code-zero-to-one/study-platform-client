@@ -95,16 +95,22 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
         />
 
         {/* 헤더: 배지 + 타이틀 + D-Day */}
-        <div className="absolute top-200 left-200 right-200 flex items-start justify-between gap-200">
+        <div className="absolute top-200 right-200 left-200 flex items-start justify-between gap-200">
           {/* 상태 배지 (카운트다운 통합) */}
           <div className="flex flex-col gap-100">
             {/* 24시간 미만: 마감까지 카운트다운 (애니메이션) */}
             {prototype.endDate &&
             prototype.status === 'DEADLINE_IMMINENT' &&
             hoursLeft < 24 ? (
-              <Badge color="red" className="border-2 border-red-500 animate-pulse">
+              <Badge
+                color="red"
+                className="animate-pulse border-2 border-red-500"
+              >
                 <span className="text-xs font-bold">마감까지 </span>
-                <Countdown targetDate={prototype.endDate} className="font-bold" />
+                <Countdown
+                  targetDate={prototype.endDate}
+                  className="font-bold"
+                />
               </Badge>
             ) : (
               <StudyStatusBadge
@@ -151,7 +157,7 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
             // 모집 마감 (n == 0)
             if (remainingSeats === 0) {
               return (
-                <span className="inline-flex min-w-[24px] px-100 py-50 justify-center items-center gap-[2px] text-xs font-medium whitespace-nowrap bg-fill-danger-subtle-default text-text-error rounded-50">
+                <span className="bg-fill-danger-subtle-default text-text-error rounded-50 inline-flex min-w-[24px] items-center justify-center gap-[2px] px-100 py-50 text-xs font-medium whitespace-nowrap">
                   <Flame width={16} height={16} className="text-red-500" />
                   모집 마감
                 </span>
@@ -161,7 +167,7 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
             // 마감 임박 (0 < n ≤ 3)
             if (remainingSeats > 0 && remainingSeats <= 3) {
               return (
-                <span className="inline-flex min-w-[24px] px-100 py-50 justify-center items-center gap-[2px] text-xs font-bold whitespace-nowrap bg-fill-danger-subtle-default text-text-error rounded-50 border-2 border-red-500 animate-pulse">
+                <span className="bg-fill-danger-subtle-default text-text-error rounded-50 inline-flex min-w-[24px] animate-pulse items-center justify-center gap-[2px] border-2 border-red-500 px-100 py-50 text-xs font-bold whitespace-nowrap">
                   <Flame width={16} height={16} className="text-red-500" />
                   마지막 {remainingSeats}자리!
                 </span>
@@ -182,7 +188,7 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
 
         {/* 하단 정보 (인원·주기·조회수) */}
         <div className="text-text-subtlest flex items-center gap-150">
-          <div className="flex items-center gap-50 w-[60px]">
+          <div className="flex w-[60px] items-center gap-50">
             <Users width={20} height={20} />
             <span className="font-designer-13r">
               {study.basicInfo?.maxMembersCount}명
@@ -233,7 +239,7 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
             </div>
             <div>
               <p className="font-designer-15m">
-                {classification === 'PREMIUM_STUDY' 
+                {classification === 'PREMIUM_STUDY'
                   ? (study.basicInfo?.leader as any)?.memberName ||
                     (study.basicInfo?.leader as any)?.memberNickname ||
                     '멘토'

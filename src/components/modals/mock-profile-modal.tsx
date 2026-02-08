@@ -51,7 +51,8 @@ export default function MockProfileModal({
     studyPlan: profile.studyPlan || '분야 상관 없이 자유롭게 Q&A',
     preferredStudySubject: profile.preferredStudySubject || 'CS Deep Dive',
     availableTime:
-      profile.availableTime || '저녁(18:00~21:00), 심야(21:00~23:00), 시간 협의 가능',
+      profile.availableTime ||
+      '저녁(18:00~21:00), 심야(21:00~23:00), 시간 협의 가능',
     jobTitle: profile.jobTitle || 'IT 실무자 - PM/PO/기획, IT 실무자 - QA',
     experienceLevel: profile.experienceLevel || '주니어',
     studyTypes: profile.studyTypes || ['챌린지', '책/강의', '세미나', '멘토링'],
@@ -64,7 +65,10 @@ export default function MockProfileModal({
       },
       { content: '자료를 보기 좋게 정리해서 이해가 쉬웠어요.', count: 3 },
       { content: '질문이 체계적으로 준비되어 있었어요.', count: 2 },
-      { content: '공유해주신 자료가 깊이 있게 학습한 것이 느껴졌어요.', count: 1 },
+      {
+        content: '공유해주신 자료가 깊이 있게 학습한 것이 느껴졌어요.',
+        count: 1,
+      },
       {
         content: '통찰력 있는 피드백 덕분에 부족한 부분을 보완할 수 있었어요.',
         count: 1,
@@ -88,19 +92,18 @@ export default function MockProfileModal({
 
           <Modal.Body className="flex flex-col gap-400 p-400">
             <div className="flex flex-row gap-300 px-200">
-              <UserAvatar
-                image="/images/profile-default.svg"
-                size={80}
-              />
+              <UserAvatar image="/images/profile-default.svg" size={80} />
 
               <div>
                 <div className="flex flex-wrap gap-75 pb-75">
                   <Badge color="orange">{fullProfile.mbti}</Badge>
-                  {fullProfile.interests.map((interest: string, idx: number) => (
-                    <Badge key={idx} color="purple">
-                      {interest}
-                    </Badge>
-                  ))}
+                  {fullProfile.interests.map(
+                    (interest: string, idx: number) => (
+                      <Badge key={idx} color="purple">
+                        {interest}
+                      </Badge>
+                    ),
+                  )}
                 </div>
 
                 <div className="flex items-center justify-start">
@@ -133,7 +136,7 @@ export default function MockProfileModal({
                         d="M19.6 23c0 3.093-1.79 4.2-4 4.2s-4-1.107-4-4.2 4-7 4-7 4 3.907 4 7"
                       />
                     </svg>
-                    <span className="text-orange-400 font-designer-14b pl-[2px]">
+                    <span className="font-designer-14b pl-[2px] text-orange-400">
                       {fullProfile.temperature.toFixed(1)} ℃
                     </span>
                   </div>
@@ -168,7 +171,10 @@ export default function MockProfileModal({
                 title="자기소개"
                 content={fullProfile.selfIntroduction}
               />
-              <ProfileInfoCard title="공부 주제 및 계획" content={fullProfile.studyPlan} />
+              <ProfileInfoCard
+                title="공부 주제 및 계획"
+                content={fullProfile.studyPlan}
+              />
               <ProfileInfoCard
                 title="선호하는 스터디 주제"
                 content={fullProfile.preferredStudySubject}
@@ -178,12 +184,18 @@ export default function MockProfileModal({
                 content={fullProfile.availableTime}
               />
               <ProfileInfoCard title="직무" content={fullProfile.jobTitle} />
-              <ProfileInfoCard title="경력" content={fullProfile.experienceLevel} />
+              <ProfileInfoCard
+                title="경력"
+                content={fullProfile.experienceLevel}
+              />
               <ProfileInfoCard
                 title="스터디 형태"
                 content={fullProfile.studyTypes.join(', ')}
               />
-              <ProfileInfoCard title="스터디 목표" content={fullProfile.studyGoals} />
+              <ProfileInfoCard
+                title="스터디 목표"
+                content={fullProfile.studyGoals}
+              />
             </div>
 
             <div className="bg-border-subtle h-[2px] w-full flex-none" />
@@ -195,15 +207,21 @@ export default function MockProfileModal({
 
               <div className="text-text-default font-designer-14r grow-1">
                 <ul className="flex flex-col gap-100">
-                  {fullProfile.positiveKeywords.map((keyword: any, idx: number) => (
-                    <li
-                      key={idx}
-                      className="bg-background-accent-gray-default text-text-default rounded-50 flex justify-between px-200 py-100"
-                    >
-                      <span className="font-designer-14r">{keyword.content}</span>
-                      <span className="font-designer-14b">{keyword.count}</span>
-                    </li>
-                  ))}
+                  {fullProfile.positiveKeywords.map(
+                    (keyword: any, idx: number) => (
+                      <li
+                        key={idx}
+                        className="bg-background-accent-gray-default text-text-default rounded-50 flex justify-between px-200 py-100"
+                      >
+                        <span className="font-designer-14r">
+                          {keyword.content}
+                        </span>
+                        <span className="font-designer-14b">
+                          {keyword.count}
+                        </span>
+                      </li>
+                    ),
+                  )}
                 </ul>
               </div>
             </div>
@@ -225,13 +243,21 @@ function Field({ icon, value }: { icon: React.ReactNode; value?: string }) {
   );
 }
 
-function ProfileInfoCard({ title, content }: { title: string; content: string }) {
+function ProfileInfoCard({
+  title,
+  content,
+}: {
+  title: string;
+  content: string;
+}) {
   return (
     <div className="rounded-75 bg-background-alternative flex gap-400 p-250">
       <div className="font-designer-16b text-text-default w-[132px] shrink-0">
         {title}
       </div>
-      <div className="font-designer-15r text-text-default flex-1">{content}</div>
+      <div className="font-designer-15r text-text-default flex-1">
+        {content}
+      </div>
     </div>
   );
 }

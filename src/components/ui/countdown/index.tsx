@@ -12,7 +12,10 @@ interface CountdownProps {
  * - 24시간 미만: HH:mm:ss 포맷
  * - 24시간 이상: n일 남음
  */
-export default function Countdown({ targetDate, className = '' }: CountdownProps) {
+export default function Countdown({
+  targetDate,
+  className = '',
+}: CountdownProps) {
   const [timeLeft, setTimeLeft] = useState<string>('');
 
   useEffect(() => {
@@ -26,7 +29,9 @@ export default function Countdown({ targetDate, className = '' }: CountdownProps
       }
 
       const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const hours = Math.floor(
+        (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
+      );
       const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
@@ -51,7 +56,7 @@ export default function Countdown({ targetDate, className = '' }: CountdownProps
   }, [targetDate]);
 
   return (
-    <span className={`text-xs font-bold text-text-error ${className}`}>
+    <span className={`text-text-error text-xs font-bold ${className}`}>
       {timeLeft}
     </span>
   );

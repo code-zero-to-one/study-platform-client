@@ -6,7 +6,12 @@ import { useEffect, useMemo, useState } from 'react';
 import InquiryList from '@/components/lists/inquiry-list';
 import InquiryModal from '@/components/modals/inquiry-modal';
 import InquiryDetail from '@/components/section/inquiry-detail-section';
-import { canViewInquiry, Inquiry, InquiryType, MOCK_INQUIRIES } from '@/mocks/inquiry-mock-data';
+import {
+  canViewInquiry,
+  Inquiry,
+  InquiryType,
+  MOCK_INQUIRIES,
+} from '@/mocks/inquiry-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
 
 interface InquirySectionProps {
@@ -38,7 +43,7 @@ export default function InquirySection({
   const searchParams = useSearchParams();
   // const showToast = useToastStore((state) => state.showToast);
   const [inquiries, setInquiries] = useState<Inquiry[]>(MOCK_INQUIRIES);
-  
+
   // URL에서 선택된 문의 ID 읽기
   const inquiryIdParam = searchParams.get('inquiryId');
   const selectedInquiryId = inquiryIdParam ? Number(inquiryIdParam) : null;
@@ -61,7 +66,10 @@ export default function InquirySection({
       authorName: '나',
       status: 'PENDING',
       viewCount: 1,
-      images: data.images && data.images.length > 0 ? data.images.map(f => f.name) : undefined,
+      images:
+        data.images && data.images.length > 0
+          ? data.images.map((f) => f.name)
+          : undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -92,7 +100,9 @@ export default function InquirySection({
     // URL 업데이트 (탭 모드) 또는 상태 업데이트 (임베드 모드)
     if (isEmbedded) {
       // 임베드 모드에서는 같은 페이지에서 스크롤하여 문의 상세로 이동
-      router.push(`/group-study/${studyId}?inquiryId=${inquiryId}`, { scroll: false });
+      router.push(`/group-study/${studyId}?inquiryId=${inquiryId}`, {
+        scroll: false,
+      });
     } else {
       // 탭 모드에서는 URL만 업데이트
       router.push(`?tab=inquiry&inquiryId=${inquiryId}`, { scroll: false });
@@ -142,8 +152,7 @@ export default function InquirySection({
   // 프로토타입: 첫 번째 비공개 항목을 강제 공개
   const forceShownId = useMemo(() => {
     const firstLocked = inquiries.find(
-      (inquiry) =>
-        !canViewInquiry(inquiry, currentUserId, isMentor, isAdmin),
+      (inquiry) => !canViewInquiry(inquiry, currentUserId, isMentor, isAdmin),
     );
 
     return firstLocked?.id || null;
@@ -154,7 +163,7 @@ export default function InquirySection({
     // 상세 뷰가 선택된 경우
     if (selectedInquiry) {
       const isForceShown = forceShownId === selectedInquiry.id;
-      
+
       return (
         <div className="flex flex-col gap-400">
           <InquiryDetail
@@ -170,7 +179,7 @@ export default function InquirySection({
         </div>
       );
     }
-    
+
     // 목록 뷰
     return (
       <div className="flex flex-col gap-400">
@@ -180,13 +189,16 @@ export default function InquirySection({
               <h2 className="font-designer-20b text-text-default">
                 문의 게시판
               </h2>
-              <span className="font-designer-20b text-[#A4A7AE]">{inquiries.length}개</span>
+              <span className="font-designer-20b text-[#A4A7AE]">
+                {inquiries.length}개
+              </span>
             </div>
             <p className="font-designer-14m text-text-subtle mt-100">
               스터디 관련 문의사항을 남겨주세요
             </p>
             <p className="font-designer-13m text-text-default mt-50">
-              비공개 문의는 작성자, {isGroupStudy ? '리더' : '멘토'}, 관리자만 확인할 수 있어요.
+              비공개 문의는 작성자, {isGroupStudy ? '리더' : '멘토'}, 관리자만
+              확인할 수 있어요.
             </p>
           </div>
           <InquiryModal
@@ -235,13 +247,16 @@ export default function InquirySection({
                 <h2 className="font-designer-20b text-text-default">
                   문의 게시판
                 </h2>
-                <span className="font-designer-20b text-[#A4A7AE]">{inquiries.length}개</span>
+                <span className="font-designer-20b text-[#A4A7AE]">
+                  {inquiries.length}개
+                </span>
               </div>
               <p className="font-designer-14m text-text-subtle mt-100">
                 스터디 관련 문의사항을 남겨주세요
               </p>
               <p className="font-designer-13m text-text-default mt-50">
-                비공개 문의는 작성자, {isGroupStudy ? '리더' : '멘토'}, 관리자만 확인할 수 있어요.
+                비공개 문의는 작성자, {isGroupStudy ? '리더' : '멘토'}, 관리자만
+                확인할 수 있어요.
               </p>
             </div>
             <InquiryModal

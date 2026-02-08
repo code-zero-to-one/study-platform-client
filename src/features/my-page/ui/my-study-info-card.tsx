@@ -33,7 +33,10 @@ export default function MyStudyInfoCard({
       >
         <div className="relative">
           <Image
-            src={thumbnail?.resizedImages[0].resizedImageUrl || '/images/default-study-thumbnail.png'}
+            src={
+              thumbnail?.resizedImages[0].resizedImageUrl ||
+              '/images/default-study-thumbnail.png'
+            }
             alt={`${studyId}`}
             className="rounded-100 h-[244px] w-[280px] object-cover"
             width={244}

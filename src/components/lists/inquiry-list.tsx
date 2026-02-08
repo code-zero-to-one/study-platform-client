@@ -1,12 +1,12 @@
 'use client';
 
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { Eye, Lock } from 'lucide-react';
 import { useState } from 'react';
 import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import { canViewInquiry, Inquiry } from '@/mocks/inquiry-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 
 interface InquiryListProps {
   inquiries: Inquiry[];
@@ -40,6 +40,7 @@ export default function InquiryList({
     // 강제 공개된 항목은 권한 체크 건너뛰기
     if (isForceShown) {
       onInquiryClick?.(inquiry.id);
+
       return;
     }
 
@@ -52,13 +53,17 @@ export default function InquiryList({
 
     if (!hasPermission) {
       showToast('작성자만 확인할 수 있는 문의입니다', 'error');
+
       return;
     }
 
     onInquiryClick?.(inquiry.id);
   };
 
-  const getInquiryTypeLabel = (type: Inquiry['type'], isGroupStudy: boolean = true) => {
+  const getInquiryTypeLabel = (
+    type: Inquiry['type'],
+    isGroupStudy: boolean = true,
+  ) => {
     const labels: Record<Inquiry['type'], string> = {
       PAYMENT: '결제',
       STUDY: '스터디 일반',
@@ -67,6 +72,7 @@ export default function InquiryList({
       BUG: '버그',
       GENERAL: '고민',
     };
+
     return labels[type];
   };
 
@@ -74,8 +80,7 @@ export default function InquiryList({
   let forceShownId: number | null = null;
   if (forceShowOne) {
     const firstLocked = inquiries.find(
-      (inquiry) =>
-        !canViewInquiry(inquiry, currentUserId, isMentor, isAdmin),
+      (inquiry) => !canViewInquiry(inquiry, currentUserId, isMentor, isAdmin),
     );
     if (firstLocked) {
       forceShownId = firstLocked.id;
@@ -85,29 +90,29 @@ export default function InquiryList({
   return (
     <div className="flex flex-col gap-300">
       {/* 테이블 */}
-      <div className="rounded-200 border border-border-default overflow-hidden">
+      <div className="rounded-200 border-border-default overflow-hidden border">
         <table className="w-full">
           <thead className="bg-background-neutral-subtle">
-            <tr className="border-b border-border-default">
-              <th className="px-200 py-150 text-left font-designer-14b text-text-default w-[100px]">
+            <tr className="border-border-default border-b">
+              <th className="font-designer-14b text-text-default w-[100px] px-200 py-150 text-left">
                 번호
               </th>
-              <th className="px-200 py-150 text-left font-designer-14b text-text-default w-[120px]">
+              <th className="font-designer-14b text-text-default w-[120px] px-200 py-150 text-left">
                 분류
               </th>
-              <th className="px-200 py-150 text-left font-designer-14b text-text-default flex-1">
+              <th className="font-designer-14b text-text-default flex-1 px-200 py-150 text-left">
                 제목
               </th>
-              <th className="px-200 py-150 text-left font-designer-14b text-text-default w-[140px]">
+              <th className="font-designer-14b text-text-default w-[140px] px-200 py-150 text-left">
                 작성자
               </th>
-              <th className="px-200 py-150 text-left font-designer-14b text-text-default w-[160px]">
+              <th className="font-designer-14b text-text-default w-[160px] px-200 py-150 text-left">
                 작성일시
               </th>
-              <th className="px-200 py-150 text-center font-designer-14b text-text-default w-[120px]">
+              <th className="font-designer-14b text-text-default w-[120px] px-200 py-150 text-center">
                 조회수
               </th>
-              <th className="px-200 py-150 text-center font-designer-14b text-text-default w-[120px]">
+              <th className="font-designer-14b text-text-default w-[120px] px-200 py-150 text-center">
                 상태
               </th>
             </tr>
@@ -117,7 +122,7 @@ export default function InquiryList({
               <tr>
                 <td
                   colSpan={7}
-                  className="px-200 py-600 text-center font-designer-14m text-text-subtle"
+                  className="font-designer-14m text-text-subtle px-200 py-600 text-center"
                 >
                   등록된 문의가 없습니다
                 </td>
@@ -141,7 +146,7 @@ export default function InquiryList({
                     onMouseLeave={() => setHoveredId(null)}
                   >
                     {/* 번호 */}
-                    <td className="px-200 py-150 font-designer-14m text-text-subtle">
+                    <td className="font-designer-14m text-text-subtle px-200 py-150">
                       {inquiries.length - index}
                     </td>
 
@@ -157,7 +162,7 @@ export default function InquiryList({
                       <div className="flex items-center gap-150">
                         {isLocked ? (
                           <>
-                            <Lock className="h-150 w-150 text-text-subtle flex-shrink-0" />
+                            <Lock className="text-text-subtle h-150 w-150 flex-shrink-0" />
                             <span className="font-designer-14m text-text-subtle">
                               비공개 문의입니다
                             </span>
@@ -202,7 +207,7 @@ export default function InquiryList({
                     {/* 조회수 */}
                     <td className="px-200 py-150 text-center">
                       <div className="flex items-center justify-center gap-50">
-                        <Eye className="h-150 w-150 text-text-subtle" />
+                        <Eye className="text-text-subtle h-150 w-150" />
                         <span className="font-designer-13m text-text-subtle">
                           {inquiry.viewCount}
                         </span>

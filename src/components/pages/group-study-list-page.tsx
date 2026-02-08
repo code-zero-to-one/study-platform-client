@@ -99,7 +99,7 @@ export default function GroupStudyListPage() {
 
   // 프로토타입 데이터 또는 실제 API 데이터
   const rawStudies = useMemo(
-    () => (usePrototype ? MOCK_GROUP_STUDIES : data?.content ?? []),
+    () => (usePrototype ? MOCK_GROUP_STUDIES : (data?.content ?? [])),
     [usePrototype, data?.content],
   );
 
@@ -107,7 +107,8 @@ export default function GroupStudyListPage() {
   const statusFilteredStudies = useMemo(() => {
     if (!usePrototype) return rawStudies;
 
-    if (filterValues.status.length === 0 || filterValues.status.includes('ALL')) return rawStudies;
+    if (filterValues.status.length === 0 || filterValues.status.includes('ALL'))
+      return rawStudies;
 
     return rawStudies.filter((study) => {
       const protoStatus = (study as GroupStudyWithPrototype)._prototype?.status;
@@ -116,7 +117,9 @@ export default function GroupStudyListPage() {
       return filterValues.status.some((selectedStatus) => {
         if (selectedStatus === 'RECRUITING') {
           // RECRUITING은 RECRUITING과 DEADLINE_IMMINENT 모두 포함
-          return protoStatus === 'RECRUITING' || protoStatus === 'DEADLINE_IMMINENT';
+          return (
+            protoStatus === 'RECRUITING' || protoStatus === 'DEADLINE_IMMINENT'
+          );
         }
 
         return protoStatus === selectedStatus;
@@ -124,7 +127,10 @@ export default function GroupStudyListPage() {
     });
   }, [rawStudies, filterValues.status, usePrototype]);
 
-  const allStudies = useMemo(() => statusFilteredStudies, [statusFilteredStudies]);
+  const allStudies = useMemo(
+    () => statusFilteredStudies,
+    [statusFilteredStudies],
+  );
 
   // URL 파라미터 업데이트 함수
   const updateSearchParams = useCallback(
@@ -205,8 +211,10 @@ export default function GroupStudyListPage() {
           const aStatus = aP?.status;
           const bStatus = bP?.status;
           // 모집 중이 아니면 뒤로
-          if (aStatus !== 'RECRUITING' && aStatus !== 'DEADLINE_IMMINENT') return 1;
-          if (bStatus !== 'RECRUITING' && bStatus !== 'DEADLINE_IMMINENT') return -1;
+          if (aStatus !== 'RECRUITING' && aStatus !== 'DEADLINE_IMMINENT')
+            return 1;
+          if (bStatus !== 'RECRUITING' && bStatus !== 'DEADLINE_IMMINENT')
+            return -1;
           const aEnd = aP?.endDate ? new Date(aP.endDate).getTime() : Infinity;
           const bEnd = bP?.endDate ? new Date(bP.endDate).getTime() : Infinity;
 
@@ -215,18 +223,24 @@ export default function GroupStudyListPage() {
       case 'views':
         // 조회수순: viewCount 높은 순
         return studies.sort((a, b) => {
-          const aViews = (a as GroupStudyWithPrototype)._prototype?.viewCount || 0;
-          const bViews = (b as GroupStudyWithPrototype)._prototype?.viewCount || 0;
+          const aViews =
+            (a as GroupStudyWithPrototype)._prototype?.viewCount || 0;
+          const bViews =
+            (b as GroupStudyWithPrototype)._prototype?.viewCount || 0;
 
           return bViews - aViews;
         });
-      
+
       case 'latest':
       default:
         // 최신순: createdAt 최신 순
         return studies.sort((a, b) => {
-          const aCreated = a.basicInfo?.createdAt ? new Date(a.basicInfo.createdAt).getTime() : 0;
-          const bCreated = b.basicInfo?.createdAt ? new Date(b.basicInfo.createdAt).getTime() : 0;
+          const aCreated = a.basicInfo?.createdAt
+            ? new Date(a.basicInfo.createdAt).getTime()
+            : 0;
+          const bCreated = b.basicInfo?.createdAt
+            ? new Date(b.basicInfo.createdAt).getTime()
+            : 0;
 
           return bCreated - aCreated;
         });
@@ -295,8 +309,8 @@ export default function GroupStudyListPage() {
 
       {/* 필터 및 검색 */}
       <div className="mb-400 flex items-center justify-between">
-        <StudyFilter 
-          values={filterValues} 
+        <StudyFilter
+          values={filterValues}
           onChange={handleFilterChange}
           studyCategory="GROUP"
         />
@@ -306,7 +320,7 @@ export default function GroupStudyListPage() {
           <div className="group relative">
             <button
               type="button"
-              className="rounded-100 bg-background-default border-border-default font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors h-500"
+              className="rounded-100 bg-background-default border-border-default font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex h-500 items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors"
             >
               <ArrowUpDown className="h-4 w-4" />
               {searchParams.get('sort') === 'deadline'
@@ -319,21 +333,27 @@ export default function GroupStudyListPage() {
               <div className="bg-background-default border-border-subtle rounded-100 shadow-2 overflow-hidden border">
                 <button
                   type="button"
-                  onClick={() => updateSearchParams({ sort: 'latest', page: '1' })}
+                  onClick={() =>
+                    updateSearchParams({ sort: 'latest', page: '1' })
+                  }
                   className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
                 >
                   최신순
                 </button>
                 <button
                   type="button"
-                  onClick={() => updateSearchParams({ sort: 'deadline', page: '1' })}
+                  onClick={() =>
+                    updateSearchParams({ sort: 'deadline', page: '1' })
+                  }
                   className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
                 >
                   마감임박순
                 </button>
                 <button
                   type="button"
-                  onClick={() => updateSearchParams({ sort: 'views', page: '1' })}
+                  onClick={() =>
+                    updateSearchParams({ sort: 'views', page: '1' })
+                  }
                   className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
                 >
                   조회수순

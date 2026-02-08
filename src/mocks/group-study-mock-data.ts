@@ -69,7 +69,8 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
         resizedImages: [],
       },
       title: '개발자를 위한 UX/UI 스터디',
-      summary: '기획, 디자이너, 프론트엔드, 백엔드 모두 함께 배우는 실전 프로젝트',
+      summary:
+        '기획, 디자이너, 프론트엔드, 백엔드 모두 함께 배우는 실전 프로젝트',
     },
     _prototype: {
       status: 'DEADLINE_IMMINENT',
@@ -3133,14 +3134,16 @@ export const MOCK_PARTICIPANT_PROFILES: Record<number, any> = {
     mbti: 'INFP',
     interests: ['러닝', '음악', '독서', '🌙'],
     temperature: 68.0,
-    simpleIntroduction: '함께 공명하는 프로덕트를 만들기 위한 수단으로 프로그래밍을 합니다.',
+    simpleIntroduction:
+      '함께 공명하는 프로덕트를 만들기 위한 수단으로 프로그래밍을 합니다.',
     birthDate: '1998-06-16',
     skills: ['JavaScript', 'TypeScript', 'React'],
     github: 'https://github.com/dongjooYun',
     linkedIn: 'https://linktr.ee/djyun',
     phone: '010-8220-4131',
     isVerified: true,
-    selfIntroduction: '사실 단순 개발보다 프로덕트 품질 향상에 기여하는 모든 활동(기획, QA, UX, HR, 운영 등)에 더 관심이 많습니다. 협업·성장·공유의 가치를 중요시하고 사용자 관점에서 생각하는 것을 좋아합니다. 다양한 분야의 CS 지식 교류 활동에 흥미가 있습니다.',
+    selfIntroduction:
+      '사실 단순 개발보다 프로덕트 품질 향상에 기여하는 모든 활동(기획, QA, UX, HR, 운영 등)에 더 관심이 많습니다. 협업·성장·공유의 가치를 중요시하고 사용자 관점에서 생각하는 것을 좋아합니다. 다양한 분야의 CS 지식 교류 활동에 흥미가 있습니다.',
     studyPlan: '분야 상관 없이 자유롭게 Q&A',
     preferredStudySubject: 'CS Deep Dive',
     availableTime: '저녁(18:00~21:00), 심야(21:00~23:00), 시간 협의 가능',
@@ -3149,11 +3152,20 @@ export const MOCK_PARTICIPANT_PROFILES: Record<number, any> = {
     studyTypes: ['챌린지', '책/강의', '세미나', '멘토링'],
     studyGoals: '지식의 확장, 새로운 인사이트 얻기, 사람과의 연결',
     positiveKeywords: [
-      { content: '시간 약속을 잘 지켜서 스터디가 매끄럽게 진행됐어요.', count: 3 },
+      {
+        content: '시간 약속을 잘 지켜서 스터디가 매끄럽게 진행됐어요.',
+        count: 3,
+      },
       { content: '자료를 보기 좋게 정리해서 이해가 쉬웠어요.', count: 3 },
       { content: '질문이 체계적으로 준비되어 있었어요.', count: 2 },
-      { content: '공유해주신 자료가 깊이 있게 학습한 것이 느껴졌어요.', count: 1 },
-      { content: '통찰력 있는 피드백 덕분에 부족한 부분을 보완할 수 있었어요.', count: 1 },
+      {
+        content: '공유해주신 자료가 깊이 있게 학습한 것이 느껴졌어요.',
+        count: 1,
+      },
+      {
+        content: '통찰력 있는 피드백 덕분에 부족한 부분을 보완할 수 있었어요.',
+        count: 1,
+      },
     ],
   },
   // 나머지 참가자들

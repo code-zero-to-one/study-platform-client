@@ -10,7 +10,10 @@ import Button from '@/components/ui/button';
 import CurriculumSummaryCard from '@/components/ui/curriculum-card';
 import FloatingInfoBar from '@/components/ui/floating-info-bar';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
-import { MOCK_MISSIONS, MOCK_PARTICIPANTS } from '@/mocks/group-study-mock-data';
+import {
+  MOCK_MISSIONS,
+  MOCK_PARTICIPANTS,
+} from '@/mocks/group-study-mock-data';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
@@ -18,7 +21,6 @@ import InquirySection from './inquiry-section';
 import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
-
 
 interface PremiumStudyInfoSectionProps {
   study: GroupStudyFullResponse;
@@ -73,8 +75,8 @@ export default function PremiumStudyInfoSection({
                 <UserAvatar
                   size={80}
                   image={
-                    studyDetail.basicInfo.leader.profileImage?.resizedImages?.[0]
-                      ?.resizedImageUrl ?? ''
+                    studyDetail.basicInfo.leader.profileImage
+                      ?.resizedImages?.[0]?.resizedImageUrl ?? ''
                   }
                 />
                 <div className="flex flex-col">
@@ -126,7 +128,7 @@ export default function PremiumStudyInfoSection({
               프로필을 클릭하여 멘티들의 정보를 확인해보세요.
             </p>
 
-            <div className="mb-300 mt-100">
+            <div className="mt-100 mb-300">
               <AvatarStack
                 participants={MOCK_PARTICIPANTS}
                 maxVisible={5}
@@ -139,7 +141,7 @@ export default function PremiumStudyInfoSection({
             </div>
           </div>
 
-          <div className="pt-500 border-t border-border-default">
+          <div className="border-border-default border-t pt-500">
             <InquirySection
               studyId={groupStudyId}
               studyTitle={studyDetail?.detailInfo?.title ?? ''}

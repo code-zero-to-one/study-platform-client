@@ -5,6 +5,6 @@
  */
 export default function LoungePlaceholder() {
   return (
-    <div className="bg-background-alternative flex min-h-[400px] w-full items-center justify-center rounded-200" />
+    <div className="bg-background-alternative rounded-200 flex min-h-[400px] w-full items-center justify-center" />
   );
 }

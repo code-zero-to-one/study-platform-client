@@ -43,7 +43,7 @@ export default function MissionSection({
     return null;
   }
 
-  const missionList = isMember ? data?.content ?? [] : MOCK_MISSION_LIST;
+  const missionList = isMember ? (data?.content ?? []) : MOCK_MISSION_LIST;
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -269,17 +269,17 @@ function MissionDetailLockedView({
   missionId: number;
 }) {
   return (
-    <div className="flex min-h-[360px] flex-col gap-0 rounded-200 border border-border-default bg-background-default p-400">
+    <div className="rounded-200 border-border-default bg-background-default flex min-h-[360px] flex-col gap-0 border p-400">
       {/* 제목 영역만 노출 (커리큘럼에서 이미 보여주므로) */}
       <MissionDetailPlaceholderTitle />
 
       {/* 제목 아래부터 블러 + 잠금 오버레이 */}
-      <div className="relative flex-1 min-h-[200px]">
+      <div className="relative min-h-[200px] flex-1">
         <MissionDetailPlaceholderBody />
-        <div className="absolute inset-0 flex items-center justify-center rounded-200 bg-background-default/40 backdrop-blur-sm">
+        <div className="rounded-200 bg-background-default/40 absolute inset-0 flex items-center justify-center backdrop-blur-sm">
           <button
             type="button"
-            className="border-border-subtle flex cursor-pointer items-center gap-100 rounded-100 border bg-background-default/90 px-200 py-100 text-[12px] font-medium text-text-strong"
+            className="border-border-subtle rounded-100 bg-background-default/90 text-text-strong flex cursor-pointer items-center gap-100 border px-200 py-100 text-[12px] font-medium"
             aria-label="스터디 가입 후 미션을 확인하세요"
           >
             <Lock className="h-120 w-120 shrink-0" />
@@ -317,8 +317,7 @@ function MissionDetailPlaceholderBody() {
             https://example.com/ux-psychology
             {'\n\n'}
             카드뉴스 형식 아티클입니다.
-            {'\n'}
-            본 스터디 대표이미지가 포함되어 있는 글입니다.
+            {'\n'}본 스터디 대표이미지가 포함되어 있는 글입니다.
             {'\n\n'}
             가볍게 인사이트 나누어봐요~~
           </p>
@@ -327,7 +326,7 @@ function MissionDetailPlaceholderBody() {
           <span className="text-text-subtlest font-designer-14r">
             2/10 제출
           </span>
-          <div className="h-80 w-[120px] rounded-full bg-fill-danger-default-default/30" />
+          <div className="bg-fill-danger-default-default/30 h-80 w-[120px] rounded-full" />
         </div>
       </div>
 
@@ -351,7 +350,7 @@ function MissionDetailPlaceholderBody() {
               className="border-border-subtle rounded-100 flex items-center justify-between border p-200"
             >
               <div className="flex items-center gap-150">
-                <div className="h-400 w-400 rounded-full bg-background-neutral-subtle" />
+                <div className="bg-background-neutral-subtle h-400 w-400 rounded-full" />
                 <span className="font-designer-14b text-text-default">
                   {item.name}
                 </span>

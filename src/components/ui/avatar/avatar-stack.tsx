@@ -66,17 +66,20 @@ export default function AvatarStack({
           >
             {/* 리더 왕관 아이콘 (아바타 바로 위, showLeaderCrown일 때만) */}
             {showLeaderCrown && participant.isLeader && (
-              <div 
-                className="absolute left-1/2 -translate-x-1/2 flex h-[24px] w-[24px] items-center justify-center rounded-full bg-yellow-400 border-2 border-white z-10 pointer-events-none"
+              <div
+                className="pointer-events-none absolute left-1/2 z-10 flex h-[24px] w-[24px] -translate-x-1/2 items-center justify-center rounded-full border-2 border-white bg-yellow-400"
                 style={{ top: `-12px` }}
               >
-                <Crown className="h-[14px] w-[14px] text-yellow-900" fill="currentColor" />
+                <Crown
+                  className="h-[14px] w-[14px] text-yellow-900"
+                  fill="currentColor"
+                />
               </div>
             )}
 
             {/* 아바타 */}
             <div
-              className="relative overflow-hidden rounded-full border-2 border-white hover:border-border-brand bg-background-neutral-subtle cursor-pointer transition-all"
+              className="hover:border-border-brand bg-background-neutral-subtle relative cursor-pointer overflow-hidden rounded-full border-2 border-white transition-all"
               style={{ width: size, height: size }}
               onClick={() => handleProfileClick(participant.id)}
             >
@@ -90,7 +93,7 @@ export default function AvatarStack({
 
             {/* 호버 툴팁 */}
             {hoveredId === participant.id && (
-              <div className="absolute top-full left-1/2 z-50 mt-100 -translate-x-1/2 whitespace-nowrap rounded-100 bg-white border border-border-default px-200 py-100 text-text-default font-designer-12m shadow-lg pointer-events-none">
+              <div className="rounded-100 border-border-default text-text-default font-designer-12m pointer-events-none absolute top-full left-1/2 z-50 mt-100 -translate-x-1/2 border bg-white px-200 py-100 whitespace-nowrap shadow-lg">
                 {participant.name}
               </div>
             )}
@@ -102,7 +105,7 @@ export default function AvatarStack({
       {remainingCount > 0 && (
         <div className="relative ml-50">
           <button
-            className="flex items-center justify-center rounded-full border-2 border-transparent bg-transparent transition-colors font-designer-14m text-text-subtle cursor-pointer whitespace-nowrap px-200"
+            className="font-designer-14m text-text-subtle flex cursor-pointer items-center justify-center rounded-full border-2 border-transparent bg-transparent px-200 whitespace-nowrap transition-colors"
             style={{
               height: size,
               zIndex: 0,
@@ -115,15 +118,15 @@ export default function AvatarStack({
 
           {/* 이후 참가한 사람 팝오버 */}
           {showRemaining && (
-            <div className="absolute top-full left-0 z-50 mt-200 w-[280px] rounded-200 border border-border-subtle p-300 shadow-lg !bg-white">
+            <div className="rounded-200 border-border-subtle absolute top-full left-0 z-50 mt-200 w-[280px] border !bg-white p-300 shadow-lg">
               <div className="flex flex-col gap-200">
-                <div className="flex items-center justify-between mb-100">
+                <div className="mb-100 flex items-center justify-between">
                   <p className="font-designer-14b text-text-default">
                     이후 참가한 사람 ({remainingCount}명)
                   </p>
                   <button
                     onClick={() => setShowRemaining(false)}
-                    className="flex items-center justify-center w-[24px] h-[24px] rounded-full hover:bg-gray-100 transition-colors"
+                    className="flex h-[24px] w-[24px] items-center justify-center rounded-full transition-colors hover:bg-gray-100"
                   >
                     <svg
                       width="16"
@@ -141,19 +144,22 @@ export default function AvatarStack({
                     </svg>
                   </button>
                 </div>
-                <div className="max-h-[300px] overflow-y-auto space-y-150">
+                <div className="max-h-[300px] space-y-150 overflow-y-auto">
                   {participants.slice(maxVisible).map((participant) => (
                     <div
                       key={participant.id}
-                      className="flex items-center gap-150 px-100 py-100 rounded-100 hover:border hover:border-border-brand cursor-pointer transition-all"
+                      className="rounded-100 hover:border-border-brand flex cursor-pointer items-center gap-150 px-100 py-100 transition-all hover:border"
                       onClick={() => handleProfileClick(participant.id)}
                     >
                       <div
-                        className="relative overflow-hidden rounded-full bg-background-neutral-subtle flex-shrink-0"
+                        className="bg-background-neutral-subtle relative flex-shrink-0 overflow-hidden rounded-full"
                         style={{ width: 32, height: 32 }}
                       >
                         <Image
-                          src={participant.profileImage || '/images/profile-default.svg'}
+                          src={
+                            participant.profileImage ||
+                            '/images/profile-default.svg'
+                          }
                           alt={participant.name}
                           fill
                           className="object-cover"

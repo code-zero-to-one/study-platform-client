@@ -5,7 +5,13 @@ import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { useToastStore } from '@/stores/use-toast-store';
 
-type InquiryType = 'PAYMENT' | 'STUDY' | 'LEADER' | 'MENTOR' | 'BUG' | 'GENERAL';
+type InquiryType =
+  | 'PAYMENT'
+  | 'STUDY'
+  | 'LEADER'
+  | 'MENTOR'
+  | 'BUG'
+  | 'GENERAL';
 
 interface InquiryFormData {
   type: InquiryType;
@@ -58,22 +64,21 @@ export default function InquiryModal({
 
     if (!formData.title.trim()) {
       showToast('제목을 입력해주세요', 'error');
+
       return;
     }
 
     if (!formData.content.trim()) {
       showToast('내용을 입력해주세요', 'error');
+
       return;
     }
 
     // 프로토타입: 제출 처리
     onSubmit?.(formData);
-    
+
     // 알림 시뮬레이션 (멘토/관리자에게)
-    showToast(
-      `문의가 등록되었습니다. 멘토님께 알림이 전송됩니다.`,
-      'success'
-    );
+    showToast(`문의가 등록되었습니다. 멘토님께 알림이 전송됩니다.`, 'success');
 
     // 폼 초기화 및 모달 닫기
     setFormData({
@@ -122,7 +127,7 @@ export default function InquiryModal({
             <Modal.CloseButton />
           </Modal.Header>
 
-          <Modal.Body className="overflow-auto flex-1 flex flex-col gap-400 p-400">
+          <Modal.Body className="flex flex-1 flex-col gap-400 overflow-auto p-400">
             <form onSubmit={handleSubmit} className="flex flex-col gap-400">
               {/* 문의 종류 */}
               <div className="flex flex-col gap-100">
@@ -137,7 +142,7 @@ export default function InquiryModal({
                       type: e.target.value as InquiryType,
                     }))
                   }
-                  className="rounded-100 border border-border-default bg-white px-300 py-200 font-designer-14m focus:border-border-brand focus:outline-none hover:border-border-brand transition-colors cursor-pointer"
+                  className="rounded-100 border-border-default font-designer-14m focus:border-border-brand hover:border-border-brand cursor-pointer border bg-white px-300 py-200 transition-colors focus:outline-none"
                 >
                   {inquiryTypeOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -159,7 +164,7 @@ export default function InquiryModal({
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
                   placeholder="문의 제목을 입력하세요"
-                  className="rounded-100 border border-border-default px-300 py-200 font-designer-14m focus:border-border-brand focus:outline-none"
+                  className="rounded-100 border-border-default font-designer-14m focus:border-border-brand border px-300 py-200 focus:outline-none"
                   maxLength={100}
                 />
                 <p className="font-designer-12m text-text-subtlest text-right">
@@ -175,10 +180,13 @@ export default function InquiryModal({
                 <textarea
                   value={formData.content}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, content: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      content: e.target.value,
+                    }))
                   }
                   placeholder="문의 내용을 상세히 작성해주세요"
-                  className="rounded-100 border border-border-default px-300 py-200 font-designer-14m focus:border-border-brand focus:outline-none min-h-[200px] resize-none"
+                  className="rounded-100 border-border-default font-designer-14m focus:border-border-brand min-h-[200px] resize-none border px-300 py-200 focus:outline-none"
                   maxLength={1000}
                 />
                 <p className="font-designer-12m text-text-subtlest text-right">
@@ -193,7 +201,7 @@ export default function InquiryModal({
                 </label>
                 <div className="flex flex-col gap-200">
                   <label className="cursor-pointer">
-                    <div className="rounded-100 border-2 border-dashed border-border-default px-300 py-400 text-center hover:border-border-brand transition-colors">
+                    <div className="rounded-100 border-border-default hover:border-border-brand border-2 border-dashed px-300 py-400 text-center transition-colors">
                       <p className="font-designer-14m text-text-subtle">
                         클릭하여 이미지 선택 (최대 5장)
                       </p>
@@ -217,17 +225,17 @@ export default function InquiryModal({
                       {formData.images.map((file, index) => (
                         <div
                           key={index}
-                          className="relative group w-[100px] h-[100px] rounded-100 overflow-hidden border border-border-default"
+                          className="group rounded-100 border-border-default relative h-[100px] w-[100px] overflow-hidden border"
                         >
                           <img
                             src={URL.createObjectURL(file)}
                             alt={`첨부 이미지 ${index + 1}`}
-                            className="w-full h-full object-cover"
+                            className="h-full w-full object-cover"
                           />
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
-                            className="absolute top-50 right-50 bg-background-neutral-strong text-text-inverse rounded-full w-[24px] h-[24px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="bg-background-neutral-strong text-text-inverse absolute top-50 right-50 flex h-[24px] w-[24px] items-center justify-center rounded-full opacity-0 transition-opacity group-hover:opacity-100"
                           >
                             ×
                           </button>
@@ -239,7 +247,7 @@ export default function InquiryModal({
               </div>
 
               {/* 버튼 */}
-              <div className="flex gap-200 justify-end mt-200">
+              <div className="mt-200 flex justify-end gap-200">
                 <Button
                   type="button"
                   color="secondary"
