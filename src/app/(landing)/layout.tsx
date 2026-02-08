@@ -61,19 +61,7 @@ export default async function LandingPageLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-<<<<<<< Updated upstream
   const initialAccessToken = await getServerCookie('accessToken');
-  if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
-    Clarity.init(CLARITY_PROJECT_ID);
-  }
-
-||||||| Stash base
-  if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
-    Clarity.init(CLARITY_PROJECT_ID);
-  }
-
-=======
->>>>>>> Stashed changes
   const organizationSchema = getOrganizationSchema();
   const websiteSchema = getWebsiteSchema();
 
@@ -101,14 +89,8 @@ export default async function LandingPageLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
-<<<<<<< Updated upstream
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
-||||||| Stash base
-        <MainProvider>
-=======
-        <MainProvider>
           <ClarityInit projectId={CLARITY_PROJECT_ID} />
->>>>>>> Stashed changes
           <PageViewTracker />
           <div className="w-full overflow-auto">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}

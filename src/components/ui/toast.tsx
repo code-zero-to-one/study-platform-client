@@ -5,6 +5,8 @@ import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
+const EXIT_DURATION = 200;
+
 interface ToastProps {
   message: string;
   isVisible: boolean;
@@ -22,7 +24,6 @@ export default function Toast({
 }: ToastProps) {
   const [isRendered, setIsRendered] = useState(isVisible);
   const [isExiting, setIsExiting] = useState(false);
-  const exitDuration = 200;
 
   useEffect(() => {
     if (isVisible) {
@@ -40,11 +41,11 @@ export default function Toast({
       const timer = setTimeout(() => {
         setIsRendered(false);
         setIsExiting(false);
-      }, exitDuration);
+      }, EXIT_DURATION);
 
       return () => clearTimeout(timer);
     }
-  }, [isVisible, duration, onClose]);
+  }, [isVisible, duration, onClose, isRendered]);
 
   if (!isRendered) return null;
   if (typeof document === 'undefined') return null;
