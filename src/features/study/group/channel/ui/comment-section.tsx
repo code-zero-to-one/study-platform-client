@@ -47,6 +47,7 @@ export default function CommentSection({ groupStudyId }: CommentProps) {
     (sum, q) => sum + (q.data?.totalElements ?? 0),
     0,
   );
+
   const totalCommentCount = (data?.totalElements ?? 0) + totalReplyCount;
 
   const { mutate: createThread } = usePostThreadMutation();

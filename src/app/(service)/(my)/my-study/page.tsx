@@ -8,17 +8,17 @@ import { useMemberStudyListQuery } from '@/features/study/group/model/use-member
 import CompletedGroupStudyList from '@/features/study/group/ui/completed-group-study-list';
 import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
 import NotCompletedGroupStudyList from '@/features/study/group/ui/not-completed-group-study-list';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 
 interface MemberGroupStudyList extends MemberStudyItem {
   type: 'GROUP_STUDY';
 }
 
 export default function MyStudy() {
-  const { data: authData } = useAuth();
+  const { memberId } = useAuthReady();
 
   const { data, isLoading } = useMemberStudyListQuery({
-    memberId: authData?.memberId,
+    memberId,
     studyType: 'GROUP_STUDY',
     studyStatus: 'BOTH',
   });

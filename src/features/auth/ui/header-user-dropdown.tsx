@@ -8,14 +8,14 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/(shadcn)/ui/dropdown-menu';
 import UserAvatar from '@/components/ui/avatar';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useLogoutMutation } from '../model/use-auth-mutation';
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   const { mutateAsync: logout } = useLogoutMutation();
-  const { data: authData } = useAuth();
+  const { data: authData, isAuthReady } = useAuthReady();
 
-  const hasAdminRole = authData?.roleIds.includes('ROLE_ADMIN');
+  const hasAdminRole = isAuthReady && authData?.roleIds.includes('ROLE_ADMIN');
 
   const router = useRouter();
 

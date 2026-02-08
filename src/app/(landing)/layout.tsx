@@ -8,6 +8,7 @@ import localFont from 'next/font/local';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
 import MainProvider from '@/providers';
 import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
+import { getServerCookie } from '@/utils/server-cookie';
 import Header from '@/widgets/home/header';
 
 export const metadata: Metadata = {
@@ -55,11 +56,12 @@ const pretendard = localFont({
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
-export default function LandingPageLayout({
+export default async function LandingPageLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialAccessToken = await getServerCookie('accessToken');
   if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
     Clarity.init(CLARITY_PROJECT_ID);
   }
@@ -91,7 +93,7 @@ export default function LandingPageLayout({
         <link rel="manifest" href="/manifest.json" />
       </head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
-        <MainProvider>
+        <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
           <PageViewTracker />
           <div className="w-full overflow-auto">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}

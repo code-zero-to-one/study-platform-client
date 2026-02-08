@@ -7,7 +7,7 @@ import { useState } from 'react';
 import MentorProfileList from '@/components/mentoring/mentor-profile-list';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 
 // Carousel이 클라이언트 전용이므로 dynamic import로 로드
 const Banner = dynamic(() => import('@/widgets/home/banner'), {
@@ -15,7 +15,7 @@ const Banner = dynamic(() => import('@/widgets/home/banner'), {
 });
 
 export default function MentoringListPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady } = useAuthReady();
   const [isComingSoonModalOpen, setIsComingSoonModalOpen] = useState(false);
 
   return (
@@ -33,13 +33,13 @@ export default function MentoringListPage() {
           size="small"
           icon={<Plus className="h-200 w-200" />}
           iconPosition="left"
-          disabled={!isAuthenticated}
+          disabled={!isAuthReady}
           onClick={() => {
             // GA4 이벤트 전송
             sendGTMEvent({
               event: 'mentor_register_click',
               location: 'mentoring_page',
-              is_authenticated: isAuthenticated,
+              is_authenticated: isAuthReady,
             });
 
             setIsComingSoonModalOpen(true);

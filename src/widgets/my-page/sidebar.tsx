@@ -4,16 +4,16 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import { useLogoutMutation } from '@/features/auth/model/use-auth-mutation';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 
 export default function Sidebar() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { data: authData } = useAuth();
+  const { memberId } = useAuthReady();
   const { mutateAsync: logout } = useLogoutMutation();
 
-  const { data: profile } = useUserProfileQuery(authData?.memberId || 0);
+  const { data: profile } = useUserProfileQuery(memberId ?? 0);
 
   const handleLogout = async () => {
     await logout();

@@ -15,7 +15,7 @@ import StudyFilter, {
 import StudySearch from '@/components/filtering/study-search';
 import PageContainer from '@/components/layout/page-container';
 import Button from '@/components/ui/button';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyPagination from '../../features/study/group/ui/group-study-pagination';
@@ -30,7 +30,7 @@ const Banner = dynamic(() => import('@/widgets/home/banner'), {
 const PAGE_SIZE = 15;
 
 export default function GroupStudyListPage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady } = useAuthReady();
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -193,7 +193,7 @@ export default function GroupStudyListPage() {
               size="small"
               icon={<Plus className="h-200 w-200" />}
               iconPosition="left"
-              disabled={!isAuthenticated}
+              disabled={!isAuthReady}
             >
               스터디 개설하기
             </Button>

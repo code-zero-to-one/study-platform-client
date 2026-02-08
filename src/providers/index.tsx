@@ -2,37 +2,41 @@
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect } from 'react';
-import { useAuth } from '@/hooks/common/use-auth';
+import { AuthHydrationProvider } from '@/hooks/common/auth-hydration-context';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import QueryProvider from '@/providers/query-provider';
 import { useUserStore } from '@/stores/useUserStore';
 
 interface ProviderProps {
   children: React.ReactNode;
+  initialAccessToken?: string;
 }
 
 function UserInitializer({ children }: ProviderProps) {
-  const { data: authData, isAuthenticated } = useAuth();
+  const { memberId: authMemberId, isAuthReady } = useAuthReady();
   const { memberId, fetchAndSetUser } = useUserStore();
 
   useEffect(() => {
-    if (isAuthenticated && authData?.memberId && !memberId) {
-      fetchAndSetUser(authData.memberId).catch(console.error);
+    if (isAuthReady && authMemberId && !memberId) {
+      fetchAndSetUser(authMemberId).catch(console.error);
     }
-  }, [isAuthenticated, authData?.memberId, memberId, fetchAndSetUser]);
+  }, [isAuthReady, authMemberId, memberId, fetchAndSetUser]);
 
   return <>{children}</>;
 }
 
-function MainProvider({ children }: ProviderProps) {
+function MainProvider({ children, initialAccessToken }: ProviderProps) {
   return (
-    <QueryProvider>
-      <UserInitializer>
-        {children}
-        {process.env.NODE_ENV === 'development' && (
-          <ReactQueryDevtools initialIsOpen={false} />
-        )}
-      </UserInitializer>
-    </QueryProvider>
+    <AuthHydrationProvider initialAccessToken={initialAccessToken}>
+      <QueryProvider>
+        <UserInitializer>
+          {children}
+          {process.env.NODE_ENV === 'development' && (
+            <ReactQueryDevtools initialIsOpen={false} />
+          )}
+        </UserInitializer>
+      </QueryProvider>
+    </AuthHydrationProvider>
   );
 }
 
