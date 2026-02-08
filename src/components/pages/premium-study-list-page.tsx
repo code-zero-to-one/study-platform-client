@@ -216,6 +216,7 @@ export default function PremiumStudyListPage() {
           if (bStatus !== 'RECRUITING' && bStatus !== 'DEADLINE_IMMINENT') return -1;
           const aEnd = aP?.endDate ? new Date(aP.endDate).getTime() : Infinity;
           const bEnd = bP?.endDate ? new Date(bP.endDate).getTime() : Infinity;
+
           return aEnd - bEnd;
         });
       case 'views':
@@ -223,6 +224,7 @@ export default function PremiumStudyListPage() {
         return studies.sort((a, b) => {
           const aViews = (a as GroupStudyWithPrototype)._prototype?.viewCount || 0;
           const bViews = (b as GroupStudyWithPrototype)._prototype?.viewCount || 0;
+
           return bViews - aViews;
         });
       
@@ -232,6 +234,7 @@ export default function PremiumStudyListPage() {
         return studies.sort((a, b) => {
           const aCreated = a.basicInfo?.createdAt ? new Date(a.basicInfo.createdAt).getTime() : 0;
           const bCreated = b.basicInfo?.createdAt ? new Date(b.basicInfo.createdAt).getTime() : 0;
+
           return bCreated - aCreated;
         });
     }

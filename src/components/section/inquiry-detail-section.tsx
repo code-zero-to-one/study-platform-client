@@ -1,5 +1,7 @@
 'use client';
 
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
 import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -7,8 +9,6 @@ import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import Button from '@/components/ui/button';
 import { canViewInquiry, Inquiry } from '@/mocks/inquiry-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 
 interface InquiryDetailProps {
   inquiry: Inquiry;
@@ -70,12 +70,14 @@ export default function InquiryDetail({
       BUG: '버그',
       GENERAL: '고민',
     };
+
     return labels[type];
   };
 
   const handleAnswerSubmit = async () => {
     if (!answerContent.trim()) {
       showToast('답변 내용을 입력해주세요', 'error');
+
       return;
     }
 
