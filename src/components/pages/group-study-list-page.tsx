@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUpDown, ChevronDown, Plus } from 'lucide-react';
+import { ArrowUpDown, Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo, useState } from 'react';
@@ -78,6 +78,7 @@ export default function GroupStudyListPage() {
       filterValues.type.length > 0
         ? (filterValues.type as GetGroupStudiesTypeEnum[])
         : undefined,
+
     targetRoles:
       filterValues.targetRoles.length > 0
         ? (filterValues.targetRoles as GetGroupStudiesTargetRolesEnum[])
@@ -110,12 +111,14 @@ export default function GroupStudyListPage() {
 
     return rawStudies.filter((study) => {
       const protoStatus = (study as GroupStudyWithPrototype)._prototype?.status;
+
       // 선택된 상태 중 하나라도 매치되면 표시
       return filterValues.status.some((selectedStatus) => {
         if (selectedStatus === 'RECRUITING') {
           // RECRUITING은 RECRUITING과 DEADLINE_IMMINENT 모두 포함
           return protoStatus === 'RECRUITING' || protoStatus === 'DEADLINE_IMMINENT';
         }
+
         return protoStatus === selectedStatus;
       });
     });
@@ -206,6 +209,7 @@ export default function GroupStudyListPage() {
           if (bStatus !== 'RECRUITING' && bStatus !== 'DEADLINE_IMMINENT') return -1;
           const aEnd = aP?.endDate ? new Date(aP.endDate).getTime() : Infinity;
           const bEnd = bP?.endDate ? new Date(bP.endDate).getTime() : Infinity;
+
           return aEnd - bEnd;
         });
       case 'views':
@@ -213,6 +217,7 @@ export default function GroupStudyListPage() {
         return studies.sort((a, b) => {
           const aViews = (a as GroupStudyWithPrototype)._prototype?.viewCount || 0;
           const bViews = (b as GroupStudyWithPrototype)._prototype?.viewCount || 0;
+
           return bViews - aViews;
         });
       
@@ -222,6 +227,7 @@ export default function GroupStudyListPage() {
         return studies.sort((a, b) => {
           const aCreated = a.basicInfo?.createdAt ? new Date(a.basicInfo.createdAt).getTime() : 0;
           const bCreated = b.basicInfo?.createdAt ? new Date(b.basicInfo.createdAt).getTime() : 0;
+
           return bCreated - aCreated;
         });
     }
@@ -237,6 +243,7 @@ export default function GroupStudyListPage() {
     // 프로토타입 모드거나 검색어가 있으면 클라이언트 페이지네이션
     if (searchQuery || usePrototype) {
       const startIndex = (currentPage - 1) * PAGE_SIZE;
+
       return sortedStudies.slice(startIndex, startIndex + PAGE_SIZE);
     }
 

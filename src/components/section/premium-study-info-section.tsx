@@ -2,23 +2,23 @@
 
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
+import { useState } from 'react';
+import MockProfileModal from '@/components/modals/mock-profile-modal';
 import UserAvatar from '@/components/ui/avatar';
 import AvatarStack from '@/components/ui/avatar/avatar-stack';
 import Button from '@/components/ui/button';
 import CurriculumSummaryCard from '@/components/ui/curriculum-card';
 import FloatingInfoBar from '@/components/ui/floating-info-bar';
-import MockProfileModal from '@/components/modals/mock-profile-modal';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
+import { MOCK_MISSIONS, MOCK_PARTICIPANTS } from '@/mocks/group-study-mock-data';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
-import { MOCK_MISSIONS, MOCK_PARTICIPANTS } from '@/mocks/group-study-mock-data';
-
-import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
 
 import InquirySection from './inquiry-section';
+import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
+
 import SummaryStudyInfo from '../summary/study-info-summary';
 
-import { useState } from 'react';
 
 interface PremiumStudyInfoSectionProps {
   study: GroupStudyFullResponse;
@@ -40,7 +40,8 @@ export default function PremiumStudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
-  const applicants = approvedApplicants?.pages[0]?.content;
+
+  // const applicants = approvedApplicants?.pages[0]?.content;
 
   // 프로토타입: 미가입 시 커리큘럼 잠금
   const isUserJoined = false;

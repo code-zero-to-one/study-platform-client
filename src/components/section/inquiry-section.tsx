@@ -2,10 +2,11 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+
 import InquiryList from '@/components/lists/inquiry-list';
 import InquiryModal from '@/components/modals/inquiry-modal';
 import InquiryDetail from '@/components/section/inquiry-detail-section';
-import { canViewInquiry, Inquiry, MOCK_INQUIRIES } from '@/mocks/inquiry-mock-data';
+import { canViewInquiry, Inquiry, InquiryType, MOCK_INQUIRIES } from '@/mocks/inquiry-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
 
 interface InquirySectionProps {
@@ -35,7 +36,7 @@ export default function InquirySection({
 }: InquirySectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const showToast = useToastStore((state) => state.showToast);
+  // const showToast = useToastStore((state) => state.showToast);
   const [inquiries, setInquiries] = useState<Inquiry[]>(MOCK_INQUIRIES);
   
   // URL에서 선택된 문의 ID 읽기
@@ -44,7 +45,12 @@ export default function InquirySection({
 
   const selectedInquiry = inquiries.find((i) => i.id === selectedInquiryId);
 
-  const handleInquirySubmit = (data: any) => {
+  const handleInquirySubmit = (data: {
+    type: InquiryType;
+    title: string;
+    content: string;
+    images?: File[];
+  }) => {
     // 프로토타입: 새 문의 추가
     const newInquiry: Inquiry = {
       id: Date.now(),
@@ -55,7 +61,7 @@ export default function InquirySection({
       authorName: '나',
       status: 'PENDING',
       viewCount: 1,
-      images: data.images.length > 0 ? ['mock-image.png'] : undefined,
+      images: data.images && data.images.length > 0 ? data.images.map(f => f.name) : undefined,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -131,7 +137,7 @@ export default function InquirySection({
     if (selectedInquiryId && selectedInquiry) {
       // 조회수 증가는 한 번만 (이미 handleInquiryClick에서 처리)
     }
-  }, [selectedInquiryId]);
+  }, [selectedInquiryId, selectedInquiry]);
 
   // 프로토타입: 첫 번째 비공개 항목을 강제 공개
   const forceShownId = useMemo(() => {
@@ -139,6 +145,7 @@ export default function InquirySection({
       (inquiry) =>
         !canViewInquiry(inquiry, currentUserId, isMentor, isAdmin),
     );
+
     return firstLocked?.id || null;
   }, [inquiries, currentUserId, isMentor, isAdmin]);
 

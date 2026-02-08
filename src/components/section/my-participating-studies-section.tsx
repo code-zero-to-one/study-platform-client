@@ -9,9 +9,9 @@ import StudyCard from '@/components/card/study-card';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import { useAuth } from '@/hooks/common/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
-import { hashValue } from '@/utils/hash';
 import { MOCK_GROUP_STUDIES } from '@/mocks/group-study-mock-data';
 import { MOCK_PREMIUM_STUDIES } from '@/mocks/premium-study-mock-data';
+import { hashValue } from '@/utils/hash';
 
 /** 목 데이터용 확장 타입 (_prototype 필드 포함) */
 type GroupStudyWithPrototype = GroupStudyListItemDto & {

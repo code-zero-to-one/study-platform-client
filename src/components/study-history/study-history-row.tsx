@@ -9,7 +9,7 @@ import {
   ExternalLink,
   CheckCircle2,
 } from 'lucide-react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { StudyHistoryItem } from '@/types/study-history';
