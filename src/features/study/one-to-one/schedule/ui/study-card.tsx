@@ -10,7 +10,7 @@ import {
 import DateSelector from '@/features/study/one-to-one/schedule/ui/data-selector';
 import TodayStudyCard from '@/features/study/one-to-one/schedule/ui/today-study-card';
 import ReservationList from '@/features/study/participation/ui/reservation-list';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   formatKoreaYMD,
   getKoreaDate,
@@ -82,8 +82,8 @@ export default function StudyCard({
   const studyDate = formatKoreaYMD(selectedDate);
 
   // 로그인 여부 확인
-  const { data: authData } = useAuth();
-  const isLoggedIn = !!authData?.memberId;
+  const { isAuthReady, memberId } = useAuthReady();
+  const isLoggedIn = isAuthReady && !!memberId;
 
   // 공개 API
   const { data: status } = useStudyStatusQuery();

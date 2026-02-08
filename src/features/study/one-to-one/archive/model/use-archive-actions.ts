@@ -5,14 +5,14 @@ import { useToggleArchiveLikeMutation } from '@/features/study/one-to-one/archiv
 import { useUpdateArchiveMutation } from '@/features/study/one-to-one/archive/model/use-update-archive-mutation';
 import { useRecordArchiveViewMutation } from '@/features/study/one-to-one/archive/model/use-view-mutation';
 import { useToggleArchiveVisibilityMutation } from '@/features/study/one-to-one/archive/model/use-visibility-mutation';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 interface ArchiveViewTarget {
   id: number;
   link: string;
 }
 
 export const useArchiveActions = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady } = useAuthReady();
   const { mutate: toggleBookmark } = useToggleArchiveBookmarkMutation();
   const { mutate: toggleLike } = useToggleArchiveLikeMutation();
   const { mutate: recordView } = useRecordArchiveViewMutation();
@@ -21,43 +21,43 @@ export const useArchiveActions = () => {
 
   const handleToggleBookmark = useCallback(
     (id: number) => {
-      if (!isAuthenticated) return;
+      if (!isAuthReady) return;
       toggleBookmark(id);
     },
-    [isAuthenticated, toggleBookmark],
+    [isAuthReady, toggleBookmark],
   );
 
   const handleToggleLike = useCallback(
     (id: number) => {
-      if (!isAuthenticated) return;
+      if (!isAuthReady) return;
       toggleLike(id);
     },
-    [isAuthenticated, toggleLike],
+    [isAuthReady, toggleLike],
   );
 
   const openAndRecordView = useCallback(
     (target: ArchiveViewTarget) => {
       window.open(target.link, '_blank');
-      if (!isAuthenticated) return;
+      if (!isAuthReady) return;
       recordView(target.id);
     },
-    [isAuthenticated, recordView],
+    [isAuthReady, recordView],
   );
 
   const handleToggleVisibility = useCallback(
     (id: number, isPrivate: boolean) => {
-      if (!isAuthenticated) return;
+      if (!isAuthReady) return;
       toggleVisibility({ id, isPrivate });
     },
-    [isAuthenticated, toggleVisibility],
+    [isAuthReady, toggleVisibility],
   );
 
   const handleUpdateArchive = useCallback(
     (id: number, request: UpdateArchiveRequest) => {
-      if (!isAuthenticated) return;
+      if (!isAuthReady) return;
       updateArchive({ id, request });
     },
-    [isAuthenticated, updateArchive],
+    [isAuthReady, updateArchive],
   );
 
   return {
@@ -66,6 +66,6 @@ export const useArchiveActions = () => {
     toggleVisibility: handleToggleVisibility,
     updateArchive: handleUpdateArchive,
     openAndRecordView,
-    isAuthenticated,
+    isAuthenticated: isAuthReady,
   };
 };

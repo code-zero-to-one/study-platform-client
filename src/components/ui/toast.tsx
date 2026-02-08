@@ -1,7 +1,8 @@
 'use client';
 
 import { CheckCircle2, XCircle } from 'lucide-react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface ToastProps {
@@ -19,43 +20,58 @@ export default function Toast({
   duration = 3000,
   variant = 'success',
 }: ToastProps) {
+  const [isRendered, setIsRendered] = useState(isVisible);
+  const [isExiting, setIsExiting] = useState(false);
+  const exitDuration = 200;
+
   useEffect(() => {
     if (isVisible) {
+      setIsRendered(true);
+      setIsExiting(false);
       const timer = setTimeout(() => {
         onClose();
       }, duration);
 
       return () => clearTimeout(timer);
     }
+
+    if (isRendered) {
+      setIsExiting(true);
+      const timer = setTimeout(() => {
+        setIsRendered(false);
+        setIsExiting(false);
+      }, exitDuration);
+
+      return () => clearTimeout(timer);
+    }
   }, [isVisible, duration, onClose]);
 
-  if (!isVisible) return null;
+  if (!isRendered) return null;
+  if (typeof document === 'undefined') return null;
 
   const isSuccess = variant === 'success';
 
-  return (
-    <div
-      className={cn(
-        'fixed top-24 left-1/2 z-99999 -translate-x-1/2',
-        'rounded-200 px-500 py-400',
-        'bg-background-default shadow-2xl',
-        isSuccess ? 'border-2 border-green-500' : 'border-2 border-red-500',
-        'font-designer-15b text-gray-900',
-        'animate-in fade-in-0 slide-in-from-top-4 duration-300',
-        'transition-all',
-        'flex min-w-[280px] items-center gap-300',
-      )}
-      style={{
-        boxShadow:
-          '0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.2)',
-      }}
-    >
-      {isSuccess ? (
-        <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
-      ) : (
-        <XCircle className="h-5 w-5 shrink-0 text-red-600" />
-      )}
-      <span className="flex-1">{message}</span>
+  const toast = (
+    <div className="fixed top-400 left-1/2 z-50 -translate-x-1/2">
+      <div
+        className={cn(
+          'rounded-200 px-500 py-400',
+          'bg-background-default shadow-2xl',
+          isSuccess ? 'border-2 border-green-500' : 'border-2 border-red-500',
+          'font-designer-15b text-gray-900',
+          'flex min-w-[280px] items-center gap-300',
+          isExiting ? 'toast-exit' : 'toast-enter',
+        )}
+      >
+        {isSuccess ? (
+          <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
+        ) : (
+          <XCircle className="h-5 w-5 shrink-0 text-red-600" />
+        )}
+        <span className="flex-1">{message}</span>
+      </div>
     </div>
   );
+
+  return createPortal(toast, document.body);
 }

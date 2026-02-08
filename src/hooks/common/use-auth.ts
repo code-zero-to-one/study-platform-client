@@ -4,10 +4,11 @@
 // 한편, prefetchQuery 는 서버컴포넌트에서 사용하는 함수로 데이터를 미리 가져와서 캐시에 저장함
 
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getCookie } from '@/api/client/cookie';
 import { getMemberId } from '@/features/auth/api/auth';
 import { decodeJwt } from '@/utils/jwt';
+import { useAuthHydration } from './auth-hydration-context';
 
 // 회원 Id 조회
 export const useMemberId = () => {
@@ -35,6 +36,7 @@ interface UseAuthReturn {
   accessToken: string | undefined;
   data: DecodedToken | undefined;
   isAuthenticated: boolean;
+  isHydrated: boolean;
 }
 
 function isDecodedToken(value: unknown): value is DecodedToken {
@@ -64,9 +66,17 @@ function isDecodedToken(value: unknown): value is DecodedToken {
 }
 
 export function useAuth(): UseAuthReturn {
+  const { initialAccessToken } = useAuthHydration();
+  const [accessToken, setAccessToken] = useState<string | undefined>(
+    initialAccessToken,
+  );
+  const [isHydrated, setIsHydrated] = useState(!!initialAccessToken);
+
   // getCookie는 클라이언트 사이드에서만 실행되어야 함
-  const accessToken =
-    typeof window !== 'undefined' ? getCookie('accessToken') : undefined;
+  useEffect(() => {
+    setAccessToken(getCookie('accessToken'));
+    setIsHydrated(true);
+  }, []);
 
   const decodedToken: DecodedToken | undefined = useMemo(() => {
     if (!accessToken) return undefined;
@@ -94,6 +104,30 @@ export function useAuth(): UseAuthReturn {
   return {
     accessToken,
     data: decodedToken,
-    isAuthenticated: !!accessToken && !!decodedToken && !isGuest,
+    isAuthenticated: isHydrated && !!accessToken && !!decodedToken && !isGuest,
+    isHydrated,
+  };
+}
+
+export interface UseAuthReadyReturn {
+  isHydrated: boolean;
+  isAuthenticated: boolean;
+  isAuthReady: boolean;
+  memberId?: number;
+  data?: DecodedToken;
+  accessToken?: string;
+}
+
+export function useAuthReady(): UseAuthReadyReturn {
+  const { accessToken, data, isAuthenticated, isHydrated } = useAuth();
+  const isAuthReady = isHydrated && isAuthenticated;
+
+  return {
+    accessToken,
+    data,
+    isAuthenticated,
+    isHydrated,
+    isAuthReady,
+    memberId: isHydrated ? data?.memberId : undefined,
   };
 }

@@ -5,7 +5,7 @@ import Image from 'next/image';
 
 import { GroupStudyListItemDto } from '@/api/openapi';
 import { GroupStudyData } from '@/features/study/group/api/group-study-types';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { hashValue } from '@/utils/hash';
 
 import StudyCard from '../card/study-card';
@@ -15,15 +15,16 @@ interface PremiumStudyListProps {
 }
 
 export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
-  const { data: authData } = useAuth();
+  const { memberId, isAuthReady } = useAuthReady();
 
   const handleStudyClick = (study: GroupStudyListItemDto) => {
     sendGTMEvent({
       event: 'premium_study_detail_view',
       dl_timestamp: new Date().toISOString(),
-      ...(authData?.memberId && {
-        dl_member_id: hashValue(String(authData.memberId)),
-      }),
+      ...(isAuthReady &&
+        memberId && {
+          dl_member_id: hashValue(String(memberId)),
+        }),
       dl_study_id: String(study.basicInfo?.groupStudyId),
       dl_study_title: study.simpleDetailInfo?.title,
     });

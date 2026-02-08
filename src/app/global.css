@@ -781,6 +781,38 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   }
 }
 
+@keyframes toast-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes toast-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+@layer utilities {
+  .toast-enter {
+    animation: toast-enter 300ms ease-out forwards;
+  }
+
+  .toast-exit {
+    animation: toast-exit 200ms ease-in forwards;
+  }
+}
+
 /* 자동완성이 안되는 문제가 있어 잠시 주석처리 합니다 */
 /* @layer utilities {
   /* typography */
