@@ -59,11 +59,15 @@ export default function PhoneVerificationModal({
     if (!open) {
       setTimeout(() => {
         setStep('input');
-        setName(''); // 이름 초기화
+        setName('');
         setPhoneNumber('');
         setCode('');
         setError(null);
         setTimer(180);
+        setFailCount(0);
+        setIsResending(false);
+        setResendMessage(null);
+        setIsShaking(false);
       }, 300);
     }
   }, [open]);

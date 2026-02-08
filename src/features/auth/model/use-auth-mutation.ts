@@ -5,6 +5,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { deleteCookie, getCookie } from '@/api/client/cookie';
 import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
+// 로그아웃 시 인증 상태 리셋을 위해 store 직접 사용 (mutation 내부 사용)
+import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import { hashValue } from '@/utils/hash';
 import { SignUpRequest, SignUpResponse } from './types';
 import { useUserStore } from '../../../stores/useUserStore';
@@ -31,6 +33,9 @@ export const useLogoutMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const resetUserStore = useUserStore((state) => state.reset);
+  const resetPhoneVerification = usePhoneVerificationStore(
+    (state) => state.reset,
+  );
 
   return useMutation({
     mutationFn: logout,
@@ -49,6 +54,7 @@ export const useLogoutMutation = () => {
       deleteCookie('socialImageURL');
 
       resetUserStore();
+      resetPhoneVerification();
       queryClient.clear();
 
       router.push('/home');

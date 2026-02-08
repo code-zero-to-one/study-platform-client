@@ -12,7 +12,7 @@ export const useUserProfileQuery = (memberId: number) => {
     queryKey: ['userProfile', memberId],
     queryFn: () => getUserProfile(memberId),
     enabled: !!memberId,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 0,
   });
 };
 

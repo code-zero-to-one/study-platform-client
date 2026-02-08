@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import StudyCard from '@/components/card/study-card';
 import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
 import { hashValue } from '@/utils/hash';
 
@@ -17,8 +17,7 @@ interface MyParticipatingStudiesSectionProps {
 export default function MyParticipatingStudiesSection({
   classification,
 }: MyParticipatingStudiesSectionProps) {
-  const { data: authData } = useAuth();
-  const memberId = authData?.memberId;
+  const { memberId } = useAuthReady();
 
   /**
    * TODO : PREMIUM_STUDY 에서도 동작확인 필요 (BE 미구현)

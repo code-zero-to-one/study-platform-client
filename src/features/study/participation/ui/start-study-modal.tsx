@@ -23,7 +23,7 @@ import {
   useUpdateUserProfileInfoMutation,
 } from '@/features/my-page/model/use-update-user-profile-mutation';
 
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 import {
@@ -33,6 +33,7 @@ import {
   toJoinStudyRequest,
 } from '@/features/study/participation/model/start-study-form.schema';
 import { useJoinStudyMutation } from '@/features/study/participation/model/use-participation-query';
+import { useToastStore } from '@/stores/use-toast-store';
 
 interface StartStudyModalProps {
   memberId: number;
@@ -99,13 +100,22 @@ export default function StartStudyModal({
   open,
   onOpenChange,
 }: StartStudyModalProps) {
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const { isVerified, isLoading, isError, setVerified } =
+    usePhoneVerificationStatus(memberId);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const [internalOpen, setInternalOpen] = useState(false);
   const isModalOpen = open ?? internalOpen;
 
   const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && isLoading) {
+      return;
+    }
+    if (isOpen && isError) {
+      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+
+      return;
+    }
     if (isOpen && !isVerified) {
       setIsVerificationModalOpen(true);
       if (onOpenChange) onOpenChange(false);
@@ -130,7 +140,18 @@ export default function StartStudyModal({
 
   // 모달이 열릴 때 인증 여부 체크 (외부 제어 open prop 대응)
   useEffect(() => {
-    if (isModalOpen && !isVerified) {
+    if (!isModalOpen || isLoading) return;
+    if (isError) {
+      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+      if (onOpenChange) {
+        onOpenChange(false);
+      } else {
+        setInternalOpen(false);
+      }
+
+      return;
+    }
+    if (!isVerified) {
       setIsVerificationModalOpen(true);
       if (onOpenChange) {
         onOpenChange(false);
@@ -138,7 +159,7 @@ export default function StartStudyModal({
         setInternalOpen(false);
       }
     }
-  }, [isModalOpen, isVerified, onOpenChange]);
+  }, [isModalOpen, isVerified, isLoading, isError, onOpenChange]);
 
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
@@ -200,6 +221,7 @@ function StartStudyForm({
   const { mutate: updateProfile } = useUpdateUserProfileMutation(memberId);
   const { mutate: updateProfileInfo } =
     useUpdateUserProfileInfoMutation(memberId);
+  const showToast = useToastStore((state) => state.showToast);
 
   const { data: profile } = useUserProfileQuery(memberId);
 
@@ -351,7 +373,7 @@ function StartStudyForm({
               available_times_count: values.availableStudyTimeIds.length,
               tech_stacks_count: values.techStackIds.length,
             });
-            alert('스터디 신청이 완료되었습니다!');
+            showToast('스터디 신청이 완료되었습니다!');
             onClose();
             router.refresh();
           },
@@ -360,7 +382,10 @@ function StartStudyForm({
               event: 'study_apply_error',
               location: 'home',
             });
-            alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            showToast(
+              '스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.',
+              'error',
+            );
           },
         });
       })
@@ -375,7 +400,7 @@ function StartStudyForm({
               available_times_count: values.availableStudyTimeIds.length,
               tech_stacks_count: values.techStackIds.length,
             });
-            alert('스터디 신청이 완료되었습니다!');
+            showToast('스터디 신청이 완료되었습니다!');
             onClose();
             router.refresh();
           },
@@ -384,7 +409,10 @@ function StartStudyForm({
               event: 'study_apply_error',
               location: 'home',
             });
-            alert('스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            showToast(
+              '스터디 신청 중 오류가 발생했습니다. 다시 시도해 주세요.',
+              'error',
+            );
           },
         });
       });

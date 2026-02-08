@@ -8,11 +8,11 @@ import {
   useUserProfileQuery,
 } from '@/entities/user/model/use-user-profile-query';
 import ProfileDefault from '@/entities/user/ui/icon/profile-default.svg';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import ReservationCard from '@/features/study/participation/ui/reservation-user-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useInfiniteReservation } from '../model/use-participation-query';
 
 interface ReservationListProps {
@@ -29,14 +29,18 @@ export default function ReservationList({
   week,
 }: ReservationListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const { data: authData } = useAuth();
-  const memberId = authData?.memberId ?? null;
+  const { memberId } = useAuthReady();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
   const autoMatching = userProfile?.autoMatching ?? false;
 
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const {
+    isVerified,
+    isLoading: isVerificationLoading,
+    isError: isVerificationError,
+    setVerified,
+  } = usePhoneVerificationStatus(memberId ?? undefined);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const firstMemberId = useMemo(
@@ -44,8 +48,13 @@ export default function ReservationList({
     [autoMatching, memberId],
   );
 
-  const { data, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } =
-    useInfiniteReservation(firstMemberId ?? undefined, pageSize);
+  const {
+    data,
+    isLoading: isReservationLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+  } = useInfiniteReservation(firstMemberId ?? undefined, pageSize);
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
 
@@ -89,6 +98,12 @@ export default function ReservationList({
 
   const handleApplyClick = () => {
     if (!memberId) return;
+    if (isVerificationLoading) return;
+    if (isVerificationError) {
+      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+
+      return;
+    }
 
     // 본인인증이 안되어 있으면 본인인증 모달 먼저 열기
     if (!isVerified) {
@@ -105,7 +120,7 @@ export default function ReservationList({
     }
   };
 
-  if (isLoading) {
+  if (isReservationLoading) {
     return (
       <div className="py-10 text-center text-sm text-gray-500">
         불러오는 중…

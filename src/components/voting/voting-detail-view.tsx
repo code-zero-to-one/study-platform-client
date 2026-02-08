@@ -37,7 +37,7 @@ import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
 } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useUserStore } from '@/stores/useUserStore';
 import { BalanceGameComment } from '@/types/balance-game';
 import {
@@ -64,10 +64,12 @@ export default function VotingDetailView({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showShareToast, setShowShareToast] = useState(false);
+  const [shareToastMessage, setShareToastMessage] =
+    useState('링크가 복사되었습니다.');
 
   // User Info
   const memberId = useUserStore((state) => state.memberId);
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady } = useAuthReady();
 
   // Queries
   const {
@@ -215,7 +217,19 @@ export default function VotingDetailView({
     }
   };
 
-  const fallbackShare = (shareUrl: string) => {
+  const openShareToast = (message: string) => {
+    setShareToastMessage(message);
+    setShowShareToast(false);
+    requestAnimationFrame(() => setShowShareToast(true));
+  };
+
+  const openManualCopyPrompt = (shareUrl: string) => {
+    const result = window.prompt('링크를 복사해 공유하세요.', shareUrl);
+
+    return typeof result === 'string';
+  };
+
+  const fallbackCopy = (shareUrl: string) => {
     try {
       const textarea = document.createElement('textarea');
       textarea.value = shareUrl;
@@ -226,48 +240,40 @@ export default function VotingDetailView({
       textarea.select();
       const copied = document.execCommand('copy');
       document.body.removeChild(textarea);
-      if (copied) {
-        setShowShareToast(true);
-
-        return;
-      }
+      if (copied) return true;
     } catch (error) {
       // ignore and fallback
     }
 
-    window.prompt('링크를 복사해 공유하세요.', shareUrl);
+    return false;
   };
 
-  const handleShare = () => {
+  const handleShare = async () => {
     if (!voting) return;
     const shareUrl = window.location.href;
 
-    if (navigator.share) {
-      navigator
-        .share({
-          title: voting.title,
-          url: shareUrl,
-        })
-        .catch((error) => {
-          if (error instanceof DOMException && error.name === 'AbortError') {
-            return;
-          }
-          fallbackShare(shareUrl);
-        });
-
-      return;
-    }
-
     if (navigator.clipboard?.writeText) {
-      navigator.clipboard
-        .writeText(shareUrl)
-        .then(() => setShowShareToast(true))
-        .catch(() => fallbackShare(shareUrl));
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        openShareToast('링크가 복사되었습니다.');
+
+        return;
+      } catch (error) {
+        // continue to fallback
+      }
+    }
+
+    const copied = fallbackCopy(shareUrl);
+    if (copied) {
+      openShareToast('링크가 복사되었습니다.');
 
       return;
     }
 
-    fallbackShare(shareUrl);
+    const manualCopy = openManualCopyPrompt(shareUrl);
+    if (manualCopy) {
+      openShareToast('링크가 복사되었습니다.');
+    }
   };
 
   // Check if current user is author
@@ -325,7 +331,7 @@ export default function VotingDetailView({
     isActive,
   });
 
-  const showVoteOptions = isAuthenticated && !hasVoted && isActive;
+  const showVoteOptions = isAuthReady && !hasVoted && isActive;
 
   return (
     <div className="transition-all duration-300">
@@ -370,7 +376,7 @@ export default function VotingDetailView({
             <button
               onClick={handleShare}
               type="button"
-              className="rounded-100 text-text-subtle hover:bg-fill-neutral-subtle-default p-100 transition-colors"
+              className="rounded-100 text-text-subtle hover:bg-fill-neutral-subtle-default active:bg-fill-neutral-subtle-hover focus-visible:ring-fill-brand-default-default focus-visible:ring-offset-background-default p-100 transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:scale-95"
               aria-label="공유"
             >
               <Share2 className="h-5 w-5" />
@@ -593,14 +599,14 @@ export default function VotingDetailView({
               )}
             </div>
             <div className="relative">
-              <div className={cn(!isAuthenticated && 'blur-[6px]')}>
+              <div className={cn(!isAuthReady && 'blur-[6px]')}>
                 <VoteResultsChart
                   options={votingOptions}
                   myVote={voting.myVote || undefined}
                   totalVotes={voting.totalVotes}
                 />
               </div>
-              {!isAuthenticated && (
+              {!isAuthReady && (
                 <div className="absolute inset-0 flex items-center justify-center">
                   <LoginModal
                     openTrigger={
@@ -618,7 +624,7 @@ export default function VotingDetailView({
       </div>
 
       {/* 일별 통계 (투표 후에만 표시) */}
-      {isAuthenticated &&
+      {isAuthReady &&
         hasVoted &&
         voting.dailyStats &&
         voting.dailyStats.length > 0 && (
@@ -638,47 +644,65 @@ export default function VotingDetailView({
           <span>댓글 {commentTotalCount}</span>
         </div>
 
-        {/* 댓글 목록 (항상 표시) */}
-        <div className="mb-400">
-          <CommentList
-            comments={comments}
-            onDelete={handleDeleteComment}
-            onEdit={handleStartEditComment}
-            votingOptions={votingOptions}
-            editingCommentId={editingCommentId}
-            editingCommentContent={editingCommentContent}
-            onUpdateComment={handleUpdateComment}
-            onCancelEdit={handleCancelEditComment}
-          />
-
-          {hasNextPage && (
-            <button
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-              className="rounded-100 border-border-subtle font-designer-13r text-text-subtle hover:bg-background-alternative mt-300 w-full border py-200"
-            >
-              {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
-            </button>
-          )}
-        </div>
-
-        {/* 댓글 작성 폼 */}
-        {isAuthenticated && isActive && (
+        {!isAuthReady ? (
+          <div className="rounded-200 border-border-subtle bg-background-alternative flex flex-col items-center justify-center gap-200 border p-400 text-center">
+            <Lock className="text-text-subtlest h-5 w-5" />
+            <p className="font-designer-14m text-text-subtle">
+              회원가입 후 댓글을 확인할 수 있습니다
+            </p>
+            <LoginModal
+              openTrigger={
+                <button className="rounded-100 bg-background-default text-text-strong border-border-subtle flex items-center gap-100 border px-200 py-100 text-[12px] font-medium">
+                  회원가입 후 댓글 보기
+                </button>
+              }
+            />
+          </div>
+        ) : (
           <>
-            {!hasVoted ? (
-              <div className="rounded-200 border-border-subtle bg-background-alternative border p-400 text-center">
-                <p className="font-designer-14m text-text-subtle">
-                  투표 후 댓글을 작성할 수 있습니다
-                </p>
-              </div>
-            ) : editingCommentId === null ? (
-              <div className="rounded-200 border-border-subtle bg-background-alternative border p-300">
-                <CommentForm
-                  onSubmit={handleAddComment}
-                  isSubmitting={createCommentMutation.isPending}
-                />
-              </div>
-            ) : null}
+            {/* 댓글 목록 */}
+            <div className="mb-400">
+              <CommentList
+                comments={comments}
+                onDelete={handleDeleteComment}
+                onEdit={handleStartEditComment}
+                votingOptions={votingOptions}
+                editingCommentId={editingCommentId}
+                editingCommentContent={editingCommentContent}
+                onUpdateComment={handleUpdateComment}
+                onCancelEdit={handleCancelEditComment}
+              />
+
+              {hasNextPage && (
+                <button
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  className="rounded-100 border-border-subtle font-designer-13r text-text-subtle hover:bg-background-alternative mt-300 w-full border py-200"
+                >
+                  {isFetchingNextPage ? '불러오는 중...' : '더 보기'}
+                </button>
+              )}
+            </div>
+
+            {/* 댓글 작성 폼 */}
+            {isActive && (
+              <>
+                {!hasVoted ? (
+                  <div className="rounded-200 border-border-subtle bg-background-alternative border p-400 text-center">
+                    <p className="font-designer-14m text-text-subtle">
+                      투표 후 댓글을 작성할 수 있습니다
+                    </p>
+                  </div>
+                ) : editingCommentId === null ? (
+                  <div className="rounded-200 border-border-subtle bg-background-alternative border p-300">
+                    <CommentForm
+                      onSubmit={handleAddComment}
+                      isSubmitting={createCommentMutation.isPending}
+                    />
+                  </div>
+                ) : null}
+              </>
+            )}
           </>
         )}
       </div>
@@ -728,7 +752,7 @@ export default function VotingDetailView({
       </Modal.Root>
 
       <Toast
-        message="링크가 복사되었습니다."
+        message={shareToastMessage}
         isVisible={showShareToast}
         onClose={() => setShowShareToast(false)}
       />

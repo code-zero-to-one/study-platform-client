@@ -1,6 +1,8 @@
 import { getArchiveServer } from '@/features/study/one-to-one/archive/api/get-archive.server';
 import { ARCHIVE_PAGE_SIZE } from '@/features/study/one-to-one/archive/const/archive';
 import { GetArchiveParams } from '@/types/archive';
+import { safeServerPrefetch } from '@/utils/safe-server-prefetch';
+import { getServerCookie } from '@/utils/server-cookie';
 import ArchiveTabClient from './archive-tab-client';
 
 export default async function ArchiveTab() {
@@ -10,7 +12,12 @@ export default async function ArchiveTab() {
     sort: 'LATEST',
   };
 
-  const initialData = await getArchiveServer(initialParams);
+  const accessToken = await getServerCookie('accessToken');
+  const initialData = accessToken
+    ? await safeServerPrefetch(() => getArchiveServer(initialParams), {
+        logLabel: 'Archive prefetch',
+      })
+    : undefined;
 
   return (
     <ArchiveTabClient initialData={initialData} initialParams={initialParams} />

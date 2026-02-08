@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import Button from '@/components/ui/button';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import CheckIcon from 'public/icons/check.svg';
 
 interface TodoListProps {
@@ -17,7 +18,9 @@ const todoItems = [
 ] as const;
 
 export default function TodoList({ statusList }: TodoListProps) {
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const { memberId } = useAuthReady();
+  const { isVerified, isLoading, isError, setVerified } =
+    usePhoneVerificationStatus(memberId);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const handleVerificationComplete = (phoneNumber: string) => {
@@ -28,7 +31,21 @@ export default function TodoList({ statusList }: TodoListProps) {
     <section className="rounded-200 border-border-subtle bg-background-default flex flex-col gap-150 border p-250">
       <h4 className="font-designer-18b text-text-default">오늘 할 일</h4>
 
-      {isVerified ? (
+      {isLoading ? (
+        <div className="flex flex-col items-center justify-center gap-100 py-200">
+          <p className="font-designer-14m text-text-subtle text-center">
+            인증 상태를 확인하고 있어요
+          </p>
+        </div>
+      ) : isError ? (
+        <div className="flex flex-col items-center justify-center gap-100 py-200">
+          <p className="font-designer-14m text-text-subtle text-center">
+            인증 상태를 불러오지 못했어요.
+            <br />
+            잠시 후 다시 시도해주세요.
+          </p>
+        </div>
+      ) : isVerified ? (
         <ul>
           {todoItems.map((item, idx) => {
             const done = statusList[idx];
@@ -77,6 +94,7 @@ export default function TodoList({ statusList }: TodoListProps) {
         open={isVerificationModalOpen}
         onOpenChange={setIsVerificationModalOpen}
         onVerificationComplete={handleVerificationComplete}
+        memberId={memberId ?? undefined}
       />
     </section>
   );

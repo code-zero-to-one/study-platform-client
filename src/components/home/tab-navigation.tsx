@@ -12,7 +12,7 @@ import { useEffect, useState } from 'react';
 import { getCookie } from '@/api/client/cookie';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useScrollToHomeContent } from '@/hooks/use-scroll-to-home-content';
 
 interface TabNavigationProps {
@@ -55,16 +55,21 @@ const TABS = [
 export default function TabNavigation({ activeTab }: TabNavigationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady, isHydrated, memberId } = useAuthReady();
   const [canViewHistory, setCanViewHistory] = useState(false);
   const visibleTabs = canViewHistory
     ? TABS
     : TABS.filter((tab) => tab.id !== 'history');
 
   useEffect(() => {
-    const hasMemberId = !!getCookie('memberId');
-    setCanViewHistory(isAuthenticated && hasMemberId);
-  }, [isAuthenticated]);
+    if (!isHydrated) {
+      setCanViewHistory(false);
+
+      return;
+    }
+    const hasMemberId = !!memberId || !!getCookie('memberId');
+    setCanViewHistory(isAuthReady && hasMemberId);
+  }, [isAuthReady, isHydrated, memberId]);
 
   const scrollToHomeContent = useScrollToHomeContent();
 

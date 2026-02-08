@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
@@ -15,7 +15,7 @@ import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
 import ProfileEditModal from '@/features/my-page/ui/profile-edit-modal';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import { formatPhoneNumber } from '@/utils/format';
 
@@ -34,23 +34,9 @@ export default function Profile({
 }: ProfileProps) {
   const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
 
-  // Zustand 스토어 사용
-  const { isVerified, phoneNumber, setVerified, reset } =
-    usePhoneVerificationStore();
+  const { isVerified, isLoading, isError, phoneNumber, setVerified } =
+    usePhoneVerificationStatus(memberId);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
-
-  // 서버 데이터를 우선시: 서버에 전화번호가 있으면 인증된 것으로 간주, 없으면 스토어 초기화
-  useEffect(() => {
-    if (memberProfile.tel) {
-      // 서버에 전화번호가 있으면 인증된 것으로 간주
-      if (!isVerified || phoneNumber !== memberProfile.tel) {
-        setVerified(memberProfile.tel);
-      }
-    } else {
-      // 서버에 전화번호가 없으면 스토어 초기화 (로컬 스토리지에 남아있는 이전 값 제거)
-      reset();
-    }
-  }, [memberProfile.tel, isVerified, phoneNumber, setVerified, reset]);
 
   const handleVerificationComplete = (phone: string) => {
     setVerified(phone);
@@ -87,7 +73,7 @@ export default function Profile({
                 <div className="flex items-center gap-50">
                   {memberProfile.nickname ?? '닉네임을 입력해주세요'}
                   {/* 본인 인증 배지 (트위터 스타일) */}
-                  {!hidePhoneNumber && (isVerified || !!memberProfile.tel) && (
+                  {!hidePhoneNumber && !isLoading && !isError && isVerified && (
                     <VerifiedCheckIcon className="shrink-0" />
                   )}
                 </div>
@@ -202,7 +188,7 @@ export default function Profile({
       </div>
 
       {/* 하단 영역: 전화번호 미인증 시에만 인증 요청 블록 표시 (hidePhoneNumber가 true면 숨김) */}
-      {!hidePhoneNumber && !isVerified && (
+      {!hidePhoneNumber && !isLoading && !isError && !isVerified && (
         <div className="rounded-100 bg-background-alternative flex w-full flex-col gap-100 p-200">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-100">

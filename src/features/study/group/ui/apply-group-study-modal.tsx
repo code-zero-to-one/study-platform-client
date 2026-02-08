@@ -8,8 +8,10 @@ import { useController, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
 import { Modal } from '@/components/ui/modal';
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
+import { useAuthReady } from '@/hooks/common/use-auth';
+import { useToastStore } from '@/stores/use-toast-store';
 import { GroupStudyDetailResponse } from '../api/group-study-types';
 import {
   ApplyGroupStudyFormData,
@@ -33,10 +35,16 @@ export default function ApplyGroupStudyModal({
   onSuccess,
 }: ApplyGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
-  const { isVerified, setVerified } = usePhoneVerificationStore();
+  const { memberId } = useAuthReady();
+  const { isVerified, isLoading, setVerified } = usePhoneVerificationStatus(
+    memberId ?? undefined,
+  );
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && isLoading) {
+      return;
+    }
     if (isOpen && !isVerified) {
       setIsVerificationModalOpen(true);
       setOpen(false);
@@ -48,6 +56,7 @@ export default function ApplyGroupStudyModal({
 
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
+    setIsVerificationModalOpen(false);
     setOpen(true);
   };
 
@@ -93,6 +102,7 @@ export default function ApplyGroupStudyModal({
         open={isVerificationModalOpen}
         onOpenChange={setIsVerificationModalOpen}
         onVerificationComplete={handleVerificationComplete}
+        memberId={memberId ?? undefined}
       />
     </>
   );
@@ -132,6 +142,7 @@ function ApplyGroupStudyForm({
   });
 
   const { mutate: applyGroupStudy } = useApplyGroupStudyMutation(groupStudyId);
+  const showToast = useToastStore((state) => state.showToast);
 
   const onSubmit = (data: ApplyGroupStudyFormData) => {
     const { answer } = data;
@@ -145,7 +156,7 @@ function ApplyGroupStudyForm({
             group_study_id: String(groupStudyId),
             group_study_title: title,
           });
-          alert('스터디 신청이 완료되었습니다.');
+          showToast('스터디 신청이 완료되었습니다.');
           onClose();
           onSuccess?.();
         },
