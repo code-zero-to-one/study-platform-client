@@ -83,9 +83,7 @@ export function usePhoneVerificationStatus(
 
   // 서버 데이터 기반 인증 상태 계산
   const serverHasIsVerified = typeof userProfile?.isVerified === 'boolean';
-  const serverIsVerified = serverHasIsVerified
-    ? userProfile!.isVerified
-    : false;
+  const serverIsVerified = serverHasIsVerified ? userProfile.isVerified : false;
   const serverPhoneNumber = userProfile?.memberProfile?.tel ?? null;
 
   // 스토어가 현재 유저 소유인지 확인 (계정 전환 대응)
@@ -153,22 +151,22 @@ export function usePhoneVerificationStatus(
         current.memberId !== memberId ||
         current.phoneNumber !== serverPhoneNumber
       ) {
-        store.setVerified(serverPhoneNumber ?? '', memberId);
+        current.setVerified(serverPhoneNumber ?? '', memberId);
       }
-    } else {
-      // 서버가 미인증 → 같은 유저 캐시 제거
-      if (current.isVerified && current.memberId === memberId) {
-        store.reset();
-      }
+
+      return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // 서버가 미인증 → 같은 유저 캐시 제거
+    if (current.isVerified && current.memberId === memberId) {
+      current.reset();
+    }
   }, [
     isProfileLoading,
     userProfile,
     memberId,
-    serverIsVerified,
-    serverPhoneNumber,
     resolvedServerIsVerified,
+    serverPhoneNumber,
   ]);
 
   // memberId 변경(계정 전환 / 로그아웃) 시 스토어 리셋
@@ -178,17 +176,17 @@ export function usePhoneVerificationStatus(
     prevMemberIdRef.current = memberId;
 
     if (prev !== null && prev !== memberId) {
-      store.reset();
+      usePhoneVerificationStore.getState().reset();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [memberId]);
 
   // 인증 완료 시 호출 — memberId를 자동 주입
   const setVerified = useCallback(
     (phone: string) => {
-      store.setVerified(phone, memberId ?? undefined);
+      usePhoneVerificationStore
+        .getState()
+        .setVerified(phone, memberId ?? undefined);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [memberId],
   );
 
