@@ -144,6 +144,7 @@ export function usePhoneVerificationStatus(
   useEffect(() => {
     if (isProfileLoading || !userProfile || !memberId) return;
 
+<<<<<<< Updated upstream
     const current = usePhoneVerificationStore.getState();
 
     if (resolvedServerIsVerified) {
@@ -154,6 +155,17 @@ export function usePhoneVerificationStatus(
         current.phoneNumber !== serverPhoneNumber
       ) {
         store.setVerified(serverPhoneNumber ?? '', memberId);
+||||||| Stash base
+    if (serverPhoneNumber) {
+      // 서버에 전화번호가 있으면 Zustand도 동기화
+      if (!zustandIsVerified || zustandPhoneNumber !== serverPhoneNumber) {
+        setVerified(serverPhoneNumber);
+=======
+    if (serverPhoneNumber) {
+      // 서버에 전화번호가 있으면 Zustand도 동기화
+      if (!zustandIsVerified || zustandPhoneNumber !== serverPhoneNumber) {
+        setVerified(serverPhoneNumber, memberId ?? undefined);
+>>>>>>> Stashed changes
       }
     } else {
       // 서버가 미인증 → 같은 유저 캐시 제거
@@ -167,8 +179,21 @@ export function usePhoneVerificationStatus(
     userProfile,
     memberId,
     serverIsVerified,
+<<<<<<< Updated upstream
     serverPhoneNumber,
     resolvedServerIsVerified,
+||||||| Stash base
+    zustandIsVerified,
+    zustandPhoneNumber,
+    setVerified,
+    reset,
+=======
+    zustandIsVerified,
+    zustandPhoneNumber,
+    setVerified,
+    reset,
+    memberId,
+>>>>>>> Stashed changes
   ]);
 
   // memberId 변경(계정 전환 / 로그아웃) 시 스토어 리셋

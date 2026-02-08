@@ -99,8 +99,14 @@ export default function GroupStudyFormModal({
   };
 
   const refineStudyDetail = (value: GroupStudyFullResponseDto) => {
+<<<<<<< Updated upstream
     if (isGroupStudyLoading) return;
 
+||||||| Stash base
+    if (isLoading) return;
+
+=======
+>>>>>>> Stashed changes
     const refinedClassification =
       value.basicInfo?.classification ?? classification;
     const originalType = value.basicInfo?.type;
@@ -232,6 +238,11 @@ export default function GroupStudyFormModal({
     }
   }, [open, mode]);
 
+  const editDefaultValues =
+    mode === 'edit' && groupStudyInfo
+      ? refineStudyDetail(groupStudyInfo)
+      : null;
+
   return (
     <>
       <Modal.Root
@@ -250,14 +261,23 @@ export default function GroupStudyFormModal({
                 <XIcon />
               </Modal.Close>
             </Modal.Header>
-            <GroupStudyForm
-              defaultValues={
-                mode === 'create'
-                  ? buildOpenGroupDefaultValues(classification)
-                  : refineStudyDetail(groupStudyInfo!)
-              }
-              onSubmit={handleSubmitForm}
-            />
+            {mode === 'create' && (
+              <GroupStudyForm
+                defaultValues={buildOpenGroupDefaultValues(classification)}
+                onSubmit={handleSubmitForm}
+              />
+            )}
+            {mode === 'edit' && isLoading && (
+              <Modal.Body className="font-designer-16m text-text-subtle py-800 text-center">
+                스터디 정보를 불러오는 중입니다...
+              </Modal.Body>
+            )}
+            {mode === 'edit' && !isLoading && editDefaultValues && (
+              <GroupStudyForm
+                defaultValues={editDefaultValues}
+                onSubmit={handleSubmitForm}
+              />
+            )}
           </Modal.Content>
         </Modal.Portal>
       </Modal.Root>

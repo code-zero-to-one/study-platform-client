@@ -39,12 +39,27 @@ export const useVerifyPhoneCodeMutation = (memberId?: number) => {
     mutationFn: verifyPhoneCode,
     onSuccess: async (data, variables) => {
       if (data.success) {
+<<<<<<< Updated upstream
         // 현재 사용자의 memberId 가져오기 (쿠키에서)
+||||||| Stash base
+        // 인증 상태 저장
+        setVerified(variables.phoneNumber);
+
+        // 현재 사용자의 memberId 가져오기 (쿠키에서)
+=======
+>>>>>>> Stashed changes
         const currentMemberId = memberId ?? Number(getCookie('memberId'));
 
+<<<<<<< Updated upstream
         // 인증 상태 저장 (memberId 포함)
         setVerified(variables.phoneNumber, currentMemberId || undefined);
 
+||||||| Stash base
+=======
+        // 인증 상태 저장
+        setVerified(variables.phoneNumber, currentMemberId || undefined);
+
+>>>>>>> Stashed changes
         // 프로필 정보 쿼리키 갱신
         if (currentMemberId) {
           await queryClient.invalidateQueries({

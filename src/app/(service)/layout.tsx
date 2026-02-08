@@ -1,11 +1,11 @@
 import '../global.css';
 
-import Clarity from '@microsoft/clarity';
 import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import React from 'react';
+import ClarityInit from '@/components/analytics/clarity-init';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
 import MainProvider from '@/providers';
 import { getServerCookie } from '@/utils/server-cookie';
@@ -33,16 +33,33 @@ export default async function ServiceLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+<<<<<<< Updated upstream
   const initialAccessToken = await getServerCookie('accessToken');
   if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
     Clarity.init(CLARITY_PROJECT_ID);
   }
 
+||||||| Stash base
+  if (typeof window !== 'undefined' && CLARITY_PROJECT_ID) {
+    Clarity.init(CLARITY_PROJECT_ID);
+  }
+
+=======
+>>>>>>> Stashed changes
   return (
     <html lang="ko">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'min-h-screen w-screen')}>
+<<<<<<< Updated upstream
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
+||||||| Stash base
+        <MainProvider>
+          <GlobalToast />
+=======
+        <MainProvider>
+          <ClarityInit projectId={CLARITY_PROJECT_ID} />
+          <GlobalToast />
+>>>>>>> Stashed changes
           <PageViewTracker />
           <div className="flex min-h-screen w-full flex-col overflow-x-auto">
             <Header />
