@@ -21,7 +21,6 @@ import DeleteHomeworkModal from '../modals/delete-homework-modal';
 import EditHomeworkModal from '../modals/edit-homework-modal';
 
 interface HomeworkDetailContentProps {
-  groupStudyId: number;
   missionId: number;
   homeworkId: number;
 }
@@ -227,8 +226,7 @@ function PeerReviewItem({ review, homeworkId }: PeerReviewItemProps) {
 
   const { mutate: updatePeerReview, isPending: isUpdating } =
     useUpdatePeerReview();
-  const { mutate: deletePeerReview, isPending: isDeleting } =
-    useDeletePeerReview();
+  const { mutate: deletePeerReview } = useDeletePeerReview();
 
   const isMyReview = review.reviewerId === currentUserId;
 
