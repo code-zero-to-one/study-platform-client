@@ -107,7 +107,6 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
         </button>
 
         <HomeworkDetailContent
-          groupStudyId={groupStudyId}
           missionId={Number(missionId)}
           homeworkId={Number(homeworkId)}
         />
