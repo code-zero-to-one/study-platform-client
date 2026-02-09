@@ -4,7 +4,6 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 
 import { GroupStudyListItemDto } from '@/api/openapi';
-import { GroupStudyData } from '@/features/study/group/api/group-study-types';
 import { useAuth } from '@/hooks/common/use-auth';
 import { hashValue } from '@/utils/hash';
 

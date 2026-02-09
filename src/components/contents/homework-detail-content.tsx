@@ -15,6 +15,7 @@ import {
   useDeletePeerReview,
   useUpdatePeerReview,
 } from '@/hooks/queries/peer-review-api';
+import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import DeleteHomeworkModal from '../modals/delete-homework-modal';
 import EditHomeworkModal from '../modals/edit-homework-modal';
@@ -152,7 +153,11 @@ function PeerReviewSection({
   peerReviews,
   isMyHomework,
 }: PeerReviewSectionProps) {
-  const canWriteReview = !isMyHomework;
+  const currentUserId = useUserStore((state) => state.memberId);
+  const isMissionCreator = useIsLeader(currentUserId);
+
+  // 자기 과제가 아니고, 미션 생성자(리더)가 아닌 경우에만 리뷰 작성 가능
+  const canWriteReview = !isMyHomework && !isMissionCreator;
   const [reviewText, setReviewText] = useState('');
   const { mutate: createPeerReview, isPending } = useCreatePeerReview();
 
