@@ -10,6 +10,7 @@ import { GroupStudyFullResponseDto } from '@/api/openapi';
 import { Modal } from '@/components/ui/modal';
 import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import GroupStudyForm from './group-study-form';
 
 import {
@@ -47,30 +48,42 @@ export default function GroupStudyFormModal({
   const router = useRouter();
   const qc = useQueryClient();
   const [open, setOpen] = useState<boolean>(false);
+  const { memberId } = useAuthReady();
   const { mutateAsync: createGroupStudy } = useCreateGroupStudyMutation();
   const { mutateAsync: updateGroupStudy } = useUpdateGroupStudyMutation(
     groupStudyId!,
   );
   const {
     data: groupStudyInfo,
-    isLoading,
+    isLoading: isGroupStudyLoading,
     refetch: refetchGroupStudyInfo,
   } = useGroupStudyDetailQuery(groupStudyId!);
 
-  // 서버 상태와 동기화된 인증 상태 사용
-  const { isVerified, setVerified } = usePhoneVerificationStatus();
+  const {
+    isVerified,
+    isLoading: isVerificationLoading,
+    isError: isVerificationError,
+    setVerified,
+  } = usePhoneVerificationStatus(memberId ?? undefined);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
-    // 인증 완료 후 모달 열기
+    setIsVerificationModalOpen(false);
     if (mode === 'create') {
       setOpen(true);
     }
-    // edit 모드일 때는 외부 제어라 호출자가 처리해야 함 (보통 edit는 이미 인증된 유저)
   };
 
   const handleOpenChange = (isOpen: boolean) => {
+    if (mode === 'create' && isOpen && isVerificationLoading) {
+      return;
+    }
+    if (mode === 'create' && isOpen && isVerificationError) {
+      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+
+      return;
+    }
     if (isOpen && mode === 'create' && !isVerified) {
       setIsVerificationModalOpen(true);
       setOpen(false); // 스터디 모달은 닫힘 유지
@@ -86,8 +99,6 @@ export default function GroupStudyFormModal({
   };
 
   const refineStudyDetail = (value: GroupStudyFullResponseDto) => {
-    if (isLoading) return;
-
     const refinedClassification =
       value.basicInfo?.classification ?? classification;
     const originalType = value.basicInfo?.type;
@@ -103,7 +114,7 @@ export default function GroupStudyFormModal({
     return {
       classification: refinedClassification,
       studyLeaderParticipation:
-        value.basicInfo.studyLeaderParticipation ?? false,
+        value.basicInfo?.studyLeaderParticipation ?? false,
       type: refinedType,
       targetRoles: value.basicInfo?.targetRoles,
       maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
@@ -219,6 +230,11 @@ export default function GroupStudyFormModal({
     }
   }, [open, mode]);
 
+  const editDefaultValues =
+    mode === 'edit' && groupStudyInfo
+      ? refineStudyDetail(groupStudyInfo)
+      : null;
+
   return (
     <>
       <Modal.Root
@@ -237,14 +253,23 @@ export default function GroupStudyFormModal({
                 <XIcon />
               </Modal.Close>
             </Modal.Header>
-            <GroupStudyForm
-              defaultValues={
-                mode === 'create'
-                  ? buildOpenGroupDefaultValues(classification)
-                  : refineStudyDetail(groupStudyInfo!)
-              }
-              onSubmit={handleSubmitForm}
-            />
+            {mode === 'create' && (
+              <GroupStudyForm
+                defaultValues={buildOpenGroupDefaultValues(classification)}
+                onSubmit={handleSubmitForm}
+              />
+            )}
+            {mode === 'edit' && isGroupStudyLoading && (
+              <Modal.Body className="font-designer-16m text-text-subtle py-800 text-center">
+                스터디 정보를 불러오는 중입니다...
+              </Modal.Body>
+            )}
+            {mode === 'edit' && !isGroupStudyLoading && editDefaultValues && (
+              <GroupStudyForm
+                defaultValues={editDefaultValues}
+                onSubmit={handleSubmitForm}
+              />
+            )}
           </Modal.Content>
         </Modal.Portal>
       </Modal.Root>
@@ -253,6 +278,7 @@ export default function GroupStudyFormModal({
         open={isVerificationModalOpen}
         onOpenChange={setIsVerificationModalOpen}
         onVerificationComplete={handleVerificationComplete}
+        memberId={memberId ?? undefined}
       />
     </>
   );

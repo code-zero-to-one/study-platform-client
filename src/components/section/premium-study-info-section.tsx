@@ -8,7 +8,7 @@ import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { hashValue } from '@/utils/hash';
@@ -33,7 +33,7 @@ export default function PremiumStudyInfoSection({
 }: PremiumStudyInfoSectionProps) {
   const router = useRouter();
   const params = useParams();
-  const { data: authData } = useAuth();
+  const { memberId: authMemberId, isAuthReady } = useAuthReady();
   const memberId = useUserStore((state) => state.memberId);
   const isLeader = useIsLeader(memberId);
 
@@ -165,11 +165,10 @@ export default function PremiumStudyInfoSection({
                             sendGTMEvent({
                               event: 'premium_study_member_profile_click',
                               dl_timestamp: new Date().toISOString(),
-                              ...(authData?.memberId && {
-                                dl_member_id: hashValue(
-                                  String(authData.memberId),
-                                ),
-                              }),
+                              ...(isAuthReady &&
+                                authMemberId && {
+                                  dl_member_id: hashValue(String(authMemberId)),
+                                }),
                               dl_target_member_id: String(
                                 data.applicantInfo.memberId,
                               ),

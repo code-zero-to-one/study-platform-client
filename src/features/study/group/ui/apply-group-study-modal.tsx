@@ -10,6 +10,7 @@ import Checkbox from '@/components/ui/checkbox';
 import { Modal } from '@/components/ui/modal';
 import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { GroupStudyDetailResponse } from '../api/group-study-types';
 import {
@@ -34,11 +35,16 @@ export default function ApplyGroupStudyModal({
   onSuccess,
 }: ApplyGroupStudyModalProps) {
   const [open, setOpen] = useState<boolean>(false);
-  // 서버 상태와 동기화된 인증 상태 사용
-  const { isVerified, setVerified } = usePhoneVerificationStatus();
+  const { memberId } = useAuthReady();
+  const { isVerified, isLoading, setVerified } = usePhoneVerificationStatus(
+    memberId ?? undefined,
+  );
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && isLoading) {
+      return;
+    }
     if (isOpen && !isVerified) {
       setIsVerificationModalOpen(true);
       setOpen(false);
@@ -50,6 +56,7 @@ export default function ApplyGroupStudyModal({
 
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
+    setIsVerificationModalOpen(false);
     setOpen(true);
   };
 
@@ -95,6 +102,7 @@ export default function ApplyGroupStudyModal({
         open={isVerificationModalOpen}
         onOpenChange={setIsVerificationModalOpen}
         onVerificationComplete={handleVerificationComplete}
+        memberId={memberId ?? undefined}
       />
     </>
   );

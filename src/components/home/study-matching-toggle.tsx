@@ -9,20 +9,22 @@ import {
 import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 
 export default function StudyMatchingToggle() {
-  const { data: authData } = useAuth();
-  const memberId = authData?.memberId ?? null;
-  const isLoggedIn = !!memberId;
+  const { memberId, isAuthReady } = useAuthReady();
+  const isLoggedIn = isAuthReady && !!memberId;
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
   const { mutate: patchAutoMatching, isPending } =
     usePatchAutoMatchingMutation();
 
-  const { isVerified, setVerified } = usePhoneVerificationStatus(
-    memberId ?? undefined,
-  );
+  const {
+    isVerified,
+    isLoading: isVerificationLoading,
+    isError: isVerificationError,
+    setVerified,
+  } = usePhoneVerificationStatus(memberId ?? undefined);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const [enabled, setEnabled] = useState(false);
@@ -60,6 +62,12 @@ export default function StudyMatchingToggle() {
   };
 
   const handleToggleChange = (checked: boolean) => {
+    if (isVerificationLoading) return;
+    if (isVerificationError) {
+      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+
+      return;
+    }
     // 토글을 켤 때만 본인인증 체크 (끌 때는 체크 안 함)
     if (checked && !isVerified) {
       setIsVerificationModalOpen(true);
@@ -105,7 +113,7 @@ export default function StudyMatchingToggle() {
           size="md"
           checked={enabled}
           onCheckedChange={handleToggleChange}
-          disabled={isPending}
+          disabled={isPending || isVerificationLoading}
         />
       </div>
     </>

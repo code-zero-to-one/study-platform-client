@@ -116,10 +116,6 @@ export default function SummaryStudyInfo({ data }: Props) {
       label: '정기모임 유무',
       value: `${REGULAR_MEETING_LABELS[regularMeeting]}${location ? `, ${location}` : ''}`,
     },
-    {
-      label: '모집인원',
-      value: `${maxMembersCount}명`,
-    },
   ];
 
   const visibleItems = isExpanded ? infoItems : infoItems.slice(0, 4);

@@ -3,12 +3,11 @@
 import Image from 'next/image';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 
 export default function StartStudyButton() {
-  const { data: authData } = useAuth();
-  const memberId = authData?.memberId ?? null;
-  const isLoggedIn = !!memberId;
+  const { memberId, isAuthReady } = useAuthReady();
+  const isLoggedIn = isAuthReady && !!memberId;
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
 

@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import StartStudyButton from '@/components/home/start-study-button';
+import GlobalToast from '@/components/ui/global-toast';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 import Banner from '@/widgets/home/banner';
 import FeedbackLink from '@/widgets/home/feedback-link';
@@ -24,6 +25,7 @@ export default async function Home({
 
   return (
     <div className="mx-auto flex w-[1496px] flex-col gap-500 px-600 py-600">
+      <GlobalToast />
       <Banner />
       <FeedbackLink />
       <StartStudyButton />

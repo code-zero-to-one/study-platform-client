@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import Pagination from '@/components/ui/pagination';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMembers } from '@/hooks/queries/group-study-member-api';
 import type { GroupStudyMember } from '../../features/study/group/api/group-study-types';
 
@@ -32,7 +32,7 @@ export default function StudyMemberList({
     pageNumber: pageNumber,
     pageSize: PAGE_SIZE,
   });
-  const { data: authData } = useAuth();
+  const { memberId, isAuthReady } = useAuthReady();
 
   if (isLoading) {
     return null;
@@ -43,7 +43,7 @@ export default function StudyMemberList({
 
   // memberList의 첫 번째 요소는 내 정보
   const myInfo = memberList[0];
-  const isLeader = leaderId === authData?.memberId;
+  const isLeader = isAuthReady && leaderId === memberId;
   const totalPages = Math.ceil((data?.totalMemberCount || 0) / PAGE_SIZE) || 1;
 
   return (

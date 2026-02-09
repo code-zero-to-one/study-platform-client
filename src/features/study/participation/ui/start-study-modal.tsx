@@ -100,14 +100,22 @@ export default function StartStudyModal({
   open,
   onOpenChange,
 }: StartStudyModalProps) {
-  // 서버 상태와 동기화된 인증 상태 사용
-  const { isVerified, setVerified } = usePhoneVerificationStatus(memberId);
+  const { isVerified, isLoading, isError, setVerified } =
+    usePhoneVerificationStatus(memberId);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const [internalOpen, setInternalOpen] = useState(false);
   const isModalOpen = open ?? internalOpen;
 
   const handleOpenChange = (isOpen: boolean) => {
+    if (isOpen && isLoading) {
+      return;
+    }
+    if (isOpen && isError) {
+      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+
+      return;
+    }
     if (isOpen && !isVerified) {
       setIsVerificationModalOpen(true);
       if (onOpenChange) onOpenChange(false);
@@ -132,7 +140,18 @@ export default function StartStudyModal({
 
   // 모달이 열릴 때 인증 여부 체크 (외부 제어 open prop 대응)
   useEffect(() => {
-    if (isModalOpen && !isVerified) {
+    if (!isModalOpen || isLoading) return;
+    if (isError) {
+      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+      if (onOpenChange) {
+        onOpenChange(false);
+      } else {
+        setInternalOpen(false);
+      }
+
+      return;
+    }
+    if (!isVerified) {
       setIsVerificationModalOpen(true);
       if (onOpenChange) {
         onOpenChange(false);
@@ -140,7 +159,7 @@ export default function StartStudyModal({
         setInternalOpen(false);
       }
     }
-  }, [isModalOpen, isVerified, onOpenChange]);
+  }, [isModalOpen, isVerified, isLoading, isError, onOpenChange]);
 
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);

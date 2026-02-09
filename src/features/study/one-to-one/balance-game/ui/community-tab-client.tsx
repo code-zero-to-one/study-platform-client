@@ -15,7 +15,7 @@ import {
   useBalanceGameListQuery,
   useBalanceGameTagSuggestionsQuery,
 } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   useScrollToHomeContentOnChange,
@@ -41,7 +41,7 @@ export default function CommunityTabClient({
   const router = useRouter();
   const searchParams = useSearchParams();
   const scrollToHomeContent = useScrollToHomeContentWithStabilize();
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady } = useAuthReady();
   // 상태 관리
   const {
     statusFilter,
@@ -224,6 +224,7 @@ export default function CommunityTabClient({
           title="밸런스게임"
           icon={<MessageSquareText className="text-text-brand h-8 w-8" />}
           description="다양한 주제에 투표하고 댓글로 자유롭게 토론할 수 있습니다."
+          descriptionClassName="font-designer-15r"
         />
 
         <BalanceGameFiltersBar
@@ -242,7 +243,7 @@ export default function CommunityTabClient({
           isTagLoading={isTagLoading}
           sortVariant="dropdown"
           rightSlot={
-            isAuthenticated ? (
+            isAuthReady ? (
               <button
                 onClick={() => setIsCreateModalOpen(true)}
                 className="rounded-100 bg-fill-brand-default-default font-designer-13b text-text-inverse shadow-1 hover:bg-fill-brand-default-hover hover:shadow-2 flex items-center gap-100 px-400 py-200 transition-all hover:scale-105"

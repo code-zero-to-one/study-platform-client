@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { NotificationApi } from '@/api/openapi';
 import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/notification-api';
-import { useAuth } from '../common/use-auth';
+import { useAuthReady } from '../common/use-auth';
 
 const notificationApi = createApiInstance(NotificationApi);
 
@@ -19,7 +19,7 @@ export const useGetNotifications = ({
   hasRead,
   topicType,
 }: NotificationsParams = {}) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady } = useAuthReady();
 
   return useQuery({
     queryKey: ['notifications', page, size, hasRead, topicType],
@@ -34,12 +34,12 @@ export const useGetNotifications = ({
       return data.content;
     },
     refetchInterval: 60000, // 1 minute
-    enabled: !!isAuthenticated,
+    enabled: isAuthReady,
   });
 };
 
 export const useGetNotificationCategories = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady } = useAuthReady();
 
   return useQuery({
     queryKey: ['notificationCategories'],
@@ -48,12 +48,12 @@ export const useGetNotificationCategories = () => {
 
       return data.content;
     },
-    enabled: !!isAuthenticated,
+    enabled: isAuthReady,
   });
 };
 
 export const useHasNewNotification = () => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthReady } = useAuthReady();
 
   return useQuery({
     queryKey: ['hasNewNotification'],
@@ -63,7 +63,7 @@ export const useHasNewNotification = () => {
       return data.content;
     },
     refetchInterval: 60000, // 1 minute
-    enabled: !!isAuthenticated,
+    enabled: isAuthReady,
   });
 };
 

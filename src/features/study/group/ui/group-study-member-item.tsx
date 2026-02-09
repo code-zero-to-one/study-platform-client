@@ -9,7 +9,7 @@ import UserAvatar from '@/components/ui/avatar';
 
 import Button from '@/components/ui/button';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
@@ -31,8 +31,7 @@ export default function GroupStudyMemberItem({
   leaderId,
   ...member
 }: GroupStudyMemberItemProps) {
-  const { data: authData } = useAuth();
-  const myId = authData?.memberId;
+  const { memberId: myId, isAuthReady } = useAuthReady();
 
   const [isProgressHistoryOpen, setIsProgressHistoryOpen] =
     useState<boolean>(false);
@@ -40,7 +39,7 @@ export default function GroupStudyMemberItem({
     useState<boolean>(false);
 
   const isMe = member.id === myId;
-  const isLeader = leaderId === myId;
+  const isLeader = isAuthReady && leaderId === myId;
 
   // 재량 평가 받은 횟수 (3번까지만 받을 수 있음)
   const discretionCount = member.progress.discretionGradeHistory.length;
@@ -212,7 +211,7 @@ function GreetingBox({
 }: Pick<GroupStudyMember, 'id' | 'greeting'> & {
   groupStudyId: number;
 }) {
-  const { data: authData } = useAuth();
+  const { memberId: authMemberId, isAuthReady } = useAuthReady();
 
   // 가입인사를 작성한 경우
   if (greeting) {
@@ -220,7 +219,7 @@ function GreetingBox({
   }
 
   // 가입인사를 작성하지 못한 경우
-  const isMe = id === authData?.memberId;
+  const isMe = isAuthReady && id === authMemberId;
 
   if (isMe) {
     return (

@@ -14,7 +14,7 @@ import { getStatusBadge } from '@/features/study/interview/ui/status-badge-map';
 import StudyDoneModal from '@/features/study/interview/ui/study-done-modal';
 import StudyReadyModal from '@/features/study/interview/ui/study-ready-modal';
 import { TUTORIAL_DAILY_STUDY_MOCK } from '@/features/study/one-to-one/schedule/model/tutorial-mock';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 
 interface TodayStudyCardProps {
   studyDate: string;
@@ -31,12 +31,12 @@ export default function TodayStudyCard({
   forceOpenReadyModal,
   forceOpenDoneModal,
 }: TodayStudyCardProps) {
-  const { data: authData } = useAuth();
+  const { memberId: authMemberId } = useAuthReady();
   const memberId = tutorialMode
     ? forcedRole === 'INTERVIEWER'
       ? TUTORIAL_DAILY_STUDY_MOCK.interviewerId
       : TUTORIAL_DAILY_STUDY_MOCK.intervieweeId
-    : (authData?.memberId ?? null);
+    : (authMemberId ?? null);
 
   const queryStudyDate = tutorialMode ? '' : studyDate;
   const { data: todayStudyData } = useDailyStudyDetailQuery(queryStudyDate);

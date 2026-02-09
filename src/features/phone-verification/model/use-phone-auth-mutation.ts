@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getCookie } from '@/api/client/cookie';
+// mutation 내부에서는 store 직접 사용 허용 (API 성공 시 즉시 업데이트 목적)
 import { usePhoneVerificationStore } from './store';
 import { sendPhoneVerificationCode, verifyPhoneCode } from '../api/phone-auth';
 import type {
@@ -38,12 +39,10 @@ export const useVerifyPhoneCodeMutation = (memberId?: number) => {
     mutationFn: verifyPhoneCode,
     onSuccess: async (data, variables) => {
       if (data.success) {
-        // 인증 상태 저장
-        setVerified(variables.phoneNumber);
-
-        // 현재 사용자의 memberId 가져오기 (쿠키에서)
         const currentMemberId = memberId ?? Number(getCookie('memberId'));
 
+        // 인증 상태 저장
+        setVerified(variables.phoneNumber, currentMemberId || undefined);
         // 프로필 정보 쿼리키 갱신
         if (currentMemberId) {
           await queryClient.invalidateQueries({

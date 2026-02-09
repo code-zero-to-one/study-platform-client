@@ -5,12 +5,12 @@ import { usePathname } from 'next/navigation';
 import UserAvatar from '@/components/ui/avatar';
 import TabMenu from '@/components/ui/tab-menu';
 import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import OutIcon from 'public/icons/out.svg';
 
 export default function AdminSideBar() {
-  const { data: authData } = useAuth();
-  const { data: profile } = useUserProfileQuery(authData?.memberId ?? 0);
+  const { memberId } = useAuthReady();
+  const { data: profile } = useUserProfileQuery(memberId ?? 0);
 
   const pathname = usePathname();
 
