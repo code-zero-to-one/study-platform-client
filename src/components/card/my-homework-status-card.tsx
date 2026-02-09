@@ -1,24 +1,40 @@
 'use client';
 
-import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useMemo } from 'react';
+
 import Button from '@/components/ui/button';
+import { useGetMission } from '@/hooks/queries/mission-api';
+import { useUserStore } from '@/stores/useUserStore';
 import SubmitHomeworkModal from '../modals/submit-homework-modal';
 
 interface MyHomeworkStatusProps {
   missionId: number;
-  myHomework?: HomeworkDetailResponseDto;
-  isMissionClosed?: boolean;
-  onSelectHomework: (homeworkId: number) => void;
-  onRefetch?: () => void;
 }
 
 export default function MyHomeworkStatusCard({
   missionId,
-  myHomework,
-  isMissionClosed = false,
-  onSelectHomework,
-  onRefetch,
 }: MyHomeworkStatusProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const memberId = useUserStore((state) => state.memberId);
+
+  const { data: mission } = useGetMission(missionId);
+
+  const myHomework = useMemo(() => {
+    if (!mission?.homeworks || !memberId) return null;
+
+    return mission.homeworks.find((hw) => hw.submitterId === memberId) ?? null;
+  }, [mission?.homeworks, memberId]);
+
+  const isMissionClosed = mission?.status === 'ENDED';
+
+  const handleSelectHomework = (homeworkId: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('homeworkId', String(homeworkId));
+    router.push(`?${params.toString()}`);
+  };
+
   // 미제출 상태
   if (!myHomework || myHomework.homeworkStatus === 'NOT_SUBMITTED') {
     return (
@@ -30,7 +46,7 @@ export default function MyHomeworkStatusCard({
           <span className="text-text-subtlest font-designer-14r">
             아직 과제를 제출하지 않았습니다.
           </span>
-          <SubmitHomeworkModal missionId={missionId} onSuccess={onRefetch} />
+          <SubmitHomeworkModal missionId={missionId} />
         </div>
       </div>
     );
@@ -55,7 +71,8 @@ export default function MyHomeworkStatusCard({
             color="outlined"
             className="mt-100"
             onClick={() =>
-              myHomework.homeworkId && onSelectHomework(myHomework.homeworkId)
+              myHomework.homeworkId &&
+              handleSelectHomework(myHomework.homeworkId)
             }
           >
             과제 상세 보기
@@ -105,7 +122,8 @@ export default function MyHomeworkStatusCard({
           <Button
             color="outlined"
             onClick={() =>
-              myHomework.homeworkId && onSelectHomework(myHomework.homeworkId)
+              myHomework.homeworkId &&
+              handleSelectHomework(myHomework.homeworkId)
             }
           >
             과제 상세 보기

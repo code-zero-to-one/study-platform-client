@@ -1,19 +1,15 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useMemo } from 'react';
 
 import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
 import Avatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import Progress from '@/components/ui/progress';
 import { useGetMission } from '@/hooks/queries/mission-api';
-import { useIsLeader } from '@/stores/useLeaderStore';
-import { useUserStore } from '@/stores/useUserStore';
 import MyHomeworkStatus from '../card/my-homework-status-card';
 
 interface MissionDetailContentProps {
-  groupStudyId: number;
   missionId: number;
 }
 
@@ -24,22 +20,12 @@ const HOMEWORK_STATUS_CONFIG = {
 } as const;
 
 export default function MissionDetailContent({
-  groupStudyId,
   missionId,
 }: MissionDetailContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const memberId = useUserStore((state) => state.memberId);
-  const isLeader = useIsLeader(memberId);
 
-  const { data: mission, isLoading, refetch } = useGetMission(missionId);
-
-  // homeworks에서 내 과제 정보 찾기
-  const myHomework = useMemo(() => {
-    if (!mission?.homeworks || !memberId) return null;
-
-    return mission.homeworks.find((hw) => hw.submitterId === memberId) ?? null;
-  }, [mission?.homeworks, memberId]);
+  const { data: mission, isLoading } = useGetMission(missionId);
 
   const handleSelectHomework = (homeworkId: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -55,8 +41,6 @@ export default function MissionDetailContent({
     ((mission.currentHomeworkSubmissionCount ?? 0) /
       (mission.maxHomeworkSubmissionCount ?? 1)) *
     100;
-
-  const isMissionClosed = mission.status === 'ENDED';
 
   return (
     <div className="flex flex-col gap-400">
@@ -77,16 +61,8 @@ export default function MissionDetailContent({
         </div>
       </div>
 
-      {/* 내 과제 현황 - 리더가 아닐 경우에만 표시 */}
-      {!isLeader && (
-        <MyHomeworkStatus
-          missionId={missionId}
-          myHomework={myHomework}
-          isMissionClosed={isMissionClosed}
-          onSelectHomework={handleSelectHomework}
-          onRefetch={refetch}
-        />
-      )}
+      {/* 내 과제 현황 */}
+      <MyHomeworkStatus missionId={missionId} />
 
       {/* 제출 현황 */}
       <div className="flex flex-col gap-300">
