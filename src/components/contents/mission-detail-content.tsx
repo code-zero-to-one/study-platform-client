@@ -51,6 +51,11 @@ export default function MissionDetailContent({
             {mission.weekNum}주차 미션: {mission.missionTitle}
           </span>
         </div>
+        <div className="flex items-center gap-50">
+          <span className="text-text-subtlest font-designer-14r">
+            {mission.missionDescription}
+          </span>
+        </div>
         <p className="text-text-subtlest font-designer-14r">
           제출 기간 : {mission.missionStartDate} - {mission.missionEndDate}
         </p>
