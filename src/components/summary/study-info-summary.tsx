@@ -102,7 +102,7 @@ export default function SummaryStudyInfo({ data }: Props) {
       value: STUDY_STATUS_LABELS[groupStudyStatus],
     },
     {
-      label: '현직자 참여 여부',
+      label: '스터디 대상',
       value:
         experienceLevels
           .map((level) => EXPERIENCE_LEVEL_LABELS[level])
