@@ -1,17 +1,15 @@
 'use client';
 
-import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
+import { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
+import AvatarStack from '@/components/ui/avatar-stack';
+import type { AvatarStackMember } from '@/components/ui/avatar-stack';
 import Button from '@/components/ui/button';
-import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
-import { hashValue } from '@/utils/hash';
 
 import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
 
@@ -33,7 +31,6 @@ export default function PremiumStudyInfoSection({
 }: PremiumStudyInfoSectionProps) {
   const router = useRouter();
   const params = useParams();
-  const { memberId: authMemberId, isAuthReady } = useAuthReady();
   const memberId = useUserStore((state) => state.memberId);
   const isLeader = useIsLeader(memberId);
 
@@ -45,6 +42,17 @@ export default function PremiumStudyInfoSection({
   });
 
   const applicantsList = getApplicantsList(approvedApplicants?.pages);
+
+  const avatarMembers = useMemo<AvatarStackMember[]>(() => {
+    return applicantsList.map((data) => ({
+      memberId: data.applicantInfo.memberId,
+      nickname: data.applicantInfo.memberNickname || '익명',
+      profileImageUrl:
+        data.applicantInfo.profileImage?.resizedImages[0]
+          ?.resizedImageUrl ?? '',
+      isLeader: data.role === 'LEADER',
+    }));
+  }, [applicantsList]);
 
   return (
     <div className="mt-500 flex w-[1164px] gap-600">
@@ -79,7 +87,7 @@ export default function PremiumStudyInfoSection({
                       {studyDetail.basicInfo.leader.memberNickname}
                     </span>
                     <div className="font-designer-15r text-text-subtle flex items-center gap-100">
-                      <span>스터디 리더</span>
+                      <span>스터디 멘토</span>
                       <span className="h-100 w-px bg-[#E9EAEB]" />
                       <span>
                         {studyDetail.basicInfo.leader.simpleIntroduction}
@@ -105,7 +113,7 @@ export default function PremiumStudyInfoSection({
           <div className="flex flex-col gap-200">
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
-                <span>실시간 신청자 목록</span>
+                <span>멘티 목록</span>
                 <span className="text-[#A4A7AE]">{`${applicantsList.length}명`}</span>
               </div>
               {isLeader && (
@@ -120,70 +128,10 @@ export default function PremiumStudyInfoSection({
               )}
             </div>
 
-            <div className="grid grid-cols-2 grid-rows-2 gap-200">
-              {applicantsList.map((data) => {
-                const temperPreset = getSincerityPresetByLevelName(
-                  data.applicantInfo.sincerityTemp.levelName as string,
-                );
-
-                return (
-                  <div
-                    key={data.applyId}
-                    className="rounded-100 border-border-subtle flex h-[100px] w-[382px] items-center justify-between gap-150 border px-200 py-300"
-                  >
-                    <UserAvatar
-                      size={48}
-                      image={
-                        data.applicantInfo.profileImage?.resizedImages[0]
-                          .resizedImageUrl ?? ''
-                      }
-                    />
-                    <div className="flex min-w-0 flex-1 flex-col">
-                      <div className="flex flex-row items-center gap-50">
-                        <div className="font-designer-16b">
-                          {data.applicantInfo.memberNickname !== ''
-                            ? data.applicantInfo.memberNickname
-                            : '익명'}
-                        </div>
-                        <span
-                          className={cn(
-                            'font-designer-13r rounded-full px-150 py-50 leading-250',
-                            temperPreset.bgClass,
-                            temperPreset.textClass,
-                          )}
-                        >
-                          {`${data.applicantInfo.sincerityTemp.temperature}`}℃
-                        </span>
-                      </div>
-                    </div>
-                    <UserProfileModal
-                      memberId={data.applicantInfo.memberId}
-                      trigger={
-                        <div
-                          className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover active:bg-fill-neutral-default-pressed font-designer-14b rounded-75 flex cursor-pointer items-center justify-center px-75 py-50"
-                          onClick={() => {
-                            sendGTMEvent({
-                              event: 'premium_study_member_profile_click',
-                              dl_timestamp: new Date().toISOString(),
-                              ...(isAuthReady &&
-                                authMemberId && {
-                                  dl_member_id: hashValue(String(authMemberId)),
-                                }),
-                              dl_target_member_id: String(
-                                data.applicantInfo.memberId,
-                              ),
-                              dl_group_study_id: String(groupStudyId),
-                            });
-                          }}
-                        >
-                          프로필
-                        </div>
-                      }
-                    />
-                  </div>
-                );
-              })}
-            </div>
+            <AvatarStack
+              members={avatarMembers}
+              guideText="프로필을 클릭하여 멘티들의 정보를 확인해보세요."
+            />
           </div>
         </div>
       </div>
