@@ -132,11 +132,11 @@ function GroupStudyNoticeForm({
               label="스터디 공지, 규칙 등을 안내해주세요."
               direction="vertical"
               showCounterRight
-              counterMax={100}
+              counterMax={500}
             >
               <TextAreaInput
                 placeholder="스터디 공지, 규칙 등을 안내해주세요."
-                maxLength={100}
+                maxLength={500}
                 hideMeta
               />
             </FormField>
