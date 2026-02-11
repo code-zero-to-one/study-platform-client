@@ -138,11 +138,16 @@ export default function SummaryStudyInfo({ data }: Props) {
     }
   };
 
+  // 신청 마감 여부 체크 (스터디 시작일이 오늘 이전이거나 같은 경우)
+  const isDeadlinePassed =
+    !!startDate && !dayjs(startDate).isAfter(dayjs(), 'day');
+
   const isApplyDisabled =
     isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
     groupStudyStatus !== 'RECRUITING' ||
-    approvedCount >= maxMembersCount;
+    approvedCount >= maxMembersCount ||
+    isDeadlinePassed;
 
   const getButtonText = () => {
     if (myApplicationStatus?.status === 'APPROVED') {
@@ -153,6 +158,9 @@ export default function SummaryStudyInfo({ data }: Props) {
     }
     if (myApplicationStatus?.status === 'REJECTED') {
       return '신청 거절됨';
+    }
+    if (isDeadlinePassed) {
+      return '모집 마감';
     }
 
     return '신청하기';
