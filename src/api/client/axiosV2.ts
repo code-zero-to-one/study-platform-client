@@ -59,8 +59,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
     }
 
     return null;
-  } catch (error) {
-    alert('토큰 갱신에 실패했습니다. 다시 로그인해주세요');
+  } catch {
     window.location.href = '/login';
 
     return null;
@@ -88,6 +87,20 @@ const processFailedQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
+const hasAuthToken = (requestConfig?: InternalAxiosRequestConfig) => {
+  const accessToken = getCookie('accessToken');
+  if (accessToken) {
+    return true;
+  }
+
+  const authorizationHeader = requestConfig?.headers?.Authorization;
+  if (Array.isArray(authorizationHeader)) {
+    return authorizationHeader.length > 0;
+  }
+
+  return Boolean(authorizationHeader);
+};
+
 axiosInstanceV2.interceptors.response.use(
   (config) => config,
   async (error) => {
@@ -102,6 +115,11 @@ axiosInstanceV2.interceptors.response.use(
 
       // 유효하지 않은 accessToken인 경우, 재발급
       if (errorResponseBody.errorCode === 'AUTH001') {
+        // 로그아웃 직후/비회원 요청처럼 인증 정보가 없는 경우에는 재발급 시도를 하지 않음
+        if (!hasAuthToken(originalRequest)) {
+          return Promise.reject(new ApiError(errorResponseBody));
+        }
+
         if (isRefreshing) {
           // 이미 토큰 갱신 중이면 대기열에 추가
           return new Promise((resolve, reject) => {
@@ -171,6 +189,11 @@ axiosInstanceForMultipartV2.interceptors.response.use(
 
       // 유효하지 않은 accessToken인 경우, 재발급
       if (errorResponseBody.errorCode === 'AUTH001') {
+        // 로그아웃 직후/비회원 요청처럼 인증 정보가 없는 경우에는 재발급 시도를 하지 않음
+        if (!hasAuthToken(originalRequest)) {
+          return Promise.reject(new ApiError(errorResponseBody));
+        }
+
         if (isRefreshing) {
           // 이미 토큰 갱신 중이면 대기열에 추가
           return new Promise((resolve, reject) => {
