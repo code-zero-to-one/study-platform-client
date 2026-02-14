@@ -25,3 +25,15 @@ export const getUserProfileInServer = async (
     throw error;
   }
 };
+
+export const tryGetUserProfileInServer = async (memberId: number) => {
+  try {
+    return await getUserProfileInServer(memberId);
+  } catch (error) {
+    if (isAxiosError(error) && !error.response) {
+      return null;
+    }
+
+    throw error;
+  }
+};

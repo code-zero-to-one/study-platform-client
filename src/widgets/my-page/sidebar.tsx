@@ -52,6 +52,12 @@ export default function Sidebar() {
         스터디 후기
       </SidebarItem>
       <SidebarItem
+        onClick={() => router.push('/mentoring-management')}
+        isActive={pathname === '/mentoring-management'}
+      >
+        멘토링 관리
+      </SidebarItem>
+      <SidebarItem
         onClick={() => router.push('/payment-management')}
         isActive={pathname === '/payment-management'}
       >

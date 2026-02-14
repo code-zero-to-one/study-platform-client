@@ -3,7 +3,7 @@
 import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type {
   GetGroupStudiesTypeEnum,
   GetGroupStudiesTargetRolesEnum,
@@ -52,7 +52,9 @@ export default function PremiumStudyListPage() {
     return { type, targetRoles, method, recruiting };
   }, [searchParams]);
 
-  const currentPage = Number(searchParams.get('page')) || 1;
+  const pageParam = Number(searchParams.get('page'));
+  const currentPage =
+    Number.isInteger(pageParam) && pageParam > 0 ? pageParam : 1;
 
   // 검색어가 있으면 전체 데이터를 가져오고, 없으면 페이지네이션된 데이터를 가져옴
   const { data, isLoading } = useGetStudies({
@@ -128,9 +130,16 @@ export default function PremiumStudyListPage() {
   );
 
   // 검색 핸들러 (로컬 상태만 업데이트)
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-  }, []);
+  const handleSearch = useCallback(
+    (query: string) => {
+      setSearchQuery(query);
+
+      if (currentPage > 1) {
+        updateSearchParams({ page: '1' });
+      }
+    },
+    [currentPage, updateSearchParams],
+  );
 
   // 클라이언트 사이드 검색 필터링 (스터디명만 검색)
   const filteredStudies = useMemo(() => {
@@ -148,13 +157,34 @@ export default function PremiumStudyListPage() {
     ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
     : (data?.totalPages ?? 1);
 
+  const safeCurrentPage = Math.min(currentPage, totalPages);
+
+  useEffect(() => {
+    if (safeCurrentPage === currentPage) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (safeCurrentPage <= 1) {
+      params.delete('page');
+    } else {
+      params.set('page', String(safeCurrentPage));
+    }
+
+    const queryString = params.toString();
+    router.replace(queryString ? `?${queryString}` : '/premium-study', {
+      scroll: false,
+    });
+  }, [currentPage, router, safeCurrentPage, searchParams]);
+
   const displayStudies = useMemo(() => {
     if (!searchQuery) return filteredStudies;
 
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
 
     return filteredStudies.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredStudies, searchQuery, currentPage]);
+  }, [filteredStudies, searchQuery, safeCurrentPage]);
 
   if (isLoading) {
     return (
@@ -210,7 +240,7 @@ export default function PremiumStudyListPage() {
       {/* 페이지네이션 */}
       {totalPages > 1 && (
         <PremiumStudyPagination
-          currentPage={currentPage}
+          currentPage={safeCurrentPage}
           totalPages={totalPages}
         />
       )}

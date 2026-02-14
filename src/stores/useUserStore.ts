@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { isApiError } from '@/api/client/api-error';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 
 interface UserInfo {
@@ -37,6 +38,12 @@ export const useUserStore = create<UserStore>()(
             tel: profile.memberProfile.tel ?? null,
           });
         } catch (error) {
+          if (isApiError(error) && error.statusCode === 404) {
+            set(initialState);
+
+            return;
+          }
+
           console.error('Failed to fetch user profile:', error);
         }
       },

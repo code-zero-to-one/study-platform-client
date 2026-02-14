@@ -2,6 +2,7 @@
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect } from 'react';
+import { getCookie } from '@/api/client/cookie';
 import { AuthHydrationProvider } from '@/hooks/common/auth-hydration-context';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import QueryProvider from '@/providers/query-provider';
@@ -14,13 +15,28 @@ interface ProviderProps {
 
 function UserInitializer({ children }: ProviderProps) {
   const { memberId: authMemberId, isAuthReady } = useAuthReady();
-  const { memberId, fetchAndSetUser } = useUserStore();
+  const { memberId, fetchAndSetUser, reset } = useUserStore();
 
   useEffect(() => {
-    if (isAuthReady && authMemberId && !memberId) {
-      fetchAndSetUser(authMemberId).catch(console.error);
+    if (!isAuthReady || !authMemberId) {
+      return;
     }
-  }, [isAuthReady, authMemberId, memberId, fetchAndSetUser]);
+
+    const cookieMemberId = Number(getCookie('memberId'));
+    const hasValidCookieMemberId =
+      Number.isInteger(cookieMemberId) && cookieMemberId > 0;
+
+    if (!hasValidCookieMemberId || cookieMemberId !== authMemberId) {
+      reset();
+
+      return;
+    }
+
+    if (memberId !== authMemberId) {
+      // eslint-disable-next-line no-void
+      void fetchAndSetUser(authMemberId);
+    }
+  }, [isAuthReady, authMemberId, memberId, fetchAndSetUser, reset]);
 
   return <>{children}</>;
 }

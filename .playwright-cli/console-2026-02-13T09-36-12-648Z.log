@@ -1,0 +1,30 @@
+[    3126ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[    3126ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[   45242ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[   45242ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[   45326ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[   45328ms] [ERROR] Failed to fetch user profile: ApiError: 회원 정보가 존재하지 않습니다.
+    at eval (webpack-internal:///(app-pages-browser)/./src/api/client/axios.ts:139:31)
+    at async Axios.request (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/Axios.js:52:14)
+    at async getUserProfile (webpack-internal:///(app-pages-browser)/./src/entities/user/api/get-user-profile.ts:9:17)
+    at async fetchAndSetUser (webpack-internal:///(app-pages-browser)/./src/stores/useUserStore.ts:25:33) @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:49
+[   45330ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[   46346ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[   48357ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[   52372ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  154636ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  154636ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  154705ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  154706ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  154707ms] [ERROR] Failed to fetch user profile: ApiError: 회원 정보가 존재하지 않습니다.
+    at eval (webpack-internal:///(app-pages-browser)/./src/api/client/axios.ts:139:31)
+    at async Axios.request (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/Axios.js:52:14)
+    at async getUserProfile (webpack-internal:///(app-pages-browser)/./src/entities/user/api/get-user-profile.ts:9:17)
+    at async fetchAndSetUser (webpack-internal:///(app-pages-browser)/./src/stores/useUserStore.ts:25:33) @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:49
+[  155732ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  157750ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  161767ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  368214ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  369229ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  371246ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  375264ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0

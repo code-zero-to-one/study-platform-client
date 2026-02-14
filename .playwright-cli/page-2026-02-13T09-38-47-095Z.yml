@@ -1,0 +1,217 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - img "Logo" [ref=e6]
+        - link "Logo-title" [ref=e7] [cursor=pointer]:
+          - /url: /
+          - img "Logo-title" [ref=e8]
+        - generic [ref=e9]: BETA
+      - navigation [ref=e10]:
+        - link "1:1 스터디" [ref=e11] [cursor=pointer]:
+          - /url: /home
+        - link "1:1 멘토링" [ref=e12] [cursor=pointer]:
+          - /url: /mentoring
+        - link "그룹스터디" [ref=e13] [cursor=pointer]:
+          - /url: /group-study
+        - link "멘토스터디" [ref=e14] [cursor=pointer]:
+          - /url: /premium-study
+        - link "인사이트" [ref=e15] [cursor=pointer]:
+          - /url: /insights
+      - generic [ref=e17] [cursor=pointer]:
+        - img [ref=e18]
+        - img [ref=e20]
+  - main [ref=e22]:
+    - generic [ref=e23]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - img [ref=e27]
+            - heading "멘토링 설정" [level=1] [ref=e30]
+          - paragraph [ref=e31]: 입력한 정보는 멘토링 목록/상세/신청 화면에 즉시 반영됩니다.
+        - button "멘토링 안내" [ref=e32]:
+          - img [ref=e33]
+          - text: 멘토링 안내
+      - generic [ref=e35]:
+        - generic [ref=e36]:
+          - heading "기본 정보" [level=2] [ref=e37]
+          - generic [ref=e38]:
+            - button "+82" [ref=e39]:
+              - generic [ref=e40] [cursor=pointer]:
+                - generic [ref=e41]: "+82"
+                - img [ref=e42]
+            - textbox "휴대폰 번호 입력" [ref=e46]
+          - textbox "연락 가능한 이메일 입력" [ref=e49]
+        - generic [ref=e50]:
+          - heading "카테고리" [level=2] [ref=e51]
+          - paragraph [ref=e52]: 복수 선택 가능
+          - group "toggle-group" [ref=e53]:
+            - button "AI 기술" [ref=e54]
+            - button "AI 활용(AX)" [ref=e55]
+            - button "개발 · 프로그래밍" [ref=e56]
+            - button "게임 개발" [ref=e57]
+            - button "데이터 사이언스" [ref=e58]
+            - button "보안 · 네트워크" [ref=e59]
+            - button "하드웨어" [ref=e60]
+            - button "디자인 · 아트" [ref=e61]
+            - button "기획 · 경영 · 마케팅" [ref=e62]
+            - button "외국어" [ref=e63]
+            - button "업무 생산성" [ref=e64]
+            - button "커리어 · 자기계발" [ref=e65]
+            - button "대학 교육" [ref=e66]
+        - generic [ref=e67]:
+          - heading "멘토링 정보" [level=2] [ref=e68]
+          - textbox "예) 개발자 취업 / 면접 / 이직 / 커리어 멘토링" [ref=e71]
+          - generic [ref=e72]:
+            - button "멘토 직군" [ref=e73]:
+              - generic [ref=e74] [cursor=pointer]:
+                - generic [ref=e75]: 멘토 직군
+                - img [ref=e76]
+            - button "멘토 직무" [ref=e78]:
+              - generic [ref=e79] [cursor=pointer]:
+                - generic [ref=e80]: 멘토 직무
+                - img [ref=e81]
+            - button "멘토 경력" [ref=e83]:
+              - generic [ref=e84] [cursor=pointer]:
+                - generic [ref=e85]: 멘토 경력
+                - img [ref=e86]
+          - generic [ref=e90]:
+            - button "React" [ref=e91]
+            - button "TypeScript" [ref=e92]
+            - button "Next.js" [ref=e93]
+            - button "Node.js" [ref=e94]
+            - button "Spring" [ref=e95]
+            - button "Python" [ref=e96]
+            - button "면접" [ref=e97]
+            - button "이력서" [ref=e98]
+            - button "포트폴리오" [ref=e99]
+            - button "커리어" [ref=e100]
+            - button [ref=e101] [cursor=pointer]:
+              - img [ref=e103]
+          - generic [ref=e104]:
+            - textbox "현재 소속 회사명" [ref=e106]
+            - generic [ref=e107]:
+              - checkbox "회사명 비노출" [ref=e108]
+              - text: 회사명 비노출
+        - generic [ref=e109]:
+          - heading "가격 / 시간" [level=2] [ref=e110]
+          - generic [ref=e111]:
+            - button "30분" [ref=e112]:
+              - generic [ref=e113] [cursor=pointer]:
+                - generic [ref=e114]: 30분
+                - img [ref=e115]
+            - button "1" [ref=e117]:
+              - generic [ref=e118] [cursor=pointer]:
+                - generic [ref=e119]: "1"
+                - img [ref=e120]
+          - generic [ref=e122]:
+            - article [ref=e123]:
+              - generic [ref=e124]:
+                - generic [ref=e125]:
+                  - paragraph [ref=e126]: 채팅상담
+                  - paragraph [ref=e127]: 일정 선택 없이 텍스트 질문을 주고받습니다.
+                - button "활성" [ref=e128]
+              - spinbutton [ref=e130]
+            - article [ref=e131]:
+              - generic [ref=e132]:
+                - generic [ref=e133]:
+                  - paragraph [ref=e134]: 전화/온라인 상담
+                  - paragraph [ref=e135]: 요일/시간 스케줄을 선택해 예약 멘토링을 진행합니다.
+                - button "활성" [ref=e136]
+              - spinbutton [ref=e138]
+            - article [ref=e139]:
+              - generic [ref=e140]:
+                - generic [ref=e141]:
+                  - paragraph [ref=e142]: 대면 컨설팅
+                  - paragraph [ref=e143]: 오프라인 또는 화상으로 깊이 있는 상담을 제공합니다.
+                - button "비활성" [ref=e144]
+              - generic [ref=e145]:
+                - spinbutton [disabled]
+        - generic [ref=e146]:
+          - heading "스케줄 설정" [level=2] [ref=e147]
+          - paragraph [ref=e148]: 멘토링 가능한 요일/시간(30분 단위)을 선택해주세요.
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - button "월" [ref=e152]
+              - button "화" [ref=e153]
+              - button "수" [ref=e154]
+              - button "목" [ref=e155]
+              - button "금" [ref=e156]
+              - button "토" [ref=e157]
+              - button "일" [ref=e158]
+            - paragraph [ref=e159]: 월 요일 가능한 시간을 선택해주세요.
+            - generic [ref=e160]:
+              - button "월 00:00 선택" [ref=e161]: 00:00
+              - button "월 00:30 선택" [ref=e162]: 00:30
+              - button "월 01:00 선택" [ref=e163]: 01:00
+              - button "월 01:30 선택" [ref=e164]: 01:30
+              - button "월 02:00 선택" [ref=e165]: 02:00
+              - button "월 02:30 선택" [ref=e166]: 02:30
+              - button "월 03:00 선택" [ref=e167]: 03:00
+              - button "월 03:30 선택" [ref=e168]: 03:30
+              - button "월 04:00 선택" [ref=e169]: 04:00
+              - button "월 04:30 선택" [ref=e170]: 04:30
+              - button "월 05:00 선택" [ref=e171]: 05:00
+              - button "월 05:30 선택" [ref=e172]: 05:30
+              - button "월 06:00 선택" [ref=e173]: 06:00
+              - button "월 06:30 선택" [ref=e174]: 06:30
+              - button "월 07:00 선택" [ref=e175]: 07:00
+              - button "월 07:30 선택" [ref=e176]: 07:30
+              - button "월 08:00 선택" [ref=e177]: 08:00
+              - button "월 08:30 선택" [ref=e178]: 08:30
+              - button "월 09:00 선택" [ref=e179]: 09:00
+              - button "월 09:30 선택" [ref=e180]: 09:30
+              - button "월 10:00 선택" [ref=e181]: 10:00
+              - button "월 10:30 선택" [ref=e182]: 10:30
+              - button "월 11:00 선택" [ref=e183]: 11:00
+              - button "월 11:30 선택" [ref=e184]: 11:30
+              - button "월 12:00 선택" [ref=e185]: 12:00
+              - button "월 12:30 선택" [ref=e186]: 12:30
+              - button "월 13:00 선택" [ref=e187]: 13:00
+              - button "월 13:30 선택" [ref=e188]: 13:30
+              - button "월 14:00 선택" [ref=e189]: 14:00
+              - button "월 14:30 선택" [ref=e190]: 14:30
+              - button "월 15:00 선택" [ref=e191]: 15:00
+              - button "월 15:30 선택" [ref=e192]: 15:30
+              - button "월 16:00 선택" [ref=e193]: 16:00
+              - button "월 16:30 선택" [ref=e194]: 16:30
+              - button "월 17:00 선택" [ref=e195]: 17:00
+              - button "월 17:30 선택" [ref=e196]: 17:30
+              - button "월 18:00 선택" [ref=e197]: 18:00
+              - button "월 18:30 선택" [ref=e198]: 18:30
+              - button "월 19:00 선택" [ref=e199]: 19:00
+              - button "월 19:30 선택" [ref=e200]: 19:30
+              - button "월 20:00 선택" [ref=e201]: 20:00
+              - button "월 20:30 선택" [ref=e202]: 20:30
+              - button "월 21:00 선택" [ref=e203]: 21:00
+              - button "월 21:30 선택" [ref=e204]: 21:30
+              - button "월 22:00 선택" [ref=e205]: 22:00
+              - button "월 22:30 선택" [ref=e206]: 22:30
+              - button "월 23:00 선택" [ref=e207]: 23:00
+              - button "월 23:30 선택" [ref=e208]: 23:30
+        - generic [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - heading "멘토링 휴가 등록" [level=3] [ref=e212]
+              - paragraph [ref=e213]: 반복 설정한 스케줄 중 멘토링이 불가능한 기간을 등록해주세요.
+            - button "+ 새 휴가 등록하기" [ref=e214] [cursor=pointer]:
+              - generic [ref=e215]: + 새 휴가 등록하기
+          - generic [ref=e216]: 사용 중인 휴가가 없어요.
+        - generic [ref=e217]:
+          - heading "멘토링 상세설명" [level=2] [ref=e218]
+          - textbox "멘토링 본문, 범위, 자기소개 등을 작성해주세요." [ref=e219]
+        - generic [ref=e220]:
+          - heading "멘토링 사전 안내" [level=2] [ref=e221]
+          - textbox "수업 전 멘티에게 전달할 안내를 작성해주세요." [ref=e222]
+        - generic [ref=e223]:
+          - heading "정산 정보" [level=2] [ref=e224]
+          - paragraph [ref=e225]: 정산정보를 등록하면 멘토링 정산에 사용됩니다.
+          - generic [ref=e226]:
+            - paragraph [ref=e228]: 아직 등록한 정산정보가 없어요.
+            - button "정산정보 등록" [ref=e229] [cursor=pointer]:
+              - generic [ref=e230]: 정산정보 등록
+        - generic [ref=e232]:
+          - button "취소" [ref=e233] [cursor=pointer]:
+            - generic [ref=e234]: 취소
+          - button "저장하기" [disabled] [ref=e235] [cursor=pointer]:
+            - generic [ref=e236]: 저장하기

@@ -1,0 +1,541 @@
+[     946ms] Invalid or unexpected token
+[  121244ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  121245ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  170115ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[  170116ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  170116ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  170117ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  171117ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[  171117ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  171117ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  171118ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  173119ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[  173119ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  173119ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  173120ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  176141ms] [ERROR] A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+%s%s https://react.dev/link/hydration-mismatch 
+
+  ...
+    <InnerScrollAndFocusHandler segmentPath={[...]} focusAndScrollRef={{apply:false, ...}}>
+      <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
+        <LoadingBoundary loading={null}>
+          <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
+            <RedirectBoundary>
+              <RedirectErrorBoundary router={{...}}>
+                <InnerLayoutRouter url="/mentoring..." tree={[...]} cacheNode={{lazyData:null, ...}} segmentPath={[...]}>
+                  <BecomeMentorRoute>
+                    <MentorRegistrationPage>
+                      <div className="mx-auto w-...">
+                        <header>
+                        <form onSubmit={function} className="space-y-20...">
+                          ...
+                            ...
+                              <_c name="contactPhone" onChange={function onChange} onBlur={function onChange} ...>
+                                <div className="flex w-ful...">
+                                  <Input ref={function ref} disabled={undefined} className="whitespace..." ...>
+                                    <input
+                                      type={undefined}
+                                      data-slot="input"
+                                      className="file:text-foreground placeholder:text-muted-foreground selection:bg-p..."
+                                      ref={function ref}
+                                      disabled={undefined}
+                                      name="contactPhone"
+                                      onBlur={function onChange}
+                                      placeholder="휴대폰 번호 입력"
+                                      onChange={function handleChange}
+-                                     style={{}}
+                                    >
+                            <div className="mt-150">
+                              <_c placeholder="연락 가능한 이메일 입력" name="contactEmail" onChange={function onChange} ...>
+                                <div className="flex w-ful...">
+                                  <Input ref={function ref} disabled={undefined} className="whitespace..." ...>
+                                    <input
+                                      type={undefined}
+                                      data-slot="input"
+                                      className="file:text-foreground placeholder:text-muted-foreground selection:bg-p..."
+                                      ref={function ref}
+                                      disabled={undefined}
+                                      placeholder="연락 가능한 이메일 입력"
+                                      name="contactEmail"
+                                      onBlur={function onChange}
+                                      onChange={function handleChange}
+-                                     style={{}}
+                                    >
+                              ...
+                          <Section>
+                          ...
+                            <div className="mb-150">
+                              <_c placeholder="예) 개발자 취업 ..." name="mentoringT..." onChange={function onChange} ...>
+                                <div className="flex w-ful...">
+                                  <Input ref={function ref} disabled={undefined} className="whitespace..." ...>
+                                    <input
+                                      type={undefined}
+                                      data-slot="input"
+                                      className="file:text-foreground placeholder:text-muted-foreground selection:bg-p..."
+                                      ref={function ref}
+                                      disabled={undefined}
+                                      placeholder="예) 개발자 취업 / 면접 / 이직 / 커리어 멘토링"
+                                      name="mentoringTitle"
+                                      onBlur={function onChange}
+                                      onChange={function handleChange}
+-                                     style={{}}
+                                    >
+                              ...
+                            <div>
+                            <FieldError>
+                            <div>
+                            <div className="mt-150">
+                              <_c placeholder="현재 소속 회사명" name="companyName" onChange={function onChange} ...>
+                                <div className="flex w-ful...">
+                                  <Input ref={function ref} disabled={undefined} className="whitespace..." ...>
+                                    <input
+                                      type={undefined}
+                                      data-slot="input"
+                                      className="file:text-foreground placeholder:text-muted-foreground selection:bg-p..."
+                                      ref={function ref}
+                                      disabled={undefined}
+                                      placeholder="현재 소속 회사명"
+                                      name="companyName"
+                                      onBlur={function onChange}
+                                      onChange={function handleChange}
+-                                     style={{}}
+                                    >
+                              <FieldError>
+                              <label className="font-desig...">
+                                <input
+                                  type="checkbox"
+                                  name="hideCompanyName"
+                                  onChange={function onChange}
+                                  onBlur={function onChange}
+                                  ref={function ref}
+-                                 style={{}}
+                                >
+                                ...
+                          ...
+                            <div className="mt-150 gri...">
+                              <article className="rounded-10...">
+                                <div>
+                                <_c type="number" disabled={false} name="chatPrice" onChange={function onChange} ...>
+                                  <div className="flex w-ful...">
+                                    <Input ref={function ref} disabled={false} className="whitespace..." type="number" ...>
+                                      <input
+                                        type="number"
+                                        data-slot="input"
+                                        className="file:text-foreground placeholder:text-muted-foreground selection:bg..."
+                                        ref={function ref}
+                                        disabled={false}
+                                        name="chatPrice"
+                                        onBlur={function onChange}
+                                        placeholder="가격(원)"
+                                        onChange={function handleChange}
+-                                       style={{}}
+                                      >
+                              <article className="rounded-10...">
+                                <div>
+                                <_c type="number" disabled={false} name="callPrice" onChange={function onChange} ...>
+                                  <div className="flex w-ful...">
+                                    <Input ref={function ref} disabled={false} className="whitespace..." type="number" ...>
+                                      <input
+                                        type="number"
+                                        data-slot="input"
+                                        className="file:text-foreground placeholder:text-muted-foreground selection:bg..."
+                                        ref={function ref}
+                                        disabled={false}
+                                        name="callPrice"
+                                        onBlur={function onChange}
+                                        placeholder="가격(원)"
+                                        onChange={function handleChange}
+-                                       style={{}}
+                                      >
+                              <article className="rounded-10...">
+                                <div>
+                                <_c type="number" disabled={true} name="offlinePrice" onChange={function onChange} ...>
+                                  <div className="flex w-ful...">
+                                    <Input ref={function ref} disabled={true} className="whitespace..." type="number" ...>
+                                      <input
+                                        type="number"
+                                        data-slot="input"
+                                        className="file:text-foreground placeholder:text-muted-foreground selection:bg..."
+                                        ref={function ref}
+                                        disabled={true}
+                                        name="offlinePrice"
+                                        onBlur={function onChange}
+                                        placeholder="가격(원)"
+                                        onChange={function handleChange}
+-                                       style={{}}
+                                      >
+                          <Section>
+                          <Controller>
+                          <FieldError>
+                          <Section title="멘토링 상세설명">
+                            <section className="rounded-15...">
+                              <h2>
+                              <textarea
+                                name="detailedDescription"
+                                onChange={function onChange}
+                                onBlur={function onChange}
+                                ref={function ref}
+                                className="font-designer-14r rounded-100 border-border-default bg-background-default t..."
+                                placeholder="멘토링 본문, 범위, 자기소개 등을 작성해주세요."
+-                               style={{}}
+                              >
+                              ...
+                          <Section title="멘토링 사전 안내">
+                            <section className="rounded-15...">
+                              <h2>
+                              <textarea
+                                name="preNotice"
+                                onChange={function onChange}
+                                onBlur={function onChange}
+                                ref={function ref}
+                                className="font-designer-14r rounded-100 border-border-default bg-background-default t..."
+                                placeholder="수업 전 멘티에게 전달할 안내를 작성해주세요."
+-                               style={{}}
+                              >
+                              ...
+                          ...
+                        ...
+                  ...
+ @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:49
+[  176266ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  176267ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  176274ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[  176275ms] [ERROR] Failed to fetch user profile: AxiosError @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:49
+[  176275ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[  176275ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  176283ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  176284ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  176284ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  177276ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[  177276ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  177285ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  177286ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  177286ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  179278ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[  179278ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  179287ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  179287ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  179287ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  183281ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[  183281ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  183288ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  183289ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  183289ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  186429ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  187433ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  189436ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  193438ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  196438ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  243284ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  243290ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  243290ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  244286ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  244291ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  244291ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  246288ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  246292ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  246292ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  249293ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  250290ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  250293ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  250293ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  253294ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  264522ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  265524ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  267526ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  271529ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  274529ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  291066ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  301469ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  310292ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  310295ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  310295ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  311294ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  311296ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  311296ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  313296ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  313297ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  313297ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  316995ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  317299ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  317299ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  317299ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  321024ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  333616ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  356791ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  362595ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  377302ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  377302ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  377302ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  378304ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  378304ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  378304ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  380308ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  380308ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  380309ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  383309ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  384312ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  384312ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  384312ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  388405ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  401101ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  411323ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  444316ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  444316ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  444316ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  445318ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  445318ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  445318ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  447321ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  447321ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  447321ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  450321ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  450321ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  451324ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  451324ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  451324ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  454324ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  454324ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  501919ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  501919ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  511326ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  511326ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  511327ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  512329ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  512329ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  512329ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  514331ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  514331ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  514331ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  517331ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  517331ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  518334ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  518334ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  518334ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  521334ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  521334ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  566163ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  566163ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  578336ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  578337ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  578337ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  579339ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  579339ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  579339ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  581341ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  581341ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  581341ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  584341ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  584341ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  585343ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  585343ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  585343ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  588343ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  588343ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  597532ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  597532ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  624547ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  624547ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  645345ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  645345ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  645346ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  646348ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  646348ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  646348ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  648349ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  648349ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  648350ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  651350ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  651350ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  652356ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  652358ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  652358ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  655359ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  655359ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  670551ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  670551ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  681224ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  681224ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  696638ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  697641ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  699643ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  702643ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  702643ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  703645ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  706646ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  706646ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  712359ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  712360ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  712360ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  713362ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  713362ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  713362ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  715364ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  715364ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  715364ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  718364ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  718364ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  719367ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  719367ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  719367ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  722367ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  722367ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  733654ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  733654ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  779369ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  779370ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  779370ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  780372ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  780372ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  780372ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  782374ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  782374ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  782374ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  785374ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  785374ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  786376ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  786376ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  786376ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  789376ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  789376ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  826011ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  827013ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  829015ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  832015ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  832015ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  833018ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[  836892ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  836892ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  846379ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  846379ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  846379ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  847382ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  847382ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  847382ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  849384ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  849384ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  849384ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  853387ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  853387ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  853387ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  856387ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  856387ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  913390ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  913390ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  913390ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  914393ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  914393ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  914394ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  916397ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[  916397ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[  916397ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[  920225ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  920225ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  923565ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974215433 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  923565ms] [WARNING] The resource http://localhost:3000/_next/static/css/app/(service)/layout.css?v=1770974476162 was preloaded using link preload but not used within a few seconds from the window's load event. Please make sure it has an appropriate `as` value and it is preloaded intentionally. @ http://localhost:3000/mentoring/become-mentor:0
+[  954726ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  954726ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[  954838ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  954843ms] [ERROR] Failed to fetch user profile: ApiError: 회원 정보가 존재하지 않습니다.
+    at eval (webpack-internal:///(app-pages-browser)/./src/api/client/axios.ts:139:31)
+    at async Axios.request (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/Axios.js:52:14)
+    at async getUserProfile (webpack-internal:///(app-pages-browser)/./src/entities/user/api/get-user-profile.ts:9:17)
+    at async fetchAndSetUser (webpack-internal:///(app-pages-browser)/./src/stores/useUserStore.ts:25:33) @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:49
+[  954853ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  955865ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  957876ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[  961887ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1014811ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1014814ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1014815ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1015823ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1015823ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1015827ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1017827ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1017827ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1017830ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1021830ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1021831ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1021833ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1081833ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1081833ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1081834ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1082835ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1082835ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1082836ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1084838ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1084838ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1084838ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1088841ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1088841ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1088841ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1148843ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1148843ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1148844ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1149845ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1149846ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1149846ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1151848ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1151848ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1151848ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1155850ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1155850ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1155850ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1211954ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[ 1211955ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[ 1211963ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1211967ms] [ERROR] Failed to fetch user profile: AxiosError @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:49
+[ 1211968ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1211968ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1211968ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1211969ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1211969ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[ 1212965ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1212970ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1212970ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1212971ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1212971ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[ 1214967ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1214972ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1214973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1214973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1214973ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[ 1218970ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1218976ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5:0
+[ 1218976ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications?page=1&size=5&hasRead=false:0
+[ 1218976ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/notifications/has-new:0
+[ 1218976ms] [ERROR] Failed to load resource: net::ERR_CONNECTION_REFUSED @ http://localhost:8080/api/v1/banks:0
+[ 1264746ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[ 1264746ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[ 1264849ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1264866ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1264868ms] [ERROR] Failed to fetch user profile: ApiError: 회원 정보가 존재하지 않습니다.
+    at eval (webpack-internal:///(app-pages-browser)/./src/api/client/axios.ts:139:31)
+    at async Axios.request (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/Axios.js:52:14)
+    at async getUserProfile (webpack-internal:///(app-pages-browser)/./src/entities/user/api/get-user-profile.ts:9:17)
+    at async fetchAndSetUser (webpack-internal:///(app-pages-browser)/./src/stores/useUserStore.ts:25:33) @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:49
+[ 1265870ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1267888ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1271911ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1279359ms] [WARNING] Image with src "http://localhost:3000/icons/logo.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[ 1279359ms] [WARNING] Image with src "http://localhost:3000/icons/logo_title.svg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[ 1279367ms] [WARNING] Image with src "/images/one-by-one-study.png" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio. @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/shared/lib/utils/warn-once.js:15
+[ 1279439ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1279445ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1279446ms] [ERROR] Failed to fetch user profile: ApiError: 회원 정보가 존재하지 않습니다.
+    at eval (webpack-internal:///(app-pages-browser)/./src/api/client/axios.ts:139:31)
+    at async Axios.request (webpack-internal:///(app-pages-browser)/./node_modules/axios/lib/core/Axios.js:52:14)
+    at async getUserProfile (webpack-internal:///(app-pages-browser)/./src/entities/user/api/get-user-profile.ts:9:17)
+    at async fetchAndSetUser (webpack-internal:///(app-pages-browser)/./src/stores/useUserStore.ts:25:33) @ webpack-internal:///(app-pages-browser)/./node_modules/next/dist/client/components/globals/intercept-console-error.js:49
+[ 1280454ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0
+[ 1282466ms] [ERROR] Failed to load resource: the server responded with a status of 404 () @ http://localhost:8080/api/v1/members/1/profile:0

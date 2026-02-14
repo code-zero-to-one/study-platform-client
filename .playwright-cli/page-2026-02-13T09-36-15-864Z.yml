@@ -1,0 +1,39 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - generic [ref=e5]:
+          - img "Logo" [ref=e6]
+          - link "Logo-title" [ref=e7] [cursor=pointer]:
+            - /url: /
+            - img "Logo-title" [ref=e8]
+          - generic [ref=e9]: BETA
+        - navigation [ref=e10]:
+          - link "1:1 스터디" [ref=e11] [cursor=pointer]:
+            - /url: /home
+          - link "1:1 멘토링" [ref=e12] [cursor=pointer]:
+            - /url: /mentoring
+          - link "그룹스터디" [ref=e13] [cursor=pointer]:
+            - /url: /group-study
+          - link "멘토스터디" [ref=e14] [cursor=pointer]:
+            - /url: /premium-study
+          - link "인사이트" [ref=e15] [cursor=pointer]:
+            - /url: /insights
+        - button "로그인 / 회원가입" [ref=e17] [cursor=pointer]:
+          - generic [ref=e18]: 로그인 / 회원가입
+    - main [ref=e19]:
+      - generic [ref=e21]:
+        - img [ref=e23]
+        - heading "로그인 후 멘토 등록이 가능합니다" [level=1] [ref=e26]
+        - paragraph [ref=e27]: 멘토 프로필을 생성하려면 먼저 로그인해주세요.
+        - link "로그인하러 가기" [ref=e28] [cursor=pointer]:
+          - /url: /login
+          - button "로그인하러 가기" [ref=e29]:
+            - generic [ref=e30]: 로그인하러 가기
+  - generic [ref=e31]:
+    - img [ref=e33]
+    - button "Open Tanstack query devtools" [ref=e81] [cursor=pointer]:
+      - img [ref=e82]
+  - button "Open Next.js Dev Tools" [ref=e135] [cursor=pointer]:
+    - img [ref=e136]
+  - alert [ref=e139]

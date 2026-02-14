@@ -1,3 +1,4 @@
+import { isAxiosError } from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
@@ -19,9 +20,25 @@ export default async function Header() {
 
   const memberId = Number(memberIdStr);
 
-  const userProfile = isLoggedIn
-    ? await getUserProfileInServer(memberId)
-    : null;
+  let userProfile = null;
+
+  if (isLoggedIn) {
+    try {
+      userProfile = await getUserProfileInServer(memberId);
+    } catch (error) {
+      if (!isAxiosError(error)) {
+        throw error;
+      }
+
+      if (error.response) {
+        console.error(
+          `[Header] Failed to fetch user profile for memberId=${memberId}`,
+          error,
+        );
+      }
+    }
+  }
+
   const userInfo = userProfile?.memberProfile;
   const userImg = userProfile
     ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl

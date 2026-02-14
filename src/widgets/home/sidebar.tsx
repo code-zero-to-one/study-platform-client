@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import Link from 'next/link';
-import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
+import { tryGetUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
+import type { SincerityTemp } from '@/entities/user/api/types';
 import MyProfileCard from '@/entities/user/ui/my-profile-card';
 import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { getServerCookie } from '@/utils/server-cookie';
@@ -13,17 +13,20 @@ export default async function Sidebar() {
   const memberIdStr = await getServerCookie('memberId');
   const memberId = Number(memberIdStr);
 
-  // 비회원 접근시 사이드바 빈 페이지 반환
-  let userProfile = null;
-  try {
-    if (!memberIdStr || !isNumeric(memberIdStr)) {
-      return null;
-    }
-
-    userProfile = await getUserProfileInServer(memberId);
-  } catch (error) {
-    console.error(error);
+  if (!memberIdStr || !isNumeric(memberIdStr)) {
+    return null;
   }
+
+  const userProfile = await tryGetUserProfileInServer(memberId);
+
+  const fallbackSincerityTemp: SincerityTemp = {
+    temperature: 36.5,
+    levelId: 0,
+    levelName: '1단계',
+  };
+  const resolvedSincerityTemp =
+    userProfile?.sincerityTemp ?? fallbackSincerityTemp;
+  const isStudyApplied = userProfile?.studyApplied ?? false;
 
   return (
     <aside className="flex w-[335px] flex-col gap-300">
@@ -43,13 +46,13 @@ export default async function Sidebar() {
         techStacks={userProfile?.memberProfile.techStacks
           ?.map((t) => t.techStackName)
           .join(', ')}
-        studyApplied={userProfile?.studyApplied ?? false}
-        sincerityTemp={userProfile.sincerityTemp}
+        studyApplied={isStudyApplied}
+        sincerityTemp={resolvedSincerityTemp}
       />
 
       {/* 1:1 인사이트 버튼 제거됨 - 이제 홈 페이지 탭에서 접근 가능 */}
 
-      {userProfile.studyApplied ? (
+      {isStudyApplied ? (
         <TodoList statusList={[false, false, false]} />
       ) : (
         <StartStudyModal

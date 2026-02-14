@@ -1,0 +1,21 @@
+- generic [ref=e2]:
+    - banner [ref=e3]:
+        - generic [ref=e4]:
+            - generic [ref=e5]:
+                - img "Logo" [ref=e6]
+                - link "Logo-title" [ref=e7] [cursor=pointer]:
+                    - /url: /
+                    - img "Logo-title" [ref=e8]
+                - generic [ref=e9]: BETA
+            - navigation [ref=e10]:
+                - link "1:1 스터디" [ref=e11] [cursor=pointer]:
+                    - /url: /home
+                - link "1:1 멘토링" [ref=e12] [cursor=pointer]:
+                    - /url: /mentoring
+                - link "그룹스터디" [ref=e13] [cursor=pointer]:
+                    - /url: /group-study
+                - link "멘토스터디" [ref=e14] [cursor=pointer]:
+                    - /url: /premium-study
+                - link "인사이트" [ref=e15] [cursor=pointer]:
+                    - /url: /insights
+    - main [ref=e16]
