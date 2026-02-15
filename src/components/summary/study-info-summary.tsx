@@ -20,11 +20,11 @@ import {
   STUDY_TYPE_LABELS,
 } from '../../features/study/group/const/group-study-const';
 
-interface Props {
+interface SummaryStudyInfoProps {
   data: GroupStudyFullResponse;
 }
 
-export default function SummaryStudyInfo({ data }: Props) {
+export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(false);
