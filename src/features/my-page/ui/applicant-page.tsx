@@ -63,19 +63,18 @@ export default function ApplicantPage(props: ApplicantListProps) {
       <div className="flex w-full flex-col gap-500">
         {data?.pages.map((page, pageIndex) => (
           <React.Fragment key={pageIndex}>
-            {page.content.map((applicant) => (
-              <ProfileCard
-                key={applicant.applyId}
-                data={applicant}
-                onClick={(status: ApplyStatus) =>
-                  handleApprove(
-                    Number(props.studyId),
-                    applicant.applyId,
-                    status,
-                  )
-                }
-              />
-            ))}
+            {page.content
+              .slice()
+              .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+              .map((applicant) => (
+                <ProfileCard
+                  key={applicant.applyId}
+                  data={applicant}
+                  onClick={(status: ApplyStatus) =>
+                    handleApprove(Number(props.studyId), applicant.applyId, status)
+                  }
+                />
+              ))}
           </React.Fragment>
         ))}
       </div>

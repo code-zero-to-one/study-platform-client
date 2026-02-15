@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 import { GroupStudyFullResponseDto } from '@/api/openapi';
 import UserAvatar from '@/components/ui/avatar';
 import AvatarStack from '@/components/ui/avatar-stack';
@@ -38,14 +38,14 @@ export default function StudyInfoSection({
   const avatarMembers = useMemo<AvatarStackMember[]>(() => {
     if (!applicants) return [];
 
-    return applicants.map((data) => ({
-      memberId: data.applicantInfo.memberId,
-      nickname: data.applicantInfo.memberNickname || '익명',
-      profileImageUrl:
-        data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ??
-        '',
-      isLeader: data.role === 'LEADER',
-    }));
+    return [...applicants]
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      .map((data) => ({
+        memberId: data.applicantInfo.memberId,
+        nickname: data.applicantInfo.memberNickname || '익명',
+        profileImageUrl: data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ?? '',
+        isLeader: data.role === 'LEADER',
+      }));
   }, [applicants]);
 
   return (

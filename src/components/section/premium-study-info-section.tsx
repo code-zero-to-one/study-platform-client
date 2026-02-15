@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
+import { useMemo } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import AvatarStack from '@/components/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/ui/avatar-stack';
@@ -44,14 +44,14 @@ export default function PremiumStudyInfoSection({
   const applicantsList = getApplicantsList(approvedApplicants?.pages);
 
   const avatarMembers = useMemo<AvatarStackMember[]>(() => {
-    return applicantsList.map((data) => ({
-      memberId: data.applicantInfo.memberId,
-      nickname: data.applicantInfo.memberNickname || '익명',
-      profileImageUrl:
-        data.applicantInfo.profileImage?.resizedImages[0]
-          ?.resizedImageUrl ?? '',
-      isLeader: data.role === 'LEADER',
-    }));
+    return [...applicantsList]
+      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      .map((data) => ({
+        memberId: data.applicantInfo.memberId,
+        nickname: data.applicantInfo.memberNickname || '익명',
+        profileImageUrl: data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ?? '',
+        isLeader: data.role === 'LEADER',
+      }));
   }, [applicantsList]);
 
   return (
