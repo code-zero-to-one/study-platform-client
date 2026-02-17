@@ -173,7 +173,7 @@ function AvatarItem({
 
           {/* 닉네임 툴팁 */}
           {hovered && (
-            <div className="bg-text-inverse text-bg-background-neutral-strong absolute bottom-full left-1/2 z-30 mb-50 -translate-x-1/2 rounded-md px-100 py-50 text-base whitespace-nowrap">
+            <div className="bg-text-inverse text-background-neutral-strong absolute bottom-full left-1/2 z-30 mb-50 -translate-x-1/2 rounded-md px-100 py-50 text-base whitespace-nowrap">
               {member.nickname || '익명'}
             </div>
           )}
