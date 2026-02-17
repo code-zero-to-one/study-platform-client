@@ -3,6 +3,8 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import InquiryModal from '@/components/modals/inquiry-modal';
+import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
@@ -59,6 +61,7 @@ export default function StudyDetailPage({
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
+  const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false);
 
   const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
     groupStudyId,
@@ -158,12 +161,25 @@ export default function StudyDetailPage({
         groupStudyId={groupStudyId}
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
+      <InquiryModal
+        open={showInquiryModal}
+        onOpenChange={setShowInquiryModal}
+        studyId={groupStudyId}
+      />
 
       <div className="my-500 flex w-[1164px] items-start justify-between">
         <div className="flex w-full flex-col gap-150">
-          <p className="font-designer-28b text-[#181D27]">
+          <div className="font-designer-28b flex justify-between text-[#181D27]">
             {studyDetail?.detailInfo.title}
-          </p>
+            <Button
+              color="primary"
+              size="small"
+              onClick={() => setShowInquiryModal(true)}
+              className="mr-300"
+            >
+              문의하기
+            </Button>
+          </div>
           <p className="font-designer-18r text-[#252B37]">
             {studyDetail?.detailInfo.summary}
           </p>
