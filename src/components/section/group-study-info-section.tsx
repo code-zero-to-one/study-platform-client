@@ -31,10 +31,14 @@ export default function StudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
-  const applicants = approvedApplicants?.pages[0]?.content;
+
+  const applicants = useMemo(
+    () => approvedApplicants?.pages[0]?.content ?? [],
+    [approvedApplicants?.pages],
+  );
 
   const avatarMembers = useMemo<AvatarStackMember[]>(() => {
-    if (!applicants) return [];
+    if (!applicants.length) return [];
 
     const leader = applicants.find((applicant) => applicant.role === 'LEADER');
     const participants = applicants.filter(
@@ -52,10 +56,7 @@ export default function StudyInfoSection({
 
     return sortedApplicants.map((data) => ({
       memberId: data.applicantInfo.memberId,
-      nickname:
-        data.role === 'LEADER'
-          ? `${data.applicantInfo.memberNickname || '익명'}`
-          : data.applicantInfo.memberNickname || '익명',
+      nickname: data.applicantInfo.memberNickname || '익명',
       profileImageUrl:
         data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ??
         '',

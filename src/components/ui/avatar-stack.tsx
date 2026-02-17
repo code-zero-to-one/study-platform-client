@@ -1,11 +1,10 @@
 'use client';
 
 import { X } from 'lucide-react';
-import { useState, useRef, useCallback } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { cn } from './(shadcn)/lib/utils';
-import Tooltip from './tooltip';
 
 export interface AvatarStackMember {
   memberId: number;
@@ -27,6 +26,23 @@ export default function AvatarStack({
 }: AvatarStackProps) {
   const [showOverflow, setShowOverflow] = useState(false);
   const overflowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showOverflow) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        overflowRef.current &&
+        !overflowRef.current.contains(e.target as Node)
+      ) {
+        setShowOverflow(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showOverflow]);
 
   // 리더를 맨 앞으로, 나머지는 가입순(원본 순서) 유지
   const sorted = [...members].sort((a, b) => {
@@ -66,7 +82,7 @@ export default function AvatarStack({
             </button>
 
             {showOverflow && (
-              <div className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-lg border border-[#E9EAEB] p-200 shadow-lg">
+              <div className="bg-background-default absolute bottom-full left-0 z-50 mb-100 w-[240px] rounded-lg border border-[#E9EAEB] p-200 shadow-lg">
                 <div className="mb-100 flex items-center justify-between">
                   <span className="font-designer-14b text-text-default">
                     참가자 목록
@@ -157,15 +173,9 @@ function AvatarItem({
 
           {/* 닉네임 툴팁 */}
           {hovered && (
-            <Tooltip
-              value={member.nickname || '익명'}
-              side="top"
-              trigger={
-                <div className="bg-background-default absolute top-full left-1/2 z-30 mt-50 -translate-x-1/2 rounded-md px-100 py-50 text-xs whitespace-nowrap text-white">
-                  {member.nickname || '익명'}
-                </div>
-              }
-            />
+            <div className="bg-text-inverse text-bg-background-neutral-strong absolute bottom-full left-1/2 z-30 mb-50 -translate-x-1/2 rounded-md px-100 py-50 text-base whitespace-nowrap">
+              {member.nickname || '익명'}
+            </div>
           )}
         </div>
       }
