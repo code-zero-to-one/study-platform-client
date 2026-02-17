@@ -10,22 +10,20 @@ import type { AvatarStackMember } from "@/components/ui/avatar-stack";
 import Button from "@/components/ui/button";
 import UserProfileModal from "@/entities/user/ui/user-profile-modal";
 import { useApplicantsByStatusQuery } from "@/features/study/group/application/model/use-applicant-qeury";
-import { useIsLeader } from "@/stores/useLeaderStore";
-import { useUserStore } from "@/stores/useUserStore";
 
 import SummaryStudyInfo from "../summary/study-info-summary";
 
 interface StudyInfoSectionProps {
 	study: GroupStudyFullResponseDto;
+	isLeader: boolean;
 }
 
 export default function StudyInfoSection({
 	study: studyDetail,
+	isLeader,
 }: StudyInfoSectionProps) {
 	const router = useRouter();
 	const params = useParams();
-	const memberId = useUserStore((state) => state.memberId);
-	const isLeader = useIsLeader(memberId);
 
 	const groupStudyId = Number(params.id);
 

@@ -14,6 +14,7 @@ import {
   INQUIRY_TITLE_MAX_LENGTH,
 } from '@/features/study/group/model/inquiry.schema';
 import { useCreateInquiry } from '@/hooks/queries/inquiry-api';
+import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { useToastStore } from '@/stores/use-toast-store';
 import { SingleDropdown } from '../ui/dropdown';
 import FormField from '../ui/form/form-field';
@@ -49,6 +50,7 @@ export default function InquiryModal({
   });
 
   const { handleSubmit, reset } = form;
+  const scrollToNext = useScrollToNextField();
 
   const onSubmit = (data: InquiryFormValues) => {
     createInquiry(
@@ -102,6 +104,8 @@ export default function InquiryModal({
                   label="문의 종류"
                   direction="vertical"
                   required
+                  scrollable
+                  onAfterChange={() => scrollToNext('category')}
                 >
                   <SingleDropdown
                     options={INQUIRY_CATEGORY_OPTIONS}
@@ -113,6 +117,8 @@ export default function InquiryModal({
                   label="제목"
                   direction="vertical"
                   required
+                  scrollable
+                  onAfterBlurFilled={() => scrollToNext('title')}
                 >
                   <BaseInput
                     maxLength={INQUIRY_TITLE_MAX_LENGTH}
@@ -125,6 +131,7 @@ export default function InquiryModal({
                   label="내용"
                   direction="vertical"
                   required
+                  scrollable
                 >
                   <TextAreaInput
                     placeholder="내용을 입력하세요"

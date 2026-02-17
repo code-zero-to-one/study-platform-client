@@ -49,6 +49,13 @@ export interface FormFieldProps<
   showCounterRight?: boolean;
   counterMax?: number;
 
+  /** true로 설정하면 data-scroll-field 속성을 wrapper div에 추가 (자동 스크롤 위치 마킹) */
+  scrollable?: boolean;
+  /** 필드 값이 변경된 직후 호출되는 콜백. 자동 스크롤 등 부가 동작에 사용 */
+  onAfterChange?: (value: unknown) => void;
+  /** blur 시 필드 값이 채워져 있으면 호출되는 콜백. 텍스트 입력 등에서 자동 스크롤에 사용 */
+  onAfterBlurFilled?: () => void;
+
   children: React.ReactElement<ControlledChildProps<V>>;
 }
 
@@ -69,6 +76,9 @@ export default function FormField<
   children,
   showCounterRight = false,
   counterMax,
+  scrollable,
+  onAfterChange,
+  onAfterBlurFilled,
 }: FormFieldProps<T, N, V>) {
   const { control, formState } = useFormContext<T>();
   const autoId = useId();
@@ -89,6 +99,7 @@ export default function FormField<
 
   return (
     <div
+      {...(scrollable ? { 'data-scroll-field': name } : {})}
       className={cn(
         'flex',
         direction === 'vertical' ? 'flex-col gap-100' : 'gap-600',
@@ -118,6 +129,8 @@ export default function FormField<
           rules={rules}
           controlId={fieldId}
           describedById={errorMsg ? errId : descId}
+          onAfterChange={onAfterChange}
+          onAfterBlurFilled={onAfterBlurFilled}
         >
           {children}
         </FieldControl>
