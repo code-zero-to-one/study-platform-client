@@ -31,7 +31,6 @@ export default function StudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
-
   const applicants = useMemo(
     () => approvedApplicants?.pages[0]?.content ?? [],
     [approvedApplicants?.pages],
@@ -124,7 +123,7 @@ export default function StudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>참가자 목록</span>
-                <span className="text-[#A4A7AE]">{`${applicants?.length ?? 0}명`}</span>
+                <span className="text-[#A4A7AE]">{`${approvedApplicants?.pages[0]?.totalElements ?? 0}명`}</span>
               </div>
               {isLeader && (
                 <Button
