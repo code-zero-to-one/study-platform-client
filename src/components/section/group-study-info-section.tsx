@@ -54,7 +54,7 @@ export default function StudyInfoSection({
       memberId: data.applicantInfo.memberId,
       nickname:
         data.role === 'LEADER'
-          ? `👑 ${data.applicantInfo.memberNickname || '익명'}`
+          ? `${data.applicantInfo.memberNickname || '익명'}`
           : data.applicantInfo.memberNickname || '익명',
       profileImageUrl:
         data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ??
