@@ -1,7 +1,7 @@
 'use client';
 
-import { X } from 'lucide-react';
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { Crown, X } from 'lucide-react';
+import { useState } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { cn } from './(shadcn)/lib/utils';
@@ -25,24 +25,6 @@ export default function AvatarStack({
   guideText = '프로필을 클릭하여 스터디원들의 정보를 확인해보세요.',
 }: AvatarStackProps) {
   const [showOverflow, setShowOverflow] = useState(false);
-  const overflowRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!showOverflow) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        overflowRef.current &&
-        !overflowRef.current.contains(e.target as Node)
-      ) {
-        setShowOverflow(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showOverflow]);
 
   // 리더를 맨 앞으로, 나머지는 가입순(원본 순서) 유지
   const sorted = [...members].sort((a, b) => {
@@ -56,10 +38,6 @@ export default function AvatarStack({
   const overflow = sorted.slice(maxVisible);
   const hasOverflow = overflow.length > 0;
 
-  const handleOverflowToggle = useCallback(() => {
-    setShowOverflow((prev) => !prev);
-  }, []);
-
   return (
     <div className="flex flex-col gap-150">
       <div className="flex items-center gap-200">
@@ -72,10 +50,9 @@ export default function AvatarStack({
 
         {/* +n명이 열공 중 */}
         {hasOverflow && (
-          <div className="relative" ref={overflowRef}>
+          <div className="relative" onMouseEnter={() => setShowOverflow(true)}>
             <button
               type="button"
-              onClick={handleOverflowToggle}
               className="font-designer-14m text-text-subtle hover:text-text-default transition-colors"
             >
               +{overflow.length}명이 열공 중!
@@ -153,8 +130,11 @@ function AvatarItem({
         >
           {/* 왕관 아이콘 (리더) */}
           {member.isLeader && (
-            <span className="absolute -top-[14px] left-1/2 z-20 -translate-x-1/2 text-sm">
-              👑
+            <span className="absolute -top-[14px] left-1/2 z-20 -translate-x-1/2">
+              <Crown
+                className="h-4 w-4 cursor-pointer text-pink-400"
+                fill="currentColor"
+              />
             </span>
           )}
 
