@@ -45,11 +45,16 @@ export default function PremiumStudyInfoSection({
 
   const avatarMembers = useMemo<AvatarStackMember[]>(() => {
     return [...applicantsList]
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      )
       .map((data) => ({
         memberId: data.applicantInfo.memberId,
         nickname: data.applicantInfo.memberNickname || '익명',
-        profileImageUrl: data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ?? '',
+        profileImageUrl:
+          data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ??
+          '',
         isLeader: data.role === 'LEADER',
       }));
   }, [applicantsList]);

@@ -7,14 +7,18 @@ export enum InquiryCategory {
   ETC = 'ETC',
 }
 
-export const INQUIRY_TITLE_MAX_LENGTH=50;
+export const INQUIRY_TITLE_MAX_LENGTH = 50;
 export const INQUIRY_CONTENT_MAX_LENGTH = 500;
 
-
 export const inquirySchema = z.object({
-  title: z.string().min(1, '제목을 입력해주세요.').min(1).max(
-		INQUIRY_TITLE_MAX_LENGTH,`제목은 ${INQUIRY_TITLE_MAX_LENGTH}자 이하로 입력해주세요.`
-	),
+  title: z
+    .string()
+    .min(1, '제목을 입력해주세요.')
+    .min(1)
+    .max(
+      INQUIRY_TITLE_MAX_LENGTH,
+      `제목은 ${INQUIRY_TITLE_MAX_LENGTH}자 이하로 입력해주세요.`,
+    ),
   content: z
     .string()
     .min(1, '내용을 입력해주세요.')

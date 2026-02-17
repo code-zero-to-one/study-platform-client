@@ -79,7 +79,7 @@ export function FieldControl<
             });
 
           const nextOnChange: ChangeHandler<V> = onAfterChange
-            ? ((arg: V | React.ChangeEvent<Element>) => {
+            ? (((arg: V | React.ChangeEvent<Element>) => {
                 if (isReactChangeEvent(arg)) {
                   (coreOnChange as EventChange)(arg);
                   onAfterChange((arg.target as HTMLInputElement).value);
@@ -87,11 +87,10 @@ export function FieldControl<
                   (coreOnChange as ValueChange<V>)(arg);
                   onAfterChange(arg);
                 }
-              }) as ChangeHandler<V>
+              }) as ChangeHandler<V>)
             : coreOnChange;
 
-          const baseOnBlur: () => void =
-            child.props.onBlur ?? field.onBlur;
+          const baseOnBlur: () => void = child.props.onBlur ?? field.onBlur;
           const nextOnBlur = onAfterBlurFilled
             ? () => {
                 baseOnBlur();

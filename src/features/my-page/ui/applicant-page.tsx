@@ -65,13 +65,21 @@ export default function ApplicantPage(props: ApplicantListProps) {
           <React.Fragment key={pageIndex}>
             {page.content
               .slice()
-              .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+              .sort(
+                (a, b) =>
+                  new Date(a.createdAt).getTime() -
+                  new Date(b.createdAt).getTime(),
+              )
               .map((applicant) => (
                 <ProfileCard
                   key={applicant.applyId}
                   data={applicant}
                   onClick={(status: ApplyStatus) =>
-                    handleApprove(Number(props.studyId), applicant.applyId, status)
+                    handleApprove(
+                      Number(props.studyId),
+                      applicant.applyId,
+                      status,
+                    )
                   }
                 />
               ))}
