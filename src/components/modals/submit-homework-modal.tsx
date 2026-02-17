@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/ui/button';
 import FormField from '@/components/ui/form/form-field';
@@ -28,37 +28,50 @@ export default function SubmitHomeworkModal({
   onSuccess,
 }: SubmitHomeworkModalProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const methods = useForm<SubmitHomeworkFormValues>({
+    resolver: zodResolver(SubmitHomeworkFormSchema),
+    mode: 'onChange',
+    defaultValues: {
+      textContent: '',
+      attachmentLink: '',
+    },
+  });
 
   return (
-    <Modal.Root open={open} onOpenChange={setOpen}>
-      <Modal.Trigger asChild>
-        <Button
-          size="medium"
-          className="font-designer-16m w-fit"
-          color="primary"
-        >
-          과제 제출하기
-        </Button>
-      </Modal.Trigger>
+    <FormProvider {...methods}>
+      <Modal.Root open={open} onOpenChange={setOpen}>
+        <Modal.Trigger asChild>
+          <Button
+            size="medium"
+            className="font-designer-16m w-fit"
+            color="primary"
+          >
+            과제 제출하기
+          </Button>
+        </Modal.Trigger>
 
-      <Modal.Portal>
-        <Modal.Overlay />
-        <Modal.Content className="w-[840px]">
-          <Modal.Header variant="form">
-            <Modal.Title className="font-designer-20b text-text-strong">
-              과제 제출하기
-            </Modal.Title>
-            <Modal.CloseButton onClick={() => setOpen(false)} />
-          </Modal.Header>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content className="w-[840px]">
+            <Modal.Header variant="form">
+              <Modal.Title className="font-designer-20b text-text-strong">
+                과제 제출하기
+              </Modal.Title>
+              <Modal.CloseButton onClick={() => setOpen(false)} />
+            </Modal.Header>
 
-          <SubmitHomeworkForm
-            missionId={missionId}
-            onClose={() => setOpen(false)}
-            onSuccess={onSuccess}
-          />
-        </Modal.Content>
-      </Modal.Portal>
-    </Modal.Root>
+            <SubmitHomeworkForm
+              missionId={missionId}
+              onClose={() => setOpen(false)}
+              onSuccess={() => {
+                methods.reset();
+                onSuccess?.();
+              }}
+            />
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal.Root>
+    </FormProvider>
   );
 }
 
@@ -73,15 +86,7 @@ function SubmitHomeworkForm({
   onClose,
   onSuccess,
 }: SubmitHomeworkFormProps) {
-  const methods = useForm<SubmitHomeworkFormValues>({
-    resolver: zodResolver(SubmitHomeworkFormSchema),
-    mode: 'onChange',
-    defaultValues: {
-      textContent: '',
-      attachmentLink: '',
-    },
-  });
-
+  const methods = useFormContext<SubmitHomeworkFormValues>();
   const { handleSubmit, formState } = methods;
 
   const { mutate: submitHomework } = useSubmitHomework();
@@ -110,7 +115,7 @@ function SubmitHomeworkForm({
   };
 
   return (
-    <FormProvider {...methods}>
+    <>
       <Modal.Body variant="form">
         <form
           id="submit-homework"
@@ -163,6 +168,6 @@ function SubmitHomeworkForm({
           제출하기
         </Button>
       </Modal.Footer>
-    </FormProvider>
+    </>
   );
 }

@@ -75,19 +75,26 @@ function FilterDropdown({
 
   const hasSelection = selected.length > 0;
 
+  const selectedLabels = selected
+    .map((v) => options.find((option) => option.value === v)?.label)
+    .filter(Boolean)
+    .join(', ');
+
+  const displayLabel = hasSelection ? `${label}: ${selectedLabels}` : label;
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
           className={[
-            'h-500ems-center flex gap-50 rounded-full border px-200 py-100',
+            'flex items-center gap-50 rounded-full border px-200 py-100 whitespace-nowrap',
             hasSelection
               ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
               : 'border-border-default bg-fill-neutral-subtle-default text-text-default',
           ].join(' ')}
         >
-          <span className="font-designer-14m">{label}</span>
+          <span className="font-designer-14m">{displayLabel}</span>
           {open ? (
             <ChevronUp className="size-4" />
           ) : (
@@ -178,7 +185,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
     !values.recruiting; // recruiting이 false면 필터 적용 중
 
   return (
-    <div className="flex items-center gap-100">
+    <div className="flex flex-wrap items-center gap-100">
       <FilterDropdown
         label="스터디 유형"
         options={STUDY_TYPE_OPTIONS}
@@ -187,7 +194,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
       />
 
       <FilterDropdown
-        label="포지션"
+        label="직무"
         options={POSITION_OPTIONS}
         selected={values.targetRoles}
         onChange={handleTargetRolesChange}

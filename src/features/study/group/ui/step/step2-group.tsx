@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
+import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { THUMBNAIL_EXTENSION } from '../../const/group-study-const';
 
 import { GroupStudyFormValues } from '../../model/group-study-form.schema';
@@ -11,6 +12,7 @@ import GroupStudyThumbnailInput from '../group-study-thumbnail-input';
 
 export default function Step2OpenGroupStudy() {
   const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
+  const scrollToNext = useScrollToNextField();
 
   const thumbnailFile = useWatch<GroupStudyFormValues>({
     name: 'thumbnailFile',
@@ -70,6 +72,7 @@ export default function Step2OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
       >
         <GroupStudyThumbnailInput
           image={image}
@@ -83,6 +86,8 @@ export default function Step2OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
+        onAfterBlurFilled={() => scrollToNext('title')}
       >
         <BaseInput placeholder="제목을 입력하세요." hideMeta={false} />
       </FormField>
@@ -93,6 +98,8 @@ export default function Step2OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
+        onAfterBlurFilled={() => scrollToNext('summary')}
       >
         <BaseInput
           placeholder="목록에 노출될 스터디 요약을 입력하세요."
@@ -106,6 +113,7 @@ export default function Step2OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
       >
         <TextAreaInput placeholder="소개를 입력하세요." maxLength={1000} />
       </FormField>

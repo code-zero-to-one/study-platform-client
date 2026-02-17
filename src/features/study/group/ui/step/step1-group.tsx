@@ -1,7 +1,6 @@
 'use client';
 
 import { addDays } from 'date-fns';
-import { useEffect } from 'react';
 import {
   Controller,
   useController,
@@ -14,6 +13,10 @@ import FormField from '@/components/ui/form/form-field';
 import { BaseInput } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio';
 import { GroupItems } from '@/components/ui/toggle';
+import {
+  useScrollToNextField,
+  SCROLL_FIELD_ATTR,
+} from '@/hooks/use-scroll-to-next-field';
 import { formatKoreaYMD, getKoreaDate } from '@/utils/time';
 import { TargetRole } from '../../api/group-study-types';
 import {
@@ -59,6 +62,8 @@ export default function Step1OpenGroupStudy() {
     control,
   });
 
+  const scrollToNext = useScrollToNextField();
+
   const filteredStudyTypes =
     classification === 'GROUP_STUDY'
       ? STUDY_TYPES.filter((type) => type !== 'MENTORING')
@@ -74,11 +79,15 @@ export default function Step1OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
       >
         <RadioGroup
           className="flex flex-row gap-300"
           value={typeField.value}
-          onValueChange={typeField.onChange}
+          onValueChange={(v) => {
+            typeField.onChange(v);
+            scrollToNext('type');
+          }}
         >
           {filteredStudyTypes.map((type) => (
             <div key={type} className="flex items-center gap-100">
@@ -100,6 +109,7 @@ export default function Step1OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
       >
         <GroupItems options={ROLE_OPTIONS_UI} />
       </FormField>
@@ -110,6 +120,8 @@ export default function Step1OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
+        onAfterChange={() => scrollToNext('maxMembersCount')}
       >
         <SingleDropdown options={memberOptions} placeholder="선택해주세요" />
       </FormField>
@@ -120,10 +132,14 @@ export default function Step1OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
       >
         <GroupItems options={EXPERIENCE_LEVEL_OPTIONS_UI} />
       </FormField>
-      <div className="flex flex-col gap-100">
+      <div
+        {...{ [SCROLL_FIELD_ATTR]: 'method' }}
+        className="flex flex-col gap-100"
+      >
         <div className="flex items-center gap-75">
           <label className="font-designer-16b text-text-default">
             진행 방식
@@ -142,7 +158,10 @@ export default function Step1OpenGroupStudy() {
               <SingleDropdown
                 options={methodOptions}
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(v) => {
+                  field.onChange(v);
+                  scrollToNext('method');
+                }}
                 placeholder="선택해주세요"
               />
             )}
@@ -175,11 +194,15 @@ export default function Step1OpenGroupStudy() {
         direction="vertical"
         size="medium"
         required
+        scrollable
       >
         <RadioGroup
           className="flex flex-row gap-300"
           value={regularMeetingField.value}
-          onValueChange={regularMeetingField.onChange}
+          onValueChange={(v) => {
+            regularMeetingField.onChange(v);
+            scrollToNext('regularMeeting');
+          }}
         >
           {REGULAR_MEETINGS.map((type) => (
             <div key={type} className="flex items-center gap-100">
@@ -194,7 +217,10 @@ export default function Step1OpenGroupStudy() {
           ))}
         </RadioGroup>
       </FormField>
-      <div className="flex flex-col gap-100">
+      <div
+        {...{ [SCROLL_FIELD_ATTR]: 'dates' }}
+        className="flex flex-col gap-100"
+      >
         <div className="flex items-center gap-75">
           <label className="font-designer-16b text-text-default">
             진행 기간
@@ -250,6 +276,7 @@ export default function Step1OpenGroupStudy() {
           label="참가비"
           direction="vertical"
           size="medium"
+          scrollable
         >
           <Controller
             name="price"

@@ -10,6 +10,7 @@ import {
   useCreateEvaluation,
   useGetMissionEvaluationGrades,
 } from '@/hooks/queries/evaluation-api';
+import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { useToastStore } from '@/stores/use-toast-store';
 import { TextAreaInput } from '../ui/input';
 
@@ -85,6 +86,7 @@ function CreateEvaluationForm({
 
   const { handleSubmit, formState } = methods;
 
+  const scrollToNext = useScrollToNextField();
   const { data: grades } = useGetMissionEvaluationGrades();
   const { mutate: createEvaluation } = useCreateEvaluation();
   const showToast = useToastStore((state) => state.showToast);
@@ -127,6 +129,8 @@ function CreateEvaluationForm({
             label="평가 점수 선택"
             direction="vertical"
             required
+            scrollable
+            onAfterChange={() => scrollToNext('gradeCode')}
           >
             <GroupItems
               variant="square"
@@ -141,6 +145,7 @@ function CreateEvaluationForm({
             label="정성 코멘트"
             direction="vertical"
             required
+            scrollable
           >
             <TextAreaInput
               id="comment"
