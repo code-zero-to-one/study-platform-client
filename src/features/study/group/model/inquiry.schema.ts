@@ -14,7 +14,6 @@ export const inquirySchema = z.object({
   title: z
     .string()
     .min(1, '제목을 입력해주세요.')
-    .min(1)
     .max(
       INQUIRY_TITLE_MAX_LENGTH,
       `제목은 ${INQUIRY_TITLE_MAX_LENGTH}자 이하로 입력해주세요.`,
