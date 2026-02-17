@@ -60,6 +60,7 @@ export function useStudyListFilter({
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
+    setCurrentPage(1);
   }, []);
 
   // 클라이언트 사이드 검색 필터링 (스터디명만 검색)
