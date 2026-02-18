@@ -171,14 +171,16 @@ export default function StudyDetailPage({
         <div className="flex w-full flex-col gap-150">
           <div className="font-designer-28b flex justify-between text-[#181D27]">
             {studyDetail?.detailInfo.title}
-            <Button
-              color="primary"
-              size="small"
-              onClick={() => setShowInquiryModal(true)}
-              className="mr-300"
-            >
-              문의하기
-            </Button>
+            {(isLeader || myApplicationStatus?.status === 'APPROVED') && (
+              <Button
+                color="primary"
+                size="small"
+                onClick={() => setShowInquiryModal(true)}
+                className="mr-300"
+              >
+                문의하기
+              </Button>
+            )}
           </div>
           <p className="font-designer-18r text-[#252B37]">
             {studyDetail?.detailInfo.summary}
