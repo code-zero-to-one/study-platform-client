@@ -261,6 +261,12 @@ export interface GroupStudyDetailResponse {
   interviewPost: InterviewPostDetail; // InterviewPost 확장
 }
 
+export interface CurriculumSummaryItem {
+  missionId: number;
+  title: string;
+  weekNum: number;
+}
+
 // OpenAPI에서 자동 생성된 DTO 타입 (API 응답용)
 export type { GroupStudyFullResponseDto as GroupStudyFullResponse } from '@/api/openapi';
 
