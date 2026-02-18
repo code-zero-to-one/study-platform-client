@@ -8,9 +8,9 @@ import { useState } from 'react';
 import Button from '@/components/ui/button';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
+import { useAuth } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { useUserStore } from '@/stores/useUserStore';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -28,7 +28,7 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(false);
-  const memberId = useUserStore((state) => state.memberId);
+  const { isAuthenticated, data: authData } = useAuth();
   const showToast = useToastStore((state) => state.showToast);
 
   const { basicInfo, detailInfo, interviewPost } = data;
@@ -51,8 +51,8 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
   const { title } = detailInfo ?? {};
   const { interviewPost: questions } = interviewPost ?? {};
 
-  const isLoggedIn = !!memberId;
-  const isLeader = leader?.memberId === memberId;
+  const isLoggedIn = isAuthenticated;
+  const isLeader = leader?.memberId === authData?.memberId;
 
   const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
     groupStudyId,

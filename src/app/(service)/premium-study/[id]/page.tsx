@@ -95,7 +95,7 @@ export default async function Page({
   if (!isLeader && memberId) {
     // 내가 리더가 아닐 경우에만 내 신청 상태 정보 미리 가져오기
     await queryClient.prefetchQuery({
-      queryKey: ['groupStudyMyStatus', Number(id)],
+      queryKey: ['groupStudyMemberStatus', Number(id)],
       queryFn: () =>
         getGroupStudyMyStatusInServer({ groupStudyId: Number(id) }),
     });
