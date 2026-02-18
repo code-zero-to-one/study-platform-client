@@ -87,8 +87,12 @@ function isCardClickable(
     );
   }
 
-  // 비리더: 진행중, 평가완료만 클릭 가능 (제출마감은 클릭 불가)
-  return status === 'IN_PROGRESS' || status === 'EVALUATION_COMPLETED';
+  // 비리더: 진행중, 제출마감, 평가완료 시 클릭 가능
+  return (
+    status === 'IN_PROGRESS' ||
+    status === 'ENDED' ||
+    status === 'EVALUATION_COMPLETED'
+  );
 }
 
 export default function MissionCard({
