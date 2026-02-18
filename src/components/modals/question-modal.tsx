@@ -7,41 +7,42 @@ import Button from '@/components/ui/button';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import {
-  INQUIRY_CONTENT_MAX_LENGTH,
-  inquirySchema,
-  InquiryCategory,
-  InquiryFormValues,
-  INQUIRY_TITLE_MAX_LENGTH,
-} from '@/features/study/group/model/inquiry.schema';
-import { useCreateInquiry } from '@/hooks/queries/inquiry-api';
+  QUESTION_CONTENT_MAX_LENGTH,
+  questionSchema,
+  QuestionCategory,
+  QuestionFormValues,
+  QUESTION_TITLE_MAX_LENGTH,
+} from '@/features/study/group/model/question.schema';
+import { useCreateQuestion } from '@/hooks/queries/question-api';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { useToastStore } from '@/stores/use-toast-store';
 import { SingleDropdown } from '../ui/dropdown';
 import FormField from '../ui/form/form-field';
 
-const INQUIRY_CATEGORY_OPTIONS = [
-  { value: InquiryCategory.CURRICULUM, label: '커리큘럼' },
-  { value: InquiryCategory.DIFFICULTY, label: '난이도' },
-  { value: InquiryCategory.HW_AMOUNT, label: '과제량' },
-  { value: InquiryCategory.ETC, label: '기타' },
+const QUESTION_CATEGORY_OPTIONS = [
+  { value: QuestionCategory.PAYMENT, label: '결제' },
+  { value: QuestionCategory.STUDY_COMMON, label: '스터디 공통' },
+  { value: QuestionCategory.LEADER, label: '리더' },
+  { value: QuestionCategory.BUG, label: '버그' },
+  { value: QuestionCategory.CONCERN, label: '고민' },
 ] as const;
 
-interface InquiryModalProps {
+interface QuestionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   studyId: number;
 }
 
-export default function InquiryModal({
+export default function QuestionModal({
   open,
   onOpenChange,
   studyId,
-}: InquiryModalProps) {
+}: QuestionModalProps) {
   const showToast = useToastStore((state) => state.showToast);
-  const { mutate: createInquiry, isPending } = useCreateInquiry();
+  const { mutate: createQuestion, isPending } = useCreateQuestion();
 
-  const form = useForm<InquiryFormValues>({
-    resolver: zodResolver(inquirySchema),
+  const form = useForm<QuestionFormValues>({
+    resolver: zodResolver(questionSchema),
     defaultValues: {
       title: '',
       content: '',
@@ -52,8 +53,8 @@ export default function InquiryModal({
   const { handleSubmit, reset } = form;
   const scrollToNext = useScrollToNextField();
 
-  const onSubmit = (data: InquiryFormValues) => {
-    createInquiry(
+  const onSubmit = (data: QuestionFormValues) => {
+    createQuestion(
       {
         groupStudyId: studyId,
         request: {
@@ -99,7 +100,7 @@ export default function InquiryModal({
           <FormProvider {...form}>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Modal.Body className="flex flex-col gap-300">
-                <FormField<InquiryFormValues, 'category'>
+                <FormField<QuestionFormValues, 'category'>
                   name="category"
                   label="문의 종류"
                   direction="vertical"
@@ -108,11 +109,11 @@ export default function InquiryModal({
                   onAfterChange={() => scrollToNext('category')}
                 >
                   <SingleDropdown
-                    options={INQUIRY_CATEGORY_OPTIONS}
+                    options={QUESTION_CATEGORY_OPTIONS}
                     placeholder="선택해주세요"
                   />
                 </FormField>
-                <FormField<InquiryFormValues, 'title'>
+                <FormField<QuestionFormValues, 'title'>
                   name="title"
                   label="제목"
                   direction="vertical"
@@ -121,12 +122,12 @@ export default function InquiryModal({
                   onAfterBlurFilled={() => scrollToNext('title')}
                 >
                   <BaseInput
-                    maxLength={INQUIRY_TITLE_MAX_LENGTH}
+                    maxLength={QUESTION_TITLE_MAX_LENGTH}
                     placeholder="제목을 입력하세요"
                     hideMeta={false}
                   />
                 </FormField>
-                <FormField<InquiryFormValues, 'content'>
+                <FormField<QuestionFormValues, 'content'>
                   name="content"
                   label="내용"
                   direction="vertical"
@@ -135,7 +136,7 @@ export default function InquiryModal({
                 >
                   <TextAreaInput
                     placeholder="내용을 입력하세요"
-                    maxLength={INQUIRY_CONTENT_MAX_LENGTH}
+                    maxLength={QUESTION_CONTENT_MAX_LENGTH}
                     className="font-designer-16m text-text-default h-auto min-h-[150px]"
                   />
                 </FormField>
