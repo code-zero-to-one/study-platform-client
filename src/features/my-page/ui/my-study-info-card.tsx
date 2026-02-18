@@ -35,12 +35,12 @@ export default function MyStudyInfoCard({
           <Image
             src={thumbnail?.resizedImages[0].resizedImageUrl}
             alt={`${studyId}`}
-            className="rounded-100 h-[244px] w-[280px] object-cover"
+            className={`rounded-100 h-[244px] w-[280px] object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
             width={244}
             height={210}
           />
           {status === 'COMPLETED' && (
-            <div className="rounded-100 absolute inset-0 bg-[#000000] opacity-50" />
+            <div className="rounded-100 absolute inset-0 bg-gray-100 opacity-70" />
           )}
         </div>
 
