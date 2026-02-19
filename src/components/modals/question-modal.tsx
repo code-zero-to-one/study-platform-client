@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
@@ -31,13 +32,16 @@ interface QuestionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   studyId: number;
+  studyType?: 'group' | 'premium';
 }
 
 export default function QuestionModal({
   open,
   onOpenChange,
   studyId,
+  studyType,
 }: QuestionModalProps) {
+  const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
   const { mutate: createQuestion, isPending } = useCreateQuestion();
 
@@ -68,6 +72,9 @@ export default function QuestionModal({
           showToast('문의가 성공적으로 제출되었습니다.', 'success');
           reset();
           onOpenChange(false);
+          router.push(
+            `/inquiry?groupStudyId=${studyId}${studyType ? `&studyType=${studyType}` : ''}`,
+          );
         },
         onError: (error) => {
           showToast('문의 제출에 실패했습니다. 다시 시도해주세요.', 'error');

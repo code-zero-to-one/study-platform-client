@@ -3,7 +3,7 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import QueestionModal from '@/components/modals/question-modal';
+import QuestionModal from '@/components/modals/question-modal';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
@@ -161,10 +161,11 @@ export default function StudyDetailPage({
         groupStudyId={groupStudyId}
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
-      <QueestionModal
+      <QuestionModal
         open={showInquiryModal}
         onOpenChange={setShowInquiryModal}
         studyId={groupStudyId}
+        studyType="group"
       />
 
       <div className="my-500 flex w-[1164px] items-start justify-between">
