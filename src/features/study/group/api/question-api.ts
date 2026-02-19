@@ -19,12 +19,12 @@ export interface CreateQuestionResponse {
 export interface QuestionListItemResponse {
   questionId: number;
   accessible: boolean;
-  title: string | null;
-  content: string | null;
-  category: QuestionCategory | null;
-  status: 'ACCEPTED' | 'ANSWER_COMPLETED' | null;
-  authorNickname: string | null;
-  createdAt: string | null;
+  title: string;
+  content: string;
+  category: QuestionCategory;
+  status: 'ACCEPTED' | 'ANSWER_COMPLETED';
+  authorNickname: string;
+  createdAt: string;
 }
 
 export interface GetQuestionsResponse {
@@ -40,10 +40,21 @@ export interface GetQuestionsResponse {
   message: string;
 }
 
+export interface QuestionDetailResponse {
+  questionId: number;
+  title: string;
+  content: string;
+  category: QuestionCategory;
+  authorId: number;
+  authorNickname: string;
+  status: 'ACCEPTED' | 'ANSWER_COMPLETED';
+  createdAt: string;
+}
+
 export interface GetQuestionResponse {
   statusCode: number;
   timestamp: string;
-  content: QuestionListItemResponse;
+  content: QuestionDetailResponse;
   message: string;
 }
 
@@ -80,10 +91,7 @@ export const getQuestions = async (
 };
 
 // 문의 단건 조회
-export const getQuestion = async (
-  groupStudyId: number,
-  questionId: number,
-) => {
+export const getQuestion = async (groupStudyId: number, questionId: number) => {
   const { data } = await axiosInstance.get<GetQuestionResponse>(
     `/group-studies/${groupStudyId}/questions/${questionId}`,
   );
