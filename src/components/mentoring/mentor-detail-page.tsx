@@ -5,6 +5,7 @@ import {
   ChevronRight,
   CircleCheck,
   MessageCircle,
+  Monitor,
   Phone,
   Users,
 } from 'lucide-react';
@@ -34,15 +35,17 @@ interface MentorDetailPageProps {
 }
 
 const methodIconMap: Record<MentoringMethodType, ReactNode> = {
-  chat: <MessageCircle className="h-18 w-18" />,
-  call: <Phone className="h-18 w-18" />,
+  note: <MessageCircle className="h-18 w-18" />,
+  phone: <Phone className="h-18 w-18" />,
+  online: <Monitor className="h-18 w-18" />,
   offline: <Users className="h-18 w-18" />,
 };
 
 const reviewMethodMap: Record<MentoringMethodType, string> = {
-  chat: '텍스트 질문',
-  call: '전화/온라인 상담',
-  offline: '대면/ZOOM 상담',
+  note: '쪽지상담',
+  phone: '15분 전화상담',
+  online: '온라인상담',
+  offline: '대면상담',
 };
 
 export default function MentorDetailPage({ mentor }: MentorDetailPageProps) {
@@ -83,12 +86,27 @@ export default function MentorDetailPage({ mentor }: MentorDetailPageProps) {
     });
   }, [mentorSettings.schedule.weekly]);
   const hasWeeklySchedule = hasAnyWeeklyScheduleSlots(mentorSettings.schedule);
+  const interviewQuestions = mentorSettings.interviewQuestions.filter(
+    (question) => question.trim().length > 0,
+  );
 
   const [selectedMethod, setSelectedMethod] = useState<MentoringMethodType>(
-    enabledMethods[0] ?? 'chat',
+    enabledMethods[0] ?? 'note',
   );
 
   const selectedOption = mentor.methods[selectedMethod];
+  const acceptancePolicy =
+    selectedMethod === 'note'
+      ? {
+          title: '쪽지상담 수락 정책',
+          description:
+            '결제 완료 후 멘토의 첫 답장이 수락으로 처리됩니다. 별도 수락 단계 없이 바로 진행됩니다.',
+        }
+      : {
+          title: '예약형 상담 수락 정책',
+          description:
+            '결제 후 멘토가 48시간 내 수락/거절을 결정합니다. 48시간 내 응답이 없으면 자동 거절되며, 멘토는 거절 사유를 남길 수 있습니다.',
+        };
 
   return (
     <div className="mx-auto w-full max-w-[1280px] px-200 py-400 sm:px-300 sm:py-500 xl:px-400 xl:py-600">
@@ -172,6 +190,24 @@ export default function MentorDetailPage({ mentor }: MentorDetailPageProps) {
               </p>
             </div>
           </section>
+
+          {interviewQuestions.length > 0 && (
+            <section className="rounded-200 border-border-subtle bg-background-default mb-250 border p-300 sm:p-350">
+              <h2 className="font-designer-18b text-text-strong mb-150">
+                상담 전 인터뷰 질문
+              </h2>
+              <ul className="flex flex-col gap-100">
+                {interviewQuestions.map((question) => (
+                  <li key={question} className="flex items-start gap-100">
+                    <CircleCheck className="text-text-success mt-[2px] h-16 w-16 shrink-0" />
+                    <span className="font-designer-14r text-text-default leading-relaxed">
+                      {question}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
 
           <section className="rounded-200 border-border-subtle bg-background-default mb-250 border p-300 sm:p-350">
             <div className="mb-200 flex items-center gap-75">
@@ -406,6 +442,15 @@ export default function MentorDetailPage({ mentor }: MentorDetailPageProps) {
                 소요 시간: {selectedOption.durationLabel}
                 <br />
                 결제 금액: {formatWon(selectedOption.price)}
+              </p>
+            </div>
+
+            <div className="rounded-125 bg-background-alternative mb-200 p-150">
+              <p className="font-designer-13b text-text-default mb-50">
+                {acceptancePolicy.title}
+              </p>
+              <p className="font-designer-12r text-text-subtle leading-relaxed">
+                {acceptancePolicy.description}
               </p>
             </div>
 

@@ -1,7 +1,13 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import { ExternalLink, MessageCircle, Phone, Users } from 'lucide-react';
+import {
+  ExternalLink,
+  MessageCircle,
+  Monitor,
+  Phone,
+  Users,
+} from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { type KeyboardEvent, type MouseEvent } from 'react';
@@ -22,10 +28,18 @@ interface MentorCardProps {
 }
 
 const methodTextMap: Record<MentoringMethodType, string> = {
-  chat: '채팅상담',
-  call: '전화/온라인 상담',
-  offline: '대면 컨설팅',
+  note: '쪽지상담',
+  phone: '15분 전화상담',
+  online: '온라인상담',
+  offline: '대면상담',
 };
+
+const METHOD_ORDER: MentoringMethodType[] = [
+  'note',
+  'phone',
+  'online',
+  'offline',
+];
 
 const getFieldLabel = (role: string) => {
   if (role.includes('프론트엔드')) {
@@ -44,14 +58,16 @@ const getFieldLabel = (role: string) => {
 };
 
 const methodLabelMap: Record<MentoringMethodType, string> = {
-  chat: 'text-text-brand',
-  call: 'text-text-brand',
+  note: 'text-text-brand',
+  phone: 'text-text-brand',
+  online: 'text-text-brand',
   offline: 'text-text-brand',
 };
 
 const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
-  chat: MessageCircle,
-  call: Phone,
+  note: MessageCircle,
+  phone: Phone,
+  online: Monitor,
   offline: Users,
 };
 
@@ -61,8 +77,9 @@ export default function MentorCard({ mentor }: MentorCardProps) {
   const keywords = mentorSettings.skillTags.slice(0, 3);
   const lowestPriceOption = getLowestPriceOption(mentor);
   const availableMethods = {
-    chat: mentor.methods.chat.enabled !== false,
-    call: mentor.methods.call.enabled !== false,
+    note: mentor.methods.note.enabled !== false,
+    phone: mentor.methods.phone.enabled !== false,
+    online: mentor.methods.online.enabled !== false,
     offline: mentor.methods.offline.enabled !== false,
   } as const;
 
@@ -89,11 +106,13 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       location: 'mentoring_page',
     });
 
-    const defaultType = availableMethods.chat
-      ? 'chat'
-      : availableMethods.call
-        ? 'call'
-        : 'offline';
+    const defaultType = availableMethods.note
+      ? 'note'
+      : availableMethods.phone
+        ? 'phone'
+        : availableMethods.online
+          ? 'online'
+          : 'offline';
     router.push(`/mentoring/${mentor.id}/apply?type=${defaultType}`);
   };
 
@@ -168,32 +187,30 @@ export default function MentorCard({ mentor }: MentorCardProps) {
           </div>
         )}
 
-        <div className="mb-200 flex items-center gap-200">
-          {(Object.keys(availableMethods) as MentoringMethodType[]).map(
-            (method) => {
-              const Icon = methodIconMap[method];
-              const isEnabled = availableMethods[method];
+        <div className="mb-200 grid grid-cols-2 gap-x-200 gap-y-100">
+          {METHOD_ORDER.map((method) => {
+            const Icon = methodIconMap[method];
+            const isEnabled = availableMethods[method];
 
-              return (
-                <div key={method} className="flex items-center gap-100">
-                  <Icon
-                    className={cn(
-                      'h-20 w-20',
-                      isEnabled ? methodLabelMap[method] : 'text-text-subtlest',
-                    )}
-                  />
-                  <span
-                    className={cn(
-                      'font-designer-12r',
-                      isEnabled ? 'text-text-default' : 'text-text-subtlest',
-                    )}
-                  >
-                    {methodTextMap[method]}
-                  </span>
-                </div>
-              );
-            },
-          )}
+            return (
+              <div key={method} className="flex items-center gap-100">
+                <Icon
+                  className={cn(
+                    'h-20 w-20',
+                    isEnabled ? methodLabelMap[method] : 'text-text-subtlest',
+                  )}
+                />
+                <span
+                  className={cn(
+                    'font-designer-12r',
+                    isEnabled ? 'text-text-default' : 'text-text-subtlest',
+                  )}
+                >
+                  {methodTextMap[method]}
+                </span>
+              </div>
+            );
+          })}
         </div>
 
         {lowestPriceOption && (

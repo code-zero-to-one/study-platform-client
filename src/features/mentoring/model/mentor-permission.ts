@@ -13,8 +13,9 @@ export const hasMentorWritePermission = (
 };
 
 export const MENTORING_METHOD_TYPES: readonly MentoringMethodType[] = [
-  'chat',
-  'call',
+  'note',
+  'phone',
+  'online',
   'offline',
 ];
 

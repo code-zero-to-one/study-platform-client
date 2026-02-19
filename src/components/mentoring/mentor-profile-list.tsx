@@ -1,6 +1,12 @@
 'use client';
 
-import { ArrowUpDown, Search, UserRoundPlus } from 'lucide-react';
+import {
+  ArrowRight,
+  ArrowUpDown,
+  Search,
+  Sparkles,
+  UserRoundPlus,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import MentorCard from '@/components/card/mentor-card';
@@ -69,31 +75,51 @@ function MentorJoinCard() {
   };
 
   return (
-    <article className="rounded-200 border-border-subtle bg-background-accent-orange-default flex min-h-[320px] flex-col justify-between border p-300">
-      <div>
-        <h3 className="font-designer-24b text-text-strong mb-100">
-          누구나 멘토가 될 수 있어요.
+    <article className="group rounded-200 border-border-subtle relative flex min-h-[320px] flex-col justify-between overflow-hidden border bg-background-default p-300">
+      <div className="pointer-events-none absolute top-[-56px] right-[-24px] h-[180px] w-[180px] rounded-full bg-background-accent-orange-default opacity-80 blur-3xl" />
+      <div className="pointer-events-none absolute bottom-[-92px] left-[-32px] h-[220px] w-[220px] rounded-full bg-background-accent-rose-subtle opacity-70 blur-3xl" />
+
+      <div className="relative">
+        <span className="font-designer-12b text-text-brand mb-125 inline-flex items-center gap-50 rounded-full bg-fill-brand-subtle-default px-100 py-50">
+          <Sparkles className="h-12 w-12" />
+          Mentor Invitation
+        </span>
+        <h3 className="font-designer-24b text-text-strong mb-100 leading-tight">
+          당신의 경험이 누군가의
+          <br />
+          다음 선택이 됩니다.
         </h3>
-        <p className="font-designer-14r text-text-subtle mb-250">
-          지식과 경험을 나누고 의미 있는 인사이트를 전해주세요.
+        <p className="font-designer-14r text-text-subtle mb-200">
+          실무에서 쌓은 지식과 경험을 나누고, 멘티에게 실질적인 방향을
+          전해주세요.
         </p>
+        <div className="mb-250 flex flex-wrap gap-75">
+          <span className="font-designer-12m text-text-default rounded-full bg-background-default px-100 py-50">
+            1:1 멘토링
+          </span>
+          <span className="font-designer-12m text-text-default rounded-full bg-background-default px-100 py-50">
+            일정 기반 운영
+          </span>
+        </div>
         <Button
           color="outlined"
           size="medium"
+          className="gap-75"
           onClick={handleClick}
           disabled={!isHydrated}
         >
-          멘토 되기
+          멘토 등록하기
+          <ArrowRight className="h-14 w-14" />
         </Button>
       </div>
 
-      <div className="rounded-150 border-border-subtle bg-background-default relative mt-300 h-[120px] overflow-hidden border">
-        <div className="bg-background-accent-orange-default absolute top-[-24px] right-[-24px] h-[120px] w-[120px] rounded-full" />
-        <div className="bg-background-accent-rose-default absolute bottom-[-36px] left-[-24px] h-[120px] w-[120px] rounded-full" />
+      <div className="rounded-150 border-border-subtle bg-background-default relative mt-275 h-[108px] overflow-hidden border">
+        <div className="bg-background-accent-orange-subtle absolute top-[-28px] right-[-20px] h-[112px] w-[112px] rounded-full" />
+        <div className="bg-background-accent-rose-subtle absolute bottom-[-36px] left-[-24px] h-[112px] w-[112px] rounded-full" />
         <div className="relative flex h-full items-center justify-center gap-100">
-          <UserRoundPlus className="text-text-brand h-24 w-24" />
+          <UserRoundPlus className="text-text-brand h-20 w-20" />
           <span className="font-designer-20b text-text-brand">
-            becoming a Mentor
+            Become a Mentor
           </span>
         </div>
       </div>
@@ -104,6 +130,7 @@ function MentorJoinCard() {
 export default function MentorProfileList() {
   const [keyword, setKeyword] = useState('');
   const [sortType, setSortType] = useState<MentorSortType>('default');
+  const { isHydrated: isAuthHydrated, isAuthenticated } = useAuthReady();
   const { mentors, hasHydrated } = useMentorDirectory();
 
   const searchedMentors = useMemo(() => {
@@ -164,7 +191,8 @@ export default function MentorProfileList() {
     );
   }
 
-  const shouldShowMentorJoinCard = keyword.trim().length === 0;
+  const shouldShowMentorJoinCard =
+    keyword.trim().length === 0 && isAuthHydrated && isAuthenticated;
   const leadMentors = shouldShowMentorJoinCard
     ? sortedMentors.slice(0, 3)
     : sortedMentors;

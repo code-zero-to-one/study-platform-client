@@ -36,7 +36,7 @@ export async function generateMetadata({
   const mentor = getMentorById(Number(id));
 
   if (!mentor) {
-    const fallbackType = resolveMethod(type, 'chat');
+    const fallbackType = resolveMethod(type, 'note');
 
     return generateSEOMetadata({
       title: '멘토링 신청',
@@ -45,7 +45,7 @@ export async function generateMetadata({
     });
   }
 
-  const fallbackType = getEnabledMentoringMethods(mentor)[0] ?? 'chat';
+  const fallbackType = getEnabledMentoringMethods(mentor)[0] ?? 'note';
   const selectedType = resolveMethod(type, fallbackType);
 
   return generateSEOMetadata({

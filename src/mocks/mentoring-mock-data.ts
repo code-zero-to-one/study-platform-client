@@ -1,11 +1,13 @@
 import {
   createDefaultMentorSettings,
   createEmptyWeeklySchedule,
+  parseDurationLabelToMinutes,
   type MentorSettingsV2,
   type WeekdayKey,
 } from '@/features/mentoring/model/mentor-settings';
 
-export type MentoringMethodType = 'chat' | 'call' | 'offline';
+export type MentoringMethodType = 'note' | 'phone' | 'online' | 'offline';
+type LegacyMentoringMethodType = MentoringMethodType | 'chat' | 'call';
 
 export interface MentoringMethodOption {
   type: MentoringMethodType;
@@ -50,39 +52,87 @@ export interface MentorProfile {
   mentorSettings?: MentorSettingsV2;
 }
 
-const DEFAULT_TIME_SLOTS = ['21:00~22:00', '22:00~23:00', '23:00~00:00'];
+const DEFAULT_TIME_SLOTS = ['21:00~21:30', '21:30~22:00', '22:00~22:30'];
+const METHOD_ORDER: MentoringMethodType[] = ['note', 'phone', 'online', 'offline'];
+
+const normalizeConsultingDuration = (minutes: number) => {
+  if (minutes <= 30) {
+    return 30 as const;
+  }
+  if (minutes <= 60) {
+    return 60 as const;
+  }
+
+  return 90 as const;
+};
 
 const createMethodOption = (
-  type: MentoringMethodType,
+  type: MentoringMethodType | 'chat' | 'call',
   overrides: Partial<MentoringMethodOption>,
 ): MentoringMethodOption => {
-  const defaults: Record<MentoringMethodType, MentoringMethodOption> = {
-    chat: {
-      type: 'chat',
-      label: '텍스트 질문/답변',
+  const defaults: Record<LegacyMentoringMethodType, MentoringMethodOption> = {
+    note: {
+      type: 'note',
+      label: '쪽지상담',
       durationLabel: '비동기',
-      price: 5000,
-      description: '일정 조율 없이 질문을 남기면 멘토가 순차적으로 답변합니다.',
+      price: 9900,
+      description:
+        '질문/고민/자료를 미리 전달하고 텍스트로 빠르게 답변받는 비동기 상담입니다.',
       enabled: true,
       requiresSchedule: false,
       timeSlots: [],
     },
-    call: {
-      type: 'call',
-      label: '전화/온라인 상담',
+    phone: {
+      type: 'phone',
+      label: '15분 전화상담',
       durationLabel: '15분',
-      price: 30000,
-      description: '전화 또는 ZOOM으로 짧고 밀도 있게 상담합니다.',
+      price: 19000,
+      description:
+        '허들을 낮춘 단기 상담입니다. 사전 질문을 바탕으로 핵심만 빠르게 정리합니다.',
+      enabled: true,
+      requiresSchedule: true,
+      timeSlots: DEFAULT_TIME_SLOTS,
+    },
+    online: {
+      type: 'online',
+      label: '온라인상담',
+      durationLabel: '60분',
+      price: 49000,
+      description:
+        '화면 공유/코드 리뷰 등 실시간 피드백이 필요한 상담에 적합합니다.',
       enabled: true,
       requiresSchedule: true,
       timeSlots: DEFAULT_TIME_SLOTS,
     },
     offline: {
       type: 'offline',
-      label: '대면/ZOOM 상담',
-      durationLabel: '1시간 30분',
+      label: '대면상담',
+      durationLabel: '60분',
       price: 100000,
-      description: '심층 고민을 정리하는 장시간 멘토링입니다.',
+      description:
+        '커피챗 또는 심층 상담으로 진행합니다. 세일즈 제안 목적 상담도 가능합니다.',
+      enabled: true,
+      requiresSchedule: true,
+      timeSlots: DEFAULT_TIME_SLOTS,
+    },
+    chat: {
+      type: 'note',
+      label: '쪽지상담',
+      durationLabel: '비동기',
+      price: 9900,
+      description:
+        '질문/고민/자료를 미리 전달하고 텍스트로 빠르게 답변받는 비동기 상담입니다.',
+      enabled: true,
+      requiresSchedule: false,
+      timeSlots: [],
+    },
+    call: {
+      type: 'phone',
+      label: '15분 전화상담',
+      durationLabel: '15분',
+      price: 19000,
+      description:
+        '허들을 낮춘 단기 상담입니다. 사전 질문을 바탕으로 핵심만 빠르게 정리합니다.',
       enabled: true,
       requiresSchedule: true,
       timeSlots: DEFAULT_TIME_SLOTS,
@@ -123,9 +173,16 @@ const createFallbackWeeklySchedule = (
   mentor: MentorProfile,
 ): Record<WeekdayKey, string[]> => {
   const weekly = createEmptyWeeklySchedule();
+  const legacyMethods = mentor.methods as Partial<
+    Record<LegacyMentoringMethodType, MentoringMethodOption>
+  >;
+  const phoneMethod = legacyMethods.phone ?? legacyMethods.call;
+  const onlineMethod = legacyMethods.online ?? legacyMethods.call;
+  const offlineMethod = legacyMethods.offline;
   const fallbackSlots = extractStartTimesFromLegacySlots([
-    ...mentor.methods.call.timeSlots,
-    ...mentor.methods.offline.timeSlots,
+    ...(phoneMethod?.timeSlots ?? []),
+    ...(onlineMethod?.timeSlots ?? []),
+    ...(offlineMethod?.timeSlots ?? []),
   ]);
 
   if (fallbackSlots.length === 0) {
@@ -139,11 +196,79 @@ const createFallbackWeeklySchedule = (
   return weekly;
 };
 
+const getNormalizedMethods = (
+  mentor: MentorProfile,
+): Record<MentoringMethodType, MentoringMethodOption> => {
+  const legacyMethods = mentor.methods as Partial<
+    Record<LegacyMentoringMethodType, MentoringMethodOption>
+  >;
+  const legacyNote = legacyMethods.note ?? legacyMethods.chat;
+  const legacyPhone = legacyMethods.phone ?? legacyMethods.call;
+  const legacyOnline = legacyMethods.online ?? legacyMethods.call;
+  const legacyOffline = legacyMethods.offline;
+  const defaultOnlineDuration = normalizeConsultingDuration(
+    parseDurationLabelToMinutes(legacyOnline?.durationLabel ?? '60분') ?? 60,
+  );
+  const defaultOfflineDuration = normalizeConsultingDuration(
+    parseDurationLabelToMinutes(legacyOffline?.durationLabel ?? '60분') ?? 60,
+  );
+
+  return {
+    note: createMethodOption('note', {
+      ...legacyNote,
+      type: 'note',
+      label: legacyNote?.label || '쪽지상담',
+      durationLabel: '비동기',
+      requiresSchedule: false,
+      timeSlots: [],
+    }),
+    phone: createMethodOption('phone', {
+      ...legacyPhone,
+      type: 'phone',
+      label: legacyPhone?.label || '15분 전화상담',
+      durationLabel: '15분',
+      requiresSchedule: true,
+      timeSlots: legacyPhone?.timeSlots ?? DEFAULT_TIME_SLOTS,
+    }),
+    online: createMethodOption('online', {
+      ...legacyOnline,
+      type: 'online',
+      label: legacyOnline?.label || '온라인상담',
+      durationLabel: `${defaultOnlineDuration}분`,
+      requiresSchedule: true,
+      timeSlots: legacyOnline?.timeSlots ?? DEFAULT_TIME_SLOTS,
+      enabled:
+        legacyOnline?.enabled ??
+        (legacyPhone?.enabled !== false || legacyOffline?.enabled !== false),
+      price:
+        legacyOnline?.price ??
+        legacyPhone?.price ??
+        legacyOffline?.price ??
+        createMethodOption('online', {}).price,
+    }),
+    offline: createMethodOption('offline', {
+      ...legacyOffline,
+      type: 'offline',
+      label: legacyOffline?.label || '대면상담',
+      durationLabel: `${defaultOfflineDuration}분`,
+      requiresSchedule: true,
+      timeSlots: legacyOffline?.timeSlots ?? DEFAULT_TIME_SLOTS,
+    }),
+  };
+};
+
 const buildSettingsFromLegacyMentor = (
   mentor: MentorProfile,
 ): MentorSettingsV2 => {
   const defaults = createDefaultMentorSettings();
   const skillTags = mentor.tags.slice(0, 5);
+  const methods = getNormalizedMethods(mentor);
+  const onlineDurationMinutes = normalizeConsultingDuration(
+    parseDurationLabelToMinutes(methods.online.durationLabel) ?? 60,
+  );
+  const offlineDurationMinutes = normalizeConsultingDuration(
+    parseDurationLabelToMinutes(methods.offline.durationLabel) ?? 60,
+  );
 
   return {
     ...defaults,
@@ -155,13 +280,16 @@ const buildSettingsFromLegacyMentor = (
     skillTags,
     companyName: mentor.company === '비공개' ? '' : mentor.company,
     hideCompanyName: mentor.company === '비공개',
-    chatEnabled: mentor.methods.chat.enabled !== false,
-    chatPrice: mentor.methods.chat.price,
-    callEnabled: mentor.methods.call.enabled !== false,
-    callPrice: mentor.methods.call.price,
-    offlineEnabled: mentor.methods.offline.enabled !== false,
-    offlinePrice: mentor.methods.offline.price,
-    sessionDurationMinutes: 30,
+    noteEnabled: methods.note.enabled !== false,
+    notePrice: methods.note.price,
+    phoneEnabled: methods.phone.enabled !== false,
+    phonePrice: methods.phone.price,
+    onlineEnabled: methods.online.enabled !== false,
+    onlinePrice: methods.online.price,
+    onlineDurationMinutes,
+    offlineEnabled: methods.offline.enabled !== false,
+    offlinePrice: methods.offline.price,
+    offlineDurationMinutes,
     maxParticipants: 1,
     schedule: {
       timezone: 'Asia/Seoul',
@@ -169,7 +297,9 @@ const buildSettingsFromLegacyMentor = (
       weekly: createFallbackWeeklySchedule(mentor),
     },
     detailedDescription: mentor.bio,
+    interviewQuestions: [],
     preNotice: '',
+    schemaVersion: 3,
     updatedAt: new Date().toISOString(),
   };
 };
@@ -207,10 +337,13 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     ],
     avatarEmoji: 'D',
     methods: {
-      chat: createMethodOption('chat', {
+      note: createMethodOption('note', {
         price: 33000,
       }),
-      call: createMethodOption('call', {
+      phone: createMethodOption('phone', {
+        price: 39000,
+      }),
+      online: createMethodOption('online', {
         price: 49000,
       }),
       offline: createMethodOption('offline', {
@@ -223,7 +356,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '김OO',
         rating: 5,
         createdAt: '2026.02.12',
-        method: 'chat',
+        method: 'note',
         content:
           '이력서에서 어떤 경험을 강조해야 할지 명확해졌고 실제 면접 질문까지 정리해주셔서 바로 써먹었습니다.',
       },
@@ -232,7 +365,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '박OO',
         rating: 5,
         createdAt: '2026.02.05',
-        method: 'call',
+        method: 'phone',
         content:
           '15분인데도 핵심만 압축해서 알려주셔서 고민이 빠르게 정리됐습니다.',
       },
@@ -277,10 +410,13 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     ],
     avatarEmoji: 'S',
     methods: {
-      chat: createMethodOption('chat', {
+      note: createMethodOption('note', {
         price: 40000,
       }),
-      call: createMethodOption('call', {
+      phone: createMethodOption('phone', {
+        price: 45000,
+      }),
+      online: createMethodOption('online', {
         price: 55000,
       }),
       offline: createMethodOption('offline', {
@@ -293,7 +429,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '정OO',
         rating: 5,
         createdAt: '2026.02.08',
-        method: 'chat',
+        method: 'note',
         content: '과제전형 코드 구조를 어떻게 보여줘야 하는지 감이 잡혔습니다.',
       },
       {
@@ -301,7 +437,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '최OO',
         rating: 5,
         createdAt: '2026.01.26',
-        method: 'call',
+        method: 'phone',
         content: '면접 답변 구조를 함께 정리해주셔서 자신감이 생겼어요.',
       },
     ],
@@ -338,10 +474,13 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     ],
     avatarEmoji: 'T',
     methods: {
-      chat: createMethodOption('chat', {
+      note: createMethodOption('note', {
         price: 49500,
       }),
-      call: createMethodOption('call', {
+      phone: createMethodOption('phone', {
+        price: 55000,
+      }),
+      online: createMethodOption('online', {
         price: 65000,
       }),
       offline: createMethodOption('offline', {
@@ -354,7 +493,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '장OO',
         rating: 5,
         createdAt: '2026.02.02',
-        method: 'chat',
+        method: 'note',
         content: '학습 로드맵이 명확해져서 시간 낭비를 많이 줄였습니다.',
       },
       {
@@ -362,7 +501,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '윤OO',
         rating: 5,
         createdAt: '2026.01.21',
-        method: 'call',
+        method: 'phone',
         content:
           '게임 서버 면접 질문을 실제 사례로 연습할 수 있어서 좋았습니다.',
       },
@@ -379,7 +518,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '고OO',
         rating: 5,
         createdAt: '2026.01.14',
-        method: 'chat',
+        method: 'note',
         content: '바로 실행 가능한 액션 아이템 위주로 정리해주십니다.',
       },
       {
@@ -387,7 +526,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '노OO',
         rating: 5,
         createdAt: '2026.01.09',
-        method: 'chat',
+        method: 'note',
         content: '짧은 질문에도 핵심을 정확히 짚어주셔서 반복 신청하고 있어요.',
       },
     ],
@@ -411,10 +550,13 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['레벨 진단', '서류/면접 통합 코칭'],
     avatarEmoji: 'M',
     methods: {
-      chat: createMethodOption('chat', {
+      note: createMethodOption('note', {
         price: 66000,
       }),
-      call: createMethodOption('call', {
+      phone: createMethodOption('phone', {
+        enabled: false,
+      }),
+      online: createMethodOption('online', {
         enabled: false,
       }),
       offline: createMethodOption('offline', {
@@ -443,10 +585,13 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['보안 직무 로드맵', '이직 전략'],
     avatarEmoji: 'J',
     methods: {
-      chat: createMethodOption('chat', {
+      note: createMethodOption('note', {
         price: 22000,
       }),
-      call: createMethodOption('call', {
+      phone: createMethodOption('phone', {
+        price: 29000,
+      }),
+      online: createMethodOption('online', {
         price: 35000,
       }),
       offline: createMethodOption('offline', {
@@ -475,10 +620,13 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['기획 포트폴리오', '케이스 스터디'],
     avatarEmoji: 'K',
     methods: {
-      chat: createMethodOption('chat', {
+      note: createMethodOption('note', {
         price: 49500,
       }),
-      call: createMethodOption('call', {
+      phone: createMethodOption('phone', {
+        price: 56000,
+      }),
+      online: createMethodOption('online', {
         price: 62000,
       }),
       offline: createMethodOption('offline', {
@@ -507,10 +655,13 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['이력서 피드백', '주니어 취업 전략'],
     avatarEmoji: 'E',
     methods: {
-      chat: createMethodOption('chat', {
+      note: createMethodOption('note', {
         price: 11000,
       }),
-      call: createMethodOption('call', {
+      phone: createMethodOption('phone', {
+        enabled: false,
+      }),
+      online: createMethodOption('online', {
         enabled: false,
       }),
       offline: createMethodOption('offline', {
@@ -537,10 +688,13 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['커리어 코칭', '면접 대비'],
     avatarEmoji: 'K',
     methods: {
-      chat: createMethodOption('chat', {
+      note: createMethodOption('note', {
         price: 39000,
       }),
-      call: createMethodOption('call', {
+      phone: createMethodOption('phone', {
+        price: 47000,
+      }),
+      online: createMethodOption('online', {
         price: 54000,
       }),
       offline: createMethodOption('offline', {
@@ -561,20 +715,23 @@ export const sortOptions = [
 export type MentorSortType = (typeof sortOptions)[number]['value'];
 
 export const getEnabledMentoringMethods = (mentor: MentorProfile) => {
-  return (Object.keys(mentor.methods) as MentoringMethodType[]).filter(
-    (method) => mentor.methods[method].enabled !== false,
+  const methods = getNormalizedMethods(mentor);
+
+  return METHOD_ORDER.filter(
+    (method) => methods[method] && methods[method].enabled !== false,
   );
 };
 
 export const getLowestPriceOption = (mentor: MentorProfile) => {
   const methods = getEnabledMentoringMethods(mentor);
+  const normalizedMethods = getNormalizedMethods(mentor);
 
   if (methods.length === 0) {
     return null;
   }
 
   return methods
-    .map((method) => mentor.methods[method])
+    .map((method) => normalizedMethods[method])
     .sort((a, b) => a.price - b.price)[0];
 };
 
@@ -592,27 +749,67 @@ export const formatWon = (price: number) => `₩${price.toLocaleString('ko-KR')}
 
 export const getMethodLabel = (method: MentoringMethodType) => {
   return {
-    chat: '텍스트 질문',
-    call: '전화/온라인 상담',
-    offline: '대면/ZOOM 상담',
+    note: '쪽지상담',
+    phone: '15분 전화상담',
+    online: '온라인상담',
+    offline: '대면상담',
   }[method];
 };
 
-export const getMentorSettings = (mentor: MentorProfile): MentorSettingsV2 => {
-  if (mentor.mentorSettings) {
-    return mentor.mentorSettings;
+const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
+  const fallback = buildSettingsFromLegacyMentor(mentor);
+  const source = mentor.mentorSettings as
+    | (MentorSettingsV2 & {
+        chatEnabled?: boolean;
+        chatPrice?: number;
+        callEnabled?: boolean;
+        callPrice?: number;
+        sessionDurationMinutes?: number;
+      })
+    | undefined;
+
+  if (!source) {
+    return fallback;
   }
 
-  return buildSettingsFromLegacyMentor(mentor);
+  const legacyDuration = normalizeConsultingDuration(
+    source.sessionDurationMinutes ?? fallback.onlineDurationMinutes,
+  );
+
+  return {
+    ...fallback,
+    ...source,
+    noteEnabled: source.noteEnabled ?? source.chatEnabled ?? fallback.noteEnabled,
+    notePrice: source.notePrice ?? source.chatPrice ?? fallback.notePrice,
+    phoneEnabled:
+      source.phoneEnabled ?? source.callEnabled ?? fallback.phoneEnabled,
+    phonePrice: source.phonePrice ?? source.callPrice ?? fallback.phonePrice,
+    onlineEnabled:
+      source.onlineEnabled ?? source.callEnabled ?? fallback.onlineEnabled,
+    onlinePrice: source.onlinePrice ?? source.callPrice ?? fallback.onlinePrice,
+    onlineDurationMinutes:
+      source.onlineDurationMinutes ??
+      source.offlineDurationMinutes ??
+      legacyDuration,
+    offlineEnabled: source.offlineEnabled ?? fallback.offlineEnabled,
+    offlinePrice: source.offlinePrice ?? fallback.offlinePrice,
+    offlineDurationMinutes:
+      source.offlineDurationMinutes ??
+      source.onlineDurationMinutes ??
+      legacyDuration,
+    interviewQuestions: source.interviewQuestions ?? fallback.interviewQuestions,
+    schemaVersion: 3,
+  };
+};
+
+export const getMentorSettings = (mentor: MentorProfile): MentorSettingsV2 => {
+  return getNormalizedSettings(mentor);
 };
 
 export function withMentorSettings(mentor: MentorProfile): MentorProfile {
-  if (mentor.mentorSettings) {
-    return mentor;
-  }
-
   return {
     ...mentor,
-    mentorSettings: buildSettingsFromLegacyMentor(mentor),
+    methods: getNormalizedMethods(mentor),
+    mentorSettings: getNormalizedSettings(mentor),
   };
 }

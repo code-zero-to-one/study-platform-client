@@ -1,6 +1,6 @@
 import {
+  CONSULTING_DURATION_OPTIONS,
   CONTACT_COUNTRY_CODES,
-  SESSION_DURATION_OPTIONS,
   type WeekdayKey,
   WEEKDAY_LABEL_MAP,
 } from './mentor-settings';
@@ -63,12 +63,11 @@ export const CAREER_YEAR_OPTIONS = [
   '11년 이상',
 ] as const;
 
-export const SESSION_DURATION_DROPDOWN_OPTIONS = SESSION_DURATION_OPTIONS.map(
-  (minutes) => ({
+export const CONSULTING_DURATION_DROPDOWN_OPTIONS =
+  CONSULTING_DURATION_OPTIONS.map((minutes) => ({
     value: String(minutes),
     label: `${minutes}분`,
-  }),
-);
+  }));
 
 export const MAX_PARTICIPANT_OPTIONS = Array.from(
   { length: 10 },

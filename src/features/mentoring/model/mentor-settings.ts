@@ -23,8 +23,9 @@ export const WEEKDAY_LABEL_MAP: Record<WeekdayKey, string> = {
 export const CONTACT_COUNTRY_CODES = ['+82', '+1', '+81', '+86'] as const;
 export type ContactCountryCode = (typeof CONTACT_COUNTRY_CODES)[number];
 
-export const SESSION_DURATION_OPTIONS = [30, 45, 60, 90] as const;
-export type SessionDurationMinutes = (typeof SESSION_DURATION_OPTIONS)[number];
+export const CONSULTING_DURATION_OPTIONS = [30, 60, 90] as const;
+export type ConsultingDurationMinutes =
+  (typeof CONSULTING_DURATION_OPTIONS)[number];
 
 export type SettlementPayerType = 'INDIVIDUAL' | 'BUSINESS' | 'OVERSEAS';
 
@@ -54,7 +55,7 @@ export interface MentorSettlementDraft {
   updatedAt: string;
 }
 
-export interface MentorSettingsV2 {
+export interface MentorSettingsV3 {
   contactCountryCode: ContactCountryCode;
   contactPhone: string;
   contactEmail: string;
@@ -66,22 +67,28 @@ export interface MentorSettingsV2 {
   skillTags: string[];
   companyName: string;
   hideCompanyName: boolean;
-  sessionDurationMinutes: SessionDurationMinutes;
   maxParticipants: number;
-  chatEnabled: boolean;
-  chatPrice: number;
-  callEnabled: boolean;
-  callPrice: number;
+  noteEnabled: boolean;
+  notePrice: number;
+  phoneEnabled: boolean;
+  phonePrice: number;
+  onlineEnabled: boolean;
+  onlinePrice: number;
+  onlineDurationMinutes: ConsultingDurationMinutes;
   offlineEnabled: boolean;
   offlinePrice: number;
+  offlineDurationMinutes: ConsultingDurationMinutes;
   schedule: MentorWeeklySchedule;
   holidays: MentorHoliday[];
   detailedDescription: string;
+  interviewQuestions: string[];
   preNotice: string;
   settlementDraft: MentorSettlementDraft | null;
-  schemaVersion: 2;
+  schemaVersion: 3;
   updatedAt: string;
 }
+
+export type MentorSettingsV2 = MentorSettingsV3;
 
 export const createEmptyWeeklySchedule = (): Record<WeekdayKey, string[]> => {
   return {
@@ -95,7 +102,7 @@ export const createEmptyWeeklySchedule = (): Record<WeekdayKey, string[]> => {
   };
 };
 
-export const createDefaultMentorSettings = (): MentorSettingsV2 => {
+export const createDefaultMentorSettings = (): MentorSettingsV3 => {
   return {
     contactCountryCode: '+82',
     contactPhone: '',
@@ -108,14 +115,17 @@ export const createDefaultMentorSettings = (): MentorSettingsV2 => {
     skillTags: [],
     companyName: '',
     hideCompanyName: false,
-    sessionDurationMinutes: 30,
     maxParticipants: 1,
-    chatEnabled: true,
-    chatPrice: 5000,
-    callEnabled: true,
-    callPrice: 30000,
+    noteEnabled: true,
+    notePrice: 5000,
+    phoneEnabled: true,
+    phonePrice: 15000,
+    onlineEnabled: true,
+    onlinePrice: 30000,
+    onlineDurationMinutes: 60,
     offlineEnabled: false,
     offlinePrice: 100000,
+    offlineDurationMinutes: 60,
     schedule: {
       timezone: 'Asia/Seoul',
       slotUnitMinutes: 30,
@@ -123,9 +133,10 @@ export const createDefaultMentorSettings = (): MentorSettingsV2 => {
     },
     holidays: [],
     detailedDescription: '',
+    interviewQuestions: [],
     preNotice: '',
     settlementDraft: null,
-    schemaVersion: 2,
+    schemaVersion: 3,
     updatedAt: new Date().toISOString(),
   };
 };
@@ -162,7 +173,9 @@ export const createHalfHourTimeSlots = (): string[] => {
   return slots;
 };
 
-export const toReadableDuration = (minutes: SessionDurationMinutes): string => {
+export const toReadableDuration = (
+  minutes: ConsultingDurationMinutes,
+): string => {
   return `${minutes}분`;
 };
 

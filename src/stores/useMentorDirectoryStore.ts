@@ -7,6 +7,7 @@ import {
 import {
   type MentorProfile,
   type MentoringMethodOption,
+  type MentoringMethodType,
   withMentorSettings,
 } from '@/mocks/mentoring-mock-data';
 import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
@@ -32,17 +33,23 @@ type PersistedMentorDirectoryState = Pick<
 
 const INITIAL_MENTOR_ID = 10_000;
 
-const makeLegacyTimeRanges = (formValues: MentorRegistrationFormValues) => {
+const collectScheduleSlots = (formValues: MentorRegistrationFormValues) => {
   const uniqueSlots = new Set<string>();
 
   Object.values(formValues.schedule.weekly).forEach((slots) => {
     slots.forEach((slot) => uniqueSlots.add(slot));
   });
 
-  return Array.from(uniqueSlots)
-    .sort()
-    .slice(0, 8)
-    .map((slot) => toTimeRangeLabel(slot, formValues.sessionDurationMinutes));
+  return Array.from(uniqueSlots).sort().slice(0, 8);
+};
+
+const makeLegacyTimeRanges = (
+  formValues: MentorRegistrationFormValues,
+  durationMinutes: number,
+) => {
+  return collectScheduleSlots(formValues).map((slot) =>
+    toTimeRangeLabel(slot, durationMinutes),
+  );
 };
 
 const createMentoringMethodOption = ({
@@ -52,18 +59,19 @@ const createMentoringMethodOption = ({
   durationMinutes,
   legacyTimeRanges,
 }: {
-  type: 'chat' | 'call' | 'offline';
+  type: MentoringMethodType;
   enabled: boolean;
   price: number;
   durationMinutes: number;
   legacyTimeRanges: string[];
 }): MentoringMethodOption => {
-  if (type === 'chat') {
+  if (type === 'note') {
     return {
       type,
-      label: '텍스트 질문/답변',
+      label: '쪽지상담',
       durationLabel: '비동기',
-      description: '일정 조율 없이 질문을 남기면 멘토가 순차적으로 답변합니다.',
+      description:
+        '질문/고민/자료를 미리 전달하고 멘토가 텍스트로 빠르게 답변합니다.',
       enabled,
       requiresSchedule: false,
       price,
@@ -71,12 +79,26 @@ const createMentoringMethodOption = ({
     };
   }
 
-  if (type === 'call') {
+  if (type === 'phone') {
     return {
       type,
-      label: '전화/온라인 상담',
+      label: '15분 전화상담',
+      durationLabel: '15분',
+      description:
+        '허들을 낮춘 단기 상담입니다. 사전 질문을 바탕으로 핵심만 빠르게 정리합니다.',
+      enabled,
+      requiresSchedule: true,
+      price,
+      timeSlots: legacyTimeRanges,
+    };
+  }
+
+  if (type === 'online') {
+    return {
+      type,
+      label: '온라인상담',
       durationLabel: `${durationMinutes}분`,
-      description: '전화 또는 ZOOM으로 짧고 밀도 있게 상담합니다.',
+      description: '화면 공유/코드 리뷰 등 실시간 피드백이 필요한 상담에 적합합니다.',
       enabled,
       requiresSchedule: true,
       price,
@@ -86,9 +108,10 @@ const createMentoringMethodOption = ({
 
   return {
     type,
-    label: '대면/ZOOM 상담',
+    label: '대면상담',
     durationLabel: `${durationMinutes}분`,
-    description: '심층 고민을 정리하는 장시간 멘토링입니다.',
+    description:
+      '커피챗 또는 심층 상담으로 진행합니다. 세일즈 제안 목적 상담도 가능합니다.',
     enabled,
     requiresSchedule: true,
     price,
@@ -108,7 +131,15 @@ const toMentorProfile = (
       ? '소속 비공개'
       : trimmedCompanyName;
   const skillTags = formValues.skillTags;
-  const legacyTimeRanges = makeLegacyTimeRanges(formValues);
+  const phoneTimeRanges = makeLegacyTimeRanges(formValues, 15);
+  const onlineTimeRanges = makeLegacyTimeRanges(
+    formValues,
+    formValues.onlineDurationMinutes,
+  );
+  const offlineTimeRanges = makeLegacyTimeRanges(
+    formValues,
+    formValues.offlineDurationMinutes,
+  );
   const normalizedSettings: MentorSettingsV2 = {
     contactCountryCode: formValues.contactCountryCode ?? '+82',
     contactPhone: formValues.contactPhone ?? '',
@@ -121,20 +152,24 @@ const toMentorProfile = (
     skillTags: formValues.skillTags ?? [],
     companyName: formValues.companyName ?? '',
     hideCompanyName: formValues.hideCompanyName ?? false,
-    sessionDurationMinutes: formValues.sessionDurationMinutes ?? 30,
     maxParticipants: formValues.maxParticipants ?? 1,
-    chatEnabled: formValues.chatEnabled ?? true,
-    chatPrice: formValues.chatPrice ?? 5000,
-    callEnabled: formValues.callEnabled ?? true,
-    callPrice: formValues.callPrice ?? 30000,
+    noteEnabled: formValues.noteEnabled ?? true,
+    notePrice: formValues.notePrice ?? 5000,
+    phoneEnabled: formValues.phoneEnabled ?? true,
+    phonePrice: formValues.phonePrice ?? 15000,
+    onlineEnabled: formValues.onlineEnabled ?? true,
+    onlinePrice: formValues.onlinePrice ?? 30000,
+    onlineDurationMinutes: formValues.onlineDurationMinutes ?? 60,
     offlineEnabled: formValues.offlineEnabled ?? false,
     offlinePrice: formValues.offlinePrice ?? 100000,
+    offlineDurationMinutes: formValues.offlineDurationMinutes ?? 60,
     schedule: formValues.schedule,
     holidays: formValues.holidays ?? [],
     detailedDescription: formValues.detailedDescription ?? '',
+    interviewQuestions: formValues.interviewQuestions ?? [],
     preNotice: formValues.preNotice ?? '',
     settlementDraft: formValues.settlementDraft ?? null,
-    schemaVersion: 2,
+    schemaVersion: 3,
     updatedAt: nowIso,
   };
 
@@ -159,26 +194,33 @@ const toMentorProfile = (
     strengths: skillTags,
     avatarEmoji: 'M',
     methods: {
-      chat: createMentoringMethodOption({
-        type: 'chat',
-        enabled: formValues.chatEnabled,
-        price: formValues.chatPrice,
-        durationMinutes: formValues.sessionDurationMinutes,
-        legacyTimeRanges,
+      note: createMentoringMethodOption({
+        type: 'note',
+        enabled: formValues.noteEnabled,
+        price: formValues.notePrice,
+        durationMinutes: 0,
+        legacyTimeRanges: [],
       }),
-      call: createMentoringMethodOption({
-        type: 'call',
-        enabled: formValues.callEnabled,
-        price: formValues.callPrice,
-        durationMinutes: formValues.sessionDurationMinutes,
-        legacyTimeRanges,
+      phone: createMentoringMethodOption({
+        type: 'phone',
+        enabled: formValues.phoneEnabled,
+        price: formValues.phonePrice,
+        durationMinutes: 15,
+        legacyTimeRanges: phoneTimeRanges,
+      }),
+      online: createMentoringMethodOption({
+        type: 'online',
+        enabled: formValues.onlineEnabled,
+        price: formValues.onlinePrice,
+        durationMinutes: formValues.onlineDurationMinutes,
+        legacyTimeRanges: onlineTimeRanges,
       }),
       offline: createMentoringMethodOption({
         type: 'offline',
         enabled: formValues.offlineEnabled,
         price: formValues.offlinePrice,
-        durationMinutes: formValues.sessionDurationMinutes,
-        legacyTimeRanges,
+        durationMinutes: formValues.offlineDurationMinutes,
+        legacyTimeRanges: offlineTimeRanges,
       }),
     },
     reviews: [
@@ -187,7 +229,7 @@ const toMentorProfile = (
         authorName: 'ZERO-ONE',
         rating: 5,
         createdAt: nowIso.slice(0, 10).replace(/-/g, '.'),
-        method: 'chat',
+        method: 'note',
         content: '새로 등록된 멘토입니다. 첫 멘토링을 통해 리뷰를 쌓아보세요.',
       },
     ],
@@ -255,7 +297,7 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
     }),
     {
       name: 'mentor-directory-storage',
-      version: 2,
+      version: 3,
       migrate: (persistedState, version) => {
         if (!persistedState) {
           return persistedState;
@@ -263,7 +305,7 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
 
         const typedState = persistedState as PersistedMentorDirectoryState;
 
-        if (version < 2) {
+        if (version < 3) {
           return normalizePersistedState(typedState);
         }
 

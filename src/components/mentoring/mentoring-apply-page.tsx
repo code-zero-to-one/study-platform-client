@@ -3,15 +3,19 @@
 import dayjs from 'dayjs';
 import {
   AlertCircle,
+  Link2,
   ChevronLeft,
   CircleHelp,
+  FileUp,
   MessageCircle,
+  Monitor,
   Phone,
+  X,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { type ChangeEvent, type ReactNode, useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -39,8 +43,9 @@ interface MentoringApplyPageProps {
 }
 
 const methodIconMap: Record<MentoringMethodType, ReactNode> = {
-  chat: <MessageCircle className="h-20 w-20" />,
-  call: <Phone className="h-20 w-20" />,
+  note: <MessageCircle className="h-20 w-20" />,
+  phone: <Phone className="h-20 w-20" />,
+  online: <Monitor className="h-20 w-20" />,
   offline: <Users className="h-20 w-20" />,
 };
 
@@ -61,14 +66,20 @@ export default function MentoringApplyPage({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState('');
   const [message, setMessage] = useState('');
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
+  const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
+  const [linkInput, setLinkInput] = useState('');
+  const [linkError, setLinkError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const selectedOption = mentor.methods[selectedMethod];
   const mentorSettings = getMentorSettings(mentor);
   const needsSchedule = selectedOption.requiresSchedule;
+  const requiresAttachment =
+    selectedMethod === 'note' || selectedMethod === 'phone';
   const methodDurationMinutes =
     parseDurationLabelToMinutes(selectedOption.durationLabel) ??
-    mentorSettings.sessionDurationMinutes;
+    mentorSettings.onlineDurationMinutes;
   const minSelectableDate = dayjs().add(3, 'day').startOf('day');
   const hasWeeklySchedule = hasAnyWeeklyScheduleSlots(mentorSettings.schedule);
 
@@ -113,22 +124,85 @@ export default function MentoringApplyPage({
 
   const scheduleStepNumber = 1;
   const messageStepNumber = needsSchedule ? 2 : 1;
+  const attachmentStepNumber = messageStepNumber + 1;
+  const hasAttachment = attachedFiles.length > 0 || referenceLinks.length > 0;
 
   const isValidForm = useMemo(() => {
     const hasMessage = message.trim().length >= 10;
+    const isAttachmentValid = requiresAttachment ? hasAttachment : true;
 
     if (!needsSchedule) {
-      return hasMessage;
+      return hasMessage && isAttachmentValid;
     }
 
-    return hasMessage && selectedDate !== undefined && selectedTime !== '';
-  }, [message, needsSchedule, selectedDate, selectedTime]);
+    return (
+      hasMessage &&
+      selectedDate !== undefined &&
+      selectedTime !== '' &&
+      isAttachmentValid
+    );
+  }, [
+    hasAttachment,
+    message,
+    needsSchedule,
+    requiresAttachment,
+    selectedDate,
+    selectedTime,
+  ]);
 
   useEffect(() => {
     if (selectedTime && !availableTimeSlots.includes(selectedTime)) {
       setSelectedTime('');
     }
   }, [availableTimeSlots, selectedTime]);
+
+  const handleAttachFiles = (event: ChangeEvent<HTMLInputElement>) => {
+    const nextFiles = Array.from(event.target.files ?? []);
+    if (nextFiles.length === 0) {
+      return;
+    }
+
+    setAttachedFiles((prev) => [...prev, ...nextFiles].slice(0, 8));
+    event.target.value = '';
+  };
+
+  const removeFile = (targetName: string, targetSize: number) => {
+    setAttachedFiles((prev) =>
+      prev.filter(
+        (file) => !(file.name === targetName && file.size === targetSize),
+      ),
+    );
+  };
+
+  const handleAddLink = () => {
+    const raw = linkInput.trim();
+    if (!raw) {
+      return;
+    }
+
+    const normalized = raw.startsWith('http://') || raw.startsWith('https://')
+      ? raw
+      : `https://${raw}`;
+
+    try {
+      const parsed = new URL(normalized);
+      if (referenceLinks.includes(parsed.toString())) {
+        setLinkError('이미 추가된 링크입니다.');
+
+        return;
+      }
+
+      setReferenceLinks((prev) => [...prev, parsed.toString()].slice(0, 8));
+      setLinkInput('');
+      setLinkError('');
+    } catch {
+      setLinkError('올바른 링크 형식으로 입력해주세요.');
+    }
+  };
+
+  const removeLink = (targetLink: string) => {
+    setReferenceLinks((prev) => prev.filter((link) => link !== targetLink));
+  };
 
   const handleSubmit = async () => {
     if (!isValidForm || isSubmitting) {
@@ -142,7 +216,17 @@ export default function MentoringApplyPage({
         window.setTimeout(resolve, 500);
       });
 
-      showToast('멘토링 신청이 완료되었습니다.', 'success');
+      if (selectedMethod === 'note') {
+        showToast(
+          '결제가 완료되었습니다. 멘토의 첫 답장이 수락으로 처리됩니다.',
+          'success',
+        );
+      } else {
+        showToast(
+          '결제가 완료되었습니다. 멘토가 48시간 내 수락 여부를 결정합니다.',
+          'success',
+        );
+      }
       router.push(`/mentoring/${mentor.id}`);
     } finally {
       setIsSubmitting(false);
@@ -316,17 +400,162 @@ export default function MentoringApplyPage({
             </div>
           </section>
 
+          <section className="rounded-200 border-border-subtle bg-background-default border">
+            <div className="border-border-subtle bg-background-alternative flex items-center justify-between gap-100 border-b px-200 py-150">
+              <div className="flex items-center gap-75">
+                <span className="font-designer-16b text-text-strong">
+                  {attachmentStepNumber}. 파일/링크 첨부
+                </span>
+                {requiresAttachment && (
+                  <span className="font-designer-16b text-text-brand">*</span>
+                )}
+              </div>
+              <p className="font-designer-12r text-text-subtle">
+                최대 파일 8개, 링크 8개
+              </p>
+            </div>
+
+            <div className="space-y-150 p-200">
+              <p className="font-designer-13r text-text-subtle leading-relaxed">
+                {requiresAttachment
+                  ? '쪽지/전화 상담은 빠른 피드백을 위해 파일 또는 링크를 최소 1개 이상 첨부해주세요.'
+                  : '필요한 경우 자료 파일이나 참고 링크를 첨부해주세요.'}
+              </p>
+
+              <div className="rounded-125 border-border-subtle border p-150">
+                <label
+                  htmlFor="mentoring-attachment-files"
+                  className="font-designer-13b text-text-default hover:border-border-brand inline-flex cursor-pointer items-center gap-75 rounded-full border px-125 py-75 transition-colors"
+                >
+                  <FileUp className="h-14 w-14" />
+                  파일 선택
+                </label>
+                <input
+                  id="mentoring-attachment-files"
+                  type="file"
+                  multiple
+                  className="hidden"
+                  onChange={handleAttachFiles}
+                />
+
+                {attachedFiles.length > 0 && (
+                  <ul className="mt-125 flex flex-col gap-75">
+                    {attachedFiles.map((file) => (
+                      <li
+                        key={`${file.name}-${file.size}`}
+                        className="bg-background-alternative flex items-center justify-between gap-100 rounded-100 px-100 py-75"
+                      >
+                        <span className="font-designer-12r text-text-default truncate">
+                          {file.name}
+                        </span>
+                        <button
+                          type="button"
+                          className="text-text-subtle hover:text-text-default shrink-0"
+                          onClick={() => removeFile(file.name, file.size)}
+                        >
+                          <X className="h-14 w-14" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              <div className="rounded-125 border-border-subtle border p-150">
+                <div className="flex flex-col gap-100 sm:flex-row">
+                  <input
+                    value={linkInput}
+                    onChange={(event) => {
+                      setLinkInput(event.target.value);
+                      if (linkError) {
+                        setLinkError('');
+                      }
+                    }}
+                    className={cn(
+                      'font-designer-13r rounded-100 border-border-subtle bg-background-default',
+                      'text-text-default w-full border px-125 py-100',
+                      'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
+                    )}
+                    placeholder="https://github.com/... 또는 포트폴리오 링크"
+                  />
+                  <Button
+                    type="button"
+                    color="secondary"
+                    size="small"
+                    className="shrink-0"
+                    onClick={handleAddLink}
+                  >
+                    <Link2 className="mr-50 h-14 w-14" />
+                    링크 추가
+                  </Button>
+                </div>
+
+                {linkError && (
+                  <p className="font-designer-12r text-text-error mt-75">
+                    {linkError}
+                  </p>
+                )}
+
+                {referenceLinks.length > 0 && (
+                  <ul className="mt-125 flex flex-col gap-75">
+                    {referenceLinks.map((link) => (
+                      <li
+                        key={link}
+                        className="bg-background-alternative flex items-center justify-between gap-100 rounded-100 px-100 py-75"
+                      >
+                        <a
+                          href={link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="font-designer-12r text-text-brand truncate underline"
+                        >
+                          {link}
+                        </a>
+                        <button
+                          type="button"
+                          className="text-text-subtle hover:text-text-default shrink-0"
+                          onClick={() => removeLink(link)}
+                        >
+                          <X className="h-14 w-14" />
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {requiresAttachment && !hasAttachment && (
+                <p className="font-designer-12r text-text-error">
+                  파일 또는 링크를 최소 1개 첨부해주세요.
+                </p>
+              )}
+            </div>
+          </section>
+
           <section className="rounded-150 border-border-warning bg-background-accent-yellow-subtle border p-200">
             <div className="mb-100 flex items-center gap-75">
               <AlertCircle className="text-text-warning h-16 w-16" />
               <p className="font-designer-14b text-text-default">
-                멘토링은 멘토 확정 후 진행됩니다.
+                {selectedMethod === 'note'
+                  ? '쪽지상담은 결제 후 멘토 답장이 수락 처리됩니다.'
+                  : '예약형 상담은 멘토 수락 후 최종 확정됩니다.'}
               </p>
             </div>
-            <p className="font-designer-13r text-text-subtle">
-              신청 후 24시간 내로 멘토링 진행 여부를 확인할 수 있습니다. 진행이
-              확정되면 멘토와 세부 일정 조율을 진행합니다.
-            </p>
+            {selectedMethod === 'note' ? (
+              <p className="font-designer-13r text-text-subtle leading-relaxed">
+                결제 완료 직후 질문이 전달됩니다. 멘토가 답장을 시작하면 별도
+                승인 없이 자동으로 상담이 진행됩니다.
+              </p>
+            ) : (
+              <p className="font-designer-13r text-text-subtle leading-relaxed">
+                결제 후 멘토가 48시간 내 수락/거절을 결정합니다. 48시간 동안
+                응답이 없으면 자동 거절되며, 멘토는 거절 시 사유를 남길 수
+                있습니다.
+                <br />
+                예: 이 내용은 온라인 상담으로 진행 부탁드립니다 / 제 전문
+                분야가 아닙니다.
+              </p>
+            )}
           </section>
         </div>
 

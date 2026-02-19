@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import {
+  CONSULTING_DURATION_OPTIONS,
   CONTACT_COUNTRY_CODES,
-  SESSION_DURATION_OPTIONS,
   WEEKDAY_KEYS,
 } from '@/features/mentoring/model/mentor-settings';
 
@@ -141,11 +141,17 @@ const hasDuplicateHolidayRange = (
 };
 
 const isAnyMethodEnabled = (values: {
-  chatEnabled: boolean;
-  callEnabled: boolean;
+  noteEnabled: boolean;
+  phoneEnabled: boolean;
+  onlineEnabled: boolean;
   offlineEnabled: boolean;
 }) => {
-  return values.chatEnabled || values.callEnabled || values.offlineEnabled;
+  return (
+    values.noteEnabled ||
+    values.phoneEnabled ||
+    values.onlineEnabled ||
+    values.offlineEnabled
+  );
 };
 
 const hasAnySchedule = (schedule: z.infer<typeof scheduleSchema>) => {
@@ -189,37 +195,49 @@ export const mentorRegistrationSchema = z
       .trim()
       .max(40, '회사명은 40자 이하로 입력해주세요.'),
     hideCompanyName: z.boolean(),
-    sessionDurationMinutes: z.union(
-      SESSION_DURATION_OPTIONS.map((value) => z.literal(value)) as [
-        z.ZodLiteral<30>,
-        z.ZodLiteral<45>,
-        z.ZodLiteral<60>,
-        z.ZodLiteral<90>,
-      ],
-    ),
     maxParticipants: z.coerce
       .number()
       .int('최대인원은 정수여야 합니다.')
       .min(1, '최대인원은 1명 이상이어야 합니다.')
       .max(10, '최대인원은 10명 이하여야 합니다.'),
-    chatEnabled: z.boolean(),
-    chatPrice: z.coerce
+    noteEnabled: z.boolean(),
+    notePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
       .min(3000, '가격은 3,000원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
-    callEnabled: z.boolean(),
-    callPrice: z.coerce
+    phoneEnabled: z.boolean(),
+    phonePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
       .min(3000, '가격은 3,000원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
+    onlineEnabled: z.boolean(),
+    onlinePrice: z.coerce
+      .number()
+      .int('가격은 정수여야 합니다.')
+      .min(3000, '가격은 3,000원 이상이어야 합니다.')
+      .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
+    onlineDurationMinutes: z.union(
+      CONSULTING_DURATION_OPTIONS.map((value) => z.literal(value)) as [
+        z.ZodLiteral<30>,
+        z.ZodLiteral<60>,
+        z.ZodLiteral<90>,
+      ],
+    ),
     offlineEnabled: z.boolean(),
     offlinePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
       .min(3000, '가격은 3,000원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
+    offlineDurationMinutes: z.union(
+      CONSULTING_DURATION_OPTIONS.map((value) => z.literal(value)) as [
+        z.ZodLiteral<30>,
+        z.ZodLiteral<60>,
+        z.ZodLiteral<90>,
+      ],
+    ),
     schedule: scheduleSchema,
     holidays: z.array(holidaySchema),
     detailedDescription: z
@@ -227,32 +245,44 @@ export const mentorRegistrationSchema = z
       .trim()
       .min(30, '상세설명은 30자 이상 입력해주세요.')
       .max(5000, '상세설명은 5000자 이하로 입력해주세요.'),
+    interviewQuestions: z
+      .array(
+        z
+          .string()
+          .trim()
+          .min(8, '인터뷰 질문은 8자 이상 입력해주세요.')
+          .max(120, '인터뷰 질문은 120자 이하로 입력해주세요.'),
+      )
+      .max(8, '인터뷰 질문은 최대 8개까지 입력할 수 있습니다.')
+      .refine((questions) => new Set(questions).size === questions.length, {
+        message: '인터뷰 질문은 중복 없이 입력해주세요.',
+      }),
     preNotice: z
       .string()
       .trim()
       .max(2000, '사전 안내는 2000자 이하로 입력해주세요.'),
     settlementDraft: settlementDraftSchema.nullable(),
-    schemaVersion: z.literal(2),
+    schemaVersion: z.literal(3),
     updatedAt: z.string(),
   })
   .superRefine((values, ctx) => {
     if (!isAnyMethodEnabled(values)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['chatEnabled'],
+        path: ['noteEnabled'],
         message: '최소 1개 이상의 멘토링 방식을 활성화해주세요.',
       });
     }
 
     if (
-      (values.callEnabled || values.offlineEnabled) &&
+      (values.phoneEnabled || values.onlineEnabled || values.offlineEnabled) &&
       !hasAnySchedule(values.schedule)
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['schedule'],
         message:
-          '전화/대면 상담을 활성화한 경우 스케줄을 1개 이상 선택해주세요.',
+          '전화/온라인/대면 상담을 활성화한 경우 스케줄을 1개 이상 선택해주세요.',
       });
     }
 
