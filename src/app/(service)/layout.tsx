@@ -7,6 +7,7 @@ import localFont from 'next/font/local';
 import React from 'react';
 import ClarityInit from '@/components/analytics/clarity-init';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
+import GlobalToast from '@/components/ui/global-toast';
 import MainProvider from '@/providers';
 import { getServerCookie } from '@/utils/server-cookie';
 import Header from '@/widgets/home/header';
@@ -40,6 +41,7 @@ export default async function ServiceLayout({
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'min-h-screen w-screen')}>
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
+          <GlobalToast />
           <ClarityInit projectId={CLARITY_PROJECT_ID} />
           <PageViewTracker />
           <div className="flex min-h-screen w-full flex-col overflow-x-auto">
