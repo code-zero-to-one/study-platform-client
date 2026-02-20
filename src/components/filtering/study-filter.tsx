@@ -15,6 +15,7 @@ export interface StudyFilterValues {
   type: string[];
   targetRoles: string[];
   method: string[];
+  experienceLevels: string[];
   recruiting: boolean;
 }
 
@@ -45,6 +46,15 @@ const METHOD_OPTIONS = [
   { value: 'ONLINE', label: '온라인' },
   { value: 'OFFLINE', label: '오프라인' },
   { value: 'HYBRID', label: '병행' },
+] as const;
+
+// 경험 레벨 옵션
+const EXPERIENCE_LEVEL_OPTIONS = [
+  { value: 'BEGINNER', label: '입문자' },
+  { value: 'JOB_SEEKER', label: '취준생' },
+  { value: 'JUNIOR', label: '주니어' },
+  { value: 'MIDDLE', label: '미들' },
+  { value: 'SENIOR', label: '시니어' },
 ] as const;
 
 interface FilterDropdownProps {
@@ -161,6 +171,13 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
     [values, onChange],
   );
 
+  const handleExperienceLevelsChange = useCallback(
+    (experienceLevels: string[]) => {
+      onChange({ ...values, experienceLevels });
+    },
+    [values, onChange],
+  );
+
   const handleRecruitingChange = useCallback(
     (pressed: boolean) => {
       onChange({ ...values, recruiting: pressed });
@@ -173,6 +190,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
       type: [],
       targetRoles: [],
       method: [],
+      experienceLevels: [],
       recruiting: true, // 기본값: 모집 중만 보기
     });
   }, [onChange]);
@@ -182,6 +200,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
     values.type.length > 0 ||
     values.targetRoles.length > 0 ||
     values.method.length > 0 ||
+    values.experienceLevels.length > 0 ||
     !values.recruiting; // recruiting이 false면 필터 적용 중
 
   return (
@@ -205,6 +224,13 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
         options={METHOD_OPTIONS}
         selected={values.method}
         onChange={handleMethodChange}
+      />
+
+      <FilterDropdown
+        label="스터디 대상"
+        options={EXPERIENCE_LEVEL_OPTIONS}
+        selected={values.experienceLevels}
+        onChange={handleExperienceLevelsChange}
       />
 
       <ToggleButton

@@ -24,14 +24,18 @@ export function useStudyListFilter({
     type: [],
     targetRoles: [],
     method: [],
+    experienceLevels: [],
     recruiting: true,
   });
   const [currentPage, setCurrentPage] = useState(1);
 
+  const isClientFiltered =
+    !!searchQuery || filterValues.experienceLevels.length > 0;
+
   const { data, isLoading } = useGetStudies({
     classification,
-    page: searchQuery ? 1 : currentPage,
-    pageSize: searchQuery ? 10000 : PAGE_SIZE,
+    page: isClientFiltered ? 1 : currentPage,
+    pageSize: isClientFiltered ? 10000 : PAGE_SIZE,
     type:
       filterValues.type.length > 0
         ? (filterValues.type as GetGroupStudiesTypeEnum[])
@@ -63,28 +67,38 @@ export function useStudyListFilter({
     setCurrentPage(1);
   }, []);
 
-  // 클라이언트 사이드 검색 필터링 (스터디명만 검색)
   const filteredStudies = useMemo(() => {
-    if (!searchQuery) return allStudies;
+    let result = allStudies;
 
-    const lowerQuery = searchQuery.toLowerCase();
+    if (filterValues.experienceLevels.length > 0) {
+      result = result.filter((study) =>
+        study.basicInfo?.experienceLevels?.some((level) =>
+          filterValues.experienceLevels.includes(level),
+        ),
+      );
+    }
 
-    return allStudies.filter((study) =>
-      study.simpleDetailInfo?.title?.toLowerCase().includes(lowerQuery),
-    );
-  }, [allStudies, searchQuery]);
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter((study) =>
+        study.simpleDetailInfo?.title?.toLowerCase().includes(lowerQuery),
+      );
+    }
 
-  const totalPages = searchQuery
+    return result;
+  }, [allStudies, filterValues.experienceLevels, searchQuery]);
+
+  const totalPages = isClientFiltered
     ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
     : (data?.totalPages ?? 1);
 
   const displayStudies = useMemo(() => {
-    if (!searchQuery) return filteredStudies;
+    if (!isClientFiltered) return filteredStudies;
 
     const startIndex = (currentPage - 1) * PAGE_SIZE;
 
     return filteredStudies.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredStudies, searchQuery, currentPage]);
+  }, [filteredStudies, isClientFiltered, currentPage]);
 
   return {
     searchQuery,
