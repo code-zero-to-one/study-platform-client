@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { use } from 'react';
 import Badge from '@/components/ui/badge';
@@ -69,7 +70,6 @@ export default function InquiryDetailPage({
               <Badge
                 color="gray"
                 shape="rectangle"
-                size="small"
                 className="mb-200 p-150 font-bold"
               >
                 {CATEGORY_LABEL[data.category] ?? data.category}
@@ -94,14 +94,14 @@ export default function InquiryDetailPage({
               <div className="flex gap-200">
                 <span className="text-text-subtle w-[60px]">문의 상태</span>
                 {data.status === 'ANSWER_COMPLETED' ? (
-                  <Badge color="blue" size="small">
-                    답변 완료
-                  </Badge>
+                  <Badge color="blue">답변 완료</Badge>
                 ) : (
-                  <Badge color="gray" size="small">
-                    접수
-                  </Badge>
+                  <Badge color="gray">접수</Badge>
                 )}
+              </div>
+              <div className="flex gap-200">
+                <span className="text-text-subtle w-500">조회수</span>
+                <span className="text-text-default">{data.viewCount}</span>
               </div>
             </div>
           </div>
@@ -116,6 +116,16 @@ export default function InquiryDetailPage({
             <p className="font-designer-16r text-text-default whitespace-pre-wrap">
               {data.content}
             </p>
+            {data.questionImage?.resizedImages?.[0]?.resizedImageUrl && (
+              <Image
+                src={data.questionImage.resizedImages[0].resizedImageUrl}
+                alt="문의 이미지"
+                width={800}
+                height={600}
+                className="mt-400 w-full object-contain"
+                style={{ height: 'auto' }}
+              />
+            )}
           </div>
         </div>
       )}

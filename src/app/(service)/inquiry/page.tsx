@@ -102,6 +102,9 @@ export default function InquiryPage() {
                 작성일시
               </th>
               <th className="font-designer-14b text-text-subtle px-400 py-300 text-center">
+                조회수
+              </th>
+              <th className="font-designer-14b text-text-subtle px-400 py-300 text-center">
                 상태
               </th>
             </tr>
@@ -109,13 +112,13 @@ export default function InquiryPage() {
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="text-text-subtle py-800 text-center">
+                <td colSpan={7} className="text-text-subtle py-800 text-center">
                   로딩 중...
                 </td>
               </tr>
             ) : items.length === 0 ? (
               <tr>
-                <td colSpan={6} className="text-text-subtle py-800 text-center">
+                <td colSpan={7} className="text-text-subtle py-800 text-center">
                   등록된 문의가 없습니다.
                 </td>
               </tr>
@@ -159,13 +162,16 @@ export default function InquiryPage() {
                   <td className="font-designer-14r text-text-default px-400 py-300 text-center">
                     {formatDate(item.createdAt)}
                   </td>
+                  <td className="font-designer-14r text-text-default px-400 py-300 text-center">
+                    {item.viewCount}
+                  </td>
                   <td className="px-400 py-300 text-center">
                     {item.status === 'ANSWER_COMPLETED' ? (
-                      <Badge color="blue" size="small">
+                      <Badge color="blue">
                         답변 완료
                       </Badge>
                     ) : (
-                      <Badge color="gray" size="small">
+                      <Badge color="gray">
                         접수
                       </Badge>
                     )}
