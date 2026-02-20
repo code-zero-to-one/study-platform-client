@@ -21,7 +21,7 @@ export interface MentoringMethodOption {
 }
 
 export interface MentorReview {
-  id: number;
+  id: number | string;
   authorName: string;
   rating: number;
   createdAt: string;
@@ -53,7 +53,12 @@ export interface MentorProfile {
 }
 
 const DEFAULT_TIME_SLOTS = ['21:00~21:30', '21:30~22:00', '22:00~22:30'];
-const METHOD_ORDER: MentoringMethodType[] = ['note', 'phone', 'online', 'offline'];
+const METHOD_ORDER: MentoringMethodType[] = [
+  'note',
+  'phone',
+  'online',
+  'offline',
+];
 
 const normalizeConsultingDuration = (minutes: number) => {
   if (minutes <= 30) {
@@ -779,7 +784,8 @@ const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
   return {
     ...fallback,
     ...source,
-    noteEnabled: source.noteEnabled ?? source.chatEnabled ?? fallback.noteEnabled,
+    noteEnabled:
+      source.noteEnabled ?? source.chatEnabled ?? fallback.noteEnabled,
     notePrice: source.notePrice ?? source.chatPrice ?? fallback.notePrice,
     phoneEnabled:
       source.phoneEnabled ?? source.callEnabled ?? fallback.phoneEnabled,
@@ -797,7 +803,8 @@ const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
       source.offlineDurationMinutes ??
       source.onlineDurationMinutes ??
       legacyDuration,
-    interviewQuestions: source.interviewQuestions ?? fallback.interviewQuestions,
+    interviewQuestions:
+      source.interviewQuestions ?? fallback.interviewQuestions,
     schemaVersion: 3,
   };
 };

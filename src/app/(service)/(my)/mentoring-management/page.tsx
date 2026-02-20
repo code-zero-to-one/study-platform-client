@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import MentorManagementWorkspace from '@/components/mentoring/management/mentor-management-workspace';
 import MentoringGuideModal from '@/components/mentoring/mentoring-guide-modal';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -58,58 +59,66 @@ export default function MentoringManagementPage() {
       </header>
 
       {myMentorProfile ? (
-        <section className="rounded-200 border-border-subtle bg-background-default flex flex-col gap-200 border p-300">
-          <div className="flex items-start justify-between gap-200">
-            <div>
-              <p className="font-designer-14r text-text-subtle mb-50">
-                등록한 멘토 프로필
-              </p>
-              <h2 className="font-designer-20b text-text-default line-clamp-2">
-                {myMentorProfile.headline}
-              </h2>
-            </div>
-            <Badge color="green" shape="round">
-              상담 방식 {getEnabledMethodCount(myMentorProfile)}개
-            </Badge>
-          </div>
-
-          <p className="font-designer-14r text-text-subtle line-clamp-2">
-            {myMentorProfile.summary}
-          </p>
-
-          <div className="flex flex-wrap gap-100">
-            {myMentorProfile.tags.slice(0, 5).map((tag) => (
-              <Badge key={tag} color="gray" shape="round">
-                #{tag}
+        <>
+          <section className="rounded-200 border-border-subtle bg-background-default flex flex-col gap-200 border p-300">
+            <div className="flex items-start justify-between gap-200">
+              <div>
+                <p className="font-designer-14r text-text-subtle mb-50">
+                  등록한 멘토 프로필
+                </p>
+                <h2 className="font-designer-20b text-text-default line-clamp-2">
+                  {myMentorProfile.headline}
+                </h2>
+              </div>
+              <Badge color="green" shape="round">
+                상담 방식 {getEnabledMethodCount(myMentorProfile)}개
               </Badge>
-            ))}
-          </div>
+            </div>
 
-          <div className="flex items-center gap-100">
-            <Link href="/mentoring/become-mentor">
-              <Button
-                color="outlined"
-                size="medium"
-                icon={<Settings2 className="h-16 w-16" />}
-              >
-                멘토링 설정 수정
-              </Button>
-            </Link>
-            <Link href={`/mentoring/${myMentorProfile.id}`}>
-              <Button color="primary" size="medium">
-                멘토 프로필 보기
-              </Button>
-            </Link>
-            <Link href="/mentoring">
-              <Button color="outlined" size="medium">
-                멘토링 목록
-              </Button>
-            </Link>
-          </div>
-        </section>
+            <p className="font-designer-14r text-text-subtle line-clamp-2">
+              {myMentorProfile.summary}
+            </p>
+
+            <div className="flex flex-wrap gap-100">
+              {myMentorProfile.tags.slice(0, 5).map((tag) => (
+                <Badge key={tag} color="gray" shape="round">
+                  #{tag}
+                </Badge>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-100">
+              <Link href="/mentoring/become-mentor">
+                <Button
+                  color="outlined"
+                  size="medium"
+                  icon={<Settings2 className="h-16 w-16" />}
+                >
+                  멘토링 설정 수정
+                </Button>
+              </Link>
+              <Link href={`/mentoring/${myMentorProfile.id}`}>
+                <Button color="primary" size="medium">
+                  멘토 프로필 보기
+                </Button>
+              </Link>
+              <Link href="/mentoring">
+                <Button color="outlined" size="medium">
+                  멘토링 목록
+                </Button>
+              </Link>
+            </div>
+          </section>
+          {memberId ? (
+            <MentorManagementWorkspace
+              memberId={memberId}
+              mentor={myMentorProfile}
+            />
+          ) : null}
+        </>
       ) : (
         <section className="rounded-200 border-border-subtle bg-background-default flex min-h-[420px] flex-col items-center justify-center border px-300 py-500 text-center">
-          <div className="bg-fill-brand-subtle-default mb-200 flex h-[72px] w-[72px] items-center justify-center rounded-full">
+          <div className="bg-fill-brand-subtle-default rounded-500 mb-200 flex h-[72px] w-[72px] items-center justify-center">
             <GraduationCap className="text-text-brand h-32 w-32" />
           </div>
           <h2 className="font-designer-24b text-text-default mb-75">

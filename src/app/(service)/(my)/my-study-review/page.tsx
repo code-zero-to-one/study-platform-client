@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import MyMentoringReviewPanel from '@/components/mentoring/my-mentoring-review-panel';
 import UserAvatar from '@/components/ui/avatar';
 import { MyReviewItem } from '@/entities/review/api/review-types';
 import {
@@ -39,7 +40,9 @@ export default function MyStudyReview() {
 
   return (
     <>
-      <section>
+      <MyMentoringReviewPanel />
+
+      <section className="mt-300">
         <div className="mb-200">
           <div className="flex items-center gap-100">
             <div className="font-designer-20b text-text-default">받은 평가</div>

@@ -8,6 +8,7 @@ import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
 // 로그아웃 시 인증 상태 리셋을 위해 store 직접 사용 (mutation 내부 사용)
 import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
+import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { hashValue } from '@/utils/hash';
 import { SignUpRequest, SignUpResponse } from './types';
@@ -38,6 +39,9 @@ export const useLogoutMutation = () => {
     (state) => state.reset,
   );
   const resetMentorDirectory = useMentorDirectoryStore((state) => state.reset);
+  const resetMentoringManagement = useMentoringManagementStore(
+    (state) => state.reset,
+  );
 
   return useMutation({
     mutationFn: logout,
@@ -58,6 +62,7 @@ export const useLogoutMutation = () => {
       resetUserStore();
       resetPhoneVerification();
       resetMentorDirectory();
+      resetMentoringManagement();
       queryClient.clear();
 
       router.push('/home');

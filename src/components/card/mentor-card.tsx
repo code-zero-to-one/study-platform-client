@@ -10,11 +10,9 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { type KeyboardEvent, type MouseEvent } from 'react';
+import { type KeyboardEvent, useEffect, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
 import {
   formatWon,
   getLowestPriceOption,
@@ -40,6 +38,19 @@ const METHOD_ORDER: MentoringMethodType[] = [
   'online',
   'offline',
 ];
+
+const MOCK_MENTOR_IMAGE_PATHS = [
+  '/images/mock-mentor-1.svg',
+  '/images/mock-mentor-2.svg',
+  '/images/mock-mentor-3.svg',
+  '/images/mock-mentor-4.svg',
+] as const;
+
+const getMockMentorImagePath = (mentorId: number) => {
+  const index = Math.abs(mentorId) % MOCK_MENTOR_IMAGE_PATHS.length;
+
+  return MOCK_MENTOR_IMAGE_PATHS[index];
+};
 
 const getFieldLabel = (role: string) => {
   if (role.includes('프론트엔드')) {
@@ -76,12 +87,21 @@ export default function MentorCard({ mentor }: MentorCardProps) {
   const mentorSettings = getMentorSettings(mentor);
   const keywords = mentorSettings.skillTags.slice(0, 3);
   const lowestPriceOption = getLowestPriceOption(mentor);
+  const mockImagePath = getMockMentorImagePath(mentor.id);
+  const normalizedImageUrl = mentor.imageUrl?.trim();
+  const [isImageError, setIsImageError] = useState(false);
+  const mentorImageUrl =
+    !isImageError && normalizedImageUrl ? normalizedImageUrl : mockImagePath;
   const availableMethods = {
     note: mentor.methods.note.enabled !== false,
     phone: mentor.methods.phone.enabled !== false,
     online: mentor.methods.online.enabled !== false,
     offline: mentor.methods.offline.enabled !== false,
   } as const;
+
+  useEffect(() => {
+    setIsImageError(false);
+  }, [mentor.id, normalizedImageUrl]);
 
   const navigateDetail = () => {
     sendGTMEvent({
@@ -93,27 +113,6 @@ export default function MentorCard({ mentor }: MentorCardProps) {
     });
 
     router.push(`/mentoring/${mentor.id}`);
-  };
-
-  const navigateApply = (event: MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation();
-
-    sendGTMEvent({
-      event: 'mentoring_help_request_click',
-      mentor_id: mentor.id,
-      mentor_nickname: mentor.nickname,
-      mentor_field: mentor.role,
-      location: 'mentoring_page',
-    });
-
-    const defaultType = availableMethods.note
-      ? 'note'
-      : availableMethods.phone
-        ? 'phone'
-        : availableMethods.online
-          ? 'online'
-          : 'offline';
-    router.push(`/mentoring/${mentor.id}/apply?type=${defaultType}`);
   };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
@@ -137,22 +136,19 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       onClick={navigateDetail}
       onKeyDown={handleKeyDown}
     >
-      <div className="relative flex h-[180px] items-center justify-center bg-linear-to-br from-[#F87171] to-[#EC4899]">
-        {mentor.imageUrl ? (
-          <Image
-            src={mentor.imageUrl}
-            alt={mentor.nickname}
-            fill
-            className="object-cover"
-          />
-        ) : (
-          <div className="flex h-[56px] w-[56px] items-center justify-center overflow-hidden rounded-full bg-white/20">
-            <UserAvatar size={56} image="" alt={mentor.nickname} />
-          </div>
-        )}
+      <div className="bg-background-alternative relative h-[180px]">
+        <Image
+          src={mentorImageUrl}
+          alt={mentor.nickname}
+          fill
+          className="object-cover"
+          onError={() => {
+            setIsImageError(true);
+          }}
+        />
       </div>
 
-      <div className="px-300 py-200">
+      <div className="px-300 py-225">
         <div className="mb-100">
           <Badge color="blue">
             {mentorSettings.categories[0] ?? getFieldLabel(mentor.role)}
@@ -214,22 +210,13 @@ export default function MentorCard({ mentor }: MentorCardProps) {
         </div>
 
         {lowestPriceOption && (
-          <div className="rounded-100 bg-background-alternative mb-200 px-125 py-100">
+          <div className="rounded-100 bg-background-alternative px-125 py-100">
             <p className="font-designer-13b text-text-default">
               최저가 {formatWon(lowestPriceOption.price)} (
               {lowestPriceOption.durationLabel})
             </p>
           </div>
         )}
-
-        <Button
-          color="primary"
-          size="medium"
-          className="w-full"
-          onClick={navigateApply}
-        >
-          도움 요청
-        </Button>
       </div>
     </article>
   );

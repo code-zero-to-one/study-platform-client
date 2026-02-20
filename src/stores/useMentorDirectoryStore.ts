@@ -5,6 +5,7 @@ import {
   type MentorSettingsV2,
 } from '@/features/mentoring/model/mentor-settings';
 import {
+  MENTOR_PROFILES,
   type MentorProfile,
   type MentoringMethodOption,
   type MentoringMethodType,
@@ -31,7 +32,11 @@ type PersistedMentorDirectoryState = Pick<
   'memberId' | 'createdMentors' | 'mentorIdByMember' | 'nextMentorId'
 >;
 
-const INITIAL_MENTOR_ID = 10_000;
+const STATIC_MENTOR_MAX_ID = MENTOR_PROFILES.reduce((maxId, mentor) => {
+  return Math.max(maxId, mentor.id);
+}, 0);
+const MIN_GENERATED_MENTOR_ID = STATIC_MENTOR_MAX_ID + 1;
+const INITIAL_MENTOR_ID = MIN_GENERATED_MENTOR_ID;
 
 const collectScheduleSlots = (formValues: MentorRegistrationFormValues) => {
   const uniqueSlots = new Set<string>();
@@ -98,7 +103,8 @@ const createMentoringMethodOption = ({
       type,
       label: '온라인상담',
       durationLabel: `${durationMinutes}분`,
-      description: '화면 공유/코드 리뷰 등 실시간 피드백이 필요한 상담에 적합합니다.',
+      description:
+        '화면 공유/코드 리뷰 등 실시간 피드백이 필요한 상담에 적합합니다.',
       enabled,
       requiresSchedule: true,
       price,
@@ -119,7 +125,19 @@ const createMentoringMethodOption = ({
   };
 };
 
-const toMentorProfile = (
+const buildCareerHistory = (formValues: MentorRegistrationFormValues) => {
+  const trimmedCompanyName = formValues.companyName.trim();
+  const companyLabel =
+    formValues.hideCompanyName || trimmedCompanyName === ''
+      ? '소속 비공개'
+      : trimmedCompanyName;
+  const roleLabel = formValues.jobTitle || formValues.jobGroup || '직무 미입력';
+  const careerLabel = formValues.careerYears || '경력 미입력';
+
+  return [`${companyLabel} · ${roleLabel} · ${careerLabel}`];
+};
+
+export const createMentorProfileFromRegistration = (
   mentorId: number,
   formValues: MentorRegistrationFormValues,
   nowIso: string,
@@ -187,10 +205,7 @@ const toMentorProfile = (
     tags: skillTags,
     summary: formValues.mentoringTitle,
     bio: formValues.detailedDescription,
-    careerHistory:
-      trimmedCompanyName !== ''
-        ? [`${trimmedCompanyName} 재직`]
-        : ['경력 정보 업데이트 예정'],
+    careerHistory: buildCareerHistory(formValues),
     strengths: skillTags,
     avatarEmoji: 'M',
     methods: {
@@ -243,10 +258,25 @@ const normalizePersistedState = (
   const nextCreatedMentors = (state.createdMentors ?? []).map((mentor) =>
     withMentorSettings(mentor),
   );
+  const highestCreatedMentorId = nextCreatedMentors.reduce((maxId, mentor) => {
+    return Math.max(maxId, mentor.id);
+  }, MIN_GENERATED_MENTOR_ID - 1);
+  const highestMappedMentorId = Object.values(
+    state.mentorIdByMember ?? {},
+  ).reduce((maxId, mentorId) => {
+    return Math.max(maxId, mentorId);
+  }, MIN_GENERATED_MENTOR_ID - 1);
+  const nextMentorId = Math.max(
+    state.nextMentorId ?? MIN_GENERATED_MENTOR_ID,
+    highestCreatedMentorId + 1,
+    highestMappedMentorId + 1,
+    MIN_GENERATED_MENTOR_ID,
+  );
 
   return {
     ...state,
     createdMentors: nextCreatedMentors,
+    nextMentorId,
   };
 };
 
@@ -262,8 +292,16 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
         const state = get();
         const now = new Date().toISOString();
         const existingMentorId = state.mentorIdByMember[memberId];
-        const mentorId = existingMentorId ?? state.nextMentorId;
-        const nextMentor = toMentorProfile(mentorId, formValues, now);
+        const nextMentorId = Math.max(
+          state.nextMentorId,
+          MIN_GENERATED_MENTOR_ID,
+        );
+        const mentorId = existingMentorId ?? nextMentorId;
+        const nextMentor = createMentorProfileFromRegistration(
+          mentorId,
+          formValues,
+          now,
+        );
 
         set((prevState) => {
           const withoutCurrentMentor = prevState.createdMentors.filter(
@@ -279,8 +317,8 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
             },
             nextMentorId:
               existingMentorId !== undefined
-                ? prevState.nextMentorId
-                : prevState.nextMentorId + 1,
+                ? Math.max(prevState.nextMentorId, MIN_GENERATED_MENTOR_ID)
+                : Math.max(prevState.nextMentorId, mentorId + 1),
           };
         });
 

@@ -67,6 +67,7 @@ yarn generate:api <swagger-api-타이틀-이름>
 - 클래스 유틸리티: `clsx`, `tailwind-merge`, `class-variance-authority` (CVA)
 - `prettier-plugin-tailwindcss`로 Tailwind 클래스 정렬
 - `src/app/global.css`에서 CSS 변수로 테마 관리
+- `src/app/global.css`의 `@theme inline`에서 기본 토큰(`--color-*`, `--radius-*`, `--spacing-*`, `--shadow-*`)을 초기화하므로 기본 Tailwind 스케일 클래스(`p-4`, `rounded-lg`, `shadow-md`, `text-sm` 등) 사용 금지. 프로젝트 커스텀 토큰(`p-200`, `rounded-150`, `shadow-2`, `font-designer-*`, `text-text-*`)만 사용
 
 ### 인증 플로우
 
