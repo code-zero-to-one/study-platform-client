@@ -1,6 +1,21 @@
 import { axiosInstance } from '@/api/client/axios';
 import { QuestionCategory } from '../model/question.schema';
 
+export interface ResizedImage {
+  resizedImageId: number;
+  resizedImageUrl: string;
+  imageSizeType: {
+    imageTypeName: string;
+    width: number;
+    height: number;
+  };
+}
+
+export interface ImageDto {
+  imageId: string;
+  resizedImages: ResizedImage[];
+}
+
 export interface CreateQuestionRequest {
   title: string;
   content: string;
@@ -12,6 +27,7 @@ export interface CreateQuestionResponse {
   timestamp: string;
   content: {
     generatedQuestionId: number;
+    imageUploadUrl?: string;
   };
   message: string;
 }
@@ -21,9 +37,12 @@ export interface QuestionListItemResponse {
   accessible: boolean;
   title: string;
   content: string;
-  category: QuestionCategory;
+  category?: QuestionCategory;
   status: 'ACCEPTED' | 'ANSWER_COMPLETED';
+  authorId: number;
   authorNickname: string;
+  authorProfileImage?: ImageDto;
+  viewCount: number;
   createdAt: string;
 }
 
@@ -35,7 +54,9 @@ export interface GetQuestionsResponse {
     totalPages: number;
     size: number;
     content: QuestionListItemResponse[];
-    number: number;
+    page: number;
+    hasNext: boolean;
+    hasPrevious: boolean;
   };
   message: string;
 }
@@ -44,9 +65,12 @@ export interface QuestionDetailResponse {
   questionId: number;
   title: string;
   content: string;
-  category: QuestionCategory;
+  category?: QuestionCategory;
   authorId: number;
   authorNickname: string;
+  authorProfileImage?: ImageDto;
+  viewCount: number;
+  questionImage?: ImageDto;
   status: 'ACCEPTED' | 'ANSWER_COMPLETED';
   createdAt: string;
 }
