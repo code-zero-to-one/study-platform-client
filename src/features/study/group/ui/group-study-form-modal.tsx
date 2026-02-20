@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/modal';
 import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
+import { useToastStore } from '@/stores/use-toast-store';
 import GroupStudyForm from './group-study-form';
 
 import {
@@ -25,7 +26,6 @@ import {
   toUpdateRequest,
 } from '../model/group-study-form.schema';
 import { useGroupStudyDetailQuery } from '../model/use-study-query';
-import { useToastStore } from '@/stores/use-toast-store';
 
 export type { StudyClassification };
 

@@ -74,10 +74,7 @@ export default function Step2OpenGroupStudy() {
         required
         scrollable
       >
-        <ImageUploadInput
-          image={image}
-          onChangeImage={handleImageChange}
-        />
+        <ImageUploadInput image={image} onChangeImage={handleImageChange} />
       </FormField>
 
       <FormField<GroupStudyFormValues, 'title'>

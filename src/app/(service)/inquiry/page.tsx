@@ -167,13 +167,9 @@ export default function InquiryPage() {
                   </td>
                   <td className="px-400 py-300 text-center">
                     {item.status === 'ANSWER_COMPLETED' ? (
-                      <Badge color="blue">
-                        답변 완료
-                      </Badge>
+                      <Badge color="blue">답변 완료</Badge>
                     ) : (
-                      <Badge color="gray">
-                        접수
-                      </Badge>
+                      <Badge color="gray">접수</Badge>
                     )}
                   </td>
                 </tr>
