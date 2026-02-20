@@ -1,7 +1,7 @@
 'use client';
 
 import { Crown, X } from 'lucide-react';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { cn } from './(shadcn)/lib/utils';
@@ -25,6 +25,12 @@ export default function AvatarStack({
   guideText = '프로필을 클릭하여 스터디원들의 정보를 확인해보세요.',
 }: AvatarStackProps) {
   const [showOverflow, setShowOverflow] = useState(false);
+
+  const popoverRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, []);
 
   // 리더를 맨 앞으로, 나머지는 가입순(원본 순서) 유지
   const sorted = [...members].sort((a, b) => {
@@ -59,7 +65,10 @@ export default function AvatarStack({
             </button>
 
             {showOverflow && (
-              <div className="bg-background-default absolute bottom-full left-0 z-50 mb-100 w-[240px] rounded-lg border border-[#E9EAEB] p-200 shadow-lg">
+              <div
+                ref={popoverRef}
+                className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-lg border border-[#E9EAEB] p-200 shadow-lg"
+              >
                 <div className="mb-100 flex items-center justify-between">
                   <span className="font-designer-14b text-text-default">
                     참가자 목록
@@ -69,10 +78,10 @@ export default function AvatarStack({
                     onClick={() => setShowOverflow(false)}
                     className="text-text-subtle hover:text-text-default"
                   >
-                    <X className="size-4" />
+                    <X className="size-4 cursor-pointer" />
                   </button>
                 </div>
-                <ul className="flex max-h-[240px] flex-col gap-100 overflow-y-auto">
+                <ul className="flex flex-col gap-100">
                   {overflow.map((member) => (
                     <li key={member.memberId}>
                       <UserProfileModal
@@ -153,7 +162,7 @@ function AvatarItem({
 
           {/* 닉네임 툴팁 */}
           {hovered && (
-            <div className="bg-text-inverse text-background-neutral-strong absolute bottom-full left-1/2 z-30 mb-50 -translate-x-1/2 rounded-md px-100 py-50 text-base whitespace-nowrap">
+            <div className="bg-text-inverse text-background-neutral-strong absolute top-full left-1/2 z-30 mt-50 -translate-x-1/2 rounded-md px-100 py-50 text-base whitespace-nowrap">
               {member.nickname || '익명'}
             </div>
           )}
