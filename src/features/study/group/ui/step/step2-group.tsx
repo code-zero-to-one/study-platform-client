@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import FormField from '@/components/ui/form/form-field';
+import ImageUploadInput from '@/components/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { THUMBNAIL_EXTENSION } from '../../const/group-study-const';
 
 import { GroupStudyFormValues } from '../../model/group-study-form.schema';
-import GroupStudyThumbnailInput from '../group-study-thumbnail-input';
 
 export default function Step2OpenGroupStudy() {
   const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
@@ -74,7 +74,7 @@ export default function Step2OpenGroupStudy() {
         required
         scrollable
       >
-        <GroupStudyThumbnailInput
+        <ImageUploadInput
           image={image}
           onChangeImage={handleImageChange}
         />

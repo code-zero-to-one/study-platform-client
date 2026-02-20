@@ -3,8 +3,10 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
+import ImageUploadInput from '@/components/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import {
@@ -44,6 +46,10 @@ export default function QuestionModal({
   const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
   const { mutate: createQuestion, isPending } = useCreateQuestion();
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
+  const [imagePreview, setImagePreview] = useState<string | undefined>(
+    undefined,
+  );
 
   const form = useForm<QuestionFormValues>({
     resolver: zodResolver(questionSchema),
@@ -57,6 +63,34 @@ export default function QuestionModal({
   const { handleSubmit, reset } = form;
   const scrollToNext = useScrollToNextField();
 
+  const handleChangeImage = (file: File | undefined) => {
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      setImageFile(undefined);
+      setImagePreview(undefined);
+    }
+  };
+
+  const uploadImage = async (uploadUrl: string, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const res = await fetch(uploadUrl, { method: 'PUT', body: formData });
+
+    if (!res.ok) {
+      throw new Error(`이미지 업로드 실패 (status: ${res.status})`);
+    }
+  };
+
+  const resetImageState = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(undefined);
+    setImagePreview(undefined);
+  };
+
   const onSubmit = (data: QuestionFormValues) => {
     createQuestion(
       {
@@ -68,9 +102,17 @@ export default function QuestionModal({
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: async (result) => {
+          if (imageFile && result.imageUploadUrl) {
+            try {
+              await uploadImage(result.imageUploadUrl, imageFile);
+            } catch (error) {
+              console.error('이미지 업로드 오류:', error);
+            }
+          }
           showToast('문의가 성공적으로 제출되었습니다.', 'success');
           reset();
+          resetImageState();
           onOpenChange(false);
           router.push(
             `/inquiry?groupStudyId=${studyId}${studyType ? `&studyType=${studyType}` : ''}`,
@@ -87,6 +129,7 @@ export default function QuestionModal({
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       reset();
+      resetImageState();
     }
     onOpenChange(isOpen);
   };
@@ -95,7 +138,7 @@ export default function QuestionModal({
     <Modal.Root open={open} onOpenChange={handleOpenChange}>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content size="medium" className="w-[500px]">
+        <Modal.Content size="medium" className="w-full sm:w-[500px]">
           <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title className="font-designer-20b text-text-strong">
               스터디 문의하기
@@ -105,7 +148,10 @@ export default function QuestionModal({
             </Modal.Close>
           </Modal.Header>
           <FormProvider {...form}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex min-h-0 flex-1 flex-col"
+            >
               <Modal.Body className="flex flex-col gap-300">
                 <FormField<QuestionFormValues, 'category'>
                   name="category"
@@ -147,6 +193,18 @@ export default function QuestionModal({
                     className="font-designer-16m text-text-default h-auto min-h-[150px]"
                   />
                 </FormField>
+                <div className="flex flex-col gap-100">
+                  <span className="font-designer-16m text-text-strong">
+                    이미지 첨부
+                    <span className="font-designer-14r text-text-assistive ml-50">
+                      (선택)
+                    </span>
+                  </span>
+                  <ImageUploadInput
+                    image={imagePreview}
+                    onChangeImage={handleChangeImage}
+                  />
+                </div>
               </Modal.Body>
               <Modal.Footer className="flex justify-end gap-100">
                 <Button
