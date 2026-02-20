@@ -9,6 +9,7 @@ import UserAvatar from '@/components/ui/avatar';
 import AvatarStack from '@/components/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/ui/avatar-stack';
 import Button from '@/components/ui/button';
+import StudyActiveTicker from '@/components/ui/study-active-ticker';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { CurriculumSummaryItem } from '@/features/study/group/api/group-study-types';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
@@ -147,6 +148,11 @@ export default function StudyInfoSection({
         </div>
       </div>
       <div className="flex flex-col gap-300">
+        <StudyActiveTicker
+          approvedCount={studyDetail.basicInfo.approvedCount}
+          maxMembersCount={studyDetail.basicInfo.maxMembersCount}
+          startDate={studyDetail.basicInfo.startDate}
+        />
         <SummaryStudyInfo data={studyDetail} />
         <CurriculumSummarySection
           curriculumSummary={
