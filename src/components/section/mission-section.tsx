@@ -149,8 +149,8 @@ export default function MissionSection({
         (m) => m.missionId === numericMissionId,
       );
       
-      // 1주차 OT 체크: order가 1이거나 missionId가 1이면 OT로 간주
-      const isOTMission = selectedMission?.order === 1 || numericMissionId === 1;
+      // 1주차 OT 체크: weekNum이 1이거나 missionId가 1이면 OT로 간주
+      const isOTMission = selectedMission?.weekNum === 1 || numericMissionId === 1;
 
       // 1주차(OT)가 아니면 접근 차단 - 미션 목록으로 되돌림
       if (!isOTMission) {
