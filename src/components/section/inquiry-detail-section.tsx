@@ -7,6 +7,8 @@ import Image from 'next/image';
 import { useState } from 'react';
 import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import Button from '@/components/ui/button';
+import MoreMenu from '@/components/ui/dropdown/more-menu';
+import { Modal } from '@/components/ui/modal';
 import { canViewInquiry, Inquiry } from '@/mocks/inquiry-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
 
@@ -40,6 +42,8 @@ export default function InquiryDetail({
   const showToast = useToastStore((state) => state.showToast);
   const [answerContent, setAnswerContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showAnswerForm, setShowAnswerForm] = useState(false);
+  const [showAnswerModal, setShowAnswerModal] = useState(false);
 
   // 권한 체크 (강제 공개일 경우 무시)
   const hasPermission =
@@ -94,10 +98,19 @@ export default function InquiryDetail({
 
       setAnswerContent('');
       setIsSubmitting(false);
+      setShowAnswerModal(false);
     }, 500);
   };
 
-  const canAnswer = (isMentor || isAdmin) && inquiry.status !== 'ANSWERED';
+  const handleEdit = (type: 'inquiry' | 'answer') => {
+    showToast(`${type === 'inquiry' ? '문의' : '답변'} 수정 기능은 준비 중입니다.`, 'info');
+  };
+
+  const handleDelete = (type: 'inquiry' | 'answer') => {
+    showToast(`${type === 'inquiry' ? '문의' : '답변'} 삭제 기능은 준비 중입니다.`, 'info');
+  };
+
+  const canAnswer = inquiry.status !== 'ANSWERED';
 
   return (
     <div className="flex flex-col gap-400">
@@ -114,11 +127,26 @@ export default function InquiryDetail({
 
       {/* 문의 정보 카드 */}
       <div className="rounded-200 border-border-default border bg-white p-500">
-        {/* 상단: 분류만 표시 */}
-        <div className="mb-300 flex items-center gap-200">
-          <span className="font-designer-13m text-text-subtle rounded-100 bg-background-neutral-subtle px-200 py-100">
+        {/* 상단: 분류 + 더보기 메뉴 */}
+        <div className="mb-300 flex items-center justify-between">
+          <span className="inline-flex min-w-[24px] items-center justify-center gap-[2px] whitespace-nowrap rounded-50 bg-background-accent-gray-subtle px-100 py-50 text-xs font-medium text-background-accent-gray-strong">
             {getInquiryTypeLabel(inquiry.type, isGroupStudy)}
           </span>
+          <MoreMenu
+            options={[
+              {
+                label: '수정하기',
+                value: 'edit',
+                onMenuClick: () => handleEdit('inquiry'),
+              },
+              {
+                label: '삭제하기',
+                value: 'delete',
+                onMenuClick: () => handleDelete('inquiry'),
+              },
+            ]}
+            iconSize={24}
+          />
         </div>
 
         {/* 제목 */}
@@ -149,9 +177,7 @@ export default function InquiryDetail({
             </span>
           </div>
           <div className="flex items-center gap-200">
-            <span className="font-designer-14m text-text-subtle">
-              문의 상태
-            </span>
+            <span className="font-designer-14m text-text-subtle">상태</span>
             <InquiryStatusBadge status={inquiry.status} />
           </div>
         </div>
@@ -182,57 +208,130 @@ export default function InquiryDetail({
             </div>
           </div>
         )}
+
       </div>
 
-      {/* 답변 (있을 경우) */}
-      {inquiry.answer && (
-        <div className="rounded-200 border-border-success bg-background-success-subtle border p-500">
-          <div className="mb-300 flex items-center gap-200">
-            <span className="font-designer-14b text-text-success">
-              ✓ 답변 완료
-            </span>
-            <span className="font-designer-13m text-text-subtle">
-              {inquiry.answer.authorName}
-            </span>
-            <span className="font-designer-13m text-text-subtle">
-              {format(new Date(inquiry.answer.createdAt), 'yyyy.MM.dd HH:mm', {
-                locale: ko,
-              })}
-            </span>
-          </div>
-          <div className="font-designer-16r text-text-default whitespace-pre-line">
-            {inquiry.answer.content}
-          </div>
-        </div>
-      )}
+      {/* 답변 영역 */}
+      <div className="flex flex-col gap-300">
+        {inquiry.answer ? (
+          /* 답변 제출 완료 */
+          <div className="rounded-200 border-border-default border bg-white p-500">
+            <div className="mb-300 flex items-center justify-between">
+              <h1 className="font-designer-24b text-text-default">
+                {isAdmin ? '운영자' : isMentor ? '멘토' : isGroupStudy ? '리더' : '멘토'}의 답변
+              </h1>
+              <MoreMenu
+                options={[
+                  {
+                    label: '수정하기',
+                    value: 'edit',
+                    onMenuClick: () => handleEdit('answer'),
+                  },
+                  {
+                    label: '삭제하기',
+                    value: 'delete',
+                    onMenuClick: () => handleDelete('answer'),
+                  },
+                ]}
+                iconSize={24}
+              />
+            </div>
 
-      {/* 답변 작성 폼 (멘토/관리자 전용) */}
-      {canAnswer && (
-        <div className="rounded-200 border-border-default border bg-white p-500">
-          <h3 className="font-designer-18b text-text-default mb-300">
-            답변 작성
-          </h3>
-          <textarea
-            value={answerContent}
-            onChange={(e) => setAnswerContent(e.target.value)}
-            placeholder="질문자에게 답변을 작성해주세요"
-            className="rounded-100 border-border-default font-designer-14m focus:border-border-brand mb-300 min-h-[200px] w-full resize-none border px-300 py-200 focus:outline-none"
-            maxLength={2000}
-          />
-          <div className="flex items-center justify-between">
-            <p className="font-designer-12m text-text-subtlest">
-              {answerContent.length}/2,000
+            <div className="border-border-default mb-400 grid grid-cols-2 gap-x-400 gap-y-200 border-b pb-300">
+              <div className="flex items-center gap-200">
+                <span className="font-designer-14m text-text-subtle">
+                  작성자
+                </span>
+                <span className="font-designer-14m text-text-default">
+                  {inquiry.answer.authorName}
+                </span>
+              </div>
+              <div className="flex items-center gap-200">
+                <span className="font-designer-14m text-text-subtle">
+                  작성일
+                </span>
+                <span className="font-designer-14m text-text-default">
+                  {format(
+                    new Date(inquiry.answer.createdAt),
+                    'yyyy.MM.dd HH:mm',
+                    { locale: ko },
+                  )}
+                </span>
+              </div>
+            </div>
+
+            <div className="font-designer-16r text-text-default whitespace-pre-line">
+              {inquiry.answer.content}
+            </div>
+          </div>
+        ) : (
+          /* 답변 미제출 */
+          <div className="rounded-200 border-border-default flex flex-col items-center justify-center gap-300 border bg-white py-500">
+            <p className="font-designer-14r text-text-subtle">
+              아직 답변이 등록되지 않았습니다.
             </p>
             <Button
-              onClick={handleAnswerSubmit}
-              disabled={isSubmitting || !answerContent.trim()}
+              onClick={() => setShowAnswerModal(true)}
               color="primary"
             >
-              {isSubmitting ? '등록 중...' : '답변 등록'}
+              답변하기
             </Button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* 답변하기 모달 */}
+      <Modal.Root open={showAnswerModal} onOpenChange={setShowAnswerModal}>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content size="medium">
+            <Modal.Header className="border-border-default flex items-center justify-between border-b">
+              <Modal.Title className="font-designer-20b text-text-strong">
+                답변 작성
+              </Modal.Title>
+              <Modal.CloseButton />
+            </Modal.Header>
+
+            <Modal.Body className="flex flex-1 flex-col gap-400 overflow-auto p-400">
+              <div className="flex flex-col gap-100">
+                <label className="font-designer-14b text-text-default">
+                  답변 내용 <span className="text-text-error">*</span>
+                </label>
+                <textarea
+                  value={answerContent}
+                  onChange={(e) => setAnswerContent(e.target.value)}
+                  placeholder="질문자에게 답변을 작성해주세요"
+                  className="rounded-100 border-border-default font-designer-14m focus:border-border-brand min-h-[200px] resize-none border px-300 py-200 focus:outline-none"
+                  maxLength={2000}
+                />
+                <p className="font-designer-12m text-text-subtlest text-right">
+                  {answerContent.length}/2,000
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-200">
+                <Button
+                  type="button"
+                  color="secondary"
+                  onClick={() => {
+                    setShowAnswerModal(false);
+                    setAnswerContent('');
+                  }}
+                >
+                  취소
+                </Button>
+                <Button
+                  onClick={handleAnswerSubmit}
+                  disabled={isSubmitting || !answerContent.trim()}
+                  color="primary"
+                >
+                  {isSubmitting ? '등록 중...' : '답변 등록'}
+                </Button>
+              </div>
+            </Modal.Body>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal.Root>
     </div>
   );
 }

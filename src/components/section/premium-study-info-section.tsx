@@ -8,7 +8,6 @@ import UserAvatar from '@/components/ui/avatar';
 import AvatarStack from '@/components/ui/avatar/avatar-stack';
 import Button from '@/components/ui/button';
 import CurriculumSummaryCard from '@/components/ui/curriculum-card';
-import FloatingInfoBar from '@/components/ui/floating-info-bar';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import {
   MOCK_MISSIONS,
@@ -17,7 +16,6 @@ import {
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
-import InquirySection from './inquiry-section';
 import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
@@ -140,28 +138,10 @@ export default function PremiumStudyInfoSection({
               />
             </div>
           </div>
-
-          <div className="border-border-default border-t pt-500">
-            <InquirySection
-              studyId={groupStudyId}
-              studyTitle={studyDetail?.detailInfo?.title ?? ''}
-              currentUserId={memberId}
-              isMentor={isLeader}
-              isAdmin={false}
-              isEmbedded={true}
-              isGroupStudy={false}
-            />
-          </div>
         </div>
       </div>
 
       <div className="flex w-[335px] flex-col gap-400">
-        <FloatingInfoBar
-          currentViewers={12}
-          currentMembers={studyDetail.basicInfo.approvedCount ?? 0}
-          maxMembers={studyDetail.basicInfo.maxMembersCount ?? 15}
-        />
-
         <SummaryStudyInfo data={studyDetail} />
 
         <CurriculumSummaryCard

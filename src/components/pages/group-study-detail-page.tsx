@@ -1,9 +1,12 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
+import { MessageCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import InquiryModal from '@/components/modals/inquiry-modal';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
+import FloatingInfoBar from '@/components/ui/floating-info-bar';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
@@ -167,7 +170,16 @@ export default function StudyDetailPage({
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
 
-      <div className="my-500 flex w-[1164px] items-start justify-between">
+      {/* 플로팅 정보 바 */}
+      <div className="mt-500 w-[1164px]">
+        <FloatingInfoBar
+          currentViewers={12}
+          currentMembers={studyDetail.basicInfo.approvedCount ?? 0}
+          maxMembers={studyDetail.basicInfo.maxMembersCount}
+        />
+      </div>
+
+      <div className="mb-500 flex w-[1164px] items-start justify-between">
         <div className="flex w-full flex-col gap-150">
           <p className="font-designer-28b text-[#181D27]">
             {studyDetail?.detailInfo.title}
@@ -283,6 +295,26 @@ export default function StudyDetailPage({
           isAdmin={false}
         />
       )}
+
+      {/* 플로팅 문의하기 버튼 */}
+      <InquiryModal
+        studyId={groupStudyId}
+        studyTitle={studyDetail?.detailInfo.title || ''}
+        isGroupStudy={true}
+        onRedirectToInquiry={() => {
+          setActive('inquiry');
+          router.replace('?tab=inquiry');
+        }}
+        trigger={
+          <button
+            className="fixed bottom-600 right-600 z-50 flex items-center gap-100 rounded-full bg-[#FF4C61] px-300 py-200 shadow-lg transition-all hover:bg-[#E63950] hover:shadow-xl"
+            aria-label="스터디 문의하기"
+          >
+            <MessageCircle className="h-200 w-200 text-white" />
+            <span className="font-designer-16b text-white">스터디 문의하기</span>
+          </button>
+        }
+      />
     </div>
   );
 }

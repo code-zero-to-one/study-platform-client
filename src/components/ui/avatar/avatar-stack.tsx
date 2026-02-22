@@ -118,7 +118,7 @@ export default function AvatarStack({
 
           {/* 이후 참가한 사람 팝오버 */}
           {showRemaining && (
-            <div className="rounded-200 border-border-subtle absolute top-full left-0 z-50 mt-200 w-[280px] border !bg-white p-300 shadow-lg">
+            <div className="rounded-200 border-border-subtle absolute bottom-full left-0 z-50 mb-200 w-[280px] border !bg-white p-300 shadow-lg">
               <div className="flex flex-col gap-200">
                 <div className="mb-100 flex items-center justify-between">
                   <p className="font-designer-14b text-text-default">

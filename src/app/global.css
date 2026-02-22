@@ -72,6 +72,9 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   /* colors */
   --color-*: initial;
 
+  --color-white: #ffffff;
+  --color-black: #000000;
+
   --color-gray-0: #ffffff;
   --color-gray-50: #fafafa;
   --color-gray-100: #f5f5f5;

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Button from '@/components/ui/button';
+import SingleDropdown from '@/components/ui/dropdown/single';
 import { Modal } from '@/components/ui/modal';
 import { useToastStore } from '@/stores/use-toast-store';
 
@@ -26,6 +27,7 @@ interface InquiryModalProps {
   trigger?: React.ReactNode;
   onSubmit?: (data: InquiryFormData) => void;
   isGroupStudy?: boolean; // 그룹스터디 여부
+  onRedirectToInquiry?: () => void; // 문의 등록 후 문의 탭으로 이동
 }
 
 /**
@@ -40,6 +42,7 @@ export default function InquiryModal({
   trigger,
   onSubmit,
   isGroupStudy = true,
+  onRedirectToInquiry,
 }: InquiryModalProps) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<InquiryFormData>({
@@ -77,8 +80,8 @@ export default function InquiryModal({
     // 프로토타입: 제출 처리
     onSubmit?.(formData);
 
-    // 알림 시뮬레이션 (멘토/관리자에게)
-    showToast(`문의가 등록되었습니다. 멘토님께 알림이 전송됩니다.`, 'success');
+    // 토스트 메시지 표시
+    showToast('문의가 등록되었습니다.', 'success');
 
     // 폼 초기화 및 모달 닫기
     setFormData({
@@ -88,6 +91,9 @@ export default function InquiryModal({
       images: [],
     });
     setOpen(false);
+
+    // 문의 탭으로 리다이렉트
+    onRedirectToInquiry?.();
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -134,22 +140,18 @@ export default function InquiryModal({
                 <label className="font-designer-14b text-text-default">
                   문의 종류 <span className="text-text-error">*</span>
                 </label>
-                <select
+                <SingleDropdown
+                  options={inquiryTypeOptions}
                   value={formData.type}
-                  onChange={(e) =>
+                  onChange={(val) =>
                     setFormData((prev) => ({
                       ...prev,
-                      type: e.target.value as InquiryType,
+                      type: (val as InquiryType) || 'STUDY',
                     }))
                   }
-                  className="rounded-100 border-border-default font-designer-14m focus:border-border-brand hover:border-border-brand cursor-pointer border bg-white px-300 py-200 transition-colors focus:outline-none"
-                >
-                  {inquiryTypeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
+                  placeholder="문의 종류를 선택하세요"
+                  size="l"
+                />
               </div>
 
               {/* 제목 */}

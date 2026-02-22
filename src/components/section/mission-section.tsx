@@ -142,6 +142,25 @@ export default function MissionSection({
 
   // 미션 상세 보기
   if (missionId) {
+    // 비회원인 경우: 1주차 OT(order=1 또는 missionId=1)만 공개
+    if (!isMember) {
+      const numericMissionId = Number(missionId);
+      const selectedMission = MOCK_MISSION_LIST.find(
+        (m) => m.missionId === numericMissionId,
+      );
+      
+      // 1주차 OT 체크: order가 1이거나 missionId가 1이면 OT로 간주
+      const isOTMission = selectedMission?.order === 1 || numericMissionId === 1;
+
+      // 1주차(OT)가 아니면 접근 차단 - 미션 목록으로 되돌림
+      if (!isOTMission) {
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('missionId');
+        router.replace(`?${params.toString()}`);
+        return null;
+      }
+    }
+
     return (
       <PageContainer className="flex flex-col gap-300 py-500">
         <button
@@ -158,7 +177,7 @@ export default function MissionSection({
             missionId={Number(missionId)}
           />
         ) : (
-          <MissionDetailLockedView
+          <MissionDetailPublicView
             groupStudyId={groupStudyId}
             missionId={Number(missionId)}
           />
@@ -259,103 +278,104 @@ function EmptyMissionState() {
 }
 
 /**
- * 비회원 미션 상세: 제목 영역만 노출, 그 아래부터 blur + 잠금 오버레이
+ * 비회원용 1주차 OT 미션 공개 뷰 (blur/lock 없음)
  */
-function MissionDetailLockedView({
+function MissionDetailPublicView({
   groupStudyId,
   missionId,
 }: {
   groupStudyId: number;
   missionId: number;
 }) {
-  return (
-    <div className="rounded-200 border-border-default bg-background-default flex min-h-[360px] flex-col gap-0 border p-400">
-      {/* 제목 영역만 노출 (커리큘럼에서 이미 보여주므로) */}
-      <MissionDetailPlaceholderTitle />
+  const submittedCount = 2;
+  const totalCount = 10;
+  const progressPercentage = (submittedCount / totalCount) * 100;
 
-      {/* 제목 아래부터 블러 + 잠금 오버레이 */}
-      <div className="relative min-h-[200px] flex-1">
-        <MissionDetailPlaceholderBody />
-        <div className="rounded-200 bg-background-default/40 absolute inset-0 flex items-center justify-center backdrop-blur-sm">
-          <button
-            type="button"
-            className="border-border-subtle rounded-100 bg-background-default/90 text-text-strong flex cursor-pointer items-center gap-100 border px-200 py-100 text-[12px] font-medium"
-            aria-label="스터디 가입 후 미션을 확인하세요"
-          >
-            <Lock className="h-120 w-120 shrink-0" />
-            스터디 가입 후 미션을 확인하세요
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** 제목 영역만 (노출) */
-function MissionDetailPlaceholderTitle() {
   return (
-    <div className="border-border-default rounded-100 flex flex-col gap-200 border p-400">
-      <div className="flex items-center gap-100">
-        <span className="font-designer-18b text-text-default">
-          1주차 미션: [OT] UX 심리학 개념 찍먹해보기
-        </span>
-      </div>
-      <p className="text-text-subtlest font-designer-14r">
-        제출 기간 : 2026-02-05 - 2026-02-08
-      </p>
-    </div>
-  );
-}
-
-/** 제목 아래 본문 (blur 처리될 영역) */
-function MissionDetailPlaceholderBody() {
-  return (
-    <div className="flex flex-col gap-400">
-      <div className="border-border-default rounded-100 flex flex-col gap-200 border p-400">
-        <div className="bg-background-alternative rounded-100 mt-100 p-300 whitespace-pre-wrap">
-          <p className="text-text-default font-designer-14r">
-            https://example.com/ux-psychology
-            {'\n\n'}
-            카드뉴스 형식 아티클입니다.
-            {'\n'}본 스터디 대표이미지가 포함되어 있는 글입니다.
-            {'\n\n'}
-            가볍게 인사이트 나누어봐요~~
+    <div className="rounded-200 bg-background-default flex min-h-[360px] flex-col gap-400 p-400">
+      {/* 제목 + 한줄소개 + 기간 + 본문을 하나의 border 카드로 묶기 */}
+      <div className="border-border-subtle rounded-100 flex flex-col gap-0 border">
+        {/* 제목 / 한줄소개 / 기간 */}
+        <div className="border-border-subtle flex flex-col gap-200 border-b p-400">
+          <span className="font-designer-18b text-text-default">
+            1주차 미션: [OT] UX 심리학 개념 찍먹해보기
+          </span>
+          <p className="text-text-subtle font-designer-14r">
+            UX 심리학의 기본 개념을 이해하고 실제 사례에 적용해보는 입문 미션입니다.
+          </p>
+          <p className="text-text-subtlest font-designer-14r">
+            제출 기간 : 2026-02-05 - 2026-02-08
           </p>
         </div>
-        <div className="flex items-center justify-end gap-200">
-          <span className="text-text-subtlest font-designer-14r">
-            2/10 제출
-          </span>
-          <div className="bg-fill-danger-default-default/30 h-80 w-[120px] rounded-full" />
+
+        {/* 본문 내용 */}
+        <div className="p-400">
+          <div className="bg-background-alternative rounded-100 p-300 whitespace-pre-wrap">
+            <p className="text-text-default font-designer-14r">
+              https://example.com/ux-psychology
+              {'\n\n'}
+              카드뉴스 형식 아티클입니다.
+              {'\n'}본 스터디 대표이미지가 포함되어 있는 글입니다.
+              {'\n\n'}
+              가볍게 인사이트 나누어봐요~~
+            </p>
+          </div>
         </div>
       </div>
 
+      {/* 제출 현황 */}
       <div className="flex flex-col gap-300">
-        <span className="font-designer-18b text-text-default">제출 현황</span>
+        {/* 제출 현황 헤더 + 제출 수 + Progress Bar */}
+        <div className="flex items-center justify-between">
+          <span className="font-designer-18b text-text-default">제출 현황</span>
+          <div className="flex items-center gap-200">
+            <span className="text-text-subtlest font-designer-14r">
+              {submittedCount}/{totalCount} 제출
+            </span>
+            <div className="relative h-[8px] w-[120px] overflow-hidden rounded-full bg-gray-200">
+              <div
+                className="absolute left-0 top-0 h-full rounded-full bg-fill-danger-default-default transition-all duration-300"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* 참가자 그리드 */}
         <div className="grid grid-cols-3 gap-200">
           {[
-            { name: 'djyun', status: '미제출' },
-            { name: '성효빈', status: '미제출' },
-            { name: '박경도', status: '제출 완료' },
-            { name: '하승', status: '제출 완료' },
-            { name: '제로원', status: '미제출' },
-            { name: '백지안', status: '미제출' },
-            { name: 'GUUI', status: '미제출' },
-            { name: '김대연', status: '미제출' },
-            { name: '김민규', status: '미제출' },
-            { name: '박잰', status: '미제출' },
+            { name: 'djyun', status: '미제출', submitted: false },
+            { name: '성효빈', status: '미제출', submitted: false },
+            { name: '박경도', status: '제출 완료', submitted: true },
+            { name: '하승', status: '제출 완료', submitted: true },
+            { name: '제로원', status: '미제출', submitted: false },
+            { name: '백지안', status: '미제출', submitted: false },
+            { name: 'GUUI', status: '미제출', submitted: false },
+            { name: '김대연', status: '미제출', submitted: false },
+            { name: '김민규', status: '미제출', submitted: false },
+            { name: '박잰', status: '미제출', submitted: false },
           ].map((item) => (
             <div
               key={item.name}
               className="border-border-subtle rounded-100 flex items-center justify-between border p-200"
             >
               <div className="flex items-center gap-150">
-                <div className="bg-background-neutral-subtle h-400 w-400 rounded-full" />
+                <img
+                  src="/profile-default.svg"
+                  alt={item.name}
+                  className="h-400 w-400 rounded-full"
+                />
                 <span className="font-designer-14b text-text-default">
                   {item.name}
                 </span>
               </div>
-              <span className="text-text-subtlest font-designer-12r">
+              <span
+                className={`font-designer-12r rounded-50 px-100 py-50 ${
+                  item.submitted
+                    ? 'bg-fill-success-subtle-default text-text-success'
+                    : 'bg-fill-neutral-subtle-default text-text-subtlest'
+                }`}
+              >
                 {item.status}
               </span>
             </div>

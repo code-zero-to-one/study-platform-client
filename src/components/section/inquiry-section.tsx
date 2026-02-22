@@ -12,7 +12,6 @@ import {
   InquiryType,
   MOCK_INQUIRIES,
 } from '@/mocks/inquiry-mock-data';
-import { useToastStore } from '@/stores/use-toast-store';
 
 interface InquirySectionProps {
   studyId: number;
@@ -88,15 +87,6 @@ export default function InquirySection({
       ),
     );
 
-    // 멘토/관리자가 처음 조회 시 상태 변경 (접수 → 답변 대기)
-    if ((isMentor || isAdmin) && inquiry.status === 'PENDING') {
-      setInquiries((prev) =>
-        prev.map((i) =>
-          i.id === inquiryId ? { ...i, status: 'IN_REVIEW' } : i,
-        ),
-      );
-    }
-
     // URL 업데이트 (탭 모드) 또는 상태 업데이트 (임베드 모드)
     if (isEmbedded) {
       // 임베드 모드에서는 같은 페이지에서 스크롤하여 문의 상세로 이동
@@ -128,18 +118,13 @@ export default function InquirySection({
               answer: {
                 content: answer,
                 authorId: currentUserId || 1,
-                authorName: isMentor ? 'djyun' : '관리자',
+                authorName: isMentor ? 'djyun' : isAdmin ? '운영자' : '리더',
                 createdAt: new Date().toISOString(),
               },
             }
           : i,
       ),
     );
-
-    // 목록으로 돌아가기
-    setTimeout(() => {
-      handleBack();
-    }, 1000);
   };
 
   // URL 파라미터와 상태 동기화

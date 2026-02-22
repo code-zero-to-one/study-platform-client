@@ -50,7 +50,21 @@ const oneWeekAgo = new Date(now);
 oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
 
 export const MOCK_INQUIRIES: Inquiry[] = [
-  // 케이스 1: 결제 문의 (접수 상태)
+  // 케이스 0: 스터디 일반 문의 (접수 상태 - 공개)
+  {
+    id: 11,
+    type: 'STUDY',
+    title: '스터디 OT 일정이 언제인가요?',
+    content:
+      '안녕하세요! 스터디 시작 전 OT 일정이 궁금합니다.\n참석이 필수인지, 온라인으로 진행되는지 알려주세요.',
+    authorId: 1,
+    authorName: '나',
+    status: 'PENDING',
+    viewCount: 3,
+    createdAt: now.toISOString(),
+    updatedAt: now.toISOString(),
+  },
+  // 케이스 1: 결제 문의 (답변 완료)
   {
     id: 1,
     type: 'PAYMENT',
@@ -59,12 +73,19 @@ export const MOCK_INQUIRIES: Inquiry[] = [
       '결제를 완료했는데 참가 승인이 안 되고 있습니다. 결제 내역은 확인되는데 어떻게 해야 하나요?',
     authorId: 101,
     authorName: '김철수',
-    status: 'PENDING',
-    viewCount: 1,
+    status: 'ANSWERED',
+    viewCount: 2,
+    answer: {
+      content:
+        '안녕하세요, 김철수님.\n\n결제 내역 확인 결과, 정상적으로 결제가 완료된 것으로 확인됩니다.\n결제 승인 처리에 최대 30분 정도 소요될 수 있으며, 현재 참가 승인이 완료되었습니다.\n\n혹시 추가 문의사항이 있으시면 언제든 남겨주세요. 감사합니다!',
+      authorId: 1,
+      authorName: 'djyun',
+      createdAt: now.toISOString(),
+    },
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
   },
-  // 케이스 2: 스터디 일반 문의 (답변 대기)
+  // 케이스 2: 스터디 일반 문의 (접수 상태)
   {
     id: 2,
     type: 'STUDY',
@@ -73,7 +94,7 @@ export const MOCK_INQUIRIES: Inquiry[] = [
       '안녕하세요. 스터디 진행 방식이 온라인인지 오프라인인지 궁금합니다. 또한 주차별 과제 제출 기한은 어떻게 되나요?',
     authorId: 102,
     authorName: '이영희',
-    status: 'IN_REVIEW',
+    status: 'PENDING',
     viewCount: 5,
     createdAt: oneDayAgo.toISOString(),
     updatedAt: oneDayAgo.toISOString(),
@@ -99,7 +120,7 @@ export const MOCK_INQUIRIES: Inquiry[] = [
     createdAt: threeDaysAgo.toISOString(),
     updatedAt: twoDaysAgo.toISOString(),
   },
-  // 케이스 4: 멘토 문의 (멘토스터디) - 답변 대기
+  // 케이스 4: 멘토 문의 (멘토스터디) - 접수 상태
   {
     id: 4,
     type: 'MENTOR',
@@ -109,7 +130,7 @@ export const MOCK_INQUIRIES: Inquiry[] = [
     authorId: 104,
     authorName: '정수진',
     mentorId: 1,
-    status: 'IN_REVIEW',
+    status: 'PENDING',
     viewCount: 8,
     createdAt: twoDaysAgo.toISOString(),
     updatedAt: twoDaysAgo.toISOString(),
@@ -184,7 +205,7 @@ export const MOCK_INQUIRIES: Inquiry[] = [
     createdAt: now.toISOString(),
     updatedAt: now.toISOString(),
   },
-  // 케이스 9: 리더 문의 (이미지 첨부)
+  // 케이스 9: 리더 문의 (이미지 첨부) - 접수 상태
   {
     id: 9,
     type: 'LEADER',
@@ -193,21 +214,20 @@ export const MOCK_INQUIRIES: Inquiry[] = [
       '스터디에서 진행할 프로젝트에 대한 아이디어가 있는데 리더님께 피드백을 받고 싶습니다. 간단한 기획안을 첨부했습니다.',
     authorId: 108,
     authorName: '한지민',
-    status: 'IN_REVIEW',
+    status: 'PENDING',
     viewCount: 4,
     images: ['/mock-idea-1.png', '/mock-idea-2.png'],
     createdAt: oneDayAgo.toISOString(),
     updatedAt: oneDayAgo.toISOString(),
   },
-  // 케이스 10: 멘토 문의 (1:1 코드리뷰)
+  // 케이스 10: 멘토 문의 (1:1 코드리뷰) - 공개
   {
     id: 10,
     type: 'MENTOR',
     title: '1:1 코드리뷰 신청 방법이 궁금합니다',
     content: '멘토님께 개별적으로 코드리뷰를 받고 싶은데 어떻게 신청하나요?',
-    authorId: 109,
-    authorName: '송민호',
-    mentorId: 1,
+    authorId: 1,
+    authorName: '나',
     status: 'ANSWERED',
     viewCount: 18,
     answer: {
@@ -231,6 +251,9 @@ export function canViewInquiry(
   isMentor?: boolean,
   isAdmin?: boolean,
 ): boolean {
+  // 프로토타입: inquiryId=10, 11 전체 공개
+  if (inquiry.id === 10 || inquiry.id === 11) return true;
+
   // 관리자는 모든 문의 열람 가능
   if (isAdmin) return true;
 

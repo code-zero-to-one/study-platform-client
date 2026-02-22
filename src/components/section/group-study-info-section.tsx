@@ -10,7 +10,6 @@ import UserAvatar from '@/components/ui/avatar';
 import AvatarStack from '@/components/ui/avatar/avatar-stack';
 import Button from '@/components/ui/button';
 import CurriculumSummaryCard from '@/components/ui/curriculum-card';
-import FloatingInfoBar from '@/components/ui/floating-info-bar';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 import { useAuth } from '@/hooks/common/use-auth';
 import {
@@ -20,7 +19,6 @@ import {
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
-import InquirySection from './inquiry-section';
 import SummaryStudyInfo from '../summary/study-info-summary';
 
 interface StudyInfoSectionProps {
@@ -142,30 +140,11 @@ export default function StudyInfoSection({
               />
             </div>
           </div>
-
-          {/* 문의 게시판 (스터디 소개 하단) */}
-          <div className="border-border-default border-t pt-500">
-            <InquirySection
-              studyId={groupStudyId}
-              studyTitle={studyDetail.detailInfo.title}
-              currentUserId={memberId}
-              isMentor={isLeader}
-              isAdmin={false}
-              isEmbedded={true}
-            />
-          </div>
         </div>
       </div>
 
       {/* 우측 사이드바 */}
       <div className="flex w-[335px] flex-col gap-400">
-        {/* 플로팅 정보 바 (최상단) */}
-        <FloatingInfoBar
-          currentViewers={12}
-          currentMembers={studyDetail.basicInfo.approvedCount ?? 0}
-          maxMembers={studyDetail.basicInfo.maxMembersCount}
-        />
-
         {/* 스터디 정보 카드 */}
         <SummaryStudyInfo data={studyDetail} />
 
