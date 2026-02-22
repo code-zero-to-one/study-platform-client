@@ -208,15 +208,19 @@ export default function PremiumStudyDetailPage({
       {/** 탭리스트 */}
       <Tabs
         className="w-[1164px]"
-        tabs={STUDY_DETAIL_TABS.filter(
-          (tab) =>
-            tab.value === 'intro' ||
-            tab.value === 'members' ||
-            tab.value === 'mission' ||
-            tab.value === 'lounge' ||
-            isLeader ||
-            isMember,
-        )}
+        tabs={STUDY_DETAIL_TABS.map((tab) => {
+          // 비회원/미가입자에게 참가자·라운지는 locked 상태로 표시
+          const isLocked =
+            !isLeader &&
+            !isMember &&
+            (tab.value === 'members' || tab.value === 'lounge');
+
+          return {
+            ...tab,
+            locked: isLocked,
+            tooltip: isLocked ? '스터디 가입하여 확인' : undefined,
+          };
+        })}
         activeTab={activeTab}
         onChange={(value: StudyTabValue) => {
           const params = new URLSearchParams(searchParams.toString());

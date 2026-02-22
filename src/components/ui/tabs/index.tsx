@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Lock } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface TabItem {
   label: string;
   value: string;
+  locked?: boolean;
+  tooltip?: string;
 }
 
 interface SectionTabsProps {
@@ -23,6 +26,8 @@ export default function Tabs({
   onChange,
   className,
 }: SectionTabsProps) {
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+
   return (
     <div
       className={cn(
@@ -31,19 +36,36 @@ export default function Tabs({
       )}
     >
       {tabs.map((tab) => (
-        <button
+        <div
           key={tab.value}
-          type="button"
-          onClick={() => onChange(tab.value)}
-          className={cn(
-            'font-designer-16b border-b-2 p-150 transition-colors',
-            activeTab === tab.value
-              ? 'border-primary text-primary text-[#181D27]'
-              : 'border-transparent text-[#D5D7DA] hover:text-[#535862]',
-          )}
+          className="relative"
+          onMouseEnter={() => setHoveredTab(tab.value)}
+          onMouseLeave={() => setHoveredTab(null)}
         >
-          {tab.label}
-        </button>
+          <button
+            type="button"
+            onClick={() => !tab.locked && onChange(tab.value)}
+            disabled={tab.locked}
+            className={cn(
+              'font-designer-16b border-b-2 p-150 transition-colors flex items-center gap-75',
+              activeTab === tab.value
+                ? 'border-primary text-primary text-[#181D27]'
+                : 'border-transparent text-[#D5D7DA] hover:text-[#535862]',
+              tab.locked && 'cursor-not-allowed opacity-60',
+            )}
+          >
+            {tab.label}
+            {tab.locked && <Lock className="h-150 w-150" />}
+          </button>
+
+          {/* 툴팁 */}
+          {tab.locked && hoveredTab === tab.value && tab.tooltip && (
+            <div className="absolute top-full left-1/2 z-50 mt-100 -translate-x-1/2 whitespace-nowrap rounded-100 bg-background-neutral-strong px-200 py-100 text-text-inverse font-designer-12m shadow-lg pointer-events-none">
+              {tab.tooltip}
+              <div className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-background-neutral-strong" />
+            </div>
+          )}
+        </div>
       ))}
     </div>
   );
