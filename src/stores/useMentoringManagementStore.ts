@@ -34,6 +34,8 @@ export interface MentoringRequest {
   preferredDate?: string;
   preferredTime?: string;
   requestMessage: string;
+  attachedFileNames?: string[];
+  referenceLinks?: string[];
   status: MentoringRequestStatus;
   decisionNote?: string;
   acceptedAt?: string;
@@ -136,6 +138,8 @@ interface CreateRequestPayload {
   preferredDate?: string;
   preferredTime?: string;
   requestMessage: string;
+  attachedFileNames?: string[];
+  referenceLinks?: string[];
 }
 
 interface ConfirmManualPaymentPayload {
@@ -161,6 +165,7 @@ interface MentoringManagementState {
   reviewsByMentor: Record<number, MentoringReview[]>;
   hasHydrated: boolean;
   ensureDemoRequests: (memberId: number, mentorId: number) => void;
+  ensureNoteDemoData: (memberId: number) => void;
   createRequest: (payload: CreateRequestPayload) => string;
   acceptRequest: (payload: AcceptRequestPayload) => StoreResponse;
   rejectRequest: (payload: RejectRequestPayload) => StoreResponse;
@@ -492,6 +497,73 @@ const createDemoRequests = (mentorId: number): MentoringRequest[] => {
   );
 };
 
+const createDemoPendingScheduleRequests = (
+  mentorId: number,
+): MentoringRequest[] => {
+  const now = dayjs();
+
+  const entries: Array<{
+    method: MentoringMethodType;
+    paymentMode: MentoringPaymentMode;
+    paymentStatus?: MentoringPaymentStatus;
+    name: string;
+    role: string;
+    preferredDate: string;
+    preferredTime: string;
+    requestMessage: string;
+  }> = [
+    {
+      method: 'phone',
+      paymentMode: 'MANUAL_TRANSFER',
+      name: '정다은',
+      role: '디자이너 → 개발자 전환 준비',
+      preferredDate: now.add(3, 'day').format('YYYY-MM-DD'),
+      preferredTime: '19:00',
+      requestMessage:
+        '개발로 전직 준비 중인데, 어떤 순서로 공부하면 좋을지 방향 상담을 받고 싶어요.',
+    },
+    {
+      method: 'online',
+      paymentMode: 'MANUAL_TRANSFER',
+      paymentStatus: 'CONFIRMED',
+      name: '오승민',
+      role: '시니어 백엔드 개발자',
+      preferredDate: now.add(7, 'day').format('YYYY-MM-DD'),
+      preferredTime: '21:00',
+      requestMessage:
+        '현재 아키텍처 리뷰와 이직 시 협상 전략에 대해 조언 부탁드립니다.',
+    },
+    {
+      method: 'offline',
+      paymentMode: 'MANUAL_TRANSFER',
+      name: '한지수',
+      role: '취업 준비생',
+      preferredDate: now.add(10, 'day').format('YYYY-MM-DD'),
+      preferredTime: '15:00',
+      requestMessage:
+        '포트폴리오 최종 점검과 면접 준비를 대면으로 함께하고 싶습니다.',
+    },
+  ];
+
+  return entries.map((entry) => ({
+    id: createId('request'),
+    mentorId,
+    method: entry.method,
+    paymentMode: entry.paymentMode,
+    paymentStatus:
+      entry.paymentStatus ?? getInitialPaymentStatus(entry.paymentMode),
+    paymentMemo: '',
+    menteeName: entry.name,
+    menteeRole: entry.role,
+    requestedAt: now.subtract(30, 'minute').toISOString(),
+    preferredDate: entry.preferredDate,
+    preferredTime: entry.preferredTime,
+    requestMessage: entry.requestMessage,
+    status: 'PENDING',
+    conversation: [createMenteeMessage(entry.requestMessage)],
+  }));
+};
+
 const buildSystemMessage = (
   content: string,
   createdAt: string,
@@ -540,10 +612,19 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           const currentRequests = (baseRequests[mentorId] ?? []).map(
             normalizeRequest,
           );
-          const seededRequests =
+          const baseSeeded =
             currentRequests.length > 0
               ? currentRequests
               : createDemoRequests(mentorId);
+          const hasPendingWithSchedule = baseSeeded.some(
+            (r) => r.status === 'PENDING' && !!r.preferredDate,
+          );
+          const seededRequests = hasPendingWithSchedule
+            ? baseSeeded
+            : [
+                ...baseSeeded,
+                ...createDemoPendingScheduleRequests(mentorId),
+              ];
           const currentSessions = baseSessions[mentorId] ?? [];
           const currentReviews = (baseReviews[mentorId] ?? []).map(
             normalizeReview,
@@ -562,6 +643,82 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
             reviewsByMentor: {
               ...baseReviews,
               [mentorId]: sortReviews(currentReviews),
+            },
+          };
+        });
+      },
+      ensureNoteDemoData: (memberId) => {
+        set((state) => {
+          const now = dayjs();
+          const demoNoteRequests: MentoringRequest[] = [
+            {
+              id: 'note-demo-fixed-1',
+              mentorId: 101,
+              method: 'note',
+              paymentMode: 'MANUAL_TRANSFER',
+              paymentStatus: 'CONFIRMED',
+              paymentMemo: '21:30, 홍길동, 카카오뱅크',
+              menteeMemberId: memberId,
+              menteeName: '나 (멘티)',
+              menteeRole: 'ZERO-ONE 멘티',
+              requestedAt: now.subtract(2, 'day').toISOString(),
+              requestMessage:
+                '포트폴리오 피드백이 필요합니다.\n\nQ. 멘토링 목적이 무엇인가요?\n취업을 앞두고 포트폴리오를 정리하고 있는데, 프로젝트 설명이 너무 길거나 짧은 것 같아서 피드백을 받고 싶습니다.\n\nQ. 질문하고 싶은 내용을 작성해주세요.\n각 프로젝트의 핵심 기술 스택을 어떻게 강조하면 좋을까요? 또 성과 지표가 없을 때 어떻게 서술하면 좋은지도 알고 싶습니다.\n\nQ. 멘토에게 전하고 싶은 말\n바쁘신 와중에도 피드백 주셔서 감사합니다.',
+              status: 'ACCEPTED',
+              acceptedAt: now.subtract(1, 'day').toISOString(),
+              conversation: [
+                {
+                  id: 'note-demo-fixed-1-msg-1',
+                  sender: 'MENTOR',
+                  content:
+                    '안녕하세요! 포트폴리오 피드백 요청 잘 받았습니다.\n\n프로젝트 설명 분량에 대해서는, 각 프로젝트당 핵심 역할·사용 기술·성과를 3~5줄로 압축하는 것을 권장합니다. 채용 담당자는 보통 1인당 30초~1분 이내로 포트폴리오를 훑어보기 때문에, 한눈에 읽히는 구조가 중요합니다.\n\n성과 지표가 없을 때는 "~를 구현하여 팀 개발 속도 향상에 기여" 처럼 정성적 기여도를 서술하거나, 직접 측정 가능한 수치(응답 속도, 코드 커버리지, 배포 주기 등)를 발굴해 추가하는 방법이 있습니다.\n\n기술 스택 강조는 JD에 나온 키워드와 본인 스택을 매칭시켜 작성하면 효과적입니다. 추가로 궁금한 점 있으시면 편하게 남겨주세요!',
+                  createdAt: now.subtract(20, 'hour').toISOString(),
+                },
+              ],
+            },
+            {
+              id: 'note-demo-fixed-2',
+              mentorId: 101,
+              method: 'note',
+              paymentMode: 'MANUAL_TRANSFER',
+              paymentStatus: 'PENDING_TRANSFER',
+              paymentMemo: '오늘 저녁 이체 예정, 김멘티, 토스',
+              menteeMemberId: memberId,
+              menteeName: '나 (멘티)',
+              menteeRole: 'ZERO-ONE 멘티',
+              requestedAt: now.subtract(1, 'hour').toISOString(),
+              requestMessage:
+                '이직 준비 관련 쪽지 상담을 신청합니다.\n\nQ. 멘토링 목적이 무엇인가요?\n현재 2년차 프론트엔드 개발자로, 대기업 이직을 목표로 준비 중입니다.\n\nQ. 질문하고 싶은 내용을 작성해주세요.\n코딩 테스트와 기술 면접 중 어디에 더 집중해야 할까요? 이직 타임라인도 조언 부탁드립니다.\n\nQ. 멘토에게 전하고 싶은 말\n멘토님의 경험을 바탕으로 현실적인 조언을 들을 수 있으면 좋겠습니다.',
+              status: 'PENDING',
+              conversation: [],
+            },
+            {
+              id: 'note-demo-fixed-3',
+              mentorId: 101,
+              method: 'note',
+              paymentMode: 'FREE_REQUEST',
+              paymentStatus: 'NOT_REQUIRED',
+              menteeMemberId: memberId,
+              menteeName: '나 (멘티)',
+              menteeRole: 'ZERO-ONE 멘티',
+              requestedAt: now.subtract(5, 'day').toISOString(),
+              requestMessage:
+                '커리어 전환 관련 질문이 있습니다.\n\nQ. 멘토링 목적이 무엇인가요?\n백엔드에서 풀스택으로 전환을 고민 중입니다.\n\nQ. 질문하고 싶은 내용을 작성해주세요.\n프론트엔드를 독학으로 시작할 때 어떤 순서로 학습하면 좋을지, 실무에서 요구하는 수준이 어느 정도인지 알고 싶습니다.\n\nQ. 멘토에게 전하고 싶은 말\n멘토님처럼 풀스택으로 활동하시는 분의 경험을 듣고 싶습니다.',
+              status: 'REJECTED',
+              decisionNote: '현재 신규 신청을 받고 있지 않습니다.',
+              rejectedAt: now.subtract(4, 'day').toISOString(),
+              conversation: [],
+            },
+          ];
+
+          const currentMentor101Requests = state.requestsByMentor[101] ?? [];
+          const nonDemoRequests = currentMentor101Requests.filter(
+            (r) => !r.id.startsWith('note-demo-fixed-'),
+          );
+          return {
+            requestsByMentor: {
+              ...state.requestsByMentor,
+              101: sortRequests([...nonDemoRequests, ...demoNoteRequests]),
             },
           };
         });
@@ -585,6 +742,8 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
             preferredDate: payload.preferredDate,
             preferredTime: payload.preferredTime,
             requestMessage: payload.requestMessage,
+            attachedFileNames: payload.attachedFileNames,
+            referenceLinks: payload.referenceLinks,
             status: 'PENDING',
             conversation: [createMenteeMessage(payload.requestMessage)],
           };

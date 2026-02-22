@@ -1,12 +1,16 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { XIcon } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, XIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { BaseInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import {
+  hasSessionConflict,
+  type MentoringSession,
+} from '@/stores/useMentoringManagementStore';
 
 export interface ScheduleEditorSubmitPayload {
   startsAt: string;
@@ -27,39 +31,24 @@ interface ScheduleEditorModalProps {
   defaultPlaceNote?: string;
   isSubmitting?: boolean;
   errorMessage?: string;
+  sessions?: MentoringSession[];
+  excludeSessionId?: string;
   onConfirm: (payload: ScheduleEditorSubmitPayload) => void;
 }
 
 const toTimeValue = (iso: string | undefined) => {
-  if (!iso) {
-    return '';
-  }
-
-  if (/^\d{2}:\d{2}$/.test(iso)) {
-    return iso;
-  }
-
+  if (!iso) return '';
+  if (/^\d{2}:\d{2}$/.test(iso)) return iso;
   const parsed = dayjs(iso);
-  if (!parsed.isValid()) {
-    return '';
-  }
-
+  if (!parsed.isValid()) return '';
   return parsed.format('HH:mm');
 };
 
 const toDateValue = (value: string | undefined) => {
-  if (!value) {
-    return dayjs().add(3, 'day').format('YYYY-MM-DD');
-  }
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    return value;
-  }
-
+  if (!value) return dayjs().add(3, 'day').format('YYYY-MM-DD');
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const parsed = dayjs(value);
-  if (!parsed.isValid()) {
-    return dayjs().add(3, 'day').format('YYYY-MM-DD');
-  }
-
+  if (!parsed.isValid()) return dayjs().add(3, 'day').format('YYYY-MM-DD');
   return parsed.format('YYYY-MM-DD');
 };
 
@@ -75,6 +64,8 @@ export default function ScheduleEditorModal({
   defaultPlaceNote,
   isSubmitting = false,
   errorMessage,
+  sessions = [],
+  excludeSessionId,
   onConfirm,
 }: ScheduleEditorModalProps) {
   const [dateValue, setDateValue] = useState('');
@@ -92,32 +83,50 @@ export default function ScheduleEditorModal({
   }, [defaultDate, defaultPlaceNote, defaultTime, open]);
 
   const startDateTime = useMemo(() => {
-    if (!dateValue || !timeValue) {
-      return undefined;
-    }
-
+    if (!dateValue || !timeValue) return undefined;
     const parsed = dayjs(`${dateValue} ${timeValue}`);
-    if (!parsed.isValid()) {
-      return undefined;
-    }
-
+    if (!parsed.isValid()) return undefined;
     return parsed;
   }, [dateValue, timeValue]);
 
   const endDateTime = useMemo(() => {
-    if (!startDateTime) {
-      return undefined;
-    }
-
+    if (!startDateTime) return undefined;
     return startDateTime.add(durationMinutes, 'minute');
   }, [durationMinutes, startDateTime]);
 
-  const isInvalid = !startDateTime || !endDateTime || placeNote.trim() === '';
+  const conflictingSession = useMemo(() => {
+    if (!startDateTime || !endDateTime || sessions.length === 0) return null;
+
+    const startsAt = startDateTime.toISOString();
+    const endsAt = endDateTime.toISOString();
+
+    const hasConflict = hasSessionConflict({
+      sessions,
+      startsAt,
+      endsAt,
+      excludeSessionId,
+    });
+
+    if (!hasConflict) return null;
+
+    return sessions.find((session) => {
+      if (session.status !== 'SCHEDULED') return false;
+      if (excludeSessionId && session.id === excludeSessionId) return false;
+
+      const sStart = dayjs(session.startsAt);
+      const sEnd = dayjs(session.endsAt);
+      return startDateTime.isBefore(sEnd) && sStart.isBefore(endDateTime);
+    }) ?? null;
+  }, [startDateTime, endDateTime, sessions, excludeSessionId]);
+
+  const isInvalid =
+    !startDateTime ||
+    !endDateTime ||
+    placeNote.trim() === '' ||
+    !!conflictingSession;
 
   const handleConfirm = () => {
-    if (!startDateTime || !endDateTime || isInvalid) {
-      return;
-    }
+    if (!startDateTime || !endDateTime || isInvalid) return;
 
     onConfirm({
       startsAt: startDateTime.toISOString(),
@@ -131,10 +140,7 @@ export default function ScheduleEditorModal({
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content
-          className="w-full max-w-[640px]"
-          description={description}
-        >
+        <Modal.Content className="w-full max-w-[640px]" description={description}>
           <Modal.Header className="flex items-center justify-between">
             <div>
               <Modal.Title>{title}</Modal.Title>
@@ -146,18 +152,50 @@ export default function ScheduleEditorModal({
               <XIcon className="text-text-subtle h-18 w-18" />
             </Modal.Close>
           </Modal.Header>
+
           <Modal.Body className="space-y-150">
-            <div className="rounded-100 bg-background-alternative px-150 py-100">
-              <p className="font-designer-13r text-text-subtle">
-                상담 시간은 자동으로 {durationMinutes}분이 반영됩니다.
-              </p>
-              <p className="font-designer-14b text-text-default mt-50">
-                {startDateTime && endDateTime
-                  ? `${startDateTime.format('YYYY.MM.DD HH:mm')} ~ ${endDateTime.format(
-                      'HH:mm',
-                    )}`
-                  : '날짜와 시간을 선택해주세요.'}
-              </p>
+            {/* 시간 미리보기 + 충돌 상태 */}
+            <div
+              className={cn(
+                'rounded-100 px-150 py-100',
+                conflictingSession
+                  ? 'bg-background-accent-red-subtle'
+                  : 'bg-background-alternative',
+              )}
+            >
+              {conflictingSession ? (
+                <div className="flex items-start gap-100">
+                  <AlertTriangle className="text-text-error mt-25 h-16 w-16 shrink-0" />
+                  <div>
+                    <p className="font-designer-13b text-text-error">
+                      시간이 겹치는 일정이 있습니다 — 수락 불가
+                    </p>
+                    <p className="font-designer-13r text-text-error mt-25">
+                      {conflictingSession.menteeName}님 상담 (
+                      {dayjs(conflictingSession.startsAt).format('MM/DD HH:mm')}{' '}
+                      ~ {dayjs(conflictingSession.endsAt).format('HH:mm')})과
+                      겹칩니다.
+                    </p>
+                  </div>
+                </div>
+              ) : startDateTime && endDateTime ? (
+                <div className="flex items-center gap-100">
+                  <CheckCircle2 className="text-text-success h-16 w-16 shrink-0" />
+                  <div>
+                    <p className="font-designer-14b text-text-default">
+                      {startDateTime.format('YYYY.MM.DD HH:mm')} ~{' '}
+                      {endDateTime.format('HH:mm')}
+                    </p>
+                    <p className="font-designer-12r text-text-subtle mt-25">
+                      상담 시간 {durationMinutes}분 · 중복 없음
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className="font-designer-13r text-text-subtle">
+                  날짜와 시간을 선택하면 중복 여부를 바로 확인합니다.
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-100 sm:grid-cols-2">
@@ -213,11 +251,10 @@ export default function ScheduleEditorModal({
             </div>
 
             {errorMessage && (
-              <p className="font-designer-13r text-text-error">
-                {errorMessage}
-              </p>
+              <p className="font-designer-13r text-text-error">{errorMessage}</p>
             )}
           </Modal.Body>
+
           <Modal.Footer className="flex items-center justify-end gap-100">
             <Modal.Close asChild>
               <Button type="button" size="medium" color="outlined">

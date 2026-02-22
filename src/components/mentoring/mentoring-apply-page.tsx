@@ -65,6 +65,7 @@ const methodIconMap: Record<MentoringMethodType, ReactNode> = {
 const exampleQuestions = [
   '멘토링 목적이 무엇인가요?',
   '멘토링에 도움이 될 정보를 작성해 주세요. (재직중인 회사, 수료한 교육, 작업 내용 등)',
+  '질문하고 싶은 내용을 작성해주세요.',
   '멘토에게 전하고 싶은 말',
 ];
 
@@ -264,6 +265,12 @@ export default function MentoringApplyPage({
         preferredTime:
           preferredTimeStart === '' ? undefined : preferredTimeStart,
         requestMessage: message.trim(),
+        attachedFileNames:
+          attachedFiles.length > 0
+            ? attachedFiles.map((f) => f.name)
+            : undefined,
+        referenceLinks:
+          referenceLinks.length > 0 ? referenceLinks : undefined,
       });
 
       await new Promise((resolve) => {
