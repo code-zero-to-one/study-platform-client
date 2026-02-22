@@ -1,24 +1,27 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { getCookie } from '@/api/client/cookie';
+import { createApiInstance } from '@/api/client/open-api-instance';
+import { PhoneAuthApi } from '@/api/openapi';
 // mutation 내부에서는 store 직접 사용 허용 (API 성공 시 즉시 업데이트 목적)
 import { usePhoneVerificationStore } from './store';
-import { sendPhoneVerificationCode, verifyPhoneCode } from '../api/phone-auth';
 import type {
   SendPhoneVerificationCodeRequest,
   VerifyPhoneCodeRequest,
 } from '../api/types';
 
+const phoneAuthApi = createApiInstance(PhoneAuthApi);
+
 /**
  * SMS 인증번호 발송 Mutation
  */
 export const useSendPhoneVerificationCodeMutation = () => {
-  return useMutation<
-    { success: boolean; message: string },
-    Error,
-    SendPhoneVerificationCodeRequest
-  >({
-    mutationFn: sendPhoneVerificationCode,
+  return useMutation({
+    mutationFn: async (data: SendPhoneVerificationCodeRequest) => {
+      const { data: res } = await phoneAuthApi.sendVerificationCode(data);
+
+      return res.content;
+    },
   });
 };
 
@@ -31,14 +34,14 @@ export const useVerifyPhoneCodeMutation = (memberId?: number) => {
   const router = useRouter();
   const { setVerified } = usePhoneVerificationStore();
 
-  return useMutation<
-    { success: boolean; message: string },
-    Error,
-    VerifyPhoneCodeRequest
-  >({
-    mutationFn: verifyPhoneCode,
+  return useMutation({
+    mutationFn: async (data: VerifyPhoneCodeRequest) => {
+      const { data: res } = await phoneAuthApi.verifyCode(data);
+
+      return res.content;
+    },
     onSuccess: async (data, variables) => {
-      if (data.success) {
+      if (data?.success) {
         const currentMemberId = memberId ?? Number(getCookie('memberId'));
 
         // 인증 상태 저장
