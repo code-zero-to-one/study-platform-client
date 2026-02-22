@@ -103,11 +103,15 @@ export default function InquiryDetail({
   };
 
   const handleEdit = (type: 'inquiry' | 'answer') => {
-    showToast(`${type === 'inquiry' ? '문의' : '답변'} 수정 기능은 준비 중입니다.`);
+    showToast(
+      `${type === 'inquiry' ? '문의' : '답변'} 수정 기능은 준비 중입니다.`,
+    );
   };
 
   const handleDelete = (type: 'inquiry' | 'answer') => {
-    showToast(`${type === 'inquiry' ? '문의' : '답변'} 삭제 기능은 준비 중입니다.`, 'info');
+    showToast(
+      `${type === 'inquiry' ? '문의' : '답변'} 삭제 기능은 준비 중입니다.`,
+    );
   };
 
   const canAnswer = inquiry.status !== 'ANSWERED';
@@ -129,7 +133,7 @@ export default function InquiryDetail({
       <div className="rounded-200 border-border-default border bg-white p-500">
         {/* 상단: 분류 + 더보기 메뉴 */}
         <div className="mb-300 flex items-center justify-between">
-          <span className="inline-flex min-w-[24px] items-center justify-center gap-[2px] whitespace-nowrap rounded-50 bg-background-accent-gray-subtle px-100 py-50 text-xs font-medium text-background-accent-gray-strong">
+          <span className="rounded-50 bg-background-accent-gray-subtle text-background-accent-gray-strong inline-flex min-w-[24px] items-center justify-center gap-[2px] px-100 py-50 text-xs font-medium whitespace-nowrap">
             {getInquiryTypeLabel(inquiry.type, isGroupStudy)}
           </span>
           <MoreMenu
@@ -208,7 +212,6 @@ export default function InquiryDetail({
             </div>
           </div>
         )}
-
       </div>
 
       {/* 답변 영역 */}
@@ -218,7 +221,14 @@ export default function InquiryDetail({
           <div className="rounded-200 border-border-default border bg-white p-500">
             <div className="mb-300 flex items-center justify-between">
               <h1 className="font-designer-24b text-text-default">
-                {isAdmin ? '운영자' : isMentor ? '멘토' : isGroupStudy ? '리더' : '멘토'}의 답변
+                {isAdmin
+                  ? '운영자'
+                  : isMentor
+                    ? '멘토'
+                    : isGroupStudy
+                      ? '리더'
+                      : '멘토'}
+                의 답변
               </h1>
               <MoreMenu
                 options={[
@@ -270,10 +280,7 @@ export default function InquiryDetail({
             <p className="font-designer-14r text-text-subtle">
               아직 답변이 등록되지 않았습니다.
             </p>
-            <Button
-              onClick={() => setShowAnswerModal(true)}
-              color="primary"
-            >
+            <Button onClick={() => setShowAnswerModal(true)} color="primary">
               답변하기
             </Button>
           </div>
