@@ -6,11 +6,8 @@ import { type MentoringMethodType } from '@/mocks/mentoring-mock-data';
 export type MentoringRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 export type MentoringSessionStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
 export type ConversationSender = 'MENTEE' | 'MENTOR' | 'SYSTEM';
-export type MentoringPaymentMode = 'MANUAL_TRANSFER' | 'FREE_REQUEST';
-export type MentoringPaymentStatus =
-  | 'PENDING_TRANSFER'
-  | 'NOT_REQUIRED'
-  | 'CONFIRMED';
+export type MentoringPaymentMode = 'MANUAL_TRANSFER';
+export type MentoringPaymentStatus = 'PENDING_TRANSFER' | 'CONFIRMED';
 export type MentoringReviewRecommendation = 'RECOMMEND' | 'NOT_RECOMMEND';
 
 export interface MentoringConversationMessage {
@@ -169,6 +166,10 @@ interface MentoringManagementState {
   submitReview: (payload: SubmitReviewPayload) => StoreResponse;
   rescheduleSession: (payload: RescheduleSessionPayload) => StoreResponse;
   cancelSession: (payload: CancelSessionPayload) => StoreResponse;
+  seedMockScenario: (payload: {
+    mentorId: number;
+    baseMenteeMemberId?: number;
+  }) => void;
   reset: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;
 }
@@ -209,27 +210,29 @@ const createId = (prefix: string) => {
   return `${prefix}-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
 };
 
-const getInitialPaymentStatus = (
-  paymentMode: MentoringPaymentMode,
-): MentoringPaymentStatus => {
-  if (paymentMode === 'FREE_REQUEST') {
-    return 'NOT_REQUIRED';
-  }
-
+const getInitialPaymentStatus = (): MentoringPaymentStatus => {
   return 'PENDING_TRANSFER';
 };
 
 const normalizeRequest = (
-  request: MentoringRequest &
+  request: Omit<
+    MentoringRequest,
+    'paymentMode' | 'paymentStatus' | 'paymentMemo'
+  > &
     Partial<{
-      paymentMode: MentoringPaymentMode;
-      paymentStatus: MentoringPaymentStatus;
+      paymentMode: MentoringPaymentMode | 'FREE_REQUEST';
+      paymentStatus: MentoringPaymentStatus | 'NOT_REQUIRED';
       paymentMemo: string;
     }>,
 ): MentoringRequest => {
-  const paymentMode = request.paymentMode ?? 'MANUAL_TRANSFER';
-  const paymentStatus =
-    request.paymentStatus ?? getInitialPaymentStatus(paymentMode);
+  const paymentMode: MentoringPaymentMode = 'MANUAL_TRANSFER';
+  const normalizedStatus =
+    request.paymentStatus === 'CONFIRMED' ||
+    request.paymentStatus === 'NOT_REQUIRED'
+      ? 'CONFIRMED'
+      : 'PENDING_TRANSFER';
+  const paymentStatus: MentoringPaymentStatus =
+    request.status === 'ACCEPTED' ? 'CONFIRMED' : normalizedStatus;
 
   return {
     ...request,
@@ -424,8 +427,8 @@ const createDemoRequests = (mentorId: number): MentoringRequest[] => {
   }> = [
     {
       method: 'note',
-      paymentMode: 'FREE_REQUEST',
-      paymentMemo: '오픈 기념 무료 상담 이벤트 신청',
+      paymentMode: 'MANUAL_TRANSFER',
+      paymentMemo: '계좌이체 예정 (신청 후 30분 내)',
       name: '김소연',
       role: '취업 준비생',
       requestedAt: now.subtract(4, 'hour').toISOString(),
@@ -478,7 +481,7 @@ const createDemoRequests = (mentorId: number): MentoringRequest[] => {
       method: entry.method,
       paymentMode: entry.paymentMode,
       paymentStatus:
-        entry.paymentStatus ?? getInitialPaymentStatus(entry.paymentMode),
+        entry.paymentStatus ?? getInitialPaymentStatus(),
       paymentMemo: entry.paymentMemo ?? '',
       menteeName: entry.name,
       menteeRole: entry.role,
@@ -525,6 +528,12 @@ const addRequestConversation = (
     conversation: [...request.conversation, ...messages],
   };
 };
+
+const toIso = (value: dayjs.ConfigType) => dayjs(value).toISOString();
+
+const toDate = (value: dayjs.ConfigType) => dayjs(value).format('YYYY-MM-DD');
+
+const toTime = (value: dayjs.ConfigType) => dayjs(value).format('HH:mm');
 
 export const useMentoringManagementStore = create<MentoringManagementState>()(
   persist(
@@ -576,7 +585,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
             mentorId: payload.mentorId,
             method: payload.method,
             paymentMode: payload.paymentMode,
-            paymentStatus: getInitialPaymentStatus(payload.paymentMode),
+            paymentStatus: getInitialPaymentStatus(),
             paymentMemo: payload.paymentMemo?.trim() ?? '',
             menteeMemberId: payload.menteeMemberId,
             menteeName: payload.menteeName,
@@ -625,6 +634,15 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
             response = {
               ok: false,
               reason: '이미 처리된 신청입니다.',
+            };
+
+            return state;
+          }
+
+          if (targetRequest.paymentStatus !== 'CONFIRMED') {
+            response = {
+              ok: false,
+              reason: '입금 확인 완료 후에만 수락할 수 있습니다.',
             };
 
             return state;
@@ -859,19 +877,19 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           }
 
           const targetRequest = requests[targetIndex];
-          if (targetRequest.paymentMode !== 'MANUAL_TRANSFER') {
+          if (targetRequest.paymentStatus === 'CONFIRMED') {
             response = {
               ok: false,
-              reason: '수동결제 신청이 아닙니다.',
+              reason: '이미 입금 확인된 신청입니다.',
             };
 
             return state;
           }
 
-          if (targetRequest.paymentStatus === 'CONFIRMED') {
+          if (targetRequest.status !== 'PENDING') {
             response = {
               ok: false,
-              reason: '이미 입금 확인된 신청입니다.',
+              reason: '대기중 신청에서만 입금 확인 처리가 가능합니다.',
             };
 
             return state;
@@ -1236,6 +1254,380 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
 
         return response;
       },
+      seedMockScenario: ({ mentorId, baseMenteeMemberId }) => {
+        set((state) => {
+          const now = dayjs();
+          const menteeBaseId = baseMenteeMemberId ?? 900000;
+          const completedSessionStart = now
+            .subtract(3, 'day')
+            .hour(20)
+            .minute(0)
+            .second(0)
+            .millisecond(0);
+          const completedSessionEnd = completedSessionStart.add(60, 'minute');
+          const upcomingSessionStart = now
+            .add(2, 'day')
+            .hour(21)
+            .minute(0)
+            .second(0)
+            .millisecond(0);
+          const upcomingSessionEnd = upcomingSessionStart.add(60, 'minute');
+          const cancelledSessionStart = now
+            .add(5, 'day')
+            .hour(20)
+            .minute(30)
+            .second(0)
+            .millisecond(0);
+          const cancelledSessionEnd = cancelledSessionStart.add(15, 'minute');
+
+          const upcomingSessionId = createId('session');
+          const completedSessionId = createId('session');
+          const cancelledSessionId = createId('session');
+
+          const pendingNoteRequestedAt = toIso(now.subtract(1, 'day'));
+          const rejectedRequestedAt = toIso(now.subtract(4, 'day'));
+          const rejectedAt = toIso(now.subtract(3, 'day').hour(19));
+          const acceptedUpcomingRequestedAt = toIso(now.subtract(2, 'day'));
+          const acceptedUpcomingAt = toIso(now.subtract(1, 'day').hour(18));
+          const acceptedCompletedRequestedAt = toIso(now.subtract(10, 'day'));
+          const acceptedCompletedAt = toIso(now.subtract(9, 'day').hour(11));
+          const cancelledRequestedAt = toIso(now.subtract(7, 'day'));
+          const acceptedCancelledAt = toIso(now.subtract(6, 'day').hour(20));
+          const cancelledAt = toIso(now.subtract(5, 'day').hour(13));
+          const acceptedNoteRequestedAt = toIso(now.subtract(8, 'day'));
+          const acceptedNoteAt = toIso(now.subtract(8, 'day').hour(22));
+          const firstReviewAt = toIso(now.subtract(2, 'day').hour(9));
+          const secondReviewAt = toIso(now.subtract(7, 'day').hour(17));
+
+          const pendingRequest: MentoringRequest = {
+            id: createId('request'),
+            mentorId,
+            method: 'note',
+            paymentMode: 'MANUAL_TRANSFER',
+            paymentStatus: 'PENDING_TRANSFER',
+            paymentMemo: '02/26 21:30 카카오뱅크 송금 예정',
+            menteeMemberId: menteeBaseId + 1,
+            menteeName: '이지은',
+            menteeRole: '주니어 프론트엔드 개발자',
+            requestedAt: pendingNoteRequestedAt,
+            requestMessage:
+              '현 프로젝트 경험을 이력서에 어떻게 구조화하면 좋을지 피드백 받고 싶습니다.',
+            status: 'PENDING',
+            conversation: [
+              {
+                id: createId('msg'),
+                sender: 'MENTEE',
+                content:
+                  '현 프로젝트 경험을 이력서에 어떻게 구조화하면 좋을지 피드백 받고 싶습니다.',
+                createdAt: pendingNoteRequestedAt,
+              },
+            ],
+          };
+
+          const rejectedRequest: MentoringRequest = {
+            id: createId('request'),
+            mentorId,
+            method: 'phone',
+            paymentMode: 'MANUAL_TRANSFER',
+            paymentStatus: 'PENDING_TRANSFER',
+            paymentMemo: '계좌이체 예정',
+            menteeMemberId: menteeBaseId + 2,
+            menteeName: '박준호',
+            menteeRole: '주니어 백엔드 개발자',
+            requestedAt: rejectedRequestedAt,
+            preferredDate: toDate(now.add(3, 'day')),
+            preferredTime: toTime(now.add(3, 'day').hour(20)),
+            requestMessage:
+              '15분 전화로 이직 우선순위를 빠르게 점검받고 싶습니다.',
+            status: 'REJECTED',
+            rejectedAt,
+            decisionNote:
+              '현재 요청 시간대에 상담이 불가합니다. 가능한 시간대로 다시 신청해주세요.',
+            conversation: [
+              {
+                id: createId('msg'),
+                sender: 'MENTEE',
+                content:
+                  '15분 전화로 이직 우선순위를 빠르게 점검받고 싶습니다.',
+                createdAt: rejectedRequestedAt,
+              },
+              buildSystemMessage('멘토가 신청을 거절했어요.', rejectedAt),
+              buildMentorMessage(
+                '현재 요청 시간대에 상담이 불가합니다. 가능한 시간대로 다시 신청해주세요.',
+                rejectedAt,
+              ),
+            ],
+          };
+
+          const acceptedUpcomingRequest: MentoringRequest = {
+            id: createId('request'),
+            mentorId,
+            method: 'online',
+            paymentMode: 'MANUAL_TRANSFER',
+            paymentStatus: 'CONFIRMED',
+            paymentMemo: '입금 확인 완료 (카카오뱅크)',
+            menteeMemberId: menteeBaseId + 3,
+            menteeName: '최수민',
+            menteeRole: '프로덕트 디자이너',
+            requestedAt: acceptedUpcomingRequestedAt,
+            preferredDate: toDate(upcomingSessionStart),
+            preferredTime: toTime(upcomingSessionStart),
+            requestMessage:
+              '포트폴리오 케이스 스터디 흐름과 발표 스크립트 점검을 받고 싶어요.',
+            status: 'ACCEPTED',
+            acceptedAt: acceptedUpcomingAt,
+            decisionNote: '사전 질문 정리 후 화면 공유로 진행하겠습니다.',
+            linkedSessionId: upcomingSessionId,
+            conversation: [
+              {
+                id: createId('msg'),
+                sender: 'MENTEE',
+                content:
+                  '포트폴리오 케이스 스터디 흐름과 발표 스크립트 점검을 받고 싶어요.',
+                createdAt: acceptedUpcomingRequestedAt,
+              },
+              buildSystemMessage(
+                `멘토가 신청을 수락하고 일정을 확정했어요. (${dayjs(
+                  upcomingSessionStart,
+                ).format('MM/DD HH:mm')} ~ ${dayjs(upcomingSessionEnd).format(
+                  'HH:mm',
+                )})`,
+                acceptedUpcomingAt,
+              ),
+              buildMentorMessage(
+                '사전 질문 정리 후 화면 공유로 진행하겠습니다.',
+                acceptedUpcomingAt,
+              ),
+              buildSystemMessage(
+                '멘토가 입금 상태를 확인했어요.',
+                toIso(now.subtract(1, 'day').hour(19)),
+              ),
+            ],
+          };
+
+          const acceptedCompletedRequest: MentoringRequest = {
+            id: createId('request'),
+            mentorId,
+            method: 'offline',
+            paymentMode: 'MANUAL_TRANSFER',
+            paymentStatus: 'CONFIRMED',
+            paymentMemo: '현장 미팅 전일 입금 완료',
+            menteeMemberId: menteeBaseId + 4,
+            menteeName: '김다연',
+            menteeRole: '주니어 PM',
+            requestedAt: acceptedCompletedRequestedAt,
+            preferredDate: toDate(completedSessionStart),
+            preferredTime: toTime(completedSessionStart),
+            requestMessage:
+              '서비스 기획 포트폴리오의 문제정의/성과지표 구조를 리뷰받고 싶습니다.',
+            status: 'ACCEPTED',
+            acceptedAt: acceptedCompletedAt,
+            decisionNote: '강남역 인근에서 대면으로 진행하겠습니다.',
+            linkedSessionId: completedSessionId,
+            conversation: [
+              {
+                id: createId('msg'),
+                sender: 'MENTEE',
+                content:
+                  '서비스 기획 포트폴리오의 문제정의/성과지표 구조를 리뷰받고 싶습니다.',
+                createdAt: acceptedCompletedRequestedAt,
+              },
+              buildSystemMessage(
+                `멘토가 신청을 수락하고 일정을 확정했어요. (${dayjs(
+                  completedSessionStart,
+                ).format('MM/DD HH:mm')} ~ ${dayjs(completedSessionEnd).format(
+                  'HH:mm',
+                )})`,
+                acceptedCompletedAt,
+              ),
+              buildMentorMessage(
+                '강남역 인근에서 대면으로 진행하겠습니다.',
+                acceptedCompletedAt,
+              ),
+              buildSystemMessage('멘티가 멘토링 후기를 남겼어요.', firstReviewAt),
+            ],
+          };
+
+          const acceptedCancelledRequest: MentoringRequest = {
+            id: createId('request'),
+            mentorId,
+            method: 'phone',
+            paymentMode: 'MANUAL_TRANSFER',
+            paymentStatus: 'CONFIRMED',
+            paymentMemo: '입금 확인 완료',
+            menteeMemberId: menteeBaseId + 5,
+            menteeName: '오민규',
+            menteeRole: '안드로이드 개발자',
+            requestedAt: cancelledRequestedAt,
+            preferredDate: toDate(cancelledSessionStart),
+            preferredTime: toTime(cancelledSessionStart),
+            requestMessage:
+              '이직 시점과 기술스택 선택 관련 단기 상담을 요청드립니다.',
+            status: 'ACCEPTED',
+            acceptedAt: acceptedCancelledAt,
+            decisionNote: '요청 주제 기준으로 핵심만 빠르게 정리해드릴게요.',
+            linkedSessionId: cancelledSessionId,
+            conversation: [
+              {
+                id: createId('msg'),
+                sender: 'MENTEE',
+                content:
+                  '이직 시점과 기술스택 선택 관련 단기 상담을 요청드립니다.',
+                createdAt: cancelledRequestedAt,
+              },
+              buildSystemMessage(
+                `멘토가 신청을 수락하고 일정을 확정했어요. (${dayjs(
+                  cancelledSessionStart,
+                ).format('MM/DD HH:mm')} ~ ${dayjs(cancelledSessionEnd).format(
+                  'HH:mm',
+                )})`,
+                acceptedCancelledAt,
+              ),
+              buildMentorMessage(
+                '요청 주제 기준으로 핵심만 빠르게 정리해드릴게요.',
+                acceptedCancelledAt,
+              ),
+              buildSystemMessage('확정된 일정이 취소되었어요.', cancelledAt),
+              buildMentorMessage(
+                '멘토 사정으로 일정 조정이 필요하여 이번 건은 취소 처리했습니다.',
+                cancelledAt,
+              ),
+            ],
+          };
+
+          const acceptedNoteRequest: MentoringRequest = {
+            id: createId('request'),
+            mentorId,
+            method: 'note',
+            paymentMode: 'MANUAL_TRANSFER',
+            paymentStatus: 'CONFIRMED',
+            paymentMemo: '입금 확인 완료',
+            menteeMemberId: menteeBaseId + 6,
+            menteeName: '정하린',
+            menteeRole: '취업 준비생',
+            requestedAt: acceptedNoteRequestedAt,
+            requestMessage:
+              '주니어 백엔드 포지션 지원서에 어떤 프로젝트를 우선 배치하면 좋을까요?',
+            status: 'ACCEPTED',
+            acceptedAt: acceptedNoteAt,
+            decisionNote:
+              '작성하신 이력서를 기준으로 수정 우선순위와 문장 템플릿을 전달드렸습니다.',
+            conversation: [
+              {
+                id: createId('msg'),
+                sender: 'MENTEE',
+                content:
+                  '주니어 백엔드 포지션 지원서에 어떤 프로젝트를 우선 배치하면 좋을까요?',
+                createdAt: acceptedNoteRequestedAt,
+              },
+              buildSystemMessage('멘토가 신청을 수락했어요.', acceptedNoteAt),
+              buildMentorMessage(
+                '작성하신 이력서를 기준으로 수정 우선순위와 문장 템플릿을 전달드렸습니다.',
+                acceptedNoteAt,
+              ),
+              buildSystemMessage('멘티가 멘토링 후기를 남겼어요.', secondReviewAt),
+            ],
+          };
+
+          const requests = [
+            pendingRequest,
+            rejectedRequest,
+            acceptedUpcomingRequest,
+            acceptedCompletedRequest,
+            acceptedCancelledRequest,
+            acceptedNoteRequest,
+          ];
+
+          const sessions: MentoringSession[] = [
+            {
+              id: upcomingSessionId,
+              mentorId,
+              requestId: acceptedUpcomingRequest.id,
+              menteeName: acceptedUpcomingRequest.menteeName,
+              method: acceptedUpcomingRequest.method,
+              startsAt: toIso(upcomingSessionStart),
+              endsAt: toIso(upcomingSessionEnd),
+              placeNote: 'Google Meet (링크 사전 전달)',
+              status: 'SCHEDULED',
+              createdAt: acceptedUpcomingAt,
+              updatedAt: acceptedUpcomingAt,
+            },
+            {
+              id: completedSessionId,
+              mentorId,
+              requestId: acceptedCompletedRequest.id,
+              menteeName: acceptedCompletedRequest.menteeName,
+              method: acceptedCompletedRequest.method,
+              startsAt: toIso(completedSessionStart),
+              endsAt: toIso(completedSessionEnd),
+              placeNote: '강남역 인근 카페 미팅',
+              status: 'COMPLETED',
+              createdAt: acceptedCompletedAt,
+              updatedAt: firstReviewAt,
+            },
+            {
+              id: cancelledSessionId,
+              mentorId,
+              requestId: acceptedCancelledRequest.id,
+              menteeName: acceptedCancelledRequest.menteeName,
+              method: acceptedCancelledRequest.method,
+              startsAt: toIso(cancelledSessionStart),
+              endsAt: toIso(cancelledSessionEnd),
+              placeNote: '전화상담',
+              status: 'CANCELLED',
+              createdAt: acceptedCancelledAt,
+              updatedAt: cancelledAt,
+            },
+          ];
+
+          const reviews: MentoringReview[] = [
+            {
+              id: createId('review'),
+              mentorId,
+              requestId: acceptedCompletedRequest.id,
+              sessionId: completedSessionId,
+              menteeMemberId: acceptedCompletedRequest.menteeMemberId ?? 0,
+              menteeName: acceptedCompletedRequest.menteeName,
+              method: acceptedCompletedRequest.method,
+              rating: 5,
+              recommendation: 'RECOMMEND',
+              content:
+                '포트폴리오의 문제정의와 성과 수치화 포인트를 구체적으로 잡아주셔서 바로 수정에 반영했습니다.',
+              createdAt: firstReviewAt,
+              updatedAt: firstReviewAt,
+            },
+            {
+              id: createId('review'),
+              mentorId,
+              requestId: acceptedNoteRequest.id,
+              menteeMemberId: acceptedNoteRequest.menteeMemberId ?? 0,
+              menteeName: acceptedNoteRequest.menteeName,
+              method: acceptedNoteRequest.method,
+              rating: 5,
+              recommendation: 'RECOMMEND',
+              content:
+                '이력서 문장 템플릿을 직무 중심으로 바꿔주셔서 지원서 완성도가 크게 올라갔습니다.',
+              createdAt: secondReviewAt,
+              updatedAt: secondReviewAt,
+            },
+          ];
+
+          return {
+            requestsByMentor: {
+              ...state.requestsByMentor,
+              [mentorId]: sortRequests(requests),
+            },
+            sessionsByMentor: {
+              ...state.sessionsByMentor,
+              [mentorId]: sortSessions(sessions),
+            },
+            reviewsByMentor: {
+              ...state.reviewsByMentor,
+              [mentorId]: sortReviews(reviews),
+            },
+          };
+        });
+      },
       reset: () => {
         set({
           ...INITIAL_STATE,
@@ -1246,7 +1638,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
     }),
     {
       name: 'mentoring-management-storage',
-      version: 2,
+      version: 3,
       migrate: (persistedState) => {
         if (!persistedState) {
           return persistedState;

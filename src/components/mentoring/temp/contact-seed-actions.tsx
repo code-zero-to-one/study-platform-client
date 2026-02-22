@@ -148,6 +148,21 @@ export default function ContactSeedActions() {
       .toISOString();
     const endsAt = dayjs(startsAt).add(15, 'minute').toISOString();
 
+    const paymentResult = confirmManualPayment({
+      mentorId,
+      requestId,
+      memo: '입금 확인 완료 (임시 검증)',
+    });
+
+    if (!paymentResult.ok) {
+      showToast(
+        paymentResult.reason ?? '입금 확인 상태 생성에 실패했습니다.',
+        'error',
+      );
+
+      return;
+    }
+
     const acceptResult = acceptRequest({
       mentorId,
       requestId,
@@ -172,20 +187,6 @@ export default function ContactSeedActions() {
     });
     if (!messageResult.ok) {
       showToast(messageResult.reason ?? '메시지 생성에 실패했습니다.', 'error');
-
-      return;
-    }
-
-    const paymentResult = confirmManualPayment({
-      mentorId,
-      requestId,
-      memo: '입금 확인 완료 (임시 검증)',
-    });
-    if (!paymentResult.ok) {
-      showToast(
-        paymentResult.reason ?? '입금 확인 상태 생성에 실패했습니다.',
-        'error',
-      );
 
       return;
     }

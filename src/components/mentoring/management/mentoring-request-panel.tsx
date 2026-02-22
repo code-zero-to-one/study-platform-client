@@ -12,7 +12,6 @@ import {
 } from '@/mocks/mentoring-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
-  type MentoringPaymentMode,
   type MentoringPaymentStatus,
   type MentoringRequest,
   useMentoringManagementStore,
@@ -44,23 +43,16 @@ const senderLabelMap = {
   SYSTEM: '시스템',
 } as const;
 
-const paymentModeLabelMap: Record<MentoringPaymentMode, string> = {
-  MANUAL_TRANSFER: '수동결제',
-  FREE_REQUEST: '결제없음',
-};
-
 const paymentStatusLabelMap: Record<MentoringPaymentStatus, string> = {
   PENDING_TRANSFER: '입금 대기',
-  NOT_REQUIRED: '결제 불필요',
   CONFIRMED: '입금 확인',
 };
 
 const paymentStatusColorMap: Record<
   MentoringPaymentStatus,
-  'orange' | 'blue' | 'green'
+  'orange' | 'green'
 > = {
   PENDING_TRANSFER: 'orange',
-  NOT_REQUIRED: 'blue',
   CONFIRMED: 'green',
 };
 
@@ -258,6 +250,7 @@ export default function MentoringRequestPanel({
           <div className="space-y-150">
             {requests.map((request) => {
               const isPending = request.status === 'PENDING';
+              const canAccept = isPending && request.paymentStatus === 'CONFIRMED';
               const rejectReason = rejectReasonByRequest[request.id] ?? '';
               const messageDraft = messageDraftByRequest[request.id] ?? '';
               const previewMessages = request.conversation.slice(-3);
@@ -298,9 +291,6 @@ export default function MentoringRequestPanel({
                     <p className="font-designer-13r text-text-subtle">
                       {getPreferredScheduleLabel(request)}
                     </p>
-                    <Badge color="gray" shape="round">
-                      {paymentModeLabelMap[request.paymentMode]}
-                    </Badge>
                     <Badge
                       color={paymentStatusColorMap[request.paymentStatus]}
                       shape="round"
@@ -317,6 +307,14 @@ export default function MentoringRequestPanel({
                     <p className="font-designer-13r text-text-subtle mb-125">
                       결제 메모: {request.paymentMemo}
                     </p>
+                  )}
+
+                  {isPending && request.paymentStatus === 'PENDING_TRANSFER' && (
+                    <div className="rounded-100 border-border-subtle bg-background-accent-orange-subtle mb-125 border p-125">
+                      <p className="font-designer-13r text-text-default">
+                        입금 확인 완료 후에만 신청을 수락할 수 있습니다.
+                      </p>
+                    </div>
                   )}
 
                   <div className="mb-125 space-y-75">
@@ -338,12 +336,22 @@ export default function MentoringRequestPanel({
 
                   {isPending && (
                     <div className="mb-125 flex flex-wrap gap-100">
+                      <Button
+                        type="button"
+                        size="small"
+                        color="secondary"
+                        onClick={() => handleConfirmPayment(request.id)}
+                        disabled={request.paymentStatus === 'CONFIRMED'}
+                      >
+                        입금 확인 완료
+                      </Button>
                       {request.method === 'note' ? (
                         <Button
                           type="button"
                           size="small"
                           color="primary"
                           onClick={() => handleAcceptNote(request)}
+                          disabled={!canAccept}
                         >
                           수락
                         </Button>
@@ -356,6 +364,7 @@ export default function MentoringRequestPanel({
                             setScheduleTargetId(request.id);
                             setScheduleError('');
                           }}
+                          disabled={!canAccept}
                         >
                           수락 후 일정 확정
                         </Button>
@@ -413,20 +422,6 @@ export default function MentoringRequestPanel({
                       처리 메모: {request.decisionNote}
                     </p>
                   )}
-
-                  {request.paymentMode === 'MANUAL_TRANSFER' &&
-                    request.paymentStatus === 'PENDING_TRANSFER' && (
-                      <div className="mb-125">
-                        <Button
-                          type="button"
-                          size="xsmall"
-                          color="secondary"
-                          onClick={() => handleConfirmPayment(request.id)}
-                        >
-                          입금 확인 완료
-                        </Button>
-                      </div>
-                    )}
 
                   <div className="flex flex-wrap items-center gap-75">
                     <div className="min-w-[220px] flex-1">

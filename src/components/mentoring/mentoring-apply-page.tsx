@@ -48,6 +48,10 @@ import {
   type MentoringPaymentMode,
   useMentoringManagementStore,
 } from '@/stores/useMentoringManagementStore';
+import {
+  type MentorOperationStatus,
+  useMentorOperationStore,
+} from '@/stores/useMentorOperationStore';
 import { useUserStore } from '@/stores/useUserStore';
 
 interface MentoringApplyPageProps {
@@ -74,6 +78,14 @@ const paymentModeCopy = {
   helper: '결제 API 없이도 바로 운영 가능한 모드입니다.',
 };
 
+const getOperationBlockMessage = (status: MentorOperationStatus) => {
+  if (status === 'REQUESTS_PAUSED') {
+    return '관리자 조치로 신규 신청이 일시 중지된 멘토입니다.';
+  }
+
+  return '관리자 조치로 운영 정지된 멘토입니다.';
+};
+
 export default function MentoringApplyPage({
   mentor,
   selectedMethod,
@@ -82,6 +94,12 @@ export default function MentoringApplyPage({
   const { memberId } = useAuthReady();
   const createRequest = useMentoringManagementStore(
     (state) => state.createRequest,
+  );
+  const mentorOperationRecord = useMentorOperationStore(
+    (state) => state.recordsByMentorId[mentor.id],
+  );
+  const mentorOperationHydrated = useMentorOperationStore(
+    (state) => state.hasHydrated,
   );
   const { showToast } = useToastStore();
   const { memberName, nickname, tel } = useUserStore();
@@ -182,6 +200,10 @@ export default function MentoringApplyPage({
     requiresAttachment && !hasAttachment && hasSubmitAttempt;
   const shouldShowPaymentMemoError =
     paymentMemo.trim().length < 2 && hasSubmitAttempt;
+  const isRequestBlockedByOperation =
+    mentorOperationHydrated &&
+    mentorOperationRecord !== undefined &&
+    mentorOperationRecord.status !== 'OPEN';
 
   useEffect(() => {
     if (selectedTime && !availableTimeSlots.includes(selectedTime)) {
@@ -242,6 +264,12 @@ export default function MentoringApplyPage({
     setHasSubmitAttempt(true);
 
     if (!isValidForm || isSubmitting) {
+      return;
+    }
+
+    if (isRequestBlockedByOperation && mentorOperationRecord) {
+      showToast(getOperationBlockMessage(mentorOperationRecord.status), 'error');
+
       return;
     }
 
@@ -676,6 +704,19 @@ export default function MentoringApplyPage({
               </Badge>
             </div>
 
+            {isRequestBlockedByOperation && mentorOperationRecord ? (
+              <div className="rounded-100 border-border-subtle bg-background-accent-orange-subtle mb-150 border px-125 py-100">
+                <p className="font-designer-13b text-text-default">
+                  {getOperationBlockMessage(mentorOperationRecord.status)}
+                </p>
+                <p className="font-designer-12r text-text-subtle mt-50">
+                  사유:{' '}
+                  {mentorOperationRecord.reason ??
+                    '관리자 조치로 신규 신청이 제한되었습니다.'}
+                </p>
+              </div>
+            ) : null}
+
             <div className="rounded-125 border-border-subtle bg-background-alternative mb-150 border p-125">
               <div className="mb-75 flex items-center justify-between gap-75">
                 <p className="font-designer-14b text-text-default inline-flex items-center gap-50">
@@ -754,9 +795,15 @@ export default function MentoringApplyPage({
               size="large"
               className="w-full"
               onClick={handleSubmit}
-              disabled={!isValidForm || isSubmitting}
+              disabled={
+                !isValidForm || isSubmitting || isRequestBlockedByOperation
+              }
             >
-              {isSubmitting ? '처리 중...' : '수동결제로 신청하기'}
+              {isSubmitting
+                ? '처리 중...'
+                : isRequestBlockedByOperation
+                  ? '현재 신청이 제한되었습니다'
+                  : '수동결제로 신청하기'}
             </Button>
           </section>
 
