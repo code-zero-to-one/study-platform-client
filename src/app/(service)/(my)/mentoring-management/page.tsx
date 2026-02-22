@@ -58,6 +58,60 @@ export default function MentoringManagementPage() {
         </button>
       </header>
 
+      <section className="rounded-200 border-border-information bg-background-accent-blue-subtle border p-250">
+        <h2 className="font-designer-18b text-text-default">관리 화면 역할 구분</h2>
+        <p className="font-designer-13r text-text-subtle mt-50">
+          현재 페이지(`/mentoring-management`)는 멘토 운영 화면입니다.
+          유저(멘티)와 멘토의 관리 범위는 아래처럼 분리됩니다.
+        </p>
+        <div className="mt-175 grid grid-cols-1 gap-125 md:grid-cols-2">
+          <article className="rounded-150 border-border-subtle bg-background-default border p-175">
+            <h3 className="font-designer-14b text-text-default">
+              유저(멘티) 입장 관리
+            </h3>
+            <p className="font-designer-13r text-text-subtle mt-50">
+              내가 신청한 상담 내역 확인, 멘토 답변 확인, 상담 완료 후 후기 작성
+            </p>
+            <div className="mt-100 flex flex-wrap gap-100">
+              <Link
+                href="/note-consultation"
+                className="font-designer-12m text-text-information hover:underline"
+              >
+                쪽지 상담 관리
+              </Link>
+              <Link
+                href="/my-study-review"
+                className="font-designer-12m text-text-information hover:underline"
+              >
+                내 멘토링 후기 관리
+              </Link>
+            </div>
+          </article>
+          <article className="rounded-150 border-border-subtle bg-background-default border p-175">
+            <h3 className="font-designer-14b text-text-default">
+              멘토 입장 관리
+            </h3>
+            <p className="font-designer-13r text-text-subtle mt-50">
+              신청서 검토 및 수락/거절, 입금 확인, 상담 일정 확정/변경/취소
+            </p>
+            <div className="mt-100 flex flex-wrap gap-100">
+              <Link
+                href="/mentoring-management"
+                className="font-designer-12m text-text-information hover:underline"
+              >
+                일정 대시보드
+              </Link>
+              <Link
+                href="/mentoring-management/requests"
+                className="font-designer-12m text-text-information hover:underline"
+              >
+                신청 처리 페이지
+              </Link>
+            </div>
+          </article>
+        </div>
+      </section>
+
       {myMentorProfile ? (
         <>
           <section className="rounded-200 border-border-subtle bg-background-default flex flex-col gap-200 border p-300">

@@ -18,9 +18,6 @@ export default function ReviewSeedActions() {
   const createRequest = useMentoringManagementStore(
     (state) => state.createRequest,
   );
-  const confirmManualPayment = useMentoringManagementStore(
-    (state) => state.confirmManualPayment,
-  );
   const acceptRequest = useMentoringManagementStore(
     (state) => state.acceptRequest,
   );
@@ -51,25 +48,14 @@ export default function ReviewSeedActions() {
     const requestId = createRequest({
       mentorId: TARGET_MENTOR_ID,
       method: 'note',
-      paymentMode: 'MANUAL_TRANSFER',
-      paymentMemo: '임시 검증용 수동결제 메모',
+      paymentMode: 'TOSS_PAYMENTS',
       menteeMemberId: memberId,
       menteeName: getMenteeName(),
       menteeRole: 'ZERO-ONE 멘티',
       requestMessage: `임시 검증용 쪽지상담 신청 (${dayjs().format('HH:mm:ss')})`,
     });
 
-    const paymentResult = confirmManualPayment({
-      mentorId: TARGET_MENTOR_ID,
-      requestId,
-      memo: '임시 검증용 입금 확인 완료',
-    });
-    if (!paymentResult.ok) {
-      showToast(paymentResult.reason ?? '임시 데이터 생성에 실패했습니다.', 'error');
-
-      return;
-    }
-
+    // TOSS_PAYMENTS: 결제 완료 후 신청 생성이므로 confirmManualPayment 불필요
     const result = acceptRequest({
       mentorId: TARGET_MENTOR_ID,
       requestId,
@@ -94,8 +80,7 @@ export default function ReviewSeedActions() {
     const requestId = createRequest({
       mentorId: TARGET_MENTOR_ID,
       method: 'phone',
-      paymentMode: 'MANUAL_TRANSFER',
-      paymentMemo: '임시 검증용 수동결제 메모',
+      paymentMode: 'TOSS_PAYMENTS',
       menteeMemberId: memberId,
       menteeName: getMenteeName(),
       menteeRole: 'ZERO-ONE 멘티',
@@ -104,17 +89,7 @@ export default function ReviewSeedActions() {
       requestMessage: `임시 검증용 전화상담 신청 (${dayjs().format('HH:mm:ss')})`,
     });
 
-    const paymentResult = confirmManualPayment({
-      mentorId: TARGET_MENTOR_ID,
-      requestId,
-      memo: '임시 검증용 입금 확인 완료',
-    });
-    if (!paymentResult.ok) {
-      showToast(paymentResult.reason ?? '임시 데이터 생성에 실패했습니다.', 'error');
-
-      return;
-    }
-
+    // TOSS_PAYMENTS: 결제 완료 후 신청 생성이므로 confirmManualPayment 불필요
     const startsAt = dayjs().subtract(2, 'hour').startOf('minute').toISOString();
     const endsAt = dayjs().subtract(1, 'hour').startOf('minute').toISOString();
     const result = acceptRequest({

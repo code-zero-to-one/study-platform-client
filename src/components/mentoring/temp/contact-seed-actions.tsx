@@ -70,10 +70,6 @@ export default function ContactSeedActions() {
   const sendMentorMessage = useMentoringManagementStore(
     (state) => state.sendMentorMessage,
   );
-  const confirmManualPayment = useMentoringManagementStore(
-    (state) => state.confirmManualPayment,
-  );
-
   const ensureMentorId = () => {
     if (!memberId) {
       showToast('로그인된 계정에서만 임시 검증을 실행할 수 있습니다.', 'error');
@@ -108,8 +104,7 @@ export default function ContactSeedActions() {
     createRequest({
       mentorId,
       method: 'phone',
-      paymentMode: 'MANUAL_TRANSFER',
-      paymentMemo: '23:00 이체 예정 · 임시 검증',
+      paymentMode: 'TOSS_PAYMENTS',
       menteeName: '임시 멘티 A',
       menteeRole: '주니어 프론트엔드 개발자',
       preferredDate: dayjs().add(4, 'day').format('YYYY-MM-DD'),
@@ -130,8 +125,7 @@ export default function ContactSeedActions() {
     const requestId = createRequest({
       mentorId,
       method: 'phone',
-      paymentMode: 'MANUAL_TRANSFER',
-      paymentMemo: '송금 완료, 멘토 확인 요청',
+      paymentMode: 'TOSS_PAYMENTS',
       menteeName: '임시 멘티 B',
       menteeRole: '주니어 백엔드 개발자',
       preferredDate: dayjs().add(3, 'day').format('YYYY-MM-DD'),
@@ -148,21 +142,7 @@ export default function ContactSeedActions() {
       .toISOString();
     const endsAt = dayjs(startsAt).add(15, 'minute').toISOString();
 
-    const paymentResult = confirmManualPayment({
-      mentorId,
-      requestId,
-      memo: '입금 확인 완료 (임시 검증)',
-    });
-
-    if (!paymentResult.ok) {
-      showToast(
-        paymentResult.reason ?? '입금 확인 상태 생성에 실패했습니다.',
-        'error',
-      );
-
-      return;
-    }
-
+    // TOSS_PAYMENTS: 결제 완료 후 신청 생성이므로 confirmManualPayment 불필요
     const acceptResult = acceptRequest({
       mentorId,
       requestId,

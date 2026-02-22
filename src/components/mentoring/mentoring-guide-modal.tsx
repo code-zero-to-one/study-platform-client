@@ -17,6 +17,11 @@ const GUIDE_CONTENT = [
       '멘토와 멘티를 1:1로 연결해 약속을 잡아주는 기능입니다. 멘토가 가능한 시간과 비용을 설정하면 멘티는 원하는 일정에 멘토링을 신청할 수 있어요.',
   },
   {
+    title: '관리 페이지는 어떻게 구분되나요?',
+    description:
+      '유저(멘티) 관점 관리: 내가 신청한 상담 내역/멘토 답변/후기 작성을 관리합니다.\n- /note-consultation\n- /my-study-review\n\n멘토 관점 관리: 멘티 신청 처리와 상담 일정 운영을 관리합니다.\n- /mentoring-management\n- /mentoring-management/requests',
+  },
+  {
     title: '어떤 목적으로 사용할까요?',
     description:
       '커리어 상담, 코드리뷰, 포트폴리오 리뷰, 기술 컨설팅, 모의 면접 등 지식과 경험을 공유하는 목적이라면 다양하게 활용할 수 있습니다.',
@@ -68,7 +73,7 @@ export default function MentoringGuideModal({
                 <h3 className="font-designer-20b text-text-default mb-75">
                   ○ {item.title}
                 </h3>
-                <p className="font-designer-16r text-text-subtle leading-relaxed">
+                <p className="font-designer-16r text-text-subtle leading-relaxed whitespace-pre-line">
                   {item.description}
                 </p>
               </section>

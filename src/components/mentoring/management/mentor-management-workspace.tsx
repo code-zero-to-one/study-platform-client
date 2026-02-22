@@ -1,36 +1,24 @@
 'use client';
 
 import dayjs from 'dayjs';
-import {
-  CalendarDays,
-  CheckCheck,
-  ClockAlert,
-  MessageCircleHeart,
-} from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
+import { CalendarDays, ClockAlert } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useMemo } from 'react';
+import Badge from '@/components/ui/badge';
 import { type MentorProfile } from '@/mocks/mentoring-mock-data';
 import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import MentoringRequestPanel from './mentoring-request-panel';
 import MentoringSchedulePanel from './mentoring-schedule-panel';
-
-type WorkspaceTab = 'request' | 'schedule';
 
 interface MentorManagementWorkspaceProps {
   memberId: number;
   mentor: MentorProfile;
 }
 
-const tabItems: Array<{ id: WorkspaceTab; label: string }> = [
-  { id: 'request', label: '신청함 운영' },
-  { id: 'schedule', label: '일정 관리' },
-];
-
 export default function MentorManagementWorkspace({
   memberId,
   mentor,
 }: MentorManagementWorkspaceProps) {
-  const [activeTab, setActiveTab] = useState<WorkspaceTab>('request');
   const ensureDemoRequests = useMentoringManagementStore(
     (state) => state.ensureDemoRequests,
   );
@@ -46,48 +34,36 @@ export default function MentorManagementWorkspace({
     ensureDemoRequests(memberId, mentor.id);
   }, [ensureDemoRequests, memberId, mentor.id]);
 
-  const mentorSettings = useMemo(() => {
-    return getMentorSettings(mentor);
-  }, [mentor]);
-  const methodDurations = useMemo(() => {
-    return {
-      note: 0,
-      phone: 15,
-      online: mentorSettings.onlineDurationMinutes,
-      offline: mentorSettings.offlineDurationMinutes,
-    } as const;
-  }, [
-    mentorSettings.offlineDurationMinutes,
-    mentorSettings.onlineDurationMinutes,
-  ]);
+  const mentorSettings = useMemo(() => getMentorSettings(mentor), [mentor]);
+
+  const methodDurations = useMemo(
+    () =>
+      ({
+        note: 0,
+        phone: 15,
+        online: mentorSettings.onlineDurationMinutes,
+        offline: mentorSettings.offlineDurationMinutes,
+      }) as const,
+    [mentorSettings.offlineDurationMinutes, mentorSettings.onlineDurationMinutes],
+  );
 
   const dashboardStats = useMemo(() => {
-    const pendingCount = requests.filter(
-      (request) => request.status === 'PENDING',
-    ).length;
-    const acceptedCount = requests.filter(
-      (request) => request.status === 'ACCEPTED',
-    ).length;
+    const pendingCount = requests.filter((r) => r.status === 'PENDING').length;
+    const acceptedCount = requests.filter((r) => r.status === 'ACCEPTED').length;
     const today = dayjs().format('YYYY-MM-DD');
-    const todaySessionCount = sessions.filter((session) => {
-      return (
-        session.status === 'SCHEDULED' &&
-        dayjs(session.startsAt).format('YYYY-MM-DD') === today
-      );
-    }).length;
-    const upcomingCount = sessions.filter((session) => {
-      return (
-        session.status === 'SCHEDULED' &&
-        dayjs(session.startsAt).isAfter(dayjs())
-      );
-    }).length;
+    const todaySessionCount = sessions.filter(
+      (s) =>
+        s.status === 'SCHEDULED' &&
+        dayjs(s.startsAt).format('YYYY-MM-DD') === today,
+    ).length;
+    const scheduledCount = sessions.filter(
+      (s) => s.status === 'SCHEDULED',
+    ).length;
+    const upcomingCount = sessions.filter(
+      (s) => s.status === 'SCHEDULED' && dayjs(s.startsAt).isAfter(dayjs()),
+    ).length;
 
-    return {
-      pendingCount,
-      acceptedCount,
-      todaySessionCount,
-      upcomingCount,
-    };
+    return { pendingCount, acceptedCount, todaySessionCount, scheduledCount, upcomingCount };
   }, [requests, sessions]);
 
   if (!hasHydrated) {
@@ -98,75 +74,90 @@ export default function MentorManagementWorkspace({
 
   return (
     <section className="flex flex-col gap-200">
-      <div className="grid grid-cols-1 gap-100 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-150 border-border-subtle bg-background-default border px-150 py-125">
-          <p className="font-designer-12m text-text-subtle mb-50 inline-flex items-center gap-50">
-            <ClockAlert className="h-14 w-14" />
-            처리 대기
-          </p>
-          <p className="font-designer-24b text-text-default">
-            {dashboardStats.pendingCount}건
-          </p>
-        </div>
-        <div className="rounded-150 border-border-subtle bg-background-default border px-150 py-125">
-          <p className="font-designer-12m text-text-subtle mb-50 inline-flex items-center gap-50">
-            <CheckCheck className="h-14 w-14" />
-            수락 완료
-          </p>
-          <p className="font-designer-24b text-text-default">
-            {dashboardStats.acceptedCount}건
-          </p>
-        </div>
-        <div className="rounded-150 border-border-subtle bg-background-default border px-150 py-125">
-          <p className="font-designer-12m text-text-subtle mb-50 inline-flex items-center gap-50">
-            <CalendarDays className="h-14 w-14" />
-            오늘 일정
-          </p>
-          <p className="font-designer-24b text-text-default">
-            {dashboardStats.todaySessionCount}건
-          </p>
-        </div>
-        <div className="rounded-150 border-border-subtle bg-background-default border px-150 py-125">
-          <p className="font-designer-12m text-text-subtle mb-50 inline-flex items-center gap-50">
-            <MessageCircleHeart className="h-14 w-14" />
-            예정 상담
-          </p>
-          <p className="font-designer-24b text-text-default">
-            {dashboardStats.upcomingCount}건
-          </p>
-        </div>
-      </div>
-
-      <div className="rounded-150 bg-background-alternative p-75">
-        <div className="flex flex-wrap gap-75">
-          {tabItems.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={
-                activeTab === tab.id
-                  ? 'rounded-100 bg-fill-brand-subtle-default font-designer-14b text-text-brand px-150 py-100'
-                  : 'rounded-100 font-designer-14m text-text-subtle px-150 py-100'
-              }
+      {/* 주요 통계 2개 */}
+      <div className="grid grid-cols-2 gap-100">
+        {/* 처리 대기 — 클릭 시 신청 처리 페이지로 이동 */}
+        <Link href="/mentoring-management/requests">
+          <div
+            className={`rounded-150 border bg-background-default h-full px-200 py-150 transition-colors hover:bg-background-alternative ${
+              dashboardStats.pendingCount > 0
+                ? 'border-border-warning'
+                : 'border-border-subtle'
+            }`}
+          >
+            <p className="font-designer-12m text-text-subtle mb-75 inline-flex items-center gap-50">
+              <ClockAlert
+                className={`h-14 w-14 ${dashboardStats.pendingCount > 0 ? 'text-text-warning' : ''}`}
+              />
+              처리 대기
+            </p>
+            <p
+              className={`font-designer-24b ${
+                dashboardStats.pendingCount > 0
+                  ? 'text-text-warning'
+                  : 'text-text-default'
+              }`}
             >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+              {dashboardStats.pendingCount}건
+            </p>
+            <p
+              className={`font-designer-11m mt-50 ${
+                dashboardStats.pendingCount > 0
+                  ? 'text-text-warning'
+                  : 'text-text-subtlest'
+              }`}
+            >
+              {dashboardStats.pendingCount > 0
+                ? '확인이 필요합니다 →'
+                : '신청 처리 보기 →'}
+            </p>
+          </div>
+        </Link>
+
+        {/* 확정 일정 */}
+        <Link href="/mentoring-management">
+          <div
+            className={`rounded-150 border bg-background-default h-full px-200 py-150 transition-colors hover:bg-background-alternative ${
+              dashboardStats.scheduledCount > 0
+                ? 'border-border-information'
+                : 'border-border-subtle'
+            }`}
+          >
+            <p className="font-designer-12m text-text-subtle mb-75 inline-flex items-center gap-50">
+              <CalendarDays
+                className={`h-14 w-14 ${dashboardStats.scheduledCount > 0 ? 'text-text-information' : ''}`}
+              />
+              확정 일정
+            </p>
+            <p
+              className={`font-designer-24b ${
+                dashboardStats.scheduledCount > 0
+                  ? 'text-text-information'
+                  : 'text-text-default'
+              }`}
+            >
+              {dashboardStats.scheduledCount}건
+            </p>
+            <p
+              className={`font-designer-11m mt-50 ${
+                dashboardStats.todaySessionCount > 0
+                  ? 'text-text-information'
+                  : 'text-text-subtlest'
+              }`}
+            >
+              {dashboardStats.todaySessionCount > 0
+                ? `오늘 ${dashboardStats.todaySessionCount}건 예정 →`
+                : '일정 관리 보기 →'}
+            </p>
+          </div>
+        </Link>
       </div>
 
-      {activeTab === 'request' ? (
-        <MentoringRequestPanel
-          mentorId={mentor.id}
-          methodDurations={methodDurations}
-        />
-      ) : (
-        <MentoringSchedulePanel
-          mentorId={mentor.id}
-          methodDurations={methodDurations}
-        />
-      )}
+      {/* 일정 관리 패널 */}
+      <MentoringSchedulePanel
+        mentorId={mentor.id}
+        methodDurations={methodDurations}
+      />
     </section>
   );
 }

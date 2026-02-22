@@ -28,6 +28,10 @@ const PAYMENT_STATUS_META = {
     label: '입금 대기',
     color: 'orange',
   },
+  NOT_REQUIRED: {
+    label: '결제 불필요',
+    color: 'blue',
+  },
   CONFIRMED: {
     label: '입금 확인',
     color: 'green',

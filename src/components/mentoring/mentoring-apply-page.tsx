@@ -2,7 +2,6 @@
 
 import dayjs from 'dayjs';
 import {
-  AlertCircle,
   Banknote,
   CheckCircle2,
   Link2,
@@ -12,6 +11,7 @@ import {
   MessageCircle,
   Monitor,
   Phone,
+  ShieldCheck,
   X,
   Users,
 } from 'lucide-react';
@@ -69,13 +69,26 @@ const methodIconMap: Record<MentoringMethodType, ReactNode> = {
 const exampleQuestions = [
   '멘토링 목적이 무엇인가요?',
   '멘토링에 도움이 될 정보를 작성해 주세요. (재직중인 회사, 수료한 교육, 작업 내용 등)',
+  '질문하고 싶은 내용을 작성해주세요.',
   '멘토에게 전하고 싶은 말',
 ];
 
-const paymentModeCopy = {
-  title: '수동결제 신청',
-  description: '계좌이체/송금 후 멘토가 직접 확인하는 방식',
-  helper: '결제 API 없이도 바로 운영 가능한 모드입니다.',
+type TossPaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
+
+const PAYMENT_MODE_COPY: Record<
+  MentoringPaymentMode,
+  { title: string; description: string; helper: string }
+> = {
+  TOSS_PAYMENTS: {
+    title: 'Toss Payments 결제',
+    description: '카드/가상계좌 결제 완료 후 신청이 접수됩니다.',
+    helper: '결제 완료 내역이 자동 반영됩니다.',
+  },
+  FREE_REQUEST: {
+    title: '무료 신청',
+    description: '결제 없이 신청을 접수합니다.',
+    helper: '멘토 확인 후 진행됩니다.',
+  },
 };
 
 const getOperationBlockMessage = (status: MentorOperationStatus) => {
@@ -111,10 +124,12 @@ export default function MentoringApplyPage({
   const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
   const [linkInput, setLinkInput] = useState('');
   const [linkError, setLinkError] = useState('');
-  const paymentMode: MentoringPaymentMode = 'MANUAL_TRANSFER';
   const [paymentMemo, setPaymentMemo] = useState('');
+  const paymentMode: MentoringPaymentMode = 'TOSS_PAYMENTS';
+  const [tossPaymentMethod] = useState<TossPaymentMethod>('CARD');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
+  const paymentModeCopy = PAYMENT_MODE_COPY[paymentMode];
 
   const selectedOption = mentor.methods[selectedMethod];
   const mentorSettings = getMentorSettings(mentor);
@@ -276,6 +291,7 @@ export default function MentoringApplyPage({
     setIsSubmitting(true);
 
     try {
+      // [Mock] Toss 결제 완료 후 신청 생성 (실제 환경에서는 Toss SDK → 결제 확인 → 신청 생성 순서)
       const preferredTimeStart =
         selectedTime.split('~')[0]?.trim() ?? selectedTime;
       createRequest({
@@ -292,14 +308,20 @@ export default function MentoringApplyPage({
         preferredTime:
           preferredTimeStart === '' ? undefined : preferredTimeStart,
         requestMessage: message.trim(),
+        attachedFileNames:
+          attachedFiles.length > 0
+            ? attachedFiles.map((f) => f.name)
+            : undefined,
+        referenceLinks:
+          referenceLinks.length > 0 ? referenceLinks : undefined,
       });
 
       await new Promise((resolve) => {
-        window.setTimeout(resolve, 300);
+        window.setTimeout(resolve, 400);
       });
 
       showToast(
-        '신청이 접수되었습니다. 수동결제 메모가 멘토에게 전달되며 입금 확인 후 진행됩니다.',
+        `${tossPaymentMethod === 'CARD' ? '카드 결제' : '가상계좌 발급'}가 완료되어 신청이 접수되었습니다.`,
         'success',
       );
 
@@ -650,17 +672,16 @@ export default function MentoringApplyPage({
             </div>
           </section>
 
-          <section className="rounded-150 border-border-warning bg-background-accent-yellow-subtle border p-200">
-            <div className="mb-100 flex items-center gap-75">
-              <AlertCircle className="text-text-warning h-16 w-16" />
+          <section className="rounded-150 border-border-subtle bg-background-default border p-200">
+            <div className="mb-150 flex items-center gap-75">
+              <ShieldCheck className="text-text-success h-16 w-16" />
               <p className="font-designer-14b text-text-default">
-                결제 API 없이 신청되며, 입금 여부는 멘토가 직접 확인합니다.
+                Toss Payments 보안 결제
               </p>
             </div>
             <p className="font-designer-13r text-text-subtle leading-relaxed">
-              자동 결제창 없이 신청서가 접수됩니다. 입력한 수동결제 메모 (입금
-              예정 시각/예금주명/송금 채널)는 멘토에게 전달되며, 멘토가 확인 후
-              수락/거절을 처리합니다.
+              결제 완료 후 신청이 접수됩니다. 카드 결제는 즉시 확정되며, 가상계좌는 입금 확인 후 처리됩니다.
+              환불은 시작 120시간 전까지 전액, 120~24시간 전 30%, 24시간 내 환불 불가 기준을 따릅니다.
             </p>
           </section>
         </div>

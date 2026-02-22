@@ -215,6 +215,7 @@ export default function MentorRegistrationPage() {
   const [isSettlementModalOpen, setIsSettlementModalOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [panelWidth, setPanelWidth] = useState(640);
+  const [committedPanelWidth, setCommittedPanelWidth] = useState(640);
   const [isResizing, setIsResizing] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(0);
   const panelWidthRef = useRef(640);
@@ -248,6 +249,7 @@ export default function MentorRegistrationPage() {
 
     const handleMouseUp = () => {
       setIsResizing(false);
+      setCommittedPanelWidth(panelWidthRef.current);
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
@@ -554,19 +556,18 @@ export default function MentorRegistrationPage() {
       </header>
 
       <div
-        className={cn(
-          isPreviewOpen && !isResizing && 'transition-[padding] duration-300',
-          isPreviewOpen && 'xl:pr-[var(--preview-panel-width)]',
-        )}
+        className={cn(isPreviewOpen && 'xl:pr-[var(--preview-panel-width)]')}
         style={
           isPreviewOpen
-            ? ({ '--preview-panel-width': `${panelWidth}px` } as React.CSSProperties)
+            ? ({ '--preview-panel-width': `${committedPanelWidth}px` } as React.CSSProperties)
             : undefined
         }
       >
+        {/* overflow-x-auto: 패널이 좁아져도 form 내용은 reflow 없이 가로 스크롤 */}
+        <div className="overflow-x-auto">
         <form
           onSubmit={handleSubmit(handleSave)}
-          className="space-y-200 pb-400"
+          className="min-w-[640px] space-y-200 pb-400"
         >
           <Section title="기본 정보">
             <div className="grid grid-cols-1 gap-150 md:grid-cols-[220px_1fr]">
@@ -1032,6 +1033,7 @@ export default function MentorRegistrationPage() {
             </Button>
           </div>
         </form>
+        </div>
       </div>
 
       {!isPreviewOpen && (
@@ -1124,8 +1126,9 @@ export default function MentorRegistrationPage() {
             닫기
           </button>
         </div>
-        <div className="min-h-0 flex-1 overflow-y-auto">
-          <div className="[&_a]:pointer-events-none [&_button]:pointer-events-none">
+        {/* overflow-x-auto: 패널이 좁아져도 preview 내용은 reflow 없이 가로 스크롤 */}
+        <div className="min-h-0 flex-1 overflow-y-auto overflow-x-auto">
+          <div className="min-w-[360px] [&_a]:pointer-events-none [&_button]:pointer-events-none">
             <MentorDetailPage mentor={previewMentor} previewMode />
           </div>
         </div>

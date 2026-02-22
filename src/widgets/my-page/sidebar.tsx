@@ -58,6 +58,12 @@ export default function Sidebar() {
         멘토링 관리
       </SidebarItem>
       <SidebarItem
+        onClick={() => router.push('/note-consultation')}
+        isActive={pathname.startsWith('/note-consultation')}
+      >
+        쪽지 상담
+      </SidebarItem>
+      <SidebarItem
         onClick={() => router.push('/payment-management')}
         isActive={pathname === '/payment-management'}
       >
