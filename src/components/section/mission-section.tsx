@@ -148,15 +148,17 @@ export default function MissionSection({
       const selectedMission = MOCK_MISSION_LIST.find(
         (m) => m.missionId === numericMissionId,
       );
-      
+
       // 1주차 OT 체크: weekNum이 1이거나 missionId가 1이면 OT로 간주
-      const isOTMission = selectedMission?.weekNum === 1 || numericMissionId === 1;
+      const isOTMission =
+        selectedMission?.weekNum === 1 || numericMissionId === 1;
 
       // 1주차(OT)가 아니면 접근 차단 - 미션 목록으로 되돌림
       if (!isOTMission) {
         const params = new URLSearchParams(searchParams.toString());
         params.delete('missionId');
         router.replace(`?${params.toString()}`);
+
         return null;
       }
     }
@@ -301,7 +303,8 @@ function MissionDetailPublicView({
             1주차 미션: [OT] UX 심리학 개념 찍먹해보기
           </span>
           <p className="text-text-subtle font-designer-14r">
-            UX 심리학의 기본 개념을 이해하고 실제 사례에 적용해보는 입문 미션입니다.
+            UX 심리학의 기본 개념을 이해하고 실제 사례에 적용해보는 입문
+            미션입니다.
           </p>
           <p className="text-text-subtlest font-designer-14r">
             제출 기간 : 2026-02-05 - 2026-02-08
@@ -334,7 +337,7 @@ function MissionDetailPublicView({
             </span>
             <div className="relative h-[8px] w-[120px] overflow-hidden rounded-full bg-gray-200">
               <div
-                className="absolute left-0 top-0 h-full rounded-full bg-fill-danger-default-default transition-all duration-300"
+                className="bg-fill-danger-default-default absolute top-0 left-0 h-full rounded-full transition-all duration-300"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>

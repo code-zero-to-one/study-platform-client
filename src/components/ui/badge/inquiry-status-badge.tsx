@@ -30,6 +30,7 @@ export default function InquiryStatusBadge({
 
   if (!config) {
     console.error(`Unknown inquiry status: ${status}`);
+
     return null;
   }
 

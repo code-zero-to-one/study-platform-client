@@ -307,11 +307,13 @@ export default function StudyDetailPage({
         }}
         trigger={
           <button
-            className="fixed bottom-600 right-600 z-50 flex items-center gap-100 rounded-full bg-[#FF4C61] px-300 py-200 shadow-lg transition-all hover:bg-[#E63950] hover:shadow-xl"
+            className="fixed right-600 bottom-600 z-50 flex items-center gap-100 rounded-full bg-[#FF4C61] px-300 py-200 shadow-lg transition-all hover:bg-[#E63950] hover:shadow-xl"
             aria-label="스터디 문의하기"
           >
             <MessageCircle className="h-200 w-200 text-white" />
-            <span className="font-designer-16b text-white">스터디 문의하기</span>
+            <span className="font-designer-16b text-white">
+              스터디 문의하기
+            </span>
           </button>
         }
       />
