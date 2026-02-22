@@ -9,8 +9,8 @@ import Button from '@/components/ui/button';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
-import { useUserStore } from '@/stores/useUserStore';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -28,7 +28,7 @@ export default function SummaryStudyInfo({ data }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(false);
-  const memberId = useUserStore((state) => state.memberId);
+  const { memberId, isAuthReady, isHydrated } = useAuthReady();
   const showToast = useToastStore((state) => state.showToast);
 
   const { basicInfo, detailInfo, interviewPost } = data;
@@ -51,7 +51,7 @@ export default function SummaryStudyInfo({ data }: Props) {
   const { title } = detailInfo ?? {};
   const { interviewPost: questions } = interviewPost ?? {};
 
-  const isLoggedIn = !!memberId;
+  const isLoggedIn = isAuthReady;
   const isLeader = leader?.memberId === memberId;
 
   const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
@@ -159,7 +159,11 @@ export default function SummaryStudyInfo({ data }: Props) {
     if (myApplicationStatus?.status === 'REJECTED') {
       return '신청 거절됨';
     }
-    if (isDeadlinePassed) {
+    if (
+      groupStudyStatus !== 'RECRUITING' ||
+      approvedCount >= maxMembersCount ||
+      isDeadlinePassed
+    ) {
       return '모집 마감';
     }
 
@@ -218,7 +222,11 @@ export default function SummaryStudyInfo({ data }: Props) {
       <div className="flex flex-col gap-100">
         {/* 스터디 신청 모달 (유료/무료 공통) */}
 
-        {isLoggedIn ? (
+        {!isHydrated ? (
+          <Button size="large" color="primary" className="h-600" disabled>
+            신청하기
+          </Button>
+        ) : isLoggedIn ? (
           <ApplyGroupStudyModal
             groupStudyId={groupStudyId}
             title={title}
