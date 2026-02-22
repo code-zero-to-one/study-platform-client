@@ -103,7 +103,7 @@ export default function InquiryDetail({
   };
 
   const handleEdit = (type: 'inquiry' | 'answer') => {
-    showToast(`${type === 'inquiry' ? '문의' : '답변'} 수정 기능은 준비 중입니다.`, 'info');
+    showToast(`${type === 'inquiry' ? '문의' : '답변'} 수정 기능은 준비 중입니다.`);
   };
 
   const handleDelete = (type: 'inquiry' | 'answer') => {
