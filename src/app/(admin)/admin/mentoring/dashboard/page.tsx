@@ -6,6 +6,7 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import { useAdminMentoringData } from '@/features/admin/mentoring/model/use-admin-mentoring-data';
+import MentoringFlowGuide from '@/features/admin/mentoring/ui/mentoring-flow-guide';
 
 const formatDateTime = (value: string | undefined) => {
   if (!value) {
@@ -32,6 +33,9 @@ export default function MentoringDashboardPage() {
 
   return (
     <div className="flex flex-col gap-200">
+      {/* [임시] 멘토링 플로우 & 테스트 가이드 — 디자인 확정 후 제거 */}
+      <MentoringFlowGuide />
+
       <section className="grid grid-cols-1 gap-200 sm:grid-cols-2 xl:grid-cols-5">
         <article className="rounded-100 border-border-subtle bg-background-accent-blue-subtle border p-200">
           <p className="font-designer-14m text-text-subtle">등록 멘토</p>
