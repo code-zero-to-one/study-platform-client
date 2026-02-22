@@ -67,7 +67,7 @@ export default function FloatingInfoBar({
 
   return (
     <div
-      className={`rounded-200 bg-transparent px-400 pt-400 pb-150 ${className}`}
+      className={`rounded-200 bg-transparent pt-400 pb-150 ${className}`}
     >
       <div className="relative h-[44px] overflow-hidden">
         {messages.map((message, index) => (
