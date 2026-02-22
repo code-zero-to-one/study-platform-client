@@ -3,7 +3,7 @@
 import { ArrowUpDown, Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { GroupStudyListItemDto } from '@/api/openapi';
 import type {
   GetGroupStudiesTypeEnum,
@@ -48,6 +48,24 @@ export default function PremiumStudyListPage() {
 
   // 로컬 검색 상태
   const [searchQuery, setSearchQuery] = useState('');
+
+  // 정렬 드롭다운 상태
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
+
+  // 드롭다운 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = () => {
+      setShowSortDropdown(false);
+    };
+
+    if (showSortDropdown) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showSortDropdown]);
 
   // 프로토타입 모드 (목 데이터 사용)
   const [usePrototype] = useState(true);
@@ -316,49 +334,58 @@ export default function PremiumStudyListPage() {
         <div className="flex items-center gap-200">
           <StudySearch value={searchQuery} onChange={handleSearch} />
           {/* 정렬 드롭다운 */}
-          <div className="group relative">
+          <div className="relative">
             <button
               type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowSortDropdown(!showSortDropdown);
+              }}
               className="rounded-100 bg-background-default border-border-default font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex h-500 items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors"
             >
-              <ArrowUpDown className="h-4 w-4" />
+              <ArrowUpDown className="h-3 w-3" />
               {searchParams.get('sort') === 'deadline'
                 ? '마감임박순'
                 : searchParams.get('sort') === 'views'
                   ? '조회수순'
                   : '최신순'}
             </button>
-            <div className="absolute top-full right-0 z-20 hidden w-[120px] pt-50 group-hover:block">
-              <div className="bg-background-default border-border-subtle rounded-100 shadow-2 overflow-hidden border">
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateSearchParams({ sort: 'latest', page: '1' })
-                  }
-                  className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
-                >
-                  최신순
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateSearchParams({ sort: 'deadline', page: '1' })
-                  }
-                  className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
-                >
-                  마감임박순
-                </button>
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateSearchParams({ sort: 'views', page: '1' })
-                  }
-                  className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
-                >
-                  조회수순
-                </button>
+            {showSortDropdown && (
+              <div className="absolute top-full right-0 z-20 w-[120px] pt-50">
+                <div className="bg-background-default border-border-subtle rounded-100 shadow-2 overflow-hidden border">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateSearchParams({ sort: 'latest', page: '1' });
+                      setShowSortDropdown(false);
+                    }}
+                    className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                  >
+                    최신순
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateSearchParams({ sort: 'deadline', page: '1' });
+                      setShowSortDropdown(false);
+                    }}
+                    className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                  >
+                    마감임박순
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      updateSearchParams({ sort: 'views', page: '1' });
+                      setShowSortDropdown(false);
+                    }}
+                    className="hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors"
+                  >
+                    조회수순
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
