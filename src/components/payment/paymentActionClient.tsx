@@ -123,7 +123,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
           '',
         );
 
-        // Toss 에서 2자이상 50자이하 문자열을 요구함
+        // Toss 에서 2자이상 50자이하 문자열을 요구함.
         if (customerKey.length < 2 || customerKey.length > 50) {
           throw new Error(
             `customerKey가 유효하지 않습니다: ${customerKey} (길이: ${customerKey.length})`,
