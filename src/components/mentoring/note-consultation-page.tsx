@@ -3,7 +3,6 @@
 import dayjs from 'dayjs';
 import {
   MessageCircle,
-  MoreVertical,
   Paperclip,
   Search,
   SendHorizontal,
@@ -168,50 +167,84 @@ function RequestListCard({
   );
 }
 
-function MessageBubble({
-  message,
-  displayName,
-}: {
-  message: MentoringConversationMessage;
-  displayName: string;
-}) {
-  if (message.sender === 'SYSTEM') {
-    return (
-      <div className="py-75 text-center">
-        <span className="font-designer-11m text-text-subtle bg-background-default inline-flex rounded-full px-150 py-50 shadow-sm">
-          {message.content}
-        </span>
-      </div>
-    );
-  }
-
-  const isMentor = message.sender === 'MENTOR';
+function QuestionCard({ request }: { request: MentoringRequest }) {
+  const hasFiles =
+    (request.attachedFileNames?.length ?? 0) > 0 ||
+    (request.referenceLinks?.length ?? 0) > 0;
 
   return (
-    <div className={`flex ${isMentor ? 'justify-start' : 'justify-end'}`}>
-      <div
-        className={`flex max-w-[78%] items-start gap-100 ${isMentor ? '' : 'flex-row-reverse'}`}
-      >
-        <UserAvatar name={isMentor ? displayName : '나'} color={isMentor ? 'brand' : 'neutral'} />
-        <div
-          className={`rounded-200 px-150 py-100 shadow-sm ${
-            isMentor
-              ? 'bg-background-default text-text-default rounded-tl-50'
-              : 'bg-fill-brand-default-default text-text-inverse rounded-tr-50'
-          }`}
-        >
-          <p className="font-designer-13r leading-relaxed whitespace-pre-line">
-            {message.content}
-          </p>
-          <p
-            className={`font-designer-10r mt-50 opacity-70 ${
-              isMentor ? 'text-text-subtle text-right' : 'text-text-inverse text-right'
-            }`}
-          >
-            {dayjs(message.createdAt).format('A h:mm')}
+    <div className="rounded-150 border border-border-subtle bg-background-default p-250">
+      <div className="mb-175 flex items-center gap-100">
+        <UserAvatar name={request.menteeName} color="neutral" />
+        <div className="min-w-0 flex-1">
+          <p className="font-designer-15b text-text-default">{request.menteeName}</p>
+          <p className="font-designer-12r text-text-subtle">
+            {request.menteeRole || '멘티'} · {dayjs(request.requestedAt).format('YYYY.MM.DD HH:mm')}
           </p>
         </div>
+        <div className="flex items-center gap-75">
+          <Badge color={statusColorMap[request.status]} shape="round">
+            {statusLabelMap[request.status]}
+          </Badge>
+        </div>
       </div>
+      <p className="font-designer-14r text-text-default leading-relaxed whitespace-pre-line">
+        {request.requestMessage}
+      </p>
+      {hasFiles && (
+        <div className="mt-175 flex flex-wrap gap-75 border-t border-border-subtle pt-150">
+          {request.attachedFileNames?.map((fileName) => (
+            <span
+              key={fileName}
+              className="font-designer-11m text-text-subtle border-border-subtle inline-flex items-center gap-50 rounded-full border px-100 py-50"
+            >
+              <Paperclip className="h-12 w-12" />
+              {fileName}
+            </span>
+          ))}
+          {request.referenceLinks?.map((link) => (
+            <a
+              key={link}
+              href={link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-designer-11m text-text-brand border-border-subtle inline-flex items-center gap-50 rounded-full border px-100 py-50 underline"
+            >
+              {link}
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AnswerCard({
+  message,
+  authorName,
+  authorLabel,
+}: {
+  message: MentoringConversationMessage;
+  authorName: string;
+  authorLabel: string;
+}) {
+  return (
+    <div className="rounded-150 border border-border-subtle bg-background-default p-250">
+      <div className="mb-175 flex items-center gap-100">
+        <UserAvatar name={authorName} color="brand" />
+        <div className="min-w-0 flex-1">
+          <p className="font-designer-15b text-text-default">{authorName}</p>
+          <p className="font-designer-12r text-text-subtle">
+            {dayjs(message.createdAt).format('YYYY.MM.DD HH:mm')}
+          </p>
+        </div>
+        <span className="font-designer-12m text-text-brand bg-fill-brand-subtle-default rounded-full px-100 py-50">
+          {authorLabel}
+        </span>
+      </div>
+      <p className="font-designer-14r text-text-default leading-relaxed whitespace-pre-line">
+        {message.content}
+      </p>
     </div>
   );
 }
@@ -236,16 +269,16 @@ function DetailPanel({
   canSend: boolean;
 }) {
   const messages = getConversationWithFallback(request);
-  const hasFiles =
-    (request.attachedFileNames?.length ?? 0) > 0 ||
-    (request.referenceLinks?.length ?? 0) > 0;
+  const mentorMessages = messages.filter((msg) => msg.sender === 'MENTOR');
+  const systemMessages = messages.filter((msg) => msg.sender === 'SYSTEM');
   const canEditMessage = channel === 'received' && request.status !== 'REJECTED';
+  const mentorAuthorName = channel === 'sent' ? displayName : '나';
 
   return (
     <section className="flex h-full flex-col">
       <header className="border-border-subtle bg-background-default flex items-center justify-between border-b px-250 py-150">
         <div className="flex min-w-0 items-center gap-125">
-          <UserAvatar name={displayName} />
+          <UserAvatar name={displayName} color={channel === 'sent' ? 'brand' : 'neutral'} />
           <div className="min-w-0">
             <p className="font-designer-18b text-text-default truncate">
               {displayName}
@@ -255,99 +288,94 @@ function DetailPanel({
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          className="text-text-subtle hover:text-text-default inline-flex h-32 w-32 items-center justify-center rounded-full"
-          aria-label="더보기"
-        >
-          <MoreVertical className="h-16 w-16" />
-        </button>
+        {request.paymentMode === 'MANUAL_TRANSFER' && (
+          <span className="font-designer-12r text-text-subtlest border-border-subtle rounded-full border px-100 py-50">
+            {request.paymentStatus === 'CONFIRMED'
+              ? '입금 확인 완료'
+              : request.paymentStatus === 'PENDING_TRANSFER'
+                ? '입금 대기'
+                : '결제 불필요'}
+          </span>
+        )}
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col">
-        <div className="border-border-subtle border-b px-250 py-125">
-          <div className="flex flex-wrap items-center gap-75">
-            <Badge color={statusColorMap[request.status]} shape="round">
-              {statusLabelMap[request.status]}
-            </Badge>
-            <span className="font-designer-12r text-text-subtle">
-              신청 {dayjs(request.requestedAt).format('YYYY.MM.DD HH:mm')}
-            </span>
-            {request.paymentMode === 'MANUAL_TRANSFER' && (
-              <span className="font-designer-12r text-text-subtlest">
-                {request.paymentStatus === 'CONFIRMED'
-                  ? '입금 확인 완료'
-                  : request.paymentStatus === 'PENDING_TRANSFER'
-                    ? '입금 대기'
-                    : '결제 불필요'}
+      <div className="bg-background-alternative min-h-0 flex-1 overflow-y-auto px-250 py-200">
+        <div className="space-y-175">
+          <QuestionCard request={request} />
+
+          {systemMessages.map((msg) => (
+            <div key={msg.id} className="py-50 text-center">
+              <span className="font-designer-11m text-text-subtle bg-background-default inline-flex rounded-full px-150 py-50 shadow-sm">
+                {msg.content}
               </span>
-            )}
-          </div>
-          {hasFiles && (
-            <div className="mt-100 flex flex-wrap gap-75">
-              {request.attachedFileNames?.map((fileName) => (
-                <span
-                  key={fileName}
-                  className="font-designer-11m text-text-subtle border-border-subtle inline-flex items-center gap-50 rounded-full border px-100 py-50"
-                >
-                  <Paperclip className="h-12 w-12" />
-                  {fileName}
+            </div>
+          ))}
+
+          {mentorMessages.length > 0 ? (
+            <div className="space-y-150">
+              <div className="flex items-center gap-100">
+                <div className="h-[1px] flex-1 bg-border-subtle" />
+                <span className="font-designer-13m text-text-subtle px-75">
+                  답변 {mentorMessages.length}개
                 </span>
+                <div className="h-[1px] flex-1 bg-border-subtle" />
+              </div>
+              {mentorMessages.map((msg) => (
+                <AnswerCard
+                  key={msg.id}
+                  message={msg}
+                  authorName={mentorAuthorName}
+                  authorLabel="멘토 답변"
+                />
               ))}
+            </div>
+          ) : (
+            <div className="rounded-150 border border-border-subtle bg-background-default px-250 py-200 text-center">
+              <p className="font-designer-14m text-text-subtle">아직 답변이 없습니다.</p>
+              <p className="font-designer-12r text-text-subtlest mt-50">
+                멘토가 곧 답변을 등록할 예정이에요.
+              </p>
             </div>
           )}
         </div>
+      </div>
 
-        <div className="bg-background-alternative min-h-0 flex-1 overflow-y-auto px-250 py-200">
-          <div className="space-y-175">
-            {messages.map((message) => (
-              <MessageBubble
-                key={message.id}
-                message={message}
-                displayName={displayName}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="border-border-subtle bg-background-default border-t px-200 py-150">
-          <div className="bg-background-alternative flex items-end gap-100 rounded-full px-175 py-100">
+      <div className="border-border-subtle bg-background-default border-t px-200 py-150">
+        {canEditMessage ? (
+          <div className="rounded-150 border border-border-subtle bg-background-default px-175 py-125">
             <textarea
               value={draft}
               onChange={(event) => onDraftChange(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Enter' && !event.shiftKey) {
-                  event.preventDefault();
-                  if (canEditMessage && canSend) {
-                    onSend();
-                  }
-                }
-              }}
-              placeholder={
-                canEditMessage
-                  ? '메시지를 입력하세요. (Enter 전송 / Shift+Enter 줄바꿈)'
-                  : '현재 내역은 조회 전용입니다.'
-              }
-              disabled={!canEditMessage}
-              rows={1}
-              className="font-designer-13r text-text-default placeholder:text-text-subtlest max-h-[100px] min-h-[24px] flex-1 resize-none bg-transparent leading-relaxed outline-none disabled:cursor-not-allowed"
+              placeholder="답변을 작성해주세요."
+              rows={4}
+              className="font-designer-14r text-text-default placeholder:text-text-subtlest w-full resize-none bg-transparent leading-relaxed outline-none"
             />
-            <button
-              type="button"
-              disabled={!canEditMessage || !canSend}
-              onClick={onSend}
-              className="bg-fill-brand-default-default text-text-inverse disabled:bg-background-disabled disabled:text-text-disabled mb-[2px] inline-flex h-32 w-32 shrink-0 items-center justify-center rounded-full transition-colors"
-              aria-label="메시지 전송"
-            >
-              <SendHorizontal className="h-14 w-14" />
-            </button>
+            <div className="mt-100 flex items-center justify-between border-t border-border-subtle pt-100">
+              <span className="font-designer-12r text-text-subtlest">
+                {draft.trim().length > 0 ? `${draft.trim().length}자` : ''}
+              </span>
+              <button
+                type="button"
+                disabled={!canSend}
+                onClick={onSend}
+                className="bg-fill-brand-default-default text-text-inverse disabled:bg-background-disabled disabled:text-text-disabled inline-flex h-36 items-center gap-75 rounded-100 px-150 transition-colors"
+              >
+                <SendHorizontal className="h-14 w-14" />
+                <span className="font-designer-13m">답변 등록</span>
+              </button>
+            </div>
           </div>
-          {!canEditMessage && (
-            <p className="font-designer-11m text-text-subtle mt-75 px-50">
-              멘토로 받은 신청 건에서만 답장을 보낼 수 있어요.
+        ) : (
+          <div className="rounded-150 bg-background-alternative px-175 py-125 text-center">
+            <p className="font-designer-13m text-text-subtle">
+              {channel === 'sent'
+                ? '내가 신청한 상담은 조회만 가능합니다.'
+                : request.status === 'REJECTED'
+                  ? '거절된 신청 건에는 답변할 수 없습니다.'
+                  : '멘토로 받은 신청 건에서만 답변을 작성할 수 있어요.'}
             </p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </section>
   );
@@ -526,6 +554,11 @@ export default function NoteConsultationPage() {
     <div className="flex flex-col gap-200">
       <header>
         <div className="mb-75 inline-flex items-center gap-100">
+          <Link href="/mentoring-management">
+            <Button color="outlined" size="small">
+              멘토링 관리
+            </Button>
+          </Link>
           <MessageCircle className="text-text-brand h-24 w-24" />
           <h1 className="font-designer-24b text-text-default">쪽지 상담</h1>
         </div>

@@ -107,6 +107,11 @@ export default function MentoringManagementPage() {
                   멘토링 목록
                 </Button>
               </Link>
+              <Link href="/note-consultation">
+                <Button color="outlined" size="medium">
+                  쪽지 상담
+                </Button>
+              </Link>
             </div>
           </section>
           {memberId ? (

@@ -53,15 +53,20 @@ export default function Sidebar() {
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/mentoring-management')}
-        isActive={pathname === '/mentoring-management'}
+        isActive={
+          pathname === '/mentoring-management' ||
+          pathname.startsWith('/mentoring-management/')
+        }
       >
         멘토링 관리
       </SidebarItem>
       <SidebarItem
-        onClick={() => router.push('/note-consultation')}
-        isActive={pathname.startsWith('/note-consultation')}
+        onClick={() => router.push('/my-mentoring')}
+        isActive={
+          pathname === '/my-mentoring' || pathname.startsWith('/my-mentoring/')
+        }
       >
-        쪽지 상담
+        나의 멘토링
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/payment-management')}
