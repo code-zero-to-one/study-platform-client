@@ -15,10 +15,12 @@ import Button from '@/components/ui/button';
 import SingleDropdown from '@/components/ui/dropdown/single';
 import SelectableTagsInput from '@/components/ui/form/multi-item-selector';
 import { BaseInput } from '@/components/ui/input';
+import { Modal } from '@/components/ui/modal';
 import ToggleGroup from '@/components/ui/toggle/group';
 import { hasMentorWritePermission } from '@/features/mentoring/model/mentor-permission';
 import {
   CAREER_YEAR_OPTIONS,
+  COMPANY_CATEGORY_DROPDOWN_OPTIONS,
   CONSULTING_DURATION_DROPDOWN_OPTIONS,
   CONTACT_COUNTRY_DROPDOWN_OPTIONS,
   JOB_GROUP_OPTIONS,
@@ -196,7 +198,7 @@ export default function MentorRegistrationPage() {
   const router = useRouter();
   const { showToast } = useToastStore();
   const { isHydrated, isAuthenticated, memberId, data } = useAuthReady();
-  const { tel } = useUserStore();
+  const { tel, profileImageUrl } = useUserStore();
   const registerMentorProfile = useMentorDirectoryStore(
     (state) => state.registerMentorProfile,
   );
@@ -214,6 +216,7 @@ export default function MentorRegistrationPage() {
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isSettlementModalOpen, setIsSettlementModalOpen] = useState(false);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [welcomeMentorId, setWelcomeMentorId] = useState<number | null>(null);
   const [panelWidth, setPanelWidth] = useState(640);
   const [committedPanelWidth, setCommittedPanelWidth] = useState(640);
   const [isResizing, setIsResizing] = useState(false);
@@ -227,6 +230,7 @@ export default function MentorRegistrationPage() {
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(header);
+
     return () => observer.disconnect();
   }, []);
   const [customCategories, setCustomCategories] = useState<string[]>([]);
@@ -329,7 +333,17 @@ export default function MentorRegistrationPage() {
       schemaVersion: 3,
     };
 
-    const mentorId = registerMentorProfile(memberId, finalizedValues);
+    const existingMentorId = mentorIdByMember[memberId];
+    const mentorId = registerMentorProfile(memberId, finalizedValues, {
+      imageUrl: profileImageUrl,
+    });
+
+    if (existingMentorId === undefined) {
+      setWelcomeMentorId(mentorId);
+
+      return;
+    }
+
     showToast('멘토링 설정이 저장되었습니다.', 'success');
     router.push(`/mentoring/${mentorId}`);
   };
@@ -344,6 +358,16 @@ export default function MentorRegistrationPage() {
     router.push('/mentoring-management');
   };
 
+  const handleWelcomeModalConfirm = () => {
+    if (welcomeMentorId === null) {
+      return;
+    }
+
+    const mentorId = welcomeMentorId;
+    setWelcomeMentorId(null);
+    router.push(`/mentoring/${mentorId}`);
+  };
+
   const categories = watch('categories');
   const settlementDraft = watch('settlementDraft');
   const mentoringTitle = watch('mentoringTitle');
@@ -351,6 +375,7 @@ export default function MentorRegistrationPage() {
   const jobTitle = watch('jobTitle');
   const careerYears = watch('careerYears');
   const skillTags = watch('skillTags');
+  const companyCategory = watch('companyCategory');
   const companyName = watch('companyName');
   const hideCompanyName = watch('hideCompanyName');
   const detailedDescription = watch('detailedDescription');
@@ -427,6 +452,7 @@ export default function MentorRegistrationPage() {
       jobTitle: jobTitle ?? '',
       careerYears: careerYears ?? '',
       skillTags,
+      companyCategory: companyCategory ?? defaults.companyCategory,
       companyName: companyName ?? '',
       hideCompanyName: hideCompanyName ?? false,
       maxParticipants: Math.min(
@@ -460,6 +486,7 @@ export default function MentorRegistrationPage() {
     };
   }, [
     categories,
+    companyCategory,
     companyName,
     contactCountryCode,
     contactEmail,
@@ -493,8 +520,9 @@ export default function MentorRegistrationPage() {
       previewMentorId,
       previewFormValues,
       previewFormValues.updatedAt,
+      profileImageUrl,
     );
-  }, [previewFormValues, previewMentorId]);
+  }, [previewFormValues, previewMentorId, profileImageUrl]);
 
   if (!isHydrated) {
     return (
@@ -765,11 +793,30 @@ export default function MentorRegistrationPage() {
             </div>
 
             <div className="mt-150">
+              <Controller
+                name="companyCategory"
+                control={control}
+                render={({ field }) => (
+                  <SingleDropdown
+                    options={COMPANY_CATEGORY_DROPDOWN_OPTIONS}
+                    value={field.value}
+                    onChange={(value) => field.onChange(value ?? '기타')}
+                    placeholder="회사 카테고리"
+                  />
+                )}
+              />
+              <FieldError message={errors.companyCategory?.message} />
+            </div>
+
+            <div className="mt-125">
               <BaseInput
-                placeholder="현재 소속 회사명"
+                placeholder="구체적인 회사명 입력"
                 {...register('companyName')}
               />
               <FieldError message={errors.companyName?.message} />
+              <p className="font-designer-12r text-text-subtle mt-75">
+                목록에는 회사 카테고리만 노출되고, 회사명은 상세에서만 노출됩니다.
+              </p>
               <label className="font-designer-13r text-text-subtle mt-100 inline-flex items-center gap-75">
                 <input
                   type="checkbox"
@@ -1145,6 +1192,34 @@ export default function MentorRegistrationPage() {
           showToast('정산정보가 등록되었습니다.', 'success');
         }}
       />
+
+      <Modal.Root open={welcomeMentorId !== null}>
+        <Modal.Portal>
+          <Modal.Overlay />
+          <Modal.Content
+            size="small"
+            className="w-[423px]"
+            description="멘토 등록 환영 안내"
+          >
+            <Modal.Header className="border-border-default flex justify-center border-b py-200">
+              <Modal.Title>멘토가 되신 걸 환영합니다</Modal.Title>
+            </Modal.Header>
+            <Modal.Body className="font-designer-14r text-text-default flex justify-center py-250 text-center">
+              멘토 프로필 등록이 완료되었습니다.
+            </Modal.Body>
+            <Modal.Footer className="flex justify-center gap-200 border-t-0 py-250">
+              <Button
+                color="primary"
+                className="font-designer-14b w-[160px]"
+                size="medium"
+                onClick={handleWelcomeModalConfirm}
+              >
+                확인
+              </Button>
+            </Modal.Footer>
+          </Modal.Content>
+        </Modal.Portal>
+      </Modal.Root>
 
       {isCancelModalOpen && (
         <div className="bg-background-dimmer fixed inset-0 z-50 flex items-center justify-center">

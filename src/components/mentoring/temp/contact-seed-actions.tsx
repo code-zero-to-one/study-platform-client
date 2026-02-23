@@ -31,6 +31,7 @@ const buildTempMentorRegistrationValues = (): MentorRegistrationFormValues => {
     jobTitle: '프론트엔드 개발자',
     careerYears: '5년 이상',
     skillTags: ['React', 'Next.js'],
+    companyCategory: '창업',
     companyName: 'ZERO-ONE',
     noteEnabled: true,
     phoneEnabled: true,

@@ -4,26 +4,17 @@ import dayjs from 'dayjs';
 import {
   Banknote,
   CheckCircle2,
-  Link2,
   ChevronLeft,
-  CircleHelp,
-  FileUp,
   MessageCircle,
   Monitor,
   Phone,
   ShieldCheck,
-  X,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import {
-  type ChangeEvent,
-  type ReactNode,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import MentoringRequestEditor from '@/components/mentoring/mentoring-request-editor';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
@@ -35,6 +26,16 @@ import {
   parseDurationLabelToMinutes,
   toTimeRangeLabel,
 } from '@/features/mentoring/model/mentor-settings';
+import {
+  buildMentoringRequestMessage,
+  createMentoringRequestParagraphBlock,
+  getMentoringRequestAttachedFileNames,
+  getMentoringRequestReferenceLinks,
+  getMentoringRequestTextLength,
+  hasMentoringRequestAttachment,
+  sanitizeMentoringRequestContents,
+  type MentoringRequestContentBlock,
+} from '@/features/mentoring/model/request-content';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   formatWon,
@@ -75,20 +76,65 @@ const exampleQuestions = [
 
 type TossPaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
 
-const PAYMENT_MODE_COPY: Record<
-  MentoringPaymentMode,
-  { title: string; description: string; helper: string }
-> = {
-  TOSS_PAYMENTS: {
-    title: 'Toss Payments 결제',
-    description: '카드/가상계좌 결제 완료 후 신청이 접수됩니다.',
+type MentoringApplyPaymentMethod = TossPaymentMethod | 'MANUAL_TRANSFER';
+
+const PAYMENT_METHOD_OPTIONS: Array<{
+  id: MentoringApplyPaymentMethod;
+  label: string;
+  title: string;
+  description: string;
+  helper: string;
+  paymentMode: MentoringPaymentMode;
+  requiresMemo: boolean;
+  flowLabel: string;
+  submitLabel: string;
+  successToast: string;
+}> = [
+  {
+    id: 'CARD',
+    label: '신용카드 결제',
+    title: '카드 결제',
+    description: '결제 완료 즉시 신청이 접수됩니다.',
     helper: '결제 완료 내역이 자동 반영됩니다.',
+    paymentMode: 'TOSS_PAYMENTS',
+    requiresMemo: false,
+    flowLabel: '카드 결제',
+    submitLabel: '결제하고 신청하기',
+    successToast: '카드 결제가 완료되어 신청이 접수되었습니다.',
   },
-  FREE_REQUEST: {
-    title: '무료 신청',
-    description: '결제 없이 신청을 접수합니다.',
-    helper: '멘토 확인 후 진행됩니다.',
+  {
+    id: 'VIRTUAL_ACCOUNT',
+    label: '무통장 입금 (가상계좌)',
+    title: '가상계좌 결제',
+    description: '가상계좌 발급 후 신청이 접수됩니다.',
+    helper: '입금 확인 내역이 자동 반영됩니다.',
+    paymentMode: 'TOSS_PAYMENTS',
+    requiresMemo: false,
+    flowLabel: '가상계좌 발급',
+    submitLabel: '가상계좌 발급 후 신청하기',
+    successToast: '가상계좌가 발급되어 신청이 접수되었습니다.',
   },
+  {
+    id: 'MANUAL_TRANSFER',
+    label: '수동 계좌이체',
+    title: '수동결제 신청',
+    description: '멘토와 합의한 방식으로 입금 후 신청을 접수합니다.',
+    helper: '멘토가 입금 확인 후 신청을 수락할 수 있습니다.',
+    paymentMode: 'MANUAL_TRANSFER',
+    requiresMemo: true,
+    flowLabel: '수동 확인',
+    submitLabel: '수동결제로 신청하기',
+    successToast: '수동결제 신청이 접수되었습니다.',
+  },
+];
+
+const PAYMENT_METHOD_COPY_MAP: Record<
+  MentoringApplyPaymentMethod,
+  (typeof PAYMENT_METHOD_OPTIONS)[number]
+> = {
+  CARD: PAYMENT_METHOD_OPTIONS[0],
+  VIRTUAL_ACCOUNT: PAYMENT_METHOD_OPTIONS[1],
+  MANUAL_TRANSFER: PAYMENT_METHOD_OPTIONS[2],
 };
 
 const getOperationBlockMessage = (status: MentorOperationStatus) => {
@@ -119,17 +165,18 @@ export default function MentoringApplyPage({
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState('');
-  const [message, setMessage] = useState('');
-  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
-  const [referenceLinks, setReferenceLinks] = useState<string[]>([]);
-  const [linkInput, setLinkInput] = useState('');
-  const [linkError, setLinkError] = useState('');
+  const [requestContents, setRequestContents] = useState<
+    MentoringRequestContentBlock[]
+  >([createMentoringRequestParagraphBlock()]);
   const [paymentMemo, setPaymentMemo] = useState('');
-  const paymentMode: MentoringPaymentMode = 'TOSS_PAYMENTS';
-  const [tossPaymentMethod] = useState<TossPaymentMethod>('CARD');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] =
+    useState<MentoringApplyPaymentMethod>('CARD');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
-  const paymentModeCopy = PAYMENT_MODE_COPY[paymentMode];
+  const selectedPaymentMethodCopy =
+    PAYMENT_METHOD_COPY_MAP[selectedPaymentMethod];
+  const paymentMode = selectedPaymentMethodCopy.paymentMode;
+  const needsPaymentMemo = selectedPaymentMethodCopy.requiresMemo;
 
   const selectedOption = mentor.methods[selectedMethod];
   const mentorSettings = getMentorSettings(mentor);
@@ -183,13 +230,28 @@ export default function MentoringApplyPage({
 
   const scheduleStepNumber = 1;
   const messageStepNumber = needsSchedule ? 2 : 1;
-  const attachmentStepNumber = messageStepNumber + 1;
-  const hasAttachment = attachedFiles.length > 0 || referenceLinks.length > 0;
+  const requestTextLength = useMemo(() => {
+    return getMentoringRequestTextLength(requestContents);
+  }, [requestContents]);
+  const hasAttachment = useMemo(() => {
+    return hasMentoringRequestAttachment(requestContents);
+  }, [requestContents]);
+  const requestMessage = useMemo(() => {
+    return buildMentoringRequestMessage(requestContents);
+  }, [requestContents]);
+  const attachedFileNames = useMemo(() => {
+    return getMentoringRequestAttachedFileNames(requestContents);
+  }, [requestContents]);
+  const referenceLinks = useMemo(() => {
+    return getMentoringRequestReferenceLinks(requestContents);
+  }, [requestContents]);
 
   const isValidForm = useMemo(() => {
-    const hasMessage = message.trim().length >= 10;
+    const hasMessage = requestTextLength >= 10;
     const isAttachmentValid = requiresAttachment ? hasAttachment : true;
-    const hasPaymentMemo = paymentMemo.trim().length >= 2;
+    const hasPaymentMemo = needsPaymentMemo
+      ? paymentMemo.trim().length >= 2
+      : true;
 
     if (!needsSchedule) {
       return hasMessage && isAttachmentValid && hasPaymentMemo;
@@ -204,9 +266,10 @@ export default function MentoringApplyPage({
     );
   }, [
     hasAttachment,
-    message,
+    needsPaymentMemo,
     needsSchedule,
     paymentMemo,
+    requestTextLength,
     requiresAttachment,
     selectedDate,
     selectedTime,
@@ -214,7 +277,7 @@ export default function MentoringApplyPage({
   const shouldShowAttachmentError =
     requiresAttachment && !hasAttachment && hasSubmitAttempt;
   const shouldShowPaymentMemoError =
-    paymentMemo.trim().length < 2 && hasSubmitAttempt;
+    needsPaymentMemo && paymentMemo.trim().length < 2 && hasSubmitAttempt;
   const isRequestBlockedByOperation =
     mentorOperationHydrated &&
     mentorOperationRecord !== undefined &&
@@ -226,55 +289,6 @@ export default function MentoringApplyPage({
     }
   }, [availableTimeSlots, selectedTime]);
 
-  const handleAttachFiles = (event: ChangeEvent<HTMLInputElement>) => {
-    const nextFiles = Array.from(event.target.files ?? []);
-    if (nextFiles.length === 0) {
-      return;
-    }
-
-    setAttachedFiles((prev) => [...prev, ...nextFiles].slice(0, 8));
-    event.target.value = '';
-  };
-
-  const removeFile = (targetName: string, targetSize: number) => {
-    setAttachedFiles((prev) =>
-      prev.filter(
-        (file) => !(file.name === targetName && file.size === targetSize),
-      ),
-    );
-  };
-
-  const handleAddLink = () => {
-    const raw = linkInput.trim();
-    if (!raw) {
-      return;
-    }
-
-    const normalized =
-      raw.startsWith('http://') || raw.startsWith('https://')
-        ? raw
-        : `https://${raw}`;
-
-    try {
-      const parsed = new URL(normalized);
-      if (referenceLinks.includes(parsed.toString())) {
-        setLinkError('이미 추가된 링크입니다.');
-
-        return;
-      }
-
-      setReferenceLinks((prev) => [...prev, parsed.toString()].slice(0, 8));
-      setLinkInput('');
-      setLinkError('');
-    } catch {
-      setLinkError('올바른 링크 형식으로 입력해주세요.');
-    }
-  };
-
-  const removeLink = (targetLink: string) => {
-    setReferenceLinks((prev) => prev.filter((link) => link !== targetLink));
-  };
-
   const handleSubmit = async () => {
     setHasSubmitAttempt(true);
 
@@ -283,7 +297,10 @@ export default function MentoringApplyPage({
     }
 
     if (isRequestBlockedByOperation && mentorOperationRecord) {
-      showToast(getOperationBlockMessage(mentorOperationRecord.status), 'error');
+      showToast(
+        getOperationBlockMessage(mentorOperationRecord.status),
+        'error',
+      );
 
       return;
     }
@@ -291,14 +308,14 @@ export default function MentoringApplyPage({
     setIsSubmitting(true);
 
     try {
-      // [Mock] Toss 결제 완료 후 신청 생성 (실제 환경에서는 Toss SDK → 결제 확인 → 신청 생성 순서)
+      // [Mock] 결제 완료 후 신청 생성
       const preferredTimeStart =
         selectedTime.split('~')[0]?.trim() ?? selectedTime;
       createRequest({
         mentorId: mentor.id,
         method: selectedMethod,
         paymentMode,
-        paymentMemo: paymentMemo.trim(),
+        paymentMemo: needsPaymentMemo ? paymentMemo.trim() : undefined,
         menteeMemberId: memberId,
         menteeName: memberName ?? nickname ?? '익명 멘티',
         menteeRole: 'ZERO-ONE 멘티',
@@ -307,23 +324,18 @@ export default function MentoringApplyPage({
           : undefined,
         preferredTime:
           preferredTimeStart === '' ? undefined : preferredTimeStart,
-        requestMessage: message.trim(),
+        requestMessage,
+        requestContents: sanitizeMentoringRequestContents(requestContents),
         attachedFileNames:
-          attachedFiles.length > 0
-            ? attachedFiles.map((f) => f.name)
-            : undefined,
-        referenceLinks:
-          referenceLinks.length > 0 ? referenceLinks : undefined,
+          attachedFileNames.length > 0 ? attachedFileNames : undefined,
+        referenceLinks: referenceLinks.length > 0 ? referenceLinks : undefined,
       });
 
       await new Promise((resolve) => {
         window.setTimeout(resolve, 400);
       });
 
-      showToast(
-        `${tossPaymentMethod === 'CARD' ? '카드 결제' : '가상계좌 발급'}가 완료되어 신청이 접수되었습니다.`,
-        'success',
-      );
+      showToast(selectedPaymentMethodCopy.successToast, 'success');
 
       router.push(`/mentoring/${mentor.id}`);
     } finally {
@@ -454,29 +466,22 @@ export default function MentoringApplyPage({
           )}
 
           <section className="rounded-200 border-border-subtle bg-background-default border">
-            <div className="border-border-subtle bg-background-alternative flex items-center justify-between gap-100 border-b px-200 py-150">
+            <div className="border-border-subtle bg-background-alternative flex items-center gap-100 border-b px-200 py-150">
               <div className="flex items-center gap-75">
                 <span className="font-designer-16b text-text-strong">
-                  {messageStepNumber}. 멘토에게 보낼 메시지
+                  {messageStepNumber}. 멘토에게 보낼 질문 작성
                 </span>
                 <span className="font-designer-16b text-text-brand">*</span>
               </div>
-              <button
-                type="button"
-                className="font-designer-13r text-text-subtle hover:text-text-default inline-flex items-center gap-50"
-              >
-                <CircleHelp className="h-14 w-14" />
-                예시 질문 다시보기
-              </button>
             </div>
 
-            <div className="p-200">
-              <p className="font-designer-13r text-text-subtle mb-150">
-                멘토링을 시작할 문서가 멘토의 진행에 도움이 될 만큼 자세하게
-                작성해 주세요.
+            <div className="space-y-150 p-200">
+              <p className="font-designer-13r text-text-subtle leading-relaxed">
+                블로그 글처럼 텍스트, 이미지, 첨부파일, 링크 블록을 원하는
+                순서로 배치해 작성할 수 있어요.
               </p>
 
-              <div className="rounded-125 bg-background-alternative mb-150 p-150">
+              <div className="rounded-125 bg-background-alternative p-150">
                 {exampleQuestions.map((question) => (
                   <p
                     key={question}
@@ -487,186 +492,36 @@ export default function MentoringApplyPage({
                 ))}
               </div>
 
-              <textarea
-                value={message}
-                onChange={(event) => setMessage(event.target.value)}
-                className={cn(
-                  'font-designer-14r rounded-125 border-border-subtle bg-background-default',
-                  'text-text-default min-h-[160px] w-full resize-y border p-150',
-                  'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
-                )}
-                placeholder="멘토에게 전달할 내용을 자유롭게 작성해주세요."
+              <MentoringRequestEditor
+                value={requestContents}
+                onChange={setRequestContents}
               />
 
-              <div className="mt-75 flex items-center justify-between">
+              <div className="flex items-center justify-between">
                 <span
                   className={cn(
                     'font-designer-13r',
-                    message.length < 10
+                    requestTextLength < 10
                       ? 'text-text-error'
                       : 'text-text-subtlest',
                   )}
                 >
-                  최소 10자 이상 입력해주세요.
+                  텍스트는 최소 10자 이상 입력해주세요.
                 </span>
                 <span className="font-designer-13r text-text-subtlest">
-                  {message.length}자
+                  {requestTextLength}자
                 </span>
               </div>
-            </div>
-          </section>
 
-          <section className="rounded-200 border-border-subtle bg-background-default border">
-            <div className="border-border-subtle bg-background-alternative flex items-center justify-between gap-100 border-b px-200 py-150">
-              <div className="flex items-center gap-75">
-                <span className="font-designer-16b text-text-strong">
-                  {attachmentStepNumber}. 파일/링크 첨부
-                </span>
-                {requiresAttachment && (
-                  <span className="font-designer-16b text-text-brand">*</span>
-                )}
-              </div>
-              <p className="font-designer-12r text-text-subtle">
-                최대 파일 8개, 링크 8개
-              </p>
-            </div>
-
-            <div className="space-y-150 p-200">
               <p className="font-designer-13r text-text-subtle leading-relaxed">
                 {requiresAttachment
-                  ? '쪽지/전화 상담은 빠른 피드백을 위해 파일 또는 링크를 최소 1개 이상 첨부해주세요.'
-                  : '필요한 경우 자료 파일이나 참고 링크를 첨부해주세요.'}
+                  ? '쪽지/전화 상담은 이미지, 첨부파일, 링크 중 1개 이상 포함해주세요.'
+                  : '필요한 자료가 있다면 이미지/첨부파일/링크를 함께 남겨주세요.'}
               </p>
-
-              <div className="rounded-125 border-border-subtle bg-background-alternative border p-150">
-                <div className="mb-100 flex flex-wrap items-center justify-between gap-75">
-                  <p className="font-designer-13b text-text-default">
-                    파일 첨부
-                  </p>
-                  <span className="font-designer-12r text-text-subtle">
-                    {attachedFiles.length}/8
-                  </span>
-                </div>
-
-                <div className="rounded-100 border-border-subtle bg-background-default border border-dashed p-125">
-                  <label
-                    htmlFor="mentoring-attachment-files"
-                    className="font-designer-13b text-text-default hover:border-border-brand rounded-500 inline-flex cursor-pointer items-center gap-75 border px-125 py-75 transition-colors"
-                  >
-                    <FileUp className="h-14 w-14" />
-                    파일 선택
-                  </label>
-                  <p className="font-designer-12r text-text-subtle mt-75">
-                    이력서, 포트폴리오 PDF, 질문 문서 등을 첨부하면 상담 준비가
-                    빨라집니다.
-                  </p>
-                  <input
-                    id="mentoring-attachment-files"
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleAttachFiles}
-                  />
-                </div>
-
-                {attachedFiles.length > 0 && (
-                  <ul className="mt-125 flex flex-col gap-75">
-                    {attachedFiles.map((file) => (
-                      <li
-                        key={`${file.name}-${file.size}`}
-                        className="rounded-100 border-border-subtle bg-background-default flex items-center justify-between gap-100 border px-100 py-75"
-                      >
-                        <span className="font-designer-12r text-text-default truncate">
-                          {file.name}
-                        </span>
-                        <button
-                          type="button"
-                          className="text-text-subtle hover:text-text-default shrink-0"
-                          onClick={() => removeFile(file.name, file.size)}
-                        >
-                          <X className="h-14 w-14" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              <div className="rounded-125 border-border-subtle bg-background-alternative border p-150">
-                <div className="mb-100 flex flex-wrap items-center justify-between gap-75">
-                  <p className="font-designer-13b text-text-default">
-                    참고 링크 첨부
-                  </p>
-                  <span className="font-designer-12r text-text-subtle">
-                    {referenceLinks.length}/8
-                  </span>
-                </div>
-
-                <div className="flex flex-col gap-100 sm:flex-row">
-                  <input
-                    value={linkInput}
-                    onChange={(event) => {
-                      setLinkInput(event.target.value);
-                      if (linkError) {
-                        setLinkError('');
-                      }
-                    }}
-                    className={cn(
-                      'font-designer-13r rounded-100 border-border-subtle bg-background-default',
-                      'text-text-default w-full border px-125 py-100',
-                      'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
-                    )}
-                    placeholder="https://github.com/... 또는 포트폴리오 링크"
-                  />
-                  <Button
-                    type="button"
-                    color="secondary"
-                    size="small"
-                    className="shrink-0"
-                    onClick={handleAddLink}
-                  >
-                    <Link2 className="mr-50 h-14 w-14" />
-                    링크 추가
-                  </Button>
-                </div>
-
-                {linkError && (
-                  <p className="font-designer-12r text-text-error mt-75">
-                    {linkError}
-                  </p>
-                )}
-
-                {referenceLinks.length > 0 && (
-                  <ul className="mt-125 flex flex-col gap-75">
-                    {referenceLinks.map((link) => (
-                      <li
-                        key={link}
-                        className="rounded-100 border-border-subtle bg-background-default flex items-center justify-between gap-100 border px-100 py-75"
-                      >
-                        <a
-                          href={link}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="font-designer-12r text-text-brand truncate underline"
-                        >
-                          {link}
-                        </a>
-                        <button
-                          type="button"
-                          className="text-text-subtle hover:text-text-default shrink-0"
-                          onClick={() => removeLink(link)}
-                        >
-                          <X className="h-14 w-14" />
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
 
               {shouldShowAttachmentError && (
                 <p className="font-designer-12r text-text-error">
-                  파일 또는 링크를 최소 1개 첨부해주세요.
+                  이미지, 첨부파일, 링크 중 최소 1개를 포함해주세요.
                 </p>
               )}
             </div>
@@ -675,13 +530,13 @@ export default function MentoringApplyPage({
           <section className="rounded-150 border-border-subtle bg-background-default border p-200">
             <div className="mb-150 flex items-center gap-75">
               <ShieldCheck className="text-text-success h-16 w-16" />
-              <p className="font-designer-14b text-text-default">
-                Toss Payments 보안 결제
-              </p>
+              <p className="font-designer-14b text-text-default">결제 안내</p>
             </div>
             <p className="font-designer-13r text-text-subtle leading-relaxed">
-              결제 완료 후 신청이 접수됩니다. 카드 결제는 즉시 확정되며, 가상계좌는 입금 확인 후 처리됩니다.
-              환불은 시작 120시간 전까지 전액, 120~24시간 전 30%, 24시간 내 환불 불가 기준을 따릅니다.
+              카드/가상계좌 결제는 결제 내역이 자동 반영되며, 수동결제는 입금
+              확인 후 멘토가 신청을 수락할 수 있습니다. 환불은 시작 120시간
+              전까지 전액, 120~24시간 전 30%, 24시간 내 환불 불가 기준을
+              따릅니다.
             </p>
           </section>
         </div>
@@ -738,51 +593,85 @@ export default function MentoringApplyPage({
               </div>
             ) : null}
 
+            <div className="mb-150">
+              <p className="font-designer-13r text-text-subtle mb-75">
+                결제 방식
+              </p>
+              <div className="space-y-100">
+                {PAYMENT_METHOD_OPTIONS.map((option) => {
+                  const isSelected = selectedPaymentMethod === option.id;
+
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      onClick={() => setSelectedPaymentMethod(option.id)}
+                      className={cn(
+                        'rounded-100 w-full border px-125 py-100 text-left transition-colors',
+                        isSelected
+                          ? 'border-border-brand bg-fill-brand-subtle-default'
+                          : 'border-border-subtle bg-background-default hover:border-border-brand',
+                      )}
+                    >
+                      <p className="font-designer-14b text-text-default">
+                        {option.label}
+                      </p>
+                      <p className="font-designer-12r text-text-subtle mt-50">
+                        {option.description}
+                      </p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="rounded-125 border-border-subtle bg-background-alternative mb-150 border p-125">
               <div className="mb-75 flex items-center justify-between gap-75">
                 <p className="font-designer-14b text-text-default inline-flex items-center gap-50">
                   <Banknote className="h-14 w-14" />
-                  {paymentModeCopy.title}
+                  {selectedPaymentMethodCopy.title}
                 </p>
                 <Badge color="gray" shape="round">
-                  멘토 확인
+                  {needsPaymentMemo ? '멘토 확인' : '자동 반영'}
                 </Badge>
               </div>
               <p className="font-designer-12r text-text-subtle">
-                {paymentModeCopy.description}
+                {selectedPaymentMethodCopy.description}
               </p>
               <p className="font-designer-12r text-text-subtle mt-75 inline-flex items-center gap-50">
                 <CheckCircle2 className="h-14 w-14" />
-                {paymentModeCopy.helper}
+                {selectedPaymentMethodCopy.helper}
               </p>
             </div>
 
-            <div className="mb-150">
-              <p className="font-designer-13r text-text-subtle mb-75">
-                결제 메모 <span className="text-text-brand">*</span>
-              </p>
-              <p className="font-designer-12r text-text-subtle mb-75">
-                입금 예정 시각/송금자명/송금 채널을 남겨주세요.
-              </p>
-              <textarea
-                value={paymentMemo}
-                onChange={(event) => setPaymentMemo(event.target.value)}
-                className={cn(
-                  'font-designer-13r rounded-100 bg-background-default border',
-                  'text-text-default min-h-[112px] w-full resize-y px-125 py-100',
-                  'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
-                  shouldShowPaymentMemoError
-                    ? 'border-border-error'
-                    : 'border-border-subtle',
-                )}
-                placeholder="예: 21:30, 홍길동, 카카오뱅크"
-              />
-              {shouldShowPaymentMemoError && (
-                <p className="font-designer-12r text-text-error mt-50">
-                  수동결제 신청은 결제 메모를 2자 이상 입력해주세요.
+            {needsPaymentMemo && (
+              <div className="mb-150">
+                <p className="font-designer-13r text-text-subtle mb-75">
+                  결제 메모 <span className="text-text-brand">*</span>
                 </p>
-              )}
-            </div>
+                <p className="font-designer-12r text-text-subtle mb-75">
+                  입금 예정 시각/송금자명/송금 채널을 남겨주세요.
+                </p>
+                <textarea
+                  value={paymentMemo}
+                  onChange={(event) => setPaymentMemo(event.target.value)}
+                  className={cn(
+                    'font-designer-13r rounded-100 bg-background-default border',
+                    'text-text-default min-h-[112px] w-full resize-y px-125 py-100',
+                    'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
+                    shouldShowPaymentMemoError
+                      ? 'border-border-error'
+                      : 'border-border-subtle',
+                  )}
+                  placeholder="예: 21:30, 홍길동, 카카오뱅크"
+                />
+                {shouldShowPaymentMemoError && (
+                  <p className="font-designer-12r text-text-error mt-50">
+                    수동결제 신청은 결제 메모를 2자 이상 입력해주세요.
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="rounded-100 border-border-subtle mb-150 border px-125 py-100">
               <div className="mb-75 flex items-center justify-between">
@@ -806,7 +695,7 @@ export default function MentoringApplyPage({
                   실제 결제 진행
                 </span>
                 <span className="font-designer-16b text-text-default">
-                  수동 확인
+                  {selectedPaymentMethodCopy.flowLabel}
                 </span>
               </div>
             </div>
@@ -824,13 +713,13 @@ export default function MentoringApplyPage({
                 ? '처리 중...'
                 : isRequestBlockedByOperation
                   ? '현재 신청이 제한되었습니다'
-                  : '수동결제로 신청하기'}
+                  : selectedPaymentMethodCopy.submitLabel}
             </Button>
           </section>
 
           <section className="rounded-150 bg-background-alternative p-150">
             <p className="font-designer-13r text-text-subtle leading-relaxed">
-              수동결제 신청은 멘토와 합의한 환불 정책을 따릅니다.
+              선택한 결제 방식과 무관하게 환불 정책은 동일하게 적용됩니다.
               <br />
               일반 기준: 시작 120시간 전 전액, 120~24시간 전 30%, 24시간 내 환불
               불가

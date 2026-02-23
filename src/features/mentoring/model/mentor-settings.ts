@@ -26,6 +26,13 @@ export type ContactCountryCode = (typeof CONTACT_COUNTRY_CODES)[number];
 export const CONSULTING_DURATION_OPTIONS = [30, 60, 90] as const;
 export type ConsultingDurationMinutes =
   (typeof CONSULTING_DURATION_OPTIONS)[number];
+export const COMPANY_CATEGORY_OPTIONS = [
+  '네카라쿠배',
+  'IT 유니콘',
+  '창업',
+  '기타',
+] as const;
+export type CompanyCategory = (typeof COMPANY_CATEGORY_OPTIONS)[number];
 
 export type SettlementPayerType = 'INDIVIDUAL' | 'BUSINESS' | 'OVERSEAS';
 
@@ -65,6 +72,7 @@ export interface MentorSettingsV3 {
   jobTitle: string;
   careerYears: string;
   skillTags: string[];
+  companyCategory: CompanyCategory;
   companyName: string;
   hideCompanyName: boolean;
   maxParticipants: number;
@@ -113,6 +121,7 @@ export const createDefaultMentorSettings = (): MentorSettingsV3 => {
     jobTitle: '',
     careerYears: '',
     skillTags: [],
+    companyCategory: '기타',
     companyName: '',
     hideCompanyName: false,
     maxParticipants: 1,

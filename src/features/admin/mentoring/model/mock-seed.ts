@@ -27,6 +27,7 @@ export const createServerLikeMentorRegistrationValues = (
     jobTitle: '시니어 백엔드 엔지니어',
     careerYears: '시니어 (9년 이상)',
     skillTags: ['Java', 'Spring', 'Kotlin', 'MySQL', '시스템설계'],
+    companyCategory: '창업',
     companyName: 'ZERO-ONE',
     hideCompanyName: false,
     maxParticipants: 2,

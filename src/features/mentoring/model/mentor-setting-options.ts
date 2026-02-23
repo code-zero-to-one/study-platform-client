@@ -1,4 +1,5 @@
 import {
+  COMPANY_CATEGORY_OPTIONS,
   CONSULTING_DURATION_OPTIONS,
   CONTACT_COUNTRY_CODES,
   type WeekdayKey,
@@ -15,6 +16,13 @@ export const CONTACT_COUNTRY_OPTIONS: SelectionOption[] =
     value: code,
     label: code,
   }));
+
+export const COMPANY_CATEGORY_DROPDOWN_OPTIONS = COMPANY_CATEGORY_OPTIONS.map(
+  (category) => ({
+    value: category,
+    label: category,
+  }),
+);
 
 export const MENTOR_CATEGORY_OPTIONS = [
   'AI 기술',

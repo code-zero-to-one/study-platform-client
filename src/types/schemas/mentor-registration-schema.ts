@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import {
+  COMPANY_CATEGORY_OPTIONS,
   CONSULTING_DURATION_OPTIONS,
   CONTACT_COUNTRY_CODES,
   WEEKDAY_KEYS,
@@ -190,9 +191,13 @@ export const mentorRegistrationSchema = z
       )
       .min(1, '멘토링 스킬 태그를 최소 1개 선택해주세요.')
       .max(5, '멘토링 스킬 태그는 최대 5개까지 선택할 수 있습니다.'),
+    companyCategory: z.enum(COMPANY_CATEGORY_OPTIONS, {
+      message: '회사 카테고리를 선택해주세요.',
+    }),
     companyName: z
       .string()
       .trim()
+      .min(1, '회사명을 입력해주세요.')
       .max(40, '회사명은 40자 이하로 입력해주세요.'),
     hideCompanyName: z.boolean(),
     maxParticipants: z.coerce

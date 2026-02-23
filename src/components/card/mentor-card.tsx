@@ -39,19 +39,6 @@ const METHOD_ORDER: MentoringMethodType[] = [
   'offline',
 ];
 
-const MOCK_MENTOR_IMAGE_PATHS = [
-  '/images/mock-mentor-1.svg',
-  '/images/mock-mentor-2.svg',
-  '/images/mock-mentor-3.svg',
-  '/images/mock-mentor-4.svg',
-] as const;
-
-const getMockMentorImagePath = (mentorId: number) => {
-  const index = Math.abs(mentorId) % MOCK_MENTOR_IMAGE_PATHS.length;
-
-  return MOCK_MENTOR_IMAGE_PATHS[index];
-};
-
 const getFieldLabel = (role: string) => {
   if (role.includes('프론트엔드')) {
     return '프론트엔드 개발';
@@ -87,11 +74,10 @@ export default function MentorCard({ mentor }: MentorCardProps) {
   const mentorSettings = getMentorSettings(mentor);
   const keywords = mentorSettings.skillTags.slice(0, 3);
   const lowestPriceOption = getLowestPriceOption(mentor);
-  const mockImagePath = getMockMentorImagePath(mentor.id);
   const normalizedImageUrl = mentor.imageUrl?.trim();
   const [isImageError, setIsImageError] = useState(false);
   const mentorImageUrl =
-    !isImageError && normalizedImageUrl ? normalizedImageUrl : mockImagePath;
+    !isImageError && normalizedImageUrl ? normalizedImageUrl : undefined;
   const availableMethods = {
     note: mentor.methods.note.enabled !== false,
     phone: mentor.methods.phone.enabled !== false,
@@ -137,15 +123,23 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       onKeyDown={handleKeyDown}
     >
       <div className="bg-background-alternative relative h-[180px]">
-        <Image
-          src={mentorImageUrl}
-          alt={mentor.nickname}
-          fill
-          className="object-cover"
-          onError={() => {
-            setIsImageError(true);
-          }}
-        />
+        {mentorImageUrl ? (
+          <Image
+            src={mentorImageUrl}
+            alt={mentor.nickname}
+            fill
+            className="object-cover object-top"
+            onError={() => {
+              setIsImageError(true);
+            }}
+          />
+        ) : (
+          <div className="bg-background-accent-rose-default flex h-full w-full items-center justify-center">
+            <span className="text-[56px] leading-none">
+              {mentor.avatarEmoji ?? mentor.nickname[0]}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="px-300 py-225">
@@ -166,8 +160,11 @@ export default function MentorCard({ mentor }: MentorCardProps) {
           {mentorSettings.mentoringTitle}
         </p>
 
-        <p className="font-designer-13r text-text-subtle mb-150 line-clamp-1">
+        <p className="font-designer-13r text-text-subtle mb-50 line-clamp-1">
           {mentor.role} · {mentor.career}
+        </p>
+        <p className="font-designer-12r text-text-subtlest mb-150 line-clamp-1">
+          {mentorSettings.companyCategory}
         </p>
 
         {keywords.length > 0 && (

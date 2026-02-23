@@ -36,7 +36,7 @@ export default function MentoringDashboardPage() {
       {/* [임시] 멘토링 플로우 & 테스트 가이드 — 디자인 확정 후 제거 */}
       <MentoringFlowGuide />
 
-      <section className="grid grid-cols-1 gap-200 sm:grid-cols-2 xl:grid-cols-5">
+      <section className="grid grid-cols-1 gap-200 sm:grid-cols-2 xl:grid-cols-4">
         <article className="rounded-100 border-border-subtle bg-background-accent-blue-subtle border p-200">
           <p className="font-designer-14m text-text-subtle">등록 멘토</p>
           <p className="font-designer-24b text-text-strong">
@@ -49,12 +49,6 @@ export default function MentoringDashboardPage() {
             {metrics.pendingScreeningCount}명
           </p>
         </article>
-        <article className="rounded-100 border-border-subtle bg-background-accent-purple-subtle border p-200">
-          <p className="font-designer-14m text-text-subtle">심사 검토중</p>
-          <p className="font-designer-24b text-text-strong">
-            {metrics.inReviewScreeningCount}명
-          </p>
-        </article>
         <article className="rounded-100 border-border-subtle bg-background-accent-green-subtle border p-200">
           <p className="font-designer-14m text-text-subtle">승인 멘토</p>
           <p className="font-designer-24b text-text-strong">
@@ -62,7 +56,7 @@ export default function MentoringDashboardPage() {
           </p>
         </article>
         <article className="rounded-100 border-border-subtle bg-background-accent-indigo-subtle border p-200">
-          <p className="font-designer-14m text-text-subtle">신청 대기</p>
+          <p className="font-designer-14m text-text-subtle">멘티 신청 대기</p>
           <p className="font-designer-24b text-text-strong">
             {metrics.pendingRequestCount}건
           </p>
@@ -112,7 +106,7 @@ export default function MentoringDashboardPage() {
                   심사 상태
                 </th>
                 <th className="font-designer-14m text-text-default px-200 text-left">
-                  신청 대기
+                  멘티 신청 대기
                 </th>
                 <th className="font-designer-14m text-text-default px-200 text-left">
                   최근 수정

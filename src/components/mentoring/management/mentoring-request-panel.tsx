@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { AlertCircle, Info } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import RequestContentViewer from '@/components/mentoring/request-content-viewer';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import {
@@ -16,7 +17,6 @@ import {
   type MentoringRequest,
   useMentoringManagementStore,
 } from '@/stores/useMentoringManagementStore';
-
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,
 } from './schedule-editor-modal';
@@ -43,7 +43,14 @@ const statusColorMap = {
 
 const paymentModeLabelMap: Record<MentoringPaymentMode, string> = {
   TOSS_PAYMENTS: 'Toss 결제',
+  MANUAL_TRANSFER: '수동 계좌이체',
   FREE_REQUEST: '무료 상담',
+};
+
+const paymentMethodDetailLabelMap: Record<MentoringPaymentMode, string> = {
+  TOSS_PAYMENTS: '카드/가상계좌',
+  MANUAL_TRANSFER: '수동 계좌이체',
+  FREE_REQUEST: '결제 없음',
 };
 
 const paymentStatusLabelMap: Record<MentoringPaymentStatus, string> = {
@@ -78,12 +85,13 @@ const REJECT_PRESETS = [
 const getPreferredScheduleText = (request: MentoringRequest) => {
   if (!request.preferredDate) return '멘티와 조율 필요';
   if (!request.preferredTime) return request.preferredDate;
+
   return `${request.preferredDate} ${request.preferredTime}`;
 };
 
 function MenteeAvatar({ name }: { name: string }) {
   return (
-    <div className="bg-fill-brand-subtle-default rounded-full flex h-[44px] w-[44px] shrink-0 items-center justify-center">
+    <div className="bg-fill-brand-subtle-default flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full">
       <span className="font-designer-16b text-text-brand">
         {name.charAt(0)}
       </span>
@@ -156,9 +164,7 @@ export default function MentoringRequestPanel({
   const urgentCount = useMemo(
     () =>
       requests.filter(
-        (r) =>
-          r.status === 'PENDING' &&
-          r.paymentStatus === 'PENDING_TRANSFER',
+        (r) => r.status === 'PENDING' && r.paymentStatus === 'PENDING_TRANSFER',
       ).length,
     [requests],
   );
@@ -175,6 +181,7 @@ export default function MentoringRequestPanel({
     const result = acceptRequest({ mentorId, requestId: request.id });
     if (!result.ok) {
       showToast(result.reason ?? '신청 수락에 실패했습니다.', 'error');
+
       return;
     }
     showToast('신청을 수락했습니다.', 'success');
@@ -196,6 +203,7 @@ export default function MentoringRequestPanel({
       const reason = result.reason ?? '일정 확정에 실패했습니다.';
       setScheduleError(reason);
       showToast(reason, 'error');
+
       return;
     }
     setScheduleError('');
@@ -208,6 +216,7 @@ export default function MentoringRequestPanel({
     const result = rejectRequest({ mentorId, requestId, reason });
     if (!result.ok) {
       showToast(result.reason ?? '신청 거절에 실패했습니다.', 'error');
+
       return;
     }
     setRejectingRequestId(null);
@@ -223,6 +232,7 @@ export default function MentoringRequestPanel({
     });
     if (!result.ok) {
       showToast(result.reason ?? '입금 확인 처리에 실패했습니다.', 'error');
+
       return;
     }
     showToast('입금 확인이 완료되었습니다.', 'success');
@@ -271,16 +281,14 @@ export default function MentoringRequestPanel({
             const isPending = request.status === 'PENDING';
             const rejectReason = rejectReasonByRequest[request.id] ?? '';
             const needsPaymentConfirm =
-              isPending &&
-              request.paymentStatus === 'PENDING_TRANSFER';
-            const paymentConfirmed =
-              request.paymentStatus === 'CONFIRMED';
+              isPending && request.paymentStatus === 'PENDING_TRANSFER';
+            const paymentConfirmed = request.paymentStatus === 'CONFIRMED';
             const hasPayment = request.paymentMode !== 'FREE_REQUEST';
 
             return (
               <article
                 key={request.id}
-                className={`rounded-200 border bg-background-default overflow-hidden ${
+                className={`rounded-200 bg-background-default overflow-hidden border ${
                   needsPaymentConfirm
                     ? 'border-border-warning'
                     : 'border-border-subtle'
@@ -352,9 +360,10 @@ export default function MentoringRequestPanel({
                   <p className="font-designer-13m text-text-subtle mb-100">
                     신청 메시지
                   </p>
-                  <p className="font-designer-14r text-text-default rounded-100 bg-background-alternative px-150 py-125 leading-relaxed">
-                    {request.requestMessage}
-                  </p>
+                  <RequestContentViewer
+                    requestMessage={request.requestMessage}
+                    requestContents={request.requestContents}
+                  />
                 </div>
 
                 {/* 섹션 4: 결제 정보 (수동결제인 경우) */}
@@ -371,13 +380,13 @@ export default function MentoringRequestPanel({
                         {paymentStatusLabelMap[request.paymentStatus]}
                       </Badge>
                     </div>
-                    <div className="border-border-subtle divide-border-subtle divide-y rounded-150 border">
+                    <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border">
                       <div className="flex items-center justify-between px-150 py-100">
                         <span className="font-designer-13m text-text-subtle">
                           결제 방식
                         </span>
                         <span className="font-designer-13r text-text-default">
-                          수동 계좌이체
+                          {paymentMethodDetailLabelMap[request.paymentMode]}
                         </span>
                       </div>
                       <div className="flex items-center justify-between px-150 py-100">
@@ -504,7 +513,7 @@ export default function MentoringRequestPanel({
                               [request.id]: e.target.value,
                             }))
                           }
-                          className="font-designer-13r rounded-100 border-border-subtle bg-background-default text-text-default mb-100 min-h-[80px] w-full resize-none border px-125 py-100 outline-none focus:border-border-brand"
+                          className="font-designer-13r rounded-100 border-border-subtle bg-background-default text-text-default focus:border-border-brand mb-100 min-h-[80px] w-full resize-none border px-125 py-100 outline-none"
                           placeholder="직접 입력하거나 위에서 선택하세요."
                         />
                         <div className="flex flex-wrap justify-end gap-75">

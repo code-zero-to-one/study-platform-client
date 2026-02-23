@@ -141,7 +141,7 @@ export default function MentorProfileList() {
         mentor.nickname,
         mentor.role,
         mentor.career,
-        mentor.company,
+        mentorSettings.companyCategory,
         mentor.summary,
         mentorSettings.mentoringTitle,
         ...mentorSettings.categories,

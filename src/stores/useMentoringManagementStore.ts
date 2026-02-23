@@ -1,12 +1,16 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { type MentoringRequestContentBlock } from '@/features/mentoring/model/request-content';
 import { type MentoringMethodType } from '@/mocks/mentoring-mock-data';
 
 export type MentoringRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 export type MentoringSessionStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
 export type ConversationSender = 'MENTEE' | 'MENTOR' | 'SYSTEM';
-export type MentoringPaymentMode = 'TOSS_PAYMENTS' | 'FREE_REQUEST';
+export type MentoringPaymentMode =
+  | 'TOSS_PAYMENTS'
+  | 'MANUAL_TRANSFER'
+  | 'FREE_REQUEST';
 export type MentoringPaymentStatus =
   | 'PENDING_TRANSFER'
   | 'NOT_REQUIRED'
@@ -34,6 +38,7 @@ export interface MentoringRequest {
   preferredDate?: string;
   preferredTime?: string;
   requestMessage: string;
+  requestContents?: MentoringRequestContentBlock[];
   attachedFileNames?: string[];
   referenceLinks?: string[];
   status: MentoringRequestStatus;
@@ -138,6 +143,7 @@ interface CreateRequestPayload {
   preferredDate?: string;
   preferredTime?: string;
   requestMessage: string;
+  requestContents?: MentoringRequestContentBlock[];
   attachedFileNames?: string[];
   referenceLinks?: string[];
 }
@@ -223,6 +229,10 @@ const getInitialPaymentStatus = (
 ): MentoringPaymentStatus => {
   if (paymentMode === 'FREE_REQUEST') {
     return 'NOT_REQUIRED';
+  }
+
+  if (paymentMode === 'MANUAL_TRANSFER') {
+    return 'PENDING_TRANSFER';
   }
 
   // TOSS_PAYMENTS: 결제 완료 후 신청이 생성되므로 즉시 CONFIRMED
@@ -632,10 +642,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           );
           const seededRequests = hasPendingWithSchedule
             ? baseSeeded
-            : [
-                ...baseSeeded,
-                ...createDemoPendingScheduleRequests(mentorId),
-              ];
+            : [...baseSeeded, ...createDemoPendingScheduleRequests(mentorId)];
           const currentSessions = baseSessions[mentorId] ?? [];
           const currentReviews = (baseReviews[mentorId] ?? []).map(
             normalizeReview,
@@ -726,6 +733,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           const nonDemoRequests = currentMentor101Requests.filter(
             (r) => !r.id.startsWith('note-demo-fixed-'),
           );
+
           return {
             requestsByMentor: {
               ...state.requestsByMentor,
@@ -753,6 +761,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
             preferredDate: payload.preferredDate,
             preferredTime: payload.preferredTime,
             requestMessage: payload.requestMessage,
+            requestContents: payload.requestContents,
             attachedFileNames: payload.attachedFileNames,
             referenceLinks: payload.referenceLinks,
             status: 'PENDING',
@@ -1608,7 +1617,10 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
                 '강남역 인근에서 대면으로 진행하겠습니다.',
                 acceptedCompletedAt,
               ),
-              buildSystemMessage('멘티가 멘토링 후기를 남겼어요.', firstReviewAt),
+              buildSystemMessage(
+                '멘티가 멘토링 후기를 남겼어요.',
+                firstReviewAt,
+              ),
             ],
           };
 
@@ -1689,7 +1701,10 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
                 '작성하신 이력서를 기준으로 수정 우선순위와 문장 템플릿을 전달드렸습니다.',
                 acceptedNoteAt,
               ),
-              buildSystemMessage('멘티가 멘토링 후기를 남겼어요.', secondReviewAt),
+              buildSystemMessage(
+                '멘티가 멘토링 후기를 남겼어요.',
+                secondReviewAt,
+              ),
             ],
           };
 

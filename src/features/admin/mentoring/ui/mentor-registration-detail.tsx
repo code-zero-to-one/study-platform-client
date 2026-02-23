@@ -148,6 +148,9 @@ export default function MentorRegistrationDetail({
           <InfoRow label="스킬 태그">
             {settings?.skillTags?.map((tag) => `#${tag}`).join(', ') || '-'}
           </InfoRow>
+          <InfoRow label="회사 카테고리">
+            {settings?.companyCategory ?? '-'}
+          </InfoRow>
           <InfoRow label="회사명">
             {settings?.hideCompanyName
               ? '비공개'

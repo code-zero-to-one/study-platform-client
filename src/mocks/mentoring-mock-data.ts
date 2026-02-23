@@ -2,6 +2,7 @@ import {
   createDefaultMentorSettings,
   createEmptyWeeklySchedule,
   parseDurationLabelToMinutes,
+  type CompanyCategory,
   type MentorSettingsV2,
   type WeekdayKey,
 } from '@/features/mentoring/model/mentor-settings';
@@ -40,6 +41,7 @@ export interface MentorProfile {
   rating: number;
   reviewCount: number;
   mentoringCount: number;
+  menteeCount?: number;
   tags: string[];
   summary: string;
   bio: string;
@@ -69,6 +71,30 @@ const normalizeConsultingDuration = (minutes: number) => {
   }
 
   return 90 as const;
+};
+
+const inferCompanyCategoryFromCompanyName = (
+  companyName: string,
+): CompanyCategory => {
+  const normalized = companyName.trim().toLowerCase();
+
+  if (normalized.length === 0 || normalized === '비공개') {
+    return '기타';
+  }
+
+  if (/네카라|네카오|카카오|쿠팡|배민|당근|토스/.test(normalized)) {
+    return '네카라쿠배';
+  }
+
+  if (/창업|스타트업|프리랜서|1인/.test(normalized)) {
+    return '창업';
+  }
+
+  if (/유니콘|글로벌 it|it 기업|대기업|넥슨|게임즈/.test(normalized)) {
+    return 'IT 유니콘';
+  }
+
+  return '기타';
 };
 
 const createMethodOption = (
@@ -283,6 +309,7 @@ const buildSettingsFromLegacyMentor = (
     jobTitle: mentor.role,
     careerYears: mentor.career,
     skillTags,
+    companyCategory: inferCompanyCategoryFromCompanyName(mentor.company),
     companyName: mentor.company === '비공개' ? '' : mentor.company,
     hideCompanyName: mentor.company === '비공개',
     noteEnabled: methods.note.enabled !== false,
@@ -322,6 +349,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     rating: 4.9,
     reviewCount: 58,
     mentoringCount: 112,
+    menteeCount: 126,
     tags: ['Java', 'Kotlin', 'MySQL', 'Spring Boot', 'backend'],
     summary:
       '채용 관점에서 이력서/포트폴리오를 점검하고 실전 면접 피드백을 제공합니다.',
@@ -395,6 +423,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     rating: 5.0,
     reviewCount: 147,
     mentoringCount: 333,
+    menteeCount: 353,
     tags: ['JavaScript', 'React', '면접', '이력서', 'frontend'],
     summary:
       '프론트엔드 취업 시장에 맞춘 이력서/과제전형/면접 답변 전략을 제공합니다.',
@@ -459,6 +488,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     rating: 5.0,
     reviewCount: 81,
     mentoringCount: 148,
+    menteeCount: 162,
     tags: ['Unity', 'Unreal Engine', '면접', 'backend', 'game-programming'],
     summary:
       '게임 개발 커리어 전환부터 포트폴리오 구성, 실무 기반 기술면접까지 코칭합니다.',
@@ -548,6 +578,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     rating: 4.9,
     reviewCount: 70,
     mentoringCount: 173,
+    menteeCount: 181,
     tags: ['JavaScript', 'React', '면접', '기술면접', 'frontend'],
     summary: '프론트엔드 취업 전 과정을 레벨별로 나눠 체계적으로 코칭합니다.',
     bio: '신입/경력 프론트엔드 지원자 모두를 대상으로 레벨 체크 기반 멘토링을 제공합니다.',
@@ -582,6 +613,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     rating: 5.0,
     reviewCount: 16,
     mentoringCount: 79,
+    menteeCount: 93,
     tags: ['악성코드', '모의해킹', 'Forensic', 'security', '취업'],
     summary:
       '정보보안 직무 중심 취업/이직 전략과 실무 준비 로드맵을 제공합니다.',
@@ -617,6 +649,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     rating: 5.0,
     reviewCount: 9,
     mentoringCount: 22,
+    menteeCount: 29,
     tags: ['포트폴리오', '면접', '서비스기획', '이력서', '취업'],
     summary:
       '서비스 기획 직무 전환/이직을 준비하는 분들을 위한 포트폴리오 코칭입니다.',
@@ -652,6 +685,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     rating: 5.0,
     reviewCount: 2,
     mentoringCount: 4,
+    menteeCount: 7,
     tags: ['Java', 'Spring', '포트폴리오', '이력서', 'backend'],
     summary:
       '주니어 시선에서 바로 적용할 수 있는 합격 이력서 개선 포인트를 제공합니다.',
@@ -686,6 +720,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     rating: 4.8,
     reviewCount: 31,
     mentoringCount: 64,
+    menteeCount: 78,
     tags: ['포트폴리오', '면접', '리액트', '커리어', 'frontend'],
     summary: '면접 대비와 커리어 고민을 실제 사례 중심으로 정리해드립니다.',
     bio: '글로벌 서비스 개발 경험을 바탕으로 이직/성장 전략을 제시합니다.',
@@ -803,6 +838,7 @@ const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
       source.offlineDurationMinutes ??
       source.onlineDurationMinutes ??
       legacyDuration,
+    companyCategory: source.companyCategory ?? fallback.companyCategory,
     interviewQuestions:
       source.interviewQuestions ?? fallback.interviewQuestions,
     schemaVersion: 3,

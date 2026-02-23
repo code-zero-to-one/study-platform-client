@@ -22,6 +22,9 @@ interface MentorDirectoryState {
   registerMentorProfile: (
     memberId: number,
     formValues: MentorRegistrationFormValues,
+    options?: {
+      imageUrl?: string | null;
+    },
   ) => number;
   reset: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;
@@ -141,6 +144,7 @@ export const createMentorProfileFromRegistration = (
   mentorId: number,
   formValues: MentorRegistrationFormValues,
   nowIso: string,
+  profileImageUrl?: string | null,
 ): MentorProfile => {
   const trimmedCompanyName = formValues.companyName.trim();
   const company = formValues.hideCompanyName
@@ -168,6 +172,7 @@ export const createMentorProfileFromRegistration = (
     jobTitle: formValues.jobTitle ?? '',
     careerYears: formValues.careerYears ?? '',
     skillTags: formValues.skillTags ?? [],
+    companyCategory: formValues.companyCategory ?? '기타',
     companyName: formValues.companyName ?? '',
     hideCompanyName: formValues.hideCompanyName ?? false,
     maxParticipants: formValues.maxParticipants ?? 1,
@@ -208,6 +213,10 @@ export const createMentorProfileFromRegistration = (
     careerHistory: buildCareerHistory(formValues),
     strengths: skillTags,
     avatarEmoji: 'M',
+    imageUrl:
+      profileImageUrl && profileImageUrl.trim().length > 0
+        ? profileImageUrl.trim()
+        : undefined,
     methods: {
       note: createMentoringMethodOption({
         type: 'note',
@@ -288,7 +297,7 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
       mentorIdByMember: {} as Record<number, number>,
       nextMentorId: INITIAL_MENTOR_ID,
       hasHydrated: false,
-      registerMentorProfile: (memberId, formValues) => {
+      registerMentorProfile: (memberId, formValues, options) => {
         const state = get();
         const now = new Date().toISOString();
         const existingMentorId = state.mentorIdByMember[memberId];
@@ -301,6 +310,7 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
           mentorId,
           formValues,
           now,
+          options?.imageUrl,
         );
 
         set((prevState) => {

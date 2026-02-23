@@ -105,6 +105,7 @@ export default function MentorDetailPage({
   const interviewQuestions = mentorSettings.interviewQuestions.filter(
     (question) => question.trim().length > 0,
   );
+  const metMenteeCount = mentor.menteeCount ?? mentor.mentoringCount;
 
   const [selectedMethod, setSelectedMethod] = useState<MentoringMethodType>(
     enabledMethods[0] ?? 'note',
@@ -163,13 +164,10 @@ export default function MentorDetailPage({
             <div className="flex flex-col gap-250 sm:flex-row sm:items-start sm:gap-400">
               {/* 좌: 이름 + 통계 */}
               <div className="flex-1">
-                <div className="mb-75 flex items-center gap-100">
+                <div className="mb-75">
                   <p className="font-designer-18b text-text-strong">
                     {mentor.nickname}
                   </p>
-                  <Badge color="blue" shape="round">
-                    인증 멘토
-                  </Badge>
                 </div>
                 <p className="font-designer-14b text-text-brand mb-50">
                   {mentor.company}
@@ -187,6 +185,12 @@ export default function MentorDetailPage({
                   </span>
                   <span className="font-designer-13r text-text-subtle">
                     리뷰 {mentor.reviewCount}개
+                  </span>
+                  <span className="font-designer-12r text-text-subtlest">
+                    ·
+                  </span>
+                  <span className="font-designer-13r text-text-subtle">
+                    만난 멘티 {metMenteeCount}명
                   </span>
                   <span className="font-designer-12r text-text-subtlest">
                     ·
@@ -482,7 +486,11 @@ export default function MentorDetailPage({
         </div>
 
         {/* ─── 우측 사이드바 ─── */}
-        <aside className={cn(previewMode ? 'hidden' : 'xl:sticky xl:top-[88px] xl:self-start')}>
+        <aside
+          className={cn(
+            previewMode ? 'hidden' : 'xl:sticky xl:top-[88px] xl:self-start',
+          )}
+        >
           <div className="rounded-200 border-border-subtle bg-background-default shadow-1 overflow-hidden border">
             {/* 멘토 프로필 이미지 */}
             <div
@@ -507,13 +515,10 @@ export default function MentorDetailPage({
 
             {/* 이름 + 기본 정보 */}
             <div className="border-border-subtle border-b px-250 pt-200 pb-200">
-              <div className="mb-50 flex items-center gap-100">
+              <div className="mb-50">
                 <span className="font-designer-18b text-text-strong">
                   {mentor.nickname}
                 </span>
-                <Badge color="blue" shape="round">
-                  인증 멘토
-                </Badge>
               </div>
               <p className="font-designer-13b text-text-brand mb-25">
                 {mentor.company}
@@ -529,6 +534,10 @@ export default function MentorDetailPage({
                 <span className="font-designer-12r text-text-subtlest">·</span>
                 <span className="font-designer-12r text-text-subtle">
                   리뷰 {mentor.reviewCount}개
+                </span>
+                <span className="font-designer-12r text-text-subtlest">·</span>
+                <span className="font-designer-12r text-text-subtle">
+                  만난 멘티 {metMenteeCount}명
                 </span>
                 <span className="font-designer-12r text-text-subtlest">·</span>
                 <span className="font-designer-12r text-text-subtle">
