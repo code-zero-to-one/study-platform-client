@@ -363,6 +363,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --radius-50: 4px;
   --radius-75: 6px;
   --radius-100: 8px;
+  --radius-125: 10px;
   --radius-150: 12px;
   --radius-200: 16px;
   --radius-300: 24px;
@@ -372,17 +373,21 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   /* spacing */
   --spacing-*: initial;
   --spacing-0: 0px;
+  --spacing-25: 2px;
   --spacing-50: 4px;
   --spacing-75: 6px;
   --spacing-100: 8px;
+  --spacing-125: 10px;
   --spacing-150: 12px;
   --spacing-200: 16px;
+  --spacing-225: 18px;
   --spacing-250: 20px;
   --spacing-300: 24px;
   --spacing-350: 28px;
   --spacing-400: 32px;
   --spacing-500: 40px;
   --spacing-600: 48px;
+  --spacing-700: 56px;
 
   /* shadow */
   --shadow-*: initial;
@@ -803,7 +808,25 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   }
 }
 
+/* 실시간 미리보기: 폼 변경 시 해당 섹션 강조 애니메이션 */
+@keyframes preview-section-highlight {
+  0%,
+  100% {
+    background-color: transparent;
+    box-shadow: inset 3px 0 0 transparent;
+  }
+  20%,
+  80% {
+    background-color: var(--color-fill-brand-subtle-default);
+    box-shadow: inset 3px 0 0 var(--color-border-brand);
+  }
+}
+
 @layer utilities {
+  .preview-section-highlight {
+    animation: preview-section-highlight 1.4s ease-in-out;
+  }
+
   .toast-enter {
     animation: toast-enter 300ms ease-out forwards;
   }

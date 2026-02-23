@@ -7,18 +7,12 @@ import SingleDropdown from '@/components/ui/dropdown/single';
 import { BaseInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { SETTLEMENT_PAYER_OPTIONS } from '@/features/mentoring/model/mentor-setting-options';
+import { useSearchBanks } from '@/hooks/queries/bank-search-api';
+import { type MentorSettlementRegisterModalProps } from '@/types/mentoring-registration';
 import {
   type MentorSettlementDraft,
   type SettlementPayerType,
-} from '@/features/mentoring/model/mentor-settings';
-import { useSearchBanks } from '@/hooks/queries/bank-search-api';
-
-interface SettlementRegisterModalProps {
-  open: boolean;
-  initialValue: MentorSettlementDraft | undefined;
-  onOpenChange: (open: boolean) => void;
-  onSubmit: (draft: MentorSettlementDraft) => void;
-}
+} from '@/types/mentoring-settings';
 
 const FALLBACK_BANK_OPTIONS = [
   { value: '004', label: '국민은행' },
@@ -57,7 +51,7 @@ export default function SettlementRegisterModal({
   initialValue,
   onOpenChange,
   onSubmit,
-}: SettlementRegisterModalProps) {
+}: MentorSettlementRegisterModalProps) {
   const { data: bankList } = useSearchBanks();
   const [draft, setDraft] = useState<MentorSettlementDraft>(() =>
     getInitialDraftState(initialValue),

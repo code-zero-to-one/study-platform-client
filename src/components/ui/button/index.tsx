@@ -36,21 +36,35 @@ function Button({
   icon,
   iconPosition = 'left',
   asChild = false,
+  loading = false,
+  loadingText,
+  spinner,
+  disabled,
   ...props
 }: React.ComponentPropsWithoutRef<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
     icon?: React.ReactNode;
     iconPosition?: 'left' | 'right';
+    loading?: boolean;
+    loadingText?: string;
+    spinner?: React.ReactNode;
   }) {
   const Comp = asChild ? Slot : 'button';
+  const isDisabled = disabled || loading;
+  const loadingIndicator =
+    spinner ?? (
+      <span className="h-14 w-14 animate-spin rounded-full border-2 border-current border-t-transparent" />
+    );
+  const contentText = loading ? (loadingText ?? children) : children;
 
   const content = (
     <span className="flex items-center gap-50">
+      {loading && <span className="flex items-center">{loadingIndicator}</span>}
       {icon && iconPosition === 'left' && (
         <span className="flex items-center">{icon}</span>
       )}
-      {children}
+      {contentText}
       {icon && iconPosition === 'right' && (
         <span className="flex items-center">{icon}</span>
       )}
@@ -62,6 +76,8 @@ function Button({
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ color, size }), className)}
+      aria-busy={loading || undefined}
+      data-disabled={isDisabled || undefined}
       {...props}
     >
       {children}
@@ -71,6 +87,8 @@ function Button({
     <button
       data-slot="button"
       className={cn(buttonVariants({ color, size }), className)}
+      aria-busy={loading || undefined}
+      disabled={isDisabled}
       {...props}
     >
       {content}

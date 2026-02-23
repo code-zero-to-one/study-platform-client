@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo } from 'react';
+import IconButton from '@/components/ui/icon-button';
 import {
   type MentoringRequest,
   type MentoringSession,
@@ -49,9 +50,11 @@ function getSessionDotStyle(
   if (sessionDate === todayStr) {
     return 'bg-fill-information-default-default';
   }
+
   if (isPast) {
     return 'bg-fill-neutral-default-default opacity-70';
   }
+
   return 'bg-fill-success-default-default';
 }
 
@@ -76,6 +79,7 @@ export default function MentoringScheduleCalendar({
       if (!map[key]) map[key] = [];
       map[key].push(session);
     });
+
     return map;
   }, [sessions]);
 
@@ -85,6 +89,7 @@ export default function MentoringScheduleCalendar({
       if (!request.preferredDate) return;
       map[request.preferredDate] = (map[request.preferredDate] ?? 0) + 1;
     });
+
     return map;
   }, [pendingRequests]);
 
@@ -99,14 +104,13 @@ export default function MentoringScheduleCalendar({
     <div className="rounded-150 border-border-subtle bg-background-default border p-200">
       {/* 월 이동 헤더 */}
       <div className="mb-125 flex items-center justify-between">
-        <button
-          type="button"
+        <IconButton
           onClick={() => onMonthChange(currentMonth.subtract(1, 'month'))}
-          aria-label="이전 달"
-          className="rounded-100 hover:bg-background-alternative p-75 transition-colors"
+          label="이전 달"
+          className="p-75"
         >
           <ChevronLeft className="text-text-subtle h-16 w-16" />
-        </button>
+        </IconButton>
 
         <div className="flex items-center gap-100">
           <h3 className="font-designer-16b text-text-default">
@@ -123,14 +127,13 @@ export default function MentoringScheduleCalendar({
           )}
         </div>
 
-        <button
-          type="button"
+        <IconButton
           onClick={() => onMonthChange(currentMonth.add(1, 'month'))}
-          aria-label="다음 달"
-          className="rounded-100 hover:bg-background-alternative p-75 transition-colors"
+          label="다음 달"
+          className="p-75"
         >
           <ChevronRight className="text-text-subtle h-16 w-16" />
-        </button>
+        </IconButton>
       </div>
 
       {/* 요일 헤더 */}
@@ -183,6 +186,7 @@ export default function MentoringScheduleCalendar({
             if (isPastDay) return 'text-text-subtlest';
             if (isSunday) return 'text-text-error';
             if (isSaturday) return 'text-text-information';
+
             return 'text-text-default';
           };
 

@@ -2,8 +2,8 @@
 
 import {
   findMentorById,
-  useMentorDirectory,
 } from '@/features/mentoring/model/use-mentor-directory';
+import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import MentorDetailPage from './mentor-detail-page';
 import {
   MentorNotFoundState,
@@ -17,7 +17,7 @@ interface MentorDetailRouteClientProps {
 export default function MentorDetailRouteClient({
   mentorId,
 }: MentorDetailRouteClientProps) {
-  const { mentors, hasHydrated } = useMentorDirectory();
+  const { mentors, hasHydrated } = useMentorDirectoryQuery();
 
   if (!hasHydrated) {
     return <MentorRouteLoading />;

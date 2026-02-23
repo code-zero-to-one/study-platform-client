@@ -1,4 +1,4 @@
-import { type MentoringMethodType } from '@/mocks/mentoring-mock-data';
+import { type MentoringMethodType } from '@/types/mentoring';
 
 const MENTOR_WRITE_ROLES = ['ROLE_MENTOR', 'ROLE_ADMIN'] as const;
 

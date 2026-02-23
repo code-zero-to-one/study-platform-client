@@ -4,7 +4,10 @@ import {
   CONSULTING_DURATION_OPTIONS,
   CONTACT_COUNTRY_CODES,
   WEEKDAY_KEYS,
-} from '@/features/mentoring/model/mentor-settings';
+} from '@/types/mentoring-settings';
+
+export const MENTORING_TITLE_MIN_LENGTH = 10;
+export const MENTORING_TITLE_MAX_LENGTH = 60;
 
 const timeSlotSchema = z
   .string()
@@ -165,19 +168,27 @@ export const mentorRegistrationSchema = z
     contactPhone: z
       .string()
       .trim()
-      .regex(/^\d{8,12}$/, '연락처는 숫자 8~12자리로 입력해주세요.'),
-    contactEmail: z.string().trim().email('이메일 형식이 올바르지 않습니다.'),
-    categories: z
-      .array(z.string().trim().min(1))
-      .min(1, '카테고리를 선택해주세요.')
-      .refine((categories) => new Set(categories).size === categories.length, {
-        message: '카테고리는 중복 없이 선택해주세요.',
+      .refine((value) => value === '' || /^\d{8,12}$/.test(value), {
+        message: '연락처는 숫자 8~12자리로 입력해주세요.',
       }),
+    contactEmail: z.string().trim().email('이메일 형식이 올바르지 않습니다.'),
+    categories: z.array(z.string().trim().min(1)).default([]),
     mentoringTitle: z
       .string()
       .trim()
-      .min(10, '멘토링명은 10자 이상 입력해주세요.')
-      .max(120, '멘토링명은 120자 이하로 입력해주세요.'),
+      .min(
+        MENTORING_TITLE_MIN_LENGTH,
+        `멘토링명은 ${MENTORING_TITLE_MIN_LENGTH}자 이상 입력해주세요.`,
+      )
+      .max(
+        MENTORING_TITLE_MAX_LENGTH,
+        `멘토링명은 ${MENTORING_TITLE_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
+    appealLine: z
+      .string()
+      .trim()
+      .min(2, '한 줄 어필은 2자 이상 입력해주세요.')
+      .max(24, '한 줄 어필은 24자 이하로 입력해주세요.'),
     jobGroup: z.string().trim().min(1, '멘토 직군을 선택해주세요.'),
     jobTitle: z.string().trim().min(1, '멘토 직무를 선택해주세요.'),
     careerYears: z.string().trim().min(1, '멘토 경력을 선택해주세요.'),
@@ -248,19 +259,19 @@ export const mentorRegistrationSchema = z
     detailedDescription: z
       .string()
       .trim()
-      .min(30, '상세설명은 30자 이상 입력해주세요.')
-      .max(5000, '상세설명은 5000자 이하로 입력해주세요.'),
+      .min(30, '멘토 소개는 30자 이상 입력해주세요.')
+      .max(1500000, '멘토 소개는 1,500,000자 이하로 입력해주세요.'),
     interviewQuestions: z
       .array(
         z
           .string()
           .trim()
-          .min(8, '인터뷰 질문은 8자 이상 입력해주세요.')
-          .max(120, '인터뷰 질문은 120자 이하로 입력해주세요.'),
+          .min(8, '상담 전 준비사항은 8자 이상 입력해주세요.')
+          .max(120, '상담 전 준비사항은 120자 이하로 입력해주세요.'),
       )
-      .max(8, '인터뷰 질문은 최대 8개까지 입력할 수 있습니다.')
+      .max(8, '상담 전 준비사항은 최대 8개까지 입력할 수 있습니다.')
       .refine((questions) => new Set(questions).size === questions.length, {
-        message: '인터뷰 질문은 중복 없이 입력해주세요.',
+        message: '상담 전 준비사항은 중복 없이 입력해주세요.',
       }),
     preNotice: z
       .string()

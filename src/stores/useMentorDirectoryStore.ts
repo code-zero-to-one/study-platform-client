@@ -2,15 +2,17 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import {
   toTimeRangeLabel,
-  type MentorSettingsV2,
 } from '@/features/mentoring/model/mentor-settings';
 import {
   MENTOR_PROFILES,
-  type MentorProfile,
-  type MentoringMethodOption,
-  type MentoringMethodType,
   withMentorSettings,
 } from '@/mocks/mentoring-mock-data';
+import type {
+  MentorProfile,
+  MentoringMethodOption,
+  MentoringMethodType,
+} from '@/types/mentoring';
+import { type MentorSettingsV2 } from '@/types/mentoring-settings';
 import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
 
 interface MentorDirectoryState {
@@ -168,6 +170,7 @@ export const createMentorProfileFromRegistration = (
     contactEmail: formValues.contactEmail ?? '',
     categories: formValues.categories ?? [],
     mentoringTitle: formValues.mentoringTitle ?? '',
+    appealLine: formValues.appealLine ?? '',
     jobGroup: formValues.jobGroup ?? '',
     jobTitle: formValues.jobTitle ?? '',
     careerYears: formValues.careerYears ?? '',

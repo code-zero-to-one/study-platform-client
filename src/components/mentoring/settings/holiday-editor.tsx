@@ -2,8 +2,9 @@
 
 import { useMemo, useState } from 'react';
 import Button from '@/components/ui/button';
+import FieldErrorText from '@/components/ui/form/field-error-text';
 import { BaseInput } from '@/components/ui/input';
-import { type MentorHoliday } from '@/features/mentoring/model/mentor-settings';
+import { type MentorHoliday } from '@/types/mentoring-settings';
 
 interface HolidayEditorProps {
   holidays: MentorHoliday[];
@@ -138,11 +139,7 @@ export default function HolidayEditor({
             maxLength={100}
           />
 
-          {errorMessage && (
-            <p className="font-designer-13r text-text-error mt-75">
-              {errorMessage}
-            </p>
-          )}
+          <FieldErrorText message={errorMessage} />
 
           <div className="mt-125 flex flex-col-reverse gap-100 sm:flex-row sm:justify-end">
             <Button

@@ -3,8 +3,8 @@
 import { isMentoringMethodType } from '@/features/mentoring/model/mentor-permission';
 import {
   findMentorById,
-  useMentorDirectory,
 } from '@/features/mentoring/model/use-mentor-directory';
+import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { getEnabledMentoringMethods } from '@/mocks/mentoring-mock-data';
 import {
   MentorNotFoundState,
@@ -21,7 +21,7 @@ export default function MentoringApplyRouteClient({
   mentorId,
   selectedType,
 }: MentoringApplyRouteClientProps) {
-  const { mentors, hasHydrated } = useMentorDirectory();
+  const { mentors, hasHydrated } = useMentorDirectoryQuery();
 
   if (!hasHydrated) {
     return <MentorRouteLoading />;

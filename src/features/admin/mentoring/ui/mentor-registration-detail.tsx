@@ -245,13 +245,13 @@ export default function MentorRegistrationDetail({
           )}
         </Section>
 
-        <Section title="멘토링 상세설명">
+        <Section title="멘토 소개">
           <p className="font-designer-14r text-text-default whitespace-pre-wrap">
             {settings?.detailedDescription || '-'}
           </p>
         </Section>
 
-        <Section title="인터뷰 질문">
+        <Section title="상담 전 준비사항">
           {settings?.interviewQuestions && settings.interviewQuestions.length > 0 ? (
             <div className="space-y-50">
               {settings.interviewQuestions.map((question) => (
@@ -262,7 +262,7 @@ export default function MentorRegistrationDetail({
             </div>
           ) : (
             <p className="font-designer-13r text-text-subtle">
-              등록된 인터뷰 질문이 없습니다.
+              등록된 준비사항이 없습니다.
             </p>
           )}
         </Section>

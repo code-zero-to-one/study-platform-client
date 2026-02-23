@@ -7,7 +7,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { useMentorDirectory } from '@/features/mentoring/model/use-mentor-directory';
+import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   getMethodLabel,
@@ -119,7 +119,7 @@ const getSessionLabel = ({
 
 export default function MyMentoringReviewPanel() {
   const { memberId } = useAuthReady();
-  const { mentors } = useMentorDirectory();
+  const { mentors } = useMentorDirectoryQuery();
   const { showToast } = useToastStore();
   const requestsByMentor = useMentoringManagementStore(
     (state) => state.requestsByMentor,

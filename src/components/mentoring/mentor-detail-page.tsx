@@ -1,11 +1,8 @@
 'use client';
 
 import {
-  BriefcaseBusiness,
-  CalendarDays,
   ChevronRight,
   CircleCheck,
-  Clock,
   Info,
   MessageCircle,
   Monitor,
@@ -13,17 +10,12 @@ import {
   RotateCcw,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { type ReactNode, useMemo, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import Avatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import {
-  hasAnyWeeklyScheduleSlots,
-  WEEKDAY_KEYS,
-  WEEKDAY_LABEL_MAP,
-} from '@/features/mentoring/model/mentor-settings';
 import {
   formatWon,
   getEnabledMentoringMethods,
@@ -32,11 +24,16 @@ import {
   type MentorProfile,
   type MentoringMethodType,
 } from '@/mocks/mentoring-mock-data';
+import { type MentorRegistrationPreviewHighlightSection } from '@/types/mentoring-registration';
+import MentorMarkdownContent from './mentor-markdown-content';
 import ReviewStars from './review-stars';
+
+type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
 
 interface MentorDetailPageProps {
   mentor: MentorProfile;
   previewMode?: boolean;
+  highlightedSections?: PreviewHighlightSection[];
 }
 
 const methodIconMap: Record<MentoringMethodType, ReactNode> = {
@@ -70,38 +67,16 @@ const reviewMethodMap: Record<MentoringMethodType, string> = {
 export default function MentorDetailPage({
   mentor,
   previewMode,
+  highlightedSections,
 }: MentorDetailPageProps) {
+  const isHighlighted = (section: PreviewHighlightSection) =>
+    previewMode === true && (highlightedSections?.includes(section) ?? false);
   const mentorSettings = getMentorSettings(mentor);
+  const jobTitleLabel = mentorSettings.jobTitle || mentor.role || '직무 미입력';
+  const careerLabel = mentorSettings.careerYears || mentor.career || '경력 미입력';
   const enabledMethods = useMemo(() => {
     return getEnabledMentoringMethods(mentor);
   }, [mentor]);
-
-  const scheduleDurationLabel = useMemo(() => {
-    const labels = enabledMethods
-      .map((method) => mentor.methods[method])
-      .filter((method) => method.requiresSchedule)
-      .map((method) => method.durationLabel);
-    const uniqueLabels = Array.from(new Set(labels));
-    if (uniqueLabels.length === 0) return '비동기';
-    if (uniqueLabels.length === 1) return uniqueLabels[0];
-
-    return '방식별 상이';
-  }, [enabledMethods, mentor.methods]);
-
-  const scheduleRows = useMemo(() => {
-    return WEEKDAY_KEYS.flatMap((weekday) => {
-      const slots = mentorSettings.schedule.weekly[weekday];
-      if (slots.length === 0) return [];
-      const sortedSlots = [...slots].sort((a, b) => a.localeCompare(b));
-      const previewSlots = sortedSlots.slice(0, 4).join(', ');
-      const remainCount = sortedSlots.length - 4;
-      const suffix = remainCount > 0 ? ` 외 ${remainCount}개` : '';
-
-      return [`${WEEKDAY_LABEL_MAP[weekday]} ${previewSlots}${suffix}`];
-    });
-  }, [mentorSettings.schedule.weekly]);
-
-  const hasWeeklySchedule = hasAnyWeeklyScheduleSlots(mentorSettings.schedule);
   const interviewQuestions = mentorSettings.interviewQuestions.filter(
     (question) => question.trim().length > 0,
   );
@@ -156,7 +131,12 @@ export default function MentorDetailPage({
         {/* ─── 메인 컨텐츠 ─── */}
         <div className="min-w-0">
           {/* 헤드라인 + 기본 정보 */}
-          <section className="border-border-subtle mb-500 border-b pb-500">
+          <section
+            className={cn(
+              'border-border-subtle mb-500 border-b pb-500',
+              isHighlighted('headline') && 'preview-section-highlight',
+            )}
+          >
             <h1 className="font-designer-24b text-text-strong mb-300 leading-snug sm:text-[30px]">
               {mentor.headline}
             </h1>
@@ -173,7 +153,7 @@ export default function MentorDetailPage({
                   {mentor.company}
                 </p>
                 <p className="font-designer-13r text-text-subtle mb-200">
-                  {mentor.role} · {mentor.career}
+                  {jobTitleLabel} · {careerLabel}
                 </p>
                 <div className="flex flex-wrap items-center gap-100">
                   <ReviewStars rating={Math.floor(mentor.rating)} />
@@ -201,19 +181,17 @@ export default function MentorDetailPage({
                 </div>
               </div>
 
-              {/* 우: 분야/소속/경력 */}
+              {/* 우: 직무/소속/경력 */}
               <div className="rounded-150 bg-background-alternative p-200 sm:w-[260px]">
                 <div className="flex flex-col gap-100">
-                  {mentorSettings.categories.length > 0 && (
-                    <div className="grid grid-cols-[72px_1fr] items-start gap-75">
-                      <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                        전문 분야
-                      </span>
-                      <span className="font-designer-13r text-text-default">
-                        {mentorSettings.categories.join(', ')}
-                      </span>
-                    </div>
-                  )}
+                  <div className="grid grid-cols-[72px_1fr] items-start gap-75">
+                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
+                      직무
+                    </span>
+                    <span className="font-designer-13r text-text-default">
+                      {jobTitleLabel}
+                    </span>
+                  </div>
                   <div className="grid grid-cols-[72px_1fr] items-start gap-75">
                     <span className="font-designer-12r text-text-subtlest pt-[2px]">
                       소속
@@ -227,7 +205,7 @@ export default function MentorDetailPage({
                       경력
                     </span>
                     <span className="font-designer-13r text-text-default">
-                      {mentor.career}
+                      {careerLabel}
                     </span>
                   </div>
                 </div>
@@ -236,13 +214,20 @@ export default function MentorDetailPage({
           </section>
 
           {/* 멘토 소개 */}
-          <section className="border-border-subtle mb-500 border-b pb-500">
+          <section
+            className={cn(
+              'border-border-subtle mb-500 border-b pb-500',
+              isHighlighted('description') && 'preview-section-highlight',
+            )}
+          >
             <h2 className="font-designer-18b text-text-strong mb-200">
               멘토 소개
             </h2>
-            <p className="font-designer-14r text-text-default mb-250 leading-loose whitespace-pre-line">
-              {mentorSettings.detailedDescription}
-            </p>
+            <MentorMarkdownContent
+              content={mentorSettings.detailedDescription}
+              className="mb-250"
+              emptyMessage="멘토 소개가 아직 등록되지 않았습니다."
+            />
             <div className="mb-200 flex flex-wrap gap-100">
               {mentorSettings.skillTags.map((tag) => (
                 <Badge key={tag} color="blue" shape="round">
@@ -259,11 +244,16 @@ export default function MentorDetailPage({
             )}
           </section>
 
-          {/* 상담 전 인터뷰 질문 */}
+          {/* 상담 전 준비사항 */}
           {interviewQuestions.length > 0 && (
-            <section className="border-border-subtle mb-500 border-b pb-500">
+            <section
+              className={cn(
+                'border-border-subtle mb-500 border-b pb-500',
+                isHighlighted('interview') && 'preview-section-highlight',
+              )}
+            >
               <h2 className="font-designer-18b text-text-strong mb-200">
-                상담 전 인터뷰 질문
+                상담 전 준비사항
               </h2>
               <ul className="flex flex-col gap-100">
                 {interviewQuestions.map((question) => (
@@ -278,35 +268,13 @@ export default function MentorDetailPage({
             </section>
           )}
 
-          {/* 경력 / 강점 */}
-          <section className="border-border-subtle mb-500 border-b pb-500">
-            <div className="mb-200 flex items-center gap-100">
-              <BriefcaseBusiness className="text-text-brand h-18 w-18" />
-              <h2 className="font-designer-18b text-text-strong">
-                경력 / 강점
-              </h2>
-            </div>
-            <ul className="mb-200 flex flex-col gap-150">
-              {mentor.careerHistory.map((career) => (
-                <li key={career} className="flex items-start gap-100">
-                  <CircleCheck className="text-text-success mt-[2px] h-16 w-16 shrink-0" />
-                  <span className="font-designer-14r text-text-default">
-                    {career}
-                  </span>
-                </li>
-              ))}
-            </ul>
-            <div className="flex flex-wrap gap-100">
-              {mentor.strengths.map((strength) => (
-                <Badge key={strength} color="purple" shape="round">
-                  {strength}
-                </Badge>
-              ))}
-            </div>
-          </section>
-
           {/* 상담 방법 선택 */}
-          <section className="border-border-subtle mb-500 border-b pb-500">
+          <section
+            className={cn(
+              'border-border-subtle mb-500 border-b pb-500',
+              isHighlighted('methods') && 'preview-section-highlight',
+            )}
+          >
             <h2 className="font-designer-18b text-text-strong mb-75">
               상담을 통해 문제를 해결하세요.
             </h2>
@@ -364,59 +332,16 @@ export default function MentorDetailPage({
               })}
             </div>
 
-            {/* 운영 정보 칩 */}
-            <div className="mt-200 flex flex-wrap gap-100">
-              <span className="rounded-150 border-border-subtle flex items-center gap-75 border px-150 py-75">
-                <Clock className="text-text-subtle h-14 w-14" />
-                <span className="font-designer-12r text-text-subtle">
-                  1회 {scheduleDurationLabel}
-                </span>
-              </span>
-              <span className="rounded-150 border-border-subtle flex items-center gap-75 border px-150 py-75">
-                <Users className="text-text-subtle h-14 w-14" />
-                <span className="font-designer-12r text-text-subtle">
-                  최대 {mentorSettings.maxParticipants}명
-                </span>
-              </span>
-            </div>
-
-            {/* 스케줄 */}
-            {hasWeeklySchedule && (
-              <div className="rounded-150 border-border-subtle bg-background-default mt-150 border p-200">
-                <div className="mb-150 flex items-center gap-75">
-                  <CalendarDays className="text-text-subtle h-14 w-14" />
-                  <p className="font-designer-13b text-text-default">
-                    정기 스케줄
-                  </p>
-                </div>
-                <ul className="flex flex-col gap-100">
-                  {scheduleRows.map((row) => {
-                    const [day, ...times] = row.split(' ');
-
-                    return (
-                      <li key={row} className="flex items-center gap-150">
-                        <span className="font-designer-12b text-text-subtlest w-[20px] shrink-0">
-                          {day}
-                        </span>
-                        <span className="font-designer-13r text-text-subtle">
-                          {times.join(' ')}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-                {mentorSettings.holidays.length > 0 && (
-                  <p className="font-designer-12r text-text-warning mt-100">
-                    등록된 휴가 {mentorSettings.holidays.length}건
-                  </p>
-                )}
-              </div>
-            )}
           </section>
 
           {/* 사전 안내 */}
           {mentorSettings.preNotice.trim() && (
-            <section className="border-border-subtle mb-500 border-b pb-500">
+            <section
+              className={cn(
+                'border-border-subtle mb-500 border-b pb-500',
+                isHighlighted('notice') && 'preview-section-highlight',
+              )}
+            >
               <h2 className="font-designer-18b text-text-strong mb-200">
                 멘토링 사전 안내
               </h2>
@@ -487,44 +412,28 @@ export default function MentorDetailPage({
 
         {/* ─── 우측 사이드바 ─── */}
         <aside
-          className={cn(
-            previewMode ? 'hidden' : 'xl:sticky xl:top-[88px] xl:self-start',
-          )}
+          className={cn(!previewMode && 'xl:sticky xl:top-[88px] xl:self-start')}
         >
           <div className="rounded-200 border-border-subtle bg-background-default shadow-1 overflow-hidden border">
-            {/* 멘토 프로필 이미지 */}
-            <div
-              className="bg-background-alternative relative w-full"
-              style={{ aspectRatio: '4/3' }}
-            >
-              {mentor.imageUrl ? (
-                <Image
-                  src={mentor.imageUrl}
-                  alt={mentor.nickname}
-                  fill
-                  className="object-cover object-top"
-                />
-              ) : (
-                <div className="bg-background-accent-rose-default flex h-full w-full items-center justify-center">
-                  <span className="text-[72px] leading-none">
-                    {mentor.avatarEmoji ?? mentor.nickname[0]}
-                  </span>
-                </div>
-              )}
-            </div>
-
             {/* 이름 + 기본 정보 */}
-            <div className="border-border-subtle border-b px-250 pt-200 pb-200">
-              <div className="mb-50">
-                <span className="font-designer-18b text-text-strong">
-                  {mentor.nickname}
-                </span>
+            <div className="border-border-subtle border-b px-250 pt-250 pb-200">
+              <div className="mb-150 flex items-center gap-150">
+                <Avatar
+                  image={mentor.imageUrl}
+                  alt={mentor.nickname}
+                  size={48}
+                />
+                <div className="min-w-0">
+                  <p className="font-designer-16b text-text-strong truncate">
+                    {mentor.nickname}
+                  </p>
+                  <p className="font-designer-13b text-text-brand truncate">
+                    {mentor.company}
+                  </p>
+                </div>
               </div>
-              <p className="font-designer-13b text-text-brand mb-25">
-                {mentor.company}
-              </p>
               <p className="font-designer-13r text-text-subtle mb-150">
-                {mentor.role} · {mentor.career}
+                {jobTitleLabel} · {careerLabel}
               </p>
               <div className="flex flex-wrap items-center gap-75">
                 <ReviewStars rating={Math.floor(mentor.rating)} />
@@ -546,19 +455,17 @@ export default function MentorDetailPage({
               </div>
             </div>
 
-            {/* 전문 분야 / 소속 / 경력 */}
+            {/* 직무 / 소속 / 경력 */}
             <div className="border-border-subtle border-b px-250 py-200">
               <div className="flex flex-col gap-100">
-                {mentorSettings.categories.length > 0 && (
-                  <div className="grid grid-cols-[68px_1fr] items-start gap-75">
-                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                      전문 분야
-                    </span>
-                    <span className="font-designer-12r text-text-default">
-                      {mentorSettings.categories.join(', ')}
-                    </span>
-                  </div>
-                )}
+                <div className="grid grid-cols-[68px_1fr] items-start gap-75">
+                  <span className="font-designer-12r text-text-subtlest pt-[2px]">
+                    직무
+                  </span>
+                  <span className="font-designer-12r text-text-default">
+                    {jobTitleLabel}
+                  </span>
+                </div>
                 <div className="grid grid-cols-[68px_1fr] items-start gap-75">
                   <span className="font-designer-12r text-text-subtlest pt-[2px]">
                     소속
@@ -572,7 +479,7 @@ export default function MentorDetailPage({
                     경력
                   </span>
                   <span className="font-designer-12r text-text-default">
-                    {mentor.career}
+                    {careerLabel}
                   </span>
                 </div>
               </div>

@@ -2,57 +2,27 @@ import {
   createDefaultMentorSettings,
   createEmptyWeeklySchedule,
   parseDurationLabelToMinutes,
-  type CompanyCategory,
-  type MentorSettingsV2,
-  type WeekdayKey,
 } from '@/features/mentoring/model/mentor-settings';
+import type {
+  MentorProfile,
+  MentorSortOption,
+  MentoringMethodOption,
+  MentoringMethodType,
+} from '@/types/mentoring';
+import type {
+  CompanyCategory,
+  MentorSettingsV2,
+  WeekdayKey,
+} from '@/types/mentoring-settings';
+export type {
+  MentorProfile,
+  MentorReview,
+  MentorSortType,
+  MentoringMethodOption,
+  MentoringMethodType,
+} from '@/types/mentoring';
 
-export type MentoringMethodType = 'note' | 'phone' | 'online' | 'offline';
 type LegacyMentoringMethodType = MentoringMethodType | 'chat' | 'call';
-
-export interface MentoringMethodOption {
-  type: MentoringMethodType;
-  label: string;
-  durationLabel: string;
-  price: number;
-  description: string;
-  enabled?: boolean;
-  requiresSchedule: boolean;
-  timeSlots: string[];
-}
-
-export interface MentorReview {
-  id: number | string;
-  authorName: string;
-  rating: number;
-  createdAt: string;
-  content: string;
-  method: MentoringMethodType;
-}
-
-export interface MentorProfile {
-  id: number;
-  priority: number;
-  headline: string;
-  nickname: string;
-  role: string;
-  career: string;
-  company: string;
-  rating: number;
-  reviewCount: number;
-  mentoringCount: number;
-  menteeCount?: number;
-  tags: string[];
-  summary: string;
-  bio: string;
-  careerHistory: string[];
-  strengths: string[];
-  avatarEmoji?: string;
-  imageUrl?: string;
-  methods: Record<MentoringMethodType, MentoringMethodOption>;
-  reviews: MentorReview[];
-  mentorSettings?: MentorSettingsV2;
-}
 
 const DEFAULT_TIME_SLOTS = ['21:00~21:30', '21:30~22:00', '22:00~22:30'];
 const METHOD_ORDER: MentoringMethodType[] = [
@@ -95,6 +65,39 @@ const inferCompanyCategoryFromCompanyName = (
   }
 
   return '기타';
+};
+
+const inferAppealLine = (
+  companyName: string,
+  companyCategory: CompanyCategory,
+): string => {
+  const normalized = companyName.trim().toLowerCase();
+
+  if (/쿠팡/.test(normalized)) {
+    return '쿠팡';
+  }
+
+  if (/금융|은행|증권|카드/.test(normalized)) {
+    return '금융권 대기업';
+  }
+
+  if (/판교|네카라|네카오|카카오|네이버|배민|당근|토스/.test(normalized)) {
+    return '네카라 및 판교IT기업';
+  }
+
+  if (companyCategory === '네카라쿠배') {
+    return '네카라쿠배';
+  }
+
+  if (companyCategory === '창업') {
+    return '창업';
+  }
+
+  if (/대기업|글로벌|global/.test(normalized)) {
+    return '대기업';
+  }
+
+  return companyCategory;
 };
 
 const createMethodOption = (
@@ -293,6 +296,7 @@ const buildSettingsFromLegacyMentor = (
 ): MentorSettingsV2 => {
   const defaults = createDefaultMentorSettings();
   const skillTags = mentor.tags.slice(0, 5);
+  const companyCategory = inferCompanyCategoryFromCompanyName(mentor.company);
   const methods = getNormalizedMethods(mentor);
   const onlineDurationMinutes = normalizeConsultingDuration(
     parseDurationLabelToMinutes(methods.online.durationLabel) ?? 60,
@@ -309,7 +313,8 @@ const buildSettingsFromLegacyMentor = (
     jobTitle: mentor.role,
     careerYears: mentor.career,
     skillTags,
-    companyCategory: inferCompanyCategoryFromCompanyName(mentor.company),
+    companyCategory,
+    appealLine: inferAppealLine(mentor.company, companyCategory),
     companyName: mentor.company === '비공개' ? '' : mentor.company,
     hideCompanyName: mentor.company === '비공개',
     noteEnabled: methods.note.enabled !== false,
@@ -750,9 +755,7 @@ export const sortOptions = [
   { value: 'rating', label: '평점순' },
   { value: 'review', label: '리뷰순' },
   { value: 'low-price', label: '낮은 가격순' },
-] as const;
-
-export type MentorSortType = (typeof sortOptions)[number]['value'];
+] as const satisfies readonly MentorSortOption[];
 
 export const getEnabledMentoringMethods = (mentor: MentorProfile) => {
   const methods = getNormalizedMethods(mentor);
@@ -815,6 +818,7 @@ const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
   const legacyDuration = normalizeConsultingDuration(
     source.sessionDurationMinutes ?? fallback.onlineDurationMinutes,
   );
+  const appealLine = source.appealLine?.trim();
 
   return {
     ...fallback,
@@ -838,6 +842,7 @@ const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
       source.offlineDurationMinutes ??
       source.onlineDurationMinutes ??
       legacyDuration,
+    appealLine: appealLine || fallback.appealLine,
     companyCategory: source.companyCategory ?? fallback.companyCategory,
     interviewQuestions:
       source.interviewQuestions ?? fallback.interviewQuestions,

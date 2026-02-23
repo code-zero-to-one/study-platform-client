@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { type MentoringRequestContentBlock } from '@/features/mentoring/model/request-content';
-import { type MentoringMethodType } from '@/mocks/mentoring-mock-data';
+import { type MentoringMethodType } from '@/types/mentoring';
 
 export type MentoringRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
 export type MentoringSessionStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';

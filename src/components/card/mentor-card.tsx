@@ -2,28 +2,29 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import {
-  ExternalLink,
+  CalendarCheck2,
   MessageCircle,
+  MessageSquareText,
   Monitor,
   Phone,
+  Star,
+  UserRound,
   Users,
 } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { type KeyboardEvent, useEffect, useState } from 'react';
+import { type KeyboardEvent } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import {
   formatWon,
   getLowestPriceOption,
   getMentorSettings,
-  type MentorProfile,
-  type MentoringMethodType,
 } from '@/mocks/mentoring-mock-data';
-
-interface MentorCardProps {
-  mentor: MentorProfile;
-}
+import type {
+  MentorCardProps,
+  MentoringMethodType,
+} from '@/types/mentoring';
 
 const methodTextMap: Record<MentoringMethodType, string> = {
   note: '쪽지상담',
@@ -38,22 +39,6 @@ const METHOD_ORDER: MentoringMethodType[] = [
   'online',
   'offline',
 ];
-
-const getFieldLabel = (role: string) => {
-  if (role.includes('프론트엔드')) {
-    return '프론트엔드 개발';
-  }
-
-  if (role.includes('백엔드')) {
-    return '백엔드 개발';
-  }
-
-  if (role.includes('게임')) {
-    return '게임 개발';
-  }
-
-  return role;
-};
 
 const methodLabelMap: Record<MentoringMethodType, string> = {
   note: 'text-text-brand',
@@ -72,22 +57,26 @@ const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
 export default function MentorCard({ mentor }: MentorCardProps) {
   const router = useRouter();
   const mentorSettings = getMentorSettings(mentor);
-  const keywords = mentorSettings.skillTags.slice(0, 3);
+  const mentoringTitle = mentorSettings.mentoringTitle || mentor.headline;
+  const appealLine =
+    mentorSettings.appealLine || mentorSettings.companyCategory;
+  const keywords = Array.from(
+    new Set([...mentorSettings.skillTags, ...mentor.tags]),
+  )
+    .map((keyword) => keyword.trim())
+    .filter((keyword) => keyword.length > 0)
+    .slice(0, 5);
+  const jobTitleLabel = mentorSettings.jobTitle || mentor.role || '직무 미입력';
+  const careerLabel =
+    mentorSettings.careerYears || mentor.career || '경력 미입력';
+  const metMenteeCount = mentor.menteeCount ?? mentor.mentoringCount;
   const lowestPriceOption = getLowestPriceOption(mentor);
-  const normalizedImageUrl = mentor.imageUrl?.trim();
-  const [isImageError, setIsImageError] = useState(false);
-  const mentorImageUrl =
-    !isImageError && normalizedImageUrl ? normalizedImageUrl : undefined;
   const availableMethods = {
     note: mentor.methods.note.enabled !== false,
     phone: mentor.methods.phone.enabled !== false,
     online: mentor.methods.online.enabled !== false,
     offline: mentor.methods.offline.enabled !== false,
   } as const;
-
-  useEffect(() => {
-    setIsImageError(false);
-  }, [mentor.id, normalizedImageUrl]);
 
   const navigateDetail = () => {
     sendGTMEvent({
@@ -114,7 +103,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
     <article
       className={cn(
         'hover:shadow-2 hover:border-border-brand rounded-150',
-        'cursor-pointer overflow-hidden border border-[#E5E7EB] bg-white',
+        'cursor-pointer self-start overflow-hidden border border-[#E5E7EB] bg-white',
         'transition-all',
       )}
       role="button"
@@ -122,59 +111,65 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       onClick={navigateDetail}
       onKeyDown={handleKeyDown}
     >
-      <div className="bg-background-alternative relative h-[180px]">
-        {mentorImageUrl ? (
-          <Image
-            src={mentorImageUrl}
-            alt={mentor.nickname}
-            fill
-            className="object-cover object-top"
-            onError={() => {
-              setIsImageError(true);
-            }}
-          />
-        ) : (
-          <div className="bg-background-accent-rose-default flex h-full w-full items-center justify-center">
-            <span className="text-[56px] leading-none">
-              {mentor.avatarEmoji ?? mentor.nickname[0]}
-            </span>
-          </div>
-        )}
-      </div>
-
       <div className="px-300 py-225">
-        <div className="mb-100">
-          <Badge color="blue">
-            {mentorSettings.categories[0] ?? getFieldLabel(mentor.role)}
-          </Badge>
-        </div>
-
-        <div className="mb-100 flex items-center gap-100">
-          <h3 className="font-designer-20b text-text-default truncate">
-            {mentor.nickname}
+        <div className="mb-125">
+          <h3 className="font-designer-18b text-text-default break-words">
+            {mentoringTitle}
           </h3>
-          <ExternalLink className="text-text-subtle h-16 w-16 shrink-0" />
         </div>
 
-        <p className="font-designer-16r text-text-subtle mb-150 line-clamp-2">
-          {mentorSettings.mentoringTitle}
-        </p>
+        <div className="mb-150 flex items-start gap-125">
+          <UserAvatar
+            image={mentor.imageUrl?.trim()}
+            alt={mentor.nickname}
+            size={52}
+            className="shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <p className="font-designer-14m text-text-subtle mb-25 line-clamp-1">
+              {mentor.nickname}
+            </p>
+            <p className="font-designer-13r text-text-subtle mb-75 line-clamp-1">
+              {jobTitleLabel} · {careerLabel}
+            </p>
+            <Badge color="green" shape="round">
+              {appealLine}
+            </Badge>
+          </div>
+        </div>
 
-        <p className="font-designer-13r text-text-subtle mb-50 line-clamp-1">
-          {mentor.role} · {mentor.career}
-        </p>
-        <p className="font-designer-12r text-text-subtlest mb-150 line-clamp-1">
-          {mentorSettings.companyCategory}
-        </p>
+        <div className="mb-150 flex flex-wrap items-center gap-x-150 gap-y-75">
+          <span className="inline-flex items-center gap-50">
+            <Star className="text-text-warning h-14 w-14 fill-current" />
+            <span className="font-designer-15b text-text-default">
+              {mentor.rating.toFixed(1)}
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-50">
+            <MessageSquareText className="text-text-subtle h-14 w-14" />
+            <span className="font-designer-15b text-text-default">
+              {mentor.reviewCount}
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-50">
+            <UserRound className="text-text-subtle h-14 w-14" />
+            <span className="font-designer-15b text-text-default">
+              {metMenteeCount}
+            </span>
+          </span>
+          <span className="inline-flex items-center gap-50">
+            <CalendarCheck2 className="text-text-subtle h-14 w-14" />
+            <span className="font-designer-15b text-text-default">
+              {mentor.mentoringCount}
+            </span>
+          </span>
+        </div>
 
         {keywords.length > 0 && (
-          <div className="mb-200 flex flex-wrap gap-x-300 gap-y-100">
+          <div className="rounded-125 bg-background-alternative mb-200 flex flex-wrap gap-x-200 gap-y-75 px-150 py-125">
             {keywords.map((keyword) => (
-              <span
-                key={keyword}
-                className="font-designer-16r text-text-subtle"
-              >
-                {keyword}
+              <span key={keyword} className="font-designer-12r text-text-subtle">
+                #{keyword}
               </span>
             ))}
           </div>

@@ -1,15 +1,17 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import {
   addMinutesToTime,
   createHalfHourTimeSlots,
+} from '@/features/mentoring/model/mentor-settings';
+import {
   WEEKDAY_KEYS,
   WEEKDAY_LABEL_MAP,
   type MentorWeeklySchedule,
   type WeekdayKey,
-} from '@/features/mentoring/model/mentor-settings';
+} from '@/types/mentoring-settings';
 
 interface WeeklyScheduleGridProps {
   value: MentorWeeklySchedule;
@@ -39,6 +41,7 @@ const toTimeRanges = (slots: string[]): string[] => {
     }
   }
   ranges.push(`${start}~${addMinutesToTime(prev, 30)}`);
+
   return ranges;
 };
 
@@ -52,35 +55,173 @@ const QUICK_RANGES = [
   { label: '저녁', from: '18:00', to: '24:00' },
 ] as const;
 
+const DAY_INDEX_MAP = Object.fromEntries(
+  WEEKDAY_KEYS.map((day, index) => [day, index]),
+) as Record<WeekdayKey, number>;
+
+const SLOT_INDEX_MAP = TIME_SLOTS.reduce<Record<string, number>>(
+  (acc, slot, index) => {
+    acc[slot] = index;
+
+    return acc;
+  },
+  {},
+);
+
+interface GridPoint {
+  dayIndex: number;
+  slotIndex: number;
+}
+
+const getInterpolatedPoints = (from: GridPoint, to: GridPoint): GridPoint[] => {
+  const points: GridPoint[] = [];
+  let x = from.dayIndex;
+  let y = from.slotIndex;
+  const targetX = to.dayIndex;
+  const targetY = to.slotIndex;
+  const deltaX = Math.abs(targetX - x);
+  const stepX = x < targetX ? 1 : -1;
+  const deltaY = -Math.abs(targetY - y);
+  const stepY = y < targetY ? 1 : -1;
+  let error = deltaX + deltaY;
+
+  while (x !== targetX || y !== targetY) {
+    points.push({ dayIndex: x, slotIndex: y });
+
+    const doubledError = 2 * error;
+
+    if (doubledError >= deltaY) {
+      error += deltaY;
+      x += stepX;
+    }
+
+    if (doubledError <= deltaX) {
+      error += deltaX;
+      y += stepY;
+    }
+  }
+
+  points.push({ dayIndex: targetX, slotIndex: targetY });
+
+  return points;
+};
+
 export default function WeeklyScheduleGrid({
   value,
   onChange,
 }: WeeklyScheduleGridProps) {
   const dragModeRef = useRef<'add' | 'remove' | null>(null);
+  const dragLastCellRef = useRef<{ day: WeekdayKey; slot: string } | null>(
+    null,
+  );
+  const currentValueRef = useRef(value);
   const [mobileDay, setMobileDay] = useState<WeekdayKey>(WEEKDAY_KEYS[0]);
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const handleMouseUp = () => {
-      dragModeRef.current = null;
-    };
-    window.addEventListener('mouseup', handleMouseUp);
-    return () => window.removeEventListener('mouseup', handleMouseUp);
+    currentValueRef.current = value;
+  }, [value]);
+
+  const commitSchedule = useCallback(
+    (next: MentorWeeklySchedule) => {
+      currentValueRef.current = next;
+      onChange(next);
+    },
+    [onChange],
+  );
+
+  const resetDragState = useCallback(() => {
+    dragModeRef.current = null;
+    dragLastCellRef.current = null;
   }, []);
 
-  const toggleSlot = (day: WeekdayKey, slot: string) => {
-    const curr = value.weekly[day];
-    const hasSlot = curr.includes(slot);
-    onChange({
-      ...value,
-      weekly: {
-        ...value.weekly,
-        [day]: hasSlot
-          ? curr.filter((s) => s !== slot)
-          : sortSlots([...curr, slot]),
-      },
-    });
-  };
+  useEffect(() => {
+    const handleMouseUp = () => {
+      resetDragState();
+    };
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [resetDragState]);
+
+  const applySlotByMode = useCallback(
+    (day: WeekdayKey, slot: string, mode: 'add' | 'remove') => {
+      const currentSchedule = currentValueRef.current;
+      const daySlots = currentSchedule.weekly[day];
+      const hasSlot = daySlots.includes(slot);
+
+      if ((mode === 'add' && hasSlot) || (mode === 'remove' && !hasSlot)) {
+        return;
+      }
+
+      const nextSchedule: MentorWeeklySchedule = {
+        ...currentSchedule,
+        weekly: {
+          ...currentSchedule.weekly,
+          [day]:
+            mode === 'add'
+              ? sortSlots([...daySlots, slot])
+              : daySlots.filter((selected) => selected !== slot),
+        },
+      };
+
+      commitSchedule(nextSchedule);
+    },
+    [commitSchedule],
+  );
+
+  const applyDragPath = useCallback(
+    (day: WeekdayKey, slot: string) => {
+      const dragMode = dragModeRef.current;
+      if (!dragMode) {
+        return;
+      }
+
+      const nextDayIndex = DAY_INDEX_MAP[day];
+      const nextSlotIndex = SLOT_INDEX_MAP[slot];
+      if (nextSlotIndex === undefined) {
+        return;
+      }
+
+      const lastCell = dragLastCellRef.current;
+      if (!lastCell) {
+        applySlotByMode(day, slot, dragMode);
+        dragLastCellRef.current = { day, slot };
+
+        return;
+      }
+
+      const previousSlotIndex = SLOT_INDEX_MAP[lastCell.slot];
+      if (previousSlotIndex === undefined) {
+        applySlotByMode(day, slot, dragMode);
+        dragLastCellRef.current = { day, slot };
+
+        return;
+      }
+
+      const previousDayIndex = DAY_INDEX_MAP[lastCell.day];
+      const points = getInterpolatedPoints(
+        { dayIndex: previousDayIndex, slotIndex: previousSlotIndex },
+        { dayIndex: nextDayIndex, slotIndex: nextSlotIndex },
+      );
+
+      points.forEach(({ dayIndex, slotIndex }) => {
+        const targetDay = WEEKDAY_KEYS[dayIndex];
+        const targetSlot = TIME_SLOTS[slotIndex];
+
+        if (!targetDay || !targetSlot) {
+          return;
+        }
+
+        applySlotByMode(targetDay, targetSlot, dragMode);
+      });
+
+      dragLastCellRef.current = { day, slot };
+    },
+    [applySlotByMode],
+  );
 
   const handleMouseDown = (
     day: WeekdayKey,
@@ -88,48 +229,52 @@ export default function WeeklyScheduleGrid({
     e: React.MouseEvent,
   ) => {
     e.preventDefault();
-    const isActive = value.weekly[day].includes(slot);
+    const isActive = currentValueRef.current.weekly[day].includes(slot);
     dragModeRef.current = isActive ? 'remove' : 'add';
-    toggleSlot(day, slot);
+    dragLastCellRef.current = null;
+    applyDragPath(day, slot);
   };
 
   const handleMouseEnter = (day: WeekdayKey, slot: string) => {
-    if (!dragModeRef.current) return;
-    const isActive = value.weekly[day].includes(slot);
-    if (dragModeRef.current === 'add' && !isActive) toggleSlot(day, slot);
-    if (dragModeRef.current === 'remove' && isActive) toggleSlot(day, slot);
+    applyDragPath(day, slot);
   };
 
   const toggleDay = (day: WeekdayKey) => {
+    const currentSchedule = currentValueRef.current;
     const allSelected = TIME_SLOTS.every((slot) =>
-      value.weekly[day].includes(slot),
+      currentSchedule.weekly[day].includes(slot),
     );
-    onChange({
-      ...value,
+    commitSchedule({
+      ...currentSchedule,
       weekly: {
-        ...value.weekly,
+        ...currentSchedule.weekly,
         [day]: allSelected ? [] : [...TIME_SLOTS],
       },
     });
+    resetDragState();
   };
 
   const applyQuickRangeToAll = (from: string, to: string) => {
+    const currentSchedule = currentValueRef.current;
     const rangeSlots = getSlotsInRange(from, to);
-    const newWeekly = { ...value.weekly };
+    const newWeekly = { ...currentSchedule.weekly };
     WEEKDAY_KEYS.forEach((day) => {
       const existing = newWeekly[day];
       const merged = Array.from(new Set([...existing, ...rangeSlots]));
       newWeekly[day] = sortSlots(merged);
     });
-    onChange({ ...value, weekly: newWeekly });
+    commitSchedule({ ...currentSchedule, weekly: newWeekly });
+    resetDragState();
   };
 
   const clearAll = () => {
+    const currentSchedule = currentValueRef.current;
     const newWeekly = {} as Record<WeekdayKey, string[]>;
     WEEKDAY_KEYS.forEach((day) => {
       newWeekly[day] = [];
     });
-    onChange({ ...value, weekly: newWeekly });
+    commitSchedule({ ...currentSchedule, weekly: newWeekly });
+    resetDragState();
   };
 
   const hasAnySlot = WEEKDAY_KEYS.some((day) => value.weekly[day].length > 0);
@@ -168,6 +313,7 @@ export default function WeeklyScheduleGrid({
         <div className="mb-100 flex gap-50 overflow-x-auto pb-50">
           {WEEKDAY_KEYS.map((day) => {
             const count = value.weekly[day].length;
+
             return (
               <button
                 key={day}
@@ -219,6 +365,7 @@ export default function WeeklyScheduleGrid({
               const slot2 = `${h}:30`;
               const active1 = value.weekly[mobileDay].includes(slot1);
               const active2 = value.weekly[mobileDay].includes(slot2);
+
               return (
                 <div
                   key={h}
@@ -236,11 +383,7 @@ export default function WeeklyScheduleGrid({
                           ? 'bg-fill-brand-subtle-default'
                           : 'bg-background-default hover:bg-background-alternative',
                       )}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        dragModeRef.current = active1 ? 'remove' : 'add';
-                        toggleSlot(mobileDay, slot1);
-                      }}
+                      onMouseDown={(e) => handleMouseDown(mobileDay, slot1, e)}
                       onMouseEnter={() => handleMouseEnter(mobileDay, slot1)}
                     />
                     <button
@@ -251,11 +394,7 @@ export default function WeeklyScheduleGrid({
                           ? 'bg-fill-brand-subtle-default'
                           : 'bg-background-default hover:bg-background-alternative',
                       )}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        dragModeRef.current = active2 ? 'remove' : 'add';
-                        toggleSlot(mobileDay, slot2);
-                      }}
+                      onMouseDown={(e) => handleMouseDown(mobileDay, slot2, e)}
                       onMouseEnter={() => handleMouseEnter(mobileDay, slot2)}
                     />
                   </div>
@@ -268,18 +407,14 @@ export default function WeeklyScheduleGrid({
 
       {/* 데스크탑 타임그리드 */}
       <div className="border-border-default rounded-125 hidden overflow-hidden border md:block">
-        <div
-          className="overflow-auto select-none"
-          onMouseLeave={() => {
-            dragModeRef.current = null;
-          }}
-        >
+        <div className="overflow-auto select-none">
           {/* 요일 헤더 */}
           <div className="bg-background-alternative border-border-default sticky top-0 z-10 grid grid-cols-[52px_repeat(7,1fr)] border-b">
             <div className="border-border-subtlest border-r" />
             {WEEKDAY_KEYS.map((day) => {
               const count = value.weekly[day].length;
               const allSelected = count === TIME_SLOTS.length;
+
               return (
                 <button
                   key={day}
@@ -313,6 +448,7 @@ export default function WeeklyScheduleGrid({
           <div className="max-h-[480px] overflow-y-auto">
             {TIME_SLOTS.map((slot) => {
               const isHour = slot.endsWith(':00');
+
               return (
                 <div
                   key={slot}
@@ -333,6 +469,7 @@ export default function WeeklyScheduleGrid({
                   </div>
                   {WEEKDAY_KEYS.map((day) => {
                     const isActive = value.weekly[day].includes(slot);
+
                     return (
                       <div
                         key={`${day}-${slot}`}
@@ -363,6 +500,7 @@ export default function WeeklyScheduleGrid({
           {WEEKDAY_KEYS.map((day) => {
             const ranges = toTimeRanges(value.weekly[day]);
             if (ranges.length === 0) return null;
+
             return (
               <div key={day} className="flex gap-100">
                 <span className="font-designer-13b text-text-subtle w-[20px] shrink-0">

@@ -2,7 +2,10 @@ export type MentoringRequestContentBlock =
   | MentoringRequestParagraphBlock
   | MentoringRequestImageBlock
   | MentoringRequestFileBlock
-  | MentoringRequestLinkBlock;
+  | MentoringRequestLinkBlock
+  | MentoringRequestRichTextBlock;
+
+export type MentoringRequestRichTextNode = Record<string, unknown>;
 
 export interface MentoringRequestParagraphBlock {
   id: string;
@@ -31,8 +34,162 @@ export interface MentoringRequestLinkBlock {
   url: string;
 }
 
+export interface MentoringRequestRichTextBlock {
+  id: string;
+  type: 'richText';
+  document: string;
+}
+
+export const DEFAULT_MENTORING_REQUEST_RICH_TEXT_DOCUMENT: MentoringRequestRichTextNode[] =
+  [
+    {
+      type: 'paragraph',
+      children: [{ text: '' }],
+    },
+  ];
+
+const isRecord = (value: unknown): value is Record<string, unknown> => {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+};
+
+const getStringField = (
+  source: Record<string, unknown>,
+  key: string,
+): string | undefined => {
+  const value = source[key];
+
+  return typeof value === 'string' ? value : undefined;
+};
+
+const getChildren = (
+  node: MentoringRequestRichTextNode,
+): MentoringRequestRichTextNode[] => {
+  const children = node.children;
+  if (!Array.isArray(children)) {
+    return [];
+  }
+
+  return children.filter(isRecord);
+};
+
+const getPlainTextFromRichTextNode = (
+  node: MentoringRequestRichTextNode,
+): string => {
+  const text = getStringField(node, 'text');
+  if (text !== undefined) {
+    return text;
+  }
+
+  return getChildren(node).map(getPlainTextFromRichTextNode).join('');
+};
+
+const walkRichTextNodes = (
+  nodes: MentoringRequestRichTextNode[],
+  visitor: (node: MentoringRequestRichTextNode) => void,
+) => {
+  nodes.forEach((node) => {
+    visitor(node);
+    walkRichTextNodes(getChildren(node), visitor);
+  });
+};
+
+const getRichTextAttachmentData = (nodes: MentoringRequestRichTextNode[]) => {
+  const fileNames: string[] = [];
+  const links: string[] = [];
+
+  walkRichTextNodes(nodes, (node) => {
+    const nodeType = getStringField(node, 'type');
+    if (nodeType === 'image' || nodeType === 'file') {
+      const fileName = getStringField(node, 'fileName')?.trim();
+      if (fileName) {
+        fileNames.push(fileName);
+      }
+
+      return;
+    }
+
+    if (nodeType === 'link') {
+      const url = getStringField(node, 'url')?.trim();
+      if (url) {
+        links.push(url);
+      }
+    }
+  });
+
+  return {
+    fileNames,
+    links,
+  };
+};
+
+const toRichTextMessageLines = (nodes: MentoringRequestRichTextNode[]) => {
+  return nodes.flatMap((node) => {
+    const nodeType = getStringField(node, 'type');
+
+    if (nodeType === 'image') {
+      const fileName = getStringField(node, 'fileName')?.trim();
+
+      return fileName ? [`[이미지] ${fileName}`] : [];
+    }
+
+    if (nodeType === 'file') {
+      const fileName = getStringField(node, 'fileName')?.trim();
+
+      return fileName ? [`[첨부파일] ${fileName}`] : [];
+    }
+
+    if (nodeType === 'link') {
+      const url = getStringField(node, 'url')?.trim();
+
+      return url ? [`[링크] ${url}`] : [];
+    }
+
+    if (nodeType === 'bulleted-list' || nodeType === 'numbered-list') {
+      const children = getChildren(node);
+
+      return children
+        .map((item, index) => {
+          const itemText = getPlainTextFromRichTextNode(item).trim();
+          if (!itemText) {
+            return '';
+          }
+
+          return nodeType === 'numbered-list'
+            ? `${index + 1}. ${itemText}`
+            : `- ${itemText}`;
+        })
+        .filter((line) => line.length > 0);
+    }
+
+    const text = getPlainTextFromRichTextNode(node).trim();
+
+    return text ? [text] : [];
+  });
+};
+
 const createBlockId = () => {
   return `request-block-${Date.now()}-${Math.floor(Math.random() * 1_000_000)}`;
+};
+
+export const parseMentoringRequestRichTextDocument = (
+  document: string,
+): MentoringRequestRichTextNode[] => {
+  try {
+    const parsed = JSON.parse(document);
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.filter(isRecord);
+  } catch {
+    return [];
+  }
+};
+
+export const serializeMentoringRequestRichTextDocument = (
+  document: MentoringRequestRichTextNode[],
+) => {
+  return JSON.stringify(document);
 };
 
 export const createMentoringRequestParagraphBlock = (
@@ -88,15 +245,37 @@ export const createMentoringRequestLinkBlock = (
   };
 };
 
+export const createMentoringRequestRichTextBlock = (
+  document: MentoringRequestRichTextNode[] = DEFAULT_MENTORING_REQUEST_RICH_TEXT_DOCUMENT,
+  id?: string,
+): MentoringRequestRichTextBlock => {
+  return {
+    id: id ?? createBlockId(),
+    type: 'richText',
+    document: serializeMentoringRequestRichTextDocument(document),
+  };
+};
+
 export const getMentoringRequestTextLength = (
   contents: MentoringRequestContentBlock[],
 ) => {
   return contents.reduce((length, block) => {
-    if (block.type !== 'paragraph') {
-      return length;
+    if (block.type === 'paragraph') {
+      return length + block.text.trim().length;
     }
 
-    return length + block.text.trim().length;
+    if (block.type === 'richText') {
+      const parsedDocument = parseMentoringRequestRichTextDocument(
+        block.document,
+      );
+      const plainText = parsedDocument
+        .map(getPlainTextFromRichTextNode)
+        .join('');
+
+      return length + plainText.trim().length;
+    }
+
+    return length;
   }, 0);
 };
 
@@ -104,6 +283,17 @@ export const hasMentoringRequestAttachment = (
   contents: MentoringRequestContentBlock[],
 ) => {
   return contents.some((block) => {
+    if (block.type === 'richText') {
+      const parsedDocument = parseMentoringRequestRichTextDocument(
+        block.document,
+      );
+      const attachmentData = getRichTextAttachmentData(parsedDocument);
+
+      return (
+        attachmentData.fileNames.length > 0 || attachmentData.links.length > 0
+      );
+    }
+
     return (
       block.type === 'image' || block.type === 'file' || block.type === 'link'
     );
@@ -115,6 +305,14 @@ export const buildMentoringRequestMessage = (
 ) => {
   const lines = contents
     .map((block) => {
+      if (block.type === 'richText') {
+        const parsedDocument = parseMentoringRequestRichTextDocument(
+          block.document,
+        );
+
+        return toRichTextMessageLines(parsedDocument).join('\n\n');
+      }
+
       if (block.type === 'paragraph') {
         return block.text.trim();
       }
@@ -135,23 +333,73 @@ export const buildMentoringRequestMessage = (
 export const getMentoringRequestAttachedFileNames = (
   contents: MentoringRequestContentBlock[],
 ) => {
-  return contents
-    .filter((block) => block.type === 'image' || block.type === 'file')
-    .map((block) => block.fileName);
+  const fileNames: string[] = [];
+
+  contents.forEach((block) => {
+    if (block.type === 'image' || block.type === 'file') {
+      fileNames.push(block.fileName);
+
+      return;
+    }
+
+    if (block.type === 'richText') {
+      const parsedDocument = parseMentoringRequestRichTextDocument(
+        block.document,
+      );
+      const attachmentData = getRichTextAttachmentData(parsedDocument);
+
+      fileNames.push(...attachmentData.fileNames);
+    }
+  });
+
+  return Array.from(new Set(fileNames));
 };
 
 export const getMentoringRequestReferenceLinks = (
   contents: MentoringRequestContentBlock[],
 ) => {
-  return contents
-    .filter((block) => block.type === 'link')
-    .map((block) => block.url);
+  const links: string[] = [];
+
+  contents.forEach((block) => {
+    if (block.type === 'link') {
+      links.push(block.url);
+
+      return;
+    }
+
+    if (block.type === 'richText') {
+      const parsedDocument = parseMentoringRequestRichTextDocument(
+        block.document,
+      );
+      const attachmentData = getRichTextAttachmentData(parsedDocument);
+
+      links.push(...attachmentData.links);
+    }
+  });
+
+  return Array.from(new Set(links));
 };
 
 export const sanitizeMentoringRequestContents = (
   contents: MentoringRequestContentBlock[],
 ): MentoringRequestContentBlock[] => {
   const sanitized = contents.filter((block) => {
+    if (block.type === 'richText') {
+      const parsedDocument = parseMentoringRequestRichTextDocument(
+        block.document,
+      );
+      const plainText = parsedDocument
+        .map(getPlainTextFromRichTextNode)
+        .join('');
+      const attachmentData = getRichTextAttachmentData(parsedDocument);
+
+      return (
+        plainText.trim().length > 0 ||
+        attachmentData.fileNames.length > 0 ||
+        attachmentData.links.length > 0
+      );
+    }
+
     if (block.type === 'paragraph') {
       return block.text.trim().length > 0;
     }

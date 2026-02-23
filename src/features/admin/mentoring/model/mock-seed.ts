@@ -23,6 +23,7 @@ export const createServerLikeMentorRegistrationValues = (
     contactEmail: 'mentor.seed@zeroone.dev',
     categories: ['커리어', '포트폴리오', '면접'],
     mentoringTitle: '백엔드/커리어 전환 실무형 멘토링 (서류·면접·포트폴리오)',
+    appealLine: '백엔드 커리어 전환 멘토',
     jobGroup: '백엔드/서버 개발자',
     jobTitle: '시니어 백엔드 엔지니어',
     careerYears: '시니어 (9년 이상)',
