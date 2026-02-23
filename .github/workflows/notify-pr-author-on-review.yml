@@ -9,10 +9,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Extract Slack IDs and DM Text
         id: extract_info
-        env:
-          MEMBER_INFO: ${{ secrets.MEMBER_INFO_MAP }}
         run: |
           PR_AUTHOR="${{ github.event.pull_request.user.login }}"
           REVIEWER="${{ github.event.review.user.login }}"
@@ -26,10 +27,11 @@ jobs:
             exit 0
           fi
 
-          echo "$MEMBER_INFO" | base64 --decode > memberMap.json
-          AUTHOR_SLACK_ID=$(jq -r --arg id "$PR_AUTHOR" '.[$id].slackId' memberMap.json)
-          REVIEWER_SLACK_ID=$(jq -r --arg id "$REVIEWER" '.[$id].slackId' memberMap.json)
+          # 코드베이스의 memberMap.json에서 Slack ID 조회
+          AUTHOR_SLACK_ID=$(jq -r --arg id "$PR_AUTHOR" '.[$id].slackId // empty' .github/memberMap.json)
+          REVIEWER_SLACK_ID=$(jq -r --arg id "$REVIEWER" '.[$id].slackId // empty' .github/memberMap.json)
 
+          # slackId가 없으면 DM 전송 불가 (skip)
           if [ -z "$AUTHOR_SLACK_ID" ] || [ -z "$REVIEWER_SLACK_ID" ] || \
             [ "$AUTHOR_SLACK_ID" = "null" ] || [ "$REVIEWER_SLACK_ID" = "null" ]; then
             echo "skip=true" >> $GITHUB_OUTPUT

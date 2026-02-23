@@ -13,19 +13,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Decode memberMap.json from secret
-        run: |
-          echo "${{ secrets.MEMBER_INFO_MAP }}" | base64 --decode > memberMap.json
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Get PR author and reviewers
         id: get_member_info
         run: |
           # PR 작성자 이름 추출
           PR_AUTHOR_GITHUB_ID="${{ github.event.pull_request.user.login }}"
-          PR_AUTHOR_NAME=$(jq -r --arg id "$PR_AUTHOR_GITHUB_ID" '.[$id].name' memberMap.json)
+          PR_AUTHOR_NAME=$(jq -r --arg id "$PR_AUTHOR_GITHUB_ID" '.[$id].name // "알 수 없음"' .github/memberMap.json)
           echo "pr_author_name=$PR_AUTHOR_NAME" >> $GITHUB_OUTPUT
 
-          # PR 작성자 제외한 멤버들의 slackId를 멘션으로 모으기
-          MENTIONS=$(jq -r --arg author "$PR_AUTHOR_GITHUB_ID" 'to_entries | map(select(.key != $author)) | map("<@" + .value.slackId + ">") | join(" ")' memberMap.json)
+          # PR 작성자 제외한 멤버들의 slackId를 멘션으로 모으기 (slackId가 있는 경우만)
+          MENTIONS=$(jq -r --arg author "$PR_AUTHOR_GITHUB_ID" '
+            to_entries 
+            | map(select(.key != $author and .value.slackId != null and .value.slackId != "")) 
+            | map("<@" + .value.slackId + ">") 
+            | join(" ")
+          ' .github/memberMap.json)
+
+          # 멘션이 없으면 빈 문자열로 설정
+          if [ -z "$MENTIONS" ] || [ "$MENTIONS" = "null" ]; then
+            MENTIONS=""
+          fi
           echo "reviewers_mention=$MENTIONS" >> $GITHUB_OUTPUT
 
       - name: Send Slack message
