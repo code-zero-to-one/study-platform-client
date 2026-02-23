@@ -1,14 +1,7 @@
 'use client';
 
 import dayjs from 'dayjs';
-import {
-  AlertTriangle,
-  CalendarClock,
-  CalendarX2,
-  Clock,
-  ExternalLink,
-  MapPin,
-} from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import Badge from '@/components/ui/badge';
@@ -66,14 +59,6 @@ const getOverlappingIds = (sessions: MentoringSession[]): Set<string> => {
 
   return ids;
 };
-
-function getCardOpacity(session: MentoringSession): string {
-  if (session.status === 'CANCELLED') return 'opacity-40';
-  if (session.status === 'COMPLETED') return 'opacity-65';
-  const isPast = dayjs(session.endsAt).isBefore(dayjs());
-  if (isPast) return 'opacity-75';
-  return '';
-}
 
 export default function MentoringSchedulePanel({
   mentorId,
@@ -269,134 +254,161 @@ export default function MentoringSchedulePanel({
             </p>
           </div>
         ) : (
-          <div className="space-y-150">
-            {filteredSessions.map((session) => {
-              const cancelReason = cancelReasonBySession[session.id] ?? '';
-              const isScheduled = session.status === 'SCHEDULED';
-              const isOverlapping = overlappingIds.has(session.id);
-              const cardOpacity = getCardOpacity(session);
+          <div className="rounded-200 border-border-subtle overflow-hidden border bg-background-default">
+            {/* 테이블 헤더 */}
+            <div className="border-border-subtle grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 border-b bg-background-alternative px-200 py-150">
+              <div className="font-designer-14b text-text-default">상태</div>
+              <div className="font-designer-14b text-text-default">신청자</div>
+              <div className="font-designer-14b text-text-default">멘토링 방식</div>
+              <div className="font-designer-14b text-text-default">멘토링 일정</div>
+              <div className="font-designer-14b text-text-default">일정 수정</div>
+              <div className="font-designer-14b text-text-default text-right">상세 정보</div>
+            </div>
 
-              return (
-                <article
-                  key={session.id}
-                  className={`rounded-150 border p-200 transition-opacity ${cardOpacity} ${
-                    isOverlapping && isScheduled
-                      ? 'border-border-error'
-                      : 'border-border-subtle'
-                  }`}
-                >
-                  {isOverlapping && isScheduled && (
-                    <div className="rounded-100 bg-background-accent-red-subtle mb-125 flex items-center gap-75 px-100 py-75">
-                      <AlertTriangle className="text-text-error h-14 w-14 shrink-0" />
-                      <p className="font-designer-12m text-text-error">
-                        다른 일정과 시간이 겹칩니다. 일정을 변경해주세요.
-                      </p>
+            {/* 테이블 바디 */}
+            <div className="divide-border-subtle divide-y">
+              {filteredSessions.map((session) => {
+                const cancelReason = cancelReasonBySession[session.id] ?? '';
+                const isScheduled = session.status === 'SCHEDULED';
+                const isOverlapping = overlappingIds.has(session.id);
+                const relatedRequest = requests.find(
+                  (r) => r.id === session.requestId,
+                );
+
+                return (
+                  <div
+                    key={session.id}
+                    className={`hover:bg-background-alternative grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 px-200 py-200 transition-colors ${
+                      isOverlapping && isScheduled
+                        ? 'bg-background-accent-red-subtle'
+                        : ''
+                    }`}
+                  >
+                    {/* 상태 */}
+                    <div className="flex items-start pt-[2px]">
+                      <Badge
+                        color={statusColorMap[session.status]}
+                        shape="round"
+                      >
+                        {statusLabelMap[session.status]}
+                      </Badge>
                     </div>
-                  )}
 
-                  <div className="mb-100 flex flex-wrap items-center justify-between gap-100">
-                    <div className="flex items-center gap-75">
-                      <CalendarClock className="text-text-subtle h-16 w-16" />
-                      <p className="font-designer-16b text-text-default">
+                    {/* 신청자 */}
+                    <div className="flex flex-col gap-50">
+                      <p className="font-designer-15b text-text-default">
                         {session.menteeName}
                       </p>
+                      <p className="font-designer-12r text-text-subtle">
+                        📞 {relatedRequest ? '+82 010XXXX' : '수락 후'}
+                      </p>
+                      <p className="font-designer-12r text-text-subtle">
+                        ✉️{' '}
+                        {relatedRequest
+                          ? 'mentee@ex..'
+                          : '수락 후'}
+                      </p>
+                    </div>
+
+                    {/* 멘토링 방식 */}
+                    <div className="flex items-start pt-[2px]">
                       <Badge color="blue" shape="round">
                         {getMethodLabel(session.method)}
                       </Badge>
                     </div>
-                    <Badge color={statusColorMap[session.status]} shape="round">
-                      {statusLabelMap[session.status]}
-                    </Badge>
-                  </div>
 
-                  <p className="font-designer-16b text-text-default mb-75">
-                    {dayjs(session.startsAt).format('YYYY.MM.DD HH:mm')} ~{' '}
-                    {dayjs(session.endsAt).format('HH:mm')}
-                  </p>
-
-                  <p className="font-designer-13r text-text-subtle inline-flex items-center gap-50">
-                    <MapPin className="h-14 w-14" />
-                    {session.placeNote}
-                  </p>
-
-                  <div className="mt-125 flex flex-wrap gap-100">
-                    {isScheduled && (
-                      <>
-                        <Button
-                          type="button"
-                          size="small"
-                          color="primary"
-                          onClick={() => {
-                            setEditingSessionId(session.id);
-                            setRescheduleError('');
-                          }}
-                        >
-                          일정 변경
-                        </Button>
-                        <Button
-                          type="button"
-                          size="small"
-                          color="outlined"
-                          icon={<CalendarX2 className="h-14 w-14" />}
-                          onClick={() => setCancellingSessionId(session.id)}
-                        >
-                          일정 취소
-                        </Button>
-                      </>
-                    )}
-                    <Link
-                      href={`/mentoring-management/requests?id=${session.requestId}`}
-                    >
-                      <Button
-                        type="button"
-                        size="small"
-                        color="outlined"
-                        icon={<ExternalLink className="h-14 w-14" />}
-                      >
-                        신청 상세
-                      </Button>
-                    </Link>
-                  </div>
-
-                  {isScheduled && cancellingSessionId === session.id && (
-                    <div className="rounded-100 bg-background-alternative mt-125 p-125">
-                      <p className="font-designer-13b text-text-default mb-75">
-                        취소 사유
+                    {/* 멘토링 일정 */}
+                    <div className="flex flex-col gap-50">
+                      <p className="font-designer-14r text-text-default">
+                        {dayjs(session.startsAt).format('YY. MM. DD. (ddd)')}
                       </p>
-                      <textarea
-                        value={cancelReason}
-                        onChange={(event) =>
-                          setCancelReasonBySession((prev) => ({
-                            ...prev,
-                            [session.id]: event.target.value,
-                          }))
-                        }
-                        className="font-designer-13r rounded-100 border-border-subtle bg-background-default text-text-default min-h-[92px] w-full border px-125 py-100"
-                        placeholder="멘티가 다음 일정을 잡을 수 있도록 취소 이유를 남겨주세요."
-                      />
-                      <div className="mt-100 flex flex-wrap justify-end gap-75">
-                        <Button
-                          type="button"
-                          size="xsmall"
-                          color="secondary"
-                          onClick={() => setCancellingSessionId(null)}
-                        >
-                          취소
-                        </Button>
-                        <Button
-                          type="button"
-                          size="xsmall"
-                          color="outlined"
-                          onClick={() => handleCancelSession(session.id)}
-                        >
-                          일정 취소 확정
-                        </Button>
-                      </div>
+                      <p className="font-designer-14r text-text-default">
+                        {dayjs(session.startsAt).format('HH:mm')}~
+                        {dayjs(session.endsAt).format('HH:mm')}
+                      </p>
                     </div>
-                  )}
-                </article>
-              );
-            })}
+
+                    {/* 일정 수정 - 일정 변경/취소 버튼 (세로 배치) */}
+                    <div className="flex flex-col items-start gap-75 pt-[2px]">
+                      {isScheduled ? (
+                        <>
+                          <Button
+                            type="button"
+                            size="small"
+                            color="primary"
+                            onClick={() => {
+                              setEditingSessionId(session.id);
+                              setRescheduleError('');
+                            }}
+                          >
+                            일정 변경
+                          </Button>
+                          <Button
+                            type="button"
+                            size="small"
+                            color="outlined"
+                            onClick={() => setCancellingSessionId(session.id)}
+                          >
+                            일정 취소
+                          </Button>
+                        </>
+                      ) : (
+                        <span className="font-designer-13r text-text-subtle">-</span>
+                      )}
+                    </div>
+
+                    {/* 상세 정보 - 상세 정보 버튼 */}
+                    <div className="flex items-start justify-end pt-[2px]">
+                      <Link
+                        href={`/mentoring-management/requests?id=${session.requestId}`}
+                      >
+                        <Button size="small" color="outlined">
+                          상세 정보 &gt;
+                        </Button>
+                      </Link>
+                    </div>
+
+                    {/* 일정 취소 폼 (전체 너비로 표시) */}
+                    {isScheduled && cancellingSessionId === session.id && (
+                      <div className="col-span-6 rounded-100 bg-background-alternative mt-100 p-150">
+                        <p className="font-designer-14b text-text-default mb-100">
+                          취소 사유
+                        </p>
+                        <textarea
+                          value={cancelReason}
+                          onChange={(event) =>
+                            setCancelReasonBySession((prev) => ({
+                              ...prev,
+                              [session.id]: event.target.value,
+                            }))
+                          }
+                          className="font-designer-14r rounded-100 border-border-subtle bg-background-default text-text-default min-h-[92px] w-full border px-150 py-125"
+                          placeholder="멘티가 다음 일정을 잡을 수 있도록 취소 이유를 남겨주세요."
+                        />
+                        <div className="mt-100 flex justify-end gap-100">
+                          <Button
+                            type="button"
+                            size="small"
+                            color="secondary"
+                            onClick={() => setCancellingSessionId(null)}
+                          >
+                            취소
+                          </Button>
+                          <Button
+                            type="button"
+                            size="small"
+                            color="outlined"
+                            onClick={() => handleCancelSession(session.id)}
+                          >
+                            일정 취소 확정
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -423,73 +435,97 @@ export default function MentoringSchedulePanel({
                 </p>
               </div>
             ) : (
-              <div className="space-y-150">
-                {filteredPending.map((request) => (
-                  <article
-                    key={request.id}
-                    className="rounded-150 border-border-warning bg-background-default border p-200"
-                  >
-                    <div className="mb-100 flex flex-wrap items-center justify-between gap-100">
-                      <div className="flex items-center gap-75">
-                        <Clock className="text-text-warning h-16 w-16" />
-                        <p className="font-designer-16b text-text-default">
+              <div className="rounded-200 border-border-warning overflow-hidden border bg-background-default">
+                {/* 테이블 헤더 */}
+                <div className="border-border-subtle grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 border-b bg-background-alternative px-200 py-150">
+                  <div className="font-designer-14b text-text-default">상태</div>
+                  <div className="font-designer-14b text-text-default">신청자</div>
+                  <div className="font-designer-14b text-text-default">멘토링 방식</div>
+                  <div className="font-designer-14b text-text-default">멘토링 일정</div>
+                  <div className="font-designer-14b text-text-default">일정 수정</div>
+                  <div className="font-designer-14b text-text-default text-right">상세 정보</div>
+                </div>
+
+                {/* 테이블 바디 */}
+                <div className="divide-border-subtle divide-y">
+                  {filteredPending.map((request) => (
+                    <div
+                      key={request.id}
+                      className="hover:bg-background-alternative grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 px-200 py-200 transition-colors"
+                    >
+                      {/* 상태 */}
+                      <div className="flex items-start pt-[2px]">
+                        <Badge color="orange" shape="round">
+                          미확정
+                        </Badge>
+                      </div>
+
+                      {/* 신청자 */}
+                      <div className="flex flex-col gap-50">
+                        <p className="font-designer-15b text-text-default">
                           {request.menteeName}
                         </p>
+                        <p className="font-designer-12r text-text-subtle">
+                          📞 수락 후
+                        </p>
+                        <p className="font-designer-12r text-text-subtle">
+                          ✉️ 수락 후
+                        </p>
+                      </div>
+
+                      {/* 멘토링 방식 */}
+                      <div className="flex items-start pt-[2px]">
                         <Badge color="blue" shape="round">
                           {getMethodLabel(request.method)}
                         </Badge>
                       </div>
-                      <Badge color="orange" shape="round">
-                        미확정 예정
-                      </Badge>
-                    </div>
 
-                    <p className="font-designer-16b text-text-default mb-75">
-                      {request.preferredDate}
-                      {request.preferredTime ? ` ${request.preferredTime}` : ''}
-                    </p>
+                      {/* 멘토링 일정 */}
+                      <div className="flex flex-col gap-50">
+                        <p className="font-designer-14r text-text-warning">
+                          {dayjs(request.preferredDate).format('YY. MM. DD. (ddd)')}
+                        </p>
+                        <p className="font-designer-14r text-text-warning">
+                          {request.preferredTime || '시간 미정'}
+                        </p>
+                        <p className="font-designer-12r text-text-subtle">
+                          멘티 희망
+                        </p>
+                      </div>
 
-                    <p className="font-designer-13r text-text-warning mb-125">
-                      멘티의 희망 일정 · 수락하면 일정이 확정됩니다.
-                    </p>
-
-                    <div className="flex flex-wrap gap-100">
-                      <Button
-                        type="button"
-                        size="small"
-                        color="primary"
-                        onClick={() => {
-                          setEditingSessionId(null);
-                          setRescheduleError('');
-                        }}
-                        disabled
-                      >
-                        일정 변경
-                      </Button>
-                      <Button
-                        type="button"
-                        size="small"
-                        color="outlined"
-                        icon={<CalendarX2 className="h-14 w-14" />}
-                        disabled
-                      >
-                        일정 취소
-                      </Button>
-                      <Link
-                        href={`/mentoring-management/requests?id=${request.id}`}
-                      >
+                      {/* 일정 수정 - 일정 변경/취소 버튼 (세로 배치, 비활성) */}
+                      <div className="flex flex-col items-start gap-75 pt-[2px]">
+                        <Button
+                          type="button"
+                          size="small"
+                          color="primary"
+                          disabled
+                        >
+                          일정 변경
+                        </Button>
                         <Button
                           type="button"
                           size="small"
                           color="outlined"
-                          icon={<ExternalLink className="h-14 w-14" />}
+                          disabled
                         >
-                          신청 상세
+                          일정 취소
                         </Button>
-                      </Link>
+                      </div>
+
+                      {/* 상세 정보 - 상세 정보 버튼 */}
+                      <div className="flex items-start justify-end pt-[2px]">
+                        <Link
+                          href={`/mentoring-management/requests?id=${request.id}`}
+                        >
+                          <Button size="small" color="outlined">
+                            상세 정보 &gt;
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
-                  </article>
-                ))}
+                  ))}
+                </div>
               </div>
             )}
           </>
