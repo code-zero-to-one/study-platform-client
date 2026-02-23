@@ -119,7 +119,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
         // customerKey 형식: 영문 대소문자, 숫자, 특수문자 -, _, =, ., @로 2자 이상 50자 이하
         // memberId를 안전한 형식으로 변환 (예: 기존 123 -> 변경 후 member-123)
         const customerKey = `member-${study.memberId}`.replace(
-          /[^a-zA-Z0-9\-_=\.@]/g,
+          /[^a-zA-Z0-9\-_=.@]/g,
           '',
         );
 
