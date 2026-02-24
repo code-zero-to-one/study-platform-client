@@ -83,7 +83,7 @@ export default function PremiumStudyInfoSection({
                       {studyDetail.basicInfo.leader.memberNickname}
                     </span>
                     <div className="font-designer-15r text-text-subtle flex items-center gap-100">
-                      <span>스터디 리더</span>
+                      <span>스터디 멘토</span>
                       <span className="h-100 w-px bg-[#E9EAEB]" />
                       <span>
                         {studyDetail.basicInfo.leader.simpleIntroduction}

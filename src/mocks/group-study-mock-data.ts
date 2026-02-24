@@ -42,7 +42,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       maxMembersCount: 8,
       experienceLevels: ['JUNIOR'],
       method: 'ONLINE',
-      regularMeeting: 'WEEKLY',
+      regularMeeting: 'NONE',
       location: '온라인',
       startDate: tomorrow.toISOString(),
       endDate: thirtyDaysLater.toISOString(),
@@ -59,7 +59,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 1,
-        memberNickname: '정환 노',
+        memberNickname: '김철수',
         simpleIntroduction: '함께 성장하는 프로젝트를 만들어요',
       },
     },
@@ -90,7 +90,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       maxMembersCount: 5,
       experienceLevels: ['BEGINNER', 'JOB_SEEKER'],
       method: 'HYBRID',
-      regularMeeting: 'BIWEEKLY',
+      regularMeeting: 'NONE',
       location: '서울 강남',
       startDate: sevenDaysLater.toISOString(),
       endDate: threeDaysLater.toISOString(),
@@ -107,7 +107,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 2,
-        memberNickname: '김성덕',
+        memberNickname: '이영희',
         simpleIntroduction: '현직 시니어 개발자',
       },
     },
@@ -137,7 +137,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       maxMembersCount: 10,
       experienceLevels: ['JUNIOR', 'MIDDLE'],
       method: 'ONLINE',
-      regularMeeting: 'TRIPLE_WEEKLY_OR_MORE',
+      regularMeeting: 'NONE',
       location: '온라인',
       startDate: sevenDaysLater.toISOString(),
       endDate: twoDaysLater.toISOString(),
@@ -154,7 +154,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 3,
-        memberNickname: 'yo',
+        memberNickname: '박민수',
         simpleIntroduction: 'React 마스터',
       },
     },
@@ -184,7 +184,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       maxMembersCount: 15,
       experienceLevels: ['MIDDLE', 'SENIOR'],
       method: 'OFFLINE',
-      regularMeeting: 'WEEKLY',
+      regularMeeting: 'NONE',
       location: '서울 역삼',
       startDate: sevenDaysLater.toISOString(),
       endDate: tomorrow.toISOString(),
@@ -201,7 +201,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 4,
-        memberNickname: 'djyun',
+        memberNickname: '최수진',
         simpleIntroduction: '프로덕트 디자인 리드',
       },
     },
@@ -246,7 +246,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 5,
-        memberNickname: '성호빈',
+        memberNickname: '정민호',
         simpleIntroduction: '클린 코드 전도사',
       },
     },
@@ -293,7 +293,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 6,
-        memberNickname: '조영은',
+        memberNickname: '강지은',
         simpleIntroduction: '웹 개발 강사',
       },
     },
@@ -338,7 +338,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 7,
-        memberNickname: '김소영',
+        memberNickname: '윤서연',
         simpleIntroduction: 'PM/PO 10년차',
       },
     },
@@ -383,7 +383,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 8,
-        memberNickname: '건주 신',
+        memberNickname: '한준석',
         simpleIntroduction: '같이 취업 준비해요!',
       },
     },
@@ -428,7 +428,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 9,
-        memberNickname: '이도현',
+        memberNickname: '송현우',
         simpleIntroduction: 'Node.js 백엔드 개발자',
       },
     },
@@ -473,7 +473,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 10,
-        memberNickname: '수아 유',
+        memberNickname: '임수아',
         simpleIntroduction: '알고리즘 마스터',
       },
     },
@@ -518,7 +518,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 11,
-        memberNickname: '박민지',
+        memberNickname: '오지훈',
         simpleIntroduction: 'Flutter 전문가',
       },
     },
@@ -563,7 +563,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 12,
-        memberNickname: '최준혁',
+        memberNickname: '신유진',
         simpleIntroduction: 'DB 아키텍트',
       },
     },
@@ -608,7 +608,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 13,
-        memberNickname: '한서연',
+        memberNickname: '조은비',
         simpleIntroduction: 'ML 엔지니어',
       },
     },
@@ -653,7 +653,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 14,
-        memberNickname: '강태현',
+        memberNickname: '배성민',
         simpleIntroduction: 'DevOps 엔지니어',
       },
     },
@@ -698,7 +698,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 15,
-        memberNickname: '송민아',
+        memberNickname: '서다은',
         simpleIntroduction: 'TS 전문가',
       },
     },
@@ -744,7 +744,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 16,
-        memberNickname: '박서준',
+        memberNickname: '한결',
         simpleIntroduction: 'UI/UX 디자이너',
       },
     },
@@ -789,7 +789,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 17,
-        memberNickname: '이민호',
+        memberNickname: '허윤서',
         simpleIntroduction: 'AWS 아키텍트',
       },
     },
@@ -836,7 +836,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 18,
-        memberNickname: '김태리',
+        memberNickname: '강민재',
         simpleIntroduction: '알고리즘 코치',
       },
     },
@@ -883,7 +883,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 19,
-        memberNickname: '유아인',
+        memberNickname: '노지훈',
         simpleIntroduction: '기술 블로거',
       },
     },
@@ -930,7 +930,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 20,
-        memberNickname: '전지현',
+        memberNickname: '유서아',
         simpleIntroduction: 'React 개발자',
       },
     },
@@ -977,7 +977,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 21,
-        memberNickname: '김혜수',
+        memberNickname: '남희진',
         simpleIntroduction: 'UX 디렉터',
       },
     },
@@ -1021,7 +1021,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 22,
-        memberNickname: '하정우',
+        memberNickname: '변준영',
         simpleIntroduction: 'Java 개발자',
       },
     },
@@ -1065,7 +1065,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 23,
-        memberNickname: '공효진',
+        memberNickname: '도민혁',
         simpleIntroduction: '풀스택 개발자',
       },
     },
@@ -1109,7 +1109,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 24,
-        memberNickname: '이병헌',
+        memberNickname: '권태형',
         simpleIntroduction: '시스템 아키텍트',
       },
     },
@@ -1153,7 +1153,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 25,
-        memberNickname: '손예진',
+        memberNickname: '문예린',
         simpleIntroduction: '웹 개발 강사',
       },
     },
@@ -1197,7 +1197,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 26,
-        memberNickname: '정우성',
+        memberNickname: '표현수',
         simpleIntroduction: 'DevOps 엔지니어',
       },
     },
@@ -1241,7 +1241,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 27,
-        memberNickname: '배두나',
+        memberNickname: '하윤정',
         simpleIntroduction: 'UI 디자이너',
       },
     },
@@ -1285,7 +1285,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 28,
-        memberNickname: '마동석',
+        memberNickname: '고동욱',
         simpleIntroduction: '코딩 테스트 전문가',
       },
     },
@@ -1329,7 +1329,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 29,
-        memberNickname: '전도연',
+        memberNickname: '장수빈',
         simpleIntroduction: '기술 작가',
       },
     },
@@ -1373,7 +1373,7 @@ export const MOCK_GROUP_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 30,
-        memberNickname: '이정재',
+        memberNickname: '홍석진',
         simpleIntroduction: 'PO 매니저',
       },
     },

@@ -43,7 +43,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       maxMembersCount: 10,
       experienceLevels: ['JUNIOR'],
       method: 'HYBRID',
-      regularMeeting: 'WEEKLY',
+      regularMeeting: 'NONE',
       location: '서울 강남',
       startDate: past.toISOString(),
       endDate: thirtyDaysLater.toISOString(),
@@ -60,7 +60,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 101,
-        memberNickname: '김태희 멘토',
+        memberNickname: '김지훈',
         simpleIntroduction: '스타트업 CTO 출신',
       },
     },
@@ -88,7 +88,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       maxMembersCount: 15,
       experienceLevels: ['BEGINNER'],
       method: 'ONLINE',
-      regularMeeting: 'BIWEEKLY',
+      regularMeeting: 'NONE',
       location: '온라인',
       startDate: sevenDaysLater.toISOString(),
       endDate: threeDaysLater.toISOString(),
@@ -105,7 +105,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 102,
-        memberNickname: '박준영 멘토',
+        memberNickname: '박현수',
         simpleIntroduction: '백엔드 시니어 개발자',
       },
     },
@@ -135,7 +135,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       maxMembersCount: 12,
       experienceLevels: ['JUNIOR'],
       method: 'ONLINE',
-      regularMeeting: 'TRIPLE_WEEKLY_OR_MORE',
+      regularMeeting: 'NONE',
       location: '온라인',
       startDate: sevenDaysLater.toISOString(),
       endDate: twoDaysLater.toISOString(),
@@ -152,7 +152,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 103,
-        memberNickname: '이서연 멘토',
+        memberNickname: '이수연',
         simpleIntroduction: 'React 전문가',
       },
     },
@@ -182,7 +182,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       maxMembersCount: 15,
       experienceLevels: ['MIDDLE', 'SENIOR'],
       method: 'OFFLINE',
-      regularMeeting: 'WEEKLY',
+      regularMeeting: 'NONE',
       location: '서울 역삼',
       startDate: past.toISOString(),
       endDate: thirtyDaysLater.toISOString(),
@@ -199,7 +199,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 104,
-        memberNickname: '최민수 멘토',
+        memberNickname: '최재원',
         simpleIntroduction: '프로덕트 디자인 리드',
       },
     },
@@ -244,7 +244,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 105,
-        memberNickname: '한지민 멘토',
+        memberNickname: '한민정',
         simpleIntroduction: '아키텍처 전문가',
       },
     },
@@ -291,7 +291,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 106,
-        memberNickname: '정우성 멘토',
+        memberNickname: '정석호',
         simpleIntroduction: '프론트엔드 강사',
       },
     },
@@ -336,7 +336,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 107,
-        memberNickname: '송혜교 멘토',
+        memberNickname: '송예진',
         simpleIntroduction: 'PM/PO 10년차',
       },
     },
@@ -381,7 +381,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 108,
-        memberNickname: '강동원 멘토',
+        memberNickname: '강태영',
         simpleIntroduction: '취업 멘토링 전문',
       },
     },
@@ -426,7 +426,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 109,
-        memberNickname: '전지현 멘토',
+        memberNickname: '전은지',
         simpleIntroduction: 'Node.js 백엔드 전문가',
       },
     },
@@ -471,7 +471,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 110,
-        memberNickname: '현빈 멘토',
+        memberNickname: '현준석',
         simpleIntroduction: '알고리즘 전문 강사',
       },
     },
@@ -516,7 +516,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 111,
-        memberNickname: '수지 멘토',
+        memberNickname: '배수정',
         simpleIntroduction: 'Flutter 앱 개발자',
       },
     },
@@ -561,7 +561,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 112,
-        memberNickname: '공유 멘토',
+        memberNickname: '안성민',
         simpleIntroduction: '클라우드 아키텍트',
       },
     },
@@ -606,7 +606,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 113,
-        memberNickname: '배수지 멘토',
+        memberNickname: '윤지혜',
         simpleIntroduction: 'AI/ML 엔지니어',
       },
     },
@@ -651,7 +651,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 114,
-        memberNickname: '조인성 멘토',
+        memberNickname: '조민우',
         simpleIntroduction: 'DevOps 시니어 엔지니어',
       },
     },
@@ -696,7 +696,7 @@ export const MOCK_PREMIUM_STUDIES: (GroupStudyListItemDto & {
       deletedAt: null,
       leader: {
         memberId: 115,
-        memberNickname: '아이유 멘토',
+        memberNickname: '서지원',
         simpleIntroduction: 'TypeScript 전문가',
       },
     },
@@ -743,7 +743,7 @@ export const MOCK_PREMIUM_STUDY_DETAIL_2: GroupStudyFullResponseDto = {
     deletedAt: null,
     leader: {
       memberId: 102,
-      memberNickname: '박준영 멘토',
+      memberNickname: '박현수',
       simpleIntroduction: '백엔드 시니어 개발자',
       profileImage: {
         imageId: 1002,

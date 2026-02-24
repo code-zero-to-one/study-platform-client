@@ -26,12 +26,12 @@ type BadgeColor =
   | 'purple';
 
 const STUDY_TYPE_BADGE_COLORS: Record<StudyType, BadgeColor> = {
-  PROJECT: 'red',
-  MENTORING: 'blue',
-  SEMINAR: 'green',
-  CHALLENGE: 'orange',
-  BOOK_STUDY: 'purple',
-  LECTURE_STUDY: 'primary',
+  PROJECT: 'gray',
+  MENTORING: 'gray',
+  SEMINAR: 'gray',
+  CHALLENGE: 'gray',
+  BOOK_STUDY: 'gray',
+  LECTURE_STUDY: 'gray',
 };
 
 interface StudyCardProps {
