@@ -23,7 +23,7 @@ import {
 interface FormState {
   studySpaceId: number;
   targetMemberId: number;
-  satisfactionId: 10 | 20 | 30 | undefined; // 10 - "아쉬워요", 20 - "괜찮아요", 30 - "좋았어요"
+  satisfactionId: 10 | 20 | 30 | undefined; // 10 - "좋았어요", 20 - "괜찮아요", 30 - "아쉬워요"
   keywordIds: number[];
   content: string;
 }
