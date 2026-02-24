@@ -15,6 +15,11 @@ import type {
   NoteConsultationChannel,
   NoteConsultationListItem,
 } from '@/types/mentoring/note-consultation-view';
+import type {
+  NoteConsultationFiltersProps,
+  NoteConsultationGridProps,
+  NoteConsultationListProps,
+} from '@/types/mentoring/note-consultation-composite-view';
 
 function UserAvatar({
   name,
@@ -332,7 +337,7 @@ export function NoteConsultationHeader() {
   );
 }
 
-export function NoteConsultationEmptyState() {
+export function NoteConsultationEmpty() {
   return (
     <section className="rounded-200 border-border-subtle bg-background-default flex min-h-[520px] flex-col items-center justify-center border px-300 py-500 text-center">
       <div className="bg-fill-brand-subtle-default rounded-500 mb-200 flex h-[72px] w-[72px] items-center justify-center">
@@ -356,22 +361,80 @@ export function NoteConsultationEmptyState() {
   );
 }
 
-interface NoteConsultationContentProps {
-  activeChannel: NoteConsultationChannel;
-  searchKeyword: string;
-  filteredItems: NoteConsultationListItem[];
-  selectedRequestId: string;
-  selectedItem?: NoteConsultationListItem;
-  draft: string;
-  canSend: boolean;
-  onActiveChannelChange: (channel: NoteConsultationChannel) => void;
-  onSearchKeywordChange: (keyword: string) => void;
-  onSelectRequestId: (requestId: string) => void;
-  onDraftChange: (value: string) => void;
-  onSend: () => void;
+export function NoteConsultationFilters({
+  activeChannel,
+  searchKeyword,
+  onActiveChannelChange,
+  onSearchKeywordChange,
+}: NoteConsultationFiltersProps) {
+  return (
+    <div className="border-border-subtle border-b px-175 py-125">
+      <div className="bg-background-alternative flex rounded-100 p-25">
+        <button
+          type="button"
+          onClick={() => onActiveChannelChange('sent')}
+          className={`font-designer-13m h-36 flex-1 rounded-75 ${
+            activeChannel === 'sent'
+              ? 'bg-fill-brand-subtle-default text-text-brand'
+              : 'text-text-subtle'
+          }`}
+        >
+          내가 신청한 상담
+        </button>
+        <button
+          type="button"
+          onClick={() => onActiveChannelChange('received')}
+          className={`font-designer-13m h-36 flex-1 rounded-75 ${
+            activeChannel === 'received'
+              ? 'bg-fill-brand-subtle-default text-text-brand'
+              : 'text-text-subtle'
+          }`}
+        >
+          받은 쪽지 신청
+        </button>
+      </div>
+
+      <label className="border-border-subtle mt-100 flex h-36 items-center gap-50 rounded-100 border px-100">
+        <Search className="text-text-subtlest h-14 w-14" />
+        <input
+          value={searchKeyword}
+          onChange={(event) => onSearchKeywordChange(event.target.value)}
+          className="font-designer-12r text-text-default placeholder:text-text-subtlest h-full flex-1 bg-transparent outline-none"
+          placeholder="이름, 역할, 메시지 검색"
+        />
+      </label>
+    </div>
+  );
 }
 
-export function NoteConsultationContent({
+export function NoteConsultationList({
+  items,
+  selectedRequestId,
+  onSelectRequestId,
+}: NoteConsultationListProps) {
+  return (
+    <div className="min-h-0 flex-1 space-y-50 overflow-y-auto px-100 py-100">
+      {items.length === 0 ? (
+        <div className="rounded-100 bg-background-alternative px-125 py-150 text-center">
+          <p className="font-designer-13m text-text-subtle">
+            표시할 상담 내역이 없습니다.
+          </p>
+        </div>
+      ) : (
+        items.map((item) => (
+          <RequestListCard
+            key={item.id}
+            item={item}
+            selected={item.id === selectedRequestId}
+            onClick={() => onSelectRequestId(item.id)}
+          />
+        ))
+      )}
+    </div>
+  );
+}
+
+export function NoteConsultationGrid({
   activeChannel,
   searchKeyword,
   filteredItems,
@@ -384,7 +447,7 @@ export function NoteConsultationContent({
   onSelectRequestId,
   onDraftChange,
   onSend,
-}: NoteConsultationContentProps) {
+}: NoteConsultationGridProps) {
   return (
     <section className="-mx-[90px] rounded-200 border-border-subtle bg-background-default overflow-hidden border">
       <div className="grid min-h-[660px] grid-cols-[300px_minmax(0,1fr)]">
@@ -396,61 +459,18 @@ export function NoteConsultationContent({
             </p>
           </div>
 
-          <div className="border-border-subtle border-b px-175 py-125">
-            <div className="bg-background-alternative flex rounded-100 p-25">
-              <button
-                type="button"
-                onClick={() => onActiveChannelChange('sent')}
-                className={`font-designer-13m h-36 flex-1 rounded-75 ${
-                  activeChannel === 'sent'
-                    ? 'bg-fill-brand-subtle-default text-text-brand'
-                    : 'text-text-subtle'
-                }`}
-              >
-                내가 신청한 상담
-              </button>
-              <button
-                type="button"
-                onClick={() => onActiveChannelChange('received')}
-                className={`font-designer-13m h-36 flex-1 rounded-75 ${
-                  activeChannel === 'received'
-                    ? 'bg-fill-brand-subtle-default text-text-brand'
-                    : 'text-text-subtle'
-                }`}
-              >
-                받은 쪽지 신청
-              </button>
-            </div>
+          <NoteConsultationFilters
+            activeChannel={activeChannel}
+            searchKeyword={searchKeyword}
+            onActiveChannelChange={onActiveChannelChange}
+            onSearchKeywordChange={onSearchKeywordChange}
+          />
 
-            <label className="border-border-subtle mt-100 flex h-36 items-center gap-50 rounded-100 border px-100">
-              <Search className="text-text-subtlest h-14 w-14" />
-              <input
-                value={searchKeyword}
-                onChange={(event) => onSearchKeywordChange(event.target.value)}
-                className="font-designer-12r text-text-default placeholder:text-text-subtlest h-full flex-1 bg-transparent outline-none"
-                placeholder="이름, 역할, 메시지 검색"
-              />
-            </label>
-          </div>
-
-          <div className="min-h-0 flex-1 space-y-50 overflow-y-auto px-100 py-100">
-            {filteredItems.length === 0 ? (
-              <div className="rounded-100 bg-background-alternative px-125 py-150 text-center">
-                <p className="font-designer-13m text-text-subtle">
-                  표시할 상담 내역이 없습니다.
-                </p>
-              </div>
-            ) : (
-              filteredItems.map((item) => (
-                <RequestListCard
-                  key={item.id}
-                  item={item}
-                  selected={item.id === selectedRequestId}
-                  onClick={() => onSelectRequestId(item.id)}
-                />
-              ))
-            )}
-          </div>
+          <NoteConsultationList
+            items={filteredItems}
+            selectedRequestId={selectedRequestId}
+            onSelectRequestId={onSelectRequestId}
+          />
         </aside>
 
         <div className="min-h-0">
