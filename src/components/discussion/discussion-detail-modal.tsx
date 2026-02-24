@@ -13,7 +13,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
-import { Discussion, VoteType } from '@/types/discussion';
+import { Discussion, VoteType } from '@/types/one-to-one-study/discussion';
 import { CommentFormData } from '@/types/schemas/zod-schema';
 import CommentForm from './comment-form';
 import CommentList from './comment-list';

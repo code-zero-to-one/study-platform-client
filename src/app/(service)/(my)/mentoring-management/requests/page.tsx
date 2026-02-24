@@ -5,7 +5,13 @@ interface MentoringManagementRequestsPageProps {
 }
 
 const parseHighlightRequestId = (value: string | undefined) => {
-  return value ?? undefined;
+  if (!value) {
+    return undefined;
+  }
+
+  const trimmedValue = value.trim();
+
+  return trimmedValue.length > 0 ? trimmedValue : undefined;
 };
 
 export default async function MentoringManagementRequestsPage({

@@ -2,7 +2,7 @@
 
 import { Users } from 'lucide-react';
 import React from 'react';
-import type { MVPTeam } from '@/types/hall-of-fame';
+import type { MVPTeam } from '@/types/one-to-one-study/hall-of-fame';
 import MVPTeamCard from './mvp-team-card';
 
 interface HallOfFameMvpSectionProps {

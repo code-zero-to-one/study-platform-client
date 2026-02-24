@@ -24,7 +24,7 @@ import {
 import type {
   BalanceGameListResponse,
   CreateBalanceGameRequest,
-} from '@/types/balance-game';
+} from '@/types/one-to-one-study/balance-game';
 import { VotingCreateFormData } from '@/types/schemas/zod-schema';
 import { decodeVotingId, encodeVotingId } from '@/utils/voting-id';
 import BalanceGameFiltersBar from './balance-game-filters-bar';

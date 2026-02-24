@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight, CheckCircle, Clock } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { StudyHistoryItem } from '@/types/study-history';
+import { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
 
 export const StudyCalendar = ({
   items,

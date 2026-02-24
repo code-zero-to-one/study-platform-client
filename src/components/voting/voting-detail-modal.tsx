@@ -4,7 +4,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { CommentFormData } from '@/types/schemas/zod-schema';
-import { Voting } from '@/types/voting';
+import { Voting } from '@/types/one-to-one-study/voting';
 import VoteResultsChart from './vote-results-chart';
 import VoteTimer from './vote-timer';
 import CommentForm from '../discussion/comment-form';

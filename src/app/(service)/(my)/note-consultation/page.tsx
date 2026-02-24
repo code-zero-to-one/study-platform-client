@@ -1,5 +1,5 @@
-import NoteConsultationPage from '@/components/mentoring/note-consultation-page';
+import NoteConsultationPageClient from '@/components/pages/note-consultation-page-client';
 
-export default function Page() {
-  return <NoteConsultationPage />;
+export default function NoteConsultationRoute() {
+  return <NoteConsultationPageClient />;
 }

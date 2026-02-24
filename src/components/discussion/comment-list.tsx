@@ -6,10 +6,10 @@ import CommentForm from '@/components/discussion/comment-form';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { BalanceGameComment } from '@/types/balance-game';
-import { DiscussionComment } from '@/types/discussion';
+import { BalanceGameComment } from '@/types/one-to-one-study/balance-game';
+import { DiscussionComment } from '@/types/one-to-one-study/discussion';
 import { CommentFormData } from '@/types/schemas/zod-schema';
-import { VotingComment, VotingOption } from '@/types/voting';
+import { VotingComment, VotingOption } from '@/types/one-to-one-study/voting';
 
 interface CommentListProps {
   comments: (DiscussionComment | VotingComment | BalanceGameComment)[];

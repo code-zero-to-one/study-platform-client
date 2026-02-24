@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { BALANCE_GAME_QUERY_KEYS } from '@/features/study/one-to-one/balance-game/model/balance-game-keys';
-import { UpdateBalanceGameRequest } from '@/types/balance-game';
+import { UpdateBalanceGameRequest } from '@/types/one-to-one-study/balance-game';
 import {
   cancelVoteBalanceGame,
   createBalanceGame,

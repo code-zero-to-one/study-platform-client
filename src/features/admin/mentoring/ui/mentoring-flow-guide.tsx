@@ -28,13 +28,13 @@ const COLOR: Record<string, string> = {
  * E 섹션에서 표시할 상태 코드 사전.
  * 실제 코드베이스의 타입 정의와 1:1 대응.
  *
- * MentorScreeningStatus  → src/types/mentoring-admin.ts
- * MentorOperationStatus  → src/types/mentoring-admin.ts
- * MentoringRequestStatus → src/types/mentoring-management.ts
- * MentoringPaymentStatus → src/types/mentoring-management.ts
- * MentoringPaymentMode   → src/types/mentoring-management.ts
- * MentoringSessionStatus → src/types/mentoring-management.ts
- * MentoringMethodType    → src/types/mentoring-domain.ts
+ * MentorScreeningStatus  → src/types/mentoring/admin-domain.ts
+ * MentorOperationStatus  → src/types/mentoring/admin-domain.ts
+ * MentoringRequestStatus → src/types/mentoring/management-domain.ts
+ * MentoringPaymentStatus → src/types/mentoring/management-domain.ts
+ * MentoringPaymentMode   → src/types/mentoring/management-domain.ts
+ * MentoringSessionStatus → src/types/mentoring/management-domain.ts
+ * MentoringMethodType    → src/types/mentoring/domain.ts
  */
 const ENUM_GROUPS = [
   {

@@ -4,7 +4,7 @@ import { Search } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/features/study/one-to-one/balance-game/const/tags';
-import type { BalanceGameTagSuggestion } from '@/types/balance-game';
+import type { BalanceGameTagSuggestion } from '@/types/one-to-one-study/balance-game';
 
 interface TagAutocompleteProps {
   value: string;

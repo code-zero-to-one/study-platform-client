@@ -6,7 +6,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
-import { Discussion } from '@/types/discussion';
+import { Discussion } from '@/types/one-to-one-study/discussion';
 
 interface DiscussionCardProps {
   discussion: Discussion;

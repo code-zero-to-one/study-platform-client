@@ -26,6 +26,14 @@ const resolveMethod = (
   return fallbackType;
 };
 
+const parseSelectedType = (value: string | undefined) => {
+  if (isMentoringMethodType(value)) {
+    return value;
+  }
+
+  return undefined;
+};
+
 export async function generateMetadata({
   params,
   searchParams,
@@ -67,5 +75,10 @@ export default async function MentoringApplyRoute({
     notFound();
   }
 
-  return <MentoringApplyRouteClient mentorId={mentorId} selectedType={type} />;
+  return (
+    <MentoringApplyRouteClient
+      mentorId={mentorId}
+      selectedType={parseSelectedType(type)}
+    />
+  );
 }

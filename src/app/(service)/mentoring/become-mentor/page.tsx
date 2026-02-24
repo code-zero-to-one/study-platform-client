@@ -1,5 +1,5 @@
 import { type Metadata } from 'next';
-import MentorRegistrationPage from '@/components/mentoring/mentor-registration-page';
+import MentorRegistrationPageClient from '@/components/pages/mentor-registration-page-client';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -11,5 +11,5 @@ export const metadata: Metadata = generateSEOMetadata({
 });
 
 export default function BecomeMentorRoute() {
-  return <MentorRegistrationPage />;
+  return <MentorRegistrationPageClient />;
 }

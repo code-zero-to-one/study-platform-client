@@ -39,12 +39,12 @@ import {
 } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useUserStore } from '@/stores/useUserStore';
-import { BalanceGameComment } from '@/types/balance-game';
+import { BalanceGameComment } from '@/types/one-to-one-study/balance-game';
 import {
   CommentFormData,
   VotingCreateFormData,
 } from '@/types/schemas/zod-schema';
-import { VotingOption } from '@/types/voting';
+import { VotingOption } from '@/types/one-to-one-study/voting';
 import VotingEditModal from './voting-edit-modal';
 
 interface VotingDetailViewProps {

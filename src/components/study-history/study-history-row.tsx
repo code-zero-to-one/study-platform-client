@@ -12,7 +12,7 @@ import {
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { StudyHistoryItem } from '@/types/study-history';
+import { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
 
 export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
   const partner = item.partner;

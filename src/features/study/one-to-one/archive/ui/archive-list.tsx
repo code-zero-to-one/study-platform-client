@@ -9,7 +9,7 @@ import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import StatItem from '@/components/ui/stat-item';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import type { UpdateArchiveRequest } from '@/features/study/one-to-one/archive/api/update-archive';
-import { ArchiveItem } from '@/types/archive';
+import { ArchiveItem } from '@/types/one-to-one-study/archive';
 
 interface ArchiveListProps {
   items: ArchiveItem[];

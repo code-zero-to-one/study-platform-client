@@ -1,7 +1,7 @@
 import { Check, Crown, TrendingUp } from 'lucide-react';
 import React from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import { VotingOption } from '@/types/voting';
+import { VotingOption } from '@/types/one-to-one-study/voting';
 
 interface VoteResultsChartProps {
   options: VotingOption[];
