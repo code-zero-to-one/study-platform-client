@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import MyMentoringDetailPage from '@/components/pages/my-mentoring-detail-page';
+import MyMentoringDetailPage from '@/features/mentoring/ui/pages/my-mentoring-detail-page';
 import { getMyMentoringById } from '@/mocks/my-mentoring-mock-data';
 
 interface MyMentoringDetailRouteProps {

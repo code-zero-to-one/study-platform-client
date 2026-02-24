@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { Suspense } from 'react';
-import MentoringListPage from '@/components/pages/mentoring-list-page';
+import MentoringListPage from '@/features/mentoring/ui/pages/mentoring-list-page';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 export const metadata: Metadata = generateSEOMetadata({

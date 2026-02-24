@@ -12,16 +12,11 @@ import {
   Share2,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import CommentForm from '@/components/discussion/comment-form';
-import CommentList from '@/components/discussion/comment-list';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import Toast from '@/components/ui/toast';
-import DailyStatsChart from '@/components/voting/daily-stats-chart';
-import VoteResultsChart from '@/components/voting/vote-results-chart';
-import VoteTimer from '@/components/voting/vote-timer';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import LoginModal from '@/features/auth/ui/login-modal';
 import {
@@ -37,14 +32,19 @@ import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
 } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
+import DailyStatsChart from '@/features/study/one-to-one/balance-game/ui/voting/daily-stats-chart';
+import VoteResultsChart from '@/features/study/one-to-one/balance-game/ui/voting/vote-results-chart';
+import VoteTimer from '@/features/study/one-to-one/balance-game/ui/voting/vote-timer';
+import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
+import CommentList from '@/features/study/one-to-one/discussion/ui/comment-list';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useUserStore } from '@/stores/useUserStore';
 import { BalanceGameComment } from '@/types/one-to-one-study/balance-game';
+import { VotingOption } from '@/types/one-to-one-study/voting';
 import {
   CommentFormData,
   VotingCreateFormData,
 } from '@/types/schemas/zod-schema';
-import { VotingOption } from '@/types/one-to-one-study/voting';
 import VotingEditModal from './voting-edit-modal';
 
 interface VotingDetailViewProps {

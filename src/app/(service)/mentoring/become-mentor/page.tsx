@@ -1,5 +1,5 @@
 import { type Metadata } from 'next';
-import MentorRegistrationPageClient from '@/components/pages/mentor-registration-page-client';
+import MentorRegistrationPageClient from '@/features/mentoring/ui/pages/mentor-registration-page-client';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 export const metadata: Metadata = generateSEOMetadata({

@@ -2,7 +2,7 @@
 
 import { History } from 'lucide-react';
 import React from 'react';
-import { StudyHistoryRow } from '@/components/study-history/study-history-row';
+import { StudyHistoryRow } from '@/features/study/one-to-one/history/ui/study-history-row';
 import type { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
 
 interface StudyHistoryListSectionProps {

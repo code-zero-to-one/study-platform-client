@@ -4,7 +4,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { BalanceGame } from '@/types/one-to-one-study/balance-game';
-import VoteTimer from '../voting/vote-timer';
+import VoteTimer from './voting/vote-timer';
 
 interface VotingCardProps {
   voting: BalanceGame;

@@ -2,14 +2,14 @@ import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { MoreVertical, Trash2, Edit, CheckCircle2 } from 'lucide-react';
 import React from 'react';
-import CommentForm from '@/components/discussion/comment-form';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
 import { BalanceGameComment } from '@/types/one-to-one-study/balance-game';
 import { DiscussionComment } from '@/types/one-to-one-study/discussion';
-import { CommentFormData } from '@/types/schemas/zod-schema';
 import { VotingComment, VotingOption } from '@/types/one-to-one-study/voting';
+import { CommentFormData } from '@/types/schemas/zod-schema';
 
 interface CommentListProps {
   comments: (DiscussionComment | VotingComment | BalanceGameComment)[];

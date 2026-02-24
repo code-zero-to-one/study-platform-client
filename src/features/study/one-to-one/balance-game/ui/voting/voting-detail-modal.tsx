@@ -3,12 +3,12 @@ import React, { useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { CommentFormData } from '@/types/schemas/zod-schema';
+import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
+import CommentList from '@/features/study/one-to-one/discussion/ui/comment-list';
 import { Voting } from '@/types/one-to-one-study/voting';
+import { CommentFormData } from '@/types/schemas/zod-schema';
 import VoteResultsChart from './vote-results-chart';
 import VoteTimer from './vote-timer';
-import CommentForm from '../discussion/comment-form';
-import CommentList from '../discussion/comment-list';
 
 interface VotingDetailModalProps {
   voting: Voting;

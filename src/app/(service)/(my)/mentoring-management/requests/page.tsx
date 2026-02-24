@@ -1,4 +1,4 @@
-import MentoringManagementRequestsPageClient from '@/components/pages/mentoring-management-requests-page-client';
+import MentoringManagementRequestsPageClient from '@/features/mentoring/ui/pages/mentoring-management-requests-page-client';
 
 interface MentoringManagementRequestsPageProps {
   searchParams: Promise<{ id?: string }>;

@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import MentoringTempPage from '@/components/pages/mentoring-temp-page';
+import MentoringTempPage from '@/features/mentoring/ui/pages/mentoring-temp-page';
 
 export const metadata: Metadata = {
   title: '멘토링 임시 검증 페이지 - ZERO-ONE',
