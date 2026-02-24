@@ -41,7 +41,8 @@ export default function MyProfileCard({
   studyApplied,
   sincerityTemp,
 }: MyProfileCardProps) {
-  const { showReviewReminder, setShowReviewReminder } = useReviewReminder();
+  const { showReviewReminder, setShowReviewReminder } =
+    useReviewReminder(memberId);
 
   const [enabled, setEnabled] = useState(matching);
   const [isStartStudyModalOpen, setIsStartStudyModalOpen] = useState(false); // 모달 상태 추가

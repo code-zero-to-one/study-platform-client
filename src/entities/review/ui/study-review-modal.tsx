@@ -1,8 +1,10 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import Checkbox from '@/components/ui/checkbox';
@@ -21,7 +23,7 @@ import {
 interface FormState {
   studySpaceId: number;
   targetMemberId: number;
-  satisfactionId: 10 | 20 | 30 | null; // 10 - "아쉬워요", 20 - "괜찮아요", 30 - "좋았어요"
+  satisfactionId: 10 | 20 | 30 | undefined; // 10 - "아쉬워요", 20 - "괜찮아요", 30 - "좋았어요"
   keywordIds: number[];
   content: string;
 }
@@ -55,29 +57,64 @@ export default function StudyReviewModal({
             </div>
           </div>
 
-          <StudyReviewForm onClose={() => onOpenChange(false)} />
+          <StudyReviewForm open={open} onClose={() => onOpenChange(false)} />
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
   );
 }
 
-function StudyReviewForm({ onClose }: { onClose: () => void }) {
-  const { data } = usePartnerStudyReviewQuery();
+function StudyReviewForm({
+  open,
+  onClose,
+}: {
+  open: boolean;
+  onClose: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const { data, error, isError } = usePartnerStudyReviewQuery(open);
   const { mutate: addStudyReview, isPending } = useAddStudyReviewMutation();
 
   const [form, setForm] = useState<FormState>({
-    studySpaceId: data?.studySpaceId,
-    targetMemberId: data?.targetMembers[0].memberId,
-    satisfactionId: null,
+    studySpaceId: 0,
+    targetMemberId: 0,
+    satisfactionId: undefined,
     keywordIds: [],
     content: '',
   });
 
+  useEffect(() => {
+    if (!open || !isError) return;
+
+    if (isAxiosError(error) && error.response?.status === 404) {
+      onClose();
+    }
+  }, [open, isError, error, onClose]);
+
+  useEffect(() => {
+    if (!data) return;
+
+    setForm({
+      studySpaceId: data.studySpaceId,
+      targetMemberId: data.targetMembers[0]?.memberId ?? 0,
+      satisfactionId: undefined,
+      keywordIds: [],
+      content: '',
+    });
+  }, [data]);
+
+  if (!open) return null;
   if (!data) return null;
 
   const handleSubmit = () => {
-    if (form.keywordIds.length === 0 || form.satisfactionId === null) return;
+    if (
+      form.keywordIds.length === 0 ||
+      form.satisfactionId === undefined ||
+      form.studySpaceId <= 0 ||
+      form.targetMemberId <= 0
+    ) {
+      return;
+    }
 
     addStudyReview(
       {
@@ -87,6 +124,18 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
       {
         onSuccess: () => {
           onClose();
+        },
+        onError: async (error) => {
+          if (isAxiosError(error) && error.response?.status === 400) {
+            onClose();
+            await queryClient.invalidateQueries({
+              queryKey: ['shouldReviewPartner'],
+            });
+
+            return;
+          }
+
+          alert('후기 작성에 실패했습니다. 다시 시도해주세요.');
         },
       },
     );
@@ -166,7 +215,7 @@ function StudyReviewForm({ onClose }: { onClose: () => void }) {
           size="large"
           disabled={
             form.keywordIds.length === 0 ||
-            form.satisfactionId === null ||
+            form.satisfactionId === undefined ||
             isPending
           }
           onClick={handleSubmit}
