@@ -2,10 +2,13 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import {
+  Briefcase,
+  Building2,
   MessageCircle,
   Monitor,
   Phone,
   Star,
+  TrendingUp,
   UserRound,
   Users,
 } from 'lucide-react';
@@ -50,7 +53,8 @@ const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
   offline: Users,
 };
 
-const MENTOR_CARD_HEIGHT_CLASS = 'h-[480px]';
+const MENTOR_CARD_HEIGHT_CLASS = 'h-500px';
+const MAX_KEYWORD_COUNT = 6;
 
 export default function MentorCard({ mentor }: MentorCardProps) {
   const router = useRouter();
@@ -63,12 +67,29 @@ export default function MentorCard({ mentor }: MentorCardProps) {
   )
     .map((keyword) => keyword.trim())
     .filter((keyword) => keyword.length > 0)
-    .slice(0, 5);
+    .slice(0, MAX_KEYWORD_COUNT);
   const jobTitleLabel = mentorSettings.jobTitle || mentor.role || '직무 미입력';
+  const topCategorySource =
+    mentorSettings.categories[0]?.trim() || mentor.role || '';
+  const topCategoryBase = topCategorySource.split('/')[0]?.trim();
+  const topCategoryBadgeLabel = topCategoryBase
+    ? topCategoryBase.includes('멘토링')
+      ? topCategoryBase
+      : `${topCategoryBase} 멘토링`
+    : '멘토링';
   const careerLabel =
     mentorSettings.careerYears || mentor.career || '경력 미입력';
   const metMenteeCount = mentor.menteeCount ?? mentor.mentoringCount;
   const lowestPriceOption = getLowestPriceOption(mentor);
+  const fallbackPrices = [
+    mentorSettings.notePrice,
+    mentorSettings.phonePrice,
+    mentorSettings.onlinePrice,
+    mentorSettings.offlinePrice,
+  ].filter((price): price is number => Number.isFinite(price) && price > 0);
+  const fallbackLowestPrice =
+    fallbackPrices.length > 0 ? Math.min(...fallbackPrices) : null;
+  const lowestPrice = lowestPriceOption?.price ?? fallbackLowestPrice;
   const availableMethods = {
     note: mentor.methods.note.enabled !== false,
     phone: mentor.methods.phone.enabled !== false,
@@ -110,61 +131,91 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       onClick={navigateDetail}
       onKeyDown={handleKeyDown}
     >
-      <div className="flex h-full flex-col px-300 py-225">
-        <div className="mb-125 h-[58px]">
-          <h3 className="font-designer-18b text-text-default line-clamp-2 break-words">
-            {mentoringTitle}
-          </h3>
-        </div>
+      <div className="flex h-full flex-col justify-between px-300 py-300">
+        <div>
+          <div className="mb-100 flex flex-wrap gap-75">
+            <Badge color="primary" shape="round">
+              {topCategoryBadgeLabel}
+            </Badge>
+            <Badge color="gray" shape="round">
+              {jobTitleLabel}
+            </Badge>
+          </div>
 
-        <div className="mb-150 flex items-center gap-125">
-          <UserAvatar
-            image={mentor.imageUrl?.trim()}
-            alt={mentor.nickname}
-            size={52}
-            className="shrink-0"
-          />
-          <div className="min-w-0 flex-1">
-            <p className="font-designer-14m text-text-subtle mb-25 line-clamp-1">
-              {mentor.nickname}
-            </p>
+          <div className="mb-125 h-[58px]">
+            <h3 className="font-designer-18b text-text-default line-clamp-2 break-words">
+              {mentoringTitle}
+            </h3>
+          </div>
+
+          <div className="mb-150 flex items-start gap-125">
+            <UserAvatar
+              image={mentor.imageUrl?.trim()}
+              alt={mentor.nickname}
+              size={86}
+              className="shrink-0"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="font-designer-16m text-text-default mb-50 line-clamp-1">
+                {mentor.nickname}
+              </p>
+              <div className="mb-75 flex flex-col gap-25">
+                <div className="flex min-w-0 items-center gap-125">
+                  <Briefcase className="text-text-subtlest h-160 w-160 shrink-0" />
+                  <span className="font-designer-13m text-text-subtle line-clamp-1">
+                    {jobTitleLabel}
+                  </span>
+                </div>
+                <div className="flex min-w-0 items-center gap-125">
+                  <TrendingUp className="text-text-subtlest h-160 w-160 shrink-0" />
+                  <span className="font-designer-13m text-text-subtle line-clamp-1">
+                    {careerLabel}
+                  </span>
+                </div>
+              </div>
+              <div className="inline-flex min-w-0 items-center gap-125">
+                <Building2 className="text-text-brand h-160 w-160 shrink-0" />
+                <span className="font-designer-13m text-text-brand line-clamp-1">
+                  {appealLine}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-125 border-border-subtle bg-background-default px-150 py-100">
+            <div className="grid grid-cols-2 items-center">
+              <span className="inline-flex items-center justify-center gap-50 whitespace-nowrap">
+                <Star className="text-text-warning h-[14px] w-[14px] fill-current" />
+                <span className="font-designer-15m text-text-default">
+                  {mentor.rating.toFixed(1)} · 후기{' '}
+                  {mentor.reviewCount.toLocaleString()}
+                </span>
+              </span>
+              <span className="inline-flex items-center justify-center gap-50 pl-100 whitespace-nowrap">
+                <UserRound className="text-text-subtle h-[14px] w-[14px]" />
+                <span className="font-designer-15m text-text-default">
+                  상담 {metMenteeCount.toLocaleString()}명
+                </span>
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className="mb-150">
-          <p className="font-designer-13r text-text-subtle mb-75 line-clamp-1">
-            {jobTitleLabel} · {careerLabel}
-          </p>
-          <Badge color="green" shape="round">
-            {appealLine}
-          </Badge>
-        </div>
-
-        <div className="mb-150 flex flex-wrap items-center gap-x-150 gap-y-75">
-          <span className="inline-flex items-center gap-50">
-            <Star className="text-text-warning h-14 w-14 fill-current" />
-            <span className="font-designer-15b text-text-default">
-              {mentor.rating.toFixed(1)}
-            </span>
-          </span>
-          <span className="inline-flex items-center gap-50">
-            <UserRound className="text-text-subtle h-14 w-14" />
-            <span className="font-designer-15b text-text-default">
-              {metMenteeCount}
-            </span>
-          </span>
-        </div>
-
         {keywords.length > 0 && (
-          <div className="rounded-125 bg-background-alternative mt-auto mb-0 flex flex-wrap gap-x-200 gap-y-75 px-150 py-125">
-            {keywords.map((keyword) => (
-              <span
-                key={keyword}
-                className="font-designer-12r text-text-subtle"
-              >
-                #{keyword}
-              </span>
-            ))}
+          <div className="mt-auto mb-0">
+            <div className="rounded-125 bg-background-alternative px-150 py-125">
+              <div className="flex max-h-[50px] flex-wrap gap-x-200 gap-y-75 overflow-hidden">
+                {keywords.map((keyword) => (
+                  <span
+                    key={keyword}
+                    title={`#${keyword}`}
+                    className="font-designer-14m text-text-subtle max-w-[130px] truncate"
+                  >
+                    #{keyword}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         )}
 
@@ -182,7 +233,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
               <div key={method} className="flex items-center gap-100">
                 <Icon
                   className={cn(
-                    'h-20 w-20',
+                    'h-[20px] w-[20px]',
                     isEnabled ? methodLabelMap[method] : 'text-text-subtlest',
                   )}
                 />
@@ -199,10 +250,10 @@ export default function MentorCard({ mentor }: MentorCardProps) {
           })}
         </div>
 
-        {lowestPriceOption && (
+        {lowestPrice !== null && (
           <div className="rounded-100 bg-background-alternative px-125 py-100">
             <p className="font-designer-13b text-text-default">
-              최저가 {formatWon(lowestPriceOption.price)}
+              최저가 {formatWon(lowestPrice)}
             </p>
           </div>
         )}

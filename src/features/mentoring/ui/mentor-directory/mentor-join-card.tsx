@@ -4,7 +4,7 @@ import Button from '@/components/ui/button';
 import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
-const MENTOR_CARD_HEIGHT_CLASS = 'h-[480px]';
+const MENTOR_CARD_HEIGHT_CLASS = 'h-500px';
 
 interface MentorJoinCardProps {
   memberId: number | undefined;

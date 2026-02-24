@@ -4,7 +4,7 @@ export default function MentorDirectorySkeletonGrid() {
       {Array.from({ length: 4 }).map((_, index) => (
         <div
           key={index}
-          className="rounded-200 bg-background-alternative h-[480px] animate-pulse"
+          className="rounded-200 bg-background-alternative h-500px animate-pulse"
         />
       ))}
     </div>
