@@ -12,14 +12,14 @@ import type {
   MentoringRequest,
 } from '@/types/mentoring/management-domain';
 import type {
-  NoteConsultationChannel,
-  NoteConsultationListItem,
-} from '@/types/mentoring/note-consultation-view';
-import type {
   NoteConsultationFiltersProps,
   NoteConsultationGridProps,
   NoteConsultationListProps,
 } from '@/types/mentoring/note-consultation-composite-view';
+import type {
+  NoteConsultationChannel,
+  NoteConsultationListItem,
+} from '@/types/mentoring/note-consultation-view';
 
 function UserAvatar({
   name,
