@@ -1,0 +1,86 @@
+import { type UseFormReturn } from 'react-hook-form';
+import { type MentorSettlementDraft } from '@/types/mentoring/settings';
+import {
+  type MentorRegistrationFormInputValues,
+  type MentorRegistrationFormValues,
+} from '@/types/schemas/mentor-registration-schema';
+
+export type MentorRegistrationPreviewHighlightSection =
+  | 'headline'
+  | 'description'
+  | 'interview'
+  | 'methods'
+  | 'notice';
+
+export type MentorRegistrationGuardState =
+  | 'ready'
+  | 'loading'
+  | 'loginRequired'
+  | 'permissionRequired'
+  | 'verificationLoading'
+  | 'verificationError'
+  | 'verificationRequired';
+
+export interface MentorRegistrationGuardCardProps {
+  title: string;
+  description: string;
+  ctaLabel: string;
+  ctaHref?: string;
+  onCtaClick?: () => void;
+}
+
+export interface MentorRegistrationWelcomeChecklistItem {
+  title: string;
+  description: string;
+  done: boolean;
+}
+
+export interface MentorRegistrationWelcomeOnboardingState {
+  mentorId: number;
+  displayName: string;
+  checklist: MentorRegistrationWelcomeChecklistItem[];
+}
+
+export type MentorRegistrationMethodEnabledField =
+  | 'noteEnabled'
+  | 'phoneEnabled'
+  | 'onlineEnabled'
+  | 'offlineEnabled';
+
+export type MentorRegistrationMethodPriceField =
+  | 'notePrice'
+  | 'phonePrice'
+  | 'onlinePrice'
+  | 'offlinePrice';
+
+export type MentorRegistrationMethodDurationField =
+  | 'onlineDurationMinutes'
+  | 'offlineDurationMinutes';
+
+export interface MentorRegistrationMethodField {
+  enabledField: MentorRegistrationMethodEnabledField;
+  priceField: MentorRegistrationMethodPriceField;
+  label: string;
+  description: string;
+  policySummary: string;
+  durationField?: MentorRegistrationMethodDurationField;
+  durationOptions?: { value: string; label: string }[];
+}
+
+export interface MentorRegistrationFormProps {
+  form: UseFormReturn<
+    MentorRegistrationFormInputValues,
+    unknown,
+    MentorRegistrationFormValues
+  >;
+  onCancel: () => void;
+  onOpenSettlementModal: () => void;
+  onSubmit: (values: MentorRegistrationFormValues) => void;
+}
+
+export interface MentorSettlementRegisterModalProps {
+  open: boolean;
+  initialValue: MentorSettlementDraft | undefined;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (draft: MentorSettlementDraft) => void;
+}

@@ -24,7 +24,7 @@ import {
 import type {
   MentorProfile,
   MentoringMethodType,
-} from '@/types/mentoring-domain';
+} from '@/types/mentoring/domain';
 
 interface MentoringApplyPageViewProps {
   mentor: MentorProfile;

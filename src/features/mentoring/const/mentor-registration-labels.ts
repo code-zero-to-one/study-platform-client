@@ -1,4 +1,4 @@
-import { type MentorRegistrationGuardCardProps } from '@/types/mentoring-registration';
+import { type MentorRegistrationGuardCardProps } from '@/types/mentoring/registration-view';
 
 type GuardCardContentState =
   | 'loginRequired'

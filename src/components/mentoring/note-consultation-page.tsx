@@ -20,7 +20,7 @@ import { useMentoringManagementStore } from '@/stores/useMentoringManagementStor
 import type {
   MentoringConversationMessage,
   MentoringRequest,
-} from '@/types/mentoring-management';
+} from '@/types/mentoring/management-domain';
 
 type RequestChannel = 'sent' | 'received';
 

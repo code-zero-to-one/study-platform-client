@@ -25,8 +25,8 @@ import {
 import type {
   MentorProfile,
   MentoringMethodType,
-} from '@/types/mentoring-domain';
-import { type MentorRegistrationPreviewHighlightSection } from '@/types/mentoring-registration';
+} from '@/types/mentoring/domain';
+import { type MentorRegistrationPreviewHighlightSection } from '@/types/mentoring/registration-view';
 import MentorMarkdownContent from './mentor-markdown-content';
 import ReviewStars from './review-stars';
 

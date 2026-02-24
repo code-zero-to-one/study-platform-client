@@ -1,12 +1,19 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { type MentoringMethodType } from '@/types/mentoring-domain';
+import { type MentoringMethodType } from '@/types/mentoring/domain';
 import type {
   AcceptMentoringRequestParams,
   CancelMentoringSessionParams,
   ConfirmManualMentoringPaymentParams,
   CreateMentoringRequestParams,
+  RejectMentoringRequestParams,
+  RescheduleMentoringSessionParams,
+  SeedMentoringScenarioParams,
+  SendMentoringMessageParams,
+  SubmitMentoringReviewParams,
+} from '@/types/mentoring/management-api';
+import type {
   MentoringConversationMessage,
   MentoringPaymentMode,
   MentoringPaymentStatus,
@@ -18,12 +25,7 @@ import type {
   MentoringSession,
   MentoringSessionStatus,
   MentoringStoreActionResponse,
-  RejectMentoringRequestParams,
-  RescheduleMentoringSessionParams,
-  SeedMentoringScenarioParams,
-  SendMentoringMessageParams,
-  SubmitMentoringReviewParams,
-} from '@/types/mentoring-management';
+} from '@/types/mentoring/management-domain';
 
 interface MentoringManagementState {
   memberId: number | undefined;

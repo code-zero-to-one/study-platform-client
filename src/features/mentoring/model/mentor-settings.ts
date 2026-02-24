@@ -5,7 +5,7 @@ import {
   type MentorSettingsV3,
   type MentorWeeklySchedule,
   type WeekdayKey,
-} from '@/types/mentoring-settings';
+} from '@/types/mentoring/settings';
 
 export {
   COMPANY_CATEGORY_OPTIONS,
@@ -23,7 +23,7 @@ export {
   type MentorWeeklySchedule,
   type SettlementPayerType,
   type WeekdayKey,
-} from '@/types/mentoring-settings';
+} from '@/types/mentoring/settings';
 
 export const createEmptyWeeklySchedule = (): Record<WeekdayKey, string[]> => {
   return {

@@ -2,7 +2,10 @@ import Link from 'next/link';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
-import type { MentoringRequestPanelActions, MentoringRequestRowViewModel } from '@/features/mentoring/model/use-mentoring-request-panel-controller';
+import type {
+  MentoringRequestPanelActions,
+  MentoringRequestRowViewModel,
+} from '@/types/mentoring/management-request-panel-view';
 
 interface MentoringRequestListProps {
   rows: MentoringRequestRowViewModel[];

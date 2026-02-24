@@ -5,7 +5,7 @@ import { useMentoringApplyController } from '@/features/mentoring/model/use-ment
 import type {
   MentorProfile,
   MentoringMethodType,
-} from '@/types/mentoring-domain';
+} from '@/types/mentoring/domain';
 
 interface MentoringApplyPageProps {
   mentor: MentorProfile;

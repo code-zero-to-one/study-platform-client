@@ -1,5 +1,5 @@
 import type { ZodIssue } from 'zod';
-import type { AdminMentoringOverviewQueryResult } from '@/types/mentoring-admin';
+import type { AdminMentoringOverviewQueryResult } from '@/types/mentoring/admin-domain';
 import {
   adminMentoringOverviewResponseSchema,
   sessionOperationsSearchParamsSchema,

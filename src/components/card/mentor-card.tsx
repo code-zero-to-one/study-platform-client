@@ -21,8 +21,8 @@ import {
   getLowestPriceOption,
   getMentorSettings,
 } from '@/mocks/mentoring-mock-data';
-import type { MentorCardProps } from '@/types/mentoring-directory';
-import type { MentoringMethodType } from '@/types/mentoring-domain';
+import type { MentorCardProps } from '@/types/mentoring/directory-view';
+import type { MentoringMethodType } from '@/types/mentoring/domain';
 
 const methodTextMap: Record<MentoringMethodType, string> = {
   note: '쪽지상담',

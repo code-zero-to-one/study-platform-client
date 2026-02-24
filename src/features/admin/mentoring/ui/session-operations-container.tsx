@@ -1,6 +1,8 @@
 'use client';
 
+import MentoringListTemplate from '@/components/mentoring/common/mentoring-list-template';
 import MentoringStateBoundary from '@/components/mentoring/common/mentoring-state-boundary';
+import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model/admin-mentoring-view-state';
 import { useSessionOperationsController } from '@/features/admin/mentoring/model/use-session-operations-controller';
 import {
   SessionOperationsFilters,
@@ -19,30 +21,38 @@ export default function SessionOperationsContainer({
   const { state, viewModel, actions } = useSessionOperationsController({
     initialMentorId,
   });
+  const listState = resolveAdminMentoringViewState({
+    hasHydrated: state.hasHydrated,
+    itemCount: state.mentors.length,
+    emptyWhenNoData: false,
+  });
 
   return (
     <MentoringStateBoundary
-      state={state.hasHydrated ? 'ready' : 'loading'}
+      state={listState}
       ready={(
-        <div className="flex flex-col gap-200">
-          <SessionOperationsFilters
-            mentors={state.mentors}
-            selectedMentorId={state.selectedMentorId}
-            readyToProcessCount={viewModel.summary.readyToProcessCount}
-            onSelectMentorId={actions.selectMentorId}
-          />
-
-          <SessionOperationsGrid
-            totalRequestCount={viewModel.summary.totalRequestCount}
-            pendingPaymentCount={viewModel.summary.pendingPaymentCount}
-            confirmedPaymentCount={viewModel.summary.confirmedPaymentCount}
-            scheduledSessionCount={viewModel.summary.scheduledSessionCount}
-          />
-
-          <SessionRequestList requestRows={viewModel.requestRows} />
-
-          <SessionScheduleList sessionRows={viewModel.sessionRows} />
-        </div>
+        <MentoringListTemplate
+          toolbar={(
+            <SessionOperationsFilters
+              mentors={state.mentors}
+              selectedMentorId={state.selectedMentorId}
+              readyToProcessCount={viewModel.summary.readyToProcessCount}
+              onSelectMentorId={actions.selectMentorId}
+            />
+          )}
+          summary={(
+            <SessionOperationsGrid
+              totalRequestCount={viewModel.summary.totalRequestCount}
+              pendingPaymentCount={viewModel.summary.pendingPaymentCount}
+              confirmedPaymentCount={viewModel.summary.confirmedPaymentCount}
+              scheduledSessionCount={viewModel.summary.scheduledSessionCount}
+            />
+          )}
+          content={<SessionRequestList requestRows={viewModel.requestRows} />}
+          secondaryContent={(
+            <SessionScheduleList sessionRows={viewModel.sessionRows} />
+          )}
+        />
       )}
     />
   );

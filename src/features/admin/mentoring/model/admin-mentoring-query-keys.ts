@@ -1,16 +1,18 @@
 import type {
+  MentorOperationRecord,
+  MentorScreeningRecord,
+} from '@/types/mentoring/admin-domain';
+import type {
   AdminMentoringOverviewQueryKey,
   AdminMentoringOverviewQueryKeyParams,
   AdminMentoringOverviewSnapshot,
-  MentorOperationRecord,
-  MentorScreeningRecord,
-} from '@/types/mentoring-admin';
-import type { MentorProfile } from '@/types/mentoring-domain';
+} from '@/types/mentoring/admin-query';
+import type { MentorProfile } from '@/types/mentoring/domain';
 import type {
   MentoringRequest,
   MentoringReview,
   MentoringSession,
-} from '@/types/mentoring-management';
+} from '@/types/mentoring/management-domain';
 
 const toCreatedMentorSignature = (createdMentors: MentorProfile[]) => {
   if (createdMentors.length === 0) {

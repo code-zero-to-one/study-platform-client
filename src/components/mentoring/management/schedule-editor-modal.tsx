@@ -12,7 +12,7 @@ import { hasSessionConflict } from '@/stores/useMentoringManagementStore';
 import type {
   ScheduleEditorModalProps,
   ScheduleEditorSubmitParams,
-} from '@/types/mentoring-management-ui';
+} from '@/types/mentoring/management-view';
 
 export type { ScheduleEditorSubmitParams as ScheduleEditorSubmitPayload };
 

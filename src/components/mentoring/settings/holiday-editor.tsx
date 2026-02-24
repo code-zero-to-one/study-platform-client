@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import Button from '@/components/ui/button';
 import FieldErrorText from '@/components/ui/form/field-error-text';
 import { BaseInput } from '@/components/ui/input';
-import { type MentorHoliday } from '@/types/mentoring-settings';
+import { type MentorHoliday } from '@/types/mentoring/settings';
 
 interface HolidayEditorProps {
   holidays: MentorHoliday[];

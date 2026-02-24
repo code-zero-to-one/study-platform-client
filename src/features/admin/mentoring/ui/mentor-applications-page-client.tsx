@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import MentoringEmptyPanel from '@/components/mentoring/common/mentoring-empty-panel';
 import MentoringStateBoundary from '@/components/mentoring/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/components/mentoring/common/mentoring-table-panel';
 import Badge from '@/components/ui/badge';
@@ -10,6 +11,7 @@ import Button from '@/components/ui/button';
 import BorderedTextarea from '@/components/ui/input/bordered-textarea';
 import KeyValueRow from '@/components/ui/key-value-row';
 import SurfacePanel from '@/components/ui/surface-panel';
+import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model/admin-mentoring-view-state';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
 import { useAuthReady } from '@/hooks/common/use-auth';
@@ -79,6 +81,10 @@ export default function MentorApplicationsPageClient({
 
   const [selectedMentorId, setSelectedMentorId] = useState<number>();
   const [reviewNote, setReviewNote] = useState('');
+  const listState = resolveAdminMentoringViewState({
+    hasHydrated,
+    itemCount: mentors.length,
+  });
 
   useEffect(() => {
     if (mentors.length === 0) {
@@ -142,16 +148,12 @@ export default function MentorApplicationsPageClient({
 
   return (
     <MentoringStateBoundary
-      state={!hasHydrated ? 'loading' : mentors.length === 0 ? 'empty' : 'ready'}
+      state={listState}
       empty={(
-        <SurfacePanel className="px-250 py-300 text-center">
-          <p className="font-designer-18b text-text-default">
-            심사할 멘토 등록 데이터가 없습니다.
-          </p>
-          <p className="font-designer-14r text-text-subtle mt-75">
-            멘토가 등록을 완료하면 심사 큐에 자동으로 표시됩니다.
-          </p>
-        </SurfacePanel>
+        <MentoringEmptyPanel
+          title="심사할 멘토 등록 데이터가 없습니다."
+          description="멘토가 등록을 완료하면 심사 큐에 자동으로 표시됩니다."
+        />
       )}
       ready={(
         <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-200">

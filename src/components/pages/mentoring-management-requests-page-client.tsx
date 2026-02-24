@@ -10,7 +10,7 @@ import SurfacePanel from '@/components/ui/surface-panel';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
-import type { MentorProfile } from '@/types/mentoring-domain';
+import type { MentorProfile } from '@/types/mentoring/domain';
 
 const getMethodDurations = (mentor: MentorProfile) => {
   const settings = getMentorSettings(mentor);

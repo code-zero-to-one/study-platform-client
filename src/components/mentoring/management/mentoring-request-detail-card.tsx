@@ -10,10 +10,10 @@ import SurfacePanel from '@/components/ui/surface-panel';
 import { MENTORING_PAYMENT_STATUS_META } from '@/features/mentoring/model/management-status-meta';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import type { MentoringMethodType } from '@/types/mentoring-domain';
+import type { MentoringMethodType } from '@/types/mentoring/domain';
 import type {
   MentoringRequestDetailCardProps,
-} from '@/types/mentoring-management-ui';
+} from '@/types/mentoring/management-view';
 
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,

@@ -1,7 +1,7 @@
 import type {
   MentorOperationStatus,
   MentorScreeningStatus,
-} from '@/types/mentoring-admin';
+} from '@/types/mentoring/admin-domain';
 
 export type MentorOperationDisplayStatus =
   | MentorOperationStatus

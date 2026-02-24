@@ -3,9 +3,9 @@ import type {
   MentorDirectoryListQueryKey,
   MentorDirectoryListQueryParams,
   MentorDirectoryQuerySnapshot,
-} from '@/types/mentoring-directory';
-import type { MentorProfile } from '@/types/mentoring-domain';
-import type { MentoringReview } from '@/types/mentoring-management';
+} from '@/types/mentoring/directory-query';
+import type { MentorProfile } from '@/types/mentoring/domain';
+import type { MentoringReview } from '@/types/mentoring/management-domain';
 
 const toCreatedMentorSignature = (createdMentors: MentorProfile[]) => {
   if (createdMentors.length === 0) {

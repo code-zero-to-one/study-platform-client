@@ -4,7 +4,7 @@ import {
   CONTACT_COUNTRY_CODES,
   type WeekdayKey,
   WEEKDAY_LABEL_MAP,
-} from '@/types/mentoring-settings';
+} from '@/types/mentoring/settings';
 
 interface SelectionOption {
   value: string;

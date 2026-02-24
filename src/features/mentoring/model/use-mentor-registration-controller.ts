@@ -29,8 +29,8 @@ import {
   type MentorRegistrationPreviewHighlightSection,
   type MentorRegistrationWelcomeChecklistItem,
   type MentorRegistrationWelcomeOnboardingState,
-} from '@/types/mentoring-registration';
-import { type MentorSettlementDraft } from '@/types/mentoring-settings';
+} from '@/types/mentoring/registration-view';
+import { type MentorSettlementDraft } from '@/types/mentoring/settings';
 import {
   mentorRegistrationSchema,
   type MentorRegistrationFormInputValues,

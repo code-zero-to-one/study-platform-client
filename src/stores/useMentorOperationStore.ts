@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type {
   MentorOperationRecord,
   UpsertMentorOperationParams,
-} from '@/types/mentoring-admin';
+} from '@/types/mentoring/admin-domain';
 
 interface MentorOperationState {
   recordsByMentorId: Record<number, MentorOperationRecord>;

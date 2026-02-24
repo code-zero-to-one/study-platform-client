@@ -16,8 +16,8 @@ import { useMentoringManagementStore } from '@/stores/useMentoringManagementStor
 import type {
   MentoringRequest,
   MentoringSession,
-} from '@/types/mentoring-management';
-import type { MentoringSchedulePanelProps } from '@/types/mentoring-management-ui';
+} from '@/types/mentoring/management-domain';
+import type { MentoringSchedulePanelProps } from '@/types/mentoring/management-view';
 import MentoringScheduleCalendar from './mentoring-schedule-calendar';
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,

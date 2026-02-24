@@ -5,11 +5,18 @@ import { useMemo } from 'react';
 import { MENTORING_REQUEST_STATUS_META } from '@/features/mentoring/model/management-status-meta';
 import { getMethodLabel } from '@/mocks/mentoring-mock-data';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import type { MentoringRequest } from '@/types/mentoring-management';
+import type { MentoringRequest } from '@/types/mentoring/management-domain';
+import type {
+  MentoringRequestPanelActions,
+  MentoringRequestPanelControllerResult,
+  MentoringRequestPanelMode,
+  MentoringRequestPanelState,
+  MentoringRequestPanelViewModel,
+  MentoringRequestRowViewModel,
+  UseMentoringRequestPanelControllerParams,
+} from '@/types/mentoring/management-request-panel-view';
 
 const MENTORING_REQUEST_DETAIL_BASE_PATH = '/mentoring-management/requests';
-
-export type MentoringRequestPanelMode = 'empty' | 'detail' | 'list';
 
 const getPreferredScheduleText = (request: MentoringRequest) => {
   if (!request.preferredDate) {
@@ -26,40 +33,10 @@ const toRequestDetailHref = (requestId: string) => {
   return `${MENTORING_REQUEST_DETAIL_BASE_PATH}?id=${requestId}`;
 };
 
-export interface MentoringRequestRowViewModel {
-  id: string;
-  statusLabel: string;
-  statusColor: (typeof MENTORING_REQUEST_STATUS_META)[MentoringRequest['status']]['color'];
-  methodLabel: string;
-  menteeName: string;
-  menteeRole: string;
-  requestedAtText: string;
-  preferredScheduleText: string;
-}
-
-export interface MentoringRequestPanelState {
-  mode: MentoringRequestPanelMode;
-  urgentCount: number;
-  detailRequest?: MentoringRequest;
-}
-
-export interface MentoringRequestPanelViewModel {
-  titleText: string;
-  showUrgentBanner: boolean;
-  rows: MentoringRequestRowViewModel[];
-}
-
-export interface MentoringRequestPanelActions {
-  toRequestDetailHref: (requestId: string) => string;
-}
-
 export const useMentoringRequestPanelController = ({
   mentorId,
   filterRequestId,
-}: {
-  mentorId: number;
-  filterRequestId?: string;
-}) => {
+}: UseMentoringRequestPanelControllerParams): MentoringRequestPanelControllerResult => {
   const allRequests = useMentoringManagementStore(
     (state) => state.requestsByMentor[mentorId] ?? [],
   );

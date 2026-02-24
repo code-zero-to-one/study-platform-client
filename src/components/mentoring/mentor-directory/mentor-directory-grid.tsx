@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import MentorCard from '@/components/card/mentor-card';
-import type { MentorProfile } from '@/types/mentoring-domain';
+import type { MentorProfile } from '@/types/mentoring/domain';
 
 interface MentorDirectoryGridProps {
   leadMentors: MentorProfile[];

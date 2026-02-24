@@ -8,8 +8,8 @@ import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/s
 import { type WeekdayKey, WEEKDAY_KEYS } from '@/features/mentoring/model/mentor-settings';
 import { WEEKDAY_LABEL_MAP } from '@/features/mentoring/model/mentor-settings';
 import { formatWon, getMethodLabel } from '@/mocks/mentoring-mock-data';
-import type { AdminMentorItem } from '@/types/mentoring-admin';
-import type { MentoringMethodType } from '@/types/mentoring-domain';
+import type { AdminMentorItem } from '@/types/mentoring/admin-domain';
+import type { MentoringMethodType } from '@/types/mentoring/domain';
 
 const METHOD_ORDER: MentoringMethodType[] = [
   'note',

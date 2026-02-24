@@ -41,6 +41,7 @@ import {
 } from 'slate-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
+import { NativeSelect } from '@/components/ui/input';
 import {
   createMentoringRequestRichTextBlock,
   parseMentoringRequestRichTextDocument,
@@ -774,23 +775,21 @@ const FontSizeSelector = () => {
   return (
     <label className="font-designer-12r text-text-subtle inline-flex items-center gap-50">
       글자 크기
-      <select
+      <NativeSelect
+        scale="sm"
+        tone="subtle"
         value={activeFontSize}
         onChange={(event) => {
           applyFontSize(editor, event.target.value as FontSizeMark);
         }}
-        className={cn(
-          'font-designer-12r rounded-100 border-border-subtle bg-background-default',
-          'text-text-default border px-100 py-75',
-          'focus:border-border-brand focus:outline-none',
-        )}
+        className="font-designer-12r"
       >
         {FONT_SIZE_OPTIONS.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
+      </NativeSelect>
     </label>
   );
 };

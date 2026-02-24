@@ -2,7 +2,7 @@ import type {
   MentoringPaymentStatus,
   MentoringRequestStatus,
   MentoringSessionStatus,
-} from '@/types/mentoring-management';
+} from '@/types/mentoring/management-domain';
 
 type RequestStatusColor = 'orange' | 'green' | 'red';
 type PaymentStatusColor = 'orange' | 'blue' | 'green';

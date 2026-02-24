@@ -16,7 +16,7 @@ import Button from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
-import type { MentorProfile } from '@/types/mentoring-domain';
+import type { MentorProfile } from '@/types/mentoring/domain';
 
 const getEnabledMethodCount = (mentor: MentorProfile) => {
   return Object.values(mentor.methods).filter(

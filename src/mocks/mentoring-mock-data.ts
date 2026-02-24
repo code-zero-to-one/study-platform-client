@@ -8,19 +8,19 @@ import type {
   MentorSortOption,
   MentoringMethodOption,
   MentoringMethodType,
-} from '@/types/mentoring-domain';
+} from '@/types/mentoring/domain';
 import type {
   CompanyCategory,
   MentorSettingsV2,
   WeekdayKey,
-} from '@/types/mentoring-settings';
+} from '@/types/mentoring/settings';
 export type {
   MentorProfile,
   MentorReview,
   MentorSortType,
   MentoringMethodOption,
   MentoringMethodType,
-} from '@/types/mentoring-domain';
+} from '@/types/mentoring/domain';
 
 type LegacyMentoringMethodType = MentoringMethodType | 'chat' | 'call';
 

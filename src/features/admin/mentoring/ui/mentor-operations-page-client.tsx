@@ -2,6 +2,7 @@
 
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
+import MentoringEmptyPanel from '@/components/mentoring/common/mentoring-empty-panel';
 import MentoringStateBoundary from '@/components/mentoring/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/components/mentoring/common/mentoring-table-panel';
 import Badge from '@/components/ui/badge';
@@ -9,6 +10,7 @@ import Button from '@/components/ui/button';
 import BorderedTextarea from '@/components/ui/input/bordered-textarea';
 import KeyValueRow from '@/components/ui/key-value-row';
 import SurfacePanel from '@/components/ui/surface-panel';
+import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model/admin-mentoring-view-state';
 import {
   canManageMentorOperationStatus,
   getMentorOperationDisplayStatus,
@@ -21,7 +23,7 @@ import MentorRegistrationDetail from '@/features/admin/mentoring/ui/mentor-regis
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
-import type { MentorOperationStatus } from '@/types/mentoring-admin';
+import type { MentorOperationStatus } from '@/types/mentoring/admin-domain';
 
 const formatDateTime = (value: string | undefined) => {
   if (!value) {
@@ -73,6 +75,10 @@ export default function MentorOperationsPageClient({
   const [nextOperationStatus, setNextOperationStatus] =
     useState<MentorOperationStatus>('OPEN');
   const [operationReason, setOperationReason] = useState('');
+  const listState = resolveAdminMentoringViewState({
+    hasHydrated,
+    itemCount: mentors.length,
+  });
 
   useEffect(() => {
     if (mentors.length === 0) {
@@ -173,16 +179,12 @@ export default function MentorOperationsPageClient({
 
   return (
     <MentoringStateBoundary
-      state={!hasHydrated ? 'loading' : mentors.length === 0 ? 'empty' : 'ready'}
+      state={listState}
       empty={(
-        <SurfacePanel className="px-250 py-300 text-center">
-          <p className="font-designer-18b text-text-default">
-            조회할 멘토 등록 정보가 없습니다.
-          </p>
-          <p className="font-designer-14r text-text-subtle mt-75">
-            멘토 등록 후 심사를 진행하면 상세 정보를 확인할 수 있습니다.
-          </p>
-        </SurfacePanel>
+        <MentoringEmptyPanel
+          title="조회할 멘토 등록 정보가 없습니다."
+          description="멘토 등록 후 심사를 진행하면 상세 정보를 확인할 수 있습니다."
+        />
       )}
       ready={(
         <div className="grid grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-200">

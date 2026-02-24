@@ -2,7 +2,7 @@
 
 import MentorDirectoryList from '@/components/mentoring/mentor-directory/mentor-directory-list';
 import { useMentorProfileListController } from '@/features/mentoring/model/use-mentor-profile-list-controller';
-import type { MentorProfileListProps } from '@/types/mentoring-directory';
+import type { MentorProfileListProps } from '@/types/mentoring/directory-view';
 
 export default function MentorProfileListContainer(
   props: MentorProfileListProps = {},

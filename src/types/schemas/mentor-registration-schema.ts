@@ -4,7 +4,7 @@ import {
   CONSULTING_DURATION_OPTIONS,
   CONTACT_COUNTRY_CODES,
   WEEKDAY_KEYS,
-} from '@/types/mentoring-settings';
+} from '@/types/mentoring/settings';
 
 export const MENTORING_TITLE_MIN_LENGTH = 10;
 export const MENTORING_TITLE_MAX_LENGTH = 60;

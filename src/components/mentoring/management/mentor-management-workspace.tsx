@@ -8,7 +8,7 @@ import MentoringStateBoundary from '@/components/mentoring/common/mentoring-stat
 import SurfacePanel from '@/components/ui/surface-panel';
 import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import type { MentorManagementWorkspaceProps } from '@/types/mentoring-management-ui';
+import type { MentorManagementWorkspaceProps } from '@/types/mentoring/management-view';
 import MentoringSchedulePanel from './mentoring-schedule-panel';
 
 export default function MentorManagementWorkspace({

@@ -1,0 +1,83 @@
+import type { MentoringMethodType } from '@/types/mentoring/domain';
+import type {
+  MentoringPaymentMode,
+  MentoringReviewRecommendation,
+} from '@/types/mentoring/management-domain';
+import type { MentoringRequestContentBlock } from '@/types/mentoring/request-content';
+
+export interface MentoringRequestScheduleParams {
+  startsAt: string;
+  endsAt: string;
+  placeNote: string;
+}
+
+export interface AcceptMentoringRequestParams {
+  mentorId: number;
+  requestId: string;
+  schedule?: MentoringRequestScheduleParams;
+  mentorNote?: string;
+}
+
+export interface RejectMentoringRequestParams {
+  mentorId: number;
+  requestId: string;
+  reason: string;
+}
+
+export interface SendMentoringMessageParams {
+  mentorId: number;
+  requestId: string;
+  content: string;
+}
+
+export interface RescheduleMentoringSessionParams {
+  mentorId: number;
+  sessionId: string;
+  startsAt: string;
+  endsAt: string;
+  placeNote: string;
+  mentorNote?: string;
+}
+
+export interface CancelMentoringSessionParams {
+  mentorId: number;
+  sessionId: string;
+  reason: string;
+}
+
+export interface CreateMentoringRequestParams {
+  mentorId: number;
+  method: MentoringMethodType;
+  paymentMode: MentoringPaymentMode;
+  paymentMemo?: string;
+  menteeMemberId?: number;
+  menteeName: string;
+  menteeRole: string;
+  preferredDate?: string;
+  preferredTime?: string;
+  requestMessage: string;
+  requestContents?: MentoringRequestContentBlock[];
+  attachedFileNames?: string[];
+  referenceLinks?: string[];
+}
+
+export interface ConfirmManualMentoringPaymentParams {
+  mentorId: number;
+  requestId: string;
+  memo?: string;
+}
+
+export interface SubmitMentoringReviewParams {
+  mentorId: number;
+  requestId: string;
+  menteeMemberId: number;
+  menteeName: string;
+  rating: number;
+  recommendation: MentoringReviewRecommendation;
+  content: string;
+}
+
+export interface SeedMentoringScenarioParams {
+  mentorId: number;
+  baseMenteeMemberId?: number;
+}

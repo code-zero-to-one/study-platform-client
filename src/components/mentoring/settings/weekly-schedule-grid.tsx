@@ -11,7 +11,7 @@ import {
   WEEKDAY_LABEL_MAP,
   type MentorWeeklySchedule,
   type WeekdayKey,
-} from '@/types/mentoring-settings';
+} from '@/types/mentoring/settings';
 
 interface WeeklyScheduleGridProps {
   value: MentorWeeklySchedule;

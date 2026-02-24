@@ -3,11 +3,11 @@
 import { useMemo, useState } from 'react';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { getLowestPriceOption, getMentorSettings } from '@/mocks/mentoring-mock-data';
-import type { MentorProfileListProps } from '@/types/mentoring-directory';
+import type { MentorProfileListProps } from '@/types/mentoring/directory-view';
 import type {
   MentorProfile,
   MentorSortType,
-} from '@/types/mentoring-domain';
+} from '@/types/mentoring/domain';
 import { parseMentorProfileListParams } from './mentor-directory-contract';
 import { useMentorDirectoryQuery } from './use-mentor-directory-query';
 

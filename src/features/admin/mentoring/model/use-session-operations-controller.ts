@@ -3,39 +3,14 @@
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
-import type { MentoringRequest, MentoringSession } from '@/types/mentoring-management';
-
-type SessionMentorFilter = 'ALL' | number;
-
-type SessionRequestRow = MentoringRequest & {
-  mentorMemberId?: number;
-};
-
-type SessionScheduleRow = MentoringSession & {
-  mentorMemberId?: number;
-};
-
-interface SessionOperationsState {
-  hasHydrated: boolean;
-  mentors: ReturnType<typeof useAdminMentoringOverviewQuery>['mentors'];
-  selectedMentorId: SessionMentorFilter;
-}
-
-interface SessionOperationsViewModel {
-  requestRows: SessionRequestRow[];
-  sessionRows: SessionScheduleRow[];
-  summary: {
-    totalRequestCount: number;
-    pendingPaymentCount: number;
-    confirmedPaymentCount: number;
-    scheduledSessionCount: number;
-    readyToProcessCount: number;
-  };
-}
-
-interface SessionOperationsActions {
-  selectMentorId: (mentorId: SessionMentorFilter) => void;
-}
+import type {
+  SessionMentorFilter,
+  SessionOperationsActions,
+  SessionOperationsState,
+  SessionOperationsViewModel,
+  SessionRequestRow,
+  SessionScheduleRow,
+} from '@/types/mentoring/admin-session-operations-view';
 
 export const useSessionOperationsController = ({
   initialMentorId,

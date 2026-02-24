@@ -1,4 +1,4 @@
-import type { MentorScreeningStatus } from '@/types/mentoring-admin';
+import type { MentorScreeningStatus } from '@/types/mentoring/admin-domain';
 
 export const MENTOR_SCREENING_STATUS_META: Record<
   MentorScreeningStatus,

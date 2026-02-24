@@ -29,12 +29,12 @@ import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import { useUserStore } from '@/stores/useUserStore';
 import type {
   MentorOperationStatus,
-} from '@/types/mentoring-admin';
+} from '@/types/mentoring/admin-domain';
 import type {
   MentorProfile,
   MentoringMethodType,
-} from '@/types/mentoring-domain';
-import type { MentoringPaymentMode } from '@/types/mentoring-management';
+} from '@/types/mentoring/domain';
+import type { MentoringPaymentMode } from '@/types/mentoring/management-domain';
 
 type TossPaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
 

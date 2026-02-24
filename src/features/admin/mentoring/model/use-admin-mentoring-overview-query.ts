@@ -17,7 +17,7 @@ import type {
   AdminMentorItem,
   AdminMentoringDashboardMetrics,
   AdminMentoringOverviewQueryResult,
-} from '@/types/mentoring-admin';
+} from '@/types/mentoring/admin-domain';
 import {
   AdminMentoringContractError,
   normalizeAdminMentoringOverviewQueryError,

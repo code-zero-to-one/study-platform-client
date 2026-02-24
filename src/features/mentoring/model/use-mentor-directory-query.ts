@@ -9,8 +9,8 @@ import {
 } from '@/mocks/mentoring-mock-data';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import type { MentorProfile, MentorReview } from '@/types/mentoring-domain';
-import type { MentoringReview } from '@/types/mentoring-management';
+import type { MentorProfile, MentorReview } from '@/types/mentoring/domain';
+import type { MentoringReview } from '@/types/mentoring/management-domain';
 import {
   parseMentorDirectoryQueryInputOrThrow,
   parseMentorDirectoryResponseOrThrow,

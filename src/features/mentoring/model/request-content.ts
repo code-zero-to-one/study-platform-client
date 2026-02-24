@@ -6,7 +6,7 @@ import type {
   MentoringRequestParagraphBlock,
   MentoringRequestRichTextBlock,
   MentoringRequestRichTextNode,
-} from '@/types/mentoring-request-content';
+} from '@/types/mentoring/request-content';
 
 export type {
   MentoringRequestContentBlock,
@@ -16,7 +16,7 @@ export type {
   MentoringRequestParagraphBlock,
   MentoringRequestRichTextBlock,
   MentoringRequestRichTextNode,
-} from '@/types/mentoring-request-content';
+} from '@/types/mentoring/request-content';
 
 export const DEFAULT_MENTORING_REQUEST_RICH_TEXT_DOCUMENT: MentoringRequestRichTextNode[] =
   [

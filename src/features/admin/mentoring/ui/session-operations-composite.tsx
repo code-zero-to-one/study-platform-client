@@ -2,19 +2,28 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import MentoringTablePanel from '@/components/mentoring/common/mentoring-table-panel';
 import Badge from '@/components/ui/badge';
+import { NativeSelect } from '@/components/ui/input';
 import MetricCard from '@/components/ui/metric-card';
 import SurfacePanel from '@/components/ui/surface-panel';
+import {
+  DataTable,
+  DataTableCell,
+  DataTableHead,
+  DataTableHeadCell,
+  DataTableRow,
+} from '@/components/ui/table/data-table';
 import {
   MENTORING_PAYMENT_STATUS_META,
   MENTORING_REQUEST_STATUS_META,
   MENTORING_SESSION_STATUS_META,
 } from '@/features/mentoring/model/management-status-meta';
 import { getMethodLabel } from '@/mocks/mentoring-mock-data';
-import type { AdminMentorItem } from '@/types/mentoring-admin';
+import type { AdminMentorItem } from '@/types/mentoring/admin-domain';
 import type {
-  MentoringRequest,
-  MentoringSession,
-} from '@/types/mentoring-management';
+  SessionMentorFilter,
+  SessionRequestRow,
+  SessionScheduleRow,
+} from '@/types/mentoring/admin-session-operations-view';
 
 const formatDateTime = (value: string | undefined) => {
   if (!value) {
@@ -28,17 +37,6 @@ const formatDateTime = (value: string | undefined) => {
 
   return parsed.format('YYYY.MM.DD HH:mm');
 };
-
-export type SessionMentorFilter = 'ALL' | number;
-
-export type SessionRequestRow = MentoringRequest & {
-  mentorMemberId?: number;
-};
-
-export type SessionScheduleRow = MentoringSession & {
-  mentorMemberId?: number;
-};
-
 interface SessionOperationsFiltersProps {
   mentors: AdminMentorItem[];
   selectedMentorId: SessionMentorFilter;
@@ -56,7 +54,7 @@ export function SessionOperationsFilters({
     <SurfacePanel className="p-200">
       <div className="flex flex-wrap items-center gap-100">
         <p className="font-designer-14b text-text-default">멘토별 현황</p>
-        <select
+        <NativeSelect
           value={selectedMentorId === 'ALL' ? 'ALL' : String(selectedMentorId)}
           onChange={(event) => {
             const value = event.target.value;
@@ -75,7 +73,7 @@ export function SessionOperationsFilters({
 
             onSelectMentorId(mentorId);
           }}
-          className="font-designer-13r rounded-100 border-border-default bg-background-default text-text-default h-400 min-w-[220px] border px-100"
+          className="min-w-[220px]"
         >
           <option value="ALL">전체 멘토</option>
           {mentors.map((mentor) => (
@@ -84,7 +82,7 @@ export function SessionOperationsFilters({
               {mentor.memberId ? ` (사용자 #${mentor.memberId})` : ''}
             </option>
           ))}
-        </select>
+        </NativeSelect>
         <p className="font-designer-13r text-text-subtle">
           결제 확인 후 멘토 처리 가능 대기: {readyToProcessCount}건
         </p>
@@ -148,50 +146,28 @@ export function SessionRequestList({
         <p className="font-designer-14r text-text-subtle">신청 데이터가 없습니다.</p>
       )}
     >
-      <table className="w-full">
-        <thead className="bg-background-neutral-subtle h-[52px]">
+      <DataTable>
+        <DataTableHead>
           <tr>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              신청 ID
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              멘토
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              멘티
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              방식
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              결제 상태
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              멘토 처리 상태
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              신청 시각
-            </th>
+            <DataTableHeadCell>신청 ID</DataTableHeadCell>
+            <DataTableHeadCell>멘토</DataTableHeadCell>
+            <DataTableHeadCell>멘티</DataTableHeadCell>
+            <DataTableHeadCell>방식</DataTableHeadCell>
+            <DataTableHeadCell>결제 상태</DataTableHeadCell>
+            <DataTableHeadCell>멘토 처리 상태</DataTableHeadCell>
+            <DataTableHeadCell>신청 시각</DataTableHeadCell>
           </tr>
-        </thead>
+        </DataTableHead>
         <tbody>
           {requestRows.slice(0, 20).map((request, index) => {
             const statusMeta = MENTORING_REQUEST_STATUS_META[request.status];
             const paymentMeta = MENTORING_PAYMENT_STATUS_META[request.paymentStatus];
+            const isLastRow = index === Math.min(requestRows.length, 20) - 1;
 
             return (
-              <tr
-                key={request.id}
-                className={`${
-                  index === Math.min(requestRows.length, 20) - 1
-                    ? ''
-                    : 'border-b-border-subtle border-b'
-                }`}
-              >
-                <td className="font-designer-14b text-text-default px-200 py-150">
-                  {request.id}
-                </td>
-                <td className="px-200 py-150">
+              <DataTableRow key={request.id} bordered={!isLastRow}>
+                <DataTableCell tone="strong">{request.id}</DataTableCell>
+                <DataTableCell tone="inherit">
                   <Link
                     href={`/admin/mentoring/mentor-operations?mentorId=${request.mentorId}`}
                     className="font-designer-14r text-text-information"
@@ -201,31 +177,27 @@ export function SessionRequestList({
                       ? ` (사용자 #${request.mentorMemberId})`
                       : ''}
                   </Link>
-                </td>
-                <td className="font-designer-14r text-text-default px-200 py-150">
-                  {request.menteeName}
-                </td>
-                <td className="font-designer-14r text-text-default px-200 py-150">
-                  {getMethodLabel(request.method)}
-                </td>
-                <td className="px-200 py-150">
+                </DataTableCell>
+                <DataTableCell>{request.menteeName}</DataTableCell>
+                <DataTableCell>{getMethodLabel(request.method)}</DataTableCell>
+                <DataTableCell tone="inherit">
                   <Badge color={paymentMeta.color} shape="rectangle">
                     {paymentMeta.label}
                   </Badge>
-                </td>
-                <td className="px-200 py-150">
+                </DataTableCell>
+                <DataTableCell tone="inherit">
                   <Badge color={statusMeta.color} shape="rectangle">
                     {statusMeta.label}
                   </Badge>
-                </td>
-                <td className="font-designer-14r text-text-subtle px-200 py-150">
+                </DataTableCell>
+                <DataTableCell tone="subtle">
                   {formatDateTime(request.requestedAt)}
-                </td>
-              </tr>
+                </DataTableCell>
+              </DataTableRow>
             );
           })}
         </tbody>
-      </table>
+      </DataTable>
     </MentoringTablePanel>
   );
 }
@@ -246,46 +218,26 @@ export function SessionScheduleList({
         <p className="font-designer-14r text-text-subtle">일정 데이터가 없습니다.</p>
       )}
     >
-      <table className="w-full">
-        <thead className="bg-background-neutral-subtle h-[52px]">
+      <DataTable>
+        <DataTableHead>
           <tr>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              세션 ID
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              멘토
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              멘티
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              방식
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              일정
-            </th>
-            <th className="font-designer-14m text-text-default px-200 text-left">
-              상태
-            </th>
+            <DataTableHeadCell>세션 ID</DataTableHeadCell>
+            <DataTableHeadCell>멘토</DataTableHeadCell>
+            <DataTableHeadCell>멘티</DataTableHeadCell>
+            <DataTableHeadCell>방식</DataTableHeadCell>
+            <DataTableHeadCell>일정</DataTableHeadCell>
+            <DataTableHeadCell>상태</DataTableHeadCell>
           </tr>
-        </thead>
+        </DataTableHead>
         <tbody>
           {sessionRows.slice(0, 20).map((session, index) => {
             const statusMeta = MENTORING_SESSION_STATUS_META[session.status];
+            const isLastRow = index === Math.min(sessionRows.length, 20) - 1;
 
             return (
-              <tr
-                key={session.id}
-                className={`${
-                  index === Math.min(sessionRows.length, 20) - 1
-                    ? ''
-                    : 'border-b-border-subtle border-b'
-                }`}
-              >
-                <td className="font-designer-14b text-text-default px-200 py-150">
-                  {session.id}
-                </td>
-                <td className="px-200 py-150">
+              <DataTableRow key={session.id} bordered={!isLastRow}>
+                <DataTableCell tone="strong">{session.id}</DataTableCell>
+                <DataTableCell tone="inherit">
                   <Link
                     href={`/admin/mentoring/mentor-operations?mentorId=${session.mentorId}`}
                     className="font-designer-14r text-text-information"
@@ -295,26 +247,22 @@ export function SessionScheduleList({
                       ? ` (사용자 #${session.mentorMemberId})`
                       : ''}
                   </Link>
-                </td>
-                <td className="font-designer-14r text-text-default px-200 py-150">
-                  {session.menteeName}
-                </td>
-                <td className="font-designer-14r text-text-default px-200 py-150">
-                  {getMethodLabel(session.method)}
-                </td>
-                <td className="font-designer-14r text-text-subtle px-200 py-150">
+                </DataTableCell>
+                <DataTableCell>{session.menteeName}</DataTableCell>
+                <DataTableCell>{getMethodLabel(session.method)}</DataTableCell>
+                <DataTableCell tone="subtle">
                   {formatDateTime(session.startsAt)} ~ {formatDateTime(session.endsAt)}
-                </td>
-                <td className="px-200 py-150">
+                </DataTableCell>
+                <DataTableCell tone="inherit">
                   <Badge color={statusMeta.color} shape="rectangle">
                     {statusMeta.label}
                   </Badge>
-                </td>
-              </tr>
+                </DataTableCell>
+              </DataTableRow>
             );
           })}
         </tbody>
-      </table>
+      </DataTable>
     </MentoringTablePanel>
   );
 }

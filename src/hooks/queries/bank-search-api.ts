@@ -5,7 +5,7 @@ import {
   type BankSearchApiResponse,
   type BankSearchQueryKey,
   type BankSearchResponse,
-} from '@/types/mentoring-api';
+} from '@/types/mentoring/bank-api';
 
 const bankSearchApi = createApiInstance(BankSearchApi);
 const BANK_SEARCH_QUERY_KEY: BankSearchQueryKey = ['bankSearch'];

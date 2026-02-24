@@ -25,7 +25,7 @@ import {
 import {
   type MentorRegistrationFormProps,
   type MentorRegistrationMethodField,
-} from '@/types/mentoring-registration';
+} from '@/types/mentoring/registration-view';
 import { MENTORING_TITLE_MAX_LENGTH } from '@/types/schemas/mentor-registration-schema';
 
 const METHOD_FIELDS: MentorRegistrationMethodField[] = [

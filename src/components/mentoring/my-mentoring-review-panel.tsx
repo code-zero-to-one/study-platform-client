@@ -17,13 +17,13 @@ import {
   getRequestReviewEligibility,
   useMentoringManagementStore,
 } from '@/stores/useMentoringManagementStore';
-import type { MentorProfile } from '@/types/mentoring-domain';
+import type { MentorProfile } from '@/types/mentoring/domain';
 import type {
   MentoringRequest,
   MentoringReview,
   MentoringReviewRecommendation,
   MentoringSession,
-} from '@/types/mentoring-management';
+} from '@/types/mentoring/management-domain';
 
 type ReviewCardStatus = 'READY' | 'WRITTEN' | 'LOCKED';
 

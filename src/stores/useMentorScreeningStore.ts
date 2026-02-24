@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import type {
   MentorScreeningRecord,
   UpsertMentorScreeningParams,
-} from '@/types/mentoring-admin';
+} from '@/types/mentoring/admin-domain';
 
 interface MentorScreeningState {
   recordsByMentorId: Record<number, MentorScreeningRecord>;

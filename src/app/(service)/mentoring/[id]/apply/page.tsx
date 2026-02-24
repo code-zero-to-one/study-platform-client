@@ -7,7 +7,7 @@ import {
   getMentorById,
   getMethodLabel,
 } from '@/mocks/mentoring-mock-data';
-import type { MentoringMethodType } from '@/types/mentoring-domain';
+import type { MentoringMethodType } from '@/types/mentoring/domain';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 interface MentoringApplyRouteProps {

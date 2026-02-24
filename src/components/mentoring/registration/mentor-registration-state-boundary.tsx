@@ -1,7 +1,7 @@
 import { type ReactNode } from 'react';
 import MentorRegistrationGuardCard from '@/components/mentoring/registration/mentor-registration-guard-card';
 import { MENTOR_REGISTRATION_GUARD_CARD_CONTENT } from '@/features/mentoring/const/mentor-registration-labels';
-import { type MentorRegistrationGuardState } from '@/types/mentoring-registration';
+import { type MentorRegistrationGuardState } from '@/types/mentoring/registration-view';
 
 const GUARD_CONTAINER_CLASS =
   'mx-auto w-full max-w-[1280px] px-150 py-500 sm:px-300 xl:px-400';
