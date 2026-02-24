@@ -11,6 +11,12 @@ import type {
   NoteConsultationListQuerySource,
 } from '@/types/mentoring/note-consultation-query';
 import type { NoteConsultationListItem } from '@/types/mentoring/note-consultation-view';
+import {
+  NoteConsultationContractError,
+  normalizeNoteConsultationQueryError,
+  parseNoteConsultationQuerySourceOrThrow,
+  parseNoteConsultationResponseOrThrow,
+} from './note-consultation-contract';
 import { getLastMessagePreview } from './note-consultation-message';
 import {
   createNoteConsultationQuerySnapshot,
@@ -98,6 +104,20 @@ const buildNoteConsultationList = ({
   return { sentItems, receivedItems };
 };
 
+const getNoteConsultationList = (
+  source: NoteConsultationListQuerySource,
+): NoteConsultationListQueryResult => {
+  const parsedSource = parseNoteConsultationQuerySourceOrThrow(source);
+  const list = buildNoteConsultationList(parsedSource);
+
+  return parseNoteConsultationResponseOrThrow(list);
+};
+
+const EMPTY_NOTE_CONSULTATION_LIST: NoteConsultationListQueryResult = {
+  sentItems: [],
+  receivedItems: [],
+};
+
 export const useNoteConsultationQuery = ({ memberId }: { memberId?: number }) => {
   const hasHydrated = useMentoringManagementStore((state) => state.hasHydrated);
   const requestsByMentor = useMentoringManagementStore(
@@ -130,15 +150,22 @@ export const useNoteConsultationQuery = ({ memberId }: { memberId?: number }) =>
   }, [createdMentors, mentorIdByMember, requestsByMentor]);
 
   const fallbackData = useMemo(() => {
-    return buildNoteConsultationList({
-      memberId,
-      myMentorId,
-      requestsByMentor,
-      createdMentors,
-    });
+    try {
+      return getNoteConsultationList({
+        memberId,
+        myMentorId,
+        requestsByMentor,
+        createdMentors,
+      });
+    } catch {
+      return EMPTY_NOTE_CONSULTATION_LIST;
+    }
   }, [createdMentors, memberId, myMentorId, requestsByMentor]);
 
-  const noteConsultationQuery = useQuery<NoteConsultationListQueryResult>({
+  const noteConsultationQuery = useQuery<
+    NoteConsultationListQueryResult,
+    NoteConsultationContractError
+  >({
     queryKey: noteConsultationQueryKeys.list({
       memberId,
       myMentorId,
@@ -146,13 +173,18 @@ export const useNoteConsultationQuery = ({ memberId }: { memberId?: number }) =>
       requestsByMentor,
       createdMentors,
     }),
-    queryFn: () =>
-      buildNoteConsultationList({
-        memberId,
-        myMentorId,
-        requestsByMentor,
-        createdMentors,
-      }),
+    queryFn: () => {
+      try {
+        return getNoteConsultationList({
+          memberId,
+          myMentorId,
+          requestsByMentor,
+          createdMentors,
+        });
+      } catch (error) {
+        throw normalizeNoteConsultationQueryError(error);
+      }
+    },
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     enabled: hasHydrated,

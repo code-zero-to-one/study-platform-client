@@ -3,7 +3,10 @@ import type {
   MentoringRequest,
   MentoringStoreActionResponse,
 } from '@/types/mentoring/management-domain';
-import type { NoteConsultationListItem } from '@/types/mentoring/note-consultation-view';
+import type {
+  NoteConsultationListResponse,
+  SendNoteConsultationMessageParams,
+} from '@/types/schemas/note-consultation-schema';
 
 export interface NoteConsultationQuerySnapshot {
   noteRequestSignature: string;
@@ -32,10 +35,7 @@ export type NoteConsultationListQueryKey = readonly [
   MentorProfile[],
 ];
 
-export interface NoteConsultationListQueryResult {
-  sentItems: NoteConsultationListItem[];
-  receivedItems: NoteConsultationListItem[];
-}
+export type NoteConsultationListQueryResult = NoteConsultationListResponse;
 
 export interface NoteConsultationListQuerySource {
   memberId?: number;
@@ -44,11 +44,8 @@ export interface NoteConsultationListQuerySource {
   createdMentors: MentorProfile[];
 }
 
-export interface SendNoteConsultationMessageMutationParams {
-  mentorId: number;
-  requestId: string;
-  content: string;
-}
+export type SendNoteConsultationMessageMutationParams =
+  SendNoteConsultationMessageParams;
 
 export type SendNoteConsultationMessageMutationResult =
   MentoringStoreActionResponse;

@@ -6,6 +6,11 @@ import type {
   SendNoteConsultationMessageMutationParams,
   SendNoteConsultationMessageMutationResult,
 } from '@/types/mentoring/note-consultation-query';
+import {
+  NoteConsultationContractError,
+  normalizeNoteConsultationMutationError,
+  parseSendNoteConsultationMessageParamsOrThrow,
+} from './note-consultation-contract';
 import { noteConsultationQueryKeys } from './note-consultation-query-keys';
 
 export const useSendNoteConsultationMessageMutation = () => {
@@ -16,25 +21,25 @@ export const useSendNoteConsultationMessageMutation = () => {
 
   return useMutation<
     SendNoteConsultationMessageMutationResult,
-    Error,
+    NoteConsultationContractError,
     SendNoteConsultationMessageMutationParams
   >({
-    mutationFn: async ({ mentorId, requestId, content }) => {
-      const normalizedContent = content.trim();
-      if (!normalizedContent) {
-        throw new Error('메시지 내용을 입력해주세요.');
-      }
+    mutationFn: async (input) => {
+      try {
+        const parsedInput = parseSendNoteConsultationMessageParamsOrThrow(input);
+        const result = sendMentorMessage({
+          mentorId: parsedInput.mentorId,
+          requestId: parsedInput.requestId,
+          content: parsedInput.content,
+        });
+        if (!result.ok) {
+          throw new Error(result.reason ?? '메시지 전송에 실패했습니다.');
+        }
 
-      const result = sendMentorMessage({
-        mentorId,
-        requestId,
-        content: normalizedContent,
-      });
-      if (!result.ok) {
-        throw new Error(result.reason ?? '메시지 전송에 실패했습니다.');
+        return result;
+      } catch (error) {
+        throw normalizeNoteConsultationMutationError(error);
       }
-
-      return result;
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({
