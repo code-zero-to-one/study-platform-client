@@ -36,13 +36,27 @@ interface MentoringManagementState {
   ensureDemoRequests: (memberId: number, mentorId: number) => void;
   ensureNoteDemoData: (memberId: number) => void;
   createRequest: (payload: CreateMentoringRequestParams) => string;
-  acceptRequest: (payload: AcceptMentoringRequestParams) => MentoringStoreActionResponse;
-  rejectRequest: (payload: RejectMentoringRequestParams) => MentoringStoreActionResponse;
-  sendMentorMessage: (payload: SendMentoringMessageParams) => MentoringStoreActionResponse;
-  confirmManualPayment: (payload: ConfirmManualMentoringPaymentParams) => MentoringStoreActionResponse;
-  submitReview: (payload: SubmitMentoringReviewParams) => MentoringStoreActionResponse;
-  rescheduleSession: (payload: RescheduleMentoringSessionParams) => MentoringStoreActionResponse;
-  cancelSession: (payload: CancelMentoringSessionParams) => MentoringStoreActionResponse;
+  acceptRequest: (
+    payload: AcceptMentoringRequestParams,
+  ) => MentoringStoreActionResponse;
+  rejectRequest: (
+    payload: RejectMentoringRequestParams,
+  ) => MentoringStoreActionResponse;
+  sendMentorMessage: (
+    payload: SendMentoringMessageParams,
+  ) => MentoringStoreActionResponse;
+  confirmManualPayment: (
+    payload: ConfirmManualMentoringPaymentParams,
+  ) => MentoringStoreActionResponse;
+  submitReview: (
+    payload: SubmitMentoringReviewParams,
+  ) => MentoringStoreActionResponse;
+  rescheduleSession: (
+    payload: RescheduleMentoringSessionParams,
+  ) => MentoringStoreActionResponse;
+  cancelSession: (
+    payload: CancelMentoringSessionParams,
+  ) => MentoringStoreActionResponse;
   seedMockScenario: (payload: SeedMentoringScenarioParams) => void;
   reset: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;

@@ -11,9 +11,7 @@ import { MENTORING_PAYMENT_STATUS_META } from '@/features/mentoring/model/manage
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
-import type {
-  MentoringRequestDetailCardProps,
-} from '@/types/mentoring/management-view';
+import type { MentoringRequestDetailCardProps } from '@/types/mentoring/management-view';
 
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,
@@ -138,7 +136,7 @@ export default function MentoringRequestDetailCard({
             <h3 className="font-designer-16b text-text-default mb-150">
               멘토링 신청 정보
             </h3>
-            <div className="border-border-subtle divide-border-subtle divide-y rounded-150 border">
+            <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border">
               <KeyValueRow
                 label="멘토명"
                 className="py-150"
@@ -193,7 +191,9 @@ export default function MentoringRequestDetailCard({
                 columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
                 labelClassName="font-designer-14m"
               >
-                {dayjs(request.requestedAt).format('YYYY.MM.DD (ddd), HH:mm~HH:mm')}
+                {dayjs(request.requestedAt).format(
+                  'YYYY.MM.DD (ddd), HH:mm~HH:mm',
+                )}
               </KeyValueRow>
               <KeyValueRow
                 label="결제금액"
@@ -222,7 +222,7 @@ export default function MentoringRequestDetailCard({
             <BorderedTextarea
               value={mentorMemo}
               onChange={(e) => setMentorMemo(e.target.value)}
-              className="min-h-[120px] resize-none rounded-150 border-border-subtle bg-background-alternative py-125"
+              className="rounded-150 border-border-subtle bg-background-alternative min-h-[120px] resize-none py-125"
               placeholder="메모를 작성하면 멘티에게 공개되지 않습니다."
             />
           </section>
@@ -235,13 +235,15 @@ export default function MentoringRequestDetailCard({
                   결제 정보
                 </h3>
                 <Badge
-                  color={MENTORING_PAYMENT_STATUS_META[request.paymentStatus].color}
+                  color={
+                    MENTORING_PAYMENT_STATUS_META[request.paymentStatus].color
+                  }
                   shape="round"
                 >
                   {MENTORING_PAYMENT_STATUS_META[request.paymentStatus].label}
                 </Badge>
               </div>
-              <div className="border-border-subtle divide-border-subtle divide-y rounded-150 border">
+              <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border">
                 <div className="flex items-center justify-between px-150 py-125">
                   <span className="font-designer-14m text-text-subtle">
                     결제 방식
@@ -368,7 +370,7 @@ export default function MentoringRequestDetailCard({
                   <BorderedTextarea
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    className="mb-150 min-h-[100px] resize-none rounded-150 border-border-subtle py-125"
+                    className="rounded-150 border-border-subtle mb-150 min-h-[100px] resize-none py-125"
                     placeholder="직접 입력하거나 위에서 선택하세요."
                   />
                   <div className="flex justify-end gap-100">

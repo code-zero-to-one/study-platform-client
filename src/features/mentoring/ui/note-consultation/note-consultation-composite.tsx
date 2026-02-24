@@ -58,7 +58,7 @@ function RequestListCard({
     <button
       type="button"
       onClick={onClick}
-      className={`w-full rounded-150 px-175 py-175 text-left transition-colors ${
+      className={`rounded-150 w-full px-175 py-175 text-left transition-colors ${
         selected
           ? 'bg-fill-brand-subtle-default'
           : 'hover:bg-background-alternative'
@@ -83,7 +83,7 @@ function RequestListCard({
               {item.lastMessageContent}
             </p>
             {isUnreadLike && (
-              <span className="bg-fill-brand-default-default text-text-inverse font-designer-11m inline-flex h-20 min-w-[20px] items-center justify-center rounded-full px-50 shrink-0">
+              <span className="bg-fill-brand-default-default text-text-inverse font-designer-11m inline-flex h-20 min-w-[20px] shrink-0 items-center justify-center rounded-full px-50">
                 {item.mentorReplyCount}
                 <p className="font-designer-11m text-text-subtlest mt-25 truncate">
                   {item.displayRole || '상담 참여자'}
@@ -103,11 +103,13 @@ function QuestionCard({ request }: { request: MentoringRequest }) {
     (request.referenceLinks?.length ?? 0) > 0;
 
   return (
-    <div className="rounded-150 border border-border-subtle bg-background-default p-250">
+    <div className="rounded-150 border-border-subtle bg-background-default border p-250">
       <div className="mb-175 flex items-center gap-100">
         <UserAvatar name={request.menteeName} color="neutral" />
         <div className="min-w-0 flex-1">
-          <p className="font-designer-15b text-text-default">{request.menteeName}</p>
+          <p className="font-designer-15b text-text-default">
+            {request.menteeName}
+          </p>
           <p className="font-designer-12r text-text-subtle">
             {request.menteeRole || '멘티'} ·{' '}
             {dayjs(request.requestedAt).format('YYYY.MM.DD HH:mm')}
@@ -126,7 +128,7 @@ function QuestionCard({ request }: { request: MentoringRequest }) {
         {request.requestMessage}
       </p>
       {hasFiles && (
-        <div className="mt-175 flex flex-wrap gap-75 border-t border-border-subtle pt-150">
+        <div className="border-border-subtle mt-175 flex flex-wrap gap-75 border-t pt-150">
           {request.attachedFileNames?.map((fileName) => (
             <span
               key={fileName}
@@ -163,7 +165,7 @@ function AnswerCard({
   authorLabel: string;
 }) {
   return (
-    <div className="rounded-150 border border-border-subtle bg-background-default p-250">
+    <div className="rounded-150 border-border-subtle bg-background-default border p-250">
       <div className="mb-175 flex items-center gap-100">
         <UserAvatar name={authorName} color="brand" />
         <div className="min-w-0 flex-1">
@@ -203,9 +205,14 @@ function DetailPanel({
   canSend: boolean;
 }) {
   const messages = getConversationWithFallback(request);
-  const mentorMessages = messages.filter((message) => message.sender === 'MENTOR');
-  const systemMessages = messages.filter((message) => message.sender === 'SYSTEM');
-  const canEditMessage = channel === 'received' && request.status !== 'REJECTED';
+  const mentorMessages = messages.filter(
+    (message) => message.sender === 'MENTOR',
+  );
+  const systemMessages = messages.filter(
+    (message) => message.sender === 'SYSTEM',
+  );
+  const canEditMessage =
+    channel === 'received' && request.status !== 'REJECTED';
   const mentorAuthorName = channel === 'sent' ? displayName : '나';
 
   return (
@@ -221,7 +228,8 @@ function DetailPanel({
               {displayName}
             </p>
             <p className="font-designer-12r text-text-subtle truncate">
-              {displayRole || '상담 참여자'} · #{request.id.slice(-6).toUpperCase()}
+              {displayRole || '상담 참여자'} · #
+              {request.id.slice(-6).toUpperCase()}
             </p>
           </div>
         </div>
@@ -251,11 +259,11 @@ function DetailPanel({
           {mentorMessages.length > 0 ? (
             <div className="space-y-150">
               <div className="flex items-center gap-100">
-                <div className="h-[1px] flex-1 bg-border-subtle" />
+                <div className="bg-border-subtle h-[1px] flex-1" />
                 <span className="font-designer-13m text-text-subtle px-75">
                   답변 {mentorMessages.length}개
                 </span>
-                <div className="h-[1px] flex-1 bg-border-subtle" />
+                <div className="bg-border-subtle h-[1px] flex-1" />
               </div>
               {mentorMessages.map((message) => (
                 <AnswerCard
@@ -267,8 +275,10 @@ function DetailPanel({
               ))}
             </div>
           ) : (
-            <div className="rounded-150 border border-border-subtle bg-background-default px-250 py-200 text-center">
-              <p className="font-designer-14m text-text-subtle">아직 답변이 없습니다.</p>
+            <div className="rounded-150 border-border-subtle bg-background-default border px-250 py-200 text-center">
+              <p className="font-designer-14m text-text-subtle">
+                아직 답변이 없습니다.
+              </p>
               <p className="font-designer-12r text-text-subtlest mt-50">
                 멘토가 곧 답변을 등록할 예정이에요.
               </p>
@@ -279,7 +289,7 @@ function DetailPanel({
 
       <div className="border-border-subtle bg-background-default border-t px-200 py-150">
         {canEditMessage ? (
-          <div className="rounded-150 border border-border-subtle bg-background-default px-175 py-125">
+          <div className="rounded-150 border-border-subtle bg-background-default border px-175 py-125">
             <textarea
               value={draft}
               onChange={(event) => onDraftChange(event.target.value)}
@@ -287,7 +297,7 @@ function DetailPanel({
               rows={4}
               className="font-designer-14r text-text-default placeholder:text-text-subtlest w-full resize-none bg-transparent leading-relaxed outline-none"
             />
-            <div className="mt-100 flex items-center justify-between border-t border-border-subtle pt-100">
+            <div className="border-border-subtle mt-100 flex items-center justify-between border-t pt-100">
               <span className="font-designer-12r text-text-subtlest">
                 {draft.trim().length > 0 ? `${draft.trim().length}자` : ''}
               </span>
@@ -295,7 +305,7 @@ function DetailPanel({
                 type="button"
                 disabled={!canSend}
                 onClick={onSend}
-                className="bg-fill-brand-default-default text-text-inverse disabled:bg-background-disabled disabled:text-text-disabled inline-flex h-36 items-center gap-75 rounded-100 px-150 transition-colors"
+                className="bg-fill-brand-default-default text-text-inverse disabled:bg-background-disabled disabled:text-text-disabled rounded-100 inline-flex h-36 items-center gap-75 px-150 transition-colors"
               >
                 <SendHorizontal className="h-14 w-14" />
                 <span className="font-designer-13m">답변 등록</span>
@@ -369,11 +379,11 @@ export function NoteConsultationFilters({
 }: NoteConsultationFiltersProps) {
   return (
     <div className="border-border-subtle border-b px-175 py-125">
-      <div className="bg-background-alternative flex rounded-100 p-25">
+      <div className="bg-background-alternative rounded-100 flex p-25">
         <button
           type="button"
           onClick={() => onActiveChannelChange('sent')}
-          className={`font-designer-13m h-36 flex-1 rounded-75 ${
+          className={`font-designer-13m rounded-75 h-36 flex-1 ${
             activeChannel === 'sent'
               ? 'bg-fill-brand-subtle-default text-text-brand'
               : 'text-text-subtle'
@@ -384,7 +394,7 @@ export function NoteConsultationFilters({
         <button
           type="button"
           onClick={() => onActiveChannelChange('received')}
-          className={`font-designer-13m h-36 flex-1 rounded-75 ${
+          className={`font-designer-13m rounded-75 h-36 flex-1 ${
             activeChannel === 'received'
               ? 'bg-fill-brand-subtle-default text-text-brand'
               : 'text-text-subtle'
@@ -394,7 +404,7 @@ export function NoteConsultationFilters({
         </button>
       </div>
 
-      <label className="border-border-subtle mt-100 flex h-36 items-center gap-50 rounded-100 border px-100">
+      <label className="border-border-subtle rounded-100 mt-100 flex h-36 items-center gap-50 border px-100">
         <Search className="text-text-subtlest h-14 w-14" />
         <input
           value={searchKeyword}
@@ -449,7 +459,7 @@ export function NoteConsultationGrid({
   onSend,
 }: NoteConsultationGridProps) {
   return (
-    <section className="-mx-[90px] rounded-200 border-border-subtle bg-background-default overflow-hidden border">
+    <section className="rounded-200 border-border-subtle bg-background-default -mx-[90px] overflow-hidden border">
       <div className="grid min-h-[660px] grid-cols-[300px_minmax(0,1fr)]">
         <aside className="border-border-subtle flex min-h-0 flex-col border-r">
           <div className="border-border-subtle border-b px-175 py-150">

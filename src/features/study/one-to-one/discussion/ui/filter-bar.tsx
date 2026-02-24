@@ -2,7 +2,10 @@ import { ArrowUpDown, Filter } from 'lucide-react';
 import React from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
-import { SortOption, DiscussionTopic } from '@/types/one-to-one-study/discussion';
+import {
+  SortOption,
+  DiscussionTopic,
+} from '@/types/one-to-one-study/discussion';
 
 interface FilterBarProps {
   sort: SortOption;

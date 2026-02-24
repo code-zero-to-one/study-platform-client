@@ -37,7 +37,7 @@ export default function MentoringDashboardPageClient() {
   return (
     <MentoringStateBoundary
       state={listState}
-      ready={(
+      ready={
         <div className="flex flex-col gap-200">
           {/* [임시] 멘토링 플로우 & 테스트 가이드 — 디자인 확정 후 제거 */}
           <MentoringFlowGuide />
@@ -68,25 +68,26 @@ export default function MentoringDashboardPageClient() {
           <MentoringTablePanel
             title="최근 멘토 등록/심사 현황"
             description="실제 멘토 등록 폼 데이터와 심사 상태를 기반으로 표시됩니다."
-            rightSlot={(
+            rightSlot={
               <Link href="/admin/mentoring/mentor-applications">
                 <Button color="outlined" size="small">
                   심사 화면 이동
                 </Button>
               </Link>
-            )}
+            }
             isEmpty={mentors.length === 0}
             emptyClassName="py-300"
-            emptyContent={(
+            emptyContent={
               <>
                 <p className="font-designer-16b text-text-default">
                   아직 등록된 멘토가 없습니다.
                 </p>
                 <p className="font-designer-13r text-text-subtle mt-75">
-                  멘토가 `/mentoring/become-mentor`에서 등록하면 여기에 표시됩니다.
+                  멘토가 `/mentoring/become-mentor`에서 등록하면 여기에
+                  표시됩니다.
                 </p>
               </>
-            )}
+            }
           >
             <table className="w-full">
               <thead className="bg-background-neutral-subtle h-[52px]">
@@ -180,7 +181,7 @@ export default function MentoringDashboardPageClient() {
             </table>
           </MentoringTablePanel>
         </div>
-      )}
+      }
     />
   );
 }

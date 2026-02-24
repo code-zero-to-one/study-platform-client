@@ -39,7 +39,9 @@ export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
 
   const hasAdminRole = isAuthReady && authData?.roleIds.includes('ROLE_ADMIN');
   const myMentorId =
-    mentorDirectoryHydrated && memberId ? mentorIdByMember[memberId] : undefined;
+    mentorDirectoryHydrated && memberId
+      ? mentorIdByMember[memberId]
+      : undefined;
   const pendingRequestCount =
     mentoringStoreHydrated && myMentorId
       ? (requestsByMentor[myMentorId] ?? []).filter(

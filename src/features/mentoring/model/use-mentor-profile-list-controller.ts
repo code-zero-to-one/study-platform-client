@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from 'react';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { getLowestPriceOption, getMentorSettings } from '@/mocks/mentoring-mock-data';
+import {
+  getLowestPriceOption,
+  getMentorSettings,
+} from '@/mocks/mentoring-mock-data';
 import type { MentorProfileListProps } from '@/types/mentoring/directory-view';
-import type {
-  MentorProfile,
-  MentorSortType,
-} from '@/types/mentoring/domain';
+import type { MentorProfile, MentorSortType } from '@/types/mentoring/domain';
 import { parseMentorProfileListParams } from './mentor-directory-contract';
 import { useMentorDirectoryQuery } from './use-mentor-directory-query';
 
@@ -54,7 +54,9 @@ const sortMentors = (mentors: MentorProfile[], sortType: MentorSortType) => {
     });
   }
 
-  return copiedMentors.sort((first, second) => first.priority - second.priority);
+  return copiedMentors.sort(
+    (first, second) => first.priority - second.priority,
+  );
 };
 
 export const useMentorProfileListController = ({

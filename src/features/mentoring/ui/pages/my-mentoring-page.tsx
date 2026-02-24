@@ -1,4 +1,9 @@
-import { CalendarDays, ChevronRight, MessageCircle, UserRound } from 'lucide-react';
+import {
+  CalendarDays,
+  ChevronRight,
+  MessageCircle,
+  UserRound,
+} from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import Badge from '@/components/ui/badge';
@@ -58,7 +63,7 @@ export default function MyMentoringPage() {
         title={TEXT.pageTitle}
         titleClassName="font-designer-24b text-text-default"
         description={TEXT.pageDescription}
-        rightSlot={(
+        rightSlot={
           <div className="flex items-center gap-75">
             <Badge color="green" shape="round">
               {`${TEXT.confirmedCount} ${confirmedMentoring.length}`}
@@ -67,14 +72,14 @@ export default function MyMentoringPage() {
               {`${TEXT.pendingCount} ${pendingMentoring.length}`}
             </Badge>
           </div>
-        )}
+        }
       />
 
       <MentoringListSection
         title={TEXT.confirmedTitle}
         description={TEXT.confirmedDescription}
         items={confirmedMentoring}
-        headerAction={(
+        headerAction={
           <Link href="/note-consultation">
             <Button
               color="outlined"
@@ -84,7 +89,7 @@ export default function MyMentoringPage() {
               {TEXT.noteConsultation}
             </Button>
           </Link>
-        )}
+        }
       />
 
       <MentoringListSection
@@ -114,7 +119,9 @@ function MentoringListSection({
           <h2 className="font-designer-16b text-text-default">{title}</h2>
           {headerAction ? <div className="shrink-0">{headerAction}</div> : null}
         </div>
-        <p className="font-designer-13r text-text-subtle mt-25">{description}</p>
+        <p className="font-designer-13r text-text-subtle mt-25">
+          {description}
+        </p>
       </div>
 
       {items.length === 0 ? (
@@ -134,7 +141,7 @@ function MentoringListSection({
             return (
               <List.Item
                 key={mentoring.id}
-                className="h-auto min-h-0 items-stretch space-x-0 rounded-150 border border-border-subtle bg-background-default p-0 hover:bg-background-default active:bg-background-default"
+                className="rounded-150 border-border-subtle bg-background-default hover:bg-background-default active:bg-background-default h-auto min-h-0 items-stretch space-x-0 border p-0"
               >
                 <Link
                   href={`/my-mentoring/${mentoring.id}`}
@@ -161,7 +168,7 @@ function MentoringListSection({
                           {STATUS_META[mentoring.status].label}
                         </Badge>
                       </div>
-                      <span className="font-designer-13m text-text-subtle inline-flex items-center gap-25 rounded-50 border border-border-subtle px-75 py-25 group-hover:text-text-default group-hover:border-border-brand">
+                      <span className="font-designer-13m text-text-subtle rounded-50 border-border-subtle group-hover:text-text-default group-hover:border-border-brand inline-flex items-center gap-25 border px-75 py-25">
                         {TEXT.detail}
                         <ChevronRight className="h-14 w-14" />
                       </span>

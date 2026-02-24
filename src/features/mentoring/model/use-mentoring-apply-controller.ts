@@ -27,9 +27,7 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import { useUserStore } from '@/stores/useUserStore';
-import type {
-  MentorOperationStatus,
-} from '@/types/mentoring/admin-domain';
+import type { MentorOperationStatus } from '@/types/mentoring/admin-domain';
 import type {
   MentorProfile,
   MentoringMethodType,
@@ -38,9 +36,7 @@ import type { MentoringPaymentMode } from '@/types/mentoring/management-domain';
 
 type TossPaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
 
-export type MentoringApplyPaymentMethod =
-  | TossPaymentMethod
-  | 'MANUAL_TRANSFER';
+export type MentoringApplyPaymentMethod = TossPaymentMethod | 'MANUAL_TRANSFER';
 
 export interface MentoringApplyPaymentMethodOption {
   id: MentoringApplyPaymentMethod;
@@ -335,7 +331,10 @@ export const useMentoringApplyController = ({
     }
 
     if (isRequestBlockedByOperation && mentorOperationRecord) {
-      showToast(getOperationBlockMessage(mentorOperationRecord.status), 'error');
+      showToast(
+        getOperationBlockMessage(mentorOperationRecord.status),
+        'error',
+      );
 
       return;
     }
@@ -428,8 +427,10 @@ export const useMentoringApplyController = ({
       applicantName: memberName ?? nickname ?? '-',
       applicantPhone: tel ?? '-',
       submitButtonLabel,
-      isSubmitDisabled: !isValidForm || isSubmitting || isRequestBlockedByOperation,
-      isDateDisabled: (date: Date) => dayjs(date).isBefore(minSelectableDate, 'day'),
+      isSubmitDisabled:
+        !isValidForm || isSubmitting || isRequestBlockedByOperation,
+      isDateDisabled: (date: Date) =>
+        dayjs(date).isBefore(minSelectableDate, 'day'),
     },
   };
 };

@@ -1,7 +1,11 @@
 import { z } from 'zod';
 import { mentorMethodTypeSchema } from '@/types/schemas/mentor-directory-schema';
 
-const mentoringRequestStatusSchema = z.enum(['PENDING', 'ACCEPTED', 'REJECTED']);
+const mentoringRequestStatusSchema = z.enum([
+  'PENDING',
+  'ACCEPTED',
+  'REJECTED',
+]);
 const mentoringSessionStatusSchema = z.enum([
   'SCHEDULED',
   'CANCELLED',

@@ -27,7 +27,9 @@ export default function KeyValueRow({
       <p className={cn('font-designer-13m text-text-subtle', labelClassName)}>
         {label}
       </p>
-      <ValueTag className={cn('font-designer-14r text-text-default', valueClassName)}>
+      <ValueTag
+        className={cn('font-designer-14r text-text-default', valueClassName)}
+      >
         {children}
       </ValueTag>
     </div>

@@ -58,27 +58,28 @@ export const createMentorDirectoryQuerySnapshot = (
 
 export const mentorDirectoryQueryKeys = {
   all: ['mentoring'] as const,
-  directories: () => [...mentorDirectoryQueryKeys.all, 'mentor-directory'] as const,
+  directories: () =>
+    [...mentorDirectoryQueryKeys.all, 'mentor-directory'] as const,
   lists: () => [...mentorDirectoryQueryKeys.directories(), 'list'] as const,
-  list: (params: MentorDirectoryListQueryParams): MentorDirectoryListQueryKey =>
-    [
-      ...mentorDirectoryQueryKeys.lists(),
-      params.snapshot.createdMentorSignature,
-      params.snapshot.reviewSignature,
-      params.createdMentors,
-      params.reviewsByMentor,
-    ],
+  list: (
+    params: MentorDirectoryListQueryParams,
+  ): MentorDirectoryListQueryKey => [
+    ...mentorDirectoryQueryKeys.lists(),
+    params.snapshot.createdMentorSignature,
+    params.snapshot.reviewSignature,
+    params.createdMentors,
+    params.reviewsByMentor,
+  ],
   details: () => [...mentorDirectoryQueryKeys.directories(), 'detail'] as const,
   detail: (
     mentorId: number,
     snapshot: MentorDirectoryQuerySnapshot,
-  ): MentorDirectoryDetailQueryKey =>
-    [
-      ...mentorDirectoryQueryKeys.details(),
-      mentorId,
-      snapshot.createdMentorSignature,
-      snapshot.reviewSignature,
-    ],
+  ): MentorDirectoryDetailQueryKey => [
+    ...mentorDirectoryQueryKeys.details(),
+    mentorId,
+    snapshot.createdMentorSignature,
+    snapshot.reviewSignature,
+  ],
 };
 
 // 기존 상수명 사용처와의 호환을 위해 유지합니다.

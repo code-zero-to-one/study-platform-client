@@ -8,9 +8,7 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
 import { MENTORING_SESSION_STATUS_META } from '@/features/mentoring/model/management-status-meta';
-import {
-  getMethodLabel,
-} from '@/mocks/mentoring-mock-data';
+import { getMethodLabel } from '@/mocks/mentoring-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type {
@@ -99,9 +97,7 @@ export default function MentoringSchedulePanel({
   const filteredPending = useMemo(() => {
     if (!selectedDate) return pendingWithSchedule;
 
-    return pendingWithSchedule.filter(
-      (r) => r.preferredDate === selectedDate,
-    );
+    return pendingWithSchedule.filter((r) => r.preferredDate === selectedDate);
   }, [selectedDate, pendingWithSchedule]);
 
   const overlappingIds = useMemo(() => getOverlappingIds(sessions), [sessions]);
@@ -179,10 +175,7 @@ export default function MentoringSchedulePanel({
             <Badge color="green" shape="round">
               오늘 {todaySessionCount}건
             </Badge>
-            <Badge
-              color={overlapPairCount > 0 ? 'red' : 'blue'}
-              shape="round"
-            >
+            <Badge color={overlapPairCount > 0 ? 'red' : 'blue'} shape="round">
               중복 {overlapPairCount}건
             </Badge>
           </div>
@@ -232,10 +225,7 @@ export default function MentoringSchedulePanel({
         </div>
 
         {filteredSessions.length === 0 ? (
-          <SurfacePanel
-            radius="md"
-            className="px-200 py-250 text-center"
-          >
+          <SurfacePanel radius="md" className="px-200 py-250 text-center">
             <p className="font-designer-16b text-text-default">
               {selectedDate
                 ? `${dayjs(selectedDate).format('M월 D일')}에 확정 일정이 없습니다.`
@@ -250,13 +240,21 @@ export default function MentoringSchedulePanel({
         ) : (
           <SurfacePanel radius="lg" overflow="hidden">
             {/* 테이블 헤더 */}
-            <div className="border-border-subtle grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 border-b bg-background-alternative px-200 py-150">
+            <div className="border-border-subtle bg-background-alternative grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 border-b px-200 py-150">
               <div className="font-designer-14b text-text-default">상태</div>
               <div className="font-designer-14b text-text-default">신청자</div>
-              <div className="font-designer-14b text-text-default">멘토링 방식</div>
-              <div className="font-designer-14b text-text-default">멘토링 일정</div>
-              <div className="font-designer-14b text-text-default">일정 수정</div>
-              <div className="font-designer-14b text-text-default text-right">상세 정보</div>
+              <div className="font-designer-14b text-text-default">
+                멘토링 방식
+              </div>
+              <div className="font-designer-14b text-text-default">
+                멘토링 일정
+              </div>
+              <div className="font-designer-14b text-text-default">
+                일정 수정
+              </div>
+              <div className="font-designer-14b text-text-default text-right">
+                상세 정보
+              </div>
             </div>
 
             {/* 테이블 바디 */}
@@ -281,7 +279,9 @@ export default function MentoringSchedulePanel({
                     {/* 상태 */}
                     <div className="flex items-start pt-[2px]">
                       <Badge
-                        color={MENTORING_SESSION_STATUS_META[session.status].color}
+                        color={
+                          MENTORING_SESSION_STATUS_META[session.status].color
+                        }
                         shape="round"
                       >
                         {MENTORING_SESSION_STATUS_META[session.status].label}
@@ -297,10 +297,7 @@ export default function MentoringSchedulePanel({
                         📞 {relatedRequest ? '+82 010XXXX' : '수락 후'}
                       </p>
                       <p className="font-designer-12r text-text-subtle">
-                        ✉️{' '}
-                        {relatedRequest
-                          ? 'mentee@ex..'
-                          : '수락 후'}
+                        ✉️ {relatedRequest ? 'mentee@ex..' : '수락 후'}
                       </p>
                     </div>
 
@@ -347,7 +344,9 @@ export default function MentoringSchedulePanel({
                           </Button>
                         </>
                       ) : (
-                        <span className="font-designer-13r text-text-subtle">-</span>
+                        <span className="font-designer-13r text-text-subtle">
+                          -
+                        </span>
                       )}
                     </div>
 
@@ -364,7 +363,7 @@ export default function MentoringSchedulePanel({
 
                     {/* 일정 취소 폼 (전체 너비로 표시) */}
                     {isScheduled && cancellingSessionId === session.id && (
-                      <div className="col-span-6 rounded-100 bg-background-alternative mt-100 p-150">
+                      <div className="rounded-100 bg-background-alternative col-span-6 mt-100 p-150">
                         <p className="font-designer-14b text-text-default mb-100">
                           취소 사유
                         </p>
@@ -421,10 +420,7 @@ export default function MentoringSchedulePanel({
             </div>
 
             {filteredPending.length === 0 ? (
-              <SurfacePanel
-                radius="md"
-                className="px-200 py-200 text-center"
-              >
+              <SurfacePanel radius="md" className="px-200 py-200 text-center">
                 <p className="font-designer-14r text-text-subtle">
                   {selectedDate
                     ? `${dayjs(selectedDate).format('M월 D일')}에 미확정 예정이 없습니다.`
@@ -438,13 +434,25 @@ export default function MentoringSchedulePanel({
                 className="border-border-warning"
               >
                 {/* 테이블 헤더 */}
-                <div className="border-border-subtle grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 border-b bg-background-alternative px-200 py-150">
-                  <div className="font-designer-14b text-text-default">상태</div>
-                  <div className="font-designer-14b text-text-default">신청자</div>
-                  <div className="font-designer-14b text-text-default">멘토링 방식</div>
-                  <div className="font-designer-14b text-text-default">멘토링 일정</div>
-                  <div className="font-designer-14b text-text-default">일정 수정</div>
-                  <div className="font-designer-14b text-text-default text-right">상세 정보</div>
+                <div className="border-border-subtle bg-background-alternative grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 border-b px-200 py-150">
+                  <div className="font-designer-14b text-text-default">
+                    상태
+                  </div>
+                  <div className="font-designer-14b text-text-default">
+                    신청자
+                  </div>
+                  <div className="font-designer-14b text-text-default">
+                    멘토링 방식
+                  </div>
+                  <div className="font-designer-14b text-text-default">
+                    멘토링 일정
+                  </div>
+                  <div className="font-designer-14b text-text-default">
+                    일정 수정
+                  </div>
+                  <div className="font-designer-14b text-text-default text-right">
+                    상세 정보
+                  </div>
                 </div>
 
                 {/* 테이블 바디 */}
@@ -484,7 +492,9 @@ export default function MentoringSchedulePanel({
                       {/* 멘토링 일정 */}
                       <div className="flex flex-col gap-50">
                         <p className="font-designer-14r text-text-warning">
-                          {dayjs(request.preferredDate).format('YY. MM. DD. (ddd)')}
+                          {dayjs(request.preferredDate).format(
+                            'YY. MM. DD. (ddd)',
+                          )}
                         </p>
                         <p className="font-designer-14r text-text-warning">
                           {request.preferredTime || '시간 미정'}

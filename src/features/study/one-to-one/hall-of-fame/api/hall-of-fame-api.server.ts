@@ -1,5 +1,8 @@
 import { axiosServerInstance } from '@/api/client/axios.server';
-import type { HallOfFameResponse, HallOfFameData } from '@/types/one-to-one-study/hall-of-fame';
+import type {
+  HallOfFameResponse,
+  HallOfFameData,
+} from '@/types/one-to-one-study/hall-of-fame';
 
 export const getHallOfFameServer = async (): Promise<HallOfFameData> => {
   const response =

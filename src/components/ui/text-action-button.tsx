@@ -9,7 +9,8 @@ const textActionButtonVariants = cva(
       tone: {
         subtle:
           'text-text-subtle hover:text-text-default border-border-subtlest',
-        default: 'text-text-subtle hover:text-text-default border-border-default',
+        default:
+          'text-text-subtle hover:text-text-default border-border-default',
       },
       weight: {
         regular: 'font-designer-14m',

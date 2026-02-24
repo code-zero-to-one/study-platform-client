@@ -32,32 +32,31 @@ export const noteConsultationConversationMessageSchema = z.object({
   createdAt: z.string(),
 });
 
-export const noteConsultationRequestSchema = z
-  .object({
-    id: z.string(),
-    mentorId: z.number(),
-    method: mentorMethodTypeSchema,
-    paymentMode: noteConsultationPaymentModeSchema,
-    paymentStatus: noteConsultationPaymentStatusSchema,
-    paymentMemo: z.string().optional(),
-    menteeMemberId: z.number().optional(),
-    menteeName: z.string(),
-    menteeRole: z.string(),
-    requestedAt: z.string(),
-    preferredDate: z.string().optional(),
-    preferredTime: z.string().optional(),
-    requestMessage: z.string(),
-    // request contents는 구조가 확장 중이라 경계에서 타입만 유지합니다.
-    requestContents: z.array(z.custom<MentoringRequestContentBlock>()).optional(),
-    attachedFileNames: z.array(z.string()).optional(),
-    referenceLinks: z.array(z.string()).optional(),
-    status: noteConsultationRequestStatusSchema,
-    decisionNote: z.string().optional(),
-    acceptedAt: z.string().optional(),
-    rejectedAt: z.string().optional(),
-    linkedSessionId: z.string().optional(),
-    conversation: z.array(noteConsultationConversationMessageSchema),
-  });
+export const noteConsultationRequestSchema = z.object({
+  id: z.string(),
+  mentorId: z.number(),
+  method: mentorMethodTypeSchema,
+  paymentMode: noteConsultationPaymentModeSchema,
+  paymentStatus: noteConsultationPaymentStatusSchema,
+  paymentMemo: z.string().optional(),
+  menteeMemberId: z.number().optional(),
+  menteeName: z.string(),
+  menteeRole: z.string(),
+  requestedAt: z.string(),
+  preferredDate: z.string().optional(),
+  preferredTime: z.string().optional(),
+  requestMessage: z.string(),
+  // request contents는 구조가 확장 중이라 경계에서 타입만 유지합니다.
+  requestContents: z.array(z.custom<MentoringRequestContentBlock>()).optional(),
+  attachedFileNames: z.array(z.string()).optional(),
+  referenceLinks: z.array(z.string()).optional(),
+  status: noteConsultationRequestStatusSchema,
+  decisionNote: z.string().optional(),
+  acceptedAt: z.string().optional(),
+  rejectedAt: z.string().optional(),
+  linkedSessionId: z.string().optional(),
+  conversation: z.array(noteConsultationConversationMessageSchema),
+});
 
 export const noteConsultationListItemSchema = z.object({
   id: z.string(),
@@ -75,12 +74,11 @@ export const noteConsultationListResponseSchema = z.object({
   receivedItems: z.array(noteConsultationListItemSchema),
 });
 
-export const noteConsultationCreatedMentorSchema = z
-  .object({
-    id: z.number(),
-    nickname: z.string(),
-    role: z.string(),
-  });
+export const noteConsultationCreatedMentorSchema = z.object({
+  id: z.number(),
+  nickname: z.string(),
+  role: z.string(),
+});
 
 export const noteConsultationQuerySourceSchema = z.object({
   memberId: z.number().optional(),

@@ -56,7 +56,9 @@ export default function MentorRegistrationPageView({
 
       <div
         ref={refs.previewLayoutRef}
-        className={cn(state.isPreviewOpen && 'xl:pr-[var(--preview-panel-width)]')}
+        className={cn(
+          state.isPreviewOpen && 'xl:pr-[var(--preview-panel-width)]',
+        )}
         style={
           state.isPreviewOpen
             ? ({
@@ -71,7 +73,9 @@ export default function MentorRegistrationPageView({
             form={state.form}
             onSubmit={actions.onSave}
             onCancel={actions.onCancel}
-            onOpenSettlementModal={() => actions.onSettlementModalOpenChange(true)}
+            onOpenSettlementModal={() =>
+              actions.onSettlementModalOpenChange(true)
+            }
           />
         </div>
       </div>
@@ -214,8 +218,8 @@ export default function MentorRegistrationPageView({
             <Modal.Header className="border-border-default border-b py-200">
               <div className="flex flex-col gap-50">
                 <Modal.Title>
-                  {state.welcomeOnboarding?.displayName ?? '멘토님'}, 멘토가 되신
-                  걸 환영합니다
+                  {state.welcomeOnboarding?.displayName ?? '멘토님'}, 멘토가
+                  되신 걸 환영합니다
                 </Modal.Title>
                 <p className="font-designer-13r text-text-subtle">
                   프로필이 공개되어 멘티가 신청할 수 있습니다. 첫 운영 준비를
@@ -228,8 +232,9 @@ export default function MentorRegistrationPageView({
                 <p className="font-designer-13m text-text-default">
                   준비 체크{' '}
                   <span className="font-designer-13b">
-                    {state.welcomeOnboarding?.checklist.filter((item) => item.done)
-                      .length ?? 0}
+                    {state.welcomeOnboarding?.checklist.filter(
+                      (item) => item.done,
+                    ).length ?? 0}
                     /{state.welcomeOnboarding?.checklist.length ?? 0}
                   </span>
                 </p>

@@ -115,7 +115,9 @@ const toSessionSignature = (
     .join('|');
 };
 
-const toReviewSignature = (reviewsByMentor: Record<number, MentoringReview[]>) => {
+const toReviewSignature = (
+  reviewsByMentor: Record<number, MentoringReview[]>,
+) => {
   const mentorIds = Object.keys(reviewsByMentor)
     .map(Number)
     .sort((first, second) => first - second);
@@ -227,9 +229,8 @@ export const createAdminMentoringOverviewSnapshot = ({
 }): AdminMentoringOverviewSnapshot => {
   return {
     createdMentorSignature: toCreatedMentorSignature(createdMentors),
-    mentorMemberMappingSignature: toMentorMemberMappingSignature(
-      mentorIdByMember,
-    ),
+    mentorMemberMappingSignature:
+      toMentorMemberMappingSignature(mentorIdByMember),
     requestSignature: toRequestSignature(requestsByMentor),
     sessionSignature: toSessionSignature(sessionsByMentor),
     reviewSignature: toReviewSignature(reviewsByMentor),

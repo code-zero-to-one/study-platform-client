@@ -1,6 +1,11 @@
 'use client';
 
-import { ArrowLeft, ClipboardList, GraduationCap, SquareArrowOutUpRight } from 'lucide-react';
+import {
+  ArrowLeft,
+  ClipboardList,
+  GraduationCap,
+  SquareArrowOutUpRight,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import Button from '@/components/ui/button';
@@ -52,14 +57,14 @@ export default function MentoringManagementRequestsPageClient({
   return (
     <MentoringStateBoundary
       state={hasHydrated ? 'ready' : 'loading'}
-      loading={(
+      loading={
         <div className="flex flex-col gap-300">
           <div className="rounded-100 bg-background-alternative h-[32px] w-[120px] animate-pulse" />
           <div className="rounded-200 bg-background-alternative h-[80px] animate-pulse" />
           <div className="rounded-200 bg-background-alternative h-[480px] animate-pulse" />
         </div>
-      )}
-      ready={(
+      }
+      ready={
         <div className="flex flex-col gap-300">
           {/* 뒤로가기 */}
           <Link
@@ -121,7 +126,7 @@ export default function MentoringManagementRequestsPageClient({
             </SurfacePanel>
           )}
         </div>
-      )}
+      }
     />
   );
 }

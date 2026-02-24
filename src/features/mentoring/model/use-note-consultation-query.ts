@@ -23,7 +23,10 @@ import {
   noteConsultationQueryKeys,
 } from './note-consultation-query-keys';
 
-const getMentorDisplayInfo = (mentorId: number, createdMentors: MentorProfile[]) => {
+const getMentorDisplayInfo = (
+  mentorId: number,
+  createdMentors: MentorProfile[],
+) => {
   const fromStore = createdMentors.find((mentor) => mentor.id === mentorId);
   if (fromStore) {
     return { name: fromStore.nickname, role: fromStore.role };
@@ -118,7 +121,11 @@ const EMPTY_NOTE_CONSULTATION_LIST: NoteConsultationListQueryResult = {
   receivedItems: [],
 };
 
-export const useNoteConsultationQuery = ({ memberId }: { memberId?: number }) => {
+export const useNoteConsultationQuery = ({
+  memberId,
+}: {
+  memberId?: number;
+}) => {
   const hasHydrated = useMentoringManagementStore((state) => state.hasHydrated);
   const requestsByMentor = useMentoringManagementStore(
     (state) => state.requestsByMentor,

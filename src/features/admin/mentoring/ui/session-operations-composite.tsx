@@ -134,17 +134,17 @@ interface SessionRequestListProps {
   requestRows: SessionRequestRow[];
 }
 
-export function SessionRequestList({
-  requestRows,
-}: SessionRequestListProps) {
+export function SessionRequestList({ requestRows }: SessionRequestListProps) {
   return (
     <MentoringTablePanel
       title="멘토링 신청 현황"
       description="결제 확인 상태를 먼저 보고, 이후 멘토 처리 상태를 확인합니다."
       isEmpty={requestRows.length === 0}
-      emptyContent={(
-        <p className="font-designer-14r text-text-subtle">신청 데이터가 없습니다.</p>
-      )}
+      emptyContent={
+        <p className="font-designer-14r text-text-subtle">
+          신청 데이터가 없습니다.
+        </p>
+      }
     >
       <DataTable>
         <DataTableHead>
@@ -161,7 +161,8 @@ export function SessionRequestList({
         <tbody>
           {requestRows.slice(0, 20).map((request, index) => {
             const statusMeta = MENTORING_REQUEST_STATUS_META[request.status];
-            const paymentMeta = MENTORING_PAYMENT_STATUS_META[request.paymentStatus];
+            const paymentMeta =
+              MENTORING_PAYMENT_STATUS_META[request.paymentStatus];
             const isLastRow = index === Math.min(requestRows.length, 20) - 1;
 
             return (
@@ -206,17 +207,17 @@ interface SessionScheduleListProps {
   sessionRows: SessionScheduleRow[];
 }
 
-export function SessionScheduleList({
-  sessionRows,
-}: SessionScheduleListProps) {
+export function SessionScheduleList({ sessionRows }: SessionScheduleListProps) {
   return (
     <MentoringTablePanel
       title="멘토링 일정 현황"
       description="멘토가 확정한 일정, 완료/취소 상태를 실제 일정 스토어 기준으로 표시합니다."
       isEmpty={sessionRows.length === 0}
-      emptyContent={(
-        <p className="font-designer-14r text-text-subtle">일정 데이터가 없습니다.</p>
-      )}
+      emptyContent={
+        <p className="font-designer-14r text-text-subtle">
+          일정 데이터가 없습니다.
+        </p>
+      }
     >
       <DataTable>
         <DataTableHead>
@@ -251,7 +252,8 @@ export function SessionScheduleList({
                 <DataTableCell>{session.menteeName}</DataTableCell>
                 <DataTableCell>{getMethodLabel(session.method)}</DataTableCell>
                 <DataTableCell tone="subtle">
-                  {formatDateTime(session.startsAt)} ~ {formatDateTime(session.endsAt)}
+                  {formatDateTime(session.startsAt)} ~{' '}
+                  {formatDateTime(session.endsAt)}
                 </DataTableCell>
                 <DataTableCell tone="inherit">
                   <Badge color={statusMeta.color} shape="rectangle">

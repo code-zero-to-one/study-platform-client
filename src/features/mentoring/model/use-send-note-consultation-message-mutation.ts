@@ -26,7 +26,8 @@ export const useSendNoteConsultationMessageMutation = () => {
   >({
     mutationFn: async (input) => {
       try {
-        const parsedInput = parseSendNoteConsultationMessageParamsOrThrow(input);
+        const parsedInput =
+          parseSendNoteConsultationMessageParamsOrThrow(input);
         const result = sendMentorMessage({
           mentorId: parsedInput.mentorId,
           requestId: parsedInput.requestId,

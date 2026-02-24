@@ -49,7 +49,8 @@ const toNoteRequestSignature = (
       const requestSignature = (requestsByMentor[mentorId] ?? [])
         .filter((request) => request.method === 'note')
         .map((request) => {
-          const lastMessage = request.conversation[request.conversation.length - 1];
+          const lastMessage =
+            request.conversation[request.conversation.length - 1];
 
           return [
             request.id,
@@ -83,7 +84,8 @@ export const createNoteConsultationQuerySnapshot = ({
   return {
     noteRequestSignature: toNoteRequestSignature(requestsByMentor),
     createdMentorSignature: toCreatedMentorSignature(createdMentors),
-    mentorMemberMappingSignature: toMentorMemberMappingSignature(mentorIdByMember),
+    mentorMemberMappingSignature:
+      toMentorMemberMappingSignature(mentorIdByMember),
   };
 };
 
@@ -91,7 +93,8 @@ export const noteConsultationQueryKeys = {
   all: ['mentoring'] as const,
   noteConsultations: () =>
     [...noteConsultationQueryKeys.all, 'note-consultation'] as const,
-  lists: () => [...noteConsultationQueryKeys.noteConsultations(), 'list'] as const,
+  lists: () =>
+    [...noteConsultationQueryKeys.noteConsultations(), 'list'] as const,
   list: (
     params: NoteConsultationListQueryKeyParams,
   ): NoteConsultationListQueryKey => [

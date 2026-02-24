@@ -10,7 +10,9 @@ import type { MentoringScheduleCalendarProps } from '@/types/mentoring/managemen
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
-function buildCalendarCells(month: dayjs.Dayjs): Array<dayjs.Dayjs | undefined> {
+function buildCalendarCells(
+  month: dayjs.Dayjs,
+): Array<dayjs.Dayjs | undefined> {
   const startOfMonth = month.startOf('month');
   const daysInMonth = month.daysInMonth();
   const startDow = startOfMonth.day();
@@ -166,9 +168,15 @@ export default function MentoringScheduleCalendar({
           const daySessions = sessionsByDate[dateStr] ?? [];
           const dayPendingCount = pendingCountByDate[dateStr] ?? 0;
           const totalCount = daySessions.length + dayPendingCount;
-          const sessionDotsLimit = Math.min(daySessions.length, dayPendingCount > 0 ? 3 : 4);
+          const sessionDotsLimit = Math.min(
+            daySessions.length,
+            dayPendingCount > 0 ? 3 : 4,
+          );
           const displayDots = daySessions.slice(0, sessionDotsLimit);
-          const pendingDotsCount = Math.min(dayPendingCount, 4 - displayDots.length);
+          const pendingDotsCount = Math.min(
+            dayPendingCount,
+            4 - displayDots.length,
+          );
           const extraCount = totalCount - displayDots.length - pendingDotsCount;
 
           const dayNumberColor = () => {
@@ -185,7 +193,7 @@ export default function MentoringScheduleCalendar({
               key={dateStr}
               type="button"
               onClick={() => handleDayClick(date)}
-              className={`flex min-h-[68px] flex-col items-center rounded-100 px-50 py-75 transition-colors ${
+              className={`rounded-100 flex min-h-[68px] flex-col items-center px-50 py-75 transition-colors ${
                 isSelected
                   ? 'bg-fill-brand-subtle-default'
                   : 'hover:bg-background-alternative'
@@ -233,7 +241,9 @@ export default function MentoringScheduleCalendar({
       <div className="border-border-subtle mt-125 flex flex-wrap items-center gap-150 border-t pt-100">
         <div className="flex items-center gap-50">
           <span className="bg-fill-warning-default-default block h-[7px] w-[7px] rounded-full" />
-          <span className="font-designer-11m text-text-subtlest">미확정 예정</span>
+          <span className="font-designer-11m text-text-subtlest">
+            미확정 예정
+          </span>
         </div>
         <div className="flex items-center gap-50">
           <span className="bg-fill-success-default-default block h-[7px] w-[7px] rounded-full" />
@@ -245,7 +255,9 @@ export default function MentoringScheduleCalendar({
         </div>
         <div className="flex items-center gap-50">
           <span className="bg-fill-neutral-default-default block h-[7px] w-[7px] rounded-full opacity-70" />
-          <span className="font-designer-11m text-text-subtlest">지난 예정</span>
+          <span className="font-designer-11m text-text-subtlest">
+            지난 예정
+          </span>
         </div>
         <div className="flex items-center gap-50">
           <span className="bg-fill-neutral-subtle-default block h-[7px] w-[7px] rounded-full opacity-80" />

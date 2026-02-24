@@ -2,9 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import {
-  MENTORING_LIST_ERROR_MESSAGES,
-} from '@/features/mentoring/const/mentoring-list-labels';
+import { MENTORING_LIST_ERROR_MESSAGES } from '@/features/mentoring/const/mentoring-list-labels';
 import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';

@@ -5,7 +5,10 @@ import Button from '@/components/ui/button';
 import KeyValueRow from '@/components/ui/key-value-row';
 import SurfacePanel from '@/components/ui/surface-panel';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
-import { type WeekdayKey, WEEKDAY_KEYS } from '@/features/mentoring/model/mentor-settings';
+import {
+  type WeekdayKey,
+  WEEKDAY_KEYS,
+} from '@/features/mentoring/model/mentor-settings';
 import { WEEKDAY_LABEL_MAP } from '@/features/mentoring/model/mentor-settings';
 import { formatWon, getMethodLabel } from '@/mocks/mentoring-mock-data';
 import type { AdminMentorItem } from '@/types/mentoring/admin-domain';
@@ -141,36 +144,65 @@ export default function MentorRegistrationDetail({
 
       <div className="space-y-200">
         <Section title="기본 정보">
-          <KeyValueRow label="직군 / 직무" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="직군 / 직무"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {(settings?.jobGroup ?? '-') + ' / ' + (settings?.jobTitle ?? '-')}
           </KeyValueRow>
-          <KeyValueRow label="경력" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="경력"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {settings?.careerYears ?? '-'}
           </KeyValueRow>
-          <KeyValueRow label="카테고리" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="카테고리"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {settings?.categories?.join(', ') || '-'}
           </KeyValueRow>
-          <KeyValueRow label="스킬 태그" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="스킬 태그"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {settings?.skillTags?.map((tag) => `#${tag}`).join(', ') || '-'}
           </KeyValueRow>
-          <KeyValueRow label="회사 카테고리" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="회사 카테고리"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {settings?.companyCategory ?? '-'}
           </KeyValueRow>
-          <KeyValueRow label="회사명" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="회사명"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {settings?.hideCompanyName
               ? '비공개'
               : settings?.companyName?.trim() || '-'}
           </KeyValueRow>
-          <KeyValueRow label="최대 인원" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="최대 인원"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {`${settings?.maxParticipants ?? 1}명`}
           </KeyValueRow>
         </Section>
 
         <Section title="연락처">
-          <KeyValueRow label="전화" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
-            {(settings?.contactCountryCode ?? '') + ' ' + (settings?.contactPhone ?? '-')}
+          <KeyValueRow
+            label="전화"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
+            {(settings?.contactCountryCode ?? '') +
+              ' ' +
+              (settings?.contactPhone ?? '-')}
           </KeyValueRow>
-          <KeyValueRow label="이메일" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="이메일"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {settings?.contactEmail ?? '-'}
           </KeyValueRow>
         </Section>
@@ -242,22 +274,40 @@ export default function MentorRegistrationDetail({
         <Section title="정산 정보">
           {settlementDraft ? (
             <div className="space-y-75">
-              <KeyValueRow label="정산자 타입" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+              <KeyValueRow
+                label="정산자 타입"
+                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+              >
                 {settlementDraft.payerType}
               </KeyValueRow>
-              <KeyValueRow label="계약자명" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+              <KeyValueRow
+                label="계약자명"
+                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+              >
                 {settlementDraft.contractName}
               </KeyValueRow>
-              <KeyValueRow label="예금주" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+              <KeyValueRow
+                label="예금주"
+                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+              >
                 {settlementDraft.accountHolder}
               </KeyValueRow>
-              <KeyValueRow label="은행" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+              <KeyValueRow
+                label="은행"
+                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+              >
                 {settlementDraft.bankCode}
               </KeyValueRow>
-              <KeyValueRow label="계좌번호" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+              <KeyValueRow
+                label="계좌번호"
+                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+              >
                 {settlementDraft.accountNumber}
               </KeyValueRow>
-              <KeyValueRow label="인증 상태" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+              <KeyValueRow
+                label="인증 상태"
+                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+              >
                 {settlementDraft.verified ? '완료' : '미완료'}
               </KeyValueRow>
             </div>
@@ -275,10 +325,14 @@ export default function MentorRegistrationDetail({
         </Section>
 
         <Section title="상담 전 준비사항">
-          {settings?.interviewQuestions && settings.interviewQuestions.length > 0 ? (
+          {settings?.interviewQuestions &&
+          settings.interviewQuestions.length > 0 ? (
             <div className="space-y-50">
               {settings.interviewQuestions.map((question) => (
-                <p key={question} className="font-designer-14r text-text-default">
+                <p
+                  key={question}
+                  className="font-designer-14r text-text-default"
+                >
                   - {question}
                 </p>
               ))}
@@ -297,18 +351,31 @@ export default function MentorRegistrationDetail({
         </Section>
 
         <Section title="운영 지표">
-          <KeyValueRow label="신청 상태" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="신청 상태"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             대기 {item.counts.pendingRequests} / 수락{' '}
             {item.counts.acceptedRequests} / 거절 {item.counts.rejectedRequests}
           </KeyValueRow>
-          <KeyValueRow label="일정 상태" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="일정 상태"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             예정 {item.counts.scheduledSessions} / 완료{' '}
-            {item.counts.completedSessions} / 취소 {item.counts.cancelledSessions}
+            {item.counts.completedSessions} / 취소{' '}
+            {item.counts.cancelledSessions}
           </KeyValueRow>
-          <KeyValueRow label="후기 수" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="후기 수"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {`${item.counts.reviews}건`}
           </KeyValueRow>
-          <KeyValueRow label="최종 업데이트" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+          <KeyValueRow
+            label="최종 업데이트"
+            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+          >
             {formatDateTime(settings?.updatedAt)}
           </KeyValueRow>
         </Section>

@@ -121,7 +121,9 @@ export default function MentorOperationsPageClient({
     }
 
     return [...selectedMentor.operation.history].sort((first, second) => {
-      return dayjs(second.changedAt).valueOf() - dayjs(first.changedAt).valueOf();
+      return (
+        dayjs(second.changedAt).valueOf() - dayjs(first.changedAt).valueOf()
+      );
     });
   }, [selectedMentor]);
 
@@ -159,7 +161,8 @@ export default function MentorOperationsPageClient({
       return;
     }
 
-    const hasSameStatus = selectedMentor.operation.status === nextOperationStatus;
+    const hasSameStatus =
+      selectedMentor.operation.status === nextOperationStatus;
     const hasSameReason =
       (selectedMentor.operation.reason ?? undefined) === normalizedReason;
     if (hasSameStatus && hasSameReason) {
@@ -180,13 +183,13 @@ export default function MentorOperationsPageClient({
   return (
     <MentoringStateBoundary
       state={listState}
-      empty={(
+      empty={
         <MentoringEmptyPanel
           title="조회할 멘토 등록 정보가 없습니다."
           description="멘토 등록 후 심사를 진행하면 상세 정보를 확인할 수 있습니다."
         />
-      )}
-      ready={(
+      }
+      ready={
         <div className="grid grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-200">
           <MentoringTablePanel
             title="등록 멘토 목록"
@@ -208,7 +211,9 @@ export default function MentorOperationsPageClient({
                   key={mentor.mentorId}
                   type="button"
                   className={`${
-                    index === mentors.length - 1 ? '' : 'border-b-border-subtle border-b'
+                    index === mentors.length - 1
+                      ? ''
+                      : 'border-b-border-subtle border-b'
                   } ${
                     selectedMentorId === mentor.mentorId
                       ? 'bg-background-accent-blue-subtle'
@@ -237,7 +242,8 @@ export default function MentorOperationsPageClient({
                     </div>
                   </div>
                   <p className="font-designer-12r text-text-subtlest mt-75">
-                    업데이트: {formatDateTime(mentor.mentor.mentorSettings?.updatedAt)}
+                    업데이트:{' '}
+                    {formatDateTime(mentor.mentor.mentorSettings?.updatedAt)}
                   </p>
                 </button>
               );
@@ -270,7 +276,9 @@ export default function MentorOperationsPageClient({
                           operationStatus: selectedMentor.operation.status,
                         });
                       const currentMeta =
-                        MENTOR_OPERATION_STATUS_META[currentOperationDisplayStatus];
+                        MENTOR_OPERATION_STATUS_META[
+                          currentOperationDisplayStatus
+                        ];
 
                       return (
                         <Badge color={currentMeta.color} shape="rectangle">
@@ -383,7 +391,8 @@ export default function MentorOperationsPageClient({
                         const fromStatusLabel =
                           entry.fromStatus === 'INITIAL'
                             ? '초기값'
-                            : MENTOR_OPERATION_STATUS_META[entry.fromStatus].label;
+                            : MENTOR_OPERATION_STATUS_META[entry.fromStatus]
+                                .label;
                         const toStatusLabel =
                           MENTOR_OPERATION_STATUS_META[entry.toStatus].label;
 
@@ -420,7 +429,7 @@ export default function MentorOperationsPageClient({
             </SurfacePanel>
           )}
         </div>
-      )}
+      }
     />
   );
 }

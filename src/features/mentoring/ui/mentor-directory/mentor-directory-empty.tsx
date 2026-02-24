@@ -1,6 +1,4 @@
-import {
-  MENTORING_LIST_LABELS,
-} from '@/features/mentoring/const/mentoring-list-labels';
+import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
 
 export default function MentorDirectoryEmpty() {
   return (

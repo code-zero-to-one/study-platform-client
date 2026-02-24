@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import {
-  toTimeRangeLabel,
-} from '@/features/mentoring/model/mentor-settings';
+import { toTimeRangeLabel } from '@/features/mentoring/model/mentor-settings';
 import {
   MENTOR_PROFILES,
   withMentorSettings,

@@ -14,11 +14,7 @@ interface MentoringStateBoundaryProps {
   loadingClassName?: string;
 }
 
-function DefaultMentoringLoading({
-  className,
-}: {
-  className?: string;
-}) {
+function DefaultMentoringLoading({ className }: { className?: string }) {
   return (
     <div
       className={cn(
@@ -42,7 +38,9 @@ export default function MentoringStateBoundary({
     <ListStateBoundary
       state={state}
       ready={ready}
-      loading={loading ?? <DefaultMentoringLoading className={loadingClassName} />}
+      loading={
+        loading ?? <DefaultMentoringLoading className={loadingClassName} />
+      }
       empty={empty}
       error={error}
       forbidden={forbidden}

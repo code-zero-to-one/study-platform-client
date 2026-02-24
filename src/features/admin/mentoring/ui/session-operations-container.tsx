@@ -30,30 +30,30 @@ export default function SessionOperationsContainer({
   return (
     <MentoringStateBoundary
       state={listState}
-      ready={(
+      ready={
         <MentoringListTemplate
-          toolbar={(
+          toolbar={
             <SessionOperationsFilters
               mentors={state.mentors}
               selectedMentorId={state.selectedMentorId}
               readyToProcessCount={viewModel.summary.readyToProcessCount}
               onSelectMentorId={actions.selectMentorId}
             />
-          )}
-          summary={(
+          }
+          summary={
             <SessionOperationsGrid
               totalRequestCount={viewModel.summary.totalRequestCount}
               pendingPaymentCount={viewModel.summary.pendingPaymentCount}
               confirmedPaymentCount={viewModel.summary.confirmedPaymentCount}
               scheduledSessionCount={viewModel.summary.scheduledSessionCount}
             />
-          )}
+          }
           content={<SessionRequestList requestRows={viewModel.requestRows} />}
-          secondaryContent={(
+          secondaryContent={
             <SessionScheduleList sessionRows={viewModel.sessionRows} />
-          )}
+          }
         />
-      )}
+      }
     />
   );
 }

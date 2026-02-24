@@ -1,8 +1,6 @@
 'use client';
 
-import {
-  findMentorById,
-} from '@/features/mentoring/model/use-mentor-directory';
+import { findMentorById } from '@/features/mentoring/model/use-mentor-directory';
 import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import MentorDetailPage from './mentor-detail-page';
 import {

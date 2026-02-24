@@ -156,7 +156,10 @@ export default function ContactSeedActions() {
     });
 
     if (!acceptResult.ok) {
-      showToast(acceptResult.reason ?? '수락 상태 생성에 실패했습니다.', 'error');
+      showToast(
+        acceptResult.reason ?? '수락 상태 생성에 실패했습니다.',
+        'error',
+      );
 
       return;
     }

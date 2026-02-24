@@ -149,13 +149,13 @@ export default function MentorApplicationsPageClient({
   return (
     <MentoringStateBoundary
       state={listState}
-      empty={(
+      empty={
         <MentoringEmptyPanel
           title="심사할 멘토 등록 데이터가 없습니다."
           description="멘토가 등록을 완료하면 심사 큐에 자동으로 표시됩니다."
         />
-      )}
-      ready={(
+      }
+      ready={
         <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-200">
           <MentoringTablePanel
             title="멘토 심사 큐"
@@ -218,7 +218,9 @@ export default function MentorApplicationsPageClient({
                         </Badge>
                       </td>
                       <td className="font-designer-14r text-text-subtle px-200 py-150">
-                        {formatDateTime(mentor.mentor.mentorSettings?.updatedAt)}
+                        {formatDateTime(
+                          mentor.mentor.mentorSettings?.updatedAt,
+                        )}
                       </td>
                     </tr>
                   );
@@ -235,7 +237,8 @@ export default function MentorApplicationsPageClient({
                     심사 상세
                   </h3>
                   <p className="font-designer-13r text-text-subtle mt-50">
-                    현재 선택된 멘토의 기본 정보를 확인하고 심사 상태를 변경합니다.
+                    현재 선택된 멘토의 기본 정보를 확인하고 심사 상태를
+                    변경합니다.
                   </p>
                 </div>
 
@@ -252,21 +255,17 @@ export default function MentorApplicationsPageClient({
                     columnsClassName="grid-cols-[110px_minmax(0,1fr)]"
                     valueAs="p"
                   >
-                    {
-                      selectedMentor.memberId
-                        ? `#${selectedMentor.memberId}`
-                        : '연결 정보 없음'
-                    }
+                    {selectedMentor.memberId
+                      ? `#${selectedMentor.memberId}`
+                      : '연결 정보 없음'}
                   </KeyValueRow>
                   <KeyValueRow
                     label="멘토링명"
                     columnsClassName="grid-cols-[110px_minmax(0,1fr)]"
                     valueAs="p"
                   >
-                    {
-                      selectedMentor.mentor.mentorSettings?.mentoringTitle ??
-                      selectedMentor.mentor.headline
-                    }
+                    {selectedMentor.mentor.mentorSettings?.mentoringTitle ??
+                      selectedMentor.mentor.headline}
                   </KeyValueRow>
                   <KeyValueRow
                     label="직군/직무"
@@ -282,18 +281,19 @@ export default function MentorApplicationsPageClient({
                     columnsClassName="grid-cols-[110px_minmax(0,1fr)]"
                     valueAs="p"
                   >
-                    {getEnabledMethodLabels(selectedMentor.mentor.mentorSettings)}
+                    {getEnabledMethodLabels(
+                      selectedMentor.mentor.mentorSettings,
+                    )}
                   </KeyValueRow>
                   <KeyValueRow
                     label="정산 정보 인증"
                     columnsClassName="grid-cols-[110px_minmax(0,1fr)]"
                     valueAs="p"
                   >
-                    {
-                      selectedMentor.mentor.mentorSettings?.settlementDraft?.verified
-                        ? '완료'
-                        : '미완료'
-                    }
+                    {selectedMentor.mentor.mentorSettings?.settlementDraft
+                      ?.verified
+                      ? '완료'
+                      : '미완료'}
                   </KeyValueRow>
                   <KeyValueRow
                     label="최종 처리 시각"
@@ -362,7 +362,7 @@ export default function MentorApplicationsPageClient({
             )}
           </SurfacePanel>
         </div>
-      )}
+      }
     />
   );
 }

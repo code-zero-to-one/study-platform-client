@@ -241,7 +241,9 @@ export default function MentorMarkdownEditor({
 
       try {
         const dataUrl = await readFileAsDataUrl(file);
-        uploadedImageSnippets.push(`![${toMarkdownAltText(file.name)}](${dataUrl})`);
+        uploadedImageSnippets.push(
+          `![${toMarkdownAltText(file.name)}](${dataUrl})`,
+        );
       } catch {
         failedFileNames.push(`${file.name}(읽기 실패)`);
       }
@@ -360,8 +362,7 @@ export default function MentorMarkdownEditor({
               'placeholder:text-text-subtlest focus:outline-none',
             )}
             placeholder={
-              placeholder ??
-              '멘토 소개를 마크다운으로 작성해주세요.'
+              placeholder ?? '멘토 소개를 마크다운으로 작성해주세요.'
             }
           />
           {imageInsertError && (

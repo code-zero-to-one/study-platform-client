@@ -9,9 +9,7 @@ import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import {
-  getMethodLabel,
-} from '@/mocks/mentoring-mock-data';
+import { getMethodLabel } from '@/mocks/mentoring-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   getRequestReviewEligibility,

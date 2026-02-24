@@ -29,9 +29,7 @@ export default function MentoringRequestPanelContainer({
         <MentoringRequestHeader title={viewModel.titleText} />
       ) : null}
 
-      {state.mode === 'empty' ? (
-        <MentoringRequestEmpty />
-      ) : null}
+      {state.mode === 'empty' ? <MentoringRequestEmpty /> : null}
 
       {state.mode === 'detail' && state.detailRequest ? (
         <MentoringRequestDetailCard

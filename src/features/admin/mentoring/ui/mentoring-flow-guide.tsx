@@ -393,7 +393,7 @@ function FlowStep({
           <div className="bg-border-subtle mt-50 h-full w-[1px]" />
         )}
       </div>
-      <div className="pb-150 flex-1">
+      <div className="flex-1 pb-150">
         <p className="font-designer-14b text-text-default">{step.label}</p>
         <div className="mt-50 flex flex-wrap gap-50">
           {step.statuses.map((s) => (
@@ -433,7 +433,9 @@ export default function MentoringFlowGuide() {
           <p className="font-designer-16b text-text-default">
             [임시] 멘토링 플로우 & 상태 코드 사전 & 테스트 가이드
           </p>
-          <span className={`rounded-50 font-designer-12b px-75 py-25 ${COLOR.orange}`}>
+          <span
+            className={`rounded-50 font-designer-12b px-75 py-25 ${COLOR.orange}`}
+          >
             디자인 완료 후 제거
           </span>
         </div>
@@ -444,14 +446,14 @@ export default function MentoringFlowGuide() {
 
       {isOpen && (
         <div className="border-border-subtle flex flex-col gap-300 border-t p-200">
-
           {/* ── A. 멘토 등록 플로우 ── */}
           <div>
             <p className="font-designer-15b text-text-default mb-25">
               A. 멘토 등록 플로우
             </p>
             <p className="font-designer-13r text-text-subtle mb-150">
-              일반 사용자가 멘토로 지원하고 관리자 심사를 거쳐 활동하는 전체 흐름입니다.
+              일반 사용자가 멘토로 지원하고 관리자 심사를 거쳐 활동하는 전체
+              흐름입니다.
             </p>
             <div className="flex flex-col">
               {FLOW_A_STEPS.map((step, index) => (
@@ -473,7 +475,8 @@ export default function MentoringFlowGuide() {
               B. 멘토링 신청 플로우 (멘티 → 멘토)
             </p>
             <p className="font-designer-13r text-text-subtle mb-150">
-              멘티가 상담을 신청하고 결제 확인·수락·세션·후기까지 이어지는 전체 흐름입니다.
+              멘티가 상담을 신청하고 결제 확인·수락·세션·후기까지 이어지는 전체
+              흐름입니다.
             </p>
             <div className="flex flex-col">
               {FLOW_B_STEPS.map((step, index) => (
@@ -502,8 +505,18 @@ export default function MentoringFlowGuide() {
               <table className="w-full">
                 <thead className="bg-background-neutral-subtle">
                   <tr>
-                    {['값 (enum)', '한국어 표기', '일정', '세션 생성', '후기 가능 시점', '비고'].map((h) => (
-                      <th key={h} className="font-designer-13m text-text-default px-150 py-100 text-left">
+                    {[
+                      '값 (enum)',
+                      '한국어 표기',
+                      '일정',
+                      '세션 생성',
+                      '후기 가능 시점',
+                      '비고',
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="font-designer-13m text-text-default px-150 py-100 text-left"
+                      >
                         {h}
                       </th>
                     ))}
@@ -511,20 +524,65 @@ export default function MentoringFlowGuide() {
                 </thead>
                 <tbody>
                   {[
-                    { value: 'note', label: '쪽지', schedule: '없음 (비동기)', session: '미생성', reviewTiming: '수락 즉시', note: '입금확인 → 수락 → 후기' },
-                    { value: 'phone', label: '15분 전화', schedule: '날짜·시간', session: 'SCHEDULED 생성', reviewTiming: '세션 종료 후', note: '입금확인 → 수락+일정 → 세션 → 후기' },
-                    { value: 'online', label: '온라인 화상', schedule: '날짜·시간', session: 'SCHEDULED 생성', reviewTiming: '세션 종료 후', note: '30분 / 60분 선택' },
-                    { value: 'offline', label: '대면', schedule: '날짜·시간·장소', session: 'SCHEDULED 생성', reviewTiming: '세션 종료 후', note: '30분 / 60분 / 90분 선택' },
+                    {
+                      value: 'note',
+                      label: '쪽지',
+                      schedule: '없음 (비동기)',
+                      session: '미생성',
+                      reviewTiming: '수락 즉시',
+                      note: '입금확인 → 수락 → 후기',
+                    },
+                    {
+                      value: 'phone',
+                      label: '15분 전화',
+                      schedule: '날짜·시간',
+                      session: 'SCHEDULED 생성',
+                      reviewTiming: '세션 종료 후',
+                      note: '입금확인 → 수락+일정 → 세션 → 후기',
+                    },
+                    {
+                      value: 'online',
+                      label: '온라인 화상',
+                      schedule: '날짜·시간',
+                      session: 'SCHEDULED 생성',
+                      reviewTiming: '세션 종료 후',
+                      note: '30분 / 60분 선택',
+                    },
+                    {
+                      value: 'offline',
+                      label: '대면',
+                      schedule: '날짜·시간·장소',
+                      session: 'SCHEDULED 생성',
+                      reviewTiming: '세션 종료 후',
+                      note: '30분 / 60분 / 90분 선택',
+                    },
                   ].map((row, i, arr) => (
-                    <tr key={row.value} className={i < arr.length - 1 ? 'border-b-border-subtle border-b' : ''}>
+                    <tr
+                      key={row.value}
+                      className={
+                        i < arr.length - 1
+                          ? 'border-b-border-subtle border-b'
+                          : ''
+                      }
+                    >
                       <td className="px-150 py-100">
                         <EnumChip value={row.value} color="gray" />
                       </td>
-                      <td className="font-designer-13r text-text-default px-150 py-100">{row.label}</td>
-                      <td className="font-designer-13r text-text-default px-150 py-100">{row.schedule}</td>
-                      <td className="font-designer-13r text-text-default px-150 py-100">{row.session}</td>
-                      <td className="font-designer-13r text-text-default px-150 py-100">{row.reviewTiming}</td>
-                      <td className="font-designer-13r text-text-subtle px-150 py-100">{row.note}</td>
+                      <td className="font-designer-13r text-text-default px-150 py-100">
+                        {row.label}
+                      </td>
+                      <td className="font-designer-13r text-text-default px-150 py-100">
+                        {row.schedule}
+                      </td>
+                      <td className="font-designer-13r text-text-default px-150 py-100">
+                        {row.session}
+                      </td>
+                      <td className="font-designer-13r text-text-default px-150 py-100">
+                        {row.reviewTiming}
+                      </td>
+                      <td className="font-designer-13r text-text-subtle px-150 py-100">
+                        {row.note}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -540,12 +598,15 @@ export default function MentoringFlowGuide() {
               D. 상태 코드 사전 (Enum 정의)
             </p>
             <p className="font-designer-13r text-text-subtle mb-150">
-              코드베이스에서 사용하는 모든 상태 타입과 각 값의 정의입니다.
-              각 타입명은 실제 TypeScript 타입과 1:1 대응합니다.
+              코드베이스에서 사용하는 모든 상태 타입과 각 값의 정의입니다. 각
+              타입명은 실제 TypeScript 타입과 1:1 대응합니다.
             </p>
             <div className="flex flex-col gap-200">
               {ENUM_GROUPS.map((group) => (
-                <div key={group.id} className="rounded-100 border-border-subtle overflow-hidden border">
+                <div
+                  key={group.id}
+                  className="rounded-100 border-border-subtle overflow-hidden border"
+                >
                   <div className="bg-background-neutral-subtle border-border-subtle border-b px-150 py-100">
                     <div className="flex flex-wrap items-center gap-100">
                       <code className="font-designer-13b text-text-default">
@@ -562,17 +623,29 @@ export default function MentoringFlowGuide() {
                   <table className="w-full">
                     <thead className="bg-background-neutral-subtle border-border-subtle border-b">
                       <tr>
-                        <th className="font-designer-12m text-text-subtle px-150 py-75 text-left w-[160px]">값</th>
-                        <th className="font-designer-12m text-text-subtle px-150 py-75 text-left w-[80px]">라벨</th>
-                        <th className="font-designer-12m text-text-subtle px-150 py-75 text-left">정의</th>
-                        <th className="font-designer-12m text-text-subtle px-150 py-75 text-left w-[160px]">설정 주체</th>
+                        <th className="font-designer-12m text-text-subtle w-[160px] px-150 py-75 text-left">
+                          값
+                        </th>
+                        <th className="font-designer-12m text-text-subtle w-[80px] px-150 py-75 text-left">
+                          라벨
+                        </th>
+                        <th className="font-designer-12m text-text-subtle px-150 py-75 text-left">
+                          정의
+                        </th>
+                        <th className="font-designer-12m text-text-subtle w-[160px] px-150 py-75 text-left">
+                          설정 주체
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
                       {group.values.map((v, i, arr) => (
                         <tr
                           key={v.value}
-                          className={i < arr.length - 1 ? 'border-b-border-subtle border-b' : ''}
+                          className={
+                            i < arr.length - 1
+                              ? 'border-b-border-subtle border-b'
+                              : ''
+                          }
                         >
                           <td className="px-150 py-100">
                             <EnumChip value={v.value} color={v.color} />
@@ -603,11 +676,14 @@ export default function MentoringFlowGuide() {
               E. 빠른 테스트 링크
             </p>
             <p className="font-designer-13r text-text-subtle mb-150">
-              오른쪽 상단 <strong>목데이터 넣기</strong> 버튼을 먼저 누른 뒤 아래 링크로 각 화면을 테스트하세요.
+              오른쪽 상단 <strong>목데이터 넣기</strong> 버튼을 먼저 누른 뒤
+              아래 링크로 각 화면을 테스트하세요.
             </p>
             <div className="flex flex-wrap gap-100">
               <Link href="/mentoring">
-                <Button size="small" color="outlined">멘토 목록</Button>
+                <Button size="small" color="outlined">
+                  멘토 목록
+                </Button>
               </Link>
               {firstMentorId !== null && (
                 <Link href={`/mentoring/${firstMentorId}`}>
@@ -624,20 +700,27 @@ export default function MentoringFlowGuide() {
                 </Link>
               )}
               <Link href="/mentoring/become-mentor">
-                <Button size="small" color="outlined">멘토 지원 폼</Button>
+                <Button size="small" color="outlined">
+                  멘토 지원 폼
+                </Button>
               </Link>
               <Link href="/mentoring-management">
-                <Button size="small" color="outlined">멘토링 관리 (멘토 뷰)</Button>
+                <Button size="small" color="outlined">
+                  멘토링 관리 (멘토 뷰)
+                </Button>
               </Link>
               <Link href="/admin/mentoring/mentor-applications">
-                <Button size="small" color="outlined">멘토 심사 (관리자)</Button>
+                <Button size="small" color="outlined">
+                  멘토 심사 (관리자)
+                </Button>
               </Link>
               <Link href="/admin/mentoring/sessions">
-                <Button size="small" color="outlined">신청/일정 현황 (관리자)</Button>
+                <Button size="small" color="outlined">
+                  신청/일정 현황 (관리자)
+                </Button>
               </Link>
             </div>
           </div>
-
         </div>
       )}
     </section>

@@ -62,7 +62,10 @@ export function DataTableHead({
   ...props
 }: React.ComponentPropsWithoutRef<'thead'>) {
   return (
-    <thead className={cn('bg-background-neutral-subtle h-[52px]', className)} {...props} />
+    <thead
+      className={cn('bg-background-neutral-subtle h-[52px]', className)}
+      {...props}
+    />
   );
 }
 
@@ -75,7 +78,10 @@ export function DataTableRow({
   ...props
 }: DataTableRowProps) {
   return (
-    <tr className={cn(dataTableRowVariants({ bordered }), className)} {...props} />
+    <tr
+      className={cn(dataTableRowVariants({ bordered }), className)}
+      {...props}
+    />
   );
 }
 
@@ -105,6 +111,9 @@ export function DataTableCell({
   ...props
 }: DataTableCellProps) {
   return (
-    <td className={cn(dataTableCellVariants({ tone, align }), className)} {...props} />
+    <td
+      className={cn(dataTableCellVariants({ tone, align }), className)}
+      {...props}
+    />
   );
 }

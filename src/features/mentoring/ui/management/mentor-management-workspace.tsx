@@ -40,12 +40,17 @@ export default function MentorManagementWorkspace({
         online: mentorSettings.onlineDurationMinutes,
         offline: mentorSettings.offlineDurationMinutes,
       }) as const,
-    [mentorSettings.offlineDurationMinutes, mentorSettings.onlineDurationMinutes],
+    [
+      mentorSettings.offlineDurationMinutes,
+      mentorSettings.onlineDurationMinutes,
+    ],
   );
 
   const dashboardStats = useMemo(() => {
     const pendingCount = requests.filter((r) => r.status === 'PENDING').length;
-    const acceptedCount = requests.filter((r) => r.status === 'ACCEPTED').length;
+    const acceptedCount = requests.filter(
+      (r) => r.status === 'ACCEPTED',
+    ).length;
     const today = dayjs().format('YYYY-MM-DD');
     const todaySessionCount = sessions.filter(
       (s) =>
@@ -59,13 +64,19 @@ export default function MentorManagementWorkspace({
       (s) => s.status === 'SCHEDULED' && dayjs(s.startsAt).isAfter(dayjs()),
     ).length;
 
-    return { pendingCount, acceptedCount, todaySessionCount, scheduledCount, upcomingCount };
+    return {
+      pendingCount,
+      acceptedCount,
+      todaySessionCount,
+      scheduledCount,
+      upcomingCount,
+    };
   }, [requests, sessions]);
 
   return (
     <MentoringStateBoundary
       state={hasHydrated ? 'ready' : 'loading'}
-      ready={(
+      ready={
         <section className="flex flex-col gap-200">
           {/* 주요 통계 2개 */}
           <div className="grid grid-cols-2 gap-100">
@@ -74,7 +85,7 @@ export default function MentorManagementWorkspace({
               <SurfacePanel
                 as="div"
                 radius="md"
-                className={`h-full px-200 py-150 transition-colors hover:bg-background-alternative ${
+                className={`hover:bg-background-alternative h-full px-200 py-150 transition-colors ${
                   dashboardStats.pendingCount > 0
                     ? 'border-border-warning'
                     : 'border-border-subtle'
@@ -114,7 +125,7 @@ export default function MentorManagementWorkspace({
               <SurfacePanel
                 as="div"
                 radius="md"
-                className={`h-full px-200 py-150 transition-colors hover:bg-background-alternative ${
+                className={`hover:bg-background-alternative h-full px-200 py-150 transition-colors ${
                   dashboardStats.scheduledCount > 0
                     ? 'border-border-information'
                     : 'border-border-subtle'
@@ -156,7 +167,7 @@ export default function MentorManagementWorkspace({
             methodDurations={methodDurations}
           />
         </section>
-      )}
+      }
     />
   );
 }

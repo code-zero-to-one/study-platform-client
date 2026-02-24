@@ -15,18 +15,20 @@ export default function NoteConsultationContainer() {
   return (
     <MentoringStateBoundary
       state={state.listState}
-      loading={(
+      loading={
         <div className="flex flex-col gap-300">
           <div className="rounded-100 bg-background-alternative h-[40px] w-[200px] animate-pulse" />
           <div className="rounded-200 bg-background-alternative h-[660px] animate-pulse" />
         </div>
-      )}
-      error={(
-        <div className="rounded-200 border border-border-subtle bg-background-default px-300 py-300 text-center">
-          <p className="font-designer-16m text-text-default">{viewModel.errorMessage}</p>
+      }
+      error={
+        <div className="rounded-200 border-border-subtle bg-background-default border px-300 py-300 text-center">
+          <p className="font-designer-16m text-text-default">
+            {viewModel.errorMessage}
+          </p>
         </div>
-      )}
-      ready={(
+      }
+      ready={
         <MentoringListTemplate
           toolbar={<NoteConsultationHeader />}
           content={
@@ -50,7 +52,7 @@ export default function NoteConsultationContainer() {
             )
           }
         />
-      )}
+      }
     />
   );
 }

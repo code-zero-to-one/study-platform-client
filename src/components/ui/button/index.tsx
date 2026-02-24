@@ -52,10 +52,9 @@ function Button({
   }) {
   const Comp = asChild ? Slot : 'button';
   const isDisabled = disabled || loading;
-  const loadingIndicator =
-    spinner ?? (
-      <span className="h-14 w-14 animate-spin rounded-full border-2 border-current border-t-transparent" />
-    );
+  const loadingIndicator = spinner ?? (
+    <span className="h-14 w-14 animate-spin rounded-full border-2 border-current border-t-transparent" />
+  );
   const contentText = loading ? (loadingText ?? children) : children;
 
   const content = (

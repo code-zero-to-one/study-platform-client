@@ -26,7 +26,8 @@ const surfacePanelVariants = cva(
 type SurfacePanelElement = 'div' | 'section' | 'article';
 
 interface SurfacePanelProps
-  extends Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
+  extends
+    Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
     VariantProps<typeof surfacePanelVariants> {
   as?: SurfacePanelElement;
 }
@@ -55,7 +56,10 @@ export function SurfacePanelHeader({
   ...props
 }: SurfacePanelHeaderProps) {
   return (
-    <div className={cn('border-border-subtle border-b p-200', className)} {...props} />
+    <div
+      className={cn('border-border-subtle border-b p-200', className)}
+      {...props}
+    />
   );
 }
 
@@ -65,5 +69,7 @@ export function SurfacePanelEmpty({
   className,
   ...props
 }: SurfacePanelEmptyProps) {
-  return <div className={cn('px-200 py-250 text-center', className)} {...props} />;
+  return (
+    <div className={cn('px-200 py-250 text-center', className)} {...props} />
+  );
 }

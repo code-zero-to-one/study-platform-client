@@ -51,10 +51,9 @@ export default function IconButton({
   ...props
 }: IconButtonProps) {
   const Comp = asChild ? Slot : 'button';
-  const loadingIndicator =
-    spinner ?? (
-      <span className="h-14 w-14 animate-spin rounded-full border-2 border-current border-t-transparent" />
-    );
+  const loadingIndicator = spinner ?? (
+    <span className="h-14 w-14 animate-spin rounded-full border-2 border-current border-t-transparent" />
+  );
   const isDisabled = disabled || loading;
 
   return (

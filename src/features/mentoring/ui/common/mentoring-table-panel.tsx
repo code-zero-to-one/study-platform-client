@@ -33,10 +33,7 @@ export default function MentoringTablePanel({
   return (
     <SurfacePanel overflow="hidden" className={className}>
       <SurfacePanelHeader
-        className={cn(
-          'flex items-center justify-between',
-          headerClassName,
-        )}
+        className={cn('flex items-center justify-between', headerClassName)}
       >
         <div>
           <h2 className="font-designer-16b text-text-default">{title}</h2>

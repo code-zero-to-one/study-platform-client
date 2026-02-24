@@ -41,7 +41,9 @@ export default function MentorDirectoryList({
     <MentorDirectoryGrid
       leadMentors={leadMentors}
       remainingMentors={remainingMentors}
-      joinCard={shouldShowMentorJoinCard ? <MentorJoinCardContainer /> : undefined}
+      joinCard={
+        shouldShowMentorJoinCard ? <MentorJoinCardContainer /> : undefined
+      }
     />
   );
 
@@ -50,7 +52,11 @@ export default function MentorDirectoryList({
       state={listState}
       loading={<MentorDirectorySkeletonGrid />}
       empty={<MentorDirectoryEmpty />}
-      ready={<FilterSortListTemplate toolbar={toolbar}>{cards}</FilterSortListTemplate>}
+      ready={
+        <FilterSortListTemplate toolbar={toolbar}>
+          {cards}
+        </FilterSortListTemplate>
+      }
     />
   );
 }

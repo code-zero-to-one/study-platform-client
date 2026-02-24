@@ -1,35 +1,32 @@
 import { useEffect, useState } from 'react';
 
-import { getKoreaDate } from '@/utils/time';
 import { useShouldReviewPartnerQuery } from '../model/use-review-query';
 
-export const useReviewReminder = () => {
+const LAST_REVIEW_MODAL_SHOWN_KEY = 'lastReviewModalShown';
+
+export const useReviewReminder = (memberId?: number) => {
   const { data: shouldReview, isFetching } = useShouldReviewPartnerQuery();
   const [showReviewReminder, setShowReviewReminder] = useState(false);
+  const storageKey = memberId
+    ? `${LAST_REVIEW_MODAL_SHOWN_KEY}:${memberId}`
+    : LAST_REVIEW_MODAL_SHOWN_KEY;
 
   useEffect(() => {
-    // 이미 리뷰를 달았을 경우
+    // 리뷰 작성 대상이 아닌 경우
     if (!shouldReview || isFetching) return;
 
-    const now = getKoreaDate();
-    const dayOfWeek = now.getDay();
+    const now = Date.now();
+    const lastShown = localStorage.getItem(storageKey);
 
-    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // 일요일(0), 토요일(6)
-
-    // 평일인 경우
-    if (!isWeekend) return;
-
-    const lastShown = localStorage.getItem('lastReviewModalShown');
-
-    const diff = now.getTime() - Number(lastShown);
+    const diff = now - Number(lastShown);
     const THIRTY_MIN = 1000 * 60 * 30; // 30분
 
     if (!lastShown || diff >= THIRTY_MIN) {
       setShowReviewReminder(true);
 
-      localStorage.setItem('lastReviewModalShown', String(now.getTime()));
+      localStorage.setItem(storageKey, String(now));
     }
-  }, [shouldReview, isFetching]);
+  }, [shouldReview, isFetching, storageKey]);
 
   return {
     showReviewReminder,

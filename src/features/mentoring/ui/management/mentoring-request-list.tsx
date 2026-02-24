@@ -18,7 +18,7 @@ export default function MentoringRequestList({
 }: MentoringRequestListProps) {
   return (
     <SurfacePanel radius="lg" overflow="hidden">
-      <div className="border-border-subtle grid grid-cols-[120px_200px_1fr_140px] gap-200 border-b bg-background-alternative px-300 py-150">
+      <div className="border-border-subtle bg-background-alternative grid grid-cols-[120px_200px_1fr_140px] gap-200 border-b px-300 py-150">
         <div className="font-designer-14b text-text-default">상태</div>
         <div className="font-designer-14b text-text-default">신청자</div>
         <div className="font-designer-14b text-text-default">멘토링 일정</div>

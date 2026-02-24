@@ -229,527 +229,559 @@ export interface MentorRegistrationControllerResult {
   viewModel: MentorRegistrationControllerViewModel;
 }
 
-export const useMentorRegistrationController = (): MentorRegistrationControllerResult => {
-  const router = useRouter();
-  const { showToast } = useToastStore();
-  const { isHydrated, isAuthenticated, memberId, data } = useAuthReady();
-  const { profileImageUrl, nickname, memberName } = useUserStore();
-  const {
-    isVerified,
-    phoneNumber: verifiedPhoneNumber,
-    isLoading: isVerificationLoading,
-    isError: isVerificationError,
-    setVerified,
-  } = usePhoneVerificationStatus(memberId ?? undefined);
+export const useMentorRegistrationController =
+  (): MentorRegistrationControllerResult => {
+    const router = useRouter();
+    const { showToast } = useToastStore();
+    const { isHydrated, isAuthenticated, memberId, data } = useAuthReady();
+    const { profileImageUrl, nickname, memberName } = useUserStore();
+    const {
+      isVerified,
+      phoneNumber: verifiedPhoneNumber,
+      isLoading: isVerificationLoading,
+      isError: isVerificationError,
+      setVerified,
+    } = usePhoneVerificationStatus(memberId ?? undefined);
 
-  const registerMentorProfile = useMentorDirectoryStore(
-    (storeState) => storeState.registerMentorProfile,
-  );
-  const mentorIdByMember = useMentorDirectoryStore(
-    (storeState) => storeState.mentorIdByMember,
-  );
-  const createdMentors = useMentorDirectoryStore(
-    (storeState) => storeState.createdMentors,
-  );
-  const nextMentorId = useMentorDirectoryStore(
-    (storeState) => storeState.nextMentorId,
-  );
-  const mentorStoreHydrated = useMentorDirectoryStore(
-    (storeState) => storeState.hasHydrated,
-  );
+    const registerMentorProfile = useMentorDirectoryStore(
+      (storeState) => storeState.registerMentorProfile,
+    );
+    const mentorIdByMember = useMentorDirectoryStore(
+      (storeState) => storeState.mentorIdByMember,
+    );
+    const createdMentors = useMentorDirectoryStore(
+      (storeState) => storeState.createdMentors,
+    );
+    const nextMentorId = useMentorDirectoryStore(
+      (storeState) => storeState.nextMentorId,
+    );
+    const mentorStoreHydrated = useMentorDirectoryStore(
+      (storeState) => storeState.hasHydrated,
+    );
 
-  const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [isPhoneVerificationModalOpen, setIsPhoneVerificationModalOpen] =
-    useState(false);
-  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const [isSettlementModalOpen, setIsSettlementModalOpen] = useState(false);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [welcomeOnboarding, setWelcomeOnboarding] =
-    useState<MentorRegistrationWelcomeOnboardingState>();
-  const [panelWidth, setPanelWidth] = useState(PREVIEW_PANEL_DEFAULT_WIDTH);
-  const [committedPanelWidth, setCommittedPanelWidth] = useState(
-    PREVIEW_PANEL_DEFAULT_WIDTH,
-  );
-  const [isResizing, setIsResizing] = useState(false);
-  const [headerHeight, setHeaderHeight] = useState(0);
-  const [highlightedSections, setHighlightedSections] = useState<
-    MentorRegistrationPreviewHighlightSection[]
-  >([]);
+    const [isGuideOpen, setIsGuideOpen] = useState(false);
+    const [isPhoneVerificationModalOpen, setIsPhoneVerificationModalOpen] =
+      useState(false);
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+    const [isSettlementModalOpen, setIsSettlementModalOpen] = useState(false);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [welcomeOnboarding, setWelcomeOnboarding] =
+      useState<MentorRegistrationWelcomeOnboardingState>();
+    const [panelWidth, setPanelWidth] = useState(PREVIEW_PANEL_DEFAULT_WIDTH);
+    const [committedPanelWidth, setCommittedPanelWidth] = useState(
+      PREVIEW_PANEL_DEFAULT_WIDTH,
+    );
+    const [isResizing, setIsResizing] = useState(false);
+    const [headerHeight, setHeaderHeight] = useState(0);
+    const [highlightedSections, setHighlightedSections] = useState<
+      MentorRegistrationPreviewHighlightSection[]
+    >([]);
 
-  const panelWidthRef = useRef(PREVIEW_PANEL_DEFAULT_WIDTH);
-  const previewLayoutRef = useRef<HTMLDivElement>(null);
-  const prevPreviewFormValuesRef = useRef<MentorRegistrationFormValues | null>(
-    null,
-  );
-  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const panelWidthRef = useRef(PREVIEW_PANEL_DEFAULT_WIDTH);
+    const previewLayoutRef = useRef<HTMLDivElement>(null);
+    const prevPreviewFormValuesRef =
+      useRef<MentorRegistrationFormValues | null>(null);
+    const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+      null,
+    );
 
-  const getPreviewPanelMaxWidth = useCallback(() => {
-    const viewportLimit = Math.floor(window.innerWidth * 0.75);
-    const layoutWidth = previewLayoutRef.current?.getBoundingClientRect().width;
+    const getPreviewPanelMaxWidth = useCallback(() => {
+      const viewportLimit = Math.floor(window.innerWidth * 0.75);
+      const layoutWidth =
+        previewLayoutRef.current?.getBoundingClientRect().width;
 
-    if (!layoutWidth) {
-      return viewportLimit;
-    }
+      if (!layoutWidth) {
+        return viewportLimit;
+      }
 
-    const formSafeLimit = Math.floor(layoutWidth - FORM_MIN_CONTENT_WIDTH);
-    if (formSafeLimit < PREVIEW_PANEL_MIN_WIDTH) {
-      return viewportLimit;
-    }
+      const formSafeLimit = Math.floor(layoutWidth - FORM_MIN_CONTENT_WIDTH);
+      if (formSafeLimit < PREVIEW_PANEL_MIN_WIDTH) {
+        return viewportLimit;
+      }
 
-    return Math.min(viewportLimit, formSafeLimit);
-  }, []);
+      return Math.min(viewportLimit, formSafeLimit);
+    }, []);
 
-  const clampPreviewPanelWidth = useCallback(
-    (width: number) => {
-      const maxWidth = getPreviewPanelMaxWidth();
+    const clampPreviewPanelWidth = useCallback(
+      (width: number) => {
+        const maxWidth = getPreviewPanelMaxWidth();
 
-      return Math.max(PREVIEW_PANEL_MIN_WIDTH, Math.min(width, maxWidth));
-    },
-    [getPreviewPanelMaxWidth],
-  );
+        return Math.max(PREVIEW_PANEL_MIN_WIDTH, Math.min(width, maxWidth));
+      },
+      [getPreviewPanelMaxWidth],
+    );
 
-  const syncPreviewPanelWidth = useCallback(
-    (nextWidth: number) => {
-      const clampedWidth = clampPreviewPanelWidth(nextWidth);
-      panelWidthRef.current = clampedWidth;
-      setPanelWidth(clampedWidth);
-      setCommittedPanelWidth(clampedWidth);
-    },
-    [clampPreviewPanelWidth],
-  );
+    const syncPreviewPanelWidth = useCallback(
+      (nextWidth: number) => {
+        const clampedWidth = clampPreviewPanelWidth(nextWidth);
+        panelWidthRef.current = clampedWidth;
+        setPanelWidth(clampedWidth);
+        setCommittedPanelWidth(clampedWidth);
+      },
+      [clampPreviewPanelWidth],
+    );
 
-  useEffect(() => {
-    const header = document.querySelector('header');
-    if (!header) {
-      return;
-    }
-
-    const measure = () => {
-      setHeaderHeight(header.getBoundingClientRect().height);
-    };
-
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(header);
-
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const handleWindowResize = () => {
-      const clampedWidth = clampPreviewPanelWidth(panelWidthRef.current);
-      if (clampedWidth === panelWidthRef.current) {
+    useEffect(() => {
+      const header = document.querySelector('header');
+      if (!header) {
         return;
       }
 
-      panelWidthRef.current = clampedWidth;
-      setPanelWidth(clampedWidth);
-      setCommittedPanelWidth(clampedWidth);
-    };
+      const measure = () => {
+        setHeaderHeight(header.getBoundingClientRect().height);
+      };
 
-    handleWindowResize();
-    window.addEventListener('resize', handleWindowResize);
+      measure();
+      const observer = new ResizeObserver(measure);
+      observer.observe(header);
 
-    return () => window.removeEventListener('resize', handleWindowResize);
-  }, [clampPreviewPanelWidth]);
+      return () => observer.disconnect();
+    }, []);
 
-  const form = useForm<
-    MentorRegistrationFormInputValues,
-    unknown,
-    MentorRegistrationFormValues
-  >({
-    resolver: zodResolver(mentorRegistrationSchema),
-    mode: 'onChange',
-    defaultValues: DEFAULT_VALUES,
-  });
+    useEffect(() => {
+      const handleWindowResize = () => {
+        const clampedWidth = clampPreviewPanelWidth(panelWidthRef.current);
+        if (clampedWidth === panelWidthRef.current) {
+          return;
+        }
 
-  const {
-    watch,
-    setValue,
-    reset,
-    formState: { isDirty },
-  } = form;
+        panelWidthRef.current = clampedWidth;
+        setPanelWidth(clampedWidth);
+        setCommittedPanelWidth(clampedWidth);
+      };
 
-  useEffect(() => {
-    setValue('contactPhone', sanitizeDigits(verifiedPhoneNumber ?? ''), {
-      shouldValidate: true,
+      handleWindowResize();
+      window.addEventListener('resize', handleWindowResize);
+
+      return () => window.removeEventListener('resize', handleWindowResize);
+    }, [clampPreviewPanelWidth]);
+
+    const form = useForm<
+      MentorRegistrationFormInputValues,
+      unknown,
+      MentorRegistrationFormValues
+    >({
+      resolver: zodResolver(mentorRegistrationSchema),
+      mode: 'onChange',
+      defaultValues: DEFAULT_VALUES,
     });
-  }, [setValue, verifiedPhoneNumber]);
 
-  useEffect(() => {
-    if (!memberId || !mentorStoreHydrated) {
-      return;
-    }
+    const {
+      watch,
+      setValue,
+      reset,
+      formState: { isDirty },
+    } = form;
 
-    const mentorId = mentorIdByMember[memberId];
-    if (!mentorId) {
-      return;
-    }
+    useEffect(() => {
+      setValue('contactPhone', sanitizeDigits(verifiedPhoneNumber ?? ''), {
+        shouldValidate: true,
+      });
+    }, [setValue, verifiedPhoneNumber]);
 
-    const existingProfile = createdMentors.find((mentor) => mentor.id === mentorId);
-    if (!existingProfile) {
-      return;
-    }
+    useEffect(() => {
+      if (!memberId || !mentorStoreHydrated) {
+        return;
+      }
 
-    const settings = getMentorSettings(existingProfile);
-    reset({
-      ...settings,
-      updatedAt: settings.updatedAt || new Date().toISOString(),
-      schemaVersion: 3,
-    });
-  }, [createdMentors, memberId, mentorIdByMember, mentorStoreHydrated, reset]);
+      const mentorId = mentorIdByMember[memberId];
+      if (!mentorId) {
+        return;
+      }
 
-  const settlementDraft = watch('settlementDraft');
-  const mentoringTitle = watch('mentoringTitle');
-  const appealLine = watch('appealLine');
-  const jobGroup = watch('jobGroup');
-  const jobTitle = watch('jobTitle');
-  const careerYears = watch('careerYears');
-  const skillTags = watch('skillTags');
-  const companyCategory = watch('companyCategory');
-  const companyName = watch('companyName');
-  const hideCompanyName = watch('hideCompanyName');
-  const detailedDescription = watch('detailedDescription');
-  const interviewQuestions = watch('interviewQuestions');
-  const preNotice = watch('preNotice');
-  const notePrice = watch('notePrice');
-  const phonePrice = watch('phonePrice');
-  const onlinePrice = watch('onlinePrice');
-  const offlinePrice = watch('offlinePrice');
-  const onlineDurationMinutes = watch('onlineDurationMinutes');
-  const offlineDurationMinutes = watch('offlineDurationMinutes');
-  const noteEnabled = watch('noteEnabled');
-  const phoneEnabled = watch('phoneEnabled');
-  const onlineEnabled = watch('onlineEnabled');
-  const offlineEnabled = watch('offlineEnabled');
-  const contactCountryCode = watch('contactCountryCode');
-  const contactPhone = watch('contactPhone');
-  const contactEmail = watch('contactEmail');
-  const maxParticipants = watch('maxParticipants');
-  const schedule = watch('schedule');
-  const holidays = watch('holidays');
+      const existingProfile = createdMentors.find(
+        (mentor) => mentor.id === mentorId,
+      );
+      if (!existingProfile) {
+        return;
+      }
 
-  const previewMentorId =
-    memberId !== undefined
-      ? (mentorIdByMember[memberId] ?? nextMentorId)
-      : nextMentorId;
+      const settings = getMentorSettings(existingProfile);
+      reset({
+        ...settings,
+        updatedAt: settings.updatedAt || new Date().toISOString(),
+        schemaVersion: 3,
+      });
+    }, [
+      createdMentors,
+      memberId,
+      mentorIdByMember,
+      mentorStoreHydrated,
+      reset,
+    ]);
 
-  const previewFormValues = useMemo<MentorRegistrationFormValues>(() => {
-    const defaults = createDefaultMentorSettings();
+    const settlementDraft = watch('settlementDraft');
+    const mentoringTitle = watch('mentoringTitle');
+    const appealLine = watch('appealLine');
+    const jobGroup = watch('jobGroup');
+    const jobTitle = watch('jobTitle');
+    const careerYears = watch('careerYears');
+    const skillTags = watch('skillTags');
+    const companyCategory = watch('companyCategory');
+    const companyName = watch('companyName');
+    const hideCompanyName = watch('hideCompanyName');
+    const detailedDescription = watch('detailedDescription');
+    const interviewQuestions = watch('interviewQuestions');
+    const preNotice = watch('preNotice');
+    const notePrice = watch('notePrice');
+    const phonePrice = watch('phonePrice');
+    const onlinePrice = watch('onlinePrice');
+    const offlinePrice = watch('offlinePrice');
+    const onlineDurationMinutes = watch('onlineDurationMinutes');
+    const offlineDurationMinutes = watch('offlineDurationMinutes');
+    const noteEnabled = watch('noteEnabled');
+    const phoneEnabled = watch('phoneEnabled');
+    const onlineEnabled = watch('onlineEnabled');
+    const offlineEnabled = watch('offlineEnabled');
+    const contactCountryCode = watch('contactCountryCode');
+    const contactPhone = watch('contactPhone');
+    const contactEmail = watch('contactEmail');
+    const maxParticipants = watch('maxParticipants');
+    const schedule = watch('schedule');
+    const holidays = watch('holidays');
 
-    return {
-      ...defaults,
-      contactCountryCode: contactCountryCode ?? defaults.contactCountryCode,
-      contactPhone: contactPhone ?? '',
-      contactEmail: contactEmail ?? '',
-      categories: [],
-      mentoringTitle: mentoringTitle ?? '',
-      appealLine: appealLine ?? '',
-      jobGroup: jobGroup ?? '',
-      jobTitle: jobTitle ?? '',
-      careerYears: careerYears ?? '',
+    const previewMentorId =
+      memberId !== undefined
+        ? (mentorIdByMember[memberId] ?? nextMentorId)
+        : nextMentorId;
+
+    const previewFormValues = useMemo<MentorRegistrationFormValues>(() => {
+      const defaults = createDefaultMentorSettings();
+
+      return {
+        ...defaults,
+        contactCountryCode: contactCountryCode ?? defaults.contactCountryCode,
+        contactPhone: contactPhone ?? '',
+        contactEmail: contactEmail ?? '',
+        categories: [],
+        mentoringTitle: mentoringTitle ?? '',
+        appealLine: appealLine ?? '',
+        jobGroup: jobGroup ?? '',
+        jobTitle: jobTitle ?? '',
+        careerYears: careerYears ?? '',
+        skillTags,
+        companyCategory: companyCategory ?? defaults.companyCategory,
+        companyName: companyName ?? '',
+        hideCompanyName: hideCompanyName ?? false,
+        maxParticipants: Math.min(
+          10,
+          Math.max(1, toSafeInteger(maxParticipants, defaults.maxParticipants)),
+        ),
+        noteEnabled: noteEnabled ?? defaults.noteEnabled,
+        notePrice: toSafeInteger(notePrice, defaults.notePrice),
+        phoneEnabled: phoneEnabled ?? defaults.phoneEnabled,
+        phonePrice: toSafeInteger(phonePrice, defaults.phonePrice),
+        onlineEnabled: onlineEnabled ?? defaults.onlineEnabled,
+        onlinePrice: toSafeInteger(onlinePrice, defaults.onlinePrice),
+        onlineDurationMinutes: toDurationMinutes(
+          onlineDurationMinutes,
+          defaults.onlineDurationMinutes,
+        ),
+        offlineEnabled: offlineEnabled ?? defaults.offlineEnabled,
+        offlinePrice: toSafeInteger(offlinePrice, defaults.offlinePrice),
+        offlineDurationMinutes: toDurationMinutes(
+          offlineDurationMinutes,
+          defaults.offlineDurationMinutes,
+        ),
+        schedule: schedule ?? defaults.schedule,
+        holidays: holidays ?? [],
+        detailedDescription: detailedDescription ?? '',
+        interviewQuestions: interviewQuestions ?? [],
+        preNotice: preNotice ?? '',
+        settlementDraft: settlementDraft ?? null,
+        schemaVersion: 3,
+        updatedAt: new Date().toISOString(),
+      };
+    }, [
+      appealLine,
+      careerYears,
+      companyCategory,
+      companyName,
+      contactCountryCode,
+      contactEmail,
+      contactPhone,
+      detailedDescription,
+      hideCompanyName,
+      holidays,
+      interviewQuestions,
+      jobGroup,
+      jobTitle,
+      maxParticipants,
+      mentoringTitle,
+      noteEnabled,
+      notePrice,
+      offlineDurationMinutes,
+      offlineEnabled,
+      offlinePrice,
+      onlineDurationMinutes,
+      onlineEnabled,
+      onlinePrice,
+      phoneEnabled,
+      phonePrice,
+      preNotice,
+      schedule,
+      settlementDraft,
       skillTags,
-      companyCategory: companyCategory ?? defaults.companyCategory,
-      companyName: companyName ?? '',
-      hideCompanyName: hideCompanyName ?? false,
-      maxParticipants: Math.min(
-        10,
-        Math.max(1, toSafeInteger(maxParticipants, defaults.maxParticipants)),
-      ),
-      noteEnabled: noteEnabled ?? defaults.noteEnabled,
-      notePrice: toSafeInteger(notePrice, defaults.notePrice),
-      phoneEnabled: phoneEnabled ?? defaults.phoneEnabled,
-      phonePrice: toSafeInteger(phonePrice, defaults.phonePrice),
-      onlineEnabled: onlineEnabled ?? defaults.onlineEnabled,
-      onlinePrice: toSafeInteger(onlinePrice, defaults.onlinePrice),
-      onlineDurationMinutes: toDurationMinutes(
-        onlineDurationMinutes,
-        defaults.onlineDurationMinutes,
-      ),
-      offlineEnabled: offlineEnabled ?? defaults.offlineEnabled,
-      offlinePrice: toSafeInteger(offlinePrice, defaults.offlinePrice),
-      offlineDurationMinutes: toDurationMinutes(
-        offlineDurationMinutes,
-        defaults.offlineDurationMinutes,
-      ),
-      schedule: schedule ?? defaults.schedule,
-      holidays: holidays ?? [],
-      detailedDescription: detailedDescription ?? '',
-      interviewQuestions: interviewQuestions ?? [],
-      preNotice: preNotice ?? '',
-      settlementDraft: settlementDraft ?? null,
-      schemaVersion: 3,
-      updatedAt: new Date().toISOString(),
-    };
-  }, [
-    appealLine,
-    careerYears,
-    companyCategory,
-    companyName,
-    contactCountryCode,
-    contactEmail,
-    contactPhone,
-    detailedDescription,
-    hideCompanyName,
-    holidays,
-    interviewQuestions,
-    jobGroup,
-    jobTitle,
-    maxParticipants,
-    mentoringTitle,
-    noteEnabled,
-    notePrice,
-    offlineDurationMinutes,
-    offlineEnabled,
-    offlinePrice,
-    onlineDurationMinutes,
-    onlineEnabled,
-    onlinePrice,
-    phoneEnabled,
-    phonePrice,
-    preNotice,
-    schedule,
-    settlementDraft,
-    skillTags,
-  ]);
+    ]);
 
-  const previewMentor = useMemo(() => {
-    return createMentorProfileFromRegistration(
-      previewMentorId,
-      previewFormValues,
-      previewFormValues.updatedAt,
-      profileImageUrl,
-    );
-  }, [previewFormValues, previewMentorId, profileImageUrl]);
+    const previewMentor = useMemo(() => {
+      return createMentorProfileFromRegistration(
+        previewMentorId,
+        previewFormValues,
+        previewFormValues.updatedAt,
+        profileImageUrl,
+      );
+    }, [previewFormValues, previewMentorId, profileImageUrl]);
 
-  useEffect(() => {
-    if (!isPreviewOpen) {
+    useEffect(() => {
+      if (!isPreviewOpen) {
+        prevPreviewFormValuesRef.current = previewFormValues;
+
+        return;
+      }
+
+      const prev = prevPreviewFormValuesRef.current;
       prevPreviewFormValuesRef.current = previewFormValues;
 
-      return;
-    }
+      if (prev === null) {
+        return;
+      }
 
-    const prev = prevPreviewFormValuesRef.current;
-    prevPreviewFormValuesRef.current = previewFormValues;
+      const changed = getChangedSections(prev, previewFormValues);
+      if (changed.length === 0) {
+        return;
+      }
 
-    if (prev === null) {
-      return;
-    }
+      setHighlightedSections(changed);
 
-    const changed = getChangedSections(prev, previewFormValues);
-    if (changed.length === 0) {
-      return;
-    }
-
-    setHighlightedSections(changed);
-
-    if (highlightTimerRef.current !== null) {
-      clearTimeout(highlightTimerRef.current);
-    }
-
-    highlightTimerRef.current = setTimeout(() => {
-      setHighlightedSections([]);
-      highlightTimerRef.current = null;
-    }, 1400);
-  }, [isPreviewOpen, previewFormValues]);
-
-  useEffect(() => {
-    return () => {
       if (highlightTimerRef.current !== null) {
         clearTimeout(highlightTimerRef.current);
       }
-    };
-  }, []);
 
-  const canWriteMentorProfile = hasMentorWritePermission(data?.roleIds);
+      highlightTimerRef.current = setTimeout(() => {
+        setHighlightedSections([]);
+        highlightTimerRef.current = null;
+      }, 1400);
+    }, [isPreviewOpen, previewFormValues]);
 
-  const guardState: MentorRegistrationGuardState = !isHydrated
-    ? 'loading'
-    : !isAuthenticated
-      ? 'loginRequired'
-      : !canWriteMentorProfile
-        ? 'permissionRequired'
-        : isVerificationLoading
-          ? 'verificationLoading'
-          : isVerificationError
-            ? 'verificationError'
-            : !isVerified
-              ? 'verificationRequired'
-              : 'ready';
+    useEffect(() => {
+      return () => {
+        if (highlightTimerRef.current !== null) {
+          clearTimeout(highlightTimerRef.current);
+        }
+      };
+    }, []);
 
-  const handleSave = (values: MentorRegistrationFormValues) => {
-    if (!memberId) {
-      showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.memberInfoMissing, 'error');
+    const canWriteMentorProfile = hasMentorWritePermission(data?.roleIds);
 
-      return;
-    }
+    const guardState: MentorRegistrationGuardState = !isHydrated
+      ? 'loading'
+      : !isAuthenticated
+        ? 'loginRequired'
+        : !canWriteMentorProfile
+          ? 'permissionRequired'
+          : isVerificationLoading
+            ? 'verificationLoading'
+            : isVerificationError
+              ? 'verificationError'
+              : !isVerified
+                ? 'verificationRequired'
+                : 'ready';
 
-    if (isVerificationLoading) {
-      showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.verificationLoading, 'error');
+    const handleSave = (values: MentorRegistrationFormValues) => {
+      if (!memberId) {
+        showToast(
+          MENTOR_REGISTRATION_TOAST_MESSAGES.memberInfoMissing,
+          'error',
+        );
 
-      return;
-    }
+        return;
+      }
 
-    if (isVerificationError) {
-      showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.verificationError, 'error');
+      if (isVerificationLoading) {
+        showToast(
+          MENTOR_REGISTRATION_TOAST_MESSAGES.verificationLoading,
+          'error',
+        );
 
-      return;
-    }
+        return;
+      }
 
-    if (!isVerified) {
-      showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.verificationRequired, 'error');
-      setIsPhoneVerificationModalOpen(true);
+      if (isVerificationError) {
+        showToast(
+          MENTOR_REGISTRATION_TOAST_MESSAGES.verificationError,
+          'error',
+        );
 
-      return;
-    }
+        return;
+      }
 
-    const normalizedVerifiedPhone = sanitizeDigits(verifiedPhoneNumber ?? '');
-    if (!normalizedVerifiedPhone) {
-      showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.verifiedPhoneMissing, 'error');
-      setIsPhoneVerificationModalOpen(true);
+      if (!isVerified) {
+        showToast(
+          MENTOR_REGISTRATION_TOAST_MESSAGES.verificationRequired,
+          'error',
+        );
+        setIsPhoneVerificationModalOpen(true);
 
-      return;
-    }
+        return;
+      }
 
-    const finalizedValues: MentorRegistrationFormValues = {
-      ...values,
-      contactPhone: normalizedVerifiedPhone,
-      updatedAt: new Date().toISOString(),
-      schemaVersion: 3,
-    };
+      const normalizedVerifiedPhone = sanitizeDigits(verifiedPhoneNumber ?? '');
+      if (!normalizedVerifiedPhone) {
+        showToast(
+          MENTOR_REGISTRATION_TOAST_MESSAGES.verifiedPhoneMissing,
+          'error',
+        );
+        setIsPhoneVerificationModalOpen(true);
 
-    const existingMentorId = mentorIdByMember[memberId];
-    const mentorId = registerMentorProfile(memberId, finalizedValues, {
-      imageUrl: profileImageUrl,
-    });
+        return;
+      }
 
-    if (existingMentorId === undefined) {
-      const displayName =
-        nickname?.trim() || memberName?.trim() || `멘토${mentorId}`;
-      setWelcomeOnboarding({
-        mentorId,
-        displayName,
-        checklist: buildWelcomeChecklist(finalizedValues),
+      const finalizedValues: MentorRegistrationFormValues = {
+        ...values,
+        contactPhone: normalizedVerifiedPhone,
+        updatedAt: new Date().toISOString(),
+        schemaVersion: 3,
+      };
+
+      const existingMentorId = mentorIdByMember[memberId];
+      const mentorId = registerMentorProfile(memberId, finalizedValues, {
+        imageUrl: profileImageUrl,
       });
 
-      return;
-    }
+      if (existingMentorId === undefined) {
+        const displayName =
+          nickname?.trim() || memberName?.trim() || `멘토${mentorId}`;
+        setWelcomeOnboarding({
+          mentorId,
+          displayName,
+          checklist: buildWelcomeChecklist(finalizedValues),
+        });
 
-    showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.settingsSaved, 'success');
-    router.push(`/mentoring/${mentorId}`);
-  };
+        return;
+      }
 
-  const handleCancel = () => {
-    if (isDirty) {
-      setIsCancelModalOpen(true);
-
-      return;
-    }
-
-    router.push('/mentoring-management');
-  };
-
-  const handlePhoneVerificationComplete = (phoneNumber: string) => {
-    setVerified(phoneNumber);
-    setValue('contactPhone', sanitizeDigits(phoneNumber), {
-      shouldValidate: true,
-    });
-    setIsPhoneVerificationModalOpen(false);
-    showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.verificationCompleted, 'success');
-  };
-
-  const handleWelcomeModalToMentorPage = () => {
-    if (!welcomeOnboarding) {
-      return;
-    }
-
-    const mentorId = welcomeOnboarding.mentorId;
-    setWelcomeOnboarding(undefined);
-    router.push(`/mentoring/${mentorId}`);
-  };
-
-  const handleWelcomeModalToRequestPage = () => {
-    setWelcomeOnboarding(undefined);
-    router.push('/mentoring-management/requests');
-  };
-
-  const handleOpenPreview = () => {
-    syncPreviewPanelWidth(panelWidthRef.current);
-    setIsPreviewOpen(true);
-  };
-
-  const handleResizeStart = (event: ReactMouseEvent) => {
-    event.preventDefault();
-    const startX = event.clientX;
-    const startWidth = panelWidthRef.current;
-    setIsResizing(true);
-
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      const delta = startX - moveEvent.clientX;
-      const newWidth = clampPreviewPanelWidth(startWidth + delta);
-      panelWidthRef.current = newWidth;
-      setPanelWidth(newWidth);
+      showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.settingsSaved, 'success');
+      router.push(`/mentoring/${mentorId}`);
     };
 
-    const handleMouseUp = () => {
-      setIsResizing(false);
-      setCommittedPanelWidth(panelWidthRef.current);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
+    const handleCancel = () => {
+      if (isDirty) {
+        setIsCancelModalOpen(true);
+
+        return;
+      }
+
+      router.push('/mentoring-management');
     };
 
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  };
+    const handlePhoneVerificationComplete = (phoneNumber: string) => {
+      setVerified(phoneNumber);
+      setValue('contactPhone', sanitizeDigits(phoneNumber), {
+        shouldValidate: true,
+      });
+      setIsPhoneVerificationModalOpen(false);
+      showToast(
+        MENTOR_REGISTRATION_TOAST_MESSAGES.verificationCompleted,
+        'success',
+      );
+    };
 
-  const handleSettlementSubmit = (draft: MentorSettlementDraft) => {
-    setValue('settlementDraft', draft, DIRTY_VALIDATION_OPTIONS);
-    showToast(MENTOR_REGISTRATION_TOAST_MESSAGES.settlementRegistered, 'success');
-  };
+    const handleWelcomeModalToMentorPage = () => {
+      if (!welcomeOnboarding) {
+        return;
+      }
 
-  return {
-    state: {
-      form,
-      guardState,
-      memberId,
-      isGuideOpen,
-      isPhoneVerificationModalOpen,
-      isCancelModalOpen,
-      isSettlementModalOpen,
-      isPreviewOpen,
-      isResizing,
-      headerHeight,
-      panelWidth,
-      committedPanelWidth,
-      highlightedSections,
-      previewMentor,
-      settlementDraft: settlementDraft ?? undefined,
-      welcomeOnboarding,
-      shouldRenderPhoneVerificationModal: Boolean(memberId),
-    } satisfies MentorRegistrationControllerState,
-    refs: {
-      previewLayoutRef,
-    } satisfies MentorRegistrationControllerRefs,
-    actions: {
-      onGuideOpenChange: setIsGuideOpen,
-      onOpenGuide: () => setIsGuideOpen(true),
-      onPhoneVerificationModalOpenChange: setIsPhoneVerificationModalOpen,
-      onOpenPhoneVerification: () => setIsPhoneVerificationModalOpen(true),
-      onCancelModalOpenChange: setIsCancelModalOpen,
-      onSettlementModalOpenChange: setIsSettlementModalOpen,
-      onOpenPreview: handleOpenPreview,
-      onClosePreview: () => setIsPreviewOpen(false),
-      onPreviewResizeStart: handleResizeStart,
-      onSave: handleSave,
-      onCancel: handleCancel,
-      onPhoneVerificationComplete: handlePhoneVerificationComplete,
-      onSettlementSubmit: handleSettlementSubmit,
-      onWelcomeModalToMentorPage: handleWelcomeModalToMentorPage,
-      onWelcomeModalToRequestPage: handleWelcomeModalToRequestPage,
-      onConfirmExitWithoutSaving: () => router.push('/mentoring-management'),
-    } satisfies MentorRegistrationControllerActions,
-    viewModel: {
-      isReady: guardState === 'ready',
-    } satisfies MentorRegistrationControllerViewModel,
+      const mentorId = welcomeOnboarding.mentorId;
+      setWelcomeOnboarding(undefined);
+      router.push(`/mentoring/${mentorId}`);
+    };
+
+    const handleWelcomeModalToRequestPage = () => {
+      setWelcomeOnboarding(undefined);
+      router.push('/mentoring-management/requests');
+    };
+
+    const handleOpenPreview = () => {
+      syncPreviewPanelWidth(panelWidthRef.current);
+      setIsPreviewOpen(true);
+    };
+
+    const handleResizeStart = (event: ReactMouseEvent) => {
+      event.preventDefault();
+      const startX = event.clientX;
+      const startWidth = panelWidthRef.current;
+      setIsResizing(true);
+
+      const handleMouseMove = (moveEvent: MouseEvent) => {
+        const delta = startX - moveEvent.clientX;
+        const newWidth = clampPreviewPanelWidth(startWidth + delta);
+        panelWidthRef.current = newWidth;
+        setPanelWidth(newWidth);
+      };
+
+      const handleMouseUp = () => {
+        setIsResizing(false);
+        setCommittedPanelWidth(panelWidthRef.current);
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+    };
+
+    const handleSettlementSubmit = (draft: MentorSettlementDraft) => {
+      setValue('settlementDraft', draft, DIRTY_VALIDATION_OPTIONS);
+      showToast(
+        MENTOR_REGISTRATION_TOAST_MESSAGES.settlementRegistered,
+        'success',
+      );
+    };
+
+    return {
+      state: {
+        form,
+        guardState,
+        memberId,
+        isGuideOpen,
+        isPhoneVerificationModalOpen,
+        isCancelModalOpen,
+        isSettlementModalOpen,
+        isPreviewOpen,
+        isResizing,
+        headerHeight,
+        panelWidth,
+        committedPanelWidth,
+        highlightedSections,
+        previewMentor,
+        settlementDraft: settlementDraft ?? undefined,
+        welcomeOnboarding,
+        shouldRenderPhoneVerificationModal: Boolean(memberId),
+      } satisfies MentorRegistrationControllerState,
+      refs: {
+        previewLayoutRef,
+      } satisfies MentorRegistrationControllerRefs,
+      actions: {
+        onGuideOpenChange: setIsGuideOpen,
+        onOpenGuide: () => setIsGuideOpen(true),
+        onPhoneVerificationModalOpenChange: setIsPhoneVerificationModalOpen,
+        onOpenPhoneVerification: () => setIsPhoneVerificationModalOpen(true),
+        onCancelModalOpenChange: setIsCancelModalOpen,
+        onSettlementModalOpenChange: setIsSettlementModalOpen,
+        onOpenPreview: handleOpenPreview,
+        onClosePreview: () => setIsPreviewOpen(false),
+        onPreviewResizeStart: handleResizeStart,
+        onSave: handleSave,
+        onCancel: handleCancel,
+        onPhoneVerificationComplete: handlePhoneVerificationComplete,
+        onSettlementSubmit: handleSettlementSubmit,
+        onWelcomeModalToMentorPage: handleWelcomeModalToMentorPage,
+        onWelcomeModalToRequestPage: handleWelcomeModalToRequestPage,
+        onConfirmExitWithoutSaving: () => router.push('/mentoring-management'),
+      } satisfies MentorRegistrationControllerActions,
+      viewModel: {
+        isReady: guardState === 'ready',
+      } satisfies MentorRegistrationControllerViewModel,
+    };
   };
-};

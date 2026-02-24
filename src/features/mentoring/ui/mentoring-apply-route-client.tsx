@@ -1,9 +1,7 @@
 'use client';
 
 import { isMentoringMethodType } from '@/features/mentoring/model/mentor-permission';
-import {
-  findMentorById,
-} from '@/features/mentoring/model/use-mentor-directory';
+import { findMentorById } from '@/features/mentoring/model/use-mentor-directory';
 import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { getEnabledMentoringMethods } from '@/mocks/mentoring-mock-data';
 import {

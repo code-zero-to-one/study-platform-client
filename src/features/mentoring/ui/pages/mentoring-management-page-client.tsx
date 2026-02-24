@@ -47,7 +47,9 @@ export default function MentoringManagementPageClient() {
         return (
           <div className="flex flex-col gap-300">
             <header className="flex items-center justify-between">
-              <h1 className="font-designer-24b text-text-default">멘토링 관리</h1>
+              <h1 className="font-designer-24b text-text-default">
+                멘토링 관리
+              </h1>
               <button
                 type="button"
                 className="font-designer-14m text-text-subtle hover:text-text-default inline-flex items-center gap-50"
@@ -62,7 +64,9 @@ export default function MentoringManagementPageClient() {
               radius="lg"
               className="border-border-information bg-background-accent-blue-subtle p-250"
             >
-              <h2 className="font-designer-18b text-text-default">관리 화면 역할 구분</h2>
+              <h2 className="font-designer-18b text-text-default">
+                관리 화면 역할 구분
+              </h2>
               <p className="font-designer-13r text-text-subtle mt-50">
                 현재 페이지(`/mentoring-management`)는 멘토 운영 화면입니다.
                 유저(멘티)와 멘토의 관리 범위는 아래처럼 분리됩니다.
@@ -73,7 +77,8 @@ export default function MentoringManagementPageClient() {
                     유저(멘티) 입장 관리
                   </h3>
                   <p className="font-designer-13r text-text-subtle mt-50">
-                    내가 신청한 상담 내역 확인, 멘토 답변 확인, 상담 완료 후 후기 작성
+                    내가 신청한 상담 내역 확인, 멘토 답변 확인, 상담 완료 후
+                    후기 작성
                   </p>
                   <div className="mt-100 flex flex-wrap gap-100">
                     <Link
@@ -95,7 +100,8 @@ export default function MentoringManagementPageClient() {
                     멘토 입장 관리
                   </h3>
                   <p className="font-designer-13r text-text-subtle mt-50">
-                    신청서 검토 및 수락/거절, 입금 확인, 상담 일정 확정/변경/취소
+                    신청서 검토 및 수락/거절, 입금 확인, 상담 일정
+                    확정/변경/취소
                   </p>
                   <div className="mt-100 flex flex-wrap gap-100">
                     <Link
@@ -117,7 +123,10 @@ export default function MentoringManagementPageClient() {
 
             {myMentorProfile ? (
               <>
-                <SurfacePanel radius="lg" className="flex flex-col gap-200 p-300">
+                <SurfacePanel
+                  radius="lg"
+                  className="flex flex-col gap-200 p-300"
+                >
                   <div className="flex items-start justify-between gap-200">
                     <div>
                       <p className="font-designer-14r text-text-subtle mb-50">
@@ -212,7 +221,10 @@ export default function MentoringManagementPageClient() {
               </SurfacePanel>
             )}
 
-            <MentoringGuideModal open={isGuideOpen} onOpenChange={setIsGuideOpen} />
+            <MentoringGuideModal
+              open={isGuideOpen}
+              onOpenChange={setIsGuideOpen}
+            />
           </div>
         );
       })()}

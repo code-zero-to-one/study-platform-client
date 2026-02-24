@@ -93,15 +93,17 @@ export default function ScheduleEditorModal({
 
     if (!hasConflict) return null;
 
-    return sessions.find((session) => {
-      if (session.status !== 'SCHEDULED') return false;
-      if (excludeSessionId && session.id === excludeSessionId) return false;
+    return (
+      sessions.find((session) => {
+        if (session.status !== 'SCHEDULED') return false;
+        if (excludeSessionId && session.id === excludeSessionId) return false;
 
-      const sStart = dayjs(session.startsAt);
-      const sEnd = dayjs(session.endsAt);
+        const sStart = dayjs(session.startsAt);
+        const sEnd = dayjs(session.endsAt);
 
-      return startDateTime.isBefore(sEnd) && sStart.isBefore(endDateTime);
-    }) ?? null;
+        return startDateTime.isBefore(sEnd) && sStart.isBefore(endDateTime);
+      }) ?? null
+    );
   }, [startDateTime, endDateTime, sessions, excludeSessionId]);
 
   const isInvalid =
@@ -125,7 +127,10 @@ export default function ScheduleEditorModal({
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content className="w-full max-w-[640px]" description={description}>
+        <Modal.Content
+          className="w-full max-w-[640px]"
+          description={description}
+        >
           <Modal.Header className="flex items-center justify-between">
             <div>
               <Modal.Title>{title}</Modal.Title>
@@ -226,15 +231,15 @@ export default function ScheduleEditorModal({
               <BorderedTextarea
                 value={mentorNote}
                 onChange={(event) => setMentorNote(event.target.value)}
-                className={cn(
-                  'min-h-[110px] px-150 py-125',
-                )}
+                className={cn('min-h-[110px] px-150 py-125')}
                 placeholder="준비해오면 좋은 내용이나 접속 안내를 남겨주세요."
               />
             </div>
 
             {errorMessage && (
-              <p className="font-designer-13r text-text-error">{errorMessage}</p>
+              <p className="font-designer-13r text-text-error">
+                {errorMessage}
+              </p>
             )}
           </Modal.Body>
 

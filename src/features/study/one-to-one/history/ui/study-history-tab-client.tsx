@@ -6,7 +6,10 @@ import SectionShell from '@/components/ui/section-shell';
 import { GetMyStudyHistoryParams } from '@/features/study/one-to-one/history/api/get-my-study-history';
 import { useMyStudyHistoryQuery } from '@/features/study/one-to-one/history/model/use-my-study-history-query';
 import { useScrollToHomeContentOnChange } from '@/hooks/use-scroll-to-home-content';
-import { PageableResponse, StudyHistoryContent } from '@/types/one-to-one-study/study-history';
+import {
+  PageableResponse,
+  StudyHistoryContent,
+} from '@/types/one-to-one-study/study-history';
 import StudyHistoryCalendarSection from './study-history-calendar-section';
 import StudyHistoryHeader from './study-history-header';
 import StudyHistoryListSection from './study-history-list-section';

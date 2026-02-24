@@ -178,7 +178,8 @@ export default function MentorRegistrationForm({
           />
           <FieldErrorText message={errors.mentoringTitle?.message} />
           <p className="font-designer-12r text-text-subtle mt-75">
-            멘토링명은 최대 {MENTORING_TITLE_MAX_LENGTH}자까지 입력할 수 있습니다.
+            멘토링명은 최대 {MENTORING_TITLE_MAX_LENGTH}자까지 입력할 수
+            있습니다.
           </p>
         </div>
 

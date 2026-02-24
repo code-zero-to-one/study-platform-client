@@ -75,7 +75,8 @@ export default function MentorDetailPage({
     previewMode === true && (highlightedSections?.includes(section) ?? false);
   const mentorSettings = getMentorSettings(mentor);
   const jobTitleLabel = mentorSettings.jobTitle || mentor.role || '직무 미입력';
-  const careerLabel = mentorSettings.careerYears || mentor.career || '경력 미입력';
+  const careerLabel =
+    mentorSettings.careerYears || mentor.career || '경력 미입력';
   const enabledMethods = useMemo(() => {
     return getEnabledMentoringMethods(mentor);
   }, [mentor]);
@@ -333,7 +334,6 @@ export default function MentorDetailPage({
                 );
               })}
             </div>
-
           </section>
 
           {/* 사전 안내 */}
@@ -414,7 +414,9 @@ export default function MentorDetailPage({
 
         {/* ─── 우측 사이드바 ─── */}
         <aside
-          className={cn(!previewMode && 'xl:sticky xl:top-[88px] xl:self-start')}
+          className={cn(
+            !previewMode && 'xl:sticky xl:top-[88px] xl:self-start',
+          )}
         >
           <div className="rounded-200 border-border-subtle bg-background-default shadow-1 overflow-hidden border">
             {/* 이름 + 기본 정보 */}

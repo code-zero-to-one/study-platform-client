@@ -22,7 +22,10 @@ const nativeSelectVariants = cva(
   },
 );
 
-type NativeSelectProps = Omit<React.ComponentPropsWithoutRef<'select'>, 'size'> &
+type NativeSelectProps = Omit<
+  React.ComponentPropsWithoutRef<'select'>,
+  'size'
+> &
   VariantProps<typeof nativeSelectVariants>;
 
 export default function NativeSelect({
@@ -33,7 +36,10 @@ export default function NativeSelect({
   ...props
 }: NativeSelectProps) {
   return (
-    <select className={cn(nativeSelectVariants({ scale, tone }), className)} {...props}>
+    <select
+      className={cn(nativeSelectVariants({ scale, tone }), className)}
+      {...props}
+    >
       {children}
     </select>
   );

@@ -51,7 +51,10 @@ export default function MentoringSeedButton() {
 
   const handleSeed = () => {
     if (!memberId) {
-      showToast('로그인된 관리자 계정에서만 목데이터를 생성할 수 있습니다.', 'error');
+      showToast(
+        '로그인된 관리자 계정에서만 목데이터를 생성할 수 있습니다.',
+        'error',
+      );
 
       return;
     }

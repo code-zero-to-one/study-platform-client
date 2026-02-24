@@ -57,8 +57,7 @@ const TEXT = {
   moveToNoteConsultation: '쪽지상담 이동',
   moveToList: '목록으로',
   guideTitle: '멘토링 안내',
-  pendingFooterFirst:
-    '일정 확정 전까지는 멘토 조율 요청 상태로 표시됩니다.',
+  pendingFooterFirst: '일정 확정 전까지는 멘토 조율 요청 상태로 표시됩니다.',
   pendingFooterSecond:
     '확정 후 알림에서 최종 시간과 진행 방식을 확인할 수 있습니다.',
 };
@@ -72,7 +71,7 @@ export default function MyMentoringDetailPage({
 }: MyMentoringDetailPageProps) {
   const scheduleText =
     mentoring.status === 'CONFIRMED'
-      ? mentoring.mentoringTime ?? '-'
+      ? (mentoring.mentoringTime ?? '-')
       : mentoring.pendingWindow
         ? `${TEXT.pendingWindow}: ${mentoring.pendingWindow}`
         : TEXT.pendingFallback;
@@ -99,7 +98,7 @@ export default function MyMentoringDetailPage({
         </p>
       </div>
 
-      <div className="rounded-200 border-border-subtle overflow-hidden border bg-background-default shadow-sm">
+      <div className="rounded-200 border-border-subtle bg-background-default overflow-hidden border shadow-sm">
         {mentoring.status === 'PENDING' && (
           <div className="bg-background-accent-orange-subtle px-300 py-150">
             <p className="font-designer-14m text-background-accent-orange-strong">
@@ -121,16 +120,21 @@ export default function MyMentoringDetailPage({
                 <Badge color="blue" shape="round">
                   {METHOD_LABEL[mentoring.method]}
                 </Badge>
-                <Badge color={STATUS_META[mentoring.status].color} shape="round">
+                <Badge
+                  color={STATUS_META[mentoring.status].color}
+                  shape="round"
+                >
                   {STATUS_META[mentoring.status].label}
                 </Badge>
               </div>
             </div>
 
-            <div className="border-border-subtle divide-border-subtle divide-y rounded-150 border">
+            <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border">
               <InfoRow label={TEXT.requestMessage}>{mentoring.title}</InfoRow>
               <InfoRow label={TEXT.mentor}>{mentoring.mentorName}</InfoRow>
-              <InfoRow label={TEXT.requestedAt}>{mentoring.requestedAt}</InfoRow>
+              <InfoRow label={TEXT.requestedAt}>
+                {mentoring.requestedAt}
+              </InfoRow>
               <InfoRow label={TEXT.preferredSchedule}>{scheduleText}</InfoRow>
               <InfoRow label={TEXT.confirmedSchedule}>
                 {mentoring.mentoringTime ?? '-'}
@@ -157,9 +161,13 @@ export default function MyMentoringDetailPage({
               </Badge>
             </div>
 
-            <div className="border-border-subtle divide-border-subtle divide-y rounded-150 border px-150">
-              <InfoRow label={TEXT.paymentMethod}>{TEXT.paymentMethodValue}</InfoRow>
-              <InfoRow label={TEXT.paymentAmount}>{TEXT.paymentAmountValue}</InfoRow>
+            <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border px-150">
+              <InfoRow label={TEXT.paymentMethod}>
+                {TEXT.paymentMethodValue}
+              </InfoRow>
+              <InfoRow label={TEXT.paymentAmount}>
+                {TEXT.paymentAmountValue}
+              </InfoRow>
               <InfoRow label={TEXT.paymentStatus}>
                 {PAYMENT_META[mentoring.status].label}
               </InfoRow>
@@ -213,7 +221,9 @@ function InfoRow({ label, children }: { label: string; children: ReactNode }) {
       <span className="font-designer-14m text-text-subtle w-[100px] shrink-0">
         {label}
       </span>
-      <div className="font-designer-14r text-text-default flex-1">{children}</div>
+      <div className="font-designer-14r text-text-default flex-1">
+        {children}
+      </div>
     </div>
   );
 }

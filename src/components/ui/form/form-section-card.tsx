@@ -27,7 +27,12 @@ export default function FormSectionCard({
         className,
       )}
     >
-      <h2 className={cn('font-designer-20b text-text-default mb-75', titleClassName)}>
+      <h2
+        className={cn(
+          'font-designer-20b text-text-default mb-75',
+          titleClassName,
+        )}
+      >
         {title}
       </h2>
       {description ? (

@@ -14,7 +14,8 @@ export const MENTORING_LIST_LABELS = {
 export const MENTORING_LIST_ERROR_MESSAGES = {
   loginRequired: '로그인 후 멘토 등록이 가능합니다.',
   roleRequired: '멘토/관리자 권한이 필요합니다.',
-  memberInfoMissing: '회원 정보를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.',
+  memberInfoMissing:
+    '회원 정보를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.',
   verificationUnavailable:
     '본인인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.',
   verificationRequired: '멘토 등록 전 본인인증이 필요합니다.',

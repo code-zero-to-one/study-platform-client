@@ -90,7 +90,10 @@ export default function ReviewSeedActions() {
     });
 
     // TOSS_PAYMENTS: 결제 완료 후 신청 생성이므로 confirmManualPayment 불필요
-    const startsAt = dayjs().subtract(2, 'hour').startOf('minute').toISOString();
+    const startsAt = dayjs()
+      .subtract(2, 'hour')
+      .startOf('minute')
+      .toISOString();
     const endsAt = dayjs().subtract(1, 'hour').startOf('minute').toISOString();
     const result = acceptRequest({
       mentorId: TARGET_MENTOR_ID,

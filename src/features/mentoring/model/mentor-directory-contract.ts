@@ -120,7 +120,9 @@ export const parseMentorDirectoryQueryInputOrThrow = ({
   };
 };
 
-export const parseMentorDirectoryResponseOrThrow = (mentors: MentorProfile[]) => {
+export const parseMentorDirectoryResponseOrThrow = (
+  mentors: MentorProfile[],
+) => {
   const parsedResponse = mentorDirectoryResponseSchema.safeParse({
     mentors,
   });

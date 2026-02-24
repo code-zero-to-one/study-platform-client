@@ -47,17 +47,14 @@ export const useMentorScreeningStore = create<MentorScreeningState>()(
             const nextStartedAt =
               status === 'PENDING'
                 ? undefined
-                : previousStartedAt ??
-                  startedAt ??
-                  reviewedAt ??
-                  nowIso;
+                : (previousStartedAt ?? startedAt ?? reviewedAt ?? nowIso);
             const nextStartedByMemberId =
               status === 'PENDING'
                 ? undefined
-                : previousStartedByMemberId ?? startedByMemberId;
+                : (previousStartedByMemberId ?? startedByMemberId);
             const nextReviewedAt =
               status === 'APPROVED' || status === 'REJECTED'
-                ? reviewedAt ?? nowIso
+                ? (reviewedAt ?? nowIso)
                 : undefined;
             const nextReviewedByMemberId =
               status === 'APPROVED' || status === 'REJECTED'
@@ -118,9 +115,9 @@ export const useMentorScreeningStore = create<MentorScreeningState>()(
                   note: record.note,
                   startedAt:
                     record.status !== 'PENDING'
-                      ? record.startedAt ??
+                      ? (record.startedAt ??
                         record.reviewedAt ??
-                        new Date().toISOString()
+                        new Date().toISOString())
                       : undefined,
                   startedByMemberId: record.startedByMemberId,
                   reviewedAt:

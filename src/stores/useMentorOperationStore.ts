@@ -130,10 +130,7 @@ export const useMentorOperationStore = create<MentorOperationState>()(
         const normalizedRecordsByMentorId = Object.fromEntries(
           Object.entries(typedState.recordsByMentorId ?? {}).map(
             ([mentorId, record]) => {
-              return [
-                Number(mentorId),
-                normalizeRecord(record),
-              ] as const;
+              return [Number(mentorId), normalizeRecord(record)] as const;
             },
           ),
         ) as Record<number, MentorOperationRecord>;

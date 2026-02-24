@@ -33,10 +33,9 @@ export const useUserStore = create<UserStore>()(
       fetchAndSetUser: async (memberId: number) => {
         try {
           const profile = await getUserProfile(memberId);
-          const originalProfileImageUrl = profile.memberProfile.profileImage
-            ?.resizedImages?.find(
-              (image) =>
-                image.imageSizeType.imageTypeName === 'ORIGINAL',
+          const originalProfileImageUrl =
+            profile.memberProfile.profileImage?.resizedImages?.find(
+              (image) => image.imageSizeType.imageTypeName === 'ORIGINAL',
             )?.resizedImageUrl;
           const fallbackProfileImageUrl =
             profile.memberProfile.profileImage?.resizedImages?.[0]

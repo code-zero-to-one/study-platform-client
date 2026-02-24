@@ -1,11 +1,6 @@
 import { type ReactNode } from 'react';
 
-export type ListUiState =
-  | 'ready'
-  | 'loading'
-  | 'empty'
-  | 'error'
-  | 'forbidden';
+export type ListUiState = 'ready' | 'loading' | 'empty' | 'error' | 'forbidden';
 
 interface ListStateBoundaryProps {
   state: ListUiState;

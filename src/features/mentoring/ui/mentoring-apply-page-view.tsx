@@ -17,10 +17,7 @@ import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
 import { type MentoringApplyControllerResult } from '@/features/mentoring/model/use-mentoring-apply-controller';
 import MentoringRequestEditor from '@/features/mentoring/ui/mentoring-request-editor';
-import {
-  formatWon,
-  getMethodLabel,
-} from '@/mocks/mentoring-mock-data';
+import { formatWon, getMethodLabel } from '@/mocks/mentoring-mock-data';
 import type {
   MentorProfile,
   MentoringMethodType,
@@ -260,14 +257,19 @@ export default function MentoringApplyPageView({
 
             <div className="font-designer-14r text-text-subtle space-y-75">
               <p>
-                이름 <span className="text-text-default">{viewModel.applicantName}</span>
+                이름{' '}
+                <span className="text-text-default">
+                  {viewModel.applicantName}
+                </span>
               </p>
               <p>
                 이메일 <span className="text-text-default">-</span>
               </p>
               <p>
                 휴대폰 번호{' '}
-                <span className="text-text-default">{viewModel.applicantPhone}</span>
+                <span className="text-text-default">
+                  {viewModel.applicantPhone}
+                </span>
               </p>
             </div>
           </section>

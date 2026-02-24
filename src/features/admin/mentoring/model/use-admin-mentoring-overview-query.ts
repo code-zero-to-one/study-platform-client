@@ -59,13 +59,27 @@ const buildAdminMentoringOverview = ({
   screeningByMentor,
   operationByMentor,
 }: {
-  createdMentors: ReturnType<typeof useMentorDirectoryStore.getState>['createdMentors'];
-  mentorIdByMember: ReturnType<typeof useMentorDirectoryStore.getState>['mentorIdByMember'];
-  requestsByMentor: ReturnType<typeof useMentoringManagementStore.getState>['requestsByMentor'];
-  sessionsByMentor: ReturnType<typeof useMentoringManagementStore.getState>['sessionsByMentor'];
-  reviewsByMentor: ReturnType<typeof useMentoringManagementStore.getState>['reviewsByMentor'];
-  screeningByMentor: ReturnType<typeof useMentorScreeningStore.getState>['recordsByMentorId'];
-  operationByMentor: ReturnType<typeof useMentorOperationStore.getState>['recordsByMentorId'];
+  createdMentors: ReturnType<
+    typeof useMentorDirectoryStore.getState
+  >['createdMentors'];
+  mentorIdByMember: ReturnType<
+    typeof useMentorDirectoryStore.getState
+  >['mentorIdByMember'];
+  requestsByMentor: ReturnType<
+    typeof useMentoringManagementStore.getState
+  >['requestsByMentor'];
+  sessionsByMentor: ReturnType<
+    typeof useMentoringManagementStore.getState
+  >['sessionsByMentor'];
+  reviewsByMentor: ReturnType<
+    typeof useMentoringManagementStore.getState
+  >['reviewsByMentor'];
+  screeningByMentor: ReturnType<
+    typeof useMentorScreeningStore.getState
+  >['recordsByMentorId'];
+  operationByMentor: ReturnType<
+    typeof useMentorOperationStore.getState
+  >['recordsByMentorId'];
 }): AdminMentoringOverviewQueryResult => {
   const memberIdByMentorId = buildMemberIdByMentorId(mentorIdByMember);
 
@@ -174,13 +188,27 @@ const getAdminMentoringOverview = ({
   screeningByMentor,
   operationByMentor,
 }: {
-  createdMentors: ReturnType<typeof useMentorDirectoryStore.getState>['createdMentors'];
-  mentorIdByMember: ReturnType<typeof useMentorDirectoryStore.getState>['mentorIdByMember'];
-  requestsByMentor: ReturnType<typeof useMentoringManagementStore.getState>['requestsByMentor'];
-  sessionsByMentor: ReturnType<typeof useMentoringManagementStore.getState>['sessionsByMentor'];
-  reviewsByMentor: ReturnType<typeof useMentoringManagementStore.getState>['reviewsByMentor'];
-  screeningByMentor: ReturnType<typeof useMentorScreeningStore.getState>['recordsByMentorId'];
-  operationByMentor: ReturnType<typeof useMentorOperationStore.getState>['recordsByMentorId'];
+  createdMentors: ReturnType<
+    typeof useMentorDirectoryStore.getState
+  >['createdMentors'];
+  mentorIdByMember: ReturnType<
+    typeof useMentorDirectoryStore.getState
+  >['mentorIdByMember'];
+  requestsByMentor: ReturnType<
+    typeof useMentoringManagementStore.getState
+  >['requestsByMentor'];
+  sessionsByMentor: ReturnType<
+    typeof useMentoringManagementStore.getState
+  >['sessionsByMentor'];
+  reviewsByMentor: ReturnType<
+    typeof useMentoringManagementStore.getState
+  >['reviewsByMentor'];
+  screeningByMentor: ReturnType<
+    typeof useMentorScreeningStore.getState
+  >['recordsByMentorId'];
+  operationByMentor: ReturnType<
+    typeof useMentorOperationStore.getState
+  >['recordsByMentorId'];
 }) => {
   const overview = buildAdminMentoringOverview({
     createdMentors,

@@ -158,7 +158,10 @@ export default function MentorCard({ mentor }: MentorCardProps) {
         {keywords.length > 0 && (
           <div className="rounded-125 bg-background-alternative mt-auto mb-0 flex flex-wrap gap-x-200 gap-y-75 px-150 py-125">
             {keywords.map((keyword) => (
-              <span key={keyword} className="font-designer-12r text-text-subtle">
+              <span
+                key={keyword}
+                className="font-designer-12r text-text-subtle"
+              >
                 #{keyword}
               </span>
             ))}

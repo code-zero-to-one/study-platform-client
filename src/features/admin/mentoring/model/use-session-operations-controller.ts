@@ -66,7 +66,8 @@ export const useSessionOperationsController = ({
       )
       .sort((first, second) => {
         return (
-          dayjs(second.requestedAt).valueOf() - dayjs(first.requestedAt).valueOf()
+          dayjs(second.requestedAt).valueOf() -
+          dayjs(first.requestedAt).valueOf()
         );
       });
   }, [filteredMentors]);
