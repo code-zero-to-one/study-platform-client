@@ -8,11 +8,9 @@ import {
   withMentorSettings,
 } from '@/mocks/mentoring-mock-data';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
-import {
-  type MentoringReview,
-  useMentoringManagementStore,
-} from '@/stores/useMentoringManagementStore';
-import type { MentorProfile, MentorReview } from '@/types/mentoring';
+import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import type { MentorProfile, MentorReview } from '@/types/mentoring-domain';
+import type { MentoringReview } from '@/types/mentoring-management';
 import {
   parseMentorDirectoryQueryInputOrThrow,
   parseMentorDirectoryResponseOrThrow,

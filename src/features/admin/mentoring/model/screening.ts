@@ -1,4 +1,4 @@
-import { type MentorScreeningStatus } from '@/stores/useMentorScreeningStore';
+import type { MentorScreeningStatus } from '@/types/mentoring-admin';
 
 export const MENTOR_SCREENING_STATUS_META: Record<
   MentorScreeningStatus,

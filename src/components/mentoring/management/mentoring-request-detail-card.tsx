@@ -4,60 +4,20 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
-import {
-  getMethodLabel,
-  type MentoringMethodType,
-} from '@/mocks/mentoring-mock-data';
+import BorderedTextarea from '@/components/ui/input/bordered-textarea';
+import KeyValueRow from '@/components/ui/key-value-row';
+import SurfacePanel from '@/components/ui/surface-panel';
+import { MENTORING_PAYMENT_STATUS_META } from '@/features/mentoring/model/management-status-meta';
 import { useToastStore } from '@/stores/use-toast-store';
-import {
-  type MentoringPaymentMode,
-  type MentoringPaymentStatus,
-  type MentoringRequest,
-  useMentoringManagementStore,
-} from '@/stores/useMentoringManagementStore';
+import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import type { MentoringMethodType } from '@/types/mentoring-domain';
+import type {
+  MentoringRequestDetailCardProps,
+} from '@/types/mentoring-management-ui';
 
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,
 } from './schedule-editor-modal';
-
-interface MentoringRequestDetailCardProps {
-  request: MentoringRequest;
-  mentorId: number;
-  methodDurations: Record<MentoringMethodType, number>;
-}
-
-const statusLabelMap = {
-  PENDING: '대기중',
-  ACCEPTED: '수락됨',
-  REJECTED: '거절됨',
-} as const;
-
-const statusColorMap = {
-  PENDING: 'orange',
-  ACCEPTED: 'green',
-  REJECTED: 'red',
-} as const;
-
-const paymentModeLabelMap: Record<MentoringPaymentMode, string> = {
-  TOSS_PAYMENTS: 'Toss 결제',
-  MANUAL_TRANSFER: '수동 계좌이체',
-  FREE_REQUEST: '무료 상담',
-};
-
-const paymentStatusLabelMap: Record<MentoringPaymentStatus, string> = {
-  PENDING_TRANSFER: '입금 대기',
-  NOT_REQUIRED: '결제 불필요',
-  CONFIRMED: '입금 확인',
-};
-
-const paymentStatusColorMap: Record<
-  MentoringPaymentStatus,
-  'orange' | 'blue' | 'green'
-> = {
-  PENDING_TRANSFER: 'orange',
-  NOT_REQUIRED: 'blue',
-  CONFIRMED: 'green',
-};
 
 const defaultPlaceByMethod: Record<MentoringMethodType, string> = {
   note: '서비스 내 쪽지로 진행',
@@ -72,25 +32,6 @@ const REJECT_PRESETS = [
   '요청하신 분야가 제 전문 영역 밖입니다.',
   '신청하신 상담 방식을 현재 제공하지 않습니다.',
 ];
-
-function InfoRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-200 py-150">
-      <span className="font-designer-14m text-text-subtle w-[100px] shrink-0">
-        {label}
-      </span>
-      <div className="font-designer-14r text-text-default flex-1">
-        {children}
-      </div>
-    </div>
-  );
-}
 
 export default function MentoringRequestDetailCard({
   request,
@@ -131,6 +72,7 @@ export default function MentoringRequestDetailCard({
     const result = acceptRequest({ mentorId, requestId: request.id });
     if (!result.ok) {
       showToast(result.reason ?? '신청 수락에 실패했습니다.', 'error');
+
       return;
     }
     showToast('신청을 수락했습니다.', 'success');
@@ -151,6 +93,7 @@ export default function MentoringRequestDetailCard({
       const reason = result.reason ?? '일정 확정에 실패했습니다.';
       setScheduleError(reason);
       showToast(reason, 'error');
+
       return;
     }
     setScheduleError('');
@@ -163,6 +106,7 @@ export default function MentoringRequestDetailCard({
     const result = rejectRequest({ mentorId, requestId: request.id, reason });
     if (!result.ok) {
       showToast(result.reason ?? '신청 거절에 실패했습니다.', 'error');
+
       return;
     }
     setIsRejecting(false);
@@ -178,6 +122,7 @@ export default function MentoringRequestDetailCard({
     });
     if (!result.ok) {
       showToast(result.reason ?? '입금 확인 처리에 실패했습니다.', 'error');
+
       return;
     }
     showToast('입금 확인이 완료되었습니다.', 'success');
@@ -185,7 +130,7 @@ export default function MentoringRequestDetailCard({
 
   return (
     <>
-      <div className="rounded-200 border-border-subtle overflow-hidden border bg-background-default shadow-sm">
+      <SurfacePanel radius="lg" overflow="hidden" className="shadow-sm">
         {/* 본문 */}
         <div className="px-300 py-300">
           {/* 멘토링 신청 정보 섹션 */}
@@ -194,16 +139,70 @@ export default function MentoringRequestDetailCard({
               멘토링 신청 정보
             </h3>
             <div className="border-border-subtle divide-border-subtle divide-y rounded-150 border">
-              <InfoRow label="멘토명">개발자</InfoRow>
-              <InfoRow label="신청 강의">-</InfoRow>
-              <InfoRow label="멘티 닉네임">{request.menteeName}</InfoRow>
-              <InfoRow label="연락처">수락 후 확인가능</InfoRow>
-              <InfoRow label="이메일">데이터베이스에 배구 섬김다.</InfoRow>
-              <InfoRow label="메시지">{request.requestMessage}</InfoRow>
-              <InfoRow label="일정">
+              <KeyValueRow
+                label="멘토명"
+                className="py-150"
+                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                labelClassName="font-designer-14m"
+              >
+                개발자
+              </KeyValueRow>
+              <KeyValueRow
+                label="신청 강의"
+                className="py-150"
+                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                labelClassName="font-designer-14m"
+              >
+                -
+              </KeyValueRow>
+              <KeyValueRow
+                label="멘티 닉네임"
+                className="py-150"
+                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                labelClassName="font-designer-14m"
+              >
+                {request.menteeName}
+              </KeyValueRow>
+              <KeyValueRow
+                label="연락처"
+                className="py-150"
+                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                labelClassName="font-designer-14m"
+              >
+                수락 후 확인가능
+              </KeyValueRow>
+              <KeyValueRow
+                label="이메일"
+                className="py-150"
+                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                labelClassName="font-designer-14m"
+              >
+                데이터베이스에 배구 섬김다.
+              </KeyValueRow>
+              <KeyValueRow
+                label="메시지"
+                className="py-150"
+                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                labelClassName="font-designer-14m"
+              >
+                {request.requestMessage}
+              </KeyValueRow>
+              <KeyValueRow
+                label="일정"
+                className="py-150"
+                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                labelClassName="font-designer-14m"
+              >
                 {dayjs(request.requestedAt).format('YYYY.MM.DD (ddd), HH:mm~HH:mm')}
-              </InfoRow>
-              <InfoRow label="결제금액">3,300원</InfoRow>
+              </KeyValueRow>
+              <KeyValueRow
+                label="결제금액"
+                className="py-150"
+                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                labelClassName="font-designer-14m"
+              >
+                3,300원
+              </KeyValueRow>
             </div>
           </section>
 
@@ -220,10 +219,10 @@ export default function MentoringRequestDetailCard({
                 <span>✏️</span>
               </button>
             </div>
-            <textarea
+            <BorderedTextarea
               value={mentorMemo}
               onChange={(e) => setMentorMemo(e.target.value)}
-              className="font-designer-14r rounded-150 border-border-subtle bg-background-alternative text-text-default min-h-[120px] w-full resize-none border px-150 py-125 outline-none focus:border-border-brand"
+              className="min-h-[120px] resize-none rounded-150 border-border-subtle bg-background-alternative py-125"
               placeholder="메모를 작성하면 멘티에게 공개되지 않습니다."
             />
           </section>
@@ -236,10 +235,10 @@ export default function MentoringRequestDetailCard({
                   결제 정보
                 </h3>
                 <Badge
-                  color={paymentStatusColorMap[request.paymentStatus]}
+                  color={MENTORING_PAYMENT_STATUS_META[request.paymentStatus].color}
                   shape="round"
                 >
-                  {paymentStatusLabelMap[request.paymentStatus]}
+                  {MENTORING_PAYMENT_STATUS_META[request.paymentStatus].label}
                 </Badge>
               </div>
               <div className="border-border-subtle divide-border-subtle divide-y rounded-150 border">
@@ -256,7 +255,7 @@ export default function MentoringRequestDetailCard({
                     입금 상태
                   </span>
                   <span className="font-designer-14r text-text-default">
-                    {paymentStatusLabelMap[request.paymentStatus]}
+                    {MENTORING_PAYMENT_STATUS_META[request.paymentStatus].label}
                   </span>
                 </div>
                 {request.paymentMemo && (
@@ -366,10 +365,10 @@ export default function MentoringRequestDetailCard({
                       </button>
                     ))}
                   </div>
-                  <textarea
+                  <BorderedTextarea
                     value={rejectReason}
                     onChange={(e) => setRejectReason(e.target.value)}
-                    className="font-designer-14r rounded-150 border-border-subtle bg-background-default text-text-default mb-150 min-h-[100px] w-full resize-none border px-150 py-125 outline-none focus:border-border-brand"
+                    className="mb-150 min-h-[100px] resize-none rounded-150 border-border-subtle py-125"
                     placeholder="직접 입력하거나 위에서 선택하세요."
                   />
                   <div className="flex justify-end gap-100">
@@ -406,7 +405,7 @@ export default function MentoringRequestDetailCard({
             </p>
           </div>
         )}
-      </div>
+      </SurfacePanel>
 
       {/* 일정 확정 모달 */}
       <ScheduleEditorModal

@@ -4,31 +4,21 @@ import dayjs from 'dayjs';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo } from 'react';
 import IconButton from '@/components/ui/icon-button';
-import {
-  type MentoringRequest,
-  type MentoringSession,
-} from '@/stores/useMentoringManagementStore';
-
-interface MentoringScheduleCalendarProps {
-  sessions: MentoringSession[];
-  pendingRequests?: MentoringRequest[];
-  selectedDate: string;
-  currentMonth: dayjs.Dayjs;
-  onDateSelect: (date: string) => void;
-  onMonthChange: (month: dayjs.Dayjs) => void;
-}
+import SurfacePanel from '@/components/ui/surface-panel';
+import type { MentoringSession } from '@/types/mentoring-management';
+import type { MentoringScheduleCalendarProps } from '@/types/mentoring-management-ui';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 
-function buildCalendarCells(month: dayjs.Dayjs): Array<dayjs.Dayjs | null> {
+function buildCalendarCells(month: dayjs.Dayjs): Array<dayjs.Dayjs | undefined> {
   const startOfMonth = month.startOf('month');
   const daysInMonth = month.daysInMonth();
   const startDow = startOfMonth.day();
 
-  const cells: Array<dayjs.Dayjs | null> = [];
-  for (let i = 0; i < startDow; i += 1) cells.push(null);
+  const cells: Array<dayjs.Dayjs | undefined> = [];
+  for (let i = 0; i < startDow; i += 1) cells.push(undefined);
   for (let d = 1; d <= daysInMonth; d += 1) cells.push(startOfMonth.date(d));
-  while (cells.length % 7 !== 0) cells.push(null);
+  while (cells.length % 7 !== 0) cells.push(undefined);
 
   return cells;
 }
@@ -101,7 +91,7 @@ export default function MentoringScheduleCalendar({
   };
 
   return (
-    <div className="rounded-150 border-border-subtle bg-background-default border p-200">
+    <SurfacePanel radius="md" className="p-200">
       {/* 월 이동 헤더 */}
       <div className="mb-125 flex items-center justify-between">
         <IconButton
@@ -266,6 +256,6 @@ export default function MentoringScheduleCalendar({
           <span className="font-designer-11m text-text-subtlest">취소</span>
         </div>
       </div>
-    </div>
+    </SurfacePanel>
   );
 }

@@ -6,37 +6,22 @@ import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
+import SurfacePanel from '@/components/ui/surface-panel';
+import { MENTORING_SESSION_STATUS_META } from '@/features/mentoring/model/management-status-meta';
 import {
   getMethodLabel,
-  type MentoringMethodType,
 } from '@/mocks/mentoring-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
-import {
-  type MentoringRequest,
-  type MentoringSession,
-  useMentoringManagementStore,
-} from '@/stores/useMentoringManagementStore';
+import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import type {
+  MentoringRequest,
+  MentoringSession,
+} from '@/types/mentoring-management';
+import type { MentoringSchedulePanelProps } from '@/types/mentoring-management-ui';
 import MentoringScheduleCalendar from './mentoring-schedule-calendar';
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,
 } from './schedule-editor-modal';
-
-interface MentoringSchedulePanelProps {
-  mentorId: number;
-  methodDurations: Record<MentoringMethodType, number>;
-}
-
-const statusLabelMap = {
-  SCHEDULED: '확정',
-  COMPLETED: '완료',
-  CANCELLED: '취소',
-} as const;
-
-const statusColorMap = {
-  SCHEDULED: 'green',
-  COMPLETED: 'blue',
-  CANCELLED: 'red',
-} as const;
 
 const getOverlappingIds = (sessions: MentoringSession[]): Set<string> => {
   const scheduled = sessions
@@ -105,6 +90,7 @@ export default function MentoringSchedulePanel({
 
   const filteredSessions = useMemo(() => {
     if (!selectedDate) return sessions;
+
     return sessions.filter(
       (s) => dayjs(s.startsAt).format('YYYY-MM-DD') === selectedDate,
     );
@@ -112,6 +98,7 @@ export default function MentoringSchedulePanel({
 
   const filteredPending = useMemo(() => {
     if (!selectedDate) return pendingWithSchedule;
+
     return pendingWithSchedule.filter(
       (r) => r.preferredDate === selectedDate,
     );
@@ -122,6 +109,7 @@ export default function MentoringSchedulePanel({
 
   const todaySessionCount = useMemo(() => {
     const today = dayjs().format('YYYY-MM-DD');
+
     return sessions.filter((s) => {
       return (
         s.status === 'SCHEDULED' &&
@@ -132,6 +120,7 @@ export default function MentoringSchedulePanel({
 
   const editingSession = useMemo(() => {
     if (!editingSessionId) return undefined;
+
     return sessions.find((s) => s.id === editingSessionId);
   }, [editingSessionId, sessions]);
 
@@ -151,6 +140,7 @@ export default function MentoringSchedulePanel({
       const reason = result.reason ?? '일정 변경에 실패했습니다.';
       setRescheduleError(reason);
       showToast(reason, 'error');
+
       return;
     }
 
@@ -165,6 +155,7 @@ export default function MentoringSchedulePanel({
 
     if (!result.ok) {
       showToast(result.reason ?? '일정 취소에 실패했습니다.', 'error');
+
       return;
     }
 
@@ -241,7 +232,10 @@ export default function MentoringSchedulePanel({
         </div>
 
         {filteredSessions.length === 0 ? (
-          <div className="rounded-150 border-border-subtle border px-200 py-250 text-center">
+          <SurfacePanel
+            radius="md"
+            className="px-200 py-250 text-center"
+          >
             <p className="font-designer-16b text-text-default">
               {selectedDate
                 ? `${dayjs(selectedDate).format('M월 D일')}에 확정 일정이 없습니다.`
@@ -252,9 +246,9 @@ export default function MentoringSchedulePanel({
                 ? '달력에서 다른 날짜를 선택하거나 전체 보기를 눌러보세요.'
                 : '신청을 수락하면 확정 일정이 여기에 표시됩니다.'}
             </p>
-          </div>
+          </SurfacePanel>
         ) : (
-          <div className="rounded-200 border-border-subtle overflow-hidden border bg-background-default">
+          <SurfacePanel radius="lg" overflow="hidden">
             {/* 테이블 헤더 */}
             <div className="border-border-subtle grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 border-b bg-background-alternative px-200 py-150">
               <div className="font-designer-14b text-text-default">상태</div>
@@ -287,10 +281,10 @@ export default function MentoringSchedulePanel({
                     {/* 상태 */}
                     <div className="flex items-start pt-[2px]">
                       <Badge
-                        color={statusColorMap[session.status]}
+                        color={MENTORING_SESSION_STATUS_META[session.status].color}
                         shape="round"
                       >
-                        {statusLabelMap[session.status]}
+                        {MENTORING_SESSION_STATUS_META[session.status].label}
                       </Badge>
                     </div>
 
@@ -409,7 +403,7 @@ export default function MentoringSchedulePanel({
                 );
               })}
             </div>
-          </div>
+          </SurfacePanel>
         )}
 
         {/* ── 미확정 예정 섹션 ── */}
@@ -427,15 +421,22 @@ export default function MentoringSchedulePanel({
             </div>
 
             {filteredPending.length === 0 ? (
-              <div className="rounded-150 border-border-subtle border px-200 py-200 text-center">
+              <SurfacePanel
+                radius="md"
+                className="px-200 py-200 text-center"
+              >
                 <p className="font-designer-14r text-text-subtle">
                   {selectedDate
                     ? `${dayjs(selectedDate).format('M월 D일')}에 미확정 예정이 없습니다.`
                     : '이 날짜에 해당하는 미확정 예정이 없습니다.'}
                 </p>
-              </div>
+              </SurfacePanel>
             ) : (
-              <div className="rounded-200 border-border-warning overflow-hidden border bg-background-default">
+              <SurfacePanel
+                radius="lg"
+                overflow="hidden"
+                className="border-border-warning"
+              >
                 {/* 테이블 헤더 */}
                 <div className="border-border-subtle grid grid-cols-[75px_140px_80px_125px_120px_100px] gap-100 border-b bg-background-alternative px-200 py-150">
                   <div className="font-designer-14b text-text-default">상태</div>
@@ -526,7 +527,7 @@ export default function MentoringSchedulePanel({
                     </div>
                   ))}
                 </div>
-              </div>
+              </SurfacePanel>
             )}
           </>
         )}

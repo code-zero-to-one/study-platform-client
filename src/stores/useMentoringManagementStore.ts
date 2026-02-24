@@ -1,168 +1,29 @@
 import dayjs from 'dayjs';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { type MentoringRequestContentBlock } from '@/features/mentoring/model/request-content';
-import { type MentoringMethodType } from '@/types/mentoring';
-
-export type MentoringRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
-export type MentoringSessionStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
-export type ConversationSender = 'MENTEE' | 'MENTOR' | 'SYSTEM';
-export type MentoringPaymentMode =
-  | 'TOSS_PAYMENTS'
-  | 'MANUAL_TRANSFER'
-  | 'FREE_REQUEST';
-export type MentoringPaymentStatus =
-  | 'PENDING_TRANSFER'
-  | 'NOT_REQUIRED'
-  | 'CONFIRMED';
-export type MentoringReviewRecommendation = 'RECOMMEND' | 'NOT_RECOMMEND';
-
-export interface MentoringConversationMessage {
-  id: string;
-  sender: ConversationSender;
-  content: string;
-  createdAt: string;
-}
-
-export interface MentoringRequest {
-  id: string;
-  mentorId: number;
-  method: MentoringMethodType;
-  paymentMode: MentoringPaymentMode;
-  paymentStatus: MentoringPaymentStatus;
-  paymentMemo?: string;
-  menteeMemberId?: number;
-  menteeName: string;
-  menteeRole: string;
-  requestedAt: string;
-  preferredDate?: string;
-  preferredTime?: string;
-  requestMessage: string;
-  requestContents?: MentoringRequestContentBlock[];
-  attachedFileNames?: string[];
-  referenceLinks?: string[];
-  status: MentoringRequestStatus;
-  decisionNote?: string;
-  acceptedAt?: string;
-  rejectedAt?: string;
-  linkedSessionId?: string;
-  conversation: MentoringConversationMessage[];
-}
-
-export interface MentoringSession {
-  id: string;
-  mentorId: number;
-  requestId: string;
-  menteeName: string;
-  method: MentoringMethodType;
-  startsAt: string;
-  endsAt: string;
-  placeNote: string;
-  status: MentoringSessionStatus;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MentoringReview {
-  id: string;
-  mentorId: number;
-  requestId: string;
-  sessionId?: string;
-  menteeMemberId: number;
-  menteeName: string;
-  method: MentoringMethodType;
-  rating: number;
-  recommendation: MentoringReviewRecommendation;
-  content: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface MentoringReviewEligibility {
-  canReview: boolean;
-  reason?: string;
-  isCompleted: boolean;
-}
-
-interface StoreResponse {
-  ok: boolean;
-  reason?: string;
-  sessionId?: string;
-  reviewId?: string;
-  isUpdated?: boolean;
-}
-
-interface RequestSchedulePayload {
-  startsAt: string;
-  endsAt: string;
-  placeNote: string;
-}
-
-interface AcceptRequestPayload {
-  mentorId: number;
-  requestId: string;
-  schedule?: RequestSchedulePayload;
-  mentorNote?: string;
-}
-
-interface RejectRequestPayload {
-  mentorId: number;
-  requestId: string;
-  reason: string;
-}
-
-interface SendMessagePayload {
-  mentorId: number;
-  requestId: string;
-  content: string;
-}
-
-interface RescheduleSessionPayload {
-  mentorId: number;
-  sessionId: string;
-  startsAt: string;
-  endsAt: string;
-  placeNote: string;
-  mentorNote?: string;
-}
-
-interface CancelSessionPayload {
-  mentorId: number;
-  sessionId: string;
-  reason: string;
-}
-
-interface CreateRequestPayload {
-  mentorId: number;
-  method: MentoringMethodType;
-  paymentMode: MentoringPaymentMode;
-  paymentMemo?: string;
-  menteeMemberId?: number;
-  menteeName: string;
-  menteeRole: string;
-  preferredDate?: string;
-  preferredTime?: string;
-  requestMessage: string;
-  requestContents?: MentoringRequestContentBlock[];
-  attachedFileNames?: string[];
-  referenceLinks?: string[];
-}
-
-interface ConfirmManualPaymentPayload {
-  mentorId: number;
-  requestId: string;
-  memo?: string;
-}
-
-interface SubmitReviewPayload {
-  mentorId: number;
-  requestId: string;
-  menteeMemberId: number;
-  menteeName: string;
-  rating: number;
-  recommendation: MentoringReviewRecommendation;
-  content: string;
-}
+import { type MentoringMethodType } from '@/types/mentoring-domain';
+import type {
+  AcceptMentoringRequestParams,
+  CancelMentoringSessionParams,
+  ConfirmManualMentoringPaymentParams,
+  CreateMentoringRequestParams,
+  MentoringConversationMessage,
+  MentoringPaymentMode,
+  MentoringPaymentStatus,
+  MentoringRequest,
+  MentoringRequestStatus,
+  MentoringReview,
+  MentoringReviewEligibility,
+  MentoringReviewRecommendation,
+  MentoringSession,
+  MentoringSessionStatus,
+  MentoringStoreActionResponse,
+  RejectMentoringRequestParams,
+  RescheduleMentoringSessionParams,
+  SeedMentoringScenarioParams,
+  SendMentoringMessageParams,
+  SubmitMentoringReviewParams,
+} from '@/types/mentoring-management';
 
 interface MentoringManagementState {
   memberId: number | undefined;
@@ -172,18 +33,15 @@ interface MentoringManagementState {
   hasHydrated: boolean;
   ensureDemoRequests: (memberId: number, mentorId: number) => void;
   ensureNoteDemoData: (memberId: number) => void;
-  createRequest: (payload: CreateRequestPayload) => string;
-  acceptRequest: (payload: AcceptRequestPayload) => StoreResponse;
-  rejectRequest: (payload: RejectRequestPayload) => StoreResponse;
-  sendMentorMessage: (payload: SendMessagePayload) => StoreResponse;
-  confirmManualPayment: (payload: ConfirmManualPaymentPayload) => StoreResponse;
-  submitReview: (payload: SubmitReviewPayload) => StoreResponse;
-  rescheduleSession: (payload: RescheduleSessionPayload) => StoreResponse;
-  cancelSession: (payload: CancelSessionPayload) => StoreResponse;
-  seedMockScenario: (payload: {
-    mentorId: number;
-    baseMenteeMemberId?: number;
-  }) => void;
+  createRequest: (payload: CreateMentoringRequestParams) => string;
+  acceptRequest: (payload: AcceptMentoringRequestParams) => MentoringStoreActionResponse;
+  rejectRequest: (payload: RejectMentoringRequestParams) => MentoringStoreActionResponse;
+  sendMentorMessage: (payload: SendMentoringMessageParams) => MentoringStoreActionResponse;
+  confirmManualPayment: (payload: ConfirmManualMentoringPaymentParams) => MentoringStoreActionResponse;
+  submitReview: (payload: SubmitMentoringReviewParams) => MentoringStoreActionResponse;
+  rescheduleSession: (payload: RescheduleMentoringSessionParams) => MentoringStoreActionResponse;
+  cancelSession: (payload: CancelMentoringSessionParams) => MentoringStoreActionResponse;
+  seedMockScenario: (payload: SeedMentoringScenarioParams) => void;
   reset: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;
 }
@@ -785,7 +643,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
         return requestId;
       },
       acceptRequest: ({ mentorId, requestId, schedule, mentorNote }) => {
-        let response: StoreResponse = {
+        let response: MentoringStoreActionResponse = {
           ok: false,
           reason: '신청 정보를 찾을 수 없습니다.',
         };
@@ -935,7 +793,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           };
         }
 
-        let response: StoreResponse = {
+        let response: MentoringStoreActionResponse = {
           ok: false,
           reason: '신청 정보를 찾을 수 없습니다.',
         };
@@ -999,7 +857,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           };
         }
 
-        let response: StoreResponse = {
+        let response: MentoringStoreActionResponse = {
           ok: false,
           reason: '신청 정보를 찾을 수 없습니다.',
         };
@@ -1035,7 +893,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
         return response;
       },
       confirmManualPayment: ({ mentorId, requestId, memo }) => {
-        let response: StoreResponse = {
+        let response: MentoringStoreActionResponse = {
           ok: false,
           reason: '신청 정보를 찾을 수 없습니다.',
         };
@@ -1126,7 +984,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           };
         }
 
-        let response: StoreResponse = {
+        let response: MentoringStoreActionResponse = {
           ok: false,
           reason: '후기를 등록할 상담 정보를 찾을 수 없습니다.',
         };
@@ -1278,7 +1136,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           };
         }
 
-        let response: StoreResponse = {
+        let response: MentoringStoreActionResponse = {
           ok: false,
           reason: '일정 정보를 찾을 수 없습니다.',
         };
@@ -1372,7 +1230,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           };
         }
 
-        let response: StoreResponse = {
+        let response: MentoringStoreActionResponse = {
           ok: false,
           reason: '일정 정보를 찾을 수 없습니다.',
         };

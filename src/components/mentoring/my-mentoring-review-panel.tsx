@@ -11,17 +11,19 @@ import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-d
 import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   getMethodLabel,
-  type MentorProfile,
 } from '@/mocks/mentoring-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   getRequestReviewEligibility,
-  type MentoringRequest,
-  type MentoringReview,
-  type MentoringReviewRecommendation,
-  type MentoringSession,
   useMentoringManagementStore,
 } from '@/stores/useMentoringManagementStore';
+import type { MentorProfile } from '@/types/mentoring-domain';
+import type {
+  MentoringRequest,
+  MentoringReview,
+  MentoringReviewRecommendation,
+  MentoringSession,
+} from '@/types/mentoring-management';
 
 type ReviewCardStatus = 'READY' | 'WRITTEN' | 'LOCKED';
 

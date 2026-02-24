@@ -2,11 +2,14 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
+import KeyValueRow from '@/components/ui/key-value-row';
+import SurfacePanel from '@/components/ui/surface-panel';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import { type WeekdayKey, WEEKDAY_KEYS } from '@/features/mentoring/model/mentor-settings';
 import { WEEKDAY_LABEL_MAP } from '@/features/mentoring/model/mentor-settings';
-import { formatWon, getMethodLabel, type MentoringMethodType } from '@/mocks/mentoring-mock-data';
-import { type AdminMentorItem } from '../model/use-admin-mentoring-data';
+import { formatWon, getMethodLabel } from '@/mocks/mentoring-mock-data';
+import type { AdminMentorItem } from '@/types/mentoring-admin';
+import type { MentoringMethodType } from '@/types/mentoring-domain';
 
 const METHOD_ORDER: MentoringMethodType[] = [
   'note',
@@ -103,7 +106,7 @@ export default function MentorRegistrationDetail({
   const settlementDraft = settings?.settlementDraft;
 
   return (
-    <section className="rounded-100 border-border-subtle border p-200">
+    <SurfacePanel className="p-200">
       <header className="border-border-subtle mb-150 border-b pb-150">
         <div className="flex flex-wrap items-start justify-between gap-100">
           <div>
@@ -138,32 +141,38 @@ export default function MentorRegistrationDetail({
 
       <div className="space-y-200">
         <Section title="기본 정보">
-          <InfoRow label="직군 / 직무">
+          <KeyValueRow label="직군 / 직무" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             {(settings?.jobGroup ?? '-') + ' / ' + (settings?.jobTitle ?? '-')}
-          </InfoRow>
-          <InfoRow label="경력">{settings?.careerYears ?? '-'}</InfoRow>
-          <InfoRow label="카테고리">
+          </KeyValueRow>
+          <KeyValueRow label="경력" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+            {settings?.careerYears ?? '-'}
+          </KeyValueRow>
+          <KeyValueRow label="카테고리" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             {settings?.categories?.join(', ') || '-'}
-          </InfoRow>
-          <InfoRow label="스킬 태그">
+          </KeyValueRow>
+          <KeyValueRow label="스킬 태그" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             {settings?.skillTags?.map((tag) => `#${tag}`).join(', ') || '-'}
-          </InfoRow>
-          <InfoRow label="회사 카테고리">
+          </KeyValueRow>
+          <KeyValueRow label="회사 카테고리" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             {settings?.companyCategory ?? '-'}
-          </InfoRow>
-          <InfoRow label="회사명">
+          </KeyValueRow>
+          <KeyValueRow label="회사명" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             {settings?.hideCompanyName
               ? '비공개'
               : settings?.companyName?.trim() || '-'}
-          </InfoRow>
-          <InfoRow label="최대 인원">{`${settings?.maxParticipants ?? 1}명`}</InfoRow>
+          </KeyValueRow>
+          <KeyValueRow label="최대 인원" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+            {`${settings?.maxParticipants ?? 1}명`}
+          </KeyValueRow>
         </Section>
 
         <Section title="연락처">
-          <InfoRow label="전화">
+          <KeyValueRow label="전화" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             {(settings?.contactCountryCode ?? '') + ' ' + (settings?.contactPhone ?? '-')}
-          </InfoRow>
-          <InfoRow label="이메일">{settings?.contactEmail ?? '-'}</InfoRow>
+          </KeyValueRow>
+          <KeyValueRow label="이메일" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+            {settings?.contactEmail ?? '-'}
+          </KeyValueRow>
         </Section>
 
         <Section title="상담 방식 / 가격">
@@ -200,9 +209,13 @@ export default function MentorRegistrationDetail({
         <Section title="주간 스케줄">
           <div className="space-y-75">
             {WEEKDAY_KEYS.map((day) => (
-              <InfoRow key={day} label={WEEKDAY_LABEL_MAP[day]}>
+              <KeyValueRow
+                key={day}
+                label={WEEKDAY_LABEL_MAP[day]}
+                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+              >
                 {getScheduleText(settings?.schedule.weekly, day)}
-              </InfoRow>
+              </KeyValueRow>
             ))}
           </div>
         </Section>
@@ -229,14 +242,24 @@ export default function MentorRegistrationDetail({
         <Section title="정산 정보">
           {settlementDraft ? (
             <div className="space-y-75">
-              <InfoRow label="정산자 타입">{settlementDraft.payerType}</InfoRow>
-              <InfoRow label="계약자명">{settlementDraft.contractName}</InfoRow>
-              <InfoRow label="예금주">{settlementDraft.accountHolder}</InfoRow>
-              <InfoRow label="은행">{settlementDraft.bankCode}</InfoRow>
-              <InfoRow label="계좌번호">{settlementDraft.accountNumber}</InfoRow>
-              <InfoRow label="인증 상태">
+              <KeyValueRow label="정산자 타입" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+                {settlementDraft.payerType}
+              </KeyValueRow>
+              <KeyValueRow label="계약자명" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+                {settlementDraft.contractName}
+              </KeyValueRow>
+              <KeyValueRow label="예금주" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+                {settlementDraft.accountHolder}
+              </KeyValueRow>
+              <KeyValueRow label="은행" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+                {settlementDraft.bankCode}
+              </KeyValueRow>
+              <KeyValueRow label="계좌번호" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+                {settlementDraft.accountNumber}
+              </KeyValueRow>
+              <KeyValueRow label="인증 상태" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
                 {settlementDraft.verified ? '완료' : '미완료'}
-              </InfoRow>
+              </KeyValueRow>
             </div>
           ) : (
             <p className="font-designer-13r text-text-subtle">
@@ -274,21 +297,23 @@ export default function MentorRegistrationDetail({
         </Section>
 
         <Section title="운영 지표">
-          <InfoRow label="신청 상태">
+          <KeyValueRow label="신청 상태" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             대기 {item.counts.pendingRequests} / 수락{' '}
             {item.counts.acceptedRequests} / 거절 {item.counts.rejectedRequests}
-          </InfoRow>
-          <InfoRow label="일정 상태">
+          </KeyValueRow>
+          <KeyValueRow label="일정 상태" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             예정 {item.counts.scheduledSessions} / 완료{' '}
             {item.counts.completedSessions} / 취소 {item.counts.cancelledSessions}
-          </InfoRow>
-          <InfoRow label="후기 수">{`${item.counts.reviews}건`}</InfoRow>
-          <InfoRow label="최종 업데이트">
+          </KeyValueRow>
+          <KeyValueRow label="후기 수" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
+            {`${item.counts.reviews}건`}
+          </KeyValueRow>
+          <KeyValueRow label="최종 업데이트" columnsClassName="grid-cols-[120px_minmax(0,1fr)]">
             {formatDateTime(settings?.updatedAt)}
-          </InfoRow>
+          </KeyValueRow>
         </Section>
       </div>
-    </section>
+    </SurfacePanel>
   );
 }
 
@@ -302,24 +327,7 @@ function Section({
   return (
     <div>
       <h3 className="font-designer-14b text-text-default mb-75">{title}</h3>
-      <div className="rounded-100 border-border-subtle border p-125">
-        {children}
-      </div>
-    </div>
-  );
-}
-
-function InfoRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="grid grid-cols-[120px_minmax(0,1fr)] gap-75">
-      <p className="font-designer-13m text-text-subtle">{label}</p>
-      <p className="font-designer-14r text-text-default break-all">{children}</p>
+      <SurfacePanel className="p-125">{children}</SurfacePanel>
     </div>
   );
 }

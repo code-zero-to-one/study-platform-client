@@ -20,9 +20,11 @@ import { type MentoringApplyControllerResult } from '@/features/mentoring/model/
 import {
   formatWon,
   getMethodLabel,
-  type MentorProfile,
-  type MentoringMethodType,
 } from '@/mocks/mentoring-mock-data';
+import type {
+  MentorProfile,
+  MentoringMethodType,
+} from '@/types/mentoring-domain';
 
 interface MentoringApplyPageViewProps {
   mentor: MentorProfile;

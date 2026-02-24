@@ -2,10 +2,10 @@
 
 import MentoringApplyPageView from '@/components/mentoring/mentoring-apply-page-view';
 import { useMentoringApplyController } from '@/features/mentoring/model/use-mentoring-apply-controller';
-import {
-  type MentorProfile,
-  type MentoringMethodType,
-} from '@/mocks/mentoring-mock-data';
+import type {
+  MentorProfile,
+  MentoringMethodType,
+} from '@/types/mentoring-domain';
 
 interface MentoringApplyPageProps {
   mentor: MentorProfile;

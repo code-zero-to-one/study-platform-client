@@ -22,21 +22,19 @@ import {
   type MentoringRequestContentBlock,
 } from '@/features/mentoring/model/request-content';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import {
-  getMentorSettings,
-  type MentorProfile,
-  type MentoringMethodType,
-} from '@/mocks/mentoring-mock-data';
+import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
-import {
-  type MentoringPaymentMode,
-  useMentoringManagementStore,
-} from '@/stores/useMentoringManagementStore';
-import {
-  type MentorOperationStatus,
-  useMentorOperationStore,
-} from '@/stores/useMentorOperationStore';
+import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import { useUserStore } from '@/stores/useUserStore';
+import type {
+  MentorOperationStatus,
+} from '@/types/mentoring-admin';
+import type {
+  MentorProfile,
+  MentoringMethodType,
+} from '@/types/mentoring-domain';
+import type { MentoringPaymentMode } from '@/types/mentoring-management';
 
 type TossPaymentMethod = 'CARD' | 'VIRTUAL_ACCOUNT';
 

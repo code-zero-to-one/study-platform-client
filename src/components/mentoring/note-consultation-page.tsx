@@ -8,34 +8,19 @@ import {
   SendHorizontal,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
+import { MENTORING_REQUEST_STATUS_META } from '@/features/mentoring/model/management-status-meta';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { getMentorById } from '@/mocks/mentoring-mock-data';
-import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useToastStore } from '@/stores/use-toast-store';
-import {
-  type MentoringConversationMessage,
-  type MentoringRequest,
-  type MentoringRequestStatus,
-  useMentoringManagementStore,
-} from '@/stores/useMentoringManagementStore';
-
-const statusLabelMap: Record<MentoringRequestStatus, string> = {
-  PENDING: '대기중',
-  ACCEPTED: '수락됨',
-  REJECTED: '거절됨',
-};
-
-const statusColorMap: Record<
-  MentoringRequestStatus,
-  'orange' | 'green' | 'red'
-> = {
-  PENDING: 'orange',
-  ACCEPTED: 'green',
-  REJECTED: 'red',
-};
+import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
+import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import type {
+  MentoringConversationMessage,
+  MentoringRequest,
+} from '@/types/mentoring-management';
 
 type RequestChannel = 'sent' | 'received';
 
@@ -183,8 +168,11 @@ function QuestionCard({ request }: { request: MentoringRequest }) {
           </p>
         </div>
         <div className="flex items-center gap-75">
-          <Badge color={statusColorMap[request.status]} shape="round">
-            {statusLabelMap[request.status]}
+          <Badge
+            color={MENTORING_REQUEST_STATUS_META[request.status].color}
+            shape="round"
+          >
+            {MENTORING_REQUEST_STATUS_META[request.status].label}
           </Badge>
         </div>
       </div>
@@ -444,24 +432,30 @@ export default function NoteConsultationPage() {
     return Object.values(requestsByMentor).flat();
   }, [requestsByMentor]);
 
-  const getMentorDisplayInfo = (mentorId: number) => {
-    const fromStore = createdMentors.find((mentor) => mentor.id === mentorId);
-    if (fromStore) {
-      return { name: fromStore.nickname, role: fromStore.role };
-    }
-    const fromMock = getMentorById(mentorId);
-    if (fromMock) {
-      return { name: fromMock.nickname, role: fromMock.role };
-    }
-    return { name: '멘토', role: '' };
-  };
+  const getMentorDisplayInfo = useCallback(
+    (mentorId: number) => {
+      const fromStore = createdMentors.find((mentor) => mentor.id === mentorId);
+      if (fromStore) {
+        return { name: fromStore.nickname, role: fromStore.role };
+      }
+      const fromMock = getMentorById(mentorId);
+      if (fromMock) {
+        return { name: fromMock.nickname, role: fromMock.role };
+      }
+
+      return { name: '멘토', role: '' };
+    },
+    [createdMentors],
+  );
 
   const sentItems = useMemo<RequestListItem[]>(() => {
     const requests = allRequests.filter((request) => {
       return request.method === 'note' && request.menteeMemberId === memberId;
     });
+
     return requests.map((request) => {
       const mentorInfo = getMentorDisplayInfo(request.mentorId);
+
       return {
         id: request.id,
         request,
@@ -470,10 +464,11 @@ export default function NoteConsultationPage() {
         channel: 'sent',
       };
     });
-  }, [allRequests, memberId, createdMentors]);
+  }, [allRequests, memberId, getMentorDisplayInfo]);
 
   const receivedItems = useMemo<RequestListItem[]>(() => {
     if (!myMentorId) return [];
+
     return (requestsByMentor[myMentorId] ?? [])
       .filter((request) => request.method === 'note')
       .map((request) => ({
@@ -489,8 +484,10 @@ export default function NoteConsultationPage() {
   const filteredItems = useMemo(() => {
     const keyword = searchKeyword.trim();
     if (!keyword) return activeItems;
+
     return activeItems.filter((item) => {
       const lastMessage = getLastMessage(item.request).content;
+
       return (
         item.displayName.includes(keyword) ||
         item.displayRole.includes(keyword) ||
@@ -502,6 +499,7 @@ export default function NoteConsultationPage() {
   useEffect(() => {
     if (!filteredItems.length) {
       setSelectedRequestId('');
+
       return;
     }
     const hasSelected = filteredItems.some((item) => item.id === selectedRequestId);
@@ -529,6 +527,7 @@ export default function NoteConsultationPage() {
 
     if (!result.ok) {
       showToast(result.reason ?? '메시지 전송에 실패했습니다.', 'error');
+
       return;
     }
 

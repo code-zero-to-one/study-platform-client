@@ -1,33 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export type MentorScreeningStatus =
-  | 'PENDING'
-  | 'IN_REVIEW'
-  | 'APPROVED'
-  | 'REJECTED';
-
-export interface MentorScreeningRecord {
-  status: MentorScreeningStatus;
-  note?: string;
-  startedAt?: string;
-  startedByMemberId?: number;
-  reviewedAt?: string;
-  reviewedByMemberId?: number;
-}
+import type {
+  MentorScreeningRecord,
+  UpsertMentorScreeningParams,
+} from '@/types/mentoring-admin';
 
 interface MentorScreeningState {
   recordsByMentorId: Record<number, MentorScreeningRecord>;
   hasHydrated: boolean;
-  upsertRecord: (payload: {
-    mentorId: number;
-    status: MentorScreeningStatus;
-    note?: string;
-    startedAt?: string;
-    startedByMemberId?: number;
-    reviewedAt?: string;
-    reviewedByMemberId?: number;
-  }) => void;
+  upsertRecord: (payload: UpsertMentorScreeningParams) => void;
   clearRecord: (mentorId: number) => void;
   reset: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;

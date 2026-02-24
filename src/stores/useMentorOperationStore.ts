@@ -1,35 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-
-export type MentorOperationStatus = 'OPEN' | 'REQUESTS_PAUSED' | 'SUSPENDED';
-
-export interface MentorOperationHistoryEntry {
-  id: string;
-  fromStatus: MentorOperationStatus | 'INITIAL';
-  toStatus: MentorOperationStatus;
-  reason?: string;
-  changedAt: string;
-  changedByMemberId?: number;
-}
-
-export interface MentorOperationRecord {
-  status: MentorOperationStatus;
-  reason?: string;
-  changedAt?: string;
-  changedByMemberId?: number;
-  history: MentorOperationHistoryEntry[];
-}
+import type {
+  MentorOperationRecord,
+  UpsertMentorOperationParams,
+} from '@/types/mentoring-admin';
 
 interface MentorOperationState {
   recordsByMentorId: Record<number, MentorOperationRecord>;
   hasHydrated: boolean;
-  upsertRecord: (payload: {
-    mentorId: number;
-    status: MentorOperationStatus;
-    reason?: string;
-    changedAt?: string;
-    changedByMemberId?: number;
-  }) => void;
+  upsertRecord: (payload: UpsertMentorOperationParams) => void;
   clearRecord: (mentorId: number) => void;
   reset: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;

@@ -1,16 +1,11 @@
-import type { MentoringReview } from '@/stores/useMentoringManagementStore';
-import type { MentorProfile } from '@/types/mentoring';
-
-export interface MentorDirectoryQuerySnapshot {
-  createdMentorSignature: string;
-  reviewSignature: string;
-}
-
-export interface MentorDirectoryListQueryParams {
-  snapshot: MentorDirectoryQuerySnapshot;
-  createdMentors: MentorProfile[];
-  reviewsByMentor: Record<number, MentoringReview[]>;
-}
+import type {
+  MentorDirectoryDetailQueryKey,
+  MentorDirectoryListQueryKey,
+  MentorDirectoryListQueryParams,
+  MentorDirectoryQuerySnapshot,
+} from '@/types/mentoring-directory';
+import type { MentorProfile } from '@/types/mentoring-domain';
+import type { MentoringReview } from '@/types/mentoring-management';
 
 const toCreatedMentorSignature = (createdMentors: MentorProfile[]) => {
   if (createdMentors.length === 0) {
@@ -65,22 +60,25 @@ export const mentorDirectoryQueryKeys = {
   all: ['mentoring'] as const,
   directories: () => [...mentorDirectoryQueryKeys.all, 'mentor-directory'] as const,
   lists: () => [...mentorDirectoryQueryKeys.directories(), 'list'] as const,
-  list: (params: MentorDirectoryListQueryParams) =>
+  list: (params: MentorDirectoryListQueryParams): MentorDirectoryListQueryKey =>
     [
       ...mentorDirectoryQueryKeys.lists(),
       params.snapshot.createdMentorSignature,
       params.snapshot.reviewSignature,
       params.createdMentors,
       params.reviewsByMentor,
-    ] as const,
+    ],
   details: () => [...mentorDirectoryQueryKeys.directories(), 'detail'] as const,
-  detail: (mentorId: number, snapshot: MentorDirectoryQuerySnapshot) =>
+  detail: (
+    mentorId: number,
+    snapshot: MentorDirectoryQuerySnapshot,
+  ): MentorDirectoryDetailQueryKey =>
     [
       ...mentorDirectoryQueryKeys.details(),
       mentorId,
       snapshot.createdMentorSignature,
       snapshot.reviewSignature,
-    ] as const,
+    ],
 };
 
 // 기존 상수명 사용처와의 호환을 위해 유지합니다.

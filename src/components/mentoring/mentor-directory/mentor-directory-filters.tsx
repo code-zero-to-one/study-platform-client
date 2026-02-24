@@ -5,7 +5,7 @@ import SortDropdown from '@/components/ui/filters/sort-dropdown';
 import { BaseInput } from '@/components/ui/input';
 import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
 import { sortOptions } from '@/mocks/mentoring-mock-data';
-import type { MentorSortType } from '@/types/mentoring';
+import type { MentorSortType } from '@/types/mentoring-domain';
 
 interface MentorDirectoryFiltersProps {
   keyword: string;

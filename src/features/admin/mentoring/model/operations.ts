@@ -1,5 +1,7 @@
-import { type MentorOperationStatus } from '@/stores/useMentorOperationStore';
-import { type MentorScreeningStatus } from '@/stores/useMentorScreeningStore';
+import type {
+  MentorOperationStatus,
+  MentorScreeningStatus,
+} from '@/types/mentoring-admin';
 
 export type MentorOperationDisplayStatus =
   | MentorOperationStatus

@@ -1,9 +1,6 @@
 import type { ZodIssue } from 'zod';
-import type { MentoringReview } from '@/stores/useMentoringManagementStore';
-import type {
-  MentorProfile,
-  MentorSortType,
-} from '@/types/mentoring';
+import type { MentorProfile, MentorSortType } from '@/types/mentoring-domain';
+import type { MentoringReview } from '@/types/mentoring-management';
 import {
   mentorDirectoryCreatedMentorsSchema,
   mentorDirectoryResponseSchema,

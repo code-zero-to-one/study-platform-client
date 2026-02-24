@@ -6,41 +6,22 @@ import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { BaseInput } from '@/components/ui/input';
+import BorderedTextarea from '@/components/ui/input/bordered-textarea';
 import { Modal } from '@/components/ui/modal';
-import {
-  hasSessionConflict,
-  type MentoringSession,
-} from '@/stores/useMentoringManagementStore';
+import { hasSessionConflict } from '@/stores/useMentoringManagementStore';
+import type {
+  ScheduleEditorModalProps,
+  ScheduleEditorSubmitParams,
+} from '@/types/mentoring-management-ui';
 
-export interface ScheduleEditorSubmitPayload {
-  startsAt: string;
-  endsAt: string;
-  placeNote: string;
-  mentorNote: string;
-}
-
-interface ScheduleEditorModalProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description: string;
-  confirmLabel: string;
-  durationMinutes: number;
-  defaultDate?: string;
-  defaultTime?: string;
-  defaultPlaceNote?: string;
-  isSubmitting?: boolean;
-  errorMessage?: string;
-  sessions?: MentoringSession[];
-  excludeSessionId?: string;
-  onConfirm: (payload: ScheduleEditorSubmitPayload) => void;
-}
+export type { ScheduleEditorSubmitParams as ScheduleEditorSubmitPayload };
 
 const toTimeValue = (iso: string | undefined) => {
   if (!iso) return '';
   if (/^\d{2}:\d{2}$/.test(iso)) return iso;
   const parsed = dayjs(iso);
   if (!parsed.isValid()) return '';
+
   return parsed.format('HH:mm');
 };
 
@@ -49,6 +30,7 @@ const toDateValue = (value: string | undefined) => {
   if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
   const parsed = dayjs(value);
   if (!parsed.isValid()) return dayjs().add(3, 'day').format('YYYY-MM-DD');
+
   return parsed.format('YYYY-MM-DD');
 };
 
@@ -86,11 +68,13 @@ export default function ScheduleEditorModal({
     if (!dateValue || !timeValue) return undefined;
     const parsed = dayjs(`${dateValue} ${timeValue}`);
     if (!parsed.isValid()) return undefined;
+
     return parsed;
   }, [dateValue, timeValue]);
 
   const endDateTime = useMemo(() => {
     if (!startDateTime) return undefined;
+
     return startDateTime.add(durationMinutes, 'minute');
   }, [durationMinutes, startDateTime]);
 
@@ -115,6 +99,7 @@ export default function ScheduleEditorModal({
 
       const sStart = dayjs(session.startsAt);
       const sEnd = dayjs(session.endsAt);
+
       return startDateTime.isBefore(sEnd) && sStart.isBefore(endDateTime);
     }) ?? null;
   }, [startDateTime, endDateTime, sessions, excludeSessionId]);
@@ -238,13 +223,11 @@ export default function ScheduleEditorModal({
               <label className="font-designer-13b text-text-default">
                 멘티에게 전달할 메모 (선택)
               </label>
-              <textarea
+              <BorderedTextarea
                 value={mentorNote}
                 onChange={(event) => setMentorNote(event.target.value)}
                 className={cn(
-                  'rounded-100 border-border-default bg-background-default w-full border px-150 py-125',
-                  'font-designer-14r text-text-default min-h-[110px] resize-y',
-                  'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
+                  'min-h-[110px] px-150 py-125',
                 )}
                 placeholder="준비해오면 좋은 내용이나 접속 안내를 남겨주세요."
               />

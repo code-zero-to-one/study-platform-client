@@ -1,6 +1,6 @@
 'use client';
 
-import type { MentorProfile } from '@/types/mentoring';
+import type { MentorProfile } from '@/types/mentoring-domain';
 import { useMentorDirectoryQuery } from './use-mentor-directory-query';
 
 export const useMentorDirectory = () => {

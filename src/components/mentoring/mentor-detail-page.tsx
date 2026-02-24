@@ -21,9 +21,11 @@ import {
   getEnabledMentoringMethods,
   getMentorSettings,
   getMethodLabel,
-  type MentorProfile,
-  type MentoringMethodType,
 } from '@/mocks/mentoring-mock-data';
+import type {
+  MentorProfile,
+  MentoringMethodType,
+} from '@/types/mentoring-domain';
 import { type MentorRegistrationPreviewHighlightSection } from '@/types/mentoring-registration';
 import MentorMarkdownContent from './mentor-markdown-content';
 import ReviewStars from './review-stars';

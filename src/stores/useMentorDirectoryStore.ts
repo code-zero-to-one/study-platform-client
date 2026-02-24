@@ -11,7 +11,7 @@ import type {
   MentorProfile,
   MentoringMethodOption,
   MentoringMethodType,
-} from '@/types/mentoring';
+} from '@/types/mentoring-domain';
 import { type MentorSettingsV2 } from '@/types/mentoring-settings';
 import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
 
