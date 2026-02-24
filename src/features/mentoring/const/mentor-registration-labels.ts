@@ -40,6 +40,7 @@ export const MENTOR_REGISTRATION_GUARD_CARD_CONTENT: Record<
 
 export const MENTOR_REGISTRATION_TOAST_MESSAGES = {
   memberInfoMissing: '로그인 정보를 확인할 수 없습니다.',
+  entryOnboardingCompleted: '멘토 기본 정보가 등록 폼에 채워졌습니다.',
   verificationLoading:
     '본인인증 상태를 확인 중입니다. 잠시 후 다시 시도해주세요.',
   verificationError:

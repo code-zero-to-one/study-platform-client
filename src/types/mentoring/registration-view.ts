@@ -41,6 +41,13 @@ export interface MentorRegistrationWelcomeOnboardingState {
   checklist: MentorRegistrationWelcomeChecklistItem[];
 }
 
+export interface MentorRegistrationEntryOnboardingValues {
+  jobGroup: string;
+  jobTitle: string;
+  careerYears: string;
+  appealLine: string;
+}
+
 export type MentorRegistrationMethodEnabledField =
   | 'noteEnabled'
   | 'phoneEnabled'

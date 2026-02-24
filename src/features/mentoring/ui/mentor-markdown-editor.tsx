@@ -3,7 +3,6 @@
 import {
   Bold,
   Code2,
-  Eye,
   Heading2,
   Image,
   ImagePlus,
@@ -18,7 +17,6 @@ import {
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
-import MentorMarkdownContent from './mentor-markdown-content';
 
 interface MentorMarkdownEditorProps {
   value: string;
@@ -135,7 +133,6 @@ export default function MentorMarkdownEditor({
   onChange,
   placeholder,
 }: MentorMarkdownEditorProps) {
-  const [mode, setMode] = useState<'write' | 'preview'>('write');
   const [imageInsertError, setImageInsertError] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -251,6 +248,7 @@ export default function MentorMarkdownEditor({
       setImageInsertError(
         `일부 이미지를 삽입하지 못했습니다: ${failedFileNames.join(', ')}`,
       );
+
       return;
     }
 
@@ -258,6 +256,7 @@ export default function MentorMarkdownEditor({
       setImageInsertError(
         `이미지는 한 번에 최대 ${MAX_IMAGE_FILE_COUNT}장까지 삽입할 수 있습니다.`,
       );
+
       return;
     }
 
@@ -267,109 +266,70 @@ export default function MentorMarkdownEditor({
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
       <div className="border-border-subtle bg-background-alternative flex flex-wrap items-center justify-between gap-100 border-b px-150 py-100">
-        <div className="flex items-center gap-75">
-          <button
-            type="button"
-            onClick={() => setMode('write')}
-            className={cn(
-              'font-designer-12r rounded-100 px-100 py-50',
-              mode === 'write'
-                ? 'bg-fill-brand-subtle-default text-text-brand'
-                : 'text-text-subtle hover:text-text-default',
-            )}
-          >
-            <Pencil className="mr-50 inline h-12 w-12" />
-            작성
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('preview')}
-            className={cn(
-              'font-designer-12r rounded-100 px-100 py-50',
-              mode === 'preview'
-                ? 'bg-fill-brand-subtle-default text-text-brand'
-                : 'text-text-subtle hover:text-text-default',
-            )}
-          >
-            <Eye className="mr-50 inline h-12 w-12" />
-            미리보기
-          </button>
-        </div>
+        <span className="font-designer-12r bg-fill-brand-subtle-default text-text-brand rounded-100 px-100 py-50">
+          <Pencil className="mr-50 inline h-12 w-12" />
+          작성
+        </span>
         <p className="font-designer-12r text-text-subtle">
           마크다운 + 이미지 업로드를 지원합니다. (최대 3장, 각 5MB)
         </p>
       </div>
 
-      {mode === 'write' && (
-        <>
-          <div className="border-border-subtle flex flex-wrap gap-75 border-b px-125 py-100">
-            {insertableBlocks.map((block) => {
-              const Icon = block.icon;
+      <div className="border-border-subtle flex flex-wrap gap-75 border-b px-125 py-100">
+        {insertableBlocks.map((block) => {
+          const Icon = block.icon;
 
-              return (
-                <Button
-                  key={block.label}
-                  type="button"
-                  color="secondary"
-                  size="small"
-                  onClick={() => block.onInsert(insertSnippet, wrapSelection)}
-                >
-                  <Icon className="mr-50 h-12 w-12" />
-                  {block.label}
-                </Button>
-              );
-            })}
+          return (
             <Button
+              key={block.label}
               type="button"
               color="secondary"
               size="small"
-              onClick={() => imageInputRef.current?.click()}
+              onClick={() => block.onInsert(insertSnippet, wrapSelection)}
             >
-              <ImagePlus className="mr-50 h-12 w-12" />
-              이미지 업로드
+              <Icon className="mr-50 h-12 w-12" />
+              {block.label}
             </Button>
-          </div>
+          );
+        })}
+        <Button
+          type="button"
+          color="secondary"
+          size="small"
+          onClick={() => imageInputRef.current?.click()}
+        >
+          <ImagePlus className="mr-50 h-12 w-12" />
+          이미지 업로드
+        </Button>
+      </div>
 
-          <input
-            ref={imageInputRef}
-            type="file"
-            multiple
-            accept="image/*"
-            className="hidden"
-            onChange={(event) => {
-              handleImageUpload(event.target.files);
-              event.target.value = '';
-            }}
-          />
+      <input
+        ref={imageInputRef}
+        type="file"
+        multiple
+        accept="image/*"
+        className="hidden"
+        onChange={(event) => {
+          handleImageUpload(event.target.files);
+          event.target.value = '';
+        }}
+      />
 
-          <textarea
-            ref={textareaRef}
-            value={value}
-            onChange={(event) => onChange(event.target.value)}
-            className={cn(
-              'font-designer-14r bg-background-default text-text-default',
-              'min-h-[260px] w-full resize-y px-150 py-125',
-              'placeholder:text-text-subtlest focus:outline-none',
-            )}
-            placeholder={
-              placeholder ?? '멘토 소개를 마크다운으로 작성해주세요.'
-            }
-          />
-          {imageInsertError && (
-            <p className="font-designer-12r text-text-error px-150 pb-100">
-              {imageInsertError}
-            </p>
-          )}
-        </>
-      )}
-
-      {mode === 'preview' && (
-        <div className="min-h-[260px] px-150 py-125">
-          <MentorMarkdownContent
-            content={value}
-            emptyMessage="작성된 내용이 없어서 미리보기를 표시할 수 없습니다."
-          />
-        </div>
+      <textarea
+        ref={textareaRef}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        className={cn(
+          'font-designer-14r bg-background-default text-text-default',
+          'min-h-[260px] w-full resize-y px-150 py-125',
+          'placeholder:text-text-subtlest focus:outline-none',
+        )}
+        placeholder={placeholder ?? '멘토 소개를 마크다운으로 작성해주세요.'}
+      />
+      {imageInsertError && (
+        <p className="font-designer-12r text-text-error px-150 pb-100">
+          {imageInsertError}
+        </p>
       )}
     </div>
   );

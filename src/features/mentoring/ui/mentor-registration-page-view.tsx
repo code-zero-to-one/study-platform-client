@@ -1,12 +1,7 @@
 'use client';
 
 import { Eye, X } from 'lucide-react';
-import {
-  type CSSProperties,
-  useEffect,
-  useRef,
-  useState,
-} from 'react';
+import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -14,6 +9,7 @@ import TextActionButton from '@/components/ui/text-action-button';
 import { type MentorRegistrationControllerResult } from '@/features/mentoring/model/use-mentor-registration-controller';
 import MentorDetailPage from '@/features/mentoring/ui/mentor-detail-page';
 import MentoringGuideModal from '@/features/mentoring/ui/mentoring-guide-modal';
+import MentorRegistrationEntryOnboarding from '@/features/mentoring/ui/registration/mentor-registration-entry-onboarding';
 import MentorRegistrationForm from '@/features/mentoring/ui/registration/mentor-registration-form';
 import MentorRegistrationHeader from '@/features/mentoring/ui/registration/mentor-registration-header';
 import MentorRegistrationStateBoundary from '@/features/mentoring/ui/registration/mentor-registration-state-boundary';
@@ -28,7 +24,7 @@ const PREVIEW_SCROLL_TARGET_DAMPING = 0.62;
 const PREVIEW_SCROLL_SMOOTHING = 0.42;
 const PREVIEW_SCROLL_IDLE_THRESHOLD = 0.18;
 const PREVIEW_PANEL_EXTRA_WIDTH = 200;
-const PREVIEW_PANEL_RIGHT_OFFSET = 100;
+const PREVIEW_FORM_GAP = 60;
 
 const clamp = (value: number, min: number, max: number) => {
   return Math.max(min, Math.min(max, value));
@@ -43,9 +39,7 @@ export default function MentorRegistrationPageView({
 }: MentorRegistrationPageViewProps) {
   const { state, refs, actions } = controller;
   const previewPanelRef = useRef<HTMLElement>(null);
-  const [previewPanelRightOffset, setPreviewPanelRightOffset] = useState(
-    PREVIEW_PANEL_RIGHT_OFFSET,
-  );
+  const [previewPanelRightOffset, setPreviewPanelRightOffset] = useState(0);
   const previousScrollYRef = useRef(0);
   const currentOffsetRef = useRef(0);
   const targetOffsetRef = useRef(0);
@@ -59,7 +53,7 @@ export default function MentorRegistrationPageView({
 
   useEffect(() => {
     if (!state.isPreviewOpen) {
-      setPreviewPanelRightOffset(PREVIEW_PANEL_RIGHT_OFFSET);
+      setPreviewPanelRightOffset(0);
 
       return;
     }
@@ -68,7 +62,7 @@ export default function MentorRegistrationPageView({
       const layoutRect = refs.previewLayoutRef.current?.getBoundingClientRect();
 
       if (!layoutRect) {
-        setPreviewPanelRightOffset(PREVIEW_PANEL_RIGHT_OFFSET);
+        setPreviewPanelRightOffset(0);
 
         return;
       }
@@ -77,11 +71,7 @@ export default function MentorRegistrationPageView({
         0,
         Math.floor(window.innerWidth - layoutRect.right),
       );
-      const nextRightOffset =
-        viewportRightGutter >= PREVIEW_PANEL_RIGHT_OFFSET
-          ? PREVIEW_PANEL_RIGHT_OFFSET
-          : 0;
-      setPreviewPanelRightOffset(nextRightOffset);
+      setPreviewPanelRightOffset(viewportRightGutter);
     };
 
     syncPreviewPanelRightOffset();
@@ -96,7 +86,10 @@ export default function MentorRegistrationPageView({
       previousScrollYRef.current = window.scrollY;
       currentOffsetRef.current = 0;
       targetOffsetRef.current = 0;
-      previewPanelRef.current?.style.setProperty('--preview-scroll-nudge', '0px');
+      previewPanelRef.current?.style.setProperty(
+        '--preview-scroll-nudge',
+        '0px',
+      );
       if (animationFrameRef.current !== null) {
         window.cancelAnimationFrame(animationFrameRef.current);
         animationFrameRef.current = null;
@@ -209,6 +202,16 @@ export default function MentorRegistrationPageView({
     );
   }
 
+  if (state.isEntryOnboardingOpen) {
+    return (
+      <MentorRegistrationEntryOnboarding
+        initialValues={state.entryOnboardingValues}
+        onComplete={actions.onCompleteEntryOnboarding}
+        onSkip={actions.onSkipEntryOnboarding}
+      />
+    );
+  }
+
   return (
     <div
       className={cn(PAGE_CONTAINER_CLASS, state.isResizing && 'select-none')}
@@ -224,7 +227,7 @@ export default function MentorRegistrationPageView({
       <div
         ref={refs.previewLayoutRef}
         className={cn(
-          'xl:grid xl:grid-cols-[minmax(0,1fr)_var(--preview-panel-total-width)] xl:gap-x-200',
+          'xl:grid xl:grid-cols-[minmax(0,1fr)_var(--preview-panel-total-width)] xl:gap-x-[var(--preview-form-gap)]',
           !state.isResizing &&
             'xl:transition-[grid-template-columns] xl:duration-300',
         )}
@@ -232,6 +235,7 @@ export default function MentorRegistrationPageView({
           {
             '--preview-panel-width': `${previewPanelBaseWidth}px`,
             '--preview-panel-total-width': `${previewPanelTotalWidth}px`,
+            '--preview-form-gap': `${PREVIEW_FORM_GAP}px`,
           } as CSSProperties
         }
       >
@@ -259,11 +263,11 @@ export default function MentorRegistrationPageView({
             'bg-background-default border-border-subtle flex flex-col',
             state.isPreviewOpen && 'xl:border',
             // < XL: fixed overlay drawer
-            'fixed right-0 top-0 z-40 h-[100dvh] w-full',
+            'fixed top-0 right-0 z-40 h-[100dvh] w-full',
             !state.isResizing && 'transition-transform duration-300',
             state.isPreviewOpen ? 'translate-x-0' : 'translate-x-full',
             // XL: 고정 미리보기 카드 + 스크롤 관성 nudge
-            'xl:right-[var(--preview-panel-right-offset)] xl:top-1/2 xl:z-20 xl:h-[calc(100dvh-120px)] xl:w-[var(--preview-panel-total-width)] xl:self-start xl:overflow-hidden xl:rounded-200 xl:transition-none',
+            'xl:rounded-200 xl:top-1/2 xl:right-[var(--preview-panel-right-offset)] xl:z-20 xl:h-[calc(100dvh-120px)] xl:w-[var(--preview-panel-total-width)] xl:self-start xl:overflow-hidden xl:transition-none',
             state.isPreviewOpen
               ? 'xl:[transform:translate3d(0,calc(-50%+var(--preview-scroll-nudge,0px)),0)]'
               : 'xl:translate-x-full',

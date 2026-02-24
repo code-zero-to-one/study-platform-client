@@ -37,7 +37,7 @@ export const useMentorJoinController = () => {
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const moveToMentorRegistration = () => {
-    router.push('/mentoring/become-mentor');
+    router.push('/mentoring/become-mentor?entry=mentor-list');
   };
 
   const handleVerificationComplete = (phoneNumber: string) => {

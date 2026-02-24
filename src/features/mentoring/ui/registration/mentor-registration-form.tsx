@@ -104,6 +104,7 @@ export default function MentorRegistrationForm({
   const jobGroup = watch('jobGroup');
   const jobTitle = watch('jobTitle');
   const careerYears = watch('careerYears');
+  const skillTags = watch('skillTags');
   const phoneEnabled = watch('phoneEnabled');
   const onlineEnabled = watch('onlineEnabled');
   const offlineEnabled = watch('offlineEnabled');
@@ -155,21 +156,28 @@ export default function MentorRegistrationForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="space-y-200 pb-400"
+      className="space-y-200 pb-500"
     >
-      <FormSectionCard title="이메일 정보">
-        <div className="mt-150">
-          <BaseInput
-            placeholder="연락 가능한 이메일 입력"
-            {...register('contactEmail')}
-          />
-          <FieldErrorText message={errors.contactEmail?.message} />
-        </div>
-      </FormSectionCard>
-
-      <div data-form-preview-section="headline">
-        <FormSectionCard title="멘토링 정보">
-          <div className="mb-150">
+      <div
+        data-form-preview-section="headline"
+        className="grid grid-cols-1 gap-150 xl:grid-cols-2"
+      >
+        <FormSectionCard
+          title="기본 정보"
+          description="멘티가 목록에서 먼저 확인하는 핵심 소개입니다."
+          bodyClassName="space-y-175"
+        >
+          <div>
+            <p className="font-designer-13r text-text-subtle mb-50">
+              이메일 정보
+            </p>
+            <BaseInput
+              placeholder="연락 가능한 이메일 입력"
+              {...register('contactEmail')}
+            />
+            <FieldErrorText message={errors.contactEmail?.message} />
+          </div>
+          <div>
             <p className="font-designer-13r text-text-subtle mb-50">
               멘토링 명
             </p>
@@ -184,8 +192,7 @@ export default function MentorRegistrationForm({
               있습니다.
             </p>
           </div>
-
-          <div className="mb-150">
+          <div>
             <p className="font-designer-13r text-text-subtle mb-50">
               한 줄 어필
             </p>
@@ -212,8 +219,13 @@ export default function MentorRegistrationForm({
               멘토링 목록 카드에서 강조 노출됩니다.
             </p>
           </div>
+        </FormSectionCard>
 
-          <div className="grid grid-cols-1 gap-150 sm:grid-cols-2 lg:grid-cols-3">
+        <FormSectionCard
+          title="멘토 포지션"
+          description="직군, 직무, 경력 조합으로 탐색 필터에 노출됩니다."
+        >
+          <div className="grid grid-cols-1 gap-150 sm:grid-cols-2 xl:grid-cols-1 2xl:grid-cols-3">
             <Controller
               name="jobGroup"
               control={control}
@@ -265,33 +277,41 @@ export default function MentorRegistrationForm({
               errors.careerYears?.message
             }
           />
+        </FormSectionCard>
 
-          <div className="mt-150">
-            <Controller
-              name="skillTags"
-              control={control}
-              render={({ field }) => (
-                <SelectableTagsInput
-                  value={field.value}
-                  onChange={field.onChange}
-                  maxSelectable={5}
-                  options={MENTOR_SKILL_TAG_PRESETS}
-                />
-              )}
-            />
-            <FieldErrorText message={errors.skillTags?.message} />
-          </div>
+        <FormSectionCard
+          title="핵심 키워드"
+          description="선택된 키워드는 프로필 카드/상세에 강조됩니다."
+        >
+          <Controller
+            name="skillTags"
+            control={control}
+            render={({ field }) => (
+              <SelectableTagsInput
+                value={field.value}
+                onChange={field.onChange}
+                maxSelectable={5}
+                options={MENTOR_SKILL_TAG_PRESETS}
+              />
+            )}
+          />
+          <p className="font-designer-12r text-text-subtle mt-75">
+            검색 노출 키워드 {skillTags.length}/5
+          </p>
+          <FieldErrorText message={errors.skillTags?.message} />
+        </FormSectionCard>
 
-          <div className="mt-125">
-            <BaseInput
-              placeholder="구체적인 회사명 입력"
-              {...register('companyName')}
-            />
-            <FieldErrorText message={errors.companyName?.message} />
-            <p className="font-designer-12r text-text-subtle mt-75">
-              회사명은 상세 페이지에서만 노출됩니다.
-            </p>
-            <label className="font-designer-13r text-text-subtle mt-100 inline-flex items-center gap-75">
+        <FormSectionCard
+          title="공개 설정"
+          description="회사명 노출 여부를 선택해 프로필 공개 범위를 조정하세요."
+        >
+          <BaseInput
+            placeholder="구체적인 회사명 입력"
+            {...register('companyName')}
+          />
+          <FieldErrorText message={errors.companyName?.message} />
+          <div className="rounded-125 bg-background-alternative mt-125 px-150 py-125">
+            <label className="font-designer-13r text-text-default inline-flex items-center gap-75">
               <input
                 type="checkbox"
                 className="border-border-default rounded-50 accent-fill-brand-default-default size-200 border"
@@ -299,6 +319,9 @@ export default function MentorRegistrationForm({
               />
               회사명 비노출
             </label>
+            <p className="font-designer-12r text-text-subtle mt-75">
+              회사명은 상세 페이지에서만 노출됩니다.
+            </p>
           </div>
         </FormSectionCard>
       </div>
@@ -318,7 +341,7 @@ export default function MentorRegistrationForm({
             </p>
           </div>
 
-          <div className="mt-200 flex flex-col gap-150">
+          <div className="mt-200 grid grid-cols-1 gap-150 lg:grid-cols-2">
             {METHOD_FIELDS.map((field) => {
               const enabled = watch(field.enabledField);
               const priceErrorMessage = errors[field.priceField]
@@ -345,7 +368,7 @@ export default function MentorRegistrationForm({
                       <p className="font-designer-13r text-text-subtle mt-25">
                         {field.description}
                       </p>
-                      <p className="font-designer-12r text-text-warning mt-50 leading-relaxed">
+                      <p className="font-designer-12r text-text-subtle mt-50 leading-relaxed">
                         {field.policySummary}
                       </p>
                     </div>
@@ -535,25 +558,34 @@ export default function MentorRegistrationForm({
         />
       </FormSectionCard>
 
-      <div className="flex justify-end gap-100 pt-100">
-        <Button
-          type="button"
-          color="secondary"
-          size="large"
-          className="flex-1 sm:flex-none"
-          onClick={onCancel}
-        >
-          취소
-        </Button>
-        <Button
-          type="submit"
-          color="primary"
-          size="large"
-          className="flex-1 sm:flex-none"
-          disabled={!isValid || isSubmitting}
-        >
-          {isSubmitting ? '저장 중...' : '저장하기'}
-        </Button>
+      <div className="bg-background-default/95 border-border-subtle sticky bottom-0 z-20 border-t px-150 py-125 backdrop-blur supports-[backdrop-filter]:bg-background-default/85">
+        <div className="flex flex-col gap-100 sm:flex-row sm:items-center sm:justify-between">
+          <p className="font-designer-12r text-text-subtle">
+            {isValid
+              ? '저장 준비가 완료되었습니다. 미리보기를 확인한 뒤 저장하세요.'
+              : '필수 항목을 모두 입력하면 저장 버튼이 활성화됩니다.'}
+          </p>
+          <div className="flex w-full gap-100 sm:w-auto">
+            <Button
+              type="button"
+              color="secondary"
+              size="large"
+              className="flex-1 sm:flex-none"
+              onClick={onCancel}
+            >
+              취소
+            </Button>
+            <Button
+              type="submit"
+              color="primary"
+              size="large"
+              className="flex-1 sm:flex-none"
+              disabled={!isValid || isSubmitting}
+            >
+              {isSubmitting ? '저장 중...' : '저장하기'}
+            </Button>
+          </div>
+        </div>
       </div>
     </form>
   );

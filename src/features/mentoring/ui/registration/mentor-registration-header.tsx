@@ -11,7 +11,7 @@ export default function MentorRegistrationHeader({
   onOpenGuide,
 }: MentorRegistrationHeaderProps) {
   return (
-    <header className="mb-250 flex flex-col gap-150 sm:flex-row sm:items-start sm:justify-between">
+    <header className="mb-250 flex flex-col gap-150 sm:flex-row sm:items-start sm:gap-200">
       <div>
         <div className="mb-75 flex items-center gap-100">
           <UserRoundPlus className="text-text-brand h-24 w-24" />
