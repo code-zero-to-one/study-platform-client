@@ -5,6 +5,7 @@ import {
   type CSSProperties,
   useEffect,
   useRef,
+  useState,
 } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
@@ -42,10 +43,53 @@ export default function MentorRegistrationPageView({
 }: MentorRegistrationPageViewProps) {
   const { state, refs, actions } = controller;
   const previewPanelRef = useRef<HTMLElement>(null);
+  const [previewPanelRightOffset, setPreviewPanelRightOffset] = useState(
+    PREVIEW_PANEL_RIGHT_OFFSET,
+  );
   const previousScrollYRef = useRef(0);
   const currentOffsetRef = useRef(0);
   const targetOffsetRef = useRef(0);
   const animationFrameRef = useRef<number | null>(null);
+  const previewPanelBaseWidth = state.isResizing
+    ? state.panelWidth
+    : state.committedPanelWidth;
+  const previewPanelTotalWidth = state.isPreviewOpen
+    ? previewPanelBaseWidth + PREVIEW_PANEL_EXTRA_WIDTH
+    : 0;
+
+  useEffect(() => {
+    if (!state.isPreviewOpen) {
+      setPreviewPanelRightOffset(PREVIEW_PANEL_RIGHT_OFFSET);
+
+      return;
+    }
+
+    const syncPreviewPanelRightOffset = () => {
+      const layoutRect = refs.previewLayoutRef.current?.getBoundingClientRect();
+
+      if (!layoutRect) {
+        setPreviewPanelRightOffset(PREVIEW_PANEL_RIGHT_OFFSET);
+
+        return;
+      }
+
+      const viewportRightGutter = Math.max(
+        0,
+        Math.floor(window.innerWidth - layoutRect.right),
+      );
+      const nextRightOffset =
+        viewportRightGutter >= PREVIEW_PANEL_RIGHT_OFFSET
+          ? PREVIEW_PANEL_RIGHT_OFFSET
+          : 0;
+      setPreviewPanelRightOffset(nextRightOffset);
+    };
+
+    syncPreviewPanelRightOffset();
+    window.addEventListener('resize', syncPreviewPanelRightOffset);
+
+    return () =>
+      window.removeEventListener('resize', syncPreviewPanelRightOffset);
+  }, [refs.previewLayoutRef, state.isPreviewOpen]);
 
   useEffect(() => {
     if (!state.isPreviewOpen) {
@@ -180,15 +224,14 @@ export default function MentorRegistrationPageView({
       <div
         ref={refs.previewLayoutRef}
         className={cn(
-          'xl:grid xl:grid-cols-[minmax(0,1fr)_var(--preview-panel-width)] xl:gap-x-200',
+          'xl:grid xl:grid-cols-[minmax(0,1fr)_var(--preview-panel-total-width)] xl:gap-x-200',
           !state.isResizing &&
             'xl:transition-[grid-template-columns] xl:duration-300',
         )}
         style={
           {
-            '--preview-panel-width': state.isPreviewOpen
-              ? `${state.isResizing ? state.panelWidth : state.committedPanelWidth}px`
-              : '0px',
+            '--preview-panel-width': `${previewPanelBaseWidth}px`,
+            '--preview-panel-total-width': `${previewPanelTotalWidth}px`,
           } as CSSProperties
         }
       >
@@ -220,7 +263,7 @@ export default function MentorRegistrationPageView({
             !state.isResizing && 'transition-transform duration-300',
             state.isPreviewOpen ? 'translate-x-0' : 'translate-x-full',
             // XL: 고정 미리보기 카드 + 스크롤 관성 nudge
-            'xl:right-[var(--preview-panel-right-offset)] xl:top-1/2 xl:z-20 xl:h-[calc(100dvh-120px)] xl:w-[calc(var(--preview-panel-width)+var(--preview-panel-extra-width))] xl:self-start xl:overflow-hidden xl:rounded-200 xl:transition-none',
+            'xl:right-[var(--preview-panel-right-offset)] xl:top-1/2 xl:z-20 xl:h-[calc(100dvh-120px)] xl:w-[var(--preview-panel-total-width)] xl:self-start xl:overflow-hidden xl:rounded-200 xl:transition-none',
             state.isPreviewOpen
               ? 'xl:[transform:translate3d(0,calc(-50%+var(--preview-scroll-nudge,0px)),0)]'
               : 'xl:translate-x-full',
@@ -228,8 +271,7 @@ export default function MentorRegistrationPageView({
           style={
             {
               '--preview-scroll-nudge': '0px',
-              '--preview-panel-right-offset': `${PREVIEW_PANEL_RIGHT_OFFSET}px`,
-              '--preview-panel-extra-width': `${PREVIEW_PANEL_EXTRA_WIDTH}px`,
+              '--preview-panel-right-offset': `${previewPanelRightOffset}px`,
             } as CSSProperties
           }
         >
@@ -306,7 +348,7 @@ export default function MentorRegistrationPageView({
       {state.isPreviewOpen && (
         <button
           type="button"
-          className="bg-background-dimmer fixed inset-0 z-40 xl:hidden"
+          className="bg-background-dimmer fixed inset-0 z-30 xl:hidden"
           onClick={actions.onClosePreview}
           aria-label="실시간 미리보기 닫기"
         />

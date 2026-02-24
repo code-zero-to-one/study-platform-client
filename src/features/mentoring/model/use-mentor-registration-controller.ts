@@ -45,6 +45,8 @@ const DEFAULT_VALUES: MentorRegistrationFormInputValues = {
 const FORM_MIN_CONTENT_WIDTH = 320;
 const PREVIEW_PANEL_MIN_WIDTH = 320;
 const PREVIEW_PANEL_DEFAULT_WIDTH = 960;
+const PREVIEW_PANEL_EXTRA_WIDTH = 200;
+const PREVIEW_PANEL_FORM_GAP = 24;
 const PREVIEW_PANEL_MAX_RATIO = 1 / 3;
 const DIRTY_VALIDATION_OPTIONS = {
   shouldValidate: true,
@@ -286,19 +288,27 @@ export const useMentorRegistrationController =
     );
 
     const getPreviewPanelMaxWidth = useCallback(() => {
-      const viewportLimit = Math.floor(window.innerWidth * 0.75);
-      const fallbackRatioLimit = Math.floor(
-        window.innerWidth * PREVIEW_PANEL_MAX_RATIO,
-      );
+      const viewportLimit =
+        Math.floor(window.innerWidth * 0.75) - PREVIEW_PANEL_EXTRA_WIDTH;
+      const fallbackRatioLimit =
+        Math.floor(window.innerWidth * PREVIEW_PANEL_MAX_RATIO) -
+        PREVIEW_PANEL_EXTRA_WIDTH;
       const layoutWidth =
         previewLayoutRef.current?.getBoundingClientRect().width;
 
       if (!layoutWidth) {
-        return Math.min(viewportLimit, fallbackRatioLimit);
+        return Math.max(0, Math.min(viewportLimit, fallbackRatioLimit));
       }
 
-      const ratioLimit = Math.floor(layoutWidth * PREVIEW_PANEL_MAX_RATIO);
-      const formSafeLimit = Math.floor(layoutWidth - FORM_MIN_CONTENT_WIDTH);
+      const ratioLimit =
+        Math.floor(layoutWidth * PREVIEW_PANEL_MAX_RATIO) -
+        PREVIEW_PANEL_EXTRA_WIDTH;
+      const formSafeLimit = Math.floor(
+        layoutWidth -
+          FORM_MIN_CONTENT_WIDTH -
+          PREVIEW_PANEL_EXTRA_WIDTH -
+          PREVIEW_PANEL_FORM_GAP,
+      );
 
       return Math.max(0, Math.min(viewportLimit, formSafeLimit, ratioLimit));
     }, []);
