@@ -15,7 +15,7 @@ import {
   Quote,
   Strikethrough,
 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import MentorMarkdownContent from './mentor-markdown-content';
@@ -26,7 +26,7 @@ interface MentorMarkdownEditorProps {
   placeholder?: string;
 }
 
-const MAX_IMAGE_FILE_SIZE = 300 * 1024;
+const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024; // 5MB (blob URL 방식은 에디터 텍스트 크기와 무관)
 const MAX_IMAGE_FILE_COUNT = 3;
 
 const toMarkdownAltText = (fileName: string) => {
@@ -36,21 +36,6 @@ const toMarkdownAltText = (fileName: string) => {
   return sanitized.length > 0 ? sanitized : '업로드 이미지';
 };
 
-const readFileAsDataUrl = (file: File) => {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result !== 'string') {
-        reject(new Error('이미지 인코딩에 실패했습니다.'));
-
-        return;
-      }
-      resolve(reader.result);
-    };
-    reader.onerror = () => reject(new Error('이미지 파일을 읽을 수 없습니다.'));
-    reader.readAsDataURL(file);
-  });
-};
 
 const insertableBlocks = [
   {
@@ -154,6 +139,14 @@ export default function MentorMarkdownEditor({
   const [imageInsertError, setImageInsertError] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  // 생성한 blob URL 추적 → 언마운트 시 메모리 해제
+  const blobUrlsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    return () => {
+      blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   const insertSnippet = (snippet: string, cursorShift = 0) => {
     const textarea = textareaRef.current;
@@ -216,7 +209,7 @@ export default function MentorMarkdownEditor({
     });
   };
 
-  const handleImageUpload = async (files: FileList | null) => {
+  const handleImageUpload = (files: FileList | null) => {
     const selectedFiles = Array.from(files ?? []);
     if (selectedFiles.length === 0) {
       return;
@@ -229,20 +222,21 @@ export default function MentorMarkdownEditor({
     for (const file of imagesToUpload) {
       if (!file.type.startsWith('image/')) {
         failedFileNames.push(`${file.name}(이미지 파일 아님)`);
-
         continue;
       }
 
       if (file.size > MAX_IMAGE_FILE_SIZE) {
-        failedFileNames.push(`${file.name}(300KB 초과)`);
-
+        failedFileNames.push(`${file.name}(5MB 초과)`);
         continue;
       }
 
       try {
-        const dataUrl = await readFileAsDataUrl(file);
+        // blob URL: 에디터에 짧은 URL만 삽입 → 에디터가 무거워지지 않음
+        // 나중에 API 연동 시 blob URL → 실제 서버 URL로 교체
+        const blobUrl = URL.createObjectURL(file);
+        blobUrlsRef.current.push(blobUrl);
         uploadedImageSnippets.push(
-          `![${toMarkdownAltText(file.name)}](${dataUrl})`,
+          `![${toMarkdownAltText(file.name)}](${blobUrl})`,
         );
       } catch {
         failedFileNames.push(`${file.name}(읽기 실패)`);
@@ -257,7 +251,6 @@ export default function MentorMarkdownEditor({
       setImageInsertError(
         `일부 이미지를 삽입하지 못했습니다: ${failedFileNames.join(', ')}`,
       );
-
       return;
     }
 
@@ -265,7 +258,6 @@ export default function MentorMarkdownEditor({
       setImageInsertError(
         `이미지는 한 번에 최대 ${MAX_IMAGE_FILE_COUNT}장까지 삽입할 수 있습니다.`,
       );
-
       return;
     }
 
@@ -304,7 +296,7 @@ export default function MentorMarkdownEditor({
           </button>
         </div>
         <p className="font-designer-12r text-text-subtle">
-          마크다운 + 이미지 업로드를 지원합니다. (최대 3장, 각 300KB)
+          마크다운 + 이미지 업로드를 지원합니다. (최대 3장, 각 5MB)
         </p>
       </div>
 
@@ -345,9 +337,7 @@ export default function MentorMarkdownEditor({
             accept="image/*"
             className="hidden"
             onChange={(event) => {
-              handleImageUpload(event.target.files).catch(() => {
-                setImageInsertError('이미지 업로드 중 오류가 발생했습니다.');
-              });
+              handleImageUpload(event.target.files);
               event.target.value = '';
             }}
           />

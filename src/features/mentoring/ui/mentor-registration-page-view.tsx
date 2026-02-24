@@ -1,7 +1,11 @@
 'use client';
 
 import { Eye, X } from 'lucide-react';
-import { type CSSProperties } from 'react';
+import {
+  type CSSProperties,
+  useEffect,
+  useRef,
+} from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -17,6 +21,17 @@ import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verif
 
 const PAGE_CONTAINER_CLASS =
   'mx-auto w-full max-w-[1280px] px-150 py-400 sm:px-300 xl:px-400 xl:py-500';
+const PREVIEW_SCROLL_NUDGE_MAX = 44;
+const PREVIEW_SCROLL_RESPONSE_RATIO = 0.6;
+const PREVIEW_SCROLL_TARGET_DAMPING = 0.62;
+const PREVIEW_SCROLL_SMOOTHING = 0.42;
+const PREVIEW_SCROLL_IDLE_THRESHOLD = 0.18;
+const PREVIEW_PANEL_EXTRA_WIDTH = 200;
+const PREVIEW_PANEL_RIGHT_OFFSET = 100;
+
+const clamp = (value: number, min: number, max: number) => {
+  return Math.max(min, Math.min(max, value));
+};
 
 interface MentorRegistrationPageViewProps {
   controller: MentorRegistrationControllerResult;
@@ -26,6 +41,109 @@ export default function MentorRegistrationPageView({
   controller,
 }: MentorRegistrationPageViewProps) {
   const { state, refs, actions } = controller;
+  const previewPanelRef = useRef<HTMLElement>(null);
+  const previousScrollYRef = useRef(0);
+  const currentOffsetRef = useRef(0);
+  const targetOffsetRef = useRef(0);
+  const animationFrameRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!state.isPreviewOpen) {
+      previousScrollYRef.current = window.scrollY;
+      currentOffsetRef.current = 0;
+      targetOffsetRef.current = 0;
+      previewPanelRef.current?.style.setProperty('--preview-scroll-nudge', '0px');
+      if (animationFrameRef.current !== null) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+
+      return;
+    }
+
+    const desktopQuery = window.matchMedia('(min-width: 1280px)');
+
+    const animateOffset = () => {
+      targetOffsetRef.current *= PREVIEW_SCROLL_TARGET_DAMPING;
+      const nextOffset =
+        currentOffsetRef.current +
+        (targetOffsetRef.current - currentOffsetRef.current) *
+          PREVIEW_SCROLL_SMOOTHING;
+
+      currentOffsetRef.current = nextOffset;
+      previewPanelRef.current?.style.setProperty(
+        '--preview-scroll-nudge',
+        `${nextOffset}px`,
+      );
+
+      const shouldStop =
+        Math.abs(nextOffset) < PREVIEW_SCROLL_IDLE_THRESHOLD &&
+        Math.abs(targetOffsetRef.current) < PREVIEW_SCROLL_IDLE_THRESHOLD;
+
+      if (shouldStop) {
+        currentOffsetRef.current = 0;
+        targetOffsetRef.current = 0;
+        previewPanelRef.current?.style.setProperty(
+          '--preview-scroll-nudge',
+          '0px',
+        );
+        animationFrameRef.current = null;
+
+        return;
+      }
+
+      animationFrameRef.current = window.requestAnimationFrame(animateOffset);
+    };
+
+    const startAnimation = () => {
+      if (animationFrameRef.current !== null) {
+        return;
+      }
+
+      animationFrameRef.current = window.requestAnimationFrame(animateOffset);
+    };
+
+    const handleScroll = () => {
+      const nextScrollY = window.scrollY;
+      const delta = nextScrollY - previousScrollYRef.current;
+      previousScrollYRef.current = nextScrollY;
+
+      if (!desktopQuery.matches || delta === 0) {
+        return;
+      }
+
+      targetOffsetRef.current = clamp(
+        targetOffsetRef.current + delta * PREVIEW_SCROLL_RESPONSE_RATIO,
+        -PREVIEW_SCROLL_NUDGE_MAX,
+        PREVIEW_SCROLL_NUDGE_MAX,
+      );
+
+      startAnimation();
+    };
+
+    const handleViewportChange = () => {
+      if (desktopQuery.matches) {
+        return;
+      }
+
+      targetOffsetRef.current = 0;
+      startAnimation();
+    };
+
+    previousScrollYRef.current = window.scrollY;
+    previewPanelRef.current?.style.setProperty('--preview-scroll-nudge', '0px');
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    desktopQuery.addEventListener('change', handleViewportChange);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      desktopQuery.removeEventListener('change', handleViewportChange);
+      if (animationFrameRef.current !== null) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
+      }
+    };
+  }, [state.isPreviewOpen]);
 
   if (state.guardState !== 'ready') {
     return (
@@ -54,21 +172,29 @@ export default function MentorRegistrationPageView({
     >
       <MentorRegistrationHeader onOpenGuide={actions.onOpenGuide} />
 
+      {/*
+       * XL 이상: grid 2컬럼 레이아웃 (폼 | 미리보기)
+       *   - aside는 화면 우측 고정 카드로 렌더링되고, grid는 폼 영역 폭만 안정적으로 확보
+       * XL 미만: 단일 컬럼 + aside는 fixed overlay drawer
+       */}
       <div
         ref={refs.previewLayoutRef}
         className={cn(
-          state.isPreviewOpen && 'xl:pr-[var(--preview-panel-width)]',
+          'xl:grid xl:grid-cols-[minmax(0,1fr)_var(--preview-panel-width)] xl:gap-x-200',
+          !state.isResizing &&
+            'xl:transition-[grid-template-columns] xl:duration-300',
         )}
         style={
-          state.isPreviewOpen
-            ? ({
-                '--preview-panel-width': `${state.committedPanelWidth}px`,
-              } as CSSProperties)
-            : undefined
+          {
+            '--preview-panel-width': state.isPreviewOpen
+              ? `${state.isResizing ? state.panelWidth : state.committedPanelWidth}px`
+              : '0px',
+          } as CSSProperties
         }
       >
-        {/* overflow-x-auto: 패널이 좁아져도 form 내용은 reflow 없이 가로 스크롤 */}
-        <div className="overflow-x-auto">
+        {/* LEFT: 폼 영역 */}
+        {/* min-w-0: grid item shrink 허용 / overflow-x-auto: 패널이 좁아져도 reflow 없이 가로 스크롤 */}
+        <div className="min-w-0 overflow-x-auto">
           <MentorRegistrationForm
             form={state.form}
             onSubmit={actions.onSave}
@@ -78,22 +204,83 @@ export default function MentorRegistrationPageView({
             }
           />
         </div>
+
+        {/*
+         * RIGHT: 미리보기 패널
+         *   XL: 우측 중앙 고정 카드 — 스크롤 delta에 반응해 nudge 애니메이션
+         *   XL 미만: fixed overlay drawer — translate 로 슬라이드 인/아웃
+         */}
+        <aside
+          ref={previewPanelRef}
+          className={cn(
+            'bg-background-default border-border-subtle flex flex-col',
+            state.isPreviewOpen && 'xl:border',
+            // < XL: fixed overlay drawer
+            'fixed right-0 top-0 z-40 h-[100dvh] w-full',
+            !state.isResizing && 'transition-transform duration-300',
+            state.isPreviewOpen ? 'translate-x-0' : 'translate-x-full',
+            // XL: 고정 미리보기 카드 + 스크롤 관성 nudge
+            'xl:right-[var(--preview-panel-right-offset)] xl:top-1/2 xl:z-20 xl:h-[calc(100dvh-120px)] xl:w-[calc(var(--preview-panel-width)+var(--preview-panel-extra-width))] xl:self-start xl:overflow-hidden xl:rounded-200 xl:transition-none',
+            state.isPreviewOpen
+              ? 'xl:[transform:translate3d(0,calc(-50%+var(--preview-scroll-nudge,0px)),0)]'
+              : 'xl:translate-x-full',
+          )}
+          style={
+            {
+              '--preview-scroll-nudge': '0px',
+              '--preview-panel-right-offset': `${PREVIEW_PANEL_RIGHT_OFFSET}px`,
+              '--preview-panel-extra-width': `${PREVIEW_PANEL_EXTRA_WIDTH}px`,
+            } as CSSProperties
+          }
+        >
+          {/* 리사이즈 핸들 (XL 이상에서만) */}
+          <div
+            className="group absolute top-0 left-0 z-10 hidden h-full w-[8px] cursor-col-resize xl:block"
+            onPointerDown={actions.onPreviewResizeStart}
+          />
+
+          {/* 미리보기 패널 헤더 */}
+          <div className="bg-background-default flex shrink-0 items-center justify-between px-250 py-150">
+            <div className="flex items-center gap-100">
+              <Eye className="text-text-brand h-16 w-16" />
+              <span className="font-designer-14b text-text-default">
+                실시간 미리보기
+              </span>
+              <span className="font-designer-12r text-text-subtlest">
+                · 실제 화면과 동일하게 표시됩니다
+              </span>
+            </div>
+            <TextActionButton
+              tone="default"
+              weight="bold"
+              withTransition
+              icon={<X className="h-14 w-14" />}
+              onClick={actions.onClosePreview}
+              aria-label="실시간 미리보기 닫기"
+            >
+              닫기
+            </TextActionButton>
+          </div>
+          {/* overflow-x-auto: 패널이 좁아져도 preview 내용은 reflow 없이 가로 스크롤 */}
+          <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto xl:pointer-events-auto xl:overscroll-contain">
+            <div className="min-w-[360px] [&_a]:pointer-events-none [&_button]:pointer-events-none">
+              <MentorDetailPage
+                mentor={state.previewMentor}
+                previewMode
+                highlightedSections={state.highlightedSections}
+              />
+            </div>
+          </div>
+        </aside>
       </div>
 
       {!state.isPreviewOpen && (
         <>
-          {/* xl: 오른쪽 끝에 붙는 세로 탭 버튼 */}
+          {/* XL: 뷰포트 오른쪽 끝에 붙는 세로 탭 버튼 */}
           <button
             type="button"
             className="bg-fill-brand-default-default text-text-inverse border-border-brand rounded-l-150 font-designer-13b shadow-2 fixed right-0 z-30 hidden items-center gap-100 border px-125 py-300 xl:flex xl:flex-col"
-            style={
-              state.headerHeight > 0
-                ? {
-                    top: `calc(50% + ${state.headerHeight / 2}px)`,
-                    transform: 'translateY(-50%)',
-                  }
-                : { top: '50%', transform: 'translateY(-50%)' }
-            }
+            style={{ top: '50%', transform: 'translateY(-50%)' }}
             onClick={actions.onOpenPreview}
             aria-label="실시간 미리보기 열기"
           >
@@ -115,6 +302,7 @@ export default function MentorRegistrationPageView({
         </>
       )}
 
+      {/* XL 미만에서만 표시되는 backdrop */}
       {state.isPreviewOpen && (
         <button
           type="button"
@@ -123,68 +311,6 @@ export default function MentorRegistrationPageView({
           aria-label="실시간 미리보기 닫기"
         />
       )}
-
-      <aside
-        className={cn(
-          'bg-background-default border-border-subtle fixed right-0 z-40 flex w-full flex-col border-l xl:w-[var(--preview-panel-width)]',
-          !state.isResizing && 'transition-transform duration-300',
-          state.isPreviewOpen ? 'translate-x-0' : 'translate-x-full',
-        )}
-        style={
-          {
-            '--preview-panel-width': `${state.panelWidth}px`,
-            top: state.headerHeight > 0 ? `${state.headerHeight}px` : 0,
-            height:
-              state.headerHeight > 0
-                ? `calc(100dvh - ${state.headerHeight}px)`
-                : '100dvh',
-          } as CSSProperties
-        }
-      >
-        {/* 리사이즈 핸들 (xl 이상에서만) */}
-        <div
-          className="group absolute top-0 left-0 z-10 hidden h-full w-[8px] cursor-col-resize xl:block"
-          onMouseDown={actions.onPreviewResizeStart}
-        >
-          <div className="bg-border-subtle group-hover:bg-border-brand absolute top-0 left-[3px] h-full w-[2px] transition-colors" />
-          <div className="border-border-subtle bg-background-default group-hover:border-border-brand absolute top-1/2 left-0 flex h-[40px] w-[8px] -translate-y-1/2 flex-col items-center justify-center gap-[3px] rounded-l-[4px] border border-r-0 transition-colors">
-            <span className="bg-border-default group-hover:bg-border-brand h-[12px] w-[2px] rounded-full transition-colors" />
-          </div>
-        </div>
-
-        {/* 미리보기 패널 헤더 */}
-        <div className="border-border-subtle bg-background-default flex shrink-0 items-center justify-between border-b px-250 py-150">
-          <div className="flex items-center gap-100">
-            <Eye className="text-text-brand h-16 w-16" />
-            <span className="font-designer-14b text-text-default">
-              실시간 미리보기
-            </span>
-            <span className="font-designer-12r text-text-subtlest">
-              · 실제 화면과 동일하게 표시됩니다
-            </span>
-          </div>
-          <TextActionButton
-            tone="default"
-            weight="bold"
-            withTransition
-            icon={<X className="h-14 w-14" />}
-            onClick={actions.onClosePreview}
-            aria-label="실시간 미리보기 닫기"
-          >
-            닫기
-          </TextActionButton>
-        </div>
-        {/* overflow-x-auto: 패널이 좁아져도 preview 내용은 reflow 없이 가로 스크롤 */}
-        <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto">
-          <div className="min-w-[360px] [&_a]:pointer-events-none [&_button]:pointer-events-none">
-            <MentorDetailPage
-              mentor={state.previewMentor}
-              previewMode
-              highlightedSections={state.highlightedSections}
-            />
-          </div>
-        </div>
-      </aside>
 
       <MentoringGuideModal
         open={state.isGuideOpen}

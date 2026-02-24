@@ -35,6 +35,7 @@ type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
 interface MentorDetailPageProps {
   mentor: MentorProfile;
   previewMode?: boolean;
+  showSettingsEditButton?: boolean;
   highlightedSections?: PreviewHighlightSection[];
 }
 
@@ -69,14 +70,53 @@ const reviewMethodMap: Record<MentoringMethodType, string> = {
 export default function MentorDetailPage({
   mentor,
   previewMode,
+  showSettingsEditButton = false,
   highlightedSections,
 }: MentorDetailPageProps) {
   const isHighlighted = (section: PreviewHighlightSection) =>
     previewMode === true && (highlightedSections?.includes(section) ?? false);
   const mentorSettings = getMentorSettings(mentor);
+  const appealLine = mentorSettings.appealLine.trim();
+  const jobGroupLabel = mentorSettings.jobGroup || mentor.role || '직군 미입력';
   const jobTitleLabel = mentorSettings.jobTitle || mentor.role || '직무 미입력';
   const careerLabel =
     mentorSettings.careerYears || mentor.career || '경력 미입력';
+  const companyCategoryLabel = mentorSettings.companyCategory || '기타';
+  const profileSummaryLine = Array.from(
+    new Set(
+      [jobGroupLabel, jobTitleLabel, careerLabel]
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0),
+    ),
+  ).join(' · ');
+  const profileInfoRows = [
+    { label: '직군', value: jobGroupLabel },
+    { label: '직무', value: jobTitleLabel },
+    { label: '소속', value: mentor.company },
+    { label: '경력', value: careerLabel },
+    { label: '회사 분류', value: companyCategoryLabel },
+  ];
+  const headlineBadges: Array<{
+    key: string;
+    value: string;
+    color: 'green' | 'gray';
+  }> = [];
+
+  if (appealLine.length > 0) {
+    headlineBadges.push({
+      key: 'appealLine',
+      value: appealLine,
+      color: 'green',
+    });
+  }
+
+  if (companyCategoryLabel.length > 0) {
+    headlineBadges.push({
+      key: 'companyCategory',
+      value: companyCategoryLabel,
+      color: 'gray',
+    });
+  }
   const enabledMethods = useMemo(() => {
     return getEnabledMentoringMethods(mentor);
   }, [mentor]);
@@ -112,18 +152,27 @@ export default function MentorDetailPage({
       )}
     >
       {/* Breadcrumb */}
-      <nav className="mb-400 flex items-center gap-75">
-        <Link
-          href="/mentoring"
-          className="font-designer-14r text-text-subtle hover:text-text-default"
-        >
-          1:1 멘토링
-        </Link>
-        <ChevronRight className="text-text-subtlest h-14 w-14" />
-        <span className="font-designer-14r text-text-default">
-          {mentor.nickname}
-        </span>
-      </nav>
+      <div className="mb-400 flex items-center justify-between gap-100">
+        <nav className="flex items-center gap-75">
+          <Link
+            href="/mentoring"
+            className="font-designer-14r text-text-subtle hover:text-text-default"
+          >
+            1:1 멘토링
+          </Link>
+          <ChevronRight className="text-text-subtlest h-14 w-14" />
+          <span className="font-designer-14r text-text-default">
+            {mentor.nickname}
+          </span>
+        </nav>
+        {!previewMode && showSettingsEditButton && (
+          <Link href="/mentoring/become-mentor">
+            <Button color="outlined" size="small">
+              멘토링 설정 수정
+            </Button>
+          </Link>
+        )}
+      </div>
 
       <div
         className={cn(
@@ -135,6 +184,7 @@ export default function MentorDetailPage({
         <div className="min-w-0">
           {/* 헤드라인 + 기본 정보 */}
           <section
+            data-preview-section="headline"
             className={cn(
               'border-border-subtle mb-500 border-b pb-500',
               isHighlighted('headline') && 'preview-section-highlight',
@@ -155,8 +205,17 @@ export default function MentorDetailPage({
                 <p className="font-designer-14b text-text-brand mb-50">
                   {mentor.company}
                 </p>
+                {headlineBadges.length > 0 && (
+                  <div className="mb-100 flex flex-wrap items-center gap-75">
+                    {headlineBadges.map((badge) => (
+                      <Badge key={badge.key} color={badge.color} shape="round">
+                        {badge.value}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
                 <p className="font-designer-13r text-text-subtle mb-200">
-                  {jobTitleLabel} · {careerLabel}
+                  {profileSummaryLine}
                 </p>
                 <div className="flex flex-wrap items-center gap-100">
                   <ReviewStars rating={Math.floor(mentor.rating)} />
@@ -184,33 +243,22 @@ export default function MentorDetailPage({
                 </div>
               </div>
 
-              {/* 우: 직무/소속/경력 */}
+              {/* 우: 기본 프로필 정보 */}
               <div className="rounded-150 bg-background-alternative p-200 sm:w-[260px]">
                 <div className="flex flex-col gap-100">
-                  <div className="grid grid-cols-[72px_1fr] items-start gap-75">
-                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                      직무
-                    </span>
-                    <span className="font-designer-13r text-text-default">
-                      {jobTitleLabel}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[72px_1fr] items-start gap-75">
-                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                      소속
-                    </span>
-                    <span className="font-designer-13r text-text-default">
-                      {mentor.company}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[72px_1fr] items-start gap-75">
-                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                      경력
-                    </span>
-                    <span className="font-designer-13r text-text-default">
-                      {careerLabel}
-                    </span>
-                  </div>
+                  {profileInfoRows.map((row) => (
+                    <div
+                      key={row.label}
+                      className="grid grid-cols-[72px_1fr] items-start gap-75"
+                    >
+                      <span className="font-designer-12r text-text-subtlest pt-[2px]">
+                        {row.label}
+                      </span>
+                      <span className="font-designer-13r text-text-default">
+                        {row.value}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -218,6 +266,7 @@ export default function MentorDetailPage({
 
           {/* 멘토 소개 */}
           <section
+            data-preview-section="description"
             className={cn(
               'border-border-subtle mb-500 border-b pb-500',
               isHighlighted('description') && 'preview-section-highlight',
@@ -250,6 +299,7 @@ export default function MentorDetailPage({
           {/* 상담 전 준비사항 */}
           {interviewQuestions.length > 0 && (
             <section
+              data-preview-section="interview"
               className={cn(
                 'border-border-subtle mb-500 border-b pb-500',
                 isHighlighted('interview') && 'preview-section-highlight',
@@ -273,6 +323,7 @@ export default function MentorDetailPage({
 
           {/* 상담 방법 선택 */}
           <section
+            data-preview-section="methods"
             className={cn(
               'border-border-subtle mb-500 border-b pb-500',
               isHighlighted('methods') && 'preview-section-highlight',
@@ -339,6 +390,7 @@ export default function MentorDetailPage({
           {/* 사전 안내 */}
           {mentorSettings.preNotice.trim() && (
             <section
+              data-preview-section="notice"
               className={cn(
                 'border-border-subtle mb-500 border-b pb-500',
                 isHighlighted('notice') && 'preview-section-highlight',
@@ -437,8 +489,17 @@ export default function MentorDetailPage({
                 </div>
               </div>
               <p className="font-designer-13r text-text-subtle mb-150">
-                {jobTitleLabel} · {careerLabel}
+                {profileSummaryLine}
               </p>
+              {headlineBadges.length > 0 && (
+                <div className="mb-150 flex flex-wrap items-center gap-75">
+                  {headlineBadges.map((badge) => (
+                    <Badge key={badge.key} color={badge.color} shape="round">
+                      {badge.value}
+                    </Badge>
+                  ))}
+                </div>
+              )}
               <div className="flex flex-wrap items-center gap-75">
                 <ReviewStars rating={Math.floor(mentor.rating)} />
                 <span className="font-designer-13b text-text-strong">
@@ -459,33 +520,22 @@ export default function MentorDetailPage({
               </div>
             </div>
 
-            {/* 직무 / 소속 / 경력 */}
+            {/* 기본 프로필 정보 */}
             <div className="border-border-subtle border-b px-250 py-200">
               <div className="flex flex-col gap-100">
-                <div className="grid grid-cols-[68px_1fr] items-start gap-75">
-                  <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                    직무
-                  </span>
-                  <span className="font-designer-12r text-text-default">
-                    {jobTitleLabel}
-                  </span>
-                </div>
-                <div className="grid grid-cols-[68px_1fr] items-start gap-75">
-                  <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                    소속
-                  </span>
-                  <span className="font-designer-12r text-text-default">
-                    {mentor.company}
-                  </span>
-                </div>
-                <div className="grid grid-cols-[68px_1fr] items-start gap-75">
-                  <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                    경력
-                  </span>
-                  <span className="font-designer-12r text-text-default">
-                    {careerLabel}
-                  </span>
-                </div>
+                {profileInfoRows.map((row) => (
+                  <div
+                    key={row.label}
+                    className="grid grid-cols-[68px_1fr] items-start gap-75"
+                  >
+                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
+                      {row.label}
+                    </span>
+                    <span className="font-designer-12r text-text-default">
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
 

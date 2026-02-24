@@ -13,7 +13,6 @@ import { BaseInput } from '@/components/ui/input';
 import BorderedTextarea from '@/components/ui/input/bordered-textarea';
 import {
   CAREER_YEAR_OPTIONS,
-  COMPANY_CATEGORY_DROPDOWN_OPTIONS,
   CONSULTING_DURATION_DROPDOWN_OPTIONS,
   getJobTitleOptionsByGroup,
   JOB_GROUP_OPTIONS,
@@ -74,6 +73,9 @@ const METHOD_FIELDS: MentorRegistrationMethodField[] = [
 
 const MIN_MENTORING_PRICE = 3000;
 const MAX_MENTORING_PRICE = 1_000_000;
+const PRICE_INPUT_STEP = 1000;
+const PRICE_INPUT_CLASS =
+  '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
 const CAREER_YEAR_OPTION_SET: ReadonlySet<string> = new Set(
   CAREER_YEAR_OPTIONS,
 );
@@ -153,12 +155,9 @@ export default function MentorRegistrationForm({
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="min-w-[640px] space-y-200 pb-400"
+      className="space-y-200 pb-400"
     >
-      <FormSectionCard
-        title="연락 정보"
-        description="휴대폰 번호는 본인인증 정보로 자동 등록됩니다."
-      >
+      <FormSectionCard title="이메일 정보">
         <div className="mt-150">
           <BaseInput
             placeholder="연락 가능한 이메일 입력"
@@ -168,339 +167,341 @@ export default function MentorRegistrationForm({
         </div>
       </FormSectionCard>
 
-      <FormSectionCard title="멘토링 정보">
-        <div className="mb-150">
-          <p className="font-designer-13r text-text-subtle mb-50">멘토링 명</p>
-          <BaseInput
-            placeholder="예) 개발자 취업 / 면접 / 이직 / 커리어 멘토링"
-            maxLength={MENTORING_TITLE_MAX_LENGTH}
-            {...register('mentoringTitle')}
-          />
-          <FieldErrorText message={errors.mentoringTitle?.message} />
-          <p className="font-designer-12r text-text-subtle mt-75">
-            멘토링명은 최대 {MENTORING_TITLE_MAX_LENGTH}자까지 입력할 수
-            있습니다.
-          </p>
-        </div>
-
-        <div className="mb-150">
-          <p className="font-designer-13r text-text-subtle mb-50">한 줄 어필</p>
-          <BaseInput
-            placeholder="예) 금융권 대기업 / 네카라쿠배 / 쿠팡"
-            {...register('appealLine')}
-          />
-          <FieldErrorText message={errors.appealLine?.message} />
-          <div className="mt-100 flex flex-wrap gap-75">
-            {MENTOR_APPEAL_LINE_PRESETS.map((preset) => (
-              <ChipButton
-                key={preset}
-                type="button"
-                variant="preset"
-                onClick={() =>
-                  setValue('appealLine', preset, dirtyValidationOptions)
-                }
-              >
-                {preset}
-              </ChipButton>
-            ))}
+      <div data-form-preview-section="headline">
+        <FormSectionCard title="멘토링 정보">
+          <div className="mb-150">
+            <p className="font-designer-13r text-text-subtle mb-50">
+              멘토링 명
+            </p>
+            <BaseInput
+              placeholder="예) 개발자 취업 / 면접 / 이직 / 커리어 멘토링"
+              maxLength={MENTORING_TITLE_MAX_LENGTH}
+              {...register('mentoringTitle')}
+            />
+            <FieldErrorText message={errors.mentoringTitle?.message} />
+            <p className="font-designer-12r text-text-subtle mt-75">
+              멘토링명은 최대 {MENTORING_TITLE_MAX_LENGTH}자까지 입력할 수
+              있습니다.
+            </p>
           </div>
-          <p className="font-designer-12r text-text-subtle mt-75">
-            멘토링 목록 카드에서 강조 노출됩니다.
-          </p>
-        </div>
 
-        <div className="grid grid-cols-1 gap-150 sm:grid-cols-2 lg:grid-cols-3">
-          <Controller
-            name="jobGroup"
-            control={control}
-            render={({ field }) => (
-              <SingleDropdown
-                options={JOB_GROUP_OPTIONS.map((value) => ({
-                  value,
-                  label: value,
-                }))}
-                value={field.value}
-                onChange={(value) => field.onChange(value ?? '')}
-                placeholder="멘토 직군"
-              />
-            )}
-          />
-          <Controller
-            name="jobTitle"
-            control={control}
-            render={({ field }) => (
-              <SingleDropdown
-                options={jobTitleOptions}
-                value={field.value}
-                onChange={(value) => field.onChange(value ?? '')}
-                placeholder={jobGroup ? '멘토 직무' : '먼저 멘토 직군 선택'}
-                disabled={!jobGroup}
-              />
-            )}
-          />
-          <Controller
-            name="careerYears"
-            control={control}
-            render={({ field }) => (
-              <SingleDropdown
-                options={CAREER_YEAR_OPTIONS.map((value) => ({
-                  value,
-                  label: value,
-                }))}
-                value={field.value}
-                onChange={(value) => field.onChange(value ?? '')}
-                placeholder="멘토 경력"
-              />
-            )}
-          />
-        </div>
-        <FieldErrorText
-          message={
-            errors.jobGroup?.message ??
-            errors.jobTitle?.message ??
-            errors.careerYears?.message
-          }
-        />
+          <div className="mb-150">
+            <p className="font-designer-13r text-text-subtle mb-50">
+              한 줄 어필
+            </p>
+            <BaseInput
+              placeholder="예) 금융권 대기업 / 네카라쿠배 / 쿠팡"
+              {...register('appealLine')}
+            />
+            <FieldErrorText message={errors.appealLine?.message} />
+            <div className="mt-100 flex flex-wrap gap-75">
+              {MENTOR_APPEAL_LINE_PRESETS.map((preset) => (
+                <ChipButton
+                  key={preset}
+                  type="button"
+                  variant="preset"
+                  onClick={() =>
+                    setValue('appealLine', preset, dirtyValidationOptions)
+                  }
+                >
+                  {preset}
+                </ChipButton>
+              ))}
+            </div>
+            <p className="font-designer-12r text-text-subtle mt-75">
+              멘토링 목록 카드에서 강조 노출됩니다.
+            </p>
+          </div>
 
-        <div className="mt-150">
+          <div className="grid grid-cols-1 gap-150 sm:grid-cols-2 lg:grid-cols-3">
+            <Controller
+              name="jobGroup"
+              control={control}
+              render={({ field }) => (
+                <SingleDropdown
+                  options={JOB_GROUP_OPTIONS.map((value) => ({
+                    value,
+                    label: value,
+                  }))}
+                  value={field.value}
+                  onChange={(value) => field.onChange(value ?? '')}
+                  placeholder="멘토 직군"
+                />
+              )}
+            />
+            <Controller
+              name="jobTitle"
+              control={control}
+              render={({ field }) => (
+                <SingleDropdown
+                  options={jobTitleOptions}
+                  value={field.value}
+                  onChange={(value) => field.onChange(value ?? '')}
+                  placeholder={jobGroup ? '멘토 직무' : '먼저 멘토 직군 선택'}
+                  disabled={!jobGroup}
+                />
+              )}
+            />
+            <Controller
+              name="careerYears"
+              control={control}
+              render={({ field }) => (
+                <SingleDropdown
+                  options={CAREER_YEAR_OPTIONS.map((value) => ({
+                    value,
+                    label: value,
+                  }))}
+                  value={field.value}
+                  onChange={(value) => field.onChange(value ?? '')}
+                  placeholder="멘토 경력"
+                />
+              )}
+            />
+          </div>
+          <FieldErrorText
+            message={
+              errors.jobGroup?.message ??
+              errors.jobTitle?.message ??
+              errors.careerYears?.message
+            }
+          />
+
+          <div className="mt-150">
+            <Controller
+              name="skillTags"
+              control={control}
+              render={({ field }) => (
+                <SelectableTagsInput
+                  value={field.value}
+                  onChange={field.onChange}
+                  maxSelectable={5}
+                  options={MENTOR_SKILL_TAG_PRESETS}
+                />
+              )}
+            />
+            <FieldErrorText message={errors.skillTags?.message} />
+          </div>
+
+          <div className="mt-125">
+            <BaseInput
+              placeholder="구체적인 회사명 입력"
+              {...register('companyName')}
+            />
+            <FieldErrorText message={errors.companyName?.message} />
+            <p className="font-designer-12r text-text-subtle mt-75">
+              회사명은 상세 페이지에서만 노출됩니다.
+            </p>
+            <label className="font-designer-13r text-text-subtle mt-100 inline-flex items-center gap-75">
+              <input
+                type="checkbox"
+                className="border-border-default rounded-50 accent-fill-brand-default-default size-200 border"
+                {...register('hideCompanyName')}
+              />
+              회사명 비노출
+            </label>
+          </div>
+        </FormSectionCard>
+      </div>
+
+      <div data-form-preview-section="methods">
+        <FormSectionCard
+          title="가격 / 시간"
+          description="상담 방식별 금액과 진행 시간을 설정해주세요."
+        >
+          <div className="rounded-125 border-border-warning bg-background-accent-yellow-subtle mb-200 border px-150 py-125">
+            <p className="font-designer-13b text-text-default mb-50">
+              첫 멘토링은 15분 전화상담으로 시작해보세요.
+            </p>
+            <p className="font-designer-13r text-text-subtle leading-relaxed">
+              쪽지/전화 포맷은 멘티의 시작 허들을 낮출 수 있습니다. 신청서에서
+              질문/고민/자료를 먼저 받아 빠르게 답변할 수 있도록 운영해보세요.
+            </p>
+          </div>
+
+          <div className="mt-200 flex flex-col gap-150">
+            {METHOD_FIELDS.map((field) => {
+              const enabled = watch(field.enabledField);
+              const priceErrorMessage = errors[field.priceField]
+                ?.message as string | undefined;
+              const durationErrorMessage = field.durationField
+                ? (errors[field.durationField]?.message as string | undefined)
+                : undefined;
+
+              return (
+                <article
+                  key={field.enabledField}
+                  className={cn(
+                    'rounded-100 border-border-default border p-150',
+                    enabled
+                      ? 'bg-background-default'
+                      : 'bg-background-alternative opacity-80',
+                  )}
+                >
+                  <div className="mb-125 flex items-start justify-between gap-150">
+                    <div>
+                      <p className="font-designer-16b text-text-default">
+                        {field.label}
+                      </p>
+                      <p className="font-designer-13r text-text-subtle mt-25">
+                        {field.description}
+                      </p>
+                      <p className="font-designer-12r text-text-warning mt-50 leading-relaxed">
+                        {field.policySummary}
+                      </p>
+                    </div>
+                    <ChipButton
+                      type="button"
+                      onClick={() =>
+                        setValue(field.enabledField, !enabled, {
+                          ...dirtyValidationOptions,
+                        })
+                      }
+                      variant="state"
+                      active={enabled}
+                    >
+                      {enabled ? '활성' : '비활성'}
+                    </ChipButton>
+                  </div>
+
+                  <div>
+                    <p className="font-designer-13r text-text-subtle mb-50">
+                      회당 가격 (원)
+                    </p>
+                    <BaseInput
+                      type="number"
+                      min={MIN_MENTORING_PRICE}
+                      max={MAX_MENTORING_PRICE}
+                      step={PRICE_INPUT_STEP}
+                      disabled={!enabled}
+                      className={PRICE_INPUT_CLASS}
+                      {...register(field.priceField)}
+                      placeholder="가격(원)"
+                    />
+                    <FieldErrorText message={priceErrorMessage} />
+                  </div>
+
+                  {field.durationField && (
+                    <div className="mt-125">
+                      <p className="font-designer-13r text-text-subtle mb-50">
+                        상담 시간
+                      </p>
+                      <Controller
+                        name={field.durationField}
+                        control={control}
+                        render={({ field: durationField }) => (
+                          <SingleDropdown
+                            options={
+                              field.durationOptions ??
+                              CONSULTING_DURATION_DROPDOWN_OPTIONS
+                            }
+                            value={String(durationField.value)}
+                            onChange={(value) =>
+                              durationField.onChange(Number(value ?? '60'))
+                            }
+                            placeholder="상담 시간"
+                          />
+                        )}
+                      />
+                      <FieldErrorText message={durationErrorMessage} />
+                    </div>
+                  )}
+
+                  {field.enabledField === 'phoneEnabled' && (
+                    <p className="font-designer-12r text-text-subtle mt-100">
+                      전화상담은 15분 고정으로 운영됩니다.
+                    </p>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+          <FieldErrorText message={errors.noteEnabled?.message} />
+        </FormSectionCard>
+      </div>
+
+      <div data-form-preview-section="methods">
+        <FormSectionCard
+          title="스케줄 설정"
+          description="전화/온라인/대면 상담 가능한 요일/시간(30분 단위)을 선택해주세요."
+        >
           <Controller
-            name="skillTags"
+            name="schedule"
             control={control}
             render={({ field }) => (
-              <SelectableTagsInput
+              <WeeklyScheduleGrid
                 value={field.value}
                 onChange={field.onChange}
-                maxSelectable={5}
-                options={MENTOR_SKILL_TAG_PRESETS}
               />
             )}
           />
-          <FieldErrorText message={errors.skillTags?.message} />
-        </div>
+          {needsSchedule && (
+            <FieldErrorText
+              message={errors.schedule?.message as string | undefined}
+            />
+          )}
+        </FormSectionCard>
+      </div>
 
-        <div className="mt-150">
+      <div data-form-preview-section="description">
+        <FormSectionCard
+          title="멘토 소개"
+          description="마크다운으로 소개를 작성하고, 이미지 파일을 직접 업로드할 수 있습니다."
+        >
           <Controller
-            name="companyCategory"
+            name="detailedDescription"
             control={control}
             render={({ field }) => (
-              <SingleDropdown
-                options={COMPANY_CATEGORY_DROPDOWN_OPTIONS}
+              <MentorMarkdownEditor
                 value={field.value}
-                onChange={(value) => field.onChange(value ?? '기타')}
-                placeholder="회사 카테고리"
+                onChange={field.onChange}
+                placeholder="멘토 소개, 전문 분야, 상담 범위를 자유롭게 작성해주세요."
               />
             )}
           />
-          <FieldErrorText message={errors.companyCategory?.message} />
-        </div>
+          <FieldErrorText message={errors.detailedDescription?.message} />
+        </FormSectionCard>
+      </div>
 
-        <div className="mt-125">
-          <BaseInput
-            placeholder="구체적인 회사명 입력"
-            {...register('companyName')}
+      <div data-form-preview-section="interview">
+        <FormSectionCard
+          title="상담 전 준비사항"
+          description="멘티가 상담 전에 준비하거나 전달해야 할 내용이 있다면 한 줄에 하나씩 작성해주세요."
+        >
+          <Controller
+            name="interviewQuestions"
+            control={control}
+            render={({ field }) => (
+              <BorderedTextarea
+                value={field.value.join('\n')}
+                onChange={(event) => {
+                  const nextQuestions = event.target.value
+                    .split('\n')
+                    .map((question) => question.trim())
+                    .filter((question) => question.length > 0);
+                  field.onChange(nextQuestions);
+                }}
+                placeholder={
+                  '예) 이력서/포트폴리오 링크를 미리 공유해주세요.\n예) 상담에서 다루고 싶은 질문 2~3개를 정리해주세요.\n예) 사전 과제/코드가 있다면 레포지토리 링크를 남겨주세요.'
+                }
+              />
+            )}
           />
-          <FieldErrorText message={errors.companyName?.message} />
           <p className="font-designer-12r text-text-subtle mt-75">
-            목록에는 회사 카테고리만 노출되고, 회사명은 상세에서만 노출됩니다.
+            최대 8개까지 작성할 수 있습니다.
           </p>
-          <label className="font-designer-13r text-text-subtle mt-100 inline-flex items-center gap-75">
-            <input
-              type="checkbox"
-              className="border-border-default rounded-50 accent-fill-brand-default-default size-200 border"
-              {...register('hideCompanyName')}
-            />
-            회사명 비노출
-          </label>
-        </div>
-      </FormSectionCard>
+          <FieldErrorText message={interviewQuestionError} />
+        </FormSectionCard>
+      </div>
 
-      <FormSectionCard
-        title="가격 / 시간"
-        description="상담 방식별 금액과 진행 시간을 설정해주세요."
-      >
-        <div className="rounded-125 border-border-warning bg-background-accent-yellow-subtle mb-200 border px-150 py-125">
-          <p className="font-designer-13b text-text-default mb-50">
-            멘토 테스트는 15분 전화상담으로 시작해보세요.
-          </p>
-          <p className="font-designer-13r text-text-subtle leading-relaxed">
-            쪽지/전화 포맷은 멘티의 시작 허들을 낮추는 용도입니다. 신청서에서
-            질문/고민/자료를 먼저 받아 빠르게 답변할 수 있도록 운영해보세요.
-          </p>
-        </div>
-
-        <div className="mt-200 flex flex-col gap-150">
-          {METHOD_FIELDS.map((field) => {
-            const enabled = watch(field.enabledField);
-
-            return (
-              <article
-                key={field.enabledField}
-                className={cn(
-                  'rounded-100 border-border-default border p-150',
-                  enabled
-                    ? 'bg-background-default'
-                    : 'bg-background-alternative opacity-80',
-                )}
-              >
-                <div className="mb-125 flex items-start justify-between gap-150">
-                  <div>
-                    <p className="font-designer-16b text-text-default">
-                      {field.label}
-                    </p>
-                    <p className="font-designer-13r text-text-subtle mt-25">
-                      {field.description}
-                    </p>
-                    <p className="font-designer-12r text-text-warning mt-50 leading-relaxed">
-                      {field.policySummary}
-                    </p>
-                  </div>
-                  <ChipButton
-                    type="button"
-                    onClick={() =>
-                      setValue(field.enabledField, !enabled, {
-                        ...dirtyValidationOptions,
-                      })
-                    }
-                    variant="state"
-                    active={enabled}
-                  >
-                    {enabled ? '활성' : '비활성'}
-                  </ChipButton>
-                </div>
-
-                <div>
-                  <p className="font-designer-13r text-text-subtle mb-50">
-                    회당 가격 (원)
-                  </p>
-                  <BaseInput
-                    type="number"
-                    min={MIN_MENTORING_PRICE}
-                    max={MAX_MENTORING_PRICE}
-                    disabled={!enabled}
-                    {...register(field.priceField)}
-                    placeholder="가격(원)"
-                  />
-                </div>
-
-                {field.durationField && (
-                  <div className="mt-125">
-                    <p className="font-designer-13r text-text-subtle mb-50">
-                      상담 시간
-                    </p>
-                    <Controller
-                      name={field.durationField}
-                      control={control}
-                      render={({ field: durationField }) => (
-                        <SingleDropdown
-                          options={
-                            field.durationOptions ??
-                            CONSULTING_DURATION_DROPDOWN_OPTIONS
-                          }
-                          value={String(durationField.value)}
-                          onChange={(value) =>
-                            durationField.onChange(Number(value ?? '60'))
-                          }
-                          placeholder="상담 시간"
-                        />
-                      )}
-                    />
-                  </div>
-                )}
-
-                {field.enabledField === 'phoneEnabled' && (
-                  <p className="font-designer-12r text-text-subtle mt-100">
-                    전화상담은 15분 고정으로 운영됩니다.
-                  </p>
-                )}
-              </article>
-            );
-          })}
-        </div>
-        <FieldErrorText
-          message={
-            errors.noteEnabled?.message ??
-            errors.notePrice?.message ??
-            errors.phonePrice?.message ??
-            errors.onlinePrice?.message ??
-            errors.onlineDurationMinutes?.message ??
-            errors.offlinePrice?.message ??
-            errors.offlineDurationMinutes?.message
-          }
-        />
-      </FormSectionCard>
-
-      <FormSectionCard
-        title="스케줄 설정"
-        description="전화/온라인/대면 상담 가능한 요일/시간(30분 단위)을 선택해주세요."
-      >
-        <Controller
-          name="schedule"
-          control={control}
-          render={({ field }) => (
-            <WeeklyScheduleGrid value={field.value} onChange={field.onChange} />
-          )}
-        />
-        {needsSchedule && (
-          <FieldErrorText
-            message={errors.schedule?.message as string | undefined}
+      <div data-form-preview-section="notice">
+        <FormSectionCard title="멘토링 사전 안내">
+          <BorderedTextarea
+            {...register('preNotice')}
+            placeholder="수업 전 멘티에게 전달할 안내를 작성해주세요."
           />
-        )}
-      </FormSectionCard>
-
-      <FormSectionCard
-        title="멘토 소개"
-        description="마크다운으로 소개를 작성하고, 이미지 파일을 직접 업로드할 수 있습니다."
-      >
-        <Controller
-          name="detailedDescription"
-          control={control}
-          render={({ field }) => (
-            <MentorMarkdownEditor
-              value={field.value}
-              onChange={field.onChange}
-              placeholder="멘토 소개, 전문 분야, 상담 범위를 자유롭게 작성해주세요."
-            />
-          )}
-        />
-        <FieldErrorText message={errors.detailedDescription?.message} />
-      </FormSectionCard>
-
-      <FormSectionCard
-        title="상담 전 준비사항"
-        description="멘티가 상담 전에 준비하거나 전달해야 할 내용이 있다면 한 줄에 하나씩 작성해주세요."
-      >
-        <Controller
-          name="interviewQuestions"
-          control={control}
-          render={({ field }) => (
-            <BorderedTextarea
-              value={field.value.join('\n')}
-              onChange={(event) => {
-                const nextQuestions = event.target.value
-                  .split('\n')
-                  .map((question) => question.trim())
-                  .filter((question) => question.length > 0);
-                field.onChange(nextQuestions);
-              }}
-              placeholder={
-                '예) 이력서/포트폴리오 링크를 미리 공유해주세요.\n예) 상담에서 다루고 싶은 질문 2~3개를 정리해주세요.\n예) 사전 과제/코드가 있다면 레포지토리 링크를 남겨주세요.'
-              }
-            />
-          )}
-        />
-        <p className="font-designer-12r text-text-subtle mt-75">
-          최대 8개까지 작성할 수 있습니다.
-        </p>
-        <FieldErrorText message={interviewQuestionError} />
-      </FormSectionCard>
-
-      <FormSectionCard title="멘토링 사전 안내">
-        <BorderedTextarea
-          {...register('preNotice')}
-          placeholder="수업 전 멘티에게 전달할 안내를 작성해주세요."
-        />
-        <FieldErrorText message={errors.preNotice?.message} />
-      </FormSectionCard>
+          <FieldErrorText message={errors.preNotice?.message} />
+        </FormSectionCard>
+      </div>
 
       <FormSectionCard
         title="정산 정보"

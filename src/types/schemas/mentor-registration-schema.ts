@@ -7,7 +7,7 @@ import {
 } from '@/types/mentoring/settings';
 
 export const MENTORING_TITLE_MIN_LENGTH = 10;
-export const MENTORING_TITLE_MAX_LENGTH = 60;
+export const MENTORING_TITLE_MAX_LENGTH = 40;
 
 const timeSlotSchema = z
   .string()

@@ -122,14 +122,14 @@ export default function SelectableTagsInput({
         {customTags.map((item) => (
           <div
             key={item}
-            className="rounded-150 bg-fill-brand-default-default font-designer-13m text-text-inverse flex items-center gap-75 px-150 py-75"
+            className="rounded-150 border-border-brand bg-fill-brand-subtle-default font-designer-13m text-text-brand flex items-center gap-75 border px-150 py-75"
           >
             {item}
             <button
               type="button"
               onClick={() => removeCustomTag(item)}
               aria-label={`${item} 제거`}
-              className="ml-50"
+              className="text-text-brand ml-50"
             >
               ✕
             </button>

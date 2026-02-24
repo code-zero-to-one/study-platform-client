@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import {
-  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type RefObject,
   useCallback,
   useEffect,
@@ -42,9 +42,10 @@ const DEFAULT_VALUES: MentorRegistrationFormInputValues = {
   preNotice: '',
 };
 
-const FORM_MIN_CONTENT_WIDTH = 640;
-const PREVIEW_PANEL_MIN_WIDTH = 360;
-const PREVIEW_PANEL_DEFAULT_WIDTH = 560;
+const FORM_MIN_CONTENT_WIDTH = 320;
+const PREVIEW_PANEL_MIN_WIDTH = 320;
+const PREVIEW_PANEL_DEFAULT_WIDTH = 960;
+const PREVIEW_PANEL_MAX_RATIO = 1 / 3;
 const DIRTY_VALIDATION_OPTIONS = {
   shouldValidate: true,
   shouldDirty: true,
@@ -125,6 +126,7 @@ function getChangedSections(
 
   if (
     prev.mentoringTitle !== next.mentoringTitle ||
+    prev.appealLine !== next.appealLine ||
     prev.jobGroup !== next.jobGroup ||
     prev.jobTitle !== next.jobTitle ||
     prev.careerYears !== next.careerYears ||
@@ -185,7 +187,6 @@ export interface MentorRegistrationControllerState {
   isSettlementModalOpen: boolean;
   isPreviewOpen: boolean;
   isResizing: boolean;
-  headerHeight: number;
   panelWidth: number;
   committedPanelWidth: number;
   highlightedSections: MentorRegistrationPreviewHighlightSection[];
@@ -208,7 +209,7 @@ export interface MentorRegistrationControllerActions {
   onSettlementModalOpenChange: (nextOpen: boolean) => void;
   onOpenPreview: () => void;
   onClosePreview: () => void;
-  onPreviewResizeStart: (event: ReactMouseEvent) => void;
+  onPreviewResizeStart: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onSave: (values: MentorRegistrationFormValues) => void;
   onCancel: () => void;
   onPhoneVerificationComplete: (phoneNumber: string) => void;
@@ -272,7 +273,6 @@ export const useMentorRegistrationController =
       PREVIEW_PANEL_DEFAULT_WIDTH,
     );
     const [isResizing, setIsResizing] = useState(false);
-    const [headerHeight, setHeaderHeight] = useState(0);
     const [highlightedSections, setHighlightedSections] = useState<
       MentorRegistrationPreviewHighlightSection[]
     >([]);
@@ -287,26 +287,28 @@ export const useMentorRegistrationController =
 
     const getPreviewPanelMaxWidth = useCallback(() => {
       const viewportLimit = Math.floor(window.innerWidth * 0.75);
+      const fallbackRatioLimit = Math.floor(
+        window.innerWidth * PREVIEW_PANEL_MAX_RATIO,
+      );
       const layoutWidth =
         previewLayoutRef.current?.getBoundingClientRect().width;
 
       if (!layoutWidth) {
-        return viewportLimit;
+        return Math.min(viewportLimit, fallbackRatioLimit);
       }
 
+      const ratioLimit = Math.floor(layoutWidth * PREVIEW_PANEL_MAX_RATIO);
       const formSafeLimit = Math.floor(layoutWidth - FORM_MIN_CONTENT_WIDTH);
-      if (formSafeLimit < PREVIEW_PANEL_MIN_WIDTH) {
-        return viewportLimit;
-      }
 
-      return Math.min(viewportLimit, formSafeLimit);
+      return Math.max(0, Math.min(viewportLimit, formSafeLimit, ratioLimit));
     }, []);
 
     const clampPreviewPanelWidth = useCallback(
       (width: number) => {
         const maxWidth = getPreviewPanelMaxWidth();
+        const minWidth = Math.min(PREVIEW_PANEL_MIN_WIDTH, maxWidth);
 
-        return Math.max(PREVIEW_PANEL_MIN_WIDTH, Math.min(width, maxWidth));
+        return Math.max(minWidth, Math.min(width, maxWidth));
       },
       [getPreviewPanelMaxWidth],
     );
@@ -320,23 +322,6 @@ export const useMentorRegistrationController =
       },
       [clampPreviewPanelWidth],
     );
-
-    useEffect(() => {
-      const header = document.querySelector('header');
-      if (!header) {
-        return;
-      }
-
-      const measure = () => {
-        setHeaderHeight(header.getBoundingClientRect().height);
-      };
-
-      measure();
-      const observer = new ResizeObserver(measure);
-      observer.observe(header);
-
-      return () => observer.disconnect();
-    }, []);
 
     useEffect(() => {
       const handleWindowResize = () => {
@@ -707,28 +692,29 @@ export const useMentorRegistrationController =
       setIsPreviewOpen(true);
     };
 
-    const handleResizeStart = (event: ReactMouseEvent) => {
+    const handleResizeStart = (event: ReactPointerEvent<HTMLDivElement>) => {
       event.preventDefault();
+      event.currentTarget.setPointerCapture(event.pointerId);
       const startX = event.clientX;
       const startWidth = panelWidthRef.current;
       setIsResizing(true);
 
-      const handleMouseMove = (moveEvent: MouseEvent) => {
+      const handlePointerMove = (moveEvent: PointerEvent) => {
         const delta = startX - moveEvent.clientX;
         const newWidth = clampPreviewPanelWidth(startWidth + delta);
         panelWidthRef.current = newWidth;
         setPanelWidth(newWidth);
       };
 
-      const handleMouseUp = () => {
+      const handlePointerUp = () => {
         setIsResizing(false);
         setCommittedPanelWidth(panelWidthRef.current);
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('pointermove', handlePointerMove);
+        document.removeEventListener('pointerup', handlePointerUp);
       };
 
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('pointermove', handlePointerMove);
+      document.addEventListener('pointerup', handlePointerUp);
     };
 
     const handleSettlementSubmit = (draft: MentorSettlementDraft) => {
@@ -750,7 +736,6 @@ export const useMentorRegistrationController =
         isSettlementModalOpen,
         isPreviewOpen,
         isResizing,
-        headerHeight,
         panelWidth,
         committedPanelWidth,
         highlightedSections,

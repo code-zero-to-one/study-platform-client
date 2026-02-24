@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { BaseInput } from '@/components/ui/input';
 import {
   addMinutesToTime,
   createHalfHourTimeSlots,
@@ -54,6 +55,14 @@ const QUICK_RANGES = [
   { label: '오후', from: '12:00', to: '18:00' },
   { label: '저녁', from: '18:00', to: '24:00' },
 ] as const;
+const TIME_RANGE_PLACEHOLDER = '예: 09:00~12:00 / 13:30~15:00';
+const TIME_RANGE_BLOCK_PLACEHOLDER = '예: 09:00~12:00';
+const RANGE_DELIMITER = ' / ';
+const RANGE_TOKEN_SPLIT_REGEX = /[,\n/]/;
+const RANGE_TEXT_REGEX = /^(\d{2}:\d{2})\s*[~-]\s*(\d{2}:\d{2}|24:00)$/;
+const TIME_TEXT_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
+const MINUTES_PER_SLOT = 30;
+const DAY_END_MINUTES = 24 * 60;
 
 const DAY_INDEX_MAP = Object.fromEntries(
   WEEKDAY_KEYS.map((day, index) => [day, index]),
@@ -106,6 +115,140 @@ const getInterpolatedPoints = (from: GridPoint, to: GridPoint): GridPoint[] => {
   return points;
 };
 
+const createWeekdayRecord = <T,>(
+  buildValue: (day: WeekdayKey) => T,
+): Record<WeekdayKey, T> => {
+  const record = {} as Record<WeekdayKey, T>;
+
+  WEEKDAY_KEYS.forEach((day) => {
+    record[day] = buildValue(day);
+  });
+
+  return record;
+};
+
+const buildTimeRangeDrafts = (
+  schedule: MentorWeeklySchedule,
+): Record<WeekdayKey, string[]> =>
+  createWeekdayRecord((day) => {
+    const ranges = toTimeRanges(schedule.weekly[day]);
+
+    return ranges.length > 0 ? ranges : [''];
+  });
+
+const createEmptyTimeRangeErrors = (): Record<WeekdayKey, string> =>
+  createWeekdayRecord(() => '');
+
+const parseTimeTextToMinutes = (timeText: string): number | undefined => {
+  if (timeText === '24:00') {
+    return DAY_END_MINUTES;
+  }
+
+  if (!TIME_TEXT_REGEX.test(timeText)) {
+    return undefined;
+  }
+
+  const [hourText, minuteText] = timeText.split(':');
+
+  return Number(hourText) * 60 + Number(minuteText);
+};
+
+const toSlotText = (minutes: number): string => {
+  const hour = Math.floor(minutes / 60);
+  const minute = minutes % 60;
+
+  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+};
+
+const parseTimeRangeText = (
+  rawValue: string,
+):
+  | { slots: string[]; normalizedText: string }
+  | { error: string; slots?: never; normalizedText?: never } => {
+  const trimmed = rawValue.trim();
+
+  if (trimmed.length === 0) {
+    return { slots: [], normalizedText: '' };
+  }
+
+  const tokens = trimmed
+    .split(RANGE_TOKEN_SPLIT_REGEX)
+    .map((token) => token.trim())
+    .filter((token) => token.length > 0);
+
+  if (tokens.length === 0) {
+    return { slots: [], normalizedText: '' };
+  }
+
+  const slotSet = new Set<string>();
+
+  for (const token of tokens) {
+    const match = token.match(RANGE_TEXT_REGEX);
+
+    if (!match) {
+      return {
+        error: `시간 형식이 올바르지 않아요. ${TIME_RANGE_PLACEHOLDER}`,
+      };
+    }
+
+    const [, startText, endText] = match;
+    const startMinutes = parseTimeTextToMinutes(startText);
+    const endMinutes = parseTimeTextToMinutes(endText);
+
+    if (startMinutes === undefined || endMinutes === undefined) {
+      return {
+        error: `시간은 HH:mm 형식으로 입력해주세요. ${TIME_RANGE_PLACEHOLDER}`,
+      };
+    }
+
+    if (startMinutes >= DAY_END_MINUTES || endMinutes > DAY_END_MINUTES) {
+      return { error: '시간은 00:00~24:00 범위에서 입력해주세요.' };
+    }
+
+    if (
+      startMinutes % MINUTES_PER_SLOT !== 0 ||
+      endMinutes % MINUTES_PER_SLOT !== 0
+    ) {
+      return { error: '시간은 30분 단위(00, 30)로 입력해주세요.' };
+    }
+
+    if (startMinutes >= endMinutes) {
+      return { error: '종료 시간은 시작 시간보다 늦어야 합니다.' };
+    }
+
+    for (
+      let cursor = startMinutes;
+      cursor < endMinutes;
+      cursor += MINUTES_PER_SLOT
+    ) {
+      slotSet.add(toSlotText(cursor));
+    }
+  }
+
+  const slots = sortSlots(Array.from(slotSet));
+
+  return {
+    slots,
+    normalizedText: toTimeRanges(slots).join(RANGE_DELIMITER),
+  };
+};
+
+const areSameSlots = (left: string[], right: string[]) => {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((slot, index) => slot === right[index]);
+};
+
+const areSameTextRanges = (left: string[], right: string[]) => {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  return left.every((value, index) => value === right[index]);
+};
+
 export default function WeeklyScheduleGrid({
   value,
   onChange,
@@ -116,10 +259,18 @@ export default function WeeklyScheduleGrid({
   );
   const currentValueRef = useRef(value);
   const [mobileDay, setMobileDay] = useState<WeekdayKey>(WEEKDAY_KEYS[0]);
+  const [timeRangeDrafts, setTimeRangeDrafts] = useState<
+    Record<WeekdayKey, string[]>
+  >(() => buildTimeRangeDrafts(value));
+  const [timeRangeErrors, setTimeRangeErrors] = useState<
+    Record<WeekdayKey, string>
+  >(() => createEmptyTimeRangeErrors());
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     currentValueRef.current = value;
+    setTimeRangeDrafts(buildTimeRangeDrafts(value));
+    setTimeRangeErrors(createEmptyTimeRangeErrors());
   }, [value]);
 
   const commitSchedule = useCallback(
@@ -237,6 +388,136 @@ export default function WeeklyScheduleGrid({
 
   const handleMouseEnter = (day: WeekdayKey, slot: string) => {
     applyDragPath(day, slot);
+  };
+
+  const handleTimeRangeDraftChange = (
+    day: WeekdayKey,
+    blockIndex: number,
+    nextValue: string,
+  ) => {
+    setTimeRangeDrafts((prev) => {
+      const nextDayDrafts = [...prev[day]];
+      nextDayDrafts[blockIndex] = nextValue;
+
+      return {
+        ...prev,
+        [day]: nextDayDrafts,
+      };
+    });
+
+    setTimeRangeErrors((prev) => {
+      if (!prev[day]) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        [day]: '',
+      };
+    });
+  };
+
+  const applyTimeRangeText = useCallback(
+    (day: WeekdayKey, drafts: string[]) => {
+      const joinedText = drafts
+        .map((draft) => draft.trim())
+        .filter((draft) => draft.length > 0)
+        .join(RANGE_DELIMITER);
+      const parsed = parseTimeRangeText(joinedText);
+
+      if ('error' in parsed) {
+        setTimeRangeErrors((prev) => ({
+          ...prev,
+          [day]: parsed.error,
+        }));
+
+        return;
+      }
+
+      setTimeRangeErrors((prev) => {
+        if (!prev[day]) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [day]: '',
+        };
+      });
+
+      const normalizedDrafts = toTimeRanges(parsed.slots);
+      const nextDrafts = normalizedDrafts.length > 0 ? normalizedDrafts : [''];
+
+      setTimeRangeDrafts((prev) => {
+        if (areSameTextRanges(prev[day], nextDrafts)) {
+          return prev;
+        }
+
+        return {
+          ...prev,
+          [day]: nextDrafts,
+        };
+      });
+
+      const currentSchedule = currentValueRef.current;
+      const currentSlots = sortSlots(currentSchedule.weekly[day]);
+
+      if (areSameSlots(currentSlots, parsed.slots)) {
+        return;
+      }
+
+      commitSchedule({
+        ...currentSchedule,
+        weekly: {
+          ...currentSchedule.weekly,
+          [day]: parsed.slots,
+        },
+      });
+      resetDragState();
+    },
+    [commitSchedule, resetDragState],
+  );
+
+  const handleAddTimeRangeDraft = (day: WeekdayKey) => {
+    setTimeRangeDrafts((prev) => ({
+      ...prev,
+      [day]: [...prev[day], ''],
+    }));
+  };
+
+  const handleRemoveTimeRangeDraft = (day: WeekdayKey, blockIndex: number) => {
+    const currentDrafts = timeRangeDrafts[day];
+    if (currentDrafts.length === 1) {
+      setTimeRangeDrafts((prev) => ({
+        ...prev,
+        [day]: [''],
+      }));
+      applyTimeRangeText(day, ['']);
+
+      return;
+    }
+
+    const nextDrafts = currentDrafts.filter((_, index) => index !== blockIndex);
+    setTimeRangeDrafts((prev) => ({
+      ...prev,
+      [day]: nextDrafts,
+    }));
+    applyTimeRangeText(day, nextDrafts);
+  };
+
+  const handleTimeRangeDraftKeyDown = (
+    day: WeekdayKey,
+    blockIndex: number,
+    event: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
+    if (event.key !== 'Enter') {
+      return;
+    }
+
+    event.preventDefault();
+    const nextDrafts = [...timeRangeDrafts[day]];
+    nextDrafts[blockIndex] = event.currentTarget.value;
+    applyTimeRangeText(day, nextDrafts);
   };
 
   const toggleDay = (day: WeekdayKey) => {
@@ -378,7 +659,7 @@ export default function WeeklyScheduleGrid({
                     <button
                       type="button"
                       className={cn(
-                        'h-[28px] transition-colors',
+                        'h-[36px] transition-colors',
                         active1
                           ? 'bg-fill-brand-subtle-default'
                           : 'bg-background-default hover:bg-background-alternative',
@@ -389,7 +670,7 @@ export default function WeeklyScheduleGrid({
                     <button
                       type="button"
                       className={cn(
-                        'border-border-subtlest h-[28px] border-t transition-colors',
+                        'border-border-subtlest h-[36px] border-t transition-colors',
                         active2
                           ? 'bg-fill-brand-subtle-default'
                           : 'bg-background-default hover:bg-background-alternative',
@@ -474,7 +755,7 @@ export default function WeeklyScheduleGrid({
                       <div
                         key={`${day}-${slot}`}
                         className={cn(
-                          'border-border-subtlest h-[20px] cursor-pointer border-l transition-colors first:border-l-0',
+                          'border-border-subtlest h-[30px] cursor-pointer border-l transition-colors first:border-l-0',
                           isActive
                             ? 'bg-fill-brand-subtle-default hover:opacity-80'
                             : 'bg-background-default hover:bg-background-alternative',
@@ -491,29 +772,78 @@ export default function WeeklyScheduleGrid({
         </div>
       </div>
 
-      {/* 선택 요약 */}
-      {hasAnySlot && (
-        <div className="border-border-subtlest rounded-100 space-y-50 border px-150 py-125">
-          <p className="font-designer-12r text-text-subtle mb-75">
-            선택된 시간
-          </p>
-          {WEEKDAY_KEYS.map((day) => {
-            const ranges = toTimeRanges(value.weekly[day]);
-            if (ranges.length === 0) return null;
-
-            return (
-              <div key={day} className="flex gap-100">
-                <span className="font-designer-13b text-text-subtle w-[20px] shrink-0">
-                  {WEEKDAY_LABEL_MAP[day]}
-                </span>
-                <span className="font-designer-13r text-text-default">
-                  {ranges.join('  /  ')}
-                </span>
+      {/* 선택 요약 + 텍스트 편집 */}
+      <div className="border-border-subtlest rounded-100 space-y-75 border px-150 py-125">
+        <p className="font-designer-12r text-text-subtle">
+          선택된 시간 (텍스트 수정 가능)
+        </p>
+        <p className="font-designer-11r text-text-subtlest">
+          {TIME_RANGE_PLACEHOLDER}
+        </p>
+        {WEEKDAY_KEYS.map((day) => (
+          <div key={day} className="flex items-start gap-100">
+            <span className="font-designer-13b text-text-subtle w-[20px] shrink-0 pt-75">
+              {WEEKDAY_LABEL_MAP[day]}
+            </span>
+            <div className="w-full min-w-0">
+              <div className="flex flex-wrap items-center gap-75">
+                {timeRangeDrafts[day].map((draft, blockIndex) => (
+                  <div
+                    key={`${day}-${blockIndex}`}
+                    className="flex items-center gap-50"
+                  >
+                    <div className="w-[180px] min-w-[180px]">
+                      <BaseInput
+                        size="m"
+                        value={draft}
+                        onValueChange={(nextValue) =>
+                          handleTimeRangeDraftChange(day, blockIndex, nextValue)
+                        }
+                        onBlur={(event) => {
+                          const nextDrafts = [...timeRangeDrafts[day]];
+                          nextDrafts[blockIndex] = event.currentTarget.value;
+                          applyTimeRangeText(day, nextDrafts);
+                        }}
+                        onKeyDown={(event) =>
+                          handleTimeRangeDraftKeyDown(day, blockIndex, event)
+                        }
+                        placeholder={TIME_RANGE_BLOCK_PLACEHOLDER}
+                        color={timeRangeErrors[day] ? 'error' : 'default'}
+                        className="font-designer-13r h-[36px] py-75"
+                      />
+                    </div>
+                    {timeRangeDrafts[day].length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleRemoveTimeRangeDraft(day, blockIndex)
+                        }
+                        className="font-designer-13m text-text-subtle hover:text-text-error rounded-75 border-border-default hover:border-border-error inline-flex h-[36px] w-[36px] shrink-0 items-center justify-center border transition-colors"
+                        aria-label={`${WEEKDAY_LABEL_MAP[day]}요일 시간 블록 삭제`}
+                      >
+                        ×
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => handleAddTimeRangeDraft(day)}
+                  className="font-designer-12m text-text-brand hover:text-text-default hover:border-border-brand rounded-75 border-border-default inline-flex h-[36px] shrink-0 items-center border px-100 transition-colors"
+                  aria-label={`${WEEKDAY_LABEL_MAP[day]}요일 시간 블록 추가`}
+                >
+                  + 블록
+                </button>
               </div>
-            );
-          })}
-        </div>
-      )}
+              {timeRangeErrors[day] && (
+                <p className="font-designer-12r text-text-error mt-25">
+                  {timeRangeErrors[day]}
+                </p>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
