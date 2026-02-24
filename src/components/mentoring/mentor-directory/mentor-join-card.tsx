@@ -6,6 +6,8 @@ import {
 } from '@/features/mentoring/const/mentoring-list-labels';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
+const MENTOR_CARD_HEIGHT_CLASS = 'h-[480px]';
+
 interface MentorJoinCardProps {
   memberId: number | undefined;
   shouldRenderVerificationModal: boolean;
@@ -31,6 +33,7 @@ export default function MentorJoinCard({
         className={cn(
           'hover:shadow-2 hover:border-border-brand rounded-150',
           'border-border-subtle bg-background-default overflow-hidden border',
+          MENTOR_CARD_HEIGHT_CLASS,
           'self-start transition-all',
         )}
       >
@@ -41,7 +44,7 @@ export default function MentorJoinCard({
           </p>
         </div>
 
-        <div className="px-300 py-200">
+        <div className="flex h-[calc(100%-180px)] flex-col px-300 py-200">
           <div className="mb-100">
             <span className="font-designer-12b text-text-brand rounded-500 bg-fill-brand-subtle-default inline-flex items-center px-100 py-50">
               {MENTORING_LIST_LABELS.joinBadge}
@@ -71,7 +74,7 @@ export default function MentorJoinCard({
           <Button
             color="primary"
             size="medium"
-            className="w-full"
+            className="mt-auto w-full"
             onClick={onClickJoin}
             disabled={isJoinButtonDisabled}
           >

@@ -2,9 +2,7 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import {
-  CalendarCheck2,
   MessageCircle,
-  MessageSquareText,
   Monitor,
   Phone,
   Star,
@@ -53,6 +51,8 @@ const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
   online: Monitor,
   offline: Users,
 };
+
+const MENTOR_CARD_HEIGHT_CLASS = 'h-[480px]';
 
 export default function MentorCard({ mentor }: MentorCardProps) {
   const router = useRouter();
@@ -104,6 +104,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       className={cn(
         'hover:shadow-2 hover:border-border-brand rounded-150',
         'cursor-pointer self-start overflow-hidden border border-[#E5E7EB] bg-white',
+        MENTOR_CARD_HEIGHT_CLASS,
         'transition-all',
       )}
       role="button"
@@ -111,14 +112,14 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       onClick={navigateDetail}
       onKeyDown={handleKeyDown}
     >
-      <div className="px-300 py-225">
-        <div className="mb-125">
-          <h3 className="font-designer-18b text-text-default break-words">
+      <div className="flex h-full flex-col px-300 py-225">
+        <div className="mb-125 h-[58px]">
+          <h3 className="font-designer-18b text-text-default line-clamp-2 break-words">
             {mentoringTitle}
           </h3>
         </div>
 
-        <div className="mb-150 flex items-start gap-125">
+        <div className="mb-150 flex items-center gap-125">
           <UserAvatar
             image={mentor.imageUrl?.trim()}
             alt={mentor.nickname}
@@ -129,13 +130,16 @@ export default function MentorCard({ mentor }: MentorCardProps) {
             <p className="font-designer-14m text-text-subtle mb-25 line-clamp-1">
               {mentor.nickname}
             </p>
-            <p className="font-designer-13r text-text-subtle mb-75 line-clamp-1">
-              {jobTitleLabel} · {careerLabel}
-            </p>
-            <Badge color="green" shape="round">
-              {appealLine}
-            </Badge>
           </div>
+        </div>
+
+        <div className="mb-150">
+          <p className="font-designer-13r text-text-subtle mb-75 line-clamp-1">
+            {jobTitleLabel} · {careerLabel}
+          </p>
+          <Badge color="green" shape="round">
+            {appealLine}
+          </Badge>
         </div>
 
         <div className="mb-150 flex flex-wrap items-center gap-x-150 gap-y-75">
@@ -146,27 +150,15 @@ export default function MentorCard({ mentor }: MentorCardProps) {
             </span>
           </span>
           <span className="inline-flex items-center gap-50">
-            <MessageSquareText className="text-text-subtle h-14 w-14" />
-            <span className="font-designer-15b text-text-default">
-              {mentor.reviewCount}
-            </span>
-          </span>
-          <span className="inline-flex items-center gap-50">
             <UserRound className="text-text-subtle h-14 w-14" />
             <span className="font-designer-15b text-text-default">
               {metMenteeCount}
             </span>
           </span>
-          <span className="inline-flex items-center gap-50">
-            <CalendarCheck2 className="text-text-subtle h-14 w-14" />
-            <span className="font-designer-15b text-text-default">
-              {mentor.mentoringCount}
-            </span>
-          </span>
         </div>
 
         {keywords.length > 0 && (
-          <div className="rounded-125 bg-background-alternative mb-200 flex flex-wrap gap-x-200 gap-y-75 px-150 py-125">
+          <div className="rounded-125 bg-background-alternative mt-auto mb-0 flex flex-wrap gap-x-200 gap-y-75 px-150 py-125">
             {keywords.map((keyword) => (
               <span key={keyword} className="font-designer-12r text-text-subtle">
                 #{keyword}
@@ -175,7 +167,12 @@ export default function MentorCard({ mentor }: MentorCardProps) {
           </div>
         )}
 
-        <div className="mb-200 grid grid-cols-2 gap-x-200 gap-y-100">
+        <div
+          className={cn(
+            'mb-250 grid grid-cols-2 gap-x-200 gap-y-100',
+            keywords.length > 0 ? 'mt-250' : 'mt-auto',
+          )}
+        >
           {METHOD_ORDER.map((method) => {
             const Icon = methodIconMap[method];
             const isEnabled = availableMethods[method];
@@ -204,8 +201,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
         {lowestPriceOption && (
           <div className="rounded-100 bg-background-alternative px-125 py-100">
             <p className="font-designer-13b text-text-default">
-              최저가 {formatWon(lowestPriceOption.price)} (
-              {lowestPriceOption.durationLabel})
+              최저가 {formatWon(lowestPriceOption.price)}
             </p>
           </div>
         )}
