@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { PaymentUserApi } from '@/api/openapi/api/payment-user-api';
@@ -162,6 +162,8 @@ export const useConfirmTossPayment = () => {
 };
 
 export const useCancelPayment = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (paymentId: number) => {
       const { data } = await paymentUserApi.cancelPayment(paymentId);
@@ -169,6 +171,10 @@ export const useCancelPayment = () => {
       return data.content;
     },
     onSuccess: async () => {
+      // 취소시 화면 즉시 갱신
+      await queryClient.invalidateQueries({
+        queryKey: ['myTransactions'],
+      });
       alert('결제가 취소되었습니다.');
     },
     onError: () => {

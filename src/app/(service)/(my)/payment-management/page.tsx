@@ -18,6 +18,7 @@ import DatePicker from '@/components/ui/date-picker';
 import { BaseInput } from '@/components/ui/input';
 import Pagination from '@/components/ui/pagination';
 import {
+  useCancelPayment,
   useGetMyTransactions,
   useGetMyTransactionsByGroupStudy,
 } from '@/hooks/queries/payment-user-api';
@@ -398,7 +399,10 @@ function PaymentCancelButton({
   const [cancelPaymentModalOpen, setCancelPaymentModalOpen] =
     useState<boolean>(false);
 
+  const { isPending } = useCancelPayment();
+  
   const handlePaymentCancel = () => {
+    if (isPending) return;
     setCancelPaymentModalOpen(true);
   };
 
@@ -415,8 +419,8 @@ function PaymentCancelButton({
         size="small"
         className="font-designer-14r"
         onClick={handlePaymentCancel}
-      >
-        결제 취소
+        disabled={isPending}
+      >{isPending ? '취소 중...' : '결제 취소'}
       </Button>
     </>
   );
