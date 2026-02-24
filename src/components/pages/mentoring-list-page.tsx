@@ -1,8 +1,8 @@
 import { FlaskConical } from 'lucide-react';
 import Link from 'next/link';
-import MentorDirectoryHeader from '@/components/mentoring/mentor-directory/mentor-directory-header';
-import MentorProfileList from '@/components/mentoring/mentor-profile-list';
 import Button from '@/components/ui/button';
+import MentorDirectoryHeader from '@/features/mentoring/ui/mentor-directory/mentor-directory-header';
+import MentorProfileList from '@/features/mentoring/ui/mentor-profile-list';
 
 export default function MentoringListPage() {
   const headerActions = (

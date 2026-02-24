@@ -1,7 +1,7 @@
 'use client';
 
-import MentoringApplyPageView from '@/components/mentoring/mentoring-apply-page-view';
 import { useMentoringApplyController } from '@/features/mentoring/model/use-mentoring-apply-controller';
+import MentoringApplyPageView from '@/features/mentoring/ui/mentoring-apply-page-view';
 import type {
   MentorProfile,
   MentoringMethodType,

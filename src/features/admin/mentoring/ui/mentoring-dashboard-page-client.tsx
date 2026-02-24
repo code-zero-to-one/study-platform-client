@@ -2,8 +2,6 @@
 
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import MentoringStateBoundary from '@/components/mentoring/common/mentoring-state-boundary';
-import MentoringTablePanel from '@/components/mentoring/common/mentoring-table-panel';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import MetricCard from '@/components/ui/metric-card';
@@ -11,6 +9,8 @@ import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
 import MentoringFlowGuide from '@/features/admin/mentoring/ui/mentoring-flow-guide';
+import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
+import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
 
 const formatDateTime = (value: string | undefined) => {
   if (!value) {

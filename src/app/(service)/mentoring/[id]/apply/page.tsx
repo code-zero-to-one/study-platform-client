@@ -1,7 +1,7 @@
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import MentoringApplyRouteClient from '@/components/mentoring/mentoring-apply-route-client';
 import { isMentoringMethodType } from '@/features/mentoring/model/mentor-permission';
+import MentoringApplyRouteClient from '@/features/mentoring/ui/mentoring-apply-route-client';
 import {
   getEnabledMentoringMethods,
   getMentorById,

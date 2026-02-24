@@ -1,9 +1,9 @@
 'use client';
 
-import MentoringListTemplate from '@/components/mentoring/common/mentoring-list-template';
-import MentoringStateBoundary from '@/components/mentoring/common/mentoring-state-boundary';
 import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model/admin-mentoring-view-state';
 import { useSessionOperationsController } from '@/features/admin/mentoring/model/use-session-operations-controller';
+import MentoringListTemplate from '@/features/mentoring/ui/common/mentoring-list-template';
+import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import {
   SessionOperationsFilters,
   SessionOperationsGrid,

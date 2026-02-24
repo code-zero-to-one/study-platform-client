@@ -1,13 +1,13 @@
 'use client';
 
-import MentoringListTemplate from '@/components/mentoring/common/mentoring-list-template';
-import MentoringStateBoundary from '@/components/mentoring/common/mentoring-state-boundary';
+import { useNoteConsultationController } from '@/features/mentoring/model/use-note-consultation-controller';
+import MentoringListTemplate from '@/features/mentoring/ui/common/mentoring-list-template';
+import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import {
   NoteConsultationEmpty,
   NoteConsultationGrid,
   NoteConsultationHeader,
-} from '@/components/mentoring/note-consultation/note-consultation-composite';
-import { useNoteConsultationController } from '@/features/mentoring/model/use-note-consultation-controller';
+} from '@/features/mentoring/ui/note-consultation/note-consultation-composite';
 
 export default function NoteConsultationContainer() {
   const { state, viewModel, actions } = useNoteConsultationController();

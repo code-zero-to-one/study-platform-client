@@ -2,17 +2,17 @@
 
 import { Eye, X } from 'lucide-react';
 import { type CSSProperties } from 'react';
-import MentorDetailPage from '@/components/mentoring/mentor-detail-page';
-import MentoringGuideModal from '@/components/mentoring/mentoring-guide-modal';
-import MentorRegistrationForm from '@/components/mentoring/registration/mentor-registration-form';
-import MentorRegistrationHeader from '@/components/mentoring/registration/mentor-registration-header';
-import MentorRegistrationStateBoundary from '@/components/mentoring/registration/mentor-registration-state-boundary';
-import SettlementRegisterModal from '@/components/mentoring/settings/settlement-register-modal';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import TextActionButton from '@/components/ui/text-action-button';
 import { type MentorRegistrationControllerResult } from '@/features/mentoring/model/use-mentor-registration-controller';
+import MentorDetailPage from '@/features/mentoring/ui/mentor-detail-page';
+import MentoringGuideModal from '@/features/mentoring/ui/mentoring-guide-modal';
+import MentorRegistrationForm from '@/features/mentoring/ui/registration/mentor-registration-form';
+import MentorRegistrationHeader from '@/features/mentoring/ui/registration/mentor-registration-header';
+import MentorRegistrationStateBoundary from '@/features/mentoring/ui/registration/mentor-registration-state-boundary';
+import SettlementRegisterModal from '@/features/mentoring/ui/settings/settlement-register-modal';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 const PAGE_CONTAINER_CLASS =

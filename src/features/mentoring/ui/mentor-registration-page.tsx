@@ -1,7 +1,7 @@
 'use client';
 
-import MentorRegistrationPageView from '@/components/mentoring/mentor-registration-page-view';
 import { useMentorRegistrationController } from '@/features/mentoring/model/use-mentor-registration-controller';
+import MentorRegistrationPageView from '@/features/mentoring/ui/mentor-registration-page-view';
 
 export default function MentorRegistrationPage() {
   const controller = useMentorRegistrationController();

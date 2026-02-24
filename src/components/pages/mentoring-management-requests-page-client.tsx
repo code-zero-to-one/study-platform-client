@@ -3,10 +3,10 @@
 import { ArrowLeft, ClipboardList, GraduationCap, SquareArrowOutUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
-import MentoringStateBoundary from '@/components/mentoring/common/mentoring-state-boundary';
-import MentoringRequestPanel from '@/components/mentoring/management/mentoring-request-panel';
 import Button from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
+import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
+import MentoringRequestPanel from '@/features/mentoring/ui/management/mentoring-request-panel';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';

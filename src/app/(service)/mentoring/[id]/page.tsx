@@ -1,6 +1,6 @@
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import MentorDetailRouteClient from '@/components/mentoring/mentor-detail-route-client';
+import MentorDetailRouteClient from '@/features/mentoring/ui/mentor-detail-route-client';
 import { getMentorById } from '@/mocks/mentoring-mock-data';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 

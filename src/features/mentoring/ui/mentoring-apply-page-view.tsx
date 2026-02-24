@@ -11,12 +11,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { type ReactNode } from 'react';
-import MentoringRequestEditor from '@/components/mentoring/mentoring-request-editor';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
 import { type MentoringApplyControllerResult } from '@/features/mentoring/model/use-mentoring-apply-controller';
+import MentoringRequestEditor from '@/features/mentoring/ui/mentoring-request-editor';
 import {
   formatWon,
   getMethodLabel,

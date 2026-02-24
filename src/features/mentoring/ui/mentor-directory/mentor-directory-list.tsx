@@ -1,6 +1,6 @@
-import MentorJoinCardContainer from '@/components/mentoring/mentor-directory/mentor-join-card-container';
 import FilterSortListTemplate from '@/components/ui/list/filter-sort-list-template';
 import ListStateBoundary from '@/components/ui/list/list-state-boundary';
+import MentorJoinCardContainer from '@/features/mentoring/ui/mentor-directory/mentor-join-card-container';
 import type { MentorProfile, MentorSortType } from '@/types/mentoring/domain';
 import MentorDirectoryEmpty from './mentor-directory-empty';
 import MentorDirectoryFilters from './mentor-directory-filters';

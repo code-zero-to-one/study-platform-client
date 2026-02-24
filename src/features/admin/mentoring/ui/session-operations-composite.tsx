@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import MentoringTablePanel from '@/components/mentoring/common/mentoring-table-panel';
 import Badge from '@/components/ui/badge';
 import { NativeSelect } from '@/components/ui/input';
 import MetricCard from '@/components/ui/metric-card';
@@ -17,6 +16,7 @@ import {
   MENTORING_REQUEST_STATUS_META,
   MENTORING_SESSION_STATUS_META,
 } from '@/features/mentoring/model/management-status-meta';
+import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
 import { getMethodLabel } from '@/mocks/mentoring-mock-data';
 import type { AdminMentorItem } from '@/types/mentoring/admin-domain';
 import type {

@@ -2,8 +2,6 @@
 
 import { useEffect, useMemo } from 'react';
 import { Controller } from 'react-hook-form';
-import MentorMarkdownEditor from '@/components/mentoring/mentor-markdown-editor';
-import WeeklyScheduleGrid from '@/components/mentoring/settings/weekly-schedule-grid';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import ChipButton from '@/components/ui/chip/chip-button';
@@ -22,6 +20,8 @@ import {
   MENTOR_APPEAL_LINE_PRESETS,
   MENTOR_SKILL_TAG_PRESETS,
 } from '@/features/mentoring/model/mentor-setting-options';
+import MentorMarkdownEditor from '@/features/mentoring/ui/mentor-markdown-editor';
+import WeeklyScheduleGrid from '@/features/mentoring/ui/settings/weekly-schedule-grid';
 import {
   type MentorRegistrationFormProps,
   type MentorRegistrationMethodField,

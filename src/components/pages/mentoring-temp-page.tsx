@@ -5,9 +5,9 @@ import {
   LayoutList,
 } from 'lucide-react';
 import Link from 'next/link';
-import ContactSeedActions from '@/components/mentoring/temp/contact-seed-actions';
-import ReviewSeedActions from '@/components/mentoring/temp/review-seed-actions';
 import Button from '@/components/ui/button';
+import ContactSeedActions from '@/features/mentoring/ui/temp/contact-seed-actions';
+import ReviewSeedActions from '@/features/mentoring/ui/temp/review-seed-actions';
 
 const quickLinks = [
   {

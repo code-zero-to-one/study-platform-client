@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import MyMentoringReviewPanel from '@/components/mentoring/my-mentoring-review-panel';
 import UserAvatar from '@/components/ui/avatar';
 import { MyReviewItem } from '@/entities/review/api/review-types';
 import {
@@ -12,6 +11,7 @@ import {
 } from '@/entities/review/model/use-review-query';
 import KeywordReview from '@/entities/user/ui/keyword-review';
 import MoreKeywordReviewModal from '@/entities/user/ui/more-keyword-review-modal';
+import MyMentoringReviewPanel from '@/features/mentoring/ui/my-mentoring-review-panel';
 import { formatKoreaRelativeTime } from '@/utils/time';
 
 export default function MyStudyReview() {
