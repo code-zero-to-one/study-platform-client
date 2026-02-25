@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, Info, XCircle } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
@@ -72,8 +72,10 @@ export default function Toast({
       >
         {isSuccess ? (
           <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
-        ) : (
+        ) : isError ? (
           <XCircle className="h-5 w-5 shrink-0 text-red-600" />
+        ) : (
+          <Info className="h-5 w-5 shrink-0 text-blue-500" />
         )}
         <span className="flex-1">{message}</span>
       </div>

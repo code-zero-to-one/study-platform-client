@@ -38,14 +38,14 @@ export default async function ServiceLayout({
   const initialAccessToken = await getServerCookie('accessToken');
 
   return (
-    <html lang="ko">
+    <html lang="ko" className="overflow-x-hidden">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'min-h-screen w-screen')}>
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
           <GlobalToast />
           <ClarityInit projectId={CLARITY_PROJECT_ID} />
           <PageViewTracker />
-          <div className="flex min-h-screen w-full flex-col overflow-x-auto">
+          <div className="flex min-h-screen w-full flex-col overflow-x-hidden">
             <Header />
             <main className="w-full flex-1">{children}</main>
             <FloatingInquiryButton />

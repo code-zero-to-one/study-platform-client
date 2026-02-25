@@ -92,7 +92,7 @@ export default async function LandingPageLayout({
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
           <ClarityInit projectId={CLARITY_PROJECT_ID} />
           <PageViewTracker />
-          <div className="w-full overflow-auto">
+          <div className="w-full">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
             <div className="m-auto flex min-w-[1496px] flex-1 flex-col items-center">
               <Header />
