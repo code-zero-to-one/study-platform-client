@@ -6,6 +6,7 @@ import {
   differenceInMinutes,
   format,
   getDay,
+  isValid,
   parseISO,
   startOfWeek,
 } from 'date-fns';
@@ -168,12 +169,16 @@ export const createDisabledDateMatcherForMission = (
 
 export function formatDateDot(dateString: string): string {
   if (!dateString) return '-';
+  const parsed = parseISO(dateString);
+  if (!isValid(parsed)) return '-';
 
-  return format(new Date(dateString), 'yyyy.MM.dd', { locale: ko });
+  return format(parsed, 'yyyy.MM.dd', { locale: ko });
 }
 
 export function formatDateTimeDot(dateString: string): string {
   if (!dateString) return '-';
+  const parsed = parseISO(dateString);
+  if (!isValid(parsed)) return '-';
 
-  return format(new Date(dateString), 'yyyy.MM.dd HH:mm', { locale: ko });
+  return format(parsed, 'yyyy.MM.dd HH:mm', { locale: ko });
 }
