@@ -1,6 +1,7 @@
 import { FlaskConical } from 'lucide-react';
 import Link from 'next/link';
 import Button from '@/components/ui/button';
+import PageContainer from '@/components/ui/page-container';
 import MentorDirectoryHeader from '@/features/mentoring/ui/mentor-directory/mentor-directory-header';
 import MentorProfileList from '@/features/mentoring/ui/mentor-directory/mentor-profile-list';
 
@@ -18,9 +19,9 @@ export default function MentoringListPage() {
   );
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-200 py-400 sm:px-300 sm:py-500 xl:px-400 xl:py-600">
+    <PageContainer spacing="content">
       <MentorDirectoryHeader actions={headerActions} />
       <MentorProfileList />
-    </div>
+    </PageContainer>
   );
 }

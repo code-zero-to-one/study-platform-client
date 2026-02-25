@@ -34,6 +34,17 @@ export class MentorDirectoryContractError extends Error {
   }
 }
 
+export class MentorDirectoryQueryError extends Error {
+  public readonly code = 'MENTOR_DIRECTORY_QUERY_ERROR';
+  public readonly cause: unknown;
+
+  public constructor(cause: unknown) {
+    super('멘토 목록 데이터를 불러오는 중 오류가 발생했습니다.');
+    this.name = 'MentorDirectoryQueryError';
+    this.cause = cause;
+  }
+}
+
 const toContractError = ({
   scope,
   issues,
@@ -42,6 +53,17 @@ const toContractError = ({
   issues: ZodIssue[];
 }) => {
   return new MentorDirectoryContractError({ scope, issues });
+};
+
+export const normalizeMentorDirectoryQueryError = (error: unknown) => {
+  if (
+    error instanceof MentorDirectoryContractError ||
+    error instanceof MentorDirectoryQueryError
+  ) {
+    return error;
+  }
+
+  return new MentorDirectoryQueryError(error);
 };
 
 const toNumberKeyedReviews = (
