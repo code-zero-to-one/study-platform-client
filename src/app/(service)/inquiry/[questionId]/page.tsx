@@ -25,7 +25,10 @@ export default function InquiryDetailPage({
   const questionId = Number(questionIdStr);
   const showToast = useToastStore((state) => state.showToast);
 
-  const { data, isLoading } = useGetQuestion({ groupStudyId, questionId });
+  const { data, isLoading, isError } = useGetQuestion({
+    groupStudyId,
+    questionId,
+  });
 
   const handleBack = () => {
     router.push(`/inquiry?groupStudyId=${groupStudyId}&studyType=${studyType}`);
@@ -58,6 +61,16 @@ export default function InquiryDetailPage({
     return (
       <div className="mx-auto w-full max-w-7xl px-400 py-600">
         <div className="text-text-subtle py-800 text-center">로딩 중...</div>
+      </div>
+    );
+  }
+
+  if (isError || (!isLoading && !data)) {
+    return (
+      <div className="mx-auto w-full max-w-7xl px-400 py-600">
+        <div className="text-text-subtle py-800 text-center">
+          문의를 불러오는 중 오류가 발생했습니다. 다시 시도해주세요.
+        </div>
       </div>
     );
   }
