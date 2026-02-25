@@ -44,6 +44,16 @@ export default function InquiryDetailPage({
     },
   ];
 
+  if (!groupStudyId) {
+    return (
+      <div className="mx-auto w-full max-w-7xl px-400 py-600">
+        <div className="text-text-subtle py-800 text-center">
+          잘못된 접근입니다. 스터디 문의 목록에서 다시 접근해주세요.
+        </div>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return (
       <div className="mx-auto w-full max-w-7xl px-400 py-600">

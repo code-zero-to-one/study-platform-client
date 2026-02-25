@@ -36,7 +36,7 @@ interface UrgentStageResult {
   isHourly: boolean;
 }
 
-type CountdownState = { urgent: false } | UrgentStageResult;
+type CountdownState = { urgent: false } | UrgentStageResult | null;
 
 export function getCountdownState(diffMs: number): CountdownState {
   if (diffMs <= 0) return null;

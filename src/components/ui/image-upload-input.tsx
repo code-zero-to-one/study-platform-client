@@ -5,7 +5,7 @@ import { useState, DragEvent, ChangeEvent, useRef } from 'react';
 import Button from '@/components/ui/button';
 
 const inputStyles = {
-  base: 'rounded-100 flex w-full flex-col items-center justify-center rounded-lg border-2 p-500',
+  base: 'rounded-100 flex w-full flex-col items-center justify-center border-2 p-500',
   dragging: 'border-border-brand bg-fill-brand-subtle-hover',
   notDragging: 'border-gray-300 border-dashed',
 };
@@ -39,7 +39,7 @@ export default function ImageUploadInput({
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.dataTransfer.files) {
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       setIsDragging(true);
     }
   };
@@ -114,7 +114,7 @@ export default function ImageUploadInput({
           <button
             type="button"
             onClick={handleRemove}
-            className="bg-background-dimmer border-border-inverse text-text-inverse absolute top-0 right-0 flex h-[36px] w-[36px] translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border bg-black"
+            className="bg-background-dimmer border-border-inverse text-text-inverse absolute top-0 right-0 flex h-[36px] w-[36px] translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border"
           >
             ✕
           </button>

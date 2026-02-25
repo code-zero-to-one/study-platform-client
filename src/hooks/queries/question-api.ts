@@ -47,6 +47,7 @@ export const useGetQuestions = ({
       return data.content;
     },
     enabled: !!groupStudyId,
+    staleTime: 60 * 1000,
   });
 };
 
@@ -65,6 +66,7 @@ export const useGetQuestion = ({
       return data.content;
     },
     enabled: !!groupStudyId && !!questionId,
+    staleTime: 60 * 1000,
   });
 };
 

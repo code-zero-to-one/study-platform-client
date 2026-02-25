@@ -19,7 +19,7 @@ export default function StudyActiveTicker({
   startDate,
   viewCount = 0,
 }: StudyActiveTickerProps) {
-  const remaining = maxMembersCount - approvedCount;
+  const remaining = Math.max(0, maxMembersCount - approvedCount);
 
   const messages = [
     remaining > 3

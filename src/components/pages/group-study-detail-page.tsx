@@ -208,7 +208,11 @@ export default function StudyDetailPage({
       <Tabs
         className="w-[1164px]"
         tabs={STUDY_DETAIL_TABS.filter(
-          (tab) => tab.value === 'intro' || isLeader || isMember,
+          (tab) =>
+            tab.value === 'intro' ||
+            tab.value === 'inquiry' ||
+            isLeader ||
+            isMember,
         )}
         activeTab={active}
         onChange={(value: StudyTabValue) => {
