@@ -35,6 +35,7 @@ interface QuestionModalProps {
   onOpenChange: (open: boolean) => void;
   studyId: number;
   studyType?: 'group' | 'premium';
+  onAfterSubmit?: () => void;
 }
 
 export default function QuestionModal({
@@ -42,6 +43,7 @@ export default function QuestionModal({
   onOpenChange,
   studyId,
   studyType,
+  onAfterSubmit,
 }: QuestionModalProps) {
   const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
@@ -92,6 +94,8 @@ export default function QuestionModal({
   };
 
   const onSubmit = (data: QuestionFormValues) => {
+    const imageExtension = imageFile ? imageFile.type.split('/')[1] : undefined;
+
     createQuestion(
       {
         groupStudyId: studyId,
@@ -99,6 +103,7 @@ export default function QuestionModal({
           title: data.title,
           content: data.content,
           category: data.category,
+          imageExtension,
         },
       },
       {
@@ -114,9 +119,13 @@ export default function QuestionModal({
           reset();
           resetImageState();
           onOpenChange(false);
-          router.push(
-            `/inquiry?groupStudyId=${studyId}${studyType ? `&studyType=${studyType}` : ''}`,
-          );
+          if (onAfterSubmit) {
+            onAfterSubmit();
+          } else {
+            router.push(
+              `/inquiry?groupStudyId=${studyId}${studyType ? `&studyType=${studyType}` : ''}`,
+            );
+          }
         },
         onError: (error) => {
           showToast('문의 제출에 실패했습니다. 다시 시도해주세요.', 'error');
