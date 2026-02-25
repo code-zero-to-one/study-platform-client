@@ -7,7 +7,7 @@ import { getEnabledMentoringMethods } from '@/mocks/mentoring-mock-data';
 import {
   MentorNotFoundState,
   MentorRouteLoading,
-} from './mentor-route-fallback';
+} from '../detail/mentor-route-fallback';
 import MentoringApplyPage from './mentoring-apply-page';
 
 interface MentoringApplyRouteClientProps {

@@ -27,7 +27,7 @@ import type {
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import { type MentorRegistrationPreviewHighlightSection } from '@/types/mentoring/registration-view';
-import MentorMarkdownContent from './mentor-markdown-content';
+import MentorMarkdownContent from '../registration/mentor-markdown-content';
 import ReviewStars from './review-stars';
 
 type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;

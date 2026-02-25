@@ -11,7 +11,7 @@ import {
 } from '@/entities/review/model/use-review-query';
 import KeywordReview from '@/entities/user/ui/keyword-review';
 import MoreKeywordReviewModal from '@/entities/user/ui/more-keyword-review-modal';
-import MyMentoringReviewPanel from '@/features/mentoring/ui/my-mentoring-review-panel';
+import MyMentoringReviewPanel from '@/features/mentoring/ui/review/my-mentoring-review-panel';
 import { formatKoreaRelativeTime } from '@/utils/time';
 
 export default function MyStudyReview() {
