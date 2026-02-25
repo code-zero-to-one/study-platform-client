@@ -43,7 +43,6 @@ export default function InquirySection({
           page={page}
           onPageChange={setPage}
           onSelectQuestion={setSelectedQuestionId}
-          onOpenModal={() => setIsModalOpen(true)}
         />
       ) : (
         <DetailView
@@ -73,7 +72,6 @@ interface ListViewProps {
   page: number;
   onPageChange: (page: number) => void;
   onSelectQuestion: (id: number) => void;
-  onOpenModal: () => void;
 }
 
 function ListView({
@@ -82,7 +80,6 @@ function ListView({
   page,
   onPageChange,
   onSelectQuestion,
-  onOpenModal,
 }: ListViewProps) {
   const { data, isLoading } = useGetQuestions({
     groupStudyId,

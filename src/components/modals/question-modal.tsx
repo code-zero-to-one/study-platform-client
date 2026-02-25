@@ -5,6 +5,7 @@ import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { axiosInstanceForMultipart } from '@/api/client/axios';
 import Button from '@/components/ui/button';
 import ImageUploadInput from '@/components/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
@@ -67,6 +68,7 @@ export default function QuestionModal({
 
   const handleChangeImage = (file: File | undefined) => {
     if (file) {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
     } else {
@@ -77,15 +79,13 @@ export default function QuestionModal({
   };
 
   const uploadImage = async (uploadUrl: string, file: File) => {
-    const res = await fetch(uploadUrl, {
-      method: 'PUT',
-      body: file,
-      headers: { 'Content-Type': file.type },
-    });
+    const formData = new FormData();
+    formData.append('file', file);
 
-    if (!res.ok) {
-      throw new Error(`이미지 업로드 실패 (status: ${res.status})`);
-    }
+    const url = new URL(uploadUrl);
+    const relativePath = url.pathname.replace(/^\/api\/v1\//, '') + url.search;
+
+    await axiosInstanceForMultipart.put(relativePath, formData);
   };
 
   const resetImageState = () => {
