@@ -193,7 +193,7 @@ export default function MentorRegistrationForm({
           description="멘티가 목록에서 먼저 확인하는 핵심 소개입니다."
           bodyClassName="space-y-200"
         >
-          <section className="space-y-100 xl:min-h-[228px]">
+          <section className="space-y-100">
             <div>
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <Info className="text-text-subtle h-14 w-14" />
@@ -210,7 +210,7 @@ export default function MentorRegistrationForm({
             <FieldErrorText message={errors.contactEmail?.message} />
           </section>
 
-          <section className="border-border-subtle space-y-100 border-t pt-200 xl:min-h-[196px]">
+          <section className="border-border-subtle space-y-100 border-t pt-200">
             <div>
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <Star className="text-text-subtle h-14 w-14" />
@@ -232,7 +232,7 @@ export default function MentorRegistrationForm({
             </p>
           </section>
 
-          <section className="border-border-subtle space-y-100 border-t pt-200 xl:min-h-[272px]">
+          <section className="border-border-subtle space-y-100 border-t pt-200">
             <div>
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <MessageCircle className="text-text-subtle h-14 w-14" />
@@ -280,7 +280,7 @@ export default function MentorRegistrationForm({
           description="멘토 포지션, 회사 공개, 핵심 키워드를 한 번에 설정하세요."
           bodyClassName="space-y-200"
         >
-          <section className="space-y-100 xl:min-h-[228px]">
+          <section className="space-y-100">
             <div>
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <Users className="text-text-subtle h-14 w-14" />
@@ -344,7 +344,7 @@ export default function MentorRegistrationForm({
             />
           </section>
 
-          <section className="border-border-subtle space-y-100 border-t pt-200 xl:min-h-[196px]">
+          <section className="border-border-subtle space-y-100 border-t pt-200">
             <div className="flex items-start justify-between gap-100">
               <div>
                 <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
@@ -376,7 +376,7 @@ export default function MentorRegistrationForm({
             )}
           </section>
 
-          <section className="border-border-subtle space-y-100 border-t pt-200 xl:min-h-[272px]">
+          <section className="border-border-subtle space-y-100 border-t pt-200">
             <div>
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <Star className="text-text-subtle h-14 w-14" />
