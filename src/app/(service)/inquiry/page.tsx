@@ -1,10 +1,12 @@
 'use client';
 
-import { LockIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { ko } from 'date-fns/locale';
+import { Eye, LockIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import QuestionModal from '@/components/modals/question-modal';
-import Badge from '@/components/ui/badge';
+import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import Button from '@/components/ui/button';
 import Pagination from '@/components/ui/pagination';
 import { useGetQuestions } from '@/hooks/queries/question-api';
@@ -20,9 +22,8 @@ const CATEGORY_LABEL: Record<string, string> = {
 
 function formatDate(dateString: string): string {
   if (!dateString) return '-';
-  const date = new Date(dateString);
 
-  return `${date.getFullYear()}.${String(date.getMonth() + 1).padStart(2, '0')}.${String(date.getDate()).padStart(2, '0')}`;
+  return format(new Date(dateString), 'yyyy.MM.dd', { locale: ko });
 }
 
 export default function InquiryPage() {
@@ -37,6 +38,7 @@ export default function InquiryPage() {
 
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
   const showToast = useToastStore((state) => state.showToast);
 
   useEffect(() => {
@@ -45,10 +47,12 @@ export default function InquiryPage() {
     }
   }, [groupStudyId, router]);
 
+  const PAGE_SIZE = 15;
+
   const { data, isLoading } = useGetQuestions({
     groupStudyId: groupStudyId ?? 0,
     page,
-    pageSize: 15,
+    pageSize: PAGE_SIZE,
   });
 
   if (!groupStudyId) return null;
@@ -84,27 +88,27 @@ export default function InquiryPage() {
       {/* 표 */}
       <div className="border-border-default rounded-100 overflow-hidden border">
         <table className="w-full">
-          <thead className="bg-background-neutral-subtle font-designer-13r text-text-subtle px-100 py-200 text-center align-middle leading-250">
+          <thead className="bg-background-neutral-subtle font-designer-13r text-text-subtle px-100 py-200 text-left align-middle leading-250">
             <tr className="border-border-default border-b">
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-center">
+              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 번호
               </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-center">
+              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 분류
               </th>
               <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 제목
               </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-center">
+              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 작성자
               </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-center">
+              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 작성일시
               </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-center">
+              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 조회수
               </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-center">
+              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 상태
               </th>
             </tr>
@@ -123,57 +127,75 @@ export default function InquiryPage() {
                 </td>
               </tr>
             ) : (
-              items.map((item) => (
-                <tr
-                  key={item.questionId}
-                  className="border-border-default hover:bg-fill-neutral-subtle cursor-pointer border-b last:border-b-0"
-                  onClick={() => {
-                    if (!item.accessible) {
-                      showToast('작성자만 확인할 수 있는 문의입니다.', 'error');
+              items.map((item, index) => {
+                const displayNumber =
+                  totalElements - (page - 1) * PAGE_SIZE - index;
+                const isHovered = hoveredId === item.questionId;
 
-                      return;
-                    }
-                    router.push(
-                      `/inquiry/${item.questionId}?groupStudyId=${groupStudyId}&studyType=${studyType}`,
-                    );
-                  }}
-                >
-                  <td className="font-designer-14r text-text-default px-400 py-300 text-center">
-                    {item.questionId}
-                  </td>
-                  <td className="font-designer-14r text-text-default px-400 py-300 text-center">
-                    {item.category
-                      ? (CATEGORY_LABEL[item.category] ?? item.category)
-                      : '-'}
-                  </td>
-                  <td className="font-designer-14r text-text-default px-400 py-300">
-                    {item.accessible ? (
-                      item.title
-                    ) : (
-                      <span className="text-text-subtle flex items-center gap-100">
-                        <LockIcon size={14} />
-                        비공개 문의입니다
+                return (
+                  <tr
+                    key={item.questionId}
+                    className={`border-border-default hover:bg-fill-neutral-subtle cursor-pointer border-b last:border-b-0 ${!item.accessible ? 'opacity-60' : ''}`}
+                    onClick={() => {
+                      if (!item.accessible) {
+                        showToast(
+                          '작성자만 확인할 수 있는 문의입니다.',
+                          'error',
+                        );
+
+                        return;
+                      }
+                      router.push(
+                        `/inquiry/${item.questionId}?groupStudyId=${groupStudyId}&studyType=${studyType}`,
+                      );
+                    }}
+                    onMouseEnter={() => setHoveredId(item.questionId)}
+                    onMouseLeave={() => setHoveredId(null)}
+                  >
+                    <td className="font-designer-14r text-text-default px-400 py-300">
+                      {displayNumber}
+                    </td>
+                    <td className="font-designer-14r text-text-default px-400 py-300">
+                      {item.category
+                        ? (CATEGORY_LABEL[item.category] ?? item.category)
+                        : '-'}
+                    </td>
+                    <td className="font-designer-14r text-text-default px-400 py-300">
+                      {item.accessible ? (
+                        <span
+                          className={
+                            isHovered ? 'text-text-brand underline' : ''
+                          }
+                        >
+                          {item.title}
+                        </span>
+                      ) : (
+                        <span className="text-text-subtle flex items-center gap-100">
+                          <LockIcon size={14} />
+                          비공개 문의입니다
+                        </span>
+                      )}
+                    </td>
+                    <td className="font-designer-14r text-text-default px-400 py-300">
+                      {item.accessible ? item.authorNickname : '***'}
+                    </td>
+                    <td className="font-designer-14r text-text-default px-400 py-300">
+                      {formatDate(item.createdAt)}
+                    </td>
+                    <td className="font-designer-14r text-text-default px-400 py-300">
+                      <span className="flex items-center gap-100">
+                        <Eye size={14} className="text-text-subtle" />
+                        {item.viewCount}
                       </span>
-                    )}
-                  </td>
-                  <td className="font-designer-14r text-text-default px-400 py-300 text-center">
-                    {item.accessible ? item.authorNickname : '***'}
-                  </td>
-                  <td className="font-designer-14r text-text-default px-400 py-300 text-center">
-                    {formatDate(item.createdAt)}
-                  </td>
-                  <td className="font-designer-14r text-text-default px-400 py-300 text-center">
-                    {item.viewCount}
-                  </td>
-                  <td className="px-400 py-300 text-center">
-                    {item.status === 'ANSWER_COMPLETED' ? (
-                      <Badge color="blue">답변 완료</Badge>
-                    ) : (
-                      <Badge color="gray">접수</Badge>
-                    )}
-                  </td>
-                </tr>
-              ))
+                    </td>
+                    <td className="px-400 py-300">
+                      <InquiryStatusBadge
+                        status={item.status as 'ACCEPTED' | 'ANSWER_COMPLETED'}
+                      />
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
