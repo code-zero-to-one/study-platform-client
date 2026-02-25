@@ -305,8 +305,6 @@ function DetailView({
   const [answerContent, setAnswerContent] = useState('');
   const { mutate: submitAnswer, isPending } = useCreateAnswer();
 
-  console.log({ answerContent });
-
   const moreMenuOptions = [
     {
       label: '수정하기',
@@ -375,22 +373,24 @@ function DetailView({
 
               <div className="font-designer-13r text-text-subtle grid grid-cols-2 gap-y-100">
                 <div className="flex gap-200">
-                  <span className="text-text-subtle w-[60px]">작성자</span>
+                  <span className="text-text-subtle">작성자</span>
                   <span className="text-text-default">
                     {data.authorNickname}
                   </span>
                 </div>
-                <div className="flex items-center gap-200">
-                  <Eye size={14} className="text-text-subtle" />
-                  <span className="text-text-default">{data.viewCount}</span>
-                </div>
                 <div className="flex gap-200">
-                  <span className="text-text-subtle w-[60px]">작성일</span>
+                  <span className="text-text-subtle">작성일</span>
                   <span className="text-text-default">
                     {formatDateTime(data.createdAt)}
                   </span>
                 </div>
                 <div className="flex items-center gap-200">
+                  <span className="text-text-subtle">조회수</span>
+                  <span className="text-text-default">{data.viewCount}</span>
+                </div>
+
+                <div className="flex items-center gap-200">
+                  <span className="text-text-subtle">상태</span>
                   <InquiryStatusBadge
                     status={data.status as 'ACCEPTED' | 'ANSWER_COMPLETED'}
                   />
