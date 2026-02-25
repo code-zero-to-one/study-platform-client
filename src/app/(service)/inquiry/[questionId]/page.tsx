@@ -146,9 +146,11 @@ export default function InquiryDetailPage({
                 </p>
               </div>
             ) : (
-              <p className="font-designer-14r text-text-subtle">
-                아직 답변이 등록되지 않았습니다.
-              </p>
+              <div className="border-border-default rounded-200 flex items-center justify-center border bg-white py-500">
+                <p className="font-designer-14r text-text-subtle">
+                  아직 답변이 등록되지 않았습니다.
+                </p>
+              </div>
             )}
           </div>
         </div>

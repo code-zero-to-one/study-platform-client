@@ -77,10 +77,11 @@ export default function QuestionModal({
   };
 
   const uploadImage = async (uploadUrl: string, file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    const res = await fetch(uploadUrl, { method: 'PUT', body: formData });
+    const res = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    });
 
     if (!res.ok) {
       throw new Error(`이미지 업로드 실패 (status: ${res.status})`);
@@ -112,7 +113,7 @@ export default function QuestionModal({
             try {
               await uploadImage(result.imageUploadUrl, imageFile);
             } catch (error) {
-              console.error('이미지 업로드 오류:', error);
+              showToast('이미지 업로드 오류', 'error');
             }
           }
           showToast('문의가 성공적으로 제출되었습니다.', 'success');

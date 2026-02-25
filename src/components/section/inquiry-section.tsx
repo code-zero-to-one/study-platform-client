@@ -1,24 +1,20 @@
 'use client';
 
-import { ArrowLeft, Eye, LockIcon, XIcon } from 'lucide-react';
+import { ArrowLeft, Eye, LockIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import QuestionModal from '@/components/modals/question-modal';
 import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
-import { Modal } from '@/components/ui/modal';
 import Pagination from '@/components/ui/pagination';
 import { CATEGORY_LABEL } from '@/features/study/group/model/question.schema';
 import {
-  useCreateAnswer,
   useGetQuestion,
   useGetQuestions,
 } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { formatDateDot, formatDateTimeDot } from '@/utils/time';
-
-const ANSWER_CONTENT_MAX_LENGTH = 2000;
 
 const PAGE_SIZE = 15;
 
@@ -284,9 +280,6 @@ function DetailView({
   isAdmin = false,
 }: DetailViewProps) {
   const { data, isLoading } = useGetQuestion({ groupStudyId, questionId });
-  const [showAnswerModal, setShowAnswerModal] = useState(false);
-  const [answerContent, setAnswerContent] = useState('');
-  const { mutate: submitAnswer, isPending } = useCreateAnswer();
 
   const moreMenuOptions = [
     {
@@ -300,22 +293,6 @@ function DetailView({
       onMenuClick: () => showToast('준비 중인 기능입니다.', 'error'),
     },
   ];
-
-  const handleAnswerSubmit = () => {
-    submitAnswer(
-      { groupStudyId, questionId, content: answerContent },
-      {
-        onSuccess: () => {
-          showToast('답변이 등록되었습니다.', 'success');
-          setAnswerContent('');
-          setShowAnswerModal(false);
-        },
-        onError: () => {
-          showToast('답변 등록에 실패했습니다.', 'error');
-        },
-      },
-    );
-  };
 
   if (isLoading) {
     return (
@@ -450,74 +427,15 @@ function DetailView({
               </p>
             </div>
           ) : (
-            <div className="border-border-default rounded-200 flex flex-col items-center justify-center gap-300 border bg-white py-500">
+            <div className="border-border-default rounded-200 flex items-center justify-center border bg-white py-500">
               <p className="font-designer-14r text-text-subtle">
                 아직 답변이 등록되지 않았습니다.
               </p>
-              {(isLeader || isAdmin) && (
-                <Button
-                  color="primary"
-                  onClick={() => setShowAnswerModal(true)}
-                >
-                  답변하기
-                </Button>
-              )}
             </div>
           )}
         </div>
       )}
 
-      {/* 답변 작성 모달 */}
-      <Modal.Root open={showAnswerModal} onOpenChange={setShowAnswerModal}>
-        <Modal.Portal>
-          <Modal.Overlay />
-          <Modal.Content size="medium" className="w-full sm:w-[500px]">
-            <Modal.Header className="border-border-default flex items-center justify-between border-b">
-              <Modal.Title className="font-designer-20b text-text-strong">
-                답변 작성
-              </Modal.Title>
-              <Modal.Close>
-                <XIcon />
-              </Modal.Close>
-            </Modal.Header>
-            <Modal.Body className="flex flex-col gap-300 p-400">
-              <div className="flex flex-col gap-100">
-                <label className="font-designer-14b text-text-default">
-                  답변 내용 <span className="text-text-error">*</span>
-                </label>
-                <textarea
-                  value={answerContent}
-                  onChange={(e) => setAnswerContent(e.target.value)}
-                  placeholder="질문자에게 답변을 작성해주세요"
-                  maxLength={ANSWER_CONTENT_MAX_LENGTH}
-                  className="rounded-100 border-border-default font-designer-14r focus:border-border-brand min-h-[200px] resize-none border px-300 py-200 focus:outline-none"
-                />
-                <p className="font-designer-12r text-text-subtlest text-right">
-                  {answerContent.length}/{ANSWER_CONTENT_MAX_LENGTH}
-                </p>
-              </div>
-            </Modal.Body>
-            <Modal.Footer className="flex justify-end gap-100">
-              <Button
-                color="secondary"
-                onClick={() => {
-                  setShowAnswerModal(false);
-                  setAnswerContent('');
-                }}
-              >
-                취소
-              </Button>
-              <Button
-                color="primary"
-                disabled={isPending || !answerContent.trim()}
-                onClick={handleAnswerSubmit}
-              >
-                {isPending ? '등록 중...' : '답변 등록'}
-              </Button>
-            </Modal.Footer>
-          </Modal.Content>
-        </Modal.Portal>
-      </Modal.Root>
     </>
   );
 }
