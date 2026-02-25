@@ -113,9 +113,6 @@ function ListView({
             수 있어요.
           </p>
         </div>
-        <Button color="primary" onClick={onOpenModal}>
-          문의하기
-        </Button>
       </div>
 
       {/* 표 */}
