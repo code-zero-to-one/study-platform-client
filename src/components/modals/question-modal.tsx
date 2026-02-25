@@ -114,6 +114,7 @@ export default function QuestionModal({
               await uploadImage(result.imageUploadUrl, imageFile);
             } catch (error) {
               showToast('이미지 업로드 오류', 'error');
+
               return;
             }
           }
