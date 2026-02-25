@@ -24,7 +24,7 @@ import FormField from '../ui/form/form-field';
 
 const QUESTION_CATEGORY_OPTIONS = [
   { value: QuestionCategory.PAYMENT, label: '결제' },
-  { value: QuestionCategory.STUDY_COMMON, label: '스터디 공통' },
+  { value: QuestionCategory.STUDY_COMMON, label: '스터디 일반' },
   { value: QuestionCategory.LEADER, label: '리더' },
   { value: QuestionCategory.BUG, label: '버그' },
   { value: QuestionCategory.CONCERN, label: '고민' },
