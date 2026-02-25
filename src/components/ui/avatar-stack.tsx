@@ -1,7 +1,7 @@
 'use client';
 
-import { X } from 'lucide-react';
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { Crown, X } from 'lucide-react';
+import { useCallback, useState } from 'react';
 import UserAvatar from '@/components/ui/avatar';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { cn } from './(shadcn)/lib/utils';
@@ -25,24 +25,12 @@ export default function AvatarStack({
   guideText = '프로필을 클릭하여 스터디원들의 정보를 확인해보세요.',
 }: AvatarStackProps) {
   const [showOverflow, setShowOverflow] = useState(false);
-  const overflowRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (!showOverflow) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        overflowRef.current &&
-        !overflowRef.current.contains(e.target as Node)
-      ) {
-        setShowOverflow(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showOverflow]);
+  const popoverRef = useCallback((node: HTMLDivElement | null) => {
+    if (node) {
+      node.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, []);
 
   // 리더를 맨 앞으로, 나머지는 가입순(원본 순서) 유지
   const sorted = [...members].sort((a, b) => {
@@ -56,10 +44,6 @@ export default function AvatarStack({
   const overflow = sorted.slice(maxVisible);
   const hasOverflow = overflow.length > 0;
 
-  const handleOverflowToggle = useCallback(() => {
-    setShowOverflow((prev) => !prev);
-  }, []);
-
   return (
     <div className="flex flex-col gap-150">
       <div className="flex items-center gap-200">
@@ -72,17 +56,19 @@ export default function AvatarStack({
 
         {/* +n명이 열공 중 */}
         {hasOverflow && (
-          <div className="relative" ref={overflowRef}>
+          <div className="relative" onMouseEnter={() => setShowOverflow(true)}>
             <button
               type="button"
-              onClick={handleOverflowToggle}
               className="font-designer-14m text-text-subtle hover:text-text-default transition-colors"
             >
               +{overflow.length}명이 열공 중!
             </button>
 
             {showOverflow && (
-              <div className="bg-background-default absolute bottom-full left-0 z-50 mb-100 w-[240px] rounded-lg border border-[#E9EAEB] p-200 shadow-lg">
+              <div
+                ref={popoverRef}
+                className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-lg border border-[#E9EAEB] p-200 shadow-lg"
+              >
                 <div className="mb-100 flex items-center justify-between">
                   <span className="font-designer-14b text-text-default">
                     참가자 목록
@@ -92,10 +78,10 @@ export default function AvatarStack({
                     onClick={() => setShowOverflow(false)}
                     className="text-text-subtle hover:text-text-default"
                   >
-                    <X className="size-4" />
+                    <X className="size-4 cursor-pointer" />
                   </button>
                 </div>
-                <ul className="flex max-h-[240px] flex-col gap-100 overflow-y-auto">
+                <ul className="flex flex-col gap-100">
                   {overflow.map((member) => (
                     <li key={member.memberId}>
                       <UserProfileModal
@@ -153,8 +139,11 @@ function AvatarItem({
         >
           {/* 왕관 아이콘 (리더) */}
           {member.isLeader && (
-            <span className="absolute -top-[14px] left-1/2 z-20 -translate-x-1/2 text-sm">
-              👑
+            <span className="absolute -top-[14px] left-1/2 z-20 -translate-x-1/2">
+              <Crown
+                className="h-4 w-4 cursor-pointer text-pink-400"
+                fill="currentColor"
+              />
             </span>
           )}
 
@@ -173,7 +162,7 @@ function AvatarItem({
 
           {/* 닉네임 툴팁 */}
           {hovered && (
-            <div className="bg-text-inverse text-background-neutral-strong absolute bottom-full left-1/2 z-30 mb-50 -translate-x-1/2 rounded-md px-100 py-50 text-base whitespace-nowrap">
+            <div className="bg-text-inverse text-background-neutral-strong absolute top-full left-1/2 z-30 mt-50 -translate-x-1/2 rounded-md px-100 py-50 text-base whitespace-nowrap">
               {member.nickname || '익명'}
             </div>
           )}

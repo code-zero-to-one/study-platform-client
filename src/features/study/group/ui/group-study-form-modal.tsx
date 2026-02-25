@@ -11,6 +11,7 @@ import { Modal } from '@/components/ui/modal';
 import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
+import { useToastStore } from '@/stores/use-toast-store';
 import GroupStudyForm from './group-study-form';
 
 import {
@@ -45,6 +46,7 @@ export default function GroupStudyFormModal({
   onOpenChange: onControlledOpen,
   classification = 'GROUP_STUDY',
 }: GroupStudyModalProps) {
+  const showToast = useToastStore((state) => state.showToast);
   const router = useRouter();
   const qc = useQueryClient();
   const [open, setOpen] = useState<boolean>(false);
@@ -80,7 +82,10 @@ export default function GroupStudyFormModal({
       return;
     }
     if (mode === 'create' && isOpen && isVerificationError) {
-      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+      showToast(
+        '인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
 
       return;
     }
@@ -180,10 +185,13 @@ export default function GroupStudyFormModal({
       }
 
       await invalidateGroupStudyQueries();
-      alert('그룹 스터디 개설이 완료되었습니다!');
+      showToast('그룹 스터디 개설이 완료되었습니다.', 'success');
     } catch (err) {
       console.error('[handleCreate] 그룹 스터디 개설 실패:', err);
-      alert('그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      showToast(
+        '그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.',
+        'error',
+      );
     } finally {
       setOpen(false);
     }
@@ -206,9 +214,12 @@ export default function GroupStudyFormModal({
       }
 
       await refetchGroupStudyInfo();
-      alert('그룹 스터디 수정이 완료되었습니다!');
+      showToast('그룹 스터디 수정이 완료되었습니다.', 'success');
     } catch (err) {
-      alert('그룹 스터디 수정 중 오류가 발생했습니다. 다시 시도해 주세요.');
+      showToast(
+        '그룹 스터디 수정 중 오류가 발생했습니다. 다시 시도해 주세요.',
+        'error',
+      );
     } finally {
       if (onControlledOpen) onControlledOpen();
     }

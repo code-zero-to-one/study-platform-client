@@ -22,6 +22,7 @@ import {
 import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyMemberList from '../lists/study-member-list';
+import InquirySection from '../section/inquiry-section';
 import MissionSection from '../section/mission-section';
 import PremiumStudyInfoSection from '../section/premium-study-info-section';
 
@@ -41,7 +42,6 @@ export default function PremiumStudyDetailPage({
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
   const showToast = useToastStore((state) => state.showToast);
-
   const activeTab = (searchParams.get('tab') as StudyTabValue) || 'intro';
 
   const {
@@ -241,6 +241,13 @@ export default function PremiumStudyDetailPage({
           groupStudyId={groupStudyId}
           memberId={memberId}
           myApplicationStatus={myApplicationStatus}
+        />
+      )}
+      {activeTab === 'inquiry' && (
+        <InquirySection
+          groupStudyId={groupStudyId}
+          isPremium
+          isLeader={isLeader}
         />
       )}
     </div>

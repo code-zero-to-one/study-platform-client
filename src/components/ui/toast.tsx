@@ -12,7 +12,7 @@ interface ToastProps {
   isVisible: boolean;
   onClose: () => void;
   duration?: number;
-  variant?: 'success' | 'error';
+  variant?: 'success' | 'error' | 'info';
 }
 
 export default function Toast({
@@ -52,13 +52,19 @@ export default function Toast({
 
   const isSuccess = variant === 'success';
 
+  const isError = variant === 'error';
+
   const toast = (
     <div className="fixed top-400 left-1/2 z-50 -translate-x-1/2">
       <div
         className={cn(
           'rounded-200 px-500 py-400',
           'bg-background-default shadow-2xl',
-          isSuccess ? 'border-2 border-green-500' : 'border-2 border-red-500',
+          isSuccess
+            ? 'border-2 border-green-500'
+            : isError
+              ? 'border-2 border-red-500'
+              : 'border-2 border-blue-500',
           'font-designer-15b text-gray-900',
           'flex min-w-[280px] items-center gap-300',
           isExiting ? 'toast-exit' : 'toast-enter',

@@ -1,28 +1,35 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import {
+import { axiosInstanceV2 } from '@/api/client/axiosV2';
+import type {
+  AvailableStudyTimeResponse,
+  CareerResponse,
+  JobResponse,
+  StudyFormatTypeResponse,
+  StudyDashboardResponse,
+  StudySubjectResponse,
+  TechStackResponse,
   UpdateUserProfileInfoRequest,
+  UpdateUserProfileInfoResponse,
   UpdateUserProfileRequest,
+  UpdateUserProfileResponse,
 } from '../api/types';
-import {
-  getAvailableStudyTimes,
-  getStudySubjects,
-  getTechStacks,
-  getCareers,
-  getJobs,
-  getStudyDashboard,
-  getStudyFormatTypes,
-  updateUserProfile,
-  updateUserProfileInfo,
-} from '../api/update-user-profile';
 
 export const useUpdateUserProfileMutation = (memberId: number) => {
   const router = useRouter();
 
   return useMutation({
     mutationKey: ['updateUserProfile', memberId],
-    mutationFn: (formData: UpdateUserProfileRequest) =>
-      updateUserProfile(memberId, formData),
+    mutationFn: async (
+      formData: UpdateUserProfileRequest,
+    ): Promise<UpdateUserProfileResponse> => {
+      const res = await axiosInstanceV2.patch(
+        `/api/v1/members/${memberId}/profile`,
+        formData,
+      );
+
+      return res.data.content;
+    },
 
     onSuccess: () => {
       router.refresh();
@@ -34,8 +41,16 @@ export const useUpdateUserProfileInfoMutation = (memberId: number) => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (formData: UpdateUserProfileInfoRequest) =>
-      updateUserProfileInfo(memberId, formData),
+    mutationFn: async (
+      formData: UpdateUserProfileInfoRequest,
+    ): Promise<UpdateUserProfileInfoResponse> => {
+      const res = await axiosInstanceV2.patch(
+        `/api/v1/members/${memberId}/profile/info`,
+        formData,
+      );
+
+      return res.data.content;
+    },
 
     onSuccess: () => {
       router.refresh();
@@ -46,28 +61,44 @@ export const useUpdateUserProfileInfoMutation = (memberId: number) => {
 export const useAvailableStudyTimesQuery = () => {
   return useQuery({
     queryKey: ['availableStudyTimes'],
-    queryFn: getAvailableStudyTimes,
+    queryFn: async (): Promise<AvailableStudyTimeResponse[]> => {
+      const res = await axiosInstanceV2.get('/api/v1/available-study-times');
+
+      return res.data.content;
+    },
   });
 };
 
 export const useStudySubjectsQuery = () => {
   return useQuery({
     queryKey: ['studySubjects'],
-    queryFn: getStudySubjects,
+    queryFn: async (): Promise<StudySubjectResponse[]> => {
+      const res = await axiosInstanceV2.get('/api/v1/study-subjects');
+
+      return res.data.content;
+    },
   });
 };
 
 export const useTechStacksQuery = () => {
   return useQuery({
     queryKey: ['techStacks'],
-    queryFn: getTechStacks,
+    queryFn: async (): Promise<TechStackResponse[]> => {
+      const res = await axiosInstanceV2.get('/api/v1/tech-stacks');
+
+      return res.data.content;
+    },
   });
 };
 
 export const useStudyDashboardQuery = () => {
   return useQuery({
     queryKey: ['studyDashboard'],
-    queryFn: () => getStudyDashboard(),
+    queryFn: async (): Promise<StudyDashboardResponse> => {
+      const res = await axiosInstanceV2.get('/api/v1/study/dashboard');
+
+      return res.data.content;
+    },
     staleTime: 60 * 1000,
   });
 };
@@ -78,20 +109,32 @@ export const useStudyDashboardQuery = () => {
 export const useJobsQuery = () => {
   return useQuery({
     queryKey: ['jobs'],
-    queryFn: getJobs,
+    queryFn: async (): Promise<JobResponse[]> => {
+      const res = await axiosInstanceV2.get('/api/v1/jobs');
+
+      return res.data.content;
+    },
   });
 };
 
 export const useCareersQuery = () => {
   return useQuery({
     queryKey: ['careers'],
-    queryFn: getCareers,
+    queryFn: async (): Promise<CareerResponse[]> => {
+      const res = await axiosInstanceV2.get('/api/v1/careers');
+
+      return res.data.content;
+    },
   });
 };
 
 export const useStudyFormatTypesQuery = () => {
   return useQuery({
     queryKey: ['studyFormatTypes'],
-    queryFn: getStudyFormatTypes,
+    queryFn: async (): Promise<StudyFormatTypeResponse[]> => {
+      const res = await axiosInstanceV2.get('/api/v1/study-format-types');
+
+      return res.data.content;
+    },
   });
 };

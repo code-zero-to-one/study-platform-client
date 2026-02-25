@@ -5,12 +5,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { GroupStudyListItemDto } from '@/api/openapi';
 import Badge from '@/components/ui/badge';
+import StudyCardCountdownBadge from '@/components/ui/study-card-countdown-badge';
 
-import { StudyType } from '../../features/study/group/api/group-study-types';
 import {
+  ExperienceLevel,
+  StudyType,
+} from '@/features/study/group/api/group-study-types';
+import {
+  EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
   STUDY_TYPE_LABELS,
-} from '../../features/study/group/const/group-study-const';
+} from '@/features/study/group/const/group-study-const';
 
 type BadgeColor =
   | 'default'
@@ -70,15 +75,31 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
             <span className="text-[14px] font-bold">ZERO ONE IT</span>
           </div>
         )}
+
+        <div className="absolute top-200 left-200 z-10">
+          <StudyCardCountdownBadge
+            startDate={study.basicInfo?.startDate}
+            status={study.basicInfo?.status}
+            remaining={
+              (study.basicInfo?.maxMembersCount ?? 0) -
+              (study.basicInfo?.approvedCount ?? 0)
+            }
+          />
+        </div>
       </div>
 
       {/* 컨텐츠 영역 */}
       <div className="px-300 py-200">
         {/* 뱃지 */}
-        <div className="mb-100">
+        <div className="mb-100 flex flex-wrap gap-50">
           <Badge color={badgeColor}>
             {studyType ? STUDY_TYPE_LABELS[studyType] : '스터디'}
           </Badge>
+          {study.basicInfo?.experienceLevels?.map((level) => (
+            <Badge key={level} color="gray">
+              {EXPERIENCE_LEVEL_LABELS[level as ExperienceLevel]}
+            </Badge>
+          ))}
         </div>
 
         {/* 제목 */}
@@ -90,6 +111,38 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
         <p className="font-designer-16r text-text-subtle mb-150 line-clamp-2">
           {study.simpleDetailInfo?.summary}
         </p>
+
+        {/* 활성 배지 (RECRUITING 일 때만) */}
+        {study.basicInfo?.status === 'RECRUITING' &&
+          (() => {
+            const remaining =
+              (study.basicInfo?.maxMembersCount ?? 0) -
+              (study.basicInfo?.approvedCount ?? 0);
+            if (remaining <= 0)
+              return (
+                <div className="mb-150">
+                  <span className="rounded-50 border border-red-400 px-200 py-50 text-[13px] font-semibold text-red-500">
+                    🔥 모집 마감
+                  </span>
+                </div>
+              );
+            if (remaining <= 3)
+              return (
+                <div className="mb-150">
+                  <span className="rounded-50 border border-orange-400 px-200 py-50 text-[13px] font-semibold text-orange-500">
+                    🔥 마지막 {remaining}자리!
+                  </span>
+                </div>
+              );
+
+            return (
+              <div className="mb-150">
+                <span className="text-[13px] font-semibold text-green-600">
+                  🔥 마감까지 {remaining}명
+                </span>
+              </div>
+            );
+          })()}
 
         {/* 하단 정보 */}
         <div className="text-text-subtlest flex items-center gap-150">

@@ -7,7 +7,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/(shadcn)/ui/dropdown-menu';
 
-interface MoreMenuOption {
+interface MoreMenuProps {
   options: {
     label: string;
     value: string;
@@ -16,7 +16,7 @@ interface MoreMenuOption {
   iconSize: number;
 }
 
-export default function MoreMenu({ options, iconSize }: MoreMenuOption) {
+export default function MoreMenu({ options, iconSize }: MoreMenuProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="cursor-pointer focus:outline-none">

@@ -3,11 +3,10 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import InquiryModal from '@/components/modals/inquiry-modal';
-import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
@@ -23,6 +22,7 @@ import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-mod
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyMemberList from '../lists/study-member-list';
 import StudyInfoSection from '../section/group-study-info-section';
+import InquirySection from '../section/inquiry-section';
 import MissionSection from '../section/mission-section';
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
@@ -50,6 +50,9 @@ export default function StudyDetailPage({
 
   const isLeader = leaderId === memberId;
 
+  const { data: authData } = useAuthReady();
+  const isAdmin = authData?.roleIds.includes('ROLE_ADMIN') ?? false;
+
   // 리더 정보를 Zustand store에 저장
   useEffect(() => {
     if (studyDetail?.basicInfo.leader) {
@@ -61,7 +64,6 @@ export default function StudyDetailPage({
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
-  const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false);
 
   const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
     groupStudyId,
@@ -161,24 +163,10 @@ export default function StudyDetailPage({
         groupStudyId={groupStudyId}
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
-      <InquiryModal
-        open={showInquiryModal}
-        onOpenChange={setShowInquiryModal}
-        studyId={groupStudyId}
-      />
-
       <div className="my-500 flex w-[1164px] items-start justify-between">
         <div className="flex w-full flex-col gap-150">
           <div className="font-designer-28b flex justify-between text-[#181D27]">
             {studyDetail?.detailInfo.title}
-            <Button
-              color="primary"
-              size="small"
-              onClick={() => setShowInquiryModal(true)}
-              className="mr-300"
-            >
-              문의하기
-            </Button>
           </div>
           <p className="font-designer-18r text-[#252B37]">
             {studyDetail?.detailInfo.summary}
@@ -220,7 +208,11 @@ export default function StudyDetailPage({
       <Tabs
         className="w-[1164px]"
         tabs={STUDY_DETAIL_TABS.filter(
-          (tab) => tab.value === 'intro' || isLeader || isMember,
+          (tab) =>
+            tab.value === 'intro' ||
+            tab.value === 'inquiry' ||
+            isLeader ||
+            isMember,
         )}
         activeTab={active}
         onChange={(value: StudyTabValue) => {
@@ -253,6 +245,13 @@ export default function StudyDetailPage({
           groupStudyId={groupStudyId}
           memberId={memberId}
           myApplicationStatus={myApplicationStatus}
+        />
+      )}
+      {active === 'inquiry' && (
+        <InquirySection
+          groupStudyId={groupStudyId}
+          isLeader={isLeader}
+          isAdmin={isAdmin}
         />
       )}
     </div>

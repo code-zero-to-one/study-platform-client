@@ -4,11 +4,14 @@ import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { GroupStudyFullResponseDto } from '@/api/openapi';
+import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import UserAvatar from '@/components/ui/avatar';
 import AvatarStack from '@/components/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/ui/avatar-stack';
 import Button from '@/components/ui/button';
+import StudyActiveTicker from '@/components/ui/study-active-ticker';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { CurriculumSummaryItem } from '@/features/study/group/api/group-study-types';
 import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
@@ -31,7 +34,6 @@ export default function StudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
-
   const applicants = useMemo(
     () => approvedApplicants?.pages[0]?.content ?? [],
     [approvedApplicants?.pages],
@@ -124,7 +126,7 @@ export default function StudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>참가자 목록</span>
-                <span className="text-[#A4A7AE]">{`${applicants?.length ?? 0}명`}</span>
+                <span className="text-[#A4A7AE]">{`${approvedApplicants?.pages[0]?.totalElements ?? 0}명`}</span>
               </div>
               {isLeader && (
                 <Button
@@ -145,7 +147,23 @@ export default function StudyInfoSection({
           </div>
         </div>
       </div>
-      <SummaryStudyInfo data={studyDetail} />
+      <div className="flex flex-col gap-300">
+        <StudyActiveTicker
+          approvedCount={studyDetail.basicInfo.approvedCount}
+          maxMembersCount={studyDetail.basicInfo.maxMembersCount}
+          startDate={studyDetail.basicInfo.startDate}
+        />
+        <SummaryStudyInfo data={studyDetail} />
+        <CurriculumSummarySection
+          curriculumSummary={
+            (
+              studyDetail as GroupStudyFullResponseDto & {
+                curriculumSummary?: CurriculumSummaryItem[];
+              }
+            ).curriculumSummary ?? []
+          }
+        />
+      </div>
     </div>
   );
 }

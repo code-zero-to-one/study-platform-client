@@ -2,46 +2,59 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import Button from '@/components/ui/button';
+import ImageUploadInput from '@/components/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import {
-  INQUIRY_CONTENT_MAX_LENGTH,
-  inquirySchema,
-  InquiryCategory,
-  InquiryFormValues,
-  INQUIRY_TITLE_MAX_LENGTH,
-} from '@/features/study/group/model/inquiry.schema';
-import { useCreateInquiry } from '@/hooks/queries/inquiry-api';
+  QUESTION_CONTENT_MAX_LENGTH,
+  questionSchema,
+  QuestionCategory,
+  QuestionFormValues,
+  QUESTION_TITLE_MAX_LENGTH,
+} from '@/features/study/group/model/question.schema';
+import { useCreateQuestion } from '@/hooks/queries/question-api';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { useToastStore } from '@/stores/use-toast-store';
 import { SingleDropdown } from '../ui/dropdown';
 import FormField from '../ui/form/form-field';
 
-const INQUIRY_CATEGORY_OPTIONS = [
-  { value: InquiryCategory.CURRICULUM, label: '커리큘럼' },
-  { value: InquiryCategory.DIFFICULTY, label: '난이도' },
-  { value: InquiryCategory.HW_AMOUNT, label: '과제량' },
-  { value: InquiryCategory.ETC, label: '기타' },
+const QUESTION_CATEGORY_OPTIONS = [
+  { value: QuestionCategory.PAYMENT, label: '결제' },
+  { value: QuestionCategory.STUDY_COMMON, label: '스터디 일반' },
+  { value: QuestionCategory.LEADER, label: '리더' },
+  { value: QuestionCategory.BUG, label: '버그' },
+  { value: QuestionCategory.CONCERN, label: '고민' },
 ] as const;
 
-interface InquiryModalProps {
+interface QuestionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   studyId: number;
+  studyType?: 'group' | 'premium';
+  onAfterSubmit?: () => void;
 }
 
-export default function InquiryModal({
+export default function QuestionModal({
   open,
   onOpenChange,
   studyId,
-}: InquiryModalProps) {
+  studyType,
+  onAfterSubmit,
+}: QuestionModalProps) {
+  const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
-  const { mutate: createInquiry, isPending } = useCreateInquiry();
+  const { mutate: createQuestion, isPending } = useCreateQuestion();
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
+  const [imagePreview, setImagePreview] = useState<string | undefined>(
+    undefined,
+  );
 
-  const form = useForm<InquiryFormValues>({
-    resolver: zodResolver(inquirySchema),
+  const form = useForm<QuestionFormValues>({
+    resolver: zodResolver(questionSchema),
     defaultValues: {
       title: '',
       content: '',
@@ -52,21 +65,70 @@ export default function InquiryModal({
   const { handleSubmit, reset } = form;
   const scrollToNext = useScrollToNextField();
 
-  const onSubmit = (data: InquiryFormValues) => {
-    createInquiry(
+  const handleChangeImage = (file: File | undefined) => {
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } else {
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      setImageFile(undefined);
+      setImagePreview(undefined);
+    }
+  };
+
+  const uploadImage = async (uploadUrl: string, file: File) => {
+    const res = await fetch(uploadUrl, {
+      method: 'PUT',
+      body: file,
+      headers: { 'Content-Type': file.type },
+    });
+
+    if (!res.ok) {
+      throw new Error(`이미지 업로드 실패 (status: ${res.status})`);
+    }
+  };
+
+  const resetImageState = () => {
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImageFile(undefined);
+    setImagePreview(undefined);
+  };
+
+  const onSubmit = (data: QuestionFormValues) => {
+    const imageExtension = imageFile ? imageFile.type.split('/')[1] : undefined;
+
+    createQuestion(
       {
         groupStudyId: studyId,
         request: {
           title: data.title,
           content: data.content,
           category: data.category,
+          imageExtension,
         },
       },
       {
-        onSuccess: () => {
+        onSuccess: async (result) => {
+          if (imageFile && result.imageUploadUrl) {
+            try {
+              await uploadImage(result.imageUploadUrl, imageFile);
+            } catch (error) {
+              showToast('이미지 업로드 오류', 'error');
+
+              return;
+            }
+          }
           showToast('문의가 성공적으로 제출되었습니다.', 'success');
           reset();
+          resetImageState();
           onOpenChange(false);
+          if (onAfterSubmit) {
+            onAfterSubmit();
+          } else {
+            router.push(
+              `/inquiry?groupStudyId=${studyId}${studyType ? `&studyType=${studyType}` : ''}`,
+            );
+          }
         },
         onError: (error) => {
           showToast('문의 제출에 실패했습니다. 다시 시도해주세요.', 'error');
@@ -79,6 +141,7 @@ export default function InquiryModal({
   const handleOpenChange = (isOpen: boolean) => {
     if (!isOpen) {
       reset();
+      resetImageState();
     }
     onOpenChange(isOpen);
   };
@@ -87,7 +150,7 @@ export default function InquiryModal({
     <Modal.Root open={open} onOpenChange={handleOpenChange}>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content size="medium" className="w-[500px]">
+        <Modal.Content size="medium" className="w-full sm:w-[500px]">
           <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title className="font-designer-20b text-text-strong">
               스터디 문의하기
@@ -97,9 +160,12 @@ export default function InquiryModal({
             </Modal.Close>
           </Modal.Header>
           <FormProvider {...form}>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="flex min-h-0 flex-1 flex-col"
+            >
               <Modal.Body className="flex flex-col gap-300">
-                <FormField<InquiryFormValues, 'category'>
+                <FormField<QuestionFormValues, 'category'>
                   name="category"
                   label="문의 종류"
                   direction="vertical"
@@ -108,11 +174,11 @@ export default function InquiryModal({
                   onAfterChange={() => scrollToNext('category')}
                 >
                   <SingleDropdown
-                    options={INQUIRY_CATEGORY_OPTIONS}
+                    options={QUESTION_CATEGORY_OPTIONS}
                     placeholder="선택해주세요"
                   />
                 </FormField>
-                <FormField<InquiryFormValues, 'title'>
+                <FormField<QuestionFormValues, 'title'>
                   name="title"
                   label="제목"
                   direction="vertical"
@@ -121,12 +187,12 @@ export default function InquiryModal({
                   onAfterBlurFilled={() => scrollToNext('title')}
                 >
                   <BaseInput
-                    maxLength={INQUIRY_TITLE_MAX_LENGTH}
+                    maxLength={QUESTION_TITLE_MAX_LENGTH}
                     placeholder="제목을 입력하세요"
                     hideMeta={false}
                   />
                 </FormField>
-                <FormField<InquiryFormValues, 'content'>
+                <FormField<QuestionFormValues, 'content'>
                   name="content"
                   label="내용"
                   direction="vertical"
@@ -135,10 +201,22 @@ export default function InquiryModal({
                 >
                   <TextAreaInput
                     placeholder="내용을 입력하세요"
-                    maxLength={INQUIRY_CONTENT_MAX_LENGTH}
+                    maxLength={QUESTION_CONTENT_MAX_LENGTH}
                     className="font-designer-16m text-text-default h-auto min-h-[150px]"
                   />
                 </FormField>
+                <div className="flex flex-col gap-100">
+                  <span className="font-designer-16m text-text-strong">
+                    이미지 첨부
+                    <span className="font-designer-14r text-text-assistive ml-50">
+                      (선택)
+                    </span>
+                  </span>
+                  <ImageUploadInput
+                    image={imagePreview}
+                    onChangeImage={handleChangeImage}
+                  />
+                </div>
               </Modal.Body>
               <Modal.Footer className="flex justify-end gap-100">
                 <Button
