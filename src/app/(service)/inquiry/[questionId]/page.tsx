@@ -38,12 +38,12 @@ export default function InquiryDetailPage({
     {
       label: '수정하기',
       value: 'edit',
-      onMenuClick: () => showToast('준비 중인 기능입니다.', 'error'),
+      onMenuClick: () => showToast('준비 중인 기능입니다.', 'info'),
     },
     {
       label: '삭제하기',
       value: 'delete',
-      onMenuClick: () => showToast('준비 중인 기능입니다.', 'error'),
+      onMenuClick: () => showToast('준비 중인 기능입니다.', 'info'),
     },
   ];
 

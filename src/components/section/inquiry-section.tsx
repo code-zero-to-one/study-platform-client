@@ -153,12 +153,12 @@ function DetailView({
     {
       label: '수정하기',
       value: 'edit',
-      onMenuClick: () => showToast('준비 중인 기능입니다.', 'error'),
+      onMenuClick: () => showToast('준비 중인 기능입니다.', 'info'),
     },
     {
       label: '삭제하기',
       value: 'delete',
-      onMenuClick: () => showToast('준비 중인 기능입니다.', 'error'),
+      onMenuClick: () => showToast('준비 중인 기능입니다.', 'info'),
     },
   ];
 
@@ -256,13 +256,13 @@ function DetailView({
                       label: '수정하기',
                       value: 'edit',
                       onMenuClick: () =>
-                        showToast('준비 중인 기능입니다.', 'error'),
+                        showToast('준비 중인 기능입니다.', 'info'),
                     },
                     {
                       label: '삭제하기',
                       value: 'delete',
                       onMenuClick: () =>
-                        showToast('준비 중인 기능입니다.', 'error'),
+                        showToast('준비 중인 기능입니다.', 'info'),
                     },
                   ]}
                   iconSize={20}
