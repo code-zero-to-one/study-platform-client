@@ -1,20 +1,17 @@
 'use client';
 
-import { ArrowLeft, Eye, LockIcon } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
+import InquiryListTable from '@/components/lists/inquiry-list-table';
 import QuestionModal from '@/components/modals/question-modal';
 import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
-import Pagination from '@/components/ui/pagination';
 import { CATEGORY_LABEL } from '@/features/study/group/model/question.schema';
-import {
-  useGetQuestion,
-  useGetQuestions,
-} from '@/hooks/queries/question-api';
+import { useGetQuestion, useGetQuestions } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { formatDateDot, formatDateTimeDot } from '@/utils/time';
+import { formatDateTimeDot } from '@/utils/time';
 
 const PAGE_SIZE = 15;
 
@@ -31,13 +28,11 @@ export default function InquirySection({
   isLeader = false,
   isAdmin = false,
 }: InquirySectionProps) {
-  const showToast = useToastStore((state) => state.showToast);
   const [selectedQuestionId, setSelectedQuestionId] = useState<
     number | undefined
   >(undefined);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
-  const [hoveredId, setHoveredId] = useState<number | undefined>(undefined);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-400 py-600">
@@ -46,19 +41,15 @@ export default function InquirySection({
           groupStudyId={groupStudyId}
           isPremium={isPremium}
           page={page}
-          hoveredId={hoveredId}
           onPageChange={setPage}
           onSelectQuestion={setSelectedQuestionId}
-          onHoverChange={setHoveredId}
           onOpenModal={() => setIsModalOpen(true)}
-          showToast={showToast}
         />
       ) : (
         <DetailView
           groupStudyId={groupStudyId}
           questionId={selectedQuestionId}
           onBack={() => setSelectedQuestionId(undefined)}
-          showToast={showToast}
           isPremium={isPremium}
           isLeader={isLeader}
           isAdmin={isAdmin}
@@ -80,24 +71,18 @@ interface ListViewProps {
   groupStudyId: number;
   isPremium: boolean;
   page: number;
-  hoveredId: number | undefined;
   onPageChange: (page: number) => void;
   onSelectQuestion: (id: number) => void;
-  onHoverChange: (id: number | undefined) => void;
   onOpenModal: () => void;
-  showToast: (message: string, type?: 'success' | 'error') => void;
 }
 
 function ListView({
   groupStudyId,
   isPremium,
   page,
-  hoveredId,
   onPageChange,
   onSelectQuestion,
-  onHoverChange,
   onOpenModal,
-  showToast,
 }: ListViewProps) {
   const { data, isLoading } = useGetQuestions({
     groupStudyId,
@@ -134,128 +119,15 @@ function ListView({
       </div>
 
       {/* 표 */}
-      <div className="border-border-default rounded-100 overflow-hidden border">
-        <table className="w-full">
-          <thead className="bg-background-neutral-subtle font-designer-13r text-text-subtle px-100 py-200 text-left align-middle leading-250">
-            <tr className="border-border-default border-b">
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
-                번호
-              </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
-                분류
-              </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
-                제목
-              </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
-                작성자
-              </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
-                작성일시
-              </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
-                조회수
-              </th>
-              <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
-                상태
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {isLoading ? (
-              <tr>
-                <td colSpan={7} className="text-text-subtle py-800 text-center">
-                  로딩 중...
-                </td>
-              </tr>
-            ) : items.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="text-text-subtle py-800 text-center">
-                  등록된 문의가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              items.map((item, index) => {
-                const displayNumber =
-                  totalElements - (page - 1) * PAGE_SIZE - index;
-                const isHovered = hoveredId === item.questionId;
-
-                return (
-                  <tr
-                    key={item.questionId}
-                    className={`border-border-default hover:bg-fill-neutral-subtle cursor-pointer border-b last:border-b-0 ${!item.accessible ? 'opacity-60' : ''}`}
-                    onClick={() => {
-                      if (!item.accessible) {
-                        showToast(
-                          '작성자만 확인할 수 있는 문의입니다.',
-                          'error',
-                        );
-
-                        return;
-                      }
-                      onSelectQuestion(item.questionId);
-                    }}
-                    onMouseEnter={() => onHoverChange(item.questionId)}
-                    onMouseLeave={() => onHoverChange(undefined)}
-                  >
-                    <td className="font-designer-14r text-text-default px-400 py-300">
-                      {displayNumber}
-                    </td>
-                    <td className="font-designer-14r text-text-default px-400 py-300">
-                      {item.category
-                        ? (CATEGORY_LABEL[item.category] ?? item.category)
-                        : '-'}
-                    </td>
-                    <td className="font-designer-14r text-text-default px-400 py-300">
-                      {item.accessible ? (
-                        <span
-                          className={
-                            isHovered ? 'text-text-brand underline' : ''
-                          }
-                        >
-                          {item.title}
-                        </span>
-                      ) : (
-                        <span className="text-text-subtle flex items-center gap-100">
-                          <LockIcon size={14} />
-                          비공개 문의입니다
-                        </span>
-                      )}
-                    </td>
-                    <td className="font-designer-14r text-text-default px-400 py-300">
-                      {item.accessible ? item.authorNickname : '***'}
-                    </td>
-                    <td className="font-designer-14r text-text-default px-400 py-300">
-                      {formatDateDot(item.createdAt)}
-                    </td>
-                    <td className="font-designer-14r text-text-default px-400 py-300">
-                      <span className="flex items-center gap-100">
-                        <Eye size={14} className="text-text-subtle" />
-                        {item.viewCount}
-                      </span>
-                    </td>
-                    <td className="px-400 py-300">
-                      <InquiryStatusBadge
-                        status={item.status}
-                      />
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* 페이지네이션 */}
-      {totalPages > 1 && (
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          onChangePage={onPageChange}
-          className="mt-400"
-        />
-      )}
+      <InquiryListTable
+        items={items}
+        totalElements={totalElements}
+        totalPages={totalPages}
+        page={page}
+        isLoading={isLoading}
+        onPageChange={onPageChange}
+        onItemClick={(item) => onSelectQuestion(item.questionId)}
+      />
     </>
   );
 }
@@ -264,7 +136,6 @@ interface DetailViewProps {
   groupStudyId: number;
   questionId: number;
   onBack: () => void;
-  showToast: (message: string, type?: 'success' | 'error') => void;
   isPremium?: boolean;
   isLeader?: boolean;
   isAdmin?: boolean;
@@ -274,11 +145,11 @@ function DetailView({
   groupStudyId,
   questionId,
   onBack,
-  showToast,
   isPremium = false,
   isLeader = false,
   isAdmin = false,
 }: DetailViewProps) {
+  const showToast = useToastStore((state) => state.showToast);
   const { data, isLoading } = useGetQuestion({ groupStudyId, questionId });
 
   const moreMenuOptions = [
@@ -356,9 +227,7 @@ function DetailView({
               </div>
               <div className="flex items-center gap-200">
                 <span className="font-designer-14m text-text-subtle">상태</span>
-                <InquiryStatusBadge
-                  status={data.status}
-                />
+                <InquiryStatusBadge status={data.status} />
               </div>
             </div>
 
@@ -435,7 +304,6 @@ function DetailView({
           )}
         </div>
       )}
-
     </>
   );
 }

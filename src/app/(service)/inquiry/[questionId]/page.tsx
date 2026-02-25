@@ -98,9 +98,7 @@ export default function InquiryDetailPage({
                 </span>
               </div>
               <div className="flex items-center gap-200">
-                <InquiryStatusBadge
-                  status={data.status}
-                />
+                <InquiryStatusBadge status={data.status} />
               </div>
             </div>
           </div>

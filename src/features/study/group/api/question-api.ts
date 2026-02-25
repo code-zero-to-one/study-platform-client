@@ -1,15 +1,6 @@
 import { axiosInstance } from '@/api/client/axios';
+import type { ResizedImage } from './group-study-types';
 import { QuestionCategory } from '../model/question.schema';
-
-export interface ResizedImage {
-  resizedImageId: number;
-  resizedImageUrl: string;
-  imageSizeType: {
-    imageTypeName: string;
-    width: number;
-    height: number;
-  };
-}
 
 export interface ImageDto {
   imageId: string;
