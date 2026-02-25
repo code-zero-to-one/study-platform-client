@@ -217,13 +217,10 @@ export default function SelectableTagsInput({
         </div>
       )}
 
-      <p className="font-designer-12r text-text-subtle mt-50">
-        선택된 키워드 {selected.length}/{maxSelectable}
-      </p>
       {!canAddMore && (
         <p
           className={cn(
-            'font-designer-12r mt-25',
+            'font-designer-12r mt-50',
             isLimitExceeded ? 'text-text-warning' : 'text-text-subtle',
           )}
         >

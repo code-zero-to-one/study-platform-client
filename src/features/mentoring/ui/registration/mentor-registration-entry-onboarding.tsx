@@ -170,8 +170,8 @@ export default function MentorRegistrationEntryOnboarding({
   };
 
   return (
-    <div className="mx-auto w-full max-w-[980px] px-150 py-400 sm:px-300 xl:px-400 xl:py-500">
-      <section className="rounded-200 border-border-subtle bg-background-default overflow-hidden border">
+    <div className="mx-auto flex min-h-[90dvh] w-full max-w-[980px] items-center px-150 py-200 sm:px-300 xl:px-400">
+      <section className="rounded-200 border-border-subtle bg-background-default w-full overflow-hidden border">
         <header className="from-fill-brand-subtle-default/70 to-background-default border-border-subtle border-b bg-linear-to-r px-200 py-200 sm:px-300 sm:py-250">
           <div className="mb-125 flex items-center justify-between gap-100">
             <div className="rounded-500 bg-background-default inline-flex items-center gap-75 px-100 py-50">

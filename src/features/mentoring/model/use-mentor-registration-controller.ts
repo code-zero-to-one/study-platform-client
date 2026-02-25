@@ -63,8 +63,37 @@ const DIRTY_VALIDATION_OPTIONS = {
 } as const;
 const MENTOR_REGISTRATION_ENTRY_FROM_LIST = 'mentor-list';
 const ENTRY_ONBOARDING_MENTORING_TITLE_SUFFIX = '커리어 성장 멘토링';
+const ENTRY_ONBOARDING_STORAGE_KEY_PREFIX =
+  'mentor-registration-entry-onboarding-seen-v1';
 
 const sanitizeDigits = (value: string) => value.replace(/\D/g, '');
+
+const getEntryOnboardingStorageKey = (memberId: number) => {
+  return `${ENTRY_ONBOARDING_STORAGE_KEY_PREFIX}:${memberId}`;
+};
+
+const hasSeenEntryOnboarding = (memberId: number) => {
+  try {
+    return (
+      window.localStorage.getItem(getEntryOnboardingStorageKey(memberId)) ===
+      '1'
+    );
+  } catch {
+    return false;
+  }
+};
+
+const markEntryOnboardingAsSeen = (memberId: number | undefined) => {
+  if (!memberId) {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(getEntryOnboardingStorageKey(memberId), '1');
+  } catch {
+    // localStorage 접근이 막힌 환경에서는 저장 없이 진행합니다.
+  }
+};
 
 const buildMentoringTitleFromEntryOnboarding = (jobTitle: string) => {
   const title = `${jobTitle.trim()} ${ENTRY_ONBOARDING_MENTORING_TITLE_SUFFIX}`;
@@ -224,6 +253,7 @@ export interface MentorRegistrationControllerRefs {
 export interface MentorRegistrationControllerActions {
   onGuideOpenChange: (nextOpen: boolean) => void;
   onOpenGuide: () => void;
+  onReopenEntryOnboarding: () => void;
   onPhoneVerificationModalOpenChange: (nextOpen: boolean) => void;
   onOpenPhoneVerification: () => void;
   onCancelModalOpenChange: (nextOpen: boolean) => void;
@@ -442,22 +472,23 @@ export const useMentorRegistrationController =
         return;
       }
 
-      entryOnboardingInitializedRef.current = true;
-
       if (!isEntryFromMentoringList) {
         return;
       }
 
-      const hasExistingMentor = mentorIdByMember[memberId] !== undefined;
-      if (!hasExistingMentor) {
-        setIsEntryOnboardingOpen(true);
+      if (hasSeenEntryOnboarding(memberId)) {
+        entryOnboardingInitializedRef.current = true;
+
+        return;
       }
+
+      entryOnboardingInitializedRef.current = true;
+      setIsEntryOnboardingOpen(true);
     }, [
       isAuthenticated,
       isEntryFromMentoringList,
       isHydrated,
       memberId,
-      mentorIdByMember,
       mentorStoreHydrated,
     ]);
 
@@ -783,11 +814,21 @@ export const useMentorRegistrationController =
         );
       }
 
+      markEntryOnboardingAsSeen(memberId);
       setIsEntryOnboardingOpen(false);
       showToast(
         MENTOR_REGISTRATION_TOAST_MESSAGES.entryOnboardingCompleted,
         'success',
       );
+    };
+
+    const handleSkipEntryOnboarding = () => {
+      markEntryOnboardingAsSeen(memberId);
+      setIsEntryOnboardingOpen(false);
+    };
+
+    const handleReopenEntryOnboarding = () => {
+      setIsEntryOnboardingOpen(true);
     };
 
     const handleOpenPreview = () => {
@@ -855,6 +896,7 @@ export const useMentorRegistrationController =
       actions: {
         onGuideOpenChange: setIsGuideOpen,
         onOpenGuide: () => setIsGuideOpen(true),
+        onReopenEntryOnboarding: handleReopenEntryOnboarding,
         onPhoneVerificationModalOpenChange: setIsPhoneVerificationModalOpen,
         onOpenPhoneVerification: () => setIsPhoneVerificationModalOpen(true),
         onCancelModalOpenChange: setIsCancelModalOpen,
@@ -869,7 +911,7 @@ export const useMentorRegistrationController =
         onWelcomeModalToMentorPage: handleWelcomeModalToMentorPage,
         onWelcomeModalToRequestPage: handleWelcomeModalToRequestPage,
         onCompleteEntryOnboarding: handleCompleteEntryOnboarding,
-        onSkipEntryOnboarding: () => setIsEntryOnboardingOpen(false),
+        onSkipEntryOnboarding: handleSkipEntryOnboarding,
         onConfirmExitWithoutSaving: () => router.push('/mentoring-management'),
       } satisfies MentorRegistrationControllerActions,
       viewModel: {

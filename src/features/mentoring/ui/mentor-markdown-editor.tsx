@@ -10,7 +10,6 @@ import {
   Link2,
   List,
   ListOrdered,
-  Pencil,
   Quote,
   Strikethrough,
 } from 'lucide-react';
@@ -265,11 +264,7 @@ export default function MentorMarkdownEditor({
 
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
-      <div className="border-border-subtle bg-background-alternative flex flex-wrap items-center justify-between gap-100 border-b px-150 py-100">
-        <span className="font-designer-12r bg-fill-brand-subtle-default text-text-brand rounded-100 px-100 py-50">
-          <Pencil className="mr-50 inline h-12 w-12" />
-          작성
-        </span>
+      <div className="border-border-subtle bg-background-alternative flex flex-wrap items-center gap-100 border-b px-150 py-100">
         <p className="font-designer-12r text-text-subtle">
           마크다운 + 이미지 업로드를 지원합니다. (최대 3장, 각 5MB)
         </p>

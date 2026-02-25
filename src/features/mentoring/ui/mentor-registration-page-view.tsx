@@ -217,8 +217,6 @@ export default function MentorRegistrationPageView({
       className={cn(PAGE_CONTAINER_CLASS, state.isResizing && 'select-none')}
       style={state.isResizing ? { cursor: 'col-resize' } : undefined}
     >
-      <MentorRegistrationHeader onOpenGuide={actions.onOpenGuide} />
-
       {/*
        * XL 이상: grid 2컬럼 레이아웃 (폼 | 미리보기)
        *   - aside는 화면 우측 고정 카드로 렌더링되고, grid는 폼 영역 폭만 안정적으로 확보
@@ -241,15 +239,21 @@ export default function MentorRegistrationPageView({
       >
         {/* LEFT: 폼 영역 */}
         {/* min-w-0: grid item shrink 허용 / overflow-x-auto: 패널이 좁아져도 reflow 없이 가로 스크롤 */}
-        <div className="min-w-0 overflow-x-auto">
-          <MentorRegistrationForm
-            form={state.form}
-            onSubmit={actions.onSave}
-            onCancel={actions.onCancel}
-            onOpenSettlementModal={() =>
-              actions.onSettlementModalOpenChange(true)
-            }
+        <div className="min-w-0">
+          <MentorRegistrationHeader
+            onOpenGuide={actions.onOpenGuide}
+            onReopenEntryOnboarding={actions.onReopenEntryOnboarding}
           />
+          <div className="overflow-x-auto">
+            <MentorRegistrationForm
+              form={state.form}
+              onSubmit={actions.onSave}
+              onCancel={actions.onCancel}
+              onOpenSettlementModal={() =>
+                actions.onSettlementModalOpenChange(true)
+              }
+            />
+          </div>
         </div>
 
         {/*
