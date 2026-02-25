@@ -9,6 +9,7 @@ import {
   parseISO,
   startOfWeek,
 } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 // todo: formatToKST로 통일하도록 리팩토링 필요 (getKoreaDate와 혼용 중)
 /**
@@ -164,3 +165,15 @@ export const createDisabledDateMatcherForMission = (
     return false;
   };
 };
+
+export function formatDateDot(dateString: string): string {
+  if (!dateString) return '-';
+
+  return format(new Date(dateString), 'yyyy.MM.dd', { locale: ko });
+}
+
+export function formatDateTimeDot(dateString: string): string {
+  if (!dateString) return '-';
+
+  return format(new Date(dateString), 'yyyy.MM.dd HH:mm', { locale: ko });
+}

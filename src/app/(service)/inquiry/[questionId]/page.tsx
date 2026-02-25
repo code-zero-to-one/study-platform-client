@@ -1,29 +1,15 @@
 'use client';
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import { ArrowLeft, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { use } from 'react';
 import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
+import { CATEGORY_LABEL } from '@/features/study/group/model/question.schema';
 import { useGetQuestion } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
-
-const CATEGORY_LABEL: Record<string, string> = {
-  PAYMENT: '결제',
-  STUDY_COMMON: '스터디 일반',
-  LEADER: '리더',
-  BUG: '버그',
-  CONCERN: '고민',
-};
-
-function formatDateTime(dateString: string): string {
-  if (!dateString) return '-';
-
-  return format(new Date(dateString), 'yyyy.MM.dd HH:mm', { locale: ko });
-}
+import { formatDateTimeDot } from '@/utils/time';
 
 export default function InquiryDetailPage({
   params,
@@ -108,12 +94,12 @@ export default function InquiryDetailPage({
               <div className="flex gap-200">
                 <span className="text-text-subtle w-[60px]">작성일</span>
                 <span className="text-text-default">
-                  {formatDateTime(data.createdAt)}
+                  {formatDateTimeDot(data.createdAt)}
                 </span>
               </div>
               <div className="flex items-center gap-200">
                 <InquiryStatusBadge
-                  status={data.status as 'ACCEPTED' | 'ANSWER_COMPLETED'}
+                  status={data.status}
                 />
               </div>
             </div>
@@ -149,9 +135,21 @@ export default function InquiryDetailPage({
           {/* 답변 섹션 */}
           <div className="px-600 py-400">
             <h2 className="font-designer-16b text-text-strong mb-300">답변</h2>
-            <p className="font-designer-14r text-text-subtle">
-              아직 답변이 등록되지 않았습니다.
-            </p>
+            {data.answer ? (
+              <div className="flex flex-col gap-200">
+                <div className="font-designer-13r text-text-subtle flex items-center gap-200">
+                  <span>{data.answererNickname}</span>
+                  <span>{formatDateTimeDot(data.answeredAt ?? '')}</span>
+                </div>
+                <p className="font-designer-14r text-text-default whitespace-pre-wrap">
+                  {data.answer}
+                </p>
+              </div>
+            ) : (
+              <p className="font-designer-14r text-text-subtle">
+                아직 답변이 등록되지 않았습니다.
+              </p>
+            )}
           </div>
         </div>
       )}

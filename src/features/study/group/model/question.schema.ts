@@ -8,6 +8,14 @@ export enum QuestionCategory {
   CONCERN = 'CONCERN',
 }
 
+export const CATEGORY_LABEL: Record<string, string> = {
+  PAYMENT: '결제',
+  STUDY_COMMON: '스터디 일반',
+  LEADER: '리더',
+  BUG: '버그',
+  CONCERN: '고민',
+};
+
 export const QUESTION_TITLE_MIN_LENGTH = 2;
 export const QUESTION_CONTENT_MIN_LENGTH = 20;
 export const QUESTION_TITLE_MAX_LENGTH = 255;

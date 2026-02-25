@@ -22,7 +22,7 @@ import {
 import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
 import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
 import GroupStudyMemberList from '../lists/study-member-list';
-import QuestionModal from '../modals/question-modal';
+import InquirySection from '../section/inquiry-section';
 import MissionSection from '../section/mission-section';
 import PremiumStudyInfoSection from '../section/premium-study-info-section';
 
@@ -42,8 +42,6 @@ export default function PremiumStudyDetailPage({
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
   const showToast = useToastStore((state) => state.showToast);
-  const [showInquiryModal, setShowInquiryModal] = useState<boolean>(false);
-
   const activeTab = (searchParams.get('tab') as StudyTabValue) || 'intro';
 
   const {
@@ -163,12 +161,6 @@ export default function PremiumStudyDetailPage({
         classification="PREMIUM_STUDY"
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
-      <QuestionModal
-        open={showInquiryModal}
-        onOpenChange={setShowInquiryModal}
-        studyId={groupStudyId}
-        studyType="premium"
-      />
 
       <div className="my-500 flex w-[1164px] items-start justify-between">
         <div className="flex w-full flex-col gap-150">
@@ -249,6 +241,13 @@ export default function PremiumStudyDetailPage({
           groupStudyId={groupStudyId}
           memberId={memberId}
           myApplicationStatus={myApplicationStatus}
+        />
+      )}
+      {activeTab === 'inquiry' && (
+        <InquirySection
+          groupStudyId={groupStudyId}
+          isPremium
+          isLeader={isLeader}
         />
       )}
     </div>

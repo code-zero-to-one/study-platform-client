@@ -1,7 +1,5 @@
 'use client';
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import { Eye, LockIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -9,22 +7,10 @@ import QuestionModal from '@/components/modals/question-modal';
 import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import Button from '@/components/ui/button';
 import Pagination from '@/components/ui/pagination';
+import { CATEGORY_LABEL } from '@/features/study/group/model/question.schema';
 import { useGetQuestions } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
-
-const CATEGORY_LABEL: Record<string, string> = {
-  PAYMENT: '결제',
-  STUDY_COMMON: '스터디 일반',
-  LEADER: '리더',
-  BUG: '버그',
-  CONCERN: '고민',
-};
-
-function formatDate(dateString: string): string {
-  if (!dateString) return '-';
-
-  return format(new Date(dateString), 'yyyy.MM.dd', { locale: ko });
-}
+import { formatDateDot } from '@/utils/time';
 
 export default function InquiryPage() {
   const router = useRouter();
@@ -180,7 +166,7 @@ export default function InquiryPage() {
                       {item.accessible ? item.authorNickname : '***'}
                     </td>
                     <td className="font-designer-14r text-text-default px-400 py-300">
-                      {formatDate(item.createdAt)}
+                      {formatDateDot(item.createdAt)}
                     </td>
                     <td className="font-designer-14r text-text-default px-400 py-300">
                       <span className="flex items-center gap-100">
@@ -190,7 +176,7 @@ export default function InquiryPage() {
                     </td>
                     <td className="px-400 py-300">
                       <InquiryStatusBadge
-                        status={item.status as 'ACCEPTED' | 'ANSWER_COMPLETED'}
+                        status={item.status}
                       />
                     </td>
                   </tr>

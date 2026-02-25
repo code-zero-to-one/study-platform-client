@@ -1,6 +1,7 @@
 import Badge from '@/components/ui/badge';
+import type { QuestionListItemResponse } from '@/features/study/group/api/question-api';
 
-export type InquiryStatus = 'ACCEPTED' | 'ANSWER_COMPLETED';
+type InquiryStatus = QuestionListItemResponse['status'];
 
 interface InquiryStatusBadgeProps {
   status: InquiryStatus;

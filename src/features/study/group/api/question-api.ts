@@ -93,17 +93,12 @@ export const createQuestion = async (
   groupStudyId: number,
   request: CreateQuestionRequest,
 ) => {
-  try {
-    const { data } = await axiosInstance.post<CreateQuestionResponse>(
-      `/group-studies/${groupStudyId}/questions`,
-      request,
-    );
+  const { data } = await axiosInstance.post<CreateQuestionResponse>(
+    `/group-studies/${groupStudyId}/questions`,
+    request,
+  );
 
-    return data;
-  } catch (error) {
-    console.error('문의 작성 실패:', error);
-    throw error;
-  }
+  return data;
 };
 
 // 문의 목록 조회

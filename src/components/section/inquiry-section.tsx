@@ -1,7 +1,5 @@
 'use client';
 
-import { format } from 'date-fns';
-import { ko } from 'date-fns/locale';
 import { ArrowLeft, Eye, LockIcon, XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
@@ -11,34 +9,16 @@ import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import { Modal } from '@/components/ui/modal';
 import Pagination from '@/components/ui/pagination';
+import { CATEGORY_LABEL } from '@/features/study/group/model/question.schema';
 import {
   useCreateAnswer,
   useGetQuestion,
   useGetQuestions,
 } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import { formatDateDot, formatDateTimeDot } from '@/utils/time';
 
 const ANSWER_CONTENT_MAX_LENGTH = 2000;
-
-const CATEGORY_LABEL: Record<string, string> = {
-  PAYMENT: '결제',
-  STUDY_COMMON: '스터디 일반',
-  LEADER: '리더',
-  BUG: '버그',
-  CONCERN: '고민',
-};
-
-function formatDate(dateString: string): string {
-  if (!dateString) return '-';
-
-  return format(new Date(dateString), 'yyyy.MM.dd', { locale: ko });
-}
-
-function formatDateTime(dateString: string): string {
-  if (!dateString) return '-';
-
-  return format(new Date(dateString), 'yyyy.MM.dd HH:mm', { locale: ko });
-}
 
 const PAGE_SIZE = 15;
 
@@ -83,6 +63,7 @@ export default function InquirySection({
           questionId={selectedQuestionId}
           onBack={() => setSelectedQuestionId(undefined)}
           showToast={showToast}
+          isPremium={isPremium}
           isLeader={isLeader}
           isAdmin={isAdmin}
         />
@@ -249,7 +230,7 @@ function ListView({
                       {item.accessible ? item.authorNickname : '***'}
                     </td>
                     <td className="font-designer-14r text-text-default px-400 py-300">
-                      {formatDate(item.createdAt)}
+                      {formatDateDot(item.createdAt)}
                     </td>
                     <td className="font-designer-14r text-text-default px-400 py-300">
                       <span className="flex items-center gap-100">
@@ -259,7 +240,7 @@ function ListView({
                     </td>
                     <td className="px-400 py-300">
                       <InquiryStatusBadge
-                        status={item.status as 'ACCEPTED' | 'ANSWER_COMPLETED'}
+                        status={item.status}
                       />
                     </td>
                   </tr>
@@ -288,6 +269,7 @@ interface DetailViewProps {
   questionId: number;
   onBack: () => void;
   showToast: (message: string, type?: 'success' | 'error') => void;
+  isPremium?: boolean;
   isLeader?: boolean;
   isAdmin?: boolean;
 }
@@ -297,6 +279,7 @@ function DetailView({
   questionId,
   onBack,
   showToast,
+  isPremium = false,
   isLeader = false,
   isAdmin = false,
 }: DetailViewProps) {
@@ -355,122 +338,132 @@ function DetailView({
       {data && (
         <div className="flex flex-col gap-400">
           {/* 카드 1: 질문 */}
-          <div className="border-border-default rounded-100 border">
-            <div className="px-600 py-400">
-              <div className="mb-200 flex items-start justify-between">
-                <div className="flex flex-col gap-200">
-                  {data.category && (
-                    <span className="bg-background-accent-gray-subtle text-background-accent-gray-strong font-designer-12m rounded-50 inline-flex w-fit px-100 py-50">
-                      {CATEGORY_LABEL[data.category] ?? data.category}
-                    </span>
-                  )}
-                  <h1 className="font-designer-24b text-text-strong">
-                    {data.title}
-                  </h1>
-                </div>
-                <MoreMenu options={moreMenuOptions} iconSize={20} />
-              </div>
-
-              <div className="font-designer-13r text-text-subtle grid grid-cols-2 gap-y-100">
-                <div className="flex gap-200">
-                  <span className="text-text-subtle">작성자</span>
-                  <span className="text-text-default">
-                    {data.authorNickname}
-                  </span>
-                </div>
-                <div className="flex gap-200">
-                  <span className="text-text-subtle">작성일</span>
-                  <span className="text-text-default">
-                    {formatDateTime(data.createdAt)}
-                  </span>
-                </div>
-                <div className="flex items-center gap-200">
-                  <span className="text-text-subtle">조회수</span>
-                  <span className="text-text-default">{data.viewCount}</span>
-                </div>
-
-                <div className="flex items-center gap-200">
-                  <span className="text-text-subtle">상태</span>
-                  <InquiryStatusBadge
-                    status={data.status as 'ACCEPTED' | 'ANSWER_COMPLETED'}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="px-600">
-              <hr className="border-border-default" />
-            </div>
-
-            <div className="px-600 py-400">
-              <p className="font-designer-16r text-text-default whitespace-pre-wrap">
-                {data.content}
-              </p>
-              {data.questionImage?.resizedImages?.[0]?.resizedImageUrl && (
-                <Image
-                  src={data.questionImage.resizedImages[0].resizedImageUrl}
-                  alt="문의 이미지"
-                  width={800}
-                  height={600}
-                  className="mt-400 w-full object-contain"
-                  style={{ height: 'auto' }}
-                />
+          <div className="border-border-default rounded-200 border bg-white p-500">
+            <div className="mb-300 flex items-center justify-between">
+              {data.category && (
+                <span className="bg-background-accent-gray-subtle text-background-accent-gray-strong font-designer-12m rounded-50 inline-flex w-fit px-100 py-50">
+                  {CATEGORY_LABEL[data.category] ?? data.category}
+                </span>
               )}
+              <MoreMenu options={moreMenuOptions} iconSize={20} />
             </div>
+
+            <h1 className="font-designer-24b text-text-default mb-300">
+              {data.title}
+            </h1>
+
+            <div className="border-border-default mb-400 grid grid-cols-2 gap-x-400 gap-y-200 border-b pb-300">
+              <div className="flex items-center gap-200">
+                <span className="font-designer-14m text-text-subtle">
+                  작성자
+                </span>
+                <span className="font-designer-14m text-text-default">
+                  {data.authorNickname}
+                </span>
+              </div>
+              <div className="flex items-center gap-200">
+                <span className="font-designer-14m text-text-subtle">
+                  작성일
+                </span>
+                <span className="font-designer-14m text-text-default">
+                  {formatDateTimeDot(data.createdAt)}
+                </span>
+              </div>
+              <div className="flex items-center gap-200">
+                <span className="font-designer-14m text-text-subtle">
+                  조회수
+                </span>
+                <span className="font-designer-14m text-text-default">
+                  {data.viewCount}
+                </span>
+              </div>
+              <div className="flex items-center gap-200">
+                <span className="font-designer-14m text-text-subtle">상태</span>
+                <InquiryStatusBadge
+                  status={data.status}
+                />
+              </div>
+            </div>
+
+            <p className="font-designer-16r text-text-default whitespace-pre-line">
+              {data.content}
+            </p>
+            {data.questionImage?.resizedImages?.[0]?.resizedImageUrl && (
+              <Image
+                src={data.questionImage.resizedImages[0].resizedImageUrl}
+                alt="문의 이미지"
+                width={800}
+                height={600}
+                className="mt-400 w-full object-contain"
+                style={{ height: 'auto' }}
+              />
+            )}
           </div>
 
           {/* 카드 2: 답변 */}
-          <div className="border-border-default rounded-100 border">
-            {data.answer ? (
-              <>
-                <div className="px-600 py-400">
-                  <div className="mb-200 flex items-start justify-between">
-                    <h2 className="font-designer-18b text-text-strong">
-                      리더 답변
-                    </h2>
-                  </div>
-                  <div className="font-designer-13r text-text-subtle flex items-center justify-between pb-300">
-                    <div className="flex gap-200">
-                      <span className="text-text-subtle">작성자</span>
-                      <span className="text-text-default">
-                        {data.answererNickname}
-                      </span>
-                    </div>
-                    <div className="flex gap-200">
-                      <span className="text-text-subtle">작성일</span>
-                      <span className="text-text-default">
-                        {formatDateTime(data.answeredAt ?? '')}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="px-600">
-                  <hr className="border-border-default" />
-                </div>
-
-                <div className="px-600 py-400">
-                  <p className="font-designer-16r text-text-default whitespace-pre-wrap">
-                    {data.answer}
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col items-center gap-300 px-600 py-600">
-                <p className="font-designer-14r text-text-subtle">
-                  아직 답변이 등록되지 않았습니다.
-                </p>
-                {(isLeader || isAdmin) && (
-                  <Button
-                    color="primary"
-                    onClick={() => setShowAnswerModal(true)}
-                  >
-                    답변하기
-                  </Button>
-                )}
+          {data.answer ? (
+            <div className="border-border-default rounded-200 border bg-white p-500">
+              <div className="mb-300 flex items-center justify-between">
+                <h1 className="font-designer-24b text-text-default">
+                  {isAdmin ? '운영자' : isPremium ? '멘토' : '리더'}의 답변
+                </h1>
+                <MoreMenu
+                  options={[
+                    {
+                      label: '수정하기',
+                      value: 'edit',
+                      onMenuClick: () =>
+                        showToast('준비 중인 기능입니다.', 'error'),
+                    },
+                    {
+                      label: '삭제하기',
+                      value: 'delete',
+                      onMenuClick: () =>
+                        showToast('준비 중인 기능입니다.', 'error'),
+                    },
+                  ]}
+                  iconSize={20}
+                />
               </div>
-            )}
-          </div>
+
+              <div className="border-border-default mb-400 grid grid-cols-2 gap-x-400 gap-y-200 border-b pb-300">
+                <div className="flex items-center gap-200">
+                  <span className="font-designer-14m text-text-subtle">
+                    작성자
+                  </span>
+                  <span className="font-designer-14m text-text-default">
+                    {data.answererNickname}
+                  </span>
+                </div>
+                <div className="flex items-center gap-200">
+                  <span className="font-designer-14m text-text-subtle">
+                    작성일
+                  </span>
+                  <span className="font-designer-14m text-text-default">
+                    {formatDateTimeDot(data.answeredAt ?? '')}
+                  </span>
+                </div>
+              </div>
+
+              <p className="font-designer-16r text-text-default whitespace-pre-line">
+                {data.answer}
+              </p>
+            </div>
+          ) : (
+            <div className="border-border-default rounded-200 flex flex-col items-center justify-center gap-300 border bg-white py-500">
+              <p className="font-designer-14r text-text-subtle">
+                아직 답변이 등록되지 않았습니다.
+              </p>
+              {(isLeader || isAdmin) && (
+                <Button
+                  color="primary"
+                  onClick={() => setShowAnswerModal(true)}
+                >
+                  답변하기
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       )}
 
