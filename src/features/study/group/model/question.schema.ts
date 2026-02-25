@@ -37,6 +37,7 @@ export const questionSchema = z.object({
   category: z.nativeEnum(QuestionCategory, {
     message: '카테고리를 선택해주세요.',
   }),
+  imageExtension: z.string().optional(),
 });
 
 export type QuestionFormValues = z.infer<typeof questionSchema>;

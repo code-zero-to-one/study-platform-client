@@ -20,6 +20,7 @@ export interface CreateQuestionRequest {
   title: string;
   content: string;
   category?: QuestionCategory;
+  imageExtension?: string;
 }
 
 export interface CreateQuestionResponse {
@@ -73,6 +74,11 @@ export interface QuestionDetailResponse {
   questionImage?: ImageDto;
   status: 'ACCEPTED' | 'ANSWER_COMPLETED';
   createdAt: string;
+  answer?: string;
+  answererId?: number;
+  answererNickname?: string;
+  answeredProfileImage?: ImageDto;
+  answeredAt?: string;
 }
 
 export interface GetQuestionResponse {
@@ -118,6 +124,23 @@ export const getQuestions = async (
 export const getQuestion = async (groupStudyId: number, questionId: number) => {
   const { data } = await axiosInstance.get<GetQuestionResponse>(
     `/group-studies/${groupStudyId}/questions/${questionId}`,
+  );
+
+  return data;
+};
+
+export interface CreateAnswerRequest {
+  answer: string;
+}
+
+export const createAnswer = async (
+  groupStudyId: number,
+  questionId: number,
+  request: CreateAnswerRequest,
+) => {
+  const { data } = await axiosInstance.post(
+    `/group-studies/${groupStudyId}/questions/${questionId}/answer`,
+    request,
   );
 
   return data;

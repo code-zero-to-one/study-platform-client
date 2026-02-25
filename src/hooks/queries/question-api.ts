@@ -1,5 +1,6 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
+  createAnswer,
   createQuestion,
   CreateQuestionRequest,
   getQuestion,
@@ -7,6 +8,8 @@ import {
 } from '@/features/study/group/api/question-api';
 
 export const useCreateQuestion = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async ({
       groupStudyId,
@@ -18,6 +21,11 @@ export const useCreateQuestion = () => {
       const data = await createQuestion(groupStudyId, request);
 
       return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['questions', variables.groupStudyId],
+      });
     },
   });
 };
@@ -57,5 +65,31 @@ export const useGetQuestion = ({
       return data.content;
     },
     enabled: !!groupStudyId && !!questionId,
+  });
+};
+
+export const useCreateAnswer = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      groupStudyId,
+      questionId,
+      content,
+    }: {
+      groupStudyId: number;
+      questionId: number;
+      content: string;
+    }) => {
+      return createAnswer(groupStudyId, questionId, { answer: content });
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['question', variables.groupStudyId, variables.questionId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['questions', variables.groupStudyId],
+      });
+    },
   });
 };
