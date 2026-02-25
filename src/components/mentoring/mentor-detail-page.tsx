@@ -188,36 +188,6 @@ export default function MentorDetailPage({
                   </span>
                 </div>
               </div>
-
-              {/* 우: 직무/소속/경력 */}
-              <div className="rounded-150 bg-background-alternative p-200 sm:w-[260px]">
-                <div className="flex flex-col gap-100">
-                  <div className="grid grid-cols-[72px_1fr] items-start gap-75">
-                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                      직무
-                    </span>
-                    <span className="font-designer-13r text-text-default">
-                      {jobTitleLabel}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[72px_1fr] items-start gap-75">
-                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                      소속
-                    </span>
-                    <span className="font-designer-13r text-text-default">
-                      {mentor.company}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-[72px_1fr] items-start gap-75">
-                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                      경력
-                    </span>
-                    <span className="font-designer-13r text-text-default">
-                      {careerLabel}
-                    </span>
-                  </div>
-                </div>
-              </div>
             </div>
           </section>
 
@@ -409,7 +379,10 @@ export default function MentorDetailPage({
 
         {/* ─── 우측 사이드바 ─── */}
         <aside
-          className={cn(!previewMode && 'xl:sticky xl:top-[88px] xl:self-start')}
+          className={cn(
+            'h-fit',
+            !previewMode && 'lg:sticky lg:top-[88px] lg:self-start',
+          )}
         >
           <div className="rounded-200 border-border-subtle bg-background-default shadow-1 overflow-hidden border">
             {/* 이름 + 기본 정보 */}

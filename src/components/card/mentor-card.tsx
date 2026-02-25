@@ -52,7 +52,7 @@ const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
   offline: Users,
 };
 
-const MENTOR_CARD_HEIGHT_CLASS = 'h-[480px]';
+const MENTOR_CARD_HEIGHT_CLASS = 'h-[400px]';
 
 export default function MentorCard({ mentor }: MentorCardProps) {
   const router = useRouter();
@@ -112,14 +112,14 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       onClick={navigateDetail}
       onKeyDown={handleKeyDown}
     >
-      <div className="flex h-full flex-col px-300 py-225">
-        <div className="mb-125 h-[58px]">
+      <div className="flex h-full flex-col px-300 py-200">
+        <div className="mb-100 h-[58px]">
           <h3 className="font-designer-18b text-text-default line-clamp-2 break-words">
             {mentoringTitle}
           </h3>
         </div>
 
-        <div className="mb-150 flex items-center gap-125">
+        <div className="mb-100 flex items-start gap-125">
           <UserAvatar
             image={mentor.imageUrl?.trim()}
             alt={mentor.nickname}
@@ -130,19 +130,16 @@ export default function MentorCard({ mentor }: MentorCardProps) {
             <p className="font-designer-14m text-text-subtle mb-25 line-clamp-1">
               {mentor.nickname}
             </p>
+            <p className="font-designer-13b text-text-subtle mb-75 line-clamp-1">
+              {jobTitleLabel} · {careerLabel}
+            </p>
+            <Badge color="green" shape="round">
+              {appealLine}
+            </Badge>
           </div>
         </div>
 
-        <div className="mb-150">
-          <p className="font-designer-13r text-text-subtle mb-75 line-clamp-1">
-            {jobTitleLabel} · {careerLabel}
-          </p>
-          <Badge color="green" shape="round">
-            {appealLine}
-          </Badge>
-        </div>
-
-        <div className="mb-150 flex flex-wrap items-center gap-x-150 gap-y-75">
+        <div className="mb-100 flex flex-wrap items-center gap-x-150 gap-y-75">
           <span className="inline-flex items-center gap-50">
             <Star className="text-text-warning h-14 w-14 fill-current" />
             <span className="font-designer-15b text-text-default">
@@ -158,7 +155,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
         </div>
 
         {keywords.length > 0 && (
-          <div className="rounded-125 bg-background-alternative mt-auto mb-0 flex flex-wrap gap-x-200 gap-y-75 px-150 py-125">
+          <div className="rounded-125 bg-background-alternative mb-0 mt-100 flex flex-wrap gap-x-200 gap-y-75 px-150 py-125">
             {keywords.map((keyword) => (
               <span key={keyword} className="font-designer-12r text-text-subtle">
                 #{keyword}
@@ -169,8 +166,8 @@ export default function MentorCard({ mentor }: MentorCardProps) {
 
         <div
           className={cn(
-            'mb-250 grid grid-cols-2 gap-x-200 gap-y-100',
-            keywords.length > 0 ? 'mt-250' : 'mt-auto',
+            'mb-200 grid grid-cols-2 gap-x-200 gap-y-100',
+            keywords.length > 0 ? 'mt-150' : 'mt-auto',
           )}
         >
           {METHOD_ORDER.map((method) => {
