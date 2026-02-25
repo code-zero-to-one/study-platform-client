@@ -142,19 +142,27 @@ export default function MentorDetailPage({
             </h1>
 
             <div className="flex flex-col gap-250 sm:flex-row sm:items-start sm:gap-400">
-              {/* 좌: 이름 + 통계 */}
+              {/* 좌: 프로필 이미지 + 이름 + 통계 */}
               <div className="flex-1">
-                <div className="mb-75">
-                  <p className="font-designer-18b text-text-strong">
-                    {mentor.nickname}
-                  </p>
+                <div className="mb-75 flex items-start gap-200">
+                  <Avatar
+                    image={mentor.imageUrl}
+                    alt={mentor.nickname}
+                    size={48}
+                    className="shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-designer-18b text-text-strong">
+                      {mentor.nickname}
+                    </p>
+                    <p className="font-designer-14b text-text-brand mt-50">
+                      {mentor.company}
+                    </p>
+                    <p className="font-designer-13r text-text-subtle mt-25">
+                      {jobTitleLabel} · {careerLabel}
+                    </p>
+                  </div>
                 </div>
-                <p className="font-designer-14b text-text-brand mb-50">
-                  {mentor.company}
-                </p>
-                <p className="font-designer-13r text-text-subtle mb-200">
-                  {jobTitleLabel} · {careerLabel}
-                </p>
                 <div className="flex flex-wrap items-center gap-100">
                   <ReviewStars rating={Math.floor(mentor.rating)} />
                   <span className="font-designer-14b text-text-strong">
@@ -310,22 +318,11 @@ export default function MentorDetailPage({
                       </p>
                     </div>
 
-                    {/* 가격 + 버튼 */}
+                    {/* 가격 */}
                     <div className="flex shrink-0 items-center gap-200">
                       <p className="font-designer-16b text-text-strong">
                         {formatWon(option.price)}
                       </p>
-                      <Link
-                        href={`/mentoring/${mentor.id}/apply?type=${method}`}
-                      >
-                        <Button
-                          color="primary"
-                          size="medium"
-                          onClick={() => setSelectedMethod(method)}
-                        >
-                          예약하기
-                        </Button>
-                      </Link>
                     </div>
                   </div>
                 );
@@ -546,13 +543,17 @@ export default function MentorDetailPage({
                 </p>
               </div>
 
-              <Link
-                href={`/mentoring/${mentor.id}/apply?type=${selectedMethod}`}
+              <Button
+                color="primary"
+                size="large"
+                className="mb-200 w-full"
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert('아직 준비중인 기능입니다.');
+                }}
               >
-                <Button color="primary" size="large" className="mb-200 w-full">
-                  결제 페이지로 이동
-                </Button>
-              </Link>
+                결제 페이지로 이동
+              </Button>
 
               {/* 수락 정책 */}
               <div className="mb-150 flex items-start gap-75">

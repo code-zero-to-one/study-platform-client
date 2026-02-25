@@ -1,35 +1,41 @@
 'use client';
 
-import { ArrowUpDown, Search } from 'lucide-react';
+import { ArrowUpDown } from 'lucide-react';
+import MultiDropdown from '@/components/ui/dropdown/multi';
 import SortDropdown from '@/components/ui/filters/sort-dropdown';
-import { BaseInput } from '@/components/ui/input';
 import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
 import { sortOptions } from '@/mocks/mentoring-mock-data';
 import type { MentorSortType } from '@/types/mentoring';
 
 interface MentorDirectoryFiltersProps {
-  keyword: string;
+  keywords: string[];
+  keywordOptions: string[];
   sortType: MentorSortType;
-  onKeywordChange: (nextKeyword: string) => void;
+  onKeywordChange: (nextKeywords: string[]) => void;
   onSortTypeChange: (nextSortType: MentorSortType) => void;
 }
 
 export default function MentorDirectoryFilters({
-  keyword,
+  keywords,
+  keywordOptions,
   sortType,
   onKeywordChange,
   onSortTypeChange,
 }: MentorDirectoryFiltersProps) {
+  const options = keywordOptions.map((option) => ({
+    value: option,
+    label: `#${option}`,
+  }));
+
   return (
     <>
-      <div className="relative w-full sm:w-[320px]">
-        <Search className="text-text-subtlest pointer-events-none absolute top-1/2 left-150 h-16 w-16 -translate-y-1/2" />
-        <BaseInput
-          value={keyword}
-          onValueChange={onKeywordChange}
+      <div className="w-full sm:w-[320px]">
+        <MultiDropdown
+          options={options}
+          value={keywords}
+          onChange={onKeywordChange}
           placeholder={MENTORING_LIST_LABELS.searchPlaceholder}
-          size="m"
-          className="bg-background-default pl-[38px]"
+          className="min-h-[40px] rounded-100 bg-background-default"
         />
       </div>
       <SortDropdown<MentorSortType>

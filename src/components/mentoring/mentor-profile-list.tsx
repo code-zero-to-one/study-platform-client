@@ -11,14 +11,19 @@ export default function MentorProfileListContainer(
 
   return (
     <MentorDirectoryList
-      keyword={controller.state.keyword}
+      keywords={controller.state.keywords}
       sortType={controller.state.sortType}
       listState={controller.viewModel.listState}
       shouldShowMentorJoinCard={controller.viewModel.shouldShowMentorJoinCard}
+      currentPage={controller.viewModel.currentPage}
+      totalPages={controller.viewModel.totalPages}
+      showPagination={controller.viewModel.showPagination}
+      keywordOptions={controller.viewModel.keywordOptions}
       leadMentors={controller.viewModel.leadMentors}
       remainingMentors={controller.viewModel.remainingMentors}
       onKeywordChange={controller.actions.onKeywordChange}
       onSortTypeChange={controller.actions.onSortTypeChange}
+      onPageChange={controller.actions.onPageChange}
     />
   );
 }
