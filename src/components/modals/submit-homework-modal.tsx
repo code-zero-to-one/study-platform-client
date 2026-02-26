@@ -127,7 +127,7 @@ function SubmitHomeworkForm({
             label="과제 상세 내용"
             direction="vertical"
             required
-            counterMax={1000}
+            maxCharCount={1000}
             showCounterRight={false}
           >
             <TextAreaInput

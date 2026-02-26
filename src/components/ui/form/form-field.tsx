@@ -47,7 +47,7 @@ export interface FormFieldProps<
   id?: string;
 
   showCounterRight?: boolean;
-  counterMax?: number;
+  maxCharCount?: number;
 
   /** true로 설정하면 data-scroll-field 속성을 wrapper div에 추가 (자동 스크롤 위치 마킹) */
   scrollable?: boolean;
@@ -75,7 +75,7 @@ export default function FormField<
   id,
   children,
   showCounterRight = false,
-  counterMax,
+  maxCharCount,
   scrollable,
   onAfterChange,
   onAfterBlurFilled,
@@ -148,9 +148,9 @@ export default function FormField<
             {errorMsg ? errorMsg : description}
           </div>
 
-          {showCounterRight && typeof counterMax === 'number' && (
+          {showCounterRight && typeof maxCharCount === 'number' && (
             <div className={cn(TYPO[size].counter, 'text-text-subtlest')}>
-              {currentLen}/{counterMax}
+              {currentLen}/{maxCharCount}
             </div>
           )}
         </div>

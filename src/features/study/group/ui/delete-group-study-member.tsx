@@ -94,7 +94,7 @@ function DeleteGroupStudyMemberForm({
             label="스터디원을 내보내는 사유를 작성해 주세요."
             direction="vertical"
             required
-            counterMax={300}
+            maxCharCount={300}
           >
             <TextAreaInput
               id="reason"

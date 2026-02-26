@@ -244,7 +244,7 @@ function EditMissionForm({
             label="수행 가이드"
             direction="vertical"
             required
-            counterMax={5000}
+            maxCharCount={5000}
             showCounterRight={false}
           >
             <TextAreaInput

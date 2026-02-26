@@ -127,7 +127,7 @@ function EditHomeworkForm({
             label="과제 상세 내용"
             direction="vertical"
             required
-            counterMax={5000}
+            maxCharCount={5000}
             showCounterRight={false}
           >
             <TextAreaInput

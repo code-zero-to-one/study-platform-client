@@ -86,6 +86,7 @@ export default function GroupStudyMemberItem({
             <span className="font-designer-16b">가입 인사</span>
             {isLeader && member.id !== myId && discretionCount < 3 && (
               <DiscretionaryEvaluationModal
+                key={discretionCount}
                 groupStudyId={groupStudyId}
                 memberId={member.id}
               />
