@@ -4,6 +4,9 @@ import Image from 'next/image';
 import { useState, DragEvent, ChangeEvent, useRef } from 'react';
 import Button from '@/components/ui/button';
 
+// 클라이언트에서 선제 차단하여 불필요한 413 에러 및 대용량 업로드 요청을 방지.
+const DEFAULT_MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
 const inputStyles = {
   base: 'rounded-100 flex w-full flex-col items-center justify-center border-2 p-500',
   dragging: 'border-border-brand bg-fill-brand-subtle-hover',
@@ -13,12 +16,27 @@ const inputStyles = {
 export default function ImageUploadInput({
   image,
   onChangeImage,
+  maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
 }: {
   image?: string;
   onChangeImage: (file: File | undefined) => void;
+  maxSizeBytes?: number;
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [sizeError, setSizeError] = useState<string | null>(null);
+
+  const validateAndChange = (file: File) => {
+    if (!file.type.startsWith('image/')) return;
+    if (file.size > maxSizeBytes) {
+      const maxMb = (maxSizeBytes / 1024 / 1024).toFixed(0);
+      setSizeError(`이미지 파일 크기는 ${maxMb}MB 이하만 업로드할 수 있어요.`);
+
+      return;
+    }
+    setSizeError(null);
+    onChangeImage(file);
+  };
 
   const handleOpenFileDialog = () => {
     fileInputRef.current?.click();
@@ -49,77 +67,77 @@ export default function ImageUploadInput({
     e.stopPropagation();
     setIsDragging(false);
     const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) {
-      onChangeImage(file);
-    }
+    if (file) validateAndChange(file);
   };
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file && file.type.startsWith('image/')) {
-      onChangeImage(file);
-    }
+    if (file) validateAndChange(file);
   };
 
   const handleRemove = () => {
+    setSizeError(null);
     onChangeImage(undefined);
   };
 
   return (
-    <div
-      onDrop={handleDrop}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      className={`${inputStyles.base} ${isDragging ? inputStyles.dragging : inputStyles.notDragging}`}
-    >
-      {!image ? (
-        <div className="flex flex-col items-center justify-center gap-300">
-          <div className="flex flex-col items-center justify-center gap-150">
-            <Image
-              src="/icons/camera.svg"
-              width={32}
-              height={32}
-              alt="파일 업로드"
+    <div className="flex flex-col gap-1">
+      <div
+        onDrop={handleDrop}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        className={`${inputStyles.base} ${isDragging ? inputStyles.dragging : inputStyles.notDragging}`}
+      >
+        {!image ? (
+          <div className="flex flex-col items-center justify-center gap-300">
+            <div className="flex flex-col items-center justify-center gap-150">
+              <Image
+                src="/icons/camera.svg"
+                width={32}
+                height={32}
+                alt="파일 업로드"
+              />
+              <span className="font-designer-18m text-text-default">
+                드래그하여 파일 업로드
+              </span>
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileChange}
+              className="hidden"
             />
-            <span className="font-designer-18m text-text-default">
-              드래그하여 파일 업로드
-            </span>
+            <Button
+              onClick={handleOpenFileDialog}
+              color="primary"
+              size="small"
+              type="button"
+            >
+              파일 업로드
+            </Button>
           </div>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            onChange={handleFileChange}
-            className="hidden"
-          />
-          <Button
-            onClick={handleOpenFileDialog}
-            color="primary"
-            size="small"
-            type="button"
-          >
-            파일 업로드
-          </Button>
-        </div>
-      ) : (
-        <div className="relative">
-          <Image
-            src={image}
-            alt="preview"
-            width={240}
-            height={180}
-            className="rounded-lg object-cover"
-          />
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="bg-background-dimmer border-border-inverse text-text-inverse absolute top-0 right-0 flex h-[36px] w-[36px] translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border"
-          >
-            ✕
-          </button>
-        </div>
-      )}
+        ) : (
+          <div className="relative">
+            <Image
+              src={image}
+              alt="preview"
+              width={240}
+              height={180}
+              className="rounded-lg object-cover"
+            />
+            <button
+              type="button"
+              onClick={handleRemove}
+              className="bg-background-dimmer border-border-inverse text-text-inverse absolute top-0 right-0 flex h-[36px] w-[36px] translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border"
+            >
+              ✕
+            </button>
+          </div>
+        )}
+      </div>
+      {sizeError && <p className="text-text-danger text-sm">{sizeError}</p>}
     </div>
   );
 }
