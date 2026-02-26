@@ -141,13 +141,13 @@ export default function MentorCard({ mentor }: MentorCardProps) {
           <span className="inline-flex items-center gap-50">
             <Star className="text-text-warning h-14 w-14 fill-current" />
             <span className="font-designer-15b text-text-default">
-              {mentor.rating.toFixed(1)}
+              {mentor.rating.toFixed(1)} (리뷰 {mentor.reviewCount ?? 0}개)
             </span>
           </span>
           <span className="inline-flex items-center gap-50">
             <UserRound className="text-text-subtle h-14 w-14" />
             <span className="font-designer-15b text-text-default">
-              {metMenteeCount}
+              {metMenteeCount}명
             </span>
           </span>
         </div>

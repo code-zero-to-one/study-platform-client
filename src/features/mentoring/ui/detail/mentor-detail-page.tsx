@@ -4,6 +4,7 @@ import {
   ChevronRight,
   CircleCheck,
   Info,
+  Lock,
   MessageCircle,
   Monitor,
   Phone,
@@ -89,13 +90,6 @@ export default function MentorDetailPage({
         .filter((value) => value.length > 0),
     ),
   ).join(' · ');
-  const profileInfoRows = [
-    { label: '직군', value: jobGroupLabel },
-    { label: '직무', value: jobTitleLabel },
-    { label: '소속', value: mentor.company },
-    { label: '경력', value: careerLabel },
-    { label: '회사 분류', value: companyCategoryLabel },
-  ];
   const headlineBadges: Array<{
     key: string;
     value: string;
@@ -470,42 +464,24 @@ export default function MentorDetailPage({
                   ))}
                 </div>
               )}
-              <div className="flex flex-wrap items-center gap-75">
-                <ReviewStars rating={Math.floor(mentor.rating)} />
-                <span className="font-designer-13b text-text-strong">
-                  {mentor.rating.toFixed(1)}
-                </span>
-                <span className="font-designer-12r text-text-subtlest">·</span>
-                <span className="font-designer-12r text-text-subtle">
-                  리뷰 {mentor.reviewCount}개
-                </span>
-                <span className="font-designer-12r text-text-subtlest">·</span>
-                <span className="font-designer-12r text-text-subtle">
-                  만난 멘티 {metMenteeCount}명
-                </span>
-                <span className="font-designer-12r text-text-subtlest">·</span>
-                <span className="font-designer-12r text-text-subtle">
-                  멘토링 {mentor.mentoringCount}건
-                </span>
-              </div>
-            </div>
-
-            {/* 기본 프로필 정보 */}
-            <div className="border-border-subtle border-b px-250 py-200">
-              <div className="flex flex-col gap-100">
-                {profileInfoRows.map((row) => (
-                  <div
-                    key={row.label}
-                    className="grid grid-cols-[68px_1fr] items-start gap-75"
-                  >
-                    <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                      {row.label}
-                    </span>
-                    <span className="font-designer-12r text-text-default">
-                      {row.value}
-                    </span>
-                  </div>
-                ))}
+              <div className="flex flex-col gap-50">
+                <div className="flex items-center gap-75">
+                  <ReviewStars rating={Math.floor(mentor.rating)} />
+                  <span className="font-designer-13b text-text-strong">
+                    {mentor.rating.toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-25">
+                  <span className="font-designer-12r text-text-subtle">
+                    리뷰 {mentor.reviewCount}개
+                  </span>
+                  <span className="font-designer-12r text-text-subtle">
+                    만난 멘티 {metMenteeCount}명
+                  </span>
+                  <span className="font-designer-12r text-text-subtle">
+                    멘토링 {mentor.mentoringCount}건
+                  </span>
+                </div>
               </div>
             </div>
 
@@ -576,10 +552,10 @@ export default function MentorDetailPage({
                 className="mb-200 w-full"
                 onClick={(e) => {
                   e.preventDefault();
-                  alert('아직 준비중인 기능입니다.');
                 }}
               >
-                결제 페이지로 이동
+                <Lock className="mr-75 h-16 w-16 shrink-0" />
+                준비 중인 기능입니다
               </Button>
 
               {/* 수락 정책 */}
