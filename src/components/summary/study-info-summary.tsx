@@ -228,6 +228,21 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
         };
       }
 
+      // 유료 스터디이고 결제 취소 또는 실패한 경우 - 재결제 가능 (입금 대기중보다 우선)
+      if (
+        price > 0 &&
+        (latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentCanceled ||
+          latestPaymentType ===
+            UserTransactionDetailResponseTransactionTypeEnum.PaymentFailed)
+      ) {
+        return {
+          text: '결제하기',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT',
+        };
+      }
+
       // 유료 스터디이고 가상계좌 입금 대기 중
       if (
         price > 0 &&
