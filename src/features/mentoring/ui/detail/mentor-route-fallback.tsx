@@ -2,12 +2,14 @@
 
 import Link from 'next/link';
 import Button from '@/components/ui/button';
+import PageContainer from '@/components/ui/page-container';
+import SurfacePanel from '@/components/ui/surface-panel';
 
 export function MentorRouteLoading() {
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-200 py-500 sm:px-300 xl:px-400">
+    <PageContainer spacing="fallback">
       <div className="rounded-200 bg-background-alternative h-[260px] animate-pulse" />
-    </div>
+    </PageContainer>
   );
 }
 
@@ -17,8 +19,8 @@ export function MentorNotFoundState({
   message?: string;
 }) {
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-200 py-500 sm:px-300 xl:px-400">
-      <section className="rounded-200 border-border-subtle bg-background-default border px-300 py-500 text-center">
+    <PageContainer spacing="fallback">
+      <SurfacePanel radius="lg" className="px-300 py-500 text-center">
         <h1 className="font-designer-24b text-text-strong mb-100">
           멘토를 찾을 수 없습니다
         </h1>
@@ -28,7 +30,7 @@ export function MentorNotFoundState({
             멘토링 목록으로 이동
           </Button>
         </Link>
-      </section>
-    </div>
+      </SurfacePanel>
+    </PageContainer>
   );
 }

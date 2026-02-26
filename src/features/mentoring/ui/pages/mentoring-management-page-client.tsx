@@ -13,7 +13,7 @@ import Button from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentorManagementWorkspace from '@/features/mentoring/ui/management/mentor-management-workspace';
-import MentoringGuideModal from '@/features/mentoring/ui/mentoring-guide-modal';
+import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile } from '@/types/mentoring/domain';

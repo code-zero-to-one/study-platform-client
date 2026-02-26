@@ -12,6 +12,9 @@ import { useMentoringManagementStore } from '@/stores/useMentoringManagementStor
 import type { MentorProfile, MentorReview } from '@/types/mentoring/domain';
 import type { MentoringReview } from '@/types/mentoring/management-domain';
 import {
+  type MentorDirectoryContractError,
+  type MentorDirectoryQueryError,
+  normalizeMentorDirectoryQueryError,
   parseMentorDirectoryQueryInputOrThrow,
   parseMentorDirectoryResponseOrThrow,
 } from './mentor-directory-contract';
@@ -127,13 +130,22 @@ export const useMentorDirectoryListQuery = () => {
     }
   }, [createdMentors, reviewsByMentor]);
 
-  const mentorDirectoryQuery = useQuery({
+  const mentorDirectoryQuery = useQuery<
+    MentorProfile[],
+    MentorDirectoryContractError | MentorDirectoryQueryError
+  >({
     queryKey: mentorDirectoryQueryKeys.list({
       snapshot,
       createdMentors,
       reviewsByMentor,
     }),
-    queryFn: () => getMentorDirectory({ createdMentors, reviewsByMentor }),
+    queryFn: () => {
+      try {
+        return getMentorDirectory({ createdMentors, reviewsByMentor });
+      } catch (error) {
+        throw normalizeMentorDirectoryQueryError(error);
+      }
+    },
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     enabled: hasHydrated,

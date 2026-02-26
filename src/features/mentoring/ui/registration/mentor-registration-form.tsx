@@ -30,7 +30,7 @@ import {
   MENTOR_APPEAL_LINE_PRESETS,
   MENTOR_SKILL_TAG_PRESETS,
 } from '@/features/mentoring/model/mentor-setting-options';
-import MentorMarkdownEditor from '@/features/mentoring/ui/mentor-markdown-editor';
+import MentorMarkdownEditor from '@/features/mentoring/ui/registration/mentor-markdown-editor';
 import WeeklyScheduleGrid from '@/features/mentoring/ui/settings/weekly-schedule-grid';
 import {
   type MentorRegistrationFormProps,

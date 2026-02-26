@@ -1,18 +1,18 @@
 'use client';
 
-import { isMentoringMethodType } from '@/features/mentoring/model/mentor-permission';
 import { findMentorById } from '@/features/mentoring/model/use-mentor-directory';
 import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { getEnabledMentoringMethods } from '@/mocks/mentoring-mock-data';
+import type { MentoringMethodType } from '@/types/mentoring/domain';
 import {
   MentorNotFoundState,
   MentorRouteLoading,
-} from './mentor-route-fallback';
+} from '../detail/mentor-route-fallback';
 import MentoringApplyPage from './mentoring-apply-page';
 
 interface MentoringApplyRouteClientProps {
   mentorId: number;
-  selectedType?: string;
+  selectedType?: MentoringMethodType;
 }
 
 export default function MentoringApplyRouteClient({
@@ -40,9 +40,7 @@ export default function MentoringApplyRouteClient({
   }
 
   const fallbackType = enabledMethods[0];
-  const resolvedType = isMentoringMethodType(selectedType)
-    ? selectedType
-    : fallbackType;
+  const resolvedType = selectedType ?? fallbackType;
   const finalType = enabledMethods.includes(resolvedType)
     ? resolvedType
     : fallbackType;

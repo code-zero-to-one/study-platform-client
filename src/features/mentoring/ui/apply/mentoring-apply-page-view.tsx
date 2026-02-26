@@ -15,8 +15,10 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
+import PageContainer from '@/components/ui/page-container';
+import SurfacePanel from '@/components/ui/surface-panel';
 import { type MentoringApplyControllerResult } from '@/features/mentoring/model/use-mentoring-apply-controller';
-import MentoringRequestEditor from '@/features/mentoring/ui/mentoring-request-editor';
+import MentoringRequestEditor from '@/features/mentoring/ui/apply/mentoring-request-editor';
 import { formatWon, getMethodLabel } from '@/mocks/mentoring-mock-data';
 import type {
   MentorProfile,
@@ -51,7 +53,7 @@ export default function MentoringApplyPageView({
   const { state, actions, viewModel } = controller;
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-200 py-400 sm:px-300 sm:py-500 xl:px-400 xl:py-600">
+    <PageContainer spacing="content">
       <div className="mb-250">
         <Link
           href={`/mentoring/${mentor.id}`}
@@ -64,7 +66,7 @@ export default function MentoringApplyPageView({
 
       <h1 className="font-designer-28b text-text-strong mb-300">멘토링 신청</h1>
 
-      <section className="rounded-200 border-border-subtle bg-background-default mb-250 border p-200">
+      <SurfacePanel radius="lg" className="mb-250 p-200">
         <div className="mb-125 flex items-start gap-125">
           <span className="bg-fill-brand-subtle-default text-text-brand rounded-100 inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center">
             {methodIconMap[selectedMethod]}
@@ -90,12 +92,12 @@ export default function MentoringApplyPageView({
             {formatWon(viewModel.selectedOption.price)}
           </Badge>
         </div>
-      </section>
+      </SurfacePanel>
 
       <div className="grid grid-cols-1 gap-300 xl:grid-cols-[minmax(0,1fr)_340px]">
         <div className="min-w-0 space-y-250">
           {viewModel.needsSchedule && (
-            <section className="rounded-200 border-border-subtle bg-background-default border">
+            <SurfacePanel radius="lg">
               <div className="border-border-subtle bg-background-alternative flex items-center gap-100 border-b px-200 py-150">
                 <span className="font-designer-16b text-text-strong">
                   {viewModel.scheduleStepNumber}. 일정 선택
@@ -162,10 +164,10 @@ export default function MentoringApplyPageView({
                   </div>
                 </div>
               </div>
-            </section>
+            </SurfacePanel>
           )}
 
-          <section className="rounded-200 border-border-subtle bg-background-default border">
+          <SurfacePanel radius="lg">
             <div className="border-border-subtle bg-background-alternative flex items-center gap-100 border-b px-200 py-150">
               <div className="flex items-center gap-75">
                 <span className="font-designer-16b text-text-strong">
@@ -225,9 +227,9 @@ export default function MentoringApplyPageView({
                 </p>
               )}
             </div>
-          </section>
+          </SurfacePanel>
 
-          <section className="rounded-150 border-border-subtle bg-background-default border p-200">
+          <SurfacePanel radius="md" className="p-200">
             <div className="mb-150 flex items-center gap-75">
               <ShieldCheck className="text-text-success h-16 w-16" />
               <p className="font-designer-14b text-text-default">결제 안내</p>
@@ -238,11 +240,11 @@ export default function MentoringApplyPageView({
               전까지 전액, 120~24시간 전 30%, 24시간 내 환불 불가 기준을
               따릅니다.
             </p>
-          </section>
+          </SurfacePanel>
         </div>
 
         <aside className="h-fit space-y-175 xl:sticky xl:top-[96px]">
-          <section className="rounded-200 border-border-subtle bg-background-default border p-200">
+          <SurfacePanel radius="lg" className="p-200">
             <div className="mb-125 flex items-center justify-between">
               <h2 className="font-designer-18b text-text-strong">
                 신청자 정보
@@ -272,7 +274,7 @@ export default function MentoringApplyPageView({
                 </span>
               </p>
             </div>
-          </section>
+          </SurfacePanel>
 
           <section className="rounded-200 border-border-subtle bg-background-default border p-225">
             <div className="mb-150 flex items-center justify-between">
@@ -423,6 +425,6 @@ export default function MentoringApplyPageView({
           </section>
         </aside>
       </div>
-    </div>
+    </PageContainer>
   );
 }

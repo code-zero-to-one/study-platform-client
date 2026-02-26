@@ -1,7 +1,10 @@
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { isMentoringMethodType } from '@/features/mentoring/model/mentor-permission';
-import MentoringApplyRouteClient from '@/features/mentoring/ui/mentoring-apply-route-client';
+import {
+  parseMentoringApplyRouteMentorId,
+  parseMentoringApplySelectedType,
+} from '@/features/mentoring/model/mentoring-apply-route-contract';
+import MentoringApplyRouteClient from '@/features/mentoring/ui/apply/mentoring-apply-route-client';
 import {
   getEnabledMentoringMethods,
   getMentorById,
@@ -16,22 +19,14 @@ interface MentoringApplyRouteProps {
 }
 
 const resolveMethod = (
-  type: string | undefined,
+  type: MentoringMethodType | undefined,
   fallbackType: MentoringMethodType,
 ): MentoringMethodType => {
-  if (isMentoringMethodType(type)) {
+  if (type) {
     return type;
   }
 
   return fallbackType;
-};
-
-const parseSelectedType = (value: string | undefined) => {
-  if (isMentoringMethodType(value)) {
-    return value;
-  }
-
-  return undefined;
 };
 
 export async function generateMetadata({
@@ -39,12 +34,13 @@ export async function generateMetadata({
   searchParams,
 }: MentoringApplyRouteProps): Promise<Metadata> {
   const { id } = await params;
-  const { type } = await searchParams;
+  const rawSearchParams = await searchParams;
+  const selectedType = parseMentoringApplySelectedType(rawSearchParams.type);
 
   const mentor = getMentorById(Number(id));
 
   if (!mentor) {
-    const fallbackType = resolveMethod(type, 'note');
+    const fallbackType = resolveMethod(selectedType, 'note');
 
     return generateSEOMetadata({
       title: '멘토링 신청',
@@ -54,12 +50,12 @@ export async function generateMetadata({
   }
 
   const fallbackType = getEnabledMentoringMethods(mentor)[0] ?? 'note';
-  const selectedType = resolveMethod(type, fallbackType);
+  const resolvedType = resolveMethod(selectedType, fallbackType);
 
   return generateSEOMetadata({
     title: `${mentor.nickname} 멘토링 신청`,
-    description: `${mentor.nickname} 멘토에게 ${getMethodLabel(selectedType)}을 신청합니다.`,
-    path: `/mentoring/${id}/apply?type=${selectedType}`,
+    description: `${mentor.nickname} 멘토에게 ${getMethodLabel(resolvedType)}을 신청합니다.`,
+    path: `/mentoring/${id}/apply?type=${resolvedType}`,
   });
 }
 
@@ -68,17 +64,15 @@ export default async function MentoringApplyRoute({
   searchParams,
 }: MentoringApplyRouteProps) {
   const { id } = await params;
-  const { type } = await searchParams;
-  const mentorId = Number(id);
+  const rawSearchParams = await searchParams;
+  const mentorId = parseMentoringApplyRouteMentorId(id);
+  const selectedType = parseMentoringApplySelectedType(rawSearchParams.type);
 
-  if (!Number.isInteger(mentorId) || mentorId <= 0) {
+  if (!mentorId) {
     notFound();
   }
 
   return (
-    <MentoringApplyRouteClient
-      mentorId={mentorId}
-      selectedType={parseSelectedType(type)}
-    />
+    <MentoringApplyRouteClient mentorId={mentorId} selectedType={selectedType} />
   );
 }

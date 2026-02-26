@@ -27,7 +27,7 @@ import type {
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import { type MentorRegistrationPreviewHighlightSection } from '@/types/mentoring/registration-view';
-import MentorMarkdownContent from './mentor-markdown-content';
+import MentorMarkdownContent from '../registration/mentor-markdown-content';
 import ReviewStars from './review-stars';
 
 type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
@@ -195,28 +195,27 @@ export default function MentorDetailPage({
             </h1>
 
             <div className="flex flex-col gap-250 sm:flex-row sm:items-start sm:gap-400">
-              {/* 좌: 이름 + 통계 */}
+              {/* 좌: 프로필 이미지 + 이름 + 통계 */}
               <div className="flex-1">
-                <div className="mb-75">
-                  <p className="font-designer-18b text-text-strong">
-                    {mentor.nickname}
-                  </p>
-                </div>
-                <p className="font-designer-14b text-text-brand mb-50">
-                  {mentor.company}
-                </p>
-                {headlineBadges.length > 0 && (
-                  <div className="mb-100 flex flex-wrap items-center gap-75">
-                    {headlineBadges.map((badge) => (
-                      <Badge key={badge.key} color={badge.color} shape="round">
-                        {badge.value}
-                      </Badge>
-                    ))}
+                <div className="mb-75 flex items-start gap-200">
+                  <Avatar
+                    image={mentor.imageUrl}
+                    alt={mentor.nickname}
+                    size={48}
+                    className="shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-designer-18b text-text-strong">
+                      {mentor.nickname}
+                    </p>
+                    <p className="font-designer-14b text-text-brand mt-50">
+                      {mentor.company}
+                    </p>
+                    <p className="font-designer-13r text-text-subtle mt-25">
+                      {jobTitleLabel} · {careerLabel}
+                    </p>
                   </div>
-                )}
-                <p className="font-designer-13r text-text-subtle mb-200">
-                  {profileSummaryLine}
-                </p>
+                </div>
                 <div className="flex flex-wrap items-center gap-100">
                   <ReviewStars rating={Math.floor(mentor.rating)} />
                   <span className="font-designer-14b text-text-strong">
@@ -240,25 +239,6 @@ export default function MentorDetailPage({
                   <span className="font-designer-13r text-text-subtle">
                     멘토링 {mentor.mentoringCount}건
                   </span>
-                </div>
-              </div>
-
-              {/* 우: 기본 프로필 정보 */}
-              <div className="rounded-150 bg-background-alternative p-200 sm:w-[260px]">
-                <div className="flex flex-col gap-100">
-                  {profileInfoRows.map((row) => (
-                    <div
-                      key={row.label}
-                      className="grid grid-cols-[72px_1fr] items-start gap-75"
-                    >
-                      <span className="font-designer-12r text-text-subtlest pt-[2px]">
-                        {row.label}
-                      </span>
-                      <span className="font-designer-13r text-text-default">
-                        {row.value}
-                      </span>
-                    </div>
-                  ))}
                 </div>
               </div>
             </div>
@@ -364,22 +344,11 @@ export default function MentorDetailPage({
                       </p>
                     </div>
 
-                    {/* 가격 + 버튼 */}
+                    {/* 가격 */}
                     <div className="flex shrink-0 items-center gap-200">
                       <p className="font-designer-16b text-text-strong">
                         {formatWon(option.price)}
                       </p>
-                      <Link
-                        href={`/mentoring/${mentor.id}/apply?type=${method}`}
-                      >
-                        <Button
-                          color="primary"
-                          size="medium"
-                          onClick={() => setSelectedMethod(method)}
-                        >
-                          예약하기
-                        </Button>
-                      </Link>
                     </div>
                   </div>
                 );
@@ -467,7 +436,8 @@ export default function MentorDetailPage({
         {/* ─── 우측 사이드바 ─── */}
         <aside
           className={cn(
-            !previewMode && 'xl:sticky xl:top-[88px] xl:self-start',
+            'h-fit',
+            !previewMode && 'lg:sticky lg:top-[88px] lg:self-start',
           )}
         >
           <div className="rounded-200 border-border-subtle bg-background-default shadow-1 overflow-hidden border">
@@ -600,13 +570,17 @@ export default function MentorDetailPage({
                 </p>
               </div>
 
-              <Link
-                href={`/mentoring/${mentor.id}/apply?type=${selectedMethod}`}
+              <Button
+                color="primary"
+                size="large"
+                className="mb-200 w-full"
+                onClick={(e) => {
+                  e.preventDefault();
+                  alert('아직 준비중인 기능입니다.');
+                }}
               >
-                <Button color="primary" size="large" className="mb-200 w-full">
-                  결제 페이지로 이동
-                </Button>
-              </Link>
+                결제 페이지로 이동
+              </Button>
 
               {/* 수락 정책 */}
               <div className="mb-150 flex items-start gap-75">

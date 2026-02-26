@@ -2,43 +2,22 @@
 
 import dayjs from 'dayjs';
 import { CalendarCheck2, Star } from 'lucide-react';
-import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
-import { useAuthReady } from '@/hooks/common/use-auth';
-import { getMethodLabel } from '@/mocks/mentoring-mock-data';
-import { useToastStore } from '@/stores/use-toast-store';
 import {
-  getRequestReviewEligibility,
-  useMentoringManagementStore,
-} from '@/stores/useMentoringManagementStore';
-import type { MentorProfile } from '@/types/mentoring/domain';
+  MIN_MY_MENTORING_REVIEW_LENGTH,
+  type ReviewCardStatus,
+  useMyMentoringReviewController,
+} from '@/features/mentoring/model/use-my-mentoring-review-controller';
+import MentoringSectionTemplate from '@/features/mentoring/ui/common/mentoring-section-template';
+import { getMethodLabel } from '@/mocks/mentoring-mock-data';
 import type {
   MentoringRequest,
-  MentoringReview,
   MentoringReviewRecommendation,
   MentoringSession,
 } from '@/types/mentoring/management-domain';
-
-type ReviewCardStatus = 'READY' | 'WRITTEN' | 'LOCKED';
-
-interface ReviewCardItem {
-  mentor: MentorProfile | undefined;
-  request: MentoringRequest;
-  session?: MentoringSession;
-  review?: MentoringReview;
-  status: ReviewCardStatus;
-  blockedReason?: string;
-}
-
-interface ReviewDraft {
-  rating: number;
-  recommendation: MentoringReviewRecommendation;
-  content: string;
-}
 
 const recommendationMeta: Record<
   MentoringReviewRecommendation,
@@ -72,22 +51,13 @@ const statusMeta: Record<
   },
 };
 
-const statusOrder: Record<ReviewCardStatus, number> = {
-  READY: 0,
-  WRITTEN: 1,
-  LOCKED: 2,
-};
-
-const MIN_REVIEW_LENGTH = 10;
 const MAX_REVIEW_LENGTH = 300;
-
-const createDefaultDraft = (): ReviewDraft => {
-  return {
-    rating: 0,
-    recommendation: 'RECOMMEND',
-    content: '',
-  };
-};
+const REVIEW_PANEL_TEXT = {
+  title: '내 멘토링 후기 관리',
+  description: '완료된 멘토링에 후기를 남기면 멘토 상세 페이지에 즉시 반영됩니다.',
+  emptyTitle: '아직 멘토링 신청 내역이 없습니다.',
+  emptyDescription: '멘토링을 신청하고 상담이 완료되면 후기 작성이 열립니다.',
+} as const;
 
 const getSessionLabel = ({
   request,
@@ -118,215 +88,42 @@ const getSessionLabel = ({
 };
 
 export default function MyMentoringReviewPanel() {
-  const { memberId } = useAuthReady();
-  const { mentors } = useMentorDirectoryQuery();
-  const { showToast } = useToastStore();
-  const requestsByMentor = useMentoringManagementStore(
-    (state) => state.requestsByMentor,
-  );
-  const sessionsByMentor = useMentoringManagementStore(
-    (state) => state.sessionsByMentor,
-  );
-  const reviewsByMentor = useMentoringManagementStore(
-    (state) => state.reviewsByMentor,
-  );
-  const submitReview = useMentoringManagementStore(
-    (state) => state.submitReview,
-  );
-
-  const [activeDraftKey, setActiveDraftKey] = useState<{
-    mentorId: number;
-    requestId: string;
-  } | null>(null);
-  const [draft, setDraft] = useState<ReviewDraft>(createDefaultDraft());
-  const [formError, setFormError] = useState('');
-
-  const mentorMap = useMemo(() => {
-    return new Map<number, MentorProfile>(
-      mentors.map((mentor) => [mentor.id, mentor]),
-    );
-  }, [mentors]);
-
-  const items = useMemo(() => {
-    if (!memberId) {
-      return [] as ReviewCardItem[];
-    }
-
-    return Object.entries(requestsByMentor)
-      .flatMap(([mentorIdKey, requests]) => {
-        const mentorId = Number(mentorIdKey);
-        const mentor = mentorMap.get(mentorId);
-        const sessions = sessionsByMentor[mentorId] ?? [];
-        const reviews = reviewsByMentor[mentorId] ?? [];
-
-        return requests
-          .filter((request) => request.menteeMemberId === memberId)
-          .map((request) => {
-            const linkedSession = request.linkedSessionId
-              ? sessions.find(
-                  (session) => session.id === request.linkedSessionId,
-                )
-              : undefined;
-            const linkedReview = reviews.find((review) => {
-              return (
-                review.requestId === request.id &&
-                review.menteeMemberId === memberId
-              );
-            });
-            const eligibility = getRequestReviewEligibility({
-              request,
-              session: linkedSession,
-            });
-            const status: ReviewCardStatus = linkedReview
-              ? 'WRITTEN'
-              : eligibility.canReview
-                ? 'READY'
-                : 'LOCKED';
-
-            return {
-              mentor,
-              request,
-              session: linkedSession,
-              review: linkedReview,
-              status,
-              blockedReason: eligibility.reason,
-            } satisfies ReviewCardItem;
-          });
-      })
-      .sort((first, second) => {
-        const byStatus = statusOrder[first.status] - statusOrder[second.status];
-        if (byStatus !== 0) {
-          return byStatus;
-        }
-
-        return (
-          dayjs(second.request.requestedAt).valueOf() -
-          dayjs(first.request.requestedAt).valueOf()
-        );
-      });
-  }, [
-    memberId,
-    mentorMap,
-    requestsByMentor,
-    reviewsByMentor,
-    sessionsByMentor,
-  ]);
-
-  const readyCount = useMemo(() => {
-    return items.filter((item) => item.status === 'READY').length;
-  }, [items]);
-  const writtenCount = useMemo(() => {
-    return items.filter((item) => item.status === 'WRITTEN').length;
-  }, [items]);
-
-  const activeItem = useMemo(() => {
-    if (!activeDraftKey) {
-      return undefined;
-    }
-
-    return items.find((item) => {
-      return (
-        item.request.mentorId === activeDraftKey.mentorId &&
-        item.request.id === activeDraftKey.requestId
-      );
-    });
-  }, [activeDraftKey, items]);
-
-  useEffect(() => {
-    if (!activeItem) {
-      setDraft(createDefaultDraft());
-      setFormError('');
-
-      return;
-    }
-
-    if (activeItem.review) {
-      setDraft({
-        rating: activeItem.review.rating,
-        recommendation: activeItem.review.recommendation,
-        content: activeItem.review.content,
-      });
-    } else {
-      setDraft(createDefaultDraft());
-    }
-    setFormError('');
-  }, [activeItem]);
-
-  const handleOpenDraft = (item: ReviewCardItem) => {
-    if (item.status === 'LOCKED') {
-      return;
-    }
-
-    setActiveDraftKey({
-      mentorId: item.request.mentorId,
-      requestId: item.request.id,
-    });
-  };
-
-  const handleSubmit = () => {
-    if (!activeItem || !memberId) {
-      return;
-    }
-
-    const result = submitReview({
-      mentorId: activeItem.request.mentorId,
-      requestId: activeItem.request.id,
-      menteeMemberId: memberId,
-      menteeName: activeItem.request.menteeName,
-      rating: draft.rating,
-      recommendation: draft.recommendation,
-      content: draft.content,
-    });
-
-    if (!result.ok) {
-      const reason = result.reason ?? '후기 등록에 실패했습니다.';
-      setFormError(reason);
-      showToast(reason, 'error');
-
-      return;
-    }
-
-    showToast(
-      result.isUpdated ? '후기를 수정했습니다.' : '후기를 등록했습니다.',
-      'success',
-    );
-    setActiveDraftKey(null);
-  };
+  const controller = useMyMentoringReviewController();
+  const { state, actions, viewModel } = controller;
 
   return (
     <>
-      <section className="rounded-200 border-border-subtle bg-background-default border p-300">
-        <header className="mb-200 flex flex-wrap items-center justify-between gap-100">
-          <div>
-            <h2 className="font-designer-20b text-text-default">
-              내 멘토링 후기 관리
-            </h2>
-            <p className="font-designer-14r text-text-subtle mt-50">
-              완료된 멘토링에 후기를 남기면 멘토 상세 페이지에 즉시 반영됩니다.
-            </p>
-          </div>
+      <MentoringSectionTemplate
+        title={REVIEW_PANEL_TEXT.title}
+        description={REVIEW_PANEL_TEXT.description}
+        rightSlot={
           <div className="flex flex-wrap gap-75">
-            <Badge color={readyCount > 0 ? 'orange' : 'green'} shape="round">
-              작성 대기 {readyCount}건
+            <Badge
+              color={viewModel.readyCount > 0 ? 'orange' : 'green'}
+              shape="round"
+            >
+              작성 대기 {viewModel.readyCount}건
             </Badge>
             <Badge color="blue" shape="round">
-              작성 완료 {writtenCount}건
+              작성 완료 {viewModel.writtenCount}건
             </Badge>
           </div>
-        </header>
-
-        {items.length === 0 ? (
+        }
+        empty={state.items.length === 0}
+        emptyContent={
           <div className="rounded-150 bg-background-alternative px-200 py-250 text-center">
             <p className="font-designer-16b text-text-default">
-              아직 멘토링 신청 내역이 없습니다.
+              {REVIEW_PANEL_TEXT.emptyTitle}
             </p>
             <p className="font-designer-13r text-text-subtle mt-50">
-              멘토링을 신청하고 상담이 완료되면 후기 작성이 열립니다.
+              {REVIEW_PANEL_TEXT.emptyDescription}
             </p>
           </div>
-        ) : (
+        }
+      >
+        {state.items.length > 0 ? (
           <div className="space-y-125">
-            {items.map((item) => {
+            {state.items.map((item) => {
               const meta = statusMeta[item.status];
               const scheduleLabel = getSessionLabel({
                 request: item.request,
@@ -416,7 +213,7 @@ export default function MyMentoringReviewPanel() {
                     size="small"
                     color={item.status === 'READY' ? 'primary' : 'secondary'}
                     disabled={!canOpenDraft}
-                    onClick={() => handleOpenDraft(item)}
+                    onClick={() => actions.onOpenDraft(item)}
                   >
                     {item.status === 'READY'
                       ? '후기 작성하기'
@@ -428,16 +225,12 @@ export default function MyMentoringReviewPanel() {
               );
             })}
           </div>
-        )}
-      </section>
+        ) : null}
+      </MentoringSectionTemplate>
 
       <Modal.Root
-        open={!!activeItem}
-        onOpenChange={(open) => {
-          if (!open) {
-            setActiveDraftKey(null);
-          }
-        }}
+        open={state.isModalOpen}
+        onOpenChange={actions.onModalOpenChange}
       >
         <Modal.Portal>
           <Modal.Overlay />
@@ -450,18 +243,18 @@ export default function MyMentoringReviewPanel() {
             </Modal.Header>
 
             <Modal.Body className="space-y-200">
-              {activeItem && (
+              {state.activeItem && (
                 <>
                   <div className="rounded-100 bg-background-alternative p-150">
                     <p className="font-designer-16b text-text-default mb-50">
-                      {activeItem.mentor?.nickname ??
-                        `멘토 #${activeItem.request.mentorId}`}
+                      {state.activeItem.mentor?.nickname ??
+                        `멘토 #${state.activeItem.request.mentorId}`}
                     </p>
                     <p className="font-designer-13r text-text-subtle">
-                      {getMethodLabel(activeItem.request.method)} ·{' '}
+                      {getMethodLabel(state.activeItem.request.method)} ·{' '}
                       {getSessionLabel({
-                        request: activeItem.request,
-                        session: activeItem.session,
+                        request: state.activeItem.request,
+                        session: state.activeItem.session,
                       })}
                     </p>
                   </div>
@@ -480,17 +273,15 @@ export default function MyMentoringReviewPanel() {
                             type="button"
                             className={cn(
                               'rounded-100 border-border-subtle bg-background-default inline-flex h-[44px] min-w-[56px] items-center justify-center gap-50 border px-100',
-                              score <= draft.rating &&
+                              score <= state.draft.rating &&
                                 'border-border-brand bg-fill-brand-subtle-default',
                             )}
-                            onClick={() =>
-                              setDraft((prev) => ({ ...prev, rating: score }))
-                            }
+                            onClick={() => actions.onDraftRatingChange(score)}
                           >
                             <Star
                               className={cn(
                                 'h-14 w-14',
-                                score <= draft.rating
+                                score <= state.draft.rating
                                   ? 'text-text-warning fill-current'
                                   : 'text-icon-disabled fill-current',
                               )}
@@ -515,7 +306,7 @@ export default function MyMentoringReviewPanel() {
                         ) as Array<MentoringReviewRecommendation>
                       ).map((recommendation) => {
                         const selected =
-                          draft.recommendation === recommendation;
+                          state.draft.recommendation === recommendation;
 
                         return (
                           <button
@@ -527,10 +318,9 @@ export default function MyMentoringReviewPanel() {
                                 'border-border-brand bg-fill-brand-subtle-default',
                             )}
                             onClick={() =>
-                              setDraft((prev) => ({
-                                ...prev,
+                              actions.onDraftRecommendationChange(
                                 recommendation,
-                              }))
+                              )
                             }
                           >
                             <span className="font-designer-14b text-text-default">
@@ -550,30 +340,27 @@ export default function MyMentoringReviewPanel() {
                       후기 내용
                     </p>
                     <textarea
-                      value={draft.content}
+                      value={state.draft.content}
                       maxLength={MAX_REVIEW_LENGTH}
                       onChange={(event) =>
-                        setDraft((prev) => ({
-                          ...prev,
-                          content: event.target.value,
-                        }))
+                        actions.onDraftContentChange(event.target.value)
                       }
                       className="font-designer-14r rounded-100 border-border-subtle bg-background-default text-text-default min-h-[140px] w-full border px-125 py-100"
                       placeholder="멘토링에서 좋았던 점과 개선이 필요한 점을 구체적으로 남겨주세요."
                     />
                     <div className="mt-50 flex justify-between">
-                      <span className="font-designer-12r text-text-subtle">
-                        최소 {MIN_REVIEW_LENGTH}자
+                        <span className="font-designer-12r text-text-subtle">
+                        최소 {MIN_MY_MENTORING_REVIEW_LENGTH}자
                       </span>
                       <span className="font-designer-12r text-text-subtle">
-                        {draft.content.length}/{MAX_REVIEW_LENGTH}
+                        {state.draft.content.length}/{MAX_REVIEW_LENGTH}
                       </span>
                     </div>
                   </div>
 
-                  {formError && (
+                  {state.formError && (
                     <p className="font-designer-13r text-text-error">
-                      {formError}
+                      {state.formError}
                     </p>
                   )}
                 </>
@@ -585,7 +372,7 @@ export default function MyMentoringReviewPanel() {
                 type="button"
                 color="secondary"
                 size="small"
-                onClick={() => setActiveDraftKey(null)}
+                onClick={actions.onCloseDraft}
               >
                 취소
               </Button>
@@ -593,13 +380,10 @@ export default function MyMentoringReviewPanel() {
                 type="button"
                 color="primary"
                 size="small"
-                disabled={
-                  draft.rating < 1 ||
-                  draft.content.trim().length < MIN_REVIEW_LENGTH
-                }
-                onClick={handleSubmit}
+                disabled={viewModel.isSubmitDisabled}
+                onClick={actions.onSubmit}
               >
-                {activeItem?.review ? '후기 수정 저장' : '후기 등록하기'}
+                {state.activeItem?.review ? '후기 수정 저장' : '후기 등록하기'}
               </Button>
             </Modal.Footer>
           </Modal.Content>
