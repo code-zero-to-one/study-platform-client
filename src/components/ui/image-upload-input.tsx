@@ -73,10 +73,12 @@ export default function ImageUploadInput({
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) validateAndChange(file);
+    e.target.value = ''; // 같은 파일 재업로드 허용을 위해 입력값 초기화
   };
 
   const handleRemove = () => {
     setSizeError(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
     onChangeImage(undefined);
   };
 
@@ -130,6 +132,7 @@ export default function ImageUploadInput({
             <button
               type="button"
               onClick={handleRemove}
+              aria-label="이미지 삭제"
               className="bg-background-dimmer border-border-inverse text-text-inverse absolute top-0 right-0 flex h-[36px] w-[36px] translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border"
             >
               ✕
