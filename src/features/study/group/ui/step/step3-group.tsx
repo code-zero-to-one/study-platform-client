@@ -9,7 +9,8 @@ import { BaseInput } from '@/components/ui/input';
 import { GroupStudyFormValues } from '../../model/group-study-form.schema';
 
 export default function Step3OpenGroupStudy() {
-  const { setValue, getValues, formState } = useFormContext<GroupStudyFormValues>();
+  const { setValue, getValues, formState } =
+    useFormContext<GroupStudyFormValues>();
 
   const initQuestions = getValues('interviewPost');
 
@@ -69,6 +70,11 @@ export default function Step3OpenGroupStudy() {
               )}
             </div>
           ))}
+          {formState.errors.interviewPost?.root?.message && (
+            <p role="alert" className="font-designer-14r text-text-error">
+              {formState.errors.interviewPost.root.message}
+            </p>
+          )}
           <Button color="secondary" onClick={handleAdd} type="button">
             질문 추가하기
           </Button>

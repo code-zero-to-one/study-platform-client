@@ -117,17 +117,18 @@ export const GroupStudyFormSchema = z
             `질문은 ${GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH}자 이하로 입력해주세요.`,
           ),
       )
+      .min(1, '질문을 최소 1개 이상 입력해주세요.')
       .superRefine((arr, ctx) => {
         if (arr.length > 10) {
           ctx.addIssue({
-            code: "custom",
+            code: 'custom',
             message: '질문은 최대 10개까지만 입력할 수 있습니다.',
           });
         }
         arr.forEach((item, idx) => {
           if (!item || item.trim() === '') {
             ctx.addIssue({
-              code: "custom",
+              code: 'custom',
               message: '질문을 입력해주세요.',
               path: [idx],
             });
@@ -141,7 +142,7 @@ export const GroupStudyFormSchema = z
     if (data.classification === 'PREMIUM_STUDY') {
       if (!data.price || priceNum < 10000) {
         ctx.addIssue({
-          code: "custom",
+          code: 'custom',
           message: '참가비는 10,000원 이상이어야 합니다.',
           path: ['price'],
         });
@@ -150,7 +151,7 @@ export const GroupStudyFormSchema = z
     // 그룹 스터디: 0원만 허용
     else if (data.price && priceNum !== 0) {
       ctx.addIssue({
-        code: "custom",
+        code: 'custom',
         message: '그룹 스터디는 무료만 가능합니다.',
         path: ['price'],
       });
@@ -174,7 +175,7 @@ export const GroupStudyFormSchema = z
 
       if (data.startDate < tomorrowYmd) {
         ctx.addIssue({
-          code: "custom",
+          code: 'custom',
           message: '스터디 시작일은 내일부터 설정할 수 있습니다.',
           path: ['startDate'],
         });
@@ -190,7 +191,7 @@ export const GroupStudyFormSchema = z
       const end = parseDate(data.endDate);
       if (end < start) {
         ctx.addIssue({
-          code: "custom",
+          code: 'custom',
           message: '종료일은 시작일과 같거나 이후여야 합니다.',
           path: ['endDate'],
         });

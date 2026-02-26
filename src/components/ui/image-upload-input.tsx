@@ -1,17 +1,29 @@
 'use client';
 
+import { cva } from 'class-variance-authority';
 import Image from 'next/image';
 import { useState, DragEvent, ChangeEvent, useRef } from 'react';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
+import CameraIcon from 'public/icons/camera.svg';
 
 // 클라이언트에서 선제 차단하여 불필요한 413 에러 및 대용량 업로드 요청을 방지.
 const DEFAULT_MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
-const inputStyles = {
-  base: 'rounded-100 flex w-full flex-col items-center justify-center border-2 p-500',
-  dragging: 'border-border-brand bg-fill-brand-subtle-hover',
-  notDragging: 'border-gray-300 border-dashed',
-};
+const dropzoneVariants = cva(
+  'rounded-100 flex w-full flex-col items-center justify-center border-2 p-500',
+  {
+    variants: {
+      dragging: {
+        true: 'border-border-brand bg-fill-brand-subtle-hover',
+        false: 'border-gray-300 border-dashed',
+      },
+    },
+    defaultVariants: {
+      dragging: false,
+    },
+  },
+);
 
 export default function ImageUploadInput({
   image,
@@ -93,17 +105,12 @@ export default function ImageUploadInput({
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
-        className={`${inputStyles.base} ${isDragging ? inputStyles.dragging : inputStyles.notDragging}`}
+        className={cn(dropzoneVariants({ dragging: isDragging }))}
       >
         {!image ? (
           <div className="flex flex-col items-center justify-center gap-300">
             <div className="flex flex-col items-center justify-center gap-150">
-              <Image
-                src="/icons/camera.svg"
-                width={32}
-                height={32}
-                alt="파일 업로드"
-              />
+              <CameraIcon width={32} height={32} aria-hidden="true" />
               <span className="font-designer-18m text-text-default">
                 드래그하여 파일 업로드
               </span>
