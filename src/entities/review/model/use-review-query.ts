@@ -2,13 +2,12 @@ import {
   useInfiniteQuery,
   useMutation,
   useQuery,
-  useSuspenseQuery,
+  useQueryClient,
 } from '@tanstack/react-query';
 import {
   MyNegativeKeywordsRequest,
   UserPositiveKeywordsRequest,
 } from '@/entities/review/api/review-types';
-import { getKoreaDate } from '@/utils/time';
 import {
   addStudyReview,
   getUserPositiveKeywords,
@@ -18,19 +17,31 @@ import {
   getShouldReviewPartner,
 } from '../api/get-review';
 
-export const usePartnerStudyReviewQuery = () => {
-  return useSuspenseQuery({
+export const usePartnerStudyReviewQuery = (enabled = true) => {
+  return useQuery({
     queryKey: ['partnerStudyReview'],
     queryFn: getPartnerStudyReview,
+    enabled,
   });
 };
 
 export const useAddStudyReviewMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: addStudyReview,
-    onSuccess: () => {
+    onSuccess: async () => {
       // todo: 모달로 변경
       alert('후기 작성이 완료되었습니다.');
+      await queryClient.invalidateQueries({
+        queryKey: ['shouldReviewPartner'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['partnerStudyReview'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['myReviews'],
+      });
     },
   });
 };
@@ -92,12 +103,5 @@ export const useShouldReviewPartnerQuery = () => {
     queryKey: ['shouldReviewPartner'],
     queryFn: getShouldReviewPartner,
     refetchInterval: 1000 * 60 * 30, // 30분
-    enabled: () => {
-      const now = getKoreaDate();
-      const dayOfWeek = now.getDay();
-      const isWeekend = dayOfWeek === 0 || dayOfWeek === 6; // 0: 일요일, 6: 토요일
-
-      return isWeekend;
-    },
   });
 };

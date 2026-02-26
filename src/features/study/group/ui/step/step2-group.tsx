@@ -33,18 +33,11 @@ export default function Step2OpenGroupStudy() {
     }
   }, [thumbnailFile, thumbnailExtension]);
 
-  const handleImageChange = (file: File | null) => {
+  const handleImageChange = (file: File | undefined) => {
     if (!file) {
       setValue('thumbnailExtension', 'DEFAULT', { shouldValidate: true });
       setValue('thumbnailFile', null);
       setImage(undefined);
-
-      return;
-    }
-
-    const MAX_SIZE = 5 * 1024 * 1024; // 5MB
-    if (file.size > MAX_SIZE) {
-      alert('이미지 용량은 5MB 이하만 업로드할 수 있어요.');
 
       return;
     }
