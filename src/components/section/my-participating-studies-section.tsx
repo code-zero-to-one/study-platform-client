@@ -65,8 +65,8 @@ export default function MyParticipatingStudiesSection({
     const filtered = myStudiesData.notCompleted.content.filter(
       (study) =>
         study.status === 'IN_PROGRESS' ||
-          study.status === 'RECRUITING' ||
-          study.status === 'ENDING_SOON',
+        study.status === 'RECRUITING' ||
+        study.status === 'ENDING_SOON',
     );
 
     // GROUP_STUDY인 경우 type 필드로 추가 필터링

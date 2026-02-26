@@ -86,8 +86,9 @@ export default function GroupStudyMemberItem({
         <div className="text-text-default flex flex-col gap-150">
           <div className="flex items-center justify-between">
             <span className="font-designer-16b">가입 인사</span>
-            {isLeader && member.id !== myId && (
-              discretionCount < EVALUATION_COUNT ? (
+            {isLeader &&
+              member.id !== myId &&
+              (discretionCount < EVALUATION_COUNT ? (
                 <DiscretionaryEvaluationModal
                   key={discretionCount}
                   groupStudyId={groupStudyId}
@@ -97,8 +98,7 @@ export default function GroupStudyMemberItem({
                 <span className="font-designer-13r text-text-subtlest">
                   재량 평가 {EVALUATION_COUNT}회 모두 완료
                 </span>
-              )
-            )}
+              ))}
           </div>
 
           <GreetingBox
