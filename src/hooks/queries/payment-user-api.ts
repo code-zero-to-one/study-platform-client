@@ -28,6 +28,7 @@ interface TransactionsByGroupStudyParams {
   groupStudyId: number;
   page?: number;
   size?: number;
+  enabled?: boolean;
 }
 
 export const useGetMyTransactions = ({
@@ -77,6 +78,7 @@ export const useGetMyTransactionsByGroupStudy = ({
   groupStudyId,
   page = 0,
   size = 20,
+  enabled = true,
 }: TransactionsByGroupStudyParams) => {
   return useQuery({
     queryKey: ['myTransactionsByGroupStudy', groupStudyId, page, size],
@@ -93,6 +95,7 @@ export const useGetMyTransactionsByGroupStudy = ({
 
       return data.content;
     },
+    enabled,
   });
 };
 
