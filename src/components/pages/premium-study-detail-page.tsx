@@ -4,6 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
+import StudyActiveTicker from '@/components/ui/study-active-ticker';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import {
@@ -71,6 +72,8 @@ export default function PremiumStudyDetailPage({
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
+
+  console.log({ basic });
 
   const ModalContent = {
     end: {
@@ -162,7 +165,15 @@ export default function PremiumStudyDetailPage({
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
 
-      <div className="my-500 flex w-[1164px] items-start justify-between">
+      {/* 플로팅 정보 바 */}
+      <div className="mt-500 w-[1164px]">
+        <StudyActiveTicker
+          approvedCount={studyDetail.basicInfo.approvedCount}
+          maxMembersCount={studyDetail.basicInfo.maxMembersCount}
+          startDate={studyDetail.basicInfo.startDate}
+        />
+      </div>
+      <div className="mb-500 flex w-[1164px] items-start justify-between">
         <div className="flex w-full flex-col gap-150">
           <p className="font-designer-28b text-[#181D27]">
             {studyDetail?.detailInfo.title}

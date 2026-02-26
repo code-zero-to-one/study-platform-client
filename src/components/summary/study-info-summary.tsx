@@ -145,7 +145,8 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
   const isApplyDisabled =
     isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
-    groupStudyStatus !== 'RECRUITING' ||
+    (groupStudyStatus !== 'RECRUITING' &&
+      groupStudyStatus !== 'ENDING_SOON') ||
     approvedCount >= maxMembersCount ||
     isDeadlinePassed;
 

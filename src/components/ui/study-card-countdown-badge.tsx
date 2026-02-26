@@ -18,7 +18,26 @@ export default function StudyCardCountdownBadge({
 }: Props) {
   const now = useNow();
 
-  if (status !== 'RECRUITING') return null;
+  // 종료 배지 (gray)
+  if (status === 'COMPLETED') {
+    return (
+      <span className="rounded-50 bg-gray-500 px-200 py-50 text-[12px] font-semibold text-white">
+        종료
+      </span>
+    );
+  }
+
+  // 진행 중 배지 (purple)
+  if (status === 'IN_PROGRESS') {
+    return (
+      <span className="rounded-50 bg-purple-500 px-200 py-50 text-[12px] font-semibold text-white">
+        진행 중
+      </span>
+    );
+  }
+
+  const isRecruiting = status === 'RECRUITING' || status === 'ENDING_SOON';
+  if (!isRecruiting) return null;
 
   if (remaining !== undefined && remaining <= 0) {
     return (
@@ -35,6 +54,14 @@ export default function StudyCardCountdownBadge({
   const state = getCountdownState(diffMs);
 
   if (!state || !state.urgent) {
+    if (status === 'ENDING_SOON') {
+      return (
+        <span className="rounded-50 bg-green-500 px-200 py-50 text-[12px] font-semibold text-white">
+          마감 임박
+        </span>
+      );
+    }
+
     return (
       <span className="rounded-50 bg-blue-500 px-200 py-50 text-[12px] font-semibold text-white">
         모집 중
@@ -44,7 +71,7 @@ export default function StudyCardCountdownBadge({
 
   return (
     <span
-      className={`rounded-50 px-200 py-50 text-[12px] font-semibold text-white ${state.bgClass} ${state.pulse ? 'animate-pulse' : ''}`}
+      className={`rounded-50 px-200 py-50 text-[12px] text-white ${state.isHourly ? 'font-bold' : 'font-semibold'} ${state.bgClass} ${state.pulse ? 'animate-pulse' : ''}`}
     >
       마감까지 {state.label}
     </span>

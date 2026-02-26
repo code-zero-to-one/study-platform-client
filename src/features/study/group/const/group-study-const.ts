@@ -68,6 +68,7 @@ export const EXPERIENCE_LEVEL_LABELS = {
 
 export const STUDY_STATUS_LABELS = {
   RECRUITING: '모집 중',
+  ENDING_SOON: '마감 임박',
   IN_PROGRESS: '진행 중',
   COMPLETED: '모집 완료',
 } as const;
