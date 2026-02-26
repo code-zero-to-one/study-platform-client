@@ -12,6 +12,7 @@ import type {
 } from '@/api/openapi/models';
 import PremiumStudyCancelPaymentModal from '@/components/modals/premium-study-cancel-payment-modal';
 import PremiumStudyRefundRequestModal from '@/components/modals/premium-study-refund-request-modal';
+import VirtualAccountInfoModal from '@/components/modals/virtual-account-info-modal';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
@@ -207,6 +208,7 @@ export default function PaymentManagement() {
                             transaction.latestTransactionType
                           }
                           paymentReceiptUrl={transaction.paymentReceiptUrl}
+                          virtualAccountInfo={transaction.virtualAccountInfo}
                         />
                       </td>
 
@@ -314,15 +316,28 @@ function PaymentActionButtons({
   groupStudyId,
   latestTransactionType,
   paymentReceiptUrl,
+  virtualAccountInfo,
 }: Pick<
   UserTransactionListResponse,
-  'paymentId' | 'latestTransactionType' | 'paymentReceiptUrl' | 'groupStudyId'
+  | 'paymentId'
+  | 'latestTransactionType'
+  | 'paymentReceiptUrl'
+  | 'groupStudyId'
+  | 'virtualAccountInfo'
 >) {
   switch (latestTransactionType) {
     case 'PAYMENT_REQUESTED':
       return (
         <div className="flex flex-col gap-100">
           <PaymentProceedButton groupStudyId={groupStudyId} />
+          <PaymentCancelButton paymentId={paymentId} />
+        </div>
+      );
+
+    case 'PAYMENT_WAITING_FOR_DEPOSIT':
+      return (
+        <div className="flex flex-col gap-100">
+          <VirtualAccountInfoButton virtualAccountInfo={virtualAccountInfo} />
           <PaymentCancelButton paymentId={paymentId} />
         </div>
       );
@@ -421,6 +436,36 @@ function PaymentCancelButton({
         onClick={handlePaymentCancel}
         disabled={isPending}
       >{isPending ? '취소 중...' : '결제 취소'}
+      </Button>
+    </>
+  );
+}
+
+function VirtualAccountInfoButton({
+  virtualAccountInfo,
+}: {
+  virtualAccountInfo?: UserTransactionListResponse['virtualAccountInfo'];
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  if (!virtualAccountInfo || !virtualAccountInfo.accountNumber) {
+    return null;
+  }
+
+  return (
+    <>
+      <VirtualAccountInfoModal
+        virtualAccountInfo={virtualAccountInfo}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+      />
+      <Button
+        color="outlined"
+        size="small"
+        className="font-designer-14r"
+        onClick={() => setIsOpen(true)}
+      >
+        입금계좌 확인
       </Button>
     </>
   );
