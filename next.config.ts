@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
       // API, GA, Clarity, 토스, 카카오/구글 OAuth 연결 허용. 개발에서는 HMR WebSocket 추가.
       `connect-src 'self' https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.google-analytics.com https://www.clarity.ms https://api.tosspayments.com https://kauth.kakao.com https://accounts.google.com${isDev ? ' ws://localhost:*' : ''}`,
       // 토스 결제창 iframe 허용
-      "frame-src https://pay.toss.im https://cert.tosspayments.com",
+      'frame-src https://pay.toss.im https://cert.tosspayments.com',
       "font-src 'self' data:",
     ].join('; ');
 
@@ -36,9 +36,15 @@ const nextConfig: NextConfig = {
           // [정보 유출 방지] 크로스 오리진 요청 시 origin만 전송
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           // [HTTPS 강제] 1년간 HTTPS만 허용 (프로덕션에서 유효)
-          { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
+          {
+            key: 'Strict-Transport-Security',
+            value: 'max-age=31536000; includeSubDomains',
+          },
           // [브라우저 API 제한] 불필요한 카메라·마이크·위치정보 API 비활성화
-          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
         ],
       },
     ];

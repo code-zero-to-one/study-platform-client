@@ -1,7 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
-
 // new URL(path, base)는 path가 절대 URL이면 base를 무시하므로 반드시 사전 검증 필요.
 function isSafeRedirectPath(path: string) {
   if (!path) return false;
