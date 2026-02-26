@@ -26,7 +26,6 @@ interface SummaryStudyInfoProps {
   data: GroupStudyFullResponse;
 }
 
-
 type ApplyButtonAction =
   | 'OPEN_APPLY_MODAL'
   | 'REDIRECT_LOGIN'
@@ -34,11 +33,11 @@ type ApplyButtonAction =
   | 'REDIRECT_PAYMENT_MANAGEMENT'
   | 'DISABLED';
 
-type ApplyButtonState = {
+interface ApplyButtonState {
   text: string;
   disabled: boolean;
   action: ApplyButtonAction;
-};
+}
 
 export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
   const router = useRouter();
@@ -74,7 +73,7 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
     groupStudyId,
     isLeader,
   });
-  
+
   // open api로 결제 상태 조회 (유료 스터디일때만)
   const { data: paymentTransactionsData } = useGetMyTransactionsByGroupStudy({
     groupStudyId,
@@ -216,17 +215,25 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
     }
 
     if (myApplicationStatus?.status === 'PENDING') {
-        // 유료 스터디이고 결제 완료된 경우
-      if (price > 0 && latestPaymentType === UserTransactionDetailResponseTransactionTypeEnum.PaymentSuccess) {
+      // 유료 스터디이고 결제 완료된 경우
+      if (
+        price > 0 &&
+        latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentSuccess
+      ) {
         return {
           text: '승인 대기중',
           disabled: true,
           action: 'DISABLED',
         };
       }
-      
+
       // 유료 스터디이고 가상계좌 입금 대기 중
-      if (price > 0 && latestPaymentType === UserTransactionDetailResponseTransactionTypeEnum.PaymentWaitingForDeposit) {
+      if (
+        price > 0 &&
+        latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentWaitingForDeposit
+      ) {
         return {
           text: '입금 대기중',
           disabled: false,
@@ -242,7 +249,7 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
           action: 'REDIRECT_PAYMENT',
         };
       }
-      
+
       // 무료 스터디이거나 결제 이력이 없는 경우
       return {
         text: '승인 대기중',

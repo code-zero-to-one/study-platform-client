@@ -2,11 +2,11 @@
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useEffect } from 'react';
+import { getCookie } from '@/api/client/cookie';
 import { AuthHydrationProvider } from '@/hooks/common/auth-hydration-context';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import QueryProvider from '@/providers/query-provider';
 import { useUserStore } from '@/stores/useUserStore';
-import { getCookie } from '@/api/client/cookie';
 
 interface ProviderProps {
   children: React.ReactNode;
@@ -21,13 +21,13 @@ function UserInitializer({ children }: ProviderProps) {
   useEffect(() => {
     if (isAuthReady) {
       const isAccessToken = getCookie('accessToken');
-      
-      if(!isAccessToken) {
-        reset(); 
+
+      if (!isAccessToken) {
+        reset();
       }
     }
   }, [isAuthReady, memberId, reset]);
-  
+
   useEffect(() => {
     if (isAuthReady && authMemberId && !memberId) {
       fetchAndSetUser(authMemberId).catch(console.error);

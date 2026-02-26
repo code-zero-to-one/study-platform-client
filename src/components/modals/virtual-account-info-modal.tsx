@@ -52,14 +52,14 @@ export default function VirtualAccountInfoModal({
                 <span className="font-designer-14m text-text-subtle w-[100px] flex-shrink-0">
                   계좌번호
                 </span>
-                <div className="flex items-center gap-200 flex-1">
+                <div className="flex flex-1 items-center gap-200">
                   <span className="font-designer-14m text-text-default">
                     {virtualAccountInfo.accountNumber || '-'}
                   </span>
                   {virtualAccountInfo.accountNumber && (
                     <button
                       type="button"
-                      className="font-designer-14m text-text-brand hover:text-text-brand-pressed cursor-pointer transition-colors whitespace-nowrap"
+                      className="font-designer-14m text-text-brand hover:text-text-brand-pressed cursor-pointer whitespace-nowrap transition-colors"
                       onClick={handleCopy}
                     >
                       {copied ? '복사됨' : '복사'}
@@ -81,7 +81,10 @@ export default function VirtualAccountInfoModal({
                     입금 기한
                   </span>
                   <span className="font-designer-14m text-text-default">
-                    {format(new Date(virtualAccountInfo.dueDate), 'yyyy.MM.dd HH:mm')}
+                    {format(
+                      new Date(virtualAccountInfo.dueDate),
+                      'yyyy.MM.dd HH:mm',
+                    )}
                   </span>
                 </div>
               )}
@@ -103,4 +106,3 @@ export default function VirtualAccountInfoModal({
     </Modal.Root>
   );
 }
-

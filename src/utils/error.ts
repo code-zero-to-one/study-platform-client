@@ -13,10 +13,13 @@ export const extractErrorCode = (
   }
 
   if (isAxiosError(error) && error.response?.data) {
-    const data = error.response.data as { errorCode?: string; message?: string };
+    const data = error.response.data as {
+      errorCode?: string;
+      message?: string;
+    };
+
     return { errorCode: data.errorCode, message: data.message };
   }
 
   return {};
 };
-

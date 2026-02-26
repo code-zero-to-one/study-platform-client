@@ -415,7 +415,7 @@ function PaymentCancelButton({
     useState<boolean>(false);
 
   const { isPending } = useCancelPayment();
-  
+
   const handlePaymentCancel = () => {
     if (isPending) return;
     setCancelPaymentModalOpen(true);
@@ -435,7 +435,8 @@ function PaymentCancelButton({
         className="font-designer-14r"
         onClick={handlePaymentCancel}
         disabled={isPending}
-      >{isPending ? '취소 중...' : '결제 취소'}
+      >
+        {isPending ? '취소 중...' : '결제 취소'}
       </Button>
     </>
   );
