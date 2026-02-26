@@ -27,7 +27,11 @@ export default function ImageUploadInput({
   const [sizeError, setSizeError] = useState<string | null>(null);
 
   const validateAndChange = (file: File) => {
-    if (!file.type.startsWith('image/')) return;
+    if (!file.type.startsWith('image/')) {
+      setSizeError(null);
+
+      return;
+    }
     if (file.size > maxSizeBytes) {
       const maxMb = (maxSizeBytes / 1024 / 1024).toFixed(0);
       setSizeError(`이미지 파일 크기는 ${maxMb}MB 이하만 업로드할 수 있어요.`);
