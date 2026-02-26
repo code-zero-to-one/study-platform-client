@@ -16,7 +16,6 @@ import { useRouter } from 'next/navigation';
 import { type KeyboardEvent } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
-import Badge from '@/components/ui/badge';
 import {
   formatWon,
   getLowestPriceOption,
@@ -69,14 +68,6 @@ export default function MentorCard({ mentor }: MentorCardProps) {
     .filter((keyword) => keyword.length > 0)
     .slice(0, MAX_KEYWORD_COUNT);
   const jobTitleLabel = mentorSettings.jobTitle || mentor.role || '직무 미입력';
-  const topCategorySource =
-    mentorSettings.categories[0]?.trim() || mentor.role || '';
-  const topCategoryBase = topCategorySource.split('/')[0]?.trim();
-  const topCategoryBadgeLabel = topCategoryBase
-    ? topCategoryBase.includes('멘토링')
-      ? topCategoryBase
-      : `${topCategoryBase} 멘토링`
-    : '멘토링';
   const careerLabel =
     mentorSettings.careerYears || mentor.career || '경력 미입력';
   const metMenteeCount = mentor.menteeCount ?? mentor.mentoringCount;
@@ -133,15 +124,6 @@ export default function MentorCard({ mentor }: MentorCardProps) {
     >
       <div className="flex h-full flex-col justify-between px-300 py-300">
         <div>
-          <div className="mb-100 flex flex-wrap gap-75">
-            <Badge color="primary" shape="round">
-              {topCategoryBadgeLabel}
-            </Badge>
-            <Badge color="gray" shape="round">
-              {jobTitleLabel}
-            </Badge>
-          </div>
-
           <div className="mb-125 h-[58px]">
             <h3 className="font-designer-18b text-text-default line-clamp-2 break-words">
               {mentoringTitle}

@@ -180,7 +180,7 @@ export default function MentorRegistrationForm({
     >
       <div
         data-form-preview-section="headline"
-        className="grid grid-cols-1 gap-200 xl:grid-cols-2 xl:items-stretch"
+        className="grid grid-cols-1 gap-200"
       >
         <FormSectionCard
           className="h-full"
