@@ -9,6 +9,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/(shadcn)/ui/dropdown-menu';
 import ToggleButton from '@/components/ui/toggle/button';
+import {
+  ROLE_OPTIONS_UI,
+  STUDY_METHOD_LABELS,
+} from '@/features/study/group/const/group-study-const';
 
 // 필터 옵션 타입
 export interface StudyFilterValues {
@@ -33,20 +37,10 @@ const STUDY_TYPE_OPTIONS = [
   { value: 'LECTURE_STUDY', label: '강의스터디' },
 ] as const;
 
-// 포지션 옵션
-const POSITION_OPTIONS = [
-  { value: 'BACKEND', label: '백엔드' },
-  { value: 'FRONTEND', label: '프론트엔드' },
-  { value: 'PLANNER', label: '기획자' },
-  { value: 'DESIGNER', label: '디자이너' },
-] as const;
-
 // 진행 방식 옵션
-const METHOD_OPTIONS = [
-  { value: 'ONLINE', label: '온라인' },
-  { value: 'OFFLINE', label: '오프라인' },
-  { value: 'HYBRID', label: '병행' },
-] as const;
+const METHOD_OPTIONS = Object.entries(STUDY_METHOD_LABELS).map(
+  ([value, label]) => ({ value, label }),
+);
 
 // 경험 레벨 옵션
 const EXPERIENCE_LEVEL_OPTIONS = [
@@ -214,7 +208,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
 
       <FilterDropdown
         label="직무"
-        options={POSITION_OPTIONS}
+        options={ROLE_OPTIONS_UI}
         selected={values.targetRoles}
         onChange={handleTargetRolesChange}
       />
