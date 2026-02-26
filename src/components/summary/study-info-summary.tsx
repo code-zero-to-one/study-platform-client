@@ -26,6 +26,7 @@ interface SummaryStudyInfoProps {
   data: GroupStudyFullResponse;
 }
 
+
 type ApplyButtonAction =
   | 'OPEN_APPLY_MODAL'
   | 'REDIRECT_LOGIN'
@@ -73,10 +74,13 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
     groupStudyId,
     isLeader,
   });
+  
+  // open api로 결제 상태 조회 (유료 스터디일때만)
   const { data: paymentTransactionsData } = useGetMyTransactionsByGroupStudy({
     groupStudyId,
     page: 0,
     size: 1,
+    enabled: price > 0 && isLoggedIn && !isLeader,
   });
   const latestPaymentType = paymentTransactionsData?.content?.[0]
     ?.transactionType as
@@ -195,6 +199,14 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
       };
     }
 
+    if (myApplicationStatus?.status === 'NONE') {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'OPEN_APPLY_MODAL',
+      };
+    }
+
     if (myApplicationStatus?.status === 'APPROVED') {
       return {
         text: '참여 중인 스터디',
@@ -204,6 +216,34 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
     }
 
     if (myApplicationStatus?.status === 'PENDING') {
+        // 유료 스터디이고 결제 완료된 경우
+      if (price > 0 && latestPaymentType === UserTransactionDetailResponseTransactionTypeEnum.PaymentSuccess) {
+        return {
+          text: '승인 대기중',
+          disabled: true,
+          action: 'DISABLED',
+        };
+      }
+      
+      // 유료 스터디이고 가상계좌 입금 대기 중
+      if (price > 0 && latestPaymentType === UserTransactionDetailResponseTransactionTypeEnum.PaymentWaitingForDeposit) {
+        return {
+          text: '입금 대기중',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT_MANAGEMENT',
+        };
+      }
+
+      // 유료 스터디인데 결제 이력이 없는 경우 (신청서만 제출하고 결제 안 함)
+      if (price > 0 && latestPaymentType === undefined) {
+        return {
+          text: '결제하기',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT',
+        };
+      }
+      
+      // 무료 스터디이거나 결제 이력이 없는 경우
       return {
         text: '승인 대기중',
         disabled: true,
