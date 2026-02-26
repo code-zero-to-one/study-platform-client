@@ -52,7 +52,13 @@ export const GroupStudyFormSchema = z
     // 진행 방식(1)
     method: z.enum(STUDY_METHODS),
     // 진행 방식 (위치) optional (1)
-    location: z.string().trim().max(GROUP_STUDY_LOCATION_MAX_LENGTH, `위치는 ${GROUP_STUDY_LOCATION_MAX_LENGTH}자 이하로 입력해주세요.`),
+    location: z
+      .string()
+      .trim()
+      .max(
+        GROUP_STUDY_LOCATION_MAX_LENGTH,
+        `위치는 ${GROUP_STUDY_LOCATION_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     // 정기 모임(1)
     regularMeeting: z.enum(REGULAR_MEETINGS),
     // 진행 기간 (시작일) (1)
@@ -71,19 +77,28 @@ export const GroupStudyFormSchema = z
       .string()
       .trim()
       .min(1, '스터디 제목을 입력해주세요.')
-      .max(GROUP_STUDY_TITLE_MAX_LENGTH, `제목은 ${GROUP_STUDY_TITLE_MAX_LENGTH}자 이하로 입력해주세요.`),
+      .max(
+        GROUP_STUDY_TITLE_MAX_LENGTH,
+        `제목은 ${GROUP_STUDY_TITLE_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     // 스터디 한 줄 소개(2)
     summary: z
       .string()
       .trim()
       .min(1, '한 줄 소개를 입력해주세요.')
-      .max(GROUP_STUDY_SUMMARY_MAX_LENGTH, `한 줄 소개는 ${GROUP_STUDY_SUMMARY_MAX_LENGTH}자 이하로 입력해주세요.`),
+      .max(
+        GROUP_STUDY_SUMMARY_MAX_LENGTH,
+        `한 줄 소개는 ${GROUP_STUDY_SUMMARY_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     // 스터디 소개(2)
     description: z
       .string()
       .trim()
       .min(1, '스터디 소개를 입력해주세요.')
-      .max(GROUP_STUDY_DESCRIPTION_MAX_LENGTH, `스터디 소개는 ${GROUP_STUDY_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`),
+      .max(
+        GROUP_STUDY_DESCRIPTION_MAX_LENGTH,
+        `스터디 소개는 ${GROUP_STUDY_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     // 썸네일 START(2)
     thumbnailExtension: z
       .enum(THUMBNAIL_EXTENSION)
@@ -96,7 +111,10 @@ export const GroupStudyFormSchema = z
       .array(
         z
           .string()
-          .max(GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH, `질문은 ${GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH}자 이하로 입력해주세요.`),
+          .max(
+            GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH,
+            `질문은 ${GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH}자 이하로 입력해주세요.`,
+          ),
       )
       .refine((arr) => arr.length > 0 && arr.every((v) => v.trim() !== ''), {
         message: '모든 질문을 입력해야 합니다.',
