@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import DiscretionGradeHistoryList from '@/components/lists/discretion-grade-history-list';
 import MissionProgressHistoryList from '@/components/lists/mission-progress-history-list';
-import DiscretionaryEvaluationModal from '@/components/modals/discretionary-evaluation-modal';
+import DiscretionaryEvaluationModal, {
+  EVALUATION_COUNT,
+} from '@/components/modals/discretionary-evaluation-modal';
 import EndGroupStudyModal from '@/components/modals/end-group-study';
 import UserAvatar from '@/components/ui/avatar';
 
@@ -84,12 +86,18 @@ export default function GroupStudyMemberItem({
         <div className="text-text-default flex flex-col gap-150">
           <div className="flex items-center justify-between">
             <span className="font-designer-16b">가입 인사</span>
-            {isLeader && member.id !== myId && discretionCount < 3 && (
-              <DiscretionaryEvaluationModal
-                key={discretionCount}
-                groupStudyId={groupStudyId}
-                memberId={member.id}
-              />
+            {isLeader && member.id !== myId && (
+              discretionCount < EVALUATION_COUNT ? (
+                <DiscretionaryEvaluationModal
+                  key={discretionCount}
+                  groupStudyId={groupStudyId}
+                  memberId={member.id}
+                />
+              ) : (
+                <span className="font-designer-13r text-text-subtlest">
+                  재량 평가 {EVALUATION_COUNT}회 모두 완료
+                </span>
+              )
             )}
           </div>
 
