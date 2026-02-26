@@ -73,8 +73,6 @@ export default function PremiumStudyDetailPage({
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
 
-  console.log({ basic });
-
   const ModalContent = {
     end: {
       title: '스터디를 종료하시겠어요?',
