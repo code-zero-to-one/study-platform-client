@@ -110,7 +110,12 @@ export default function ImageUploadInput({
         {!image ? (
           <div className="flex flex-col items-center justify-center gap-300">
             <div className="flex flex-col items-center justify-center gap-150">
-              <CameraIcon width={32} height={32} aria-hidden="true" />
+              <Image
+                src="/icons/camera.svg"
+                width={32}
+                height={32}
+                alt="파일 업로드"
+              />
               <span className="font-designer-18m text-text-default">
                 드래그하여 파일 업로드
               </span>
