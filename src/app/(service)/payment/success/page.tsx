@@ -88,6 +88,17 @@ function PaymentSuccessContent() {
     );
   }
   if (status === 'error') {
+    const handleRetry = () => {
+      // paymentData는 검증 실패 시 null일 수 있으므로,
+      // paymentId로 결제 정보를 다시 조회하거나 홈으로 이동
+      if (paymentData?.groupStudyId) {
+        router.push(`/group-study/${paymentData.groupStudyId}`);
+      } else {
+        // groupStudyId를 알 수 없는 경우 홈으로 이동
+        router.push('/');
+      }
+    };
+
     return (
       <div className="bg-background-alternative flex min-h-dvh items-center justify-center">
         <div className="rounded-150 border-border-default bg-fill-neutral-subtle-default mx-auto max-w-md border p-600 text-center">
@@ -98,7 +109,7 @@ function PaymentSuccessContent() {
             color="primary"
             size="medium"
             className="w-full"
-            onClick={() => router.back()}
+            onClick={handleRetry}
           >
             다시 시도하기
           </Button>

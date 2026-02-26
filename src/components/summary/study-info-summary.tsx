@@ -5,11 +5,13 @@ import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { UserTransactionDetailResponseTransactionTypeEnum } from '@/api/openapi/models/user-transaction-detail-response';
 import Button from '@/components/ui/button';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import { useAuth } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useGetMyTransactionsByGroupStudy } from '@/hooks/queries/payment-user-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   EXPERIENCE_LEVEL_LABELS,
@@ -22,6 +24,19 @@ import {
 
 interface SummaryStudyInfoProps {
   data: GroupStudyFullResponse;
+}
+
+type ApplyButtonAction =
+  | 'OPEN_APPLY_MODAL'
+  | 'REDIRECT_LOGIN'
+  | 'REDIRECT_PAYMENT'
+  | 'REDIRECT_PAYMENT_MANAGEMENT'
+  | 'DISABLED';
+
+interface ApplyButtonState {
+  text: string;
+  disabled: boolean;
+  action: ApplyButtonAction;
 }
 
 export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
@@ -58,6 +73,18 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
     groupStudyId,
     isLeader,
   });
+
+  // open api로 결제 상태 조회 (유료 스터디일때만)
+  const { data: paymentTransactionsData } = useGetMyTransactionsByGroupStudy({
+    groupStudyId,
+    page: 0,
+    size: 1,
+    enabled: price > 0 && isLoggedIn && !isLeader,
+  });
+  const latestPaymentType = paymentTransactionsData?.content?.[0]
+    ?.transactionType as
+    | UserTransactionDetailResponseTransactionTypeEnum
+    | undefined;
 
   const getDurationText = (start: string, end: string): string => {
     const startDateObj = new Date(start);
@@ -142,33 +169,170 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
   const isDeadlinePassed =
     !!startDate && !dayjs(startDate).isAfter(dayjs(), 'day');
 
-  const isApplyDisabled =
-    isLeader ||
-    myApplicationStatus?.status !== 'NONE' ||
-    groupStudyStatus !== 'RECRUITING' ||
-    approvedCount >= maxMembersCount ||
-    isDeadlinePassed;
+  const getApplyButtonState = (): ApplyButtonState => {
+    if (!isLoggedIn) {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'REDIRECT_LOGIN',
+      };
+    }
 
-  const getButtonText = () => {
+    if (isLeader) {
+      return {
+        text: '내가 개설한 스터디',
+        disabled: true,
+        action: 'DISABLED',
+      };
+    }
+
+    if (
+      isDeadlinePassed ||
+      groupStudyStatus !== 'RECRUITING' ||
+      approvedCount >= maxMembersCount
+    ) {
+      return {
+        text: '모집 마감',
+        disabled: true,
+        action: 'DISABLED',
+      };
+    }
+
+    if (myApplicationStatus?.status === 'NONE') {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'OPEN_APPLY_MODAL',
+      };
+    }
+
     if (myApplicationStatus?.status === 'APPROVED') {
-      return '참여 중인 스터디';
-    }
-    if (myApplicationStatus?.status === 'PENDING') {
-      return '승인 대기중';
-    }
-    if (myApplicationStatus?.status === 'REJECTED') {
-      return '신청 거절됨';
-    }
-    if (isDeadlinePassed) {
-      return '모집 마감';
+      return {
+        text: '참여 중인 스터디',
+        disabled: true,
+        action: 'DISABLED',
+      };
     }
 
-    return '신청하기';
+    if (myApplicationStatus?.status === 'PENDING') {
+      // 유료 스터디이고 결제 완료된 경우
+      if (
+        price > 0 &&
+        latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentSuccess
+      ) {
+        return {
+          text: '승인 대기중',
+          disabled: true,
+          action: 'DISABLED',
+        };
+      }
+
+      // 유료 스터디이고 결제 취소 또는 실패한 경우 - 재결제 가능 (입금 대기중보다 우선)
+      if (
+        price > 0 &&
+        (latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentCanceled ||
+          latestPaymentType ===
+            UserTransactionDetailResponseTransactionTypeEnum.PaymentFailed)
+      ) {
+        return {
+          text: '결제하기',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT',
+        };
+      }
+
+      // 유료 스터디이고 가상계좌 입금 대기 중
+      if (
+        price > 0 &&
+        latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentWaitingForDeposit
+      ) {
+        return {
+          text: '입금 대기중',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT_MANAGEMENT',
+        };
+      }
+
+      // 유료 스터디인데 결제 이력이 없는 경우 (신청서만 제출하고 결제 안 함)
+      if (price > 0 && latestPaymentType === undefined) {
+        return {
+          text: '결제하기',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT',
+        };
+      }
+
+      // 무료 스터디이거나 결제 이력이 없는 경우
+      return {
+        text: '승인 대기중',
+        disabled: true,
+        action: 'DISABLED',
+      };
+    }
+
+    if (myApplicationStatus?.status === 'REJECTED') {
+      return {
+        text: '참여불가',
+        disabled: true,
+        action: 'DISABLED',
+      };
+    }
+
+    if (price <= 0) {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'OPEN_APPLY_MODAL',
+      };
+    }
+
+    if (
+      latestPaymentType ===
+      UserTransactionDetailResponseTransactionTypeEnum.PaymentWaitingForDeposit
+    ) {
+      return {
+        text: '결제관리로 이동',
+        disabled: false,
+        action: 'REDIRECT_PAYMENT_MANAGEMENT',
+      };
+    }
+
+    if (
+      latestPaymentType ===
+      UserTransactionDetailResponseTransactionTypeEnum.PaymentSuccess
+    ) {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'OPEN_APPLY_MODAL',
+      };
+    }
+
+    return {
+      text: '결제하기',
+      disabled: false,
+      action: 'REDIRECT_PAYMENT',
+    };
   };
 
-  const handleApplyClick = () => {
-    if (!isLoggedIn) {
-      router.push('/login');
+  const applyButtonState = getApplyButtonState();
+
+  const handleApplyAction = () => {
+    switch (applyButtonState.action) {
+      case 'REDIRECT_LOGIN':
+        router.push('/login');
+        break;
+      case 'REDIRECT_PAYMENT':
+        router.push(`/payment/${groupStudyId}`);
+        break;
+      case 'REDIRECT_PAYMENT_MANAGEMENT':
+        router.push('/payment-management');
+        break;
+      default:
+        break;
     }
   };
 
@@ -218,7 +382,7 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
       <div className="flex flex-col gap-100">
         {/* 스터디 신청 모달 (유료/무료 공통) */}
 
-        {isLoggedIn ? (
+        {applyButtonState.action === 'OPEN_APPLY_MODAL' ? (
           <ApplyGroupStudyModal
             groupStudyId={groupStudyId}
             title={title}
@@ -229,9 +393,9 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
                 size="large"
                 color="primary"
                 className="h-600"
-                disabled={isApplyDisabled}
+                disabled={applyButtonState.disabled}
               >
-                {getButtonText()}
+                {applyButtonState.text}
               </Button>
             }
           />
@@ -240,9 +404,10 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
             size="large"
             color="primary"
             className="h-600"
-            onClick={handleApplyClick}
+            disabled={applyButtonState.disabled}
+            onClick={handleApplyAction}
           >
-            신청하기
+            {applyButtonState.text}
           </Button>
         )}
 
