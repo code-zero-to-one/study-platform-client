@@ -6,6 +6,7 @@ function isSafeRedirectPath(path: string) {
   if (!path) return false;
   if (!path.startsWith('/')) return false; // 절대 URL(https://evil.com) 차단
   if (path.startsWith('//')) return false; // 프로토콜-상대 URL(//evil.com) 차단
+  if (path.startsWith('\\')) return false; // 역슬래시로 시작하는 경로 차단 (예: \evil.com)
 
   return true;
 }

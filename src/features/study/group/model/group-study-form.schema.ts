@@ -111,12 +111,13 @@ export const GroupStudyFormSchema = z
       .array(
         z
           .string()
+          .trim()
           .max(
             GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH,
             `질문은 ${GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH}자 이하로 입력해주세요.`,
           ),
       )
-      .refine((arr) => arr.length > 0 && arr.every((v) => v.trim() !== ''), {
+      .refine((arr) => arr.length > 0 && arr.every((v) => v !== ''), {
         message: '모든 질문을 입력해야 합니다.',
       })
       .refine((arr) => arr.length <= 10, {
