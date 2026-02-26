@@ -40,22 +40,26 @@ export default function VirtualAccountInfoModal({
 
           <Modal.Body variant="alert">
             <div className="space-y-300">
-              <div className="flex items-center justify-between">
-                <span className="font-designer-14m text-text-subtle">은행</span>
+              <div className="flex items-start gap-200">
+                <span className="font-designer-14m text-text-subtle w-[100px] flex-shrink-0">
+                  은행
+                </span>
                 <span className="font-designer-14m text-text-default">
                   {virtualAccountInfo.bankName || '-'}
                 </span>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="font-designer-14m text-text-subtle">계좌번호</span>
-                <div className="flex items-center gap-200">
+              <div className="flex items-start gap-200">
+                <span className="font-designer-14m text-text-subtle w-[100px] flex-shrink-0">
+                  계좌번호
+                </span>
+                <div className="flex items-center gap-200 flex-1">
                   <span className="font-designer-14m text-text-default">
                     {virtualAccountInfo.accountNumber || '-'}
                   </span>
                   {virtualAccountInfo.accountNumber && (
                     <button
                       type="button"
-                      className="font-designer-14m text-text-brand hover:text-text-brand-pressed cursor-pointer transition-colors"
+                      className="font-designer-14m text-text-brand hover:text-text-brand-pressed cursor-pointer transition-colors whitespace-nowrap"
                       onClick={handleCopy}
                     >
                       {copied ? '복사됨' : '복사'}
@@ -63,15 +67,19 @@ export default function VirtualAccountInfoModal({
                   )}
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="font-designer-14m text-text-subtle">예금주</span>
+              <div className="flex items-start gap-200">
+                <span className="font-designer-14m text-text-subtle w-[100px] flex-shrink-0">
+                  예금주
+                </span>
                 <span className="font-designer-14m text-text-default">
                   {virtualAccountInfo.customerName || '-'}
                 </span>
               </div>
               {virtualAccountInfo.dueDate && (
-                <div className="flex items-center justify-between">
-                  <span className="font-designer-14m text-text-subtle">입금 기한</span>
+                <div className="flex items-start gap-200">
+                  <span className="font-designer-14m text-text-subtle w-[100px] flex-shrink-0">
+                    입금 기한
+                  </span>
                   <span className="font-designer-14m text-text-default">
                     {format(new Date(virtualAccountInfo.dueDate), 'yyyy.MM.dd HH:mm')}
                   </span>

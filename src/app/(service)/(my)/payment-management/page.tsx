@@ -398,7 +398,7 @@ function PaymentProceedButton({
 
   return (
     <Button
-      color="outlined"
+      color="primary"
       size="small"
       className="font-designer-14r"
       onClick={handlePaymentProceed}
@@ -460,7 +460,7 @@ function VirtualAccountInfoButton({
         onOpenChange={setIsOpen}
       />
       <Button
-        color="outlined"
+        color="primary"
         size="small"
         className="font-designer-14r"
         onClick={() => setIsOpen(true)}
