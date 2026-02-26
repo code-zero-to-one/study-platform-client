@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { createJSONStorage, persist } from 'zustand/middleware';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 
 interface UserInfo {
@@ -44,6 +44,9 @@ export const useUserStore = create<UserStore>()(
     }),
     {
       name: 'user-info-storage',
+
+      // 새 탭에서 열면 providers/index.tsx의 UserInitializer가 fetchAndSetUser()로 재취득하므로 UX 영향 없음.
+      storage: createJSONStorage(() => sessionStorage),
     },
   ),
 );
