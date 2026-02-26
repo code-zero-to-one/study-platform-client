@@ -17,6 +17,12 @@ function UserInitializer({ children }: ProviderProps) {
   const { memberId, fetchAndSetUser } = useUserStore();
 
   useEffect(() => {
+    // [보안 마이그레이션] sessionStorage 전환 이후 localStorage의 잔여 민감 데이터 정리.
+    // 기존 사용자 브라우저에 남아있는 user-info-storage를 삭제하여 XSS 노출 경로 제거.
+    localStorage.removeItem('user-info-storage');
+  }, []);
+
+  useEffect(() => {
     if (isAuthReady && authMemberId && !memberId) {
       fetchAndSetUser(authMemberId).catch(console.error);
     }
