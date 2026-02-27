@@ -1,10 +1,13 @@
 'use client';
 
 import MyMentoringReviewPanel from '@/features/mentoring/ui/review/my-mentoring-review-panel';
-import MyStudyReviewKeywordPanels from '@/features/my-page/ui/my-study-review/my-study-review-keyword-panels';
-import MyStudyReviewListSection from '@/features/my-page/ui/my-study-review/my-study-review-list-section';
-import type { ReviewKeywordStat } from '@/types/review/domain';
-import type { MyReviewItem } from '@/types/review/domain';
+import type { MyReviewItem } from '@/entities/review/api/review-types';
+
+type ReviewKeywordStat = {
+  id: number;
+  content: string;
+  count: number;
+};
 
 interface MyStudyReviewCompositeProps {
   positiveKeywords: ReviewKeywordStat[];
@@ -51,5 +54,161 @@ export default function MyStudyReviewComposite({
         onLoadMore={onLoadMore}
       />
     </>
+  );
+}
+
+interface MyStudyReviewKeywordPanelsProps {
+  positiveKeywords: ReviewKeywordStat[];
+  negativeKeywords: ReviewKeywordStat[];
+  allPositiveKeywords: ReviewKeywordStat[];
+  allNegativeKeywords: ReviewKeywordStat[];
+  positiveKeywordsCount: number;
+  negativeKeywordsCount: number;
+}
+
+function MyStudyReviewKeywordPanels({
+  positiveKeywords,
+  negativeKeywords,
+  allPositiveKeywords,
+  allNegativeKeywords,
+  positiveKeywordsCount,
+  negativeKeywordsCount,
+}: MyStudyReviewKeywordPanelsProps) {
+  const totalKeywordsCount = positiveKeywordsCount + negativeKeywordsCount;
+
+  return (
+    <section className="mt-300">
+      <div className="mb-200">
+        <div className="flex items-center gap-100">
+          <div className="font-designer-20b text-text-default">Received keywords</div>
+          <div className="font-designer-20b text-text-default">
+            {totalKeywordsCount}
+          </div>
+        </div>
+
+        <span className="font-designer-14r text-text-subtle">
+          Visible only to you.
+        </span>
+      </div>
+
+      <div className="mb-400 grid grid-cols-2 gap-300">
+        <KeywordPanel
+          title="Positive"
+          previewKeywords={positiveKeywords}
+          totalCount={positiveKeywordsCount}
+          allKeywords={allPositiveKeywords}
+          emptyMessage="No positive keywords yet."
+        />
+        <KeywordPanel
+          title="Needs improvement"
+          previewKeywords={negativeKeywords}
+          totalCount={negativeKeywordsCount}
+          allKeywords={allNegativeKeywords}
+          emptyMessage="No negative keywords yet."
+        />
+      </div>
+    </section>
+  );
+}
+
+function KeywordPanel({
+  title,
+  previewKeywords,
+  totalCount,
+  allKeywords,
+  emptyMessage,
+}: {
+  title: string;
+  previewKeywords: ReviewKeywordStat[];
+  totalCount: number;
+  allKeywords: ReviewKeywordStat[];
+  emptyMessage: string;
+}) {
+  const keywordsToRender = previewKeywords.length > 0 ? previewKeywords : allKeywords;
+
+  return (
+    <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
+      <div className="mb-200 flex justify-between">
+        <h3 className="font-designer-16b text-text-default">{title}</h3>
+        <span className="font-designer-12m text-text-subtlest">{totalCount}</span>
+      </div>
+
+      <ul className="flex flex-col gap-50">
+        {keywordsToRender.length > 0 ? (
+          keywordsToRender.map((keyword) => (
+            <li
+              key={keyword.id}
+              className="bg-background-accent-gray-default text-text-default rounded-50 flex justify-between px-200 py-100"
+            >
+              <span className="font-designer-14r">{keyword.content}</span>
+              <span className="font-designer-14b">{keyword.count}</span>
+            </li>
+          ))
+        ) : (
+          <span className="text-text-subtle font-designer-14r text-center">
+            {emptyMessage}
+          </span>
+        )}
+      </ul>
+    </div>
+  );
+}
+
+interface MyStudyReviewListSectionProps {
+  reviews: MyReviewItem[];
+  reviewTotalCount: number;
+  hasNextPage: boolean;
+  onLoadMore: () => void;
+}
+
+function MyStudyReviewListSection({
+  reviews,
+  reviewTotalCount,
+  hasNextPage,
+  onLoadMore,
+}: MyStudyReviewListSectionProps) {
+  return (
+    <section>
+      <div className="flex items-center gap-100">
+        <div className="font-designer-20b text-text-default">Reviews</div>
+        <div className="font-designer-20b text-text-default">{reviewTotalCount}</div>
+      </div>
+
+      <span className="font-designer-14r text-text-subtle">Visible only to you.</span>
+
+      <ul>
+        {reviews.length > 0 ? (
+          reviews.map((review) => (
+            <li
+              key={review.id}
+              className="border-b-border-subtle flex flex-col gap-150 border-b py-250"
+            >
+              <div>
+                <span className="font-designer-14b text-text-default mr-50">
+                  {review.writer.memberName}
+                </span>
+                <span className="font-designer-14r text-text-subtle">
+                  {review.reviewedAt}
+                </span>
+              </div>
+              <p className="text-text-default font-designer-15r">{review.content}</p>
+            </li>
+          ))
+        ) : (
+          <div className="text-text-subtle font-designer-14r flex h-[200px] items-center justify-center text-center">
+            No reviews yet.
+          </div>
+        )}
+
+        {hasNextPage && (
+          <button
+            className="font-designer-14m text-text-subtle hover:bg-background-accent-gray-default rounded-50 flex w-full cursor-pointer items-center justify-center py-200"
+            onClick={onLoadMore}
+          >
+            Load more
+          </button>
+        )}
+      </ul>
+    </section>
   );
 }
