@@ -49,15 +49,15 @@ jobs:
           curl -L --output /tmp/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
           chmod +x /tmp/cloudflared
           sudo mv /tmp/cloudflared /usr/local/bin/cloudflared
-          
+
           # sshpass 설치 (비밀번호 자동 입력용)
           sudo apt-get update -qq
           sudo apt-get install -y -qq sshpass
-          
+
           # SSH 설정 (Cloudflare Access만 사용)
           mkdir -p ~/.ssh
           ssh-keyscan -p 24 -H ssh.zeroone.it.kr >> ~/.ssh/known_hosts
-          
+
           # SSH config 생성 (Cloudflare Access로 인증)
           cat >> ~/.ssh/config << 'SSHCONFIG'
           Host ssh.zeroone.it.kr
