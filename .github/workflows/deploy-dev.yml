@@ -98,6 +98,10 @@ jobs:
               cd ~/front/study-platform-client-dev
             }
 
+            echo ".env 파일 생성 (서버 사이드 환경변수만 - NEXT_PUBLIC_*는 빌드 시 이미 포함됨)"
+            echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" > .env
+            echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
+
             echo "도커 이미지 pull"
             echo "$SUDO_PASSWORD" | sudo -S docker pull zerooneitkr/frontend:develop
 

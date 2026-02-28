@@ -84,21 +84,31 @@ jobs:
 
       - name: 서버 배포
         run: |
-          sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh ssh.zeroone.it.kr << EOF
-
+          SUDO_PASSWORD='${{ secrets.SSH_PASSWORD }}'
+          sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh ssh.zeroone.it.kr bash << EOF
+            set -e
+            
             echo "사용하지 않는 컨테이너, 이미지, 네트워크 정리 중 (볼륨제외)..."
-            sudo docker stop frontend-prod || true
-            sudo docker rm frontend-prod || true
-            sudo docker system prune -a -f
+            echo "$SUDO_PASSWORD" | sudo -S docker stop frontend-prod || true
+            echo "$SUDO_PASSWORD" | sudo -S docker rm frontend-prod || true
+            echo "$SUDO_PASSWORD" | sudo -S docker system prune -a -f
             
             # 여기다 도커 컴포즈 파일 갖다놓았기 때문임
-            cd ~/front/study-platform-client-prod
+            cd ~/front/study-platform-client-prod || {
+              echo "디렉토리가 없습니다. 생성합니다..."
+              mkdir -p ~/front/study-platform-client-prod
+              cd ~/front/study-platform-client-prod
+            }
+
+            echo ".env 파일 생성 (서버 사이드 환경변수만 - NEXT_PUBLIC_*는 빌드 시 이미 포함됨)"
+            echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" > .env
+            echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
 
             echo "도커 이미지 pull"
-            sudo docker pull zerooneitkr/frontend:prod
+            echo "$SUDO_PASSWORD" | sudo -S docker pull zerooneitkr/frontend:prod
 
             echo "도커 컴포즈 재시작"
-            sudo docker compose -f docker-compose.prod.yml up -d --build
+            echo "$SUDO_PASSWORD" | sudo -S docker compose -f docker-compose.prod.yml up -d --build
 
             echo "운영 서버 배포 완료"
           EOF
