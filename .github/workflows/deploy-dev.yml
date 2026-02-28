@@ -102,11 +102,27 @@ jobs:
             echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" > .env
             echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
 
+            echo "docker-compose.dev.yml 파일 생성"
+            echo "services:" > docker-compose.dev.yml
+            echo "  frontend:" >> docker-compose.dev.yml
+            echo "    container_name: frontend-dev" >> docker-compose.dev.yml
+            echo "    image: zerooneitkr/frontend:develop" >> docker-compose.dev.yml
+            echo "    ports:" >> docker-compose.dev.yml
+            echo "      - '14855:14855'" >> docker-compose.dev.yml
+            echo "    env_file:" >> docker-compose.dev.yml
+            echo "      - .env" >> docker-compose.dev.yml
+            echo "    restart: unless-stopped" >> docker-compose.dev.yml
+
+            echo "기존 컨테이너 완전 제거"
+            echo "$SUDO_PASSWORD" | sudo -S docker compose -f docker-compose.dev.yml down || true
+            echo "$SUDO_PASSWORD" | sudo -S docker stop frontend-dev || true
+            echo "$SUDO_PASSWORD" | sudo -S docker rm frontend-dev || true
+
             echo "도커 이미지 pull"
             echo "$SUDO_PASSWORD" | sudo -S docker pull zerooneitkr/frontend:develop
 
             echo "도커 컴포즈 재시작"
-            echo "$SUDO_PASSWORD" | sudo -S docker compose -f docker-compose.dev.yml up -d --build
+            echo "$SUDO_PASSWORD" | sudo -S docker compose -f docker-compose.dev.yml up -d
 
             echo "테스트 서버 배포 완료"
           EOF
