@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import dayjs from 'dayjs';
 import { Plus } from 'lucide-react';
-import { ChangeEvent, useState } from 'react';
+import { FormEvent, useState } from 'react';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/ui/button';
@@ -158,7 +158,7 @@ function CreateMissionForm({
     );
   };
 
-  const handlePreventInvalidValue = (event: ChangeEvent<HTMLInputElement>) => {
+  const handlePreventInvalidValue = (event: FormEvent<HTMLInputElement>) => {
     event.currentTarget.value = event.currentTarget.value.replace(
       /[^0-9]/g,
       '',

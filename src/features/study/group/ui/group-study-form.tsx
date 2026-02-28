@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useMemo, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, UseFormReturn, useForm } from 'react-hook-form';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -17,7 +17,8 @@ const ClassificationContext = createContext<StudyClassification>('GROUP_STUDY');
 export const useClassification = () => useContext(ClassificationContext);
 
 interface GroupStudyFormProps {
-  defaultValues: GroupStudyFormValues;
+  defaultValues?: GroupStudyFormValues;
+  methods?: UseFormReturn<GroupStudyFormValues>;
   onSubmit: (values: GroupStudyFormValues) => void;
 }
 
@@ -41,13 +42,16 @@ const STEP_FIELDS: Record<1 | 2 | 3, (keyof GroupStudyFormValues)[]> = {
 
 export default function GroupStudyForm({
   defaultValues,
+  methods: externalMethods,
   onSubmit,
 }: GroupStudyFormProps) {
-  const methods = useForm<GroupStudyFormValues>({
+  const internalMethods = useForm<GroupStudyFormValues>({
     resolver: zodResolver(GroupStudyFormSchema),
     mode: 'onChange',
     defaultValues: defaultValues,
   });
+
+  const methods = externalMethods ?? internalMethods;
 
   const { handleSubmit, trigger, formState, watch } = methods;
   const classification = watch('classification');

@@ -1,10 +1,12 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { GroupStudyFullResponseDto } from '@/api/openapi';
 import { Modal } from '@/components/ui/modal';
@@ -20,6 +22,7 @@ import {
 } from '../const/use-group-study-mutation';
 import {
   buildOpenGroupDefaultValues,
+  GroupStudyFormSchema,
   GroupStudyFormValues,
   StudyClassification,
   toCreateRequest,
@@ -68,6 +71,12 @@ export default function GroupStudyFormModal({
     setVerified,
   } = usePhoneVerificationStatus(memberId ?? undefined);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+  const createMethods = useForm<GroupStudyFormValues>({
+    resolver: zodResolver(GroupStudyFormSchema),
+    mode: 'onChange',
+    defaultValues: buildOpenGroupDefaultValues(classification),
+  });
 
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
@@ -193,6 +202,7 @@ export default function GroupStudyFormModal({
         'error',
       );
     } finally {
+      createMethods.reset(buildOpenGroupDefaultValues(classification));
       setOpen(false);
     }
   };
@@ -266,7 +276,7 @@ export default function GroupStudyFormModal({
             </Modal.Header>
             {mode === 'create' && (
               <GroupStudyForm
-                defaultValues={buildOpenGroupDefaultValues(classification)}
+                methods={createMethods}
                 onSubmit={handleSubmitForm}
               />
             )}
