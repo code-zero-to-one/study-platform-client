@@ -45,23 +45,32 @@ jobs:
     needs: build-and-push-image
 
     steps:
-      - name: Setup cloudflared and SSH
+      - name: Install cloudflared
         run: |
-          # cloudflared 바이너리 다운로드 (설치보다 빠름)
+          echo "Downloading cloudflared..."
           curl -L --output /tmp/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
           chmod +x /tmp/cloudflared
           sudo mv /tmp/cloudflared /usr/local/bin/cloudflared
+          cloudflared --version || echo "cloudflared 설치 확인 실패"
 
-          # sshpass 설치 (비밀번호 자동 입력용)
+      - name: Install sshpass
+        run: |
+          echo "Installing sshpass..."
           sudo apt-get update -qq
           sudo apt-get install -y -qq sshpass
+          sshpass -V || echo "sshpass 설치 확인 실패"
 
-          # SSH 설정 (Cloudflare Access만 사용)
+      - name: Setup SSH config
+        run: |
+          echo "Setting up SSH config..."
           mkdir -p ~/.ssh
-          ssh-keyscan -p 24 -H ssh.zeroone.it.kr >> ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
 
-          # SSH config 생성 (Cloudflare Access로 인증)
-          cat >> ~/.ssh/config << 'SSHCONFIG'
+          # known_hosts 설정 (실패해도 계속 진행)
+          ssh-keyscan -p 24 -H ssh.zeroone.it.kr >> ~/.ssh/known_hosts 2>&1 || echo "ssh-keyscan 실패 (계속 진행)"
+
+          # SSH config 생성
+          cat > ~/.ssh/config << 'SSHCONFIG'
           Host ssh.zeroone.it.kr
             HostName ssh.zeroone.it.kr
             User zero_one
@@ -70,6 +79,8 @@ jobs:
             StrictHostKeyChecking no
           SSHCONFIG
           chmod 600 ~/.ssh/config
+          echo "SSH config 생성 완료"
+          cat ~/.ssh/config
 
       - name: 서버 배포
         run: |
