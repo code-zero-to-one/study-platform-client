@@ -52,26 +52,28 @@ jobs:
           chmod +x /tmp/cloudflared
           sudo mv /tmp/cloudflared /usr/local/bin/cloudflared
           
-          # SSH 설정
+          # sshpass 설치 (비밀번호 자동 입력용)
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sshpass
+          
+          # SSH 설정 (Cloudflare Access만 사용)
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_PROD_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -p 24 -H ssh.zeroone.it.kr >> ~/.ssh/known_hosts
           
-          # SSH config 생성 (매번 옵션 입력 불필요)
+          # SSH config 생성 (Cloudflare Access로 인증)
           cat >> ~/.ssh/config << 'SSHCONFIG'
           Host ssh.zeroone.it.kr
             HostName ssh.zeroone.it.kr
             User zero_one
             Port 24
-            IdentityFile ~/.ssh/id_ed25519
             ProxyCommand cloudflared access ssh --hostname %h
+            StrictHostKeyChecking no
           SSHCONFIG
           chmod 600 ~/.ssh/config
 
       - name: 서버 배포
         run: |
-          ssh ssh.zeroone.it.kr << EOF
+          sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh ssh.zeroone.it.kr << EOF
 
             echo "사용하지 않는 컨테이너, 이미지, 네트워크 정리 중 (볼륨제외)..."
             sudo docker stop frontend-prod || true
