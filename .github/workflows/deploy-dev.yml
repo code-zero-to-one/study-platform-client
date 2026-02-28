@@ -1,11 +1,11 @@
-# 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.11.1 배포)
+# 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.10.30 이후)
 
-name: Front Production Server (Main)
+name: Front Test Server (Develop)
 
 on:
   push:
     branches:
-      - main # main 브랜치에 push가 발생하면 실행
+      - develop # develop 브랜치에 push가 발생하면 실행
 
 jobs:
   build-and-push-image: # 도커 이미지 빌드 및 도커 허브 push
@@ -17,17 +17,15 @@ jobs:
 
       - name: ENV 파일 생성
         run: |
-          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_PROD_BASE_URL }}" > .env
-          echo "NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}" >> .env
-          echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_KAKAO_CLIENT_ID }}" >> .env
-          echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_GOOGLE_CLIENT_ID }}" >> .env
-          echo "NEXT_PUBLIC_STRAPI_URL=${{ secrets.NEXT_PUBLIC_PROD_STRAPI_URL }}" >> .env
-
-          # 이 부분 부터 점검 필요 - 프로덕션 환경에서도 같은걸 씀? (GTM도 프로덕션 데브 같이쓰는게 맞음? dev 엔 현재 빠진듯?)
-          echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}" >> .env 
+          echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > .env
+          echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}" >> .env
+          echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env
+          echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}" >> .env
           echo "NEXT_PUBLIC_GOOGLE_SHEETS_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}" >> .env
           echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" >> .env
           echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
+          echo "NEXT_PUBLIC_STRAPI_URL=${{ secrets.NEXT_PUBLIC_STRAPI_URL }}" >> .env
+          echo "NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}" >> .env
 
       - name: DockerHub 로그인
         uses: docker/login-action@v2
@@ -37,8 +35,8 @@ jobs:
 
       - name: Docker 이미지 빌드 및 push
         run: |
-          docker build -f Dockerfile.prod -t zerooneitkr/frontend:prod .
-          docker push zerooneitkr/frontend:prod
+          docker build -f Dockerfile.dev -t zerooneitkr/frontend:develop .
+          docker push zerooneitkr/frontend:develop
 
   deploy-image-to-server: # 도커 허브 pull 후 서버에 배포
     runs-on: ubuntu-latest
@@ -85,20 +83,20 @@ jobs:
       - name: 서버 배포
         run: |
           sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh ssh.zeroone.it.kr << EOF
-
+            
             echo "사용하지 않는 컨테이너, 이미지, 네트워크 정리 중 (볼륨제외)..."
-            sudo docker stop frontend-prod || true
-            sudo docker rm frontend-prod || true
+            sudo docker stop frontend-dev || true
+            sudo docker rm frontend-dev || true
             sudo docker system prune -a -f
             
             # 여기다 도커 컴포즈 파일 갖다놓았기 때문임
-            cd ~/front/study-platform-client-prod
+            cd ~/front/study-platform-client-dev
 
             echo "도커 이미지 pull"
-            sudo docker pull zerooneitkr/frontend:prod
+            sudo docker pull zerooneitkr/frontend:develop
 
             echo "도커 컴포즈 재시작"
-            sudo docker compose -f docker-compose.prod.yml up -d --build
+            sudo docker compose -f docker-compose.dev.yml up -d --build
 
-            echo "운영 서버 배포 완료"
+            echo "테스트 서버 배포 완료"
           EOF
