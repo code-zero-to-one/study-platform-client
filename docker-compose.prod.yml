@@ -11,7 +11,7 @@ services:
     #   context: .
     #   dockerfile: Dockerfile.prod
     ports:
-      - '3000:3000'
+      - '13755:13755'
     env_file:
       - .env
     restart: unless-stopped
