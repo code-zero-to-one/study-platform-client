@@ -1,4 +1,4 @@
-# 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.11.1 배포)
+# 도커 허브에 이미지 push 후 서버에 배포하는 방식 (25.11.1 배포) 돌아라
 
 name: Front Production Server (Main)
 
@@ -45,31 +45,86 @@ jobs:
     needs: build-and-push-image
 
     steps:
-      - name: Setup SSH
+      - name: Install cloudflared
         run: |
+          echo "Downloading cloudflared..."
+          curl -L --output /tmp/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+          chmod +x /tmp/cloudflared
+          sudo mv /tmp/cloudflared /usr/local/bin/cloudflared
+          cloudflared --version || echo "cloudflared 설치 확인 실패"
+
+      - name: Install sshpass
+        run: |
+          echo "Installing sshpass..."
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq sshpass
+          sshpass -V || echo "sshpass 설치 확인 실패"
+
+      - name: Setup SSH config
+        run: |
+          echo "Setting up SSH config..."
           mkdir -p ~/.ssh
-          echo "${{ secrets.LIGHTSAIL_PROD_SSH_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan -p 9822 -H ${{ secrets.LIGHTSAIL_PROD_HOST }} >> ~/.ssh/known_hosts
-          echo "SSH 설정 완료"
+          chmod 700 ~/.ssh
+
+          # known_hosts 설정 (실패해도 계속 진행)
+          ssh-keyscan -p 24 -H ssh.zeroone.it.kr >> ~/.ssh/known_hosts 2>&1 || echo "ssh-keyscan 실패 (계속 진행)"
+
+          # SSH config 생성
+          cat > ~/.ssh/config << 'SSHCONFIG'
+          Host ssh.zeroone.it.kr
+            HostName ssh.zeroone.it.kr
+            User zero_one
+            Port 24
+            ProxyCommand cloudflared access ssh --hostname %h
+            StrictHostKeyChecking no
+          SSHCONFIG
+          chmod 600 ~/.ssh/config
+          echo "SSH config 생성 완료"
+          cat ~/.ssh/config
 
       - name: 서버 배포
         run: |
-          ssh -p 9822 -i ~/.ssh/id_ed25519 ${{ secrets.LIGHTSAIL_PROD_USER }}@${{ secrets.LIGHTSAIL_PROD_HOST }} << EOF
-
+          SUDO_PASSWORD='${{ secrets.SSH_PASSWORD }}'
+          sshpass -p '${{ secrets.SSH_PASSWORD }}' ssh ssh.zeroone.it.kr bash << EOF
+            set -e
+            
             echo "사용하지 않는 컨테이너, 이미지, 네트워크 정리 중 (볼륨제외)..."
-            sudo docker stop frontend-prod || true
-            sudo docker rm frontend-prod || true
-            sudo docker system prune -a -f
+            echo "$SUDO_PASSWORD" | sudo -S docker stop frontend-prod || true
+            echo "$SUDO_PASSWORD" | sudo -S docker rm frontend-prod || true
+            echo "$SUDO_PASSWORD" | sudo -S docker system prune -a -f
             
             # 여기다 도커 컴포즈 파일 갖다놓았기 때문임
-            cd ~/front/study-platform-client-prod
+            cd ~/front/study-platform-client-prod || {
+              echo "디렉토리가 없습니다. 생성합니다..."
+              mkdir -p ~/front/study-platform-client-prod
+              cd ~/front/study-platform-client-prod
+            }
+
+            echo ".env 파일 생성 (서버 사이드 환경변수만 - NEXT_PUBLIC_*는 빌드 시 이미 포함됨)"
+            echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" > .env
+            echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
+
+            echo "docker-compose.prod.yml 파일 생성"
+            echo "services:" > docker-compose.prod.yml
+            echo "  frontend:" >> docker-compose.prod.yml
+            echo "    container_name: frontend-prod" >> docker-compose.prod.yml
+            echo "    image: zerooneitkr/frontend:prod" >> docker-compose.prod.yml
+            echo "    ports:" >> docker-compose.prod.yml
+            echo "      - '13755:13755'" >> docker-compose.prod.yml
+            echo "    env_file:" >> docker-compose.prod.yml
+            echo "      - .env" >> docker-compose.prod.yml
+            echo "    restart: unless-stopped" >> docker-compose.prod.yml
+
+            echo "기존 컨테이너 완전 제거"
+            echo "$SUDO_PASSWORD" | sudo -S docker compose -f docker-compose.prod.yml down || true
+            echo "$SUDO_PASSWORD" | sudo -S docker stop frontend-prod || true
+            echo "$SUDO_PASSWORD" | sudo -S docker rm frontend-prod || true
 
             echo "도커 이미지 pull"
-            sudo docker pull zerooneitkr/frontend:prod
+            echo "$SUDO_PASSWORD" | sudo -S docker pull zerooneitkr/frontend:prod
 
             echo "도커 컴포즈 재시작"
-            sudo docker compose -f docker-compose.prod.yml up -d --build
+            echo "$SUDO_PASSWORD" | sudo -S docker compose -f docker-compose.prod.yml up -d
 
             echo "운영 서버 배포 완료"
           EOF
