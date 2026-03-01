@@ -5,14 +5,9 @@ import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { UserTransactionDetailResponseTransactionTypeEnum } from '@/api/openapi';
 import ApplyGroupStudyModal from '@/components/modals/apply-group-study-modal';
 import Button from '@/components/ui/button';
-import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
-import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
-import { useAuth } from '@/hooks/common/use-auth';
-import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
-import { useGetMyTransactionsByGroupStudy } from '@/hooks/queries/payment-user-api';
-import { useToastStore } from '@/stores/use-toast-store';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -23,6 +18,7 @@ import {
 } from '@/config/group-study-const';
 import { useAuth } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useGetMyTransactionsByGroupStudy } from '@/hooks/queries/payment-user-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { GroupStudyFullResponse } from '@/types/api/group-study.types';
 
