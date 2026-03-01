@@ -32,6 +32,8 @@ ENV NODE_OPTIONS="--max-old-space-size=4096"
 # devDependencies는 설치하지 않고 dependencies만 설치
 RUN yarn install --production 
 
-EXPOSE 3000
+# 포트 설정 (dev 환경)
+ENV PORT=14855
+EXPOSE 14855
 
 CMD ["yarn", "start"]

@@ -18,6 +18,14 @@ import { getKoreaDate } from '@/utils/time';
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 
+// [보안/데이터 무결성] 백엔드 DTO의 @Size 어노테이션과 동기화.
+// 출처: GroupStudyDetailInfoRequestDto.java, GroupStudyInterviewPostRequestDto.java
+export const GROUP_STUDY_TITLE_MAX_LENGTH = 100;
+export const GROUP_STUDY_SUMMARY_MAX_LENGTH = 200;
+export const GROUP_STUDY_DESCRIPTION_MAX_LENGTH = 1000;
+export const GROUP_STUDY_LOCATION_MAX_LENGTH = 255;
+export const GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH = 500;
+
 export const STUDY_CLASSIFICATION = ['GROUP_STUDY', 'PREMIUM_STUDY'] as const;
 export type StudyClassification = (typeof STUDY_CLASSIFICATION)[number];
 
@@ -44,7 +52,13 @@ export const GroupStudyFormSchema = z
     // 진행 방식(1)
     method: z.enum(STUDY_METHODS),
     // 진행 방식 (위치) optional (1)
-    location: z.string().trim(),
+    location: z
+      .string()
+      .trim()
+      .max(
+        GROUP_STUDY_LOCATION_MAX_LENGTH,
+        `위치는 ${GROUP_STUDY_LOCATION_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     // 정기 모임(1)
     regularMeeting: z.enum(REGULAR_MEETINGS),
     // 진행 기간 (시작일) (1)
@@ -59,11 +73,32 @@ export const GroupStudyFormSchema = z
       .regex(ISO_DATE_REGEX, 'YYYY-MM-DD 형식의 종료일을 입력해 주세요.'),
     price: z.string().trim().optional(),
     // 스터디 제목(2)
-    title: z.string().trim().min(1, '스터디 제목을 입력해주세요.'),
+    title: z
+      .string()
+      .trim()
+      .min(1, '스터디 제목을 입력해주세요.')
+      .max(
+        GROUP_STUDY_TITLE_MAX_LENGTH,
+        `제목은 ${GROUP_STUDY_TITLE_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     // 스터디 한 줄 소개(2)
-    summary: z.string().trim().min(1, '한 줄 소개를 입력해주세요.'),
+    summary: z
+      .string()
+      .trim()
+      .min(1, '한 줄 소개를 입력해주세요.')
+      .max(
+        GROUP_STUDY_SUMMARY_MAX_LENGTH,
+        `한 줄 소개는 ${GROUP_STUDY_SUMMARY_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     // 스터디 소개(2)
-    description: z.string().trim().min(1, '스터디 소개를 입력해주세요.'),
+    description: z
+      .string()
+      .trim()
+      .min(1, '스터디 소개를 입력해주세요.')
+      .max(
+        GROUP_STUDY_DESCRIPTION_MAX_LENGTH,
+        `스터디 소개는 ${GROUP_STUDY_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     // 썸네일 START(2)
     thumbnailExtension: z
       .enum(THUMBNAIL_EXTENSION)
@@ -73,12 +108,31 @@ export const GroupStudyFormSchema = z
     // 썸네일 END(2)
     // 스터디원에게 보여줄 질문을 입력하세요(3)
     interviewPost: z
-      .array(z.string())
-      .refine((arr) => arr.length > 0 && arr.every((v) => v.trim() !== ''), {
-        message: '모든 질문을 입력해야 합니다.',
-      })
-      .refine((arr) => arr.length <= 10, {
-        message: '질문은 최대 10개까지만 입력할 수 있습니다.',
+      .array(
+        z
+          .string()
+          .trim()
+          .max(
+            GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH,
+            `질문은 ${GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH}자 이하로 입력해주세요.`,
+          ),
+      )
+      .superRefine((arr, ctx) => {
+        if (arr.length > 10) {
+          ctx.addIssue({
+            code: "custom",
+            message: '질문은 최대 10개까지만 입력할 수 있습니다.',
+          });
+        }
+        arr.forEach((item, idx) => {
+          if (!item || item.trim() === '') {
+            ctx.addIssue({
+              code: "custom",
+              message: '질문을 입력해주세요.',
+              path: [idx],
+            });
+          }
+        });
       }),
   })
   .superRefine((data, ctx) => {
@@ -87,7 +141,7 @@ export const GroupStudyFormSchema = z
     if (data.classification === 'PREMIUM_STUDY') {
       if (!data.price || priceNum < 10000) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: '참가비는 10,000원 이상이어야 합니다.',
           path: ['price'],
         });
@@ -96,7 +150,7 @@ export const GroupStudyFormSchema = z
     // 그룹 스터디: 0원만 허용
     else if (data.price && priceNum !== 0) {
       ctx.addIssue({
-        code: z.ZodIssueCode.custom,
+        code: "custom",
         message: '그룹 스터디는 무료만 가능합니다.',
         path: ['price'],
       });
@@ -120,7 +174,7 @@ export const GroupStudyFormSchema = z
 
       if (data.startDate < tomorrowYmd) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: '스터디 시작일은 내일부터 설정할 수 있습니다.',
           path: ['startDate'],
         });
@@ -136,7 +190,7 @@ export const GroupStudyFormSchema = z
       const end = parseDate(data.endDate);
       if (end < start) {
         ctx.addIssue({
-          code: z.ZodIssueCode.custom,
+          code: "custom",
           message: '종료일은 시작일과 같거나 이후여야 합니다.',
           path: ['endDate'],
         });

@@ -9,7 +9,7 @@ import { BaseInput } from '@/components/ui/input';
 import { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
 
 export default function Step3OpenGroupStudy() {
-  const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
+  const { setValue, getValues, formState } = useFormContext<GroupStudyFormValues>();
 
   const initQuestions = getValues('interviewPost');
 
@@ -44,21 +44,28 @@ export default function Step3OpenGroupStudy() {
       >
         <div className="flex flex-col gap-100">
           {questions.map((q, index) => (
-            <div key={index} className="flex items-start gap-100">
-              <BaseInput
-                placeholder={index === 0 ? '지원동기를 작성해주세요' : ''}
-                value={q}
-                onChange={(e) => handleChange(index, e.target.value)}
-              />
-              {index > 0 && (
-                <button
-                  type="button"
-                  aria-label={`질문 ${index + 1} 삭제`}
-                  className="rounded-75 border-border-default text-icon-default hover:bg-background-alternative hover:border-border-hover flex h-600 w-600 shrink-0 items-center justify-center border transition-colors"
-                  onClick={() => handleRemove(index)}
-                >
-                  <XIcon size={16} />
-                </button>
+            <div key={index} className="flex flex-col gap-75">
+              <div className="flex items-start gap-100">
+                <BaseInput
+                  placeholder={index === 0 ? '지원동기를 작성해주세요' : ''}
+                  value={q}
+                  onChange={(e) => handleChange(index, e.target.value)}
+                />
+                {index > 0 && (
+                  <button
+                    type="button"
+                    aria-label={`질문 ${index + 1} 삭제`}
+                    className="rounded-75 border-border-default text-icon-default hover:bg-background-alternative hover:border-border-hover flex h-600 w-600 shrink-0 items-center justify-center border transition-colors"
+                    onClick={() => handleRemove(index)}
+                  >
+                    <XIcon size={16} />
+                  </button>
+                )}
+              </div>
+              {formState.errors.interviewPost?.[index]?.message && (
+                <p role="alert" className="font-designer-14r text-text-error">
+                  {formState.errors.interviewPost[index]?.message as string}
+                </p>
               )}
             </div>
           ))}

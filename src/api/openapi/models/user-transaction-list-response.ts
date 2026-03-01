@@ -13,6 +13,7 @@
  */
 
 
+import { VirtualAccountInfo } from "./virtual-account-info";
 
 export interface UserTransactionListResponse {
     'groupStudyId'?: number;
@@ -28,6 +29,7 @@ export interface UserTransactionListResponse {
     'paidAt'?: string;
     'paymentMethod'?: string;
     'paymentReceiptUrl'?: string;
+    'virtualAccountInfo'?: VirtualAccountInfo;
 }
 
 export const UserTransactionListResponseLatestTransactionTypeEnum = {
