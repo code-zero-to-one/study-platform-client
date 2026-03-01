@@ -4,9 +4,9 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 import { ArrowRightIcon } from 'lucide-react';
+import { getAccountHistoriesInServer } from '@/api/endpoints/admin/account-history.server';
 import Badge from '@/components/ui/badge';
-import { getAccountHistoriesInServer } from '@/features/admin/api/account-history.server';
-import { GetAccountHistoriesResponse } from '@/features/admin/api/types';
+import { GetAccountHistoriesResponse } from '@/types/api/admin.types';
 import { formatHHMM, formatYYYYMMDD } from '@/utils/time';
 
 export default async function AccountHistoryPage({

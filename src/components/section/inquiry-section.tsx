@@ -8,9 +8,9 @@ import QuestionModal from '@/components/modals/question-modal';
 import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
-import { CATEGORY_LABEL } from '@/features/study/group/model/question.schema';
 import { useGetQuestion, useGetQuestions } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
 
 const PAGE_SIZE = 15;

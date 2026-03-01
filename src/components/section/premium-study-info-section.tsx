@@ -3,17 +3,17 @@
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
+import UserProfileModal from '@/components/modals/user-profile-modal';
 import UserAvatar from '@/components/ui/avatar';
 import AvatarStack from '@/components/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/ui/avatar-stack';
 import Button from '@/components/ui/button';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
-import { GroupStudyFullResponse } from '../../features/study/group/api/group-study-types';
+import { GroupStudyFullResponse } from '@/types/api/group-study.types';
 
-import { useApplicantsByStatusQuery } from '../../features/study/group/application/model/use-applicant-qeury';
 import SummaryStudyInfo from '../summary/study-info-summary';
 
 function getApplicantsList<T>(pages: { content: T[] }[] | undefined) {

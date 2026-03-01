@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { getUserProfile } from '@/entities/user/api/get-user-profile';
+import { getUserProfile } from '@/api/endpoints/user/get-user-profile';
 
 interface UserInfo {
   memberId: number | null;

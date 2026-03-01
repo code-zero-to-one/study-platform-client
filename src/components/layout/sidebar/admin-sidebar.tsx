@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import UserAvatar from '@/components/ui/avatar';
 import TabMenu from '@/components/ui/tab-menu';
-import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
 import { useAuthReady } from '@/hooks/common/use-auth';
+import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 import OutIcon from 'public/icons/out.svg';
 
 export default function AdminSideBar() {

@@ -5,9 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import StudyCard from '@/components/card/study-card';
-import { useMemberStudyListQuery } from '@/features/study/group/model/use-member-study-list-query';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
+import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 import { hashValue } from '@/utils/hash';
 
 interface MyParticipatingStudiesSectionProps {

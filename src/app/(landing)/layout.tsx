@@ -6,10 +6,10 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import ClarityInit from '@/components/analytics/clarity-init';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
+import Header from '@/components/layout/home-header';
 import MainProvider from '@/providers';
 import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
 import { getServerCookie } from '@/utils/server-cookie';
-import Header from '@/widgets/home/header';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE - 1:1 기상 스터디 플랫폼',

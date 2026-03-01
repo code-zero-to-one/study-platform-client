@@ -4,10 +4,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import type { PeerReviewResponse } from '@/api/openapi/models';
+import ConfirmDeleteModal from '@/components/modals/confirm-delete-modal';
 import Avatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
-import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
 import { useGetHomework } from '@/hooks/queries/group-study-homework-api';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import {

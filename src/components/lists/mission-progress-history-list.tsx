@@ -1,9 +1,9 @@
 import { format } from 'date-fns';
+import { useGetMissionEvaluationGrades } from '@/hooks/queries/evaluation-api';
 import {
   MemberProgress,
   MissionProgressHistory,
-} from '@/features/study/group/api/group-study-types';
-import { useGetMissionEvaluationGrades } from '@/hooks/queries/evaluation-api';
+} from '@/types/api/group-study.types';
 import { formatToKST } from '@/utils/time';
 
 export default function MissionProgressHistoryList({

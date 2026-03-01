@@ -8,14 +8,14 @@ import Badge from '@/components/ui/badge';
 import StudyCardCountdownBadge from '@/components/ui/study-card-countdown-badge';
 
 import {
-  ExperienceLevel,
-  StudyType,
-} from '@/features/study/group/api/group-study-types';
-import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
   STUDY_TYPE_LABELS,
-} from '@/features/study/group/const/group-study-const';
+} from '@/config/group-study-const';
+import {
+  ExperienceLevel,
+  StudyType,
+} from '@/types/api/group-study.types';
 
 type BadgeColor =
   | 'default'

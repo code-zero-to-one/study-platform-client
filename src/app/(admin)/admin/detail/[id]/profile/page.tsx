@@ -1,14 +1,14 @@
 import { QueryClient } from '@tanstack/react-query';
+import { getUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
+import ProfileInfoCard from '@/components/cards/profile-info-card';
+import CakeIcon from '@/components/my-page/icon/cake.svg';
+import GithubIcon from '@/components/my-page/icon/github-logo.svg';
+import GlobeIcon from '@/components/my-page/icon/globe-simple.svg';
+import PhoneIcon from '@/components/my-page/icon/phone.svg';
 import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
-import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
-import { GetUserProfileResponse } from '@/entities/user/api/types';
-import ProfileInfoCard from '@/entities/user/ui/profile-info-card';
-import CakeIcon from '@/features/my-page/ui/icon/cake.svg';
-import GithubIcon from '@/features/my-page/ui/icon/github-logo.svg';
-import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
-import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
+import { GetUserProfileResponse } from '@/types/api/user.types';
 
 // todo: UserProfileModal과 거의 유사하여 나중에 리팩토링하기
 export default async function ProfilePage({

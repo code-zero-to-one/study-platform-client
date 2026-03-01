@@ -1,6 +1,6 @@
 // 소셜 로그인이 실패할 경우 리다이렉트되는 페이지
 import { Metadata } from 'next';
-import Landing from '@/features/auth/ui/landing';
+import Landing from '@/components/forms/landing';
 
 export const metadata: Metadata = {
   title: '로그인',

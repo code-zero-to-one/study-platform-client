@@ -2,15 +2,15 @@
 
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import KeywordReview from '@/components/cards/keyword-review';
+import MoreKeywordReviewModal from '@/components/modals/more-keyword-review-modal';
 import UserAvatar from '@/components/ui/avatar';
-import { MyReviewItem } from '@/entities/review/api/review-types';
 import {
   useMyNegativeKeywordsQuery,
   useMyReviewsInfinityQuery,
   useUserPositiveKeywordsQuery,
-} from '@/entities/review/model/use-review-query';
-import KeywordReview from '@/entities/user/ui/keyword-review';
-import MoreKeywordReviewModal from '@/entities/user/ui/more-keyword-review-modal';
+} from '@/hooks/queries/use-review-query';
+import { MyReviewItem } from '@/types/api/review.types';
 import { formatKoreaRelativeTime } from '@/utils/time';
 
 export default function MyStudyReview() {

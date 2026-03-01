@@ -5,16 +5,16 @@ import dynamic from 'next/dynamic';
 import StudyFilter from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
 import PageContainer from '@/components/layout/page-container';
+import GroupStudyFormModal from '@/components/modals/group-study-form-modal';
 import PremiumStudyList from '@/components/premium/premium-study-list';
 import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
 import Button from '@/components/ui/button';
-import GroupStudyFormModal from '@/features/study/group/ui/group-study-form-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
 
 // Carousel이 클라이언트 전용이므로 dynamic import로 로드
-const Banner = dynamic(() => import('@/widgets/home/banner'), {
+const Banner = dynamic(() => import('@/components/home/banner'), {
   ssr: false,
 });
 

@@ -7,11 +7,11 @@ import localFont from 'next/font/local';
 import React from 'react';
 import ClarityInit from '@/components/analytics/clarity-init';
 import PageViewTracker from '@/components/analytics/page-view-tracker';
+import Header from '@/components/layout/home-header';
 import FloatingInquiryButton from '@/components/ui/floating-inquiry-button';
 import GlobalToast from '@/components/ui/global-toast';
 import MainProvider from '@/providers';
 import { getServerCookie } from '@/utils/server-cookie';
-import Header from '@/widgets/home/header';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',

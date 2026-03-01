@@ -6,8 +6,8 @@ import {
   fetchArticles,
   fetchCategories,
 } from '@/api/strapi/api/fetch-articles';
+import Banner from '@/components/home/banner';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
-import Banner from '@/widgets/home/banner';
 
 export const revalidate = 60;
 

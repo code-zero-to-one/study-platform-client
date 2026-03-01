@@ -5,7 +5,7 @@ import {
   CreateQuestionRequest,
   getQuestion,
   getQuestions,
-} from '@/features/study/group/api/question-api';
+} from '@/api/endpoints/group-study/question-api';
 
 export const useCreateQuestion = () => {
   const queryClient = useQueryClient();

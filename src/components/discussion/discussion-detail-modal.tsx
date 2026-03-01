@@ -9,9 +9,9 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import React, { useState } from 'react';
+import UserProfileModal from '@/components/modals/user-profile-modal';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
 import { Discussion, VoteType } from '@/types/discussion';
 import { CommentFormData } from '@/types/schemas/zod-schema';

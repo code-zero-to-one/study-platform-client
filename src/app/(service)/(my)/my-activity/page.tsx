@@ -1,8 +1,8 @@
 'use client';
 
 import Image from 'next/image';
-import { useStudyDashboardQuery } from '@/features/my-page/model/use-update-user-profile-mutation';
-import MyStudyCard from '@/widgets/my-study/my-study-card';
+import MyStudyCard from '@/components/cards/my-study-card';
+import { useStudyDashboardQuery } from '@/hooks/queries/use-update-user-profile-mutation';
 
 export default function MyActivity() {
   const { data: dashboard, isLoading, isError } = useStudyDashboardQuery();

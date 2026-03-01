@@ -10,8 +10,8 @@ import {
   BALANCE_GAME_TAG_MAX_COUNT,
   BALANCE_GAME_TAG_MAX_LEN,
   BALANCE_GAME_TAG_MIN_QUERY_LEN,
-} from '@/features/study/one-to-one/balance-game/const/tags';
-import { useBalanceGameTagSuggestionsQuery } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
+} from '@/config/balance-game-tags';
+import { useBalanceGameTagSuggestionsQuery } from '@/hooks/queries/use-balance-game-query';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   VotingCreateFormSchema,

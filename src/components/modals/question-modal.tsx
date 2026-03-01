@@ -9,16 +9,16 @@ import Button from '@/components/ui/button';
 import ImageUploadInput from '@/components/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { useCreateQuestion } from '@/hooks/queries/question-api';
+import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
+import { useToastStore } from '@/stores/use-toast-store';
 import {
   QUESTION_CONTENT_MAX_LENGTH,
   questionSchema,
   QuestionCategory,
   QuestionFormValues,
   QUESTION_TITLE_MAX_LENGTH,
-} from '@/features/study/group/model/question.schema';
-import { useCreateQuestion } from '@/hooks/queries/question-api';
-import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
-import { useToastStore } from '@/stores/use-toast-store';
+} from '@/types/schemas/question.schema';
 import { SingleDropdown } from '../ui/dropdown';
 import FormField from '../ui/form/form-field';
 

@@ -14,6 +14,8 @@ import {
 import React, { useState, useEffect } from 'react';
 import CommentForm from '@/components/discussion/comment-form';
 import CommentList from '@/components/discussion/comment-list';
+import LoginModal from '@/components/modals/login-modal';
+import UserProfileModal from '@/components/modals/user-profile-modal';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
@@ -22,8 +24,7 @@ import Toast from '@/components/ui/toast';
 import DailyStatsChart from '@/components/voting/daily-stats-chart';
 import VoteResultsChart from '@/components/voting/vote-results-chart';
 import VoteTimer from '@/components/voting/vote-timer';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import LoginModal from '@/features/auth/ui/login-modal';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   useVoteBalanceGameMutation,
   useCancelVoteBalanceGameMutation,
@@ -32,12 +33,11 @@ import {
   useDeleteBalanceGameMutation,
   useUpdateBalanceGameCommentMutation,
   useUpdateBalanceGameMutation,
-} from '@/features/study/one-to-one/balance-game/model/use-balance-game-mutation';
+} from '@/hooks/queries/use-balance-game-mutation';
 import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
-} from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
-import { useAuthReady } from '@/hooks/common/use-auth';
+} from '@/hooks/queries/use-balance-game-query';
 import { useUserStore } from '@/stores/useUserStore';
 import { BalanceGameComment } from '@/types/balance-game';
 import {

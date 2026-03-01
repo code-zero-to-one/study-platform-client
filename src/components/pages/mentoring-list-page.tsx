@@ -10,7 +10,7 @@ import { Modal } from '@/components/ui/modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
 
 // Carousel이 클라이언트 전용이므로 dynamic import로 로드
-const Banner = dynamic(() => import('@/widgets/home/banner'), {
+const Banner = dynamic(() => import('@/components/home/banner'), {
   ssr: false,
 });
 

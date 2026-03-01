@@ -2,8 +2,8 @@
 
 import { Crown, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
+import UserProfileModal from '@/components/modals/user-profile-modal';
 import UserAvatar from '@/components/ui/avatar';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { cn } from './(shadcn)/lib/utils';
 
 export interface AvatarStackMember {

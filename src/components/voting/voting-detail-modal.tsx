@@ -1,8 +1,8 @@
 import { X, TrendingUp, Info, MessageCircle } from 'lucide-react';
 import React, { useState } from 'react';
+import UserProfileModal from '@/components/modals/user-profile-modal';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
 import { CommentFormData } from '@/types/schemas/zod-schema';
 import { Voting } from '@/types/voting';
 import VoteResultsChart from './vote-results-chart';

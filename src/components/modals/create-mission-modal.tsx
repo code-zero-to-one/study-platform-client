@@ -9,8 +9,8 @@ import DatePicker from '@/components/ui/date-picker';
 import FormField from '@/components/ui/form/form-field';
 import { BaseInput, TextAreaInput } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { useGroupStudyDetailQuery } from '@/features/study/group/model/use-study-query';
 import { useCreateMission, useGetMissions } from '@/hooks/queries/mission-api';
+import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   createDisabledDateMatcherForMission,

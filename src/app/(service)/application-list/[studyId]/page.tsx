@@ -1,4 +1,4 @@
-import ApplicantPage from '@/features/my-page/ui/applicant-page';
+import ApplicantPage from '@/components/my-page/applicant-page';
 
 export default async function ApplicationListPage({
   params,

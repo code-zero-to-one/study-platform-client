@@ -3,10 +3,10 @@ import {
   HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query';
-import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
-import { GetUserProfileResponse } from '@/entities/user/api/types';
-import Profile from '@/features/my-page/ui/profile';
-import ProfileInfo from '@/features/my-page/ui/profile-info';
+import { getUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
+import Profile from '@/components/my-page/profile';
+import ProfileInfo from '@/components/my-page/profile-info';
+import { GetUserProfileResponse } from '@/types/api/user.types';
 import { getServerCookie } from '@/utils/server-cookie';
 
 export default async function MyPage() {

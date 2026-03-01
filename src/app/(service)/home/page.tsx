@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
+import Banner from '@/components/home/banner';
+import FeedbackLink from '@/components/home/feedback-link';
 import StartStudyButton from '@/components/home/start-study-button';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
-import Banner from '@/widgets/home/banner';
-import FeedbackLink from '@/widgets/home/feedback-link';
 import HomeContent from './home-content';
 
 export const metadata: Metadata = generateSEOMetadata({
