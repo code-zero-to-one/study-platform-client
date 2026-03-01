@@ -1,4 +1,4 @@
-import { ResizedImage } from '../../api/group-study-types';
+import { ResizedImage } from '@/types/api/group-study.types';
 
 interface GroupStudyIdParam {
   groupStudyId: number;

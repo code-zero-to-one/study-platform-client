@@ -1,12 +1,4 @@
 import { z } from 'zod';
-import { getKoreaDate } from '@/utils/time';
-import {
-  BasicInfoCommon,
-  GroupStudyCreateRequest,
-  GroupStudyFormRequest,
-  GroupStudyRequestCommon,
-  GroupStudyUpdateRequest,
-} from '../api/group-study-types';
 import {
   STUDY_TYPES,
   TARGET_ROLE_OPTIONS,
@@ -14,7 +6,15 @@ import {
   REGULAR_MEETINGS,
   THUMBNAIL_EXTENSION,
   STUDY_METHODS,
-} from '../const/group-study-const';
+} from '@/config/group-study-const';
+import {
+  BasicInfoCommon,
+  GroupStudyCreateRequest,
+  GroupStudyFormRequest,
+  GroupStudyRequestCommon,
+  GroupStudyUpdateRequest,
+} from '@/types/api/group-study.types';
+import { getKoreaDate } from '@/utils/time';
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 

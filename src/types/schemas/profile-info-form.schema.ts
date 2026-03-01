@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { MemberInfo } from '@/entities/user/api/types';
-import type { UpdateUserProfileInfoRequest } from '../api/types';
+import type { UpdateUserProfileInfoRequest } from '@/types/api/my-page.types';
+import type { MemberInfo } from '@/types/api/user.types';
 
 export const ProfileInfoFormSchema = z.object({
   selfIntroduction: z

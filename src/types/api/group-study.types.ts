@@ -5,7 +5,7 @@ import {
   STUDY_TYPES,
   TARGET_ROLE_OPTIONS,
   THUMBNAIL_EXTENSION,
-} from '../const/group-study-const';
+} from '@/config/group-study-const';
 
 // 그룹 스터디 신청 상태
 export type ApplicationStatus =

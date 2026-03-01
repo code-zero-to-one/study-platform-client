@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import type { GetUserProfileResponse } from '@/entities/user/api/types';
-import { JoinStudyRequest } from '@/features/study/participation/api/participation-types';
+import { JoinStudyRequest } from '@/types/api/participation.types';
+import type { GetUserProfileResponse } from '@/types/api/user.types';
 import { UrlSchema } from '@/types/schemas/zod-schema';
 
 export const StartStudyFormSchema = z.object({

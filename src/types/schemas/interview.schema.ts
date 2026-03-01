@@ -1,9 +1,9 @@
 import { z } from 'zod';
+import { STUDY_PROGRESS_OPTIONS } from '@/config/interview-const';
 import type {
   DailyStudyDetail,
   StudyProgressStatus,
-} from '@/features/study/interview/api/interview-types';
-import { STUDY_PROGRESS_OPTIONS } from '@/features/study/interview/const/interview-const';
+} from '@/types/api/interview.types';
 import { UrlSchema } from '@/types/schemas/zod-schema';
 
 // 스터디 준비 스키마

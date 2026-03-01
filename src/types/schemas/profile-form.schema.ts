@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import type { MemberProfile } from '@/entities/user/api/types';
+import { UpdateUserProfileRequest } from '@/types/api/my-page.types';
+import type { MemberProfile } from '@/types/api/user.types';
 import { UrlSchema } from '@/types/schemas/zod-schema';
-import { UpdateUserProfileRequest } from '../api/types';
 
 const nameRegex = /^[가-힣a-zA-Z]{2,10}$/;
 const telRegex = /^\d{2,3}-\d{3,4}-\d{4}$/;
