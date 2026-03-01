@@ -2,7 +2,6 @@ import { getUserProfile } from '@/api/endpoints/user/get-user-profile';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
-
 interface UserInfo {
   memberId: number | null;
   nickname: string | null;
