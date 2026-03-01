@@ -78,6 +78,11 @@ export default function GroupStudyFormModal({
     defaultValues: buildOpenGroupDefaultValues(classification),
   });
 
+  const editMethods = useForm<GroupStudyFormValues>({
+    resolver: zodResolver(GroupStudyFormSchema),
+    mode: 'onChange',
+  });
+
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
     setIsVerificationModalOpen(false);
@@ -256,6 +261,12 @@ export default function GroupStudyFormModal({
       ? refineStudyDetail(groupStudyInfo)
       : null;
 
+  useEffect(() => {
+    if (mode === 'edit' && controlledOpen && groupStudyInfo) {
+      editMethods.reset(refineStudyDetail(groupStudyInfo));
+    }
+  }, [controlledOpen, groupStudyInfo]);
+
   return (
     <>
       <Modal.Root
@@ -287,7 +298,7 @@ export default function GroupStudyFormModal({
             )}
             {mode === 'edit' && !isGroupStudyLoading && editDefaultValues && (
               <GroupStudyForm
-                defaultValues={editDefaultValues}
+                methods={editMethods}
                 onSubmit={handleSubmitForm}
               />
             )}
