@@ -3,17 +3,17 @@
 import MyMentoringReviewPanel from '@/features/mentoring/ui/review/my-mentoring-review-panel';
 import type { MyReviewItem } from '@/entities/review/api/review-types';
 
-type ReviewKeywordStat = {
+type MentoringReviewKeywordStat = {
   id: number;
   content: string;
   count: number;
 };
 
-interface MyStudyReviewCompositeProps {
-  positiveKeywords: ReviewKeywordStat[];
-  negativeKeywords: ReviewKeywordStat[];
-  allPositiveKeywords: ReviewKeywordStat[];
-  allNegativeKeywords: ReviewKeywordStat[];
+interface MyMentoringReviewCompositeProps {
+  positiveKeywords: MentoringReviewKeywordStat[];
+  negativeKeywords: MentoringReviewKeywordStat[];
+  allPositiveKeywords: MentoringReviewKeywordStat[];
+  allNegativeKeywords: MentoringReviewKeywordStat[];
   positiveKeywordsCount: number;
   negativeKeywordsCount: number;
   reviews: MyReviewItem[];
@@ -22,7 +22,7 @@ interface MyStudyReviewCompositeProps {
   onLoadMore: () => void;
 }
 
-export default function MyStudyReviewComposite({
+export default function MyMentoringReviewComposite({
   positiveKeywords,
   negativeKeywords,
   allPositiveKeywords,
@@ -33,12 +33,12 @@ export default function MyStudyReviewComposite({
   reviewTotalCount,
   hasNextPage,
   onLoadMore,
-}: MyStudyReviewCompositeProps) {
+}: MyMentoringReviewCompositeProps) {
   return (
     <>
       <MyMentoringReviewPanel />
 
-      <MyStudyReviewKeywordPanels
+      <MyMentoringReviewKeywordPanels
         positiveKeywords={positiveKeywords}
         negativeKeywords={negativeKeywords}
         allPositiveKeywords={allPositiveKeywords}
@@ -47,7 +47,7 @@ export default function MyStudyReviewComposite({
         negativeKeywordsCount={negativeKeywordsCount}
       />
 
-      <MyStudyReviewListSection
+      <MyMentoringReviewListSection
         reviews={reviews}
         reviewTotalCount={reviewTotalCount}
         hasNextPage={hasNextPage}
@@ -57,23 +57,23 @@ export default function MyStudyReviewComposite({
   );
 }
 
-interface MyStudyReviewKeywordPanelsProps {
-  positiveKeywords: ReviewKeywordStat[];
-  negativeKeywords: ReviewKeywordStat[];
-  allPositiveKeywords: ReviewKeywordStat[];
-  allNegativeKeywords: ReviewKeywordStat[];
+interface MyMentoringReviewKeywordPanelsProps {
+  positiveKeywords: MentoringReviewKeywordStat[];
+  negativeKeywords: MentoringReviewKeywordStat[];
+  allPositiveKeywords: MentoringReviewKeywordStat[];
+  allNegativeKeywords: MentoringReviewKeywordStat[];
   positiveKeywordsCount: number;
   negativeKeywordsCount: number;
 }
 
-function MyStudyReviewKeywordPanels({
+function MyMentoringReviewKeywordPanels({
   positiveKeywords,
   negativeKeywords,
   allPositiveKeywords,
   allNegativeKeywords,
   positiveKeywordsCount,
   negativeKeywordsCount,
-}: MyStudyReviewKeywordPanelsProps) {
+}: MyMentoringReviewKeywordPanelsProps) {
   const totalKeywordsCount = positiveKeywordsCount + negativeKeywordsCount;
 
   return (
@@ -119,9 +119,9 @@ function KeywordPanel({
   emptyMessage,
 }: {
   title: string;
-  previewKeywords: ReviewKeywordStat[];
+  previewKeywords: MentoringReviewKeywordStat[];
   totalCount: number;
-  allKeywords: ReviewKeywordStat[];
+  allKeywords: MentoringReviewKeywordStat[];
   emptyMessage: string;
 }) {
   const keywordsToRender = previewKeywords.length > 0 ? previewKeywords : allKeywords;
@@ -154,19 +154,19 @@ function KeywordPanel({
   );
 }
 
-interface MyStudyReviewListSectionProps {
+interface MyMentoringReviewListSectionProps {
   reviews: MyReviewItem[];
   reviewTotalCount: number;
   hasNextPage: boolean;
   onLoadMore: () => void;
 }
 
-function MyStudyReviewListSection({
+function MyMentoringReviewListSection({
   reviews,
   reviewTotalCount,
   hasNextPage,
   onLoadMore,
-}: MyStudyReviewListSectionProps) {
+}: MyMentoringReviewListSectionProps) {
   return (
     <section>
       <div className="flex items-center gap-100">
