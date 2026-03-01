@@ -1,7 +1,11 @@
 // features/thread/ThreadReaction.tsx
 import { useMutation } from '@tanstack/react-query';
 import { postThreadReaction } from '@/api/endpoints/channel/post-thread-reaction';
-import { Counts, Reaction, useReactionLogic } from '@/hooks/common/reaction-logic';
+import {
+  Counts,
+  Reaction,
+  useReactionLogic,
+} from '@/hooks/common/reaction-logic';
 import { ReactionBar } from './reaction-bar';
 
 export function ThreadReaction({

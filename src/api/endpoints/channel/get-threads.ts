@@ -1,5 +1,8 @@
 import { axiosInstance } from '@/api/client/axios';
-import { GetThreadsRequest, PaginatedThreadsResponse } from '@/types/api/channel.types';
+import {
+  GetThreadsRequest,
+  PaginatedThreadsResponse,
+} from '@/types/api/channel.types';
 
 export const getThreads = async (
   param: GetThreadsRequest,

@@ -26,7 +26,6 @@ import {
 } from '@/hooks/queries/use-update-user-profile-mutation';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 
-
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   StartStudyFormSchema,

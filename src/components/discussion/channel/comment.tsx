@@ -18,7 +18,6 @@ import { useUserStore } from '@/stores/useUserStore';
 import { ResizedImage } from '@/types/api/group-study.types';
 import CommentInput from './comment-input';
 
-
 interface CommentProps {
   data: {
     commentId?: number;

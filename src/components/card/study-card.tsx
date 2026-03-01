@@ -12,10 +12,7 @@ import {
   REGULAR_MEETING_LABELS,
   STUDY_TYPE_LABELS,
 } from '@/config/group-study-const';
-import {
-  ExperienceLevel,
-  StudyType,
-} from '@/types/api/group-study.types';
+import { ExperienceLevel, StudyType } from '@/types/api/group-study.types';
 
 type BadgeColor =
   | 'default'

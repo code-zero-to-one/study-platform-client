@@ -1,10 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  ARCHIVE_PAGE_SIZE,
-  ARCHIVE_VIEW_MODES,
-} from '@/config/archive-const';
+import { ARCHIVE_PAGE_SIZE, ARCHIVE_VIEW_MODES } from '@/config/archive-const';
 
 type LibrarySort = 'LATEST' | 'VIEWS' | 'LIKES';
 type ViewMode = 'GRID' | 'LIST';

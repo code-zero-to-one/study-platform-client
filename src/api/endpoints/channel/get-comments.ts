@@ -1,5 +1,8 @@
 import { axiosInstance } from '@/api/client/axios';
-import { GetCommentsRequest, PaginatedCommentsResponse } from '@/types/api/channel.types';
+import {
+  GetCommentsRequest,
+  PaginatedCommentsResponse,
+} from '@/types/api/channel.types';
 
 export const getComments = async (
   param: GetCommentsRequest,

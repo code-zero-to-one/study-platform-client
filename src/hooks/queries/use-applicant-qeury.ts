@@ -1,7 +1,10 @@
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { getApplicantsByStatus } from '@/api/endpoints/group-study-application/get-applicants-by-status';
 import { updateApplicantByStatus } from '@/api/endpoints/group-study-application/update-applicant-by-status';
-import { ApplyStatus, UpdateApplicantByStatusRequest } from '@/types/api/group-study-application.types';
+import {
+  ApplyStatus,
+  UpdateApplicantByStatusRequest,
+} from '@/types/api/group-study-application.types';
 
 export const useApplicantsByStatusQuery = ({
   groupStudyId,

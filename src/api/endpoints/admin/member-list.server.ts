@@ -1,5 +1,8 @@
 import { axiosServerInstance } from '@/api/client/axios.server';
-import { GetMemberListRequest, GetMemberListResponse } from '@/types/api/admin.types';
+import {
+  GetMemberListRequest,
+  GetMemberListResponse,
+} from '@/types/api/admin.types';
 
 export const getMemberListInServer = async ({
   roleId,

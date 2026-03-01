@@ -15,10 +15,7 @@ import {
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
 } from '@/hooks/queries/use-review-query';
-import {
-  EvalKeyword,
-  StudyEvaluationResponse,
-} from '@/types/api/review.types';
+import { EvalKeyword, StudyEvaluationResponse } from '@/types/api/review.types';
 
 interface FormState {
   studySpaceId: number;

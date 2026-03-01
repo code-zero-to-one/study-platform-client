@@ -17,10 +17,7 @@ import {
 } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import {
-  GroupStudyFullResponse,
-  Leader,
-} from '@/types/api/group-study.types';
+import { GroupStudyFullResponse, Leader } from '@/types/api/group-study.types';
 import GroupStudyMemberList from '../lists/study-member-list';
 import InquirySection from '../section/inquiry-section';
 import MissionSection from '../section/mission-section';

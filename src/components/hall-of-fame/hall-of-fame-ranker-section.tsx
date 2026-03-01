@@ -2,7 +2,10 @@
 
 import React from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import type { RankingType, RankerWithLabel } from '@/config/hall-of-fame-constants';
+import type {
+  RankingType,
+  RankerWithLabel,
+} from '@/config/hall-of-fame-constants';
 import { TAB_CONFIG } from '@/config/hall-of-fame-constants';
 import RankerListItem from './ranker-list-item';
 import RankingTabButton from './ranking-tab-button';

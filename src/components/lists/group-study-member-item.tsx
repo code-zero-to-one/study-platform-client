@@ -20,7 +20,6 @@ import GoldRankIcon from 'public/icons/gold-rank.svg';
 
 import SilverRankIcon from 'public/icons/silver-rank.svg';
 
-
 type GroupStudyMemberItemProps = GroupStudyMember & {
   groupStudyId: number;
   leaderId: number;
