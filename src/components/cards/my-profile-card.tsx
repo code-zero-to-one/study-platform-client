@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import React, { useState } from 'react';
-import StartStudyModal from '@/components/modals/start-study-modal'; // 추가
+import StartStudyModal from '@/components/modals/start-study-modal';
 import StudyReviewModal from '@/components/modals/study-review-modal';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
