@@ -16,7 +16,7 @@ import {
 import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { ResizedImage } from '@/types/api/group-study.types';
-import CommentInput from '@/components/forms/comment-input';
+import CommentInput from './comment-input';
 
 interface CommentProps {
   data: {

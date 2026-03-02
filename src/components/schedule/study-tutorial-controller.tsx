@@ -2,12 +2,12 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import StudyCard from '@/components/card/study-card';
 import { TutorialOverlay } from '@/components/tutorial';
 import {
   STUDY_TUTORIAL_STEPS,
   getStudyTutorialScenario,
 } from '@/config/study-tutorial-steps';
+import StudyCard from './study-card';
 
 const STUDY_TUTORIAL_KEY = 'study';
 
