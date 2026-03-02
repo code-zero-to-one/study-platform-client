@@ -98,8 +98,15 @@ jobs:
               cd ~/front/study-platform-client-dev
             }
 
-            echo ".env 파일 생성 (서버 사이드 환경변수만 - NEXT_PUBLIC_*는 빌드 시 이미 포함됨)"
-            echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" > .env
+            echo ".env 파일 생성 (런타임에 필요한 모든 환경변수 포함)"
+            echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" > .env
+            echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_KAKAO_CLIENT_ID }}" >> .env
+            echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_CLIENT_ID }}" >> .env
+            echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}" >> .env
+            echo "NEXT_PUBLIC_GOOGLE_SHEETS_ID=${{ secrets.NEXT_PUBLIC_GOOGLE_SHEETS_ID }}" >> .env
+            echo "NEXT_PUBLIC_STRAPI_URL=${{ secrets.NEXT_PUBLIC_STRAPI_URL }}" >> .env
+            echo "NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}" >> .env
+            echo "GOOGLE_SERVICE_ACCOUNT_EMAIL=${{ secrets.GOOGLE_SERVICE_ACCOUNT_EMAIL }}" >> .env
             echo "GOOGLE_PRIVATE_KEY=${{ secrets.GOOGLE_PRIVATE_KEY }}" >> .env
 
             echo "docker-compose.dev.yml 파일 생성"
