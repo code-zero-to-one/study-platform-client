@@ -45,9 +45,9 @@ export default async function MyPage() {
           백엔드가 실행되지 않았거나 일시적으로 응답하지 않아 기본 화면으로
           표시합니다.
         </p>
-        <Link href="/mentoring-management">
+        <Link href="/mentoring">
           <Button color="outlined" size="medium">
-            멘토링 관리로 이동
+            멘토링 목록으로 이동
           </Button>
         </Link>
       </section>

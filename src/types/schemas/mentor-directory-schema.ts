@@ -2,8 +2,8 @@ import { z } from 'zod';
 
 export const mentorMethodTypeSchema = z.enum([
   'note',
-  'phone',
-  'online',
+  'simple',
+  'deep',
   'offline',
 ]);
 
@@ -63,16 +63,16 @@ export const mentorProfileBoundarySchema = z.object({
   mentoringCount: z.number(),
   menteeCount: z.number().optional(),
   tags: z.array(z.string()),
-  summary: z.string(),
-  bio: z.string(),
+  summary: z.string().optional(),
+  bio: z.string().optional(),
   careerHistory: z.array(z.string()),
-  strengths: z.array(z.string()),
+  strengths: z.array(z.string()).optional(),
   avatarEmoji: z.string().optional(),
   imageUrl: z.string().optional(),
   methods: z.object({
     note: mentorMethodOptionSchema,
-    phone: mentorMethodOptionSchema,
-    online: mentorMethodOptionSchema,
+    simple: mentorMethodOptionSchema,
+    deep: mentorMethodOptionSchema,
     offline: mentorMethodOptionSchema,
   }),
   reviews: z.array(mentorReviewSchema),

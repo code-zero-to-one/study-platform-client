@@ -17,9 +17,9 @@ import {
 } from '@/mocks/my-mentoring-mock-data';
 
 const METHOD_LABEL: Record<'ONLINE' | 'OFFLINE' | 'CALL', string> = {
-  ONLINE: '온라인',
-  OFFLINE: '오프라인',
-  CALL: '전화',
+  ONLINE: '심층상담',
+  OFFLINE: '대면상담',
+  CALL: '간편상담',
 };
 
 const STATUS_META: Record<

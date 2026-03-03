@@ -455,7 +455,7 @@ export default function MentorRegistrationPageView({
                 size="medium"
                 onClick={actions.onWelcomeModalToRequestPage}
               >
-                신청함 바로 가기
+                멘토링 목록으로 이동
               </Button>
               <Button
                 color="primary"

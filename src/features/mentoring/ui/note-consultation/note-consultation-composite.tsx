@@ -332,9 +332,9 @@ export function NoteConsultationHeader() {
   return (
     <header>
       <div className="mb-75 inline-flex items-center gap-100">
-        <Link href="/mentoring-management">
+        <Link href="/mentoring">
           <Button color="outlined" size="small">
-            멘토링 관리
+            멘토링 목록
           </Button>
         </Link>
         <MessageCircle className="text-text-brand h-24 w-24" />

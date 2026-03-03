@@ -34,8 +34,8 @@ const buildTempMentorRegistrationValues = (): MentorRegistrationFormValues => {
     companyCategory: '창업',
     companyName: 'ZERO-ONE',
     noteEnabled: true,
-    phoneEnabled: true,
-    onlineEnabled: true,
+    simpleEnabled: true,
+    deepEnabled: true,
     offlineEnabled: false,
     schedule: {
       timezone: 'Asia/Seoul',
@@ -104,7 +104,7 @@ export default function ContactSeedActions() {
 
     createRequest({
       mentorId,
-      method: 'phone',
+      method: 'simple',
       paymentMode: 'TOSS_PAYMENTS',
       menteeName: '임시 멘티 A',
       menteeRole: '주니어 프론트엔드 개발자',
@@ -125,7 +125,7 @@ export default function ContactSeedActions() {
 
     const requestId = createRequest({
       mentorId,
-      method: 'phone',
+      method: 'simple',
       paymentMode: 'TOSS_PAYMENTS',
       menteeName: '임시 멘티 B',
       menteeRole: '주니어 백엔드 개발자',
@@ -150,7 +150,7 @@ export default function ContactSeedActions() {
       schedule: {
         startsAt,
         endsAt,
-        placeNote: '임시 검증용 전화상담',
+        placeNote: '임시 검증용 간편상담',
       },
       mentorNote: '일정 확인했습니다. 상담 전날 다시 안내드릴게요.',
     });

@@ -2,8 +2,9 @@
 
 /* eslint-disable @next/next/no-img-element */
 
-import { type Components } from 'react-markdown';
-import ReactMarkdown from 'react-markdown';
+import DOMPurify from 'dompurify';
+import { marked } from 'marked';
+import { useMemo } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 interface MentorMarkdownContentProps {
@@ -12,81 +13,45 @@ interface MentorMarkdownContentProps {
   emptyMessage?: string;
 }
 
-const markdownComponents: Components = {
-  p: ({ children }) => (
-    <p className="font-designer-14r text-text-default mb-150 leading-relaxed">
-      {children}
-    </p>
-  ),
-  h1: ({ children }) => (
-    <h1 className="font-designer-24b text-text-strong mt-250 mb-150">
-      {children}
-    </h1>
-  ),
-  h2: ({ children }) => (
-    <h2 className="font-designer-20b text-text-strong mt-250 mb-125">
-      {children}
-    </h2>
-  ),
-  h3: ({ children }) => (
-    <h3 className="font-designer-18b text-text-default mt-200 mb-100">
-      {children}
-    </h3>
-  ),
-  ul: ({ children }) => (
-    <ul className="mb-150 list-disc space-y-50 pl-250">{children}</ul>
-  ),
-  ol: ({ children }) => (
-    <ol className="mb-150 list-decimal space-y-50 pl-250">{children}</ol>
-  ),
-  li: ({ children }) => (
-    <li className="font-designer-14r text-text-default leading-relaxed">
-      {children}
-    </li>
-  ),
-  blockquote: ({ children }) => (
-    <blockquote className="rounded-100 bg-background-alternative border-border-subtle mb-150 border-l-4 px-150 py-125">
-      <p className="font-designer-14r text-text-subtle leading-relaxed">
-        {children}
-      </p>
-    </blockquote>
-  ),
-  a: ({ href, children }) => (
-    <a
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="text-text-brand underline"
-    >
-      {children}
-    </a>
-  ),
-  img: ({ src, alt }) => {
-    if (!src) {
-      return null;
-    }
+const MARKDOWN_SANITIZE_OPTIONS: DOMPurify.Config = {
+  ALLOWED_TAGS: [
+    'a',
+    'blockquote',
+    'br',
+    'code',
+    'del',
+    'em',
+    'h1',
+    'h2',
+    'h3',
+    'hr',
+    'img',
+    'li',
+    'ol',
+    'p',
+    'pre',
+    'strong',
+    'ul',
+  ],
+  ALLOWED_ATTR: ['alt', 'href', 'src', 'title'],
+  ALLOW_DATA_ATTR: false,
+  ALLOWED_URI_REGEXP: /^(?:https:\/\/|mailto:|tel:|\/images\/|#)/i,
+};
 
-    return (
-      <figure className="rounded-100 border-border-subtle bg-background-default mb-150 overflow-hidden border">
-        <img
-          src={src}
-          alt={alt ?? '멘토 소개 이미지'}
-          className="h-auto w-full"
-        />
-        {alt ? (
-          <figcaption className="font-designer-12r text-text-subtle px-125 py-100">
-            {alt}
-          </figcaption>
-        ) : null}
-      </figure>
-    );
-  },
-  code: ({ children }) => (
-    <code className="rounded-50 bg-background-alternative font-designer-13r px-75 py-[2px]">
-      {children}
-    </code>
-  ),
-  hr: () => <hr className="border-border-subtle my-200" />,
+const applyExternalLinkAttributes = (html: string) => {
+  if (typeof window === 'undefined') {
+    return html;
+  }
+
+  const document = new window.DOMParser().parseFromString(html, 'text/html');
+  const anchors = document.querySelectorAll('a[href]');
+
+  anchors.forEach((anchor) => {
+    anchor.setAttribute('target', '_blank');
+    anchor.setAttribute('rel', 'noreferrer');
+  });
+
+  return document.body.innerHTML;
 };
 
 export default function MentorMarkdownContent({
@@ -102,9 +67,43 @@ export default function MentorMarkdownContent({
     );
   }
 
+  const sanitizedHtml = useMemo(() => {
+    const rendered = marked.parse(content, {
+      breaks: true,
+      gfm: true,
+    });
+    const renderedHtml = typeof rendered === 'string' ? rendered : '';
+
+    const sanitizedHtml = DOMPurify.sanitize(
+      renderedHtml,
+      MARKDOWN_SANITIZE_OPTIONS,
+    );
+
+    return applyExternalLinkAttributes(sanitizedHtml);
+  }, [content]);
+
   return (
-    <div className={cn('break-words', className)}>
-      <ReactMarkdown components={markdownComponents}>{content}</ReactMarkdown>
-    </div>
+    <div
+      className={cn(
+        'break-words',
+        '[&_p]:font-designer-14r [&_p]:text-text-default [&_p]:mb-150 [&_p]:leading-relaxed',
+        '[&_h1]:font-designer-24b [&_h1]:text-text-strong [&_h1]:mt-250 [&_h1]:mb-150',
+        '[&_h2]:font-designer-20b [&_h2]:text-text-strong [&_h2]:mt-250 [&_h2]:mb-125',
+        '[&_h3]:font-designer-18b [&_h3]:text-text-default [&_h3]:mt-200 [&_h3]:mb-100',
+        '[&_ul]:mb-150 [&_ul]:list-disc [&_ul]:space-y-50 [&_ul]:pl-250',
+        '[&_ol]:mb-150 [&_ol]:list-decimal [&_ol]:space-y-50 [&_ol]:pl-250',
+        '[&_li]:font-designer-14r [&_li]:text-text-default [&_li]:leading-relaxed',
+        '[&_blockquote]:rounded-100 [&_blockquote]:bg-background-alternative [&_blockquote]:border-border-subtle [&_blockquote]:mb-150 [&_blockquote]:border-l-4 [&_blockquote]:px-150 [&_blockquote]:py-125',
+        '[&_blockquote_p]:font-designer-14r [&_blockquote_p]:text-text-subtle [&_blockquote_p]:leading-relaxed',
+        '[&_a]:text-text-brand [&_a]:underline',
+        '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-150 [&_img]:h-auto [&_img]:w-full [&_img]:border',
+        '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-[2px]',
+        '[&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-150 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100',
+        '[&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_pre_code]:py-0',
+        '[&_hr]:border-border-subtle [&_hr]:my-200',
+        className,
+      )}
+      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+    />
   );
 }

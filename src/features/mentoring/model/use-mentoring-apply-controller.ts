@@ -7,7 +7,6 @@ import { type DateRange } from 'react-day-picker';
 import {
   getWeekdayKeyFromDate,
   hasAnyWeeklyScheduleSlots,
-  isDateInHolidayRange,
   parseDurationLabelToMinutes,
   toTimeRangeLabel,
 } from '@/features/mentoring/model/mentor-settings';
@@ -139,7 +138,6 @@ export interface MentoringApplyControllerViewModel {
   needsSchedule: boolean;
   requiresAttachment: boolean;
   minSelectableDate: Date;
-  isHolidayDate: boolean;
   availableTimeSlots: string[];
   scheduleStepNumber: number;
   messageStepNumber: number;
@@ -199,10 +197,10 @@ export const useMentoringApplyController = ({
   const mentorSettings = getMentorSettings(mentor);
   const needsSchedule = selectedOption.requiresSchedule;
   const requiresAttachment =
-    selectedMethod === 'note' || selectedMethod === 'phone';
+    selectedMethod === 'note' || selectedMethod === 'simple';
   const methodDurationMinutes =
     parseDurationLabelToMinutes(selectedOption.durationLabel) ??
-    mentorSettings.onlineDurationMinutes;
+    mentorSettings.deepDurationMinutes;
   const minSelectableDate = dayjs().add(3, 'day').startOf('day');
   const hasWeeklySchedule = hasAnyWeeklyScheduleSlots(mentorSettings.schedule);
   const selectedPaymentMethodCopy =
@@ -213,28 +211,19 @@ export const useMentoringApplyController = ({
   const selectedWeekday = selectedDate
     ? getWeekdayKeyFromDate(selectedDate)
     : undefined;
-  const isHolidayDate = selectedDate
-    ? isDateInHolidayRange(selectedDate, mentorSettings.holidays)
-    : false;
 
   const scheduleBasedTimeRanges = useMemo(() => {
-    const scheduleBasedSlots =
-      selectedWeekday && !isHolidayDate
-        ? (mentorSettings.schedule.weekly[selectedWeekday] ?? [])
-        : [];
+    const scheduleBasedSlots = selectedWeekday
+      ? (mentorSettings.schedule.weekly[selectedWeekday] ?? [])
+      : [];
 
     return scheduleBasedSlots.map((slot) =>
       toTimeRangeLabel(slot, methodDurationMinutes),
     );
-  }, [
-    isHolidayDate,
-    mentorSettings.schedule.weekly,
-    methodDurationMinutes,
-    selectedWeekday,
-  ]);
+  }, [mentorSettings.schedule.weekly, methodDurationMinutes, selectedWeekday]);
 
   const availableTimeSlots = useMemo(() => {
-    if (!selectedDate || isHolidayDate) {
+    if (!selectedDate) {
       return [];
     }
 
@@ -245,7 +234,6 @@ export const useMentoringApplyController = ({
     return selectedOption.timeSlots;
   }, [
     hasWeeklySchedule,
-    isHolidayDate,
     scheduleBasedTimeRanges,
     selectedDate,
     selectedOption.timeSlots,
@@ -403,7 +391,6 @@ export const useMentoringApplyController = ({
       needsSchedule,
       requiresAttachment,
       minSelectableDate: minSelectableDate.toDate(),
-      isHolidayDate,
       availableTimeSlots,
       scheduleStepNumber: 1,
       messageStepNumber: needsSchedule ? 2 : 1,

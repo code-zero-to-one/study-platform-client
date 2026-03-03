@@ -48,23 +48,23 @@ const METHOD_FIELDS: MentorRegistrationMethodField[] = [
     policySummary: '결제 후 멘토의 첫 답장이 수락 처리됩니다.',
   },
   {
-    enabledField: 'phoneEnabled',
-    priceField: 'phonePrice',
-    label: '15분 전화상담',
+    enabledField: 'simpleEnabled',
+    priceField: 'simplePrice',
+    label: '간편상담',
     description:
       '허들을 낮춘 빠른 상담 방식입니다. 질문/자료를 선제출하고 15분 내 핵심 피드백을 받습니다.',
     policySummary:
       '결제 후 멘토 수락이 필요하며, 48시간 내 미응답 시 자동 거절됩니다.',
   },
   {
-    enabledField: 'onlineEnabled',
-    priceField: 'onlinePrice',
-    durationField: 'onlineDurationMinutes',
+    enabledField: 'deepEnabled',
+    priceField: 'deepPrice',
+    durationField: 'deepDurationMinutes',
     durationOptions: [
       { value: '30', label: '30분' },
       { value: '60', label: '60분' },
     ],
-    label: '온라인상담',
+    label: '심층상담',
     description:
       '화면/코드를 함께 보며 피드백을 주고받는 방식입니다. 30/60분 중 선택합니다.',
     policySummary:
@@ -95,8 +95,8 @@ const METHOD_ICON_MAP: Record<
   ReactNode
 > = {
   noteEnabled: <MessageCircle className="h-16 w-16" />,
-  phoneEnabled: <Phone className="h-16 w-16" />,
-  onlineEnabled: <Monitor className="h-16 w-16" />,
+  simpleEnabled: <Phone className="h-16 w-16" />,
+  deepEnabled: <Monitor className="h-16 w-16" />,
   offlineEnabled: <Users className="h-16 w-16" />,
 };
 
@@ -125,8 +125,8 @@ export default function MentorRegistrationForm({
   const jobTitle = watch('jobTitle');
   const careerYears = watch('careerYears');
   const hideCompanyName = watch('hideCompanyName');
-  const phoneEnabled = watch('phoneEnabled');
-  const onlineEnabled = watch('onlineEnabled');
+  const simpleEnabled = watch('simpleEnabled');
+  const deepEnabled = watch('deepEnabled');
   const offlineEnabled = watch('offlineEnabled');
   const jobTitleOptions = useMemo(
     () => getJobTitleOptionsByGroup(jobGroup),
@@ -142,7 +142,7 @@ export default function MentorRegistrationForm({
     [jobTitleOptions],
   );
 
-  const needsSchedule = phoneEnabled || onlineEnabled || offlineEnabled;
+  const needsSchedule = simpleEnabled || deepEnabled || offlineEnabled;
   const interviewQuestionError =
     (errors.interviewQuestions?.message as string | undefined) ??
     (errors.interviewQuestions?.[0]?.message as string | undefined);
@@ -174,10 +174,7 @@ export default function MentorRegistrationForm({
   }, [careerYears, setValue]);
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-225 pb-500"
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-225 pb-500">
       <div
         data-form-preview-section="headline"
         className="grid grid-cols-1 gap-200"
@@ -235,8 +232,8 @@ export default function MentorRegistrationForm({
           <section className="border-border-subtle space-y-100 border-t pt-200">
             <div>
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
-                <MessageCircle className="text-text-subtle h-14 w-14" />
-                한 줄 어필
+                <MessageCircle className="text-text-subtle h-14 w-14" />한 줄
+                어필
               </p>
               <p className="font-designer-12r text-text-subtle">
                 대표 강점을 짧게 적어 멘티의 클릭을 유도하세요.
@@ -415,11 +412,11 @@ export default function MentorRegistrationForm({
         >
           <div className="rounded-125 border-border-warning bg-background-accent-yellow-subtle mb-200 border px-150 py-125">
             <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
-              <Phone className="text-text-warning h-14 w-14" />
-              첫 멘토링은 15분 전화상담으로 시작해보세요.
+              <Phone className="text-text-warning h-14 w-14" />첫 멘토링은
+              간편상담으로 시작해보세요.
             </p>
             <p className="font-designer-13r text-text-subtle leading-relaxed">
-              쪽지/전화 포맷은 멘티의 시작 허들을 낮출 수 있습니다. 신청서에서
+              쪽지/간편 포맷은 멘티의 시작 허들을 낮출 수 있습니다. 신청서에서
               질문/고민/자료를 먼저 받아 빠르게 답변할 수 있도록 운영해보세요.
             </p>
           </div>
@@ -427,8 +424,9 @@ export default function MentorRegistrationForm({
           <div className="mt-200 grid grid-cols-1 gap-150 lg:grid-cols-2">
             {METHOD_FIELDS.map((field) => {
               const enabled = watch(field.enabledField);
-              const priceErrorMessage = errors[field.priceField]
-                ?.message as string | undefined;
+              const priceErrorMessage = errors[field.priceField]?.message as
+                | string
+                | undefined;
               const durationErrorMessage = field.durationField
                 ? (errors[field.durationField]?.message as string | undefined)
                 : undefined;
@@ -517,9 +515,9 @@ export default function MentorRegistrationForm({
                     </div>
                   )}
 
-                  {field.enabledField === 'phoneEnabled' && (
+                  {field.enabledField === 'simpleEnabled' && (
                     <p className="font-designer-12r text-text-subtle mt-100">
-                      전화상담은 15분 고정으로 운영됩니다.
+                      간편상담은 15분 고정으로 운영됩니다.
                     </p>
                   )}
                 </article>
@@ -538,7 +536,7 @@ export default function MentorRegistrationForm({
               스케줄 설정
             </span>
           }
-          description="전화/온라인/대면 상담 가능한 요일/시간(30분 단위)을 선택해주세요."
+          description="간편/심층/대면 상담 가능한 요일/시간(30분 단위)을 선택해주세요."
         >
           <Controller
             name="schedule"
@@ -680,7 +678,7 @@ export default function MentorRegistrationForm({
         />
       </FormSectionCard>
 
-      <div className="bg-background-default/95 border-border-subtle sticky bottom-0 z-20 border-t px-150 py-125 backdrop-blur supports-[backdrop-filter]:bg-background-default/85">
+      <div className="bg-background-default/95 border-border-subtle supports-[backdrop-filter]:bg-background-default/85 sticky bottom-0 z-20 border-t px-150 py-125 backdrop-blur">
         <div className="flex flex-col gap-100 sm:flex-row sm:items-center sm:justify-between">
           <p className="font-designer-12r text-text-subtle">
             {isValid

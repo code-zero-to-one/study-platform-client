@@ -22,8 +22,8 @@ const getMethodDurations = (mentor: MentorProfile) => {
 
   return {
     note: 0,
-    phone: 15,
-    online: settings.onlineDurationMinutes,
+    simple: 15,
+    deep: settings.deepDurationMinutes,
     offline: settings.offlineDurationMinutes,
   } as const;
 };

@@ -1,6 +1,4 @@
-import { FlaskConical, Info, RotateCcw, UserRoundPlus } from 'lucide-react';
-import Link from 'next/link';
-import Button from '@/components/ui/button';
+import { Info, RotateCcw, UserRoundPlus } from 'lucide-react';
 import TextActionButton from '@/components/ui/text-action-button';
 
 interface MentorRegistrationHeaderProps {
@@ -24,15 +22,6 @@ export default function MentorRegistrationHeader({
         </p>
       </div>
       <div className="flex flex-wrap items-center gap-100 self-start sm:justify-end">
-        <Link href="/mentoring/scroll-card-playground">
-          <Button
-            color="outlined"
-            size="small"
-            icon={<FlaskConical className="h-14 w-14" />}
-          >
-            연습 페이지
-          </Button>
-        </Link>
         <TextActionButton
           tone="subtle"
           weight="regular"

@@ -37,13 +37,6 @@ export type CompanyCategory = (typeof COMPANY_CATEGORY_OPTIONS)[number];
 
 export type SettlementPayerType = 'INDIVIDUAL' | 'BUSINESS' | 'OVERSEAS';
 
-export interface MentorHoliday {
-  id: string;
-  startDate: string;
-  endDate: string;
-  memo: string;
-}
-
 export interface MentorWeeklySchedule {
   timezone: 'Asia/Seoul';
   slotUnitMinutes: 30;
@@ -80,16 +73,15 @@ export interface MentorSettingsV3 {
   maxParticipants: number;
   noteEnabled: boolean;
   notePrice: number;
-  phoneEnabled: boolean;
-  phonePrice: number;
-  onlineEnabled: boolean;
-  onlinePrice: number;
-  onlineDurationMinutes: ConsultingDurationMinutes;
+  simpleEnabled: boolean;
+  simplePrice: number;
+  deepEnabled: boolean;
+  deepPrice: number;
+  deepDurationMinutes: ConsultingDurationMinutes;
   offlineEnabled: boolean;
   offlinePrice: number;
   offlineDurationMinutes: ConsultingDurationMinutes;
   schedule: MentorWeeklySchedule;
-  holidays: MentorHoliday[];
   detailedDescription: string;
   interviewQuestions: string[];
   preNotice: string;

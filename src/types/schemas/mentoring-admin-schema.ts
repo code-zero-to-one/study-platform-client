@@ -59,11 +59,11 @@ const mentorSettingsSummarySchema = z
     maxParticipants: z.number().optional(),
     noteEnabled: z.boolean().optional(),
     notePrice: z.number().optional(),
-    phoneEnabled: z.boolean().optional(),
-    phonePrice: z.number().optional(),
-    onlineEnabled: z.boolean().optional(),
-    onlinePrice: z.number().optional(),
-    onlineDurationMinutes: z.number().optional(),
+    simpleEnabled: z.boolean().optional(),
+    simplePrice: z.number().optional(),
+    deepEnabled: z.boolean().optional(),
+    deepPrice: z.number().optional(),
+    deepDurationMinutes: z.number().optional(),
     offlineEnabled: z.boolean().optional(),
     offlinePrice: z.number().optional(),
     offlineDurationMinutes: z.number().optional(),
@@ -71,16 +71,6 @@ const mentorSettingsSummarySchema = z
       .object({
         weekly: z.record(z.string(), z.array(z.string())),
       })
-      .optional(),
-    holidays: z
-      .array(
-        z.object({
-          id: z.string(),
-          startDate: z.string(),
-          endDate: z.string(),
-          memo: z.string(),
-        }),
-      )
       .optional(),
     settlementDraft: z
       .object({

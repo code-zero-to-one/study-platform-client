@@ -33,8 +33,8 @@ interface MentoringApplyPageViewProps {
 
 const methodIconMap: Record<MentoringMethodType, ReactNode> = {
   note: <MessageCircle className="h-20 w-20" />,
-  phone: <Phone className="h-20 w-20" />,
-  online: <Monitor className="h-20 w-20" />,
+  simple: <Phone className="h-20 w-20" />,
+  deep: <Monitor className="h-20 w-20" />,
   offline: <Users className="h-20 w-20" />,
 };
 
@@ -127,18 +127,12 @@ export default function MentoringApplyPageView({
                   </div>
 
                   <div className="flex flex-wrap gap-100">
-                    {state.selectedDate && viewModel.isHolidayDate && (
-                      <p className="font-designer-13r text-text-warning w-full">
-                        선택한 날짜는 휴가로 등록되어 있어 예약할 수 없습니다.
-                      </p>
-                    )}
                     {!state.selectedDate && (
                       <p className="font-designer-13r text-text-subtle w-full">
                         먼저 날짜를 선택해 주세요.
                       </p>
                     )}
                     {state.selectedDate &&
-                      !viewModel.isHolidayDate &&
                       viewModel.availableTimeSlots.map((timeSlot) => (
                         <button
                           key={timeSlot}
@@ -155,7 +149,6 @@ export default function MentoringApplyPageView({
                         </button>
                       ))}
                     {state.selectedDate &&
-                      !viewModel.isHolidayDate &&
                       viewModel.availableTimeSlots.length === 0 && (
                         <p className="font-designer-13r text-text-subtle w-full">
                           선택한 날짜에 가능한 시간이 없습니다.
@@ -217,7 +210,7 @@ export default function MentoringApplyPageView({
 
               <p className="font-designer-13r text-text-subtle leading-relaxed">
                 {viewModel.requiresAttachment
-                  ? '쪽지/전화 상담은 이미지, 첨부파일, 링크 중 1개 이상 포함해주세요.'
+                  ? '쪽지/간편 상담은 이미지, 첨부파일, 링크 중 1개 이상 포함해주세요.'
                   : '필요한 자료가 있다면 이미지/첨부파일/링크를 함께 남겨주세요.'}
               </p>
 

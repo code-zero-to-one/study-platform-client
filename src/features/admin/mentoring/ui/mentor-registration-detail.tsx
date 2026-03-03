@@ -16,8 +16,8 @@ import type { MentoringMethodType } from '@/types/mentoring/domain';
 
 const METHOD_ORDER: MentoringMethodType[] = [
   'note',
-  'phone',
-  'online',
+  'simple',
+  'deep',
   'offline',
 ];
 
@@ -60,19 +60,19 @@ const getMethodMeta = (
     };
   }
 
-  if (method === 'phone') {
+  if (method === 'simple') {
     return {
-      enabled: settings.phoneEnabled,
-      price: settings.phonePrice,
+      enabled: settings.simpleEnabled,
+      price: settings.simplePrice,
       durationLabel: '15분',
     };
   }
 
-  if (method === 'online') {
+  if (method === 'deep') {
     return {
-      enabled: settings.onlineEnabled,
-      price: settings.onlinePrice,
-      durationLabel: `${settings.onlineDurationMinutes}분`,
+      enabled: settings.deepEnabled,
+      price: settings.deepPrice,
+      durationLabel: `${settings.deepDurationMinutes}분`,
     };
   }
 
@@ -250,25 +250,6 @@ export default function MentorRegistrationDetail({
               </KeyValueRow>
             ))}
           </div>
-        </Section>
-
-        <Section title="휴가">
-          {settings?.holidays && settings.holidays.length > 0 ? (
-            <div className="space-y-75">
-              {settings.holidays.map((holiday) => (
-                <p
-                  key={holiday.id}
-                  className="font-designer-13r text-text-default"
-                >
-                  {holiday.startDate} ~ {holiday.endDate} · {holiday.memo}
-                </p>
-              ))}
-            </div>
-          ) : (
-            <p className="font-designer-13r text-text-subtle">
-              등록된 휴가가 없습니다.
-            </p>
-          )}
         </Section>
 
         <Section title="정산 정보">

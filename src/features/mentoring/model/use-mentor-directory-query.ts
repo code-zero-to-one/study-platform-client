@@ -126,7 +126,7 @@ export const useMentorDirectoryListQuery = () => {
     try {
       return getMentorDirectory({ createdMentors, reviewsByMentor });
     } catch {
-      return [];
+      return MENTOR_PROFILES.map((mentor) => withMentorSettings(mentor));
     }
   }, [createdMentors, reviewsByMentor]);
 

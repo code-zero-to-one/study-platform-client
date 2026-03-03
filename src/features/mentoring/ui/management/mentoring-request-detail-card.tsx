@@ -19,8 +19,8 @@ import ScheduleEditorModal, {
 
 const defaultPlaceByMethod: Record<MentoringMethodType, string> = {
   note: '서비스 내 쪽지로 진행',
-  phone: '전화 연결 예정',
-  online: '화상 링크 전달 예정',
+  simple: '온라인 링크 전달 예정 (간편)',
+  deep: '화상 링크 전달 예정',
   offline: '만남 장소 전달 예정',
 };
 

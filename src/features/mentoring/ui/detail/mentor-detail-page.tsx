@@ -42,29 +42,29 @@ interface MentorDetailPageProps {
 
 const methodIconMap: Record<MentoringMethodType, ReactNode> = {
   note: <MessageCircle className="h-18 w-18" />,
-  phone: <Phone className="h-18 w-18" />,
-  online: <Monitor className="h-18 w-18" />,
+  simple: <Phone className="h-18 w-18" />,
+  deep: <Monitor className="h-18 w-18" />,
   offline: <Users className="h-18 w-18" />,
 };
 
 const methodSmallIconMap: Record<MentoringMethodType, ReactNode> = {
   note: <MessageCircle className="h-16 w-16" />,
-  phone: <Phone className="h-16 w-16" />,
-  online: <Monitor className="h-16 w-16" />,
+  simple: <Phone className="h-16 w-16" />,
+  deep: <Monitor className="h-16 w-16" />,
   offline: <Users className="h-16 w-16" />,
 };
 
 const methodDescriptionMap: Record<MentoringMethodType, string> = {
   note: '빠르게 질문하고\n싶을 때',
-  phone: '간단하게 통화로\n상담하고 싶을 때',
-  online: '화면 공유로\n심층 상담하고 싶을 때',
+  simple: '짧은 온라인 미팅으로\n핵심만 점검하고 싶을 때',
+  deep: '화면 공유로\n심층 상담하고 싶을 때',
   offline: '직접 만나서\n깊이 상담하고 싶을 때',
 };
 
 const reviewMethodMap: Record<MentoringMethodType, string> = {
   note: '쪽지상담',
-  phone: '전화상담',
-  online: '온라인상담',
+  simple: '간편상담',
+  deep: '심층상담',
   offline: '대면상담',
 };
 
@@ -77,11 +77,12 @@ export default function MentorDetailPage({
   const isHighlighted = (section: PreviewHighlightSection) =>
     previewMode === true && (highlightedSections?.includes(section) ?? false);
   const mentorSettings = getMentorSettings(mentor);
+  const mentoringTitleLabel =
+    mentorSettings.mentoringTitle.trim() || '멘토링명 미입력';
   const appealLine = mentorSettings.appealLine.trim();
-  const jobGroupLabel = mentorSettings.jobGroup || mentor.role || '직군 미입력';
-  const jobTitleLabel = mentorSettings.jobTitle || mentor.role || '직무 미입력';
-  const careerLabel =
-    mentorSettings.careerYears || mentor.career || '경력 미입력';
+  const jobGroupLabel = mentorSettings.jobGroup || '직군 미입력';
+  const jobTitleLabel = mentorSettings.jobTitle || '직무 미입력';
+  const careerLabel = mentorSettings.careerYears || '경력 미입력';
   const companyCategoryLabel = mentorSettings.companyCategory || '기타';
   const profileSummaryLine = Array.from(
     new Set(
@@ -185,7 +186,7 @@ export default function MentorDetailPage({
             )}
           >
             <h1 className="font-designer-24b text-text-strong mb-300 leading-snug sm:text-[30px]">
-              {mentor.headline}
+              {mentoringTitleLabel}
             </h1>
 
             <div className="flex flex-col gap-250 sm:flex-row sm:items-start sm:gap-400">
@@ -206,7 +207,7 @@ export default function MentorDetailPage({
                       {mentor.company}
                     </p>
                     <p className="font-designer-13r text-text-subtle mt-25">
-                      {jobTitleLabel} · {careerLabel}
+                      {profileSummaryLine}
                     </p>
                   </div>
                 </div>

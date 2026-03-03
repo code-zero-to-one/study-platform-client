@@ -6,14 +6,14 @@ import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 export const metadata: Metadata = generateSEOMetadata({
   title: '1:1 멘토링 - ZERO-ONE',
   description:
-    '전문 멘토와 1:1로 만나 맞춤형 상담과 지식을 얻어보세요. 쪽지상담, 15분 전화상담, 온라인상담, 대면상담 등 다양한 방식으로 멘토링을 받을 수 있습니다.',
+    '전문 멘토와 1:1로 만나 맞춤형 상담과 지식을 얻어보세요. 쪽지상담, 간편상담, 심층상담, 대면상담 등 다양한 방식으로 멘토링을 받을 수 있습니다.',
   path: '/mentoring',
   keywords: [
     '1:1 멘토링',
     '멘토링',
     '쪽지상담',
-    '전화상담',
-    '온라인상담',
+    '간편상담',
+    '심층상담',
     '대면상담',
   ],
   canonicalUrl: 'https://www.zeroone.it.kr/mentoring',

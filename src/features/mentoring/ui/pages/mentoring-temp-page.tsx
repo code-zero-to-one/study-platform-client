@@ -36,9 +36,9 @@ const quickLinks = [
     href: '/mentoring/101/apply?type=note',
   },
   {
-    title: '샘플 신청 (전화상담)',
+    title: '샘플 신청 (간편상담)',
     description: '일정형 신청 및 일정 확정 테스트',
-    href: '/mentoring/101/apply?type=phone',
+    href: '/mentoring/101/apply?type=simple',
   },
 ] as const;
 

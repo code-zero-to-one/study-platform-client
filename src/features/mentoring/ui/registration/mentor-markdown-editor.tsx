@@ -10,12 +10,24 @@ import {
   Link2,
   List,
   ListOrdered,
+  Loader2,
   Quote,
   Strikethrough,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
+import {
+  requestMentorMarkdownImageUploadTicket,
+  uploadMentorMarkdownImageFile,
+} from '@/features/mentoring/model/mentor-markdown-image-upload';
+import {
+  extractMarkdownImageUrls,
+  getFileExtension,
+  isAllowedMarkdownImageExtension,
+  MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
+  MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE,
+} from '@/types/mentoring/markdown';
 
 interface MentorMarkdownEditorProps {
   value: string;
@@ -23,8 +35,12 @@ interface MentorMarkdownEditorProps {
   placeholder?: string;
 }
 
-const MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024; // 5MB (blob URL 방식은 에디터 텍스트 크기와 무관)
-const MAX_IMAGE_FILE_COUNT = 3;
+const DEFAULT_ALLOWED_IMAGE_HOSTS = [
+  'cdn.zeroone.it.kr',
+  'www.zeroone.it.kr',
+  'zeroone.it.kr',
+] as const;
+const IMAGE_URL_ACCEPT_HINT = 'https://cdn.example.com/images/mentor.png';
 
 const toMarkdownAltText = (fileName: string) => {
   const withoutExtension = fileName.replace(/\.[^.]+$/, '').trim();
@@ -33,6 +49,64 @@ const toMarkdownAltText = (fileName: string) => {
   return sanitized.length > 0 ? sanitized : '업로드 이미지';
 };
 
+const toAllowedImageHostSet = () => {
+  const hosts = new Set<string>(DEFAULT_ALLOWED_IMAGE_HOSTS);
+  const customHosts = process.env.NEXT_PUBLIC_MARKDOWN_IMAGE_ALLOWED_HOSTS;
+  const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+  customHosts
+    ?.split(',')
+    .map((value) => value.trim().toLowerCase())
+    .filter((value) => value.length > 0)
+    .forEach((host) => hosts.add(host));
+
+  if (apiBaseUrl) {
+    try {
+      const apiHost = new URL(apiBaseUrl).hostname.toLowerCase();
+      hosts.add(apiHost);
+    } catch {
+      // NEXT_PUBLIC_API_BASE_URL 이 비정상 값이면 무시
+    }
+  }
+
+  if (typeof window !== 'undefined') {
+    hosts.add(window.location.hostname.toLowerCase());
+  }
+
+  return hosts;
+};
+
+const getImageUrlValidationError = (rawUrl: string) => {
+  let parsedUrl: URL;
+
+  try {
+    parsedUrl = new URL(rawUrl);
+  } catch {
+    return '이미지 URL 형식이 올바르지 않습니다.';
+  }
+
+  if (parsedUrl.protocol !== 'https:') {
+    return '이미지 URL은 https만 허용됩니다.';
+  }
+
+  const fileExtension = getFileExtension(parsedUrl.pathname);
+  if (!isAllowedMarkdownImageExtension(fileExtension)) {
+    return '이미지는 jpg/png/webp/gif 확장자만 허용됩니다.';
+  }
+
+  const allowedHosts = toAllowedImageHostSet();
+  const hostname = parsedUrl.hostname.toLowerCase();
+  const isOwnImagesPath =
+    typeof window !== 'undefined' &&
+    hostname === window.location.hostname.toLowerCase() &&
+    parsedUrl.pathname.startsWith('/images/');
+
+  if (!isOwnImagesPath && !allowedHosts.has(hostname)) {
+    return '허용된 이미지 도메인(CDN 또는 자체 /images/**)만 사용할 수 있습니다.';
+  }
+
+  return undefined;
+};
 
 const insertableBlocks = [
   {
@@ -118,13 +192,6 @@ const insertableBlocks = [
       ) => void,
     ) => wrapSelection('[', '](https://example.com)', '링크 텍스트'),
   },
-  {
-    label: '이미지 URL',
-    icon: Image,
-    onInsert: (
-      insertSnippet: (snippet: string, cursorShift?: number) => void,
-    ) => insertSnippet('\n![이미지 설명](https://image-url)\n', 1),
-  },
 ] as const;
 
 export default function MentorMarkdownEditor({
@@ -133,16 +200,9 @@ export default function MentorMarkdownEditor({
   placeholder,
 }: MentorMarkdownEditorProps) {
   const [imageInsertError, setImageInsertError] = useState('');
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
-  // 생성한 blob URL 추적 → 언마운트 시 메모리 해제
-  const blobUrlsRef = useRef<string[]>([]);
-
-  useEffect(() => {
-    return () => {
-      blobUrlsRef.current.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, []);
 
   const insertSnippet = (snippet: string, cursorShift = 0) => {
     const textarea = textareaRef.current;
@@ -206,59 +266,161 @@ export default function MentorMarkdownEditor({
   };
 
   const handleImageUpload = (files: FileList | null) => {
-    const selectedFiles = Array.from(files ?? []);
-    if (selectedFiles.length === 0) {
-      return;
-    }
-
-    const imagesToUpload = selectedFiles.slice(0, MAX_IMAGE_FILE_COUNT);
-    const failedFileNames: string[] = [];
-    const uploadedImageSnippets: string[] = [];
-
-    for (const file of imagesToUpload) {
-      if (!file.type.startsWith('image/')) {
-        failedFileNames.push(`${file.name}(이미지 파일 아님)`);
-        continue;
+    void (async () => {
+      const selectedFiles = Array.from(files ?? []);
+      if (selectedFiles.length === 0 || isUploadingImages) {
+        return;
       }
 
-      if (file.size > MAX_IMAGE_FILE_SIZE) {
-        failedFileNames.push(`${file.name}(5MB 초과)`);
-        continue;
-      }
+      const existingImageCount = extractMarkdownImageUrls(value).length;
+      const remainingImageCount = Math.max(
+        0,
+        MENTOR_MARKDOWN_MAX_IMAGE_COUNT - existingImageCount,
+      );
 
-      try {
-        // blob URL: 에디터에 짧은 URL만 삽입 → 에디터가 무거워지지 않음
-        // 나중에 API 연동 시 blob URL → 실제 서버 URL로 교체
-        const blobUrl = URL.createObjectURL(file);
-        blobUrlsRef.current.push(blobUrl);
-        uploadedImageSnippets.push(
-          `![${toMarkdownAltText(file.name)}](${blobUrl})`,
+      if (remainingImageCount === 0) {
+        setImageInsertError(
+          `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
         );
-      } catch {
-        failedFileNames.push(`${file.name}(읽기 실패)`);
+
+        return;
       }
-    }
 
-    if (uploadedImageSnippets.length > 0) {
-      insertSnippet(`\n${uploadedImageSnippets.join('\n\n')}\n`, 1);
-    }
+      const targetFiles = selectedFiles.slice(0, remainingImageCount);
+      const validationErrors: string[] = [];
+      const validFiles: File[] = [];
 
-    if (failedFileNames.length > 0) {
+      for (const file of targetFiles) {
+        const extension = getFileExtension(file.name);
+
+        if (!file.type.startsWith('image/')) {
+          validationErrors.push(`${file.name}(이미지 파일 아님)`);
+          continue;
+        }
+
+        if (!isAllowedMarkdownImageExtension(extension)) {
+          validationErrors.push(`${file.name}(허용되지 않은 확장자)`);
+          continue;
+        }
+
+        if (file.size > MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE) {
+          validationErrors.push(`${file.name}(5MB 초과)`);
+          continue;
+        }
+
+        validFiles.push(file);
+      }
+
+      if (validFiles.length === 0) {
+        if (selectedFiles.length > remainingImageCount) {
+          validationErrors.push(
+            `최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
+          );
+        }
+
+        if (validationErrors.length > 0) {
+          setImageInsertError(
+            `이미지 검증 실패: ${validationErrors.join(', ')}`,
+          );
+        }
+
+        return;
+      }
+
+      setIsUploadingImages(true);
+      try {
+        const uploadErrors: string[] = [];
+        const uploadedImageSnippets: string[] = [];
+
+        for (const file of validFiles) {
+          try {
+            const ticket = await requestMentorMarkdownImageUploadTicket({
+              fileName: file.name,
+              fileType: file.type,
+              fileSize: file.size,
+            });
+            const validationError = getImageUrlValidationError(
+              ticket.publicUrl,
+            );
+
+            if (validationError) {
+              uploadErrors.push(`${file.name}(${validationError})`);
+              continue;
+            }
+
+            await uploadMentorMarkdownImageFile({
+              uploadUrl: ticket.uploadUrl,
+              file,
+            });
+            uploadedImageSnippets.push(
+              `![${toMarkdownAltText(file.name)}](${ticket.publicUrl})`,
+            );
+          } catch {
+            uploadErrors.push(`${file.name}(업로드 실패)`);
+          }
+        }
+
+        if (uploadedImageSnippets.length > 0) {
+          insertSnippet(`\n${uploadedImageSnippets.join('\n\n')}\n`, 1);
+        }
+
+        const messages: string[] = [];
+        if (selectedFiles.length > remainingImageCount) {
+          messages.push(
+            `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지 등록할 수 있습니다.`,
+          );
+        }
+
+        if (validationErrors.length > 0) {
+          messages.push(`검증 실패: ${validationErrors.join(', ')}`);
+        }
+
+        if (uploadErrors.length > 0) {
+          messages.push(`업로드 실패: ${uploadErrors.join(', ')}`);
+        }
+
+        setImageInsertError(messages.join(' '));
+        if (messages.length === 0) {
+          setImageInsertError('');
+        }
+      } finally {
+        setIsUploadingImages(false);
+      }
+    })();
+  };
+
+  const handleInsertImageUrl = () => {
+    const existingImageCount = extractMarkdownImageUrls(value).length;
+    if (existingImageCount >= MENTOR_MARKDOWN_MAX_IMAGE_COUNT) {
       setImageInsertError(
-        `일부 이미지를 삽입하지 못했습니다: ${failedFileNames.join(', ')}`,
+        `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
       );
 
       return;
     }
 
-    if (selectedFiles.length > MAX_IMAGE_FILE_COUNT) {
-      setImageInsertError(
-        `이미지는 한 번에 최대 ${MAX_IMAGE_FILE_COUNT}장까지 삽입할 수 있습니다.`,
-      );
+    const rawUrl = window.prompt(
+      '삽입할 이미지 URL을 입력해주세요. (https + 허용 도메인)',
+      IMAGE_URL_ACCEPT_HINT,
+    );
+
+    if (!rawUrl) {
+      return;
+    }
+
+    const imageUrl = rawUrl.trim();
+    const validationError = getImageUrlValidationError(imageUrl);
+    if (validationError) {
+      setImageInsertError(validationError);
 
       return;
     }
 
+    const rawAltText =
+      window.prompt('이미지 설명(alt)을 입력해주세요.', '이미지 설명') ?? '';
+    const altText = toMarkdownAltText(rawAltText);
+
+    insertSnippet(`\n![${altText}](${imageUrl})\n`, 1);
     setImageInsertError('');
   };
 
@@ -266,7 +428,8 @@ export default function MentorMarkdownEditor({
     <div className="rounded-125 border-border-subtle bg-background-default border">
       <div className="border-border-subtle bg-background-alternative flex flex-wrap items-center gap-100 border-b px-150 py-100">
         <p className="font-designer-12r text-text-subtle">
-          마크다운 + 이미지 업로드를 지원합니다. (최대 3장, 각 5MB)
+          마크다운 원문 저장 + 이미지 업로드를 지원합니다. (최대{' '}
+          {MENTOR_MARKDOWN_MAX_IMAGE_COUNT}장, 각 5MB)
         </p>
       </div>
 
@@ -291,10 +454,25 @@ export default function MentorMarkdownEditor({
           type="button"
           color="secondary"
           size="small"
-          onClick={() => imageInputRef.current?.click()}
+          onClick={handleInsertImageUrl}
+          disabled={isUploadingImages}
         >
-          <ImagePlus className="mr-50 h-12 w-12" />
-          이미지 업로드
+          <Image className="mr-50 h-12 w-12" />
+          이미지 URL
+        </Button>
+        <Button
+          type="button"
+          color="secondary"
+          size="small"
+          onClick={() => imageInputRef.current?.click()}
+          disabled={isUploadingImages}
+        >
+          {isUploadingImages ? (
+            <Loader2 className="mr-50 h-12 w-12 animate-spin" />
+          ) : (
+            <ImagePlus className="mr-50 h-12 w-12" />
+          )}
+          {isUploadingImages ? '업로드 중...' : '이미지 업로드'}
         </Button>
       </div>
 
@@ -302,7 +480,7 @@ export default function MentorMarkdownEditor({
         ref={imageInputRef}
         type="file"
         multiple
-        accept="image/*"
+        accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
         className="hidden"
         onChange={(event) => {
           handleImageUpload(event.target.files);

@@ -51,7 +51,7 @@ const collectScheduleSlots = (formValues: MentorRegistrationFormValues) => {
   return Array.from(uniqueSlots).sort().slice(0, 8);
 };
 
-const makeLegacyTimeRanges = (
+const makeMethodTimeRanges = (
   formValues: MentorRegistrationFormValues,
   durationMinutes: number,
 ) => {
@@ -65,13 +65,13 @@ const createMentoringMethodOption = ({
   enabled,
   price,
   durationMinutes,
-  legacyTimeRanges,
+  timeRanges,
 }: {
   type: MentoringMethodType;
   enabled: boolean;
   price: number;
   durationMinutes: number;
-  legacyTimeRanges: string[];
+  timeRanges: string[];
 }): MentoringMethodOption => {
   if (type === 'note') {
     return {
@@ -87,31 +87,31 @@ const createMentoringMethodOption = ({
     };
   }
 
-  if (type === 'phone') {
+  if (type === 'simple') {
     return {
       type,
-      label: '15분 전화상담',
+      label: '간편상담',
       durationLabel: '15분',
       description:
         '허들을 낮춘 단기 상담입니다. 사전 질문을 바탕으로 핵심만 빠르게 정리합니다.',
       enabled,
       requiresSchedule: true,
       price,
-      timeSlots: legacyTimeRanges,
+      timeSlots: timeRanges,
     };
   }
 
-  if (type === 'online') {
+  if (type === 'deep') {
     return {
       type,
-      label: '온라인상담',
+      label: '심층상담',
       durationLabel: `${durationMinutes}분`,
       description:
         '화면 공유/코드 리뷰 등 실시간 피드백이 필요한 상담에 적합합니다.',
       enabled,
       requiresSchedule: true,
       price,
-      timeSlots: legacyTimeRanges,
+      timeSlots: timeRanges,
     };
   }
 
@@ -124,7 +124,7 @@ const createMentoringMethodOption = ({
     enabled,
     requiresSchedule: true,
     price,
-    timeSlots: legacyTimeRanges,
+    timeSlots: timeRanges,
   };
 };
 
@@ -153,12 +153,12 @@ export const createMentorProfileFromRegistration = (
       ? '소속 비공개'
       : trimmedCompanyName;
   const skillTags = formValues.skillTags;
-  const phoneTimeRanges = makeLegacyTimeRanges(formValues, 15);
-  const onlineTimeRanges = makeLegacyTimeRanges(
+  const simpleTimeRanges = makeMethodTimeRanges(formValues, 15);
+  const deepTimeRanges = makeMethodTimeRanges(
     formValues,
-    formValues.onlineDurationMinutes,
+    formValues.deepDurationMinutes,
   );
-  const offlineTimeRanges = makeLegacyTimeRanges(
+  const offlineTimeRanges = makeMethodTimeRanges(
     formValues,
     formValues.offlineDurationMinutes,
   );
@@ -179,16 +179,15 @@ export const createMentorProfileFromRegistration = (
     maxParticipants: formValues.maxParticipants ?? 1,
     noteEnabled: formValues.noteEnabled ?? true,
     notePrice: formValues.notePrice ?? 5000,
-    phoneEnabled: formValues.phoneEnabled ?? true,
-    phonePrice: formValues.phonePrice ?? 15000,
-    onlineEnabled: formValues.onlineEnabled ?? true,
-    onlinePrice: formValues.onlinePrice ?? 30000,
-    onlineDurationMinutes: formValues.onlineDurationMinutes ?? 60,
+    simpleEnabled: formValues.simpleEnabled ?? true,
+    simplePrice: formValues.simplePrice ?? 15000,
+    deepEnabled: formValues.deepEnabled ?? true,
+    deepPrice: formValues.deepPrice ?? 30000,
+    deepDurationMinutes: formValues.deepDurationMinutes ?? 60,
     offlineEnabled: formValues.offlineEnabled ?? false,
     offlinePrice: formValues.offlinePrice ?? 100000,
     offlineDurationMinutes: formValues.offlineDurationMinutes ?? 60,
     schedule: formValues.schedule,
-    holidays: formValues.holidays ?? [],
     detailedDescription: formValues.detailedDescription ?? '',
     interviewQuestions: formValues.interviewQuestions ?? [],
     preNotice: formValues.preNotice ?? '',
@@ -209,10 +208,7 @@ export const createMentorProfileFromRegistration = (
     reviewCount: 0,
     mentoringCount: 0,
     tags: skillTags,
-    summary: formValues.mentoringTitle,
-    bio: formValues.detailedDescription,
     careerHistory: buildCareerHistory(formValues),
-    strengths: skillTags,
     avatarEmoji: 'M',
     imageUrl:
       profileImageUrl && profileImageUrl.trim().length > 0
@@ -224,28 +220,28 @@ export const createMentorProfileFromRegistration = (
         enabled: formValues.noteEnabled,
         price: formValues.notePrice,
         durationMinutes: 0,
-        legacyTimeRanges: [],
+        timeRanges: [],
       }),
-      phone: createMentoringMethodOption({
-        type: 'phone',
-        enabled: formValues.phoneEnabled,
-        price: formValues.phonePrice,
+      simple: createMentoringMethodOption({
+        type: 'simple',
+        enabled: formValues.simpleEnabled,
+        price: formValues.simplePrice,
         durationMinutes: 15,
-        legacyTimeRanges: phoneTimeRanges,
+        timeRanges: simpleTimeRanges,
       }),
-      online: createMentoringMethodOption({
-        type: 'online',
-        enabled: formValues.onlineEnabled,
-        price: formValues.onlinePrice,
-        durationMinutes: formValues.onlineDurationMinutes,
-        legacyTimeRanges: onlineTimeRanges,
+      deep: createMentoringMethodOption({
+        type: 'deep',
+        enabled: formValues.deepEnabled,
+        price: formValues.deepPrice,
+        durationMinutes: formValues.deepDurationMinutes,
+        timeRanges: deepTimeRanges,
       }),
       offline: createMentoringMethodOption({
         type: 'offline',
         enabled: formValues.offlineEnabled,
         price: formValues.offlinePrice,
         durationMinutes: formValues.offlineDurationMinutes,
-        legacyTimeRanges: offlineTimeRanges,
+        timeRanges: offlineTimeRanges,
       }),
     },
     reviews: [
@@ -346,7 +342,7 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
     }),
     {
       name: 'mentor-directory-storage',
-      version: 3,
+      version: 4,
       migrate: (persistedState, version) => {
         if (!persistedState) {
           return persistedState;

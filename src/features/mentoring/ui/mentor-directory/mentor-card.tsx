@@ -26,29 +26,29 @@ import type { MentoringMethodType } from '@/types/mentoring/domain';
 
 const methodTextMap: Record<MentoringMethodType, string> = {
   note: '쪽지상담',
-  phone: '15분 전화상담',
-  online: '온라인상담',
+  simple: '간편상담',
+  deep: '심층상담',
   offline: '대면상담',
 };
 
 const METHOD_ORDER: MentoringMethodType[] = [
   'note',
-  'phone',
-  'online',
+  'simple',
+  'deep',
   'offline',
 ];
 
 const methodLabelMap: Record<MentoringMethodType, string> = {
   note: 'text-text-brand',
-  phone: 'text-text-brand',
-  online: 'text-text-brand',
+  simple: 'text-text-brand',
+  deep: 'text-text-brand',
   offline: 'text-text-brand',
 };
 
 const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
   note: MessageCircle,
-  phone: Phone,
-  online: Monitor,
+  simple: Phone,
+  deep: Monitor,
   offline: Users,
 };
 
@@ -58,24 +58,31 @@ const MAX_KEYWORD_COUNT = 6;
 export default function MentorCard({ mentor }: MentorCardProps) {
   const router = useRouter();
   const mentorSettings = getMentorSettings(mentor);
-  const mentoringTitle = mentorSettings.mentoringTitle || mentor.headline;
+  const mentoringTitle = mentorSettings.mentoringTitle || '멘토링명 미입력';
   const appealLine =
     mentorSettings.appealLine || mentorSettings.companyCategory;
+  const jobGroupLabel = mentorSettings.jobGroup || '직군 미입력';
+  const jobTitleLabel = mentorSettings.jobTitle || '직무 미입력';
+  const roleSummaryLabel = Array.from(
+    new Set(
+      [jobGroupLabel, jobTitleLabel]
+        .map((value) => value.trim())
+        .filter((value) => value.length > 0),
+    ),
+  ).join(' · ');
   const keywords = Array.from(
     new Set([...mentorSettings.skillTags, ...mentor.tags]),
   )
     .map((keyword) => keyword.trim())
     .filter((keyword) => keyword.length > 0)
     .slice(0, MAX_KEYWORD_COUNT);
-  const jobTitleLabel = mentorSettings.jobTitle || mentor.role || '직무 미입력';
-  const careerLabel =
-    mentorSettings.careerYears || mentor.career || '경력 미입력';
+  const careerLabel = mentorSettings.careerYears || '경력 미입력';
   const metMenteeCount = mentor.menteeCount ?? mentor.mentoringCount;
   const lowestPriceOption = getLowestPriceOption(mentor);
   const fallbackPrices = [
     mentorSettings.notePrice,
-    mentorSettings.phonePrice,
-    mentorSettings.onlinePrice,
+    mentorSettings.simplePrice,
+    mentorSettings.deepPrice,
     mentorSettings.offlinePrice,
   ].filter((price): price is number => Number.isFinite(price) && price > 0);
   const fallbackLowestPrice =
@@ -83,8 +90,8 @@ export default function MentorCard({ mentor }: MentorCardProps) {
   const lowestPrice = lowestPriceOption?.price ?? fallbackLowestPrice;
   const availableMethods = {
     note: mentor.methods.note.enabled !== false,
-    phone: mentor.methods.phone.enabled !== false,
-    online: mentor.methods.online.enabled !== false,
+    simple: mentor.methods.simple.enabled !== false,
+    deep: mentor.methods.deep.enabled !== false,
     offline: mentor.methods.offline.enabled !== false,
   } as const;
 
@@ -93,7 +100,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       event: 'mentor_profile_click',
       mentor_id: mentor.id,
       mentor_nickname: mentor.nickname,
-      mentor_field: mentor.role,
+      mentor_field: jobGroupLabel,
       location: 'mentoring_page',
     });
 
@@ -145,7 +152,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
                 <div className="flex min-w-0 items-center gap-125">
                   <Briefcase className="text-text-subtlest h-160 w-160 shrink-0" />
                   <span className="font-designer-13m text-text-subtle line-clamp-1">
-                    {jobTitleLabel}
+                    {roleSummaryLabel}
                   </span>
                 </div>
                 <div className="flex min-w-0 items-center gap-125">

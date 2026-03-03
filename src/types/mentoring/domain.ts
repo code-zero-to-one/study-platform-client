@@ -1,6 +1,6 @@
 import type { MentorSettingsV2 } from '@/types/mentoring/settings';
 
-export type MentoringMethodType = 'note' | 'phone' | 'online' | 'offline';
+export type MentoringMethodType = 'note' | 'simple' | 'deep' | 'offline';
 
 export interface MentoringMethodOption {
   type: MentoringMethodType;
@@ -35,10 +35,10 @@ export interface MentorProfile {
   mentoringCount: number;
   menteeCount?: number;
   tags: string[];
-  summary: string;
-  bio: string;
+  summary?: string;
+  bio?: string;
   careerHistory: string[];
-  strengths: string[];
+  strengths?: string[];
   avatarEmoji?: string;
   imageUrl?: string;
   methods: Record<MentoringMethodType, MentoringMethodOption>;

@@ -1,5 +1,5 @@
-import MentoringManagementPageClient from '@/features/mentoring/ui/pages/mentoring-management-page-client';
+import { notFound } from 'next/navigation';
 
 export default function MentoringManagementPage() {
-  return <MentoringManagementPageClient />;
+  notFound();
 }

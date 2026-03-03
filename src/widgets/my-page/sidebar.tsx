@@ -52,23 +52,6 @@ export default function Sidebar() {
         스터디 후기
       </SidebarItem>
       <SidebarItem
-        onClick={() => router.push('/mentoring-management')}
-        isActive={
-          pathname === '/mentoring-management' ||
-          pathname.startsWith('/mentoring-management/')
-        }
-      >
-        멘토링 관리
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/my-mentoring')}
-        isActive={
-          pathname === '/my-mentoring' || pathname.startsWith('/my-mentoring/')
-        }
-      >
-        나의 멘토링
-      </SidebarItem>
-      <SidebarItem
         onClick={() => router.push('/payment-management')}
         isActive={pathname === '/payment-management'}
       >

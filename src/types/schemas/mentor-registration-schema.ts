@@ -1,5 +1,11 @@
 import { z } from 'zod';
 import {
+  extractMarkdownImageUrls,
+  hasOnlyAllowedImageExtensions,
+  hasOnlyHttpsImageUrls,
+  MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
+} from '@/types/mentoring/markdown';
+import {
   COMPANY_CATEGORY_OPTIONS,
   CONSULTING_DURATION_OPTIONS,
   CONTACT_COUNTRY_CODES,
@@ -22,22 +28,6 @@ const weeklyScheduleSchema = z.object({
   SAT: z.array(timeSlotSchema),
   SUN: z.array(timeSlotSchema),
 });
-
-const holidaySchema = z
-  .object({
-    id: z.string().min(1),
-    startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-    memo: z
-      .string()
-      .trim()
-      .min(1, '휴가 메모를 입력해주세요.')
-      .max(100, '휴가 메모는 100자 이하로 입력해주세요.'),
-  })
-  .refine((holiday) => holiday.startDate <= holiday.endDate, {
-    message: '휴가 종료일은 시작일보다 빠를 수 없습니다.',
-    path: ['endDate'],
-  });
 
 const settlementDraftSchema = z
   .object({
@@ -119,41 +109,16 @@ const scheduleSchema = z.object({
   weekly: weeklyScheduleSchema,
 });
 
-const hasDuplicateHolidayRange = (
-  holidays: Array<z.infer<typeof holidaySchema>>,
-) => {
-  for (let index = 0; index < holidays.length; index += 1) {
-    const current = holidays[index];
-
-    for (
-      let compareIndex = index + 1;
-      compareIndex < holidays.length;
-      compareIndex += 1
-    ) {
-      const compare = holidays[compareIndex];
-      const isOverlapped =
-        current.startDate <= compare.endDate &&
-        compare.startDate <= current.endDate;
-
-      if (isOverlapped) {
-        return true;
-      }
-    }
-  }
-
-  return false;
-};
-
 const isAnyMethodEnabled = (values: {
   noteEnabled: boolean;
-  phoneEnabled: boolean;
-  onlineEnabled: boolean;
+  simpleEnabled: boolean;
+  deepEnabled: boolean;
   offlineEnabled: boolean;
 }) => {
   return (
     values.noteEnabled ||
-    values.phoneEnabled ||
-    values.onlineEnabled ||
+    values.simpleEnabled ||
+    values.deepEnabled ||
     values.offlineEnabled
   );
 };
@@ -222,19 +187,19 @@ export const mentorRegistrationSchema = z
       .int('가격은 정수여야 합니다.')
       .min(3000, '가격은 3,000원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
-    phoneEnabled: z.boolean(),
-    phonePrice: z.coerce
+    simpleEnabled: z.boolean(),
+    simplePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
       .min(3000, '가격은 3,000원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
-    onlineEnabled: z.boolean(),
-    onlinePrice: z.coerce
+    deepEnabled: z.boolean(),
+    deepPrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
       .min(3000, '가격은 3,000원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
-    onlineDurationMinutes: z.union(
+    deepDurationMinutes: z.union(
       CONSULTING_DURATION_OPTIONS.map((value) => z.literal(value)) as [
         z.ZodLiteral<30>,
         z.ZodLiteral<60>,
@@ -255,7 +220,6 @@ export const mentorRegistrationSchema = z
       ],
     ),
     schedule: scheduleSchema,
-    holidays: z.array(holidaySchema),
     detailedDescription: z
       .string()
       .trim()
@@ -291,22 +255,41 @@ export const mentorRegistrationSchema = z
     }
 
     if (
-      (values.phoneEnabled || values.onlineEnabled || values.offlineEnabled) &&
+      (values.simpleEnabled || values.deepEnabled || values.offlineEnabled) &&
       !hasAnySchedule(values.schedule)
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['schedule'],
         message:
-          '전화/온라인/대면 상담을 활성화한 경우 스케줄을 1개 이상 선택해주세요.',
+          '간편/심층/대면 상담을 활성화한 경우 스케줄을 1개 이상 선택해주세요.',
       });
     }
 
-    if (hasDuplicateHolidayRange(values.holidays)) {
+    const markdownImageUrls = extractMarkdownImageUrls(
+      values.detailedDescription,
+    );
+    if (markdownImageUrls.length > MENTOR_MARKDOWN_MAX_IMAGE_COUNT) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['holidays'],
-        message: '휴가 기간이 서로 겹치지 않게 설정해주세요.',
+        path: ['detailedDescription'],
+        message: `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
+      });
+    }
+
+    if (!hasOnlyHttpsImageUrls(values.detailedDescription)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['detailedDescription'],
+        message: '이미지 URL은 https 또는 /images/** 경로만 허용됩니다.',
+      });
+    }
+
+    if (!hasOnlyAllowedImageExtensions(values.detailedDescription)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['detailedDescription'],
+        message: '이미지는 jpg/png/webp/gif 확장자만 허용됩니다.',
       });
     }
   });

@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { createEmptyWeeklySchedule } from '@/features/mentoring/model/mentor-settings';
 import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
 
@@ -14,8 +13,6 @@ export const createServerLikeMentorRegistrationValues = (
   weekly.WED = ['20:00', '20:30'];
   weekly.THU = ['21:00', '21:30', '22:00'];
   weekly.SAT = ['11:00', '11:30', '12:00'];
-
-  const nextMonth = dayjs(nowIso).add(1, 'month');
 
   return {
     contactCountryCode: '+82',
@@ -34,11 +31,11 @@ export const createServerLikeMentorRegistrationValues = (
     maxParticipants: 2,
     noteEnabled: true,
     notePrice: 29000,
-    phoneEnabled: true,
-    phonePrice: 39000,
-    onlineEnabled: true,
-    onlinePrice: 59000,
-    onlineDurationMinutes: 60,
+    simpleEnabled: true,
+    simplePrice: 39000,
+    deepEnabled: true,
+    deepPrice: 59000,
+    deepDurationMinutes: 60,
     offlineEnabled: true,
     offlinePrice: 99000,
     offlineDurationMinutes: 60,
@@ -47,20 +44,6 @@ export const createServerLikeMentorRegistrationValues = (
       slotUnitMinutes: 30,
       weekly,
     },
-    holidays: [
-      {
-        id: 'seed-holiday-1',
-        startDate: nextMonth.date(12).format('YYYY-MM-DD'),
-        endDate: nextMonth.date(14).format('YYYY-MM-DD'),
-        memo: '출장 일정으로 상담 운영이 어렵습니다.',
-      },
-      {
-        id: 'seed-holiday-2',
-        startDate: nextMonth.date(23).format('YYYY-MM-DD'),
-        endDate: nextMonth.date(24).format('YYYY-MM-DD'),
-        memo: '개인 일정으로 상담 휴무입니다.',
-      },
-    ],
     detailedDescription: `실제 채용 과정에서 많이 막히는 이력서 구조화, 프로젝트 성과 정리, 기술면접 답변 설계를 중심으로 진행합니다.
 
 멘티 상황에 맞춰 우선순위를 짚고, 바로 적용 가능한 액션 아이템으로 정리해드립니다.`,

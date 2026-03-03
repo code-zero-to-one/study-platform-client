@@ -79,14 +79,14 @@ export default function ReviewSeedActions() {
 
     const requestId = createRequest({
       mentorId: TARGET_MENTOR_ID,
-      method: 'phone',
+      method: 'simple',
       paymentMode: 'TOSS_PAYMENTS',
       menteeMemberId: memberId,
       menteeName: getMenteeName(),
       menteeRole: 'ZERO-ONE 멘티',
       preferredDate: dayjs().format('YYYY-MM-DD'),
       preferredTime: dayjs().format('HH:mm'),
-      requestMessage: `임시 검증용 전화상담 신청 (${dayjs().format('HH:mm:ss')})`,
+      requestMessage: `임시 검증용 간편상담 신청 (${dayjs().format('HH:mm:ss')})`,
     });
 
     // TOSS_PAYMENTS: 결제 완료 후 신청 생성이므로 confirmManualPayment 불필요
@@ -101,7 +101,7 @@ export default function ReviewSeedActions() {
       schedule: {
         startsAt,
         endsAt,
-        placeNote: '임시 검증용 전화상담',
+        placeNote: '임시 검증용 간편상담',
       },
       mentorNote: '임시 검증용 일정 확정',
     });
@@ -112,7 +112,7 @@ export default function ReviewSeedActions() {
       return;
     }
 
-    showToast('전화상담(완료) 후기 작성 가능 상태를 만들었습니다.', 'success');
+    showToast('간편상담(완료) 후기 작성 가능 상태를 만들었습니다.', 'success');
     goToReviewPage();
   };
 
@@ -140,7 +140,7 @@ export default function ReviewSeedActions() {
           size="small"
           onClick={createPhoneReviewReady}
         >
-          전화(완료) 후기 상태 만들기
+          간편(완료) 후기 상태 만들기
         </Button>
       </div>
     </section>

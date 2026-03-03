@@ -15,6 +15,7 @@ import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-sta
 import MentorManagementWorkspace from '@/features/mentoring/ui/management/mentor-management-workspace';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
+import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
 
@@ -43,6 +44,13 @@ export default function MentoringManagementPageClient() {
         const myMentorProfile = createdMentors.find(
           (mentor) => mentor.id === myMentorId,
         );
+        const myMentorSettings = myMentorProfile
+          ? getMentorSettings(myMentorProfile)
+          : null;
+        const profileDescription =
+          myMentorSettings?.appealLine?.trim() ||
+          myMentorSettings?.mentoringTitle?.trim() ||
+          '-';
 
         return (
           <div className="flex flex-col gap-300">
@@ -142,7 +150,7 @@ export default function MentoringManagementPageClient() {
                   </div>
 
                   <p className="font-designer-14r text-text-subtle line-clamp-2">
-                    {myMentorProfile.summary}
+                    {profileDescription}
                   </p>
 
                   <div className="flex flex-wrap gap-100">

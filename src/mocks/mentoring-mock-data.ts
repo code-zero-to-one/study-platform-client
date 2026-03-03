@@ -1,6 +1,5 @@
 import {
   createDefaultMentorSettings,
-  createEmptyWeeklySchedule,
   parseDurationLabelToMinutes,
 } from '@/features/mentoring/model/mentor-settings';
 import type {
@@ -10,9 +9,7 @@ import type {
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import type {
-  CompanyCategory,
   MentorSettingsV2,
-  WeekdayKey,
 } from '@/types/mentoring/settings';
 export type {
   MentorProfile,
@@ -22,13 +19,11 @@ export type {
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 
-type LegacyMentoringMethodType = MentoringMethodType | 'chat' | 'call';
-
 const DEFAULT_TIME_SLOTS = ['21:00~21:30', '21:30~22:00', '22:00~22:30'];
 const METHOD_ORDER: MentoringMethodType[] = [
   'note',
-  'phone',
-  'online',
+  'simple',
+  'deep',
   'offline',
 ];
 
@@ -43,68 +38,11 @@ const normalizeConsultingDuration = (minutes: number) => {
   return 90 as const;
 };
 
-const inferCompanyCategoryFromCompanyName = (
-  companyName: string,
-): CompanyCategory => {
-  const normalized = companyName.trim().toLowerCase();
-
-  if (normalized.length === 0 || normalized === '비공개') {
-    return '기타';
-  }
-
-  if (/네카라|네카오|카카오|쿠팡|배민|당근|토스/.test(normalized)) {
-    return '네카라쿠배';
-  }
-
-  if (/창업|스타트업|프리랜서|1인/.test(normalized)) {
-    return '창업';
-  }
-
-  if (/유니콘|글로벌 it|it 기업|대기업|넥슨|게임즈/.test(normalized)) {
-    return 'IT 유니콘';
-  }
-
-  return '기타';
-};
-
-const inferAppealLine = (
-  companyName: string,
-  companyCategory: CompanyCategory,
-): string => {
-  const normalized = companyName.trim().toLowerCase();
-
-  if (/쿠팡/.test(normalized)) {
-    return '쿠팡';
-  }
-
-  if (/금융|은행|증권|카드/.test(normalized)) {
-    return '금융권 대기업';
-  }
-
-  if (/판교|네카라|네카오|카카오|네이버|배민|당근|토스/.test(normalized)) {
-    return '네카라 및 판교IT기업';
-  }
-
-  if (companyCategory === '네카라쿠배') {
-    return '네카라쿠배';
-  }
-
-  if (companyCategory === '창업') {
-    return '창업';
-  }
-
-  if (/대기업|글로벌|global/.test(normalized)) {
-    return '대기업';
-  }
-
-  return companyCategory;
-};
-
 const createMethodOption = (
-  type: MentoringMethodType | 'chat' | 'call',
+  type: MentoringMethodType,
   overrides: Partial<MentoringMethodOption>,
 ): MentoringMethodOption => {
-  const defaults: Record<LegacyMentoringMethodType, MentoringMethodOption> = {
+  const defaults: Record<MentoringMethodType, MentoringMethodOption> = {
     note: {
       type: 'note',
       label: '쪽지상담',
@@ -116,9 +54,9 @@ const createMethodOption = (
       requiresSchedule: false,
       timeSlots: [],
     },
-    phone: {
-      type: 'phone',
-      label: '15분 전화상담',
+    simple: {
+      type: 'simple',
+      label: '간편상담',
       durationLabel: '15분',
       price: 19000,
       description:
@@ -127,9 +65,9 @@ const createMethodOption = (
       requiresSchedule: true,
       timeSlots: DEFAULT_TIME_SLOTS,
     },
-    online: {
-      type: 'online',
-      label: '온라인상담',
+    deep: {
+      type: 'deep',
+      label: '심층상담',
       durationLabel: '60분',
       price: 49000,
       description:
@@ -149,28 +87,6 @@ const createMethodOption = (
       requiresSchedule: true,
       timeSlots: DEFAULT_TIME_SLOTS,
     },
-    chat: {
-      type: 'note',
-      label: '쪽지상담',
-      durationLabel: '비동기',
-      price: 9900,
-      description:
-        '질문/고민/자료를 미리 전달하고 텍스트로 빠르게 답변받는 비동기 상담입니다.',
-      enabled: true,
-      requiresSchedule: false,
-      timeSlots: [],
-    },
-    call: {
-      type: 'phone',
-      label: '15분 전화상담',
-      durationLabel: '15분',
-      price: 19000,
-      description:
-        '허들을 낮춘 단기 상담입니다. 사전 질문을 바탕으로 핵심만 빠르게 정리합니다.',
-      enabled: true,
-      requiresSchedule: true,
-      timeSlots: DEFAULT_TIME_SLOTS,
-    },
   };
 
   return {
@@ -179,165 +95,64 @@ const createMethodOption = (
   };
 };
 
-const LEGACY_WEEKDAY_ORDER: WeekdayKey[] = [
-  'MON',
-  'TUE',
-  'WED',
-  'THU',
-  'FRI',
-  'SAT',
-  'SUN',
-];
-
-const extractStartTimesFromLegacySlots = (slots: string[]) => {
-  return Array.from(
-    new Set(
-      slots
-        .map((slot) => {
-          const [start] = slot.split('~');
-
-          return start?.trim() ?? '';
-        })
-        .filter((slot) => /^\d{2}:\d{2}$/.test(slot)),
-    ),
-  ).sort();
-};
-
-const createFallbackWeeklySchedule = (
-  mentor: MentorProfile,
-): Record<WeekdayKey, string[]> => {
-  const weekly = createEmptyWeeklySchedule();
-  const legacyMethods = mentor.methods as Partial<
-    Record<LegacyMentoringMethodType, MentoringMethodOption>
-  >;
-  const phoneMethod = legacyMethods.phone ?? legacyMethods.call;
-  const onlineMethod = legacyMethods.online ?? legacyMethods.call;
-  const offlineMethod = legacyMethods.offline;
-  const fallbackSlots = extractStartTimesFromLegacySlots([
-    ...(phoneMethod?.timeSlots ?? []),
-    ...(onlineMethod?.timeSlots ?? []),
-    ...(offlineMethod?.timeSlots ?? []),
-  ]);
-
-  if (fallbackSlots.length === 0) {
-    return weekly;
-  }
-
-  LEGACY_WEEKDAY_ORDER.forEach((day) => {
-    weekly[day] = [...fallbackSlots];
-  });
-
-  return weekly;
-};
-
 const getNormalizedMethods = (
   mentor: MentorProfile,
 ): Record<MentoringMethodType, MentoringMethodOption> => {
-  const legacyMethods = mentor.methods as Partial<
-    Record<LegacyMentoringMethodType, MentoringMethodOption>
+  const methods = mentor.methods as Partial<
+    Record<MentoringMethodType, MentoringMethodOption>
   >;
-  const legacyNote = legacyMethods.note ?? legacyMethods.chat;
-  const legacyPhone = legacyMethods.phone ?? legacyMethods.call;
-  const legacyOnline = legacyMethods.online ?? legacyMethods.call;
-  const legacyOffline = legacyMethods.offline;
-  const defaultOnlineDuration = normalizeConsultingDuration(
-    parseDurationLabelToMinutes(legacyOnline?.durationLabel ?? '60분') ?? 60,
+  const noteMethod = methods.note;
+  const simpleMethod = methods.simple;
+  const deepMethod = methods.deep;
+  const offlineMethod = methods.offline;
+  const defaultDeepDuration = normalizeConsultingDuration(
+    parseDurationLabelToMinutes(deepMethod?.durationLabel ?? '60분') ?? 60,
   );
   const defaultOfflineDuration = normalizeConsultingDuration(
-    parseDurationLabelToMinutes(legacyOffline?.durationLabel ?? '60분') ?? 60,
+    parseDurationLabelToMinutes(offlineMethod?.durationLabel ?? '60분') ?? 60,
   );
 
   return {
     note: createMethodOption('note', {
-      ...legacyNote,
+      ...noteMethod,
       type: 'note',
-      label: legacyNote?.label || '쪽지상담',
+      label: noteMethod?.label || '쪽지상담',
       durationLabel: '비동기',
       requiresSchedule: false,
       timeSlots: [],
     }),
-    phone: createMethodOption('phone', {
-      ...legacyPhone,
-      type: 'phone',
-      label: legacyPhone?.label || '15분 전화상담',
+    simple: createMethodOption('simple', {
+      ...simpleMethod,
+      type: 'simple',
+      label: simpleMethod?.label || '간편상담',
       durationLabel: '15분',
       requiresSchedule: true,
-      timeSlots: legacyPhone?.timeSlots ?? DEFAULT_TIME_SLOTS,
+      timeSlots: simpleMethod?.timeSlots ?? DEFAULT_TIME_SLOTS,
     }),
-    online: createMethodOption('online', {
-      ...legacyOnline,
-      type: 'online',
-      label: legacyOnline?.label || '온라인상담',
-      durationLabel: `${defaultOnlineDuration}분`,
+    deep: createMethodOption('deep', {
+      ...deepMethod,
+      type: 'deep',
+      label: deepMethod?.label || '심층상담',
+      durationLabel: `${defaultDeepDuration}분`,
       requiresSchedule: true,
-      timeSlots: legacyOnline?.timeSlots ?? DEFAULT_TIME_SLOTS,
+      timeSlots: deepMethod?.timeSlots ?? DEFAULT_TIME_SLOTS,
       enabled:
-        legacyOnline?.enabled ??
-        (legacyPhone?.enabled !== false || legacyOffline?.enabled !== false),
+        deepMethod?.enabled ??
+        (simpleMethod?.enabled !== false || offlineMethod?.enabled !== false),
       price:
-        legacyOnline?.price ??
-        legacyPhone?.price ??
-        legacyOffline?.price ??
-        createMethodOption('online', {}).price,
+        deepMethod?.price ??
+        simpleMethod?.price ??
+        offlineMethod?.price ??
+        createMethodOption('deep', {}).price,
     }),
     offline: createMethodOption('offline', {
-      ...legacyOffline,
+      ...offlineMethod,
       type: 'offline',
-      label: legacyOffline?.label || '대면상담',
+      label: offlineMethod?.label || '대면상담',
       durationLabel: `${defaultOfflineDuration}분`,
       requiresSchedule: true,
-      timeSlots: legacyOffline?.timeSlots ?? DEFAULT_TIME_SLOTS,
+      timeSlots: offlineMethod?.timeSlots ?? DEFAULT_TIME_SLOTS,
     }),
-  };
-};
-
-const buildSettingsFromLegacyMentor = (
-  mentor: MentorProfile,
-): MentorSettingsV2 => {
-  const defaults = createDefaultMentorSettings();
-  const skillTags = mentor.tags.slice(0, 5);
-  const companyCategory = inferCompanyCategoryFromCompanyName(mentor.company);
-  const methods = getNormalizedMethods(mentor);
-  const onlineDurationMinutes = normalizeConsultingDuration(
-    parseDurationLabelToMinutes(methods.online.durationLabel) ?? 60,
-  );
-  const offlineDurationMinutes = normalizeConsultingDuration(
-    parseDurationLabelToMinutes(methods.offline.durationLabel) ?? 60,
-  );
-
-  return {
-    ...defaults,
-    categories: [mentor.role],
-    mentoringTitle: mentor.headline,
-    jobGroup: mentor.role,
-    jobTitle: mentor.role,
-    careerYears: mentor.career,
-    skillTags,
-    companyCategory,
-    appealLine: inferAppealLine(mentor.company, companyCategory),
-    companyName: mentor.company === '비공개' ? '' : mentor.company,
-    hideCompanyName: mentor.company === '비공개',
-    noteEnabled: methods.note.enabled !== false,
-    notePrice: methods.note.price,
-    phoneEnabled: methods.phone.enabled !== false,
-    phonePrice: methods.phone.price,
-    onlineEnabled: methods.online.enabled !== false,
-    onlinePrice: methods.online.price,
-    onlineDurationMinutes,
-    offlineEnabled: methods.offline.enabled !== false,
-    offlinePrice: methods.offline.price,
-    offlineDurationMinutes,
-    maxParticipants: 1,
-    schedule: {
-      timezone: 'Asia/Seoul',
-      slotUnitMinutes: 30,
-      weekly: createFallbackWeeklySchedule(mentor),
-    },
-    detailedDescription: mentor.bio,
-    interviewQuestions: [],
-    preNotice: '',
-    schemaVersion: 3,
-    updatedAt: new Date().toISOString(),
   };
 };
 
@@ -378,10 +193,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
       note: createMethodOption('note', {
         price: 33000,
       }),
-      phone: createMethodOption('phone', {
+      simple: createMethodOption('simple', {
         price: 39000,
       }),
-      online: createMethodOption('online', {
+      deep: createMethodOption('deep', {
         price: 49000,
       }),
       offline: createMethodOption('offline', {
@@ -403,7 +218,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '박OO',
         rating: 5,
         createdAt: '2026.02.05',
-        method: 'phone',
+        method: 'simple',
         content:
           '15분인데도 핵심만 압축해서 알려주셔서 고민이 빠르게 정리됐습니다.',
       },
@@ -452,10 +267,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
       note: createMethodOption('note', {
         price: 40000,
       }),
-      phone: createMethodOption('phone', {
+      simple: createMethodOption('simple', {
         price: 45000,
       }),
-      online: createMethodOption('online', {
+      deep: createMethodOption('deep', {
         price: 55000,
       }),
       offline: createMethodOption('offline', {
@@ -476,7 +291,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '최OO',
         rating: 5,
         createdAt: '2026.01.26',
-        method: 'phone',
+        method: 'simple',
         content: '면접 답변 구조를 함께 정리해주셔서 자신감이 생겼어요.',
       },
     ],
@@ -517,10 +332,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
       note: createMethodOption('note', {
         price: 49500,
       }),
-      phone: createMethodOption('phone', {
+      simple: createMethodOption('simple', {
         price: 55000,
       }),
-      online: createMethodOption('online', {
+      deep: createMethodOption('deep', {
         price: 65000,
       }),
       offline: createMethodOption('offline', {
@@ -541,7 +356,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
         authorName: '윤OO',
         rating: 5,
         createdAt: '2026.01.21',
-        method: 'phone',
+        method: 'simple',
         content:
           '게임 서버 면접 질문을 실제 사례로 연습할 수 있어서 좋았습니다.',
       },
@@ -594,10 +409,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
       note: createMethodOption('note', {
         price: 66000,
       }),
-      phone: createMethodOption('phone', {
+      simple: createMethodOption('simple', {
         enabled: false,
       }),
-      online: createMethodOption('online', {
+      deep: createMethodOption('deep', {
         enabled: false,
       }),
       offline: createMethodOption('offline', {
@@ -630,10 +445,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
       note: createMethodOption('note', {
         price: 22000,
       }),
-      phone: createMethodOption('phone', {
+      simple: createMethodOption('simple', {
         price: 29000,
       }),
-      online: createMethodOption('online', {
+      deep: createMethodOption('deep', {
         price: 35000,
       }),
       offline: createMethodOption('offline', {
@@ -666,10 +481,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
       note: createMethodOption('note', {
         price: 49500,
       }),
-      phone: createMethodOption('phone', {
+      simple: createMethodOption('simple', {
         price: 56000,
       }),
-      online: createMethodOption('online', {
+      deep: createMethodOption('deep', {
         price: 62000,
       }),
       offline: createMethodOption('offline', {
@@ -702,10 +517,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
       note: createMethodOption('note', {
         price: 11000,
       }),
-      phone: createMethodOption('phone', {
+      simple: createMethodOption('simple', {
         enabled: false,
       }),
-      online: createMethodOption('online', {
+      deep: createMethodOption('deep', {
         enabled: false,
       }),
       offline: createMethodOption('offline', {
@@ -736,10 +551,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
       note: createMethodOption('note', {
         price: 39000,
       }),
-      phone: createMethodOption('phone', {
+      simple: createMethodOption('simple', {
         price: 47000,
       }),
-      online: createMethodOption('online', {
+      deep: createMethodOption('deep', {
         price: 54000,
       }),
       offline: createMethodOption('offline', {
@@ -793,59 +608,52 @@ export const formatWon = (price: number) => `₩${price.toLocaleString('ko-KR')}
 export const getMethodLabel = (method: MentoringMethodType) => {
   return {
     note: '쪽지상담',
-    phone: '15분 전화상담',
-    online: '온라인상담',
+    simple: '간편상담',
+    deep: '심층상담',
     offline: '대면상담',
   }[method];
 };
 
 const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
-  const fallback = buildSettingsFromLegacyMentor(mentor);
-  const source = mentor.mentorSettings as
-    | (MentorSettingsV2 & {
-        chatEnabled?: boolean;
-        chatPrice?: number;
-        callEnabled?: boolean;
-        callPrice?: number;
-        sessionDurationMinutes?: number;
-      })
-    | undefined;
-
-  if (!source) {
-    return fallback;
-  }
-
-  const legacyDuration = normalizeConsultingDuration(
-    source.sessionDurationMinutes ?? fallback.onlineDurationMinutes,
+  const defaults = createDefaultMentorSettings();
+  const methods = getNormalizedMethods(mentor);
+  const source = mentor.mentorSettings as MentorSettingsV2 | undefined;
+  const normalizedDeepDuration = normalizeConsultingDuration(
+    parseDurationLabelToMinutes(methods.deep.durationLabel) ??
+      defaults.deepDurationMinutes,
   );
-  const appealLine = source.appealLine?.trim();
+  const normalizedOfflineDuration = normalizeConsultingDuration(
+    parseDurationLabelToMinutes(methods.offline.durationLabel) ??
+      defaults.offlineDurationMinutes,
+  );
+  const appealLine = source?.appealLine?.trim();
 
   return {
-    ...fallback,
+    ...defaults,
     ...source,
-    noteEnabled:
-      source.noteEnabled ?? source.chatEnabled ?? fallback.noteEnabled,
-    notePrice: source.notePrice ?? source.chatPrice ?? fallback.notePrice,
-    phoneEnabled:
-      source.phoneEnabled ?? source.callEnabled ?? fallback.phoneEnabled,
-    phonePrice: source.phonePrice ?? source.callPrice ?? fallback.phonePrice,
-    onlineEnabled:
-      source.onlineEnabled ?? source.callEnabled ?? fallback.onlineEnabled,
-    onlinePrice: source.onlinePrice ?? source.callPrice ?? fallback.onlinePrice,
-    onlineDurationMinutes:
-      source.onlineDurationMinutes ??
-      source.offlineDurationMinutes ??
-      legacyDuration,
-    offlineEnabled: source.offlineEnabled ?? fallback.offlineEnabled,
-    offlinePrice: source.offlinePrice ?? fallback.offlinePrice,
+    noteEnabled: source?.noteEnabled ?? methods.note.enabled ?? defaults.noteEnabled,
+    notePrice: source?.notePrice ?? methods.note.price ?? defaults.notePrice,
+    simpleEnabled:
+      source?.simpleEnabled ?? methods.simple.enabled ?? defaults.simpleEnabled,
+    simplePrice: source?.simplePrice ?? methods.simple.price ?? defaults.simplePrice,
+    deepEnabled: source?.deepEnabled ?? methods.deep.enabled ?? defaults.deepEnabled,
+    deepPrice: source?.deepPrice ?? methods.deep.price ?? defaults.deepPrice,
+    deepDurationMinutes:
+      source?.deepDurationMinutes ??
+      source?.offlineDurationMinutes ??
+      normalizedDeepDuration,
+    offlineEnabled:
+      source?.offlineEnabled ?? methods.offline.enabled ?? defaults.offlineEnabled,
+    offlinePrice:
+      source?.offlinePrice ?? methods.offline.price ?? defaults.offlinePrice,
     offlineDurationMinutes:
-      source.offlineDurationMinutes ??
-      source.onlineDurationMinutes ??
-      legacyDuration,
-    appealLine: appealLine || fallback.appealLine,
-    companyCategory: source.companyCategory ?? fallback.companyCategory,
+      source?.offlineDurationMinutes ??
+      source?.deepDurationMinutes ??
+      normalizedOfflineDuration,
+    appealLine: appealLine || defaults.appealLine,
+    companyCategory: source?.companyCategory ?? defaults.companyCategory,
     interviewQuestions:
-      source.interviewQuestions ?? fallback.interviewQuestions,
+      source?.interviewQuestions ?? defaults.interviewQuestions,
     schemaVersion: 3,
   };
 };

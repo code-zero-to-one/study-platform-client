@@ -135,7 +135,7 @@ const buildWelcomeChecklist = (
 ): MentorRegistrationWelcomeChecklistItem[] => {
   const settlementVerified = values.settlementDraft?.verified === true;
   const realtimeEnabled =
-    values.phoneEnabled || values.onlineEnabled || values.offlineEnabled;
+    values.simpleEnabled || values.deepEnabled || values.offlineEnabled;
   const scheduleSlots = countScheduleSlots(values);
   const interviewQuestionCount = values.interviewQuestions.length;
 
@@ -151,8 +151,8 @@ const buildWelcomeChecklist = (
       title: '실시간 상담 슬롯 오픈',
       description:
         realtimeEnabled && scheduleSlots > 0
-          ? `전화/온라인/대면 상담 슬롯 ${scheduleSlots}개가 열려 있어요.`
-          : '전화/온라인/대면 상담을 열고 가능한 시간을 등록해보세요.',
+          ? `간편/심층/대면 상담 슬롯 ${scheduleSlots}개가 열려 있어요.`
+          : '간편/심층/대면 상담을 열고 가능한 시간을 등록해보세요.',
       done: realtimeEnabled && scheduleSlots > 0,
     },
     {
@@ -199,17 +199,16 @@ function getChangedSections(
   if (
     prev.noteEnabled !== next.noteEnabled ||
     prev.notePrice !== next.notePrice ||
-    prev.phoneEnabled !== next.phoneEnabled ||
-    prev.phonePrice !== next.phonePrice ||
-    prev.onlineEnabled !== next.onlineEnabled ||
-    prev.onlinePrice !== next.onlinePrice ||
-    prev.onlineDurationMinutes !== next.onlineDurationMinutes ||
+    prev.simpleEnabled !== next.simpleEnabled ||
+    prev.simplePrice !== next.simplePrice ||
+    prev.deepEnabled !== next.deepEnabled ||
+    prev.deepPrice !== next.deepPrice ||
+    prev.deepDurationMinutes !== next.deepDurationMinutes ||
     prev.offlineEnabled !== next.offlineEnabled ||
     prev.offlinePrice !== next.offlinePrice ||
     prev.offlineDurationMinutes !== next.offlineDurationMinutes ||
     prev.maxParticipants !== next.maxParticipants ||
-    prev.schedule !== next.schedule ||
-    prev.holidays !== next.holidays
+    prev.schedule !== next.schedule
   ) {
     changed.push('methods');
   }
@@ -506,21 +505,20 @@ export const useMentorRegistrationController =
     const interviewQuestions = watch('interviewQuestions');
     const preNotice = watch('preNotice');
     const notePrice = watch('notePrice');
-    const phonePrice = watch('phonePrice');
-    const onlinePrice = watch('onlinePrice');
+    const simplePrice = watch('simplePrice');
+    const deepPrice = watch('deepPrice');
     const offlinePrice = watch('offlinePrice');
-    const onlineDurationMinutes = watch('onlineDurationMinutes');
+    const deepDurationMinutes = watch('deepDurationMinutes');
     const offlineDurationMinutes = watch('offlineDurationMinutes');
     const noteEnabled = watch('noteEnabled');
-    const phoneEnabled = watch('phoneEnabled');
-    const onlineEnabled = watch('onlineEnabled');
+    const simpleEnabled = watch('simpleEnabled');
+    const deepEnabled = watch('deepEnabled');
     const offlineEnabled = watch('offlineEnabled');
     const contactCountryCode = watch('contactCountryCode');
     const contactPhone = watch('contactPhone');
     const contactEmail = watch('contactEmail');
     const maxParticipants = watch('maxParticipants');
     const schedule = watch('schedule');
-    const holidays = watch('holidays');
     const entryOnboardingValues =
       useMemo<MentorRegistrationEntryOnboardingValues>(() => {
         return {
@@ -560,13 +558,13 @@ export const useMentorRegistrationController =
         ),
         noteEnabled: noteEnabled ?? defaults.noteEnabled,
         notePrice: toSafeInteger(notePrice, defaults.notePrice),
-        phoneEnabled: phoneEnabled ?? defaults.phoneEnabled,
-        phonePrice: toSafeInteger(phonePrice, defaults.phonePrice),
-        onlineEnabled: onlineEnabled ?? defaults.onlineEnabled,
-        onlinePrice: toSafeInteger(onlinePrice, defaults.onlinePrice),
-        onlineDurationMinutes: toDurationMinutes(
-          onlineDurationMinutes,
-          defaults.onlineDurationMinutes,
+        simpleEnabled: simpleEnabled ?? defaults.simpleEnabled,
+        simplePrice: toSafeInteger(simplePrice, defaults.simplePrice),
+        deepEnabled: deepEnabled ?? defaults.deepEnabled,
+        deepPrice: toSafeInteger(deepPrice, defaults.deepPrice),
+        deepDurationMinutes: toDurationMinutes(
+          deepDurationMinutes,
+          defaults.deepDurationMinutes,
         ),
         offlineEnabled: offlineEnabled ?? defaults.offlineEnabled,
         offlinePrice: toSafeInteger(offlinePrice, defaults.offlinePrice),
@@ -575,7 +573,6 @@ export const useMentorRegistrationController =
           defaults.offlineDurationMinutes,
         ),
         schedule: schedule ?? defaults.schedule,
-        holidays: holidays ?? [],
         detailedDescription: detailedDescription ?? '',
         interviewQuestions: interviewQuestions ?? [],
         preNotice: preNotice ?? '',
@@ -593,7 +590,6 @@ export const useMentorRegistrationController =
       contactPhone,
       detailedDescription,
       hideCompanyName,
-      holidays,
       interviewQuestions,
       jobGroup,
       jobTitle,
@@ -604,11 +600,11 @@ export const useMentorRegistrationController =
       offlineDurationMinutes,
       offlineEnabled,
       offlinePrice,
-      onlineDurationMinutes,
-      onlineEnabled,
-      onlinePrice,
-      phoneEnabled,
-      phonePrice,
+      deepDurationMinutes,
+      deepEnabled,
+      deepPrice,
+      simpleEnabled,
+      simplePrice,
       preNotice,
       schedule,
       settlementDraft,
@@ -763,7 +759,7 @@ export const useMentorRegistrationController =
         return;
       }
 
-      router.push('/mentoring-management');
+      router.push('/mentoring');
     };
 
     const handlePhoneVerificationComplete = (phoneNumber: string) => {
@@ -790,7 +786,7 @@ export const useMentorRegistrationController =
 
     const handleWelcomeModalToRequestPage = () => {
       setWelcomeOnboarding(undefined);
-      router.push('/mentoring-management/requests');
+      router.push('/mentoring');
     };
 
     const handleCompleteEntryOnboarding = (
@@ -912,7 +908,7 @@ export const useMentorRegistrationController =
         onWelcomeModalToRequestPage: handleWelcomeModalToRequestPage,
         onCompleteEntryOnboarding: handleCompleteEntryOnboarding,
         onSkipEntryOnboarding: handleSkipEntryOnboarding,
-        onConfirmExitWithoutSaving: () => router.push('/mentoring-management'),
+        onConfirmExitWithoutSaving: () => router.push('/mentoring'),
       } satisfies MentorRegistrationControllerActions,
       viewModel: {
         isReady: guardState === 'ready',

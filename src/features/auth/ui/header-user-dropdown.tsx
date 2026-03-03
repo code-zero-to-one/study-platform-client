@@ -10,8 +10,6 @@ import {
 import UserAvatar from '@/components/ui/avatar';
 import Badge from '@/components/ui/badge';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useLogoutMutation } from '../model/use-auth-mutation';
 
 interface DropdownOption {
@@ -23,31 +21,9 @@ interface DropdownOption {
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   const { mutateAsync: logout } = useLogoutMutation();
-  const { data: authData, isAuthReady, memberId } = useAuthReady();
-  const mentorDirectoryHydrated = useMentorDirectoryStore(
-    (state) => state.hasHydrated,
-  );
-  const mentorIdByMember = useMentorDirectoryStore(
-    (state) => state.mentorIdByMember,
-  );
-  const mentoringStoreHydrated = useMentoringManagementStore(
-    (state) => state.hasHydrated,
-  );
-  const requestsByMentor = useMentoringManagementStore(
-    (state) => state.requestsByMentor,
-  );
+  const { data: authData, isAuthReady } = useAuthReady();
 
   const hasAdminRole = isAuthReady && authData?.roleIds.includes('ROLE_ADMIN');
-  const myMentorId =
-    mentorDirectoryHydrated && memberId
-      ? mentorIdByMember[memberId]
-      : undefined;
-  const pendingRequestCount =
-    mentoringStoreHydrated && myMentorId
-      ? (requestsByMentor[myMentorId] ?? []).filter(
-          (request) => request.status === 'PENDING',
-        ).length
-      : 0;
 
   const router = useRouter();
 
@@ -61,16 +37,6 @@ export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
       value: '/my-page',
       onMenuClick: () => router.push('/my-page'),
     },
-    ...(myMentorId
-      ? [
-          {
-            label: '멘토링 관리',
-            value: '/mentoring-management',
-            badgeCount: pendingRequestCount,
-            onMenuClick: () => router.push('/mentoring-management'),
-          },
-        ]
-      : []),
     {
       label: '로그아웃',
       value: 'logout',

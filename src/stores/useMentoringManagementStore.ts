@@ -327,7 +327,7 @@ const createDemoRequests = (mentorId: number): MentoringRequest[] => {
         '이력서에 프로젝트 성과를 어떻게 수치화하면 좋을지 피드백 부탁드립니다.',
     },
     {
-      method: 'phone',
+      method: 'simple',
       paymentMode: 'MANUAL_TRANSFER',
       paymentMemo: '계좌이체 예정 (신청 후 1시간 내)',
       name: '박준호',
@@ -339,7 +339,7 @@ const createDemoRequests = (mentorId: number): MentoringRequest[] => {
         '15분 안에 이직 방향을 빠르게 점검받고 싶습니다. 현재 경력기술서도 함께 검토 부탁드립니다.',
     },
     {
-      method: 'online',
+      method: 'deep',
       paymentMode: 'MANUAL_TRANSFER',
       paymentStatus: 'CONFIRMED',
       paymentMemo: '송금 완료, 멘토 확인 대기',
@@ -402,7 +402,7 @@ const createDemoPendingScheduleRequests = (
     requestMessage: string;
   }> = [
     {
-      method: 'phone',
+      method: 'simple',
       paymentMode: 'MANUAL_TRANSFER',
       name: '정다은',
       role: '디자이너 → 개발자 전환 준비',
@@ -412,7 +412,7 @@ const createDemoPendingScheduleRequests = (
         '개발로 전직 준비 중인데, 어떤 순서로 공부하면 좋을지 방향 상담을 받고 싶어요.',
     },
     {
-      method: 'online',
+      method: 'deep',
       paymentMode: 'MANUAL_TRANSFER',
       paymentStatus: 'CONFIRMED',
       name: '오승민',
@@ -1374,7 +1374,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           const rejectedRequest: MentoringRequest = {
             id: createId('request'),
             mentorId,
-            method: 'phone',
+            method: 'simple',
             paymentMode: 'MANUAL_TRANSFER',
             paymentStatus: 'PENDING_TRANSFER',
             paymentMemo: '계좌이체 예정',
@@ -1385,7 +1385,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
             preferredDate: toDate(now.add(3, 'day')),
             preferredTime: toTime(now.add(3, 'day').hour(20)),
             requestMessage:
-              '15분 전화로 이직 우선순위를 빠르게 점검받고 싶습니다.',
+              '15분 간편상담으로 이직 우선순위를 빠르게 점검받고 싶습니다.',
             status: 'REJECTED',
             rejectedAt,
             decisionNote:
@@ -1395,7 +1395,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
                 id: createId('msg'),
                 sender: 'MENTEE',
                 content:
-                  '15분 전화로 이직 우선순위를 빠르게 점검받고 싶습니다.',
+                  '15분 간편상담으로 이직 우선순위를 빠르게 점검받고 싶습니다.',
                 createdAt: rejectedRequestedAt,
               },
               buildSystemMessage('멘토가 신청을 거절했어요.', rejectedAt),
@@ -1409,7 +1409,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           const acceptedUpcomingRequest: MentoringRequest = {
             id: createId('request'),
             mentorId,
-            method: 'online',
+            method: 'deep',
             paymentMode: 'MANUAL_TRANSFER',
             paymentStatus: 'CONFIRMED',
             paymentMemo: '입금 확인 완료 (카카오뱅크)',
@@ -1501,7 +1501,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
           const acceptedCancelledRequest: MentoringRequest = {
             id: createId('request'),
             mentorId,
-            method: 'phone',
+            method: 'simple',
             paymentMode: 'MANUAL_TRANSFER',
             paymentStatus: 'CONFIRMED',
             paymentMemo: '입금 확인 완료',
@@ -1626,7 +1626,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
               method: acceptedCancelledRequest.method,
               startsAt: toIso(cancelledSessionStart),
               endsAt: toIso(cancelledSessionEnd),
-              placeNote: '전화상담',
+              placeNote: '온라인 링크 전달 예정 (간편상담)',
               status: 'CANCELLED',
               createdAt: acceptedCancelledAt,
               updatedAt: cancelledAt,

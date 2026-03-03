@@ -36,14 +36,11 @@ export default function MentorManagementWorkspace({
     () =>
       ({
         note: 0,
-        phone: 15,
-        online: mentorSettings.onlineDurationMinutes,
+        simple: 15,
+        deep: mentorSettings.deepDurationMinutes,
         offline: mentorSettings.offlineDurationMinutes,
       }) as const,
-    [
-      mentorSettings.offlineDurationMinutes,
-      mentorSettings.onlineDurationMinutes,
-    ],
+    [mentorSettings.offlineDurationMinutes, mentorSettings.deepDurationMinutes],
   );
 
   const dashboardStats = useMemo(() => {

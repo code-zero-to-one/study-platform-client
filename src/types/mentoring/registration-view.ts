@@ -50,18 +50,18 @@ export interface MentorRegistrationEntryOnboardingValues {
 
 export type MentorRegistrationMethodEnabledField =
   | 'noteEnabled'
-  | 'phoneEnabled'
-  | 'onlineEnabled'
+  | 'simpleEnabled'
+  | 'deepEnabled'
   | 'offlineEnabled';
 
 export type MentorRegistrationMethodPriceField =
   | 'notePrice'
-  | 'phonePrice'
-  | 'onlinePrice'
+  | 'simplePrice'
+  | 'deepPrice'
   | 'offlinePrice';
 
 export type MentorRegistrationMethodDurationField =
-  | 'onlineDurationMinutes'
+  | 'deepDurationMinutes'
   | 'offlineDurationMinutes';
 
 export interface MentorRegistrationMethodField {

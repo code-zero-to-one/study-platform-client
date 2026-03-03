@@ -1,6 +1,10 @@
 import { type MentoringMethodType } from '@/types/mentoring/domain';
 
-const MENTOR_WRITE_ROLES = ['ROLE_MEMBER', 'ROLE_MENTOR', 'ROLE_ADMIN'] as const;
+const MENTOR_WRITE_ROLES = [
+  'ROLE_MEMBER',
+  'ROLE_MENTOR',
+  'ROLE_ADMIN',
+] as const;
 
 export const hasMentorWritePermission = (
   roleIds: readonly string[] | undefined,
@@ -14,8 +18,8 @@ export const hasMentorWritePermission = (
 
 export const MENTORING_METHOD_TYPES: readonly MentoringMethodType[] = [
   'note',
-  'phone',
-  'online',
+  'simple',
+  'deep',
   'offline',
 ];
 

@@ -1,7 +1,6 @@
 import {
   WEEKDAY_KEYS,
   type ConsultingDurationMinutes,
-  type MentorHoliday,
   type MentorSettingsV3,
   type MentorWeeklySchedule,
   type WeekdayKey,
@@ -16,7 +15,6 @@ export {
   type CompanyCategory,
   type ContactCountryCode,
   type ConsultingDurationMinutes,
-  type MentorHoliday,
   type MentorSettingsV2,
   type MentorSettingsV3,
   type MentorSettlementDraft,
@@ -55,11 +53,11 @@ export const createDefaultMentorSettings = (): MentorSettingsV3 => {
     maxParticipants: 1,
     noteEnabled: true,
     notePrice: 3000,
-    phoneEnabled: true,
-    phonePrice: 3000,
-    onlineEnabled: true,
-    onlinePrice: 3000,
-    onlineDurationMinutes: 60,
+    simpleEnabled: true,
+    simplePrice: 3000,
+    deepEnabled: true,
+    deepPrice: 3000,
+    deepDurationMinutes: 60,
     offlineEnabled: false,
     offlinePrice: 3000,
     offlineDurationMinutes: 60,
@@ -68,7 +66,6 @@ export const createDefaultMentorSettings = (): MentorSettingsV3 => {
       slotUnitMinutes: 30,
       weekly: createEmptyWeeklySchedule(),
     },
-    holidays: [],
     detailedDescription: '',
     interviewQuestions: [],
     preNotice: '',
@@ -83,20 +80,6 @@ export const getWeekdayKeyFromDate = (date: Date): WeekdayKey => {
   const map: WeekdayKey[] = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
 
   return map[day] ?? 'MON';
-};
-
-export const isDateInHolidayRange = (
-  date: Date,
-  holidays: MentorHoliday[],
-): boolean => {
-  const target = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(
-    2,
-    '0',
-  )}-${String(date.getDate()).padStart(2, '0')}`;
-
-  return holidays.some((holiday) => {
-    return target >= holiday.startDate && target <= holiday.endDate;
-  });
 };
 
 export const createHalfHourTimeSlots = (): string[] => {

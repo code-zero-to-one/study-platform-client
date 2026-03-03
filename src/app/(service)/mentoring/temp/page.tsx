@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import MentoringTempPage from '@/features/mentoring/ui/pages/mentoring-temp-page';
+import { notFound } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: '멘토링 임시 검증 페이지 - ZERO-ONE',
@@ -8,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function MentoringTempRoute() {
-  return <MentoringTempPage />;
+  notFound();
 }

@@ -43,8 +43,8 @@ const getEnabledMethodLabels = (
   settings:
     | {
         noteEnabled?: boolean;
-        phoneEnabled?: boolean;
-        onlineEnabled?: boolean;
+        simpleEnabled?: boolean;
+        deepEnabled?: boolean;
         offlineEnabled?: boolean;
       }
     | undefined,
@@ -55,8 +55,8 @@ const getEnabledMethodLabels = (
 
   const labels = [
     settings.noteEnabled ? '쪽지' : '',
-    settings.phoneEnabled ? '전화' : '',
-    settings.onlineEnabled ? '온라인' : '',
+    settings.simpleEnabled ? '간편' : '',
+    settings.deepEnabled ? '심층' : '',
     settings.offlineEnabled ? '대면' : '',
   ].filter(Boolean);
 

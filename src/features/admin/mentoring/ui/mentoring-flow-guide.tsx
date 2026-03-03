@@ -126,7 +126,7 @@ const ENUM_GROUPS = [
         color: 'green',
         label: '수락됨',
         definition:
-          '멘토가 신청을 수락한 상태. 예약형(전화·온라인·대면)은 동시에 MentoringSession이 SCHEDULED로 생성됨.',
+          '멘토가 신청을 수락한 상태. 예약형(간편·심층·대면)은 동시에 MentoringSession이 SCHEDULED로 생성됨.',
         setter: '멘토',
       },
       {
@@ -181,7 +181,7 @@ const ENUM_GROUPS = [
     id: 'session',
     typeName: 'MentoringSessionStatus',
     title: '세션 상태',
-    desc: '예약형 상담(전화·온라인·대면)에서 생성되는 세션의 진행 상태입니다. 쪽지(note) 방식은 세션이 생성되지 않습니다.',
+    desc: '예약형 상담(간편·심층·대면)에서 생성되는 세션의 진행 상태입니다. 쪽지(note) 방식은 세션이 생성되지 않습니다.',
     values: [
       {
         value: 'SCHEDULED',
@@ -224,17 +224,17 @@ const ENUM_GROUPS = [
         setter: '멘토가 등록 시 활성화',
       },
       {
-        value: 'phone',
+        value: 'simple',
         color: 'gray',
-        label: '15분 전화',
+        label: '간편상담',
         definition:
-          '단기 전화 상담. 희망 날짜·시간 선택 필수. 수락 시 15분 세션 생성.',
+          '짧은 온라인 상담. 희망 날짜·시간 선택 필수. 수락 시 15분 세션 생성.',
         setter: '멘토가 등록 시 활성화',
       },
       {
-        value: 'online',
+        value: 'deep',
         color: 'gray',
-        label: '온라인 화상',
+        label: '심층상담',
         definition:
           '화면 공유·코드 리뷰 등 실시간 상담. 30분 또는 60분 중 멘토가 선택. 수락 시 세션 생성.',
         setter: '멘토가 등록 시 활성화',
@@ -327,7 +327,7 @@ const FLOW_B_STEPS: FlowStepDef[] = [
   {
     id: 'b3',
     label: '③ 멘토 수락 / 거절',
-    desc: '멘토가 신청을 수락하면 ACCEPTED로 전환됩니다. 쪽지(note)는 일정 없이 즉시 수락. 예약형(전화·온라인·대면)은 날짜·시간·장소를 확정해야 수락 가능하며, 동시에 SCHEDULED 세션이 생성됩니다. 거절 시 사유를 입력합니다.',
+    desc: '멘토가 신청을 수락하면 ACCEPTED로 전환됩니다. 쪽지(note)는 일정 없이 즉시 수락. 예약형(간편·심층·대면)은 날짜·시간·장소를 확정해야 수락 가능하며, 동시에 SCHEDULED 세션이 생성됩니다. 거절 시 사유를 입력합니다.',
     statuses: [
       { value: 'ACCEPTED', color: 'green' },
       { value: 'SCHEDULED', color: 'green' },
@@ -533,16 +533,16 @@ export default function MentoringFlowGuide() {
                       note: '입금확인 → 수락 → 후기',
                     },
                     {
-                      value: 'phone',
-                      label: '15분 전화',
+                      value: 'simple',
+                      label: '간편상담',
                       schedule: '날짜·시간',
                       session: 'SCHEDULED 생성',
                       reviewTiming: '세션 종료 후',
                       note: '입금확인 → 수락+일정 → 세션 → 후기',
                     },
                     {
-                      value: 'online',
-                      label: '온라인 화상',
+                      value: 'deep',
+                      label: '심층상담',
                       schedule: '날짜·시간',
                       session: 'SCHEDULED 생성',
                       reviewTiming: '세션 종료 후',
