@@ -8,7 +8,7 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
 import { MENTORING_SESSION_STATUS_META } from '@/features/mentoring/model/management-status-meta';
-import { getMethodLabel } from '@/mocks/mentoring-mock-data';
+import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type {

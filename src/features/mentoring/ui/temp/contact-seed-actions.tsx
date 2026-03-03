@@ -48,7 +48,6 @@ const buildTempMentorRegistrationValues = (): MentorRegistrationFormValues => {
     preNotice: '임시 검증용 사전 안내입니다.',
     settlementDraft: null,
     updatedAt: nowIso,
-    schemaVersion: 3,
   };
 };
 

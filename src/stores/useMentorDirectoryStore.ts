@@ -1,16 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import { toTimeRangeLabel } from '@/features/mentoring/model/mentor-settings';
-import {
-  MENTOR_PROFILES,
-  withMentorSettings,
-} from '@/mocks/mentoring-mock-data';
 import type {
   MentorProfile,
   MentoringMethodOption,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
-import { type MentorSettingsV2 } from '@/types/mentoring/settings';
+import { type MentorSettings } from '@/types/mentoring/settings';
 import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
 
 interface MentorDirectoryState {
@@ -23,7 +20,7 @@ interface MentorDirectoryState {
     memberId: number,
     formValues: MentorRegistrationFormValues,
     options?: {
-      imageUrl?: string | null;
+      imageUrl?: string;
     },
   ) => number;
   reset: () => void;
@@ -35,11 +32,15 @@ type PersistedMentorDirectoryState = Pick<
   'memberId' | 'createdMentors' | 'mentorIdByMember' | 'nextMentorId'
 >;
 
-const STATIC_MENTOR_MAX_ID = MENTOR_PROFILES.reduce((maxId, mentor) => {
-  return Math.max(maxId, mentor.id);
-}, 0);
-const MIN_GENERATED_MENTOR_ID = STATIC_MENTOR_MAX_ID + 1;
+const MIN_GENERATED_MENTOR_ID = 1;
 const INITIAL_MENTOR_ID = MIN_GENERATED_MENTOR_ID;
+
+const normalizePersistedMentor = (mentor: MentorProfile): MentorProfile => {
+  return {
+    ...mentor,
+    mentorSettings: getMentorSettings(mentor),
+  };
+};
 
 const collectScheduleSlots = (formValues: MentorRegistrationFormValues) => {
   const uniqueSlots = new Set<string>();
@@ -144,7 +145,7 @@ export const createMentorProfileFromRegistration = (
   mentorId: number,
   formValues: MentorRegistrationFormValues,
   nowIso: string,
-  profileImageUrl?: string | null,
+  profileImageUrl?: string,
 ): MentorProfile => {
   const trimmedCompanyName = formValues.companyName.trim();
   const company = formValues.hideCompanyName
@@ -162,7 +163,7 @@ export const createMentorProfileFromRegistration = (
     formValues,
     formValues.offlineDurationMinutes,
   );
-  const normalizedSettings: MentorSettingsV2 = {
+  const normalizedSettings: MentorSettings = {
     contactCountryCode: formValues.contactCountryCode ?? '+82',
     contactPhone: formValues.contactPhone ?? '',
     contactEmail: formValues.contactEmail ?? '',
@@ -192,14 +193,11 @@ export const createMentorProfileFromRegistration = (
     interviewQuestions: formValues.interviewQuestions ?? [],
     preNotice: formValues.preNotice ?? '',
     settlementDraft: formValues.settlementDraft ?? null,
-    schemaVersion: 3,
     updatedAt: nowIso,
   };
 
   return {
     id: mentorId,
-    priority: 0,
-    headline: formValues.mentoringTitle,
     nickname: `멘토${mentorId}`,
     role: formValues.jobGroup,
     career: formValues.careerYears,
@@ -261,8 +259,8 @@ export const createMentorProfileFromRegistration = (
 const normalizePersistedState = (
   state: PersistedMentorDirectoryState,
 ): PersistedMentorDirectoryState => {
-  const nextCreatedMentors = (state.createdMentors ?? []).map((mentor) =>
-    withMentorSettings(mentor),
+  const nextCreatedMentors = (state.createdMentors ?? []).map(
+    normalizePersistedMentor,
   );
   const highestCreatedMentorId = nextCreatedMentors.reduce((maxId, mentor) => {
     return Math.max(maxId, mentor.id);

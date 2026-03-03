@@ -4,31 +4,35 @@ import Pagination from '@/components/ui/pagination';
 import MentorJoinCardContainer from '@/features/mentoring/ui/mentor-directory/mentor-join-card-container';
 import type { MentorProfile, MentorSortType } from '@/types/mentoring/domain';
 import MentorDirectoryEmpty from './mentor-directory-empty';
+import MentorDirectoryError from './mentor-directory-error';
 import MentorDirectoryFilters from './mentor-directory-filters';
 import MentorDirectoryGrid from './mentor-directory-grid';
 import MentorDirectorySkeletonGrid from './mentor-directory-skeleton-grid';
 
 interface MentorDirectoryListProps {
-  keywords: string[];
+  keyword: string;
   keywordOptions: string[];
   sortType: MentorSortType;
-  listState: 'loading' | 'empty' | 'ready';
+  listState: 'loading' | 'empty' | 'ready' | 'error';
+  errorMessage: string;
   shouldShowMentorJoinCard: boolean;
   currentPage: number;
   totalPages: number;
   showPagination: boolean;
   leadMentors: MentorProfile[];
   remainingMentors: MentorProfile[];
-  onKeywordChange: (nextKeywords: string[]) => void;
+  onKeywordChange: (nextKeyword: string) => void;
   onSortTypeChange: (nextSortType: MentorSortType) => void;
   onPageChange: (page: number) => void;
+  onRetry: () => void;
 }
 
 export default function MentorDirectoryList({
-  keywords,
+  keyword,
   keywordOptions,
   sortType,
   listState,
+  errorMessage,
   shouldShowMentorJoinCard,
   currentPage,
   totalPages,
@@ -38,10 +42,11 @@ export default function MentorDirectoryList({
   onKeywordChange,
   onSortTypeChange,
   onPageChange,
+  onRetry,
 }: MentorDirectoryListProps) {
   const toolbar = (
     <MentorDirectoryFilters
-      keywords={keywords}
+      keyword={keyword}
       keywordOptions={keywordOptions}
       sortType={sortType}
       onKeywordChange={onKeywordChange}
@@ -71,6 +76,7 @@ export default function MentorDirectoryList({
       state={listState}
       loading={<MentorDirectorySkeletonGrid />}
       empty={<MentorDirectoryEmpty />}
+      error={<MentorDirectoryError message={errorMessage} onRetry={onRetry} />}
       ready={
         <FilterSortListTemplate toolbar={toolbar} pagination={pagination}>
           {cards}

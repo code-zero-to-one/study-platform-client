@@ -5,9 +5,9 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import SectionShell from '@/components/ui/section-shell';
 import type {
-  MyMentoringMockItem,
+  MyMentoringItem,
   MyMentoringStatus,
-} from '@/mocks/my-mentoring-mock-data';
+} from '@/types/mentoring/my-mentoring';
 
 const METHOD_LABEL: Record<'ONLINE' | 'OFFLINE' | 'CALL', string> = {
   ONLINE: '심층상담',
@@ -63,7 +63,7 @@ const TEXT = {
 };
 
 interface MyMentoringDetailPageProps {
-  mentoring: MyMentoringMockItem;
+  mentoring: MyMentoringItem;
 }
 
 export default function MyMentoringDetailPage({

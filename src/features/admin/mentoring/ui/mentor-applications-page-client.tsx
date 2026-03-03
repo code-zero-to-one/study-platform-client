@@ -11,6 +11,7 @@ import SurfacePanel from '@/components/ui/surface-panel';
 import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model/admin-mentoring-view-state';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
+import { getMentorDisplayTitle } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringEmptyPanel from '@/features/mentoring/ui/common/mentoring-empty-panel';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
@@ -208,8 +209,7 @@ export default function MentorApplicationsPageClient({
                       </td>
                       <td className="font-designer-14r text-text-default px-200 py-150">
                         <span className="line-clamp-1">
-                          {mentor.mentor.mentorSettings?.mentoringTitle ??
-                            mentor.mentor.headline}
+                          {getMentorDisplayTitle(mentor.mentor)}
                         </span>
                       </td>
                       <td className="px-200 py-150">
@@ -264,8 +264,7 @@ export default function MentorApplicationsPageClient({
                     columnsClassName="grid-cols-[110px_minmax(0,1fr)]"
                     valueAs="p"
                   >
-                    {selectedMentor.mentor.mentorSettings?.mentoringTitle ??
-                      selectedMentor.mentor.headline}
+                    {getMentorDisplayTitle(selectedMentor.mentor)}
                   </KeyValueRow>
                   <KeyValueRow
                     label="직군/직무"

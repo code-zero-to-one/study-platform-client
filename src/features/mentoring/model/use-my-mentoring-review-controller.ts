@@ -2,7 +2,7 @@
 
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useMentorDirectoryQuery } from '@/features/mentoring/model/use-mentor-directory-query';
+import { useMentorDirectoryListQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
@@ -83,7 +83,8 @@ const createDefaultDraft = (): ReviewDraft => {
 
 export const useMyMentoringReviewController = () => {
   const { memberId } = useAuthReady();
-  const { mentors } = useMentorDirectoryQuery();
+  const { data: mentorsData } = useMentorDirectoryListQuery();
+  const mentors = useMemo(() => mentorsData ?? [], [mentorsData]);
   const { showToast } = useToastStore();
   const requestsByMentor = useMentoringManagementStore(
     (state) => state.requestsByMentor,

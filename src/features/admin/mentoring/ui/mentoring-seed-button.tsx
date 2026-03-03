@@ -7,6 +7,7 @@ import {
   ADMIN_MENTORING_MOCK_SEED_TAG,
   createServerLikeMentorRegistrationValues,
 } from '@/features/admin/mentoring/model/mock-seed';
+import { isMentoringAdminMockEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
@@ -15,6 +16,7 @@ import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import { useMentorScreeningStore } from '@/stores/useMentorScreeningStore';
 
 export default function MentoringSeedButton() {
+  const shouldRender = isMentoringAdminMockEnabled();
   const { memberId } = useAuthReady();
   const { showToast } = useToastStore();
   const registerMentorProfile = useMentorDirectoryStore(
@@ -42,6 +44,10 @@ export default function MentoringSeedButton() {
     (state) => state.hasHydrated,
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!shouldRender) {
+    return <></>;
+  }
 
   const isStoreReady =
     mentorStoreHydrated &&

@@ -17,9 +17,13 @@ import Button from '@/components/ui/button';
 import DatePicker from '@/components/ui/date-picker';
 import PageContainer from '@/components/ui/page-container';
 import SurfacePanel from '@/components/ui/surface-panel';
+import {
+  formatWon,
+  getMentorDisplayTitle,
+  getMethodLabel,
+} from '@/features/mentoring/model/mentor-profile-utils';
 import { type MentoringApplyControllerResult } from '@/features/mentoring/model/use-mentoring-apply-controller';
 import MentoringRequestEditor from '@/features/mentoring/ui/apply/mentoring-request-editor';
-import { formatWon, getMethodLabel } from '@/mocks/mentoring-mock-data';
 import type {
   MentorProfile,
   MentoringMethodType,
@@ -51,6 +55,7 @@ export default function MentoringApplyPageView({
   controller,
 }: MentoringApplyPageViewProps) {
   const { state, actions, viewModel } = controller;
+  const mentorDisplayTitle = getMentorDisplayTitle(mentor);
 
   return (
     <PageContainer spacing="content">
@@ -73,7 +78,7 @@ export default function MentoringApplyPageView({
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-designer-18b text-text-default line-clamp-2 leading-snug">
-              {mentor.headline}
+              {mentorDisplayTitle}
             </p>
             <p className="font-designer-13r text-text-subtle mt-50 line-clamp-1">
               {mentor.nickname} · {mentor.role}

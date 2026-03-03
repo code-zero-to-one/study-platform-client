@@ -1,31 +1,15 @@
-import type { MentorDirectoryRequestParams } from '@/types/mentoring/directory-api';
-import type { MentorProfile } from '@/types/mentoring/domain';
-import type { MentoringReview } from '@/types/mentoring/management-domain';
-
-export type MentorDirectoryQueryKey = readonly [
-  'mentorDirectory',
-  MentorDirectoryRequestParams,
-];
-
-export interface MentorDirectoryQuerySnapshot {
-  createdMentorSignature: string;
-  reviewSignature: string;
-}
+import type { MentorSortType } from '@/types/mentoring/domain';
 
 export interface MentorDirectoryListQueryParams {
-  snapshot: MentorDirectoryQuerySnapshot;
-  createdMentors: MentorProfile[];
-  reviewsByMentor: Record<number, MentoringReview[]>;
+  keyword?: string;
+  sortType?: MentorSortType;
 }
 
 export type MentorDirectoryListQueryKey = readonly [
   'mentoring',
   'mentor-directory',
   'list',
-  string,
-  string,
-  MentorProfile[],
-  Record<number, MentoringReview[]>,
+  MentorDirectoryListQueryParams,
 ];
 
 export type MentorDirectoryDetailQueryKey = readonly [
@@ -33,6 +17,16 @@ export type MentorDirectoryDetailQueryKey = readonly [
   'mentor-directory',
   'detail',
   number,
-  string,
-  string,
+];
+
+export type MentorDirectoryMySettingsQueryKey = readonly [
+  'mentoring',
+  'mentor-directory',
+  'my-settings',
+];
+
+export type MentorRegistrationOptionsQueryKey = readonly [
+  'mentoring',
+  'mentor-directory',
+  'registration-options',
 ];

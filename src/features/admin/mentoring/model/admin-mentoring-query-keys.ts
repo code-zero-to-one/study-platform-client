@@ -32,7 +32,7 @@ const toCreatedMentorSignature = (createdMentors: MentorProfile[]) => {
         })
         .join(',');
 
-      return `${mentor.id}:${mentor.priority}:${mentor.rating}:${mentor.reviewCount}:${mentor.mentoringCount}:${settings?.updatedAt ?? ''}:${methodSignature}`;
+      return `${mentor.id}:${mentor.rating}:${mentor.reviewCount}:${mentor.mentoringCount}:${settings?.updatedAt ?? ''}:${methodSignature}`;
     })
     .join('|');
 };

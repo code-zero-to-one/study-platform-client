@@ -56,7 +56,7 @@ export interface MentorSettlementDraft {
   updatedAt: string;
 }
 
-export interface MentorSettingsV3 {
+export interface MentorSettings {
   contactCountryCode: ContactCountryCode;
   contactPhone: string;
   contactEmail: string;
@@ -85,9 +85,7 @@ export interface MentorSettingsV3 {
   detailedDescription: string;
   interviewQuestions: string[];
   preNotice: string;
+  // eslint-disable-next-line @rushstack/no-new-null -- legacy API contract uses null to represent absent settlement draft.
   settlementDraft: MentorSettlementDraft | null;
-  schemaVersion: 3;
   updatedAt: string;
 }
-
-export type MentorSettingsV2 = MentorSettingsV3;

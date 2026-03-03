@@ -1,79 +1,22 @@
-import { axiosInstance } from '@/api/client/axios';
+import { getMentorIntroImageUploadTicket } from '@/features/mentoring/api/mentor-api';
 
 export interface MentorMarkdownImageUploadTicket {
   uploadUrl: string;
   publicUrl: string;
 }
 
-const isRecord = (value: unknown): value is Record<string, unknown> => {
-  return typeof value === 'object' && value !== null;
-};
-
-const toTrimmedString = (value: unknown) => {
-  if (typeof value !== 'string') {
-    return undefined;
-  }
-
-  const trimmed = value.trim();
-
-  return trimmed.length > 0 ? trimmed : undefined;
-};
-
-const extractUploadTicket = (
-  value: unknown,
-): MentorMarkdownImageUploadTicket | undefined => {
-  if (!isRecord(value)) {
-    return undefined;
-  }
-
-  const uploadUrl =
-    toTrimmedString(value.uploadUrl) ??
-    toTrimmedString(value.signedUrl) ??
-    toTrimmedString(value.presignedUrl);
-  const publicUrl =
-    toTrimmedString(value.publicUrl) ??
-    toTrimmedString(value.fileUrl) ??
-    toTrimmedString(value.url) ??
-    (uploadUrl ? uploadUrl.split('?')[0] : undefined);
-
-  if (!uploadUrl || !publicUrl) {
-    return undefined;
-  }
-
-  return {
-    uploadUrl,
-    publicUrl,
-  };
-};
-
 export const requestMentorMarkdownImageUploadTicket = async ({
   fileName,
-  fileType,
-  fileSize,
+  fileType: _fileType,
+  fileSize: _fileSize,
 }: {
   fileName: string;
   fileType: string;
   fileSize: number;
 }) => {
-  const extension = fileName.split('.').pop()?.toLowerCase().trim();
-  const response = await axiosInstance.post('/files/images', {
+  return getMentorIntroImageUploadTicket({
     fileName,
-    extension,
-    contentType: fileType,
-    fileSize,
   });
-  const body = response.data;
-  const ticket =
-    extractUploadTicket(body?.content) ??
-    extractUploadTicket(body) ??
-    extractUploadTicket(body?.data?.content) ??
-    extractUploadTicket(body?.data);
-
-  if (!ticket) {
-    throw new Error('이미지 업로드 URL 응답 형식이 올바르지 않습니다.');
-  }
-
-  return ticket;
 };
 
 export const uploadMentorMarkdownImageFile = async ({

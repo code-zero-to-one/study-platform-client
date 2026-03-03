@@ -17,6 +17,7 @@ import {
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
 import MentorRegistrationDetail from '@/features/admin/mentoring/ui/mentor-registration-detail';
+import { getMentorDisplayTitle } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringEmptyPanel from '@/features/mentoring/ui/common/mentoring-empty-panel';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
@@ -228,8 +229,7 @@ export default function MentorOperationsPageClient({
                         {mentor.memberId ? `(사용자 #${mentor.memberId})` : ''}
                       </p>
                       <p className="font-designer-13r text-text-subtle mt-25 line-clamp-2">
-                        {mentor.mentor.mentorSettings?.mentoringTitle ??
-                          mentor.mentor.headline}
+                        {getMentorDisplayTitle(mentor.mentor)}
                       </p>
                     </div>
                     <div className="flex flex-col items-end gap-50">

@@ -1,4 +1,4 @@
-import type { MentorSettingsV2 } from '@/types/mentoring/settings';
+import type { MentorSettings } from '@/types/mentoring/settings';
 
 export type MentoringMethodType = 'note' | 'simple' | 'deep' | 'offline';
 
@@ -24,8 +24,6 @@ export interface MentorReview {
 
 export interface MentorProfile {
   id: number;
-  priority: number;
-  headline: string;
   nickname: string;
   role: string;
   career: string;
@@ -43,7 +41,7 @@ export interface MentorProfile {
   imageUrl?: string;
   methods: Record<MentoringMethodType, MentoringMethodOption>;
   reviews: MentorReview[];
-  mentorSettings?: MentorSettingsV2;
+  mentorSettings?: MentorSettings;
 }
 
 export type MentorSortType = 'default' | 'rating' | 'review' | 'low-price';

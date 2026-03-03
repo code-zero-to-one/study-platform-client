@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { type DateRange } from 'react-day-picker';
+import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import {
   getWeekdayKeyFromDate,
   hasAnyWeeklyScheduleSlots,
@@ -21,7 +22,6 @@ import {
   type MentoringRequestContentBlock,
 } from '@/features/mentoring/model/request-content';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useMentorOperationStore } from '@/stores/useMentorOperationStore';

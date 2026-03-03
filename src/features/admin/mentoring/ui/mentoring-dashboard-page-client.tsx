@@ -9,6 +9,8 @@ import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
 import MentoringFlowGuide from '@/features/admin/mentoring/ui/mentoring-flow-guide';
+import { getMentorDisplayTitle } from '@/features/mentoring/model/mentor-profile-utils';
+import { isMentoringAdminMockEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
 
@@ -28,6 +30,7 @@ const formatDateTime = (value: string | undefined) => {
 
 export default function MentoringDashboardPageClient() {
   const { hasHydrated, mentors, metrics } = useAdminMentoringOverviewQuery();
+  const shouldShowMockGuide = isMentoringAdminMockEnabled();
   const listState = resolveAdminMentoringViewState({
     hasHydrated,
     itemCount: mentors.length,
@@ -39,8 +42,7 @@ export default function MentoringDashboardPageClient() {
       state={listState}
       ready={
         <div className="flex flex-col gap-200">
-          {/* [임시] 멘토링 플로우 & 테스트 가이드 — 디자인 확정 후 제거 */}
-          <MentoringFlowGuide />
+          {shouldShowMockGuide && <MentoringFlowGuide />}
 
           <section className="grid grid-cols-1 gap-200 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard
@@ -137,8 +139,7 @@ export default function MentoringDashboardPageClient() {
                       </td>
                       <td className="font-designer-14r text-text-default px-200 py-150">
                         <span className="line-clamp-1">
-                          {item.mentor.mentorSettings?.mentoringTitle ??
-                            item.mentor.headline}
+                          {getMentorDisplayTitle(item.mentor)}
                         </span>
                       </td>
                       <td className="px-200 py-150">

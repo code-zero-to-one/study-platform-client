@@ -1,13 +1,13 @@
 'use client';
 
-import MyMentoringReviewPanel from '@/features/mentoring/ui/review/my-mentoring-review-panel';
 import type { MyReviewItem } from '@/entities/review/api/review-types';
+import MyMentoringReviewPanel from '@/features/mentoring/ui/review/my-mentoring-review-panel';
 
-type MentoringReviewKeywordStat = {
+interface MentoringReviewKeywordStat {
   id: number;
   content: string;
   count: number;
-};
+}
 
 interface MyMentoringReviewCompositeProps {
   positiveKeywords: MentoringReviewKeywordStat[];

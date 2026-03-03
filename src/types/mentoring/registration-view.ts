@@ -1,4 +1,5 @@
 import { type UseFormReturn } from 'react-hook-form';
+import { type MentorRegistrationOptions } from '@/types/mentoring/registration-options';
 import { type MentorSettlementDraft } from '@/types/mentoring/settings';
 import {
   type MentorRegistrationFormInputValues,
@@ -15,6 +16,8 @@ export type MentorRegistrationPreviewHighlightSection =
 export type MentorRegistrationGuardState =
   | 'ready'
   | 'loading'
+  | 'mySettingsError'
+  | 'optionsError'
   | 'loginRequired'
   | 'permissionRequired'
   | 'verificationLoading'
@@ -80,6 +83,7 @@ export interface MentorRegistrationFormProps {
     unknown,
     MentorRegistrationFormValues
   >;
+  options: MentorRegistrationOptions;
   onCancel: () => void;
   onOpenSettlementModal: () => void;
   onSubmit: (values: MentorRegistrationFormValues) => void;

@@ -10,10 +10,10 @@ import Link from 'next/link';
 import { useMemo } from 'react';
 import Button from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
+import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringRequestPanel from '@/features/mentoring/ui/management/mentoring-request-panel';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
 

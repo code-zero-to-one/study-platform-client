@@ -1,31 +1,32 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { ApiError } from '@/api/client/api-error';
+import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import {
-  getLowestPriceOption,
-  getMentorSettings,
-} from '@/mocks/mentoring-mock-data';
+import { useToastStore } from '@/stores/use-toast-store';
 import type { MentorProfileListProps } from '@/types/mentoring/directory-view';
 import type { MentorProfile, MentorSortType } from '@/types/mentoring/domain';
 import { parseMentorProfileListParams } from './mentor-directory-contract';
-import { useMentorDirectoryQuery } from './use-mentor-directory-query';
+import { useMentorDirectoryListQuery } from './use-mentor-directory-query';
 
-export type MentorProfileListViewState = 'loading' | 'empty' | 'ready';
+export type MentorProfileListViewState = 'loading' | 'empty' | 'ready' | 'error';
 
 export interface MentorProfileListControllerState {
-  keywords: string[];
+  keyword: string;
   sortType: MentorSortType;
 }
 
 export interface MentorProfileListControllerActions {
-  onKeywordChange: (nextKeywords: string[]) => void;
+  onKeywordChange: (nextKeyword: string) => void;
   onSortTypeChange: (nextSortType: MentorSortType) => void;
   onPageChange: (page: number) => void;
+  onRetry: () => void;
 }
 
 export interface MentorProfileListControllerViewModel {
   listState: MentorProfileListViewState;
+  errorMessage: string;
   shouldShowMentorJoinCard: boolean;
   currentPage: number;
   totalPages: number;
@@ -36,34 +37,11 @@ export interface MentorProfileListControllerViewModel {
 }
 
 const MENTOR_PAGE_SIZE = 12;
+const DEFAULT_DIRECTORY_ERROR_MESSAGE =
+  '멘토 목록을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.';
 
-const sortMentors = (mentors: MentorProfile[], sortType: MentorSortType) => {
-  const copiedMentors = [...mentors];
-
-  if (sortType === 'rating') {
-    return copiedMentors.sort((first, second) => second.rating - first.rating);
-  }
-
-  if (sortType === 'review') {
-    return copiedMentors.sort(
-      (first, second) => second.reviewCount - first.reviewCount,
-    );
-  }
-
-  if (sortType === 'low-price') {
-    return copiedMentors.sort((first, second) => {
-      const firstPrice =
-        getLowestPriceOption(first)?.price ?? Number.MAX_SAFE_INTEGER;
-      const secondPrice =
-        getLowestPriceOption(second)?.price ?? Number.MAX_SAFE_INTEGER;
-
-      return firstPrice - secondPrice;
-    });
-  }
-
-  return copiedMentors.sort(
-    (first, second) => first.priority - second.priority,
-  );
+export const normalizeMentorDirectoryKeyword = (keyword: string | undefined) => {
+  return keyword?.trim() ?? '';
 };
 
 const getMentorTechnicalKeywords = (mentor: MentorProfile) => {
@@ -72,10 +50,6 @@ const getMentorTechnicalKeywords = (mentor: MentorProfile) => {
   return Array.from(new Set([...mentorSettings.skillTags, ...mentor.tags]))
     .map((keyword) => keyword.trim())
     .filter((keyword) => keyword.length > 0);
-};
-
-const getSecondTechnicalKeyword = (mentor: MentorProfile) => {
-  return getMentorTechnicalKeywords(mentor)[1] ?? '';
 };
 
 export const useMentorProfileListController = ({
@@ -88,49 +62,44 @@ export const useMentorProfileListController = ({
       initialSortType,
     });
   });
-  const [keywords, setKeywords] = useState<string[]>(() => {
-    const trimmedKeyword = initialParams.initialKeyword.trim();
-
-    return trimmedKeyword ? [trimmedKeyword] : [];
-  });
+  const [keyword, setKeyword] = useState(() =>
+    normalizeMentorDirectoryKeyword(initialParams.initialKeyword),
+  );
   const [sortType, setSortType] = useState<MentorSortType>(
     initialParams.initialSortType,
   );
   const [currentPage, setCurrentPage] = useState(1);
   const { isHydrated: isAuthHydrated, isAuthenticated } = useAuthReady();
-  const { mentors, hasHydrated } = useMentorDirectoryQuery();
+  const { showToast } = useToastStore();
+  const selectedKeyword = normalizeMentorDirectoryKeyword(keyword) || undefined;
+  const listSortType = sortType === 'default' ? undefined : sortType;
+  const { data, isLoading, isError, error, refetch } =
+    useMentorDirectoryListQuery({
+      keyword: selectedKeyword,
+      sortType: listSortType,
+    });
+  const mentors = useMemo(() => data ?? [], [data]);
+
+  const errorMessage = useMemo(() => {
+    if (error instanceof ApiError && error.message.trim().length > 0) {
+      return error.message;
+    }
+
+    if (error instanceof Error && error.message.trim().length > 0) {
+      return error.message;
+    }
+
+    return DEFAULT_DIRECTORY_ERROR_MESSAGE;
+  }, [error]);
+
   const keywordOptions = useMemo(() => {
     return Array.from(
       new Set(
-        mentors
-          .map((mentor) => getSecondTechnicalKeyword(mentor))
-          .filter((keyword) => keyword.length > 0),
+        mentors.flatMap((mentor) => getMentorTechnicalKeywords(mentor)),
       ),
     ).sort((first, second) => first.localeCompare(second, 'ko'));
   }, [mentors]);
-  const normalizedKeywordSet = useMemo(() => {
-    return new Set(keywords.map((keyword) => keyword.toLowerCase()));
-  }, [keywords]);
-
-  const searchedMentors = useMemo(() => {
-    if (normalizedKeywordSet.size === 0) {
-      return mentors;
-    }
-
-    return mentors.filter((mentor) => {
-      const secondKeyword = getSecondTechnicalKeyword(mentor).toLowerCase();
-
-      return normalizedKeywordSet.has(secondKeyword);
-    });
-  }, [mentors, normalizedKeywordSet]);
-
-  const sortedMentors = useMemo(() => {
-    return sortMentors(searchedMentors, sortType);
-  }, [searchedMentors, sortType]);
-  const totalPages = Math.max(
-    1,
-    Math.ceil(sortedMentors.length / MENTOR_PAGE_SIZE),
-  );
+  const totalPages = Math.max(1, Math.ceil(mentors.length / MENTOR_PAGE_SIZE));
 
   useEffect(() => {
     setCurrentPage((previousPage) => {
@@ -138,37 +107,26 @@ export const useMentorProfileListController = ({
     });
   }, [totalPages]);
 
-  useEffect(() => {
-    if (keywords.length === 0) {
-      return;
-    }
-
-    const keywordOptionSet = new Set(keywordOptions);
-    const nextKeywords = keywords.filter((keyword) => {
-      return keywordOptionSet.has(keyword);
-    });
-
-    if (nextKeywords.length !== keywords.length) {
-      setKeywords(nextKeywords);
-      setCurrentPage(1);
-    }
-  }, [keywords, keywordOptions]);
-
   const pagedMentors = useMemo(() => {
     const startIndex = (currentPage - 1) * MENTOR_PAGE_SIZE;
     const endIndex = startIndex + MENTOR_PAGE_SIZE;
 
-    return sortedMentors.slice(startIndex, endIndex);
-  }, [currentPage, sortedMentors]);
+    return mentors.slice(startIndex, endIndex);
+  }, [currentPage, mentors]);
 
-  const listState: MentorProfileListViewState = !hasHydrated
-    ? 'loading'
-    : sortedMentors.length === 0
-      ? 'empty'
-      : 'ready';
+  const listState: MentorProfileListViewState =
+    isLoading
+      ? 'loading'
+      : isError
+        ? 'error'
+        : data === undefined
+          ? 'loading'
+        : mentors.length === 0
+            ? 'empty'
+            : 'ready';
 
   const shouldShowMentorJoinCard =
-    keywords.length === 0 &&
+    keyword.length === 0 &&
     isAuthHydrated &&
     isAuthenticated &&
     currentPage === 1;
@@ -180,16 +138,8 @@ export const useMentorProfileListController = ({
     : [];
   const showPagination = listState === 'ready';
 
-  const handleKeywordChange = (nextKeywords: string[]) => {
-    const deduplicatedKeywords = Array.from(
-      new Set(
-        nextKeywords
-          .map((keyword) => keyword.trim())
-          .filter((keyword) => keyword.length > 0),
-      ),
-    );
-
-    setKeywords(deduplicatedKeywords);
+  const handleKeywordChange = (nextKeyword: string) => {
+    setKeyword(normalizeMentorDirectoryKeyword(nextKeyword));
     setCurrentPage(1);
   };
   const handleSortTypeChange = (nextSortType: MentorSortType) => {
@@ -199,19 +149,26 @@ export const useMentorProfileListController = ({
   const handlePageChange = (nextPage: number) => {
     setCurrentPage(Math.min(Math.max(nextPage, 1), totalPages));
   };
+  const handleRetry = () => {
+    refetch({ throwOnError: true }).catch(() => {
+      showToast(DEFAULT_DIRECTORY_ERROR_MESSAGE, 'error');
+    });
+  };
 
   return {
     state: {
-      keywords,
+      keyword,
       sortType,
     } satisfies MentorProfileListControllerState,
     actions: {
       onKeywordChange: handleKeywordChange,
       onSortTypeChange: handleSortTypeChange,
       onPageChange: handlePageChange,
+      onRetry: handleRetry,
     } satisfies MentorProfileListControllerActions,
     viewModel: {
       listState,
+      errorMessage,
       shouldShowMentorJoinCard,
       currentPage,
       totalPages,

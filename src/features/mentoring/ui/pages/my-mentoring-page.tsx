@@ -11,10 +11,7 @@ import Button from '@/components/ui/button';
 import List from '@/components/ui/list';
 import SectionHeader from '@/components/ui/section-header';
 import SectionShell from '@/components/ui/section-shell';
-import {
-  type MyMentoringMockItem,
-  myMentoringMockData,
-} from '@/mocks/my-mentoring-mock-data';
+import type { MyMentoringItem } from '@/types/mentoring/my-mentoring';
 
 const METHOD_LABEL: Record<'ONLINE' | 'OFFLINE' | 'CALL', string> = {
   ONLINE: '심층상담',
@@ -49,11 +46,15 @@ const TEXT = {
   noteConsultation: '쪽지상담',
 };
 
-export default function MyMentoringPage() {
-  const confirmedMentoring = myMentoringMockData.filter(
+export default function MyMentoringPage({
+  items = [],
+}: {
+  items?: MyMentoringItem[];
+}) {
+  const confirmedMentoring = items.filter(
     (item) => item.status === 'CONFIRMED',
   );
-  const pendingMentoring = myMentoringMockData.filter(
+  const pendingMentoring = items.filter(
     (item) => item.status === 'PENDING',
   );
 
@@ -109,7 +110,7 @@ function MentoringListSection({
 }: {
   title: string;
   description: string;
-  items: MyMentoringMockItem[];
+  items: MyMentoringItem[];
   headerAction?: ReactNode;
 }) {
   return (

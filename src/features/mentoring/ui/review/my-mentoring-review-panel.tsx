@@ -1,5 +1,5 @@
 'use client';
 
-export default function MyMentoringReviewPanel(): null {
-  return null;
+export default function MyMentoringReviewPanel() {
+  return <></>;
 }

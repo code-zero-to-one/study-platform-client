@@ -19,17 +19,18 @@ import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import {
   formatWon,
+  getMentorDisplayTitle,
   getEnabledMentoringMethods,
   getMentorSettings,
   getMethodLabel,
-} from '@/mocks/mentoring-mock-data';
+} from '@/features/mentoring/model/mentor-profile-utils';
 import type {
   MentorProfile,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import { type MentorRegistrationPreviewHighlightSection } from '@/types/mentoring/registration-view';
-import MentorMarkdownContent from '../registration/mentor-markdown-content';
 import ReviewStars from './review-stars';
+import MentorMarkdownContent from '../registration/mentor-markdown-content';
 
 type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
 
@@ -77,13 +78,12 @@ export default function MentorDetailPage({
   const isHighlighted = (section: PreviewHighlightSection) =>
     previewMode === true && (highlightedSections?.includes(section) ?? false);
   const mentorSettings = getMentorSettings(mentor);
-  const mentoringTitleLabel =
-    mentorSettings.mentoringTitle.trim() || '멘토링명 미입력';
+  const mentoringTitleLabel = getMentorDisplayTitle(mentor);
   const appealLine = mentorSettings.appealLine.trim();
-  const jobGroupLabel = mentorSettings.jobGroup || '직군 미입력';
-  const jobTitleLabel = mentorSettings.jobTitle || '직무 미입력';
-  const careerLabel = mentorSettings.careerYears || '경력 미입력';
-  const companyCategoryLabel = mentorSettings.companyCategory || '기타';
+  const jobGroupLabel = mentorSettings.jobGroup.trim();
+  const jobTitleLabel = mentorSettings.jobTitle.trim();
+  const careerLabel = mentorSettings.careerYears.trim();
+  const companyCategoryLabel = mentorSettings.companyCategory.trim();
   const profileSummaryLine = Array.from(
     new Set(
       [jobGroupLabel, jobTitleLabel, careerLabel]
@@ -105,7 +105,7 @@ export default function MentorDetailPage({
     });
   }
 
-  if (companyCategoryLabel.length > 0) {
+  if (companyCategoryLabel.length > 0 && companyCategoryLabel !== '기타') {
     headlineBadges.push({
       key: 'companyCategory',
       value: companyCategoryLabel,

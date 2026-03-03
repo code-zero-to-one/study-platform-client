@@ -66,7 +66,6 @@ export const createServerLikeMentorRegistrationValues = (
       verified: true,
       updatedAt: nowIso,
     },
-    schemaVersion: 3,
     updatedAt: nowIso,
   };
 };

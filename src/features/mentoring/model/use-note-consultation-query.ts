@@ -2,7 +2,6 @@
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo } from 'react';
-import { getMentorById } from '@/mocks/mentoring-mock-data';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
@@ -30,10 +29,6 @@ const getMentorDisplayInfo = (
   const fromStore = createdMentors.find((mentor) => mentor.id === mentorId);
   if (fromStore) {
     return { name: fromStore.nickname, role: fromStore.role };
-  }
-  const fromMock = getMentorById(mentorId);
-  if (fromMock) {
-    return { name: fromMock.nickname, role: fromMock.role };
   }
 
   return { name: '멘토', role: '' };

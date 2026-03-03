@@ -242,7 +242,6 @@ export const mentorRegistrationSchema = z
       .trim()
       .max(2000, '사전 안내는 2000자 이하로 입력해주세요.'),
     settlementDraft: settlementDraftSchema.nullable(),
-    schemaVersion: z.literal(3),
     updatedAt: z.string(),
   })
   .superRefine((values, ctx) => {

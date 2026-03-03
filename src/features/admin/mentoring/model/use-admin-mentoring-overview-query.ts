@@ -2,7 +2,7 @@
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
-import { getMentorSettings } from '@/mocks/mentoring-mock-data';
+import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import {

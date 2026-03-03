@@ -1,7 +1,7 @@
 import {
   WEEKDAY_KEYS,
   type ConsultingDurationMinutes,
-  type MentorSettingsV3,
+  type MentorSettings,
   type MentorWeeklySchedule,
   type WeekdayKey,
 } from '@/types/mentoring/settings';
@@ -15,8 +15,7 @@ export {
   type CompanyCategory,
   type ContactCountryCode,
   type ConsultingDurationMinutes,
-  type MentorSettingsV2,
-  type MentorSettingsV3,
+  type MentorSettings,
   type MentorSettlementDraft,
   type MentorWeeklySchedule,
   type SettlementPayerType,
@@ -35,7 +34,7 @@ export const createEmptyWeeklySchedule = (): Record<WeekdayKey, string[]> => {
   };
 };
 
-export const createDefaultMentorSettings = (): MentorSettingsV3 => {
+export const createDefaultMentorSettings = (): MentorSettings => {
   return {
     contactCountryCode: '+82',
     contactPhone: '',
@@ -70,7 +69,6 @@ export const createDefaultMentorSettings = (): MentorSettingsV3 => {
     interviewQuestions: [],
     preNotice: '',
     settlementDraft: null,
-    schemaVersion: 3,
     updatedAt: new Date().toISOString(),
   };
 };

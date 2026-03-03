@@ -18,9 +18,10 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import {
   formatWon,
+  getMentorDisplayTitle,
   getLowestPriceOption,
   getMentorSettings,
-} from '@/mocks/mentoring-mock-data';
+} from '@/features/mentoring/model/mentor-profile-utils';
 import type { MentorCardProps } from '@/types/mentoring/directory-view';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 
@@ -58,11 +59,10 @@ const MAX_KEYWORD_COUNT = 6;
 export default function MentorCard({ mentor }: MentorCardProps) {
   const router = useRouter();
   const mentorSettings = getMentorSettings(mentor);
-  const mentoringTitle = mentorSettings.mentoringTitle || '멘토링명 미입력';
-  const appealLine =
-    mentorSettings.appealLine || mentorSettings.companyCategory;
-  const jobGroupLabel = mentorSettings.jobGroup || '직군 미입력';
-  const jobTitleLabel = mentorSettings.jobTitle || '직무 미입력';
+  const mentoringTitle = getMentorDisplayTitle(mentor);
+  const appealLine = mentorSettings.appealLine.trim();
+  const jobGroupLabel = mentorSettings.jobGroup.trim();
+  const jobTitleLabel = mentorSettings.jobTitle.trim();
   const roleSummaryLabel = Array.from(
     new Set(
       [jobGroupLabel, jobTitleLabel]
@@ -76,23 +76,15 @@ export default function MentorCard({ mentor }: MentorCardProps) {
     .map((keyword) => keyword.trim())
     .filter((keyword) => keyword.length > 0)
     .slice(0, MAX_KEYWORD_COUNT);
-  const careerLabel = mentorSettings.careerYears || '경력 미입력';
+  const careerLabel = mentorSettings.careerYears.trim();
   const metMenteeCount = mentor.menteeCount ?? mentor.mentoringCount;
   const lowestPriceOption = getLowestPriceOption(mentor);
-  const fallbackPrices = [
-    mentorSettings.notePrice,
-    mentorSettings.simplePrice,
-    mentorSettings.deepPrice,
-    mentorSettings.offlinePrice,
-  ].filter((price): price is number => Number.isFinite(price) && price > 0);
-  const fallbackLowestPrice =
-    fallbackPrices.length > 0 ? Math.min(...fallbackPrices) : null;
-  const lowestPrice = lowestPriceOption?.price ?? fallbackLowestPrice;
+  const lowestPrice = lowestPriceOption?.price ?? null;
   const availableMethods = {
-    note: mentor.methods.note.enabled !== false,
-    simple: mentor.methods.simple.enabled !== false,
-    deep: mentor.methods.deep.enabled !== false,
-    offline: mentor.methods.offline.enabled !== false,
+    note: mentor.methods.note.enabled === true,
+    simple: mentor.methods.simple.enabled === true,
+    deep: mentor.methods.deep.enabled === true,
+    offline: mentor.methods.offline.enabled === true,
   } as const;
 
   const navigateDetail = () => {
@@ -162,12 +154,14 @@ export default function MentorCard({ mentor }: MentorCardProps) {
                   </span>
                 </div>
               </div>
-              <div className="inline-flex min-w-0 items-center gap-125">
-                <Building2 className="text-text-brand h-160 w-160 shrink-0" />
-                <span className="font-designer-13m text-text-brand line-clamp-1">
-                  {appealLine}
-                </span>
-              </div>
+              {appealLine.length > 0 && (
+                <div className="inline-flex min-w-0 items-center gap-125">
+                  <Building2 className="text-text-brand h-160 w-160 shrink-0" />
+                  <span className="font-designer-13m text-text-brand line-clamp-1">
+                    {appealLine}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

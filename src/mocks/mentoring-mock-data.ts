@@ -9,7 +9,7 @@ import type {
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import type {
-  MentorSettingsV2,
+  MentorSettings,
 } from '@/types/mentoring/settings';
 export type {
   MentorProfile,
@@ -159,9 +159,6 @@ const getNormalizedMethods = (
 export const MENTOR_PROFILES: MentorProfile[] = [
   {
     id: 101,
-    priority: 1,
-    headline:
-      '"현직 채용 담당자"의 시니어 개발자 취업을 위한 이력서 피드백, 모의 면접, 고민 상담',
     nickname: 'DevDevDev',
     role: '백엔드/서버 개발자',
     career: '미들 (4~8년)',
@@ -234,8 +231,6 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 102,
-    priority: 2,
-    headline: '프론트엔드 취업/이직을 위한 맞춤형 이력서 피드백 및 멘토링',
     nickname: '송이',
     role: '프론트엔드/웹퍼블리셔',
     career: '미들 (4~8년)',
@@ -298,9 +293,6 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 103,
-    priority: 3,
-    headline:
-      '[게임 프로그래머] 클라/서버 학습 방향, 취업, 이직, 모의면접, 포트폴리오 멘토링',
     nickname: '티아',
     role: '게임 서버 개발자',
     career: 'Lead 레벨',
@@ -388,9 +380,6 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 104,
-    priority: 4,
-    headline:
-      '[RE-OPEN] 테크기업 FE 채용 완벽대비 - 레벨체크, 서류, 과제, 면접, 신입, 경력',
     nickname: '마리골드A',
     role: '프론트엔드/웹퍼블리셔',
     career: '시니어 (9년 이상)',
@@ -423,9 +412,6 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 105,
-    priority: 5,
-    headline:
-      '공기업 취업, 정보보안 분야 커리어, 면접, 이직 관련 상담 (네카라쿠배 취업, 대기업 취업 포함)',
     nickname: '취업꼭찍기 제로미니',
     role: '보안 엔지니어',
     career: '시니어 (9년 이상)',
@@ -459,9 +445,6 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 106,
-    priority: 6,
-    headline:
-      '[PM/서비스기획] 네카오 출신 현직 자의 포트폴리오·이력서·커리어 1:1 코칭',
     nickname: '까이',
     role: 'PO/PM',
     career: '미들 (4~8년)',
@@ -495,9 +478,6 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 107,
-    priority: 7,
-    headline:
-      '[선착순 할인] 대기업 백엔드 합격 이력서 공유 & 이력서/포폴 1:1 멘토링 (잔여 2명)',
     nickname: '열정개발자',
     role: '백엔드/서버 개발자',
     career: '주니어 (1~3년)',
@@ -531,8 +511,6 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 108,
-    priority: 8,
-    headline: '프론트엔드 개발 취직/이직/커리어 고민 집중 멘토링',
     nickname: 'kaya',
     role: '프론트엔드/웹퍼블리셔',
     career: 'Lead 레벨',
@@ -614,10 +592,10 @@ export const getMethodLabel = (method: MentoringMethodType) => {
   }[method];
 };
 
-const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
+const getNormalizedSettings = (mentor: MentorProfile): MentorSettings => {
   const defaults = createDefaultMentorSettings();
   const methods = getNormalizedMethods(mentor);
-  const source = mentor.mentorSettings as MentorSettingsV2 | undefined;
+  const source = mentor.mentorSettings as MentorSettings | undefined;
   const normalizedDeepDuration = normalizeConsultingDuration(
     parseDurationLabelToMinutes(methods.deep.durationLabel) ??
       defaults.deepDurationMinutes,
@@ -654,11 +632,10 @@ const getNormalizedSettings = (mentor: MentorProfile): MentorSettingsV2 => {
     companyCategory: source?.companyCategory ?? defaults.companyCategory,
     interviewQuestions:
       source?.interviewQuestions ?? defaults.interviewQuestions,
-    schemaVersion: 3,
   };
 };
 
-export const getMentorSettings = (mentor: MentorProfile): MentorSettingsV2 => {
+export const getMentorSettings = (mentor: MentorProfile): MentorSettings => {
   return getNormalizedSettings(mentor);
 };
 

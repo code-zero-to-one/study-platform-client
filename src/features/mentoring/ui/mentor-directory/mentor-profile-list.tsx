@@ -11,9 +11,10 @@ export default function MentorProfileListContainer(
 
   return (
     <MentorDirectoryList
-      keywords={controller.state.keywords}
+      keyword={controller.state.keyword}
       sortType={controller.state.sortType}
       listState={controller.viewModel.listState}
+      errorMessage={controller.viewModel.errorMessage}
       shouldShowMentorJoinCard={controller.viewModel.shouldShowMentorJoinCard}
       currentPage={controller.viewModel.currentPage}
       totalPages={controller.viewModel.totalPages}
@@ -24,6 +25,7 @@ export default function MentorProfileListContainer(
       onKeywordChange={controller.actions.onKeywordChange}
       onSortTypeChange={controller.actions.onSortTypeChange}
       onPageChange={controller.actions.onPageChange}
+      onRetry={controller.actions.onRetry}
     />
   );
 }

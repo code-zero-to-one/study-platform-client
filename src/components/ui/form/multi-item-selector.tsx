@@ -11,7 +11,7 @@ interface Props {
   value?: string[];
   maxSelectable?: number;
   onChange?: (updated: string[]) => void;
-  options?: string[];
+  options?: Array<string | { value: string; label: string }>;
   // 대소문자 구분
   caseSensitive?: boolean;
   allowCustom?: boolean;
@@ -26,10 +26,29 @@ export default function SelectableTagsInput({
   allowCustom = true,
 }: Props) {
   const selected = useMemo(() => value ?? [], [value]);
+  const normalizedOptions = useMemo(() => {
+    return options.map((option) => {
+      if (typeof option === 'string') {
+        return {
+          value: option,
+          label: option,
+        };
+      }
+
+      return {
+        value: option.value,
+        label: option.label,
+      };
+    });
+  }, [options]);
   const optionSet = useMemo(
     () =>
-      new Set(caseSensitive ? options : options.map((o) => o.toLowerCase())),
-    [options, caseSensitive],
+      new Set(
+        caseSensitive
+          ? normalizedOptions.map((option) => option.value)
+          : normalizedOptions.map((option) => option.value.toLowerCase()),
+      ),
+    [caseSensitive, normalizedOptions],
   );
 
   const norm = useCallback(
@@ -125,13 +144,13 @@ export default function SelectableTagsInput({
   return (
     <div className="flex flex-col gap-50">
       <div className="flex flex-wrap gap-100">
-        {options.map((item) => (
+        {normalizedOptions.map((item) => (
           <ToggleButton
             size="sm"
             variant="square"
-            key={item}
-            pressed={selectedSet.has(norm(item))}
-            onPressedChange={() => toggleItem(item)}
+            key={item.value}
+            pressed={selectedSet.has(norm(item.value))}
+            onPressedChange={() => toggleItem(item.value)}
             className={cn(
               'data-[state=off]:bg-background-default',
               'data-[state=off]:border-border-subtle',
@@ -143,7 +162,7 @@ export default function SelectableTagsInput({
               'data-[state=on]:border-border-brand',
             )}
           >
-            {item}
+            {item.label}
           </ToggleButton>
         ))}
 

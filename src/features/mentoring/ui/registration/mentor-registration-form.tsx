@@ -23,12 +23,8 @@ import SelectableTagsInput from '@/components/ui/form/multi-item-selector';
 import { BaseInput } from '@/components/ui/input';
 import BorderedTextarea from '@/components/ui/input/bordered-textarea';
 import {
-  CAREER_YEAR_OPTIONS,
   CONSULTING_DURATION_DROPDOWN_OPTIONS,
-  getJobTitleOptionsByGroup,
-  JOB_GROUP_OPTIONS,
   MENTOR_APPEAL_LINE_PRESETS,
-  MENTOR_SKILL_TAG_PRESETS,
 } from '@/features/mentoring/model/mentor-setting-options';
 import MentorMarkdownEditor from '@/features/mentoring/ui/registration/mentor-markdown-editor';
 import WeeklyScheduleGrid from '@/features/mentoring/ui/settings/weekly-schedule-grid';
@@ -87,9 +83,6 @@ const MAX_MENTORING_PRICE = 1_000_000;
 const PRICE_INPUT_STEP = 1000;
 const PRICE_INPUT_CLASS =
   '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
-const CAREER_YEAR_OPTION_SET: ReadonlySet<string> = new Set(
-  CAREER_YEAR_OPTIONS,
-);
 const METHOD_ICON_MAP: Record<
   MentorRegistrationMethodField['enabledField'],
   ReactNode
@@ -102,6 +95,7 @@ const METHOD_ICON_MAP: Record<
 
 export default function MentorRegistrationForm({
   form,
+  options,
   onCancel,
   onOpenSettlementModal,
   onSubmit,
@@ -124,22 +118,73 @@ export default function MentorRegistrationForm({
   const jobGroup = watch('jobGroup');
   const jobTitle = watch('jobTitle');
   const careerYears = watch('careerYears');
+  const skillTags = watch('skillTags');
   const hideCompanyName = watch('hideCompanyName');
   const simpleEnabled = watch('simpleEnabled');
   const deepEnabled = watch('deepEnabled');
   const offlineEnabled = watch('offlineEnabled');
+  const jobGroupOptions = useMemo(() => {
+    return options.jobGroups
+      .filter((option) => option.active)
+      .map((option) => ({
+        value: option.code,
+        label: option.label,
+      }));
+  }, [options.jobGroups]);
   const jobTitleOptions = useMemo(
-    () => getJobTitleOptionsByGroup(jobGroup),
-    [jobGroup],
+    () =>
+      options.jobTitles
+        .filter((option) => option.active && option.jobGroupCode === jobGroup)
+        .map((option) => ({
+          value: option.code,
+          label: option.label,
+        })),
+    [jobGroup, options.jobTitles],
+  );
+  const careerOptions = useMemo(
+    () =>
+      options.careers
+        .filter((option) => option.active)
+        .map((option) => ({
+          value: option.code,
+          label: option.label,
+        })),
+    [options.careers],
+  );
+  const coreKeywordOptions = useMemo(
+    () =>
+      options.coreKeywords
+        .filter((keyword) => {
+          if (!keyword.active) {
+            return false;
+          }
+
+          const matchesJobGroup =
+            keyword.jobGroupCodes.length === 0 ||
+            keyword.jobGroupCodes.includes(jobGroup);
+          const matchesJobTitle =
+            keyword.jobTitleCodes.length === 0 ||
+            keyword.jobTitleCodes.includes(jobTitle);
+
+          return matchesJobGroup && matchesJobTitle;
+        })
+        .map((keyword) => ({
+          value: keyword.code,
+          label: keyword.label,
+        })),
+    [jobGroup, jobTitle, options.coreKeywords],
+  );
+  const coreKeywordValueSet = useMemo(
+    () => new Set(coreKeywordOptions.map((option) => option.value)),
+    [coreKeywordOptions],
   );
   const validJobTitleSet = useMemo(
-    () =>
-      new Set(
-        jobTitleOptions
-          .map((option) => option.value)
-          .filter((value) => value.length > 0),
-      ),
+    () => new Set(jobTitleOptions.map((option) => option.value)),
     [jobTitleOptions],
+  );
+  const validCareerSet = useMemo(
+    () => new Set(careerOptions.map((option) => option.value)),
+    [careerOptions],
   );
 
   const needsSchedule = simpleEnabled || deepEnabled || offlineEnabled;
@@ -165,13 +210,29 @@ export default function MentorRegistrationForm({
       return;
     }
 
-    if (!CAREER_YEAR_OPTION_SET.has(careerYears)) {
+    if (!validCareerSet.has(careerYears)) {
       setValue('careerYears', '', {
         shouldDirty: false,
         shouldValidate: true,
       });
     }
-  }, [careerYears, setValue]);
+  }, [careerYears, setValue, validCareerSet]);
+
+  useEffect(() => {
+    const maxSelectable = Math.max(1, options.maxCoreKeywordCount);
+    const nextSelected = skillTags
+      .filter((code) => coreKeywordValueSet.has(code))
+      .slice(0, maxSelectable);
+
+    if (nextSelected.length === skillTags.length) {
+      return;
+    }
+
+    setValue('skillTags', nextSelected, {
+      shouldDirty: false,
+      shouldValidate: true,
+    });
+  }, [coreKeywordValueSet, options.maxCoreKeywordCount, setValue, skillTags]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-225 pb-500">
@@ -293,10 +354,7 @@ export default function MentorRegistrationForm({
                 control={control}
                 render={({ field }) => (
                   <SingleDropdown
-                    options={JOB_GROUP_OPTIONS.map((value) => ({
-                      value,
-                      label: value,
-                    }))}
+                    options={jobGroupOptions}
                     value={field.value}
                     onChange={(value) => field.onChange(value ?? '')}
                     placeholder="멘토 직군"
@@ -321,10 +379,7 @@ export default function MentorRegistrationForm({
                 control={control}
                 render={({ field }) => (
                   <SingleDropdown
-                    options={CAREER_YEAR_OPTIONS.map((value) => ({
-                      value,
-                      label: value,
-                    }))}
+                    options={careerOptions}
                     value={field.value}
                     onChange={(value) => field.onChange(value ?? '')}
                     placeholder="멘토 경력"
@@ -390,8 +445,9 @@ export default function MentorRegistrationForm({
                 <SelectableTagsInput
                   value={field.value}
                   onChange={field.onChange}
-                  maxSelectable={5}
-                  options={MENTOR_SKILL_TAG_PRESETS}
+                  maxSelectable={Math.max(1, options.maxCoreKeywordCount)}
+                  options={coreKeywordOptions}
+                  allowCustom={false}
                 />
               )}
             />

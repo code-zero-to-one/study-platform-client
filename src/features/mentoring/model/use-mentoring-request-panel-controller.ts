@@ -3,7 +3,7 @@
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import { MENTORING_REQUEST_STATUS_META } from '@/features/mentoring/model/management-status-meta';
-import { getMethodLabel } from '@/mocks/mentoring-mock-data';
+import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentoringRequest } from '@/types/mentoring/management-domain';
 import type {

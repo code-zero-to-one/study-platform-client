@@ -57,6 +57,26 @@ export default function MentorRegistrationStateBoundary({
     );
   }
 
+  if (state === 'optionsError') {
+    return (
+      <div className={GUARD_CONTAINER_CLASS}>
+        <MentorRegistrationGuardCard
+          {...MENTOR_REGISTRATION_GUARD_CARD_CONTENT.optionsError}
+        />
+      </div>
+    );
+  }
+
+  if (state === 'mySettingsError') {
+    return (
+      <div className={GUARD_CONTAINER_CLASS}>
+        <MentorRegistrationGuardCard
+          {...MENTOR_REGISTRATION_GUARD_CARD_CONTENT.mySettingsError}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className={GUARD_CONTAINER_CLASS}>
       <MentorRegistrationGuardCard

@@ -4,6 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import type { ReactNode } from 'react';
 import Tabs from '@/components/ui/tabs';
 import MentoringSeedButton from '@/features/admin/mentoring/ui/mentoring-seed-button';
+import { isMentoringAdminMockEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 
 const MENTORING_ADMIN_TABS = [
   {
@@ -31,6 +32,7 @@ export default function MentoringAdminLayoutClient({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const shouldShowMockControls = isMentoringAdminMockEnabled();
 
   const activeTab =
     MENTORING_ADMIN_TABS.find((tab) => pathname.endsWith(`/${tab.value}`))
@@ -50,7 +52,7 @@ export default function MentoringAdminLayoutClient({
             현황을 관리합니다.
           </p>
         </div>
-        <MentoringSeedButton />
+        {shouldShowMockControls && <MentoringSeedButton />}
       </div>
 
       <Tabs

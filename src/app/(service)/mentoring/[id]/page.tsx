@@ -1,7 +1,6 @@
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import MentorDetailRouteClient from '@/features/mentoring/ui/detail/mentor-detail-route-client';
-import { getMentorById } from '@/mocks/mentoring-mock-data';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 interface MentoringDetailPageProps {
@@ -12,22 +11,12 @@ export async function generateMetadata({
   params,
 }: MentoringDetailPageProps): Promise<Metadata> {
   const { id } = await params;
-  const mentor = getMentorById(Number(id));
-
-  if (!mentor) {
-    return generateSEOMetadata({
-      title: '1:1 멘토링 상세',
-      description: '멘토 상세 정보와 멘토링 신청 흐름을 확인하세요.',
-      path: `/mentoring/${id}`,
-      keywords: ['1:1 멘토링', '멘토링 상세'],
-    });
-  }
 
   return generateSEOMetadata({
-    title: `${mentor.nickname} 멘토링`,
-    description: mentor.summary,
+    title: '1:1 멘토링 상세',
+    description: '멘토 상세 정보와 멘토링 신청 흐름을 확인하세요.',
     path: `/mentoring/${id}`,
-    keywords: ['1:1 멘토링', mentor.nickname, mentor.role, ...mentor.tags],
+    keywords: ['1:1 멘토링', '멘토링 상세'],
   });
 }
 

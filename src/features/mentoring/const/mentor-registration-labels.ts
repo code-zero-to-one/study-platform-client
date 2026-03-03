@@ -1,6 +1,8 @@
 import { type MentorRegistrationGuardCardProps } from '@/types/mentoring/registration-view';
 
 type GuardCardContentState =
+  | 'mySettingsError'
+  | 'optionsError'
   | 'loginRequired'
   | 'permissionRequired'
   | 'verificationError'
@@ -10,6 +12,20 @@ export const MENTOR_REGISTRATION_GUARD_CARD_CONTENT: Record<
   GuardCardContentState,
   Omit<MentorRegistrationGuardCardProps, 'onCtaClick'>
 > = {
+  mySettingsError: {
+    title: '내 멘토 설정을 불러올 수 없습니다',
+    description:
+      '기존 멘토 설정 조회에 실패했습니다. 잠시 후 다시 시도해주세요.',
+    ctaLabel: '멘토링 목록으로 이동',
+    ctaHref: '/mentoring',
+  },
+  optionsError: {
+    title: '등록 옵션을 불러올 수 없습니다',
+    description:
+      '직군/직무/경력/핵심키워드 옵션 조회에 실패했습니다. 잠시 후 다시 시도해주세요.',
+    ctaLabel: '멘토링 목록으로 이동',
+    ctaHref: '/mentoring',
+  },
   loginRequired: {
     title: '로그인 후 멘토 등록이 가능합니다',
     description: '멘토 프로필을 생성하려면 먼저 로그인해주세요.',
@@ -45,6 +61,8 @@ export const MENTOR_REGISTRATION_TOAST_MESSAGES = {
     '본인인증 상태를 확인 중입니다. 잠시 후 다시 시도해주세요.',
   verificationError:
     '본인인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.',
+  mySettingsLoadError:
+    '기존 멘토 설정을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
   verificationRequired: '멘토 등록 전 본인인증이 필요합니다.',
   verifiedPhoneMissing:
     '본인인증된 휴대폰 번호를 확인할 수 없습니다. 다시 인증해주세요.',

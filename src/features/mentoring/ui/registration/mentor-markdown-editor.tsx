@@ -4,7 +4,7 @@ import {
   Bold,
   Code2,
   Heading2,
-  Image,
+  Image as ImageIcon,
   ImagePlus,
   Italic,
   Link2,
@@ -265,128 +265,122 @@ export default function MentorMarkdownEditor({
     });
   };
 
-  const handleImageUpload = (files: FileList | null) => {
-    void (async () => {
-      const selectedFiles = Array.from(files ?? []);
-      if (selectedFiles.length === 0 || isUploadingImages) {
-        return;
-      }
+  const handleImageUpload = async (files: FileList | null) => {
+    const selectedFiles = Array.from(files ?? []);
+    if (selectedFiles.length === 0 || isUploadingImages) {
+      return;
+    }
 
-      const existingImageCount = extractMarkdownImageUrls(value).length;
-      const remainingImageCount = Math.max(
-        0,
-        MENTOR_MARKDOWN_MAX_IMAGE_COUNT - existingImageCount,
+    const existingImageCount = extractMarkdownImageUrls(value).length;
+    const remainingImageCount = Math.max(
+      0,
+      MENTOR_MARKDOWN_MAX_IMAGE_COUNT - existingImageCount,
+    );
+
+    if (remainingImageCount === 0) {
+      setImageInsertError(
+        `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
       );
 
-      if (remainingImageCount === 0) {
-        setImageInsertError(
-          `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
+      return;
+    }
+
+    const targetFiles = selectedFiles.slice(0, remainingImageCount);
+    const validationErrors: string[] = [];
+    const validFiles: File[] = [];
+
+    for (const file of targetFiles) {
+      const extension = getFileExtension(file.name);
+
+      if (!file.type.startsWith('image/')) {
+        validationErrors.push(`${file.name}(이미지 파일 아님)`);
+        continue;
+      }
+
+      if (!isAllowedMarkdownImageExtension(extension)) {
+        validationErrors.push(`${file.name}(허용되지 않은 확장자)`);
+        continue;
+      }
+
+      if (file.size > MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE) {
+        validationErrors.push(`${file.name}(5MB 초과)`);
+        continue;
+      }
+
+      validFiles.push(file);
+    }
+
+    if (validFiles.length === 0) {
+      if (selectedFiles.length > remainingImageCount) {
+        validationErrors.push(
+          `최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
         );
-
-        return;
       }
 
-      const targetFiles = selectedFiles.slice(0, remainingImageCount);
-      const validationErrors: string[] = [];
-      const validFiles: File[] = [];
-
-      for (const file of targetFiles) {
-        const extension = getFileExtension(file.name);
-
-        if (!file.type.startsWith('image/')) {
-          validationErrors.push(`${file.name}(이미지 파일 아님)`);
-          continue;
-        }
-
-        if (!isAllowedMarkdownImageExtension(extension)) {
-          validationErrors.push(`${file.name}(허용되지 않은 확장자)`);
-          continue;
-        }
-
-        if (file.size > MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE) {
-          validationErrors.push(`${file.name}(5MB 초과)`);
-          continue;
-        }
-
-        validFiles.push(file);
+      if (validationErrors.length > 0) {
+        setImageInsertError(`이미지 검증 실패: ${validationErrors.join(', ')}`);
       }
 
-      if (validFiles.length === 0) {
-        if (selectedFiles.length > remainingImageCount) {
-          validationErrors.push(
-            `최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
-          );
-        }
+      return;
+    }
 
-        if (validationErrors.length > 0) {
-          setImageInsertError(
-            `이미지 검증 실패: ${validationErrors.join(', ')}`,
-          );
-        }
+    setIsUploadingImages(true);
+    try {
+      const uploadErrors: string[] = [];
+      const uploadedImageSnippets: string[] = [];
 
-        return;
-      }
+      for (const file of validFiles) {
+        try {
+          const ticket = await requestMentorMarkdownImageUploadTicket({
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+          });
+          const validationError = getImageUrlValidationError(ticket.publicUrl);
 
-      setIsUploadingImages(true);
-      try {
-        const uploadErrors: string[] = [];
-        const uploadedImageSnippets: string[] = [];
-
-        for (const file of validFiles) {
-          try {
-            const ticket = await requestMentorMarkdownImageUploadTicket({
-              fileName: file.name,
-              fileType: file.type,
-              fileSize: file.size,
-            });
-            const validationError = getImageUrlValidationError(
-              ticket.publicUrl,
-            );
-
-            if (validationError) {
-              uploadErrors.push(`${file.name}(${validationError})`);
-              continue;
-            }
-
-            await uploadMentorMarkdownImageFile({
-              uploadUrl: ticket.uploadUrl,
-              file,
-            });
-            uploadedImageSnippets.push(
-              `![${toMarkdownAltText(file.name)}](${ticket.publicUrl})`,
-            );
-          } catch {
-            uploadErrors.push(`${file.name}(업로드 실패)`);
+          if (validationError) {
+            uploadErrors.push(`${file.name}(${validationError})`);
+            continue;
           }
-        }
 
-        if (uploadedImageSnippets.length > 0) {
-          insertSnippet(`\n${uploadedImageSnippets.join('\n\n')}\n`, 1);
-        }
-
-        const messages: string[] = [];
-        if (selectedFiles.length > remainingImageCount) {
-          messages.push(
-            `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지 등록할 수 있습니다.`,
+          await uploadMentorMarkdownImageFile({
+            uploadUrl: ticket.uploadUrl,
+            file,
+          });
+          uploadedImageSnippets.push(
+            `![${toMarkdownAltText(file.name)}](${ticket.publicUrl})`,
           );
+        } catch {
+          uploadErrors.push(`${file.name}(업로드 실패)`);
         }
-
-        if (validationErrors.length > 0) {
-          messages.push(`검증 실패: ${validationErrors.join(', ')}`);
-        }
-
-        if (uploadErrors.length > 0) {
-          messages.push(`업로드 실패: ${uploadErrors.join(', ')}`);
-        }
-
-        setImageInsertError(messages.join(' '));
-        if (messages.length === 0) {
-          setImageInsertError('');
-        }
-      } finally {
-        setIsUploadingImages(false);
       }
-    })();
+
+      if (uploadedImageSnippets.length > 0) {
+        insertSnippet(`\n${uploadedImageSnippets.join('\n\n')}\n`, 1);
+      }
+
+      const messages: string[] = [];
+      if (selectedFiles.length > remainingImageCount) {
+        messages.push(
+          `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지 등록할 수 있습니다.`,
+        );
+      }
+
+      if (validationErrors.length > 0) {
+        messages.push(`검증 실패: ${validationErrors.join(', ')}`);
+      }
+
+      if (uploadErrors.length > 0) {
+        messages.push(`업로드 실패: ${uploadErrors.join(', ')}`);
+      }
+
+      setImageInsertError(messages.join(' '));
+      if (messages.length === 0) {
+        setImageInsertError('');
+      }
+    } finally {
+      setIsUploadingImages(false);
+    }
   };
 
   const handleInsertImageUrl = () => {
@@ -457,7 +451,7 @@ export default function MentorMarkdownEditor({
           onClick={handleInsertImageUrl}
           disabled={isUploadingImages}
         >
-          <Image className="mr-50 h-12 w-12" />
+          <ImageIcon className="mr-50 h-12 w-12" />
           이미지 URL
         </Button>
         <Button
@@ -483,7 +477,11 @@ export default function MentorMarkdownEditor({
         accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
         className="hidden"
         onChange={(event) => {
-          handleImageUpload(event.target.files);
+          handleImageUpload(event.target.files).catch(() => {
+            setImageInsertError(
+              '이미지 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+            );
+          });
           event.target.value = '';
         }}
       />

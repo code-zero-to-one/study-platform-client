@@ -4,12 +4,9 @@ import {
   parseMentoringApplyRouteMentorId,
   parseMentoringApplySelectedType,
 } from '@/features/mentoring/model/mentoring-apply-route-contract';
+import { isMentoringApplyEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
+import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringApplyRouteClient from '@/features/mentoring/ui/apply/mentoring-apply-route-client';
-import {
-  getEnabledMentoringMethods,
-  getMentorById,
-  getMethodLabel,
-} from '@/mocks/mentoring-mock-data';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
@@ -36,25 +33,11 @@ export async function generateMetadata({
   const { id } = await params;
   const rawSearchParams = await searchParams;
   const selectedType = parseMentoringApplySelectedType(rawSearchParams.type);
-
-  const mentor = getMentorById(Number(id));
-
-  if (!mentor) {
-    const fallbackType = resolveMethod(selectedType, 'note');
-
-    return generateSEOMetadata({
-      title: '멘토링 신청',
-      description: `${getMethodLabel(fallbackType)} 신청 정보를 확인하세요.`,
-      path: `/mentoring/${id}/apply?type=${fallbackType}`,
-    });
-  }
-
-  const fallbackType = getEnabledMentoringMethods(mentor)[0] ?? 'note';
-  const resolvedType = resolveMethod(selectedType, fallbackType);
+  const resolvedType = resolveMethod(selectedType, 'note');
 
   return generateSEOMetadata({
-    title: `${mentor.nickname} 멘토링 신청`,
-    description: `${mentor.nickname} 멘토에게 ${getMethodLabel(resolvedType)}을 신청합니다.`,
+    title: '멘토링 신청',
+    description: `${getMethodLabel(resolvedType)} 신청 정보를 확인하세요.`,
     path: `/mentoring/${id}/apply?type=${resolvedType}`,
   });
 }
@@ -63,6 +46,10 @@ export default async function MentoringApplyRoute({
   params,
   searchParams,
 }: MentoringApplyRouteProps) {
+  if (!isMentoringApplyEnabled()) {
+    notFound();
+  }
+
   const { id } = await params;
   const rawSearchParams = await searchParams;
   const mentorId = parseMentoringApplyRouteMentorId(id);

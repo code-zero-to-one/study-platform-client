@@ -6,11 +6,15 @@ import KeyValueRow from '@/components/ui/key-value-row';
 import SurfacePanel from '@/components/ui/surface-panel';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import {
+  formatWon,
+  getMentorDisplayTitle,
+  getMethodLabel,
+} from '@/features/mentoring/model/mentor-profile-utils';
+import {
   type WeekdayKey,
   WEEKDAY_KEYS,
 } from '@/features/mentoring/model/mentor-settings';
 import { WEEKDAY_LABEL_MAP } from '@/features/mentoring/model/mentor-settings';
-import { formatWon, getMethodLabel } from '@/mocks/mentoring-mock-data';
 import type { AdminMentorItem } from '@/types/mentoring/admin-domain';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 
@@ -114,7 +118,7 @@ export default function MentorRegistrationDetail({
         <div className="flex flex-wrap items-start justify-between gap-100">
           <div>
             <h2 className="font-designer-18b text-text-default line-clamp-2">
-              {settings?.mentoringTitle ?? item.mentor.headline}
+              {getMentorDisplayTitle(item.mentor)}
             </h2>
             <p className="font-designer-13r text-text-subtle mt-50">
               멘토 ID #{item.mentorId} · 연결 사용자{' '}

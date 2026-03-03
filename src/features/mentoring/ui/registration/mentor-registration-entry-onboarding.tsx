@@ -6,18 +6,15 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import ChipButton from '@/components/ui/chip/chip-button';
 import { BaseInput } from '@/components/ui/input';
-import {
-  CAREER_YEAR_OPTIONS,
-  getJobTitleOptionsByGroup,
-  JOB_GROUP_OPTIONS,
-  MENTOR_APPEAL_LINE_PRESETS,
-} from '@/features/mentoring/model/mentor-setting-options';
+import { MENTOR_APPEAL_LINE_PRESETS } from '@/features/mentoring/model/mentor-setting-options';
+import { type MentorRegistrationOptions } from '@/types/mentoring/registration-options';
 import { type MentorRegistrationEntryOnboardingValues } from '@/types/mentoring/registration-view';
 
 type EntryOnboardingStep = 1 | 2 | 3 | 4;
 
 interface MentorRegistrationEntryOnboardingProps {
   initialValues: MentorRegistrationEntryOnboardingValues;
+  options: MentorRegistrationOptions;
   onComplete: (values: MentorRegistrationEntryOnboardingValues) => void;
   onSkip: () => void;
 }
@@ -119,6 +116,7 @@ const toNextStep = (step: EntryOnboardingStep): EntryOnboardingStep => {
 
 export default function MentorRegistrationEntryOnboarding({
   initialValues,
+  options,
   onComplete,
   onSkip,
 }: MentorRegistrationEntryOnboardingProps) {
@@ -128,12 +126,18 @@ export default function MentorRegistrationEntryOnboarding({
   const [values, setValues] =
     useState<MentorRegistrationEntryOnboardingValues>(initialValues);
   const appealLineLength = values.appealLine.trim().length;
+  const jobGroupOptions = useMemo(() => {
+    return options.jobGroups.filter((option) => option.active);
+  }, [options.jobGroups]);
+  const careerOptions = useMemo(() => {
+    return options.careers.filter((option) => option.active);
+  }, [options.careers]);
 
   const jobTitleOptions = useMemo(() => {
-    return getJobTitleOptionsByGroup(values.jobGroup).filter(
-      (option) => option.value.length > 0,
-    );
-  }, [values.jobGroup]);
+    return options.jobTitles.filter((option) => {
+      return option.active && option.jobGroupCode === values.jobGroup;
+    });
+  }, [options.jobTitles, values.jobGroup]);
 
   useEffect(() => {
     setValues(initialValues);
@@ -146,7 +150,7 @@ export default function MentorRegistrationEntryOnboarding({
     }
 
     const jobTitleExists = jobTitleOptions.some(
-      (option) => option.value === values.jobTitle,
+      (option) => option.code === values.jobTitle,
     );
 
     if (!jobTitleExists) {
@@ -227,26 +231,26 @@ export default function MentorRegistrationEntryOnboarding({
 
           {step === 1 && (
             <div className="grid grid-cols-1 gap-100 sm:grid-cols-2 lg:grid-cols-4">
-              {JOB_GROUP_OPTIONS.map((group) => (
+              {jobGroupOptions.map((group) => (
                 <button
-                  key={group}
+                  key={group.code}
                   type="button"
                   className={cn(
                     'font-designer-14b rounded-125 border px-125 py-150 text-left transition-colors',
-                    values.jobGroup === group
+                    values.jobGroup === group.code
                       ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
                       : 'border-border-subtle bg-background-default text-text-default hover:border-border-brand',
                   )}
                   onClick={() => {
                     setValues((prev) => ({
                       ...prev,
-                      jobGroup: group,
+                      jobGroup: group.code,
                       jobTitle: '',
                     }));
                     setStep(2);
                   }}
                 >
-                  {group}
+                  {group.label}
                 </button>
               ))}
             </div>
@@ -256,18 +260,18 @@ export default function MentorRegistrationEntryOnboarding({
             <div className="grid grid-cols-1 gap-100 sm:grid-cols-2">
               {jobTitleOptions.map((option) => (
                 <button
-                  key={option.value}
+                  key={option.code}
                   type="button"
                   className={cn(
                     'font-designer-14m rounded-125 border px-125 py-125 text-left transition-colors',
-                    values.jobTitle === option.value
+                    values.jobTitle === option.code
                       ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
                       : 'border-border-subtle bg-background-default text-text-default hover:border-border-brand',
                   )}
                   onClick={() => {
                     setValues((prev) => ({
                       ...prev,
-                      jobTitle: option.value,
+                      jobTitle: option.code,
                     }));
                     setStep(3);
                   }}
@@ -280,25 +284,25 @@ export default function MentorRegistrationEntryOnboarding({
 
           {step === 3 && (
             <div className="grid grid-cols-1 gap-100 sm:grid-cols-2">
-              {CAREER_YEAR_OPTIONS.map((career) => (
+              {careerOptions.map((career) => (
                 <button
-                  key={career}
+                  key={career.code}
                   type="button"
                   className={cn(
                     'font-designer-14m rounded-125 border px-125 py-125 text-left transition-colors',
-                    values.careerYears === career
+                    values.careerYears === career.code
                       ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
                       : 'border-border-subtle bg-background-default text-text-default hover:border-border-brand',
                   )}
                   onClick={() => {
                     setValues((prev) => ({
                       ...prev,
-                      careerYears: career,
+                      careerYears: career.code,
                     }));
                     setStep(4);
                   }}
                 >
-                  {career}
+                  {career.label}
                 </button>
               ))}
             </div>

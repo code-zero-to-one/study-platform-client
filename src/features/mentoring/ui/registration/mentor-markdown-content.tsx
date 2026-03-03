@@ -59,15 +59,13 @@ export default function MentorMarkdownContent({
   className,
   emptyMessage = '아직 작성된 소개가 없습니다.',
 }: MentorMarkdownContentProps) {
-  if (content.trim().length === 0) {
-    return (
-      <p className="font-designer-14r text-text-subtle leading-relaxed">
-        {emptyMessage}
-      </p>
-    );
-  }
+  const hasContent = content.trim().length > 0;
 
   const sanitizedHtml = useMemo(() => {
+    if (!hasContent) {
+      return '';
+    }
+
     const rendered = marked.parse(content, {
       breaks: true,
       gfm: true,
@@ -80,7 +78,15 @@ export default function MentorMarkdownContent({
     );
 
     return applyExternalLinkAttributes(sanitizedHtml);
-  }, [content]);
+  }, [content, hasContent]);
+
+  if (!hasContent) {
+    return (
+      <p className="font-designer-14r text-text-subtle leading-relaxed">
+        {emptyMessage}
+      </p>
+    );
+  }
 
   return (
     <div

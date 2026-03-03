@@ -11,18 +11,17 @@ import { useState } from 'react';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import SurfacePanel from '@/components/ui/surface-panel';
+import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
+import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentorManagementWorkspace from '@/features/mentoring/ui/management/mentor-management-workspace';
-import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { getMentorSettings } from '@/mocks/mentoring-mock-data';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
 
 const getEnabledMethodCount = (mentor: MentorProfile) => {
-  return Object.values(mentor.methods).filter(
-    (method) => method.enabled !== false,
-  ).length;
+  return Object.values(mentor.methods).filter((method) => method.enabled === true)
+    .length;
 };
 
 export default function MentoringManagementPageClient() {
@@ -141,7 +140,7 @@ export default function MentoringManagementPageClient() {
                         등록한 멘토 프로필
                       </p>
                       <h2 className="font-designer-20b text-text-default line-clamp-2">
-                        {myMentorProfile.headline}
+                        {myMentorSettings?.mentoringTitle?.trim() || '-'}
                       </h2>
                     </div>
                     <Badge color="green" shape="round">
