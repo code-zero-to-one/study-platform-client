@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import DeleteGroupStudyMemberModal from '@/components/common/modals/delete-group-study-member';
-import DiscretionaryEvaluationModal from '@/components/common/modals/discretionary-evaluation-modal';
+import DiscretionaryEvaluationModal, {
+  EVALUATION_COUNT,
+} from '@/components/common/modals/discretionary-evaluation-modal';
 import EndGroupStudyModal from '@/components/common/modals/end-group-study';
 import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import WriteGreetingModal from '@/components/common/modals/write-greeting-modal';
