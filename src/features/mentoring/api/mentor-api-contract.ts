@@ -50,7 +50,7 @@ export const requireObject = <T extends object>({
   scope: MentorApiContractScope;
   field: string;
 }): T => {
-  if (!value || typeof value !== "object" || Array.isArray(value)) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw toContractError({
       scope,
       field,
@@ -90,7 +90,11 @@ export const requireInteger = ({
   scope: MentorApiContractScope;
   field: string;
 }) => {
-  if (typeof value !== 'number' || !Number.isFinite(value)) {
+  if (
+    typeof value !== 'number' ||
+    !Number.isFinite(value) ||
+    !Number.isInteger(value)
+  ) {
     throw toContractError({
       scope,
       field,
@@ -98,7 +102,7 @@ export const requireInteger = ({
     });
   }
 
-  return Math.trunc(value);
+  return value;
 };
 
 export const requireNonEmptyString = ({

@@ -6,7 +6,6 @@ import {
   type PointerEvent as ReactPointerEvent,
   type RefObject,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from 'react';
@@ -21,17 +20,15 @@ import {
 } from '@/features/mentoring/model/mentor-registration-entry-onboarding';
 import { resolveMentorRegistrationGuardState } from '@/features/mentoring/model/mentor-registration-guard-state';
 import {
-  buildPreviewMentorProfile,
   buildWelcomeChecklist,
   getChangedSections,
-  toDurationMinutes,
-  toSafeInteger,
 } from '@/features/mentoring/model/mentor-registration-preview';
 import { createDefaultMentorSettings } from '@/features/mentoring/model/mentor-settings';
 import {
   useMentorRegistrationOptionsQuery,
   useMyMentorSettingsQuery,
 } from '@/features/mentoring/model/use-mentor-directory-query';
+import { useMentorRegistrationPreviewModel } from '@/features/mentoring/model/use-mentor-registration-preview-model';
 import { useMentorRegistrationPreviewPanel } from '@/features/mentoring/model/use-mentor-registration-preview-panel';
 import { useUpsertMyMentorSettingsMutation } from '@/features/mentoring/model/use-upsert-my-mentor-settings-mutation';
 import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
@@ -46,7 +43,6 @@ import {
   type MentorRegistrationPreviewHighlightSection,
   type MentorRegistrationWelcomeOnboardingState,
 } from '@/types/mentoring/registration-view';
-import { type MentorSettlementDraft } from '@/types/mentoring/settings';
 import {
   MENTORING_TITLE_MAX_LENGTH,
   mentorRegistrationSchema,
@@ -63,13 +59,6 @@ const DIRTY_VALIDATION_OPTIONS = {
   shouldValidate: true,
   shouldDirty: true,
 } as const;
-const EMPTY_REGISTRATION_OPTIONS: MentorRegistrationOptions = {
-  maxCoreKeywordCount: 5,
-  jobGroups: [],
-  jobTitles: [],
-  careers: [],
-  coreKeywords: [],
-};
 
 const sanitizeDigits = (value: string) => value.replace(/\D/g, '');
 
@@ -85,14 +74,12 @@ export interface MentorRegistrationControllerState {
   isGuideOpen: boolean;
   isPhoneVerificationModalOpen: boolean;
   isCancelModalOpen: boolean;
-  isSettlementModalOpen: boolean;
   isPreviewOpen: boolean;
   isResizing: boolean;
   panelWidth: number;
   committedPanelWidth: number;
   highlightedSections: MentorRegistrationPreviewHighlightSection[];
   previewMentor: MentorProfile;
-  settlementDraft: MentorSettlementDraft | undefined;
   welcomeOnboarding: MentorRegistrationWelcomeOnboardingState | undefined;
   isEntryOnboardingOpen: boolean;
   entryOnboardingValues: MentorRegistrationEntryOnboardingValues;
@@ -110,14 +97,12 @@ export interface MentorRegistrationControllerActions {
   onPhoneVerificationModalOpenChange: (nextOpen: boolean) => void;
   onOpenPhoneVerification: () => void;
   onCancelModalOpenChange: (nextOpen: boolean) => void;
-  onSettlementModalOpenChange: (nextOpen: boolean) => void;
   onOpenPreview: () => void;
   onClosePreview: () => void;
   onPreviewResizeStart: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onSave: (values: MentorRegistrationFormValues) => void;
   onCancel: () => void;
   onPhoneVerificationComplete: (phoneNumber: string) => void;
-  onSettlementSubmit: (draft: MentorSettlementDraft) => void;
   onWelcomeModalToMentorPage: () => void;
   onWelcomeModalToRequestPage: () => void;
   onCompleteEntryOnboarding: (
@@ -176,7 +161,6 @@ export const useMentorRegistrationController =
     const [isPhoneVerificationModalOpen, setIsPhoneVerificationModalOpen] =
       useState(false);
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-    const [isSettlementModalOpen, setIsSettlementModalOpen] = useState(false);
     const [isEntryOnboardingOpen, setIsEntryOnboardingOpen] = useState(false);
     const [welcomeOnboarding, setWelcomeOnboarding] =
       useState<MentorRegistrationWelcomeOnboardingState>();
@@ -240,7 +224,7 @@ export const useMentorRegistrationController =
       const settings = myMentorSettings.settings;
       reset({
         ...settings,
-        updatedAt: settings.updatedAt || new Date().toISOString(),
+        updatedAt: settings.updatedAt,
       });
     }, [myMentorSettings, reset]);
 
@@ -272,7 +256,6 @@ export const useMentorRegistrationController =
       memberId,
     ]);
 
-    const settlementDraft = watch('settlementDraft');
     const mentoringTitle = watch('mentoringTitle');
     const appealLine = watch('appealLine');
     const jobGroup = watch('jobGroup');
@@ -300,155 +283,51 @@ export const useMentorRegistrationController =
     const contactEmail = watch('contactEmail');
     const maxParticipants = watch('maxParticipants');
     const schedule = watch('schedule');
-    const selectedRegistrationOptions =
-      registrationOptions ?? EMPTY_REGISTRATION_OPTIONS;
-    const jobGroupLabelMap = useMemo(() => {
-      return new Map(
-        selectedRegistrationOptions.jobGroups.map((item) => [
-          item.code,
-          item.label,
-        ]),
-      );
-    }, [selectedRegistrationOptions.jobGroups]);
-    const jobTitleLabelMap = useMemo(() => {
-      return new Map(
-        selectedRegistrationOptions.jobTitles.map((item) => [
-          item.code,
-          item.label,
-        ]),
-      );
-    }, [selectedRegistrationOptions.jobTitles]);
-    const careerLabelMap = useMemo(() => {
-      return new Map(
-        selectedRegistrationOptions.careers.map((item) => [item.code, item.label]),
-      );
-    }, [selectedRegistrationOptions.careers]);
-    const coreKeywordLabelMap = useMemo(() => {
-      return new Map(
-        selectedRegistrationOptions.coreKeywords.map((item) => [
-          item.code,
-          item.label,
-        ]),
-      );
-    }, [selectedRegistrationOptions.coreKeywords]);
-    const entryOnboardingValues =
-      useMemo<MentorRegistrationEntryOnboardingValues>(() => {
-        return {
-          jobGroup: jobGroup ?? '',
-          jobTitle: jobTitle ?? '',
-          careerYears: careerYears ?? '',
-          appealLine: appealLine ?? '',
-        };
-      }, [appealLine, careerYears, jobGroup, jobTitle]);
-
-    const previewMentorId =
-      myMentorSettings?.mentorId ?? memberId ?? 0;
-
-    const displayJobGroup = jobGroupLabelMap.get(jobGroup ?? '') ?? '';
-    const displayJobTitle = jobTitleLabelMap.get(jobTitle ?? '') ?? '';
-    const displayCareer = careerLabelMap.get(careerYears ?? '') ?? '';
-    const displayCoreKeywords = (skillTags ?? [])
-      .map((code) => coreKeywordLabelMap.get(code) ?? '')
-      .filter((label) => label.length > 0);
-
-    const previewFormValues = useMemo<MentorRegistrationFormValues>(() => {
-      const defaults = createDefaultMentorSettings();
-
-      return {
-        ...defaults,
-        contactCountryCode: contactCountryCode ?? defaults.contactCountryCode,
-        contactPhone: contactPhone ?? '',
-        contactEmail: contactEmail ?? '',
-        categories: [],
-        mentoringTitle: mentoringTitle ?? '',
-        appealLine: appealLine ?? '',
-        jobGroup: jobGroup ?? '',
-        jobTitle: jobTitle ?? '',
-        careerYears: careerYears ?? '',
-        skillTags,
-        companyCategory: companyCategory ?? defaults.companyCategory,
-        companyName: companyName ?? '',
-        hideCompanyName: hideCompanyName ?? false,
-        maxParticipants: Math.min(
-          10,
-          Math.max(1, toSafeInteger(maxParticipants, defaults.maxParticipants)),
-        ),
-        noteEnabled: noteEnabled ?? defaults.noteEnabled,
-        notePrice: toSafeInteger(notePrice, defaults.notePrice),
-        simpleEnabled: simpleEnabled ?? defaults.simpleEnabled,
-        simplePrice: toSafeInteger(simplePrice, defaults.simplePrice),
-        deepEnabled: deepEnabled ?? defaults.deepEnabled,
-        deepPrice: toSafeInteger(deepPrice, defaults.deepPrice),
-        deepDurationMinutes: toDurationMinutes(
-          deepDurationMinutes,
-          defaults.deepDurationMinutes,
-        ),
-        offlineEnabled: offlineEnabled ?? defaults.offlineEnabled,
-        offlinePrice: toSafeInteger(offlinePrice, defaults.offlinePrice),
-        offlineDurationMinutes: toDurationMinutes(
-          offlineDurationMinutes,
-          defaults.offlineDurationMinutes,
-        ),
-        schedule: schedule ?? defaults.schedule,
-        detailedDescription: detailedDescription ?? '',
-        interviewQuestions: interviewQuestions ?? [],
-        preNotice: preNotice ?? '',
-        settlementDraft: settlementDraft ?? null,
-        updatedAt: new Date().toISOString(),
-      };
-    }, [
-      appealLine,
-      careerYears,
-      companyCategory,
-      companyName,
-      contactCountryCode,
-      contactEmail,
-      contactPhone,
-      detailedDescription,
-      hideCompanyName,
-      interviewQuestions,
-      jobGroup,
-      jobTitle,
-      maxParticipants,
-      mentoringTitle,
-      noteEnabled,
-      notePrice,
-      offlineDurationMinutes,
-      offlineEnabled,
-      offlinePrice,
-      deepDurationMinutes,
-      deepEnabled,
-      deepPrice,
-      simpleEnabled,
-      simplePrice,
-      preNotice,
-      schedule,
-      settlementDraft,
-      skillTags,
-    ]);
-
-    const previewMentor = useMemo(() => {
-      return buildPreviewMentorProfile({
-        mentorId: previewMentorId,
-        values: previewFormValues,
-        displayJobGroup,
-        displayJobTitle,
-        displayCareer,
-        displayCoreKeywords,
-        imageUrl: profileImageUrl?.trim() || undefined,
-        nickname: nickname?.trim() || memberName?.trim() || '',
-      });
-    }, [
-      displayCareer,
-      displayCoreKeywords,
-      displayJobGroup,
-      displayJobTitle,
-      memberName,
-      nickname,
+    const updatedAt = watch('updatedAt');
+    const {
+      selectedRegistrationOptions,
+      jobTitleLabelMap,
+      entryOnboardingValues,
       previewFormValues,
-      previewMentorId,
+      previewMentor,
+    } = useMentorRegistrationPreviewModel({
+      registrationOptions,
+      myMentorId: myMentorSettings?.mentorId,
+      memberId,
       profileImageUrl,
-    ]);
+      nickname,
+      memberName,
+      fields: {
+        contactCountryCode,
+        contactPhone,
+        contactEmail,
+        mentoringTitle,
+        appealLine,
+        jobGroup,
+        jobTitle,
+        careerYears,
+        skillTags,
+        companyCategory,
+        companyName,
+        hideCompanyName,
+        maxParticipants,
+        noteEnabled,
+        notePrice,
+        simpleEnabled,
+        simplePrice,
+        deepEnabled,
+        deepPrice,
+        deepDurationMinutes,
+        offlineEnabled,
+        offlinePrice,
+        offlineDurationMinutes,
+        schedule,
+        detailedDescription,
+        interviewQuestions,
+        preNotice,
+        updatedAt,
+      },
+    });
 
     useEffect(() => {
       if (!isPreviewOpen) {
@@ -586,7 +465,7 @@ export const useMentorRegistrationController =
       const finalizedValues: MentorRegistrationFormValues = {
         ...values,
         contactPhone: normalizedVerifiedPhone,
-        updatedAt: new Date().toISOString(),
+        updatedAt: values.updatedAt,
       };
       const existingMentorId = myMentorSettings?.mentorId;
 
@@ -695,14 +574,6 @@ export const useMentorRegistrationController =
       setIsEntryOnboardingOpen(true);
     };
 
-    const handleSettlementSubmit = (draft: MentorSettlementDraft) => {
-      setValue('settlementDraft', draft, DIRTY_VALIDATION_OPTIONS);
-      showToast(
-        MENTOR_REGISTRATION_TOAST_MESSAGES.settlementRegistered,
-        'success',
-      );
-    };
-
     return {
       state: {
         form,
@@ -712,14 +583,12 @@ export const useMentorRegistrationController =
         isGuideOpen,
         isPhoneVerificationModalOpen,
         isCancelModalOpen,
-        isSettlementModalOpen,
         isPreviewOpen,
         isResizing,
         panelWidth,
         committedPanelWidth,
         highlightedSections,
         previewMentor,
-        settlementDraft: settlementDraft ?? undefined,
         welcomeOnboarding,
         isEntryOnboardingOpen,
         entryOnboardingValues,
@@ -735,14 +604,12 @@ export const useMentorRegistrationController =
         onPhoneVerificationModalOpenChange: setIsPhoneVerificationModalOpen,
         onOpenPhoneVerification: () => setIsPhoneVerificationModalOpen(true),
         onCancelModalOpenChange: setIsCancelModalOpen,
-        onSettlementModalOpenChange: setIsSettlementModalOpen,
         onOpenPreview: previewPanelActions.openPreview,
         onClosePreview: previewPanelActions.closePreview,
         onPreviewResizeStart: previewPanelActions.onPreviewResizeStart,
         onSave: handleSave,
         onCancel: handleCancel,
         onPhoneVerificationComplete: handlePhoneVerificationComplete,
-        onSettlementSubmit: handleSettlementSubmit,
         onWelcomeModalToMentorPage: handleWelcomeModalToMentorPage,
         onWelcomeModalToRequestPage: handleWelcomeModalToRequestPage,
         onCompleteEntryOnboarding: handleCompleteEntryOnboarding,

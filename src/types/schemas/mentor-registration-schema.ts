@@ -17,17 +17,33 @@ export const MENTORING_TITLE_MAX_LENGTH = 40;
 
 const timeSlotSchema = z
   .string()
-  .regex(/^\d{2}:\d{2}$/, '시간 형식은 HH:mm 이어야 합니다.');
+  .regex(
+    /^([01]\d|2[0-3]):(00|30)$/,
+    '시간은 30분 단위의 HH:mm 형식이어야 합니다.',
+  );
 
-const weeklyScheduleSchema = z.object({
-  MON: z.array(timeSlotSchema),
-  TUE: z.array(timeSlotSchema),
-  WED: z.array(timeSlotSchema),
-  THU: z.array(timeSlotSchema),
-  FRI: z.array(timeSlotSchema),
-  SAT: z.array(timeSlotSchema),
-  SUN: z.array(timeSlotSchema),
-});
+const weeklyScheduleSchema = z
+  .object({
+    MON: z.array(timeSlotSchema),
+    TUE: z.array(timeSlotSchema),
+    WED: z.array(timeSlotSchema),
+    THU: z.array(timeSlotSchema),
+    FRI: z.array(timeSlotSchema),
+    SAT: z.array(timeSlotSchema),
+    SUN: z.array(timeSlotSchema),
+  })
+  .superRefine((weekly, ctx) => {
+    WEEKDAY_KEYS.forEach((dayKey) => {
+      const slots = weekly[dayKey];
+      if (new Set(slots).size !== slots.length) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [dayKey],
+          message: `${dayKey} 스케줄 시간은 중복 없이 입력해주세요.`,
+        });
+      }
+    });
+  });
 
 const settlementDraftSchema = z
   .object({
@@ -185,19 +201,19 @@ export const mentorRegistrationSchema = z
     notePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
-      .min(3000, '가격은 3,000원 이상이어야 합니다.')
+      .min(0, '가격은 0원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
     simpleEnabled: z.boolean(),
     simplePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
-      .min(3000, '가격은 3,000원 이상이어야 합니다.')
+      .min(0, '가격은 0원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
     deepEnabled: z.boolean(),
     deepPrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
-      .min(3000, '가격은 3,000원 이상이어야 합니다.')
+      .min(0, '가격은 0원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
     deepDurationMinutes: z.union(
       CONSULTING_DURATION_OPTIONS.map((value) => z.literal(value)) as [
@@ -210,7 +226,7 @@ export const mentorRegistrationSchema = z
     offlinePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
-      .min(3000, '가격은 3,000원 이상이어야 합니다.')
+      .min(0, '가격은 0원 이상이어야 합니다.')
       .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
     offlineDurationMinutes: z.union(
       CONSULTING_DURATION_OPTIONS.map((value) => z.literal(value)) as [
@@ -252,6 +268,67 @@ export const mentorRegistrationSchema = z
         message: '최소 1개 이상의 멘토링 방식을 활성화해주세요.',
       });
     }
+
+    const validateEnabledPriceRange = ({
+      enabled,
+      price,
+      min,
+      max,
+      path,
+      label,
+    }: {
+      enabled: boolean;
+      price: number;
+      min: number;
+      max: number;
+      path: 'notePrice' | 'simplePrice' | 'deepPrice' | 'offlinePrice';
+      label: string;
+    }) => {
+      if (!enabled) {
+        return;
+      }
+
+      if (price < min || price > max) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [path],
+          message: `${label} 가격은 ${min.toLocaleString()}원~${max.toLocaleString()}원 범위여야 합니다.`,
+        });
+      }
+    };
+
+    validateEnabledPriceRange({
+      enabled: values.noteEnabled,
+      price: values.notePrice,
+      min: 3000,
+      max: 100000,
+      path: 'notePrice',
+      label: '쪽지상담',
+    });
+    validateEnabledPriceRange({
+      enabled: values.simpleEnabled,
+      price: values.simplePrice,
+      min: 3000,
+      max: 200000,
+      path: 'simplePrice',
+      label: '간편상담',
+    });
+    validateEnabledPriceRange({
+      enabled: values.deepEnabled,
+      price: values.deepPrice,
+      min: 3000,
+      max: 300000,
+      path: 'deepPrice',
+      label: '심층상담',
+    });
+    validateEnabledPriceRange({
+      enabled: values.offlineEnabled,
+      price: values.offlinePrice,
+      min: 3000,
+      max: 1000000,
+      path: 'offlinePrice',
+      label: '대면상담',
+    });
 
     if (
       (values.simpleEnabled || values.deepEnabled || values.offlineEnabled) &&

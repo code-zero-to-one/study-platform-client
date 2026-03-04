@@ -27,7 +27,6 @@
   "statusCode": 200,
   "timestamp": "2026-03-03T12:00:00Z",
   "content": {
-    "version": "2026-03-03T00:00:00Z",
     "maxCoreKeywordCount": 5,
     "jobGroups": [
       {
@@ -289,8 +288,7 @@
   },
   "detailedDescription": "...",
   "interviewQuestions": [],
-  "preNotice": "",
-  "schemaVersion": 4
+  "preNotice": ""
 }
 ```
 

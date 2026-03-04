@@ -83,8 +83,11 @@ const createDefaultDraft = (): ReviewDraft => {
 
 export const useMyMentoringReviewController = () => {
   const { memberId } = useAuthReady();
-  const { data: mentorsData } = useMentorDirectoryListQuery();
-  const mentors = useMemo(() => mentorsData ?? [], [mentorsData]);
+  const { data: mentorsData } = useMentorDirectoryListQuery({
+    page: 0,
+    size: 100,
+  });
+  const mentors = useMemo(() => mentorsData?.mentors ?? [], [mentorsData]);
   const { showToast } = useToastStore();
   const requestsByMentor = useMentoringManagementStore(
     (state) => state.requestsByMentor,

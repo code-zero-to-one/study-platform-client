@@ -3,23 +3,27 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ApiError } from '@/api/client/api-error';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { MentorProfileListProps } from '@/types/mentoring/directory-view';
 import type { MentorProfile, MentorSortType } from '@/types/mentoring/domain';
 import { parseMentorProfileListParams } from './mentor-directory-contract';
-import { useMentorDirectoryListQuery } from './use-mentor-directory-query';
+import {
+  useMentorDirectoryListQuery,
+  useMentorRegistrationOptionsQuery,
+} from './use-mentor-directory-query';
 
 export type MentorProfileListViewState = 'loading' | 'empty' | 'ready' | 'error';
 
 export interface MentorProfileListControllerState {
   keyword: string;
   sortType: MentorSortType;
+  careerCodes: string[];
 }
 
 export interface MentorProfileListControllerActions {
   onKeywordChange: (nextKeyword: string) => void;
   onSortTypeChange: (nextSortType: MentorSortType) => void;
+  onCareerCodesChange: (nextCareerCodes: string[]) => void;
   onPageChange: (page: number) => void;
   onRetry: () => void;
 }
@@ -32,6 +36,10 @@ export interface MentorProfileListControllerViewModel {
   totalPages: number;
   showPagination: boolean;
   keywordOptions: string[];
+  careerOptions: Array<{
+    code: string;
+    label: string;
+  }>;
   leadMentors: MentorProfile[];
   remainingMentors: MentorProfile[];
 }
@@ -42,6 +50,20 @@ const DEFAULT_DIRECTORY_ERROR_MESSAGE =
 
 export const normalizeMentorDirectoryKeyword = (keyword: string | undefined) => {
   return keyword?.trim() ?? '';
+};
+
+const normalizeMentorCareerCodes = (careerCodes: string[] | undefined) => {
+  if (!careerCodes || careerCodes.length === 0) {
+    return [];
+  }
+
+  return Array.from(
+    new Set(
+      careerCodes
+        .map((careerCode) => careerCode.trim())
+        .filter((careerCode) => careerCode.length > 0),
+    ),
+  );
 };
 
 const getMentorTechnicalKeywords = (mentor: MentorProfile) => {
@@ -55,11 +77,13 @@ const getMentorTechnicalKeywords = (mentor: MentorProfile) => {
 export const useMentorProfileListController = ({
   initialKeyword = '',
   initialSortType = 'default',
+  initialCareerCodes = [],
 }: MentorProfileListProps = {}) => {
   const [initialParams] = useState(() => {
     return parseMentorProfileListParams({
       initialKeyword,
       initialSortType,
+      initialCareerCodes,
     });
   });
   const [keyword, setKeyword] = useState(() =>
@@ -68,17 +92,54 @@ export const useMentorProfileListController = ({
   const [sortType, setSortType] = useState<MentorSortType>(
     initialParams.initialSortType,
   );
+  const [careerCodes, setCareerCodes] = useState<string[]>(() =>
+    normalizeMentorCareerCodes(initialParams.initialCareerCodes),
+  );
   const [currentPage, setCurrentPage] = useState(1);
-  const { isHydrated: isAuthHydrated, isAuthenticated } = useAuthReady();
   const { showToast } = useToastStore();
   const selectedKeyword = normalizeMentorDirectoryKeyword(keyword) || undefined;
   const listSortType = sortType === 'default' ? undefined : sortType;
+  const normalizedCareerCodes = normalizeMentorCareerCodes(careerCodes);
+  const mentorRegistrationOptionsQuery = useMentorRegistrationOptionsQuery(true);
+  const careerOptions = useMemo(() => {
+    return (
+      mentorRegistrationOptionsQuery.data?.careers
+        .filter((career) => career.active)
+        .map((career) => ({
+          code: career.code,
+          label: career.label,
+        })) ?? []
+    );
+  }, [mentorRegistrationOptionsQuery.data?.careers]);
+  const validCareerCodeSet = useMemo(() => {
+    return new Set(careerOptions.map((careerOption) => careerOption.code));
+  }, [careerOptions]);
   const { data, isLoading, isError, error, refetch } =
     useMentorDirectoryListQuery({
       keyword: selectedKeyword,
       sortType: listSortType,
+      careerCodes:
+        normalizedCareerCodes.length > 0
+          ? normalizedCareerCodes
+          : undefined,
+      page: currentPage - 1,
+      size: MENTOR_PAGE_SIZE,
     });
-  const mentors = useMemo(() => data ?? [], [data]);
+  const mentors = useMemo(() => data?.mentors ?? [], [data?.mentors]);
+
+  useEffect(() => {
+    if (validCareerCodeSet.size === 0 || normalizedCareerCodes.length === 0) {
+      return;
+    }
+
+    const filteredCareerCodes = normalizedCareerCodes.filter((careerCode) =>
+      validCareerCodeSet.has(careerCode),
+    );
+
+    if (filteredCareerCodes.length !== normalizedCareerCodes.length) {
+      setCareerCodes(filteredCareerCodes);
+    }
+  }, [normalizedCareerCodes, validCareerCodeSet]);
 
   const errorMessage = useMemo(() => {
     if (error instanceof ApiError && error.message.trim().length > 0) {
@@ -99,20 +160,17 @@ export const useMentorProfileListController = ({
       ),
     ).sort((first, second) => first.localeCompare(second, 'ko'));
   }, [mentors]);
-  const totalPages = Math.max(1, Math.ceil(mentors.length / MENTOR_PAGE_SIZE));
+  const totalPages = Math.max(1, data?.totalPages ?? 1);
+
+  const shouldShowMentorJoinCard =
+    keyword.length === 0 &&
+    currentPage === 1;
 
   useEffect(() => {
     setCurrentPage((previousPage) => {
       return Math.min(Math.max(previousPage, 1), totalPages);
     });
   }, [totalPages]);
-
-  const pagedMentors = useMemo(() => {
-    const startIndex = (currentPage - 1) * MENTOR_PAGE_SIZE;
-    const endIndex = startIndex + MENTOR_PAGE_SIZE;
-
-    return mentors.slice(startIndex, endIndex);
-  }, [currentPage, mentors]);
 
   const listState: MentorProfileListViewState =
     isLoading
@@ -121,22 +179,16 @@ export const useMentorProfileListController = ({
         ? 'error'
         : data === undefined
           ? 'loading'
-        : mentors.length === 0
+        : mentors.length === 0 && !shouldShowMentorJoinCard
             ? 'empty'
             : 'ready';
-
-  const shouldShowMentorJoinCard =
-    keyword.length === 0 &&
-    isAuthHydrated &&
-    isAuthenticated &&
-    currentPage === 1;
   const leadMentors = shouldShowMentorJoinCard
-    ? pagedMentors.slice(0, 3)
-    : pagedMentors;
+    ? mentors.slice(0, 3)
+    : mentors;
   const remainingMentors = shouldShowMentorJoinCard
-    ? pagedMentors.slice(3)
+    ? mentors.slice(3)
     : [];
-  const showPagination = listState === 'ready';
+  const showPagination = listState === 'ready' && totalPages > 1;
 
   const handleKeywordChange = (nextKeyword: string) => {
     setKeyword(normalizeMentorDirectoryKeyword(nextKeyword));
@@ -144,6 +196,10 @@ export const useMentorProfileListController = ({
   };
   const handleSortTypeChange = (nextSortType: MentorSortType) => {
     setSortType(nextSortType);
+    setCurrentPage(1);
+  };
+  const handleCareerCodesChange = (nextCareerCodes: string[]) => {
+    setCareerCodes(normalizeMentorCareerCodes(nextCareerCodes));
     setCurrentPage(1);
   };
   const handlePageChange = (nextPage: number) => {
@@ -159,10 +215,12 @@ export const useMentorProfileListController = ({
     state: {
       keyword,
       sortType,
+      careerCodes: normalizedCareerCodes,
     } satisfies MentorProfileListControllerState,
     actions: {
       onKeywordChange: handleKeywordChange,
       onSortTypeChange: handleSortTypeChange,
+      onCareerCodesChange: handleCareerCodesChange,
       onPageChange: handlePageChange,
       onRetry: handleRetry,
     } satisfies MentorProfileListControllerActions,
@@ -174,6 +232,7 @@ export const useMentorProfileListController = ({
       totalPages,
       showPagination,
       keywordOptions,
+      careerOptions,
       leadMentors,
       remainingMentors,
     } satisfies MentorProfileListControllerViewModel,

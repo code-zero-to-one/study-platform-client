@@ -2,6 +2,11 @@ import {
   createDefaultMentorSettings,
   parseDurationLabelToMinutes,
 } from '@/features/mentoring/model/mentor-settings';
+import {
+  MENTORING_METHOD_DEFAULT_DURATION_LABEL_MAP,
+  MENTORING_METHOD_LABEL_MAP,
+  MENTORING_METHOD_ORDER,
+} from '@/features/mentoring/model/mentoring-method';
 import type {
   MentorProfile,
   MentorSortOption,
@@ -9,27 +14,6 @@ import type {
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import type { MentorSettings } from '@/types/mentoring/settings';
-
-const METHOD_ORDER: MentoringMethodType[] = [
-  'note',
-  'simple',
-  'deep',
-  'offline',
-];
-
-const METHOD_LABEL_MAP: Record<MentoringMethodType, string> = {
-  note: '쪽지상담',
-  simple: '간편상담',
-  deep: '심층상담',
-  offline: '대면상담',
-};
-
-const METHOD_DEFAULT_DURATION_LABEL: Record<MentoringMethodType, string> = {
-  note: '비동기',
-  simple: '15분',
-  deep: '60분',
-  offline: '60분',
-};
 
 const normalizeConsultingDuration = (minutes: number) => {
   if (minutes <= 30) {
@@ -47,8 +31,8 @@ const createEmptyMethodOption = (
 ): MentoringMethodOption => {
   return {
     type,
-    label: METHOD_LABEL_MAP[type],
-    durationLabel: METHOD_DEFAULT_DURATION_LABEL[type],
+    label: MENTORING_METHOD_LABEL_MAP[type],
+    durationLabel: MENTORING_METHOD_DEFAULT_DURATION_LABEL_MAP[type],
     price: 0,
     description: '',
     enabled: false,
@@ -73,13 +57,14 @@ const normalizeMethodOption = ({
   const durationLabel =
     type === 'note'
       ? '비동기'
-      : source.durationLabel?.trim() || METHOD_DEFAULT_DURATION_LABEL[type];
+      : source.durationLabel?.trim() ||
+        MENTORING_METHOD_DEFAULT_DURATION_LABEL_MAP[type];
 
   return {
     ...fallback,
     ...source,
     type,
-    label: source.label?.trim() || METHOD_LABEL_MAP[type],
+    label: source.label?.trim() || MENTORING_METHOD_LABEL_MAP[type],
     durationLabel,
     price:
       typeof source.price === 'number' && Number.isFinite(source.price)
@@ -161,7 +146,7 @@ export const sortOptions = [
 export const getEnabledMentoringMethods = (mentor: MentorProfile) => {
   const methods = getNormalizedMethods(mentor);
 
-  return METHOD_ORDER.filter((method) => methods[method].enabled === true);
+  return MENTORING_METHOD_ORDER.filter((method) => methods[method].enabled === true);
 };
 
 export const getLowestPriceOption = (mentor: MentorProfile) => {
@@ -181,7 +166,7 @@ export const getLowestPriceOption = (mentor: MentorProfile) => {
 export const formatWon = (price: number) => `₩${price.toLocaleString('ko-KR')}`;
 
 export const getMethodLabel = (method: MentoringMethodType) => {
-  return METHOD_LABEL_MAP[method];
+  return MENTORING_METHOD_LABEL_MAP[method];
 };
 
 export const getMentorSettings = (mentor: MentorProfile): MentorSettings => {

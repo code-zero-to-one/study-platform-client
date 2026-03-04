@@ -9,6 +9,7 @@ export const parseMentorProfileListParams = (
 ): {
   initialKeyword: string;
   initialSortType: MentorSortType;
+  initialCareerCodes: string[];
 } => {
   const parsed = mentorProfileListParamsSchema.safeParse(input);
 
@@ -16,11 +17,13 @@ export const parseMentorProfileListParams = (
     return {
       initialKeyword: '',
       initialSortType: 'default',
+      initialCareerCodes: [],
     };
   }
 
   return {
     initialKeyword: parsed.data.initialKeyword,
     initialSortType: parsed.data.initialSortType,
+    initialCareerCodes: parsed.data.initialCareerCodes,
   };
 };

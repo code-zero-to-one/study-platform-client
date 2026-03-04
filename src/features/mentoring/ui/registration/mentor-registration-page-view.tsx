@@ -13,7 +13,6 @@ import MentorRegistrationEntryOnboarding from '@/features/mentoring/ui/registrat
 import MentorRegistrationForm from '@/features/mentoring/ui/registration/mentor-registration-form';
 import MentorRegistrationHeader from '@/features/mentoring/ui/registration/mentor-registration-header';
 import MentorRegistrationStateBoundary from '@/features/mentoring/ui/registration/mentor-registration-state-boundary';
-import SettlementRegisterModal from '@/features/mentoring/ui/settings/settlement-register-modal';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 const PAGE_CONTAINER_CLASS =
@@ -251,9 +250,6 @@ export default function MentorRegistrationPageView({
               options={state.registrationOptions}
               onSubmit={actions.onSave}
               onCancel={actions.onCancel}
-              onOpenSettlementModal={() =>
-                actions.onSettlementModalOpenChange(true)
-              }
             />
           </div>
         </div>
@@ -377,13 +373,6 @@ export default function MentorRegistrationPageView({
           memberId={state.memberId}
         />
       )}
-
-      <SettlementRegisterModal
-        open={state.isSettlementModalOpen}
-        initialValue={state.settlementDraft ?? undefined}
-        onOpenChange={actions.onSettlementModalOpenChange}
-        onSubmit={actions.onSettlementSubmit}
-      />
 
       <Modal.Root open={Boolean(state.welcomeOnboarding)}>
         <Modal.Portal>

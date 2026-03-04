@@ -85,7 +85,6 @@ export interface MentorRegistrationFormProps {
   >;
   options: MentorRegistrationOptions;
   onCancel: () => void;
-  onOpenSettlementModal: () => void;
   onSubmit: (values: MentorRegistrationFormValues) => void;
 }
 

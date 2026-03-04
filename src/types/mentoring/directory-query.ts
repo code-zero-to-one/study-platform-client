@@ -3,6 +3,9 @@ import type { MentorSortType } from '@/types/mentoring/domain';
 export interface MentorDirectoryListQueryParams {
   keyword?: string;
   sortType?: MentorSortType;
+  careerCodes?: string[];
+  page?: number;
+  size?: number;
 }
 
 export type MentorDirectoryListQueryKey = readonly [

@@ -1,6 +1,7 @@
 import {
   createDefaultMentorSettings,
   toTimeRangeLabel,
+  WEEKDAY_KEYS,
 } from '@/features/mentoring/model/mentor-settings';
 import type { MentorProfile, MentoringMethodType } from '@/types/mentoring/domain';
 import type {
@@ -46,6 +47,33 @@ const collectScheduleSlots = (values: MentorRegistrationFormValues) => {
   });
 
   return Array.from(uniqueSlots).sort().slice(0, 8);
+};
+
+const isSameStringArray = (
+  first: string[],
+  second: string[],
+) => {
+  if (first.length !== second.length) {
+    return false;
+  }
+
+  return first.every((value, index) => value === second[index]);
+};
+
+const isSameWeeklySchedule = (
+  first: MentorRegistrationFormValues['schedule'],
+  second: MentorRegistrationFormValues['schedule'],
+) => {
+  if (
+    first.timezone !== second.timezone ||
+    first.slotUnitMinutes !== second.slotUnitMinutes
+  ) {
+    return false;
+  }
+
+  return WEEKDAY_KEYS.every((weekdayKey) =>
+    isSameStringArray(first.weekly[weekdayKey], second.weekly[weekdayKey]),
+  );
 };
 
 const buildMethod = ({
@@ -178,7 +206,7 @@ export const buildPreviewMentorProfile = ({
       jobTitle: displayJobTitle,
       careerYears: displayCareer,
       skillTags: displayCoreKeywords,
-      updatedAt: values.updatedAt || new Date().toISOString(),
+      updatedAt: values.updatedAt,
       settlementDraft: values.settlementDraft ?? null,
     },
   };
@@ -187,7 +215,6 @@ export const buildPreviewMentorProfile = ({
 export const buildWelcomeChecklist = (
   values: MentorRegistrationFormValues,
 ): MentorRegistrationWelcomeChecklistItem[] => {
-  const settlementVerified = values.settlementDraft?.verified === true;
   const realtimeEnabled =
     values.simpleEnabled || values.deepEnabled || values.offlineEnabled;
   const scheduleSlots = countScheduleSlots(values);
@@ -195,11 +222,10 @@ export const buildWelcomeChecklist = (
 
   return [
     {
-      title: '정산정보 인증',
-      description: settlementVerified
-        ? '정산금 수령 준비가 완료되었습니다.'
-        : '정산정보를 인증하면 멘토링 수익 정산을 받을 수 있어요.',
-      done: settlementVerified,
+      title: '정산정보 등록 (추후 제공)',
+      description:
+        '정산 기능은 추후 업데이트 예정이며, 오픈 시 별도 안내를 제공할 예정입니다.',
+      done: true,
     },
     {
       title: '실시간 상담 슬롯 오픈',
@@ -241,12 +267,12 @@ export const getChangedSections = (
 
   if (
     prev.detailedDescription !== next.detailedDescription ||
-    prev.skillTags !== next.skillTags
+    !isSameStringArray(prev.skillTags, next.skillTags)
   ) {
     changed.push('description');
   }
 
-  if (prev.interviewQuestions !== next.interviewQuestions) {
+  if (!isSameStringArray(prev.interviewQuestions, next.interviewQuestions)) {
     changed.push('interview');
   }
 
@@ -262,7 +288,7 @@ export const getChangedSections = (
     prev.offlinePrice !== next.offlinePrice ||
     prev.offlineDurationMinutes !== next.offlineDurationMinutes ||
     prev.maxParticipants !== next.maxParticipants ||
-    prev.schedule !== next.schedule
+    !isSameWeeklySchedule(prev.schedule, next.schedule)
   ) {
     changed.push('methods');
   }

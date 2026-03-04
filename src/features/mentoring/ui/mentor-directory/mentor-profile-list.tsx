@@ -12,6 +12,7 @@ export default function MentorProfileListContainer(
   return (
     <MentorDirectoryList
       keyword={controller.state.keyword}
+      careerCodes={controller.state.careerCodes}
       sortType={controller.state.sortType}
       listState={controller.viewModel.listState}
       errorMessage={controller.viewModel.errorMessage}
@@ -20,9 +21,11 @@ export default function MentorProfileListContainer(
       totalPages={controller.viewModel.totalPages}
       showPagination={controller.viewModel.showPagination}
       keywordOptions={controller.viewModel.keywordOptions}
+      careerOptions={controller.viewModel.careerOptions}
       leadMentors={controller.viewModel.leadMentors}
       remainingMentors={controller.viewModel.remainingMentors}
       onKeywordChange={controller.actions.onKeywordChange}
+      onCareerCodesChange={controller.actions.onCareerCodesChange}
       onSortTypeChange={controller.actions.onSortTypeChange}
       onPageChange={controller.actions.onPageChange}
       onRetry={controller.actions.onRetry}

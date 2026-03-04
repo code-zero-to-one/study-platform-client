@@ -44,6 +44,16 @@ export interface MentorProfile {
   mentorSettings?: MentorSettings;
 }
 
+export interface MentorDirectoryPage {
+  mentors: MentorProfile[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 export type MentorSortType = 'default' | 'rating' | 'review' | 'low-price';
 
 export interface MentorSortOption {

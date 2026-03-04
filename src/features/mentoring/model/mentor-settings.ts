@@ -69,7 +69,7 @@ export const createDefaultMentorSettings = (): MentorSettings => {
     interviewQuestions: [],
     preNotice: '',
     settlementDraft: null,
-    updatedAt: new Date().toISOString(),
+    updatedAt: '',
   };
 };
 

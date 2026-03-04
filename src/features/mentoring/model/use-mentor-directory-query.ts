@@ -13,18 +13,27 @@ import { mentorDirectoryQueryKeys } from './mentor-directory-query-keys';
 interface UseMentorDirectoryListQueryParams {
   keyword?: string;
   sortType?: MentorSortType;
+  careerCodes?: string[];
+  page?: number;
+  size?: number;
 }
 
 export const useMentorDirectoryListQuery = ({
   keyword,
   sortType,
+  careerCodes,
+  page,
+  size,
 }: UseMentorDirectoryListQueryParams = {}) => {
   const mentorDirectoryQuery = useQuery({
     queryKey: mentorDirectoryQueryKeys.list({
       keyword,
       sortType,
+      careerCodes,
+      page,
+      size,
     }),
-    queryFn: () => getMentorList({ keyword, sortType }),
+    queryFn: () => getMentorList({ keyword, sortType, careerCodes, page, size }),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     placeholderData: keepPreviousData,

@@ -32,7 +32,10 @@ import {
   type MentorRegistrationFormProps,
   type MentorRegistrationMethodField,
 } from '@/types/mentoring/registration-view';
-import { MENTORING_TITLE_MAX_LENGTH } from '@/types/schemas/mentor-registration-schema';
+import {
+  MENTORING_TITLE_MAX_LENGTH,
+  MENTORING_TITLE_MIN_LENGTH,
+} from '@/types/schemas/mentor-registration-schema';
 
 const METHOD_FIELDS: MentorRegistrationMethodField[] = [
   {
@@ -93,11 +96,12 @@ const METHOD_ICON_MAP: Record<
   offlineEnabled: <Users className="h-16 w-16" />,
 };
 
+const EMAIL_FORMAT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 export default function MentorRegistrationForm({
   form,
   options,
   onCancel,
-  onOpenSettlementModal,
   onSubmit,
 }: MentorRegistrationFormProps) {
   const {
@@ -114,15 +118,21 @@ export default function MentorRegistrationForm({
     shouldDirty: true,
   } as const;
 
-  const settlementDraft = watch('settlementDraft');
   const jobGroup = watch('jobGroup');
   const jobTitle = watch('jobTitle');
   const careerYears = watch('careerYears');
   const skillTags = watch('skillTags');
+  const contactEmail = watch('contactEmail');
+  const mentoringTitle = watch('mentoringTitle');
+  const appealLine = watch('appealLine');
+  const companyName = watch('companyName');
+  const noteEnabled = watch('noteEnabled');
   const hideCompanyName = watch('hideCompanyName');
   const simpleEnabled = watch('simpleEnabled');
   const deepEnabled = watch('deepEnabled');
   const offlineEnabled = watch('offlineEnabled');
+  const schedule = watch('schedule');
+  const detailedDescription = watch('detailedDescription');
   const jobGroupOptions = useMemo(() => {
     return options.jobGroups
       .filter((option) => option.active)
@@ -191,6 +201,122 @@ export default function MentorRegistrationForm({
   const interviewQuestionError =
     (errors.interviewQuestions?.message as string | undefined) ??
     (errors.interviewQuestions?.[0]?.message as string | undefined);
+  const isSaveDisabled = !isValid || isSubmitting;
+  const saveDisabledReasons = useMemo(() => {
+    if (isSubmitting) {
+      return ['저장 요청을 처리하는 중입니다. 잠시만 기다려주세요.'];
+    }
+
+    if (isValid) {
+      return [];
+    }
+
+    const knownFieldMessages = [
+      errors.contactEmail?.message,
+      errors.mentoringTitle?.message,
+      errors.appealLine?.message,
+      errors.jobGroup?.message,
+      errors.jobTitle?.message,
+      errors.careerYears?.message,
+      errors.skillTags?.message,
+      errors.companyName?.message,
+      errors.noteEnabled?.message,
+      errors.schedule?.message,
+      errors.detailedDescription?.message,
+      errors.interviewQuestions?.message,
+      errors.interviewQuestions?.[0]?.message,
+      errors.preNotice?.message,
+    ]
+      .map((message) => (typeof message === 'string' ? message.trim() : ''))
+      .filter((message) => message.length > 0);
+    const messages = Array.from(new Set(knownFieldMessages)).slice(0, 3);
+
+    if (messages.length > 0) {
+      return messages;
+    }
+
+    const fallbackReasons: string[] = [];
+    const normalizedEmail = contactEmail.trim();
+    const normalizedMentoringTitle = mentoringTitle.trim();
+    const normalizedAppealLine = appealLine.trim();
+    const normalizedCompanyName = companyName.trim();
+    const normalizedDescription = detailedDescription.trim();
+    const hasAnyMethodEnabled =
+      noteEnabled || simpleEnabled || deepEnabled || offlineEnabled;
+    const hasAnyScheduleSlot = Object.values(schedule?.weekly ?? {}).some(
+      (daySlots) => Array.isArray(daySlots) && daySlots.length > 0,
+    );
+
+    if (!normalizedEmail) {
+      fallbackReasons.push('이메일을 입력해주세요.');
+    } else if (!EMAIL_FORMAT_REGEX.test(normalizedEmail)) {
+      fallbackReasons.push('이메일 형식을 확인해주세요.');
+    }
+
+    if (!normalizedMentoringTitle) {
+      fallbackReasons.push('멘토링명을 입력해주세요.');
+    } else if (normalizedMentoringTitle.length < MENTORING_TITLE_MIN_LENGTH) {
+      fallbackReasons.push(
+        `멘토링명을 ${MENTORING_TITLE_MIN_LENGTH}자 이상 입력해주세요.`,
+      );
+    }
+
+    if (!normalizedAppealLine) {
+      fallbackReasons.push('한 줄 어필을 입력해주세요.');
+    } else if (normalizedAppealLine.length < 2) {
+      fallbackReasons.push('한 줄 어필을 2자 이상 입력해주세요.');
+    }
+
+    if (!jobGroup) {
+      fallbackReasons.push('멘토 직군을 선택해주세요.');
+    }
+    if (!jobTitle) {
+      fallbackReasons.push('멘토 직무를 선택해주세요.');
+    }
+    if (!careerYears) {
+      fallbackReasons.push('멘토 경력을 선택해주세요.');
+    }
+
+    if (skillTags.length === 0) {
+      fallbackReasons.push('핵심 키워드를 1개 이상 선택해주세요.');
+    }
+
+    if (!normalizedCompanyName) {
+      fallbackReasons.push('회사명을 입력해주세요.');
+    }
+
+    if (!hasAnyMethodEnabled) {
+      fallbackReasons.push('최소 1개 이상의 멘토링 방식을 활성화해주세요.');
+    }
+
+    if ((simpleEnabled || deepEnabled || offlineEnabled) && !hasAnyScheduleSlot) {
+      fallbackReasons.push('실시간 상담 스케줄을 1개 이상 선택해주세요.');
+    }
+
+    if (normalizedDescription.length < 30) {
+      fallbackReasons.push('멘토 소개를 30자 이상 입력해주세요.');
+    }
+
+    return fallbackReasons.slice(0, 3);
+  }, [
+    appealLine,
+    careerYears,
+    companyName,
+    contactEmail,
+    deepEnabled,
+    detailedDescription,
+    errors,
+    isSubmitting,
+    isValid,
+    jobGroup,
+    jobTitle,
+    mentoringTitle,
+    noteEnabled,
+    offlineEnabled,
+    schedule,
+    simpleEnabled,
+    skillTags,
+  ]);
 
   useEffect(() => {
     if (!jobTitle) {
@@ -700,67 +826,77 @@ export default function MentorRegistrationForm({
       <FormSectionCard
         title={
           <span className="inline-flex items-center gap-75">
-            <CircleCheck className="text-text-brand h-18 w-18" />
-            정산 정보
+            <Info className="text-text-brand h-18 w-18" />
+            정산 정보 (추후 제공)
           </span>
         }
-        description="정산정보를 등록하면 멘토링 정산에 사용됩니다."
+        description="정산정보 등록 기능은 현재 준비 중이며, 추후 업데이트에서 제공됩니다."
       >
         <div className="flex flex-col gap-100 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <p className="font-designer-14r text-text-subtle">
-              {settlementDraft
-                ? `${settlementDraft.accountHolder} / ${settlementDraft.accountNumber}`
-                : '아직 등록한 정산정보가 없어요.'}
+              정산정보는 추후 기능으로 제공될 예정입니다.
             </p>
-            {settlementDraft?.verified && (
-              <p className="font-designer-13r text-text-success mt-50">
-                정산정보 인증 완료
-              </p>
-            )}
+            <p className="font-designer-12r text-text-subtle mt-50">
+              지금은 정산정보 없이도 멘토 등록/수정 저장이 가능합니다.
+            </p>
           </div>
           <Button
             type="button"
             color="outlined"
             size="small"
             className="w-full sm:w-auto"
-            onClick={onOpenSettlementModal}
+            disabled
+            aria-disabled
           >
-            {settlementDraft ? '정산정보 수정' : '정산정보 등록'}
+            추후 제공 예정
           </Button>
         </div>
-        <FieldErrorText
-          message={errors.settlementDraft?.message as string | undefined}
-        />
       </FormSectionCard>
 
       <div className="bg-background-default/95 border-border-subtle supports-[backdrop-filter]:bg-background-default/85 sticky bottom-0 z-20 border-t px-150 py-125 backdrop-blur">
-        <div className="flex flex-col gap-100 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-designer-12r text-text-subtle">
-            {isValid
-              ? '저장 준비가 완료되었습니다. 미리보기를 확인한 뒤 저장하세요.'
-              : '필수 항목을 모두 입력하면 저장 버튼이 활성화됩니다.'}
-          </p>
-          <div className="flex w-full gap-100 sm:w-auto">
-            <Button
-              type="button"
-              color="secondary"
-              size="large"
-              className="flex-1 sm:flex-none"
-              onClick={onCancel}
-            >
-              취소
-            </Button>
-            <Button
-              type="submit"
-              color="primary"
-              size="large"
-              className="flex-1 sm:flex-none"
-              disabled={!isValid || isSubmitting}
-            >
-              {isSubmitting ? '저장 중...' : '저장하기'}
-            </Button>
+        <div className="flex flex-col gap-100">
+          <div className="flex flex-col gap-100 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-designer-12r text-text-subtle">
+              {isValid
+                ? '저장 준비가 완료되었습니다. 미리보기를 확인한 뒤 저장하세요.'
+                : '필수 항목을 모두 입력하면 저장 버튼이 활성화됩니다.'}
+            </p>
+            <div className="flex w-full gap-100 sm:w-auto">
+              <Button
+                type="button"
+                color="secondary"
+                size="large"
+                className="flex-1 sm:flex-none"
+                onClick={onCancel}
+              >
+                취소
+              </Button>
+              <Button
+                type="submit"
+                color="primary"
+                size="large"
+                className="flex-1 sm:flex-none"
+                disabled={isSaveDisabled}
+              >
+                {isSubmitting ? '저장 중...' : '저장하기'}
+              </Button>
+            </div>
           </div>
+          {isSaveDisabled && (
+            <div className="rounded-100 border-border-warning bg-background-accent-yellow-subtle border px-125 py-100">
+              <div className="flex flex-col gap-25">
+                {saveDisabledReasons.map((reason) => (
+                  <p
+                    key={reason}
+                    className="font-designer-12r text-text-subtle"
+                  >
+                    • {reason}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </form>

@@ -7,4 +7,5 @@ export interface MentorCardProps {
 export interface MentorProfileListProps {
   initialKeyword?: string;
   initialSortType?: MentorSortType;
+  initialCareerCodes?: string[];
 }

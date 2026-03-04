@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowUpDown } from 'lucide-react';
+import MultiDropdown from '@/components/ui/dropdown/multi';
 import SingleDropdown from '@/components/ui/dropdown/single';
 import SortDropdown from '@/components/ui/filters/sort-dropdown';
 import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
@@ -10,16 +11,25 @@ import type { MentorSortType } from '@/types/mentoring/domain';
 interface MentorDirectoryFiltersProps {
   keyword: string;
   keywordOptions: string[];
+  careerCodes: string[];
+  careerOptions: Array<{
+    code: string;
+    label: string;
+  }>;
   sortType: MentorSortType;
   onKeywordChange: (nextKeyword: string) => void;
+  onCareerCodesChange: (nextCareerCodes: string[]) => void;
   onSortTypeChange: (nextSortType: MentorSortType) => void;
 }
 
 export default function MentorDirectoryFilters({
   keyword,
   keywordOptions,
+  careerCodes,
+  careerOptions,
   sortType,
   onKeywordChange,
+  onCareerCodesChange,
   onSortTypeChange,
 }: MentorDirectoryFiltersProps) {
   const options = [
@@ -43,6 +53,18 @@ export default function MentorDirectoryFilters({
           placeholder={MENTORING_LIST_LABELS.searchPlaceholder}
           className="rounded-100 bg-background-default"
           size="m"
+        />
+      </div>
+      <div className="w-full sm:w-[320px]">
+        <MultiDropdown
+          options={careerOptions.map((careerOption) => ({
+            value: careerOption.code,
+            label: careerOption.label,
+          }))}
+          value={careerCodes}
+          onChange={onCareerCodesChange}
+          placeholder="경력 선택"
+          className="rounded-100 bg-background-default"
         />
       </div>
       <SortDropdown<MentorSortType>
