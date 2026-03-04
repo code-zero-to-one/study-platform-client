@@ -14,6 +14,9 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { type KeyboardEvent } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
+import Badge from '@/components/common/ui/badge';
 import {
   formatWon,
   getMentorDisplayTitle,
@@ -22,9 +25,6 @@ import {
 } from '@/features/mentoring/model/mentor-profile-utils';
 import type { MentorCardProps } from '@/types/mentoring/directory-view';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/common/ui/avatar';
-import Badge from '@/components/common/ui/badge';
 
 const methodTextMap: Record<MentoringMethodType, string> = {
   note: '쪽지상담',

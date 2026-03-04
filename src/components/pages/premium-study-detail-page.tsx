@@ -3,25 +3,26 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
+import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
+import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
-import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
-import { GroupStudyFullResponse, Leader } from '@/types/api/group-study.types';
-import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
-import { useToastStore } from '@/stores/use-toast-store';
-import { useLeaderStore } from '@/stores/useLeaderStore';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
+import GroupStudyMemberList from '@/components/lists/study-member-list';
+import InquirySection from '@/components/section/inquiry-section';
+import MissionSection from '@/components/section/mission-section';
+import PremiumStudyInfoSection from '@/components/section/premium-study-info-section';
+import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
 } from '@/hooks/queries/use-study-query';
-import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
-import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
-import GroupStudyMemberList from '@/components/lists/study-member-list';
-import InquirySection from '@/components/section/inquiry-section';
-import MissionSection from '@/components/section/mission-section';
-import PremiumStudyInfoSection from '@/components/section/premium-study-info-section';
+import { useToastStore } from '@/stores/use-toast-store';
+import { useLeaderStore } from '@/stores/useLeaderStore';
+import { GroupStudyFullResponse, Leader } from '@/types/api/group-study.types';
 
 type ActionKey = 'end' | 'delete';
 

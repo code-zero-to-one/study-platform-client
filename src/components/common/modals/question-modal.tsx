@@ -5,7 +5,10 @@ import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { axiosInstanceForMultipart } from '@/api/client/axios';
 import Button from '@/components/common/ui/button';
+import { SingleDropdown } from '@/components/common/ui/dropdown';
+import FormField from '@/components/common/ui/form/form-field';
 import ImageUploadInput from '@/components/common/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
@@ -19,8 +22,6 @@ import {
   QuestionFormValues,
   QUESTION_TITLE_MAX_LENGTH,
 } from '@/types/schemas/question.schema';
-import { SingleDropdown } from '@/components/common/ui/dropdown';
-import FormField from '@/components/common/ui/form/form-field';
 
 const QUESTION_CATEGORY_OPTIONS = [
   { value: QuestionCategory.PAYMENT, label: '결제' },

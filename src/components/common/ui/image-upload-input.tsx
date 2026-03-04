@@ -4,6 +4,7 @@ import { cva } from 'class-variance-authority';
 import Image from 'next/image';
 import { useState, DragEvent, ChangeEvent, useRef } from 'react';
 import Button from '@/components/common/ui/button';
+import { cn } from './(shadcn)/lib/utils';
 
 // 클라이언트에서 선제 차단하여 불필요한 413 에러 및 대용량 업로드 요청을 방지.
 const DEFAULT_MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB

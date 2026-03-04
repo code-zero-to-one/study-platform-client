@@ -3,10 +3,10 @@
 import Link from 'next/link';
 import React, { useState } from 'react';
 import StartStudyModal from '@/components/common/modals/start-study-modal';
+import StudyReviewModal from '@/components/common/modals/study-review-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import { ToggleSwitch } from '@/components/common/ui/toggle';
-import StudyReviewModal from '@/components/common/modals/study-review-modal';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { useReviewReminder } from '@/hooks/common/use-reminder-review';
 import { usePatchAutoMatchingMutation } from '@/hooks/queries/use-user-profile-query';

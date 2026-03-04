@@ -1,7 +1,7 @@
 import { UserTransactionListResponse } from '@/api/openapi';
+import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import { useCancelPayment } from '@/hooks/queries/payment-user-api';
-import Button from '@/components/common/ui/button';
 
 export default function PremiumStudyCancelPaymentModal({
   paymentId,

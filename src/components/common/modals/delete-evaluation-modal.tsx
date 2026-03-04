@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { useDeleteEvaluation } from '@/hooks/queries/evaluation-api';
-import { useToastStore } from '@/stores/use-toast-store';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
+import { useDeleteEvaluation } from '@/hooks/queries/evaluation-api';
+import { useToastStore } from '@/stores/use-toast-store';
 
 interface DeleteEvaluationModalProps {
   evaluationId: number; // todo api response 타입 적용

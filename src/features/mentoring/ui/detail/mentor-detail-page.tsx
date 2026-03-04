@@ -2,6 +2,8 @@
 
 import { CircleCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Badge from '@/components/common/ui/badge';
 import {
   getMentorDisplayTitle,
   getEnabledMentoringMethods,
@@ -17,8 +19,6 @@ import MentorDetailMethodSection from './mentor-detail-method-section';
 import MentorDetailReviewSection from './mentor-detail-review-section';
 import MentorDetailSidebarCta from './mentor-detail-sidebar-cta';
 import MentorMarkdownContent from '../registration/mentor-markdown-content';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import Badge from '@/components/common/ui/badge';
 
 type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
 

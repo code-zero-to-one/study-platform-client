@@ -1,8 +1,8 @@
 import { UserRoundPlus } from 'lucide-react';
-import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
+import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
+import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
 
 interface MentorJoinCardProps {
   memberId: number | undefined;

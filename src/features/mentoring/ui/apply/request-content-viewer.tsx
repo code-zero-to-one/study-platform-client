@@ -2,12 +2,12 @@
 
 import { FileText, Link2, Paperclip, PictureInPicture2 } from 'lucide-react';
 import { type ReactNode } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   parseMentoringRequestRichTextDocument,
   type MentoringRequestContentBlock,
   type MentoringRequestRichTextNode,
 } from '@/features/mentoring/model/request-content';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface RequestContentViewerProps {
   requestMessage: string;

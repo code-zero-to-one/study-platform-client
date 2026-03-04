@@ -128,9 +128,8 @@ export default function StudyCard({
           {study.simpleDetailInfo?.summary}
         </p>
 
-        {/* 활성 배지 (RECRUITING / ENDING_SOON 일 때만) */}
-        {(study.basicInfo?.status === 'RECRUITING' ||
-          study.basicInfo?.status === 'ENDING_SOON') &&
+        {/* 활성 배지 (RECRUITING일 때만) */}
+        {study.basicInfo?.status === 'RECRUITING' &&
           (() => {
             const remaining =
               (study.basicInfo?.maxMembersCount ?? 0) -

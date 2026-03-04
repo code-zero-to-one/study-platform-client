@@ -1,15 +1,15 @@
 'use client';
 
 import { useState } from 'react';
+import DeleteGroupStudyMemberModal from '@/components/common/modals/delete-group-study-member';
+import DiscretionaryEvaluationModal from '@/components/common/modals/discretionary-evaluation-modal';
+import EndGroupStudyModal from '@/components/common/modals/end-group-study';
 import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import WriteGreetingModal from '@/components/common/modals/write-greeting-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import DiscretionGradeHistoryList from '@/components/lists/discretion-grade-history-list';
 import MissionProgressHistoryList from '@/components/lists/mission-progress-history-list';
-import DeleteGroupStudyMemberModal from '@/components/common/modals/delete-group-study-member';
-import DiscretionaryEvaluationModal from '@/components/common/modals/discretionary-evaluation-modal';
-import EndGroupStudyModal from '@/components/common/modals/end-group-study';
-import WriteGreetingModal from '@/components/common/modals/write-greeting-modal';
 
 import { useAuthReady } from '@/hooks/common/use-auth';
 import type { GroupStudyMember } from '@/types/api/group-study.types';

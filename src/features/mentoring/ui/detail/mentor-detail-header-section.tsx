@@ -2,11 +2,11 @@
 
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import type { MentorProfile } from '@/types/mentoring/domain';
-import ReviewStars from './review-stars';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
+import type { MentorProfile } from '@/types/mentoring/domain';
+import ReviewStars from './review-stars';
 
 interface MentorDetailHeaderSectionProps {
   mentor: MentorProfile;

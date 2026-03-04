@@ -9,6 +9,10 @@ import {
   DropdownMenuTrigger,
 } from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
 import ToggleButton from '@/components/common/ui/toggle/button';
+import {
+  ROLE_OPTIONS_UI,
+  STUDY_METHOD_LABELS,
+} from '@/config/group-study-const';
 
 // 필터 옵션 타입
 export interface StudyFilterValues {
