@@ -2,7 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import React from 'react';
-import SectionShell from '@/components/ui/section-shell';
+import SectionShell from '@/components/common/ui/section-shell';
 import { ARCHIVE_VIEW_MODES } from '@/config/archive-const';
 import { useArchiveFilters } from '@/hooks/common/use-archive-filters';
 import { useArchiveActions } from '@/hooks/queries/use-archive-actions';

@@ -9,9 +9,9 @@ import { useUserStore } from '@/stores/useUserStore';
 import MissionCard from '../card/mission-card';
 import HomeworkDetailContent from '../contents/homework-detail-content';
 import MissionDetailContent from '../contents/mission-detail-content';
-import PageContainer from '../layout/page-container';
+import PageContainer from '../common/layout/page-container';
 import CreateMissionModal from '../modals/create-mission-modal';
-import { cn } from '../ui/(shadcn)/lib/utils';
+import { cn } from '../common/ui/(shadcn)/lib/utils';
 
 type FilterType = 'all' | 'inProgress' | 'completed';
 

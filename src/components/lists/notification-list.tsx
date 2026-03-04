@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { MemberNotificationResponse } from '@/api/openapi';
-import Badge from '../ui/badge';
+import Badge from '../common/ui/badge';
 
 const getBadgeColor = (
   topicType: string,

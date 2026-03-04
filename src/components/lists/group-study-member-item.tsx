@@ -6,11 +6,11 @@ import MissionProgressHistoryList from '@/components/lists/mission-progress-hist
 import DeleteGroupStudyMemberModal from '@/components/modals/delete-group-study-member';
 import DiscretionaryEvaluationModal from '@/components/modals/discretionary-evaluation-modal';
 import EndGroupStudyModal from '@/components/modals/end-group-study';
-import UserProfileModal from '@/components/modals/user-profile-modal';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import WriteGreetingModal from '@/components/modals/write-greeting-modal';
-import UserAvatar from '@/components/ui/avatar';
+import UserAvatar from '@/components/common/ui/avatar';
 
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import type { GroupStudyMember } from '@/types/api/group-study.types';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';

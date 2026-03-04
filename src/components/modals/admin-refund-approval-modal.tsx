@@ -3,8 +3,8 @@ import {
   useApproveRefund,
   useRejectRefund,
 } from '@/hooks/queries/admin-refund-api';
-import Button from '../ui/button';
-import { Modal } from '../ui/modal';
+import Button from '../common/ui/button';
+import { Modal } from '../common/ui/modal';
 
 interface AdminRefundApprovalModalProps extends Pick<
   AdminTransactionListResponse,

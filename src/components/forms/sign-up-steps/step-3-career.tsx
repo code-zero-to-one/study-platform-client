@@ -1,6 +1,6 @@
 // 3. 경력 선택 단계
 import { ArrowLeft, TrendingUp } from 'lucide-react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useCareersQuery } from '@/hooks/queries/use-update-user-profile-mutation';
 import type { CareerResponse } from '@/types/api/my-page.types';
 import { StepHeader } from './step-header';

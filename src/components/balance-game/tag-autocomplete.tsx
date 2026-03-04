@@ -2,7 +2,7 @@
 
 import { Search } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/config/balance-game-tags';
 import type { BalanceGameTagSuggestion } from '@/types/balance-game';
 

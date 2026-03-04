@@ -2,10 +2,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Button from '@/components/ui/button';
-import FormField from '@/components/ui/form/form-field';
-import { TextAreaInput } from '@/components/ui/input';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import FormField from '@/components/common/ui/form/form-field';
+import { TextAreaInput } from '@/components/common/ui/input';
+import { Modal } from '@/components/common/ui/modal';
 import { useUpdateGreeting } from '@/hooks/queries/group-study-member-api';
 import {
   WriteGreetingFormSchema,

@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { ChangeEvent } from 'react';
-import { BaseInput } from '@/components/ui/input';
+import { BaseInput } from '@/components/common/ui/input';
 
 const meta: Meta<typeof BaseInput> = {
   component: BaseInput,

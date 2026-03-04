@@ -1,6 +1,6 @@
-import UserProfileModal from '@/components/modals/user-profile-modal';
-import UserAvatar from '@/components/ui/avatar';
-import Badge from '@/components/ui/badge';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import UserAvatar from '@/components/common/ui/avatar';
+import Badge from '@/components/common/ui/badge';
 import { Participant } from '@/types/api/participation.types';
 
 interface ReservationCardProps {

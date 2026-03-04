@@ -2,11 +2,11 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import Checkbox from '@/components/ui/checkbox';
-import { SingleDropdown } from '@/components/ui/dropdown';
-import Pagination from '@/components/ui/pagination';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import Checkbox from '@/components/common/ui/checkbox';
+import { SingleDropdown } from '@/components/common/ui/dropdown';
+import Pagination from '@/components/common/ui/pagination';
 import {
   MEMBER_STATUS_MAP,
   MEMBER_STATUS_OPTIONS,

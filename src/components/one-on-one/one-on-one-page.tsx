@@ -24,9 +24,9 @@ import {
 import Image from 'next/image';
 import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
-import UserProfileModal from '@/components/modals/user-profile-modal';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
 
 // ----------------------------------------------------------------------
 // Types & Mock Data (Hall of Fame)

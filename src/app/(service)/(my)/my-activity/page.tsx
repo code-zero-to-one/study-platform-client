@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import MyStudyCard from '@/components/cards/my-study-card';
+import MyStudyCard from '@/components/common/cards/my-study-card';
 import { useStudyDashboardQuery } from '@/hooks/queries/use-update-user-profile-mutation';
 
 export default function MyActivity() {

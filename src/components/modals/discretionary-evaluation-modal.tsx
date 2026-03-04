@@ -2,12 +2,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import Button from '@/components/ui/button';
-import FormField from '@/components/ui/form/form-field';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import FormField from '@/components/common/ui/form/form-field';
+import { Modal } from '@/components/common/ui/modal';
 import { useUpdateMemberDiscretion } from '@/hooks/queries/group-study-member-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { TextAreaInput } from '../ui/input';
+import { TextAreaInput } from '../common/ui/input';
 
 const DiscretionaryEvaluationFormSchema = z.object({
   content: z.string().min(1, '평가 내역을 입력해주세요.'),

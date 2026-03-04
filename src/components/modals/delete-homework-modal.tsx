@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useDeleteHomework } from '@/hooks/queries/group-study-homework-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import Button from '../ui/button';
-import { Modal } from '../ui/modal';
+import Button from '../common/ui/button';
+import { Modal } from '../common/ui/modal';
 
 interface DeleteHomeworkModalProps {
   homeworkId: number;

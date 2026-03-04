@@ -6,13 +6,13 @@ import { XIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 
-import Button from '@/components/ui/button';
-import { SingleDropdown } from '@/components/ui/dropdown';
-import FormField from '@/components/ui/form/form-field';
-import { TextAreaInput } from '@/components/ui/input';
-import { Modal } from '@/components/ui/modal';
-import { GroupItems } from '@/components/ui/toggle';
-import type { ToggleOption } from '@/components/ui/toggle/group';
+import Button from '@/components/common/ui/button';
+import { SingleDropdown } from '@/components/common/ui/dropdown';
+import FormField from '@/components/common/ui/form/form-field';
+import { TextAreaInput } from '@/components/common/ui/input';
+import { Modal } from '@/components/common/ui/modal';
+import { GroupItems } from '@/components/common/ui/toggle';
+import type { ToggleOption } from '@/components/common/ui/toggle/group';
 import {
   useAvailableStudyTimesQuery,
   useStudySubjectsQuery,

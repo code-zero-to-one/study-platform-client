@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import PhoneVerificationModal from '@/components/modals/phone-verification-modal';
-import StartStudyModal from '@/components/modals/start-study-modal';
-import { ToggleSwitch } from '@/components/ui/toggle';
+import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
+import StartStudyModal from '@/components/common/modals/start-study-modal';
+import { ToggleSwitch } from '@/components/common/ui/toggle';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import {

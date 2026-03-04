@@ -3,9 +3,9 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 
 import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
-import Avatar from '@/components/ui/avatar';
-import Badge from '@/components/ui/badge';
-import Progress from '@/components/ui/progress';
+import Avatar from '@/components/common/ui/avatar';
+import Badge from '@/components/common/ui/badge';
+import Progress from '@/components/common/ui/progress';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import MyHomeworkStatus from '../card/my-homework-status-card';
 

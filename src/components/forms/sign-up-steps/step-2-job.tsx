@@ -1,7 +1,7 @@
 // 2. 직무 선택 단계
 import { Briefcase } from 'lucide-react';
 import { useMemo } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useJobsQuery } from '@/hooks/queries/use-update-user-profile-mutation';
 import type { JobResponse } from '@/types/api/my-page.types';
 import { StepHeader } from './step-header';

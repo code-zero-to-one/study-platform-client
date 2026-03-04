@@ -11,11 +11,11 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/ui/avatar';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 
 interface Mentor {
   id: number;

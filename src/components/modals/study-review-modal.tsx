@@ -5,12 +5,12 @@ import { isAxiosError } from 'axios';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import UserAvatar from '@/components/ui/avatar';
-import Button from '@/components/ui/button';
-import Checkbox from '@/components/ui/checkbox';
-import { TextAreaInput } from '@/components/ui/input';
-import List from '@/components/ui/list';
-import { Modal } from '@/components/ui/modal';
+import UserAvatar from '@/components/common/ui/avatar';
+import Button from '@/components/common/ui/button';
+import Checkbox from '@/components/common/ui/checkbox';
+import { TextAreaInput } from '@/components/common/ui/input';
+import List from '@/components/common/ui/list';
+import { Modal } from '@/components/common/ui/modal';
 import {
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,

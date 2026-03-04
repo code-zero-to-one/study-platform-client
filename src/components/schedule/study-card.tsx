@@ -6,7 +6,7 @@ import StudyListSection from '@/components/lists/study-list-table';
 import ReservationList from '@/components/participation/reservation-list';
 import DateSelector from '@/components/schedule/data-selector';
 import TodayStudyCard from '@/components/schedule/today-study-card';
-import SectionHeader from '@/components/ui/section-header';
+import SectionHeader from '@/components/common/ui/section-header';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   useStudyStatusQuery,

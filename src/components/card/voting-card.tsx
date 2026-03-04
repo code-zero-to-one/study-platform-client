@@ -1,8 +1,8 @@
 import { MessageCircle, Users } from 'lucide-react';
 import React from 'react';
-import UserProfileModal from '@/components/modals/user-profile-modal';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
 import { BalanceGame } from '@/types/balance-game';
 import VoteTimer from '../voting/vote-timer';
 

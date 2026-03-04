@@ -3,8 +3,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { IoMdPeople } from 'react-icons/io';
 import { LuDot } from 'react-icons/lu';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
 import { MemberStudyItem } from '@/types/api/group-study.types';
 
 interface MyStudyInfoCardProps extends MemberStudyItem {

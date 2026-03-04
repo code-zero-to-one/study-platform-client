@@ -1,6 +1,6 @@
-import PageContainer from '@/components/layout/page-container';
+import PageContainer from '@/components/common/layout/page-container';
 import GroupStudyNoticeModal from '@/components/modals/group-notice-modal';
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 
 interface CreatePostProps {
   groupStudyId: number;

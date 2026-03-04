@@ -1,5 +1,5 @@
 import { LibraryBig } from 'lucide-react';
-import SectionHeader from '@/components/ui/section-header';
+import SectionHeader from '@/components/common/ui/section-header';
 
 export default function ArchiveHeader() {
   return (

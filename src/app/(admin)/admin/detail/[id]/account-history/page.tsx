@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query';
 import { ArrowRightIcon } from 'lucide-react';
 import { getAccountHistoriesInServer } from '@/api/endpoints/admin/account-history.server';
-import Badge from '@/components/ui/badge';
+import Badge from '@/components/common/ui/badge';
 import { GetAccountHistoriesResponse } from '@/types/api/admin.types';
 import { formatHHMM, formatYYYYMMDD } from '@/utils/time';
 

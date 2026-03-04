@@ -7,12 +7,12 @@ import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import SignupImageSelector from '@/components/forms/sign-up-image-selector';
-import Button from '@/components/ui/button';
-import { MultiDropdown, SingleDropdown } from '@/components/ui/dropdown';
-import FormField from '@/components/ui/form/form-field';
-import MultiItemSelector from '@/components/ui/form/multi-item-selector';
-import { BaseInput, TextAreaInput } from '@/components/ui/input';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import { MultiDropdown, SingleDropdown } from '@/components/common/ui/dropdown';
+import FormField from '@/components/common/ui/form/form-field';
+import MultiItemSelector from '@/components/common/ui/form/multi-item-selector';
+import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
+import { Modal } from '@/components/common/ui/modal';
 import { DEFAULT_OPTIONS, MBTI_OPTIONS } from '@/config/my-page-const';
 import { useUploadProfileImageMutation } from '@/hooks/queries/use-auth-mutation';
 import {

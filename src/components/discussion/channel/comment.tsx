@@ -1,11 +1,11 @@
 import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import ConfirmDeleteModal from '@/components/modals/confirm-delete-modal';
+import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
 import DeleteGroupStudyMemberModal from '@/components/modals/delete-group-study-member';
-import UserProfileModal from '@/components/modals/user-profile-modal';
-import UserAvatar from '@/components/ui/avatar';
-import MoreMenu from '@/components/ui/dropdown/more-menu';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import UserAvatar from '@/components/common/ui/avatar';
+import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 
 import {
   useDeleteCommentMutation,

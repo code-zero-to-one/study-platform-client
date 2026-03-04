@@ -1,1 +1,1 @@
-export { default } from '@/components/ui/image-upload-input';
+export { default } from '@/components/common/ui/image-upload-input';

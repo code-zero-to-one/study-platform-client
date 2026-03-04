@@ -1,12 +1,12 @@
 import { QueryClient } from '@tanstack/react-query';
 import { getUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
-import ProfileInfoCard from '@/components/cards/profile-info-card';
+import ProfileInfoCard from '@/components/common/cards/profile-info-card';
+import UserAvatar from '@/components/common/ui/avatar';
+import Badge from '@/components/common/ui/badge';
 import CakeIcon from '@/components/my-page/icon/cake.svg';
 import GithubIcon from '@/components/my-page/icon/github-logo.svg';
 import GlobeIcon from '@/components/my-page/icon/globe-simple.svg';
 import PhoneIcon from '@/components/my-page/icon/phone.svg';
-import UserAvatar from '@/components/ui/avatar';
-import Badge from '@/components/ui/badge';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { GetUserProfileResponse } from '@/types/api/user.types';
 

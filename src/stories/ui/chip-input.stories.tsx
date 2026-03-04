@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import ChipInput from '@/components/ui/chip-input';
+import ChipInput from '@/components/common/ui/chip-input';
 
 const meta: Meta<typeof ChipInput> = {
   component: ChipInput,

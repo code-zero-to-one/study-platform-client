@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { UserTransactionDetailResponseTransactionTypeEnum } from '@/api/openapi';
 import ApplyGroupStudyModal from '@/components/modals/apply-group-study-modal';
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,

@@ -2,11 +2,11 @@
 
 import { ChevronRight } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import ProfileDefault from '@/components/cards/icon/profile-default.svg';
-import PhoneVerificationModal from '@/components/modals/phone-verification-modal';
-import StartStudyModal from '@/components/modals/start-study-modal';
+import ProfileDefault from '@/components/common/cards/icon/profile-default.svg';
+import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
+import StartStudyModal from '@/components/common/modals/start-study-modal';
 import ReservationCard from '@/components/participation/reservation-user-card';
-import SectionHeader from '@/components/ui/section-header';
+import SectionHeader from '@/components/common/ui/section-header';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useInfiniteReservation } from '@/hooks/queries/use-participation-query';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';

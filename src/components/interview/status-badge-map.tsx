@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import Badge from '@/components/ui/badge';
+import Badge from '@/components/common/ui/badge';
 import { StudyProgressStatus } from '@/types/api/interview.types';
 
 export function getStatusBadge(status: StudyProgressStatus): ReactNode {

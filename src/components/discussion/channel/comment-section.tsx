@@ -2,7 +2,7 @@ import { useQueries } from '@tanstack/react-query';
 import { MessageCircle } from 'lucide-react';
 import { useState } from 'react';
 import { getComments } from '@/api/endpoints/channel/get-comments';
-import Pagination from '@/components/ui/pagination';
+import Pagination from '@/components/common/ui/pagination';
 import {
   usePostThreadMutation,
   useThreadsQuery,

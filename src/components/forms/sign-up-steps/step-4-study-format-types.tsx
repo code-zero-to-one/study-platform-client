@@ -1,7 +1,7 @@
 // 4. 관심 스터디 선택 단계
 
 import { ArrowLeft, Rocket } from 'lucide-react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useStudyFormatTypesQuery } from '@/hooks/queries/use-update-user-profile-mutation';
 import type { StudyFormatTypeResponse } from '@/types/api/my-page.types';
 import { StepHeader } from './step-header';

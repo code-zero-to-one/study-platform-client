@@ -9,10 +9,10 @@ import {
   User,
 } from 'lucide-react';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import FilterPillButton from '@/components/ui/filters/filter-pill-button';
-import SortDropdown from '@/components/ui/filters/sort-dropdown';
-import ViewModeToggle from '@/components/ui/filters/view-mode-toggle';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import FilterPillButton from '@/components/common/ui/filters/filter-pill-button';
+import SortDropdown from '@/components/common/ui/filters/sort-dropdown';
+import ViewModeToggle from '@/components/common/ui/filters/view-mode-toggle';
 import {
   ARCHIVE_SORT_OPTIONS,
   ARCHIVE_VIEW_MODES,

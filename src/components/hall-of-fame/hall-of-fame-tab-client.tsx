@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import SectionShell from '@/components/ui/section-shell';
+import SectionShell from '@/components/common/ui/section-shell';
 import {
   addScoreLabel,
   type RankingType,

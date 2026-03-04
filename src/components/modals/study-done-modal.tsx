@@ -5,12 +5,12 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import Button from '@/components/ui/button';
-import { SingleDropdown } from '@/components/ui/dropdown';
-import FormField from '@/components/ui/form/form-field';
-import { TextAreaInput } from '@/components/ui/input';
-import { Modal } from '@/components/ui/modal';
-import ModalShell from '@/components/ui/modal-shell';
+import Button from '@/components/common/ui/button';
+import { SingleDropdown } from '@/components/common/ui/dropdown';
+import FormField from '@/components/common/ui/form/form-field';
+import { TextAreaInput } from '@/components/common/ui/input';
+import { Modal } from '@/components/common/ui/modal';
+import ModalShell from '@/components/common/ui/modal-shell';
 import { STUDY_PROGRESS_OPTIONS } from '@/config/interview-const';
 import { useUpdateDailyStudyMutation } from '@/hooks/queries/use-interview-query';
 import type {

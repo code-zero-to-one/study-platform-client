@@ -1,6 +1,6 @@
 import { Lightbulb } from 'lucide-react';
-import Button from '@/components/ui/button';
-import { TextAreaInput } from '@/components/ui/input';
+import Button from '@/components/common/ui/button';
+import { TextAreaInput } from '@/components/common/ui/input';
 import { StepHeader } from './step-header';
 
 // 5. 목표 입력 단계

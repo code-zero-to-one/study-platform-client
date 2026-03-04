@@ -5,8 +5,8 @@ import { Plus, Sparkles, X } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import MentorProfileList from '@/components/mentoring/mentor-profile-list';
-import Button from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
 
 // Carousel이 클라이언트 전용이므로 dynamic import로 로드

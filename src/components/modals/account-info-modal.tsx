@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SettlementAccountResponse } from '@/api/openapi';
-import Button from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 import { useSearchBanks } from '@/hooks/queries/bank-search-api';
 import AddAccountModal from './add-account-modal';
 

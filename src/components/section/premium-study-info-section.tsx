@@ -3,11 +3,11 @@
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
-import UserProfileModal from '@/components/modals/user-profile-modal';
-import UserAvatar from '@/components/ui/avatar';
-import AvatarStack from '@/components/ui/avatar-stack';
-import type { AvatarStackMember } from '@/components/ui/avatar-stack';
-import Button from '@/components/ui/button';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import UserAvatar from '@/components/common/ui/avatar';
+import AvatarStack from '@/components/common/ui/avatar-stack';
+import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
+import Button from '@/components/common/ui/button';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';

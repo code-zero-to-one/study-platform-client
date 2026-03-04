@@ -2,8 +2,8 @@
 
 import { History, List, Calendar as CalendarIcon } from 'lucide-react';
 import React from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import SectionHeader from '@/components/ui/section-header';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import SectionHeader from '@/components/common/ui/section-header';
 
 interface StudyHistoryHeaderProps {
   viewMode: 'LIST' | 'CALENDAR';

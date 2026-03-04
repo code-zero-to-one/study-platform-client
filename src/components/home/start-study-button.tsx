@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import StartStudyModal from '@/components/modals/start-study-modal';
+import StartStudyModal from '@/components/common/modals/start-study-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 

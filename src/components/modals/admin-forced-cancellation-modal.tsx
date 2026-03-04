@@ -1,7 +1,7 @@
 import { AdminTransactionListResponse } from '@/api/openapi';
 import { useForceCancelPayment } from '@/hooks/queries/admin-payment-api';
-import Button from '../ui/button';
-import { Modal } from '../ui/modal';
+import Button from '../common/ui/button';
+import { Modal } from '../common/ui/modal';
 
 export default function AdminForcedCancellationModal({
   paymentId,

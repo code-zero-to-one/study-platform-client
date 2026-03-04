@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
-import { BaseInput } from '@/components/ui/input';
+import { BaseInput } from '@/components/common/ui/input';
 import type { VotingCreateFormData } from '@/types/schemas/zod-schema';
 
 export default function VotingDeadlineField() {

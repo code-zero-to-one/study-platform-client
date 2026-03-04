@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
-import PhoneVerificationModal from '@/components/modals/phone-verification-modal';
+import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import ProfileEditModal from '@/components/modals/profile-edit-modal';
 import CakeIcon from '@/components/my-page/icon/cake.svg';
 import GithubIcon from '@/components/my-page/icon/github-logo.svg';
@@ -10,10 +10,10 @@ import GlobeIcon from '@/components/my-page/icon/globe-simple.svg';
 import PhoneIcon from '@/components/my-page/icon/phone.svg';
 import TechStackIcon from '@/components/my-page/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/components/my-page/icon/verified-check.svg';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Badge from '@/components/ui/badge';
-import Progress from '@/components/ui/progress';
-import Tooltip from '@/components/ui/tooltip';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Badge from '@/components/common/ui/badge';
+import Progress from '@/components/common/ui/progress';
+import Tooltip from '@/components/common/ui/tooltip';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import { MemberProfile, SincerityTemp } from '@/types/api/user.types';

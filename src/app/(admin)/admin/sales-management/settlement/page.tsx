@@ -9,12 +9,12 @@ import {
 } from '@/api/openapi/models';
 import AdminApproveSettlementModal from '@/components/modals/admin-approve-settlement-modal';
 import AdminCompleteSettlementModal from '@/components/modals/admin-complete-settlement-modal';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import DatePicker from '@/components/ui/date-picker';
-import SingleDropdown from '@/components/ui/dropdown/single';
-import { BaseInput } from '@/components/ui/input';
-import Pagination from '@/components/ui/pagination';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import DatePicker from '@/components/common/ui/date-picker';
+import SingleDropdown from '@/components/common/ui/dropdown/single';
+import { BaseInput } from '@/components/common/ui/input';
+import Pagination from '@/components/common/ui/pagination';
 import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
 import { formatToKST } from '@/utils/time';
 

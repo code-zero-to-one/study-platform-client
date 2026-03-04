@@ -4,8 +4,8 @@ import { Clock5, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GroupStudyListItemDto } from '@/api/openapi';
-import Badge from '@/components/ui/badge';
-import StudyCardCountdownBadge from '@/components/ui/study-card-countdown-badge';
+import Badge from '@/components/common/ui/badge';
+import StudyCardCountdownBadge from '@/components/common/ui/study-card-countdown-badge';
 
 import {
   EXPERIENCE_LEVEL_LABELS,

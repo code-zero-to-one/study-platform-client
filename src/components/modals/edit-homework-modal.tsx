@@ -2,13 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import Button from '@/components/ui/button';
-import FormField from '@/components/ui/form/form-field';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import FormField from '@/components/common/ui/form/form-field';
+import { Modal } from '@/components/common/ui/modal';
 
 import { useEditHomework } from '@/hooks/queries/group-study-homework-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { BaseInput, TextAreaInput } from '../ui/input';
+import { BaseInput, TextAreaInput } from '../common/ui/input';
 
 const EditHomeworkFormSchema = z.object({
   textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.').max(1000),

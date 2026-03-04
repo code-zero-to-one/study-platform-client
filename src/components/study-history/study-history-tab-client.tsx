@@ -3,7 +3,7 @@
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { GetMyStudyHistoryParams } from '@/api/endpoints/study-history/get-my-study-history';
-import SectionShell from '@/components/ui/section-shell';
+import SectionShell from '@/components/common/ui/section-shell';
 import { useMyStudyHistoryQuery } from '@/hooks/queries/use-my-study-history-query';
 import { useScrollToHomeContentOnChange } from '@/hooks/use-scroll-to-home-content';
 import { PageableResponse, StudyHistoryContent } from '@/types/study-history';

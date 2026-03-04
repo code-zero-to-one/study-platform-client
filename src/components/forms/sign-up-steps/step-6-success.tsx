@@ -1,6 +1,6 @@
 'use client';
 
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 import { StepHeader } from './step-header';
 
 // 6. 회원가입 완료 단계

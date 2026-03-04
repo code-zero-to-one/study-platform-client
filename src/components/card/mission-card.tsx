@@ -4,14 +4,14 @@ import dayjs from 'dayjs';
 import { ComponentProps } from 'react';
 
 import { MissionListResponse } from '@/api/openapi/models';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
 import DeleteMissionModal from '../modals/delete-mission-modal';
 import EditMissionModal from '../modals/edit-mission-modal';
-import { cn } from '../ui/(shadcn)/lib/utils';
+import { cn } from '../common/ui/(shadcn)/lib/utils';
 
 interface MissionCardProps {
   mission: MissionListResponse;

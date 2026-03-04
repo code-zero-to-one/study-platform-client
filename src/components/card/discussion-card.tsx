@@ -2,9 +2,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { MessageCircle, ThumbsUp, ThumbsDown, Eye, Clock } from 'lucide-react';
 import React from 'react';
-import UserProfileModal from '@/components/modals/user-profile-modal';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/ui/avatar';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
 import { Discussion } from '@/types/discussion';
 

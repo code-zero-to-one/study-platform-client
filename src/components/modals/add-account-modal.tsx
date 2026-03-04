@@ -1,16 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import Button from '@/components/ui/button';
-import SingleDropdown from '@/components/ui/dropdown/single';
-import FormField from '@/components/ui/form/form-field';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import SingleDropdown from '@/components/common/ui/dropdown/single';
+import FormField from '@/components/common/ui/form/form-field';
+import { Modal } from '@/components/common/ui/modal';
 import { useSearchBanks } from '@/hooks/queries/bank-search-api';
 import {
   useRegisterSettlementAccount,
   useUpdateSettlementAccount,
 } from '@/hooks/queries/settlement-account-api';
-import { BaseInput } from '../ui/input';
+import { BaseInput } from '../common/ui/input';
 
 // Form Schema
 const AddAccountFormSchema = z.object({

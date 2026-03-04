@@ -3,9 +3,9 @@
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import Button from '@/components/ui/button';
-import FormField from '@/components/ui/form/form-field';
-import { BaseInput } from '@/components/ui/input';
+import Button from '@/components/common/ui/button';
+import FormField from '@/components/common/ui/form/form-field';
+import { BaseInput } from '@/components/common/ui/input';
 import { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
 
 export default function Step3OpenGroupStudy() {

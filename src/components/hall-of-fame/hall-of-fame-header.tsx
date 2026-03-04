@@ -2,7 +2,7 @@
 
 import { Trophy } from 'lucide-react';
 import React from 'react';
-import SectionHeader from '@/components/ui/section-header';
+import SectionHeader from '@/components/common/ui/section-header';
 
 export default function HallOfFameHeader() {
   return (

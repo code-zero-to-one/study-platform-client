@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import UserProfileModal from '@/components/modals/user-profile-modal';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Button from '@/components/ui/button';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import {
   ApplyStatus,

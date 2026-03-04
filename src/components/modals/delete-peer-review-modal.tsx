@@ -1,7 +1,7 @@
 import { useDeletePeerReview } from '@/hooks/queries/peer-review-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import Button from '../ui/button';
-import { Modal } from '../ui/modal';
+import Button from '../common/ui/button';
+import { Modal } from '../common/ui/modal';
 
 interface DeletePeerReviewModalProps {
   peerReviewId: number;

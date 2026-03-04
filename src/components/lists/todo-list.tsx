@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import PhoneVerificationModal from '@/components/modals/phone-verification-modal';
-import Button from '@/components/ui/button';
+import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
+import Button from '@/components/common/ui/button';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import CheckIcon from 'public/icons/check.svg';

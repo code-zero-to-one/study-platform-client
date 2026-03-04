@@ -1,8 +1,8 @@
 import { format } from 'date-fns';
 import { useState } from 'react';
 import { VirtualAccountInfo } from '@/api/openapi/models';
-import Button from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 
 interface VirtualAccountInfoModalProps {
   virtualAccountInfo: VirtualAccountInfo;

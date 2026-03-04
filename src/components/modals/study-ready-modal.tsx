@@ -5,11 +5,11 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useEffect, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import Button from '@/components/ui/button';
-import FormField from '@/components/ui/form/form-field';
-import { BaseInput } from '@/components/ui/input';
-import { Modal } from '@/components/ui/modal';
-import ModalShell from '@/components/ui/modal-shell';
+import Button from '@/components/common/ui/button';
+import FormField from '@/components/common/ui/form/form-field';
+import { BaseInput } from '@/components/common/ui/input';
+import { Modal } from '@/components/common/ui/modal';
+import ModalShell from '@/components/common/ui/modal-shell';
 import { useUpdateDailyStudyMutation } from '@/hooks/queries/use-interview-query';
 import type {
   DailyStudyDetail,

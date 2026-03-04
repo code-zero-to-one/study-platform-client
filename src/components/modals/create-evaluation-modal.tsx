@@ -2,17 +2,17 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
-import Button from '@/components/ui/button';
-import FormField from '@/components/ui/form/form-field';
-import { Modal } from '@/components/ui/modal';
-import { GroupItems } from '@/components/ui/toggle';
+import Button from '@/components/common/ui/button';
+import FormField from '@/components/common/ui/form/form-field';
+import { Modal } from '@/components/common/ui/modal';
+import { GroupItems } from '@/components/common/ui/toggle';
 import {
   useCreateEvaluation,
   useGetMissionEvaluationGrades,
 } from '@/hooks/queries/evaluation-api';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { useToastStore } from '@/stores/use-toast-store';
-import { TextAreaInput } from '../ui/input';
+import { TextAreaInput } from '../common/ui/input';
 
 const CreateEvaluationFormSchema = z.object({
   gradeCode: z.enum([

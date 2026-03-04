@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
-import FormField from '@/components/ui/form/form-field';
-import ImageUploadInput from '@/components/ui/image-upload-input';
-import { BaseInput, TextAreaInput } from '@/components/ui/input';
+import FormField from '@/components/common/ui/form/form-field';
+import ImageUploadInput from '@/components/common/ui/image-upload-input';
+import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 

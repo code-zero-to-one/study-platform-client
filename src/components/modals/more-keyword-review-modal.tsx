@@ -1,6 +1,6 @@
 import { XIcon } from 'lucide-react';
-import KeywordReview from '@/components/cards/keyword-review';
-import { Modal } from '@/components/ui/modal';
+import KeywordReview from '@/components/common/cards/keyword-review';
+import { Modal } from '@/components/common/ui/modal';
 
 export default function MoreKeywordReviewModal({
   title,
