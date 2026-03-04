@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { XIcon } from 'lucide-react';
-import { Modal } from '@/components/ui/modal';
+import { Modal } from '@/components/common/ui/modal';
 
 const meta: Meta<typeof Modal> = {};
 

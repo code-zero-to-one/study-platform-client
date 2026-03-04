@@ -3,23 +3,23 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import MoreMenu from '@/components/ui/dropdown/more-menu';
-import Tabs from '@/components/ui/tabs';
+import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
+import MoreMenu from '@/components/common/ui/dropdown/more-menu';
+import Tabs from '@/components/common/ui/tabs';
+import ChannelSection from '@/components/discussion/channel/lounge-section';
+import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
-import { useToastStore } from '@/stores/use-toast-store';
-import { useLeaderStore } from '@/stores/useLeaderStore';
-import { Leader } from '../../features/study/group/api/group-study-types';
-import ChannelSection from '../../features/study/group/channel/ui/lounge-section';
-
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
-} from '../../features/study/group/model/use-study-query';
-import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
-import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
+} from '@/hooks/queries/use-study-query';
+import { useToastStore } from '@/stores/use-toast-store';
+import { useLeaderStore } from '@/stores/useLeaderStore';
+import { Leader } from '@/types/api/group-study.types';
+
 import GroupStudyMemberList from '../lists/study-member-list';
 import StudyInfoSection from '../section/group-study-info-section';
 import InquirySection from '../section/inquiry-section';

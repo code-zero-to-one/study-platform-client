@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { getCookie } from '@/api/client/cookie';
-import { getMemberId } from '@/features/auth/api/auth';
+import { getMemberId } from '@/api/endpoints/auth/auth';
 import { decodeJwt } from '@/utils/jwt';
 import { useAuthHydration } from './auth-hydration-context';
 

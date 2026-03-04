@@ -2,7 +2,6 @@
 
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
-import Button from '@/components/ui/button';
 import {
   createDefaultMentorSettings,
   createEmptyWeeklySchedule,
@@ -12,6 +11,7 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
+import Button from '@/components/common/ui/button';
 
 const buildTempMentorRegistrationValues = (): MentorRegistrationFormValues => {
   const defaults = createDefaultMentorSettings();

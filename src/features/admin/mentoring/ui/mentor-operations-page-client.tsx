@@ -2,11 +2,6 @@
 
 import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import BorderedTextarea from '@/components/ui/input/bordered-textarea';
-import KeyValueRow from '@/components/ui/key-value-row';
-import SurfacePanel from '@/components/ui/surface-panel';
 import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model/admin-mentoring-view-state';
 import {
   canManageMentorOperationStatus,
@@ -25,6 +20,11 @@ import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import type { MentorOperationStatus } from '@/types/mentoring/admin-domain';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
+import KeyValueRow from '@/components/common/ui/key-value-row';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 const formatDateTime = (value: string | undefined) => {
   if (!value) {

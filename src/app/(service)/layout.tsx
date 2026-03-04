@@ -5,13 +5,13 @@ import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import React from 'react';
-import ClarityInit from '@/components/analytics/clarity-init';
-import PageViewTracker from '@/components/analytics/page-view-tracker';
-import FloatingInquiryButton from '@/components/ui/floating-inquiry-button';
-import GlobalToast from '@/components/ui/global-toast';
+import ClarityInit from '@/components/common/analytics/clarity-init';
+import PageViewTracker from '@/components/common/analytics/page-view-tracker';
+import Header from '@/components/common/layout/home-header';
+import FloatingInquiryButton from '@/components/common/ui/floating-inquiry-button';
+import GlobalToast from '@/components/common/ui/global-toast';
 import MainProvider from '@/providers';
 import { getServerCookie } from '@/utils/server-cookie';
-import Header from '@/widgets/home/header';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',

@@ -157,6 +157,12 @@ export const getArchive = async (params: GetArchiveParams) => {
 - **Prettier**: 80자 너비, 작은따옴표, trailing comma, 2칸 들여쓰기
 - **SVG 처리**: `@svgr/webpack`이 next.config.ts에 설정되어 SVG를 React 컴포넌트로 임포트 가능
 
+## 문서화 규칙
+
+- 기능 개발 또는 버그 수정을 완료한 직후 **자동으로** `/doc` 커맨드를 실행해 `docs/` 폴더에 문서를 생성한다.
+- `/doc`는 `.claude/commands/doc.md`에 정의된 **로컬 프로젝트 커맨드**다. `Skill` tool 없이 파일의 지시를 직접 따른다.
+- 유형 판별은 브랜치명이 아닌 **커밋 메시지와 코드 패턴**으로만 한다.
+
 ## 환경 변수
 
 개발에 필요한 주요 `NEXT_PUBLIC_*` 변수:

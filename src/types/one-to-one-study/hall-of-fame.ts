@@ -12,7 +12,7 @@ export interface Job {
   description?: string; // 설명 (예: "게임 개발자")
 }
 
-import type { ProfileImage } from '@/entities/user/api/types';
+import type { ProfileImage } from '@/types/api/user.types';
 
 export interface Ranker {
   rank: number;

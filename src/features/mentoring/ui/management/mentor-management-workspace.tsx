@@ -4,12 +4,12 @@ import dayjs from 'dayjs';
 import { CalendarDays, ClockAlert } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo } from 'react';
-import SurfacePanel from '@/components/ui/surface-panel';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentorManagementWorkspaceProps } from '@/types/mentoring/management-view';
 import MentoringSchedulePanel from './mentoring-schedule-panel';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 export default function MentorManagementWorkspace({
   memberId,

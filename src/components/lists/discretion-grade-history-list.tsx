@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import {
   DiscretionGradeHistory,
   MemberProgress,
-} from '@/features/study/group/api/group-study-types';
+} from '@/types/api/group-study.types';
 import { formatToKST } from '@/utils/time';
 
 export default function DiscretionGradeHistoryList({

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Leader } from '@/features/study/group/api/group-study-types';
+import { Leader } from '@/types/api/group-study.types';
 
 interface LeaderStore {
   leaderInfo: Leader | null;

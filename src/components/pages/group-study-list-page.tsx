@@ -2,19 +2,19 @@
 
 import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import PageContainer from '@/components/common/layout/page-container';
+import Button from '@/components/common/ui/button';
 import StudyFilter from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
-import PageContainer from '@/components/layout/page-container';
-import Button from '@/components/ui/button';
+import GroupStudyPagination from '@/components/lists/group-study-pagination';
+import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
-import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
-import GroupStudyPagination from '../../features/study/group/ui/group-study-pagination';
 import GroupStudyList from '../lists/group-study-list';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
 
 // Carousel이 클라이언트 전용이므로 dynamic import로 로드
-const Banner = dynamic(() => import('@/widgets/home/banner'), {
+const Banner = dynamic(() => import('@/components/home/banner'), {
   ssr: false,
 });
 

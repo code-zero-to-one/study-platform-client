@@ -1,7 +1,7 @@
 'use client';
 
-import type { MyReviewItem } from '@/entities/review/api/review-types';
 import MyMentoringReviewPanel from '@/features/mentoring/ui/review/my-mentoring-review-panel';
+import type { MyReviewItem } from '@/types/api/review.types';
 
 interface MentoringReviewKeywordStat {
   id: number;

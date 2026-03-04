@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Send, Loader2 } from 'lucide-react';
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { CommentFormSchema, CommentFormData } from '@/types/schemas/zod-schema';
 
 interface CommentFormProps {

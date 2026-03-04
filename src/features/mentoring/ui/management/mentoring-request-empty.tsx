@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import Button from '@/components/ui/button';
-import SurfacePanel from '@/components/ui/surface-panel';
+import Button from '@/components/common/ui/button';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 export default function MentoringRequestEmpty() {
   return (

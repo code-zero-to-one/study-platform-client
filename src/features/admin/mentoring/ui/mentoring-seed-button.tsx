@@ -2,7 +2,6 @@
 
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import Button from '@/components/ui/button';
 import {
   ADMIN_MENTORING_MOCK_SEED_TAG,
   createServerLikeMentorRegistrationValues,
@@ -14,6 +13,7 @@ import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import { useMentorScreeningStore } from '@/stores/useMentorScreeningStore';
+import Button from '@/components/common/ui/button';
 
 export default function MentoringSeedButton() {
   const shouldRender = isMentoringAdminMockEnabled();

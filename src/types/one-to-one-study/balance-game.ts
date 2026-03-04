@@ -5,7 +5,7 @@ export interface BalanceGameOption {
   percentage: number;
 }
 
-import type { ProfileImage } from '@/entities/user/api/types';
+import type { ProfileImage } from '@/types/api/user.types';
 
 export interface BalanceGameAuthor {
   id: number;

@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import ListStateBoundary, {
   type ListUiState,
-} from '@/components/ui/list/list-state-boundary';
+} from '@/components/common/ui/list/list-state-boundary';
 
 interface MentoringStateBoundaryProps {
   state: ListUiState;

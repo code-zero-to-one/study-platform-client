@@ -9,9 +9,9 @@ import {
   ExternalLink,
   CheckCircle2,
 } from 'lucide-react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/ui/avatar';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
 
 export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {

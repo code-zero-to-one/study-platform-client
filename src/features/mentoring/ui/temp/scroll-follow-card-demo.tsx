@@ -2,7 +2,7 @@
 
 import { ArrowDown, ArrowUp, Eye } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const SCROLL_NUDGE_RATIO = 0.55;
 const SCROLL_NUDGE_MAX = 160;

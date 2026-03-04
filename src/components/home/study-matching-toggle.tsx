@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { ToggleSwitch } from '@/components/ui/toggle';
+import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
+import StartStudyModal from '@/components/common/modals/start-study-modal';
+import { ToggleSwitch } from '@/components/common/ui/toggle';
+import { useAuthReady } from '@/hooks/common/use-auth';
+import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
-} from '@/entities/user/model/use-user-profile-query';
-import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
-import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
-import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
-import { useAuthReady } from '@/hooks/common/use-auth';
+} from '@/hooks/queries/use-user-profile-query';
 
 export default function StudyMatchingToggle() {
   const { memberId, isAuthReady } = useAuthReady();

@@ -8,8 +8,7 @@
     "yarn": ">=1.22.18"
   },
   "scripts": {
-    "dev": "next dev",
-    "dev:turbo": "next dev --turbopack",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives",
@@ -43,7 +42,6 @@
     "@tiptap/extension-link": "^3.20.0",
     "@tiptap/extension-placeholder": "^3.20.0",
     "@tiptap/extension-underline": "^3.20.0",
-    "@tiptap/pm": "^3.20.0",
     "@tiptap/react": "^3.20.0",
     "@tiptap/starter-kit": "^3.20.0",
     "@tosspayments/tosspayments-sdk": "^2.5.0",

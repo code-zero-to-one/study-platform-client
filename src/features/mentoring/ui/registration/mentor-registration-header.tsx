@@ -1,5 +1,5 @@
 import { Info, RotateCcw, UserRoundPlus } from 'lucide-react';
-import TextActionButton from '@/components/ui/text-action-button';
+import TextActionButton from '@/components/common/ui/text-action-button';
 
 interface MentorRegistrationHeaderProps {
   onOpenGuide: () => void;

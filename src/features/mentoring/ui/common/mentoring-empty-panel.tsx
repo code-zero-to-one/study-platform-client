@@ -1,5 +1,5 @@
 import * as React from 'react';
-import SurfacePanel from '@/components/ui/surface-panel';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 interface MentoringEmptyPanelProps {
   title: React.ReactNode;

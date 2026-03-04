@@ -31,7 +31,6 @@ import {
 import { useMentorRegistrationPreviewModel } from '@/features/mentoring/model/use-mentor-registration-preview-model';
 import { useMentorRegistrationPreviewPanel } from '@/features/mentoring/model/use-mentor-registration-preview-panel';
 import { useUpsertMyMentorSettingsMutation } from '@/features/mentoring/model/use-upsert-my-mentor-settings-mutation';
-import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
@@ -49,6 +48,7 @@ import {
   type MentorRegistrationFormInputValues,
   type MentorRegistrationFormValues,
 } from '@/types/schemas/mentor-registration-schema';
+import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 
 const createDefaultFormValues = (): MentorRegistrationFormInputValues => ({
   ...createDefaultMentorSettings(),

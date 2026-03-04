@@ -2,12 +2,12 @@
 
 import { MessageCircle, Monitor, Phone, Users } from 'lucide-react';
 import { type ReactNode } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { formatWon } from '@/features/mentoring/model/mentor-profile-utils';
 import type {
   MentorProfile,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface MentorDetailMethodSectionProps {
   mentor: MentorProfile;

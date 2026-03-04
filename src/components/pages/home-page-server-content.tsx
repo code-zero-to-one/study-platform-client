@@ -1,10 +1,10 @@
 import { Suspense } from 'react';
 import type { HomeTab } from '@/features/home/model/home-page-search-params';
-import ArchiveTab from '@/features/study/one-to-one/archive/ui/archive-tab';
-import CommunityTab from '@/features/study/one-to-one/balance-game/ui/community-tab';
-import HallOfFameTab from '@/features/study/one-to-one/hall-of-fame/ui/hall-of-fame-tab';
-import StudyHistoryTab from '@/features/study/one-to-one/history/ui/study-history-tab';
-import StudyTab from '@/features/study/one-to-one/schedule/ui/home-study-tab';
+import ArchiveTab from '@/components/archive/archive-tab';
+import CommunityTab from '@/components/balance-game/community-tab';
+import HallOfFameTab from '@/components/hall-of-fame/hall-of-fame-tab';
+import StudyHistoryTab from '@/components/study-history/study-history-tab';
+import StudyTab from '@/components/schedule/home-study-tab';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
 
