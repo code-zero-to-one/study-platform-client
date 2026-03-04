@@ -2,6 +2,7 @@
 
 import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { ToggleButton } from '@/components/ui/toggle';
 import { BaseInput } from '../input';
@@ -10,7 +11,7 @@ interface Props {
   value?: string[];
   maxSelectable?: number;
   onChange?: (updated: string[]) => void;
-  options?: string[];
+  options?: Array<string | { value: string; label: string }>;
   // 대소문자 구분
   caseSensitive?: boolean;
   allowCustom?: boolean;
@@ -24,11 +25,30 @@ export default function SelectableTagsInput({
   caseSensitive = false,
   allowCustom = true,
 }: Props) {
-  const selected = value ?? [];
+  const selected = useMemo(() => value ?? [], [value]);
+  const normalizedOptions = useMemo(() => {
+    return options.map((option) => {
+      if (typeof option === 'string') {
+        return {
+          value: option,
+          label: option,
+        };
+      }
+
+      return {
+        value: option.value,
+        label: option.label,
+      };
+    });
+  }, [options]);
   const optionSet = useMemo(
     () =>
-      new Set(caseSensitive ? options : options.map((o) => o.toLowerCase())),
-    [options, caseSensitive],
+      new Set(
+        caseSensitive
+          ? normalizedOptions.map((option) => option.value)
+          : normalizedOptions.map((option) => option.value.toLowerCase()),
+      ),
+    [caseSensitive, normalizedOptions],
   );
 
   const norm = useCallback(
@@ -40,6 +60,7 @@ export default function SelectableTagsInput({
 
   const [showInput, setShowInput] = useState(false);
   const [customInput, setCustomInput] = useState('');
+  const [isLimitExceeded, setIsLimitExceeded] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const selectedSet = useMemo(
@@ -53,15 +74,25 @@ export default function SelectableTagsInput({
     if (showInput) inputRef.current?.focus();
   }, [showInput]);
 
+  useEffect(() => {
+    if (canAddMore) {
+      setIsLimitExceeded(false);
+    }
+  }, [canAddMore]);
+
   const emit = useCallback((next: string[]) => onChange?.(next), [onChange]);
 
   const toggleItem = useCallback(
     (key: string) => {
       const k = caseSensitive ? key : key.toLowerCase();
       if (selectedSet.has(k)) {
+        setIsLimitExceeded(false);
         emit(selected.filter((item) => norm(item) !== k));
       } else if (canAddMore) {
+        setIsLimitExceeded(false);
         emit([...selected, key]);
+      } else {
+        setIsLimitExceeded(true);
       }
     },
     [caseSensitive, selectedSet, selected, emit, canAddMore, norm],
@@ -77,10 +108,16 @@ export default function SelectableTagsInput({
     if (!allowCustom || !trimmed) return;
 
     const key = caseSensitive ? trimmed : trimmed.toLowerCase();
-    if (selectedSet.has(key) || !canAddMore) return;
+    if (selectedSet.has(key)) return;
+    if (!canAddMore) {
+      setIsLimitExceeded(true);
+
+      return;
+    }
 
     emit([...selected, trimmed]);
     setCustomInput('');
+    setIsLimitExceeded(false);
   }, [
     allowCustom,
     customInput,
@@ -107,29 +144,39 @@ export default function SelectableTagsInput({
   return (
     <div className="flex flex-col gap-50">
       <div className="flex flex-wrap gap-100">
-        {options.map((item) => (
+        {normalizedOptions.map((item) => (
           <ToggleButton
             size="sm"
             variant="square"
-            key={item}
-            pressed={selectedSet.has(norm(item))}
-            onPressedChange={() => toggleItem(item)}
+            key={item.value}
+            pressed={selectedSet.has(norm(item.value))}
+            onPressedChange={() => toggleItem(item.value)}
+            className={cn(
+              'data-[state=off]:bg-background-default',
+              'data-[state=off]:border-border-subtle',
+              'data-[state=off]:text-text-subtle',
+              'data-[state=off]:hover:border-border-brand',
+              'data-[state=off]:hover:text-text-default',
+              'data-[state=on]:bg-fill-brand-subtle-default',
+              'data-[state=on]:text-text-brand',
+              'data-[state=on]:border-border-brand',
+            )}
           >
-            {item}
+            {item.label}
           </ToggleButton>
         ))}
 
         {customTags.map((item) => (
           <div
             key={item}
-            className="rounded-150 bg-fill-brand-default-default font-designer-13m text-text-inverse flex items-center gap-75 px-150 py-75"
+            className="rounded-150 border-border-brand bg-fill-brand-subtle-default font-designer-13m text-text-brand flex items-center gap-75 border px-150 py-75"
           >
             {item}
             <button
               type="button"
               onClick={() => removeCustomTag(item)}
               aria-label={`${item} 제거`}
-              className="ml-50"
+              className="text-text-brand ml-50 hover:opacity-70"
             >
               ✕
             </button>
@@ -139,6 +186,7 @@ export default function SelectableTagsInput({
         {allowCustom && (
           <Button
             type="button"
+            color="secondary"
             size="small"
             onClick={() => setShowInput(true)}
             disabled={!canAddMore}
@@ -176,9 +224,11 @@ export default function SelectableTagsInput({
           </Button>
           <Button
             type="button"
+            color="secondary"
             onClick={() => {
               setShowInput(false);
               setCustomInput('');
+              setIsLimitExceeded(false);
             }}
           >
             취소
@@ -187,7 +237,12 @@ export default function SelectableTagsInput({
       )}
 
       {!canAddMore && (
-        <p className="font-designer-13r text-text-brand mt-50">
+        <p
+          className={cn(
+            'font-designer-12r mt-50',
+            isLimitExceeded ? 'text-text-warning' : 'text-text-subtle',
+          )}
+        >
           최대 {maxSelectable}개까지 선택 가능합니다.
         </p>
       )}

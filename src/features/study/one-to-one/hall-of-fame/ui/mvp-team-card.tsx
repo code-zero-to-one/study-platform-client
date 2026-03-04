@@ -6,7 +6,7 @@ import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
 import Tooltip from '@/components/ui/tooltip';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import type { MVPTeam } from '@/types/hall-of-fame';
+import type { MVPTeam } from '@/types/one-to-one-study/hall-of-fame';
 
 interface MVPTeamCardProps {
   team: MVPTeam;

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
+import { isApiError } from '@/api/client/api-error';
 import { getUserProfile } from '@/entities/user/api/get-user-profile';
 
 interface UserInfo {
@@ -7,6 +8,7 @@ interface UserInfo {
   nickname: string | null;
   memberName: string | null;
   tel: string | null;
+  profileImageUrl: string | null;
 }
 
 interface UserStore extends UserInfo {
@@ -20,6 +22,7 @@ const initialState: UserInfo = {
   nickname: null,
   memberName: null,
   tel: null,
+  profileImageUrl: null,
 };
 
 export const useUserStore = create<UserStore>()(
@@ -30,13 +33,27 @@ export const useUserStore = create<UserStore>()(
       fetchAndSetUser: async (memberId: number) => {
         try {
           const profile = await getUserProfile(memberId);
+          const originalProfileImageUrl =
+            profile.memberProfile.profileImage?.resizedImages?.find(
+              (image) => image.imageSizeType.imageTypeName === 'ORIGINAL',
+            )?.resizedImageUrl;
+          const fallbackProfileImageUrl =
+            profile.memberProfile.profileImage?.resizedImages?.[0]
+              ?.resizedImageUrl ?? null;
           set({
             memberId: profile.memberId,
             nickname: profile.memberProfile.nickname,
             memberName: profile.memberProfile.memberName,
             tel: profile.memberProfile.tel ?? null,
+            profileImageUrl: originalProfileImageUrl ?? fallbackProfileImageUrl,
           });
         } catch (error) {
+          if (isApiError(error) && error.statusCode === 404) {
+            set(initialState);
+
+            return;
+          }
+
           console.error('Failed to fetch user profile:', error);
         }
       },

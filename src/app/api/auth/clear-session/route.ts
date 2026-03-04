@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
   const cookieStore = await cookies();
   cookieStore.delete('accessToken');
   cookieStore.delete('memberId');
+  cookieStore.delete('refresh_token');
   cookieStore.delete('socialImageURL');
 
   // 절대 URL 생성: 요청의 origin을 우선 사용 (이미 protocol 포함)

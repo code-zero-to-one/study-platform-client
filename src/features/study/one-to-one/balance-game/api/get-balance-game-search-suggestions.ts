@@ -2,7 +2,7 @@ import { axiosInstance } from '@/api/client/axios';
 import type {
   BalanceGameSearchSuggestionResponse,
   GetBalanceGameSearchSuggestionsParams,
-} from '@/types/balance-game';
+} from '@/types/one-to-one-study/balance-game';
 
 export const getBalanceGameSearchSuggestions = async ({
   q,

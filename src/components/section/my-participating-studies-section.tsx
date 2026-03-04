@@ -14,14 +14,15 @@ interface MyParticipatingStudiesSectionProps {
   classification: 'GROUP_STUDY' | 'PREMIUM_STUDY';
 }
 
+const CLASSIFICATION_TO_STUDY_TYPE = {
+  GROUP_STUDY: 'GROUP_STUDY',
+  PREMIUM_STUDY: 'PREMIUM_STUDY',
+} as const;
+
 export default function MyParticipatingStudiesSection({
   classification,
 }: MyParticipatingStudiesSectionProps) {
   const { memberId } = useAuthReady();
-
-  /**
-   * TODO : PREMIUM_STUDY 에서도 동작확인 필요 (BE 미구현)
-   */
 
   /**
    * TODO: 성능 최적화 필요
@@ -62,18 +63,15 @@ export default function MyParticipatingStudiesSection({
   const participatingStudyIds = useMemo(() => {
     if (!myStudiesData?.notCompleted?.content) return new Set<number>();
 
+    const studyType = CLASSIFICATION_TO_STUDY_TYPE[classification];
+
     const filtered = myStudiesData.notCompleted.content.filter(
       (study) =>
-        study.status === 'IN_PROGRESS' || study.status === 'RECRUITING',
+        (study.status === 'IN_PROGRESS' || study.status === 'RECRUITING') &&
+        study.type === studyType,
     );
 
-    // GROUP_STUDY인 경우 type 필드로 추가 필터링
-    const classificationFiltered =
-      classification === 'GROUP_STUDY'
-        ? filtered.filter((study) => study.type === 'GROUP_STUDY')
-        : filtered; // PREMIUM_STUDY는 type 필드에 없을 수 있으므로 일단 모두 포함
-
-    return new Set(classificationFiltered.map((study) => study.studyId));
+    return new Set(filtered.map((study) => study.studyId));
   }, [myStudiesData?.notCompleted?.content, classification]);
 
   // 내가 참여중인 스터디만 필터링 (최대 3개)

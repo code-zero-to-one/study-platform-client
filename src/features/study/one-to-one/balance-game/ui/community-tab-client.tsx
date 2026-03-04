@@ -3,18 +3,18 @@
 import { Loader2, Vote, SearchX, Plus, MessageSquareText } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
-import VotingCard from '@/components/card/voting-card';
 import SectionHeader from '@/components/ui/section-header';
 import SectionShell from '@/components/ui/section-shell';
 import Toast from '@/components/ui/toast';
-import VotingCreateModal from '@/components/voting/voting-create-modal';
-import VotingDetailView from '@/components/voting/voting-detail-view';
 import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/features/study/one-to-one/balance-game/const/tags';
 import { useCreateBalanceGameMutation } from '@/features/study/one-to-one/balance-game/model/use-balance-game-mutation';
 import {
   useBalanceGameListQuery,
   useBalanceGameTagSuggestionsQuery,
 } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
+import VotingCreateModal from '@/features/study/one-to-one/balance-game/ui/voting/voting-create-modal';
+import VotingDetailView from '@/features/study/one-to-one/balance-game/ui/voting/voting-detail-view';
+import VotingCard from '@/features/study/one-to-one/balance-game/ui/voting-card';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
@@ -24,7 +24,7 @@ import {
 import type {
   BalanceGameListResponse,
   CreateBalanceGameRequest,
-} from '@/types/balance-game';
+} from '@/types/one-to-one-study/balance-game';
 import { VotingCreateFormData } from '@/types/schemas/zod-schema';
 import { decodeVotingId, encodeVotingId } from '@/utils/voting-id';
 import BalanceGameFiltersBar from './balance-game-filters-bar';

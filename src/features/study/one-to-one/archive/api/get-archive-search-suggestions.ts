@@ -2,7 +2,7 @@ import { axiosInstance } from '@/api/client/axios';
 import type {
   ArchiveSearchSuggestionResponse,
   GetArchiveSearchSuggestionsParams,
-} from '@/types/archive';
+} from '@/types/one-to-one-study/archive';
 
 const isArchiveSearchSuggestionResponse = (
   value: unknown,

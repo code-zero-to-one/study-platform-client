@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { TutorialOverlay } from '@/components/tutorial';
+import { TutorialOverlay } from '@/features/study/one-to-one/schedule/ui/tutorial';
 import StudyCard from './study-card';
 import {
   STUDY_TUTORIAL_STEPS,

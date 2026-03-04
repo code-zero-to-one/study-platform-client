@@ -4,7 +4,7 @@ import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import HeaderNav from '@/components/layout/header-nav';
 import NotificationDropdown from '@/components/modals/notification-dropdown';
 import Button from '@/components/ui/button';
-import { getUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
+import { tryGetUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
 import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
 import LoginModal from '@/features/auth/ui/login-modal';
 import { getServerCookie } from '@/utils/server-cookie';
@@ -19,9 +19,19 @@ export default async function Header() {
 
   const memberId = Number(memberIdStr);
 
-  const userProfile = isLoggedIn
-    ? await getUserProfileInServer(memberId)
-    : null;
+  let userProfile = null;
+
+  if (isLoggedIn) {
+    try {
+      userProfile = await tryGetUserProfileInServer(memberId);
+    } catch (error) {
+      console.error(
+        `[Header] Failed to fetch user profile for memberId=${memberId}`,
+        error,
+      );
+    }
+  }
+
   const userInfo = userProfile?.memberProfile;
   const userImg = userProfile
     ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl

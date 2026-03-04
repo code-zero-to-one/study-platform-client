@@ -2,7 +2,7 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import MoreMenu from '@/components/ui/dropdown/more-menu';
 import Tabs from '@/components/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
@@ -28,6 +28,18 @@ import PremiumStudyInfoSection from '../section/premium-study-info-section';
 
 type ActionKey = 'end' | 'delete';
 
+const STUDY_TAB_VALUES = new Set<StudyTabValue>(
+  STUDY_DETAIL_TABS.map((tab) => tab.value),
+);
+
+const isStudyTabValue = (value: string | undefined): value is StudyTabValue => {
+  if (!value) {
+    return false;
+  }
+
+  return STUDY_TAB_VALUES.has(value as StudyTabValue);
+};
+
 interface PremiumStudyDetailPageProps {
   groupStudyId: number;
   memberId?: number;
@@ -42,7 +54,8 @@ export default function PremiumStudyDetailPage({
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
   const showToast = useToastStore((state) => state.showToast);
-  const activeTab = (searchParams.get('tab') as StudyTabValue) || 'intro';
+  const tabParam = searchParams.get('tab') ?? undefined;
+  const requestedTab = isStudyTabValue(tabParam) ? tabParam : 'intro';
 
   const {
     data: studyDetail,
@@ -53,6 +66,7 @@ export default function PremiumStudyDetailPage({
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
   const isLeader = leaderId === memberId;
+  const shouldFetchMyStatus = leaderId !== undefined && !isLeader;
 
   // 리더 정보를 Zustand store에 저장
   useEffect(() => {
@@ -64,10 +78,11 @@ export default function PremiumStudyDetailPage({
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
-  const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
-    groupStudyId,
-    isLeader,
-  });
+  const { data: myApplicationStatus, isLoading: isMyApplicationStatusLoading } =
+    useGetGroupStudyMyStatus({
+      groupStudyId,
+      isLeader: !shouldFetchMyStatus,
+    });
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -140,6 +155,61 @@ export default function PremiumStudyDetailPage({
     myApplicationStatus?.status === 'APPROVED' ||
     myApplicationStatus?.status === 'KICKED';
 
+  const availableTabs = useMemo(
+    () =>
+      STUDY_DETAIL_TABS.filter(
+        (tab) => tab.value === 'intro' || isLeader || isMember,
+      ),
+    [isLeader, isMember],
+  );
+
+  const activeTab = useMemo(() => {
+    const hasAccessToRequestedTab = availableTabs.some(
+      (tab) => tab.value === requestedTab,
+    );
+
+    return hasAccessToRequestedTab ? requestedTab : 'intro';
+  }, [availableTabs, requestedTab]);
+
+  useEffect(() => {
+    const isAccessResolved =
+      leaderId !== undefined &&
+      (!shouldFetchMyStatus || !isMyApplicationStatusLoading);
+    if (!isAccessResolved) {
+      return;
+    }
+
+    const nextTabParam = activeTab === 'intro' ? undefined : activeTab;
+    if (tabParam === nextTabParam) {
+      return;
+    }
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (nextTabParam) {
+      params.set('tab', nextTabParam);
+    } else {
+      params.delete('tab');
+    }
+
+    const nextQueryString = params.toString();
+    router.replace(
+      nextQueryString ? `${pathname}?${nextQueryString}` : pathname,
+      {
+        scroll: false,
+      },
+    );
+  }, [
+    activeTab,
+    isMyApplicationStatusLoading,
+    leaderId,
+    pathname,
+    router,
+    searchParams,
+    shouldFetchMyStatus,
+    tabParam,
+  ]);
+
   if (isLoading || !studyDetail) {
     return <div>로딩중...</div>;
   }
@@ -206,9 +276,7 @@ export default function PremiumStudyDetailPage({
       {/** 탭리스트 */}
       <Tabs
         className="w-[1164px]"
-        tabs={STUDY_DETAIL_TABS.filter(
-          (tab) => tab.value === 'intro' || isLeader || isMember,
-        )}
+        tabs={availableTabs}
         activeTab={activeTab}
         onChange={(value: StudyTabValue) => {
           const params = new URLSearchParams(searchParams.toString());

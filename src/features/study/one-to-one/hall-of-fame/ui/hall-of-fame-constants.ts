@@ -1,5 +1,5 @@
 import { Flame, FileText, Thermometer } from 'lucide-react';
-import type { Ranker } from '@/types/hall-of-fame';
+import type { Ranker } from '@/types/one-to-one-study/hall-of-fame';
 
 export type RankingType = 'ATTENDANCE' | 'STUDY_LOG' | 'SINCERITY';
 
