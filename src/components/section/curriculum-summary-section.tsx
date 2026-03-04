@@ -1,7 +1,7 @@
 import { ExternalLink } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
-import { CurriculumSummaryItem } from '@/features/study/group/api/group-study-types';
+import { CurriculumSummaryItem } from '@/types/api/group-study.types';
 
 interface CurriculumSummarySectionProps {
   curriculumSummary: CurriculumSummaryItem[];

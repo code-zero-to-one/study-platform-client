@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import React from 'react';
-import Tabs from '@/components/ui/tabs';
+import Tabs from '@/components/common/ui/tabs';
 
 export default function SalesManagementLayout({
   children,

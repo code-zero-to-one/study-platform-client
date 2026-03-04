@@ -6,7 +6,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
 import { getCookie } from '@/api/client/cookie';
-import { getMemberId } from '@/features/auth/api/auth';
+import { getMemberId } from '@/api/endpoints/auth/auth';
 import { decodeJwt } from '@/utils/jwt';
 import { useAuthHydration } from './auth-hydration-context';
 
@@ -19,7 +19,7 @@ export const useMemberId = () => {
   });
 };
 
-type RoleId = 'ROLE_MEMBER' | 'ROLE_ADMIN' | 'ROLE_MENTOR' | 'ROLE_GUEST';
+type RoleId = 'ROLE_MEMBER' | 'ROLE_ADMIN' | 'ROLE_GUEST';
 type AuthVendor = 'GOOGLE' | 'KAKAO' | 'TEST'; // NATIVE -> TEST 변경
 
 export interface DecodedToken {
@@ -47,7 +47,7 @@ function isDecodedToken(value: unknown): value is DecodedToken {
   // roleIds가 배열이고, 모든 요소가 유효한 RoleId인지 확인
   if (!Array.isArray(obj.roleIds)) return false;
   // TODO: 서버 역할과 프론트 역할 싱크 필요. 일단 validation 완화
-  // const validRoles: RoleId[] = ['ROLE_MEMBER', 'ROLE_ADMIN', 'ROLE_MENTOR', 'ROLE_GUEST'];
+  // const validRoles: RoleId[] = ['ROLE_MEMBER', 'ROLE_ADMIN', 'ROLE_GUEST'];
   // if (!obj.roleIds.every((role) => validRoles.includes(role))) return false;
 
   // authVendor가 유효한 값인지 확인

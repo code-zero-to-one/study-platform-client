@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense, useEffect, useState } from 'react';
 import { StudyPaymentDetailResponse, VirtualAccountInfo } from '@/api/openapi';
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 import { useConfirmTossPayment } from '@/hooks/queries/payment-user-api';
 
 function PaymentSuccessContent() {

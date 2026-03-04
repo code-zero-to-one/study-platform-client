@@ -2,11 +2,11 @@
 
 import { Eye, LockIcon } from 'lucide-react';
 import { useState } from 'react';
-import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
-import Pagination from '@/components/ui/pagination';
-import type { QuestionListItemResponse } from '@/features/study/group/api/question-api';
-import { CATEGORY_LABEL } from '@/features/study/group/model/question.schema';
+import type { QuestionListItemResponse } from '@/api/endpoints/group-study/question-api';
+import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
+import Pagination from '@/components/common/ui/pagination';
 import { useToastStore } from '@/stores/use-toast-store';
+import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateDot } from '@/utils/time';
 
 const PAGE_SIZE = 15;

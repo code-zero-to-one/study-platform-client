@@ -5,14 +5,9 @@ import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { UserTransactionDetailResponseTransactionTypeEnum } from '@/api/openapi/models/user-transaction-detail-response';
-import Button from '@/components/ui/button';
-import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
-import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
-import { useAuth } from '@/hooks/common/use-auth';
-import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
-import { useGetMyTransactionsByGroupStudy } from '@/hooks/queries/payment-user-api';
-import { useToastStore } from '@/stores/use-toast-store';
+import { UserTransactionDetailResponseTransactionTypeEnum } from '@/api/openapi';
+import Button from '@/components/common/ui/button';
+import ApplyGroupStudyModal from '@/components/common/modals/apply-group-study-modal';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -20,7 +15,12 @@ import {
   STUDY_METHOD_LABELS,
   STUDY_STATUS_LABELS,
   STUDY_TYPE_LABELS,
-} from '../../features/study/group/const/group-study-const';
+} from '@/config/group-study-const';
+import { useAuth } from '@/hooks/common/use-auth';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useGetMyTransactionsByGroupStudy } from '@/hooks/queries/payment-user-api';
+import { useToastStore } from '@/stores/use-toast-store';
+import { GroupStudyFullResponse } from '@/types/api/group-study.types';
 
 interface SummaryStudyInfoProps {
   data: GroupStudyFullResponse;

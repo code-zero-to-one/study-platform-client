@@ -10,8 +10,8 @@ import {
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { getCookie } from '@/api/client/cookie';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Button from '@/components/ui/button';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useScrollToHomeContent } from '@/hooks/use-scroll-to-home-content';
 

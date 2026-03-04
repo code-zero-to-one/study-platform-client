@@ -4,11 +4,11 @@ import { ArrowLeft, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { use } from 'react';
-import InquiryStatusBadge from '@/components/ui/badge/inquiry-status-badge';
-import MoreMenu from '@/components/ui/dropdown/more-menu';
-import { CATEGORY_LABEL } from '@/features/study/group/model/question.schema';
+import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
+import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import { useGetQuestion } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
 
 export default function InquiryDetailPage({

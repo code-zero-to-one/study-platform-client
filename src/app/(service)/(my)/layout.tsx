@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import Sidebar from '@/widgets/my-page/sidebar';
+import Sidebar from '@/components/common/layout/sidebar/my-page-sidebar';
 
 export const metadata: Metadata = {
   title: '마이페이지',

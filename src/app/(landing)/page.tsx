@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import LandingForm from '@/components/ui/form/landing-form';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import LandingForm from '@/components/common/ui/form/landing-form';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 export const metadata: Metadata = generateSEOMetadata({

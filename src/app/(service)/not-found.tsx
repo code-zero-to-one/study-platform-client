@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 
 export const metadata: Metadata = {
   title: '페이지를 찾을 수 없습니다 - ZERO-ONE',

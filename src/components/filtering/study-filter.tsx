@@ -7,12 +7,8 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/(shadcn)/ui/dropdown-menu';
-import ToggleButton from '@/components/ui/toggle/button';
-import {
-  ROLE_OPTIONS_UI,
-  STUDY_METHOD_LABELS,
-} from '@/features/study/group/const/group-study-const';
+} from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
+import ToggleButton from '@/components/common/ui/toggle/button';
 
 // 필터 옵션 타입
 export interface StudyFilterValues {

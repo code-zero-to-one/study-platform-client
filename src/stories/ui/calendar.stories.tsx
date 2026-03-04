@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import Calendar from '@/widgets/home/calendar';
+import Calendar from '@/components/calendars/home-calendar';
 
 const meta: Meta<typeof Calendar> = {
   component: Calendar,

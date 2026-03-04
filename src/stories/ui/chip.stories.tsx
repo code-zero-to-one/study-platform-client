@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import Chip from '@/components/ui/chip';
+import Chip from '@/components/common/ui/chip';
 
 const meta: Meta<typeof Chip> = {
   component: Chip,
