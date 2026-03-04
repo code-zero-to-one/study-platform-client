@@ -10,7 +10,7 @@ import {
   useRegisterSettlementAccount,
   useUpdateSettlementAccount,
 } from '@/hooks/queries/settlement-account-api';
-import { BaseInput } from '../common/ui/input';
+import { BaseInput } from '@/components/common/ui/input';
 
 // Form Schema
 const AddAccountFormSchema = z.object({

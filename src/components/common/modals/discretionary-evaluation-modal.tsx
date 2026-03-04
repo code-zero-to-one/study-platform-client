@@ -7,7 +7,7 @@ import FormField from '@/components/common/ui/form/form-field';
 import { Modal } from '@/components/common/ui/modal';
 import { useUpdateMemberDiscretion } from '@/hooks/queries/group-study-member-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { TextAreaInput } from '../common/ui/input';
+import { TextAreaInput } from '@/components/common/ui/input';
 
 const DiscretionaryEvaluationFormSchema = z.object({
   content: z.string().min(1, '평가 내역을 입력해주세요.'),

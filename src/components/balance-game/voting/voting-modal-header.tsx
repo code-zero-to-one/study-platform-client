@@ -2,7 +2,7 @@
 
 import { X } from 'lucide-react';
 import React from 'react';
-import { Modal } from '@/components/ui/modal';
+import { Modal } from '@/components/common/ui/modal';
 
 interface VotingModalHeaderProps {
   title: string;

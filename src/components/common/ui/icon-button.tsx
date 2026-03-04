@@ -3,7 +3,7 @@
 import { Slot } from '@radix-ui/react-slot';
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const iconButtonVariants = cva(
   'inline-flex shrink-0 items-center justify-center rounded-100 transition-colors focus-visible:ring-0 disabled:cursor-not-allowed disabled:opacity-50',

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import Pagination from '@/components/common/ui/pagination';
 import GroupStudyMemberItem from '@/components/lists/group-study-member-item';
-import KickedReasonModal from '@/components/modals/kicked-reason-modal';
+import KickedReasonModal from '@/components/common/modals/kicked-reason-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMembers } from '@/hooks/queries/group-study-member-api';
 import type { GroupStudyMember } from '@/types/api/group-study.types';

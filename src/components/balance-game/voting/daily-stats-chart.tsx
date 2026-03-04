@@ -1,6 +1,6 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import React from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { DailyStatistic, VotingOption } from '@/types/one-to-one-study/voting';
 
 interface DailyStatsChartProps {

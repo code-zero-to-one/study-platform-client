@@ -5,8 +5,8 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useMemo } from 'react';
 import type { MentoringSession } from '@/types/mentoring/management-domain';
 import type { MentoringScheduleCalendarProps } from '@/types/mentoring/management-view';
-import IconButton from '@/components/ui/icon-button';
-import SurfacePanel from '@/components/ui/surface-panel';
+import IconButton from '@/components/common/ui/icon-button';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 const WEEKDAYS = ['일', '월', '화', '수', '목', '금', '토'];
 

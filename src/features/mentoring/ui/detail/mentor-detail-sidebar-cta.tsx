@@ -20,10 +20,10 @@ import type {
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import ReviewStars from './review-stars';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Avatar from '@/components/ui/avatar';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Avatar from '@/components/common/ui/avatar';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
 
 interface MentorDetailSidebarCtaProps {
   mentor: MentorProfile;

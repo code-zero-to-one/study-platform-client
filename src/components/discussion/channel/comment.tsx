@@ -5,7 +5,7 @@ import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal'
 import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
-import DeleteGroupStudyMemberModal from '@/components/modals/delete-group-study-member';
+import DeleteGroupStudyMemberModal from '@/components/common/modals/delete-group-study-member';
 
 import {
   useDeleteCommentMutation,

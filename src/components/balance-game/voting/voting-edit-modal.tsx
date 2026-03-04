@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { X, Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { BalanceGame } from '@/types/one-to-one-study/balance-game';
 import {
   VotingEditFormSchema,

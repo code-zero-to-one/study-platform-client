@@ -5,9 +5,9 @@ import type {
   MyMentoringItem,
   MyMentoringStatus,
 } from '@/types/mentoring/my-mentoring';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import SectionShell from '@/components/ui/section-shell';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import SectionShell from '@/components/common/ui/section-shell';
 
 const METHOD_LABEL: Record<'ONLINE' | 'OFFLINE' | 'CALL', string> = {
   ONLINE: '심층상담',

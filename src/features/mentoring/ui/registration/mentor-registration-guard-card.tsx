@@ -1,7 +1,7 @@
 import { ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { type MentorRegistrationGuardCardProps } from '@/types/mentoring/registration-view';
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 
 export default function MentorRegistrationGuardCard({
   title,

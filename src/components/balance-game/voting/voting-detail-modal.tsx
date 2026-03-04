@@ -1,8 +1,8 @@
 import { X, TrendingUp, Info, MessageCircle } from 'lucide-react';
 import React, { useState } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/ui/avatar';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
 import CommentList from '@/features/study/one-to-one/discussion/ui/comment-list';
 import { Voting } from '@/types/one-to-one-study/voting';

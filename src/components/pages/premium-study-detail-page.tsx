@@ -3,28 +3,25 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import MoreMenu from '@/components/ui/dropdown/more-menu';
-import Tabs from '@/components/ui/tabs';
+import MoreMenu from '@/components/common/ui/dropdown/more-menu';
+import Tabs from '@/components/common/ui/tabs';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
-import {
-  GroupStudyFullResponse,
-  Leader,
-} from '@/features/study/group/api/group-study-types';
+import { GroupStudyFullResponse, Leader } from '@/types/api/group-study.types';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import ChannelSection from '../../features/study/group/channel/ui/lounge-section';
+import ChannelSection from '@/components/discussion/channel/lounge-section';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
-} from '../../features/study/group/model/use-study-query';
-import ConfirmDeleteModal from '../../features/study/group/ui/confirm-delete-modal';
-import GroupStudyFormModal from '../../features/study/group/ui/group-study-form-modal';
-import GroupStudyMemberList from '../lists/study-member-list';
-import InquirySection from '../section/inquiry-section';
-import MissionSection from '../section/mission-section';
-import PremiumStudyInfoSection from '../section/premium-study-info-section';
+} from '@/hooks/queries/use-study-query';
+import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
+import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
+import GroupStudyMemberList from '@/components/lists/study-member-list';
+import InquirySection from '@/components/section/inquiry-section';
+import MissionSection from '@/components/section/mission-section';
+import PremiumStudyInfoSection from '@/components/section/premium-study-info-section';
 
 type ActionKey = 'end' | 'delete';
 

@@ -2,15 +2,15 @@
 
 import { XIcon } from 'lucide-react';
 import { useState } from 'react';
-import Button from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
+import { RadioGroup, RadioGroupItem } from '@/components/common/ui/radio';
 import {
   type GetMemberListResponse,
   type ManageableRoleId,
-} from '../api/types';
-import { isManageableRoleId, ROLE_OPTIONS } from '../const/member';
-import { useChangeMemberRoleMutation } from '../model/use-member-list-query';
+} from '@/types/api/admin.types';
+import { isManageableRoleId, ROLE_OPTIONS } from '@/config/admin-member';
+import { useChangeMemberRoleMutation } from '@/hooks/queries/use-member-list-query';
 
 interface ChangeRoleModalProps {
   members: GetMemberListResponse['content'];

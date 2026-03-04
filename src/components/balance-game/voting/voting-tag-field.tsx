@@ -5,8 +5,8 @@ import {
   BALANCE_GAME_TAG_MAX_COUNT,
   BALANCE_GAME_TAG_MAX_LEN,
   BALANCE_GAME_TAG_MIN_QUERY_LEN,
-} from '@/features/study/one-to-one/balance-game/const/tags';
-import TagAutocomplete from '@/features/study/one-to-one/balance-game/ui/tag-autocomplete';
+} from '@/config/balance-game-tags';
+import TagAutocomplete from '@/components/balance-game/tag-autocomplete';
 
 interface VotingTagFieldProps {
   tagInput: string;

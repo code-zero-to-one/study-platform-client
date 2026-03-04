@@ -11,7 +11,7 @@ import PageContainer from '../common/layout/page-container';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
 import HomeworkDetailContent from '../contents/homework-detail-content';
 import MissionDetailContent from '../contents/mission-detail-content';
-import CreateMissionModal from '../modals/create-mission-modal';
+import CreateMissionModal from '@/components/common/modals/create-mission-modal';
 
 type FilterType = 'all' | 'inProgress' | 'completed';
 

@@ -1,14 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import HeaderNav from '@/components/common/layout/header-nav';
+import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown';
+import LoginModal from '@/components/common/modals/login-modal';
 import NotificationDropdown from '@/components/common/modals/notification-dropdown';
+import Button from '@/components/common/ui/button';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
-
+import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
-import LoginModal from '../modals/login-modal';
-import HeaderUserDropdown from './header-user-dropdown';
-import Button from '../ui/button';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');

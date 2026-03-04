@@ -3,8 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { startTransition, useState } from 'react';
 import { useKickMember } from '@/hooks/queries/group-study-member-api';
-import Button from '../common/ui/button';
-import { Modal } from '../common/ui/modal';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 
 interface EndGroupStudyModalProps {
   targetMemberId: number;

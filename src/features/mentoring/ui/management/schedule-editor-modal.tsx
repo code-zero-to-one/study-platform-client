@@ -8,11 +8,11 @@ import type {
   ScheduleEditorModalProps,
   ScheduleEditorSubmitParams,
 } from '@/types/mentoring/management-view';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Button from '@/components/ui/button';
-import { BaseInput } from '@/components/ui/input';
-import BorderedTextarea from '@/components/ui/input/bordered-textarea';
-import { Modal } from '@/components/ui/modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
+import { BaseInput } from '@/components/common/ui/input';
+import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
+import { Modal } from '@/components/common/ui/modal';
 
 export type { ScheduleEditorSubmitParams as ScheduleEditorSubmitPayload };
 

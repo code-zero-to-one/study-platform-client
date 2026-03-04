@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toggleArchiveVisibility } from '@/features/study/one-to-one/archive/api/toggle-visibility';
-import { ARCHIVE_QUERY_KEYS } from '@/features/study/one-to-one/archive/model/archive-keys';
+import { toggleArchiveVisibility } from '@/api/endpoints/archive/toggle-visibility';
+import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/archive-keys';
 import { ArchiveResponse } from '@/types/one-to-one-study/archive';
 
 export const useToggleArchiveVisibilityMutation = () => {

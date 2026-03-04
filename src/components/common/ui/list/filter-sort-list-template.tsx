@@ -1,5 +1,5 @@
 import { type ReactNode } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface FilterSortListTemplateProps {
   toolbar: ReactNode;

@@ -3,15 +3,15 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import React, { useState } from 'react';
 import { FormProvider, useForm, useFieldArray } from 'react-hook-form';
-import FormField from '@/components/ui/form/form-field';
-import { BaseInput, TextAreaInput } from '@/components/ui/input';
-import { Modal } from '@/components/ui/modal';
+import FormField from '@/components/common/ui/form/form-field';
+import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
+import { Modal } from '@/components/common/ui/modal';
 import {
   BALANCE_GAME_TAG_MAX_COUNT,
   BALANCE_GAME_TAG_MAX_LEN,
   BALANCE_GAME_TAG_MIN_QUERY_LEN,
-} from '@/features/study/one-to-one/balance-game/const/tags';
-import { useBalanceGameTagSuggestionsQuery } from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
+} from '@/config/balance-game-tags';
+import { useBalanceGameTagSuggestionsQuery } from '@/hooks/queries/use-balance-game-query';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   VotingCreateFormSchema,

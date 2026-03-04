@@ -1,13 +1,13 @@
 import Image from 'next/image';
-import { tryGetUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
-import type { SincerityTemp } from '@/entities/user/api/types';
-import MyProfileCard from '@/entities/user/ui/my-profile-card';
-import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
+import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
+import type { SincerityTemp } from '@/types/api/user.types';
+import MyProfileCard from '@/components/common/cards/my-profile-card';
+import StartStudyModal from '@/components/common/modals/start-study-modal';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
-import Calendar from '@/widgets/home/calendar';
-import FeedbackLink from '@/widgets/home/feedback-link';
-import TodoList from '@/widgets/home/todo-list';
+import Calendar from '@/components/home/calendar';
+import FeedbackLink from '@/components/home/feedback-link';
+import TodoList from '@/components/lists/todo-list';
 
 export default async function Sidebar() {
   const memberIdStr = await getServerCookie('memberId');

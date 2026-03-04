@@ -8,7 +8,7 @@ import { Modal } from '@/components/common/ui/modal';
 
 import { useSubmitHomework } from '@/hooks/queries/group-study-homework-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { BaseInput, TextAreaInput } from '../common/ui/input';
+import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 
 const SubmitHomeworkFormSchema = z.object({
   textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.').max(1000),

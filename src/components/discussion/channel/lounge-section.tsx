@@ -1,6 +1,6 @@
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import PageContainer from '@/components/common/layout/page-container';
-import KickedReasonModal from '@/components/modals/kicked-reason-modal';
+import KickedReasonModal from '@/components/common/modals/kicked-reason-modal';
 import { usePostQuery } from '@/hooks/queries/use-channel-query';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import Comments from './comment-section';

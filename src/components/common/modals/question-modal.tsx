@@ -19,8 +19,8 @@ import {
   QuestionFormValues,
   QUESTION_TITLE_MAX_LENGTH,
 } from '@/types/schemas/question.schema';
-import { SingleDropdown } from '../ui/dropdown';
-import FormField from '../ui/form/form-field';
+import { SingleDropdown } from '@/components/common/ui/dropdown';
+import FormField from '@/components/common/ui/form/form-field';
 
 const QUESTION_CATEGORY_OPTIONS = [
   { value: QuestionCategory.PAYMENT, label: '결제' },

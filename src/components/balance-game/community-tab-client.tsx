@@ -3,18 +3,18 @@
 import { Loader2, Vote, SearchX, Plus, MessageSquareText } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
-import SectionHeader from '@/components/ui/section-header';
-import SectionShell from '@/components/ui/section-shell';
-import Toast from '@/components/ui/toast';
-import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/features/study/one-to-one/balance-game/const/tags';
-import { useCreateBalanceGameMutation } from '@/features/study/one-to-one/balance-game/model/use-balance-game-mutation';
+import SectionHeader from '@/components/common/ui/section-header';
+import SectionShell from '@/components/common/ui/section-shell';
+import Toast from '@/components/common/ui/toast';
+import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/config/balance-game-tags';
+import { useCreateBalanceGameMutation } from '@/hooks/queries/use-balance-game-mutation';
 import {
   useBalanceGameListQuery,
   useBalanceGameTagSuggestionsQuery,
-} from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
-import VotingCreateModal from '@/features/study/one-to-one/balance-game/ui/voting/voting-create-modal';
-import VotingDetailView from '@/features/study/one-to-one/balance-game/ui/voting/voting-detail-view';
-import VotingCard from '@/features/study/one-to-one/balance-game/ui/voting-card';
+} from '@/hooks/queries/use-balance-game-query';
+import VotingCreateModal from '@/components/balance-game/voting/voting-create-modal';
+import VotingDetailView from '@/components/balance-game/voting/voting-detail-view';
+import VotingCard from '@/components/balance-game/voting-card';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
@@ -28,8 +28,8 @@ import type {
 import { VotingCreateFormData } from '@/types/schemas/zod-schema';
 import { decodeVotingId, encodeVotingId } from '@/utils/voting-id';
 import BalanceGameFiltersBar from './balance-game-filters-bar';
-import { useBalanceGameFilters } from './use-balance-game-filters';
-import { useInfiniteScroll } from './use-infinite-scroll';
+import { useBalanceGameFilters } from '@/hooks/common/use-balance-game-filters';
+import { useInfiniteScroll } from '@/hooks/common/use-infinite-scroll';
 
 interface CommunityTabClientProps {
   initialList?: BalanceGameListResponse;

@@ -43,8 +43,8 @@ import {
   MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
   MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE,
 } from '@/types/mentoring/markdown';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Button from '@/components/ui/button';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
 
 const lowlight = createLowlight(common);
 lowlight.register('kotlin', kotlin);

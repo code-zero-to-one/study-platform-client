@@ -2,9 +2,9 @@
 
 import { Plus } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Button from '@/components/ui/button';
-import { ToggleButton } from '@/components/ui/toggle';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
+import { ToggleButton } from '@/components/common/ui/toggle';
 import { BaseInput } from '../input';
 
 interface Props {

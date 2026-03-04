@@ -1,42 +1,32 @@
 import { useState } from 'react';
-
-import { MissionListResponse } from '@/api/openapi';
-import { useDeleteMission } from '@/hooks/queries/mission-api';
+import { useDeleteEvaluation } from '@/hooks/queries/evaluation-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import Button from '../common/ui/button';
-import { Modal } from '../common/ui/modal';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 
-interface DeleteMissionModalProps {
-  missionId: MissionListResponse['missionId'];
-  groupStudyId: number;
-  onSuccess?: () => void;
+interface DeleteEvaluationModalProps {
+  evaluationId: number; // todo api response 타입 적용
 }
 
-// 미션 삭제 모달
-export default function DeleteMissionModal({
-  missionId,
-  groupStudyId,
-  onSuccess,
-}: DeleteMissionModalProps) {
+// 평가 삭제 모달
+export default function DeleteEvaluationModal({
+  evaluationId,
+}: DeleteEvaluationModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
-  const { mutate: deleteMission } = useDeleteMission();
+  const { mutate: deleteEvaluation } = useDeleteEvaluation();
   const showToast = useToastStore((state) => state.showToast);
 
   const handleDelete = () => {
-    deleteMission(
-      { missionId, groupStudyId },
-      {
-        onSuccess: () => {
-          showToast('미션이 성공적으로 삭제되었습니다!');
-          setOpen(false);
-          onSuccess?.();
-        },
-        onError: () => {
-          showToast('미션 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
-        },
+    deleteEvaluation(evaluationId, {
+      onSuccess: () => {
+        showToast('평가가 삭제되었습니다.');
+        setOpen(false);
       },
-    );
+      onError: () => {
+        showToast('평가 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
+      },
+    });
   };
 
   return (
@@ -55,12 +45,12 @@ export default function DeleteMissionModal({
         <Modal.Overlay />
         <Modal.Content size="small" className="w-[423px]">
           <Modal.Header variant="alert">
-            <Modal.Title>미션을 삭제하시겠습니까?</Modal.Title>
+            <Modal.Title>평가를 삭제하시겠습니까?</Modal.Title>
           </Modal.Header>
 
           <Modal.Body variant="alert">
             <span className="font-designer-14r">
-              해당 미션과 연결된 제출 및 평가 정보가 사라집니다.
+              해당 평가 정보가 영구적으로 삭제됩니다.
             </span>
           </Modal.Body>
 

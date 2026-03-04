@@ -1,30 +1,33 @@
 import { useState } from 'react';
-import { useDeleteEvaluation } from '@/hooks/queries/evaluation-api';
+import { useDeleteHomework } from '@/hooks/queries/group-study-homework-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import Button from '../common/ui/button';
-import { Modal } from '../common/ui/modal';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 
-interface DeleteEvaluationModalProps {
-  evaluationId: number; // todo api response 타입 적용
+interface DeleteHomeworkModalProps {
+  homeworkId: number;
+  onSuccess?: () => void;
 }
 
-// 평가 삭제 모달
-export default function DeleteEvaluationModal({
-  evaluationId,
-}: DeleteEvaluationModalProps) {
+// 과제 삭제 모달
+export default function DeleteHomeworkModal({
+  homeworkId,
+  onSuccess,
+}: DeleteHomeworkModalProps) {
   const [open, setOpen] = useState<boolean>(false);
 
-  const { mutate: deleteEvaluation } = useDeleteEvaluation();
+  const { mutate: deleteHomework } = useDeleteHomework();
   const showToast = useToastStore((state) => state.showToast);
 
   const handleDelete = () => {
-    deleteEvaluation(evaluationId, {
+    deleteHomework(homeworkId, {
       onSuccess: () => {
-        showToast('평가가 삭제되었습니다.');
+        showToast('과제가 성공적으로 삭제되었습니다!');
         setOpen(false);
+        onSuccess?.();
       },
       onError: () => {
-        showToast('평가 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
+        showToast('과제 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
       },
     });
   };
@@ -33,9 +36,9 @@ export default function DeleteEvaluationModal({
     <Modal.Root open={open} onOpenChange={setOpen}>
       <Modal.Trigger asChild>
         <Button
+          size="medium"
+          className="font-designer-14r w-fit"
           color="outlined"
-          size="small"
-          className="font-designer-14r w-[96px]"
         >
           삭제하기
         </Button>
@@ -45,12 +48,12 @@ export default function DeleteEvaluationModal({
         <Modal.Overlay />
         <Modal.Content size="small" className="w-[423px]">
           <Modal.Header variant="alert">
-            <Modal.Title>평가를 삭제하시겠습니까?</Modal.Title>
+            <Modal.Title>과제를 삭제하시겠습니까?</Modal.Title>
           </Modal.Header>
 
           <Modal.Body variant="alert">
             <span className="font-designer-14r">
-              해당 평가 정보가 영구적으로 삭제됩니다.
+              해당 과제에 대해 학생들이 제출한 과제가 영구적으로 삭제됩니다.
             </span>
           </Modal.Body>
 

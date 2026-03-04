@@ -3,9 +3,9 @@ import type {
   MentoringRequestPanelActions,
   MentoringRequestRowViewModel,
 } from '@/types/mentoring/management-request-panel-view';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import SurfacePanel from '@/components/ui/surface-panel';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 interface MentoringRequestListProps {
   rows: MentoringRequestRowViewModel[];

@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import SectionShell from '@/components/ui/section-shell';
-import { useHallOfFameQuery } from '@/features/study/one-to-one/hall-of-fame/model/use-hall-of-fame-query';
+import SectionShell from '@/components/common/ui/section-shell';
+import { useHallOfFameQuery } from '@/hooks/queries/use-hall-of-fame-query';
 import type { HallOfFameData } from '@/types/one-to-one-study/hall-of-fame';
 import {
   addScoreLabel,
   type RankingType,
   type RankerWithLabel,
-} from './hall-of-fame-constants';
+} from '@/config/hall-of-fame-constants';
 import HallOfFameHeader from './hall-of-fame-header';
 import HallOfFameMvpSection from './hall-of-fame-mvp-section';
 import HallOfFameRankerSection from './hall-of-fame-ranker-section';

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import KeywordReview from '@/components/common/cards/keyword-review';
 import UserAvatar from '@/components/common/ui/avatar';
-import MoreKeywordReviewModal from '@/components/modals/more-keyword-review-modal';
+import MoreKeywordReviewModal from '@/components/common/modals/more-keyword-review-modal';
 import {
   useMyNegativeKeywordsQuery,
   useMyReviewsInfinityQuery,

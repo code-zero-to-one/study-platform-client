@@ -7,7 +7,7 @@ import {
   type MentoringRequestContentBlock,
   type MentoringRequestRichTextNode,
 } from '@/features/mentoring/model/request-content';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface RequestContentViewerProps {
   requestMessage: string;

@@ -1,8 +1,8 @@
 'use client';
 
 import { XIcon } from 'lucide-react';
-import Button from '../common/ui/button';
-import { Modal } from '../common/ui/modal';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 
 export default function PaymentTermsModal() {
   return (

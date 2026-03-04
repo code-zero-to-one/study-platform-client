@@ -4,14 +4,17 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { deleteCookie, getCookie } from '@/api/client/cookie';
-import { logout, signUp, uploadProfileImage } from '@/features/auth/api/auth';
+
 // 로그아웃 시 인증 상태 리셋을 위해 store 직접 사용 (mutation 내부 사용)
-import { usePhoneVerificationStore } from '@/features/phone-verification/model/store';
+
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { hashValue } from '@/utils/hash';
-import { SignUpRequest, SignUpResponse } from './types';
+import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
+import { logout, signUp, uploadProfileImage } from '@/api/endpoints/auth/auth';
+import { usePhoneVerificationStore } from './use-phone-verification-status';
+
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {

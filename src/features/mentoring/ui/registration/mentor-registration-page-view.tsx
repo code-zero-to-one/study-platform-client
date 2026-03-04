@@ -9,11 +9,11 @@ import MentorRegistrationEntryOnboarding from '@/features/mentoring/ui/registrat
 import MentorRegistrationForm from '@/features/mentoring/ui/registration/mentor-registration-form';
 import MentorRegistrationHeader from '@/features/mentoring/ui/registration/mentor-registration-header';
 import MentorRegistrationStateBoundary from '@/features/mentoring/ui/registration/mentor-registration-state-boundary';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Button from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
-import TextActionButton from '@/components/ui/text-action-button';
-import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
+import TextActionButton from '@/components/common/ui/text-action-button';
+import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 
 const PAGE_CONTAINER_CLASS =
   'mx-auto w-full max-w-[1280px] px-150 py-400 sm:px-300 xl:px-400 xl:py-500';

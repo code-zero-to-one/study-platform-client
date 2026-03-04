@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 type ChipButtonVariant = 'preset' | 'state';
 

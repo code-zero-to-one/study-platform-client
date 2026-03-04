@@ -1,9 +1,9 @@
 import { StudySettlementSummaryResponse } from '@/api/openapi';
-import { useApproveSettlement } from '@/hooks/queries/admin-settlement-api';
-import Button from '../common/ui/button';
-import { Modal } from '../common/ui/modal';
+import { useCompleteSettlement } from '@/hooks/queries/admin-settlement-api';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 
-export default function AdminApproveSettlementModal({
+export default function AdminCompleteSettlementModal({
   settlementId,
   open,
   onOpenChange,
@@ -12,7 +12,7 @@ export default function AdminApproveSettlementModal({
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
-  const { mutate: approveSettlement } = useApproveSettlement();
+  const { mutate: completeSettlement } = useCompleteSettlement();
 
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -20,11 +20,11 @@ export default function AdminApproveSettlementModal({
         <Modal.Overlay />
         <Modal.Content size="small" className="w-[423px]">
           <Modal.Header variant="alert">
-            <Modal.Title>정산 승인하기</Modal.Title>
+            <Modal.Title>정산 완료하기</Modal.Title>
           </Modal.Header>
 
           <Modal.Body variant="alert">
-            <span className="font-designer-14r">정산을 승인하시겠습니까?</span>
+            <span className="font-designer-14r">정산을 완료하시겠습니까?</span>
           </Modal.Body>
 
           <Modal.Footer variant="alert">
@@ -41,14 +41,14 @@ export default function AdminApproveSettlementModal({
               className="w-[160px]"
               size="medium"
               onClick={() => {
-                approveSettlement(settlementId, {
+                completeSettlement(settlementId, {
                   onSuccess: () => {
                     onOpenChange(false);
                   },
                 });
               }}
             >
-              정산 승인하기
+              정산 완료하기
             </Button>
           </Modal.Footer>
         </Modal.Content>

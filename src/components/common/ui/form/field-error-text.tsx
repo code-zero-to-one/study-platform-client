@@ -1,4 +1,4 @@
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface FieldErrorTextProps {
   message?: string;

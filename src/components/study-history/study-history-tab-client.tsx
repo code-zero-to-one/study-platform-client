@@ -2,9 +2,9 @@
 
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import SectionShell from '@/components/ui/section-shell';
-import { GetMyStudyHistoryParams } from '@/features/study/one-to-one/history/api/get-my-study-history';
-import { useMyStudyHistoryQuery } from '@/features/study/one-to-one/history/model/use-my-study-history-query';
+import SectionShell from '@/components/common/ui/section-shell';
+import { GetMyStudyHistoryParams } from '@/api/endpoints/study-history/get-my-study-history';
+import { useMyStudyHistoryQuery } from '@/hooks/queries/use-my-study-history-query';
 import { useScrollToHomeContentOnChange } from '@/hooks/use-scroll-to-home-content';
 import {
   PageableResponse,
@@ -14,7 +14,7 @@ import StudyHistoryCalendarSection from './study-history-calendar-section';
 import StudyHistoryHeader from './study-history-header';
 import StudyHistoryListSection from './study-history-list-section';
 import StudyHistoryPagination from './study-history-pagination';
-import { mapHistoryItem } from './study-history-utils';
+import { mapHistoryItem } from '@/utils/study-history-utils';
 
 interface StudyHistoryTabClientProps {
   initialData?: PageableResponse<StudyHistoryContent>;

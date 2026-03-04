@@ -15,9 +15,9 @@ import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
 import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
-import PremiumStudyCancelPaymentModal from '@/components/modals/premium-study-cancel-payment-modal';
-import PremiumStudyRefundRequestModal from '@/components/modals/premium-study-refund-request-modal';
-import VirtualAccountInfoModal from '@/components/modals/virtual-account-info-modal';
+import PremiumStudyCancelPaymentModal from '@/components/common/modals/premium-study-cancel-payment-modal';
+import PremiumStudyRefundRequestModal from '@/components/common/modals/premium-study-refund-request-modal';
+import VirtualAccountInfoModal from '@/components/common/modals/virtual-account-info-modal';
 import {
   useCancelPayment,
   useGetMyTransactions,

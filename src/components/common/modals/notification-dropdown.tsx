@@ -15,8 +15,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from '../ui/(shadcn)/ui/dropdown-menu';
-import Button from '../ui/button';
+} from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
+import Button from '@/components/common/ui/button';
 
 export default function NotificationDropdown() {
   const router = useRouter();

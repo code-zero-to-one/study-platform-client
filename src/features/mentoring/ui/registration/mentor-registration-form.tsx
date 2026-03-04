@@ -25,15 +25,15 @@ import {
   type MentorRegistrationMethodField,
 } from '@/types/mentoring/registration-view';
 import { MENTORING_TITLE_MAX_LENGTH } from '@/types/schemas/mentor-registration-schema';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Button from '@/components/ui/button';
-import ChipButton from '@/components/ui/chip/chip-button';
-import SingleDropdown from '@/components/ui/dropdown/single';
-import FieldErrorText from '@/components/ui/form/field-error-text';
-import FormSectionCard from '@/components/ui/form/form-section-card';
-import SelectableTagsInput from '@/components/ui/form/multi-item-selector';
-import { BaseInput } from '@/components/ui/input';
-import BorderedTextarea from '@/components/ui/input/bordered-textarea';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
+import ChipButton from '@/components/common/ui/chip/chip-button';
+import SingleDropdown from '@/components/common/ui/dropdown/single';
+import FieldErrorText from '@/components/common/ui/form/field-error-text';
+import FormSectionCard from '@/components/common/ui/form/form-section-card';
+import SelectableTagsInput from '@/components/common/ui/form/multi-item-selector';
+import { BaseInput } from '@/components/common/ui/input';
+import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
 
 const METHOD_FIELDS: MentorRegistrationMethodField[] = [
   {

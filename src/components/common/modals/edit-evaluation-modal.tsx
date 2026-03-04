@@ -12,7 +12,7 @@ import {
   useUpdateEvaluation,
 } from '@/hooks/queries/evaluation-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { TextAreaInput } from '../common/ui/input';
+import { TextAreaInput } from '@/components/common/ui/input';
 
 const EditEvaluationFormSchema = z.object({
   gradeCode: z.enum([

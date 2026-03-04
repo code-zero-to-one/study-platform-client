@@ -7,7 +7,7 @@ import { useUserStore } from '@/stores/useUserStore';
 import Button from '../common/ui/button';
 import Checkbox from '../common/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../common/ui/radio';
-import PaymentTermsModal from '../modals/payment-terms-modal';
+import PaymentTermsModal from '@/components/common/modals/payment-terms-modal';
 
 interface Props {
   study: StudyPaymentPrepareResponse;

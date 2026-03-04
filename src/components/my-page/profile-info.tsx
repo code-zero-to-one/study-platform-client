@@ -1,7 +1,7 @@
 'use client';
 
 import ProfileInfoCard from '@/components/common/cards/profile-info-card';
-import ProfileInfoEditModal from '@/components/modals/profile-info-edit-modal';
+import ProfileInfoEditModal from '@/components/common/modals/profile-info-edit-modal';
 import { MemberInfo } from '@/types/api/user.types';
 
 interface ProfileInfoProps {

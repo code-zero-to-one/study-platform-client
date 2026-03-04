@@ -9,10 +9,10 @@ import {
   type MentorSettlementDraft,
   type SettlementPayerType,
 } from '@/types/mentoring/settings';
-import Button from '@/components/ui/button';
-import SingleDropdown from '@/components/ui/dropdown/single';
-import { BaseInput } from '@/components/ui/input';
-import { Modal } from '@/components/ui/modal';
+import Button from '@/components/common/ui/button';
+import SingleDropdown from '@/components/common/ui/dropdown/single';
+import { BaseInput } from '@/components/common/ui/input';
+import { Modal } from '@/components/common/ui/modal';
 
 const FALLBACK_BANK_OPTIONS = [
   { value: '004', label: '국민은행' },

@@ -6,7 +6,7 @@ import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useUserStore } from '@/stores/useUserStore';
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 
 const TARGET_MENTOR_ID = 101;
 

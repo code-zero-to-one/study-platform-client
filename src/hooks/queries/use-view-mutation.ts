@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { recordArchiveView } from '@/features/study/one-to-one/archive/api/record-view';
-import { ARCHIVE_QUERY_KEYS } from '@/features/study/one-to-one/archive/model/archive-keys';
+import { recordArchiveView } from '@/api/endpoints/archive/record-view';
+import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/archive-keys';
 import { ArchiveResponse } from '@/types/one-to-one-study/archive';
 
 const VIEWED_ARCHIVES_KEY = 'viewed_archives';

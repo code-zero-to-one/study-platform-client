@@ -14,8 +14,8 @@ import MentoringRequestPanel from '@/features/mentoring/ui/management/mentoring-
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
-import Button from '@/components/ui/button';
-import SurfacePanel from '@/components/ui/surface-panel';
+import Button from '@/components/common/ui/button';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 const getMethodDurations = (mentor: MentorProfile) => {
   const settings = getMentorSettings(mentor);

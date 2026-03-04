@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Button from '@/components/common/ui/button';
 import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
-import GroupStudyFormModal from '@/components/modals/group-study-form-modal';
+import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 import { MemberStudyItem } from '@/types/api/group-study.types';

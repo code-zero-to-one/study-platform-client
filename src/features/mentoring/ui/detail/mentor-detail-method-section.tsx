@@ -7,7 +7,7 @@ import type {
   MentorProfile,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface MentorDetailMethodSectionProps {
   mentor: MentorProfile;

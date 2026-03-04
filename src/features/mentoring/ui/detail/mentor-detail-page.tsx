@@ -17,8 +17,8 @@ import MentorDetailMethodSection from './mentor-detail-method-section';
 import MentorDetailReviewSection from './mentor-detail-review-section';
 import MentorDetailSidebarCta from './mentor-detail-sidebar-cta';
 import MentorMarkdownContent from '../registration/mentor-markdown-content';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Badge from '@/components/ui/badge';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Badge from '@/components/common/ui/badge';
 
 type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
 

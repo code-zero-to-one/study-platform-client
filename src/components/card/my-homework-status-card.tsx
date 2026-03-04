@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 import Button from '@/components/common/ui/button';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import { useUserStore } from '@/stores/useUserStore';
-import SubmitHomeworkModal from '../modals/submit-homework-modal';
+import SubmitHomeworkModal from '@/components/common/modals/submit-homework-modal';
 
 interface MyHomeworkStatusProps {
   missionId: number;

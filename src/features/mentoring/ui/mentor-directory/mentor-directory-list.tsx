@@ -5,9 +5,9 @@ import MentorDirectoryError from './mentor-directory-error';
 import MentorDirectoryFilters from './mentor-directory-filters';
 import MentorDirectoryGrid from './mentor-directory-grid';
 import MentorDirectorySkeletonGrid from './mentor-directory-skeleton-grid';
-import FilterSortListTemplate from '@/components/ui/list/filter-sort-list-template';
-import ListStateBoundary from '@/components/ui/list/list-state-boundary';
-import Pagination from '@/components/ui/pagination';
+import FilterSortListTemplate from '@/components/common/ui/list/filter-sort-list-template';
+import ListStateBoundary from '@/components/common/ui/list/list-state-boundary';
+import Pagination from '@/components/common/ui/pagination';
 
 interface MentorDirectoryListProps {
   keyword: string;

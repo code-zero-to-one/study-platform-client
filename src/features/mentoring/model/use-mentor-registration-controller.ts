@@ -48,7 +48,7 @@ import {
   type MentorRegistrationFormInputValues,
   type MentorRegistrationFormValues,
 } from '@/types/schemas/mentor-registration-schema';
-import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
+import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 
 const createDefaultFormValues = (): MentorRegistrationFormInputValues => ({
   ...createDefaultMentorSettings(),

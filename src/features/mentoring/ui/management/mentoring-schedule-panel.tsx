@@ -17,9 +17,9 @@ import MentoringScheduleCalendar from './mentoring-schedule-calendar';
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,
 } from './schedule-editor-modal';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import SurfacePanel from '@/components/ui/surface-panel';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 const getOverlappingIds = (sessions: MentoringSession[]): Set<string> => {
   const scheduled = sessions

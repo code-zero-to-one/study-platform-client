@@ -9,9 +9,9 @@ import Button from '@/components/common/ui/button';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
+import EditMissionModal from '@/components/common/modals/edit-mission-modal';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
-import DeleteMissionModal from '../modals/delete-mission-modal';
-import EditMissionModal from '../modals/edit-mission-modal';
+import DeleteMissionModal from '@/components/common/modals/delete-mission-modal';
 
 interface MissionCardProps {
   mission: MissionListResponse;

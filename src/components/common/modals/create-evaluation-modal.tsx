@@ -12,7 +12,7 @@ import {
 } from '@/hooks/queries/evaluation-api';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { useToastStore } from '@/stores/use-toast-store';
-import { TextAreaInput } from '../common/ui/input';
+import { TextAreaInput } from '@/components/common/ui/input';
 
 const CreateEvaluationFormSchema = z.object({
   gradeCode: z.enum([

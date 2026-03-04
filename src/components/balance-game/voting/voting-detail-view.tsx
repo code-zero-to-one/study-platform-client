@@ -12,13 +12,13 @@ import {
   Share2,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import UserAvatar from '@/components/ui/avatar';
-import Button from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
-import Toast from '@/components/ui/toast';
-import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import LoginModal from '@/features/auth/ui/login-modal';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
+import Toast from '@/components/common/ui/toast';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import LoginModal from '@/components/common/modals/login-modal';
 import {
   useVoteBalanceGameMutation,
   useCancelVoteBalanceGameMutation,
@@ -27,14 +27,14 @@ import {
   useDeleteBalanceGameMutation,
   useUpdateBalanceGameCommentMutation,
   useUpdateBalanceGameMutation,
-} from '@/features/study/one-to-one/balance-game/model/use-balance-game-mutation';
+} from '@/hooks/queries/use-balance-game-mutation';
 import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
-} from '@/features/study/one-to-one/balance-game/model/use-balance-game-query';
-import DailyStatsChart from '@/features/study/one-to-one/balance-game/ui/voting/daily-stats-chart';
-import VoteResultsChart from '@/features/study/one-to-one/balance-game/ui/voting/vote-results-chart';
-import VoteTimer from '@/features/study/one-to-one/balance-game/ui/voting/vote-timer';
+} from '@/hooks/queries/use-balance-game-query';
+import DailyStatsChart from '@/components/balance-game/voting/daily-stats-chart';
+import VoteResultsChart from '@/components/balance-game/voting/vote-results-chart';
+import VoteTimer from '@/components/balance-game/voting/vote-timer';
 import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
 import CommentList from '@/features/study/one-to-one/discussion/ui/comment-list';
 import { useAuthReady } from '@/hooks/common/use-auth';

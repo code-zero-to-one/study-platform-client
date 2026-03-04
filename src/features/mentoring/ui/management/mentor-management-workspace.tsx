@@ -9,7 +9,7 @@ import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-sta
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentorManagementWorkspaceProps } from '@/types/mentoring/management-view';
 import MentoringSchedulePanel from './mentoring-schedule-panel';
-import SurfacePanel from '@/components/ui/surface-panel';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 export default function MentorManagementWorkspace({
   memberId,

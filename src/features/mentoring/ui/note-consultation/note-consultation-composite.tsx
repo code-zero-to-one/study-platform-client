@@ -18,8 +18,8 @@ import type {
   NoteConsultationChannel,
   NoteConsultationListItem,
 } from '@/types/mentoring/note-consultation-view';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
 
 function UserAvatar({
   name,

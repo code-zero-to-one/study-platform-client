@@ -1,5 +1,5 @@
-import { getArchiveServer } from '@/features/study/one-to-one/archive/api/get-archive.server';
-import { ARCHIVE_PAGE_SIZE } from '@/features/study/one-to-one/archive/const/archive';
+import { getArchiveServer } from '@/api/endpoints/archive/get-archive.server';
+import { ARCHIVE_PAGE_SIZE } from '@/config/archive-const';
 import { GetArchiveParams } from '@/types/one-to-one-study/archive';
 import { safeServerPrefetch } from '@/utils/safe-server-prefetch';
 import { getServerCookie } from '@/utils/server-cookie';

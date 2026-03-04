@@ -10,9 +10,9 @@ import { getMentorDisplayTitle } from '@/features/mentoring/model/mentor-profile
 import { isMentoringAdminMockEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import MetricCard from '@/components/ui/metric-card';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import MetricCard from '@/components/common/ui/metric-card';
 
 const formatDateTime = (value: string | undefined) => {
   if (!value) {

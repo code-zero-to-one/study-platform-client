@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import Button from '@/components/ui/button';
-import PageContainer from '@/components/ui/page-container';
-import SurfacePanel from '@/components/ui/surface-panel';
+import Button from '@/components/common/ui/button';
+import PageContainer from '@/components/common/ui/page-container';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 export function MentorRouteLoading() {
   return (

@@ -5,8 +5,8 @@ import type {
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import ReviewStars from './review-stars';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Badge from '@/components/ui/badge';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Badge from '@/components/common/ui/badge';
 
 interface MentorDetailReviewSectionProps {
   mentor: MentorProfile;

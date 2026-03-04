@@ -13,11 +13,11 @@ import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorScreeningStore } from '@/stores/useMentorScreeningStore';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import BorderedTextarea from '@/components/ui/input/bordered-textarea';
-import KeyValueRow from '@/components/ui/key-value-row';
-import SurfacePanel from '@/components/ui/surface-panel';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
+import KeyValueRow from '@/components/common/ui/key-value-row';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 const formatDateTime = (value: string | undefined) => {
   if (!value) {

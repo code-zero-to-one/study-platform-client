@@ -1,5 +1,5 @@
 import { Star } from 'lucide-react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface ReviewStarsProps {
   rating: number;

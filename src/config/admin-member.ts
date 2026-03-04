@@ -1,4 +1,4 @@
-import type { ManageableRoleId } from '../api/types';
+import type { ManageableRoleId } from '@/types/api/admin.types';
 
 export const ROLE_MAP: Record<ManageableRoleId, string> = {
   ROLE_MEMBER: '일반',

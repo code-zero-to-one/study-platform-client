@@ -17,8 +17,8 @@ import {
 } from '@/hooks/queries/peer-review-api';
 
 import { useUserStore } from '@/stores/useUserStore';
-import DeleteHomeworkModal from '../modals/delete-homework-modal';
-import EditHomeworkModal from '../modals/edit-homework-modal';
+import DeleteHomeworkModal from '@/components/common/modals/delete-homework-modal';
+import EditHomeworkModal from '@/components/common/modals/edit-homework-modal';
 
 interface HomeworkDetailContentProps {
   missionId: number;

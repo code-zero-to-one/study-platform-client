@@ -4,7 +4,7 @@ import { MessageCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
-import QuestionModal from '../modals/question-modal';
+import QuestionModal from '@/components/common/modals/question-modal';
 
 const STUDY_DETAIL_PATTERN = /^\/(group-study|premium-study)\/(\d+)/;
 

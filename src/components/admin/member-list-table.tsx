@@ -2,26 +2,26 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import Checkbox from '@/components/ui/checkbox';
-import { SingleDropdown } from '@/components/ui/dropdown';
-import Pagination from '@/components/ui/pagination';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import Checkbox from '@/components/common/ui/checkbox';
+import { SingleDropdown } from '@/components/common/ui/dropdown';
+import Pagination from '@/components/common/ui/pagination';
 import { useDebounce } from '@/hooks/common/use-debounce';
 import { formatYYYYMMDD } from '@/utils/time';
 import FilledX from 'public/icons/filled-x.svg';
 import SearchIcon from 'public/icons/search.svg';
 import ChangeStatusModal from './chage-status-modal';
 import ChangeRoleModal from './change-role-modal';
-import { type ManageableRoleId, type MemberStatus } from '../api/types';
+import { type ManageableRoleId, type MemberStatus } from '@/types/api/admin.types';
 import {
   getRoleLabel,
   isManageableRoleId,
   MEMBER_STATUS_MAP,
   MEMBER_STATUS_OPTIONS,
   ROLE_OPTIONS,
-} from '../const/member';
-import { useGetMemberListQuery } from '../model/use-member-list-query';
+} from '@/config/admin-member';
+import { useGetMemberListQuery } from '@/hooks/queries/use-member-list-query';
 
 export default function MemberListTable() {
   const [roleId, setRoleId] = useState<ManageableRoleId | undefined>(undefined);

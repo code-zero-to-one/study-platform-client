@@ -22,12 +22,12 @@ import type {
   MentorProfile,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import DatePicker from '@/components/ui/date-picker';
-import PageContainer from '@/components/ui/page-container';
-import SurfacePanel from '@/components/ui/surface-panel';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import DatePicker from '@/components/common/ui/date-picker';
+import PageContainer from '@/components/common/ui/page-container';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 
 interface MentoringApplyPageViewProps {
   mentor: MentorProfile;

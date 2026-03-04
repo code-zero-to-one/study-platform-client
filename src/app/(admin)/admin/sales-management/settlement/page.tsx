@@ -13,8 +13,8 @@ import DatePicker from '@/components/common/ui/date-picker';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
-import AdminApproveSettlementModal from '@/components/modals/admin-approve-settlement-modal';
-import AdminCompleteSettlementModal from '@/components/modals/admin-complete-settlement-modal';
+import AdminApproveSettlementModal from '@/components/common/modals/admin-approve-settlement-modal';
+import AdminCompleteSettlementModal from '@/components/common/modals/admin-complete-settlement-modal';
 import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
 import { formatToKST } from '@/utils/time';
 

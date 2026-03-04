@@ -7,7 +7,7 @@ import StudyCard from './study-card';
 import {
   STUDY_TUTORIAL_STEPS,
   getStudyTutorialScenario,
-} from '../model/study-tutorial-steps';
+} from '@/config/study-tutorial-steps';
 
 const STUDY_TUTORIAL_KEY = 'study';
 
