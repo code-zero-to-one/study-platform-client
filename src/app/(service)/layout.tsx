@@ -45,7 +45,7 @@ export default async function ServiceLayout({
           <GlobalToast />
           <ClarityInit projectId={CLARITY_PROJECT_ID} />
           <PageViewTracker />
-          <div className="flex min-h-screen w-full flex-col overflow-x-auto">
+          <div className="flex min-h-screen w-full flex-col">
             <Header />
             <main className="w-full flex-1">{children}</main>
             <FloatingInquiryButton />

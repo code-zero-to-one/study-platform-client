@@ -51,7 +51,7 @@ function ToggleGroup({
   );
 }
 
-function GroupItems(props: ToggleGroupProps) {
+function GroupItems(props: ToggleGroupProps & { children?: ReactNode }) {
   const { variant = 'round', options } = props;
   const isMulti = props.multiple !== false;
   const Item = props.renderItem ?? ToggleGroup;
@@ -92,6 +92,7 @@ function GroupItems(props: ToggleGroupProps) {
           {label}
         </Item>
       ))}
+      {props.children}
     </div>
   );
 }

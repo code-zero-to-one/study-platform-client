@@ -12,7 +12,7 @@ import { cn } from '../(shadcn)/lib/utils';
 interface UserAvatarProps {
   image: string | undefined;
   alt?: string;
-  size?: number;
+  size?: number | string;
   className?: string;
 }
 
@@ -24,6 +24,7 @@ export default function Avatar({
   ...props
 }: UserAvatarProps) {
   const [isError, setIsError] = useState(false);
+  const fallbackSize = typeof size === 'number' ? size : 32;
 
   // 유효하지 않은 이미지 URL 필터링 (LOCAL, 빈 문자열, 상대 경로만 있는 경우 등)
   const isValidImage =
@@ -64,8 +65,8 @@ export default function Avatar({
         <Image
           src="/profile-default.svg"
           alt="error-image"
-          width={size}
-          height={size}
+          width={fallbackSize}
+          height={fallbackSize}
           className="h-full w-full object-cover"
         />
       </RadixAvatarFallback>

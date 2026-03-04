@@ -39,7 +39,7 @@ export default function MyStudyReview() {
 
   return (
     <>
-      <section>
+      <section className="mt-300">
         <div className="mb-200">
           <div className="flex items-center gap-100">
             <div className="font-designer-20b text-text-default">받은 평가</div>

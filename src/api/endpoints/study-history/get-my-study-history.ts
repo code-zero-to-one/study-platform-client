@@ -1,5 +1,8 @@
 import { axiosInstance } from '@/api/client/axios';
-import { PageableResponse, StudyHistoryContent } from '@/types/study-history';
+import {
+  PageableResponse,
+  StudyHistoryContent,
+} from '@/types/one-to-one-study/study-history';
 
 export interface GetMyStudyHistoryParams {
   page?: number;

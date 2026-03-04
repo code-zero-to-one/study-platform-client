@@ -1,15 +1,15 @@
 import { Bookmark, Check, Eye, Heart, Pencil, Search, X } from 'lucide-react';
 import React from 'react';
-import type { UpdateArchiveRequest } from '@/api/endpoints/archive/update-archive';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import ActionPillButton from '@/components/common/ui/action-pill-button';
-import UserAvatar from '@/components/common/ui/avatar';
-import Badge from '@/components/common/ui/badge';
-import Checkbox from '@/components/common/ui/checkbox';
-import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
-import StatItem from '@/components/common/ui/stat-item';
-import { ArchiveItem } from '@/types/archive';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import ActionPillButton from '@/components/ui/action-pill-button';
+import UserAvatar from '@/components/ui/avatar';
+import Badge from '@/components/ui/badge';
+import Checkbox from '@/components/ui/checkbox';
+import { BaseInput, TextAreaInput } from '@/components/ui/input';
+import StatItem from '@/components/ui/stat-item';
+import UserProfileModal from '@/entities/user/ui/user-profile-modal';
+import type { UpdateArchiveRequest } from '@/features/study/one-to-one/archive/api/update-archive';
+import { ArchiveItem } from '@/types/one-to-one-study/archive';
 
 interface ArchiveListProps {
   items: ArchiveItem[];

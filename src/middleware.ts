@@ -98,11 +98,23 @@ export async function middleware(request: NextRequest) {
   }
 
   if (request.nextUrl.pathname === '/login') {
-    if (hasAccessToken && hasMemberId) {
-      // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
-      const mainUrl = new URL('/home', request.url);
+    if (hasAccessToken && hasMemberId && accessToken) {
+      const verifyResponse = await verifyAccessToken(accessToken);
 
-      return NextResponse.redirect(mainUrl);
+      if (verifyResponse.state === 'valid') {
+        // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
+        const mainUrl = new URL('/home', request.url);
+
+        return NextResponse.redirect(mainUrl);
+      }
+
+      // 만료/유효하지 않은 토큰으로 로그인 페이지 진입 시 루프 방지를 위해 세션 쿠키를 정리
+      const response = NextResponse.next();
+      response.cookies.delete('accessToken');
+      response.cookies.delete('memberId');
+      response.cookies.delete('socialImageURL');
+
+      return response;
     }
 
     return NextResponse.next();

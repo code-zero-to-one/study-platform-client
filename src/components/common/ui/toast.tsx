@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, XCircle } from 'lucide-react';
+import { CheckCircle2, Info, XCircle } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -45,7 +45,7 @@ export default function Toast({
 
       return () => clearTimeout(timer);
     }
-  }, [isVisible, duration, onClose, isRendered]);
+  }, [duration, isRendered, isVisible, message, onClose, variant]);
 
   if (!isRendered) return null;
   if (typeof document === 'undefined') return null;
@@ -53,6 +53,7 @@ export default function Toast({
   const isSuccess = variant === 'success';
 
   const isError = variant === 'error';
+  const isInfo = variant === 'info';
 
   const toast = (
     <div className="fixed top-400 left-1/2 z-50 -translate-x-1/2">
@@ -72,9 +73,11 @@ export default function Toast({
       >
         {isSuccess ? (
           <CheckCircle2 className="h-5 w-5 shrink-0 text-green-600" />
-        ) : (
+        ) : isError ? (
           <XCircle className="h-5 w-5 shrink-0 text-red-600" />
-        )}
+        ) : isInfo ? (
+          <Info className="h-5 w-5 shrink-0 text-blue-600" />
+        ) : null}
         <span className="flex-1">{message}</span>
       </div>
     </div>

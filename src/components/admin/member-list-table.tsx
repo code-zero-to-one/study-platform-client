@@ -2,30 +2,32 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import Badge from '@/components/common/ui/badge';
-import Button from '@/components/common/ui/button';
-import Checkbox from '@/components/common/ui/checkbox';
-import { SingleDropdown } from '@/components/common/ui/dropdown';
-import Pagination from '@/components/common/ui/pagination';
-import {
-  MEMBER_STATUS_MAP,
-  MEMBER_STATUS_OPTIONS,
-  ROLE_MAP,
-  ROLE_OPTIONS,
-} from '@/config/admin-member';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
+import Checkbox from '@/components/ui/checkbox';
+import { SingleDropdown } from '@/components/ui/dropdown';
+import Pagination from '@/components/ui/pagination';
 import { useDebounce } from '@/hooks/common/use-debounce';
-import { useGetMemberListQuery } from '@/hooks/queries/use-member-list-query';
-import { MemberStatus, RoleId } from '@/types/api/admin.types';
 import { formatYYYYMMDD } from '@/utils/time';
 import FilledX from 'public/icons/filled-x.svg';
-import SealCheckIcon from 'public/icons/seal-check.svg';
 import SearchIcon from 'public/icons/search.svg';
 import ChangeStatusModal from './chage-status-modal';
 import ChangeRoleModal from './change-role-modal';
+import { type ManageableRoleId, type MemberStatus } from '../api/types';
+import {
+  getRoleLabel,
+  isManageableRoleId,
+  MEMBER_STATUS_MAP,
+  MEMBER_STATUS_OPTIONS,
+  ROLE_OPTIONS,
+} from '../const/member';
+import { useGetMemberListQuery } from '../model/use-member-list-query';
 
 export default function MemberListTable() {
-  const [roleId, setRoleId] = useState<RoleId | null>(null);
-  const [memberStatus, setMemberStatus] = useState<MemberStatus | null>(null);
+  const [roleId, setRoleId] = useState<ManageableRoleId | undefined>(undefined);
+  const [memberStatus, setMemberStatus] = useState<MemberStatus | undefined>(
+    undefined,
+  );
   const [page, setPage] = useState<number>(1);
   const [searchKeyword, setSearchKeyword] = useState<string>('');
   const debouncedSearchKeyword = useDebounce(searchKeyword, 500);
@@ -204,14 +206,7 @@ export default function MemberListTable() {
                       : '-'}
                   </td>
                   <td className="font-designer-14r text-text-subtle flex items-center px-300 text-left">
-                    {user.role.roleId === 'ROLE_MENTOR' && (
-                      <SealCheckIcon
-                        className="text-fill-brand-default-default"
-                        width={20}
-                        height={20}
-                      />
-                    )}
-                    {ROLE_MAP[user.role.roleId]}
+                    {getRoleLabel(user.role.roleId, user.role.roleName)}
                   </td>
                   <td className="pr-500 pl-300">
                     <Badge
@@ -244,10 +239,10 @@ function MemberListFilter({
   onSelectRoleId,
   onSelectMemberStatus,
 }: {
-  roleId: RoleId | null;
-  memberStatus: MemberStatus | null;
-  onSelectRoleId: (roleId: RoleId | null) => void;
-  onSelectMemberStatus: (memberStatus: MemberStatus | null) => void;
+  roleId: ManageableRoleId | undefined;
+  memberStatus: MemberStatus | undefined;
+  onSelectRoleId: (roleId: ManageableRoleId | undefined) => void;
+  onSelectMemberStatus: (memberStatus: MemberStatus | undefined) => void;
 }) {
   return (
     <div className="flex items-center gap-200">
@@ -256,8 +251,8 @@ function MemberListFilter({
           size="small"
           className="h-fit"
           onClick={() => {
-            onSelectRoleId(null);
-            onSelectMemberStatus(null);
+            onSelectRoleId(undefined);
+            onSelectMemberStatus(undefined);
           }}
         >
           필터 제거
@@ -266,7 +261,17 @@ function MemberListFilter({
       <div className="flex w-[300px] items-center gap-150">
         <SingleDropdown
           value={roleId}
-          onChange={onSelectRoleId}
+          onChange={(value) => {
+            if (!value) {
+              onSelectRoleId(undefined);
+
+              return;
+            }
+
+            if (isManageableRoleId(value)) {
+              onSelectRoleId(value);
+            }
+          }}
           options={ROLE_OPTIONS}
           placeholder="권한"
         />

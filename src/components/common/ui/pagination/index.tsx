@@ -67,7 +67,7 @@ const pageButtonVariants = cva(
       color: {
         default:
           'hover:bg-fill-neutral-subtle-hover active:bg-fill-neutral-subtle-pressed text-text-default',
-        active: 'bg-background-accent-blue-strong text-text-inverse',
+        active: 'bg-background-brand-default text-text-inverse',
         disabled: 'cursor-not-allowed text-text-disabled',
       },
     },

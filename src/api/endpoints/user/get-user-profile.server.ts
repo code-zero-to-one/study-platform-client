@@ -3,9 +3,19 @@ import { redirect } from 'next/navigation';
 import { axiosServerInstance } from '@/api/client/axios.server';
 import { GetUserProfileResponse } from '@/types/api/user.types';
 
+const shouldRedirectToLoginAfterProfileError = (status?: number) =>
+  status === 401 || status === 403 || status === 404;
+
+interface GetUserProfileInServerOptions {
+  redirectOnAuthOrMissingProfile?: boolean;
+}
+
 export const getUserProfileInServer = async (
   memberId: number,
+  options: GetUserProfileInServerOptions = {},
 ): Promise<GetUserProfileResponse> => {
+  const { redirectOnAuthOrMissingProfile = true } = options;
+
   try {
     const res = await axiosServerInstance.get(`/members/${memberId}/profile`);
 
@@ -16,12 +26,33 @@ export const getUserProfileInServer = async (
     if (isAxiosError(error)) {
       const status = error.response?.status;
 
-      if (status === 404 || status === 401 || status === 403) {
+      if (
+        redirectOnAuthOrMissingProfile &&
+        shouldRedirectToLoginAfterProfileError(status)
+      ) {
         redirect('/api/auth/clear-session?redirect=/login');
       }
     }
 
     // 예상치 못한 에러는 다시 throw
+    throw error;
+  }
+};
+
+export const tryGetUserProfileInServer = async (memberId: number) => {
+  try {
+    return await getUserProfileInServer(memberId, {
+      redirectOnAuthOrMissingProfile: false,
+    });
+  } catch (error) {
+    if (isAxiosError(error)) {
+      const status = error.response?.status;
+
+      if (!error.response || shouldRedirectToLoginAfterProfileError(status)) {
+        return null;
+      }
+    }
+
     throw error;
   }
 };

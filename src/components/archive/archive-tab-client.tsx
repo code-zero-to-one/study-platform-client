@@ -13,7 +13,7 @@ import {
   ArchiveItem,
   ArchiveResponse,
   GetArchiveParams,
-} from '@/types/archive';
+} from '@/types/one-to-one-study/archive';
 import ArchiveFilters from './archive-filters';
 import ArchiveGrid from './archive-grid';
 import ArchiveHeader from './archive-header';

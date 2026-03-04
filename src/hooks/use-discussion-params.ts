@@ -1,6 +1,9 @@
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
-import { DiscussionTopic, SortOption } from '@/types/discussion';
+import {
+  DiscussionTopic,
+  SortOption,
+} from '@/types/one-to-one-study/discussion';
 
 export interface DiscussionParams {
   q: string;

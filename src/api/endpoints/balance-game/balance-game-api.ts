@@ -10,7 +10,7 @@ import {
   UpdateCommentRequest,
   VoteRequest,
   BalanceGameTagSuggestion,
-} from '@/types/balance-game';
+} from '@/types/one-to-one-study/balance-game';
 
 // 1. 밸런스 게임 목록 조회
 export const getBalanceGameList = async (params: {

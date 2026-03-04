@@ -2,9 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import {
   updateArchive,
   type UpdateArchiveRequest,
-} from '@/api/endpoints/archive/update-archive';
-import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/archive-keys';
-import { ArchiveResponse } from '@/types/archive';
+} from '@/features/study/one-to-one/archive/api/update-archive';
+import { ARCHIVE_QUERY_KEYS } from '@/features/study/one-to-one/archive/model/archive-keys';
+import { ArchiveResponse } from '@/types/one-to-one-study/archive';
 
 export const useUpdateArchiveMutation = () => {
   const queryClient = useQueryClient();
