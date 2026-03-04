@@ -4,8 +4,6 @@ import Button from '@/components/ui/button';
 import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
-const MENTOR_CARD_HEIGHT_CLASS = 'h-500px';
-
 interface MentorJoinCardProps {
   memberId: number | undefined;
   shouldRenderVerificationModal: boolean;
@@ -31,8 +29,7 @@ export default function MentorJoinCard({
         className={cn(
           'hover:shadow-2 hover:border-border-brand rounded-150',
           'border-border-subtle bg-background-default overflow-hidden border',
-          MENTOR_CARD_HEIGHT_CLASS,
-          'self-start transition-all',
+          'h-full transition-all',
         )}
       >
         <div className="from-background-neutral-strong to-background-accent-blue-strong relative flex h-[180px] flex-col items-center justify-center gap-100 bg-linear-to-br">
@@ -42,13 +39,7 @@ export default function MentorJoinCard({
           </p>
         </div>
 
-        <div className="flex h-[calc(100%-180px)] flex-col px-300 py-200">
-          <div className="mb-100">
-            <span className="font-designer-12b text-text-brand rounded-500 bg-fill-brand-subtle-default inline-flex items-center px-100 py-50">
-              {MENTORING_LIST_LABELS.joinBadge}
-            </span>
-          </div>
-
+        <div className="flex h-[calc(100%-180px)] flex-col justify-center px-300 py-200">
           <h3 className="font-designer-20b text-text-default mb-75">
             {MENTORING_LIST_LABELS.joinTitle}
           </h3>
@@ -61,9 +52,12 @@ export default function MentorJoinCard({
             {MENTORING_LIST_LABELS.joinMeta}
           </p>
 
-          <div className="mb-200 flex flex-wrap gap-x-300 gap-y-100">
+          <div className="mb-200 grid grid-cols-2 gap-x-300 gap-y-100">
             {MENTORING_LIST_LABELS.joinMethods.map((label) => (
-              <span key={label} className="font-designer-16r text-text-subtle">
+              <span
+                key={label}
+                className="font-designer-16r text-text-subtle inline-flex items-center"
+              >
                 {label}
               </span>
             ))}
@@ -72,7 +66,7 @@ export default function MentorJoinCard({
           <Button
             color="primary"
             size="medium"
-            className="mt-auto w-full"
+            className="mt-200 w-full"
             onClick={onClickJoin}
             disabled={isJoinButtonDisabled}
           >

@@ -260,7 +260,8 @@ export const getChangedSections = (
     prev.careerYears !== next.careerYears ||
     prev.companyCategory !== next.companyCategory ||
     prev.companyName !== next.companyName ||
-    prev.hideCompanyName !== next.hideCompanyName
+    prev.hideCompanyName !== next.hideCompanyName ||
+    prev.listVisible !== next.listVisible
   ) {
     changed.push('headline');
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import { BaseInput } from '@/components/ui/input';
 import {
@@ -131,9 +131,7 @@ const buildTimeRangeDrafts = (
   schedule: MentorWeeklySchedule,
 ): Record<WeekdayKey, string[]> =>
   createWeekdayRecord((day) => {
-    const ranges = toTimeRanges(schedule.weekly[day]);
-
-    return ranges.length > 0 ? ranges : [''];
+    return toTimeRanges(schedule.weekly[day]);
   });
 
 const createEmptyTimeRangeErrors = (): Record<WeekdayKey, string> =>
@@ -249,7 +247,7 @@ const areSameTextRanges = (left: string[], right: string[]) => {
   return left.every((value, index) => value === right[index]);
 };
 
-export default function WeeklyScheduleGrid({
+function WeeklyScheduleGrid({
   value,
   onChange,
 }: WeeklyScheduleGridProps) {
@@ -446,7 +444,7 @@ export default function WeeklyScheduleGrid({
       });
 
       const normalizedDrafts = toTimeRanges(parsed.slots);
-      const nextDrafts = normalizedDrafts.length > 0 ? normalizedDrafts : [''];
+      const nextDrafts = normalizedDrafts;
 
       setTimeRangeDrafts((prev) => {
         if (areSameTextRanges(prev[day], nextDrafts)) {
@@ -490,9 +488,9 @@ export default function WeeklyScheduleGrid({
     if (currentDrafts.length === 1) {
       setTimeRangeDrafts((prev) => ({
         ...prev,
-        [day]: [''],
+        [day]: [],
       }));
-      applyTimeRangeText(day, ['']);
+      applyTimeRangeText(day, []);
 
       return;
     }
@@ -847,3 +845,12 @@ export default function WeeklyScheduleGrid({
     </div>
   );
 }
+
+const areWeeklyScheduleGridPropsEqual = (
+  prev: WeeklyScheduleGridProps,
+  next: WeeklyScheduleGridProps,
+) => {
+  return prev.value === next.value && prev.onChange === next.onChange;
+};
+
+export default memo(WeeklyScheduleGrid, areWeeklyScheduleGridPropsEqual);

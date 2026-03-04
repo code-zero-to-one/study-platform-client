@@ -2,7 +2,6 @@ import { type MentoringMethodType } from '@/types/mentoring/domain';
 
 const MENTOR_WRITE_ROLES = [
   'ROLE_MEMBER',
-  'ROLE_MENTOR',
   'ROLE_ADMIN',
 ] as const;
 

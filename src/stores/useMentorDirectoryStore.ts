@@ -177,6 +177,7 @@ export const createMentorProfileFromRegistration = (
     companyCategory: formValues.companyCategory ?? '기타',
     companyName: formValues.companyName ?? '',
     hideCompanyName: formValues.hideCompanyName ?? false,
+    listVisible: formValues.listVisible ?? true,
     maxParticipants: formValues.maxParticipants ?? 1,
     noteEnabled: formValues.noteEnabled ?? true,
     notePrice: formValues.notePrice ?? 5000,

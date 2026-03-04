@@ -2,6 +2,7 @@
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
+  getMentorEntryOnboardingStatus,
   getMentorDetail,
   getMentorList,
   getMentorRegistrationOptions,
@@ -65,6 +66,7 @@ export const useMyMentorSettingsQuery = (enabled = true) => {
     queryFn: () => getMyMentorSettings(),
     staleTime: 30_000,
     gcTime: 5 * 60_000,
+    retry: false,
     enabled,
   });
 };
@@ -73,6 +75,16 @@ export const useMentorRegistrationOptionsQuery = (enabled = true) => {
   return useQuery({
     queryKey: mentorDirectoryQueryKeys.registrationOptions(),
     queryFn: () => getMentorRegistrationOptions(),
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    enabled,
+  });
+};
+
+export const useMentorEntryOnboardingStatusQuery = (enabled = true) => {
+  return useQuery({
+    queryKey: mentorDirectoryQueryKeys.entryOnboarding(),
+    queryFn: () => getMentorEntryOnboardingStatus(),
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
     enabled,

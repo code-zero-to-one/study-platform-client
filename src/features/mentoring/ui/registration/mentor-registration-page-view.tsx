@@ -1,7 +1,13 @@
 'use client';
 
 import { Eye, X } from 'lucide-react';
-import { type CSSProperties, useEffect, useRef, useState } from 'react';
+import {
+  type CSSProperties,
+  useDeferredValue,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
@@ -49,6 +55,10 @@ export default function MentorRegistrationPageView({
   const previewPanelTotalWidth = state.isPreviewOpen
     ? previewPanelBaseWidth + PREVIEW_PANEL_EXTRA_WIDTH
     : 0;
+  const deferredPreviewMentor = useDeferredValue(state.previewMentor);
+  const deferredHighlightedSections = useDeferredValue(
+    state.highlightedSections,
+  );
 
   useEffect(() => {
     if (!state.isPreviewOpen) {
@@ -284,7 +294,13 @@ export default function MentorRegistrationPageView({
           {/* 리사이즈 핸들 (XL 이상에서만) */}
           <div
             className="group absolute top-0 left-0 z-10 hidden h-full w-[8px] cursor-col-resize xl:block"
-            onPointerDown={actions.onPreviewResizeStart}
+            onPointerDown={(event) => actions.onPreviewResizeStart(event, 'left')}
+          />
+          <div
+            className="group absolute top-0 right-0 z-10 hidden h-full w-[8px] cursor-col-resize xl:block"
+            onPointerDown={(event) =>
+              actions.onPreviewResizeStart(event, 'right')
+            }
           />
 
           {/* 미리보기 패널 헤더 */}
@@ -311,13 +327,15 @@ export default function MentorRegistrationPageView({
           </div>
           {/* overflow-x-auto: 패널이 좁아져도 preview 내용은 reflow 없이 가로 스크롤 */}
           <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto xl:pointer-events-auto xl:overscroll-contain">
-            <div className="min-w-[360px] [&_a]:pointer-events-none [&_button]:pointer-events-none">
-              <MentorDetailPage
-                mentor={state.previewMentor}
-                previewMode
-                highlightedSections={state.highlightedSections}
-              />
-            </div>
+            {state.isPreviewOpen && (
+              <div className="min-w-[360px] [&_a]:pointer-events-none [&_button]:pointer-events-none">
+                <MentorDetailPage
+                  mentor={deferredPreviewMentor}
+                  previewMode
+                  highlightedSections={deferredHighlightedSections}
+                />
+              </div>
+            )}
           </div>
         </aside>
       </div>
@@ -389,8 +407,9 @@ export default function MentorRegistrationPageView({
                   되신 걸 환영합니다
                 </Modal.Title>
                 <p className="font-designer-13r text-text-subtle">
-                  프로필이 공개되어 멘티가 신청할 수 있습니다. 첫 운영 준비를
-                  체크해보세요.
+                  {state.welcomeOnboarding?.listVisible
+                    ? '프로필이 공개되어 멘티가 신청할 수 있습니다. 첫 운영 준비를 체크해보세요.'
+                    : '현재 멘토링 목록 비노출 상태입니다. 설정에서 노출로 바꾸면 멘티 신청을 받을 수 있어요.'}
                 </p>
               </div>
             </Modal.Header>
@@ -444,9 +463,9 @@ export default function MentorRegistrationPageView({
                 color="secondary"
                 className="font-designer-14b w-full sm:w-auto"
                 size="medium"
-                onClick={actions.onWelcomeModalToRequestPage}
+                onClick={actions.onWelcomeModalToEditAgain}
               >
-                멘토링 목록으로 이동
+                멘토링 다시 설정하기
               </Button>
               <Button
                 color="primary"

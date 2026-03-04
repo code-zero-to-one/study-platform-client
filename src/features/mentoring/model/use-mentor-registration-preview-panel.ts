@@ -37,7 +37,10 @@ export interface MentorRegistrationPreviewPanelRefs {
 export interface MentorRegistrationPreviewPanelActions {
   openPreview: () => void;
   closePreview: () => void;
-  onPreviewResizeStart: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onPreviewResizeStart: (
+    event: ReactPointerEvent<HTMLDivElement>,
+    direction?: 'left' | 'right',
+  ) => void;
 }
 
 export const useMentorRegistrationPreviewPanel = (): {
@@ -122,7 +125,10 @@ export const useMentorRegistrationPreviewPanel = (): {
   }, []);
 
   const onPreviewResizeStart = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
+    (
+      event: ReactPointerEvent<HTMLDivElement>,
+      direction: 'left' | 'right' = 'left',
+    ) => {
       event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
 
@@ -131,7 +137,10 @@ export const useMentorRegistrationPreviewPanel = (): {
       setIsResizing(true);
 
       const handlePointerMove = (moveEvent: PointerEvent) => {
-        const delta = startX - moveEvent.clientX;
+        const delta =
+          direction === 'left'
+            ? startX - moveEvent.clientX
+            : moveEvent.clientX - startX;
         const newWidth = clampPreviewPanelWidth(startWidth + delta);
         panelWidthRef.current = newWidth;
         setPanelWidth(newWidth);

@@ -9,14 +9,12 @@ import {
   useRef,
   useState,
 } from 'react';
-import { useForm, type UseFormReturn } from 'react-hook-form';
+import { useForm, type UseFormReturn, useWatch } from 'react-hook-form';
 import { MENTOR_REGISTRATION_TOAST_MESSAGES } from '@/features/mentoring/const/mentor-registration-labels';
 import { hasMentorWritePermission } from '@/features/mentoring/model/mentor-permission';
 import {
   buildMentoringTitleFromEntryOnboarding,
-  hasSeenMentorRegistrationEntryOnboarding,
   isMentorRegistrationEntryFromList,
-  markMentorRegistrationEntryOnboardingAsSeen,
 } from '@/features/mentoring/model/mentor-registration-entry-onboarding';
 import { resolveMentorRegistrationGuardState } from '@/features/mentoring/model/mentor-registration-guard-state';
 import {
@@ -25,6 +23,10 @@ import {
 } from '@/features/mentoring/model/mentor-registration-preview';
 import { createDefaultMentorSettings } from '@/features/mentoring/model/mentor-settings';
 import {
+  useMarkMentorEntryOnboardingSeenMutation,
+} from '@/features/mentoring/model/use-mark-mentor-entry-onboarding-seen-mutation';
+import {
+  useMentorEntryOnboardingStatusQuery,
   useMentorRegistrationOptionsQuery,
   useMyMentorSettingsQuery,
 } from '@/features/mentoring/model/use-mentor-directory-query';
@@ -50,10 +52,12 @@ import {
   type MentorRegistrationFormValues,
 } from '@/types/schemas/mentor-registration-schema';
 
-const DEFAULT_VALUES: MentorRegistrationFormInputValues = {
+const createDefaultFormValues = (): MentorRegistrationFormInputValues => ({
   ...createDefaultMentorSettings(),
   preNotice: '',
-};
+});
+
+const DEFAULT_VALUES = createDefaultFormValues();
 
 const DIRTY_VALIDATION_OPTIONS = {
   shouldValidate: true,
@@ -61,6 +65,124 @@ const DIRTY_VALIDATION_OPTIONS = {
 } as const;
 
 const sanitizeDigits = (value: string) => value.replace(/\D/g, '');
+const MENTOR_REGISTRATION_DRAFT_STORAGE_KEY =
+  'mentor-registration-draft:v1';
+
+type MentorRegistrationSessionDraft = Omit<
+  MentorRegistrationFormInputValues,
+  'settlementDraft'
+>;
+
+const isRecordObject = (
+  value: unknown,
+): value is Record<string, unknown> => {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+};
+
+const getMentorRegistrationDraftStorageKey = (memberId: number) =>
+  `${MENTOR_REGISTRATION_DRAFT_STORAGE_KEY}:${memberId}`;
+
+const toMentorRegistrationSessionDraft = (
+  values: MentorRegistrationFormInputValues,
+): MentorRegistrationSessionDraft => {
+  return Object.fromEntries(
+    Object.entries(values).filter(([key]) => key !== 'settlementDraft'),
+  ) as MentorRegistrationSessionDraft;
+};
+
+const parseMentorRegistrationSessionDraft = (
+  value: string,
+): MentorRegistrationSessionDraft | undefined => {
+  try {
+    const parsed = JSON.parse(value) as unknown;
+    if (!isRecordObject(parsed)) {
+      return undefined;
+    }
+
+    return parsed as MentorRegistrationSessionDraft;
+  } catch {
+    return undefined;
+  }
+};
+
+const readMentorRegistrationSessionDraft = (
+  memberId: number,
+): MentorRegistrationSessionDraft | undefined => {
+  if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  const key = getMentorRegistrationDraftStorageKey(memberId);
+  const rawValue = window.sessionStorage.getItem(key);
+
+  if (!rawValue) {
+    return undefined;
+  }
+
+  const parsedDraft = parseMentorRegistrationSessionDraft(rawValue);
+
+  if (!parsedDraft) {
+    window.sessionStorage.removeItem(key);
+  }
+
+  return parsedDraft;
+};
+
+const writeMentorRegistrationSessionDraft = ({
+  memberId,
+  values,
+}: {
+  memberId: number;
+  values: MentorRegistrationFormInputValues;
+}) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    getMentorRegistrationDraftStorageKey(memberId),
+    JSON.stringify(toMentorRegistrationSessionDraft(values)),
+  );
+};
+
+const clearMentorRegistrationSessionDraft = (memberId: number) => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.sessionStorage.removeItem(getMentorRegistrationDraftStorageKey(memberId));
+};
+
+const mergeMentorRegistrationFormValuesWithSessionDraft = ({
+  baseValues,
+  sessionDraft,
+}: {
+  baseValues: MentorRegistrationFormInputValues;
+  sessionDraft: MentorRegistrationSessionDraft | undefined;
+}): MentorRegistrationFormInputValues => {
+  if (!sessionDraft) {
+    return {
+      ...baseValues,
+      settlementDraft: null,
+    };
+  }
+
+  return {
+    ...baseValues,
+    ...sessionDraft,
+    schedule: sessionDraft.schedule
+      ? {
+          ...baseValues.schedule,
+          ...sessionDraft.schedule,
+          weekly: {
+            ...baseValues.schedule.weekly,
+            ...sessionDraft.schedule.weekly,
+          },
+        }
+      : baseValues.schedule,
+    settlementDraft: null,
+  };
+};
 
 export interface MentorRegistrationControllerState {
   form: UseFormReturn<
@@ -99,12 +221,15 @@ export interface MentorRegistrationControllerActions {
   onCancelModalOpenChange: (nextOpen: boolean) => void;
   onOpenPreview: () => void;
   onClosePreview: () => void;
-  onPreviewResizeStart: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onPreviewResizeStart: (
+    event: ReactPointerEvent<HTMLDivElement>,
+    direction?: 'left' | 'right',
+  ) => void;
   onSave: (values: MentorRegistrationFormValues) => void;
   onCancel: () => void;
   onPhoneVerificationComplete: (phoneNumber: string) => void;
   onWelcomeModalToMentorPage: () => void;
-  onWelcomeModalToRequestPage: () => void;
+  onWelcomeModalToEditAgain: () => void;
   onCompleteEntryOnboarding: (
     values: MentorRegistrationEntryOnboardingValues,
   ) => void;
@@ -148,6 +273,8 @@ export const useMentorRegistrationController =
       isHydrated && isAuthenticated && canWriteMentorProfile,
     );
     const upsertMyMentorSettingsMutation = useUpsertMyMentorSettingsMutation();
+    const markMentorEntryOnboardingSeenMutation =
+      useMarkMentorEntryOnboardingSeenMutation();
     const myMentorSettingsResult = myMentorSettingsQuery.data;
     const myMentorSettings =
       myMentorSettingsResult?.kind === 'found'
@@ -156,6 +283,13 @@ export const useMentorRegistrationController =
     const registrationOptions = mentorRegistrationOptionsQuery.data;
     const isEntryFromMentoringList =
       isMentorRegistrationEntryFromList(searchParams);
+    const mentorEntryOnboardingStatusQuery = useMentorEntryOnboardingStatusQuery(
+      isHydrated &&
+        isAuthenticated &&
+        canWriteMentorProfile &&
+        Boolean(memberId) &&
+        isEntryFromMentoringList,
+    );
 
     const [isGuideOpen, setIsGuideOpen] = useState(false);
     const [isPhoneVerificationModalOpen, setIsPhoneVerificationModalOpen] =
@@ -181,6 +315,7 @@ export const useMentorRegistrationController =
     const prevPreviewFormValuesRef =
       useRef<MentorRegistrationFormValues | null>(null);
     const initializedMentorIdRef = useRef<number | null>(null);
+    const initializedDraftMemberIdRef = useRef<number | null>(null);
     const entryOnboardingInitializedRef = useRef(false);
     const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
       null,
@@ -193,12 +328,13 @@ export const useMentorRegistrationController =
     >({
       resolver: zodResolver(mentorRegistrationSchema),
       mode: 'onChange',
+      reValidateMode: 'onChange',
       defaultValues: DEFAULT_VALUES,
     });
 
     const {
       getValues,
-      watch,
+      control,
       setValue,
       reset,
       formState: { isDirty },
@@ -222,18 +358,114 @@ export const useMentorRegistrationController =
 
       initializedMentorIdRef.current = myMentorSettings.mentorId;
       const settings = myMentorSettings.settings;
-      reset({
+      const baseValues: MentorRegistrationFormInputValues = {
         ...settings,
         updatedAt: settings.updatedAt,
+      };
+      const sessionDraft =
+        memberId !== undefined
+          ? readMentorRegistrationSessionDraft(memberId)
+          : undefined;
+
+      reset(
+        mergeMentorRegistrationFormValuesWithSessionDraft({
+          baseValues,
+          sessionDraft,
+        }),
+      );
+      initializedDraftMemberIdRef.current = memberId ?? null;
+    }, [memberId, myMentorSettings, reset]);
+
+    useEffect(() => {
+      if (
+        !isHydrated ||
+        !isAuthenticated ||
+        !canWriteMentorProfile ||
+        !memberId ||
+        myMentorSettingsQuery.isLoading ||
+        myMentorSettings
+      ) {
+        return;
+      }
+
+      if (initializedDraftMemberIdRef.current === memberId) {
+        return;
+      }
+
+      initializedDraftMemberIdRef.current = memberId;
+      const sessionDraft = readMentorRegistrationSessionDraft(memberId);
+      if (!sessionDraft) {
+        return;
+      }
+
+      reset(
+        mergeMentorRegistrationFormValuesWithSessionDraft({
+          baseValues: createDefaultFormValues(),
+          sessionDraft,
+        }),
+      );
+    }, [
+      canWriteMentorProfile,
+      isAuthenticated,
+      isHydrated,
+      memberId,
+      myMentorSettings,
+      myMentorSettingsQuery.isLoading,
+      reset,
+    ]);
+
+    useEffect(() => {
+      if (
+        !isHydrated ||
+        !isAuthenticated ||
+        !canWriteMentorProfile ||
+        !memberId ||
+        myMentorSettingsQuery.isLoading
+      ) {
+        return;
+      }
+
+      let persistTimer: ReturnType<typeof setTimeout> | null = null;
+      const subscription = form.watch(() => {
+        if (persistTimer !== null) {
+          clearTimeout(persistTimer);
+        }
+
+        persistTimer = setTimeout(() => {
+          writeMentorRegistrationSessionDraft({
+            memberId,
+            values: getValues(),
+          });
+        }, 180);
       });
-    }, [myMentorSettings, reset]);
+
+      return () => {
+        if (persistTimer !== null) {
+          clearTimeout(persistTimer);
+        }
+        subscription.unsubscribe();
+      };
+    }, [
+      canWriteMentorProfile,
+      form,
+      getValues,
+      isAuthenticated,
+      isHydrated,
+      memberId,
+      myMentorSettingsQuery.isLoading,
+    ]);
 
     useEffect(() => {
       if (entryOnboardingInitializedRef.current) {
         return;
       }
 
-      if (!isHydrated || !isAuthenticated || !memberId) {
+      if (
+        !isHydrated ||
+        !isAuthenticated ||
+        !memberId ||
+        !canWriteMentorProfile
+      ) {
         return;
       }
 
@@ -241,49 +473,35 @@ export const useMentorRegistrationController =
         return;
       }
 
-      if (hasSeenMentorRegistrationEntryOnboarding(memberId)) {
-        entryOnboardingInitializedRef.current = true;
-
+      if (
+        mentorEntryOnboardingStatusQuery.isLoading ||
+        mentorEntryOnboardingStatusQuery.isFetching
+      ) {
         return;
       }
 
       entryOnboardingInitializedRef.current = true;
-      setIsEntryOnboardingOpen(true);
+      if (mentorEntryOnboardingStatusQuery.data?.show === true) {
+        setIsEntryOnboardingOpen(true);
+      }
     }, [
+      canWriteMentorProfile,
       isAuthenticated,
       isEntryFromMentoringList,
       isHydrated,
       memberId,
+      mentorEntryOnboardingStatusQuery.data?.show,
+      mentorEntryOnboardingStatusQuery.isFetching,
+      mentorEntryOnboardingStatusQuery.isLoading,
     ]);
 
-    const mentoringTitle = watch('mentoringTitle');
-    const appealLine = watch('appealLine');
-    const jobGroup = watch('jobGroup');
-    const jobTitle = watch('jobTitle');
-    const careerYears = watch('careerYears');
-    const skillTags = watch('skillTags');
-    const companyCategory = watch('companyCategory');
-    const companyName = watch('companyName');
-    const hideCompanyName = watch('hideCompanyName');
-    const detailedDescription = watch('detailedDescription');
-    const interviewQuestions = watch('interviewQuestions');
-    const preNotice = watch('preNotice');
-    const notePrice = watch('notePrice');
-    const simplePrice = watch('simplePrice');
-    const deepPrice = watch('deepPrice');
-    const offlinePrice = watch('offlinePrice');
-    const deepDurationMinutes = watch('deepDurationMinutes');
-    const offlineDurationMinutes = watch('offlineDurationMinutes');
-    const noteEnabled = watch('noteEnabled');
-    const simpleEnabled = watch('simpleEnabled');
-    const deepEnabled = watch('deepEnabled');
-    const offlineEnabled = watch('offlineEnabled');
-    const contactCountryCode = watch('contactCountryCode');
-    const contactPhone = watch('contactPhone');
-    const contactEmail = watch('contactEmail');
-    const maxParticipants = watch('maxParticipants');
-    const schedule = watch('schedule');
-    const updatedAt = watch('updatedAt');
+    const shouldSubscribePreviewFields = isPreviewOpen || isEntryOnboardingOpen;
+    const watchedPreviewFields = useWatch({
+      control,
+      disabled: !shouldSubscribePreviewFields,
+    }) as MentorRegistrationFormInputValues | undefined;
+    const previewFieldValues = watchedPreviewFields ?? getValues();
+
     const {
       selectedRegistrationOptions,
       jobTitleLabelMap,
@@ -298,34 +516,35 @@ export const useMentorRegistrationController =
       nickname,
       memberName,
       fields: {
-        contactCountryCode,
-        contactPhone,
-        contactEmail,
-        mentoringTitle,
-        appealLine,
-        jobGroup,
-        jobTitle,
-        careerYears,
-        skillTags,
-        companyCategory,
-        companyName,
-        hideCompanyName,
-        maxParticipants,
-        noteEnabled,
-        notePrice,
-        simpleEnabled,
-        simplePrice,
-        deepEnabled,
-        deepPrice,
-        deepDurationMinutes,
-        offlineEnabled,
-        offlinePrice,
-        offlineDurationMinutes,
-        schedule,
-        detailedDescription,
-        interviewQuestions,
-        preNotice,
-        updatedAt,
+        contactCountryCode: previewFieldValues.contactCountryCode,
+        contactPhone: previewFieldValues.contactPhone,
+        contactEmail: previewFieldValues.contactEmail,
+        mentoringTitle: previewFieldValues.mentoringTitle,
+        appealLine: previewFieldValues.appealLine,
+        jobGroup: previewFieldValues.jobGroup,
+        jobTitle: previewFieldValues.jobTitle,
+        careerYears: previewFieldValues.careerYears,
+        skillTags: previewFieldValues.skillTags ?? [],
+        companyCategory: previewFieldValues.companyCategory,
+        companyName: previewFieldValues.companyName,
+        hideCompanyName: previewFieldValues.hideCompanyName,
+        listVisible: previewFieldValues.listVisible,
+        maxParticipants: previewFieldValues.maxParticipants,
+        noteEnabled: previewFieldValues.noteEnabled,
+        notePrice: previewFieldValues.notePrice,
+        simpleEnabled: previewFieldValues.simpleEnabled,
+        simplePrice: previewFieldValues.simplePrice,
+        deepEnabled: previewFieldValues.deepEnabled,
+        deepPrice: previewFieldValues.deepPrice,
+        deepDurationMinutes: previewFieldValues.deepDurationMinutes,
+        offlineEnabled: previewFieldValues.offlineEnabled,
+        offlinePrice: previewFieldValues.offlinePrice,
+        offlineDurationMinutes: previewFieldValues.offlineDurationMinutes,
+        schedule: previewFieldValues.schedule,
+        detailedDescription: previewFieldValues.detailedDescription,
+        interviewQuestions: previewFieldValues.interviewQuestions,
+        preNotice: previewFieldValues.preNotice,
+        updatedAt: previewFieldValues.updatedAt,
       },
     });
 
@@ -471,6 +690,10 @@ export const useMentorRegistrationController =
 
       upsertMyMentorSettingsMutation.mutate(finalizedValues, {
         onSuccess: (result) => {
+          if (memberId) {
+            clearMentorRegistrationSessionDraft(memberId);
+          }
+
           const mentorId = result.mentorId;
           if (result.created || existingMentorId === undefined) {
             const displayName =
@@ -478,6 +701,7 @@ export const useMentorRegistrationController =
             setWelcomeOnboarding({
               mentorId,
               displayName,
+              listVisible: finalizedValues.listVisible,
               checklist: buildWelcomeChecklist(finalizedValues),
             });
 
@@ -528,9 +752,8 @@ export const useMentorRegistrationController =
       router.push(`/mentoring/${mentorId}`);
     };
 
-    const handleWelcomeModalToRequestPage = () => {
+    const handleWelcomeModalToEditAgain = () => {
       setWelcomeOnboarding(undefined);
-      router.push('/mentoring');
     };
 
     const handleCompleteEntryOnboarding = (
@@ -557,7 +780,9 @@ export const useMentorRegistrationController =
         );
       }
 
-      markMentorRegistrationEntryOnboardingAsSeen(memberId);
+      if (!markMentorEntryOnboardingSeenMutation.isPending) {
+        markMentorEntryOnboardingSeenMutation.mutate();
+      }
       setIsEntryOnboardingOpen(false);
       showToast(
         MENTOR_REGISTRATION_TOAST_MESSAGES.entryOnboardingCompleted,
@@ -566,7 +791,9 @@ export const useMentorRegistrationController =
     };
 
     const handleSkipEntryOnboarding = () => {
-      markMentorRegistrationEntryOnboardingAsSeen(memberId);
+      if (!markMentorEntryOnboardingSeenMutation.isPending) {
+        markMentorEntryOnboardingSeenMutation.mutate();
+      }
       setIsEntryOnboardingOpen(false);
     };
 
@@ -611,7 +838,7 @@ export const useMentorRegistrationController =
         onCancel: handleCancel,
         onPhoneVerificationComplete: handlePhoneVerificationComplete,
         onWelcomeModalToMentorPage: handleWelcomeModalToMentorPage,
-        onWelcomeModalToRequestPage: handleWelcomeModalToRequestPage,
+        onWelcomeModalToEditAgain: handleWelcomeModalToEditAgain,
         onCompleteEntryOnboarding: handleCompleteEntryOnboarding,
         onSkipEntryOnboarding: handleSkipEntryOnboarding,
         onConfirmExitWithoutSaving: () => router.push('/mentoring'),

@@ -42,33 +42,39 @@ export const isAllowedMarkdownImageExtension = (extension: string) => {
 };
 
 export const extractMarkdownImageUrls = (markdown: string): string[] => {
+  if (!markdown.includes('![') || !markdown.includes('](')) {
+    return [];
+  }
+
   return Array.from(markdown.matchAll(markdownImagePattern))
     .map((match) => normalizeMarkdownImageUrl(match[1] ?? ''))
     .filter((url) => url.length > 0);
 };
 
-export const hasOnlyHttpsImageUrls = (markdown: string) => {
-  return extractMarkdownImageUrls(markdown).every((url) => {
-    if (isRelativeImagesPath(url)) {
-      return true;
-    }
+export const isHttpsMarkdownImageUrl = (url: string) => {
+  if (isRelativeImagesPath(url)) {
+    return true;
+  }
 
-    try {
-      return new URL(url).protocol === 'https:';
-    } catch {
-      return false;
-    }
-  });
+  try {
+    return new URL(url).protocol === 'https:';
+  } catch {
+    return false;
+  }
+};
+
+export const hasAllowedMarkdownImageExtension = (url: string) => {
+  const extension = getUrlPathExtension(url);
+
+  return isAllowedMarkdownImageExtension(extension);
+};
+
+export const hasOnlyHttpsImageUrls = (markdown: string) => {
+  return extractMarkdownImageUrls(markdown).every(isHttpsMarkdownImageUrl);
 };
 
 export const hasOnlyAllowedImageExtensions = (markdown: string) => {
-  return extractMarkdownImageUrls(markdown).every((url) => {
-    try {
-      const extension = getUrlPathExtension(url);
-
-      return isAllowedMarkdownImageExtension(extension);
-    } catch {
-      return false;
-    }
-  });
+  return extractMarkdownImageUrls(markdown).every(
+    hasAllowedMarkdownImageExtension,
+  );
 };

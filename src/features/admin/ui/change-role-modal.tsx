@@ -5,8 +5,11 @@ import { useState } from 'react';
 import Button from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio';
-import { GetMemberListResponse, RoleId } from '../api/types';
-import { ROLE_OPTIONS } from '../const/member';
+import {
+  type GetMemberListResponse,
+  type ManageableRoleId,
+} from '../api/types';
+import { isManageableRoleId, ROLE_OPTIONS } from '../const/member';
 import { useChangeMemberRoleMutation } from '../model/use-member-list-query';
 
 interface ChangeRoleModalProps {
@@ -50,8 +53,8 @@ function ChangeRoleForm({
   members: GetMemberListResponse['content'];
   onClose: () => void;
 }) {
-  const INIT_ROLE: RoleId = 'ROLE_MEMBER';
-  const [role, setRole] = useState<RoleId>(INIT_ROLE);
+  const INIT_ROLE: ManageableRoleId = 'ROLE_MEMBER';
+  const [role, setRole] = useState<ManageableRoleId>(INIT_ROLE);
 
   const { mutate: changeStatus } = useChangeMemberRoleMutation();
 
@@ -72,7 +75,11 @@ function ChangeRoleForm({
         <RadioGroup
           className="w-full"
           defaultValue={INIT_ROLE}
-          onValueChange={(roleId: RoleId) => setRole(roleId)}
+          onValueChange={(roleId) => {
+            if (isManageableRoleId(roleId)) {
+              setRole(roleId);
+            }
+          }}
         >
           {ROLE_OPTIONS.map(({ value, label }) => (
             <div className="flex h-[48px] items-center gap-100" key={value}>

@@ -49,6 +49,7 @@ export const createDefaultMentorSettings = (): MentorSettings => {
     companyCategory: '기타',
     companyName: '',
     hideCompanyName: false,
+    listVisible: true,
     maxParticipants: 1,
     noteEnabled: true,
     notePrice: 3000,

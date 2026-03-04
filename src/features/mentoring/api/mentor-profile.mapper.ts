@@ -44,6 +44,14 @@ const toStringArray = (value: unknown): string[] => {
     .filter((item) => item.length > 0);
 };
 
+const toOptionalObject = <T extends object>(value: unknown): T | undefined => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return undefined;
+  }
+
+  return value as T;
+};
+
 const requireCodeLabel = ({
   value,
   scope,
@@ -283,24 +291,33 @@ const toMentorSettingsFromBoundary = ({
 }): MentorSettings => {
   const defaults = createDefaultMentorSettings();
   const content = boundary?.content;
-  const company = profile?.company;
+  const boundaryProfile = toOptionalObject<ProfileResponseDto>(boundary?.profile);
+  const company = boundaryProfile?.company ?? profile?.company;
+  const companyVisible =
+    typeof company?.visible === 'boolean'
+      ? company.visible
+      : typeof boundaryProfile?.companyVisible === 'boolean'
+        ? boundaryProfile.companyVisible
+        : typeof profile.companyVisible === 'boolean'
+          ? profile.companyVisible
+        : undefined;
   const jobGroup = requireCodeLabel({
-    value: profile.jobGroup,
+    value: boundaryProfile?.jobGroup ?? profile.jobGroup,
     scope,
     field: 'mentor.profile.jobGroup',
   });
   const jobTitle = requireCodeLabel({
-    value: profile.jobTitle,
+    value: boundaryProfile?.jobTitle ?? profile.jobTitle,
     scope,
     field: 'mentor.profile.jobTitle',
   });
   const career = requireCodeLabel({
-    value: profile.career,
+    value: boundaryProfile?.career ?? profile.career,
     scope,
     field: 'mentor.profile.career',
   });
   const keywordLabels = requireCodeLabelLabels({
-    value: profile.coreKeywords,
+    value: boundaryProfile?.coreKeywords ?? profile.coreKeywords,
     scope,
     field: 'mentor.profile.coreKeywords',
   });
@@ -326,18 +343,26 @@ const toMentorSettingsFromBoundary = ({
 
   return {
     ...defaults,
-    categories: toStringArray(profile?.categories),
+    categories: toStringArray(boundaryProfile?.categories ?? profile?.categories),
     mentoringTitle:
+      toTrimmedString(boundaryProfile?.mentoringTitle) ||
       toTrimmedString(profile?.mentoringTitle) ||
       toTrimmedString(boundary?.mentoringTitle),
-    appealLine: toTrimmedString(profile?.appealLine),
+    appealLine:
+      toTrimmedString(boundaryProfile?.appealLine) ||
+      toTrimmedString(profile?.appealLine),
     jobGroup: jobGroup.label,
     jobTitle: jobTitle.label,
     careerYears: career.label,
     skillTags: keywordLabels,
     companyCategory: normalizeCompanyCategory(company?.category),
-    companyName: toTrimmedString(company?.name),
-    hideCompanyName: company?.hideCompanyName === true,
+    companyName: toTrimmedString(
+      company?.name ?? boundaryProfile?.companyName ?? profile.companyName,
+    ),
+    hideCompanyName:
+      companyVisible !== undefined
+        ? !companyVisible
+        : company?.hideCompanyName === true,
     noteEnabled: methods.note.enabled === true,
     notePrice: methods.note.price,
     simpleEnabled: methods.simple.enabled === true,
@@ -425,23 +450,15 @@ export const mapMentorProfile = ({
     scope,
     field: 'mentor.profile',
   });
-  const boundary: MentorSettingsBoundaryResponseDto = {
-    ...(source.mentorSettings ?? {}),
-    profile,
-  };
+  const boundary = source.mentorSettings;
   const settings = toMentorSettingsFromBoundary({
     boundary,
     profile,
     methods,
     scope,
   });
-  const keywordLabels = requireCodeLabelLabels({
-    value: profile.coreKeywords,
-    scope,
-    field: 'mentor.profile.coreKeywords',
-  });
   const tags = Array.from(
-    new Set([...keywordLabels, ...toStringArray(source.introduction?.tags)]),
+    new Set([...settings.skillTags, ...toStringArray(source.introduction?.tags)]),
   );
   const companyLabel =
     settings.hideCompanyName

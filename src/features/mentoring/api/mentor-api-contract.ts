@@ -2,7 +2,8 @@ export type MentorApiContractScope =
   | 'mentor-registration-options-response'
   | 'mentor-list-response'
   | 'mentor-detail-response'
-  | 'my-mentor-settings-response';
+  | 'my-mentor-settings-response'
+  | 'mentor-entry-onboarding-response';
 
 export class MentorApiContractError extends Error {
   public readonly code = 'MENTOR_API_CONTRACT_ERROR';

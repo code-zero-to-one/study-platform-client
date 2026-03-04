@@ -16,6 +16,7 @@ import { useRouter } from 'next/navigation';
 import { type KeyboardEvent } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/ui/avatar';
+import Badge from '@/components/ui/badge';
 import {
   formatWon,
   getMentorDisplayTitle,
@@ -53,7 +54,6 @@ const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
   offline: Users,
 };
 
-const MENTOR_CARD_HEIGHT_CLASS = 'h-500px';
 const MAX_KEYWORD_COUNT = 6;
 
 export default function MentorCard({ mentor }: MentorCardProps) {
@@ -63,13 +63,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
   const appealLine = mentorSettings.appealLine.trim();
   const jobGroupLabel = mentorSettings.jobGroup.trim();
   const jobTitleLabel = mentorSettings.jobTitle.trim();
-  const roleSummaryLabel = Array.from(
-    new Set(
-      [jobGroupLabel, jobTitleLabel]
-        .map((value) => value.trim())
-        .filter((value) => value.length > 0),
-    ),
-  ).join(' · ');
+  const topHeadlineBadgeLabel = jobGroupLabel;
   const keywords = Array.from(
     new Set([...mentorSettings.skillTags, ...mentor.tags]),
   )
@@ -112,8 +106,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
     <article
       className={cn(
         'hover:shadow-2 hover:border-border-brand rounded-150',
-        'cursor-pointer self-start overflow-hidden border border-[#E5E7EB] bg-white',
-        MENTOR_CARD_HEIGHT_CLASS,
+        'cursor-pointer h-full overflow-hidden border border-[#E5E7EB] bg-white',
         'transition-all',
       )}
       role="button"
@@ -121,9 +114,20 @@ export default function MentorCard({ mentor }: MentorCardProps) {
       onClick={navigateDetail}
       onKeyDown={handleKeyDown}
     >
-      <div className="flex h-full flex-col justify-between px-300 py-300">
+      <div className="flex h-full flex-col justify-center px-300 py-300">
         <div>
-          <div className="mb-125 h-[58px]">
+          {topHeadlineBadgeLabel.length > 0 && (
+            <div className="mb-100">
+              <Badge
+                color="primary"
+                shape="round"
+                className="font-designer-12b px-125 py-75"
+              >
+                {topHeadlineBadgeLabel}
+              </Badge>
+            </div>
+          )}
+          <div className="mb-125">
             <h3 className="font-designer-18b text-text-default line-clamp-2 break-words">
               {mentoringTitle}
             </h3>
@@ -140,13 +144,15 @@ export default function MentorCard({ mentor }: MentorCardProps) {
               <p className="font-designer-16m text-text-default mb-50 line-clamp-1">
                 {mentor.nickname}
               </p>
-              <div className="mb-75 flex flex-col gap-25">
+              {jobTitleLabel.length > 0 && (
                 <div className="flex min-w-0 items-center gap-125">
                   <Briefcase className="text-text-subtlest h-160 w-160 shrink-0" />
                   <span className="font-designer-13m text-text-subtle line-clamp-1">
-                    {roleSummaryLabel}
+                    {jobTitleLabel}
                   </span>
                 </div>
+              )}
+              <div className="mt-75">
                 <div className="flex min-w-0 items-center gap-125">
                   <TrendingUp className="text-text-subtlest h-160 w-160 shrink-0" />
                   <span className="font-designer-13m text-text-subtle line-clamp-1">
@@ -155,7 +161,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
                 </div>
               </div>
               {appealLine.length > 0 && (
-                <div className="inline-flex min-w-0 items-center gap-125">
+                <div className="mt-75 inline-flex min-w-0 items-center gap-125">
                   <Building2 className="text-text-brand h-160 w-160 shrink-0" />
                   <span className="font-designer-13m text-text-brand line-clamp-1">
                     {appealLine}
@@ -185,7 +191,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
         </div>
 
         {keywords.length > 0 && (
-          <div className="mt-auto mb-0">
+          <div className="mt-150 mb-0">
             <div className="rounded-125 bg-background-alternative px-150 py-125">
               <div className="flex max-h-[50px] flex-wrap gap-x-200 gap-y-75 overflow-hidden">
                 {keywords.map((keyword) => (
@@ -205,7 +211,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
         <div
           className={cn(
             'mb-250 grid grid-cols-2 gap-x-200 gap-y-100',
-            keywords.length > 0 ? 'mt-250' : 'mt-auto',
+            keywords.length > 0 ? 'mt-150' : 'mt-200',
           )}
         >
           {METHOD_ORDER.map((method) => {

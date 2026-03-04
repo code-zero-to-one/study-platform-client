@@ -41,6 +41,7 @@ export interface MentorRegistrationWelcomeChecklistItem {
 export interface MentorRegistrationWelcomeOnboardingState {
   mentorId: number;
   displayName: string;
+  listVisible: boolean;
   checklist: MentorRegistrationWelcomeChecklistItem[];
 }
 

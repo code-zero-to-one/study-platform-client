@@ -21,15 +21,11 @@ interface MentorDetailRouteClientProps {
 export default function MentorDetailRouteClient({
   mentorId,
 }: MentorDetailRouteClientProps) {
-  const { isHydrated, isAuthenticated, data } = useAuthReady();
+  const { isHydrated, isAuthenticated } = useAuthReady();
   const { showToast } = useToastStore();
   const mentorDetailQuery = useMentorDetailQuery(mentorId, isHydrated);
-  const canCheckOwnMentorProfile =
-    isAuthenticated &&
-    (data?.roleIds?.includes('ROLE_MENTOR') ||
-      data?.roleIds?.includes('ROLE_ADMIN'));
   const myMentorSettingsQuery = useMyMentorSettingsQuery(
-    isHydrated && canCheckOwnMentorProfile,
+    isHydrated && isAuthenticated,
   );
 
   if (!isHydrated) {

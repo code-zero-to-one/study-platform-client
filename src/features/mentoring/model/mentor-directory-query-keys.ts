@@ -3,6 +3,7 @@ import type {
   MentorDirectoryMySettingsQueryKey,
   MentorDirectoryListQueryKey,
   MentorDirectoryListQueryParams,
+  MentorEntryOnboardingStatusQueryKey,
   MentorRegistrationOptionsQueryKey,
 } from '@/types/mentoring/directory-query';
 
@@ -29,5 +30,9 @@ export const mentorDirectoryQueryKeys = {
   registrationOptions: (): MentorRegistrationOptionsQueryKey => [
     ...mentorDirectoryQueryKeys.directories(),
     'registration-options',
+  ],
+  entryOnboarding: (): MentorEntryOnboardingStatusQueryKey => [
+    ...mentorDirectoryQueryKeys.directories(),
+    'entry-onboarding',
   ],
 };

@@ -14,7 +14,7 @@ import {
   Quote,
   Strikethrough,
 } from 'lucide-react';
-import { useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import {
@@ -194,7 +194,7 @@ const insertableBlocks = [
   },
 ] as const;
 
-export default function MentorMarkdownEditor({
+function MentorMarkdownEditor({
   value,
   onChange,
   placeholder,
@@ -505,3 +505,19 @@ export default function MentorMarkdownEditor({
     </div>
   );
 }
+
+const areMentorMarkdownEditorPropsEqual = (
+  prev: MentorMarkdownEditorProps,
+  next: MentorMarkdownEditorProps,
+) => {
+  return (
+    prev.value === next.value &&
+    prev.onChange === next.onChange &&
+    prev.placeholder === next.placeholder
+  );
+};
+
+export default memo(
+  MentorMarkdownEditor,
+  areMentorMarkdownEditorPropsEqual,
+);

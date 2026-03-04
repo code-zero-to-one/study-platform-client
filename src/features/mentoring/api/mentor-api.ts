@@ -12,6 +12,10 @@ import type {
 import { mapMentorDetailContent } from './mentor-detail.mapper';
 import { mapMentorListContent } from './mentor-list.mapper';
 import {
+  mapMentorEntryOnboardingStatusContent,
+  type MentorEntryOnboardingStatus,
+} from './mentor-onboarding.mapper';
+import {
   buildMentorSettingsUpsertRequest,
   mapMyMentorSettingsContent,
   mapRegistrationOptionsContent,
@@ -99,6 +103,7 @@ const toImageExtension = (fileName: string): string => {
 };
 
 export type {
+  MentorEntryOnboardingStatus,
   MyMentorSettingsFoundResult,
   MyMentorSettingsNotFoundResult,
   MyMentorSettingsResult,
@@ -166,15 +171,7 @@ export const getMyMentorSettings = async (): Promise<MyMentorSettingsResult> => 
     return mapMyMentorSettingsContent(response.data.content);
   } catch (error) {
     if (error instanceof ApiError) {
-      if (error.statusCode === 404) {
-        return {
-          kind: 'not_found',
-        };
-      }
-
-      // Backend policy: before first mentor upsert, GET /mentors/me returns
-      // 403 MTR005 (@RequiresMentor). Treat this as "not registered yet".
-      if (error.statusCode === 403 && error.errorCode === 'MTR005') {
+      if (error.statusCode === 403 || error.statusCode === 404) {
         return {
           kind: 'not_found',
         };
@@ -209,6 +206,22 @@ export const upsertMyMentorSettings = async (
     created: content.created === true,
     updatedAt: toTrimmedString(content.updatedAt),
   };
+};
+
+export const getMentorEntryOnboardingStatus = async () => {
+  const response = await axiosInstance.get<ApiResponse<unknown>>(
+    '/mentors/onboarding/entry',
+  );
+
+  return mapMentorEntryOnboardingStatusContent(response.data.content);
+};
+
+export const markMentorEntryOnboardingSeen = async () => {
+  const response = await axiosInstance.post<ApiResponse<unknown>>(
+    '/mentors/onboarding/entry/seen',
+  );
+
+  return mapMentorEntryOnboardingStatusContent(response.data.content);
 };
 
 export const getMentorIntroImageUploadTicket = async ({

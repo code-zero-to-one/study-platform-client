@@ -33,3 +33,9 @@ export type MentorRegistrationOptionsQueryKey = readonly [
   'mentor-directory',
   'registration-options',
 ];
+
+export type MentorEntryOnboardingStatusQueryKey = readonly [
+  'mentoring',
+  'mentor-directory',
+  'entry-onboarding',
+];

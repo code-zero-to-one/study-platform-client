@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import {
   extractMarkdownImageUrls,
-  hasOnlyAllowedImageExtensions,
-  hasOnlyHttpsImageUrls,
+  hasAllowedMarkdownImageExtension,
+  isHttpsMarkdownImageUrl,
   MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
 } from '@/types/mentoring/markdown';
 import {
@@ -14,6 +14,53 @@ import {
 
 export const MENTORING_TITLE_MIN_LENGTH = 10;
 export const MENTORING_TITLE_MAX_LENGTH = 40;
+const EMAIL_ADDRESS_REGEX =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const isIgnoredEmailCharacter = (char: string): boolean => {
+  if (char.trim().length === 0) {
+    return true;
+  }
+
+  const code = char.codePointAt(0);
+  if (code === undefined) {
+    return true;
+  }
+
+  if (
+    (code >= 0x0000 && code <= 0x001f) ||
+    code === 0x007f ||
+    (code >= 0x0080 && code <= 0x009f)
+  ) {
+    return true;
+  }
+
+  if (
+    code === 0x00a0 ||
+    code === 0x1680 ||
+    code === 0x180e ||
+    (code >= 0x2000 && code <= 0x200f) ||
+    (code >= 0x2028 && code <= 0x202f) ||
+    (code >= 0x205f && code <= 0x206f) ||
+    code === 0x3000 ||
+    code === 0xfeff
+  ) {
+    return true;
+  }
+
+  return false;
+};
+
+const normalizeEmailInput = (value: string): string => {
+  const normalized = value.normalize('NFKC');
+  const compact = Array.from(normalized)
+    .filter((char) => !isIgnoredEmailCharacter(char))
+    .join('');
+
+  const match = compact.match(/<([^<>]+)>/);
+
+  return match?.[1]?.trim() ?? compact.trim();
+};
 
 const timeSlotSchema = z
   .string()
@@ -152,7 +199,17 @@ export const mentorRegistrationSchema = z
       .refine((value) => value === '' || /^\d{8,12}$/.test(value), {
         message: '연락처는 숫자 8~12자리로 입력해주세요.',
       }),
-    contactEmail: z.string().trim().email('이메일 형식이 올바르지 않습니다.'),
+    contactEmail: z
+      .string()
+      .transform(normalizeEmailInput)
+      .pipe(
+        z
+          .string()
+          .min(1, '이메일을 입력해주세요.')
+          .refine((value) => EMAIL_ADDRESS_REGEX.test(value), {
+            message: '이메일 형식이 올바르지 않습니다.',
+          }),
+      ),
     categories: z.array(z.string().trim().min(1)).default([]),
     mentoringTitle: z
       .string()
@@ -192,6 +249,7 @@ export const mentorRegistrationSchema = z
       .min(1, '회사명을 입력해주세요.')
       .max(40, '회사명은 40자 이하로 입력해주세요.'),
     hideCompanyName: z.boolean(),
+    listVisible: z.boolean(),
     maxParticipants: z.coerce
       .number()
       .int('최대인원은 정수여야 합니다.')
@@ -353,7 +411,7 @@ export const mentorRegistrationSchema = z
       });
     }
 
-    if (!hasOnlyHttpsImageUrls(values.detailedDescription)) {
+    if (!markdownImageUrls.every(isHttpsMarkdownImageUrl)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['detailedDescription'],
@@ -361,7 +419,7 @@ export const mentorRegistrationSchema = z
       });
     }
 
-    if (!hasOnlyAllowedImageExtensions(values.detailedDescription)) {
+    if (!markdownImageUrls.every(hasAllowedMarkdownImageExtension)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['detailedDescription'],

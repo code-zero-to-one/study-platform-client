@@ -28,6 +28,7 @@ export const createServerLikeMentorRegistrationValues = (
     companyCategory: '창업',
     companyName: 'ZERO-ONE',
     hideCompanyName: false,
+    listVisible: true,
     maxParticipants: 2,
     noteEnabled: true,
     notePrice: 29000,

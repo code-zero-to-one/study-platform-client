@@ -39,6 +39,7 @@ interface MentorRegistrationPreviewFields {
   companyCategory?: MentorRegistrationFormValues['companyCategory'];
   companyName?: string;
   hideCompanyName?: boolean;
+  listVisible?: boolean;
   maxParticipants?: MentorRegistrationFormInputValues['maxParticipants'];
   noteEnabled?: boolean;
   notePrice?: MentorRegistrationFormInputValues['notePrice'];
@@ -165,6 +166,7 @@ export const useMentorRegistrationPreviewModel = ({
       companyCategory: fields.companyCategory ?? defaults.companyCategory,
       companyName: fields.companyName ?? '',
       hideCompanyName: fields.hideCompanyName ?? false,
+      listVisible: fields.listVisible ?? defaults.listVisible,
       maxParticipants: Math.min(
         10,
         Math.max(

@@ -56,7 +56,6 @@ export type MyMentorSettingsResult =
   | MyMentorSettingsFoundResult
   | MyMentorSettingsNotFoundResult;
 
-
 const COMPANY_CATEGORY_SET = new Set(['네카라쿠배', 'IT 유니콘', '창업', '기타']);
 
 const toTrimmedString = (value: unknown): string => {
@@ -75,6 +74,24 @@ const toStringArray = (value: unknown): string[] => {
   return value
     .map(toTrimmedString)
     .filter((item) => item.length > 0);
+};
+
+const requireBoolean = ({
+  value,
+  field,
+}: {
+  value: unknown;
+  field: string;
+}) => {
+  if (typeof value !== 'boolean') {
+    throw toContractError({
+      scope: 'my-mentor-settings-response',
+      field,
+      causeData: value,
+    });
+  }
+
+  return value;
 };
 
 const requireCodeFromCodeLabel = ({
@@ -401,6 +418,18 @@ const toMentorSettingsFormValues = (
     field: 'content.settings.profile',
   });
   const company = profile?.company;
+  const companyVisible =
+    typeof company?.visible === 'boolean'
+      ? company.visible
+      : typeof profile.companyVisible === 'boolean'
+        ? profile.companyVisible
+        : undefined;
+  const listVisible =
+    typeof source.listVisible === 'boolean'
+      ? source.listVisible
+      : typeof profile.listVisible === 'boolean'
+        ? profile.listVisible
+        : defaults.listVisible;
   const content = source.content;
   const coreKeywordCodeArray =
     profile.coreKeywordCodes === undefined
@@ -437,8 +466,12 @@ const toMentorSettingsFormValues = (
     }),
     skillTags: coreKeywordCodes,
     companyCategory: normalizeCompanyCategory(company?.category),
-    companyName: toTrimmedString(company?.name),
-    hideCompanyName: company?.hideCompanyName === true,
+    companyName: toTrimmedString(company?.name ?? profile.companyName),
+    hideCompanyName:
+      companyVisible !== undefined
+        ? !companyVisible
+        : company?.hideCompanyName === true,
+    listVisible,
     maxParticipants:
       typeof source.policy?.maxParticipants === 'number'
         ? source.policy.maxParticipants
@@ -667,12 +700,23 @@ export const mapRegistrationOptionsContent = (
 
 export const mapMyMentorSettingsContent = (
   content: unknown,
-): MyMentorSettingsFoundResult => {
+): MyMentorSettingsResult => {
   const contentObject = requireObject<MyMentorSettingsResponseDto>({
     value: content,
     scope: 'my-mentor-settings-response',
     field: 'content',
   });
+  const registered = requireBoolean({
+    value: contentObject.registered,
+    field: 'content.registered',
+  });
+
+  if (!registered) {
+    return {
+      kind: 'not_found',
+    };
+  }
+
   const mentorId = requireInteger({
     value: contentObject.mentorId,
     scope: 'my-mentor-settings-response',
@@ -744,13 +788,13 @@ const toWeeklyRangesFromWeekly = (
   };
 
   return {
-    MON: toRanges(weekly.MON),
-    TUE: toRanges(weekly.TUE),
-    WED: toRanges(weekly.WED),
-    THU: toRanges(weekly.THU),
-    FRI: toRanges(weekly.FRI),
-    SAT: toRanges(weekly.SAT),
-    SUN: toRanges(weekly.SUN),
+    mon: toRanges(weekly.MON),
+    tue: toRanges(weekly.TUE),
+    wed: toRanges(weekly.WED),
+    thu: toRanges(weekly.THU),
+    fri: toRanges(weekly.FRI),
+    sat: toRanges(weekly.SAT),
+    sun: toRanges(weekly.SUN),
   };
 };
 
@@ -769,10 +813,9 @@ export const buildMentorSettingsUpsertRequest = (
     jobTitleCode: values.jobTitle,
     careerCode: values.careerYears,
     coreKeywordCodes: values.skillTags,
-    companyCategory: values.companyCategory,
     companyName: values.companyName,
-    hideCompanyName: values.hideCompanyName,
-    maxParticipants: values.maxParticipants,
+    companyVisible: !values.hideCompanyName,
+    listVisible: values.listVisible,
     methods: [
       {
         type: MENTORING_METHOD_REQUEST_TYPE_MAP.note,
@@ -800,7 +843,6 @@ export const buildMentorSettingsUpsertRequest = (
     ],
     schedule: {
       timezone: values.schedule.timezone,
-      slotUnitMinutes: values.schedule.slotUnitMinutes,
       weekly: {
         mon: weekly.MON,
         tue: weekly.TUE,

@@ -350,3 +350,10 @@ Endpoint: `GET /api/v1/mentors`
 - 프론트는 등록 폼 렌더링 시 반드시 `GET /mentors/registration/options`를 선호 데이터 소스로 사용.
 - 옵션 응답 실패 시 멘토 등록 진입 차단(하드코딩 fallback 금지).
 - 목록/상세는 응답의 `code + label`만 표시하며 로컬 매핑 테이블 미사용.
+- `GET /mentors/me`는 `content.registered`를 필수 분기 기준으로 사용:
+  - `registered=true`면 `content.mentorId`(number), `content.settings`(object) 필수
+  - `registered=false`면 미등록으로 처리 (`mentorId/settings`는 `null` 허용)
+- `/mentors/me` 파싱은 strict 모드로 동작하며 `content.mentor` fallback을 사용하지 않음.
+- `/mentors/me` 에러 처리 정책:
+  - `403/404`는 미등록(`not_found`)으로 처리
+  - `5xx` 및 계약 파싱 오류는 에러로 유지 (등록 화면은 차단, 상세 화면은 본문 유지 + 수정 버튼 숨김)

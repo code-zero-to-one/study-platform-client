@@ -91,6 +91,7 @@ export interface IntroductionResponseDto {
 export interface CompanyResponseDto {
   category?: string;
   name?: string;
+  visible?: boolean;
   hideCompanyName?: boolean;
 }
 
@@ -98,6 +99,7 @@ export interface ProfileResponseDto {
   categories?: string[];
   mentoringTitle?: string;
   appealLine?: string;
+  listVisible?: boolean;
   jobGroup?: string | CodeLabelResponseDto;
   jobGroupCode?: string;
   jobTitle?: string | CodeLabelResponseDto;
@@ -108,6 +110,8 @@ export interface ProfileResponseDto {
   coreKeywords?: Array<string | CodeLabelResponseDto>;
   coreKeywordCodes?: string[];
   skillTags?: string[];
+  companyName?: string;
+  companyVisible?: boolean;
   company?: CompanyResponseDto;
 }
 
@@ -186,9 +190,12 @@ export interface WeeklyRangesResponseDto {
   sun?: WeeklyRangeResponseDto[];
 }
 
-export interface MentorDetailResponseDto {
+export interface MentorDetailWrappedResponseDto {
   mentor?: MentorProfileResponseDto;
 }
+export type MentorDetailResponseDto =
+  | MentorProfileResponseDto
+  | MentorDetailWrappedResponseDto;
 
 export interface ContactResponseDto {
   email?: string;
@@ -232,6 +239,7 @@ export interface MentoringPolicyResponseDto {
 export interface MentorSettingsResponseDto {
   contact?: ContactResponseDto;
   profile?: ProfileResponseDto;
+  listVisible?: boolean;
   policy?: MentoringPolicyResponseDto;
   methods?: MethodResponseDto[];
   schedule?: ScheduleResponseDto;
@@ -239,15 +247,34 @@ export interface MentorSettingsResponseDto {
   metadata?: MetadataResponseDto;
 }
 
-export interface MyMentorSettingsResponseDto {
+export interface MyMentorCompatibilityResponseDto {
   mentorId?: number;
+  id?: number;
   settings?: MentorSettingsResponseDto;
+}
+
+export interface MyMentorSettingsResponseDto {
+  // eslint-disable-next-line @rushstack/no-new-null -- backend contract returns null for unregistered users.
+  mentorId?: number | null;
+  registered?: boolean;
+  // eslint-disable-next-line @rushstack/no-new-null -- backend contract returns null for unregistered users.
+  settings?: MentorSettingsResponseDto | null;
+  // eslint-disable-next-line @rushstack/no-new-null -- legacy compatibility field; parser does not consume this field.
+  mentor?: MyMentorCompatibilityResponseDto | null;
 }
 
 export interface MentorUpsertResponseDto {
   mentorId?: number;
   created?: boolean;
   updatedAt?: string;
+}
+
+export interface MentorEntryOnboardingStatusResponseDto {
+  key?: string;
+  version?: string;
+  show?: boolean;
+  // eslint-disable-next-line @rushstack/no-new-null -- backend response uses null for unseen onboarding.
+  seenAt?: string | null;
 }
 
 export interface MentorIntroImageUploadUrlResponseDto {
@@ -278,13 +305,13 @@ export interface MentorTimeRangeRequestDto {
 }
 
 export interface MentorWeeklyRangesRequestDto {
-  MON: MentorTimeRangeRequestDto[];
-  TUE: MentorTimeRangeRequestDto[];
-  WED: MentorTimeRangeRequestDto[];
-  THU: MentorTimeRangeRequestDto[];
-  FRI: MentorTimeRangeRequestDto[];
-  SAT: MentorTimeRangeRequestDto[];
-  SUN: MentorTimeRangeRequestDto[];
+  mon: MentorTimeRangeRequestDto[];
+  tue: MentorTimeRangeRequestDto[];
+  wed: MentorTimeRangeRequestDto[];
+  thu: MentorTimeRangeRequestDto[];
+  fri: MentorTimeRangeRequestDto[];
+  sat: MentorTimeRangeRequestDto[];
+  sun: MentorTimeRangeRequestDto[];
 }
 
 export interface MentorSettingsUpsertRequestDto {
@@ -296,14 +323,12 @@ export interface MentorSettingsUpsertRequestDto {
   jobTitleCode: string;
   careerCode: string;
   coreKeywordCodes: string[];
-  companyCategory: string;
   companyName: string;
-  hideCompanyName: boolean;
-  maxParticipants: number;
+  companyVisible: boolean;
+  listVisible: boolean;
   methods: MentorMethodRequestDto[];
   schedule: {
     timezone: string;
-    slotUnitMinutes: number;
     weekly?: MentorWeeklyRequestDto;
     weeklyRanges?: MentorWeeklyRangesRequestDto;
   };

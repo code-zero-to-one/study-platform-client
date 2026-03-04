@@ -33,9 +33,9 @@ export const MENTOR_REGISTRATION_GUARD_CARD_CONTENT: Record<
     ctaHref: '/login',
   },
   permissionRequired: {
-    title: '멘토/관리자 권한이 필요합니다',
+    title: '회원/관리자 권한이 필요합니다',
     description:
-      '이 페이지는 ROLE_MENTOR 또는 ROLE_ADMIN 권한 사용자만 접근할 수 있습니다.',
+      '이 페이지는 ROLE_MEMBER 또는 ROLE_ADMIN 권한 사용자만 접근할 수 있습니다.',
     ctaLabel: '멘토링 목록으로 이동',
     ctaHref: '/mentoring',
   },

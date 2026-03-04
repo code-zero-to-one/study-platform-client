@@ -2,6 +2,7 @@
 
 import {
   CircleCheck,
+  Eye,
   Info,
   MessageCircle,
   Monitor,
@@ -34,7 +35,6 @@ import {
 } from '@/types/mentoring/registration-view';
 import {
   MENTORING_TITLE_MAX_LENGTH,
-  MENTORING_TITLE_MIN_LENGTH,
 } from '@/types/schemas/mentor-registration-schema';
 
 const METHOD_FIELDS: MentorRegistrationMethodField[] = [
@@ -86,6 +86,38 @@ const MAX_MENTORING_PRICE = 1_000_000;
 const PRICE_INPUT_STEP = 1000;
 const PRICE_INPUT_CLASS =
   '[appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
+
+type FieldRequirementState = 'required' | 'optional';
+
+const FIELD_REQUIREMENT_META: Record<
+  FieldRequirementState,
+  { label: string; className: string }
+> = {
+  required: {
+    label: '필수',
+    className: 'text-text-error',
+  },
+  optional: {
+    label: '선택',
+    className: 'text-text-subtle',
+  },
+};
+
+const FieldRequirementBadge = ({ state }: { state: FieldRequirementState }) => {
+  const meta = FIELD_REQUIREMENT_META[state];
+
+  return (
+    <span
+      className={cn(
+        'font-designer-12r border-border-subtle rounded-500 border px-75 py-25',
+        meta.className,
+      )}
+    >
+      {meta.label}
+    </span>
+  );
+};
+
 const METHOD_ICON_MAP: Record<
   MentorRegistrationMethodField['enabledField'],
   ReactNode
@@ -96,7 +128,63 @@ const METHOD_ICON_MAP: Record<
   offlineEnabled: <Users className="h-16 w-16" />,
 };
 
-const EMAIL_FORMAT_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const isPlainObject = (value: unknown): value is Record<string, unknown> => {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    return false;
+  }
+
+  const prototype = Object.getPrototypeOf(value);
+
+  return prototype === Object.prototype || prototype === null;
+};
+
+const collectErrorMessages = (value: unknown): string[] => {
+  if (!value || typeof value !== 'object') {
+    return [];
+  }
+
+  const messages: string[] = [];
+  const visited = new WeakSet<object>();
+  const queue: unknown[] = [value];
+
+  while (queue.length > 0) {
+    const node = queue.shift();
+    if (!node || typeof node !== 'object') {
+      continue;
+    }
+
+    if (visited.has(node)) {
+      continue;
+    }
+    visited.add(node);
+
+    if (Array.isArray(node)) {
+      queue.push(...node);
+      continue;
+    }
+
+    if (!isPlainObject(node)) {
+      continue;
+    }
+
+    const message = node.message;
+    if (typeof message === 'string') {
+      const trimmed = message.trim();
+      if (trimmed.length > 0) {
+        messages.push(trimmed);
+      }
+    }
+
+    Object.entries(node).forEach(([key, child]) => {
+      if (key === 'ref') {
+        return;
+      }
+      queue.push(child);
+    });
+  }
+
+  return messages;
+};
 
 export default function MentorRegistrationForm({
   form,
@@ -122,17 +210,21 @@ export default function MentorRegistrationForm({
   const jobTitle = watch('jobTitle');
   const careerYears = watch('careerYears');
   const skillTags = watch('skillTags');
-  const contactEmail = watch('contactEmail');
-  const mentoringTitle = watch('mentoringTitle');
-  const appealLine = watch('appealLine');
-  const companyName = watch('companyName');
   const noteEnabled = watch('noteEnabled');
   const hideCompanyName = watch('hideCompanyName');
+  const listVisible = watch('listVisible');
   const simpleEnabled = watch('simpleEnabled');
   const deepEnabled = watch('deepEnabled');
   const offlineEnabled = watch('offlineEnabled');
-  const schedule = watch('schedule');
-  const detailedDescription = watch('detailedDescription');
+  const methodEnabledState: Record<
+    MentorRegistrationMethodField['enabledField'],
+    boolean
+  > = {
+    noteEnabled,
+    simpleEnabled,
+    deepEnabled,
+    offlineEnabled,
+  };
   const jobGroupOptions = useMemo(() => {
     return options.jobGroups
       .filter((option) => option.active)
@@ -211,112 +303,17 @@ export default function MentorRegistrationForm({
       return [];
     }
 
-    const knownFieldMessages = [
-      errors.contactEmail?.message,
-      errors.mentoringTitle?.message,
-      errors.appealLine?.message,
-      errors.jobGroup?.message,
-      errors.jobTitle?.message,
-      errors.careerYears?.message,
-      errors.skillTags?.message,
-      errors.companyName?.message,
-      errors.noteEnabled?.message,
-      errors.schedule?.message,
-      errors.detailedDescription?.message,
-      errors.interviewQuestions?.message,
-      errors.interviewQuestions?.[0]?.message,
-      errors.preNotice?.message,
-    ]
-      .map((message) => (typeof message === 'string' ? message.trim() : ''))
-      .filter((message) => message.length > 0);
-    const messages = Array.from(new Set(knownFieldMessages)).slice(0, 3);
+    const messages = Array.from(new Set(collectErrorMessages(errors))).slice(
+      0,
+      3,
+    );
 
     if (messages.length > 0) {
       return messages;
     }
 
-    const fallbackReasons: string[] = [];
-    const normalizedEmail = contactEmail.trim();
-    const normalizedMentoringTitle = mentoringTitle.trim();
-    const normalizedAppealLine = appealLine.trim();
-    const normalizedCompanyName = companyName.trim();
-    const normalizedDescription = detailedDescription.trim();
-    const hasAnyMethodEnabled =
-      noteEnabled || simpleEnabled || deepEnabled || offlineEnabled;
-    const hasAnyScheduleSlot = Object.values(schedule?.weekly ?? {}).some(
-      (daySlots) => Array.isArray(daySlots) && daySlots.length > 0,
-    );
-
-    if (!normalizedEmail) {
-      fallbackReasons.push('이메일을 입력해주세요.');
-    } else if (!EMAIL_FORMAT_REGEX.test(normalizedEmail)) {
-      fallbackReasons.push('이메일 형식을 확인해주세요.');
-    }
-
-    if (!normalizedMentoringTitle) {
-      fallbackReasons.push('멘토링명을 입력해주세요.');
-    } else if (normalizedMentoringTitle.length < MENTORING_TITLE_MIN_LENGTH) {
-      fallbackReasons.push(
-        `멘토링명을 ${MENTORING_TITLE_MIN_LENGTH}자 이상 입력해주세요.`,
-      );
-    }
-
-    if (!normalizedAppealLine) {
-      fallbackReasons.push('한 줄 어필을 입력해주세요.');
-    } else if (normalizedAppealLine.length < 2) {
-      fallbackReasons.push('한 줄 어필을 2자 이상 입력해주세요.');
-    }
-
-    if (!jobGroup) {
-      fallbackReasons.push('멘토 직군을 선택해주세요.');
-    }
-    if (!jobTitle) {
-      fallbackReasons.push('멘토 직무를 선택해주세요.');
-    }
-    if (!careerYears) {
-      fallbackReasons.push('멘토 경력을 선택해주세요.');
-    }
-
-    if (skillTags.length === 0) {
-      fallbackReasons.push('핵심 키워드를 1개 이상 선택해주세요.');
-    }
-
-    if (!normalizedCompanyName) {
-      fallbackReasons.push('회사명을 입력해주세요.');
-    }
-
-    if (!hasAnyMethodEnabled) {
-      fallbackReasons.push('최소 1개 이상의 멘토링 방식을 활성화해주세요.');
-    }
-
-    if ((simpleEnabled || deepEnabled || offlineEnabled) && !hasAnyScheduleSlot) {
-      fallbackReasons.push('실시간 상담 스케줄을 1개 이상 선택해주세요.');
-    }
-
-    if (normalizedDescription.length < 30) {
-      fallbackReasons.push('멘토 소개를 30자 이상 입력해주세요.');
-    }
-
-    return fallbackReasons.slice(0, 3);
-  }, [
-    appealLine,
-    careerYears,
-    companyName,
-    contactEmail,
-    deepEnabled,
-    detailedDescription,
-    errors,
-    isSubmitting,
-    isValid,
-    jobGroup,
-    jobTitle,
-    mentoringTitle,
-    noteEnabled,
-    offlineEnabled,
-    schedule,
-    simpleEnabled,
-    skillTags,
-  ]);
+    return ['필수 항목을 다시 확인해주세요.'];
+  }, [errors, isSubmitting, isValid]);
 
   useEffect(() => {
     if (!jobTitle) {
@@ -382,12 +379,16 @@ export default function MentorRegistrationForm({
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <Info className="text-text-subtle h-14 w-14" />
                 이메일 정보
+                <FieldRequirementBadge state="required" />
               </p>
               <p className="font-designer-12r text-text-subtle">
                 멘티 문의와 알림을 받는 연락처입니다.
               </p>
             </div>
             <BaseInput
+              type="text"
+              inputMode="email"
+              autoComplete="email"
               placeholder="연락 가능한 이메일 입력"
               {...register('contactEmail')}
             />
@@ -399,6 +400,7 @@ export default function MentorRegistrationForm({
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <Star className="text-text-subtle h-14 w-14" />
                 멘토링 명
+                <FieldRequirementBadge state="required" />
               </p>
               <p className="font-designer-12r text-text-subtle">
                 멘토링 목록 카드 제목으로 노출됩니다.
@@ -421,6 +423,7 @@ export default function MentorRegistrationForm({
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <MessageCircle className="text-text-subtle h-14 w-14" />한 줄
                 어필
+                <FieldRequirementBadge state="required" />
               </p>
               <p className="font-designer-12r text-text-subtle">
                 대표 강점을 짧게 적어 멘티의 클릭을 유도하세요.
@@ -451,6 +454,34 @@ export default function MentorRegistrationForm({
               멘토링 목록 카드에서 강조 노출됩니다.
             </p>
           </section>
+
+          <section className="border-border-subtle space-y-100 border-t pt-200">
+            <div className="flex items-start justify-between gap-100">
+              <div>
+                <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
+                  <Eye className="text-text-subtle h-14 w-14" />
+                  멘토링 목록 노출
+                  <FieldRequirementBadge state="required" />
+                </p>
+                <p className="font-designer-12r text-text-subtle">
+                  비노출로 설정하면 멘토링 목록/상세에서 보이지 않습니다.
+                </p>
+              </div>
+              <label className="font-designer-13r text-text-subtle inline-flex items-center gap-75">
+                <input
+                  type="checkbox"
+                  className="border-border-default rounded-50 accent-fill-brand-default-default size-200 border"
+                  {...register('listVisible')}
+                />
+                노출
+              </label>
+            </div>
+            <p className="font-designer-12r text-text-subtle">
+              {listVisible
+                ? '현재 멘토링 목록에 노출됩니다.'
+                : '현재 멘토링 목록 비노출 상태입니다.'}
+            </p>
+          </section>
         </FormSectionCard>
 
         <FormSectionCard
@@ -469,6 +500,7 @@ export default function MentorRegistrationForm({
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <Users className="text-text-subtle h-14 w-14" />
                 멘토 포지션
+                <FieldRequirementBadge state="required" />
               </p>
               <p className="font-designer-12r text-text-subtle">
                 직군, 직무, 경력 조합으로 탐색 필터에 노출됩니다.
@@ -528,6 +560,7 @@ export default function MentorRegistrationForm({
                 <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                   <UserRound className="text-text-subtle h-14 w-14" />
                   회사명
+                  <FieldRequirementBadge state="required" />
                 </p>
                 <p className="font-designer-12r text-text-subtle">
                   멘티가 신뢰도를 판단할 때 참고하는 정보입니다.
@@ -559,6 +592,7 @@ export default function MentorRegistrationForm({
               <p className="font-designer-13b text-text-default mb-50 flex items-center gap-75">
                 <Star className="text-text-subtle h-14 w-14" />
                 핵심 키워드
+                <FieldRequirementBadge state="required" />
               </p>
               <p className="font-designer-12r text-text-subtle">
                 선택된 키워드는 프로필 카드/상세에 강조됩니다.
@@ -605,7 +639,7 @@ export default function MentorRegistrationForm({
 
           <div className="mt-200 grid grid-cols-1 gap-150 lg:grid-cols-2">
             {METHOD_FIELDS.map((field) => {
-              const enabled = watch(field.enabledField);
+              const enabled = methodEnabledState[field.enabledField];
               const priceErrorMessage = errors[field.priceField]?.message as
                 | string
                 | undefined;
@@ -630,6 +664,7 @@ export default function MentorRegistrationForm({
                           {METHOD_ICON_MAP[field.enabledField]}
                         </span>
                         {field.label}
+                        <FieldRequirementBadge state="optional" />
                       </p>
                       <p className="font-designer-13r text-text-subtle mt-25">
                         {field.description}
@@ -716,6 +751,7 @@ export default function MentorRegistrationForm({
             <span className="inline-flex items-center gap-75">
               <RotateCcw className="text-text-brand h-18 w-18" />
               스케줄 설정
+              <FieldRequirementBadge state="required" />
             </span>
           }
           description="간편/심층/대면 상담 가능한 요일/시간(30분 단위)을 선택해주세요."
@@ -744,6 +780,7 @@ export default function MentorRegistrationForm({
             <span className="inline-flex items-center gap-75">
               <MessageCircle className="text-text-brand h-18 w-18" />
               멘토 소개
+              <FieldRequirementBadge state="required" />
             </span>
           }
           description="마크다운으로 소개를 작성하고, 이미지 파일을 직접 업로드할 수 있습니다."
@@ -769,6 +806,7 @@ export default function MentorRegistrationForm({
             <span className="inline-flex items-center gap-75">
               <CircleCheck className="text-text-brand h-18 w-18" />
               상담 전 준비사항
+              <FieldRequirementBadge state="optional" />
             </span>
           }
           description="멘티가 상담 전에 준비하거나 전달해야 할 내용이 있다면 한 줄에 하나씩 작성해주세요."
@@ -805,6 +843,7 @@ export default function MentorRegistrationForm({
             <span className="inline-flex items-center gap-75">
               <Info className="text-text-brand h-18 w-18" />
               멘토링 사전 안내
+              <FieldRequirementBadge state="optional" />
             </span>
           }
         >
@@ -828,6 +867,7 @@ export default function MentorRegistrationForm({
           <span className="inline-flex items-center gap-75">
             <Info className="text-text-brand h-18 w-18" />
             정산 정보 (추후 제공)
+            <FieldRequirementBadge state="required" />
           </span>
         }
         description="정산정보 등록 기능은 현재 준비 중이며, 추후 업데이트에서 제공됩니다."

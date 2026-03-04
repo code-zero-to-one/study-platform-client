@@ -70,6 +70,7 @@ export interface MentorSettings {
   companyCategory: CompanyCategory;
   companyName: string;
   hideCompanyName: boolean;
+  listVisible: boolean;
   maxParticipants: number;
   noteEnabled: boolean;
   notePrice: number;
