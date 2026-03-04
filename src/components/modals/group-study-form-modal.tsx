@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 import { GroupStudyFullResponseDto } from '@/api/openapi';
-import GroupStudyForm from '@/components/forms/group-study-form';
 import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import { Modal } from '@/components/common/ui/modal';
+import GroupStudyForm from '@/components/forms/group-study-form';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   useCreateGroupStudyMutation,

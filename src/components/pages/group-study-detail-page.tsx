@@ -3,11 +3,11 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import ChannelSection from '@/components/discussion/channel/lounge-section';
 import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
-import GroupStudyFormModal from '@/components/modals/group-study-form-modal';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
+import ChannelSection from '@/components/discussion/channel/lounge-section';
+import GroupStudyFormModal from '@/components/modals/group-study-form-modal';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';

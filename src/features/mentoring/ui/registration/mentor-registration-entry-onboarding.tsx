@@ -2,13 +2,13 @@
 
 import { ChevronLeft, MessageCircle, Sparkles } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
+import { MENTOR_APPEAL_LINE_PRESETS } from '@/features/mentoring/model/mentor-setting-options';
+import { type MentorRegistrationOptions } from '@/types/mentoring/registration-options';
+import { type MentorRegistrationEntryOnboardingValues } from '@/types/mentoring/registration-view';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
 import ChipButton from '@/components/ui/chip/chip-button';
 import { BaseInput } from '@/components/ui/input';
-import { MENTOR_APPEAL_LINE_PRESETS } from '@/features/mentoring/model/mentor-setting-options';
-import { type MentorRegistrationOptions } from '@/types/mentoring/registration-options';
-import { type MentorRegistrationEntryOnboardingValues } from '@/types/mentoring/registration-view';
 
 type EntryOnboardingStep = 1 | 2 | 3 | 4;
 

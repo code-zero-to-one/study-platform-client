@@ -2,11 +2,11 @@
 
 import { getMonth, getDay, startOfWeek, getDate } from 'date-fns';
 import { useMemo, useState } from 'react';
+import SectionHeader from '@/components/common/ui/section-header';
 import StudyListSection from '@/components/lists/study-list-table';
 import ReservationList from '@/components/participation/reservation-list';
 import DateSelector from '@/components/schedule/data-selector';
 import TodayStudyCard from '@/components/schedule/today-study-card';
-import SectionHeader from '@/components/common/ui/section-header';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   useStudyStatusQuery,

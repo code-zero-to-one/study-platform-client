@@ -3,8 +3,8 @@
 import { type ReactNode } from 'react';
 import StartStudyButton from '@/components/home/start-study-button';
 import TabNavigation from '@/components/home/tab-navigation';
-import GlobalToast from '@/components/ui/global-toast';
 import type { HomeTab } from '@/features/home/model/home-page-search-params';
+import GlobalToast from '@/components/ui/global-toast';
 import Banner from '@/widgets/home/banner';
 import FeedbackLink from '@/widgets/home/feedback-link';
 

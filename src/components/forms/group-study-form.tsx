@@ -1,12 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import Step1OpenGroupStudy from '@/components/forms/group-study-steps/step1-group';
-import Step2OpenGroupStudy from '@/components/forms/group-study-steps/step2-group';
-import Step3OpenGroupStudy from '@/components/forms/group-study-steps/step3-group';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
+import Step1OpenGroupStudy from '@/components/forms/group-study-steps/step1-group';
+import Step2OpenGroupStudy from '@/components/forms/group-study-steps/step2-group';
+import Step3OpenGroupStudy from '@/components/forms/group-study-steps/step3-group';
 import {
   GroupStudyFormSchema,
   GroupStudyFormValues,

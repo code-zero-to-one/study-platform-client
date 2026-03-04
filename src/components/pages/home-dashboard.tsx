@@ -1,10 +1,10 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { getUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
-import FeedbackLink from '@/components/home/feedback-link';
 import StartStudyModal from '@/components/common/modals/start-study-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
+import FeedbackLink from '@/components/home/feedback-link';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { getServerCookie } from '@/utils/server-cookie';
 import AccessTimeIcon from 'public/icons/access_time.svg';

@@ -1,9 +1,9 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import { getStatusBadge } from '@/components/interview/status-badge-map';
 import UserAvatar from '@/components/common/ui/avatar';
 import TableList from '@/components/common/ui/table';
+import { getStatusBadge } from '@/components/interview/status-badge-map';
 import { useDailyStudiesQuery } from '@/hooks/queries/use-schedule-query';
 import { DailyStudy } from '@/types/api/schedule.types';
 import LinkIcon from 'public/icons/Link.svg';

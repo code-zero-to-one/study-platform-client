@@ -7,14 +7,14 @@ import {
   AdminTransactionListResponse,
   PaymentSearchConditionTypeEnum,
 } from '@/api/openapi';
-import AdminForcedCancellationModal from '@/components/modals/admin-forced-cancellation-modal';
-import AdminRefundApprovalModal from '@/components/modals/admin-refund-approval-modal';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
+import AdminForcedCancellationModal from '@/components/modals/admin-forced-cancellation-modal';
+import AdminRefundApprovalModal from '@/components/modals/admin-refund-approval-modal';
 import { useGetTransactionsForAdmin } from '@/hooks/queries/admin-payment-api';
 import { formatToKST } from '@/utils/time';
 
@@ -135,19 +135,19 @@ export default function PaymentRefundPage() {
               <th className="font-designer-14m text-text-subtlest py-100 pl-250 text-left">
                 거래 ID
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 스터디명(진행 상태)
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 결제자(ID)
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 결제 내역(결제 수단)
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 상태
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 일시
               </th>
               <th className="py-100 pr-250" />
@@ -175,7 +175,7 @@ export default function PaymentRefundPage() {
                     </td>
 
                     {/* 스터디명 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <span className="font-designer-14r text-text-default">
                         {`${transaction.groupStudyName} (${
                           STUDY_STATUS_MAP[transaction.groupStudyStatus]
@@ -184,7 +184,7 @@ export default function PaymentRefundPage() {
                     </td>
 
                     {/* 결제자 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <span className="font-designer-14r text-text-default">
                         {transaction.paymentMemberName || '-'}(
                         {transaction.paymentMemberId || '-'})
@@ -192,7 +192,7 @@ export default function PaymentRefundPage() {
                     </td>
 
                     {/* 결제 내역 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <span className="font-designer-14r text-text-default">
                         {transaction.transactionAmount?.toLocaleString() || 0}
                         원(
@@ -201,14 +201,14 @@ export default function PaymentRefundPage() {
                     </td>
 
                     {/* 상태 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <Badge color={statusConfig.color} shape="rectangle">
                         {statusConfig.label}
                       </Badge>
                     </td>
 
                     {/* 일시 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <span className="font-designer-14r text-text-default">
                         {formatToKST(transaction.transactionedAt)
                           ? format(

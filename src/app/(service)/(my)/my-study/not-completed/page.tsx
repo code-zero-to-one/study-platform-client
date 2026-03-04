@@ -2,10 +2,10 @@
 
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
-import GroupStudyFormModal from '@/components/modals/group-study-form-modal';
 import Button from '@/components/common/ui/button';
 import Pagination from '@/components/common/ui/pagination';
+import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
+import GroupStudyFormModal from '@/components/modals/group-study-form-modal';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 import { MemberStudyItem } from '@/types/api/group-study.types';
 

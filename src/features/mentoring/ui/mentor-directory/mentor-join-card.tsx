@@ -1,7 +1,7 @@
 import { UserRoundPlus } from 'lucide-react';
+import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 import Button from '@/components/ui/button';
-import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 interface MentorJoinCardProps {

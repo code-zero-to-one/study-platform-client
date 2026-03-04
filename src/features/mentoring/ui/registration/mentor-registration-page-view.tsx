@@ -2,10 +2,6 @@
 
 import { Eye, X } from 'lucide-react';
 import { type CSSProperties, useEffect, useRef, useState } from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Button from '@/components/ui/button';
-import { Modal } from '@/components/ui/modal';
-import TextActionButton from '@/components/ui/text-action-button';
 import { type MentorRegistrationControllerResult } from '@/features/mentoring/model/use-mentor-registration-controller';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentorDetailPage from '@/features/mentoring/ui/detail/mentor-detail-page';
@@ -13,6 +9,10 @@ import MentorRegistrationEntryOnboarding from '@/features/mentoring/ui/registrat
 import MentorRegistrationForm from '@/features/mentoring/ui/registration/mentor-registration-form';
 import MentorRegistrationHeader from '@/features/mentoring/ui/registration/mentor-registration-header';
 import MentorRegistrationStateBoundary from '@/features/mentoring/ui/registration/mentor-registration-state-boundary';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import Button from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
+import TextActionButton from '@/components/ui/text-action-button';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 
 const PAGE_CONTAINER_CLASS =

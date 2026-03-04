@@ -2,9 +2,9 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import InquiryListTable from '@/components/lists/inquiry-list-table';
 import QuestionModal from '@/components/common/modals/question-modal';
 import Button from '@/components/common/ui/button';
+import InquiryListTable from '@/components/lists/inquiry-list-table';
 import { useGetQuestions } from '@/hooks/queries/question-api';
 
 const PAGE_SIZE = 15;

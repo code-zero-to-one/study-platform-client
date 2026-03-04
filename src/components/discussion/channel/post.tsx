@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
-import GroupStudyNoticeModal from '@/components/modals/group-notice-modal';
 import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
+import GroupStudyNoticeModal from '@/components/modals/group-notice-modal';
 import { useIsLeader, useLeaderStore } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 

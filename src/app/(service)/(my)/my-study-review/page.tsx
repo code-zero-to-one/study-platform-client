@@ -3,8 +3,8 @@
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import KeywordReview from '@/components/common/cards/keyword-review';
-import MoreKeywordReviewModal from '@/components/modals/more-keyword-review-modal';
 import UserAvatar from '@/components/common/ui/avatar';
+import MoreKeywordReviewModal from '@/components/modals/more-keyword-review-modal';
 import {
   useMyNegativeKeywordsQuery,
   useMyReviewsInfinityQuery,

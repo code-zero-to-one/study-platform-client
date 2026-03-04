@@ -2,6 +2,8 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon, ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { setCookie } from '@/api/client/cookie';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { Modal } from '@/components/common/ui/modal';
 import {
   NicknameStep,
   JobStep,
@@ -10,8 +12,6 @@ import {
   GoalStep,
   SuccessStep,
 } from '@/components/forms/sign-up-steps';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { Modal } from '@/components/common/ui/modal';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,

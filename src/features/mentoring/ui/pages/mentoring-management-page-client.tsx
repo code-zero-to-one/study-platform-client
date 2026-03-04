@@ -8,9 +8,6 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import SurfacePanel from '@/components/ui/surface-panel';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
@@ -18,6 +15,9 @@ import MentorManagementWorkspace from '@/features/mentoring/ui/management/mentor
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
+import SurfacePanel from '@/components/ui/surface-panel';
 
 const getEnabledMethodCount = (mentor: MentorProfile) => {
   return Object.values(mentor.methods).filter(

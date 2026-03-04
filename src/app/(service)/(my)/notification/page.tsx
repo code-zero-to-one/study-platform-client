@@ -4,10 +4,10 @@ import { useState } from 'react';
 
 import { MemberNotificationResponse } from '@/api/openapi';
 import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/notification-api';
-import NotificationList from '@/components/lists/notification-list';
 import Button from '@/components/common/ui/button';
 import SingleDropdown from '@/components/common/ui/dropdown/single';
 import Pagination from '@/components/common/ui/pagination';
+import NotificationList from '@/components/lists/notification-list';
 import {
   useGetNotifications,
   useGetNotificationCategories,

@@ -3,6 +3,9 @@ import HomePageClient from '@/components/pages/home-page-client';
 import HomePageServerContent from '@/components/pages/home-page-server-content';
 import { parseHomePageSearchParams } from '@/features/home/model/home-page-search-params';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
+import Banner from '@/widgets/home/banner';
+import FeedbackLink from '@/widgets/home/feedback-link';
+import HomeContent from './home-content';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: '홈 - ZERO-ONE',

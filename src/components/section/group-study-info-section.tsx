@@ -5,12 +5,12 @@ import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { GroupStudyFullResponseDto } from '@/api/openapi';
 import UserProfileModal from '@/components/common/modals/user-profile-modal';
-import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
 import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
+import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
 import { CurriculumSummaryItem } from '@/types/api/group-study.types';
 

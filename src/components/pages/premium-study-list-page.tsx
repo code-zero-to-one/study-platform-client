@@ -2,13 +2,13 @@
 
 import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import PageContainer from '@/components/common/layout/page-container';
+import Button from '@/components/common/ui/button';
 import StudyFilter from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
-import PageContainer from '@/components/common/layout/page-container';
 import GroupStudyFormModal from '@/components/modals/group-study-form-modal';
 import PremiumStudyList from '@/components/premium/premium-study-list';
 import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
-import Button from '@/components/common/ui/button';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';

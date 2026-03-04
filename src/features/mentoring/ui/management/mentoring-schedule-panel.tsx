@@ -4,9 +4,6 @@ import dayjs from 'dayjs';
 import { AlertTriangle } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import SurfacePanel from '@/components/ui/surface-panel';
 import { MENTORING_SESSION_STATUS_META } from '@/features/mentoring/model/management-status-meta';
 import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import { useToastStore } from '@/stores/use-toast-store';
@@ -20,6 +17,9 @@ import MentoringScheduleCalendar from './mentoring-schedule-calendar';
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,
 } from './schedule-editor-modal';
+import Badge from '@/components/ui/badge';
+import Button from '@/components/ui/button';
+import SurfacePanel from '@/components/ui/surface-panel';
 
 const getOverlappingIds = (sessions: MentoringSession[]): Set<string> => {
   const scheduled = sessions

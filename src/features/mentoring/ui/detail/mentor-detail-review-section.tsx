@@ -1,12 +1,12 @@
 'use client';
 
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
-import Badge from '@/components/ui/badge';
 import type {
   MentorProfile,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
 import ReviewStars from './review-stars';
+import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import Badge from '@/components/ui/badge';
 
 interface MentorDetailReviewSectionProps {
   mentor: MentorProfile;

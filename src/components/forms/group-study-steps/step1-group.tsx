@@ -8,12 +8,12 @@ import {
   useWatch,
 } from 'react-hook-form';
 
-import { useClassification } from '@/components/forms/group-study-form';
 import { SingleDropdown } from '@/components/common/ui/dropdown';
 import FormField from '@/components/common/ui/form/form-field';
 import { BaseInput } from '@/components/common/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/common/ui/radio';
 import { GroupItems } from '@/components/common/ui/toggle';
+import { useClassification } from '@/components/forms/group-study-form';
 import {
   STUDY_TYPES,
   ROLE_OPTIONS_UI,
