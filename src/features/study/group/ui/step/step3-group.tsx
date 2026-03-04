@@ -9,7 +9,8 @@ import { BaseInput } from '@/components/ui/input';
 import { GroupStudyFormValues } from '../../model/group-study-form.schema';
 
 export default function Step3OpenGroupStudy() {
-  const { setValue, getValues, formState } = useFormContext<GroupStudyFormValues>();
+  const { setValue, getValues, formState } =
+    useFormContext<GroupStudyFormValues>();
 
   const initQuestions = getValues('interviewPost');
 

@@ -4,6 +4,7 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
@@ -21,8 +22,27 @@ interface GroupStudyResponse {
   content?: GroupStudyFullResponseDto;
 }
 
+const FALLBACK_METADATA: Metadata = {
+  title: '멘토 스터디 - 제로원',
+  description: '제로원 스터디 플랫폼에서 멘토 스터디를 둘러보세요.',
+};
+
+const parseGroupStudyId = (value: string): number | undefined => {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed <= 0) {
+    return undefined;
+  }
+
+  return parsed;
+};
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
+  const groupStudyId = parseGroupStudyId(id);
+
+  if (!groupStudyId) {
+    return FALLBACK_METADATA;
+  }
 
   try {
     const config = new Configuration({
@@ -31,14 +51,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const groupStudyApi = new GroupStudyManagementApi(config, config.basePath);
 
-    const response = await groupStudyApi.getGroupStudy(Number(id));
+    const response = await groupStudyApi.getGroupStudy(groupStudyId);
     const groupStudy = (response.data as GroupStudyResponse)?.content;
 
     if (!groupStudy) {
-      return {
-        title: '멘토 스터디 - 제로원',
-        description: '제로원 스터디 플랫폼에서 멘토 스터디를 둘러보세요.',
-      };
+      return FALLBACK_METADATA;
     }
 
     const title = groupStudy.detailInfo?.title || '멘토 스터디';
@@ -60,10 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch {
-    return {
-      title: '멘토 스터디 - 제로원',
-      description: '제로원 스터디 플랫폼에서 멘토 스터디를 둘러보세요.',
-    };
+    return FALLBACK_METADATA;
   }
 }
 
@@ -73,19 +87,28 @@ export default async function Page({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const groupStudyId = parseGroupStudyId(id);
+
+  if (!groupStudyId) {
+    notFound();
+  }
 
   const queryClient = new QueryClient();
 
   // 프리미엄 스터디 상세 정보 미리 가져오기
   await queryClient.fetchQuery({
-    queryKey: ['groupStudyDetail', Number(id)],
-    queryFn: () => getGroupStudyDetailInServer({ groupStudyId: Number(id) }),
+    queryKey: ['groupStudyDetail', groupStudyId],
+    queryFn: () => getGroupStudyDetailInServer({ groupStudyId }),
   });
 
-  const data: GroupStudyDetailResponse = queryClient.getQueryData([
+  const data = queryClient.getQueryData<GroupStudyDetailResponse>([
     'groupStudyDetail',
-    Number(id),
+    groupStudyId,
   ]);
+
+  if (!data) {
+    notFound();
+  }
 
   const memberIdStr = await getServerCookie('memberId');
   const memberId = memberIdStr ? Number(memberIdStr) : undefined;
@@ -95,15 +118,14 @@ export default async function Page({
   if (!isLeader && memberId) {
     // 내가 리더가 아닐 경우에만 내 신청 상태 정보 미리 가져오기
     await queryClient.prefetchQuery({
-      queryKey: ['groupStudyMemberStatus', Number(id)],
-      queryFn: () =>
-        getGroupStudyMyStatusInServer({ groupStudyId: Number(id) }),
+      queryKey: ['groupStudyMemberStatus', groupStudyId],
+      queryFn: () => getGroupStudyMyStatusInServer({ groupStudyId }),
     });
   }
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <PremiumStudyDetailPage memberId={memberId} groupStudyId={Number(id)} />
+      <PremiumStudyDetailPage memberId={memberId} groupStudyId={groupStudyId} />
     </HydrationBoundary>
   );
 }

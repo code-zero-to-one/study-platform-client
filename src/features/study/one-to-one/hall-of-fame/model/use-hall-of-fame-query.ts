@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import type { HallOfFameData } from '@/types/hall-of-fame';
+import type { HallOfFameData } from '@/types/one-to-one-study/hall-of-fame';
 import { getHallOfFame } from '../api/hall-of-fame-api';
 
 export const HALL_OF_FAME_KEYS = {

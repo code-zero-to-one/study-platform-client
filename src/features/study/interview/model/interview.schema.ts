@@ -46,7 +46,9 @@ export function buildStudyDoneDefaults(
   d: DailyStudyDetail,
 ): StudyDoneFormValues {
   return {
-    progressStatus: (d.progressStatus ?? 'PENDING') as StudyProgressStatus,
+    // "완료하기" 모달이므로 기본값을 "완료"로 설정
+    // 사용자가 의도적으로 다른 상태(불참, 시작 전)를 선택해야만 변경됨
+    progressStatus: 'COMPLETE' as StudyProgressStatus,
     feedback: d.feedback ?? '',
   };
 }

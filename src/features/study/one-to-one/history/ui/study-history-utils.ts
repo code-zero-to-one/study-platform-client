@@ -3,7 +3,7 @@
 import type {
   StudyHistoryContent,
   StudyHistoryItem,
-} from '@/types/study-history';
+} from '@/types/one-to-one-study/study-history';
 
 export const mapHistoryItem = (data: StudyHistoryContent): StudyHistoryItem => {
   const dateObj = new Date(data.scheduledAt);

@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { StudyCalendar } from '@/components/study-history/study-calendar';
-import type { StudyHistoryItem } from '@/types/study-history';
+import { StudyCalendar } from '@/features/study/one-to-one/history/ui/study-calendar';
+import type { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
 
 interface StudyHistoryCalendarSectionProps {
   items: StudyHistoryItem[];

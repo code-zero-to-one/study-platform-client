@@ -26,7 +26,7 @@ function UserInitializer({ children }: ProviderProps) {
         reset();
       }
     }
-  }, [isAuthReady, memberId, reset]);
+  }, [isAuthReady, reset]);
 
   useEffect(() => {
     // [보안 마이그레이션] sessionStorage 전환 이후 localStorage의 잔여 민감 데이터 정리.
@@ -35,10 +35,25 @@ function UserInitializer({ children }: ProviderProps) {
   }, []);
 
   useEffect(() => {
-    if (isAuthReady && authMemberId && !memberId) {
-      fetchAndSetUser(authMemberId).catch(console.error);
+    if (!isAuthReady || !authMemberId) {
+      return;
     }
-  }, [isAuthReady, authMemberId, memberId, fetchAndSetUser]);
+
+    const cookieMemberId = Number(getCookie('memberId'));
+    const hasValidCookieMemberId =
+      Number.isInteger(cookieMemberId) && cookieMemberId > 0;
+
+    if (!hasValidCookieMemberId || cookieMemberId !== authMemberId) {
+      reset();
+
+      return;
+    }
+
+    if (memberId !== authMemberId) {
+      // eslint-disable-next-line no-void
+      void fetchAndSetUser(authMemberId);
+    }
+  }, [isAuthReady, authMemberId, memberId, fetchAndSetUser, reset]);
 
   return <>{children}</>;
 }

@@ -1,9 +1,8 @@
 import { Metadata } from 'next';
-import StartStudyButton from '@/components/home/start-study-button';
+import HomePageClient from '@/components/pages/home-page-client';
+import HomePageServerContent from '@/components/pages/home-page-server-content';
+import { parseHomePageSearchParams } from '@/features/home/model/home-page-search-params';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
-import Banner from '@/widgets/home/banner';
-import FeedbackLink from '@/widgets/home/feedback-link';
-import HomeContent from './home-content';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: '홈 - ZERO-ONE',
@@ -17,18 +16,15 @@ export const metadata: Metadata = generateSEOMetadata({
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: Promise<{ tab?: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const activeTab = resolvedSearchParams?.tab || 'study';
+  const { activeTab } = parseHomePageSearchParams(resolvedSearchParams);
 
   return (
-    <div className="mx-auto flex w-[1496px] flex-col gap-500 px-600 py-600">
-      <Banner />
-      <FeedbackLink />
-      <StartStudyButton />
-      <HomeContent activeTab={activeTab} />
-      <div className="h-[400px]" aria-hidden />
-    </div>
+    <HomePageClient
+      activeTab={activeTab}
+      content={<HomePageServerContent activeTab={activeTab} />}
+    />
   );
 }

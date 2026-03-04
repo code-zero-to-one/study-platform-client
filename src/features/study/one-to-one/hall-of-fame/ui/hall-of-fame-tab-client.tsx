@@ -3,7 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import SectionShell from '@/components/ui/section-shell';
 import { useHallOfFameQuery } from '@/features/study/one-to-one/hall-of-fame/model/use-hall-of-fame-query';
-import type { HallOfFameData } from '@/types/hall-of-fame';
+import type { HallOfFameData } from '@/types/one-to-one-study/hall-of-fame';
 import {
   addScoreLabel,
   type RankingType,

@@ -1,4 +1,4 @@
-import { GetArchiveParams } from '@/types/archive';
+import { GetArchiveParams } from '@/types/one-to-one-study/archive';
 
 export const ARCHIVE_QUERY_KEYS = {
   all: ['archive'] as const,

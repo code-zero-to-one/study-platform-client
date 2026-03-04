@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toggleArchiveLike } from '@/features/study/one-to-one/archive/api/toggle-like';
 import { ARCHIVE_QUERY_KEYS } from '@/features/study/one-to-one/archive/model/archive-keys';
-import { ArchiveResponse } from '@/types/archive';
+import { ArchiveResponse } from '@/types/one-to-one-study/archive';
 
 export const useToggleArchiveLikeMutation = () => {
   const queryClient = useQueryClient();

@@ -1,4 +1,4 @@
-import type { TutorialStep } from '@/components/tutorial';
+import type { TutorialStep } from '@/features/study/one-to-one/schedule/ui/tutorial';
 
 export const STUDY_TUTORIAL_STEPS: TutorialStep[] = [
   {

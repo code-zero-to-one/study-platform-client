@@ -1,10 +1,11 @@
-export type RoleId = 'ROLE_MEMBER' | 'ROLE_ADMIN' | 'ROLE_MENTOR';
-type RoleName = '일반' | '관리자' | '멘토';
+export type ManageableRoleId = 'ROLE_MEMBER' | 'ROLE_ADMIN';
+export type RoleId = ManageableRoleId | (string & {});
+type RoleName = '일반' | '관리자' | (string & {});
 export type MemberStatus = 'ACTIVE' | 'PAUSED' | 'PERM_BAN' | 'DORMANT';
 
 // 사용자 리스트 조회 API 요청 타입
 export interface GetMemberListRequest {
-  roleId?: RoleId;
+  roleId?: ManageableRoleId;
   memberStatus?: MemberStatus;
   searchKeyword?: string;
   page?: number;
@@ -65,7 +66,7 @@ export interface ChangeMemberStatusRequest {
 // 사용자 권한 변경 API 요청 타입
 export interface ChangeMemberRoleRequest {
   memberId: number;
-  roleId: RoleId;
+  roleId: ManageableRoleId;
 }
 
 // 성실 온도 이력 조회 API 요청 타입
