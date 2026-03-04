@@ -15,7 +15,6 @@ import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
 import { logout, signUp, uploadProfileImage } from '@/api/endpoints/auth/auth';
 import { usePhoneVerificationStore } from './use-phone-verification-status';
 
-
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
   return useMutation<SignUpResponse, Error, SignUpRequest>({

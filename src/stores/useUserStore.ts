@@ -3,7 +3,6 @@ import { createJSONStorage, persist } from 'zustand/middleware';
 import { isApiError } from '@/api/client/api-error';
 import { getUserProfile } from '@/api/endpoints/user/get-user-profile';
 
-
 interface UserInfo {
   memberId: number | null;
   nickname: string | null;

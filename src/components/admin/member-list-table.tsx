@@ -13,7 +13,10 @@ import FilledX from 'public/icons/filled-x.svg';
 import SearchIcon from 'public/icons/search.svg';
 import ChangeStatusModal from './chage-status-modal';
 import ChangeRoleModal from './change-role-modal';
-import { type ManageableRoleId, type MemberStatus } from '@/types/api/admin.types';
+import {
+  type ManageableRoleId,
+  type MemberStatus,
+} from '@/types/api/admin.types';
 import {
   getRoleLabel,
   isManageableRoleId,
