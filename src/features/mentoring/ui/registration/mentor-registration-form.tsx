@@ -14,6 +14,15 @@ import {
 } from 'lucide-react';
 import { type ReactNode, useEffect, useMemo } from 'react';
 import { Controller } from 'react-hook-form';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
+import ChipButton from '@/components/common/ui/chip/chip-button';
+import SingleDropdown from '@/components/common/ui/dropdown/single';
+import FieldErrorText from '@/components/common/ui/form/field-error-text';
+import FormSectionCard from '@/components/common/ui/form/form-section-card';
+import SelectableTagsInput from '@/components/common/ui/form/multi-item-selector';
+import { BaseInput } from '@/components/common/ui/input';
+import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
 import {
   CONSULTING_DURATION_DROPDOWN_OPTIONS,
   MENTOR_APPEAL_LINE_PRESETS,
@@ -25,15 +34,6 @@ import {
   type MentorRegistrationMethodField,
 } from '@/types/mentoring/registration-view';
 import { MENTORING_TITLE_MAX_LENGTH } from '@/types/schemas/mentor-registration-schema';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import Button from '@/components/common/ui/button';
-import ChipButton from '@/components/common/ui/chip/chip-button';
-import SingleDropdown from '@/components/common/ui/dropdown/single';
-import FieldErrorText from '@/components/common/ui/form/field-error-text';
-import FormSectionCard from '@/components/common/ui/form/form-section-card';
-import SelectableTagsInput from '@/components/common/ui/form/multi-item-selector';
-import { BaseInput } from '@/components/common/ui/input';
-import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
 
 const METHOD_FIELDS: MentorRegistrationMethodField[] = [
   {

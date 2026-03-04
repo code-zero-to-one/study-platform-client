@@ -115,6 +115,7 @@ export const GroupStudyFormSchema = z
             `질문은 ${GROUP_STUDY_INTERVIEW_Q_MAX_LENGTH}자 이하로 입력해주세요.`,
           ),
       )
+      .min(1, '질문을 최소 1개 이상 입력해주세요.')
       .superRefine((arr, ctx) => {
         if (arr.length > 10) {
           ctx.addIssue({

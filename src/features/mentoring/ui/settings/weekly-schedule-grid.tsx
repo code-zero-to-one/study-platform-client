@@ -1,6 +1,8 @@
 'use client';
 
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { BaseInput } from '@/components/common/ui/input';
 import {
   addMinutesToTime,
   createHalfHourTimeSlots,
@@ -11,8 +13,6 @@ import {
   type MentorWeeklySchedule,
   type WeekdayKey,
 } from '@/types/mentoring/settings';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { BaseInput } from '@/components/common/ui/input';
 
 interface WeeklyScheduleGridProps {
   value: MentorWeeklySchedule;

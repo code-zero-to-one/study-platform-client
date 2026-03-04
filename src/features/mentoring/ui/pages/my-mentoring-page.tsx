@@ -6,12 +6,12 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import type { MyMentoringItem } from '@/types/mentoring/my-mentoring';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import List from '@/components/common/ui/list';
 import SectionHeader from '@/components/common/ui/section-header';
 import SectionShell from '@/components/common/ui/section-shell';
+import type { MyMentoringItem } from '@/types/mentoring/my-mentoring';
 
 const METHOD_LABEL: Record<'ONLINE' | 'OFFLINE' | 'CALL', string> = {
   ONLINE: '심층상담',

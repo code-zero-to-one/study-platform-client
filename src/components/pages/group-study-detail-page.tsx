@@ -4,10 +4,10 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
+import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
-import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
@@ -20,6 +20,7 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import { Leader } from '@/types/api/group-study.types';
 
+import StudyActiveTicker from '../common/ui/study-active-ticker';
 import GroupStudyMemberList from '../lists/study-member-list';
 import StudyInfoSection from '../section/group-study-info-section';
 import InquirySection from '../section/inquiry-section';
@@ -163,7 +164,15 @@ export default function StudyDetailPage({
         groupStudyId={groupStudyId}
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
-      <div className="my-500 flex w-[1164px] items-start justify-between">
+      {/* 플로팅 정보 바 */}
+      <div className="mt-500 w-[1164px]">
+        <StudyActiveTicker
+          approvedCount={studyDetail.basicInfo.approvedCount}
+          maxMembersCount={studyDetail.basicInfo.maxMembersCount}
+          startDate={studyDetail.basicInfo.startDate}
+        />
+      </div>
+      <div className="mb-500 flex w-[1164px] items-start justify-between">
         <div className="flex w-full flex-col gap-150">
           <div className="font-designer-28b flex justify-between text-[#181D27]">
             {studyDetail?.detailInfo.title}

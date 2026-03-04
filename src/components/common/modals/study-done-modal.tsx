@@ -213,7 +213,7 @@ function StudyDoneForm({
               required
               direction="vertical"
               showCounterRight
-              counterMax={100}
+              maxCharCount={100}
             >
               <TextAreaInput
                 id="study-done-feedback"

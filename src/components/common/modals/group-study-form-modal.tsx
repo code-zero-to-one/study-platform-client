@@ -1,10 +1,12 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
 
 import { GroupStudyFullResponseDto } from '@/api/openapi';
 import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
@@ -21,6 +23,7 @@ import { useToastStore } from '@/stores/use-toast-store';
 
 import {
   buildOpenGroupDefaultValues,
+  GroupStudyFormSchema,
   GroupStudyFormValues,
   StudyClassification,
   toCreateRequest,
@@ -68,6 +71,17 @@ export default function GroupStudyFormModal({
     setVerified,
   } = usePhoneVerificationStatus(memberId ?? undefined);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
+
+  const createMethods = useForm<GroupStudyFormValues>({
+    resolver: zodResolver(GroupStudyFormSchema),
+    mode: 'onChange',
+    defaultValues: buildOpenGroupDefaultValues(classification),
+  });
+
+  const editMethods = useForm<GroupStudyFormValues>({
+    resolver: zodResolver(GroupStudyFormSchema),
+    mode: 'onChange',
+  });
 
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
@@ -193,6 +207,7 @@ export default function GroupStudyFormModal({
         'error',
       );
     } finally {
+      createMethods.reset(buildOpenGroupDefaultValues(classification));
       setOpen(false);
     }
   };
@@ -246,6 +261,12 @@ export default function GroupStudyFormModal({
       ? refineStudyDetail(groupStudyInfo)
       : null;
 
+  useEffect(() => {
+    if (mode === 'edit' && controlledOpen && groupStudyInfo) {
+      editMethods.reset(refineStudyDetail(groupStudyInfo));
+    }
+  }, [controlledOpen, groupStudyInfo]);
+
   return (
     <>
       <Modal.Root
@@ -266,7 +287,7 @@ export default function GroupStudyFormModal({
             </Modal.Header>
             {mode === 'create' && (
               <GroupStudyForm
-                defaultValues={buildOpenGroupDefaultValues(classification)}
+                methods={createMethods}
                 onSubmit={handleSubmitForm}
               />
             )}
@@ -277,7 +298,7 @@ export default function GroupStudyFormModal({
             )}
             {mode === 'edit' && !isGroupStudyLoading && editDefaultValues && (
               <GroupStudyForm
-                defaultValues={editDefaultValues}
+                methods={editMethods}
                 onSubmit={handleSubmitForm}
               />
             )}

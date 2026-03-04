@@ -4,11 +4,11 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 import Link from 'next/link';
-import Button from '@/components/common/ui/button';
 import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
-import type { GetUserProfileResponse } from '@/types/api/user.types';
+import Button from '@/components/common/ui/button';
 import Profile from '@/components/my-page/profile';
 import ProfileInfo from '@/components/my-page/profile-info';
+import type { GetUserProfileResponse } from '@/types/api/user.types';
 import { getServerCookie } from '@/utils/server-cookie';
 
 export default async function MyPage() {

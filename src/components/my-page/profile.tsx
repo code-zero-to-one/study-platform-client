@@ -3,11 +3,11 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
+import ProfileEditModal from '@/components/common/modals/profile-edit-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Progress from '@/components/common/ui/progress';
 import Tooltip from '@/components/common/ui/tooltip';
-import ProfileEditModal from '@/components/common/modals/profile-edit-modal';
 import CakeIcon from '@/components/my-page/icon/cake.svg';
 import GithubIcon from '@/components/my-page/icon/github-logo.svg';
 import GlobeIcon from '@/components/my-page/icon/globe-simple.svg';

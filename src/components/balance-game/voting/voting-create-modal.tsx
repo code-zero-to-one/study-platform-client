@@ -159,7 +159,7 @@ function VotingCreateForm({ onClose, onSubmit }: VotingCreateFormProps) {
             required
             direction="vertical"
             showCounterRight
-            counterMax={200}
+            maxCharCount={200}
           >
             <BaseInput
               placeholder="투표 주제를 입력해주세요 (예: 내가 자주 쓰는 생성형 AI는?)"
@@ -172,7 +172,7 @@ function VotingCreateForm({ onClose, onSubmit }: VotingCreateFormProps) {
             label="설명 (선택)"
             direction="vertical"
             showCounterRight
-            counterMax={500}
+            maxCharCount={500}
           >
             <TextAreaInput
               placeholder="주제에 대한 부연 설명을 입력해주세요"

@@ -1,10 +1,10 @@
 import { AdminTransactionListResponse } from '@/api/openapi';
+import Button from '@/components/common/ui/button';
+import { Modal } from '@/components/common/ui/modal';
 import {
   useApproveRefund,
   useRejectRefund,
 } from '@/hooks/queries/admin-refund-api';
-import Button from '@/components/common/ui/button';
-import { Modal } from '@/components/common/ui/modal';
 
 interface AdminRefundApprovalModalProps extends Pick<
   AdminTransactionListResponse,

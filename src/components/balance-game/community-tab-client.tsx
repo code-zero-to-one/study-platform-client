@@ -3,19 +3,21 @@
 import { Loader2, Vote, SearchX, Plus, MessageSquareText } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import React, { useState, useEffect, useMemo } from 'react';
+import VotingCreateModal from '@/components/balance-game/voting/voting-create-modal';
+import VotingDetailView from '@/components/balance-game/voting/voting-detail-view';
+import VotingCard from '@/components/balance-game/voting-card';
 import SectionHeader from '@/components/common/ui/section-header';
 import SectionShell from '@/components/common/ui/section-shell';
 import Toast from '@/components/common/ui/toast';
 import { BALANCE_GAME_TAG_MIN_QUERY_LEN } from '@/config/balance-game-tags';
+import { useAuthReady } from '@/hooks/common/use-auth';
+import { useBalanceGameFilters } from '@/hooks/common/use-balance-game-filters';
+import { useInfiniteScroll } from '@/hooks/common/use-infinite-scroll';
 import { useCreateBalanceGameMutation } from '@/hooks/queries/use-balance-game-mutation';
 import {
   useBalanceGameListQuery,
   useBalanceGameTagSuggestionsQuery,
 } from '@/hooks/queries/use-balance-game-query';
-import VotingCreateModal from '@/components/balance-game/voting/voting-create-modal';
-import VotingDetailView from '@/components/balance-game/voting/voting-detail-view';
-import VotingCard from '@/components/balance-game/voting-card';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useDebounce } from '@/hooks/use-debounce';
 import {
   useScrollToHomeContentOnChange,
@@ -28,8 +30,6 @@ import type {
 import { VotingCreateFormData } from '@/types/schemas/zod-schema';
 import { decodeVotingId, encodeVotingId } from '@/utils/voting-id';
 import BalanceGameFiltersBar from './balance-game-filters-bar';
-import { useBalanceGameFilters } from '@/hooks/common/use-balance-game-filters';
-import { useInfiniteScroll } from '@/hooks/common/use-infinite-scroll';
 
 interface CommunityTabClientProps {
   initialList?: BalanceGameListResponse;

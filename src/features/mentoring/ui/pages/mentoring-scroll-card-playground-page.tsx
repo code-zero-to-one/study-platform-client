@@ -1,7 +1,7 @@
 import { ArrowLeft, Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import ScrollFollowCardDemo from '@/features/mentoring/ui/temp/scroll-follow-card-demo';
 import Button from '@/components/common/ui/button';
+import ScrollFollowCardDemo from '@/features/mentoring/ui/temp/scroll-follow-card-demo';
 
 const practiceMemos = [
   '스크롤 감도를 바꿀 때는 CARD_FOLLOW_RATIO 값만 먼저 조절',

@@ -15,7 +15,11 @@ export type ApplicationStatus =
   | 'REJECTED' // 승인 거절
   | 'KICKED' // 강퇴
   | 'EXIT'; // 탈퇴
-export type GroupStudyStatus = 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
+export type GroupStudyStatus =
+  | 'RECRUITING'
+  | 'ENDING_SOON'
+  | 'IN_PROGRESS'
+  | 'COMPLETED';
 export type GroupStudyType = 'PROJECT' | 'STUDY';
 export type HostType = 'ZEROONE' | 'GENERAL' | 'METOR';
 export type Method = 'ONLINE' | 'OFFLINE';
@@ -125,7 +129,7 @@ export interface BasicInfoDetail extends BasicInfo {
   approvedCount: number;
   rejectedCount: number;
   kickedCount: number;
-  deletedAt: string | null;
+  deletedAt: string;
   leader: Leader;
 }
 
@@ -360,7 +364,7 @@ export interface MemberStudyItem {
   startTime: string;
   endTime: string;
   studyRole: 'PARTICIPANT' | 'LEADER';
-  status: 'RECRUITING' | 'IN_PROGRESS' | 'COMPLETED';
+  status: 'RECRUITING' | 'ENDING_SOON' | 'IN_PROGRESS' | 'COMPLETED';
   type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'PREMIUM_STUDY';
 }
 

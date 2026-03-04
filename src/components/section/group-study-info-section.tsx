@@ -147,12 +147,7 @@ export default function StudyInfoSection({
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-300">
-        <StudyActiveTicker
-          approvedCount={studyDetail.basicInfo.approvedCount}
-          maxMembersCount={studyDetail.basicInfo.maxMembersCount}
-          startDate={studyDetail.basicInfo.startDate}
-        />
+      <div className="flex flex-col">
         <SummaryStudyInfo data={studyDetail} />
         <CurriculumSummarySection
           curriculumSummary={

@@ -5,12 +5,12 @@ import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import { RadioGroup, RadioGroupItem } from '@/components/common/ui/radio';
+import { isManageableRoleId, ROLE_OPTIONS } from '@/config/admin-member';
+import { useChangeMemberRoleMutation } from '@/hooks/queries/use-member-list-query';
 import {
   type GetMemberListResponse,
   type ManageableRoleId,
 } from '@/types/api/admin.types';
-import { isManageableRoleId, ROLE_OPTIONS } from '@/config/admin-member';
-import { useChangeMemberRoleMutation } from '@/hooks/queries/use-member-list-query';
 
 interface ChangeRoleModalProps {
   members: GetMemberListResponse['content'];

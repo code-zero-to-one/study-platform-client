@@ -39,6 +39,9 @@ import {
   useSlate,
   withReact,
 } from 'slate-react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Button from '@/components/common/ui/button';
+import { NativeSelect } from '@/components/common/ui/input';
 import {
   createMentoringRequestRichTextBlock,
   parseMentoringRequestRichTextDocument,
@@ -46,9 +49,6 @@ import {
   type MentoringRequestRichTextBlock,
   type MentoringRequestRichTextNode,
 } from '@/features/mentoring/model/request-content';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import Button from '@/components/common/ui/button';
-import { NativeSelect } from '@/components/common/ui/input';
 
 type FontSizeMark = 'sm' | 'md' | 'lg' | 'xl';
 type MarkFormat = 'bold' | 'italic' | 'underline' | 'strikethrough';

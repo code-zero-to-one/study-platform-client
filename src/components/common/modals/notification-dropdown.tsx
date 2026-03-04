@@ -4,6 +4,12 @@ import { DotIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { MemberNotificationResponse } from '@/api/openapi';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
+import Button from '@/components/common/ui/button';
 import NotificationList from '@/components/lists/notification-list';
 
 import {
@@ -11,12 +17,6 @@ import {
   useReadNotifications,
 } from '@/hooks/queries/notification-api';
 import NotiIcon from 'public/icons/notifications_none.svg';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
-import Button from '@/components/common/ui/button';
 
 export default function NotificationDropdown() {
   const router = useRouter();

@@ -3,10 +3,10 @@
 import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import PageContainer from '@/components/common/layout/page-container';
+import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import Button from '@/components/common/ui/button';
 import StudyFilter from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
-import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import PremiumStudyList from '@/components/premium/premium-study-list';
 import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
 import { useAuthReady } from '@/hooks/common/use-auth';

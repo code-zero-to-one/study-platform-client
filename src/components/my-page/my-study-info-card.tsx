@@ -44,7 +44,7 @@ export default function MyStudyInfoCard({
           )}
         </div>
 
-        {status === 'RECRUITING' && (
+        {(status === 'RECRUITING' || status === 'ENDING_SOON') && (
           <div className="inline-block w-auto">
             <Badge color="purple">시작 전</Badge>
           </div>
@@ -79,7 +79,9 @@ export default function MyStudyInfoCard({
         </div>
       </Link>
 
-      {(status === 'RECRUITING' || status === 'IN_PROGRESS') &&
+      {(status === 'RECRUITING' ||
+        status === 'ENDING_SOON' ||
+        status === 'IN_PROGRESS') &&
         participantsCount < maxMembersCount &&
         studyRole === 'LEADER' && (
           <Link href={`/application-list/${studyId}`}>

@@ -2,10 +2,10 @@
 
 import { Trophy, Flame } from 'lucide-react';
 import React from 'react';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Tooltip from '@/components/common/ui/tooltip';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import type { MVPTeam } from '@/types/one-to-one-study/hall-of-fame';
 
 interface MVPTeamCardProps {

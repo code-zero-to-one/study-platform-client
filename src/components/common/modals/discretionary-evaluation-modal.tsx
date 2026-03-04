@@ -4,10 +4,13 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/common/ui/button';
 import FormField from '@/components/common/ui/form/form-field';
+import { TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
 import { useUpdateMemberDiscretion } from '@/hooks/queries/group-study-member-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { TextAreaInput } from '@/components/common/ui/input';
+
+export const EVALUATION_COUNT = 3;
+const EVALUATION_CONTENT_MAX_LENGTH = 5000;
 
 const DiscretionaryEvaluationFormSchema = z.object({
   content: z.string().min(1, '평가 내역을 입력해주세요.'),
@@ -26,7 +29,10 @@ export default function DiscretionaryEvaluationModal({
   groupStudyId,
   memberId,
 }: DiscretionaryEvaluationModalProps) {
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, setOpen] = useState(false);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  const { mutate, isPending } = useUpdateMemberDiscretion();
 
   return (
     <Modal.Root open={open} onOpenChange={setOpen}>
@@ -35,6 +41,7 @@ export default function DiscretionaryEvaluationModal({
           size="small"
           color="outlined"
           className="font-designer-14r w-fit"
+          disabled={isPending || hasSubmitted}
         >
           재량평가 추가
         </Button>
@@ -49,7 +56,8 @@ export default function DiscretionaryEvaluationModal({
                 재량 평가
               </Modal.Title>
               <p className="font-designer-14r text-text-subtle">
-                재량 평가는 최대 3회까지 가능하며, 각 평가별 5점씩 부여됩니다.
+                재량 평가는 최대 {EVALUATION_COUNT}회까지 가능하며, 각 평가별
+                5점씩 부여됩니다.
               </p>
             </div>
             <Modal.CloseButton onClick={() => setOpen(false)} />
@@ -59,6 +67,9 @@ export default function DiscretionaryEvaluationModal({
             groupStudyId={groupStudyId}
             memberId={memberId}
             onClose={() => setOpen(false)}
+            onSubmitSuccess={() => setHasSubmitted(true)}
+            mutate={mutate}
+            isPending={isPending}
           />
         </Modal.Content>
       </Modal.Portal>
@@ -70,12 +81,18 @@ interface DiscretionaryEvaluationFormProps {
   groupStudyId: number;
   memberId: number;
   onClose: () => void;
+  onSubmitSuccess: () => void;
+  mutate: ReturnType<typeof useUpdateMemberDiscretion>['mutate'];
+  isPending: boolean;
 }
 
 function DiscretionaryEvaluationForm({
   groupStudyId,
   memberId,
   onClose,
+  onSubmitSuccess,
+  mutate,
+  isPending,
 }: DiscretionaryEvaluationFormProps) {
   const methods = useForm<DiscretionaryEvaluationFormValues>({
     resolver: zodResolver(DiscretionaryEvaluationFormSchema),
@@ -87,11 +104,10 @@ function DiscretionaryEvaluationForm({
 
   const { handleSubmit, formState } = methods;
 
-  const { mutate: updateMemberDiscretion } = useUpdateMemberDiscretion();
   const showToast = useToastStore((state) => state.showToast);
 
   const onValidSubmit = (values: DiscretionaryEvaluationFormValues) => {
-    updateMemberDiscretion(
+    mutate(
       {
         id: groupStudyId,
         request: {
@@ -102,6 +118,7 @@ function DiscretionaryEvaluationForm({
       {
         onSuccess: () => {
           showToast('재량 평가가 성공적으로 제출되었습니다!');
+          onSubmitSuccess();
           onClose();
         },
         onError: () => {
@@ -126,7 +143,7 @@ function DiscretionaryEvaluationForm({
             name="content"
             label="평가 내역"
             direction="vertical"
-            counterMax={500}
+            maxCharCount={EVALUATION_CONTENT_MAX_LENGTH}
             showCounterRight={false}
             required
           >
@@ -134,7 +151,7 @@ function DiscretionaryEvaluationForm({
               id="content"
               placeholder="평가 내역을 입력해 주세요."
               className="min-h-[300px]"
-              maxLength={5000}
+              maxLength={EVALUATION_CONTENT_MAX_LENGTH}
             />
           </FormField>
         </form>
@@ -151,7 +168,7 @@ function DiscretionaryEvaluationForm({
           size="large"
           type="submit"
           form="discretionary-evaluation"
-          disabled={!formState.isValid || formState.isSubmitting}
+          disabled={!formState.isValid || isPending}
         >
           평가완료
         </Button>

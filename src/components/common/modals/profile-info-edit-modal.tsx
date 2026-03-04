@@ -223,7 +223,7 @@ function ProfileInfoEditForm({
               description="간단한 자기소개를 입력해 주세요."
               direction="vertical"
               showCounterRight
-              counterMax={500}
+              maxCharCount={500}
             >
               <TextAreaInput
                 maxLength={500}
@@ -238,7 +238,7 @@ function ProfileInfoEditForm({
               description="스터디에서 다루고 싶은 주제와 학습 목표를 알려주세요."
               direction="vertical"
               showCounterRight
-              counterMax={500}
+              maxCharCount={500}
               required
             >
               <TextAreaInput
@@ -325,7 +325,7 @@ function ProfileInfoEditForm({
               description="본인의 스터디 목표를 선택해 주세요."
               direction="vertical"
               showCounterRight
-              counterMax={500}
+              maxCharCount={500}
             >
               <TextAreaInput
                 maxLength={500}

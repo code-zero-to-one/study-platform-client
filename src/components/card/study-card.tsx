@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock5, Users } from 'lucide-react';
+import { Clock5, Eye, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { GroupStudyListItemDto } from '@/api/openapi';
@@ -42,12 +42,25 @@ interface StudyCardProps {
   study: GroupStudyListItemDto;
   href: string;
   onClick?: () => void;
+  viewCount?: number;
 }
 
-export default function StudyCard({ study, href, onClick }: StudyCardProps) {
+function formatCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+
+  return String(n);
+}
+
+export default function StudyCard({
+  study,
+  href,
+  onClick,
+  viewCount,
+}: StudyCardProps) {
   const studyType = study.basicInfo?.type as StudyType;
   const badgeColor = studyType ? STUDY_TYPE_BADGE_COLORS[studyType] : 'default';
   const price = study.basicInfo?.price ?? 0;
+  const isCompleted = study.basicInfo?.status === 'COMPLETED';
 
   return (
     <Link
@@ -59,14 +72,20 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
       <div className="relative flex h-[180px] items-center justify-center bg-linear-to-br from-[#F87171] to-[#EC4899]">
         {study.simpleDetailInfo?.thumbnail?.resizedImages?.[0]
           ?.resizedImageUrl ? (
-          <Image
-            src={
-              study.simpleDetailInfo.thumbnail.resizedImages[0].resizedImageUrl
-            }
-            alt={study.simpleDetailInfo?.title ?? '스터디'}
-            fill
-            className="object-cover"
-          />
+          <>
+            <Image
+              src={
+                study.simpleDetailInfo.thumbnail.resizedImages[0]
+                  .resizedImageUrl
+              }
+              alt={study.simpleDetailInfo?.title ?? '스터디'}
+              fill
+              className={`object-cover ${isCompleted ? 'grayscale' : ''}`}
+            />
+            {isCompleted && (
+              <div className="rounded-150 absolute inset-0 bg-gray-100 opacity-40" />
+            )}
+          </>
         ) : (
           <div className="flex items-center gap-100 text-white">
             <span className="text-[14px] font-bold">ZERO ONE IT</span>
@@ -109,7 +128,7 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
           {study.simpleDetailInfo?.summary}
         </p>
 
-        {/* 활성 배지 (RECRUITING 일 때만) */}
+        {/* 활성 배지 (RECRUITING일 때만) */}
         {study.basicInfo?.status === 'RECRUITING' &&
           (() => {
             const remaining =
@@ -193,15 +212,25 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
             </div>
           </div>
 
-          {/* 가격 (0원이면 숨김) */}
-          {price > 0 && (
-            <span className="font-designer-24b text-text-strong">
-              {price.toLocaleString()}
-              <span className="font-designer-18m text-text-subtlest ml-50">
-                원
+          {/* 가격 & 조회수 */}
+          <div className="flex items-center gap-200">
+            {price > 0 && (
+              <span className="font-designer-24b text-text-strong">
+                {price.toLocaleString()}
+                <span className="font-designer-18m text-text-subtlest ml-50">
+                  원
+                </span>
               </span>
-            </span>
-          )}
+            )}
+            {viewCount !== undefined && viewCount > 0 && (
+              <div className="text-text-subtlest flex items-center gap-50">
+                <Eye width={16} height={16} />
+                <span className="font-designer-13r">
+                  {formatCount(viewCount)}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Link>

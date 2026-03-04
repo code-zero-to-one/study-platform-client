@@ -210,7 +210,7 @@ function ProfileEditForm({
               label="한마디 소개"
               description="본인을 간단히 소개하는 한마디를 입력해 주세요."
               showCounterRight
-              counterMax={200}
+              maxCharCount={200}
             >
               <TextAreaInput
                 placeholder="입력해주세요."

@@ -445,7 +445,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
     <div className="w-full">
       {/* 커버 이미지 (GNB 바로 아래, 전체 너비) */}
       {coverUrl && (
-        <div className="relative left-1/2 h-[500px] w-screen -translate-x-1/2">
+        <div className="relative h-[500px] w-full">
           <Image
             src={coverUrl}
             alt={article.title}

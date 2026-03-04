@@ -12,13 +12,19 @@ import {
   Share2,
 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
+import DailyStatsChart from '@/components/balance-game/voting/daily-stats-chart';
+import VoteResultsChart from '@/components/balance-game/voting/vote-results-chart';
+import VoteTimer from '@/components/balance-game/voting/vote-timer';
+import LoginModal from '@/components/common/modals/login-modal';
+import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import Toast from '@/components/common/ui/toast';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
-import LoginModal from '@/components/common/modals/login-modal';
+import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
+import CommentList from '@/features/study/one-to-one/discussion/ui/comment-list';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   useVoteBalanceGameMutation,
   useCancelVoteBalanceGameMutation,
@@ -32,12 +38,6 @@ import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
 } from '@/hooks/queries/use-balance-game-query';
-import DailyStatsChart from '@/components/balance-game/voting/daily-stats-chart';
-import VoteResultsChart from '@/components/balance-game/voting/vote-results-chart';
-import VoteTimer from '@/components/balance-game/voting/vote-timer';
-import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
-import CommentList from '@/features/study/one-to-one/discussion/ui/comment-list';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useUserStore } from '@/stores/useUserStore';
 import { BalanceGameComment } from '@/types/one-to-one-study/balance-game';
 import { VotingOption } from '@/types/one-to-one-study/voting';

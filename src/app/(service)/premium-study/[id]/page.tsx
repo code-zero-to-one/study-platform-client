@@ -5,12 +5,12 @@ import {
 } from '@tanstack/react-query';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import { getGroupStudyDetailInServer } from '@/api/endpoints/group-study/get-group-study-detail.server';
+import { getGroupStudyMyStatusInServer } from '@/api/endpoints/group-study/get-group-study-my-status.server';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
 import PremiumStudyDetailPage from '@/components/pages/premium-study-detail-page';
-import { getGroupStudyDetailInServer } from '@/api/endpoints/group-study/get-group-study-detail.server';
-import { getGroupStudyMyStatusInServer } from '@/api/endpoints/group-study/get-group-study-my-status.server';
 import { GroupStudyDetailResponse } from '@/types/api/group-study.types';
 import { getServerCookie } from '@/utils/server-cookie';
 
