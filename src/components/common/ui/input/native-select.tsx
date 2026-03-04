@@ -1,6 +1,6 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import { cn } from '@/components/ui/(shadcn)/lib/utils';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 const nativeSelectVariants = cva(
   'rounded-100 border bg-background-default text-text-default focus:border-border-brand focus:outline-none disabled:cursor-not-allowed disabled:opacity-60',

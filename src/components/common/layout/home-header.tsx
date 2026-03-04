@@ -1,14 +1,14 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import HeaderNav from '@/components/common/layout/header-nav';
+import NotificationDropdown from '@/components/common/modals/notification-dropdown';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
-import HeaderNav from '@/components/layout/header-nav';
-import NotificationDropdown from '@/components/modals/notification-dropdown';
-import Button from '@/components/ui/button';
-import { tryGetUserProfileInServer } from '@/entities/user/api/get-user-profile.server';
-import HeaderUserDropdown from '@/features/auth/ui/header-user-dropdown';
-import LoginModal from '@/features/auth/ui/login-modal';
+
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
+import LoginModal from '../modals/login-modal';
+import HeaderUserDropdown from './header-user-dropdown';
+import Button from '../ui/button';
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');
@@ -40,7 +40,7 @@ export default async function Header() {
   return (
     <header className="bg-white py-[11px] mix-blend-multiply">
       <div className="mx-auto flex w-[1496px] items-center justify-between px-600">
-        <div className="flex items-center gap-[7.5px] px-[8px] py-[11px]">
+        <div className="flex items-center gap-[7.5px] px-100 py-[11px]">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
           <Link href="/">
             <Image
@@ -50,7 +50,7 @@ export default async function Header() {
               height={11}
             />
           </Link>
-          <span className="rounded-full border-[0.5px] border-[#D5D7DA] px-[5px] py-[2.5px] text-center text-[7.5px] leading-normal font-[500]">
+          <span className="rounded-full border-[0.5px] border-[#D5D7DA] px-[5px] py-[2.5px] text-center text-[7.5px] leading-normal font-medium">
             BETA
           </span>
         </div>
