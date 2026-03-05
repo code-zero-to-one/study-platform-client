@@ -101,7 +101,7 @@ export default function SettlementManagementPage() {
           <DatePicker
             mode="range"
             selected={dateRange}
-            onSelect={(range) => setDateRange(range as DateRange)}
+            onSelect={setDateRange}
           />
         </div>
 
