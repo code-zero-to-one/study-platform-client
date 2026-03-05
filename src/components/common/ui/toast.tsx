@@ -53,7 +53,6 @@ export default function Toast({
   const isSuccess = variant === 'success';
 
   const isError = variant === 'error';
-  const isInfo = variant === 'info';
 
   const toast = (
     <div className="fixed top-400 left-1/2 z-50 -translate-x-1/2">

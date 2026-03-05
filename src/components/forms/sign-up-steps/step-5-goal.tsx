@@ -4,7 +4,14 @@ import { TextAreaInput } from '@/components/common/ui/input';
 import { StepHeader } from './step-header';
 
 // 5. 목표 입력 단계
-export function GoalStep({ data, updateData, onNext, onSkip }: any) {
+interface GoalStepProps {
+  data: { goal?: string };
+  updateData: (field: string, value: unknown) => void;
+  onNext: () => void;
+  onSkip: () => void;
+}
+
+export function GoalStep({ data, updateData, onNext, onSkip }: GoalStepProps) {
   return (
     <div className="flex h-full flex-col gap-300">
       <StepHeader

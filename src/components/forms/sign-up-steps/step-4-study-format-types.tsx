@@ -6,7 +6,17 @@ import { useStudyFormatTypesQuery } from '@/hooks/queries/use-update-user-profil
 import type { StudyFormatTypeResponse } from '@/types/api/my-page.types';
 import { StepHeader } from './step-header';
 
-export function StudyFormatTypesStep({ data, updateData, onNext }: any) {
+interface StudyFormatTypesStepProps {
+  data: { studyFormatTypes?: string[] };
+  updateData: (field: string, value: unknown) => void;
+  onNext: () => void;
+}
+
+export function StudyFormatTypesStep({
+  data,
+  updateData,
+  onNext,
+}: StudyFormatTypesStepProps) {
   const { data: studyFormatTypes = [] } = useStudyFormatTypesQuery();
 
   // 배열 보장 및 안전성 처리

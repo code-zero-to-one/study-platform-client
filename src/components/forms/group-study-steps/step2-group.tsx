@@ -44,7 +44,10 @@ export default function Step2OpenGroupStudy() {
 
     const ext = file.name.split('.').pop()?.toUpperCase();
     const validExt =
-      ext && THUMBNAIL_EXTENSION.includes(ext as any)
+      ext &&
+      THUMBNAIL_EXTENSION.includes(
+        ext as GroupStudyFormValues['thumbnailExtension'],
+      )
         ? (ext as GroupStudyFormValues['thumbnailExtension'])
         : 'DEFAULT';
 

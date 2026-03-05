@@ -5,7 +5,13 @@ import { useCareersQuery } from '@/hooks/queries/use-update-user-profile-mutatio
 import type { CareerResponse } from '@/types/api/my-page.types';
 import { StepHeader } from './step-header';
 
-export function CareerStep({ data, updateData, onNext }: any) {
+interface CareerStepProps {
+  data: { career?: string };
+  updateData: (field: string, value: unknown) => void;
+  onNext: () => void;
+}
+
+export function CareerStep({ data, updateData, onNext }: CareerStepProps) {
   const { data: careers = [] } = useCareersQuery();
 
   // CareerResponse: { "career": "BEGINNER", "description": "입문자" }

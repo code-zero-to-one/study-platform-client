@@ -140,7 +140,8 @@ export default function PhoneVerificationModal({
           setError('');
         },
         onError: (error: unknown) => {
-          const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+          const msg = (error as { response?: { data?: { message?: string } } })
+            ?.response?.data?.message;
           setError(msg || '인증번호 발송에 실패했습니다. 다시 시도해주세요.');
         },
       },
@@ -188,15 +189,15 @@ export default function PhoneVerificationModal({
           const newFailCount = failCount + 1;
           setFailCount(newFailCount);
           triggerShake();
-          const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+          const msg = (error as { response?: { data?: { message?: string } } })
+            ?.response?.data?.message;
 
           if (newFailCount >= 5) {
             setError('인증번호를 5회 틀렸어요. 새 인증번호를 받아주세요.');
             setCode('');
           } else {
             setError(
-              msg ||
-                `인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`,
+              msg || `인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`,
             );
             setCode('');
           }
@@ -233,11 +234,9 @@ export default function PhoneVerificationModal({
           }, 3000);
         },
         onError: (error: unknown) => {
-          const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
-          setError(
-            msg ||
-              '인증번호 발송에 실패했습니다. 다시 시도해주세요.',
-          );
+          const msg = (error as { response?: { data?: { message?: string } } })
+            ?.response?.data?.message;
+          setError(msg || '인증번호 발송에 실패했습니다. 다시 시도해주세요.');
           setIsResending(false);
         },
       },

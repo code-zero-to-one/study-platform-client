@@ -11,7 +11,7 @@ import {
 // 그룹 스터디 리스트 조회
 export const getGroupStudyDetailInServer = async ({
   groupStudyId,
-}: GroupStudyDetailRequest): Promise<GroupStudyFullResponse | undefined> => {
+}: GroupStudyDetailRequest): Promise<GroupStudyFullResponse> => {
   try {
     const groupStudyApi = createApiServerInstance(GroupStudyManagementApi);
 
@@ -28,5 +28,7 @@ export const getGroupStudyDetailInServer = async ({
     ) {
       notFound();
     }
+
+    throw error;
   }
 };

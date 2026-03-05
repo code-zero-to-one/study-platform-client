@@ -27,8 +27,15 @@ export async function generateMetadata({
 
   // 1. SEO 블록에서 메타데이터 추출
   const seoBlock = article.blocks?.find(
-    (block: any) => block.__component === 'shared.seo',
-  );
+    (block: { __component?: string; [key: string]: unknown }) =>
+      block.__component === 'shared.seo',
+  ) as
+    | {
+        metaTitle?: string;
+        metaDescription?: string;
+        shareImage?: { url?: string };
+      }
+    | undefined;
 
   // 2. 최종 메타데이터 값 결정 (SEO 블록 우선, 없으면 Article 기본 필드 사용)
   const metaTitle = seoBlock?.metaTitle || article.title;
@@ -46,9 +53,11 @@ export async function generateMetadata({
       ? shareImageUrl
       : `${STRAPI_URL}${shareImageUrl}`;
   } else if (article.cover) {
-    const coverUrl =
-      (article.cover as any).url ||
-      (article.cover as any).data?.attributes?.url;
+    const cover = article.cover as {
+      url?: string;
+      data?: { attributes?: { url?: string } };
+    };
+    const coverUrl = cover.url || cover.data?.attributes?.url;
     if (coverUrl) {
       imageUrl = coverUrl.startsWith('http')
         ? coverUrl

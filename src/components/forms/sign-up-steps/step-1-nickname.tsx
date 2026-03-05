@@ -8,7 +8,14 @@ import { useDebounce } from '@/hooks/common/use-debounce';
 import { useNicknameCheckQuery } from '@/hooks/queries/use-nickname-check';
 import { StepHeader } from './step-header';
 
-export function NicknameStep({ data, updateData, onNext }: any) {
+interface NicknameStepProps {
+  data: { nickname: string; image?: string };
+  updateData: (field: string, value: unknown) => void;
+  onNext: () => void;
+}
+
+export function NicknameStep({ data, updateData, onNext }: NicknameStepProps) {
+  console.log({ updateData });
   const [checked, setChecked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isValidName = /^[가-힣a-zA-Z]{2,10}$/.test(data.nickname);
