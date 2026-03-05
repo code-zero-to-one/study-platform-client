@@ -188,7 +188,8 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
 
     if (
       isDeadlinePassed ||
-      groupStudyStatus !== 'RECRUITING' ||
+      (groupStudyStatus !== 'RECRUITING' &&
+        groupStudyStatus !== 'ENDING_SOON') ||
       approvedCount >= maxMembersCount
     ) {
       return {

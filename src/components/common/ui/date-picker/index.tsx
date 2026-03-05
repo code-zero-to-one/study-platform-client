@@ -125,7 +125,9 @@ export function DatePicker(props: DatePickerProps) {
       disabled: 'cursor-not-allowed opacity-50',
     },
     components: {
-      Chevron: (chevronProps: React.ComponentProps<'svg'> & { orientation?: string }) => {
+      Chevron: (
+        chevronProps: React.ComponentProps<'svg'> & { orientation?: string },
+      ) => {
         if (chevronProps.orientation === 'left') {
           return <ChevronLeft className="size-4" />;
         }
@@ -143,7 +145,11 @@ export function DatePicker(props: DatePickerProps) {
         className="rounded-100 border-border-default flex h-[40px] w-[230px] items-center justify-between gap-100 border bg-white px-150"
       >
         <span className="font-designer-14r text-text-subtle">
-          {formatDateDisplay(props.mode ?? 'single', props.selected, placeholder)}
+          {formatDateDisplay(
+            props.mode ?? 'single',
+            props.selected,
+            placeholder,
+          )}
         </span>
         <CalendarCheck2 size={16} />
       </button>
