@@ -1,5 +1,5 @@
 import { ExternalLink } from 'lucide-react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 import { CurriculumSummaryItem } from '@/types/api/group-study.types';
 
@@ -11,12 +11,13 @@ export default function CurriculumSummarySection({
   curriculumSummary,
 }: CurriculumSummarySectionProps) {
   const pathname = usePathname();
+  const router = useRouter();
   if (!curriculumSummary?.length) return null;
 
   const weekCount = Math.max(...curriculumSummary.map((item) => item.weekNum));
 
   const handleClickCurriculum = (id: number) => {
-    window.open(`${pathname}?tab=mission&missionId=${id}`, '_blank');
+    router.push(`${pathname}?tab=mission&missionId=${id}`);
   };
 
   return (
