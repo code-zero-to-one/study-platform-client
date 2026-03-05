@@ -4,7 +4,6 @@ import type { MemberProfile } from '@/types/api/user.types';
 import { UrlSchema } from '@/types/schemas/zod-schema';
 
 const nameRegex = /^[가-힣a-zA-Z]{2,10}$/;
-const telRegex = /^\d{2,3}-\d{3,4}-\d{4}$/;
 const birthRegex = /^\d{4}\.(0[1-9]|1[0-2])\.(0[1-9]|[12]\d|3[01])$/;
 
 export const ProfileFormSchema = z.object({

@@ -265,6 +265,7 @@ export default function GroupStudyFormModal({
     if (mode === 'edit' && controlledOpen && groupStudyInfo) {
       editMethods.reset(refineStudyDetail(groupStudyInfo));
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [controlledOpen, groupStudyInfo]);
 
   return (

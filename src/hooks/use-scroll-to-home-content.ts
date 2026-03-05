@@ -72,5 +72,6 @@ export const useScrollToHomeContentOnChange = (
         options?.stabilizeDurationMs ?? 800,
       );
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 };
