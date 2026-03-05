@@ -7,14 +7,14 @@
       "request": "launch",
       "command": "yarn run dev -- --inspect"
     },
-  {
-  "name": "Next.js: attach client (safe login)",
-  "type": "pwa-chrome",
-  "request": "attach",
-  "port": 9222,
-  "url": "http://localhost:3000",
-  "webRoot": "${workspaceFolder}"
-},
+    {
+      "name": "Next.js: attach client (safe login)",
+      "type": "pwa-chrome",
+      "request": "attach",
+      "port": 9222,
+      "url": "http://localhost:3000",
+      "webRoot": "${workspaceFolder}"
+    },
     {
       "name": "Next.js: debug full stack",
       "type": "node",

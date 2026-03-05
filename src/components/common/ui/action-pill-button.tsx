@@ -4,7 +4,8 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 type ActionPillVariant = 'primary' | 'neutral' | 'ghost';
 type ActionPillSize = 'xs' | 'sm' | 'md';
 
-interface ActionPillButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ActionPillButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ActionPillVariant;
   size?: ActionPillSize;
   icon?: React.ReactNode;

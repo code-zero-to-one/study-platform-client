@@ -41,18 +41,21 @@ export interface CoreKeywordResponseDto extends CodeLabelResponseDto {
   active?: boolean;
 }
 
-export interface RegistrationOptionsJobGroupResponseDto extends CodeLabelResponseDto {
+export interface RegistrationOptionsJobGroupResponseDto
+  extends CodeLabelResponseDto {
   displayOrder?: number;
   active?: boolean;
 }
 
-export interface RegistrationOptionsJobTitleResponseDto extends CodeLabelResponseDto {
+export interface RegistrationOptionsJobTitleResponseDto
+  extends CodeLabelResponseDto {
   jobGroupCode?: string;
   displayOrder?: number;
   active?: boolean;
 }
 
-export interface RegistrationOptionsCareerResponseDto extends CareerCodeLabelResponseDto {
+export interface RegistrationOptionsCareerResponseDto
+  extends CareerCodeLabelResponseDto {
   displayOrder?: number;
   active?: boolean;
 }
