@@ -11,9 +11,6 @@ export const getGroupStudyDetail = async (
   const { groupStudyId } = params;
 
   try {
-    // const groupStudyApi = createApiInstance(GroupStudyManagementApi);
-
-    // const { data } = await groupStudyApi.getGroupStudy(groupStudyId);
     const { data } = await axiosInstance.get(`/group-studies/${groupStudyId}`);
 
     if (data.statusCode !== 200) {
