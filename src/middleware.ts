@@ -180,7 +180,6 @@ export const config = {
     '/my-study-review',
     '/sign-up',
     '/payment/:path*', // 결제 관련 모든 경로
-    '/group-study/:path*', // 그룹스터디 상세 페이지 (토큰 갱신 포함)
     '/admin/:path*',
   ],
 };
