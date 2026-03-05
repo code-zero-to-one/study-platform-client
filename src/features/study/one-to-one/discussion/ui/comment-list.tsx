@@ -6,9 +6,19 @@ import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
-import { BalanceGameComment } from '@/types/one-to-one-study/balance-game';
-import { DiscussionComment } from '@/types/one-to-one-study/discussion';
-import { VotingComment, VotingOption } from '@/types/one-to-one-study/voting';
+import {
+  BalanceGameAuthor,
+  BalanceGameComment,
+} from '@/types/one-to-one-study/balance-game';
+import {
+  DiscussionAuthor,
+  DiscussionComment,
+} from '@/types/one-to-one-study/discussion';
+import {
+  VotingAuthor,
+  VotingComment,
+  VotingOption,
+} from '@/types/one-to-one-study/voting';
 import { CommentFormData } from '@/types/schemas/zod-schema';
 
 interface CommentListProps {
@@ -20,6 +30,21 @@ interface CommentListProps {
   editingCommentContent?: string;
   onUpdateComment?: (data: CommentFormData) => void | Promise<void>;
   onCancelEdit?: () => void;
+}
+
+function getAuthorImageUrl(
+  author: DiscussionAuthor | VotingAuthor | BalanceGameAuthor,
+): string | undefined {
+  // profileImage는 BalanceGameAuthor에만 있는 required 필드
+  if ('profileImage' in author) {
+    if (typeof author.profileImage === 'string') {
+      return author.profileImage ?? undefined;
+    }
+
+    return author.profileImage?.resizedImages?.[0]?.resizedImageUrl;
+  }
+
+  return author.avatar;
 }
 
 // 옵션별 색상 정의
@@ -85,23 +110,7 @@ export default function CommentList({
           }
         }
 
-        // Author image handling
-        const authorImage =
-          'avatar' in comment.author
-            ? comment.author.avatar
-            : 'profileImage' in comment.author
-              ? typeof (comment.author as unknown as { profileImage?: unknown })
-                  .profileImage === 'string'
-                ? (comment.author as unknown as { profileImage: string })
-                    .profileImage
-                : (
-                    comment.author as unknown as {
-                      profileImage?: {
-                        resizedImages?: { resizedImageUrl: string }[];
-                      };
-                    }
-                  ).profileImage?.resizedImages?.[0]?.resizedImageUrl
-              : undefined;
+        const authorImage = getAuthorImageUrl(comment.author);
 
         return (
           <div
