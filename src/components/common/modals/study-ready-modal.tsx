@@ -116,7 +116,7 @@ function StudyReadyForm({
   data: DailyStudyDetail;
   studyDate: string;
   onClose: () => void;
-  subjectInputRef: React.RefObject<HTMLInputElement>;
+  subjectInputRef: React.RefObject<HTMLInputElement | null>;
   onFormStateChange: (state: {
     isValid: boolean;
     isSubmitting: boolean;

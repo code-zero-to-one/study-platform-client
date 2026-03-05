@@ -103,7 +103,7 @@ export default function PaymentManagement() {
         <DatePicker
           mode="range"
           selected={dateRange}
-          onSelect={(range) => setDateRange(range as DateRange)}
+          onSelect={setDateRange}
         />
 
         {/* 검색 */}

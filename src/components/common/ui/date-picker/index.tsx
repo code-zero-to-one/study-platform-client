@@ -161,14 +161,20 @@ export function DatePicker(props: DatePickerProps) {
               {...commonProps}
               mode="range"
               selected={props.selected}
-              onSelect={props.onSelect}
+              onSelect={(range) => {
+                props.onSelect?.(range);
+                if (range?.to) setShowCalendar(false);
+              }}
             />
           ) : (
             <DayPicker
               {...commonProps}
               mode="single"
               selected={props.selected}
-              onSelect={props.onSelect}
+              onSelect={(date) => {
+                props.onSelect?.(date);
+                setShowCalendar(false);
+              }}
             />
           )}
         </div>
