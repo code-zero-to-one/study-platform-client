@@ -1,315 +1,149 @@
 import { Metadata } from 'next';
+import Image from 'next/image';
+import Link from 'next/link';
+import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
+import {
+  fetchArticles,
+  fetchCategories,
+} from '@/api/strapi/api/fetch-articles';
+import Banner from '@/components/home/banner';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
-import VotingPageClient from './voting-page-client';
+
+export const revalidate = 60;
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: '밸런스 게임 - 위클리',
+  title: 'ZERO-ONE 인사이트',
   description:
-    '다양한 주제에 투표하고 댓글로 자유롭게 토론할 수 있는 밸런스 게임. 선택하고 의견을 나눠보세요.',
-  path: '/insights/weekly',
+    'ZERO-ONE 팀이 공유하는 개발, 취업, 성장에 관한 인사이트. 최신 기술 동향, 면접 팁, 커리어 성장 조언을 읽어보세요.',
+  path: '/insights',
   keywords: [
-    '밸런스 게임',
-    '투표',
-    '토론',
-    '의견',
-    '선택',
-    '커뮤니티',
-    '위클리',
+    '개발 인사이트',
+    '기술 블로그',
+    '면접 팁',
+    '커리어',
+    '개발자 성장',
+    '기술 동향',
   ],
-  canonicalUrl: 'https://www.zeroone.it.kr/insights/weekly',
+  canonicalUrl: 'https://www.zeroone.it.kr/insights',
 });
 
-export default function VotingPage() {
-  return <VotingPageClient />;
+// 날짜 포맷팅 함수
+function formatDate(dateString: string): string {
+  const date = new Date(dateString);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  return `${year}.${month}.${day}`;
 }
-  // 상태 관리
-  const [statusFilter, setStatusFilter] = useState<'active' | 'closed' | 'all'>(
-    'active',
-  );
-  const [sortMode, setSortMode] = useState<'latest' | 'popular'>('latest');
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [showToast, setShowToast] = useState(false);
 
-  // React Query Hooks
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetching,
-    isFetchingNextPage,
-    status,
-    error,
-  } = useBalanceGameListQuery(
-    sortMode,
-    statusFilter === 'all' ? undefined : statusFilter,
-  );
+interface BlogPageProps {
+  searchParams: Promise<{ category?: string }>;
+}
 
-  const createMutation = useCreateBalanceGameMutation();
+export default async function BlogPage({ searchParams }: BlogPageProps) {
+  const { category: selectedCategorySlug } = await searchParams;
 
-  // 무한 스크롤용 ref
-  const observerTarget = useRef<HTMLDivElement>(null);
+  // 카테고리 목록과 아티클 목록을 병렬로 가져오기
+  const [categoriesRes, articlesRes] = await Promise.all([
+    fetchCategories(),
+    fetchArticles(selectedCategorySlug),
+  ]);
 
-  // 투표 생성 핸들러
-  const handleCreateVoting = async (data: VotingCreateFormData) => {
-    try {
-      const requestBody: CreateBalanceGameRequest = {
-        title: data.title,
-        description: data.description || '',
-        options: data.options.map((opt) => opt.label),
-        endsAt:
-          data.endsAt && data.endsAt.trim() !== '' ? data.endsAt : undefined,
-        tags: data.tags || [],
-      };
-
-      await createMutation.mutateAsync(requestBody);
-      setIsCreateModalOpen(false);
-      setShowToast(true);
-    } catch (error) {
-      console.error('투표 생성 실패:', error);
-      throw error;
-    }
-  };
-
-  // 무한 스크롤 Intersection Observer
-  useEffect(() => {
-    const currentTarget = observerTarget.current;
-    if (!currentTarget) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (
-          entries[0].isIntersecting &&
-          hasNextPage &&
-          !isFetchingNextPage &&
-          !isFetching
-        ) {
-          fetchNextPage().catch(() => {
-            // 무한 스크롤 실패 시 무시
-          });
-        }
-      },
-      { threshold: 0.1 },
-    );
-
-    observer.observe(currentTarget);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [hasNextPage, isFetchingNextPage, isFetching, fetchNextPage]);
-
-  // 로딩 상태 (첫 로드만)
-  if (status === 'pending') {
-    return (
-      <div className="bg-background-alternative flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-400">
-          <Loader2 className="text-text-brand h-8 w-8 animate-spin" />
-          <p className="font-designer-16m text-text-subtle">
-            투표를 불러오는 중...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // 에러 상태
-  if (status === 'error') {
-    return (
-      <div className="bg-background-alternative flex min-h-screen items-center justify-center">
-        <div className="flex flex-col items-center gap-400">
-          <SearchX className="text-text-subtlest h-12 w-12" />
-          <p className="font-designer-16m text-text-subtle">
-            데이터를 불러오는데 실패했습니다.
-          </p>
-          <button
-            onClick={() => window.location.reload()}
-            className="rounded-100 bg-fill-brand-default-default font-designer-14b text-text-inverse hover:bg-fill-brand-default-hover px-400 py-200 transition-colors"
-          >
-            다시 시도
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  const votings = data?.pages.flatMap((page) => page.content) || [];
+  const categories = categoriesRes.data ?? [];
+  const articles = articlesRes.data ?? [];
 
   return (
-    <>
-      <div className="bg-background-alternative">
-        <div className="mx-auto w-full max-w-screen-xl px-400 py-600">
-          {/* 사이드바 + 메인 컨텐츠 */}
-          <div className="flex gap-600">
-            {/* Left Sidebar */}
-            <aside className="sticky top-400 h-fit w-[200px] shrink-0 pt-100">
-              <div className="flex flex-col gap-50">
-                <div className="flex items-center gap-100">
-                  <Vote className="text-text-brand h-5 w-5" />
-                  <h1 className="font-bold-h5 text-text-strong tracking-tight">
-                    밸런스 게임
-                  </h1>
-                </div>
-                <span className="font-designer-13r text-text-subtle tracking-tight">
-                  선택하고 의견을 나눠보세요
-                </span>
-              </div>
-            </aside>
-
-            {/* Main Content */}
-            <main className="min-w-0 flex-1">
-              {/* 헤더 */}
-              <div className="mb-500">
-                <h2 className="font-display-headings6 text-text-strong mb-300">
-                  선택하고, 의견을 나눠보세요
-                </h2>
-                <p className="font-designer-14r text-text-subtle">
-                  다양한 주제에 투표하고 댓글로 자유롭게 토론할 수 있습니다.
-                </p>
-              </div>
-
-              {/* 필터 + 주제 생성 버튼 */}
-              <div className="mb-400 flex items-center justify-between gap-200">
-                {/* 필터(상태) + 정렬 */}
-                <div className="flex items-center gap-200">
-                  <button
-                    onClick={() => setStatusFilter('active')}
-                    className={cn(
-                      'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                      statusFilter === 'active'
-                        ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                        : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-                    )}
-                  >
-                    진행 중
-                  </button>
-                  <button
-                    onClick={() => setStatusFilter('closed')}
-                    className={cn(
-                      'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                      statusFilter === 'closed'
-                        ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                        : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-                    )}
-                  >
-                    종료됨
-                  </button>
-                  <button
-                    onClick={() => setStatusFilter('all')}
-                    className={cn(
-                      'rounded-100 font-designer-13b px-300 py-150 transition-all',
-                      statusFilter === 'all'
-                        ? 'bg-fill-brand-default-default text-text-inverse shadow-1'
-                        : 'border-border-subtle bg-background-default text-text-subtle hover:border-border-brand hover:text-text-brand border',
-                    )}
-                  >
-                    전체
-                  </button>
-
-                  {/* divider */}
-                  <div className="bg-border-subtle mx-100 h-6 w-px" />
-
-                  {/* Sort Dropdown */}
-                  <div className="group relative">
-                    <button className="rounded-100 bg-background-default border-border-subtle font-designer-14m text-text-default hover:bg-fill-neutral-subtle-hover flex items-center gap-50 border px-200 py-150 whitespace-nowrap transition-colors">
-                      <ArrowUpDown className="h-4 w-4" />
-                      {sortMode === 'latest' ? '최신순' : '인기순'}
-                    </button>
-
-                    {/* Dropdown */}
-                    <div className="absolute top-full left-0 z-20 hidden w-[120px] pt-50 group-hover:block">
-                      <div className="bg-background-default border-border-subtle rounded-100 shadow-2 overflow-hidden border">
-                        <button
-                          onClick={() => setSortMode('latest')}
-                          className={cn(
-                            'hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors',
-                            sortMode === 'latest' &&
-                              'bg-fill-neutral-subtle-default',
-                          )}
-                        >
-                          최신순
-                        </button>
-                        <button
-                          onClick={() => setSortMode('popular')}
-                          className={cn(
-                            'hover:bg-fill-neutral-subtle-hover font-designer-14r w-full px-200 py-150 text-left transition-colors',
-                            sortMode === 'popular' &&
-                              'bg-fill-neutral-subtle-default',
-                          )}
-                        >
-                          인기순
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 주제 생성 버튼 */}
-                <button
-                  onClick={() => setIsCreateModalOpen(true)}
-                  className="rounded-100 bg-fill-brand-default-default font-designer-13b text-text-inverse shadow-1 hover:bg-fill-brand-default-hover hover:shadow-2 flex items-center gap-100 px-400 py-200 transition-all hover:scale-105"
-                >
-                  <Plus className="h-4 w-4" />
-                  주제 생성
-                </button>
-              </div>
-
-              {/* 투표 목록 */}
-              {votings.length === 0 ? (
-                <div className="rounded-200 border-border-subtle bg-background-default flex flex-col items-center justify-center gap-300 border py-1200">
-                  <Vote className="text-text-subtlest h-12 w-12 opacity-30" />
-                  <div className="flex flex-col items-center gap-100">
-                    <p className="font-designer-16m text-text-subtle">
-                      투표가 없습니다
-                    </p>
-                    <p className="font-designer-14r text-text-subtlest">
-                      곧 새로운 투표가 등록될 예정입니다
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex flex-col gap-300">
-                    {votings.map((voting) => (
-                      <VotingCard key={voting.id} voting={voting} />
-                    ))}
-                  </div>
-
-                  {/* 무한 스크롤 트리거 */}
-                  <div ref={observerTarget} className="py-400 text-center">
-                    {isFetchingNextPage && (
-                      <div className="flex items-center justify-center gap-200">
-                        <Loader2 className="text-text-brand h-5 w-5 animate-spin" />
-                        <span className="font-designer-14r text-text-subtle">
-                          불러오는 중...
-                        </span>
-                      </div>
-                    )}
-                    {!hasNextPage && votings.length > 0 && (
-                      <p className="font-designer-13r text-text-subtlest">
-                        모든 투표를 불러왔습니다
-                      </p>
-                    )}
-                  </div>
-                </>
-              )}
-            </main>
-          </div>
+    <div className="mx-auto w-[1280px] px-400 py-600">
+      <div className="flex flex-1 flex-col gap-500">
+        {/* 배너 */}
+        <div className="mb-600">
+          <Banner />
         </div>
+
+        <div className="flex justify-between">
+          <span className="font-designer-28b text-[#181D27]">
+            ZERO-ONE 인사이트
+          </span>
+        </div>
+
+        {/* 카테고리 탭 */}
+        <div className="flex gap-200 border-b border-[#D5D7DA]">
+          <Link
+            href="/insights"
+            className={`px-300 pb-200 transition-colors ${
+              !selectedCategorySlug
+                ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
+                : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
+            }`}
+          >
+            전체
+          </Link>
+          {categories.map((category) => (
+            <Link
+              key={category.id}
+              href={`/insights?category=${category.slug}`}
+              className={`px-300 pb-200 transition-colors ${
+                selectedCategorySlug === category.slug
+                  ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
+                  : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
+              }`}
+            >
+              {category.name}
+            </Link>
+          ))}
+        </div>
+
+        {/* 아티클 목록 */}
+        {articles.length === 0 ? (
+          <p className="text-gray-500">아직 등록된 글이 없습니다.</p>
+        ) : (
+          <ul className="space-y-200">
+            {articles.map((item) => (
+              <li key={item.id}>
+                <Link
+                  href={`/insights/${item.slug}`}
+                  className="rounded-100 flex w-full cursor-pointer gap-400 border border-solid border-[#D5D7DA] p-300 transition-colors hover:border-[#9CA3AF]"
+                >
+                  {/* 왼쪽: 텍스트 콘텐츠 */}
+                  <div className="flex flex-1 flex-col justify-between gap-150">
+                    {/* 카테고리 */}
+                    {item.category && (
+                      <span className="font-designer-13r text-[#9CA3AF]">
+                        {item.category.name}
+                      </span>
+                    )}
+                    {/* 제목 */}
+                    <span className="font-designer-18b text-[#252B37]">
+                      {item.title}
+                    </span>
+                    {/* Description */}
+                    <p className="font-designer-15r line-clamp-2 text-[#535862]">
+                      {item.description}
+                    </p>
+                    {/* 생성일 */}
+                    <span className="font-designer-13r text-[#9CA3AF]">
+                      {formatDate(item.createdAt)}
+                    </span>
+                  </div>
+
+                  {/* 오른쪽: 커버 이미지 */}
+                  {item.cover?.url && (
+                    <div className="rounded-100 relative h-[120px] w-[120px] flex-shrink-0 overflow-hidden">
+                      <Image
+                        src={`${STRAPI_URL}${item.cover.url}`}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
-
-      {/* 주제 생성 모달 */}
-      <VotingCreateModal
-        isOpen={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
-        onSubmit={handleCreateVoting}
-      />
-
-      {/* 토스트 */}
-      <Toast
-        message="투표 주제가 생성되었습니다"
-        isVisible={showToast}
-        onClose={() => setShowToast(false)}
-      />
-    </>
+    </div>
   );
 }

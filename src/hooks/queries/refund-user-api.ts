@@ -89,7 +89,10 @@ export const useRequestRefund = () => {
     },
     onError: (error) => {
       const errorInfo = analyzeError(error);
-      const errorMessage = getRefundErrorMessage(errorInfo.errorCode, errorInfo.technicalMessage);
+      const errorMessage = getRefundErrorMessage(
+        errorInfo.errorCode,
+        errorInfo.technicalMessage,
+      );
       alert(errorMessage);
     },
   });

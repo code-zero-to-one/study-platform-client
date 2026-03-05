@@ -28,7 +28,7 @@
  */
 
 import { isAxiosError } from 'axios';
-import { ApiError, isApiError } from '@/api/client/api-error';
+import { isApiError } from '@/api/client/api-error';
 
 /**
  * 에러 타입 분류
@@ -70,12 +70,12 @@ export interface ErrorInfo {
 
 /**
  * 에러를 분석하고 분류합니다.
- * 
+ *
  * 모든 종류의 에러를 받아서 구조화된 ErrorInfo로 변환합니다.
- * 
+ *
  * @param error - 분석할 에러 객체 (AxiosError, ApiError, Error 등)
  * @returns 구조화된 에러 정보 (ErrorInfo)
- * 
+ *
  * @example
  * ```typescript
  * try {
@@ -96,17 +96,15 @@ export function analyzeError(error: unknown): ErrorInfo {
 
     // API 에러 응답
     if (responseData && isApiError(responseData)) {
-      const apiError = responseData as {
-        errorCode: string;
-        errorName: string;
-        message: string;
-      };
-      
+      // isApiError가 타입 가드이므로 responseData는 ApiError 타입으로 좁혀짐
       return {
-        type: getErrorTypeFromStatusCode(statusCode, apiError.errorCode),
-        userMessage: getUserFriendlyMessage(apiError.errorCode, apiError.message),
-        technicalMessage: `[${apiError.errorCode}] ${apiError.errorName}: ${apiError.message}`,
-        errorCode: apiError.errorCode,
+        type: getErrorTypeFromStatusCode(statusCode, responseData.errorCode),
+        userMessage: getUserFriendlyMessage(
+          responseData.errorCode,
+          responseData.message,
+        ),
+        technicalMessage: `[${responseData.errorCode}] ${responseData.errorName}: ${responseData.message}`,
+        errorCode: responseData.errorCode,
         statusCode,
         originalError: error,
       };
@@ -156,12 +154,13 @@ export function analyzeError(error: unknown): ErrorInfo {
  */
 function getErrorTypeFromStatusCode(
   statusCode?: number,
-  errorCode?: string
+  errorCode?: string,
 ): ErrorType {
   // 에러 코드 기반 분류
   if (errorCode) {
     if (errorCode.startsWith('AUTH')) return ErrorType.AUTH;
-    if (errorCode.startsWith('GSM001') || errorCode.includes('NOT_FOUND')) return ErrorType.NOT_FOUND;
+    if (errorCode.startsWith('GSM001') || errorCode.includes('NOT_FOUND'))
+      return ErrorType.NOT_FOUND;
   }
 
   // HTTP 상태 코드 기반 분류
@@ -181,7 +180,7 @@ function getErrorTypeFromStatusCode(
 function getUserFriendlyMessage(
   errorCode?: string,
   originalMessage?: string,
-  statusCode?: number
+  statusCode?: number,
 ): string {
   // 에러 코드 기반 메시지
   if (errorCode) {
@@ -216,7 +215,7 @@ function getUserFriendlyMessage(
   // 원본 메시지에서 키워드 추출
   if (originalMessage) {
     const lowerMessage = originalMessage.toLowerCase();
-    
+
     if (lowerMessage.includes('network') || lowerMessage.includes('네트워크')) {
       return '네트워크 연결을 확인해주세요.';
     }
@@ -234,13 +233,13 @@ function getUserFriendlyMessage(
 
 /**
  * 에러를 구조화된 형태로 로깅합니다.
- * 
+ *
  * 개발팀을 위한 상세한 에러 정보를 JSON 형태로 로깅합니다.
  * 향후 모니터링 서비스(Sentry 등)로 전송할 수 있습니다.
- * 
+ *
  * @param errorInfo - 로깅할 에러 정보
  * @param context - 추가 컨텍스트 정보 (URL, digest 등)
- * 
+ *
  * @example
  * ```typescript
  * const errorInfo = analyzeError(error);
@@ -250,7 +249,10 @@ function getUserFriendlyMessage(
  * });
  * ```
  */
-export function logError(errorInfo: ErrorInfo, context?: Record<string, unknown>): void {
+export function logError(
+  errorInfo: ErrorInfo,
+  context?: Record<string, unknown>,
+): void {
   const logData = {
     timestamp: new Date().toISOString(),
     type: errorInfo.type,
@@ -259,10 +261,11 @@ export function logError(errorInfo: ErrorInfo, context?: Record<string, unknown>
     errorCode: errorInfo.errorCode,
     statusCode: errorInfo.statusCode,
     context,
-    stack: errorInfo.originalError instanceof Error ? errorInfo.originalError.stack : undefined,
+    stack:
+      errorInfo.originalError instanceof Error
+        ? errorInfo.originalError.stack
+        : undefined,
   };
 
   console.error('[Error Handler]', JSON.stringify(logData, null, 2));
 }
-
-

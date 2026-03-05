@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { analyzeError, logError, type ErrorInfo } from '@/utils/error-handler';
 
@@ -32,34 +32,36 @@ export default function AdminError({ error, reset }: ErrorProps) {
   return (
     <div className="flex h-[calc(100vh-45px)] w-full flex-col items-center justify-center gap-5 px-4">
       <h1 className="text-2xl font-bold">관리자 페이지 오류</h1>
-      <p className="text-center text-gray-600 max-w-md">
+      <p className="max-w-md text-center text-gray-600">
         {errorInfo.userMessage}
       </p>
 
       {/* 관리자는 기본적으로 상세 정보 표시 */}
-      <div className="w-full max-w-2xl flex flex-col items-center">
+      <div className="flex w-full max-w-2xl flex-col items-center">
         <button
           type="button"
           onClick={() => setShowDetails(!showDetails)}
-          className="text-sm text-gray-400 hover:text-gray-600 underline"
+          className="text-sm text-gray-400 underline hover:text-gray-600"
         >
           {showDetails ? '상세 정보 숨기기' : '상세 정보 보기'}
         </button>
-        
+
         {showDetails && (
-          <div className="mt-3 p-4 bg-gray-50 rounded-lg text-left">
-            <div className="space-y-2 text-xs font-mono">
+          <div className="mt-3 rounded-lg bg-gray-50 p-4 text-left">
+            <div className="space-y-2 font-mono text-xs">
               <div>
                 <span className="font-bold">에러 타입:</span> {errorInfo.type}
               </div>
               {errorInfo.errorCode && (
                 <div>
-                  <span className="font-bold">에러 코드:</span> {errorInfo.errorCode}
+                  <span className="font-bold">에러 코드:</span>{' '}
+                  {errorInfo.errorCode}
                 </div>
               )}
               {errorInfo.statusCode && (
                 <div>
-                  <span className="font-bold">HTTP 상태:</span> {errorInfo.statusCode}
+                  <span className="font-bold">HTTP 상태:</span>{' '}
+                  {errorInfo.statusCode}
                 </div>
               )}
               {error.digest && (
@@ -67,16 +69,16 @@ export default function AdminError({ error, reset }: ErrorProps) {
                   <span className="font-bold">Digest:</span> {error.digest}
                 </div>
               )}
-              <div className="pt-2 border-t">
+              <div className="border-t pt-2">
                 <span className="font-bold">기술적 메시지:</span>
-                <pre className="mt-1 text-xs whitespace-pre-wrap break-words">
+                <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
                   {errorInfo.technicalMessage}
                 </pre>
               </div>
               {error.stack && (
-                <div className="pt-2 border-t">
+                <div className="border-t pt-2">
                   <span className="font-bold">스택 트레이스:</span>
-                  <pre className="mt-1 text-xs whitespace-pre-wrap break-words max-h-40 overflow-auto">
+                  <pre className="mt-1 max-h-40 overflow-auto text-xs break-words whitespace-pre-wrap">
                     {error.stack}
                   </pre>
                 </div>
@@ -102,4 +104,3 @@ export default function AdminError({ error, reset }: ErrorProps) {
     </div>
   );
 }
-
