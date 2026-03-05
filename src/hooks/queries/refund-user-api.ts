@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { RefundUserApi } from '@/api/openapi';
 import type { StudyRefundCreateRequest } from '@/api/openapi/models';
-import { extractErrorCode } from '@/utils/error';
+import { analyzeError } from '@/utils/error-handler';
 
 const refundUserApi = createApiInstance(RefundUserApi);
 
@@ -88,8 +88,8 @@ export const useRequestRefund = () => {
       alert('환불 요청이 접수되었습니다.');
     },
     onError: (error) => {
-      const { errorCode, message } = extractErrorCode(error);
-      const errorMessage = getRefundErrorMessage(errorCode, message);
+      const errorInfo = analyzeError(error);
+      const errorMessage = getRefundErrorMessage(errorInfo.errorCode, errorInfo.technicalMessage);
       alert(errorMessage);
     },
   });
