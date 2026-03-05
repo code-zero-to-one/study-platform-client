@@ -15,7 +15,6 @@ interface NicknameStepProps {
 }
 
 export function NicknameStep({ data, updateData, onNext }: NicknameStepProps) {
-  console.log({ updateData });
   const [checked, setChecked] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isValidName = /^[가-힣a-zA-Z]{2,10}$/.test(data.nickname);
