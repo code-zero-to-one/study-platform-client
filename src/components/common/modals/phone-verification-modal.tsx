@@ -142,7 +142,9 @@ export default function PhoneVerificationModal({
         },
         onError: (error: unknown) => {
           const { message } = extractErrorCode(error);
-          setError(message || '인증번호 발송에 실패했습니다. 다시 시도해주세요.');
+          setError(
+            message || '인증번호 발송에 실패했습니다. 다시 시도해주세요.',
+          );
         },
       },
     );
@@ -195,7 +197,8 @@ export default function PhoneVerificationModal({
             setError('인증번호를 5회 틀렸어요. 새 인증번호를 받아주세요.');
           } else {
             setError(
-              message || `인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`,
+              message ||
+                `인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`,
             );
           }
           setCode('');
@@ -233,7 +236,9 @@ export default function PhoneVerificationModal({
         },
         onError: (error: unknown) => {
           const { message } = extractErrorCode(error);
-          setError(message || '인증번호 발송에 실패했습니다. 다시 시도해주세요.');
+          setError(
+            message || '인증번호 발송에 실패했습니다. 다시 시도해주세요.',
+          );
           setIsResending(false);
         },
       },
