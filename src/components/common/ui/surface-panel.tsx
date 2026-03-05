@@ -26,8 +26,7 @@ const surfacePanelVariants = cva(
 type SurfacePanelElement = 'div' | 'section' | 'article';
 
 interface SurfacePanelProps
-  extends
-    Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
+  extends Omit<React.HTMLAttributes<HTMLElement>, 'color'>,
     VariantProps<typeof surfacePanelVariants> {
   as?: SurfacePanelElement;
 }

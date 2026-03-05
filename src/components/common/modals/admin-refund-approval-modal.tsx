@@ -6,14 +6,15 @@ import {
   useRejectRefund,
 } from '@/hooks/queries/admin-refund-api';
 
-interface AdminRefundApprovalModalProps extends Pick<
-  AdminTransactionListResponse,
-  | 'refundId'
-  | 'groupStudyName'
-  | 'paymentMemberName'
-  | 'paymentMemberId'
-  | 'transactionAmount'
-> {
+interface AdminRefundApprovalModalProps
+  extends Pick<
+    AdminTransactionListResponse,
+    | 'refundId'
+    | 'groupStudyName'
+    | 'paymentMemberName'
+    | 'paymentMemberId'
+    | 'transactionAmount'
+  > {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

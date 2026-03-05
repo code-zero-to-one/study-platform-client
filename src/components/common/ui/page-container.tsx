@@ -16,8 +16,7 @@ const pageContainerVariants = cva('mx-auto w-full max-w-[1280px]', {
 });
 
 interface PageContainerProps
-  extends
-    React.HTMLAttributes<HTMLDivElement>,
+  extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof pageContainerVariants> {}
 
 export default function PageContainer({
