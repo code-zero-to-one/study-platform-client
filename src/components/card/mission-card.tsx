@@ -48,16 +48,18 @@ function formatDate(dateString?: string) {
   return dayjs(dateString).format('YYYY-MM-DD');
 }
 
-function getDeadlineInfo(endDate?: string): {
-  text: string;
-  isUrgent: boolean;
-} | null {
-  if (!endDate) return null;
+function getDeadlineInfo(endDate?: string):
+  | {
+      text: string;
+      isUrgent: boolean;
+    }
+  | undefined {
+  if (!endDate) return undefined;
 
   const now = dayjs();
   const end = dayjs(endDate).endOf('day');
 
-  if (end.isBefore(now)) return null;
+  if (end.isBefore(now)) return undefined;
 
   const diffHours = end.diff(now, 'hour');
   const diffDays = Math.ceil(end.diff(now, 'day', true));
@@ -118,7 +120,7 @@ export default function MissionCard({
   const deadlineInfo =
     showDeadline && mission.status === 'IN_PROGRESS'
       ? getDeadlineInfo(mission.endDate)
-      : null;
+      : undefined;
 
   // 리더 + 진행 예정: 수정/삭제 버튼만 노출
   if (isLeader && mission.status === 'NOT_STARTED') {
@@ -130,7 +132,7 @@ export default function MissionCard({
           statusConfig={statusConfig}
           startDate={mission.startDate}
           endDate={mission.endDate}
-          deadlineInfo={null}
+          deadlineInfo={undefined}
         />
         <div className="flex flex-col gap-100">
           <EditMissionModal
@@ -159,7 +161,7 @@ export default function MissionCard({
           statusConfig={statusConfig}
           startDate={mission.startDate}
           endDate={mission.endDate}
-          deadlineInfo={null}
+          deadlineInfo={undefined}
         />
         <Button
           color="outlined"
@@ -234,7 +236,7 @@ function MissionCardContent({
   statusConfig: { label: string; color: ComponentProps<typeof Badge>['color'] };
   startDate?: string;
   endDate?: string;
-  deadlineInfo: { text: string; isUrgent: boolean } | null;
+  deadlineInfo: { text: string; isUrgent: boolean } | undefined;
 }) {
   const displayTitle = weekNum ? `${weekNum}주차 미션 : ${title}` : title;
 

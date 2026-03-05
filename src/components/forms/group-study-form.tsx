@@ -60,7 +60,9 @@ export default function GroupStudyForm({
 
   const goNext = async () => {
     const fields = STEP_FIELDS[step];
-    const ok = await trigger(fields as any, { shouldFocus: false });
+    const ok = await trigger(fields as Parameters<typeof trigger>[0], {
+      shouldFocus: false,
+    });
     if (!ok) {
       console.log('trigger failed. errors:', methods.formState.errors);
 

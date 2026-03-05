@@ -32,9 +32,9 @@ export async function getLoginUserId(): Promise<number | undefined> {
     if (Number(res.data.content) !== memberId) return null;
 
     return memberId;
-  } catch (error: any) {
+  } catch (error) {
     // 4. 401이면 만료된 토큰이므로 토큰 갱신 시도
-    if (error.response?.status === 401) {
+    if ((error as { response?: { status: number } }).response?.status === 401) {
       try {
         const refreshRes = await axios.get(
           `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/access-token/refresh`,

@@ -16,7 +16,7 @@ interface CommentListProps {
   onDelete?: (commentId: number) => void;
   onEdit?: (commentId: number, content: string) => void;
   votingOptions?: VotingOption[]; // 투표 옵션 목록 (색상 매칭용)
-  editingCommentId?: number | null;
+  editingCommentId?: number;
   editingCommentContent?: string;
   onUpdateComment?: (data: CommentFormData) => void | Promise<void>;
   onCancelEdit?: () => void;
@@ -90,10 +90,17 @@ export default function CommentList({
           'avatar' in comment.author
             ? comment.author.avatar
             : 'profileImage' in comment.author
-              ? typeof (comment.author as any).profileImage === 'string'
-                ? (comment.author as any).profileImage
-                : (comment.author as any).profileImage?.resizedImages?.[0]
-                    ?.resizedImageUrl
+              ? typeof (comment.author as unknown as { profileImage?: unknown })
+                  .profileImage === 'string'
+                ? (comment.author as unknown as { profileImage: string })
+                    .profileImage
+                : (
+                    comment.author as unknown as {
+                      profileImage?: {
+                        resizedImages?: { resizedImageUrl: string }[];
+                      };
+                    }
+                  ).profileImage?.resizedImages?.[0]?.resizedImageUrl
               : undefined;
 
         return (

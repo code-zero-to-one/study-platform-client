@@ -66,7 +66,7 @@ function Calendar({
           IconRight: ({ className, ...props }: React.ComponentProps<'svg'>) => (
             <ChevronRight className={cn('size-4', className)} {...props} />
           ),
-        } as any
+        } as Record<string, unknown>
       }
       {...props}
     />

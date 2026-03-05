@@ -72,3 +72,43 @@ export const useLogoutMutation = () => {
     },
   });
 };
+
+type SwitchProvider = 'kakao' | 'google';
+
+export const useSwitchAccountMutation = () => {
+  const queryClient = useQueryClient();
+  const resetUserStore = useUserStore((state) => state.reset);
+  const resetPhoneVerification = usePhoneVerificationStore(
+    (state) => state.reset,
+  );
+  const resetMentorDirectory = useMentorDirectoryStore((state) => state.reset);
+  const resetMentoringManagement = useMentoringManagementStore(
+    (state) => state.reset,
+  );
+
+  return useMutation({
+    mutationFn: (targetProvider: SwitchProvider) =>
+      logout().then(() => targetProvider),
+    onSuccess: (targetProvider) => {
+      deleteCookie('accessToken');
+      deleteCookie('memberId');
+      deleteCookie('socialImageURL');
+      resetUserStore();
+      resetPhoneVerification();
+      resetMentorDirectory();
+      resetMentoringManagement();
+      queryClient.clear();
+
+      const state = encodeURIComponent(window.location.origin);
+      const API = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+      if (targetProvider === 'kakao') {
+        const clientId = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
+        window.location.href = `https://kauth.kakao.com/oauth/authorize?client_id=${clientId}&redirect_uri=${API}/api/v1/auth/kakao/redirect-uri&response_type=code&state=${state}`;
+      } else {
+        const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+        window.location.href = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=${API}/api/v1/auth/google/redirect-uri&client_id=${clientId}&state=${state}`;
+      }
+    },
+  });
+};
