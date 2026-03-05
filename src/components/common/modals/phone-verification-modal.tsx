@@ -28,9 +28,9 @@ export default function PhoneVerificationModal({
   const [phoneNumber, setPhoneNumber] = useState('');
   const [code, setCode] = useState('');
   const [timer, setTimer] = useState(180);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState('');
   const [mounted, setMounted] = useState(false);
-  const [resendMessage, setResendMessage] = useState<string | null>(null);
+  const [resendMessage, setResendMessage] = useState('');
   const [isResending, setIsResending] = useState(false);
   const [failCount, setFailCount] = useState(0);
   const [isShaking, setIsShaking] = useState(false);
@@ -62,11 +62,11 @@ export default function PhoneVerificationModal({
         setName('');
         setPhoneNumber('');
         setCode('');
-        setError(null);
+        setError('');
         setTimer(180);
         setFailCount(0);
         setIsResending(false);
-        setResendMessage(null);
+        setResendMessage('');
         setIsShaking(false);
       }, 300);
     }
@@ -99,14 +99,14 @@ export default function PhoneVerificationModal({
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
-    setError(null);
+    setError('');
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const numbers = e.target.value.replace(/[^0-9]/g, '');
     if (numbers.length <= 11) {
       setPhoneNumber(numbers);
-      setError(null);
+      setError('');
     }
   };
 
@@ -137,13 +137,11 @@ export default function PhoneVerificationModal({
         onSuccess: () => {
           setStep('verify');
           setTimer(180);
-          setError(null);
+          setError('');
         },
-        onError: (error: any) => {
-          setError(
-            error?.response?.data?.message ||
-              '인증번호 발송에 실패했습니다. 다시 시도해주세요.',
-          );
+        onError: (error: unknown) => {
+          const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
+          setError(msg || '인증번호 발송에 실패했습니다. 다시 시도해주세요.');
         },
       },
     );
@@ -186,17 +184,18 @@ export default function PhoneVerificationModal({
             }
           }
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
           const newFailCount = failCount + 1;
           setFailCount(newFailCount);
           triggerShake();
+          const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
 
           if (newFailCount >= 5) {
             setError('인증번호를 5회 틀렸어요. 새 인증번호를 받아주세요.');
             setCode('');
           } else {
             setError(
-              error?.response?.data?.message ||
+              msg ||
                 `인증번호가 올바르지 않아요. (${5 - newFailCount}회 남음)`,
             );
             setCode('');
@@ -215,7 +214,7 @@ export default function PhoneVerificationModal({
 
     setIsResending(true);
     setFailCount(0); // 재전송 시 실패 횟수 초기화
-    setError(null);
+    setError('');
     setCode('');
 
     // API 호출: 인증번호 재발송
@@ -229,13 +228,14 @@ export default function PhoneVerificationModal({
           setTimer(180);
           setResendMessage('인증번호를 다시 보냈어요');
           setTimeout(() => {
-            setResendMessage(null);
+            setResendMessage('');
             setIsResending(false);
           }, 3000);
         },
-        onError: (error: any) => {
+        onError: (error: unknown) => {
+          const msg = (error as { response?: { data?: { message?: string } } })?.response?.data?.message;
           setError(
-            error?.response?.data?.message ||
+            msg ||
               '인증번호 발송에 실패했습니다. 다시 시도해주세요.',
           );
           setIsResending(false);
@@ -550,7 +550,7 @@ export default function PhoneVerificationModal({
                   onChange={(e) => {
                     const num = e.target.value.replace(/[^0-9]/g, '');
                     if (num.length <= 6) setCode(num);
-                    setError(null);
+                    setError('');
                   }}
                   maxLength={6}
                   style={{

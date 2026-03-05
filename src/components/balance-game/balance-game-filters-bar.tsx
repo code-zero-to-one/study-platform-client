@@ -73,7 +73,8 @@ export default function BalanceGameFiltersBar({
         group: 'author' as const,
       })),
     ],
-    [titleSuggestions, authorSuggestions],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [suggestionData],
   );
 
   React.useEffect(() => {

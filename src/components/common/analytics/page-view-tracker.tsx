@@ -8,7 +8,7 @@ import {
   trackAttribution,
 } from '@/utils/attribution-tracker';
 
-export default function PageViewTracker(): null {
+export default function PageViewTracker() {
   const pathname = usePathname();
 
   useEffect(() => {

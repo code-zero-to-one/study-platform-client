@@ -1,6 +1,4 @@
 import { axiosInstance } from '@/api/client/axios';
-import { createApiInstance } from '@/api/client/open-api-instance';
-import { GroupStudyManagementApi } from '@/api/openapi';
 import {
   GroupStudyDetailRequest,
   GroupStudyDetailResponse,

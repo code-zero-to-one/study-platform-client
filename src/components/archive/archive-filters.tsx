@@ -75,7 +75,8 @@ export default function ArchiveFilters({
         group: 'author' as const,
       })),
     ],
-    [titleSuggestions, authorSuggestions],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [suggestionData],
   );
 
   useEffect(() => {

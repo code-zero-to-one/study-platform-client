@@ -5,7 +5,6 @@ import Image from 'next/image';
 
 import { GroupStudyListItemDto } from '@/api/openapi';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { GroupStudyData } from '@/types/api/group-study.types';
 import { hashValue } from '@/utils/hash';
 
 import StudyCard from '../card/study-card';
