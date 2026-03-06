@@ -5,10 +5,10 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { GroupStudyFullResponseDto } from '@/api/openapi';
+import type { GroupStudyFullResponseDto } from '@/api/openapi';
 import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import { Modal } from '@/components/common/ui/modal';
 import GroupStudyForm from '@/components/forms/group-study-form';
@@ -20,17 +20,14 @@ import {
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
-
 import {
   buildOpenGroupDefaultValues,
   GroupStudyFormSchema,
-  GroupStudyFormValues,
-  StudyClassification,
   toCreateRequest,
   toUpdateRequest,
+  type GroupStudyFormValues,
+  type StudyClassification,
 } from '@/types/schemas/group-study-form.schema';
-
-export type { StudyClassification };
 
 interface GroupStudyModalProps {
   trigger?: React.ReactNode;
@@ -117,9 +114,9 @@ export default function GroupStudyFormModal({
     }
   };
 
-  const refineStudyDetail = (value: GroupStudyFullResponseDto) => {
-    const refinedClassification =
-      value.basicInfo?.classification ?? classification;
+  const refineStudyDetail = useCallback((value: GroupStudyFullResponseDto) => {
+    const refinedClassification = (value.basicInfo?.classification ??
+      classification) as StudyClassification;
     const originalType = value.basicInfo?.type;
 
     let refinedType = originalType;
@@ -158,7 +155,7 @@ export default function GroupStudyFormModal({
       thumbnailUrl:
         value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
     };
-  };
+  }, [classification]);
 
   const invalidateGroupStudyQueries = async () => {
     await qc.invalidateQueries({ queryKey: ['studies'] });
@@ -265,7 +262,7 @@ export default function GroupStudyFormModal({
     if (mode === 'edit' && controlledOpen && groupStudyInfo) {
       editMethods.reset(refineStudyDetail(groupStudyInfo));
     }
-  }, [controlledOpen, groupStudyInfo]);
+  }, [controlledOpen, groupStudyInfo, editMethods, mode, refineStudyDetail]);
 
   return (
     <>
