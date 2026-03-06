@@ -79,6 +79,7 @@ export default function InquiryDetailPage({
     <div className="mx-auto w-full max-w-7xl px-400 py-600">
       <div className="mb-400">
         <button
+          type="button"
           onClick={handleBack}
           className="text-text-subtle hover:text-text-default font-designer-14r flex items-center gap-100 transition-colors"
         >

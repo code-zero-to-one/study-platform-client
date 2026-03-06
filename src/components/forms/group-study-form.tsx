@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useMemo, useState } from 'react';
-import { FormProvider, useForm, UseFormReturn } from 'react-hook-form';
+import { FormProvider, type UseFormReturn, useForm } from 'react-hook-form';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
@@ -9,8 +9,8 @@ import Step2OpenGroupStudy from '@/components/forms/group-study-steps/step2-grou
 import Step3OpenGroupStudy from '@/components/forms/group-study-steps/step3-group';
 import {
   GroupStudyFormSchema,
-  GroupStudyFormValues,
-  StudyClassification,
+  type GroupStudyFormValues,
+  type StudyClassification,
 } from '@/types/schemas/group-study-form.schema';
 
 const ClassificationContext = createContext<StudyClassification>('GROUP_STUDY');
@@ -48,7 +48,7 @@ export default function GroupStudyForm({
   const internalMethods = useForm<GroupStudyFormValues>({
     resolver: zodResolver(GroupStudyFormSchema),
     mode: 'onChange',
-    defaultValues: defaultValues,
+    defaultValues,
   });
 
   const methods = externalMethods ?? internalMethods;
@@ -60,7 +60,7 @@ export default function GroupStudyForm({
 
   const goNext = async () => {
     const fields = STEP_FIELDS[step];
-    const ok = await trigger(fields as Parameters<typeof trigger>[0], {
+    const ok = await trigger(fields, {
       shouldFocus: false,
     });
     if (!ok) {

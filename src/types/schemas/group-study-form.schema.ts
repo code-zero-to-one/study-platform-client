@@ -7,7 +7,7 @@ import {
   THUMBNAIL_EXTENSION,
   STUDY_METHODS,
 } from '@/config/group-study-const';
-import {
+import type {
   BasicInfoCommon,
   GroupStudyCreateRequest,
   GroupStudyFormRequest,
