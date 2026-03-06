@@ -43,6 +43,7 @@ const STUDY_STATUS_MAP: Record<
   string
 > = {
   RECRUITING: '진행전',
+  ENDING_SOON: '마감 임박',
   IN_PROGRESS: '진행중',
   COMPLETED: '완료',
 };
@@ -164,7 +165,7 @@ export default function PaymentRefundPage() {
 
                 return (
                   <tr
-                    key={`${transaction.paymentCode}-${index}`}
+                    key={`${transaction.paymentCode}`}
                     className="border-b-border-default border-b"
                   >
                     {/* 거래 ID */}
