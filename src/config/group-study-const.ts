@@ -95,7 +95,7 @@ export const STUDY_METHOD_LABELS = {
 } as const;
 
 export const REGULAR_MEETING_LABELS = {
-  NONE: '없음',
+  NONE: '정기모임 없음',
   WEEKLY: '주 1회',
   BIWEEKLY: '주 2회',
   TRIPLE_WEEKLY_OR_MORE: '주 3회 이상',
