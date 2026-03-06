@@ -6,31 +6,40 @@ import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
-import {
+import type {
   BalanceGameAuthor,
   BalanceGameComment,
 } from '@/types/one-to-one-study/balance-game';
-import {
+import type {
   DiscussionAuthor,
   DiscussionComment,
 } from '@/types/one-to-one-study/discussion';
-import {
+import type {
   VotingAuthor,
   VotingComment,
   VotingOption,
 } from '@/types/one-to-one-study/voting';
-import { CommentFormData } from '@/types/schemas/zod-schema';
+import type { CommentFormData } from '@/types/schemas/zod-schema';
 
-interface CommentListProps {
+type CommentListBaseProps = {
   comments: (DiscussionComment | VotingComment | BalanceGameComment)[];
   onDelete?: (commentId: number) => void;
   onEdit?: (commentId: number, content: string) => void;
   votingOptions?: VotingOption[]; // 투표 옵션 목록 (색상 매칭용)
-  editingCommentId?: number;
-  editingCommentContent?: string;
-  onUpdateComment?: (data: CommentFormData) => void | Promise<void>;
-  onCancelEdit?: () => void;
-}
+  editingCommentId?: undefined;
+};
+
+type CommentListEditingProps = Omit<
+  CommentListBaseProps,
+  'editingCommentId'
+> & {
+  editingCommentId: number;
+  editingCommentContent: string;
+  onUpdateComment: (data: CommentFormData) => void | Promise<void>;
+  onCancelEdit: () => void;
+};
+
+type CommentListProps = CommentListBaseProps | CommentListEditingProps;
 
 function getAuthorImageUrl(
   author: DiscussionAuthor | VotingAuthor | BalanceGameAuthor,
@@ -56,16 +65,13 @@ const OPTION_BADGE_COLORS = [
   { bg: 'bg-pink-100', text: 'text-pink-600', icon: 'text-pink-500' },
 ];
 
-export default function CommentList({
-  comments,
-  onDelete,
-  onEdit,
-  votingOptions,
-  editingCommentId,
-  editingCommentContent,
-  onUpdateComment,
-  onCancelEdit,
-}: CommentListProps) {
+function isEditingMode(p: CommentListProps): p is CommentListEditingProps {
+  return p.editingCommentId !== undefined;
+}
+
+export default function CommentList(props: CommentListProps) {
+  const { comments, onDelete, onEdit, votingOptions, editingCommentId } = props;
+  const editingState = isEditingMode(props) ? props : null;
   const [openMenuId, setOpenMenuId] = React.useState<number | null>(null);
 
   if (comments.length === 0) {
@@ -120,12 +126,12 @@ export default function CommentList({
             <div className="mb-100 flex items-start justify-between">
               {/* 작성자 정보 */}
               <div className="flex items-center gap-150">
-                <div onClick={(e) => e.stopPropagation()}>
+                <span onClick={(e) => e.stopPropagation()}>
                   <UserProfileModal
                     memberId={comment.author.id}
                     trigger={<UserAvatar size={28} image={authorImage} />}
                   />
-                </div>
+                </span>
                 <div className="flex flex-col gap-50">
                   <div className="flex items-center gap-100">
                     <span className="font-designer-13b text-text-strong">
@@ -159,6 +165,7 @@ export default function CommentList({
               {comment.isAuthor && (
                 <div className="relative">
                   <button
+                    type="button"
                     onClick={() =>
                       setOpenMenuId(
                         openMenuId === comment.id ? null : comment.id,
@@ -172,14 +179,17 @@ export default function CommentList({
                   {openMenuId === comment.id && (
                     <>
                       {/* 백드롭 */}
-                      <div
-                        className="fixed inset-0 z-10"
+                      <button
+                        type="button"
+                        className="fixed inset-0 z-10 cursor-default bg-transparent"
+                        aria-label="메뉴 닫기"
                         onClick={() => setOpenMenuId(null)}
                       />
 
                       {/* 메뉴 */}
                       <div className="rounded-100 border-border-subtle bg-background-default shadow-3 absolute top-full right-0 z-20 mt-50 min-w-[120px] border">
                         <button
+                          type="button"
                           onClick={() => {
                             onEdit?.(comment.id, comment.content);
                             setOpenMenuId(null);
@@ -190,6 +200,7 @@ export default function CommentList({
                           수정
                         </button>
                         <button
+                          type="button"
                           onClick={() => {
                             onDelete?.(comment.id);
                             setOpenMenuId(null);
@@ -207,14 +218,14 @@ export default function CommentList({
             </div>
 
             {/* 댓글 내용 또는 수정 폼 */}
-            {isEditing ? (
+            {isEditing && editingState ? (
               <div className="mt-200">
                 <CommentForm
-                  onSubmit={onUpdateComment!}
-                  initialValue={editingCommentContent}
+                  onSubmit={editingState.onUpdateComment}
+                  initialValue={editingState.editingCommentContent}
                   placeholder="댓글을 수정하세요..."
                   autoFocus={true}
-                  onCancel={onCancelEdit}
+                  onCancel={editingState.onCancelEdit}
                 />
               </div>
             ) : (
