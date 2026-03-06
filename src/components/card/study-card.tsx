@@ -1,9 +1,9 @@
 'use client';
 
-import { Clock5, Eye, Users } from 'lucide-react';
+import { Clock5, Eye, Flame, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { GroupStudyListItemDto } from '@/api/openapi';
+import type { GroupStudyListItemDto } from '@/api/openapi';
 import Badge from '@/components/common/ui/badge';
 import StudyCardCountdownBadge from '@/components/common/ui/study-card-countdown-badge';
 
@@ -12,7 +12,7 @@ import {
   REGULAR_MEETING_LABELS,
   STUDY_TYPE_LABELS,
 } from '@/config/group-study-const';
-import { ExperienceLevel, StudyType } from '@/types/api/group-study.types';
+import type { ExperienceLevel, StudyType } from '@/types/api/group-study.types';
 
 type BadgeColor =
   | 'default'
@@ -33,7 +33,7 @@ const STUDY_TYPE_BADGE_COLORS: Record<StudyType, BadgeColor> = {
   LECTURE_STUDY: 'primary',
 };
 
-interface Badge {
+interface BadgeProps {
   memberName?: string;
   memberNickname?: string;
 }
@@ -137,25 +137,32 @@ export default function StudyCard({
             if (remaining <= 0)
               return (
                 <div className="mb-150">
-                  <span className="rounded-50 border border-red-400 px-200 py-50 text-[13px] font-semibold text-red-500">
-                    🔥 모집 마감
+                  <Flame className="text-red-500" />
+                  <span className="bg-fill-danger-subtle-default text-text-error rounded-50 inline-flex min-w-300 items-center justify-center gap-25 px-100 py-50 text-xs font-medium whitespace-nowrap">
+                    모집 마감
                   </span>
                 </div>
               );
             if (remaining <= 3)
               return (
                 <div className="mb-150">
-                  <span className="rounded-50 border border-orange-400 px-200 py-50 text-[13px] font-semibold text-orange-500">
-                    🔥 마지막 {remaining}자리!
-                  </span>
+                  <div className="flex items-center gap-50">
+                    <Flame className="text-red-500" />
+                    <span className="bg-fill-danger-subtle-default text-text-error rounded-50 inline-flex min-w-300 animate-pulse items-center justify-center gap-25 border-2 border-red-500 px-100 py-50 text-xs font-bold whitespace-nowrap">
+                      마지막 {remaining}자리!
+                    </span>
+                  </div>
                 </div>
               );
 
             return (
               <div className="mb-150">
-                <span className="text-[13px] font-semibold text-green-600">
-                  🔥 마감까지 {remaining}명
-                </span>
+                <div className="flex items-center gap-50">
+                  <Flame className="text-red-500" />
+                  <span className="font-designer-13r text-text-error">
+                    마감까지 {remaining}명
+                  </span>
+                </div>
               </div>
             );
           })()}
@@ -205,8 +212,8 @@ export default function StudyCard({
             </div>
             <div>
               <p className="font-designer-15m">
-                {(study.basicInfo?.leader as Badge)?.memberName ||
-                  (study.basicInfo?.leader as Badge)?.memberNickname ||
+                {(study.basicInfo?.leader as BadgeProps)?.memberName ||
+                  (study.basicInfo?.leader as BadgeProps)?.memberNickname ||
                   '스터디장'}
               </p>
             </div>
