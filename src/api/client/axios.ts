@@ -77,10 +77,10 @@ let failedQueue: Array<{
 // 대기 중인 요청들을 처리하는 함수
 const processFailedQueue = (error: unknown, token?: string) => {
   failedQueue.forEach(({ resolve, reject }) => {
-    if (error) {
+    if (error !== undefined) {
       reject(error);
     } else {
-      resolve(token!);
+      resolve(token ?? '');
     }
   });
 
