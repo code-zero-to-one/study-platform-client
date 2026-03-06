@@ -1,5 +1,8 @@
 import type { MetadataRoute } from 'next';
-import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
+import {
+  GroupStudyManagementApi,
+  GetGroupStudiesStatusesEnum,
+} from '@/api/openapi/api/group-study-management-api';
 import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyListItemDto } from '@/api/openapi/models';
 import { fetchArticles } from '@/api/strapi/api/fetch-articles';
@@ -56,7 +59,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         undefined,
         undefined,
         undefined,
-        true,
+        [GetGroupStudiesStatusesEnum.InProgress],
       ),
       groupStudyApi.getGroupStudies(
         'PREMIUM_STUDY',
@@ -65,7 +68,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         undefined,
         undefined,
         undefined,
-        true,
+        [GetGroupStudiesStatusesEnum.InProgress],
       ),
     ]);
 
