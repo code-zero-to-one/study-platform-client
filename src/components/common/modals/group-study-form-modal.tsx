@@ -23,10 +23,10 @@ import { useToastStore } from '@/stores/use-toast-store';
 import {
   buildOpenGroupDefaultValues,
   GroupStudyFormSchema,
-  toCreateRequest,
-  toUpdateRequest,
   type GroupStudyFormValues,
   type StudyClassification,
+  toCreateRequest,
+  toUpdateRequest,
 } from '@/types/schemas/group-study-form.schema';
 
 interface GroupStudyModalProps {
@@ -114,48 +114,51 @@ export default function GroupStudyFormModal({
     }
   };
 
-  const refineStudyDetail = useCallback((value: GroupStudyFullResponseDto) => {
-    const refinedClassification = (value.basicInfo?.classification ??
-      classification) as StudyClassification;
-    const originalType = value.basicInfo?.type;
+  const refineStudyDetail = useCallback(
+    (value: GroupStudyFullResponseDto) => {
+      const refinedClassification = (value.basicInfo?.classification ??
+        classification) as StudyClassification;
+      const originalType = value.basicInfo?.type;
 
-    let refinedType = originalType;
-    if (
-      refinedClassification === 'GROUP_STUDY' &&
-      originalType === 'MENTORING'
-    ) {
-      refinedType = undefined;
-    }
+      let refinedType = originalType;
+      if (
+        refinedClassification === 'GROUP_STUDY' &&
+        originalType === 'MENTORING'
+      ) {
+        refinedType = undefined;
+      }
 
-    return {
-      classification: refinedClassification,
-      studyLeaderParticipation:
-        value.basicInfo?.studyLeaderParticipation ?? false,
-      type: refinedType,
-      targetRoles: value.basicInfo?.targetRoles,
-      maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
-      experienceLevels: value.basicInfo?.experienceLevels,
-      method: value.basicInfo?.method,
-      location: value.basicInfo?.location,
-      regularMeeting: value.basicInfo?.regularMeeting,
-      startDate: value.basicInfo?.startDate,
-      endDate: value.basicInfo?.endDate,
-      price: value.basicInfo?.price?.toString() ?? '',
-      title: value.detailInfo?.title,
-      description: value.detailInfo?.description,
-      summary: value.detailInfo?.summary,
-      interviewPost: value.interviewPost?.interviewPost?.map(
-        (q: { question?: string }) => q.question,
-      ),
-      thumbnailExtension:
-        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
-          ?.split('.')
-          .pop()
-          ?.toUpperCase() as GroupStudyFormValues['thumbnailExtension'],
-      thumbnailUrl:
-        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
-    };
-  }, [classification]);
+      return {
+        classification: refinedClassification,
+        studyLeaderParticipation:
+          value.basicInfo?.studyLeaderParticipation ?? false,
+        type: refinedType,
+        targetRoles: value.basicInfo?.targetRoles,
+        maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
+        experienceLevels: value.basicInfo?.experienceLevels,
+        method: value.basicInfo?.method,
+        location: value.basicInfo?.location,
+        regularMeeting: value.basicInfo?.regularMeeting,
+        startDate: value.basicInfo?.startDate,
+        endDate: value.basicInfo?.endDate,
+        price: value.basicInfo?.price?.toString() ?? '',
+        title: value.detailInfo?.title,
+        description: value.detailInfo?.description,
+        summary: value.detailInfo?.summary,
+        interviewPost: value.interviewPost?.interviewPost?.map(
+          (q: { question?: string }) => q.question,
+        ),
+        thumbnailExtension:
+          value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
+            ?.split('.')
+            .pop()
+            ?.toUpperCase() as GroupStudyFormValues['thumbnailExtension'],
+        thumbnailUrl:
+          value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
+      };
+    },
+    [classification],
+  );
 
   const invalidateGroupStudyQueries = async () => {
     await qc.invalidateQueries({ queryKey: ['studies'] });
