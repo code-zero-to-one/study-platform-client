@@ -189,13 +189,14 @@ import {
 const configuration = new Configuration();
 const apiInstance = new GroupStudyManagementApi(configuration);
 
-let classification: 'GROUP_STUDY' | 'PREMIUM_STUDY'; //스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디) (default to undefined)
+let classification: 'GROUP_STUDY' | 'PREMIUM_STUDY' | 'MENTOR_STUDY'; //스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디) (default to undefined)
 let page: number; //페이지 번호 (1부터 시작) (optional) (default to 1)
 let pageSize: number; //페이지 크기 (optional) (default to 20)
 let type: Array<'PROJECT' | 'MENTORING' | 'SEMINAR' | 'CHALLENGE' | 'BOOK_STUDY' | 'LECTURE_STUDY'>; //스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능. (optional) (default to undefined)
 let targetRoles: Array<'BACKEND' | 'FRONTEND' | 'PLANNER' | 'DESIGNER'>; //모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능. (optional) (default to undefined)
 let method: Array<'ONLINE' | 'OFFLINE' | 'HYBRID'>; //진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능. (optional) (default to undefined)
-let recruiting: boolean; //모집 중인 스터디만 조회할지 여부. (optional) (default to undefined)
+let statuses: Array<'RECRUITING' | 'ENDING_SOON' | 'IN_PROGRESS' | 'COMPLETED'>; //진행상태 필터 (RECRUITING: 모집중, IN_PROGRESS: 진행중, COMPLETED: 완료, ENDING_SOON: 마감임박). 다중 선택 가능. (optional) (default to undefined)
+let sort: 'LATEST' | 'DEADLINE' | 'VIEW_COUNT'; //정렬 기준 (LATEST: 최신순, DEADLINE: 마감임박순, VIEW_COUNT: 조회수순). 기본값: LATEST (optional) (default to 'LATEST')
 
 const { status, data } = await apiInstance.getGroupStudies(
     classification,
@@ -204,7 +205,8 @@ const { status, data } = await apiInstance.getGroupStudies(
     type,
     targetRoles,
     method,
-    recruiting
+    statuses,
+    sort
 );
 ```
 
@@ -212,13 +214,14 @@ const { status, data } = await apiInstance.getGroupStudies(
 
 |Name | Type | Description  | Notes|
 |------------- | ------------- | ------------- | -------------|
-| **classification** | [**&#39;GROUP_STUDY&#39; | &#39;PREMIUM_STUDY&#39;**]**Array<&#39;GROUP_STUDY&#39; &#124; &#39;PREMIUM_STUDY&#39;>** | 스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디) | defaults to undefined|
+| **classification** | [**&#39;GROUP_STUDY&#39; | &#39;PREMIUM_STUDY&#39; | &#39;MENTOR_STUDY&#39;**]**Array<&#39;GROUP_STUDY&#39; &#124; &#39;PREMIUM_STUDY&#39; &#124; &#39;MENTOR_STUDY&#39;>** | 스터디 분류 (일반 그룹 스터디 / 프리미엄 스터디) | defaults to undefined|
 | **page** | [**number**] | 페이지 번호 (1부터 시작) | (optional) defaults to 1|
 | **pageSize** | [**number**] | 페이지 크기 | (optional) defaults to 20|
 | **type** | **Array<&#39;PROJECT&#39; &#124; &#39;MENTORING&#39; &#124; &#39;SEMINAR&#39; &#124; &#39;CHALLENGE&#39; &#124; &#39;BOOK_STUDY&#39; &#124; &#39;LECTURE_STUDY&#39;>** | 스터디 종류 필터 (PROJECT: 프로젝트, STUDY: 스터디). 다중 선택 가능. | (optional) defaults to undefined|
 | **targetRoles** | **Array<&#39;BACKEND&#39; &#124; &#39;FRONTEND&#39; &#124; &#39;PLANNER&#39; &#124; &#39;DESIGNER&#39;>** | 모집 대상 역할 필터 (PLANNER: 기획자, BACKEND: 백엔드 개발자, FRONTEND: 프론트엔드 개발자, DESIGNER: 디자이너, ANY: 무관). 다중 선택 가능. | (optional) defaults to undefined|
 | **method** | **Array<&#39;ONLINE&#39; &#124; &#39;OFFLINE&#39; &#124; &#39;HYBRID&#39;>** | 진행 방식 필터 (ONLINE: 온라인, OFFLINE: 오프라인, BOTH: 병행). 다중 선택 가능. | (optional) defaults to undefined|
-| **recruiting** | [**boolean**] | 모집 중인 스터디만 조회할지 여부. | (optional) defaults to undefined|
+| **statuses** | **Array<&#39;RECRUITING&#39; &#124; &#39;ENDING_SOON&#39; &#124; &#39;IN_PROGRESS&#39; &#124; &#39;COMPLETED&#39;>** | 진행상태 필터 (RECRUITING: 모집중, IN_PROGRESS: 진행중, COMPLETED: 완료, ENDING_SOON: 마감임박). 다중 선택 가능. | (optional) defaults to undefined|
+| **sort** | [**&#39;LATEST&#39; | &#39;DEADLINE&#39; | &#39;VIEW_COUNT&#39;**]**Array<&#39;LATEST&#39; &#124; &#39;DEADLINE&#39; &#124; &#39;VIEW_COUNT&#39;>** | 정렬 기준 (LATEST: 최신순, DEADLINE: 마감임박순, VIEW_COUNT: 조회수순). 기본값: LATEST | (optional) defaults to 'LATEST'|
 
 
 ### Return type
@@ -245,7 +248,7 @@ const { status, data } = await apiInstance.getGroupStudies(
 # **getGroupStudy**
 > GroupStudyDetailResponse getGroupStudy()
 
-특정 그룹스터디의 상세 정보를 조회합니다.  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
+특정 그룹스터디의 상세 정보를 조회합니다. 로그인한 사용자의 경우 조회 이력이 기록됩니다. (동일 사용자는 1시간 내 중복 기록되지 않음)  **[권한]** - 🌐 **비회원 접근 가능** - 로그인 없이 조회할 수 있습니다. 
 
 ### Example
 

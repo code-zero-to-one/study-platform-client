@@ -6,7 +6,7 @@ All URIs are relative to *https://test-api.zeroone.it.kr*
 |------------- | ------------- | -------------|
 |[**getChannels**](#getchannels) | **GET** /api/v1/admin/aligo/kakao/channels | 등록된 Kakao Channel 목록 조회|
 |[**getHeartInfo**](#getheartinfo) | **GET** /api/v1/admin/aligo/kakao/heart-info | 발송 가능 잔액 조회|
-|[**getHistory**](#gethistory) | **GET** /api/v1/admin/aligo/kakao/history | 알림톡 전송 내역 목록 조회|
+|[**getHistory1**](#gethistory1) | **GET** /api/v1/admin/aligo/kakao/history | 알림톡 전송 내역 목록 조회|
 |[**getHistoryDetail**](#gethistorydetail) | **GET** /api/v1/admin/aligo/kakao/history/{mid} | 알림톡 전송 상세 결과 조회|
 |[**getTemplates**](#gettemplates) | **GET** /api/v1/admin/aligo/kakao/templates | 등록된 알림톡 템플릿 목록 조회|
 |[**getTemplatesSyncStatus**](#gettemplatessyncstatus) | **GET** /api/v1/admin/aligo/kakao/templates/sync-status | 템플릿 동기화 상태 확인|
@@ -107,8 +107,8 @@ void (empty response body)
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
-# **getHistory**
-> getHistory()
+# **getHistory1**
+> getHistory1()
 
 알림톡 발송 이력을 페이지 단위로 조회합니다. - page: 조회할 페이지 번호 (기본값: 1) - limit: 페이지당 조회 건수 (기본값: 50) - startdate: 조회 시작 날짜 (선택, YYYYMMDD 형식) - enddate: 조회 종료 날짜 (선택, YYYYMMDD 형식) 
 
@@ -128,7 +128,7 @@ let limit: number; //페이지당 조회 건수 (optional) (default to 50)
 let startdate: string; //조회 시작 날짜 (YYYYMMDD) (optional) (default to undefined)
 let enddate: string; //조회 종료 날짜 (YYYYMMDD) (optional) (default to undefined)
 
-const { status, data } = await apiInstance.getHistory(
+const { status, data } = await apiInstance.getHistory1(
     page,
     limit,
     startdate,
@@ -360,7 +360,7 @@ const { status, data } = await apiInstance.sendTestAlimtalk(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json, */*
+ - **Accept**: application/json
 
 
 ### HTTP response details
@@ -369,8 +369,6 @@ const { status, data } = await apiInstance.sendTestAlimtalk(
 |**200** | 알림톡 발송 성공 |  -  |
 |**400** | 요청 파라미터 오류 |  -  |
 |**500** | 알림톡 발송 실패 (Aligo API 오류) |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
-|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -416,8 +414,6 @@ void (empty response body)
 |-------------|-------------|------------------|
 |**200** | 동기화 성공 |  -  |
 |**500** | 동기화 실패 |  -  |
-|**401** | Bearer Token is invalid or no bearer token |  -  |
-|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -74,7 +74,8 @@ export interface GroupStudyBasicInfoRequestDto {
 
 export const GroupStudyBasicInfoRequestDtoClassificationEnum = {
     GroupStudy: 'GROUP_STUDY',
-    PremiumStudy: 'PREMIUM_STUDY'
+    PremiumStudy: 'PREMIUM_STUDY',
+    MentorStudy: 'MENTOR_STUDY'
 } as const;
 
 export type GroupStudyBasicInfoRequestDtoClassificationEnum = typeof GroupStudyBasicInfoRequestDtoClassificationEnum[keyof typeof GroupStudyBasicInfoRequestDtoClassificationEnum];

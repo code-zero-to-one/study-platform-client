@@ -55,6 +55,10 @@ export interface GroupStudyBasicInfoResponseDto {
      */
     'pendingCount'?: number;
     /**
+     * 남은 모집 인원
+     */
+    'remainingSlots'?: number;
+    /**
      * 승인된 참여자 수 (현재 참여 인원)
      */
     'approvedCount'?: number;
@@ -114,7 +118,8 @@ export interface GroupStudyBasicInfoResponseDto {
 
 export const GroupStudyBasicInfoResponseDtoClassificationEnum = {
     GroupStudy: 'GROUP_STUDY',
-    PremiumStudy: 'PREMIUM_STUDY'
+    PremiumStudy: 'PREMIUM_STUDY',
+    MentorStudy: 'MENTOR_STUDY'
 } as const;
 
 export type GroupStudyBasicInfoResponseDtoClassificationEnum = typeof GroupStudyBasicInfoResponseDtoClassificationEnum[keyof typeof GroupStudyBasicInfoResponseDtoClassificationEnum];
@@ -169,6 +174,7 @@ export const GroupStudyBasicInfoResponseDtoRegularMeetingEnum = {
 export type GroupStudyBasicInfoResponseDtoRegularMeetingEnum = typeof GroupStudyBasicInfoResponseDtoRegularMeetingEnum[keyof typeof GroupStudyBasicInfoResponseDtoRegularMeetingEnum];
 export const GroupStudyBasicInfoResponseDtoStatusEnum = {
     Recruiting: 'RECRUITING',
+    EndingSoon: 'ENDING_SOON',
     InProgress: 'IN_PROGRESS',
     Completed: 'COMPLETED'
 } as const;

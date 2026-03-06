@@ -68,6 +68,7 @@ export const ParticipatingStudyInfoStudyRoleEnum = {
 export type ParticipatingStudyInfoStudyRoleEnum = typeof ParticipatingStudyInfoStudyRoleEnum[keyof typeof ParticipatingStudyInfoStudyRoleEnum];
 export const ParticipatingStudyInfoStatusEnum = {
     Recruiting: 'RECRUITING',
+    EndingSoon: 'ENDING_SOON',
     InProgress: 'IN_PROGRESS',
     Completed: 'COMPLETED'
 } as const;
