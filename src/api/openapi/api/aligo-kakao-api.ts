@@ -120,7 +120,7 @@ export const AligoKakaoApiAxiosParamCreator = function (configuration?: Configur
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getHistory: async (page?: number, limit?: number, startdate?: string, enddate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getHistory1: async (page?: number, limit?: number, startdate?: string, enddate?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/admin/aligo/kakao/history`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -387,10 +387,10 @@ export const AligoKakaoApiFp = function(configuration?: Configuration) {
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getHistory(page?: number, limit?: number, startdate?: string, enddate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getHistory(page, limit, startdate, enddate, options);
+        async getHistory1(page?: number, limit?: number, startdate?: string, enddate?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getHistory1(page, limit, startdate, enddate, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['AligoKakaoApi.getHistory']?.[localVarOperationServerIndex]?.url;
+            const localVarOperationServerBasePath = operationServerMap['AligoKakaoApi.getHistory1']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
@@ -492,8 +492,8 @@ export const AligoKakaoApiFactory = function (configuration?: Configuration, bas
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getHistory(page?: number, limit?: number, startdate?: string, enddate?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.getHistory(page, limit, startdate, enddate, options).then((request) => request(axios, basePath));
+        getHistory1(page?: number, limit?: number, startdate?: string, enddate?: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
+            return localVarFp.getHistory1(page, limit, startdate, enddate, options).then((request) => request(axios, basePath));
         },
         /**
          * 특정 전송 내역(mid)에 대한 상세 결과를 조회합니다. 각 수신자별 전송 상태, 결과 메시지, 전송 시간 등 상세 정보를 확인할 수 있습니다. 
@@ -579,8 +579,8 @@ export class AligoKakaoApi extends BaseAPI {
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
-    public getHistory(page?: number, limit?: number, startdate?: string, enddate?: string, options?: RawAxiosRequestConfig) {
-        return AligoKakaoApiFp(this.configuration).getHistory(page, limit, startdate, enddate, options).then((request) => request(this.axios, this.basePath));
+    public getHistory1(page?: number, limit?: number, startdate?: string, enddate?: string, options?: RawAxiosRequestConfig) {
+        return AligoKakaoApiFp(this.configuration).getHistory1(page, limit, startdate, enddate, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

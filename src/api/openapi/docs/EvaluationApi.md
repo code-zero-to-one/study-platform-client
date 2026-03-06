@@ -55,7 +55,7 @@ const { status, data } = await apiInstance.createEvaluation(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -63,8 +63,10 @@ const { status, data } = await apiInstance.createEvaluation(
 |-------------|-------------|------------------|
 |**201** | 평가 생성 성공 |  -  |
 |**400** | 잘못된 요청 (유효하지 않은 등급, 중복 평가, 평가 기간 오류) |  -  |
-|**403** | Illegal access to evaluation |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 |**404** | 과제를 찾을 수 없음 |  -  |
+|**409** | 평가를 허용하지 않는 그룹스터디 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -109,15 +111,16 @@ const { status, data } = await apiInstance.deleteEvaluation(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | 평가 삭제 성공 |  -  |
-|**403** | Illegal access to evaluation |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 |**404** | 평가를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -162,7 +165,7 @@ const { status, data } = await apiInstance.getEvaluation(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -170,6 +173,8 @@ const { status, data } = await apiInstance.getEvaluation(
 |-------------|-------------|------------------|
 |**200** | 평가 조회 성공 |  -  |
 |**404** | 과제 또는 평가를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -207,7 +212,7 @@ This endpoint does not have any parameters.
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -215,6 +220,8 @@ This endpoint does not have any parameters.
 |-------------|-------------|------------------|
 |**200** | 등급 목록 조회 성공 |  -  |
 |**500** | 서버 내부 오류 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -263,7 +270,7 @@ const { status, data } = await apiInstance.updateEvaluation(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -271,8 +278,9 @@ const { status, data } = await apiInstance.updateEvaluation(
 |-------------|-------------|------------------|
 |**200** | 평가 수정 성공 |  -  |
 |**400** | 잘못된 요청 (유효하지 않은 등급 또는 댓글 길이 초과) |  -  |
-|**403** | Illegal access to evaluation |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 |**404** | 평가를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

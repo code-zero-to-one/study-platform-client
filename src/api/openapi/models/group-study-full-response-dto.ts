@@ -15,6 +15,9 @@
 
 // May contain unused imports in some cases
 // @ts-ignore
+import type { CurriculumSummaryDto } from './curriculum-summary-dto';
+// May contain unused imports in some cases
+// @ts-ignore
 import type { GroupStudyBasicInfoResponseDto } from './group-study-basic-info-response-dto';
 // May contain unused imports in some cases
 // @ts-ignore
@@ -36,5 +39,13 @@ export interface GroupStudyFullResponseDto {
      * 그룹스터디 면접 질문
      */
     'interviewPost'?: GroupStudyInterviewPostResponseDto;
+    /**
+     * 커리큘럼 요약
+     */
+    'curriculumSummary'?: Array<CurriculumSummaryDto>;
+    /**
+     * 최근 1시간 조회수
+     */
+    'viewCount'?: number;
 }
 

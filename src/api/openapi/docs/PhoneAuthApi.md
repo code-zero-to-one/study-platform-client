@@ -49,7 +49,7 @@ const { status, data } = await apiInstance.sendVerificationCode(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -57,6 +57,8 @@ const { status, data } = await apiInstance.sendVerificationCode(
 |-------------|-------------|------------------|
 |**200** | SMS 인증번호 발송 성공 |  -  |
 |**400** | 잘못된 요청 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -102,7 +104,7 @@ const { status, data } = await apiInstance.verifyCode(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -111,6 +113,8 @@ const { status, data } = await apiInstance.verifyCode(
 |**200** | SMS 인증번호 검증 성공 |  -  |
 |**400** | 인증번호 불일치 또는 잘못된 요청 |  -  |
 |**404** | 회원 정보를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
