@@ -32,5 +32,9 @@ export interface GroupStudyListItemDto {
      * 그룹스터디 간단한 상세 정보
      */
     'simpleDetailInfo'?: GroupStudySimpleInfoResponseDto;
+    /**
+     * 최근 1시간 조회수
+     */
+    'viewCount'?: number;
 }
 

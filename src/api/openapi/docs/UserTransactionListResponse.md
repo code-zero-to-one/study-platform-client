@@ -18,6 +18,7 @@ Name | Type | Description | Notes
 **paidAt** | **string** |  | [optional] [default to undefined]
 **paymentMethod** | **string** |  | [optional] [default to undefined]
 **paymentReceiptUrl** | **string** |  | [optional] [default to undefined]
+**virtualAccountInfo** | [**VirtualAccountInfo**](VirtualAccountInfo.md) |  | [optional] [default to undefined]
 
 ## Example
 
@@ -38,6 +39,7 @@ const instance: UserTransactionListResponse = {
     paidAt,
     paymentMethod,
     paymentReceiptUrl,
+    virtualAccountInfo,
 };
 ```
 

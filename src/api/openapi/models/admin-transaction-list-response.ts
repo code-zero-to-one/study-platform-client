@@ -37,6 +37,7 @@ export interface AdminTransactionListResponse {
 
 export const AdminTransactionListResponseGroupStudyStatusEnum = {
     Recruiting: 'RECRUITING',
+    EndingSoon: 'ENDING_SOON',
     InProgress: 'IN_PROGRESS',
     Completed: 'COMPLETED'
 } as const;

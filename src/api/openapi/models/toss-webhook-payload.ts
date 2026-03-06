@@ -24,8 +24,8 @@ export interface TossWebhookPayload {
     'eventType'?: string;
     'createdAt'?: string;
     'data'?: PaymentData;
-    'paymentRelatedEvent'?: boolean;
     'latestCancel'?: CancelData;
+    'paymentRelatedEvent'?: boolean;
     'paymentStatusChanged'?: boolean;
     'depositCallback'?: boolean;
 }

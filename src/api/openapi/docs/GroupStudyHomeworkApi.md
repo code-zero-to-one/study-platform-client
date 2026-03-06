@@ -50,7 +50,7 @@ const { status, data } = await apiInstance.deleteHomework(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -58,8 +58,9 @@ const { status, data } = await apiInstance.deleteHomework(
 |-------------|-------------|------------------|
 |**204** | 과제 삭제 성공 |  -  |
 |**400** | 잘못된 요청 (이미 평가됨, 이미 삭제됨, 제출 기간 오류 등) |  -  |
-|**403** | Illegal access to homework |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 |**404** | 과제를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -108,7 +109,7 @@ const { status, data } = await apiInstance.editHomework(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -116,8 +117,9 @@ const { status, data } = await apiInstance.editHomework(
 |-------------|-------------|------------------|
 |**204** | 과제 수정 성공 |  -  |
 |**400** | 잘못된 요청 (이미 평가됨, 텍스트 내용 길이 부족, 제출 기간 오류 등) |  -  |
-|**403** | Illegal access to homework |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 |**404** | 과제를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -168,6 +170,8 @@ const { status, data } = await apiInstance.getHomework(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | OK |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -216,7 +220,7 @@ const { status, data } = await apiInstance.submitHomework(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -225,6 +229,8 @@ const { status, data } = await apiInstance.submitHomework(
 |**201** | 과제 제출 성공 |  -  |
 |**400** | 잘못된 요청 (텍스트 내용 길이 부족, 제출 기간 오류 등) |  -  |
 |**404** | 과제 또는 미션을 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
