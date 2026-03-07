@@ -15,25 +15,6 @@ import {
 } from '@/config/group-study-const';
 import type { ExperienceLevel, StudyType } from '@/types/api/group-study.types';
 
-type BadgeColor =
-  | 'default'
-  | 'primary'
-  | 'green'
-  | 'red'
-  | 'blue'
-  | 'orange'
-  | 'gray'
-  | 'purple';
-
-const STUDY_TYPE_BADGE_COLORS: Record<StudyType, BadgeColor> = {
-  PROJECT: 'red',
-  MENTORING: 'blue',
-  SEMINAR: 'green',
-  CHALLENGE: 'orange',
-  BOOK_STUDY: 'purple',
-  LECTURE_STUDY: 'primary',
-};
-
 interface BadgeProps {
   memberName?: string;
   memberNickname?: string;
@@ -69,7 +50,6 @@ export default function StudyCard({
     } = {},
   } = study ?? {};
   const studyType = type as StudyType;
-  const badgeColor = studyType ? STUDY_TYPE_BADGE_COLORS[studyType] : 'default';
 
   const isCompleted = study.basicInfo?.status === 'COMPLETED';
   const remaining = maxMembersCount - approvedCount;
@@ -117,7 +97,7 @@ export default function StudyCard({
       <div className="px-300 py-200">
         {/* 뱃지 */}
         <div className="mb-100 flex flex-wrap gap-50">
-          <Badge color={badgeColor}>
+          <Badge color="gray">
             {studyType ? STUDY_TYPE_LABELS[studyType] : '스터디'}
           </Badge>
           {study.basicInfo?.experienceLevels?.map((level) => (
