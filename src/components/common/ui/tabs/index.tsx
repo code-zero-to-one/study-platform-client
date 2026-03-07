@@ -1,9 +1,11 @@
+import { Lock } from 'lucide-react';
 import React from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface TabItem {
   label: string;
   value: string;
+  locked?: boolean;
 }
 
 interface SectionTabsProps {
@@ -30,21 +32,33 @@ export default function Tabs({
         className,
       )}
     >
-      {tabs.map((tab) => (
-        <button
-          key={tab.value}
-          type="button"
-          onClick={() => onChange(tab.value)}
-          className={cn(
-            'font-designer-16b border-b-2 p-150 transition-colors',
-            activeTab === tab.value
-              ? 'border-primary text-primary text-[#181D27]'
-              : 'border-transparent text-[#D5D7DA] hover:text-[#535862]',
-          )}
-        >
-          {tab.label}
-        </button>
-      ))}
+      {tabs.map((tab) =>
+        tab.locked ? (
+          <button
+            key={tab.value}
+            type="button"
+            disabled
+            className="font-designer-16b flex cursor-not-allowed items-center gap-50 border-b-2 border-transparent p-150 text-[#D5D7DA]"
+          >
+            {tab.label}
+            <Lock size={14} />
+          </button>
+        ) : (
+          <button
+            key={tab.value}
+            type="button"
+            onClick={() => onChange(tab.value)}
+            className={cn(
+              'font-designer-16b border-b-2 p-150 transition-colors',
+              activeTab === tab.value
+                ? 'border-primary text-primary text-[#181D27]'
+                : 'border-transparent text-[#D5D7DA] hover:text-[#535862]',
+            )}
+          >
+            {tab.label}
+          </button>
+        ),
+      )}
     </div>
   );
 }

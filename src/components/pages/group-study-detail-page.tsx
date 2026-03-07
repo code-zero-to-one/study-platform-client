@@ -34,6 +34,7 @@ import MissionSection from '../section/mission-section';
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
 const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
+const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
 
 const END_MODAL_CONTENT = (
   <>
@@ -169,23 +170,18 @@ export default function StudyDetailPage({
 
   const availableTabs = useMemo(
     () =>
-      STUDY_DETAIL_TABS.filter(
-        (tab) =>
-          tab.value === 'intro' ||
-          tab.value === 'inquiry' ||
-          tab.value === 'mission' ||
-          isLeader ||
-          isMember,
-      ),
+      STUDY_DETAIL_TABS.map((tab) => ({
+        ...tab,
+        locked: MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember,
+      })),
     [isLeader, isMember],
   );
 
   const activeTab = useMemo(() => {
     const requested = isStudyTabValue(tabParam) ? tabParam : 'intro';
+    const matched = availableTabs.find((tab) => tab.value === requested);
 
-    return availableTabs.some((tab) => tab.value === requested)
-      ? requested
-      : 'intro';
+    return matched && !matched.locked ? requested : 'intro';
   }, [availableTabs, tabParam]);
 
   if (isLoading || !studyDetail) {
