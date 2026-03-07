@@ -57,16 +57,27 @@ export default function StudyCard({
   onClick,
   viewCount,
 }: StudyCardProps) {
-  const studyType = study.basicInfo?.type as StudyType;
+  const {
+    basicInfo: {
+      type,
+      price = 0,
+      status,
+      maxMembersCount = 0,
+      approvedCount = 0,
+      startDate,
+    } = {},
+  } = study ?? {};
+  const studyType = type as StudyType;
   const badgeColor = studyType ? STUDY_TYPE_BADGE_COLORS[studyType] : 'default';
-  const price = study.basicInfo?.price ?? 0;
+
   const isCompleted = study.basicInfo?.status === 'COMPLETED';
+  const remaining = maxMembersCount - approvedCount;
 
   return (
     <Link
       href={href}
       onClick={onClick}
-      className="hover:shadow-2 hover:border-border-brand rounded-150 cursor-pointer overflow-hidden border border-[#E5E7EB] bg-white transition-all"
+      className={`hover:shadow-2 hover:border-border-brand rounded-150 cursor-pointer overflow-hidden border border-[#E5E7EB] transition-all ${isCompleted ? 'bg-gray-100 opacity-70' : 'bg-white'}`}
     >
       {/* 썸네일 영역 */}
       <div className="relative flex h-[180px] items-center justify-center bg-linear-to-br from-[#F87171] to-[#EC4899]">
@@ -92,14 +103,11 @@ export default function StudyCard({
           </div>
         )}
 
-        <div className="absolute top-200 left-200 z-10">
+        <div className="absolute top-200 left-200">
           <StudyCardCountdownBadge
-            startDate={study.basicInfo?.startDate}
-            status={study.basicInfo?.status}
-            remaining={
-              (study.basicInfo?.maxMembersCount ?? 0) -
-              (study.basicInfo?.approvedCount ?? 0)
-            }
+            startDate={startDate}
+            status={status}
+            remaining={remaining}
           />
         </div>
       </div>
@@ -137,32 +145,31 @@ export default function StudyCard({
             if (remaining <= 0)
               return (
                 <div className="mb-150">
-                  <Flame className="text-red-500" />
-                  <span className="bg-fill-danger-subtle-default text-text-error rounded-50 inline-flex min-w-300 items-center justify-center gap-25 px-100 py-50 text-xs font-medium whitespace-nowrap">
-                    모집 마감
-                  </span>
+                  <Badge color="red">모집 마감</Badge>
                 </div>
               );
             if (remaining <= 3)
               return (
                 <div className="mb-150">
-                  <div className="flex items-center gap-50">
-                    <Flame className="text-red-500" />
-                    <span className="bg-fill-danger-subtle-default text-text-error rounded-50 inline-flex min-w-300 animate-pulse items-center justify-center gap-25 border-2 border-red-500 px-100 py-50 text-xs font-bold whitespace-nowrap">
-                      마지막 {remaining}자리!
-                    </span>
-                  </div>
+                  <Badge
+                    color="red"
+                    className="animate-pulse border-2 border-red-500 font-bold"
+                    leftIcon={<Flame className="text-red-500" size={14} />}
+                  >
+                    마지막 {remaining}자리!
+                  </Badge>
                 </div>
               );
 
             return (
               <div className="mb-150">
-                <div className="flex items-center gap-50">
-                  <Flame className="text-red-500" />
-                  <span className="font-designer-13r text-text-error">
-                    마감까지 {remaining}명
-                  </span>
-                </div>
+                <Badge
+                  color="red"
+                  className="animate-pulse border-2 border-red-500 font-bold"
+                  leftIcon={<Flame className="text-red-500" size={14} />}
+                >
+                  마감까지 {remaining}명
+                </Badge>
               </div>
             );
           })()}

@@ -58,9 +58,9 @@ function Badge({
       className={cn(badgeVariants({ color, shape }), className)}
       {...props}
     >
-      {leftIcon && <span className="mr-[2px]">{leftIcon}</span>}
+      {leftIcon && <span className="mr-25">{leftIcon}</span>}
       {children}
-      {rightIcon && <span className="ml-[2px]">{rightIcon}</span>}
+      {rightIcon && <span className="ml-25">{rightIcon}</span>}
     </Comp>
   );
 }

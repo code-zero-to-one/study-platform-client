@@ -34,6 +34,7 @@ interface UrgentStageResult {
   textColorClass: string;
   pulse: boolean;
   isHourly: boolean;
+  borderClass?: string;
 }
 
 type CountdownState = { urgent: false } | UrgentStageResult | null;
@@ -66,5 +67,6 @@ export function getCountdownState(diffMs: number): CountdownState {
     textColorClass: 'text-text-error',
     pulse: true,
     isHourly: true,
+    borderClass: 'border-2 border-red-500',
   };
 }
