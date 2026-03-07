@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
-import { GroupStudyFullResponseDto } from '@/api/openapi';
+import type { GroupStudyFullResponseDto } from '@/api/openapi';
 import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
@@ -11,7 +11,6 @@ import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
 import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
-import { CurriculumSummaryItem } from '@/types/api/group-study.types';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
 
@@ -149,13 +148,7 @@ export default function StudyInfoSection({
       <div className="flex flex-col">
         <SummaryStudyInfo data={studyDetail} />
         <CurriculumSummarySection
-          curriculumSummary={
-            (
-              studyDetail as GroupStudyFullResponseDto & {
-                curriculumSummary?: CurriculumSummaryItem[];
-              }
-            ).curriculumSummary ?? []
-          }
+          curriculumSummary={studyDetail.curriculumSummary ?? []}
         />
       </div>
     </div>

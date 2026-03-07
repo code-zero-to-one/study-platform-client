@@ -1,10 +1,10 @@
 import { ExternalLink } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 
-import { CurriculumSummaryItem } from '@/types/api/group-study.types';
+import type { CurriculumSummaryDto } from '@/api/openapi';
 
 interface CurriculumSummarySectionProps {
-  curriculumSummary: CurriculumSummaryItem[];
+  curriculumSummary: CurriculumSummaryDto[];
 }
 
 export default function CurriculumSummarySection({

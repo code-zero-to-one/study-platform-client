@@ -15,11 +15,6 @@ import {
 } from '@/config/group-study-const';
 import type { ExperienceLevel, StudyType } from '@/types/api/group-study.types';
 
-interface BadgeProps {
-  memberName?: string;
-  memberNickname?: string;
-}
-
 interface StudyCardProps {
   study: GroupStudyListItemDto;
   href: string;
@@ -31,6 +26,34 @@ function formatCount(n: number): string {
   if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
 
   return String(n);
+}
+
+function getRecruitmentBadge(remaining: number) {
+  if (remaining <= 0)
+    return (
+      <Badge className="text-text-error bg-fill-danger-subtle-default">
+        모집 마감
+      </Badge>
+    );
+  if (remaining <= 3)
+    return (
+      <Badge
+        color="red"
+        className="animate-pulse border-2 border-red-500 font-bold"
+        leftIcon={<Flame className="text-red-500" size={14} />}
+      >
+        마지막 {remaining}자리!
+      </Badge>
+    );
+
+  return (
+    <Badge
+      className="font-designer-13r text-text-error bg-transparent p-0"
+      leftIcon={<Flame className="text-red-500" size={14} />}
+    >
+      마감까지 {remaining}명
+    </Badge>
+  );
 }
 
 export default function StudyCard({
@@ -46,13 +69,14 @@ export default function StudyCard({
       status,
       maxMembersCount = 0,
       approvedCount = 0,
+      remainingSlots,
       startDate,
     } = {},
   } = study ?? {};
   const studyType = type as StudyType;
 
   const isCompleted = study.basicInfo?.status === 'COMPLETED';
-  const remaining = maxMembersCount - approvedCount;
+  const remaining = remainingSlots ?? maxMembersCount - approvedCount;
 
   return (
     <Link
@@ -117,43 +141,12 @@ export default function StudyCard({
           {study.simpleDetailInfo?.summary}
         </p>
 
-        {/* 활성 배지 (RECRUITING일 때만) */}
-        {study.basicInfo?.status === 'RECRUITING' &&
-          (() => {
-            const remaining =
-              (study.basicInfo?.maxMembersCount ?? 0) -
-              (study.basicInfo?.approvedCount ?? 0);
-            if (remaining <= 0)
-              return (
-                <div className="mb-150">
-                  <Badge color="red">모집 마감</Badge>
-                </div>
-              );
-            if (remaining <= 3)
-              return (
-                <div className="mb-150">
-                  <Badge
-                    color="red"
-                    className="animate-pulse border-2 border-red-500 font-bold"
-                    leftIcon={<Flame className="text-red-500" size={14} />}
-                  >
-                    마지막 {remaining}자리!
-                  </Badge>
-                </div>
-              );
-
-            return (
-              <div className="mb-150">
-                <Badge
-                  color="red"
-                  className="animate-pulse border-2 border-red-500 font-bold"
-                  leftIcon={<Flame className="text-red-500" size={14} />}
-                >
-                  마감까지 {remaining}명
-                </Badge>
-              </div>
-            );
-          })()}
+        {/* 활성 배지 (RECRUITING·ENDING_SOON·IN_PROGRESS일 때) */}
+        {(study.basicInfo?.status === 'RECRUITING' ||
+          study.basicInfo?.status === 'ENDING_SOON' ||
+          study.basicInfo?.status === 'IN_PROGRESS') && (
+          <div className="mb-150">{getRecruitmentBadge(remaining)}</div>
+        )}
 
         {/* 하단 정보 */}
         <div className="text-text-subtlest flex items-center gap-150">
@@ -186,9 +179,7 @@ export default function StudyCard({
             />
             <div>
               <p className="font-designer-15m">
-                {(study.basicInfo?.leader as BadgeProps)?.memberName ||
-                  (study.basicInfo?.leader as BadgeProps)?.memberNickname ||
-                  '스터디장'}
+                {study.basicInfo?.leader?.memberNickname || '스터디장'}
               </p>
             </div>
           </div>
