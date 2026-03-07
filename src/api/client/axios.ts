@@ -1,4 +1,4 @@
-import axios, { InternalAxiosRequestConfig, isAxiosError } from 'axios';
+import axios, { type InternalAxiosRequestConfig, isAxiosError } from 'axios';
 import { ApiError, isApiError } from './api-error';
 import { attachApiLogger } from './api-logger';
 import { getCookie, setCookie } from './cookie';
@@ -203,7 +203,7 @@ axiosInstanceForMultipart.interceptors.response.use(
               if (originalRequest) {
                 originalRequest.headers.Authorization = `Bearer ${token}`;
 
-                return axiosInstance(originalRequest);
+                return axiosInstanceForMultipart(originalRequest);
               }
             })
             .catch((err) => {
@@ -222,7 +222,7 @@ axiosInstanceForMultipart.interceptors.response.use(
             if (originalRequest) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-              return axiosInstance(originalRequest);
+              return axiosInstanceForMultipart(originalRequest);
             }
           } else {
             processFailedQueue(new Error('토큰 갱신 실패'));
