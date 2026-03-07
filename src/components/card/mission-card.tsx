@@ -8,9 +8,6 @@ import DeleteMissionModal from '@/components/common/modals/delete-mission-modal'
 import EditMissionModal from '@/components/common/modals/edit-mission-modal';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
-import { useIsLeader } from '@/stores/useLeaderStore';
-import { useUserStore } from '@/stores/useUserStore';
-
 import { cn } from '../common/ui/(shadcn)/lib/utils';
 
 interface MissionCardProps {
@@ -19,6 +16,7 @@ interface MissionCardProps {
   onSelectMission: (missionId: number) => void;
   showDeadline?: boolean;
   isMember?: boolean;
+  isLeader?: boolean;
 }
 
 const STATUS_CONFIG = {
@@ -90,9 +88,8 @@ export default function MissionCard({
   onSelectMission,
   showDeadline = false,
   isMember = false,
+  isLeader = false,
 }: MissionCardProps) {
-  const memberId = useUserStore((state) => state.memberId);
-  const isLeader = useIsLeader(memberId);
   const statusConfig =
     mission.status && mission.status in STATUS_CONFIG
       ? STATUS_CONFIG[mission.status as keyof typeof STATUS_CONFIG]

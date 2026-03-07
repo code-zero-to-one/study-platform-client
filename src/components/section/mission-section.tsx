@@ -5,8 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import CreateMissionModal from '@/components/common/modals/create-mission-modal';
 import { useGetMissions } from '@/hooks/queries/mission-api';
-import { useIsLeader } from '@/stores/useLeaderStore';
-import { useUserStore } from '@/stores/useUserStore';
 import MissionCard from '../card/mission-card';
 import PageContainer from '../common/layout/page-container';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
@@ -30,8 +28,6 @@ export default function MissionSection({
 }: MissionSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const memberId = useUserStore((state) => state.memberId);
-  const isLeader = useIsLeader(memberId);
   const [filter, setFilter] = useState<FilterType>('all');
 
   const missionId = searchParams.get('missionId');
@@ -113,6 +109,7 @@ export default function MissionSection({
     return (
       <PageContainer className="my-500 flex flex-col gap-300">
         <button
+          type="button"
           onClick={handleBack}
           className="text-text-default font-designer-16b flex w-fit items-center gap-50"
         >
@@ -133,6 +130,7 @@ export default function MissionSection({
     return (
       <section className="flex flex-col gap-300">
         <button
+          type="button"
           onClick={handleBack}
           className="text-text-default font-designer-16b flex w-fit items-center gap-50"
         >
@@ -153,6 +151,7 @@ export default function MissionSection({
     return (
       <PageContainer className="flex flex-col gap-300 py-500">
         <button
+          type="button"
           onClick={handleBack}
           className="text-text-default font-designer-16b flex w-fit items-center gap-50"
         >
@@ -171,7 +170,7 @@ export default function MissionSection({
       <div className="m-auto my-500 w-[1164px]">
         <div className="flex items-center justify-between">
           <span className="font-designer-20b text-text-default">미션 목록</span>
-          {isLeader && <CreateMissionModal groupStudyId={groupStudyId} />}
+          {isLeaderProp && <CreateMissionModal groupStudyId={groupStudyId} />}
         </div>
 
         <MissionFilterTabs
@@ -191,6 +190,7 @@ export default function MissionSection({
                 groupStudyId={groupStudyId}
                 onSelectMission={handleSelectMission}
                 isMember={canAccessAll}
+                isLeader={isLeaderProp}
                 showDeadline={
                   mission.status === 'IN_PROGRESS' ||
                   mission.status === 'NOT_STARTED'
@@ -229,6 +229,7 @@ function MissionFilterTabs({
     <div className="mt-400 mb-200 flex gap-100">
       {tabs.map((tab) => (
         <button
+          type="button"
           key={tab.key}
           onClick={() => onFilterChange(tab.key)}
           className={cn(
