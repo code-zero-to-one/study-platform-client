@@ -14,8 +14,6 @@ export default function CurriculumSummarySection({
   const router = useRouter();
   if (!curriculumSummary?.length) return null;
 
-  const weekCount = Math.max(...curriculumSummary.map((item) => item.weekNum));
-
   const handleClickCurriculum = (id: number) => {
     router.push(`${pathname}?tab=mission&missionId=${id}`);
   };
@@ -24,7 +22,9 @@ export default function CurriculumSummarySection({
     <div className="rounded-150 flex w-[335px] flex-col border border-[#D5D7DA] bg-white px-300 py-400">
       <div className="mb-300 flex items-center gap-100">
         <p className="font-designer-20b">커리큘럼 요약</p>
-        <span className="font-designer-16r text-[#A4A7AE]">{weekCount}주</span>
+        <span className="font-designer-16r text-[#A4A7AE]">
+          {curriculumSummary.length}주
+        </span>
       </div>
 
       <div className="flex flex-col gap-150">
