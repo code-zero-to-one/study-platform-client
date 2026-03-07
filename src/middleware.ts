@@ -180,7 +180,6 @@ export const config = {
     '/my-study-review',
     '/sign-up',
     '/payment/:path*', // 결제 관련 모든 경로
-    '/group-study/:path+',
     '/admin/:path*',
   ],
 };
