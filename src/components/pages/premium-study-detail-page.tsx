@@ -13,7 +13,11 @@ import GroupStudyMemberList from '@/components/lists/study-member-list';
 import InquirySection from '@/components/section/inquiry-section';
 import MissionSection from '@/components/section/mission-section';
 import PremiumStudyInfoSection from '@/components/section/premium-study-info-section';
-import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
+import {
+  isStudyTabValue,
+  STUDY_DETAIL_TABS,
+  StudyTabValue,
+} from '@/config/constants';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import {
   useCompleteGroupStudyMutation,
@@ -26,17 +30,19 @@ import { GroupStudyFullResponse, Leader } from '@/types/api/group-study.types';
 
 type ActionKey = 'end' | 'delete';
 
-const STUDY_TAB_VALUES = new Set<StudyTabValue>(
-  STUDY_DETAIL_TABS.map((tab) => tab.value),
+const END_MODAL_CONTENT = (
+  <>
+    종료 후에는 더 이상 모집/활동이 불가합니다.
+    <br />이 동작은 되돌릴 수 없습니다.
+  </>
 );
 
-const isStudyTabValue = (value: string | undefined): value is StudyTabValue => {
-  if (!value) {
-    return false;
-  }
-
-  return STUDY_TAB_VALUES.has(value as StudyTabValue);
-};
+const DELETE_MODAL_CONTENT = (
+  <>
+    삭제 시 모든 데이터가 영구적으로 제거됩니다.
+    <br />이 동작은 되돌릴 수 없습니다.
+  </>
+);
 
 interface PremiumStudyDetailPageProps {
   groupStudyId: number;
@@ -62,16 +68,17 @@ export default function PremiumStudyDetailPage({
   } = useGroupStudyDetailQuery(groupStudyId);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
+  const leader = studyDetail?.basicInfo.leader;
 
   const isLeader = leaderId === memberId;
   const shouldFetchMyStatus = leaderId !== undefined && !isLeader;
 
   // 리더 정보를 Zustand store에 저장
   useEffect(() => {
-    if (studyDetail?.basicInfo.leader) {
-      setLeaderInfo(studyDetail.basicInfo.leader as Leader);
+    if (leader) {
+      setLeaderInfo(leader as Leader);
     }
-  }, [studyDetail?.basicInfo.leader, setLeaderInfo]);
+  }, [leader, setLeaderInfo]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
@@ -88,12 +95,7 @@ export default function PremiumStudyDetailPage({
   const ModalContent = {
     end: {
       title: '스터디를 종료하시겠어요?',
-      content: (
-        <>
-          종료 후에는 더 이상 모집/활동이 불가합니다.
-          <br />이 동작은 되돌릴 수 없습니다.
-        </>
-      ),
+      content: END_MODAL_CONTENT,
       confirmText: '스터디 종료',
       onConfirm: () => {
         completeStudy(
@@ -116,12 +118,7 @@ export default function PremiumStudyDetailPage({
     },
     delete: {
       title: '스터디를 삭제하시겠어요?',
-      content: (
-        <>
-          삭제 시 모든 데이터가 영구적으로 제거됩니다.
-          <br />이 동작은 되돌릴 수 없습니다.
-        </>
-      ),
+      content: DELETE_MODAL_CONTENT,
       confirmText: '스터디 삭제',
       onConfirm: () => {
         deleteGroupStudy(
@@ -149,6 +146,7 @@ export default function PremiumStudyDetailPage({
   };
 
   // 참가자, 채널 탭 접근 가능 여부 = 스터디 참가자 또는 방장만 가능
+  // KICKED 상태도 포함: 강퇴 후에도 기존 활동 내역 열람 보장
   const isMember =
     myApplicationStatus?.status === 'APPROVED' ||
     myApplicationStatus?.status === 'KICKED';

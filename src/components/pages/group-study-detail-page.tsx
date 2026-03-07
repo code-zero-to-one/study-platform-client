@@ -1,14 +1,18 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
 import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
-import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
+import {
+  isStudyTabValue,
+  STUDY_DETAIL_TABS,
+  type StudyTabValue,
+} from '@/config/constants';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import {
@@ -28,6 +32,20 @@ import MissionSection from '../section/mission-section';
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
+const END_MODAL_CONTENT = (
+  <>
+    종료 후에는 더 이상 모집/활동이 불가합니다.
+    <br />이 동작은 되돌릴 수 없습니다.
+  </>
+);
+
+const DELETE_MODAL_CONTENT = (
+  <>
+    삭제 시 모든 데이터가 영구적으로 제거됩니다.
+    <br />이 동작은 되돌릴 수 없습니다.
+  </>
+);
+
 interface StudyDetailPageProps {
   groupStudyId: number;
   memberId?: number;
@@ -38,16 +56,18 @@ export default function StudyDetailPage({
   memberId,
 }: StudyDetailPageProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
   const showToast = useToastStore((state) => state.showToast);
 
-  const tabFromUrl = searchParams.get('tab') as StudyTabValue | null;
+  const tabParam = searchParams.get('tab') ?? undefined;
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
+  const leader = studyDetail?.basicInfo.leader;
 
   const isLeader = leaderId === memberId;
 
@@ -56,12 +76,10 @@ export default function StudyDetailPage({
 
   // 리더 정보를 Zustand store에 저장
   useEffect(() => {
-    if (studyDetail?.basicInfo.leader) {
-      setLeaderInfo(studyDetail.basicInfo.leader as Leader);
+    if (leader) {
+      setLeaderInfo(leader as Leader);
     }
-  }, [studyDetail?.basicInfo.leader, setLeaderInfo]);
-
-  const [active, setActive] = useState<StudyTabValue>(tabFromUrl || 'intro');
+  }, [leader, setLeaderInfo]);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
@@ -77,12 +95,7 @@ export default function StudyDetailPage({
   const ModalContent = {
     end: {
       title: '스터디를 종료하시겠어요?',
-      content: (
-        <>
-          종료 후에는 더 이상 모집/활동이 불가합니다.
-          <br />이 동작은 되돌릴 수 없습니다.
-        </>
-      ),
+      content: END_MODAL_CONTENT,
       confirmText: '스터디 종료',
       onConfirm: () => {
         completeStudy(
@@ -108,12 +121,7 @@ export default function StudyDetailPage({
     },
     delete: {
       title: '스터디를 삭제하시겠어요?',
-      content: (
-        <>
-          삭제 시 모든 데이터가 영구적으로 제거됩니다.
-          <br />이 동작은 되돌릴 수 없습니다.
-        </>
-      ),
+      content: DELETE_MODAL_CONTENT,
       confirmText: '스터디 삭제',
       onConfirm: () => {
         deleteGroupStudy(
@@ -140,9 +148,30 @@ export default function StudyDetailPage({
   };
 
   // 참가자, 채널 탭 접근 가능 여부 = 스터디 참가자 또는 방장만 가능
+  // KICKED 상태도 포함: 강퇴 후에도 기존 활동 내역 열람 보장
   const isMember =
     myApplicationStatus?.status === 'APPROVED' ||
     myApplicationStatus?.status === 'KICKED';
+
+  const availableTabs = useMemo(
+    () =>
+      STUDY_DETAIL_TABS.filter(
+        (tab) =>
+          tab.value === 'intro' ||
+          tab.value === 'inquiry' ||
+          isLeader ||
+          isMember,
+      ),
+    [isLeader, isMember],
+  );
+
+  const activeTab = useMemo(() => {
+    const requested = isStudyTabValue(tabParam) ? tabParam : 'intro';
+
+    return availableTabs.some((tab) => tab.value === requested)
+      ? requested
+      : 'intro';
+  }, [availableTabs, tabParam]);
 
   if (isLoading || !studyDetail) {
     return <div>로딩중...</div>;
@@ -216,19 +245,12 @@ export default function StudyDetailPage({
       {/** 탭리스트 */}
       <Tabs
         className="w-[1164px]"
-        tabs={STUDY_DETAIL_TABS.filter(
-          (tab) =>
-            tab.value === 'intro' ||
-            tab.value === 'inquiry' ||
-            isLeader ||
-            isMember,
-        )}
-        activeTab={active}
+        tabs={availableTabs}
+        activeTab={activeTab}
         onChange={(value: StudyTabValue) => {
-          setActive(value);
-
-          // 탭 변경 시 URL 파라미터 초기화 및 탭 값 설정
-          router.replace(`?tab=${value}`);
+          const params = new URLSearchParams(searchParams.toString());
+          params.set('tab', value);
+          router.push(`${pathname}?${params.toString()}`, { scroll: false });
 
           sendGTMEvent({
             event: 'group_study_tab_change',
@@ -237,10 +259,10 @@ export default function StudyDetailPage({
           });
         }}
       />
-      {active === 'intro' && (
+      {activeTab === 'intro' && (
         <StudyInfoSection study={studyDetail} isLeader={isLeader} />
       )}
-      {active === 'members' && (
+      {activeTab === 'members' && (
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
@@ -248,15 +270,17 @@ export default function StudyDetailPage({
         />
       )}
 
-      {active === 'mission' && <MissionSection groupStudyId={groupStudyId} />}
-      {active === 'lounge' && (
+      {activeTab === 'mission' && (
+        <MissionSection groupStudyId={groupStudyId} />
+      )}
+      {activeTab === 'lounge' && (
         <ChannelSection
           groupStudyId={groupStudyId}
           memberId={memberId}
           myApplicationStatus={myApplicationStatus}
         />
       )}
-      {active === 'inquiry' && (
+      {activeTab === 'inquiry' && (
         <InquirySection
           groupStudyId={groupStudyId}
           isLeader={isLeader}
