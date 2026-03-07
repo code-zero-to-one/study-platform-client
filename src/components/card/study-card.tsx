@@ -4,6 +4,7 @@ import { Clock5, Eye, Flame, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { GroupStudyListItemDto } from '@/api/openapi';
+import Avatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import StudyCardCountdownBadge from '@/components/common/ui/study-card-countdown-badge';
 
@@ -195,28 +196,14 @@ export default function StudyCard({
         {/* 리더 정보 & 가격 */}
         <div className="mt-500 flex items-center justify-between">
           <div className="flex items-center gap-150">
-            <div className="flex h-400 w-400 items-center justify-center overflow-hidden rounded-full bg-[#E5E7EB]">
-              {study.basicInfo?.leader?.profileImage?.resizedImages?.[0]
-                ?.resizedImageUrl ? (
-                <Image
-                  src={
-                    study.basicInfo.leader.profileImage.resizedImages[0]
-                      .resizedImageUrl
-                  }
-                  alt="프로필"
-                  width={40}
-                  height={40}
-                  className="object-cover"
-                />
-              ) : (
-                <Image
-                  src="/icons/user-default.svg"
-                  alt="프로필"
-                  width={40}
-                  height={40}
-                />
-              )}
-            </div>
+            <Avatar
+              image={
+                study.basicInfo?.leader?.profileImage?.resizedImages?.[0]
+                  ?.resizedImageUrl
+              }
+              size={40}
+              alt="프로필"
+            />
             <div>
               <p className="font-designer-15m">
                 {(study.basicInfo?.leader as BadgeProps)?.memberName ||
