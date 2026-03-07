@@ -55,7 +55,7 @@ export default function PremiumStudyInfoSection({
         profileImageUrl:
           data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ??
           '',
-        isLeader: data.role === 'LEADER',
+        isLeader: false, // 멘티 목록이므로 왕관 표시 없음
       }));
   }, [applicantsList]);
 
