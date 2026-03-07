@@ -13,7 +13,9 @@ interface MyHomeworkStatusProps {
   missionId: number;
 }
 
-export default function MyHomeworkStatusCard({ missionId }: MyHomeworkStatusProps) {
+export default function MyHomeworkStatusCard({
+  missionId,
+}: MyHomeworkStatusProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -67,7 +69,8 @@ export default function MyHomeworkStatusCard({ missionId }: MyHomeworkStatusProp
             color="outlined"
             className="mt-100"
             onClick={() =>
-              myHomework.homeworkId && handleSelectHomework(myHomework.homeworkId)
+              myHomework.homeworkId &&
+              handleSelectHomework(myHomework.homeworkId)
             }
           >
             과제 상세 보기
@@ -105,7 +108,8 @@ export default function MyHomeworkStatusCard({ missionId }: MyHomeworkStatusProp
           <Button
             color="outlined"
             onClick={() =>
-              myHomework.homeworkId && handleSelectHomework(myHomework.homeworkId)
+              myHomework.homeworkId &&
+              handleSelectHomework(myHomework.homeworkId)
             }
           >
             과제 상세 보기
