@@ -52,14 +52,13 @@ export default function HomeworkDetailContent({
   }
 
   const peerReviews = homework.peerReviews ?? [];
-  const isEvaluated = !!homework.evaluation;
 
   // 미션 제출 가능 기간이 지나지 않았는지 확인
   const isMissionActive = mission.status !== 'ENDED';
 
-  // 수정/삭제 가능 조건: 본인 과제이면서 평가 전이면서 미션 제출 가능 기간이 지나지 않은 상태
+  // 수정/삭제 가능 조건: 본인 과제이면서 미션 제출 가능 기간이 지나지 않은 상태
   const isMyHomework = homework.submitterId === currentUserId;
-  const canEditOrDelete = isMyHomework && !isEvaluated && isMissionActive;
+  const canEditOrDelete = isMyHomework && isMissionActive;
 
   const profileImageUrl =
     homework.submitterProfileImage?.resizedImages?.[0]?.resizedImageUrl ??
