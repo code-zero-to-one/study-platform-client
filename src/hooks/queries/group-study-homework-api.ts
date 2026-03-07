@@ -38,9 +38,12 @@ export const useSubmitHomework = () => {
 
       return data.content;
     },
-    onSuccess: async () => {
+    onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
         queryKey: ['homeworks'],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['mission', variables.missionId],
       });
     },
   });

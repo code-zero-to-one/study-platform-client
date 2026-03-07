@@ -147,10 +147,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
           미션 상세
         </button>
 
-        <MissionDetailContent
-          groupStudyId={groupStudyId}
-          missionId={Number(missionId)}
-        />
+        <MissionDetailContent missionId={Number(missionId)} />
       </PageContainer>
     );
   }
