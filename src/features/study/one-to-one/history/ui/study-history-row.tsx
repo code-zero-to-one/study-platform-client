@@ -10,7 +10,6 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import UserProfileModal from '@/components/common/modals/user-profile-modal';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
 

@@ -25,7 +25,7 @@ export function ThreadReaction({
     retry: 0,
   });
 
-  const { reaction, counts, like, dislike, reconcile } = useReactionLogic({
+  const { reaction, counts, like, dislike } = useReactionLogic({
     initialReaction,
     initialCounts,
     mode: 'debounce', // 연타 합치기 원하면

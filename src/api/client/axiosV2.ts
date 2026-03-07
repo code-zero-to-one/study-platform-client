@@ -41,7 +41,7 @@ axiosInstanceV2.interceptors.request.use(onRequestClient);
 axiosInstanceForMultipartV2.interceptors.request.use(onRequestClient);
 
 // refresh token을 사용해서 access token을 재갱신하는 함수
-const refreshAccessToken = async (): Promise<string | null> => {
+const refreshAccessToken = async (): Promise<string | undefined> => {
   try {
     const response = await axios.get<{ content: { accessToken: string } }>(
       `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/auth/access-token/refresh`,
@@ -58,11 +58,11 @@ const refreshAccessToken = async (): Promise<string | null> => {
       return newAccessToken;
     }
 
-    return null;
+    return undefined;
   } catch {
     window.location.href = '/login';
 
-    return null;
+    return undefined;
   }
 };
 
@@ -71,16 +71,16 @@ let isRefreshing = false;
 // 토큰 갱신을 기다리는 요청들 저장
 let failedQueue: Array<{
   resolve: (value: string) => void;
-  reject: (error: any) => void;
+  reject: (error: unknown) => void;
 }> = [];
 
 // 대기 중인 요청들을 처리하는 함수
-const processFailedQueue = (error: unknown, token: string | null = null) => {
+const processFailedQueue = (error: unknown, token?: string) => {
   failedQueue.forEach(({ resolve, reject }) => {
-    if (error) {
+    if (error !== undefined) {
       reject(error);
     } else {
-      resolve(token);
+      resolve(token ?? '');
     }
   });
 
@@ -143,7 +143,7 @@ axiosInstanceV2.interceptors.response.use(
           const newAccessToken = await refreshAccessToken();
 
           if (newAccessToken) {
-            processFailedQueue(null, newAccessToken);
+            processFailedQueue(undefined, newAccessToken);
 
             if (originalRequest) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -151,13 +151,13 @@ axiosInstanceV2.interceptors.response.use(
               return axiosInstanceV2(originalRequest);
             }
           } else {
-            processFailedQueue(new Error('토큰 갱신 실패'), null);
+            processFailedQueue(new Error('토큰 갱신 실패'));
             window.location.href = '/login';
 
             return Promise.reject(error);
           }
         } catch (refreshError) {
-          processFailedQueue(refreshError, null);
+          processFailedQueue(refreshError);
           window.location.href = '/login';
 
           return Promise.reject(refreshError);
@@ -217,7 +217,7 @@ axiosInstanceForMultipartV2.interceptors.response.use(
           const newAccessToken = await refreshAccessToken();
 
           if (newAccessToken) {
-            processFailedQueue(null, newAccessToken);
+            processFailedQueue(undefined, newAccessToken);
 
             if (originalRequest) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -225,13 +225,13 @@ axiosInstanceForMultipartV2.interceptors.response.use(
               return axiosInstanceV2(originalRequest);
             }
           } else {
-            processFailedQueue(new Error('토큰 갱신 실패'), null);
+            processFailedQueue(new Error('토큰 갱신 실패'));
             window.location.href = '/login';
 
             return Promise.reject(error);
           }
         } catch (refreshError) {
-          processFailedQueue(refreshError, null);
+          processFailedQueue(refreshError);
           window.location.href = '/login';
 
           return Promise.reject(refreshError);

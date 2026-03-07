@@ -1,10 +1,10 @@
-@import 'tailwindcss';
-@import 'highlight.js/styles/github.css';
+@import "tailwindcss";
+@import "highlight.js/styles/github.css";
 @tailwind utilities;
 
 /*
 ---break--- */
-@plugin 'tailwindcss-animate';
+@plugin "tailwindcss-animate";
 
 @layer base {
   *,
@@ -44,9 +44,9 @@
     text-transform: none;
   }
   button,
-  [type='button'],
-  [type='reset'],
-  [type='submit'] {
+  [type="button"],
+  [type="reset"],
+  [type="submit"] {
     -webkit-appearance: button;
     background-color: transparent;
     background-image: none;

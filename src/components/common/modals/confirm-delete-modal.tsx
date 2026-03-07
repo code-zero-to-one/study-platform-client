@@ -1,5 +1,5 @@
 'use client';
-import { ReactNode, useState } from 'react';
+import { ReactNode } from 'react';
 
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';

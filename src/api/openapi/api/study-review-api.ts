@@ -158,8 +158,8 @@ export const StudyReviewApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
-         * 자신이 이번 주에 진행한 스터디 및 전체 평가 키워드 목록을 조회합니다.
-         * @summary 자신이 이번 주에 진행한 스터디 및 전체 평가 키워드 목록 조회
+         * 현재 시점 기준 후기 작성 대상 스터디 및 전체 평가 키워드 목록을 조회합니다.
+         * @summary 후기 작성 대상 스터디 및 전체 평가 키워드 목록 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -192,8 +192,8 @@ export const StudyReviewApiAxiosParamCreator = function (configuration?: Configu
             };
         },
         /**
-         * 자신이 이번 주 스터디 후기 작성 대상자인지 여부를 조회합니다.
-         * @summary 자신이 이번 주 스터디 후기 작성 대상자인지 여부 조회
+         * 현재 시점 기준 자신이 스터디 후기 작성 대상자인지 여부를 조회합니다.
+         * @summary 자신이 스터디 후기 작성 대상자인지 여부 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -316,8 +316,8 @@ export const StudyReviewApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 자신이 이번 주에 진행한 스터디 및 전체 평가 키워드 목록을 조회합니다.
-         * @summary 자신이 이번 주에 진행한 스터디 및 전체 평가 키워드 목록 조회
+         * 현재 시점 기준 후기 작성 대상 스터디 및 전체 평가 키워드 목록을 조회합니다.
+         * @summary 후기 작성 대상 스터디 및 전체 평가 키워드 목록 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -328,8 +328,8 @@ export const StudyReviewApiFp = function(configuration?: Configuration) {
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
         /**
-         * 자신이 이번 주 스터디 후기 작성 대상자인지 여부를 조회합니다.
-         * @summary 자신이 이번 주 스터디 후기 작성 대상자인지 여부 조회
+         * 현재 시점 기준 자신이 스터디 후기 작성 대상자인지 여부를 조회합니다.
+         * @summary 자신이 스터디 후기 작성 대상자인지 여부 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -394,8 +394,8 @@ export const StudyReviewApiFactory = function (configuration?: Configuration, ba
             return localVarFp.getPositiveEvalKeywords(memberId, pageSize, options).then((request) => request(axios, basePath));
         },
         /**
-         * 자신이 이번 주에 진행한 스터디 및 전체 평가 키워드 목록을 조회합니다.
-         * @summary 자신이 이번 주에 진행한 스터디 및 전체 평가 키워드 목록 조회
+         * 현재 시점 기준 후기 작성 대상 스터디 및 전체 평가 키워드 목록을 조회합니다.
+         * @summary 후기 작성 대상 스터디 및 전체 평가 키워드 목록 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -403,8 +403,8 @@ export const StudyReviewApiFactory = function (configuration?: Configuration, ba
             return localVarFp.getReviewTargetStudy(options).then((request) => request(axios, basePath));
         },
         /**
-         * 자신이 이번 주 스터디 후기 작성 대상자인지 여부를 조회합니다.
-         * @summary 자신이 이번 주 스터디 후기 작성 대상자인지 여부 조회
+         * 현재 시점 기준 자신이 스터디 후기 작성 대상자인지 여부를 조회합니다.
+         * @summary 자신이 스터디 후기 작성 대상자인지 여부 조회
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
@@ -464,8 +464,8 @@ export class StudyReviewApi extends BaseAPI {
     }
 
     /**
-     * 자신이 이번 주에 진행한 스터디 및 전체 평가 키워드 목록을 조회합니다.
-     * @summary 자신이 이번 주에 진행한 스터디 및 전체 평가 키워드 목록 조회
+     * 현재 시점 기준 후기 작성 대상 스터디 및 전체 평가 키워드 목록을 조회합니다.
+     * @summary 후기 작성 대상 스터디 및 전체 평가 키워드 목록 조회
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */
@@ -474,8 +474,8 @@ export class StudyReviewApi extends BaseAPI {
     }
 
     /**
-     * 자신이 이번 주 스터디 후기 작성 대상자인지 여부를 조회합니다.
-     * @summary 자신이 이번 주 스터디 후기 작성 대상자인지 여부 조회
+     * 현재 시점 기준 자신이 스터디 후기 작성 대상자인지 여부를 조회합니다.
+     * @summary 자신이 스터디 후기 작성 대상자인지 여부 조회
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      */

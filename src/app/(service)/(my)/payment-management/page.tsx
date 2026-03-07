@@ -100,11 +100,7 @@ export default function PaymentManagement() {
       {/* 날짜 선택 & 검색 */}
       <div className="flex items-center justify-between">
         {/* 캘린더 자리 */}
-        <DatePicker
-          mode="range"
-          selected={dateRange}
-          onSelect={(range) => setDateRange(range as DateRange)}
-        />
+        <DatePicker mode="range" selected={dateRange} onSelect={setDateRange} />
 
         {/* 검색 */}
         <div className="w-[240px]">

@@ -21,6 +21,7 @@ interface DropdownOption {
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   const { mutateAsync: logout } = useLogoutMutation();
+
   const { data: authData, isAuthReady } = useAuthReady();
 
   const hasAdminRole = isAuthReady && authData?.roleIds.includes('ROLE_ADMIN');

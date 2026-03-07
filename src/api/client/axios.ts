@@ -71,16 +71,16 @@ let isRefreshing = false;
 // 토큰 갱신을 기다리는 요청들 저장
 let failedQueue: Array<{
   resolve: (value: string) => void;
-  reject: (error: any) => void;
+  reject: (error: unknown) => void;
 }> = [];
 
 // 대기 중인 요청들을 처리하는 함수
-const processFailedQueue = (error: unknown, token: string | null = null) => {
+const processFailedQueue = (error: unknown, token?: string) => {
   failedQueue.forEach(({ resolve, reject }) => {
-    if (error) {
+    if (error !== undefined) {
       reject(error);
     } else {
-      resolve(token);
+      resolve(token ?? '');
     }
   });
 
@@ -143,7 +143,7 @@ axiosInstance.interceptors.response.use(
           const newAccessToken = await refreshAccessToken();
 
           if (newAccessToken) {
-            processFailedQueue(null, newAccessToken);
+            processFailedQueue(undefined, newAccessToken);
 
             if (originalRequest) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -151,13 +151,13 @@ axiosInstance.interceptors.response.use(
               return axiosInstance(originalRequest);
             }
           } else {
-            processFailedQueue(new Error('토큰 갱신 실패'), null);
+            processFailedQueue(new Error('토큰 갱신 실패'));
             window.location.href = '/login';
 
             return Promise.reject(error);
           }
         } catch (refreshError) {
-          processFailedQueue(refreshError, null);
+          processFailedQueue(refreshError);
           window.location.href = '/login';
 
           return Promise.reject(refreshError);
@@ -217,7 +217,7 @@ axiosInstanceForMultipart.interceptors.response.use(
           const newAccessToken = await refreshAccessToken();
 
           if (newAccessToken) {
-            processFailedQueue(null, newAccessToken);
+            processFailedQueue(undefined, newAccessToken);
 
             if (originalRequest) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -225,13 +225,13 @@ axiosInstanceForMultipart.interceptors.response.use(
               return axiosInstance(originalRequest);
             }
           } else {
-            processFailedQueue(new Error('토큰 갱신 실패'), null);
+            processFailedQueue(new Error('토큰 갱신 실패'));
             window.location.href = '/login';
 
             return Promise.reject(error);
           }
         } catch (refreshError) {
-          processFailedQueue(refreshError, null);
+          processFailedQueue(refreshError);
           window.location.href = '/login';
 
           return Promise.reject(refreshError);

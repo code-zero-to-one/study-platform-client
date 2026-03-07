@@ -9,7 +9,6 @@ import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { getServerCookie } from '@/utils/server-cookie';
 import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
-import CodeIcon from 'public/icons/code.svg';
 import SettingIcon from 'public/icons/setting.svg';
 
 export default async function HomeDashboard() {

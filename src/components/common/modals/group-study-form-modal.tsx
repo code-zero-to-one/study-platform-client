@@ -5,10 +5,10 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
-import { GroupStudyFullResponseDto } from '@/api/openapi';
+import type { GroupStudyFullResponseDto } from '@/api/openapi';
 import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import { Modal } from '@/components/common/ui/modal';
 import GroupStudyForm from '@/components/forms/group-study-form';
@@ -20,17 +20,14 @@ import {
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
-
 import {
   buildOpenGroupDefaultValues,
   GroupStudyFormSchema,
-  GroupStudyFormValues,
-  StudyClassification,
+  type GroupStudyFormValues,
+  type StudyClassification,
   toCreateRequest,
   toUpdateRequest,
 } from '@/types/schemas/group-study-form.schema';
-
-export type { StudyClassification };
 
 interface GroupStudyModalProps {
   trigger?: React.ReactNode;
@@ -117,48 +114,51 @@ export default function GroupStudyFormModal({
     }
   };
 
-  const refineStudyDetail = (value: GroupStudyFullResponseDto) => {
-    const refinedClassification =
-      value.basicInfo?.classification ?? classification;
-    const originalType = value.basicInfo?.type;
+  const refineStudyDetail = useCallback(
+    (value: GroupStudyFullResponseDto) => {
+      const refinedClassification = (value.basicInfo?.classification ??
+        classification) as StudyClassification;
+      const originalType = value.basicInfo?.type;
 
-    let refinedType = originalType;
-    if (
-      refinedClassification === 'GROUP_STUDY' &&
-      originalType === 'MENTORING'
-    ) {
-      refinedType = undefined;
-    }
+      let refinedType = originalType;
+      if (
+        refinedClassification === 'GROUP_STUDY' &&
+        originalType === 'MENTORING'
+      ) {
+        refinedType = undefined;
+      }
 
-    return {
-      classification: refinedClassification,
-      studyLeaderParticipation:
-        value.basicInfo?.studyLeaderParticipation ?? false,
-      type: refinedType,
-      targetRoles: value.basicInfo?.targetRoles,
-      maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
-      experienceLevels: value.basicInfo?.experienceLevels,
-      method: value.basicInfo?.method,
-      location: value.basicInfo?.location,
-      regularMeeting: value.basicInfo?.regularMeeting,
-      startDate: value.basicInfo?.startDate,
-      endDate: value.basicInfo?.endDate,
-      price: value.basicInfo?.price?.toString() ?? '',
-      title: value.detailInfo?.title,
-      description: value.detailInfo?.description,
-      summary: value.detailInfo?.summary,
-      interviewPost: value.interviewPost?.interviewPost?.map(
-        (q: { question?: string }) => q.question,
-      ),
-      thumbnailExtension:
-        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
-          ?.split('.')
-          .pop()
-          ?.toUpperCase() as GroupStudyFormValues['thumbnailExtension'],
-      thumbnailUrl:
-        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
-    };
-  };
+      return {
+        classification: refinedClassification,
+        studyLeaderParticipation:
+          value.basicInfo?.studyLeaderParticipation ?? false,
+        type: refinedType,
+        targetRoles: value.basicInfo?.targetRoles,
+        maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
+        experienceLevels: value.basicInfo?.experienceLevels,
+        method: value.basicInfo?.method,
+        location: value.basicInfo?.location,
+        regularMeeting: value.basicInfo?.regularMeeting,
+        startDate: value.basicInfo?.startDate,
+        endDate: value.basicInfo?.endDate,
+        price: value.basicInfo?.price?.toString() ?? '',
+        title: value.detailInfo?.title,
+        description: value.detailInfo?.description,
+        summary: value.detailInfo?.summary,
+        interviewPost: value.interviewPost?.interviewPost?.map(
+          (q: { question?: string }) => q.question,
+        ),
+        thumbnailExtension:
+          value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
+            ?.split('.')
+            .pop()
+            ?.toUpperCase() as GroupStudyFormValues['thumbnailExtension'],
+        thumbnailUrl:
+          value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
+      };
+    },
+    [classification],
+  );
 
   const invalidateGroupStudyQueries = async () => {
     await qc.invalidateQueries({ queryKey: ['studies'] });
@@ -265,7 +265,7 @@ export default function GroupStudyFormModal({
     if (mode === 'edit' && controlledOpen && groupStudyInfo) {
       editMethods.reset(refineStudyDetail(groupStudyInfo));
     }
-  }, [controlledOpen, groupStudyInfo]);
+  }, [controlledOpen, groupStudyInfo, editMethods, mode, refineStudyDetail]);
 
   return (
     <>

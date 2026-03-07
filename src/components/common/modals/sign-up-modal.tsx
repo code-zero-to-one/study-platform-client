@@ -180,7 +180,7 @@ export default function SignupModal({
     window.location.href = '/home';
   };
 
-  const updateData = (key: string, value: any) => {
+  const updateData = (key: string, value: unknown) => {
     setSignupData((prev) => ({ ...prev, [key]: value }));
   };
 

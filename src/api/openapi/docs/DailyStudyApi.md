@@ -183,7 +183,7 @@ const { status, data } = await apiInstance.getDailyStudies(
 # **getMyDailyStudyByDate**
 > GetTodayMyDailyStudyResponseSchema getMyDailyStudyByDate()
 
-인증된 사용자의 특정 날짜 스터디 정보를 상세 조회합니다.  [Request] - PathVariable: studyDate (YYYY-MM-DD 형식) - 인증 토큰 필요 (Bearer)  [Response] - TodayStudyDataResponse: dailyStudyId, interviewerId, interviewerName, ... 등 상세 정보 포함 
+인증된 사용자의 특정 날짜 스터디 정보를 상세 조회합니다.  [Request] - PathVariable: studyDate (YYYY-MM-DD 형식) - 인증 토큰 필요 (Bearer)  [Response] - TodayStudyDataResponse: dailyStudyId, interviewerId, interviewerName(닉네임), interviewerRealName(실명), intervieweeRealName(실명), ... 등 상세 정보 포함 
 
 ### Example
 

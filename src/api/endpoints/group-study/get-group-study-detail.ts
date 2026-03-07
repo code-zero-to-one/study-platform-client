@@ -1,6 +1,4 @@
 import { axiosInstance } from '@/api/client/axios';
-import { createApiInstance } from '@/api/client/open-api-instance';
-import { GroupStudyManagementApi } from '@/api/openapi';
 import {
   GroupStudyDetailRequest,
   GroupStudyDetailResponse,
@@ -13,9 +11,6 @@ export const getGroupStudyDetail = async (
   const { groupStudyId } = params;
 
   try {
-    // const groupStudyApi = createApiInstance(GroupStudyManagementApi);
-
-    // const { data } = await groupStudyApi.getGroupStudy(groupStudyId);
     const { data } = await axiosInstance.get(`/group-studies/${groupStudyId}`);
 
     if (data.statusCode !== 200) {

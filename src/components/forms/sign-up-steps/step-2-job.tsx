@@ -6,7 +6,13 @@ import { useJobsQuery } from '@/hooks/queries/use-update-user-profile-mutation';
 import type { JobResponse } from '@/types/api/my-page.types';
 import { StepHeader } from './step-header';
 
-export function JobStep({ data, updateData, onNext }: any) {
+interface JobStepProps {
+  data: { jobs?: string[] };
+  updateData: (field: string, value: unknown) => void;
+  onNext: () => void;
+}
+
+export function JobStep({ data, updateData, onNext }: JobStepProps) {
   const { data: jobs = [] } = useJobsQuery();
 
   const jobGroups = useMemo(() => {

@@ -64,8 +64,9 @@ export default function VotingDetailView({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showShareToast, setShowShareToast] = useState(false);
-  const [shareToastMessage, setShareToastMessage] =
-    useState('링크가 복사되었습니다.');
+  const [shareToastMessage, setShareToastMessage] = useState(
+    '링크가 복사되었습니다.',
+  );
 
   // User Info
   const memberId = useUserStore((state) => state.memberId);
