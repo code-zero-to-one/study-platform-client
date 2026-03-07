@@ -3,6 +3,7 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import type React from 'react';
 import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
 import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
@@ -29,6 +30,8 @@ import { useLeaderStore } from '@/stores/useLeaderStore';
 import { GroupStudyFullResponse, Leader } from '@/types/api/group-study.types';
 
 type ActionKey = 'end' | 'delete';
+
+const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
 
 const END_MODAL_CONTENT = (
   <>
@@ -79,8 +82,7 @@ export default function PremiumStudyDetailPage({
       setLeaderInfo(leader as Leader);
     }
   }, [leader, setLeaderInfo]);
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [action, setAction] = useState<ActionKey | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
   const { data: myApplicationStatus, isLoading: isMyApplicationStatusLoading } =
@@ -92,56 +94,68 @@ export default function PremiumStudyDetailPage({
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
 
-  const ModalContent = {
+  const handleEndStudy = () => {
+    completeStudy(
+      { groupStudyId },
+      {
+        onSuccess: () => {
+          sendGTMEvent({
+            event: 'premium_study_end',
+            group_study_id: String(groupStudyId),
+          });
+          showToast('스터디가 종료되었습니다.');
+        },
+        onSettled: () => {
+          setConfirmAction(null);
+          router.push('/premium-study');
+        },
+      },
+    );
+  };
+
+  const handleDeleteStudy = () => {
+    deleteGroupStudy(
+      { groupStudyId },
+      {
+        onSuccess: () => {
+          sendGTMEvent({
+            event: 'premium_study_delete',
+            group_study_id: String(groupStudyId),
+          });
+          showToast('스터디가 삭제되었습니다.');
+        },
+        onError: () => {
+          showToast('스터디 삭제에 실패하였습니다.', 'error');
+        },
+        onSettled: () => {
+          refetchStudyDetail().catch(() => {});
+          router.push('/premium-study');
+          setConfirmAction(null);
+        },
+      },
+    );
+  };
+
+  const MODAL_CONFIG: Record<
+    ActionKey,
+    {
+      title: string;
+      content: React.ReactNode;
+      confirmText: string;
+      onConfirm: () => void;
+    }
+  > = {
     end: {
       title: '스터디를 종료하시겠어요?',
       content: END_MODAL_CONTENT,
       confirmText: '스터디 종료',
-      onConfirm: () => {
-        completeStudy(
-          { groupStudyId },
-          {
-            onSuccess: () => {
-              sendGTMEvent({
-                event: 'premium_study_end',
-                group_study_id: String(groupStudyId),
-              });
-              showToast('스터디가 종료되었습니다.');
-            },
-            onSettled: () => {
-              setShowModal(false);
-              router.push('/premium-study');
-            },
-          },
-        );
-      },
+      onConfirm: handleEndStudy,
     },
     delete: {
       title: '스터디를 삭제하시겠어요?',
       content: DELETE_MODAL_CONTENT,
       confirmText: '스터디 삭제',
-      onConfirm: () => {
-        deleteGroupStudy(
-          { groupStudyId },
-          {
-            onSuccess: () => {
-              sendGTMEvent({
-                event: 'premium_study_delete',
-                group_study_id: String(groupStudyId),
-              });
-              showToast('스터디가 삭제되었습니다.');
-            },
-            onError: () => {
-              showToast('스터디 삭제에 실패하였습니다.', 'error');
-            },
-            onSettled: () => {
-              refetchStudyDetail().catch(() => {});
-              router.push('/premium-study');
-              setShowModal(false);
-            },
-          },
-        );
-      },
+      onConfirm: handleDeleteStudy,
     },
   };
 
@@ -154,7 +168,12 @@ export default function PremiumStudyDetailPage({
   const availableTabs = useMemo(
     () =>
       STUDY_DETAIL_TABS.filter(
-        (tab) => tab.value === 'intro' || isLeader || isMember,
+        (tab) =>
+          tab.value === 'intro' ||
+          tab.value === 'inquiry' ||
+          tab.value === 'mission' ||
+          isLeader ||
+          isMember,
       ),
     [isLeader, isMember],
   );
@@ -213,12 +232,18 @@ export default function PremiumStudyDetailPage({
   return (
     <div className="flex h-full w-full flex-col items-center">
       <ConfirmDeleteModal
-        open={showModal}
-        onOpenChange={() => setShowModal(!showModal)}
-        title={ModalContent[action]?.title}
-        content={ModalContent[action]?.content}
-        confirmText={ModalContent[action]?.confirmText}
-        onConfirm={ModalContent[action]?.onConfirm}
+        open={confirmAction !== null}
+        onOpenChange={() => setConfirmAction(null)}
+        title={confirmAction ? MODAL_CONFIG[confirmAction].title : undefined}
+        content={
+          confirmAction ? MODAL_CONFIG[confirmAction].content : undefined
+        }
+        confirmText={
+          confirmAction ? MODAL_CONFIG[confirmAction].confirmText : undefined
+        }
+        onConfirm={
+          confirmAction ? MODAL_CONFIG[confirmAction].onConfirm : undefined
+        }
       />
       <GroupStudyFormModal
         open={showStudyFormModal}
@@ -229,19 +254,22 @@ export default function PremiumStudyDetailPage({
       />
 
       {/* 플로팅 정보 바 */}
-      <div className="mt-500 w-[1164px]">
+      <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
         <StudyActiveTicker
           approvedCount={studyDetail.basicInfo.approvedCount}
           maxMembersCount={studyDetail.basicInfo.maxMembersCount}
           startDate={studyDetail.basicInfo.startDate}
+          viewCount={studyDetail.viewCount}
         />
       </div>
-      <div className="mb-500 flex w-[1164px] items-start justify-between">
+      <div
+        className={`mb-500 flex ${DETAIL_CONTENT_WIDTH} items-start justify-between`}
+      >
         <div className="flex w-full flex-col gap-150">
-          <p className="font-designer-28b text-[#181D27]">
+          <p className="font-designer-28b text-text-strong">
             {studyDetail?.detailInfo.title}
           </p>
-          <p className="font-designer-18r text-[#252B37]">
+          <p className="font-designer-18r text-text-default">
             {studyDetail?.detailInfo.summary}
           </p>
         </div>
@@ -258,18 +286,12 @@ export default function PremiumStudyDetailPage({
               {
                 label: '스터디 종료',
                 value: 'end',
-                onMenuClick: () => {
-                  setAction('end');
-                  setShowModal(true);
-                },
+                onMenuClick: () => setConfirmAction('end'),
               },
               {
                 label: '스터디 삭제',
                 value: 'delete',
-                onMenuClick: () => {
-                  setAction('delete');
-                  setShowModal(true);
-                },
+                onMenuClick: () => setConfirmAction('delete'),
               },
             ]}
             iconSize={35}
@@ -279,7 +301,7 @@ export default function PremiumStudyDetailPage({
 
       {/** 탭리스트 */}
       <Tabs
-        className="w-[1164px]"
+        className={DETAIL_CONTENT_WIDTH}
         tabs={availableTabs}
         activeTab={activeTab}
         onChange={(value: StudyTabValue) => {
@@ -306,7 +328,11 @@ export default function PremiumStudyDetailPage({
         />
       )}
       {activeTab === 'mission' && (
-        <MissionSection groupStudyId={groupStudyId} />
+        <MissionSection
+          groupStudyId={groupStudyId}
+          isMember={isMember}
+          isLeader={isLeader}
+        />
       )}
       {activeTab === 'lounge' && (
         <ChannelSection

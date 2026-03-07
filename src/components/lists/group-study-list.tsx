@@ -58,6 +58,7 @@ export default function GroupStudyList({ studies }: GroupStudyListProps) {
           study={study}
           href={`/group-study/${study.basicInfo?.groupStudyId}`}
           onClick={() => handleStudyClick(study)}
+          viewCount={study.viewCount}
         />
       ))}
     </div>

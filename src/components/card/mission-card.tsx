@@ -18,6 +18,7 @@ interface MissionCardProps {
   groupStudyId: number;
   onSelectMission: (missionId: number) => void;
   showDeadline?: boolean;
+  isMember?: boolean;
 }
 
 const STATUS_CONFIG = {
@@ -74,27 +75,13 @@ function getDeadlineInfo(endDate?: string):
 function isCardClickable(
   status: MissionListResponse['status'],
   isLeader: boolean,
+  isMember: boolean,
 ): boolean {
-  // 진행 예정은 리더/비리더 모두 클릭 불가
-  if (status === 'NOT_STARTED') {
-    return false;
-  }
+  // 가입자(리더 포함): 모든 상태 클릭 가능
+  if (isLeader || isMember) return true;
+  // 비회원/미가입자: 1주차 필터는 상위에서 처리되므로 모든 상태 클릭 가능
 
-  if (isLeader) {
-    // 리더: 진행중, 평가완료, 제출마감(평가하기) 시 클릭 가능
-    return (
-      status === 'IN_PROGRESS' ||
-      status === 'EVALUATION_COMPLETED' ||
-      status === 'ENDED'
-    );
-  }
-
-  // 비리더: 진행중, 제출마감, 평가완료 시 클릭 가능
-  return (
-    status === 'IN_PROGRESS' ||
-    status === 'ENDED' ||
-    status === 'EVALUATION_COMPLETED'
-  );
+  return status !== 'NOT_STARTED';
 }
 
 export default function MissionCard({
@@ -102,6 +89,7 @@ export default function MissionCard({
   groupStudyId,
   onSelectMission,
   showDeadline = false,
+  isMember = false,
 }: MissionCardProps) {
   const memberId = useUserStore((state) => state.memberId);
   const isLeader = useIsLeader(memberId);
@@ -116,16 +104,19 @@ export default function MissionCard({
     }
   };
 
-  const clickable = isCardClickable(mission.status, isLeader);
+  const clickable = isCardClickable(mission.status, isLeader, isMember);
   const deadlineInfo =
     showDeadline && mission.status === 'IN_PROGRESS'
       ? getDeadlineInfo(mission.endDate)
       : undefined;
 
-  // 리더 + 진행 예정: 수정/삭제 버튼만 노출
+  // 리더 + 진행 예정: 클릭 가능 + 수정/삭제 버튼 노출
   if (isLeader && mission.status === 'NOT_STARTED') {
     return (
-      <li className="border-border-default rounded-100 flex items-center justify-between border bg-[#fff] p-300">
+      <li
+        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
+        onClick={handleSelectMission}
+      >
         <MissionCardContent
           title={mission.title}
           weekNum={mission.weekNum}

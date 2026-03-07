@@ -17,9 +17,17 @@ type FilterType = 'all' | 'inProgress' | 'completed';
 
 interface MissionSectionProps {
   groupStudyId: number;
+  isMember?: boolean;
+  isLeader?: boolean;
 }
 
-export default function MissionSection({ groupStudyId }: MissionSectionProps) {
+const FIRST_WEEK = 1;
+
+export default function MissionSection({
+  groupStudyId,
+  isMember,
+  isLeader: isLeaderProp,
+}: MissionSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const memberId = useUserStore((state) => state.memberId);
@@ -40,12 +48,18 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
 
   const missionList = data.content;
 
+  // 가입자(리더 포함)이면 전체 주차, 비회원/미가입자이면 1주차만 표시
+  const canAccessAll = isMember || isLeaderProp;
+  const visibleMissionList = canAccessAll
+    ? missionList
+    : (missionList?.filter((m) => m.weekNum === FIRST_WEEK) ?? []);
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   // endDate가 오늘 기준으로 지났으면 완료된 미션
   const completedMissions =
-    missionList?.filter((mission) => {
+    visibleMissionList?.filter((mission) => {
       if (!mission.endDate) return false;
       const endDate = new Date(mission.endDate);
 
@@ -54,14 +68,14 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
 
   // endDate가 오늘 이후이면 진행 중인 미션
   const inProgressMissions =
-    missionList?.filter((mission) => {
+    visibleMissionList?.filter((mission) => {
       if (!mission.endDate) return true;
       const endDate = new Date(mission.endDate);
 
       return endDate >= today;
     }) || [];
 
-  const hasMissions = missionList && missionList.length > 0;
+  const hasMissions = visibleMissionList && visibleMissionList.length > 0;
 
   const getFilteredMissions = () => {
     switch (filter) {
@@ -70,7 +84,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
       case 'completed':
         return completedMissions;
       default:
-        return missionList || [];
+        return visibleMissionList || [];
     }
   };
 
@@ -163,7 +177,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
         <MissionFilterTabs
           filter={filter}
           onFilterChange={setFilter}
-          totalCount={missionList?.length || 0}
+          totalCount={visibleMissionList?.length || 0}
           inProgressCount={inProgressMissions.length}
           completedCount={completedMissions.length}
         />
@@ -176,6 +190,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
                 mission={mission}
                 groupStudyId={groupStudyId}
                 onSelectMission={handleSelectMission}
+                isMember={canAccessAll}
                 showDeadline={
                   mission.status === 'IN_PROGRESS' ||
                   mission.status === 'NOT_STARTED'
