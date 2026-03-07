@@ -11,7 +11,6 @@ export default async function InquiryPage({
     redirect('/group-study');
   }
 
-  const studyPath =
-    studyType === 'premium' ? 'premium-study' : 'group-study';
+  const studyPath = studyType === 'premium' ? 'premium-study' : 'group-study';
   redirect(`/${studyPath}/${groupStudyId}?tab=inquiry`);
 }
