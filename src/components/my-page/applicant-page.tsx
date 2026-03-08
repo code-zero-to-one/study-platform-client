@@ -17,10 +17,13 @@ interface ApplicantListProps {
 
 export default function ApplicantPage(props: ApplicantListProps) {
   const router = useRouter();
-  const { data, refetch } = useApplicantsByStatusQuery({
+  const { data, refetch, isPending } = useApplicantsByStatusQuery({
     groupStudyId: Number(props.studyId),
     status: 'PENDING',
   });
+
+  const isEmpty =
+    !isPending && data?.pages.every((page) => page.content.length === 0);
 
   const { mutate } = useUpdateApplicantByStatusMutation();
 
@@ -60,32 +63,40 @@ export default function ApplicantPage(props: ApplicantListProps) {
         />
         <div className="flex-1 text-center">새로운 신청자 확인하기</div>
       </div>
-      <div className="flex w-full flex-col gap-500">
-        {data?.pages.map((page, pageIndex) => (
-          <React.Fragment key={pageIndex}>
-            {page.content
-              .slice()
-              .sort(
-                (a, b) =>
-                  new Date(a.createdAt).getTime() -
-                  new Date(b.createdAt).getTime(),
-              )
-              .map((applicant) => (
-                <ProfileCard
-                  key={applicant.applyId}
-                  data={applicant}
-                  onClick={(status: ApplyStatus) =>
-                    handleApprove(
-                      Number(props.studyId),
-                      applicant.applyId,
-                      status,
-                    )
-                  }
-                />
-              ))}
-          </React.Fragment>
-        ))}
-      </div>
+      {isEmpty ? (
+        <div className="flex flex-col items-center justify-center py-600">
+          <p className="font-designer-16r text-text-subtle">
+            아직 신청한 멘티가 없어요.
+          </p>
+        </div>
+      ) : (
+        <div className="flex w-full flex-col gap-500">
+          {data?.pages.map((page, pageIndex) => (
+            <React.Fragment key={pageIndex}>
+              {page.content
+                .slice()
+                .sort(
+                  (a, b) =>
+                    new Date(a.createdAt).getTime() -
+                    new Date(b.createdAt).getTime(),
+                )
+                .map((applicant) => (
+                  <ProfileCard
+                    key={applicant.applyId}
+                    data={applicant}
+                    onClick={(status: ApplyStatus) =>
+                      handleApprove(
+                        Number(props.studyId),
+                        applicant.applyId,
+                        status,
+                      )
+                    }
+                  />
+                ))}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
