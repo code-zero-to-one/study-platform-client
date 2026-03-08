@@ -11,8 +11,9 @@ import { logout, signUp, uploadProfileImage } from '@/api/endpoints/auth/auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useUserStore } from '@/stores/useUserStore';
-import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
+import type { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
 import { hashValue } from '@/utils/hash';
+import { type AuthProvider, getOAuthUrl } from '@/utils/oauth-url';
 import { usePhoneVerificationStore } from './use-phone-verification-status';
 
 // 회원가입 요청 커스텀 훅
@@ -46,7 +47,11 @@ export const useLogoutMutation = () => {
   );
 
   return useMutation({
-    mutationFn: logout,
+    mutationFn: () => {
+      localStorage.setItem('__traditional_start', String(Date.now()));
+
+      return logout();
+    },
     onSuccess: () => {
       const memberId = getCookie('memberId');
 
@@ -69,6 +74,37 @@ export const useLogoutMutation = () => {
 
       router.push('/home');
       router.refresh();
+    },
+  });
+};
+
+export const useSwitchAuthMutation = () => {
+  const queryClient = useQueryClient();
+  const resetUserStore = useUserStore((state) => state.reset);
+  const resetPhoneVerification = usePhoneVerificationStore(
+    (state) => state.reset,
+  );
+  const resetMentorDirectory = useMentorDirectoryStore((state) => state.reset);
+  const resetMentoringManagement = useMentoringManagementStore(
+    (state) => state.reset,
+  );
+
+  return useMutation({
+    mutationFn: async (_provider: AuthProvider) => {
+      localStorage.setItem('__switch_start', String(Date.now()));
+
+      return logout();
+    },
+    onSuccess: (_, provider) => {
+      deleteCookie('accessToken');
+      deleteCookie('memberId');
+      deleteCookie('socialImageURL');
+      resetUserStore();
+      resetPhoneVerification();
+      resetMentorDirectory();
+      resetMentoringManagement();
+      queryClient.clear();
+      window.location.href = getOAuthUrl(provider);
     },
   });
 };

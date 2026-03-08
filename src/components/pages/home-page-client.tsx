@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import GlobalToast from '@/components/common/ui/global-toast';
 import Banner from '@/components/home/banner';
 import FeedbackLink from '@/components/home/feedback-link';

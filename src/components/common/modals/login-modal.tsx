@@ -4,18 +4,18 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { setCookie } from '@/api/client/cookie';
 import { testLogin } from '@/api/endpoints/auth/test-login';
 import { Modal } from '@/components/common/ui/modal';
 import { getAttributionParams } from '@/utils/attribution-tracker';
+import { getOAuthUrl } from '@/utils/oauth-url';
 
 export default function LoginModal({
   openTrigger,
 }: {
   openTrigger: ReactNode;
 }) {
-  const [state, setState] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
 
@@ -55,11 +55,6 @@ export default function LoginModal({
   };
 
   useEffect(() => {
-    const origin = window.location.origin;
-    setState(encodeURIComponent(origin));
-  }, []);
-
-  useEffect(() => {
     if (isOpen) {
       const attributionParams = getAttributionParams();
 
@@ -70,23 +65,15 @@ export default function LoginModal({
     }
   }, [isOpen]);
 
-  if (!state) {
-    return <></>;
-  }
-
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
-
-  const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID;
-  const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
-  const KAKAO_LOGIN_URL = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${API_BASE_URL}/api/v1/auth/kakao/redirect-uri&response_type=code&state=${state}`;
-  const GOOGLE_LOGIN_URL = `https://accounts.google.com/o/oauth2/v2/auth?scope=openid%20profile&access_type=offline&prompt=consent&include_granted_scopes=true&response_type=code&redirect_uri=${API_BASE_URL}/api/v1/auth/google/redirect-uri&client_id=${GOOGLE_CLIENT_ID}&state=${state}`;
-
   const handleSocialLoginClick = (provider: 'kakao' | 'google') => {
     sendGTMEvent({
       event: 'social_login_click',
       provider,
     });
+    // TODO(측정 완료 후 제거): traditional 로그인 플로우 E2E 타이밍 — OAuth 클릭 시점 기록
+    if (localStorage.getItem('__traditional_start')) {
+      localStorage.setItem('__oauth_click_time', String(Date.now()));
+    }
   };
 
   return (
@@ -111,20 +98,12 @@ export default function LoginModal({
               </div>
             </div>
             <div className="flex flex-col gap-150 py-150">
-              {/* <button
-                className="flex h-[52px] px-5 justify-center items-center gap-150 rounded bg-[#03C75A]"
-                onClick={() => { window.location.href = NAVER_LOGIN_URL }}
-              >
-                <Image src="/naver-icon.svg" alt="Naver" width={20} height={20} />
-                <span className="text-[#FFF] text-center font-['Pretendard'] text-[15px] font-bold leading-[23px]">
-                  네이버 계정 로그인
-                </span>
-              </button> */}
               <button
+                type="button"
                 className="rounded-50 flex h-[52px] items-center justify-center gap-150 border border-[#FEE500] bg-[#FFE812] px-5 text-black"
                 onClick={() => {
                   handleSocialLoginClick('kakao');
-                  window.location.href = KAKAO_LOGIN_URL;
+                  window.location.href = getOAuthUrl('kakao');
                 }}
               >
                 <Image
@@ -142,10 +121,11 @@ export default function LoginModal({
                 </span>
               </button>
               <button
+                type="button"
                 className="rounded-50 flex h-[52px] items-center justify-center gap-150 border border-[#3D4148] bg-white px-5 text-black"
                 onClick={() => {
                   handleSocialLoginClick('google');
-                  window.location.href = GOOGLE_LOGIN_URL;
+                  window.location.href = getOAuthUrl('google');
                 }}
               >
                 <Image
@@ -172,7 +152,7 @@ export default function LoginModal({
                     🧪 개발자 테스트 로그인
                   </span>
                 </div>
-                <div className="flex h-[40px] justify-center gap-2">
+                <div className="flex h-500 justify-center gap-2">
                   <input
                     type="number"
                     value={testMemberId}
@@ -182,6 +162,7 @@ export default function LoginModal({
                     min="1"
                   />
                   <button
+                    type="button"
                     onClick={handleTestLogin}
                     disabled={isTestLoading}
                     className="bg-fill-neutral-default-default text-text-default hover:bg-fill-neutral-default-hover border-border-default rounded-md border px-4 py-1 text-sm font-medium whitespace-nowrap transition-colors disabled:opacity-50"

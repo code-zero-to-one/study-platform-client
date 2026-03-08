@@ -10,7 +10,8 @@ import {
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
+import { useSwitchAuthMutation } from '@/hooks/queries/use-auth-mutation';
+import type { AuthProvider } from '@/utils/oauth-url';
 
 interface DropdownOption {
   label: string;
@@ -20,17 +21,20 @@ interface DropdownOption {
 }
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
-  const { mutateAsync: logout } = useLogoutMutation();
+  const { mutate: switchAuth } = useSwitchAuthMutation();
 
   const { data: authData, isAuthReady } = useAuthReady();
 
   const hasAdminRole = isAuthReady && authData?.roleIds.includes('ROLE_ADMIN');
+  const authVendor = authData?.authVendor;
+  const currentProvider: AuthProvider =
+    authVendor === 'KAKAO' ? 'kakao' : 'google';
+  const switchTarget: AuthProvider =
+    authVendor === 'KAKAO' ? 'google' : 'kakao';
+  const switchLabel =
+    authVendor === 'KAKAO' ? '구글 계정으로 전환' : '카카오 계정으로 전환';
 
   const router = useRouter();
-
-  const handleLogout = async () => {
-    await logout();
-  };
 
   const baseOptions: DropdownOption[] = [
     {
@@ -38,12 +42,17 @@ export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
       value: '/my-page',
       onMenuClick: () => router.push('/my-page'),
     },
+    authVendor && {
+      label: switchLabel,
+      value: 'switch-auth',
+      onMenuClick: () => switchAuth(switchTarget),
+    },
     {
       label: '로그아웃',
       value: 'logout',
-      onMenuClick: handleLogout,
+      onMenuClick: () => switchAuth(currentProvider),
     },
-  ];
+  ].filter(Boolean) as DropdownOption[];
   const options = hasAdminRole
     ? [
         ...baseOptions,
@@ -68,7 +77,7 @@ export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
           <DropdownMenuItem
             key={option.value}
             onClick={option.onMenuClick}
-            className="active:bg-fill-neutral-subtle-pressed rounded-100 h-[48px] w-full cursor-pointer p-150"
+            className="active:bg-fill-neutral-subtle-pressed rounded-100 h-600 w-full cursor-pointer p-150"
           >
             <div className="flex w-full items-center justify-between">
               <span className="font-designer-14m text-text-subtle">
