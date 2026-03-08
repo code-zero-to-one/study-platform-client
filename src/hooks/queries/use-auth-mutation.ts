@@ -2,7 +2,6 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import { deleteCookie, getCookie } from '@/api/client/cookie';
 
 // 로그아웃 시 인증 상태 리셋을 위해 store 직접 사용 (mutation 내부 사용)
@@ -36,7 +35,6 @@ export function useUploadProfileImageMutation() {
 
 export const useLogoutMutation = () => {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const resetUserStore = useUserStore((state) => state.reset);
   const resetPhoneVerification = usePhoneVerificationStore(
     (state) => state.reset,
@@ -48,7 +46,8 @@ export const useLogoutMutation = () => {
 
   return useMutation({
     mutationFn: () => {
-      localStorage.setItem('__traditional_start', String(Date.now()));
+      // TODO(측정 완료 후 제거): traditional 로그인 플로우 E2E 타이밍 — 로그아웃 시점 기록
+      // localStorage.setItem('__traditional_start', String(Date.now()));
 
       return logout();
     },
@@ -72,8 +71,7 @@ export const useLogoutMutation = () => {
       resetMentoringManagement();
       queryClient.clear();
 
-      router.push('/home');
-      router.refresh();
+      window.location.href = '/';
     },
   });
 };
@@ -91,7 +89,8 @@ export const useSwitchAuthMutation = () => {
 
   return useMutation({
     mutationFn: async (_provider: AuthProvider) => {
-      localStorage.setItem('__switch_start', String(Date.now()));
+      // TODO(측정 완료 후 제거): switch 로그인 플로우 E2E 타이밍 — 계정 전환 시점 기록
+      // localStorage.setItem('__switch_start', String(Date.now()));
 
       return logout();
     },

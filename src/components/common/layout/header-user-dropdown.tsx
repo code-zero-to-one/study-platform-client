@@ -10,7 +10,10 @@ import {
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { useSwitchAuthMutation } from '@/hooks/queries/use-auth-mutation';
+import {
+  useLogoutMutation,
+  useSwitchAuthMutation,
+} from '@/hooks/queries/use-auth-mutation';
 import type { AuthProvider } from '@/utils/oauth-url';
 
 interface DropdownOption {
@@ -22,6 +25,7 @@ interface DropdownOption {
 
 export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
   const { mutate: switchAuth } = useSwitchAuthMutation();
+  const { mutate: logout } = useLogoutMutation();
 
   const { data: authData, isAuthReady } = useAuthReady();
 
@@ -50,7 +54,7 @@ export default function HeaderUserDropdown({ userImg }: { userImg: string }) {
     {
       label: '로그아웃',
       value: 'logout',
-      onMenuClick: () => switchAuth(currentProvider),
+      onMenuClick: () => logout(),
     },
   ].filter(Boolean) as DropdownOption[];
   const options = hasAdminRole
