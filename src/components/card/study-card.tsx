@@ -49,7 +49,7 @@ function getRecruitmentBadge(remaining: number) {
   return (
     <Badge
       className="font-designer-13r text-text-error bg-transparent p-0"
-      leftIcon={<Flame className="text-red-500" size={14} />}
+      leftIcon={<Flame className="text-red-500" size={20} />}
     >
       마감까지 {remaining}명
     </Badge>
