@@ -71,9 +71,9 @@ export default function LoginModal({
       provider,
     });
     // TODO(측정 완료 후 제거): traditional 로그인 플로우 E2E 타이밍 — OAuth 클릭 시점 기록
-    if (localStorage.getItem('__traditional_start')) {
-      localStorage.setItem('__oauth_click_time', String(Date.now()));
-    }
+    // if (localStorage.getItem('__traditional_start')) {
+    //   localStorage.setItem('__oauth_click_time', String(Date.now()));
+    // }
   };
 
   return (
