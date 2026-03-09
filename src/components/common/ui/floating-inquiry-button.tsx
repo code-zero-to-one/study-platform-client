@@ -10,7 +10,6 @@ const QuestionModal = dynamic(
   { ssr: false },
 );
 
-
 const STUDY_DETAIL_PATTERN = /^\/(group-study|premium-study)\/(\d+)/;
 
 export default function FloatingInquiryButton() {
