@@ -1,5 +1,5 @@
-import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
+import dynamic from 'next/dynamic';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import { useIsLeader, useLeaderStore } from '@/stores/useLeaderStore';

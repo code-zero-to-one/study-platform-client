@@ -1,7 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { Crown } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import UserAvatar from '@/components/common/ui/avatar';
 import type { RankerWithLabel } from '@/config/hall-of-fame-constants';

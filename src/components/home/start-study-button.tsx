@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 

@@ -1,8 +1,8 @@
 'use client';
 
 import { MessageCircle } from 'lucide-react';
-import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useLazyMount } from '@/hooks/common/use-lazy-mount';
 

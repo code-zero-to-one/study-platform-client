@@ -1,8 +1,8 @@
 'use client';
 
 import { Plus } from 'lucide-react';
-import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import Button from '@/components/common/ui/button';
 import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';

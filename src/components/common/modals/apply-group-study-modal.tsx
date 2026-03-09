@@ -1,9 +1,9 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 import Button from '@/components/common/ui/button';

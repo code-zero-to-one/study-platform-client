@@ -1,5 +1,5 @@
-import dynamic from 'next/dynamic';
 import { Bookmark, Check, Eye, Heart, Pencil, Search, X } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import type { UpdateArchiveRequest } from '@/api/endpoints/archive/update-archive';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
