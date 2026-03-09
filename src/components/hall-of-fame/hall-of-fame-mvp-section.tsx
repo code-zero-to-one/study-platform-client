@@ -12,11 +12,13 @@ interface HallOfFameMvpSectionProps {
 export default function HallOfFameMvpSection({
   team,
 }: HallOfFameMvpSectionProps) {
+  const weekLabel = team?.weekDate?.trim();
+
   return (
     <div className="flex flex-col gap-300">
       <h3 className="font-display-headings6 text-text-strong flex items-center gap-100">
         <Users className="text-text-information h-5 w-5" />
-        저번 주 스터디 MVP 팀
+        {weekLabel ? `${weekLabel} 스터디 MVP 팀` : '최근 스터디 MVP 팀'}
       </h3>
 
       {team ? (
@@ -24,7 +26,7 @@ export default function HallOfFameMvpSection({
       ) : (
         <div className="bg-background-default border-border-subtle rounded-200 flex h-[400px] items-center justify-center border">
           <p className="font-designer-14m text-text-subtle">
-            이번 주 MVP 팀이 없습니다.
+            최근 MVP 팀이 없습니다.
           </p>
         </div>
       )}
