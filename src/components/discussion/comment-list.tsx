@@ -76,7 +76,9 @@ export default function CommentList({
     <div className="flex flex-col gap-200">
       {comments.map((comment) => {
         const isEditing =
-          editingCommentId === comment.id && !!onUpdateComment && !!onCancelEdit;
+          editingCommentId === comment.id &&
+          !!onUpdateComment &&
+          !!onCancelEdit;
         const timeAgo = formatDistanceToNow(new Date(comment.createdAt), {
           addSuffix: true,
           locale: ko,

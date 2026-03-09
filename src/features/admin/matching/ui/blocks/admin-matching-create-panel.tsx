@@ -76,7 +76,9 @@ export default function AdminMatchingCreatePanel({
   const handleInputChange =
     (field: keyof AdminMatchingCreateFormInput) =>
     (
-      event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+      event: ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
     ) => {
       handleFieldChange(field, event.target.value);
     };

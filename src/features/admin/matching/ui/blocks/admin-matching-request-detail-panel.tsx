@@ -2,7 +2,6 @@
 
 import type { ChangeEvent } from 'react';
 import { useEffect, useState } from 'react';
-import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
 import Badge from '@/components/ui/badge';
 import Button from '@/components/ui/button';
 import {
@@ -16,6 +15,7 @@ import {
   ADMIN_MATCHING_STATUS_OPTIONS,
   ADMIN_MATCHING_TYPE_META,
 } from '@/features/admin/matching/model/admin-matching-meta';
+import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
 import type { AdminMatchingRequestDetail } from '@/types/matching/admin-domain';
 import type {
   AdminMatchingUpdateFormInput,
@@ -128,7 +128,9 @@ export default function AdminMatchingRequestDetailPanel({
   const handleInputChange =
     (field: keyof AdminMatchingUpdateFormInput) =>
     (
-      event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>,
+      event: ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >,
     ) => {
       const nextValue = event.target.value;
 

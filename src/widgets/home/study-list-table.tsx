@@ -35,7 +35,9 @@ const TEXT = {
 const PAGE_SIZE = 10;
 const INITIAL_CURSOR = 0;
 
-function mapDailyStudyToDisplayData(row: DailyStudy): Record<Header, ReactNode> {
+function mapDailyStudyToDisplayData(
+  row: DailyStudy,
+): Record<Header, ReactNode> {
   return {
     조: row.groupNum ?? '-',
     지원자: (

@@ -18,7 +18,7 @@ export default function NativeSelect({
     <div className="relative">
       <select
         className={cn(
-          'w-full appearance-none rounded-100 border border-border-default bg-background-default px-150 pr-450 font-designer-16m text-text-default focus-visible:outline-none disabled:cursor-not-allowed disabled:border-border-disabled disabled:bg-background-disabled disabled:text-text-disabled',
+          'rounded-100 border-border-default bg-background-default font-designer-16m text-text-default disabled:border-border-disabled disabled:bg-background-disabled disabled:text-text-disabled w-full appearance-none border px-150 pr-450 focus-visible:outline-none disabled:cursor-not-allowed',
           uiSize === 'm' ? 'h-[40px]' : 'h-[48px]',
           className,
         )}
@@ -26,7 +26,7 @@ export default function NativeSelect({
       >
         {children}
       </select>
-      <ChevronDown className="pointer-events-none absolute top-1/2 right-150 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+      <ChevronDown className="text-text-subtle pointer-events-none absolute top-1/2 right-150 h-4 w-4 -translate-y-1/2" />
     </div>
   );
 }

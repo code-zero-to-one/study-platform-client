@@ -136,4 +136,12 @@ export default function TableList<T extends string>({
   );
 }
 
-export { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow };
+export {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+};

@@ -56,7 +56,7 @@ function TextAreaInput({
         id={id}
         placeholder={placeholder}
         className={cn(
-          'rounded-100 border-border-default h-[60px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none disabled:cursor-not-allowed disabled:border-border-disabled disabled:bg-background-disabled disabled:text-text-disabled',
+          'rounded-100 border-border-default disabled:border-border-disabled disabled:bg-background-disabled disabled:text-text-disabled h-[60px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none disabled:cursor-not-allowed',
           className,
         )}
         value={current}

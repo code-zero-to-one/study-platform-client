@@ -20,7 +20,7 @@ export default function SurfacePanel({
   return (
     <div
       className={cn(
-        'rounded-200 border border-border-subtle bg-background-default',
+        'rounded-200 border-border-subtle bg-background-default border',
         className,
       )}
       {...props}
