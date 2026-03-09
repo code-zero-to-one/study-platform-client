@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
@@ -47,10 +47,29 @@ export default function MemberListTable() {
   const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
   const headerCheckboxRef = useRef(null);
 
+  const visibleSelectedIds = useMemo(
+    () =>
+      new Set(
+        memberList
+          .map((member) => member.memberId)
+          .filter((id) => selectedIds.has(id)),
+      ),
+    [memberList, selectedIds],
+  );
+
+  const selectedMembers = memberList.filter((member) =>
+    visibleSelectedIds.has(member.memberId),
+  );
+
   const allSelected =
-    memberList.length > 0 && selectedIds.size === memberList.length; // 모든 행을 선택했는지
+    memberList.length > 0 && visibleSelectedIds.size === memberList.length;
   const someSelected =
-    selectedIds.size > 0 && selectedIds.size < memberList.length; // 한개 이상 행을 선택했는지
+    visibleSelectedIds.size > 0 && visibleSelectedIds.size < memberList.length;
+
+  // 페이지/필터 변경 시 선택 상태 초기화
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [page, roleId, memberStatus, debouncedSearchKeyword]);
 
   useEffect(() => {
     if (headerCheckboxRef.current) {
@@ -108,22 +127,14 @@ export default function MemberListTable() {
             <div className="border-border-default rounded-100 flex h-[56px] items-center gap-300 border px-200 py-150">
               <p className="font-designer-14r">
                 <span className="text-text-information">
-                  {selectedIds.size}
+                  {visibleSelectedIds.size}
                 </span>
                 <span className="text-text-subtle">명 선택</span>
               </p>
 
               <div className="flex items-center gap-150">
-                <ChangeRoleModal
-                  members={memberList.filter((member) =>
-                    selectedIds.has(member.memberId),
-                  )}
-                />
-                <ChangeStatusModal
-                  members={memberList.filter((member) =>
-                    selectedIds.has(member.memberId),
-                  )}
-                />
+                <ChangeRoleModal members={selectedMembers} />
+                <ChangeStatusModal members={selectedMembers} />
               </div>
             </div>
           )}
@@ -175,7 +186,7 @@ export default function MemberListTable() {
                       ? ''
                       : 'border-b-border-subtle border-b'
                   } ${
-                    selectedIds.has(user.memberId)
+                    visibleSelectedIds.has(user.memberId)
                       ? 'bg-background-accent-blue-subtle'
                       : ''
                   } hover:bg-fill-neutral-subtle-hover active:bg-fill-neutral-subtle-pressed`}
@@ -192,7 +203,7 @@ export default function MemberListTable() {
                     <Checkbox
                       id={user.memberId.toString()}
                       onToggle={() => toggleRow(user.memberId)}
-                      checked={selectedIds.has(user.memberId)}
+                      checked={visibleSelectedIds.has(user.memberId)}
                     />
                   </td>
                   <td className="font-designer-16m text-text-default px-300 text-left">

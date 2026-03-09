@@ -2,9 +2,9 @@
 
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
-import type { GroupStudyFullResponseDto } from '@/api/openapi';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import { GroupStudyFullResponseDto } from '@/api/openapi';
 import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
@@ -13,6 +13,11 @@ import CurriculumSummarySection from '@/components/section/curriculum-summary-se
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 
 interface StudyInfoSectionProps {
   study: GroupStudyFullResponseDto;

@@ -1,11 +1,9 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import type React from 'react';
-import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
-import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
+import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
+import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
@@ -30,6 +28,16 @@ import GroupStudyMemberList from '../lists/study-member-list';
 import StudyInfoSection from '../section/group-study-info-section';
 import InquirySection from '../section/inquiry-section';
 import MissionSection from '../section/mission-section';
+
+const ConfirmDeleteModal = dynamic(
+  () => import('@/components/common/modals/confirm-delete-modal'),
+  { ssr: false },
+);
+
+const GroupStudyFormModal = dynamic(
+  () => import('@/components/common/modals/group-study-form-modal'),
+  { ssr: false },
+);
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 

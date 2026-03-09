@@ -4,10 +4,10 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon, Calendar, Users, MessageCircle } from 'lucide-react'; // 아이콘 추가
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useMemo, useState, useEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import Button from '@/components/common/ui/button';
 import { SingleDropdown, MultiDropdown } from '@/components/common/ui/dropdown';
 import FormField from '@/components/common/ui/form/form-field';
@@ -33,6 +33,11 @@ import {
   buildStartStudyDefaultValues,
   toJoinStudyRequest,
 } from '@/types/schemas/start-study-form.schema';
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+  { ssr: false },
+);
 
 interface StartStudyModalProps {
   memberId: number;

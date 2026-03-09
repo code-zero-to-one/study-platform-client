@@ -87,4 +87,24 @@ export interface MyReviewsResponse {
   };
 }
 
-export type ShouldReviewPartnerResponse = boolean;
+export type StudyReviewModalStateReason =
+  | 'SHOW'
+  | 'NO_TARGET_STUDY'
+  | 'ALREADY_REVIEWED'
+  | 'DISMISSED_PERMANENTLY';
+
+export interface StudyReviewModalStateResponse {
+  shouldShowModal: boolean;
+  targetStudySpaceId: number | null;
+  dismissedPermanently: boolean;
+  reason: StudyReviewModalStateReason;
+}
+
+export interface DismissStudyReviewModalRequest {
+  targetStudySpaceId: number;
+}
+
+export interface PartnerStudyReviewQueryParams {
+  enabled?: boolean;
+  targetStudySpaceId?: number;
+}

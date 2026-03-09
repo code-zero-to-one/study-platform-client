@@ -1,8 +1,7 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
 import Link from 'next/link';
-import { IoMdPeople } from 'react-icons/io';
-import { LuDot } from 'react-icons/lu';
+import { Dot, Users } from 'lucide-react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import { MemberStudyItem } from '@/types/api/group-study.types';
@@ -63,8 +62,8 @@ export default function MyStudyInfoCard({
               {studyRole === 'LEADER' ? '스터디 리더' : '스터디원'}
             </div>
             <div className="flex flex-row">
-              <IoMdPeople />
-              <LuDot />
+              <Users size={16} />
+              <Dot size={16} />
               <div className="font-designer-12m">
                 {participantsCount} / {maxMembersCount}
               </div>

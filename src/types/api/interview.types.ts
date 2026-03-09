@@ -4,6 +4,8 @@ export type StudyProgressStatus =
   | 'COMPLETE'
   | 'ABSENT';
 
+export type CompleteStudyProgressStatus = 'COMPLETE' | 'ABSENT';
+
 // 오늘의 스터디 상세조회 관련 타입
 export interface DailyStudyDetail {
   dailyStudyId: number;
@@ -32,6 +34,6 @@ export interface PrepareStudyRequest {
 
 // 스터디 면접 완료 타입
 export interface CompleteStudyRequest {
-  feedback: string;
-  progressStatus: StudyProgressStatus;
+  feedback?: string;
+  progressStatus: CompleteStudyProgressStatus;
 }

@@ -1,5 +1,6 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import {
   Calendar,
   Mic,
@@ -9,9 +10,13 @@ import {
   ExternalLink,
   CheckCircle2,
 } from 'lucide-react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 
 export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
   const partner = item.partner;

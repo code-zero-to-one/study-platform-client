@@ -1,8 +1,13 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import ProfileInfoCard from '@/components/common/cards/profile-info-card';
-import ProfileInfoEditModal from '@/components/common/modals/profile-info-edit-modal';
 import { MemberInfo } from '@/types/api/user.types';
+
+const ProfileInfoEditModal = dynamic(
+  () => import('@/components/common/modals/profile-info-edit-modal'),
+  { ssr: false },
+);
 
 interface ProfileInfoProps {
   memberId: number;

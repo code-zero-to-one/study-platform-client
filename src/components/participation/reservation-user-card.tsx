@@ -1,7 +1,11 @@
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import dynamic from 'next/dynamic';
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import { Participant } from '@/types/api/participation.types';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface ReservationCardProps {
   participant: Participant;

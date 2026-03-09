@@ -1,14 +1,23 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import dayjs from 'dayjs';
 import { ComponentProps } from 'react';
 
 import { MissionListResponse } from '@/api/openapi/models';
-import DeleteMissionModal from '@/components/common/modals/delete-mission-modal';
-import EditMissionModal from '@/components/common/modals/edit-mission-modal';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
+
+const DeleteMissionModal = dynamic(
+  () => import('@/components/common/modals/delete-mission-modal'),
+  { ssr: false },
+);
+
+const EditMissionModal = dynamic(
+  () => import('@/components/common/modals/edit-mission-modal'),
+  { ssr: false },
+);
 
 interface MissionCardProps {
   mission: MissionListResponse;
