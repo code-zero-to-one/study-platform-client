@@ -3,6 +3,8 @@ import HomePageClient from '@/components/pages/home-page-client';
 import HomePageServerContent from '@/components/pages/home-page-server-content';
 import { parseHomePageSearchParams } from '@/features/home/model/home-page-search-params';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
+import { getServerCookie } from '@/utils/server-cookie';
+import { isNumeric } from '@/utils/validation';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: '홈 - ZERO-ONE',
@@ -20,10 +22,14 @@ export default async function Home({
 }) {
   const resolvedSearchParams = await searchParams;
   const { activeTab } = parseHomePageSearchParams(resolvedSearchParams);
+  const memberIdStr = await getServerCookie('memberId');
+  const memberId =
+    memberIdStr && isNumeric(memberIdStr) ? Number(memberIdStr) : undefined;
 
   return (
     <HomePageClient
       activeTab={activeTab}
+      memberId={memberId}
       content={<HomePageServerContent activeTab={activeTab} />}
     />
   );

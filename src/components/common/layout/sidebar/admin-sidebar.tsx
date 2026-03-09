@@ -15,6 +15,7 @@ export default function AdminSideBar() {
   const pathname = usePathname();
   const isSalesManagementPath = pathname.startsWith('/admin/sales-management');
   const isMentoringManagementPath = pathname.startsWith('/admin/mentoring');
+  const isMatchingManagementPath = pathname.startsWith('/admin/matching');
 
   return (
     <aside className="border-border-subtle h-screen w-fit border-r p-200">
@@ -51,6 +52,10 @@ export default function AdminSideBar() {
 
         <Link href="/admin/mentoring/dashboard">
           <TabMenu active={isMentoringManagementPath}>멘토링 관리</TabMenu>
+        </Link>
+
+        <Link href="/admin/matching">
+          <TabMenu active={isMatchingManagementPath}>1:1 매칭 관리</TabMenu>
         </Link>
       </nav>
     </aside>

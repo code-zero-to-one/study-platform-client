@@ -50,8 +50,12 @@ export default function MyProfileCard({
   studyApplied,
   sincerityTemp,
 }: MyProfileCardProps) {
-  const { showReviewReminder, setShowReviewReminder } =
-    useReviewReminder(memberId);
+  const {
+    showReviewReminder,
+    setShowReviewReminder,
+    applyDismissPreference,
+    targetStudySpaceId,
+  } = useReviewReminder(memberId);
 
   const [enabled, setEnabled] = useState(matching);
   const [isStartStudyModalOpen, setIsStartStudyModalOpen] = useState(false); // 모달 상태 추가
@@ -86,6 +90,8 @@ export default function MyProfileCard({
       <StudyReviewModal
         open={showReviewReminder}
         onOpenChange={setShowReviewReminder}
+        onDismissPreferenceChange={applyDismissPreference}
+        targetStudySpaceId={targetStudySpaceId}
       />
       {/* 스터디 신청 모달 (토글 클릭 시 실행됨) */}
       <StartStudyModal
