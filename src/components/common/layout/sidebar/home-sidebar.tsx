@@ -1,17 +1,13 @@
 import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
 import MyProfileCard from '@/components/common/cards/my-profile-card';
+import StartStudyModal from '@/components/common/modals/start-study-modal';
 import Calendar from '@/components/home/calendar';
 import FeedbackLink from '@/components/home/feedback-link';
 import TodoList from '@/components/lists/todo-list';
 import type { SincerityTemp } from '@/types/api/user.types';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
-
-const StartStudyModal = dynamic(
-  () => import('@/components/common/modals/start-study-modal'),
-);
 
 export default async function Sidebar() {
   const memberIdStr = await getServerCookie('memberId');

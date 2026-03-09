@@ -1,17 +1,12 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 
 import Button from '@/components/common/ui/button';
+import SubmitHomeworkModal from '@/components/common/modals/submit-homework-modal';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import { useUserStore } from '@/stores/useUserStore';
-
-const SubmitHomeworkModal = dynamic(
-  () => import('@/components/common/modals/submit-homework-modal'),
-  { ssr: false },
-);
 
 interface MyHomeworkStatusProps {
   missionId: number;
