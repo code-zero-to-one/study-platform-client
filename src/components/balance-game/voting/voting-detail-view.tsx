@@ -38,6 +38,7 @@ import {
   useBalanceGameDetailQuery,
   useBalanceGameCommentsQuery,
 } from '@/hooks/queries/use-balance-game-query';
+import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
 import { BalanceGameComment } from '@/types/one-to-one-study/balance-game';
 import { VotingOption } from '@/types/one-to-one-study/voting';
@@ -70,6 +71,7 @@ export default function VotingDetailView({
 
   // User Info
   const memberId = useUserStore((state) => state.memberId);
+  const showToast = useToastStore((state) => state.showToast);
   const { isAuthReady } = useAuthReady();
 
   // Queries
@@ -214,7 +216,7 @@ export default function VotingDetailView({
       onBack(); // 삭제 후 목록으로 돌아가기
     } catch (error) {
       console.error('Delete game failed:', error);
-      alert('투표 삭제에 실패했습니다. 다시 시도해주세요.');
+      showToast('투표 삭제에 실패했습니다. 다시 시도해주세요.', 'error');
     }
   };
 

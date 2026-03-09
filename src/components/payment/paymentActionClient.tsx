@@ -4,6 +4,7 @@ import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import { useEffect, useState } from 'react';
 import { StudyPaymentPrepareResponse } from '@/api/openapi';
 import PaymentTermsModal from '@/components/common/modals/payment-terms-modal';
+import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
 import Button from '../common/ui/button';
 import Checkbox from '../common/ui/checkbox';
@@ -26,6 +27,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
   const [isAgreed, setIsAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { memberName, tel } = useUserStore();
+  const showToast = useToastStore((state) => state.showToast);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD');
 
@@ -37,7 +39,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
   const onPay = async () => {
     if (!payment) {
-      alert('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      showToast('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.', 'error');
 
       return;
     }
@@ -94,7 +96,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
         return;
       }
 
-      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      showToast('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
       console.error('Payment error:', error);
     } finally {
       setIsLoading(false);

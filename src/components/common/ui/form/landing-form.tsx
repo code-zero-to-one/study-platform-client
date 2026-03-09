@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
+import { useToastStore } from '@/stores/use-toast-store';
 
 export default function LandingForm() {
   const router = useRouter();
+  const showToast = useToastStore((state) => state.showToast);
   const [checked, setChecked] = useState<string[]>([]);
   const [type, setType] = useState<string>('NONE');
   const [experience, setExperience] = useState<string>('NONE');
@@ -22,31 +24,31 @@ export default function LandingForm() {
     try {
       // 유효성 검사
       if (!email.trim()) {
-        alert('이메일을 입력해주세요.');
+        showToast('이메일을 입력해주세요.', 'info');
 
         return;
       }
 
       if (type === 'NONE') {
-        alert('어느 분야에서 활동하고 계신가요?');
+        showToast('어느 분야에서 활동하고 계신가요?', 'info');
 
         return;
       }
 
       if (experience === 'NONE') {
-        alert('경력이 얼마나 되시나요?');
+        showToast('경력이 얼마나 되시나요?', 'info');
 
         return;
       }
 
       if (checked.length === 0) {
-        alert('관심 기능을 하나 이상 선택해주세요.');
+        showToast('관심 기능을 하나 이상 선택해주세요.', 'info');
 
         return;
       }
 
       if (!checked.includes('AGREE_TERMS_OF_SERVICE')) {
-        alert('개인정보 보호정책에 동의해주세요.');
+        showToast('개인정보 보호정책에 동의해주세요.', 'info');
 
         return;
       }
@@ -70,7 +72,7 @@ export default function LandingForm() {
       const result = await response.json();
 
       if (response.ok) {
-        alert('신청이 성공적으로 제출되었습니다!');
+        showToast('신청이 성공적으로 제출되었습니다!', 'success');
         // 폼 초기화
         setEmail('');
         setType('NONE');
@@ -80,11 +82,11 @@ export default function LandingForm() {
         // 로그인 페이지로 이동
         router.push('/login');
       } else {
-        alert(result.error || '오류가 발생했습니다.');
+        showToast(result.error || '오류가 발생했습니다.', 'error');
       }
     } catch (error) {
       console.error('폼 제출 오류:', error);
-      alert('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      showToast('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
     } finally {
       setIsSubmitting(false);
     }

@@ -10,9 +10,11 @@ import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
 } from '@/hooks/queries/use-user-profile-query';
+import { useToastStore } from '@/stores/use-toast-store';
 
 export default function StudyMatchingToggle() {
   const { memberId, isAuthReady } = useAuthReady();
+  const showToast = useToastStore((state) => state.showToast);
   const isLoggedIn = isAuthReady && !!memberId;
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
@@ -64,7 +66,7 @@ export default function StudyMatchingToggle() {
   const handleToggleChange = (checked: boolean) => {
     if (isVerificationLoading) return;
     if (isVerificationError) {
-      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+      showToast('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.', 'error');
 
       return;
     }

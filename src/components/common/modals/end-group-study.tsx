@@ -5,6 +5,7 @@ import { startTransition, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import { useKickMember } from '@/hooks/queries/group-study-member-api';
+import { useToastStore } from '@/stores/use-toast-store';
 
 interface EndGroupStudyModalProps {
   targetMemberId: number;
@@ -237,6 +238,7 @@ function Step3Modal({
   targetMemberId,
   onClose,
 }: Step3ModalProps) {
+  const showToast = useToastStore((state) => state.showToast);
   const router = useRouter();
 
   const { mutate: kickMember } = useKickMember();
@@ -250,12 +252,12 @@ function Step3Modal({
       },
       {
         onSuccess: () => {
-          alert('중도하차 처리가 완료되었습니다.');
+          showToast('중도하차 처리가 완료되었습니다.', 'success');
           router.push('/payment-management');
           onClose();
         },
         onError: () => {
-          alert('중도하차 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+          showToast('중도하차 처리 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
         },
       },
     );

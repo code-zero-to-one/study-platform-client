@@ -101,6 +101,7 @@ export default function StartStudyModal({
 }: StartStudyModalProps) {
   const { isVerified, isLoading, isError, setVerified } =
     usePhoneVerificationStatus(memberId);
+  const showToast = useToastStore((state) => state.showToast);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
   const [internalOpen, setInternalOpen] = useState(false);
@@ -111,7 +112,7 @@ export default function StartStudyModal({
       return;
     }
     if (isOpen && isError) {
-      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+      showToast('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.', 'error');
 
       return;
     }
@@ -141,7 +142,7 @@ export default function StartStudyModal({
   useEffect(() => {
     if (!isModalOpen || isLoading) return;
     if (isError) {
-      alert('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.');
+      showToast('인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.', 'error');
       if (onOpenChange) {
         onOpenChange(false);
       } else {
@@ -158,7 +159,7 @@ export default function StartStudyModal({
         setInternalOpen(false);
       }
     }
-  }, [isModalOpen, isVerified, isLoading, isError, onOpenChange]);
+  }, [isModalOpen, isVerified, isLoading, isError, onOpenChange, showToast]);
 
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
