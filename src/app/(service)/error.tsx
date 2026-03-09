@@ -84,34 +84,31 @@ export default function ServiceError({ error, reset }: ErrorProps) {
                   </p>
                 </div>
               )}
-              <div className="border-t pt-2">
-                <span className="font-bold">기술적 메시지:</span>
-                <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
-                  {errorInfo.technicalMessage}
-                </pre>
-              </div>
-              {/* 서버 사이드 에러 메시지 (개발 환경에서만) */}
-              {process.env.NODE_ENV === 'development' && error.message && (
-                <div className="border-t pt-2">
-                  <span className="font-bold">서버 에러 메시지:</span>
-                  <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
-                    {error.message}
-                  </pre>
-                </div>
-              )}
-              {error.stack && (
-                <div className="border-t pt-2">
-                  <span className="font-bold">스택 트레이스:</span>
-                  <pre className="mt-1 max-h-40 overflow-auto text-xs break-words whitespace-pre-wrap">
-                    {error.stack}
-                  </pre>
-                  {process.env.NODE_ENV === 'development' && (
-                    <p className="mt-1 text-xs text-gray-500">
-                      개발 환경에서만 표시됩니다. 프로덕션에서는 보안상
-                      숨겨집니다.
-                    </p>
+              {process.env.NODE_ENV === 'development' && (
+                <>
+                  <div className="border-t pt-2">
+                    <span className="font-bold">기술적 메시지:</span>
+                    <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
+                      {errorInfo.technicalMessage}
+                    </pre>
+                  </div>
+                  {error.message && (
+                    <div className="border-t pt-2">
+                      <span className="font-bold">서버 에러 메시지:</span>
+                      <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
+                        {error.message}
+                      </pre>
+                    </div>
                   )}
-                </div>
+                  {error.stack && (
+                    <div className="border-t pt-2">
+                      <span className="font-bold">스택 트레이스:</span>
+                      <pre className="mt-1 max-h-40 overflow-auto text-xs break-words whitespace-pre-wrap">
+                        {error.stack}
+                      </pre>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

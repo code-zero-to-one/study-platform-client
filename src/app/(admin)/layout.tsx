@@ -6,6 +6,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import AdminSideBar from '@/components/common/layout/sidebar/admin-sidebar';
+import GlobalToast from '@/components/common/ui/global-toast';
 import MainProvider from '@/providers';
 import { getServerCookie } from '@/utils/server-cookie';
 
@@ -47,6 +48,7 @@ export default async function AdminLayout({
 
             <main className="flex-1 p-300">{children}</main>
           </div>
+          <GlobalToast />
         </MainProvider>
       </body>
     </html>

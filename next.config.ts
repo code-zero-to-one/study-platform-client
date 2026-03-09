@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 import type { RemotePattern } from 'next/dist/shared/lib/image-config';
 
@@ -12,15 +13,16 @@ const nextConfig: NextConfig = {
     const cspDirectives = [
       "default-src 'self'",
       // GTM, Clarity, 토스페이먼츠 스크립트 허용. 개발 환경에서는 'unsafe-eval' 추가(Next.js HMR 필요).
-      `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms https://js.tosspayments.com${isDev ? " 'unsafe-eval'" : ''}`,
+      `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms https://js.tosspayments.com https://browser.sentry-cdn.com${isDev ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       // 카카오·구글 프로필 이미지, 자사 API/CMS 이미지 도메인 허용
       "img-src 'self' data: blob: https://img1.kakaocdn.net https://lh3.googleusercontent.com https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.zeroone.it.kr https://test-blog.zeroone.it.kr",
       // API, GA, Clarity, 토스, 카카오/구글 OAuth 연결 허용. 개발에서는 HMR WebSocket 추가.
-      `connect-src 'self' https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.google-analytics.com https://www.clarity.ms https://api.tosspayments.com https://kauth.kakao.com https://accounts.google.com${isDev ? ' ws://localhost:*' : ''}`,
+      `connect-src 'self' https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.google-analytics.com https://www.clarity.ms https://api.tosspayments.com https://kauth.kakao.com https://accounts.google.com https://*.ingest.sentry.io${isDev ? ' ws://localhost:*' : ''}`,
       // 토스 결제창 iframe 허용
       'frame-src https://pay.toss.im https://cert.tosspayments.com',
       "font-src 'self' data:",
+      "worker-src 'self' blob:",
     ].join('; ');
 
     return [
@@ -149,4 +151,23 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  // CI에서만 소스맵 업로드 (SENTRY_AUTH_TOKEN이 있을 때)
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+
+  // 로컬 빌드 시 소스맵 업로드 로그 억제
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+
+  // Production에서 Sentry 로거 트리셰이킹
+  disableLogger: true,
+
+  // 소스맵: 업로드 후 삭제 (Production에서 비공개)
+  sourcemaps: {
+    filesToDeleteAfterUpload: ['.next/static/**/*.map'],
+  },
+
+  // 클라이언트 소스맵 업로드 범위 확장
+  widenClientFileUpload: true,
+});

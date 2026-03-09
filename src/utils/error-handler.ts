@@ -27,6 +27,7 @@
 
  */
 
+import * as Sentry from '@sentry/nextjs';
 import { isAxiosError } from 'axios';
 import { isApiError } from '@/api/client/api-error';
 
@@ -39,7 +40,7 @@ export enum ErrorType {
   NETWORK = 'NETWORK',
   /** 인증/권한 에러 (401, 403, AUTH*) */
   AUTH = 'AUTH',
-  /** 리소스를 찾을 수 없음 (404, GSM001) */
+  /** 리소스를 찾을 수 없음 (404) */
   NOT_FOUND = 'NOT_FOUND',
   /** 서버 에러 (500번대) */
   SERVER = 'SERVER',
@@ -130,6 +131,18 @@ export function analyzeError(error: unknown): ErrorInfo {
     };
   }
 
+  // ApiError 처리 (axios 인터셉터가 ApiError로 변환한 에러)
+  if (isApiError(error)) {
+    return {
+      type: getErrorTypeFromStatusCode(error.statusCode, error.errorCode),
+      userMessage: getUserFriendlyMessage(error.errorCode, error.message),
+      technicalMessage: `[${error.errorCode}] ${error.errorName}: ${error.message}`,
+      errorCode: error.errorCode,
+      statusCode: error.statusCode,
+      originalError: error,
+    };
+  }
+
   // 일반 Error 객체
   if (error instanceof Error) {
     return {
@@ -157,11 +170,7 @@ function getErrorTypeFromStatusCode(
   errorCode?: string,
 ): ErrorType {
   // 에러 코드 기반 분류
-  if (errorCode) {
-    if (errorCode.startsWith('AUTH')) return ErrorType.AUTH;
-    if (errorCode.startsWith('GSM001') || errorCode.includes('NOT_FOUND'))
-      return ErrorType.NOT_FOUND;
-  }
+  if (errorCode?.startsWith('AUTH')) return ErrorType.AUTH;
 
   // HTTP 상태 코드 기반 분류
   if (!statusCode) return ErrorType.UNKNOWN;
@@ -185,15 +194,80 @@ function getUserFriendlyMessage(
   // 에러 코드 기반 메시지
   if (errorCode) {
     const codeMessages: Record<string, string> = {
+      // === AUTH (인증) ===
       AUTH001: '인증 오류가 발생했습니다. 다시 로그인해주세요.',
-      AUTH002: '권한이 없습니다.',
-      GSM001: '요청하신 정보를 찾을 수 없습니다.',
-      // 필요시 추가
+      AUTH002: '접근 권한이 없습니다.',
+      AUTH003: '인증 정보가 만료되었습니다. 다시 로그인해주세요.',
+      AUTH004: '인증 처리 중 오류가 발생했습니다. 다시 로그인해주세요.',
+
+      // === CMM (공통) ===
+      CMM001: '입력값이 올바르지 않습니다. 확인 후 다시 시도해주세요.',
+      CMM003: '요청하신 정보를 찾을 수 없습니다.',
+      CMM006: '접근 권한이 없습니다.',
+
+      // === MEM (회원) ===
+      MEM001: '입력 정보가 유효하지 않습니다. 확인 후 다시 시도해주세요.',
+      MEM002: '회원 정보를 찾을 수 없습니다.',
+      MEM003: '이미 가입된 회원입니다.',
+
+      // === GSM (그룹스터디 관리) ===
+      GSM001: '스터디를 찾을 수 없습니다.',
+      GSM002: '스터디 정보를 찾을 수 없습니다.',
+      GSM003: '해당 스터디의 개설자만 수행할 수 있습니다.',
+      GSM004: '인증되지 않은 회원입니다.',
+
+      // === GSA (그룹스터디 신청) ===
+      GSA001: '스터디 신청 정보를 찾을 수 없습니다.',
+      GSA002: '이미 신청한 스터디입니다.',
+      GSA003: '정원 초과로 인해 신청할 수 없습니다.',
+      GSA004: '리더는 자신이 개설한 스터디에 신청할 수 없습니다.',
+      GSA005: '해당 신청의 본인이 아닙니다.',
+      GSA006: '이미 처리된 신청입니다.',
+
+      // === HWK (과제) ===
+      HWK001: '과제를 찾을 수 없습니다.',
+      HWK003: '과제 제출 기간이 만료되었습니다.',
+      HWK004: '과제 제출 기간이 아직 시작되지 않았습니다.',
+      HWK005: '이미 제출한 과제입니다.',
+
+      // === EVL (평가) ===
+      EVL002: '이미 평가가 존재합니다.',
+      EVL003: '평가 가능 기간이 아닙니다.',
+
+      // === PAY 결제 (2xx) ===
+      PAY201: '결제 정보를 찾을 수 없습니다.',
+      PAY202: '이미 승인된 결제입니다.',
+      PAY207: '결제 금액이 일치하지 않습니다.',
+      PAY212: '유료 스터디가 아닙니다.',
+      PAY213: '스터디 시작 후에는 결제를 진행할 수 없습니다.',
+      PAY214: '신청하지 않은 스터디입니다.',
+
+      // === PAY 환불 (3xx) ===
+      PAY301: '환불 정보를 찾을 수 없습니다. 관리자에게 문의해주세요.',
+      PAY302: '이미 진행 중이거나 완료된 환불이 있습니다.',
+      PAY303: '이미 취소된 환불 요청입니다.',
+      PAY304: '환불 금액이 유효하지 않습니다. 관리자에게 문의해주세요.',
+      PAY305: '환불 금액이 결제 금액을 초과합니다.',
+      PAY306: '해당 환불의 소유자가 아닙니다.',
+      PAY307:
+        '현재 환불이 허용되지 않는 시점입니다. 관리자에게 문의해주세요.',
+      PAY308: '환불 상태가 유효하지 않습니다.',
+      PAY309:
+        '정산이 이미 진행되어 환불이 불가합니다. 관리자에게 문의해주세요.',
+
+      // === FILE ===
+      FILE001: '파일 업로드에 실패했습니다. 다시 시도해주세요.',
+      FILE002: '지원하지 않는 파일 형식입니다.',
     };
 
     if (codeMessages[errorCode]) {
       return codeMessages[errorCode];
     }
+  }
+
+  // 백엔드 메시지가 한국어이면 그대로 사용
+  if (originalMessage && /[가-힣]/.test(originalMessage)) {
+    return originalMessage;
   }
 
   // HTTP 상태 코드 기반 메시지
@@ -268,4 +342,26 @@ export function logError(
   };
 
   console.error('[Error Handler]', JSON.stringify(logData, null, 2));
+
+  // Sentry 에러 보고
+  Sentry.withScope((scope) => {
+    scope.setTag('error.type', errorInfo.type);
+    if (errorInfo.errorCode) scope.setTag('error.code', errorInfo.errorCode);
+    if (errorInfo.statusCode)
+      scope.setTag('http.status', String(errorInfo.statusCode));
+    scope.setExtra('errorCode', errorInfo.errorCode);
+    scope.setExtra('userMessage', errorInfo.userMessage);
+    scope.setExtra('technicalMessage', errorInfo.technicalMessage);
+    if (context) {
+      Object.entries(context).forEach(([key, value]) => {
+        scope.setExtra(key, value);
+      });
+    }
+
+    if (errorInfo.originalError instanceof Error) {
+      Sentry.captureException(errorInfo.originalError);
+    } else {
+      Sentry.captureMessage(errorInfo.technicalMessage, 'error');
+    }
+  });
 }

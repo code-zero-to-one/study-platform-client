@@ -68,19 +68,23 @@ export default function LandingError({ error, reset }: ErrorProps) {
                   <span className="font-bold">Digest:</span> {error.digest}
                 </div>
               )}
-              <div className="border-t pt-2">
-                <span className="font-bold">기술적 메시지:</span>
-                <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
-                  {errorInfo.technicalMessage}
-                </pre>
-              </div>
-              {error.stack && (
-                <div className="border-t pt-2">
-                  <span className="font-bold">스택 트레이스:</span>
-                  <pre className="mt-1 max-h-40 overflow-auto text-xs break-words whitespace-pre-wrap">
-                    {error.stack}
-                  </pre>
-                </div>
+              {process.env.NODE_ENV === 'development' && (
+                <>
+                  <div className="border-t pt-2">
+                    <span className="font-bold">기술적 메시지:</span>
+                    <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
+                      {errorInfo.technicalMessage}
+                    </pre>
+                  </div>
+                  {error.stack && (
+                    <div className="border-t pt-2">
+                      <span className="font-bold">스택 트레이스:</span>
+                      <pre className="mt-1 max-h-40 overflow-auto text-xs break-words whitespace-pre-wrap">
+                        {error.stack}
+                      </pre>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
