@@ -1,7 +1,7 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
