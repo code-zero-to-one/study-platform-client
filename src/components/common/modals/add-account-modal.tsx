@@ -99,7 +99,10 @@ function AddAccountForm({ defaultValues, onClose }: AddAccountFormProps) {
           onClose();
         },
         onError: () => {
-          showToast('계좌 정보 변경에 실패했습니다. 다시 시도해주세요.', 'error');
+          showToast(
+            '계좌 정보 변경에 실패했습니다. 다시 시도해주세요.',
+            'error',
+          );
         },
       });
     }

@@ -39,7 +39,10 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
   const onPay = async () => {
     if (!payment) {
-      showToast('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.', 'error');
+      showToast(
+        '결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
 
       return;
     }
@@ -96,7 +99,10 @@ export default function PaymentCheckoutPage({ study }: Props) {
         return;
       }
 
-      showToast('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.', 'error');
+      showToast(
+        '결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.',
+        'error',
+      );
       console.error('Payment error:', error);
     } finally {
       setIsLoading(false);

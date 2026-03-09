@@ -86,7 +86,10 @@ export default function LandingForm() {
       }
     } catch (error) {
       console.error('폼 제출 오류:', error);
-      showToast('네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
+      showToast(
+        '네트워크 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
     } finally {
       setIsSubmitting(false);
     }

@@ -179,9 +179,7 @@ export const useCancelPayment = () => {
       await queryClient.invalidateQueries({
         queryKey: ['myTransactions'],
       });
-      useToastStore
-        .getState()
-        .showToast('결제가 취소되었습니다.', 'success');
+      useToastStore.getState().showToast('결제가 취소되었습니다.', 'success');
     },
   });
 };

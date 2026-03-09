@@ -32,9 +32,9 @@ export function extractErrorCode(error: unknown): {
   message?: string;
 } {
   const errorInfo = analyzeError(error);
+
   return {
     errorCode: errorInfo.errorCode,
     message: errorInfo.userMessage,
   };
 }
-

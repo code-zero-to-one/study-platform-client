@@ -110,14 +110,20 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     if (mode === 'thread') {
       deleteThread(base, {
         onSuccess: async () => {
-          showToast(mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!', 'success');
+          showToast(
+            mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!',
+            'success',
+          );
 
           await qc.invalidateQueries({
             queryKey: ['get-threads', groupStudyId],
           });
         },
         onError: (err: unknown) => {
-          showToast(mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:', 'error');
+          showToast(
+            mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:',
+            'error',
+          );
         },
         onSettled: () => {
           setShowConfirmModal(false);
