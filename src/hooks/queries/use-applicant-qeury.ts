@@ -1,4 +1,8 @@
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { getApplicantsByStatus } from '@/api/endpoints/group-study-application/get-applicants-by-status';
 import { updateApplicantByStatus } from '@/api/endpoints/group-study-application/update-applicant-by-status';
 import {
