@@ -45,6 +45,9 @@ export default function MemberListTable() {
   const memberList = data?.content || [];
 
   const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
+  const selectedMembers = memberList.filter((member) =>
+    selectedIds.has(member.memberId),
+  );
   const headerCheckboxRef = useRef(null);
 
   const allSelected =
@@ -114,16 +117,8 @@ export default function MemberListTable() {
               </p>
 
               <div className="flex items-center gap-150">
-                <ChangeRoleModal
-                  members={memberList.filter((member) =>
-                    selectedIds.has(member.memberId),
-                  )}
-                />
-                <ChangeStatusModal
-                  members={memberList.filter((member) =>
-                    selectedIds.has(member.memberId),
-                  )}
-                />
+                <ChangeRoleModal members={selectedMembers} />
+                <ChangeStatusModal members={selectedMembers} />
               </div>
             </div>
           )}

@@ -1,6 +1,6 @@
 // Button.stories.tsx
 import type { Meta, StoryObj } from '@storybook/react';
-import { FiPlus, FiArrowRight } from 'react-icons/fi';
+import { ArrowRight, Plus } from 'lucide-react';
 import Button from '.';
 
 const meta: Meta<typeof Button> = {
@@ -90,7 +90,7 @@ export const WithLeftIcon: Story = {
     children: '아이콘 (왼쪽)',
     color: 'primary',
     size: 'medium',
-    icon: <FiPlus />,
+    icon: <Plus size={16} />,
     iconPosition: 'left',
   },
 };
@@ -100,7 +100,7 @@ export const WithRightIcon: Story = {
     children: '아이콘 (오른쪽)',
     color: 'primary',
     size: 'medium',
-    icon: <FiArrowRight />,
+    icon: <ArrowRight size={16} />,
     iconPosition: 'right',
   },
 };

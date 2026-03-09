@@ -1,10 +1,19 @@
 'use client';
 
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
-import LoginModal from '@/components/common/modals/login-modal';
-import SignupModal from '@/components/common/modals/sign-up-modal';
 import Button from '@/components/common/ui/button';
+
+const LoginModal = dynamic(
+  () => import('@/components/common/modals/login-modal'),
+  { ssr: false },
+);
+
+const SignupModal = dynamic(
+  () => import('@/components/common/modals/sign-up-modal'),
+  { ssr: false },
+);
 
 export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
   const [signupOpen, setSignupOpen] = useState(false);

@@ -1,3 +1,4 @@
+import dynamic from 'next/dynamic';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import {
@@ -9,7 +10,6 @@ import {
   MessageCircle,
 } from 'lucide-react';
 import React, { useState } from 'react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
@@ -17,6 +17,10 @@ import { Discussion, VoteType } from '@/types/one-to-one-study/discussion';
 import { CommentFormData } from '@/types/schemas/zod-schema';
 import CommentForm from './comment-form';
 import CommentList from './comment-list';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface DiscussionDetailModalProps {
   discussion: Discussion;

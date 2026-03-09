@@ -1,13 +1,18 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
-import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import Button from '@/components/common/ui/button';
 import Pagination from '@/components/common/ui/pagination';
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 import { MemberStudyItem } from '@/types/api/group-study.types';
+
+const GroupStudyFormModal = dynamic(
+  () => import('@/components/common/modals/group-study-form-modal'),
+  { ssr: false },
+);
 
 interface MemberGroupStudyList extends MemberStudyItem {
   type: 'GROUP_STUDY';

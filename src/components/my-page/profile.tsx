@@ -1,9 +1,8 @@
 'use client';
 
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
-import ProfileEditModal from '@/components/common/modals/profile-edit-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Progress from '@/components/common/ui/progress';
@@ -18,6 +17,16 @@ import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import { MemberProfile, SincerityTemp } from '@/types/api/user.types';
 import { formatPhoneNumber } from '@/utils/format';
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+  { ssr: false },
+);
+
+const ProfileEditModal = dynamic(
+  () => import('@/components/common/modals/profile-edit-modal'),
+  { ssr: false },
+);
 
 interface ProfileProps {
   memberId: number;

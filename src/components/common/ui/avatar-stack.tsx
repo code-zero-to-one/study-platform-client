@@ -1,10 +1,15 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Crown, X } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import { cn } from './(shadcn)/lib/utils';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 
 export interface AvatarStackMember {
   memberId: number;

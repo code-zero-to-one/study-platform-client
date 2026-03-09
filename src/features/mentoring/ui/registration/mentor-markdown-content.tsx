@@ -1,5 +1,6 @@
 'use client';
 
+import 'highlight.js/styles/github.css';
 import DOMPurify from 'dompurify';
 import hljs from 'highlight.js/lib/core';
 import bash from 'highlight.js/lib/languages/bash';

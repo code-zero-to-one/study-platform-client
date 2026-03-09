@@ -1,10 +1,14 @@
+import dynamic from 'next/dynamic';
 import { MessageCircle, Users } from 'lucide-react';
 import React from 'react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import { BalanceGame } from '@/types/one-to-one-study/balance-game';
 import VoteTimer from './voting/vote-timer';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface VotingCardProps {
   voting: BalanceGame;

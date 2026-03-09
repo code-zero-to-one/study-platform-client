@@ -1,12 +1,17 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Trophy, Flame } from 'lucide-react';
 import React from 'react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Tooltip from '@/components/common/ui/tooltip';
 import type { MVPTeam } from '@/types/one-to-one-study/hall-of-fame';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 
 interface MVPTeamCardProps {
   team: MVPTeam;

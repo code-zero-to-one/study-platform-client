@@ -1,9 +1,8 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
-import StartStudyModal from '@/components/common/modals/start-study-modal';
-import StudyReviewModal from '@/components/common/modals/study-review-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import { ToggleSwitch } from '@/components/common/ui/toggle';
@@ -15,6 +14,16 @@ import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import CodeIcon from 'public/icons/code.svg';
 import SettingIcon from 'public/icons/setting.svg';
+
+const StartStudyModal = dynamic(
+  () => import('@/components/common/modals/start-study-modal'),
+  { ssr: false },
+);
+
+const StudyReviewModal = dynamic(
+  () => import('@/components/common/modals/study-review-modal'),
+  { ssr: false },
+);
 
 interface MyProfileCardProps {
   memberId: number;

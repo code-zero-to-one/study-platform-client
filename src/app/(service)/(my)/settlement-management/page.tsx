@@ -1,12 +1,11 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { format } from 'date-fns';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
 import type { StudySettlementSummaryResponse } from '@/api/openapi/models';
-import AccountInfoModal from '@/components/common/modals/account-info-modal';
-import AddAccountModal from '@/components/common/modals/add-account-modal';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
@@ -15,6 +14,16 @@ import Pagination from '@/components/common/ui/pagination';
 import { useGetSettlementAccount } from '@/hooks/queries/settlement-account-api';
 import { useGetMySettlements } from '@/hooks/queries/settlement-user-api';
 import { formatToKST } from '@/utils/time';
+
+const AccountInfoModal = dynamic(
+  () => import('@/components/common/modals/account-info-modal'),
+  { ssr: false },
+);
+
+const AddAccountModal = dynamic(
+  () => import('@/components/common/modals/add-account-modal'),
+  { ssr: false },
+);
 
 const SETTLEMENT_STATUS_MAP: Record<
   NonNullable<StudySettlementSummaryResponse['status']>,

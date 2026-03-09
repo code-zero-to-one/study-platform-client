@@ -1,11 +1,16 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { Crown } from 'lucide-react';
 import React from 'react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import type { RankerWithLabel } from '@/config/hall-of-fame-constants';
 import RankBadge from './rank-badge';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 
 interface RankerListItemProps {
   ranker: RankerWithLabel;

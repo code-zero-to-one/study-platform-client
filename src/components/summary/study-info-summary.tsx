@@ -4,9 +4,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { UserTransactionDetailResponseTransactionTypeEnum } from '@/api/openapi';
-import ApplyGroupStudyModal from '@/components/common/modals/apply-group-study-modal';
 import Button from '@/components/common/ui/button';
 import {
   EXPERIENCE_LEVEL_LABELS,
@@ -21,6 +21,11 @@ import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api
 import { useGetMyTransactionsByGroupStudy } from '@/hooks/queries/payment-user-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { GroupStudyFullResponse } from '@/types/api/group-study.types';
+
+const ApplyGroupStudyModal = dynamic(
+  () => import('@/components/common/modals/apply-group-study-modal'),
+  { ssr: false },
+);
 
 interface SummaryStudyInfoProps {
   data: GroupStudyFullResponse;

@@ -1,11 +1,16 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import Button from '@/components/common/ui/button';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import CheckIcon from 'public/icons/check.svg';
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+  { ssr: false },
+);
 
 interface TodoListProps {
   statusList: boolean[];

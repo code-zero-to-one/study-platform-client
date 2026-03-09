@@ -2,9 +2,14 @@
 
 import { MessageCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
-import QuestionModal from '@/components/common/modals/question-modal';
+const QuestionModal = dynamic(
+  () => import('@/components/common/modals/question-modal'),
+  { ssr: false },
+);
+
 
 const STUDY_DETAIL_PATTERN = /^\/(group-study|premium-study)\/(\d+)/;
 

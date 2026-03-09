@@ -1,12 +1,16 @@
+import dynamic from 'next/dynamic';
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import PageContainer from '@/components/common/layout/page-container';
-import KickedReasonModal from '@/components/common/modals/kicked-reason-modal';
 import { usePostQuery } from '@/hooks/queries/use-channel-query';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import Comments from './comment-section';
 import CreatePost from './create-post';
 import Post from './post';
 import PostNotFound from './post-not-found';
+
+const KickedReasonModal = dynamic(
+  () => import('@/components/common/modals/kicked-reason-modal'),
+);
 
 interface ChannelSectionProps {
   groupStudyId: number;
