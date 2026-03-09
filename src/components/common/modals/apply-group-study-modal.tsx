@@ -1,11 +1,11 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
 import { Modal } from '@/components/common/ui/modal';
@@ -18,6 +18,11 @@ import {
   ApplyGroupStudyFormData,
   ApplyGroupStudyFormSchema,
 } from '@/types/schemas/apply-group-study-form.schema';
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+  { ssr: false },
+);
 
 interface ApplyGroupStudyModalProps {
   groupStudyId: number;

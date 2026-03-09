@@ -2,9 +2,9 @@
 
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
+import Button from '@/components/common/ui/button';
 import LoginModal from '@/components/common/modals/login-modal';
 import SignupModal from '@/components/common/modals/sign-up-modal';
-import Button from '@/components/common/ui/button';
 
 export default function Landing({ isSignupPage }: { isSignupPage: boolean }) {
   const [signupOpen, setSignupOpen] = useState(false);

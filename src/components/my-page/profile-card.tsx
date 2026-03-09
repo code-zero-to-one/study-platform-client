@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import Image from 'next/image';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import dynamic from 'next/dynamic';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
@@ -8,6 +8,10 @@ import {
   ApplyStatus,
   GroupStudyApply,
 } from '@/types/api/group-study-application.types';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface ProfileCardProps {
   data: GroupStudyApply;

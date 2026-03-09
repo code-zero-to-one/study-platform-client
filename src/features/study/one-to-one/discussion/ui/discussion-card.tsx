@@ -1,12 +1,16 @@
+import dynamic from 'next/dynamic';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { MessageCircle, ThumbsUp, ThumbsDown, Eye, Clock } from 'lucide-react';
 import React from 'react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import { TOPIC_LABELS } from '@/mocks/discussion-mock-data';
 import { Discussion } from '@/types/one-to-one-study/discussion';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface DiscussionCardProps {
   discussion: Discussion;

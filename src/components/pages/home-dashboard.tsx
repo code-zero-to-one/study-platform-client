@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { getUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
-import StartStudyModal from '@/components/common/modals/start-study-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import FeedbackLink from '@/components/home/feedback-link';
@@ -10,6 +10,10 @@ import { getServerCookie } from '@/utils/server-cookie';
 import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import SettingIcon from 'public/icons/setting.svg';
+
+const StartStudyModal = dynamic(
+  () => import('@/components/common/modals/start-study-modal'),
+);
 
 export default async function HomeDashboard() {
   const memberIdStr = await getServerCookie('memberId');

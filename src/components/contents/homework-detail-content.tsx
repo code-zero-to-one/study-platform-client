@@ -1,12 +1,10 @@
 'use client';
 
 import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 
 import type { PeerReviewResponse } from '@/api/openapi/models';
-import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
-import DeleteHomeworkModal from '@/components/common/modals/delete-homework-modal';
-import EditHomeworkModal from '@/components/common/modals/edit-homework-modal';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
@@ -19,6 +17,21 @@ import {
 } from '@/hooks/queries/peer-review-api';
 
 import { useUserStore } from '@/stores/useUserStore';
+
+const ConfirmDeleteModal = dynamic(
+  () => import('@/components/common/modals/confirm-delete-modal'),
+  { ssr: false },
+);
+
+const DeleteHomeworkModal = dynamic(
+  () => import('@/components/common/modals/delete-homework-modal'),
+  { ssr: false },
+);
+
+const EditHomeworkModal = dynamic(
+  () => import('@/components/common/modals/edit-homework-modal'),
+  { ssr: false },
+);
 
 interface HomeworkDetailContentProps {
   missionId: number;

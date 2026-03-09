@@ -1,14 +1,21 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
 import HeaderNav from '@/components/common/layout/header-nav';
 import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown';
-import LoginModal from '@/components/common/modals/login-modal';
-import NotificationDropdown from '@/components/common/modals/notification-dropdown';
 import Button from '@/components/common/ui/button';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
+
+const LoginModal = dynamic(
+  () => import('@/components/common/modals/login-modal'),
+);
+
+const NotificationDropdown = dynamic(
+  () => import('@/components/common/modals/notification-dropdown'),
+);
 
 export default async function Header() {
   const memberIdStr = await getServerCookie('memberId');

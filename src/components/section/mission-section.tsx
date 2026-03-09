@@ -2,8 +2,8 @@
 
 import { ChevronLeft } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import CreateMissionModal from '@/components/common/modals/create-mission-modal';
 import { useGetMissions } from '@/hooks/queries/mission-api';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
@@ -12,6 +12,11 @@ import PageContainer from '../common/layout/page-container';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
 import HomeworkDetailContent from '../contents/homework-detail-content';
 import MissionDetailContent from '../contents/mission-detail-content';
+
+const CreateMissionModal = dynamic(
+  () => import('@/components/common/modals/create-mission-modal'),
+  { ssr: false },
+);
 
 type FilterType = 'all' | 'inProgress' | 'completed';
 

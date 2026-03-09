@@ -1,8 +1,8 @@
+import dynamic from 'next/dynamic';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { MoreVertical, Trash2, Edit, CheckCircle2 } from 'lucide-react';
 import React from 'react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
@@ -20,6 +20,10 @@ import type {
   VotingOption,
 } from '@/types/one-to-one-study/voting';
 import type { CommentFormData } from '@/types/schemas/zod-schema';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface CommentListBaseProps {
   comments: (DiscussionComment | VotingComment | BalanceGameComment)[];

@@ -2,8 +2,8 @@
 
 import { ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import QuestionModal from '@/components/common/modals/question-modal';
 import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import InquiryListTable from '@/components/lists/inquiry-list-table';
@@ -11,6 +11,11 @@ import { useGetQuestion, useGetQuestions } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
+
+const QuestionModal = dynamic(
+  () => import('@/components/common/modals/question-modal'),
+  { ssr: false },
+);
 
 const PAGE_SIZE = 15;
 

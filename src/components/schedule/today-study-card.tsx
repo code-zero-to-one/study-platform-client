@@ -2,10 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import StudyDoneModal from '@/components/common/modals/study-done-modal';
-import StudyReadyModal from '@/components/common/modals/study-ready-modal';
-import UserPhoneNumberCopyModal from '@/components/common/modals/user-phone-number-copy-modal';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import dynamic from 'next/dynamic';
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import InlineSectionHeader from '@/components/common/ui/inline-section-header';
@@ -15,6 +12,26 @@ import { TUTORIAL_DAILY_STUDY_MOCK } from '@/config/tutorial-mock';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useDailyStudyDetailQuery } from '@/hooks/queries/use-interview-query';
 import { DailyStudyDetail } from '@/types/api/interview.types';
+
+const StudyDoneModal = dynamic(
+  () => import('@/components/common/modals/study-done-modal'),
+  { ssr: false },
+);
+
+const StudyReadyModal = dynamic(
+  () => import('@/components/common/modals/study-ready-modal'),
+  { ssr: false },
+);
+
+const UserPhoneNumberCopyModal = dynamic(
+  () => import('@/components/common/modals/user-phone-number-copy-modal'),
+  { ssr: false },
+);
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 
 interface TodayStudyCardProps {
   studyDate: string;

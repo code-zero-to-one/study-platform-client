@@ -125,6 +125,7 @@ export default async function Landing() {
               className="rounded-100"
               width={1000}
               height={590}
+              priority
             />
             {/* 배너 사진 하단 그라데이션 */}
             <div className="pointer-events-none absolute bottom-0 left-0 h-[120px] w-full bg-gradient-to-t from-[#ffffff] to-transparent" />
