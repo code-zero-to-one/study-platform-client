@@ -6,6 +6,7 @@ import {
   differenceInMinutes,
   format,
   getDay,
+  isValid,
   parseISO,
   startOfWeek,
 } from 'date-fns';
@@ -64,6 +65,30 @@ export const formatHHMM = (dateString: string) => {
 export const formatKoreaYMD = (targetDate?: Date) =>
   format(getKoreaDate(targetDate), 'yyyy-MM-dd');
 
+export const formatDateDot = (dateString: string) =>
+  format(parseISO(dateString), 'yyyy.MM.dd');
+
+export const formatDateTimeDot = (dateString: string) => {
+  const kstDate = formatToKST(dateString) ?? parseISO(dateString);
+
+  return format(kstDate, 'yyyy.MM.dd HH:mm');
+};
+
+export const MONDAY_DATE_INPUT_MIN = '1970-01-05';
+
+export const getKoreaCurrentMonday = (base?: Date) =>
+  startOfWeek(getKoreaDate(base), { weekStartsOn: 1 });
+
+export const isMondayDateString = (dateString: string) => {
+  const parsed = parseISO(dateString);
+
+  return (
+    isValid(parsed) &&
+    format(parsed, 'yyyy-MM-dd') === dateString &&
+    getDay(parsed) === 1
+  );
+};
+
 export const formatKoreaRelativeTime = (targetDateStr: string): string => {
   const targetDate = parseISO(targetDateStr);
   const koreaTarget = getKoreaDate(targetDate); // 한국 시간 변환
@@ -85,7 +110,7 @@ export const formatKoreaRelativeTime = (targetDateStr: string): string => {
 
 export const getKoreaDisplayMonday = (base?: Date) => {
   const todayKST = getKoreaDate(base);
-  const monday = startOfWeek(todayKST, { weekStartsOn: 1 }); // 월요일 시작
+  const monday = getKoreaCurrentMonday(base);
   const dow = getDay(todayKST); // 0=일, 6=토
 
   return dow === 0 || dow === 6 ? addDays(monday, 7) : monday;

@@ -2,25 +2,23 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-
 import Button from '@/components/ui/button';
 import { SingleDropdown } from '@/components/ui/dropdown';
 import FormField from '@/components/ui/form/form-field';
 import { TextAreaInput } from '@/components/ui/input';
-import { Modal } from '@/components/ui/modal';
 import ModalShell from '@/components/ui/modal-shell';
 import type {
   CompleteStudyRequest,
   DailyStudyDetail,
-  StudyProgressStatus,
 } from '@/features/study/interview/api/interview-types';
-import { STUDY_PROGRESS_OPTIONS } from '@/features/study/interview/const/interview-const';
+import { getStudyDoneProgressOptions } from '@/features/study/interview/const/interview-const';
 import {
+  buildStudyDoneDefaults,
+  STUDY_DONE_FEEDBACK_MAX_LENGTH,
   StudyDoneFormSchema,
   type StudyDoneFormValues,
-  buildStudyDoneDefaults,
 } from '@/features/study/interview/model/interview.schema';
 import { useUpdateDailyStudyMutation } from '@/features/study/interview/model/use-interview-query';
 
@@ -134,31 +132,49 @@ function StudyDoneForm({
   }) => void;
 }) {
   const { mutate, isPending } = useUpdateDailyStudyMutation();
+  const { dailyStudyId, progressStatus } = data;
+  const progressOptions = getStudyDoneProgressOptions(progressStatus);
+  const isProgressStatusLocked = progressOptions.length === 1;
+  const studyDoneDefaults = useMemo(
+    () => buildStudyDoneDefaults(data),
+    [data.feedback, data.progressStatus],
+  );
 
   const methods = useForm<StudyDoneFormValues>({
     resolver: zodResolver(StudyDoneFormSchema),
     mode: 'onChange',
-    defaultValues: buildStudyDoneDefaults(data),
+    defaultValues: studyDoneDefaults,
   });
 
   const {
     handleSubmit,
+    reset,
+    watch,
     formState: { isValid, isSubmitting },
   } = methods;
+  const selectedProgressStatus = watch('progressStatus');
+  const isFeedbackRequired = selectedProgressStatus === 'COMPLETE';
 
   useEffect(() => {
     onFormStateChange({ isValid, isSubmitting, isPending });
   }, [isPending, isSubmitting, isValid, onFormStateChange]);
 
+  useEffect(() => {
+    reset(studyDoneDefaults);
+  }, [reset, studyDoneDefaults]);
+
   const onSubmit = (values: StudyDoneFormValues) => {
+    const trimmedFeedback = values.feedback.trim();
     const form: CompleteStudyRequest = {
-      progressStatus: values.progressStatus as StudyProgressStatus,
-      feedback: values.feedback,
+      progressStatus: values.progressStatus,
+      ...(values.progressStatus === 'COMPLETE' && trimmedFeedback
+        ? { feedback: trimmedFeedback }
+        : {}),
     };
 
     mutate(
       {
-        dailyStudyId: data.dailyStudyId,
+        dailyStudyId,
         studyDate,
         form,
         requestType: 'complete',
@@ -172,8 +188,8 @@ function StudyDoneForm({
           });
           onClose();
         },
-        onError: (err) => {
-          console.error(err);
+        onError: (error) => {
+          console.error(error);
           sendGTMEvent({
             event: 'study_done_error',
             study_date: studyDate,
@@ -185,7 +201,7 @@ function StudyDoneForm({
   };
 
   return (
-    <Modal.Body className="flex flex-col gap-400">
+    <div className="flex flex-col gap-400">
       <FormProvider {...methods}>
         <form
           id="study-done-form"
@@ -200,31 +216,38 @@ function StudyDoneForm({
             direction="vertical"
           >
             <SingleDropdown
-              options={STUDY_PROGRESS_OPTIONS}
+              options={progressOptions}
               placeholder="선택해주세요"
+              disabled={isProgressStatusLocked}
             />
           </FormField>
 
-          <div data-tutorial="study-done-input">
-            <FormField<StudyDoneFormValues, 'feedback'>
-              name="feedback"
-              label="피드백"
-              helper="면접 결과에 대한 간단한 피드백을 입력해 주세요."
-              required
-              direction="vertical"
-              showCounterRight
-              counterMax={100}
-            >
-              <TextAreaInput
-                id="study-done-feedback"
-                placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
-                maxLength={100}
-                hideMeta
-              />
-            </FormField>
-          </div>
+          {isFeedbackRequired ? (
+            <div data-tutorial="study-done-input">
+              <FormField<StudyDoneFormValues, 'feedback'>
+                name="feedback"
+                label="피드백"
+                helper="면접 결과에 대한 간단한 피드백을 입력해 주세요."
+                required
+                direction="vertical"
+                showCounterRight
+                counterMax={STUDY_DONE_FEEDBACK_MAX_LENGTH}
+              >
+                <TextAreaInput
+                  id="study-done-feedback"
+                  placeholder="커뮤니케이션 능력은 우수하나, 자료구조 이해도가 부족해 추가 학습이 필요해 보입니다."
+                  maxLength={STUDY_DONE_FEEDBACK_MAX_LENGTH}
+                  hideMeta
+                />
+              </FormField>
+            </div>
+          ) : (
+            <div className="bg-background-alternative font-designer-14r text-text-subtle rounded-150 px-200 py-150">
+              불참 처리 시 피드백은 저장되지 않습니다.
+            </div>
+          )}
         </form>
       </FormProvider>
-    </Modal.Body>
+    </div>
   );
 }

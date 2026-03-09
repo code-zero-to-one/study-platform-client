@@ -1,5 +1,6 @@
 import { Slot } from '@radix-ui/react-slot';
 import { cva, VariantProps } from 'class-variance-authority';
+import { Loader2 } from 'lucide-react';
 import { cn } from '@/components/ui/(shadcn)/lib/utils';
 
 const buttonVariants = cva(
@@ -36,22 +37,28 @@ function Button({
   icon,
   iconPosition = 'left',
   asChild = false,
+  loading = false,
+  disabled,
   ...props
 }: React.ComponentPropsWithoutRef<'button'> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
     icon?: React.ReactNode;
     iconPosition?: 'left' | 'right';
+    loading?: boolean;
   }) {
   const Comp = asChild ? Slot : 'button';
+  const isDisabled = disabled || loading;
 
   const content = (
     <span className="flex items-center gap-50">
-      {icon && iconPosition === 'left' && (
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" />
+      ) : icon && iconPosition === 'left' ? (
         <span className="flex items-center">{icon}</span>
-      )}
+      ) : null}
       {children}
-      {icon && iconPosition === 'right' && (
+      {!loading && icon && iconPosition === 'right' && (
         <span className="flex items-center">{icon}</span>
       )}
     </span>
@@ -62,6 +69,8 @@ function Button({
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ color, size }), className)}
+      aria-busy={loading || undefined}
+      disabled={isDisabled}
       {...props}
     >
       {children}
@@ -71,6 +80,8 @@ function Button({
     <button
       data-slot="button"
       className={cn(buttonVariants({ color, size }), className)}
+      aria-busy={loading || undefined}
+      disabled={isDisabled}
       {...props}
     >
       {content}

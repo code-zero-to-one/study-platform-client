@@ -4,22 +4,22 @@ import {
   getDailyStudyDetail,
   putStudyDaily,
 } from '@/features/study/interview/api/get-interview';
-import {
+import type {
   CompleteStudyRequest,
   PrepareStudyRequest,
 } from '@/features/study/interview/api/interview-types';
+import { interviewQueryKeys } from '@/types/interview/query';
+import { scheduleQueryKeys } from '@/types/schedule/query';
 
-// 스터디 상세 조회 query
 export const useDailyStudyDetailQuery = (params: string) => {
   return useQuery({
-    queryKey: ['dailyStudyDetail', params],
+    queryKey: interviewQueryKeys.dailyStudyDetail(params),
     queryFn: () => getDailyStudyDetail(params),
     staleTime: 60 * 1000,
     enabled: !!params,
   });
 };
 
-// 스터디 상세 & 리스트 업데이트
 interface UpdateDailyStudyVariables {
   dailyStudyId: number;
   studyDate: string;
@@ -40,13 +40,12 @@ export const useUpdateDailyStudyMutation = () => {
     },
     onSuccess: async (_data, { studyDate }) => {
       await queryClient.invalidateQueries({
-        queryKey: ['dailyStudyDetail', studyDate],
+        queryKey: interviewQueryKeys.dailyStudyDetail(studyDate),
         exact: true,
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ['dailyStudies', { studyDate }],
-        exact: false,
+        queryKey: scheduleQueryKeys.dailyStudies(studyDate),
       });
     },
   });

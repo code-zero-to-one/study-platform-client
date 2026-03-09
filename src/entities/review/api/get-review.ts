@@ -1,14 +1,15 @@
 import { axiosInstance } from '@/api/client/axios';
 import type {
   AddStudyReviewRequest,
-  UserPositiveKeywordsResponse,
-  UserPositiveKeywordsRequest,
-  StudyEvaluationResponse,
+  DismissStudyReviewModalRequest,
   MyNegativeKeywordsRequest,
   MyNegativeKeywordsResponse,
-  MyReviewsResponse,
   MyReviewsRequest,
-  ShouldReviewPartnerResponse,
+  MyReviewsResponse,
+  StudyEvaluationResponse,
+  StudyReviewModalStateResponse,
+  UserPositiveKeywordsRequest,
+  UserPositiveKeywordsResponse,
 } from '@/entities/review/api/review-types';
 
 export const getPartnerStudyReview =
@@ -71,7 +72,6 @@ export const getMyReviews = async ({
     'page-size': 10,
   };
 
-  // cursor 전송하지 않는 경우 첫 데이터부터 조회
   if (cursor) {
     params.cursor = cursor;
   }
@@ -81,9 +81,17 @@ export const getMyReviews = async ({
   return res.data.content;
 };
 
-export const getShouldReviewPartner =
-  async (): Promise<ShouldReviewPartnerResponse> => {
-    const res = await axiosInstance.get('/study/reviews/this-week/is-writer');
+export const getStudyReviewModalState =
+  async (): Promise<StudyReviewModalStateResponse> => {
+    const res = await axiosInstance.get('/study/reviews/this-week/modal-state');
 
     return res.data.content;
   };
+
+export const dismissStudyReviewModal = async ({
+  targetStudySpaceId,
+}: DismissStudyReviewModalRequest) => {
+  await axiosInstance.post('/study/reviews/this-week/modal-dismiss', {
+    targetStudySpaceId,
+  });
+};

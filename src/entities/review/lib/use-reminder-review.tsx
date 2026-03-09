@@ -1,35 +1,69 @@
 import { useEffect, useState } from 'react';
+import {
+  useDismissStudyReviewModalMutation,
+  useStudyReviewModalStateQuery,
+} from '@/entities/review/model/use-review-query';
 
-import { useShouldReviewPartnerQuery } from '../model/use-review-query';
+const REVIEW_REMINDER_HIDE_UNTIL_KEY = 'reviewReminderHideUntil';
+const ONE_HOUR_MS = 1000 * 60 * 60;
 
-const LAST_REVIEW_MODAL_SHOWN_KEY = 'lastReviewModalShown';
+interface ReviewReminderDismissOptions {
+  hideForOneHour: boolean;
+  hideForever: boolean;
+}
 
 export const useReviewReminder = (memberId?: number) => {
-  const { data: shouldReview, isFetching } = useShouldReviewPartnerQuery();
+  const { data: modalState, isFetching } = useStudyReviewModalStateQuery();
+  const { mutateAsync: dismissStudyReviewModal } =
+    useDismissStudyReviewModalMutation();
   const [showReviewReminder, setShowReviewReminder] = useState(false);
-  const storageKey = memberId
-    ? `${LAST_REVIEW_MODAL_SHOWN_KEY}:${memberId}`
-    : LAST_REVIEW_MODAL_SHOWN_KEY;
+  const hideUntilStorageKey =
+    memberId && modalState?.targetStudySpaceId
+      ? `${REVIEW_REMINDER_HIDE_UNTIL_KEY}:${memberId}:${modalState.targetStudySpaceId}`
+      : memberId
+        ? `${REVIEW_REMINDER_HIDE_UNTIL_KEY}:${memberId}`
+        : REVIEW_REMINDER_HIDE_UNTIL_KEY;
+
+  const applyDismissPreference = async ({
+    hideForOneHour,
+    hideForever,
+  }: ReviewReminderDismissOptions) => {
+    if (hideForOneHour) {
+      localStorage.setItem(
+        hideUntilStorageKey,
+        String(Date.now() + ONE_HOUR_MS),
+      );
+    }
+
+    if (hideForever && modalState?.targetStudySpaceId) {
+      try {
+        await dismissStudyReviewModal({
+          targetStudySpaceId: modalState.targetStudySpaceId,
+        });
+      } catch {
+        alert('다시 보지 않기 저장에 실패했습니다. 다시 시도해주세요.');
+      }
+    }
+  };
 
   useEffect(() => {
-    // 리뷰 작성 대상이 아닌 경우
-    if (!shouldReview || isFetching) return;
+    if (!modalState || isFetching) return;
+    if (!modalState.shouldShowModal) return;
 
-    const now = Date.now();
-    const lastShown = localStorage.getItem(storageKey);
+    const hideUntil = Number(localStorage.getItem(hideUntilStorageKey));
+    if (Number.isFinite(hideUntil) && hideUntil > Date.now()) return;
 
-    const diff = now - Number(lastShown);
-    const THIRTY_MIN = 1000 * 60 * 30; // 30분
-
-    if (!lastShown || diff >= THIRTY_MIN) {
-      setShowReviewReminder(true);
-
-      localStorage.setItem(storageKey, String(now));
+    if (Number.isFinite(hideUntil) && hideUntil <= Date.now()) {
+      localStorage.removeItem(hideUntilStorageKey);
     }
-  }, [shouldReview, isFetching, storageKey]);
+
+    setShowReviewReminder(true);
+  }, [modalState, isFetching, hideUntilStorageKey]);
 
   return {
     showReviewReminder,
     setShowReviewReminder,
+    applyDismissPreference,
+    targetStudySpaceId: modalState?.targetStudySpaceId ?? undefined,
   };
 };

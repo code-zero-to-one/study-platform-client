@@ -13,6 +13,8 @@ export default function AdminSideBar() {
   const { data: profile } = useUserProfileQuery(memberId ?? 0);
 
   const pathname = usePathname();
+  const isSalesManagementPath = pathname.startsWith('/admin/sales-management');
+  const isMatchingManagementPath = pathname.startsWith('/admin/matching');
 
   return (
     <aside className="border-border-subtle h-screen w-fit border-r p-200">
@@ -38,19 +40,18 @@ export default function AdminSideBar() {
         </Link>
       </div>
 
-      <nav className="mt-200">
-        <TabMenu active={pathname === '/admin'}>
-          <Link href="/admin">사용자 관리</Link>
-        </TabMenu>
+      <nav className="mt-200 flex w-[188px] flex-col gap-100">
+        <Link href="/admin">
+          <TabMenu active={pathname === '/admin'}>사용자 관리</TabMenu>
+        </Link>
 
-        <TabMenu
-          active={
-            pathname === '/admin/sales-management/payment-refund' ||
-            pathname === '/admin/sales-management/settlement'
-          }
-        >
-          <Link href="/admin/sales-management/payment-refund">매출 관리</Link>
-        </TabMenu>
+        <Link href="/admin/sales-management/payment-refund">
+          <TabMenu active={isSalesManagementPath}>매출 관리</TabMenu>
+        </Link>
+
+        <Link href="/admin/matching">
+          <TabMenu active={isMatchingManagementPath}>1:1 매칭 관리</TabMenu>
+        </Link>
       </nav>
     </aside>
   );

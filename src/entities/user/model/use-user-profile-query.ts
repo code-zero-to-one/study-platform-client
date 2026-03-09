@@ -5,6 +5,7 @@ import {
   patchAutoMatching,
 } from '@/entities/user/api/get-user-profile';
 import type { GetUserProfileResponse } from '@/entities/user/api/types';
+import { scheduleQueryKeys } from '@/types/schedule/query';
 import { hashValue } from '@/utils/hash';
 
 export const useUserProfileQuery = (memberId: number) => {
@@ -55,8 +56,7 @@ export const usePatchAutoMatchingMutation = () => {
       await qc.invalidateQueries({ queryKey: ['userProfile', memberId] });
 
       await qc.invalidateQueries({
-        predicate: (q) =>
-          Array.isArray(q.queryKey) && q.queryKey[0] === 'weeklyParticipation',
+        queryKey: scheduleQueryKeys.weeklyParticipations(),
       });
 
       await qc.invalidateQueries({

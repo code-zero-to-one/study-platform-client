@@ -20,6 +20,7 @@ export interface DailyStudy {
   interviewee: string;
   intervieweeImage: string;
   dailyStudyId: number;
+  groupNum?: number;
   subject: string;
   description: string;
   link: string;

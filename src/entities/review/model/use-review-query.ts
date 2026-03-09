@@ -5,23 +5,45 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import {
-  MyNegativeKeywordsRequest,
-  UserPositiveKeywordsRequest,
-} from '@/entities/review/api/review-types';
-import {
   addStudyReview,
-  getUserPositiveKeywords,
-  getPartnerStudyReview,
+  dismissStudyReviewModal,
   getMyNegativeKeywords,
   getMyReviews,
-  getShouldReviewPartner,
-} from '../api/get-review';
+  getPartnerStudyReview,
+  getStudyReviewModalState,
+  getUserPositiveKeywords,
+} from '@/entities/review/api/get-review';
+import type {
+  DismissStudyReviewModalRequest,
+  MyNegativeKeywordsRequest,
+  PartnerStudyReviewQueryParams,
+  UserPositiveKeywordsRequest,
+} from '@/entities/review/api/review-types';
 
-export const usePartnerStudyReviewQuery = (enabled = true) => {
+export const reviewQueryKeys = {
+  all: ['review'] as const,
+  modalState: () => [...reviewQueryKeys.all, 'modal-state'] as const,
+  partnerStudies: () => [...reviewQueryKeys.all, 'partner-study'] as const,
+  partnerStudy: (targetStudySpaceId?: number) =>
+    [
+      ...reviewQueryKeys.partnerStudies(),
+      targetStudySpaceId ?? 'unknown',
+    ] as const,
+  myReviews: () => [...reviewQueryKeys.all, 'my-reviews'] as const,
+  userPositiveKeywords: (params: UserPositiveKeywordsRequest) =>
+    [...reviewQueryKeys.all, 'user-positive-keywords', params] as const,
+  myNegativeKeywords: (params: MyNegativeKeywordsRequest) =>
+    [...reviewQueryKeys.all, 'my-negative-keywords', params] as const,
+};
+
+export const usePartnerStudyReviewQuery = ({
+  enabled = true,
+  targetStudySpaceId,
+}: PartnerStudyReviewQueryParams) => {
   return useQuery({
-    queryKey: ['partnerStudyReview'],
+    queryKey: reviewQueryKeys.partnerStudy(targetStudySpaceId),
     queryFn: getPartnerStudyReview,
-    enabled,
+    enabled: enabled && !!targetStudySpaceId,
   });
 };
 
@@ -31,16 +53,29 @@ export const useAddStudyReviewMutation = () => {
   return useMutation({
     mutationFn: addStudyReview,
     onSuccess: async () => {
-      // todo: 모달로 변경
       alert('후기 작성이 완료되었습니다.');
       await queryClient.invalidateQueries({
-        queryKey: ['shouldReviewPartner'],
+        queryKey: reviewQueryKeys.modalState(),
       });
       await queryClient.invalidateQueries({
-        queryKey: ['partnerStudyReview'],
+        queryKey: reviewQueryKeys.partnerStudies(),
       });
       await queryClient.invalidateQueries({
-        queryKey: ['myReviews'],
+        queryKey: reviewQueryKeys.myReviews(),
+      });
+    },
+  });
+};
+
+export const useDismissStudyReviewModalMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (request: DismissStudyReviewModalRequest) =>
+      dismissStudyReviewModal(request),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: reviewQueryKeys.modalState(),
       });
     },
   });
@@ -50,9 +85,10 @@ export const useUserPositiveKeywordsQuery = (
   params: UserPositiveKeywordsRequest,
 ) => {
   return useQuery({
-    queryKey: ['userPositiveKeywords', params],
+    queryKey: reviewQueryKeys.userPositiveKeywords(params),
     queryFn: ({ queryKey }) => {
-      const [, requestParams] = queryKey as [
+      const [, , requestParams] = queryKey as [
+        string,
         string,
         UserPositiveKeywordsRequest,
       ];
@@ -66,14 +102,14 @@ export const useMyNegativeKeywordsQuery = (
   params: MyNegativeKeywordsRequest,
 ) => {
   return useQuery({
-    queryKey: ['myNegativeKeywords', params],
+    queryKey: reviewQueryKeys.myNegativeKeywords(params),
     queryFn: () => getMyNegativeKeywords(params),
   });
 };
 
 export const useMyReviewsInfinityQuery = () => {
   return useInfiniteQuery({
-    queryKey: ['myReviews'],
+    queryKey: reviewQueryKeys.myReviews(),
     queryFn: ({ pageParam = null }) => getMyReviews({ cursor: pageParam }),
     initialPageParam: null,
     getNextPageParam: (lastPage) => {
@@ -98,10 +134,10 @@ export const useMyReviewsInfinityQuery = () => {
   });
 };
 
-export const useShouldReviewPartnerQuery = () => {
+export const useStudyReviewModalStateQuery = () => {
   return useQuery({
-    queryKey: ['shouldReviewPartner'],
-    queryFn: getShouldReviewPartner,
-    refetchInterval: 1000 * 60 * 30, // 30분
+    queryKey: reviewQueryKeys.modalState(),
+    queryFn: getStudyReviewModalState,
+    refetchInterval: 1000 * 60 * 30,
   });
 };
