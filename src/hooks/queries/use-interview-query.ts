@@ -8,11 +8,13 @@ import {
   CompleteStudyRequest,
   PrepareStudyRequest,
 } from '@/types/api/interview.types';
+import { interviewQueryKeys } from '@/types/interview/query';
+import { scheduleQueryKeys } from '@/types/schedule/query';
 
 // 스터디 상세 조회 query
 export const useDailyStudyDetailQuery = (params: string) => {
   return useQuery({
-    queryKey: ['dailyStudyDetail', params],
+    queryKey: interviewQueryKeys.dailyStudyDetail(params),
     queryFn: () => getDailyStudyDetail(params),
     staleTime: 60 * 1000,
     enabled: !!params,
@@ -40,13 +42,12 @@ export const useUpdateDailyStudyMutation = () => {
     },
     onSuccess: async (_data, { studyDate }) => {
       await queryClient.invalidateQueries({
-        queryKey: ['dailyStudyDetail', studyDate],
+        queryKey: interviewQueryKeys.dailyStudyDetail(studyDate),
         exact: true,
       });
 
       await queryClient.invalidateQueries({
-        queryKey: ['dailyStudies', { studyDate }],
-        exact: false,
+        queryKey: scheduleQueryKeys.dailyStudies(studyDate),
       });
     },
   });

@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { STUDY_PROGRESS_OPTIONS } from '@/config/interview-const';
+import { STUDY_DONE_PROGRESS_OPTIONS } from '@/config/interview-const';
 import type {
+  CompleteStudyProgressStatus,
   DailyStudyDetail,
-  StudyProgressStatus,
 } from '@/types/api/interview.types';
 import { UrlSchema } from '@/types/schemas/zod-schema';
 
@@ -24,21 +24,36 @@ export function buildStudyReadyDefaults(
 }
 
 // 스터디 완료 스키마
-const STUDY_PROGRESS_VALUES = STUDY_PROGRESS_OPTIONS.map((o) => o.value) as [
-  string,
-  ...string[],
-];
+const STUDY_DONE_PROGRESS_VALUES = STUDY_DONE_PROGRESS_OPTIONS.map(
+  (option) => option.value,
+) as [CompleteStudyProgressStatus, ...CompleteStudyProgressStatus[]];
 
-export const StudyDoneFormSchema = z.object({
-  progressStatus: z.enum(STUDY_PROGRESS_VALUES, {
-    message: '진행 현황을 선택해 주세요.',
-  }),
-  feedback: z
-    .string()
-    .trim()
-    .min(1, '피드백을 입력해 주세요.')
-    .max(100, '최대 100자까지 입력 가능합니다.'),
-});
+export const STUDY_DONE_FEEDBACK_MAX_LENGTH = 100;
+
+const StudyDoneFeedbackSchema = z
+  .string()
+  .trim()
+  .max(
+    STUDY_DONE_FEEDBACK_MAX_LENGTH,
+    `최대 ${STUDY_DONE_FEEDBACK_MAX_LENGTH}자까지 입력 가능합니다.`,
+  );
+
+export const StudyDoneFormSchema = z
+  .object({
+    progressStatus: z.enum(STUDY_DONE_PROGRESS_VALUES, {
+      message: '진행 현황을 선택해 주세요.',
+    }),
+    feedback: StudyDoneFeedbackSchema,
+  })
+  .superRefine(({ progressStatus, feedback }, ctx) => {
+    if (progressStatus === 'COMPLETE' && feedback.length === 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['feedback'],
+        message: '피드백을 입력해 주세요.',
+      });
+    }
+  });
 
 export type StudyDoneFormValues = z.infer<typeof StudyDoneFormSchema>;
 
@@ -46,9 +61,7 @@ export function buildStudyDoneDefaults(
   d: DailyStudyDetail,
 ): StudyDoneFormValues {
   return {
-    // "완료하기" 모달이므로 기본값을 "완료"로 설정
-    // 사용자가 의도적으로 다른 상태(불참, 시작 전)를 선택해야만 변경됨
-    progressStatus: 'COMPLETE' as StudyProgressStatus,
+    progressStatus: d.progressStatus === 'ABSENT' ? 'ABSENT' : 'COMPLETE',
     feedback: d.feedback ?? '',
   };
 }

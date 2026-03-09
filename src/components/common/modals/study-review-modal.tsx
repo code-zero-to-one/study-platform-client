@@ -12,6 +12,7 @@ import { TextAreaInput } from '@/components/common/ui/input';
 import List from '@/components/common/ui/list';
 import { Modal } from '@/components/common/ui/modal';
 import {
+  reviewQueryKeys,
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
 } from '@/hooks/queries/use-review-query';
@@ -25,20 +26,68 @@ interface FormState {
   content: string;
 }
 
+interface ReminderDismissOptions {
+  hideForOneHour: boolean;
+  hideForever: boolean;
+}
+
+const createInitialFormState = (): FormState => ({
+  studySpaceId: 0,
+  targetMemberId: 0,
+  satisfactionId: undefined,
+  keywordIds: [],
+  content: '',
+});
+
 export default function StudyReviewModal({
   open,
   onOpenChange,
+  onDismissPreferenceChange,
+  targetStudySpaceId,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onDismissPreferenceChange?: (
+    options: ReminderDismissOptions,
+  ) => Promise<void> | void;
+  targetStudySpaceId?: number;
 }) {
+  const [hideForOneHour, setHideForOneHour] = useState(false);
+  const [hideForever, setHideForever] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setHideForOneHour(false);
+      setHideForever(false);
+    }
+  }, [open]);
+
+  const handleDismiss = () => {
+    onOpenChange(false);
+    if (onDismissPreferenceChange) {
+      Promise.resolve(
+        onDismissPreferenceChange({ hideForOneHour, hideForever }),
+      ).catch(() => {});
+    }
+  };
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      onOpenChange(true);
+
+      return;
+    }
+
+    handleDismiss();
+  };
+
   return (
-    <Modal.Root open={open} onOpenChange={onOpenChange}>
+    <Modal.Root open={open} onOpenChange={handleOpenChange}>
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="large">
           <Modal.Header className="border-border-default flex justify-end border-b">
-            <Modal.Close onClick={() => onOpenChange(false)}>
+            <Modal.Close aria-label="후기 모달 닫기">
               <XIcon />
             </Modal.Close>
           </Modal.Header>
@@ -54,7 +103,34 @@ export default function StudyReviewModal({
             </div>
           </div>
 
-          <StudyReviewForm open={open} onClose={() => onOpenChange(false)} />
+          <StudyReviewForm
+            open={open}
+            targetStudySpaceId={targetStudySpaceId}
+            onDismiss={handleDismiss}
+            onSubmitSuccessClose={() => onOpenChange(false)}
+            hideForOneHour={hideForOneHour}
+            hideForever={hideForever}
+            onToggleHideForOneHour={() => {
+              setHideForOneHour((prev) => {
+                const next = !prev;
+                if (next) {
+                  setHideForever(false);
+                }
+
+                return next;
+              });
+            }}
+            onToggleHideForever={() => {
+              setHideForever((prev) => {
+                const next = !prev;
+                if (next) {
+                  setHideForOneHour(false);
+                }
+
+                return next;
+              });
+            }}
+          />
         </Modal.Content>
       </Modal.Portal>
     </Modal.Root>
@@ -63,33 +139,52 @@ export default function StudyReviewModal({
 
 function StudyReviewForm({
   open,
-  onClose,
+  targetStudySpaceId,
+  onDismiss,
+  onSubmitSuccessClose,
+  hideForOneHour,
+  hideForever,
+  onToggleHideForOneHour,
+  onToggleHideForever,
 }: {
   open: boolean;
-  onClose: () => void;
+  targetStudySpaceId?: number;
+  onDismiss: () => void;
+  onSubmitSuccessClose: () => void;
+  hideForOneHour: boolean;
+  hideForever: boolean;
+  onToggleHideForOneHour: () => void;
+  onToggleHideForever: () => void;
 }) {
   const queryClient = useQueryClient();
-  const { data, error, isError } = usePartnerStudyReviewQuery(open);
+  const { data, error, isError, isFetching } = usePartnerStudyReviewQuery({
+    enabled: open,
+    targetStudySpaceId,
+  });
   const { mutate: addStudyReview, isPending } = useAddStudyReviewMutation();
 
-  const [form, setForm] = useState<FormState>({
-    studySpaceId: 0,
-    targetMemberId: 0,
-    satisfactionId: undefined,
-    keywordIds: [],
-    content: '',
-  });
+  const [form, setForm] = useState<FormState>(createInitialFormState);
+
+  useEffect(() => {
+    if (!open) {
+      setForm(createInitialFormState());
+
+      return;
+    }
+
+    setForm(createInitialFormState());
+  }, [open, targetStudySpaceId]);
 
   useEffect(() => {
     if (!open || !isError) return;
 
     if (isAxiosError(error) && error.response?.status === 404) {
-      onClose();
+      onSubmitSuccessClose();
     }
-  }, [open, isError, error, onClose]);
+  }, [open, isError, error, onSubmitSuccessClose]);
 
   useEffect(() => {
-    if (!data) return;
+    if (!data || data.studySpaceId !== targetStudySpaceId) return;
 
     setForm({
       studySpaceId: data.studySpaceId,
@@ -98,10 +193,72 @@ function StudyReviewForm({
       keywordIds: [],
       content: '',
     });
-  }, [data]);
+  }, [data, targetStudySpaceId]);
 
   if (!open) return null;
+
+  if (!targetStudySpaceId) {
+    return (
+      <>
+        <Modal.Body className="mt-400 flex items-center justify-center pt-0">
+          <p className="font-designer-14r text-text-subtle text-center">
+            후기 대상 스터디를 찾지 못했습니다. 잠시 후 다시 시도해주세요.
+          </p>
+        </Modal.Body>
+        <Modal.Footer className="flex justify-end gap-100">
+          <Button color="secondary" size="large" onClick={onDismiss}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </>
+    );
+  }
+
+  if (isFetching && !data) {
+    return (
+      <Modal.Body className="mt-400 flex items-center justify-center pt-0">
+        <p className="font-designer-14r text-text-subtle text-center">
+          후기 정보를 불러오는 중입니다.
+        </p>
+      </Modal.Body>
+    );
+  }
+
+  if (isError && !data) {
+    return (
+      <>
+        <Modal.Body className="mt-400 flex items-center justify-center pt-0">
+          <p className="font-designer-14r text-text-subtle text-center">
+            후기 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.
+          </p>
+        </Modal.Body>
+        <Modal.Footer className="flex justify-end gap-100">
+          <Button color="secondary" size="large" onClick={onDismiss}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </>
+    );
+  }
+
   if (!data) return null;
+
+  if (data.studySpaceId !== targetStudySpaceId) {
+    return (
+      <>
+        <Modal.Body className="mt-400 flex items-center justify-center pt-0">
+          <p className="font-designer-14r text-text-subtle text-center">
+            최신 후기 대상을 다시 불러오는 중입니다. 잠시 후 다시 시도해주세요.
+          </p>
+        </Modal.Body>
+        <Modal.Footer className="flex justify-end gap-100">
+          <Button color="secondary" size="large" onClick={onDismiss}>
+            닫기
+          </Button>
+        </Modal.Footer>
+      </>
+    );
+  }
 
   const handleSubmit = () => {
     if (
@@ -120,13 +277,13 @@ function StudyReviewForm({
       },
       {
         onSuccess: () => {
-          onClose();
+          onSubmitSuccessClose();
         },
         onError: async (error) => {
           if (isAxiosError(error) && error.response?.status === 400) {
-            onClose();
+            onSubmitSuccessClose();
             await queryClient.invalidateQueries({
-              queryKey: ['shouldReviewPartner'],
+              queryKey: reviewQueryKeys.modalState(),
             });
 
             return;
@@ -201,12 +358,36 @@ function StudyReviewForm({
           <PositiveReview data={data} form={form} onChange={setForm} />
         )}
       </Modal.Body>
-      <Modal.Footer className="flex justify-end gap-100">
-        <Modal.Close asChild>
-          <Button color="secondary" size="large" onClick={onClose}>
-            취소
-          </Button>
-        </Modal.Close>
+      <Modal.Footer className="flex items-center justify-end gap-100">
+        <div className="mr-auto flex items-center gap-300">
+          <label
+            htmlFor="study-review-hide-forever"
+            className="font-designer-13m text-text-subtle inline-flex cursor-pointer items-center gap-75"
+          >
+            <Checkbox
+              id="study-review-hide-forever"
+              checked={hideForever}
+              onToggle={onToggleHideForever}
+            />
+            다시 보지 않기
+          </label>
+
+          <label
+            htmlFor="study-review-hide-one-hour"
+            className="font-designer-13m text-text-subtle inline-flex cursor-pointer items-center gap-75"
+          >
+            <Checkbox
+              id="study-review-hide-one-hour"
+              checked={hideForOneHour}
+              onToggle={onToggleHideForOneHour}
+            />
+            1시간 동안 보지 않기
+          </label>
+        </div>
+
+        <Button color="secondary" size="large" onClick={onDismiss}>
+          취소
+        </Button>
         <Button
           color="primary"
           size="large"
@@ -240,14 +421,14 @@ function PartnerInfo(data: StudyEvaluationResponse) {
           {partner.memberName}
         </span>
 
-        <p>
+        <div className="flex flex-col gap-25">
           <span className="font-designer-14r text-text-default">
             {data.studySubject}
           </span>
           <span className="font-designer-14r text-text-subtlest">
             {data.startDate} ~ {data.endDate}
           </span>
-        </p>
+        </div>
       </div>
     </div>
   );
