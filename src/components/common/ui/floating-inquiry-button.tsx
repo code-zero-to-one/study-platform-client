@@ -4,6 +4,7 @@ import { MessageCircle } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useState } from 'react';
+import { useLazyMount } from '@/hooks/common/use-lazy-mount';
 
 const QuestionModal = dynamic(
   () => import('@/components/common/modals/question-modal'),
@@ -15,6 +16,7 @@ const STUDY_DETAIL_PATTERN = /^\/(group-study|premium-study)\/(\d+)/;
 export default function FloatingInquiryButton() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const shouldMount = useLazyMount(open);
 
   const match = pathname.match(STUDY_DETAIL_PATTERN);
   if (!match) return null;
@@ -34,12 +36,14 @@ export default function FloatingInquiryButton() {
           스터디 문의하기
         </span>
       </button>
-      <QuestionModal
-        open={open}
-        onOpenChange={setOpen}
-        studyId={studyId}
-        studyType={studyType}
-      />
+      {shouldMount && (
+        <QuestionModal
+          open={open}
+          onOpenChange={setOpen}
+          studyId={studyId}
+          studyType={studyType}
+        />
+      )}
     </>
   );
 }
