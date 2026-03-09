@@ -65,7 +65,6 @@ export default function GroupStudyForm({
 
   const currentStepFields = STEP_FIELDS[step];
   const currentStepValues = useWatch({ name: currentStepFields, control });
-  // const current = watch({})
 
   const goNext = async () => {
     const fields = STEP_FIELDS[step];
