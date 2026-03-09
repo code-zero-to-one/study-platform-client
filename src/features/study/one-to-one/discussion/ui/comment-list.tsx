@@ -21,13 +21,13 @@ import type {
 } from '@/types/one-to-one-study/voting';
 import type { CommentFormData } from '@/types/schemas/zod-schema';
 
-type CommentListBaseProps = {
+interface CommentListBaseProps {
   comments: (DiscussionComment | VotingComment | BalanceGameComment)[];
   onDelete?: (commentId: number) => void;
   onEdit?: (commentId: number, content: string) => void;
   votingOptions?: VotingOption[]; // 투표 옵션 목록 (색상 매칭용)
   editingCommentId?: undefined;
-};
+}
 
 type CommentListEditingProps = Omit<
   CommentListBaseProps,

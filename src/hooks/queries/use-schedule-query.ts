@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import {
   getDailyStudies,
   getMonthlyStudyCalendar,
@@ -11,11 +11,12 @@ import {
   MonthlyCalendarResponse,
   StudyStatus,
 } from '@/types/api/schedule.types';
+import { scheduleQueryKeys } from '@/types/schedule/query';
 
 // 스터디 주간 참여 유무 확인 query
 export const useWeeklyParticipationQuery = (params: string, enabled = true) => {
   return useQuery({
-    queryKey: ['weeklyParticipation', params],
+    queryKey: scheduleQueryKeys.weeklyParticipation(params),
     queryFn: () => getWeeklyParticipation(params),
     staleTime: 60 * 1000,
     enabled: !!params && enabled,
@@ -25,8 +26,9 @@ export const useWeeklyParticipationQuery = (params: string, enabled = true) => {
 // 스터디 매칭 결과 조회 query
 export const useDailyStudiesQuery = (params?: GetDailyStudiesParams) => {
   return useQuery({
-    queryKey: ['dailyStudies', params],
+    queryKey: scheduleQueryKeys.dailyStudiesList(params),
     queryFn: () => getDailyStudies(params),
+    placeholderData: keepPreviousData,
     staleTime: 60 * 1000,
   });
 };
@@ -36,7 +38,7 @@ export const useMonthlyStudyCalendarQuery = (
   params: GetMonthlyCalendarParams,
 ) => {
   return useQuery<MonthlyCalendarResponse>({
-    queryKey: ['monthlyStudyCalendar', params],
+    queryKey: scheduleQueryKeys.monthlyCalendar(params),
     queryFn: () => getMonthlyStudyCalendar(params),
     staleTime: 60 * 1000,
     enabled: !!params?.year && !!params?.month,
@@ -45,7 +47,7 @@ export const useMonthlyStudyCalendarQuery = (
 
 export const useStudyStatusQuery = () => {
   return useQuery<StudyStatus>({
-    queryKey: ['studyStatus'],
+    queryKey: scheduleQueryKeys.studyStatus(),
     queryFn: getStudyStatus,
     staleTime: 60 * 1000,
   });
