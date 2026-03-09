@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
+import { Dot, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Dot, Users } from 'lucide-react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import { MemberStudyItem } from '@/types/api/group-study.types';

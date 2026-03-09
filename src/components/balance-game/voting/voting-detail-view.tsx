@@ -1,6 +1,5 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import {
   Loader2,
   ArrowLeft,
@@ -12,6 +11,7 @@ import {
   Lock,
   Share2,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React, { useState, useEffect } from 'react';
 import DailyStatsChart from '@/components/balance-game/voting/daily-stats-chart';
 import VoteResultsChart from '@/components/balance-game/voting/vote-results-chart';

@@ -1,8 +1,8 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import { GroupStudyFullResponseDto } from '@/api/openapi';
 import UserAvatar from '@/components/common/ui/avatar';

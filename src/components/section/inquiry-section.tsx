@@ -1,8 +1,8 @@
 'use client';
 
 import { ArrowLeft } from 'lucide-react';
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useState } from 'react';
 import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';

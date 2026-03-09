@@ -1,7 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { ChevronRight } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ProfileDefault from '@/components/common/cards/icon/profile-default.svg';
 import SectionHeader from '@/components/common/ui/section-header';

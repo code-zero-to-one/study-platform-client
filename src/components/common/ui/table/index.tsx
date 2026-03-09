@@ -39,7 +39,7 @@ function TableBody({ className, ...props }: React.ComponentProps<'tbody'>) {
   );
 }
 
-export function TableFooter({
+function TableFooter({
   className,
   ...props
 }: React.ComponentProps<'tfoot'>) {
@@ -138,3 +138,13 @@ export default function TableList<T extends string>({
     </Table>
   );
 }
+
+export {
+  Table,
+  TableBody,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+};

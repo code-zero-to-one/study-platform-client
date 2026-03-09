@@ -1,6 +1,6 @@
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
 import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
 import HeaderNav from '@/components/common/layout/header-nav';
 import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown';
