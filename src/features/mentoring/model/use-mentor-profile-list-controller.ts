@@ -7,10 +7,7 @@ import { useToastStore } from '@/stores/use-toast-store';
 import type { MentorProfileListProps } from '@/types/mentoring/directory-view';
 import type { MentorProfile, MentorSortType } from '@/types/mentoring/domain';
 import { parseMentorProfileListParams } from './mentor-directory-contract';
-import {
-  useMentorDirectoryListQuery,
-  useMentorRegistrationOptionsQuery,
-} from './use-mentor-directory-query';
+import { useMentorDirectoryListQuery } from './use-mentor-directory-query';
 
 export type MentorProfileListViewState =
   | 'loading'
@@ -21,13 +18,11 @@ export type MentorProfileListViewState =
 export interface MentorProfileListControllerState {
   keyword: string;
   sortType: MentorSortType;
-  careerCodes: string[];
 }
 
 export interface MentorProfileListControllerActions {
   onKeywordChange: (nextKeyword: string) => void;
   onSortTypeChange: (nextSortType: MentorSortType) => void;
-  onCareerCodesChange: (nextCareerCodes: string[]) => void;
   onPageChange: (page: number) => void;
   onRetry: () => void;
 }
@@ -40,10 +35,6 @@ export interface MentorProfileListControllerViewModel {
   totalPages: number;
   showPagination: boolean;
   keywordOptions: string[];
-  careerOptions: Array<{
-    code: string;
-    label: string;
-  }>;
   leadMentors: MentorProfile[];
   remainingMentors: MentorProfile[];
 }
@@ -58,20 +49,6 @@ export const normalizeMentorDirectoryKeyword = (
   return keyword?.trim() ?? '';
 };
 
-const normalizeMentorCareerCodes = (careerCodes: string[] | undefined) => {
-  if (!careerCodes || careerCodes.length === 0) {
-    return [];
-  }
-
-  return Array.from(
-    new Set(
-      careerCodes
-        .map((careerCode) => careerCode.trim())
-        .filter((careerCode) => careerCode.length > 0),
-    ),
-  );
-};
-
 const getMentorTechnicalKeywords = (mentor: MentorProfile) => {
   const mentorSettings = getMentorSettings(mentor);
 
@@ -83,13 +60,11 @@ const getMentorTechnicalKeywords = (mentor: MentorProfile) => {
 export const useMentorProfileListController = ({
   initialKeyword = '',
   initialSortType = 'default',
-  initialCareerCodes = [],
 }: MentorProfileListProps = {}) => {
   const [initialParams] = useState(() => {
     return parseMentorProfileListParams({
       initialKeyword,
       initialSortType,
-      initialCareerCodes,
     });
   });
   const [keyword, setKeyword] = useState(() =>
@@ -98,53 +73,18 @@ export const useMentorProfileListController = ({
   const [sortType, setSortType] = useState<MentorSortType>(
     initialParams.initialSortType,
   );
-  const [careerCodes, setCareerCodes] = useState<string[]>(() =>
-    normalizeMentorCareerCodes(initialParams.initialCareerCodes),
-  );
   const [currentPage, setCurrentPage] = useState(1);
   const { showToast } = useToastStore();
   const selectedKeyword = normalizeMentorDirectoryKeyword(keyword) || undefined;
   const listSortType = sortType === 'default' ? undefined : sortType;
-  const normalizedCareerCodes = normalizeMentorCareerCodes(careerCodes);
-  const mentorRegistrationOptionsQuery =
-    useMentorRegistrationOptionsQuery(true);
-  const careerOptions = useMemo(() => {
-    return (
-      mentorRegistrationOptionsQuery.data?.careers
-        .filter((career) => career.active)
-        .map((career) => ({
-          code: career.code,
-          label: career.label,
-        })) ?? []
-    );
-  }, [mentorRegistrationOptionsQuery.data?.careers]);
-  const validCareerCodeSet = useMemo(() => {
-    return new Set(careerOptions.map((careerOption) => careerOption.code));
-  }, [careerOptions]);
   const { data, isLoading, isError, error, refetch } =
     useMentorDirectoryListQuery({
       keyword: selectedKeyword,
       sortType: listSortType,
-      careerCodes:
-        normalizedCareerCodes.length > 0 ? normalizedCareerCodes : undefined,
       page: currentPage - 1,
       size: MENTOR_PAGE_SIZE,
     });
   const mentors = useMemo(() => data?.mentors ?? [], [data?.mentors]);
-
-  useEffect(() => {
-    if (validCareerCodeSet.size === 0 || normalizedCareerCodes.length === 0) {
-      return;
-    }
-
-    const filteredCareerCodes = normalizedCareerCodes.filter((careerCode) =>
-      validCareerCodeSet.has(careerCode),
-    );
-
-    if (filteredCareerCodes.length !== normalizedCareerCodes.length) {
-      setCareerCodes(filteredCareerCodes);
-    }
-  }, [normalizedCareerCodes, validCareerCodeSet]);
 
   const errorMessage = useMemo(() => {
     if (error instanceof ApiError && error.message.trim().length > 0) {
@@ -194,10 +134,6 @@ export const useMentorProfileListController = ({
     setSortType(nextSortType);
     setCurrentPage(1);
   };
-  const handleCareerCodesChange = (nextCareerCodes: string[]) => {
-    setCareerCodes(normalizeMentorCareerCodes(nextCareerCodes));
-    setCurrentPage(1);
-  };
   const handlePageChange = (nextPage: number) => {
     setCurrentPage(Math.min(Math.max(nextPage, 1), totalPages));
   };
@@ -211,12 +147,10 @@ export const useMentorProfileListController = ({
     state: {
       keyword,
       sortType,
-      careerCodes: normalizedCareerCodes,
     } satisfies MentorProfileListControllerState,
     actions: {
       onKeywordChange: handleKeywordChange,
       onSortTypeChange: handleSortTypeChange,
-      onCareerCodesChange: handleCareerCodesChange,
       onPageChange: handlePageChange,
       onRetry: handleRetry,
     } satisfies MentorProfileListControllerActions,
@@ -228,7 +162,6 @@ export const useMentorProfileListController = ({
       totalPages,
       showPagination,
       keywordOptions,
-      careerOptions,
       leadMentors,
       remainingMentors,
     } satisfies MentorProfileListControllerViewModel,

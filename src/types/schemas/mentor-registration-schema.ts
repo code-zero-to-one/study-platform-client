@@ -357,7 +357,7 @@ export const mentorRegistrationSchema = z
     validateEnabledPriceRange({
       enabled: values.noteEnabled,
       price: values.notePrice,
-      min: 3000,
+      min: 1000,
       max: 100000,
       path: 'notePrice',
       label: '쪽지상담',
@@ -381,7 +381,7 @@ export const mentorRegistrationSchema = z
     validateEnabledPriceRange({
       enabled: values.offlineEnabled,
       price: values.offlinePrice,
-      min: 3000,
+      min: 5000,
       max: 1000000,
       path: 'offlinePrice',
       label: '대면상담',

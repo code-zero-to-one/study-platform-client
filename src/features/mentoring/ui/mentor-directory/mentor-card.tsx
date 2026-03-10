@@ -71,7 +71,6 @@ export default function MentorCard({ mentor }: MentorCardProps) {
     .filter((keyword) => keyword.length > 0)
     .slice(0, MAX_KEYWORD_COUNT);
   const careerLabel = mentorSettings.careerYears.trim();
-  const metMenteeCount = mentor.menteeCount ?? mentor.mentoringCount;
   const lowestPriceOption = getLowestPriceOption(mentor);
   const lowestPrice = lowestPriceOption?.price ?? null;
   const availableMethods = {
@@ -183,7 +182,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
               <span className="inline-flex items-center justify-center gap-50 pl-100 whitespace-nowrap">
                 <UserRound className="text-text-subtle h-[14px] w-[14px]" />
                 <span className="font-designer-15m text-text-default">
-                  상담 {metMenteeCount.toLocaleString()}명
+                  상담 {mentor.mentoringCount.toLocaleString()}건
                 </span>
               </span>
             </div>
@@ -241,7 +240,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
 
         {lowestPrice !== null && (
           <div className="rounded-100 bg-background-alternative px-125 py-100">
-            <p className="font-designer-13b text-text-default">
+            <p className="font-designer-13b text-text-subtlest">
               최저가 {formatWon(lowestPrice)}
             </p>
           </div>

@@ -79,7 +79,7 @@ const METHOD_FIELDS: MentorRegistrationMethodField[] = [
   },
 ];
 
-const MIN_MENTORING_PRICE = 3000;
+const MIN_MENTORING_PRICE = 1000;
 const MAX_MENTORING_PRICE = 1_000_000;
 const PRICE_INPUT_STEP = 1000;
 const PRICE_INPUT_CLASS =

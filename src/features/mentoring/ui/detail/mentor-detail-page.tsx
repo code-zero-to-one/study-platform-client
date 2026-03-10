@@ -201,7 +201,6 @@ export default function MentorDetailPage({
           <MentorDetailSidebarCta
             mentor={mentor}
             profileSummaryLine={profileSummaryLine}
-            metMenteeCount={metMenteeCount}
             enabledMethods={enabledMethods}
             selectedMethod={selectedMethod}
             selectedOption={selectedOption}

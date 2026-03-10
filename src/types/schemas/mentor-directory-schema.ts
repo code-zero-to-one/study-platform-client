@@ -17,7 +17,6 @@ export const mentorSortTypeSchema = z.enum([
 export const mentorProfileListParamsSchema = z.object({
   initialKeyword: z.string().optional().default(''),
   initialSortType: mentorSortTypeSchema.optional().default('default'),
-  initialCareerCodes: z.array(z.string()).optional().default([]),
 });
 
 export type MentorProfileListParamsInput = z.input<

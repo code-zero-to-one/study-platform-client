@@ -12,11 +12,6 @@ import MentorDirectorySkeletonGrid from './mentor-directory-skeleton-grid';
 interface MentorDirectoryListProps {
   keyword: string;
   keywordOptions: string[];
-  careerCodes: string[];
-  careerOptions: Array<{
-    code: string;
-    label: string;
-  }>;
   sortType: MentorSortType;
   listState: 'loading' | 'empty' | 'ready' | 'error';
   errorMessage: string;
@@ -27,7 +22,6 @@ interface MentorDirectoryListProps {
   leadMentors: MentorProfile[];
   remainingMentors: MentorProfile[];
   onKeywordChange: (nextKeyword: string) => void;
-  onCareerCodesChange: (nextCareerCodes: string[]) => void;
   onSortTypeChange: (nextSortType: MentorSortType) => void;
   onPageChange: (page: number) => void;
   onRetry: () => void;
@@ -36,8 +30,6 @@ interface MentorDirectoryListProps {
 export default function MentorDirectoryList({
   keyword,
   keywordOptions,
-  careerCodes,
-  careerOptions,
   sortType,
   listState,
   errorMessage,
@@ -48,7 +40,6 @@ export default function MentorDirectoryList({
   leadMentors,
   remainingMentors,
   onKeywordChange,
-  onCareerCodesChange,
   onSortTypeChange,
   onPageChange,
   onRetry,
@@ -57,11 +48,8 @@ export default function MentorDirectoryList({
     <MentorDirectoryFilters
       keyword={keyword}
       keywordOptions={keywordOptions}
-      careerCodes={careerCodes}
-      careerOptions={careerOptions}
       sortType={sortType}
       onKeywordChange={onKeywordChange}
-      onCareerCodesChange={onCareerCodesChange}
       onSortTypeChange={onSortTypeChange}
     />
   );

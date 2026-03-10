@@ -23,12 +23,10 @@ import type {
   MentoringMethodOption,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
-import ReviewStars from './review-stars';
 
 interface MentorDetailSidebarCtaProps {
   mentor: MentorProfile;
   profileSummaryLine: string;
-  metMenteeCount: number;
   enabledMethods: MentoringMethodType[];
   selectedMethod: MentoringMethodType;
   selectedOption: MentoringMethodOption;
@@ -50,7 +48,6 @@ const methodSmallIconMap: Record<MentoringMethodType, ReactNode> = {
 export default function MentorDetailSidebarCta({
   mentor,
   profileSummaryLine,
-  metMenteeCount,
   enabledMethods,
   selectedMethod,
   selectedOption,
@@ -96,25 +93,6 @@ export default function MentorDetailSidebarCta({
             ))}
           </div>
         )}
-        <div className="flex flex-col gap-50">
-          <div className="flex items-center gap-75">
-            <ReviewStars rating={Math.floor(mentor.rating)} />
-            <span className="font-designer-13b text-text-strong">
-              {mentor.rating.toFixed(1)}
-            </span>
-          </div>
-          <div className="flex flex-col gap-25">
-            <span className="font-designer-12r text-text-subtle">
-              리뷰 {mentor.reviewCount}개
-            </span>
-            <span className="font-designer-12r text-text-subtle">
-              만난 멘티 {metMenteeCount}명
-            </span>
-            <span className="font-designer-12r text-text-subtle">
-              멘토링 {mentor.mentoringCount}건
-            </span>
-          </div>
-        </div>
       </div>
 
       <div className="border-border-subtle border-b p-250">
@@ -187,22 +165,24 @@ export default function MentorDetailSidebarCta({
           준비 중인 기능입니다
         </Button>
 
-        <div className="mb-150 flex items-start gap-75">
-          <Info className="text-text-subtlest mt-[2px] h-14 w-14 shrink-0" />
-          <div>
-            <p className="font-designer-12b text-text-subtle mb-25">
-              {acceptancePolicy.title}
-            </p>
-            <p className="font-designer-11r text-text-subtlest leading-relaxed">
-              {acceptancePolicy.description}
-            </p>
+        <div className="mb-150 rounded-125 border-border-subtle bg-background-alternative p-150">
+          <div className="flex items-start gap-75">
+            <Info className="text-text-brand mt-[2px] h-16 w-16 shrink-0" />
+            <div>
+              <p className="font-designer-13b text-text-default mb-50">
+                {acceptancePolicy.title}
+              </p>
+              <p className="font-designer-12r text-text-subtle leading-relaxed">
+                {acceptancePolicy.description}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="border-border-subtlest border-t pt-150">
-          <div className="flex items-center justify-center gap-75">
-            <RotateCcw className="text-text-subtlest h-12 w-12 shrink-0" />
-            <p className="font-designer-11r text-text-subtlest leading-relaxed">
+        <div className="rounded-125 border-border-subtle bg-fill-brand-subtle-default p-150">
+          <div className="flex items-center gap-75">
+            <RotateCcw className="text-text-brand h-14 w-14 shrink-0" />
+            <p className="font-designer-13m text-text-default leading-relaxed">
               멘토링 시작 120시간 전까지 전액 환불 가능합니다.
             </p>
           </div>
