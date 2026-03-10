@@ -4,7 +4,11 @@ import type { ReactNode } from 'react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import SectionShell from '@/components/common/ui/section-shell';
-import { isMentoringNoteConsultationEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
+import {
+  getMyMentoringStatusGuide,
+  MENTORING_DEFAULT_CHANNEL_GUIDE,
+  MENTORING_PROGRESS_CHECK_GUIDE,
+} from '@/features/mentoring/model/mentoring-flow-policy';
 import type {
   MyMentoringItem,
   MyMentoringStatus,
@@ -20,16 +24,9 @@ const STATUS_META: Record<
   MyMentoringStatus,
   { label: string; color: 'green' | 'orange' }
 > = {
+  REQUESTED: { label: '멘토 확인 대기', color: 'orange' },
   CONFIRMED: { label: '일정 확정', color: 'green' },
-  PENDING: { label: '일정 미확정', color: 'orange' },
-};
-
-const PAYMENT_META: Record<
-  MyMentoringStatus,
-  { label: string; color: 'green' | 'orange' }
-> = {
-  CONFIRMED: { label: '결제 완료', color: 'green' },
-  PENDING: { label: '결제 대기', color: 'orange' },
+  PENDING: { label: '일정 조율 중', color: 'orange' },
 };
 
 const TEXT = {
@@ -38,9 +35,12 @@ const TEXT = {
   preferredSchedule: '희망 일정',
   confirmedSchedule: '확정 일정',
   requestedAt: '신청일',
-  pendingTitle: '일정이 아직 미확정 상태입니다.',
+  requestedTitle: '멘토가 신청 내용을 확인하고 있습니다.',
+  requestedDescription:
+    '결제는 완료되었고, 보통 24시간 안에 멘토 확인이 시작됩니다.',
+  pendingTitle: '일정 조율이 진행 중입니다.',
   pendingDescription:
-    '멘토와 조율이 완료되면 알림을 통해 확정 시간을 안내해드려요.',
+    '멘토가 보낸 조율안이나 확정 결과를 알림으로 바로 확인할 수 있어요.',
   pendingWindow: '조율 예정',
   pendingFallback: '멘토와 시간 조율 중',
   requestInfoTitle: '멘토링 요청 정보',
@@ -48,16 +48,20 @@ const TEXT = {
   paymentMethod: '결제 방식',
   paymentAmount: '결제 금액',
   paymentStatus: '결제 상태',
-  paymentMethodValue: '카드 결제',
-  paymentAmountValue: '33,000원',
+  progressStatus: '진행 상태',
+  nextUpdate: '다음 안내',
   requestMessage: '요청 메시지',
-  memoTitle: '멘토링 메모',
+  memoTitle: '멘토링 요청 메모',
   detailTitle: '멘토링 상세',
   detailDescription:
     '신청한 멘토링 정보를 확인하고 진행 상태를 한 눈에 볼 수 있어요.',
-  moveToNoteConsultation: '쪽지상담 이동',
   moveToList: '목록으로',
+  moveToMentoring: '멘토링 목록',
   guideTitle: '멘토링 안내',
+  requestedFooterFirst:
+    '멘토가 신청 내용을 확인하면 일정 조율 단계로 넘어갑니다.',
+  requestedFooterSecond:
+    '알림을 켜두면 수락/조율 요청을 바로 확인할 수 있습니다.',
   pendingFooterFirst: '일정 확정 전까지는 멘토 조율 요청 상태로 표시됩니다.',
   pendingFooterSecond:
     '확정 후 알림에서 최종 시간과 진행 방식을 확인할 수 있습니다.',
@@ -70,13 +74,24 @@ interface MyMentoringDetailPageProps {
 export default function MyMentoringDetailPage({
   mentoring,
 }: MyMentoringDetailPageProps) {
-  const isNoteConsultationEnabled = isMentoringNoteConsultationEnabled();
+  const pendingTitle =
+    mentoring.status === 'REQUESTED' ? TEXT.requestedTitle : TEXT.pendingTitle;
+  const pendingDescription =
+    mentoring.status === 'REQUESTED'
+      ? TEXT.requestedDescription
+      : TEXT.pendingDescription;
+  const nextUpdateText = getMyMentoringStatusGuide(mentoring.status);
   const scheduleText =
     mentoring.status === 'CONFIRMED'
       ? (mentoring.mentoringTime ?? '-')
       : mentoring.pendingWindow
         ? `${TEXT.pendingWindow}: ${mentoring.pendingWindow}`
         : TEXT.pendingFallback;
+  const guideLines = [
+    MENTORING_DEFAULT_CHANNEL_GUIDE,
+    nextUpdateText,
+    MENTORING_PROGRESS_CHECK_GUIDE,
+  ];
 
   return (
     <SectionShell className="gap-300">
@@ -101,13 +116,13 @@ export default function MyMentoringDetailPage({
       </div>
 
       <div className="rounded-200 border-border-subtle bg-background-default overflow-hidden border shadow-sm">
-        {mentoring.status === 'PENDING' && (
+        {mentoring.status !== 'CONFIRMED' && (
           <div className="bg-background-accent-orange-subtle px-300 py-150">
             <p className="font-designer-14m text-background-accent-orange-strong">
-              {TEXT.pendingTitle}
+              {pendingTitle}
             </p>
             <p className="font-designer-13r text-text-subtle mt-50">
-              {TEXT.pendingDescription}
+              {pendingDescription}
             </p>
           </div>
         )}
@@ -158,21 +173,25 @@ export default function MyMentoringDetailPage({
               <h2 className="font-designer-16b text-text-default">
                 {TEXT.paymentInfoTitle}
               </h2>
-              <Badge color={PAYMENT_META[mentoring.status].color} shape="round">
-                {PAYMENT_META[mentoring.status].label}
+              <Badge color={mentoring.paymentStatusTone} shape="round">
+                {mentoring.paymentStatusLabel}
               </Badge>
             </div>
 
             <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border px-150">
               <InfoRow label={TEXT.paymentMethod}>
-                {TEXT.paymentMethodValue}
+                {mentoring.paymentMethodLabel}
               </InfoRow>
               <InfoRow label={TEXT.paymentAmount}>
-                {TEXT.paymentAmountValue}
+                {mentoring.paymentAmountLabel}
               </InfoRow>
               <InfoRow label={TEXT.paymentStatus}>
-                {PAYMENT_META[mentoring.status].label}
+                {mentoring.paymentStatusLabel}
               </InfoRow>
+              <InfoRow label={TEXT.progressStatus}>
+                {STATUS_META[mentoring.status].label}
+              </InfoRow>
+              <InfoRow label={TEXT.nextUpdate}>{nextUpdateText}</InfoRow>
             </div>
           </section>
 
@@ -180,12 +199,14 @@ export default function MyMentoringDetailPage({
             <h2 className="font-designer-16b text-text-default mb-150">
               {TEXT.guideTitle}
             </h2>
-            <p className="font-designer-14r text-text-subtle rounded-150 bg-background-alternative p-200">
-              {mentoring.description}
-            </p>
+            <ul className="font-designer-14r text-text-subtle rounded-150 bg-background-alternative space-y-75 p-200">
+              {guideLines.map((line) => (
+                <li key={line}>{line}</li>
+              ))}
+            </ul>
           </section>
 
-          {mentoring.status === 'PENDING' && (
+          {mentoring.status !== 'CONFIRMED' && (
             <section>
               <div className="flex gap-100">
                 <Link href="/my-mentoring" className="flex-1">
@@ -193,24 +214,26 @@ export default function MyMentoringDetailPage({
                     {TEXT.moveToList}
                   </Button>
                 </Link>
-                {isNoteConsultationEnabled && (
-                  <Link href="/note-consultation" className="flex-1">
-                    <Button size="medium" color="primary" className="w-full">
-                      {TEXT.moveToNoteConsultation}
-                    </Button>
-                  </Link>
-                )}
+                <Link href="/mentoring" className="flex-1">
+                  <Button size="medium" color="primary" className="w-full">
+                    {TEXT.moveToMentoring}
+                  </Button>
+                </Link>
               </div>
             </section>
           )}
         </div>
 
-        {mentoring.status === 'PENDING' && (
+        {mentoring.status !== 'CONFIRMED' && (
           <div className="border-border-subtle bg-background-alternative border-t px-300 py-150 text-center">
             <p className="font-designer-13r text-text-subtlest">
-              {TEXT.pendingFooterFirst}
+              {mentoring.status === 'REQUESTED'
+                ? TEXT.requestedFooterFirst
+                : TEXT.pendingFooterFirst}
               <br />
-              {TEXT.pendingFooterSecond}
+              {mentoring.status === 'REQUESTED'
+                ? TEXT.requestedFooterSecond
+                : TEXT.pendingFooterSecond}
             </p>
           </div>
         )}

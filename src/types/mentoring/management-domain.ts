@@ -8,6 +8,10 @@ export type MentoringPaymentMode =
   | 'TOSS_PAYMENTS'
   | 'MANUAL_TRANSFER'
   | 'FREE_REQUEST';
+export type MentoringPaymentMethod =
+  | 'CARD'
+  | 'VIRTUAL_ACCOUNT'
+  | 'MANUAL_TRANSFER';
 export type MentoringPaymentStatus =
   | 'PENDING_TRANSFER'
   | 'NOT_REQUIRED'
@@ -26,6 +30,7 @@ export interface MentoringRequest {
   mentorId: number;
   method: MentoringMethodType;
   paymentMode: MentoringPaymentMode;
+  paymentMethod?: MentoringPaymentMethod;
   paymentStatus: MentoringPaymentStatus;
   paymentMemo?: string;
   menteeMemberId?: number;

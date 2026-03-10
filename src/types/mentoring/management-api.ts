@@ -1,5 +1,6 @@
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 import type {
+  MentoringPaymentMethod,
   MentoringPaymentMode,
   MentoringReviewRecommendation,
 } from '@/types/mentoring/management-domain';
@@ -49,6 +50,7 @@ export interface CreateMentoringRequestParams {
   mentorId: number;
   method: MentoringMethodType;
   paymentMode: MentoringPaymentMode;
+  paymentMethod: MentoringPaymentMethod;
   paymentMemo?: string;
   menteeMemberId?: number;
   menteeName: string;

@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  ArrowRight,
   Info,
   Lock,
   MessageCircle,
@@ -9,6 +10,7 @@ import {
   RotateCcw,
   Users,
 } from 'lucide-react';
+import Link from 'next/link';
 import { type ReactNode } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
@@ -18,11 +20,12 @@ import {
   getMethodLabel,
 } from '@/features/mentoring/model/mentor-profile-utils';
 import {
-  getMentorPublicReadiness,
-  MENTOR_APPLY_UNSUPPORTED_MESSAGE,
-} from '@/features/mentoring/model/mentor-public-readiness';
+  MENTORING_DEFAULT_CHANNEL_GUIDE,
+  MENTORING_PROGRESS_CHECK_GUIDE,
+  getMentoringResponseGuide,
+} from '@/features/mentoring/model/mentoring-flow-policy';
+import { getMentorPublicReadiness } from '@/features/mentoring/model/mentor-public-readiness';
 import MentorProfileMetaList from '@/features/mentoring/ui/common/mentor-profile-meta-list';
-import { useToastStore } from '@/stores/use-toast-store';
 import type {
   MentorProfile,
   MentoringMethodOption,
@@ -68,21 +71,19 @@ export default function MentorDetailSidebarCta({
   previewMode,
   detailLocked = false,
 }: MentorDetailSidebarCtaProps) {
-  const { showToast } = useToastStore();
   const publicReadiness = getMentorPublicReadiness(mentor);
   const isApplicationReady = publicReadiness.isApplicationReady;
   const shouldShowMethodSelection = !detailLocked && enabledMethods.length > 0;
+  const applyHref = `/mentoring/${mentor.id}/apply?type=${selectedMethod}`;
   const acceptancePolicy =
     selectedMethod === 'note'
       ? {
-          title: '쪽지상담 수락 정책',
-          description:
-            '결제 완료 후 멘토의 첫 답장이 수락으로 처리됩니다. 별도 수락 단계 없이 바로 진행됩니다.',
+          title: '쪽지상담 진행 안내',
+          description: getMentoringResponseGuide(selectedMethod),
         }
       : {
-          title: '예약형 상담 수락 정책',
-          description:
-            '결제 후 멘토가 48시간 내 수락/거절을 결정합니다. 48시간 내 응답이 없으면 자동 거절되며, 멘토는 거절 사유를 남길 수 있습니다.',
+          title: '예약형 상담 진행 안내',
+          description: getMentoringResponseGuide(selectedMethod),
         };
 
   return (
@@ -197,26 +198,33 @@ export default function MentorDetailSidebarCta({
               </p>
             </div>
 
-            <Button
-              color={isApplicationReady ? 'primary' : 'secondary'}
-              size="large"
-              className="mb-200 w-full"
-              onClick={(event) => {
-                event.preventDefault();
-
-                if (previewMode === true || !isApplicationReady) {
-                  return;
-                }
-
-                showToast(MENTOR_APPLY_UNSUPPORTED_MESSAGE, 'error');
-              }}
-              disabled={!isApplicationReady}
-            >
-              {!isApplicationReady && (
-                <Lock className="mr-75 h-16 w-16 shrink-0" />
-              )}
-              {publicReadiness.ctaLabel}
-            </Button>
+            {isApplicationReady && previewMode !== true ? (
+              <Button
+                asChild
+                color="primary"
+                size="large"
+                className="mb-150 w-full"
+              >
+                <Link href={applyHref}>
+                  <ArrowRight className="h-16 w-16 shrink-0" />
+                  신청/결제 진행하기
+                </Link>
+              </Button>
+            ) : (
+              <Button
+                color={isApplicationReady ? 'primary' : 'secondary'}
+                size="large"
+                className="mb-150 w-full"
+                disabled
+              >
+                {!isApplicationReady && (
+                  <Lock className="mr-75 h-16 w-16 shrink-0" />
+                )}
+                {isApplicationReady
+                  ? '신청/결제 진행하기'
+                  : publicReadiness.ctaLabel}
+              </Button>
+            )}
 
             {!isApplicationReady && (
               <div className="mb-150 flex items-start gap-75">
@@ -227,6 +235,15 @@ export default function MentorDetailSidebarCta({
               </div>
             )}
 
+            <div className="bg-background-alternative mb-200 rounded-150 p-150">
+              <p className="font-designer-12b text-text-default mb-50">
+                진행 도구 안내
+              </p>
+              <p className="font-designer-11r text-text-subtlest leading-relaxed">
+                {MENTORING_DEFAULT_CHANNEL_GUIDE}
+              </p>
+            </div>
+
             <div className="mb-150 flex items-start gap-75">
               <Info className="text-text-subtlest mt-[2px] h-14 w-14 shrink-0" />
               <div>
@@ -235,6 +252,9 @@ export default function MentorDetailSidebarCta({
                 </p>
                 <p className="font-designer-11r text-text-subtlest leading-relaxed">
                   {acceptancePolicy.description}
+                </p>
+                <p className="font-designer-11r text-text-subtlest mt-50 leading-relaxed">
+                  {MENTORING_PROGRESS_CHECK_GUIDE}
                 </p>
               </div>
             </div>

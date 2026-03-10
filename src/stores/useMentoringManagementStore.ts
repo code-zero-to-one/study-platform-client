@@ -15,6 +15,7 @@ import type {
 } from '@/types/mentoring/management-api';
 import type {
   MentoringConversationMessage,
+  MentoringPaymentMethod,
   MentoringPaymentMode,
   MentoringPaymentStatus,
   MentoringRequest,
@@ -113,21 +114,35 @@ const getInitialPaymentStatus = (
   return 'CONFIRMED';
 };
 
+const getDefaultPaymentMethod = (
+  paymentMode: MentoringPaymentMode,
+): MentoringPaymentMethod => {
+  if (paymentMode === 'MANUAL_TRANSFER') {
+    return 'MANUAL_TRANSFER';
+  }
+
+  return 'CARD';
+};
+
 const normalizeRequest = (
   request: MentoringRequest &
     Partial<{
+      paymentMethod: MentoringPaymentMethod;
       paymentMode: MentoringPaymentMode;
       paymentStatus: MentoringPaymentStatus;
       paymentMemo: string;
     }>,
 ): MentoringRequest => {
   const paymentMode = request.paymentMode ?? 'TOSS_PAYMENTS';
+  const paymentMethod =
+    request.paymentMethod ?? getDefaultPaymentMethod(paymentMode);
   const paymentStatus =
     request.paymentStatus ?? getInitialPaymentStatus(paymentMode);
 
   return {
     ...request,
     paymentMode,
+    paymentMethod,
     paymentStatus,
     paymentMemo: request.paymentMemo ?? '',
   };
@@ -626,6 +641,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
             mentorId: payload.mentorId,
             method: payload.method,
             paymentMode: payload.paymentMode,
+            paymentMethod: payload.paymentMethod,
             paymentStatus: getInitialPaymentStatus(payload.paymentMode),
             paymentMemo: payload.paymentMemo?.trim() ?? '',
             menteeMemberId: payload.menteeMemberId,

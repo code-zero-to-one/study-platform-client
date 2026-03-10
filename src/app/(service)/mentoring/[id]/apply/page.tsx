@@ -5,7 +5,6 @@ import {
   parseMentoringApplyRouteMentorId,
   parseMentoringApplySelectedType,
 } from '@/features/mentoring/model/mentoring-apply-route-contract';
-import { isMentoringApplyEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 import MentoringApplyRouteClient from '@/features/mentoring/ui/apply/mentoring-apply-route-client';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
@@ -46,10 +45,6 @@ export default async function MentoringApplyRoute({
   params,
   searchParams,
 }: MentoringApplyRouteProps) {
-  if (!isMentoringApplyEnabled()) {
-    notFound();
-  }
-
   const { id } = await params;
   const rawSearchParams = await searchParams;
   const mentorId = parseMentoringApplyRouteMentorId(id);

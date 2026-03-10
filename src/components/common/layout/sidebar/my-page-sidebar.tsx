@@ -19,48 +19,70 @@ export default function Sidebar() {
     await logout();
   };
 
+  const isActivePath = (href: string) => {
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
   return (
     <div className="border-border-subtle box-border hidden w-[300px] flex-col gap-150 border-x-1 px-300 pt-500 lg:flex">
       <SidebarItem
         onClick={() => router.push('/my-page')}
-        isActive={pathname === '/my-page'}
+        isActive={isActivePath('/my-page')}
       >
         프로필
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/notification')}
-        isActive={pathname === '/notification'}
+        isActive={isActivePath('/notification')}
       >
         알림
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/my-activity')}
-        isActive={pathname === '/my-activity'}
+        isActive={isActivePath('/my-activity')}
       >
         내 활동
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/my-study')}
-        isActive={pathname === '/my-study'}
+        isActive={isActivePath('/my-study')}
       >
         마이스터디
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/my-study-review')}
-        isActive={pathname.startsWith('/my-study-review')}
+        isActive={isActivePath('/my-study-review')}
       >
         스터디 후기
       </SidebarItem>
       <SidebarItem
+        onClick={() => router.push('/my-mentoring')}
+        isActive={isActivePath('/my-mentoring')}
+      >
+        나의 멘토링
+      </SidebarItem>
+      <SidebarItem
+        onClick={() => router.push('/note-consultation')}
+        isActive={isActivePath('/note-consultation')}
+      >
+        쪽지 상담
+      </SidebarItem>
+      <SidebarItem
+        onClick={() => router.push('/mentoring-management')}
+        isActive={isActivePath('/mentoring-management')}
+      >
+        멘토링 관리
+      </SidebarItem>
+      <SidebarItem
         onClick={() => router.push('/payment-management')}
-        isActive={pathname === '/payment-management'}
+        isActive={isActivePath('/payment-management')}
       >
         결제 관리
       </SidebarItem>
       {profile?.premiumCreator && (
         <SidebarItem
           onClick={() => router.push('/settlement-management')}
-          isActive={pathname === '/settlement-management'}
+          isActive={isActivePath('/settlement-management')}
         >
           정산 관리
         </SidebarItem>

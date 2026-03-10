@@ -4,7 +4,10 @@ import { XIcon } from 'lucide-react';
 import Link from 'next/link';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
-import { isMentoringNoteConsultationEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
+import {
+  getMentoringResponseGuide,
+  MENTORING_DEFAULT_CHANNEL_GUIDE,
+} from '@/features/mentoring/model/mentoring-flow-policy';
 
 interface MentoringGuideModalProps {
   open: boolean;
@@ -20,7 +23,7 @@ const GUIDE_CONTENT = [
   {
     title: '관리 페이지는 어떻게 구분되나요?',
     description:
-      '유저(멘티) 관점 관리: 내가 신청한 멘토링 내역과 후기 작성을 관리합니다.\n- /my-study-review\n\n쪽지상담함과 멘토 운영 관리 화면은 현재 제공하지 않습니다.',
+      '유저(멘티) 관점 관리: 내가 신청한 예약형 상담 일정과 쪽지 상담, 후기를 관리합니다.\n- /my-mentoring\n- /note-consultation\n- /my-study-review\n\n멘토 관점 관리: 멘토링 신청 확인, 입금 확인, 일정 확정/변경을 관리합니다.\n- /mentoring-management\n- /mentoring-management/requests',
   },
   {
     title: '어떤 목적으로 사용할까요?',
@@ -34,8 +37,11 @@ const GUIDE_CONTENT = [
   },
   {
     title: '수락 정책은 어떻게 되나요?',
-    description:
-      '쪽지상담은 결제 후 멘토의 답장 자체가 수락입니다. 간편/심층/대면 상담은 결제 후 멘토 수락이 필요하며 48시간 내 미응답 시 자동 거절됩니다.',
+    description: `쪽지상담은 ${getMentoringResponseGuide('note')}\n\n간편/심층/대면 상담은 ${getMentoringResponseGuide('deep')}`,
+  },
+  {
+    title: '어디서 진행하나요?',
+    description: MENTORING_DEFAULT_CHANNEL_GUIDE,
   },
   {
     title: '멘토가 되려면?',
@@ -54,10 +60,6 @@ export default function MentoringGuideModal({
   open,
   onOpenChange,
 }: MentoringGuideModalProps) {
-  const noteConsultationGuideLine = isMentoringNoteConsultationEnabled()
-    ? '- /note-consultation'
-    : '쪽지상담함은 현재 제공하지 않습니다.';
-
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
@@ -79,9 +81,7 @@ export default function MentoringGuideModal({
                   ○ {item.title}
                 </h3>
                 <p className="font-designer-16r text-text-subtle leading-relaxed whitespace-pre-line">
-                  {item.title === '관리 페이지는 어떻게 구분되나요?'
-                    ? `유저(멘티) 관점 관리: 내가 신청한 멘토링 내역과 후기 작성을 관리합니다.\n- /my-study-review\n\n${noteConsultationGuideLine}\n멘토 운영 관리 화면도 현재 제공하지 않습니다.`
-                    : item.description}
+                  {item.description}
                 </p>
               </section>
             ))}

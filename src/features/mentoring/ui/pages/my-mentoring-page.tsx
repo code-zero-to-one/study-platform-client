@@ -21,11 +21,12 @@ const METHOD_LABEL: Record<'ONLINE' | 'OFFLINE' | 'CALL', string> = {
 };
 
 const STATUS_META: Record<
-  'CONFIRMED' | 'PENDING',
+  'REQUESTED' | 'CONFIRMED' | 'PENDING',
   { label: string; color: 'green' | 'orange' }
 > = {
+  REQUESTED: { label: '멘토 확인 대기', color: 'orange' },
   CONFIRMED: { label: '일정 확정', color: 'green' },
-  PENDING: { label: '일정 미확정', color: 'orange' },
+  PENDING: { label: '일정 조율 중', color: 'orange' },
 };
 
 const TEXT = {
@@ -33,18 +34,21 @@ const TEXT = {
   pageDescription: '멘토링 일정, 멘토, 진행 상태를 한 번에 확인할 수 있어요.',
   confirmedTitle: '예정된 멘토링',
   confirmedDescription: '시간이 확정된 멘토링 일정입니다.',
-  pendingTitle: '미확정 예정',
+  pendingTitle: '진행 대기 중',
   pendingDescription:
-    '멘토와 시간 조율 중인 멘토링도 여기에서 확인할 수 있습니다.',
+    '멘토 확인과 일정 조율을 기다리는 멘토링을 모아볼 수 있어요.',
   noData: '표시할 멘토링이 없습니다.',
   appliedAt: '신청일',
   mentor: '멘토',
   detail: '상세 보기',
+  requestedPrefix: '희망 일정',
   pendingPrefix: '조율 예정',
+  requestedFallback: '멘토 확인을 기다리고 있습니다.',
   pendingFallback: '멘토와 시간 조율 중',
   confirmedCount: '확정',
-  pendingCount: '미확정',
+  pendingCount: '진행 중',
   noteConsultation: '쪽지상담',
+  previewLabel: '요청 메모',
 };
 
 export default function MyMentoringPage({
@@ -56,7 +60,7 @@ export default function MyMentoringPage({
   const confirmedMentoring = items.filter(
     (item) => item.status === 'CONFIRMED',
   );
-  const pendingMentoring = items.filter((item) => item.status === 'PENDING');
+  const pendingMentoring = items.filter((item) => item.status !== 'CONFIRMED');
 
   return (
     <SectionShell className="gap-300">
@@ -137,9 +141,13 @@ function MentoringListSection({
             const scheduleText =
               mentoring.status === 'CONFIRMED'
                 ? mentoring.mentoringTime
-                : mentoring.pendingWindow
-                  ? `${TEXT.pendingPrefix}: ${mentoring.pendingWindow}`
-                  : TEXT.pendingFallback;
+                : mentoring.status === 'REQUESTED'
+                  ? mentoring.pendingWindow
+                    ? `${TEXT.requestedPrefix}: ${mentoring.pendingWindow}`
+                    : TEXT.requestedFallback
+                  : mentoring.pendingWindow
+                    ? `${TEXT.pendingPrefix}: ${mentoring.pendingWindow}`
+                    : TEXT.pendingFallback;
 
             return (
               <List.Item
@@ -151,15 +159,7 @@ function MentoringListSection({
                   className="group block w-full p-200"
                 >
                   <div className="mb-125 flex items-start justify-between gap-100">
-                    <div>
-                      <h3 className="font-designer-16b text-text-default line-clamp-1">
-                        {mentoring.title}
-                      </h3>
-                      <p className="font-designer-13r text-text-subtle mt-25">
-                        {`${TEXT.appliedAt} ${mentoring.requestedAt}`}
-                      </p>
-                    </div>
-                    <div className="flex shrink-0 flex-col items-end gap-75">
+                    <div className="min-w-0">
                       <div className="flex items-center gap-50">
                         <Badge color="blue" shape="round">
                           {METHOD_LABEL[mentoring.method]}
@@ -171,6 +171,14 @@ function MentoringListSection({
                           {STATUS_META[mentoring.status].label}
                         </Badge>
                       </div>
+                      <h3 className="font-designer-16b text-text-default mt-75 line-clamp-1">
+                        {`${mentoring.mentorName} 멘토`}
+                      </h3>
+                      <p className="font-designer-13r text-text-subtle mt-25">
+                        {`${TEXT.appliedAt} ${mentoring.requestedAt}`}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 flex-col items-end gap-75">
                       <span className="font-designer-13m text-text-subtle rounded-50 border-border-subtle group-hover:text-text-default group-hover:border-border-brand inline-flex items-center gap-25 border px-75 py-25">
                         {TEXT.detail}
                         <ChevronRight className="h-14 w-14" />
@@ -179,17 +187,23 @@ function MentoringListSection({
                   </div>
 
                   <div className="mb-75 flex items-center gap-75">
-                    <UserRound className="text-text-subtle h-16 w-16" />
-                    <span className="font-designer-14m text-text-default">
-                      {`${TEXT.mentor} ${mentoring.mentorName}`}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-75">
                     <CalendarDays className="text-text-subtle h-16 w-16" />
-                    <span className="font-designer-14m text-text-default">
+                    <span className="font-designer-14b text-text-default">
                       {scheduleText}
                     </span>
                   </div>
+                  <div className="mb-100 flex items-center gap-75">
+                    <UserRound className="text-text-subtle h-16 w-16" />
+                    <span className="font-designer-14m text-text-default">
+                      {TEXT.previewLabel}
+                    </span>
+                    <Badge color={mentoring.paymentStatusTone} shape="round">
+                      {mentoring.paymentStatusLabel}
+                    </Badge>
+                  </div>
+                  <p className="font-designer-13r text-text-subtle line-clamp-2 leading-relaxed">
+                    {mentoring.title}
+                  </p>
                 </Link>
               </List.Item>
             );

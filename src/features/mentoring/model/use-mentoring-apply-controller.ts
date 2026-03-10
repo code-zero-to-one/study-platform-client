@@ -7,6 +7,8 @@ import { type DateRange } from 'react-day-picker';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import {
+  extractMentoringTimeSlotStart,
+  filterMentoringTimeSlotsByWeekday,
   getWeekdayKeyFromDate,
   hasAnyWeeklyScheduleSlots,
   parseDurationLabelToMinutes,
@@ -47,7 +49,6 @@ export interface MentoringApplyPaymentMethodOption {
   requiresMemo: boolean;
   flowLabel: string;
   submitLabel: string;
-  successToast: string;
 }
 
 const PAYMENT_METHOD_OPTIONS: MentoringApplyPaymentMethodOption[] = [
@@ -61,7 +62,6 @@ const PAYMENT_METHOD_OPTIONS: MentoringApplyPaymentMethodOption[] = [
     requiresMemo: false,
     flowLabel: '카드 결제',
     submitLabel: '결제하고 신청하기',
-    successToast: '카드 결제가 완료되어 신청이 접수되었습니다.',
   },
   {
     id: 'VIRTUAL_ACCOUNT',
@@ -73,7 +73,6 @@ const PAYMENT_METHOD_OPTIONS: MentoringApplyPaymentMethodOption[] = [
     requiresMemo: false,
     flowLabel: '가상계좌 발급',
     submitLabel: '가상계좌 발급 후 신청하기',
-    successToast: '가상계좌가 발급되어 신청이 접수되었습니다.',
   },
   {
     id: 'MANUAL_TRANSFER',
@@ -85,7 +84,6 @@ const PAYMENT_METHOD_OPTIONS: MentoringApplyPaymentMethodOption[] = [
     requiresMemo: true,
     flowLabel: '수동 확인',
     submitLabel: '수동결제로 신청하기',
-    successToast: '수동결제 신청이 접수되었습니다.',
   },
 ];
 
@@ -222,21 +220,37 @@ export const useMentoringApplyController = ({
     );
   }, [mentorSettings.schedule.weekly, methodDurationMinutes, selectedWeekday]);
 
+  const legacyTimeRanges = useMemo(() => {
+    if (!selectedWeekday) {
+      return [];
+    }
+
+    return filterMentoringTimeSlotsByWeekday({
+      timeSlots: selectedOption.timeSlots,
+      weekday: selectedWeekday,
+      durationMinutes: methodDurationMinutes,
+    });
+  }, [methodDurationMinutes, selectedOption.timeSlots, selectedWeekday]);
+
   const availableTimeSlots = useMemo(() => {
     if (!selectedDate) {
       return [];
     }
 
-    if (hasWeeklySchedule) {
+    if (scheduleBasedTimeRanges.length > 0) {
       return scheduleBasedTimeRanges;
     }
 
-    return selectedOption.timeSlots;
+    if (hasWeeklySchedule) {
+      return [];
+    }
+
+    return legacyTimeRanges;
   }, [
     hasWeeklySchedule,
+    legacyTimeRanges,
     scheduleBasedTimeRanges,
     selectedDate,
-    selectedOption.timeSlots,
   ]);
 
   const requestTextLength = useMemo(() => {
@@ -330,12 +344,12 @@ export const useMentoringApplyController = ({
     setIsSubmitting(true);
 
     try {
-      const preferredTimeStart =
-        selectedTime.split('~')[0]?.trim() ?? selectedTime;
-      createRequest({
+      const preferredTimeStart = extractMentoringTimeSlotStart(selectedTime);
+      const requestId = createRequest({
         mentorId: mentor.id,
         method: selectedMethod,
         paymentMode,
+        paymentMethod: selectedPaymentMethod,
         paymentMemo: needsPaymentMemo ? paymentMemo.trim() : undefined,
         menteeMemberId: memberId,
         menteeName: memberName ?? nickname ?? '익명 멘티',
@@ -356,8 +370,7 @@ export const useMentoringApplyController = ({
         window.setTimeout(resolve, 400);
       });
 
-      showToast(selectedPaymentMethodCopy.successToast, 'success');
-      router.push(`/mentoring/${mentor.id}`);
+      router.push(`/mentoring/${mentor.id}/complete?requestId=${requestId}`);
     } finally {
       setIsSubmitting(false);
     }
