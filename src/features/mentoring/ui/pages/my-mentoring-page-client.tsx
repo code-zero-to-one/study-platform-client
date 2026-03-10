@@ -4,6 +4,8 @@ import Link from 'next/link';
 import Button from '@/components/common/ui/button';
 import SurfacePanel from '@/components/common/ui/surface-panel';
 import {
+  buildMyNoteConsultationSummary,
+  buildMyNoteConsultationItems,
   createMentorMap,
   buildMyMentoringItems,
 } from '@/features/mentoring/model/my-mentoring-view';
@@ -64,6 +66,15 @@ export default function MyMentoringPageClient() {
     sessionsByMentor,
     mentorMap,
   });
+  const noteSummary = buildMyNoteConsultationSummary({
+    memberId,
+    requestsByMentor,
+  });
+  const noteItems = buildMyNoteConsultationItems({
+    memberId,
+    requestsByMentor,
+    mentorMap,
+  });
 
   const isReady =
     isAuthHydrated && mentorStoreHydrated && managementStoreHydrated;
@@ -71,7 +82,13 @@ export default function MyMentoringPageClient() {
   return (
     <MentoringStateBoundary
       state={!isReady ? 'loading' : memberId ? 'ready' : 'forbidden'}
-      ready={<MyMentoringPage items={items} />}
+      ready={
+        <MyMentoringPage
+          items={items}
+          noteSummary={noteSummary}
+          noteItems={noteItems}
+        />
+      }
       forbidden={<MentoringForbiddenState />}
     />
   );

@@ -7,8 +7,13 @@ import { useMemo, useState } from 'react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import SurfacePanel from '@/components/common/ui/surface-panel';
-import { MENTORING_SESSION_STATUS_META } from '@/features/mentoring/model/management-status-meta';
+import {
+  MENTORING_REFUND_STATUS_META,
+  MENTORING_SESSION_ISSUE_META,
+  MENTORING_SESSION_STATUS_META,
+} from '@/features/mentoring/model/management-status-meta';
 import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
+import { getMentoringIssuePlaybook } from '@/features/mentoring/model/mentoring-flow-policy';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type {
@@ -43,6 +48,31 @@ const getOverlappingIds = (sessions: MentoringSession[]): Set<string> => {
   return ids;
 };
 
+type CancelIssueType = 'MENTOR_CANCELLED' | 'MENTEE_CANCELLED';
+
+const getCancelPreview = ({
+  startsAt,
+  issueType,
+}: {
+  startsAt: string;
+  issueType: CancelIssueType;
+}) => {
+  if (issueType === 'MENTOR_CANCELLED') {
+    return '멘토 사정 취소로 전액 환불 후속 안내가 남습니다.';
+  }
+
+  const hoursUntilStart = dayjs(startsAt).diff(dayjs(), 'hour', true);
+  if (hoursUntilStart >= 120) {
+    return '멘티 취소로 전액 환불 예정 안내가 남습니다.';
+  }
+
+  if (hoursUntilStart >= 24) {
+    return '멘티 취소로 부분 환불 예정 안내가 남습니다.';
+  }
+
+  return '멘티 취소지만 시작 24시간 내라 환불 불가 안내가 남습니다.';
+};
+
 export default function MentoringSchedulePanel({
   mentorId,
   methodDurations,
@@ -60,17 +90,77 @@ export default function MentoringSchedulePanel({
   const cancelSession = useMentoringManagementStore(
     (state) => state.cancelSession,
   );
+  const markSessionOutcome = useMentoringManagementStore(
+    (state) => state.markSessionOutcome,
+  );
 
   const [currentCalendarMonth, setCurrentCalendarMonth] = useState(dayjs());
   const [selectedDate, setSelectedDate] = useState('');
   const [editingSessionId, setEditingSessionId] = useState<string | null>(null);
   const [rescheduleError, setRescheduleError] = useState('');
-  const [cancellingSessionId, setCancellingSessionId] = useState<string | null>(
-    null,
-  );
-  const [cancelReasonBySession, setCancelReasonBySession] = useState<
+  const [actionSessionId, setActionSessionId] = useState<string | null>(null);
+  const [actionMode, setActionMode] = useState<
+    'cancel' | 'complete' | 'mentee-no-show' | 'mentor-no-show' | null
+  >(null);
+  const [actionNoteBySession, setActionNoteBySession] = useState<
     Record<string, string>
   >({});
+  const [cancelIssueTypeBySession, setCancelIssueTypeBySession] = useState<
+    Record<string, CancelIssueType>
+  >({});
+
+  const closeInlineAction = () => {
+    setActionSessionId(null);
+    setActionMode(null);
+  };
+
+  const handleCancelSession = (sessionId: string) => {
+    const reason = actionNoteBySession[sessionId] ?? '';
+    const issueType = cancelIssueTypeBySession[sessionId] ?? 'MENTOR_CANCELLED';
+    const result = cancelSession({ mentorId, sessionId, reason, issueType });
+
+    if (!result.ok) {
+      showToast(result.reason ?? '일정 취소에 실패했습니다.', 'error');
+
+      return;
+    }
+
+    closeInlineAction();
+    setActionNoteBySession((prev) => ({ ...prev, [sessionId]: '' }));
+    setCancelIssueTypeBySession((prev) => ({
+      ...prev,
+      [sessionId]: 'MENTOR_CANCELLED',
+    }));
+    showToast('일정을 취소했습니다.', 'success');
+  };
+
+  const handleMarkSessionOutcome = (
+    sessionId: string,
+    outcome: 'COMPLETED' | 'MENTEE_NO_SHOW' | 'MENTOR_NO_SHOW',
+  ) => {
+    const note = actionNoteBySession[sessionId] ?? '';
+    const result = markSessionOutcome({
+      mentorId,
+      sessionId,
+      outcome,
+      note,
+    });
+
+    if (!result.ok) {
+      showToast(result.reason ?? '상담 처리에 실패했습니다.', 'error');
+
+      return;
+    }
+
+    closeInlineAction();
+    setActionNoteBySession((prev) => ({ ...prev, [sessionId]: '' }));
+    showToast(
+      outcome === 'COMPLETED'
+        ? '상담을 완료 처리했습니다.'
+        : '노쇼 처리 결과를 기록했습니다.',
+      'success',
+    );
+  };
 
   const handleDateSelect = (date: string) => {
     setSelectedDate(date);
@@ -102,6 +192,20 @@ export default function MentoringSchedulePanel({
 
   const overlappingIds = useMemo(() => getOverlappingIds(sessions), [sessions]);
   const overlapPairCount = Math.floor(overlappingIds.size / 2);
+  const followUpSessionCount = useMemo(() => {
+    return sessions.filter((session) => {
+      return (
+        session.issueType !== undefined &&
+        session.issueType !== 'NONE' &&
+        (session.refundStatus === 'PENDING' ||
+          session.status === 'CANCELLED' ||
+          session.refundStatus === 'NOT_ELIGIBLE')
+      );
+    }).length;
+  }, [sessions]);
+  const issuePlaybook = getMentoringIssuePlaybook({
+    viewer: 'mentor',
+  });
 
   const todaySessionCount = useMemo(() => {
     const today = dayjs().format('YYYY-MM-DD');
@@ -145,21 +249,6 @@ export default function MentoringSchedulePanel({
     showToast('일정을 변경했습니다.', 'success');
   };
 
-  const handleCancelSession = (sessionId: string) => {
-    const reason = cancelReasonBySession[sessionId] ?? '';
-    const result = cancelSession({ mentorId, sessionId, reason });
-
-    if (!result.ok) {
-      showToast(result.reason ?? '일정 취소에 실패했습니다.', 'error');
-
-      return;
-    }
-
-    setCancellingSessionId(null);
-    setCancelReasonBySession((prev) => ({ ...prev, [sessionId]: '' }));
-    showToast('일정을 취소했습니다.', 'success');
-  };
-
   return (
     <>
       <section className="flex flex-col gap-200">
@@ -195,6 +284,34 @@ export default function MentoringSchedulePanel({
             </div>
           </div>
         )}
+
+        <SurfacePanel radius="md" className="px-200 py-150">
+          <div className="mb-100 flex flex-wrap items-center justify-between gap-75">
+            <h4 className="font-designer-14b text-text-default">
+              {issuePlaybook.title}
+            </h4>
+            <div className="flex flex-wrap gap-50">
+              <Badge color="blue" shape="round">
+                시작 전 변경/취소
+              </Badge>
+              <Badge color="orange" shape="round">
+                후속 처리 {followUpSessionCount}건
+              </Badge>
+            </div>
+          </div>
+          <div className="space-y-75">
+            {issuePlaybook.items.map((item, index) => (
+              <div key={item} className="flex items-start gap-75">
+                <span className="bg-fill-brand-subtle-default text-text-brand font-designer-12b inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full">
+                  {index + 1}
+                </span>
+                <p className="font-designer-13r text-text-subtle leading-relaxed">
+                  {item}
+                </p>
+              </div>
+            ))}
+          </div>
+        </SurfacePanel>
 
         {/* 월별 달력 */}
         <MentoringScheduleCalendar
@@ -260,12 +377,58 @@ export default function MentoringSchedulePanel({
             {/* 테이블 바디 */}
             <div className="divide-border-subtle divide-y">
               {filteredSessions.map((session) => {
-                const cancelReason = cancelReasonBySession[session.id] ?? '';
+                const actionNote = actionNoteBySession[session.id] ?? '';
                 const isScheduled = session.status === 'SCHEDULED';
                 const isOverlapping = overlappingIds.has(session.id);
                 const relatedRequest = requests.find(
                   (r) => r.id === session.requestId,
                 );
+                const hasStarted = dayjs().isAfter(dayjs(session.startsAt));
+                const canMarkNoShow = dayjs().isAfter(
+                  dayjs(session.startsAt).add(10, 'minute'),
+                );
+                const issueMeta =
+                  session.issueType && session.issueType !== 'NONE'
+                    ? MENTORING_SESSION_ISSUE_META[session.issueType]
+                    : null;
+                const refundMeta =
+                  session.refundStatus &&
+                  session.refundStatus !== 'NOT_APPLICABLE'
+                    ? MENTORING_REFUND_STATUS_META[session.refundStatus]
+                    : null;
+                const isInlineActionOpen = actionSessionId === session.id;
+                const cancelIssueType =
+                  cancelIssueTypeBySession[session.id] ?? 'MENTOR_CANCELLED';
+                const actionTitle =
+                  actionMode === 'complete'
+                    ? '완료 메모'
+                    : actionMode === 'mentee-no-show'
+                      ? '멘티 노쇼 메모'
+                      : actionMode === 'mentor-no-show'
+                        ? '멘토 노쇼 메모'
+                        : cancelIssueType === 'MENTEE_CANCELLED'
+                          ? '멘티 취소 사유'
+                          : '멘토 취소 사유';
+                const actionPlaceholder =
+                  actionMode === 'complete'
+                    ? '상담을 마무리하며 남길 메모가 있으면 적어주세요.'
+                    : actionMode === 'mentee-no-show'
+                      ? '노쇼 판단 근거와 후속 안내를 남겨주세요.'
+                      : actionMode === 'mentor-no-show'
+                        ? '멘토 미입장 사유와 후속 안내를 남겨주세요.'
+                        : cancelIssueType === 'MENTEE_CANCELLED'
+                          ? '멘티 취소 요청 사유와 환불 기준을 남겨주세요.'
+                          : '멘티가 다음 행동을 알 수 있게 멘토 취소 이유를 남겨주세요.';
+                const actionConfirmLabel =
+                  actionMode === 'complete'
+                    ? '상담 완료 처리'
+                    : actionMode === 'mentee-no-show'
+                      ? '멘티 노쇼 기록'
+                      : actionMode === 'mentor-no-show'
+                        ? '멘토 노쇼 기록'
+                        : cancelIssueType === 'MENTEE_CANCELLED'
+                          ? '멘티 취소 기록'
+                          : '멘토 취소 확정';
 
                 return (
                   <div
@@ -294,11 +457,23 @@ export default function MentoringSchedulePanel({
                         {session.menteeName}
                       </p>
                       <p className="font-designer-12r text-text-subtle">
-                        📞 {relatedRequest ? '+82 010XXXX' : '수락 후'}
+                        {session.method === 'offline'
+                          ? session.placeNote?.trim() ||
+                            '장소를 아직 확정하지 않았습니다.'
+                          : '기본 진행 채널: 디스코드'}
                       </p>
                       <p className="font-designer-12r text-text-subtle">
-                        ✉️ {relatedRequest ? 'mentee@ex..' : '수락 후'}
+                        {relatedRequest?.paymentStatus === 'CONFIRMED'
+                          ? '결제 확인 완료'
+                          : relatedRequest?.paymentStatus === 'PENDING_TRANSFER'
+                            ? '입금 확인 대기'
+                            : '결제 정보 확인 필요'}
                       </p>
+                      {issueMeta ? (
+                        <p className="font-designer-12r text-text-subtle">
+                          운영 상태: {issueMeta.label}
+                        </p>
+                      ) : null}
                     </div>
 
                     {/* 멘토링 방식 */}
@@ -317,36 +492,113 @@ export default function MentoringSchedulePanel({
                         {dayjs(session.startsAt).format('HH:mm')}~
                         {dayjs(session.endsAt).format('HH:mm')}
                       </p>
+                      {refundMeta ? (
+                        <p className="font-designer-12r text-text-subtle">
+                          {refundMeta.label}
+                        </p>
+                      ) : null}
+                      {session.operationNote?.trim() ? (
+                        <p className="font-designer-12r text-text-subtle line-clamp-2">
+                          {session.operationNote.trim()}
+                        </p>
+                      ) : null}
+                      {session.refundNote?.trim() ? (
+                        <p className="font-designer-12r text-text-subtle line-clamp-2">
+                          {session.refundNote.trim()}
+                        </p>
+                      ) : null}
                     </div>
 
                     {/* 일정 수정 - 일정 변경/취소 버튼 (세로 배치) */}
                     <div className="flex flex-col items-start gap-75 pt-[2px]">
                       {isScheduled ? (
-                        <>
-                          <Button
-                            type="button"
-                            size="small"
-                            color="primary"
-                            onClick={() => {
-                              setEditingSessionId(session.id);
-                              setRescheduleError('');
-                            }}
-                          >
-                            일정 변경
-                          </Button>
-                          <Button
-                            type="button"
-                            size="small"
-                            color="outlined"
-                            onClick={() => setCancellingSessionId(session.id)}
-                          >
-                            일정 취소
-                          </Button>
-                        </>
+                        hasStarted ? (
+                          <>
+                            <Button
+                              type="button"
+                              size="small"
+                              color="primary"
+                              onClick={() => {
+                                setActionSessionId(session.id);
+                                setActionMode('complete');
+                              }}
+                            >
+                              완료 처리
+                            </Button>
+                            <Button
+                              type="button"
+                              size="small"
+                              color="outlined"
+                              disabled={!canMarkNoShow}
+                              onClick={() => {
+                                setActionSessionId(session.id);
+                                setActionMode('mentee-no-show');
+                              }}
+                            >
+                              멘티 노쇼
+                            </Button>
+                            <Button
+                              type="button"
+                              size="small"
+                              color="secondary"
+                              disabled={!canMarkNoShow}
+                              onClick={() => {
+                                setActionSessionId(session.id);
+                                setActionMode('mentor-no-show');
+                              }}
+                            >
+                              멘토 노쇼
+                            </Button>
+                            {!canMarkNoShow ? (
+                              <p className="font-designer-11r text-text-subtlest">
+                                노쇼 기록은 시작 10분 후부터 열립니다.
+                              </p>
+                            ) : null}
+                          </>
+                        ) : (
+                          <>
+                            <Button
+                              type="button"
+                              size="small"
+                              color="primary"
+                              onClick={() => {
+                                setEditingSessionId(session.id);
+                                setRescheduleError('');
+                              }}
+                            >
+                              일정 변경
+                            </Button>
+                            <Button
+                              type="button"
+                              size="small"
+                              color="outlined"
+                              onClick={() => {
+                                setActionSessionId(session.id);
+                                setActionMode('cancel');
+                              }}
+                            >
+                              일정 취소
+                            </Button>
+                          </>
+                        )
                       ) : (
-                        <span className="font-designer-13r text-text-subtle">
-                          -
-                        </span>
+                        <div className="flex flex-col items-start gap-50">
+                          {issueMeta ? (
+                            <Badge color={issueMeta.color} shape="round">
+                              {issueMeta.label}
+                            </Badge>
+                          ) : null}
+                          {refundMeta ? (
+                            <Badge color={refundMeta.color} shape="round">
+                              {refundMeta.label}
+                            </Badge>
+                          ) : null}
+                          {!issueMeta && !refundMeta ? (
+                            <span className="font-designer-13r text-text-subtle">
+                              -
+                            </span>
+                          ) : null}
+                        </div>
                       )}
                     </div>
 
@@ -361,39 +613,121 @@ export default function MentoringSchedulePanel({
                       </Link>
                     </div>
 
-                    {/* 일정 취소 폼 (전체 너비로 표시) */}
-                    {isScheduled && cancellingSessionId === session.id && (
+                    {/* 일정 처리 폼 (전체 너비로 표시) */}
+                    {isScheduled && isInlineActionOpen && actionMode && (
                       <div className="rounded-100 bg-background-alternative col-span-6 mt-100 p-150">
                         <p className="font-designer-14b text-text-default mb-100">
-                          취소 사유
+                          {actionTitle}
                         </p>
+                        {actionMode === 'cancel' ? (
+                          <div className="mb-100 space-y-100">
+                            <div className="flex flex-wrap gap-75">
+                              <Button
+                                type="button"
+                                size="small"
+                                color={
+                                  cancelIssueType === 'MENTOR_CANCELLED'
+                                    ? 'primary'
+                                    : 'outlined'
+                                }
+                                onClick={() =>
+                                  setCancelIssueTypeBySession((prev) => ({
+                                    ...prev,
+                                    [session.id]: 'MENTOR_CANCELLED',
+                                  }))
+                                }
+                              >
+                                멘토 취소
+                              </Button>
+                              <Button
+                                type="button"
+                                size="small"
+                                color={
+                                  cancelIssueType === 'MENTEE_CANCELLED'
+                                    ? 'primary'
+                                    : 'outlined'
+                                }
+                                onClick={() =>
+                                  setCancelIssueTypeBySession((prev) => ({
+                                    ...prev,
+                                    [session.id]: 'MENTEE_CANCELLED',
+                                  }))
+                                }
+                              >
+                                멘티 취소
+                              </Button>
+                            </div>
+                            <div className="rounded-100 border-border-subtle bg-background-default border px-125 py-100">
+                              <p className="font-designer-12m text-text-subtle">
+                                예상 후속 처리
+                              </p>
+                              <p className="font-designer-12r text-text-default mt-25">
+                                {getCancelPreview({
+                                  startsAt: session.startsAt,
+                                  issueType: cancelIssueType,
+                                })}
+                              </p>
+                            </div>
+                          </div>
+                        ) : null}
                         <textarea
-                          value={cancelReason}
+                          value={actionNote}
                           onChange={(event) =>
-                            setCancelReasonBySession((prev) => ({
+                            setActionNoteBySession((prev) => ({
                               ...prev,
                               [session.id]: event.target.value,
                             }))
                           }
                           className="font-designer-14r rounded-100 border-border-subtle bg-background-default text-text-default min-h-[92px] w-full border px-150 py-125"
-                          placeholder="멘티가 다음 일정을 잡을 수 있도록 취소 이유를 남겨주세요."
+                          placeholder={actionPlaceholder}
                         />
                         <div className="mt-100 flex justify-end gap-100">
                           <Button
                             type="button"
                             size="small"
                             color="secondary"
-                            onClick={() => setCancellingSessionId(null)}
+                            onClick={closeInlineAction}
                           >
                             취소
                           </Button>
                           <Button
                             type="button"
                             size="small"
-                            color="outlined"
-                            onClick={() => handleCancelSession(session.id)}
+                            color={
+                              actionMode === 'cancel' ? 'outlined' : 'primary'
+                            }
+                            onClick={() => {
+                              if (actionMode === 'cancel') {
+                                handleCancelSession(session.id);
+
+                                return;
+                              }
+
+                              if (actionMode === 'complete') {
+                                handleMarkSessionOutcome(
+                                  session.id,
+                                  'COMPLETED',
+                                );
+
+                                return;
+                              }
+
+                              if (actionMode === 'mentee-no-show') {
+                                handleMarkSessionOutcome(
+                                  session.id,
+                                  'MENTEE_NO_SHOW',
+                                );
+
+                                return;
+                              }
+
+                              handleMarkSessionOutcome(
+                                session.id,
+                                'MENTOR_NO_SHOW',
+                              );
+                            }}
                           >
-                            일정 취소 확정
+                            {actionConfirmLabel}
                           </Button>
                         </div>
                       </div>
@@ -475,10 +809,14 @@ export default function MentoringSchedulePanel({
                           {request.menteeName}
                         </p>
                         <p className="font-designer-12r text-text-subtle">
-                          📞 수락 후
+                          {request.method === 'offline'
+                            ? '수락 후 장소 안내'
+                            : '수락 후 진행 채널 안내'}
                         </p>
                         <p className="font-designer-12r text-text-subtle">
-                          ✉️ 수락 후
+                          {request.paymentStatus === 'PENDING_TRANSFER'
+                            ? '입금 확인 필요'
+                            : '수락 후 일정 확정'}
                         </p>
                       </div>
 

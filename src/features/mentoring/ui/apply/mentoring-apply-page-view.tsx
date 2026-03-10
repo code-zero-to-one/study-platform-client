@@ -1,16 +1,11 @@
 import dayjs from 'dayjs';
 import {
   Banknote,
-  BellRing,
-  CalendarClock,
   CheckCircle2,
   ChevronLeft,
-  CircleHelp,
-  FileText,
   MessageCircle,
   Monitor,
   Phone,
-  ShieldCheck,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -27,9 +22,11 @@ import {
   getMethodLabel,
 } from '@/features/mentoring/model/mentor-profile-utils';
 import {
-  MENTORING_APPLY_WRITING_GUIDE,
-  MENTORING_DEFAULT_CHANNEL_GUIDE,
-  MENTORING_PROGRESS_CHECK_GUIDE,
+  MENTORING_CHANGE_AND_NO_SHOW_GUIDE,
+  MENTORING_REFUND_POLICY_DETAIL,
+  getMentoringApplyWritingGuide,
+  getMentoringChannelGuide,
+  getMentoringProgressCheckGuide,
   getMentoringResponseGuide,
 } from '@/features/mentoring/model/mentoring-flow-policy';
 import { type MentoringApplyControllerResult } from '@/features/mentoring/model/use-mentoring-apply-controller';
@@ -59,14 +56,57 @@ export default function MentoringApplyPageView({
 }: MentoringApplyPageViewProps) {
   const { state, actions, viewModel } = controller;
   const mentorDisplayTitle = getMentorDisplayTitle(mentor);
-  const requestFlowSummary = viewModel.needsSchedule
-    ? '일정 선택 → 요청서 작성 → 결제'
-    : '질문 작성 → 결제 → 답장 확인';
   const responseGuide = getMentoringResponseGuide(selectedMethod);
+  const channelGuide = getMentoringChannelGuide(selectedMethod);
+  const progressGuide = getMentoringProgressCheckGuide(selectedMethod);
+  const writingGuideItems = getMentoringApplyWritingGuide(selectedMethod);
   const responseSummary =
     selectedMethod === 'note'
       ? '멘토 첫 답장 시 시작'
       : '보통 24시간 안에 확인';
+  const applySummaryItems = [
+    {
+      label: selectedMethod === 'note' ? '시작 기준' : '확인 기준',
+      value: responseGuide,
+    },
+    {
+      label: '진행 채널',
+      value: channelGuide,
+    },
+    {
+      label: '진행 확인',
+      value: progressGuide,
+    },
+  ];
+  const selectedScheduleSummary = viewModel.needsSchedule
+    ? state.selectedDate
+      ? state.selectedTime
+        ? `${dayjs(state.selectedDate).format('YYYY.MM.DD')} ${state.selectedTime}`
+        : `${dayjs(state.selectedDate).format('YYYY.MM.DD')} · 시간 선택 전`
+      : '날짜/시간 선택 전'
+    : '질문 접수 후 멘토 답장을 기다리는 방식';
+  const requestChecklist = [
+    {
+      label: viewModel.needsSchedule ? '희망 일정 선택' : '상담 방식 확인',
+      done: viewModel.needsSchedule
+        ? state.selectedDate !== undefined && state.selectedTime !== ''
+        : true,
+    },
+    {
+      label: '요청서 10자 이상',
+      done: viewModel.requestTextLength >= 10,
+    },
+    {
+      label:
+        selectedMethod === 'note' ? '자료 또는 링크 포함' : '자료 첨부는 선택',
+      done: viewModel.isAttachmentReady,
+    },
+    {
+      label: viewModel.needsPaymentMemo ? '결제 메모' : '결제 방식 확인',
+      done: viewModel.isPaymentMemoReady,
+    },
+  ];
+  const remainingChecklist = requestChecklist.filter((item) => !item.done);
 
   return (
     <PageContainer spacing="content">
@@ -110,33 +150,7 @@ export default function MentoringApplyPageView({
         </div>
       </SurfacePanel>
 
-      <SurfacePanel radius="lg" className="mb-250 p-200">
-        <div className="mb-150 flex items-center gap-75">
-          <CircleHelp className="text-text-brand h-16 w-16" />
-          <p className="font-designer-16b text-text-default">
-            신청 전에 확인하세요
-          </p>
-        </div>
-        <div className="grid gap-125 md:grid-cols-3">
-          <ApplyGuideCard
-            icon={<FileText className="h-16 w-16" />}
-            title="신청 순서"
-            description={requestFlowSummary}
-          />
-          <ApplyGuideCard
-            icon={<BellRing className="h-16 w-16" />}
-            title="응답 예상"
-            description={responseGuide}
-          />
-          <ApplyGuideCard
-            icon={<CalendarClock className="h-16 w-16" />}
-            title="진행 채널"
-            description={MENTORING_DEFAULT_CHANNEL_GUIDE}
-          />
-        </div>
-      </SurfacePanel>
-
-      <div className="grid grid-cols-1 gap-300 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="grid grid-cols-1 gap-300 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0 space-y-250">
           {viewModel.needsSchedule && (
             <SurfacePanel radius="lg">
@@ -153,9 +167,15 @@ export default function MentoringApplyPageView({
 
               <div className="p-200">
                 <p className="font-designer-13r text-text-subtle mb-150">
-                  1회 상담 시간은 {viewModel.selectedOption.durationLabel}이며,
-                  신청일 기준 3일 뒤부터 선택할 수 있어요.
+                  상담 시간은 {viewModel.selectedOption.durationLabel}이며,
+                  날짜는 신청일 기준 3일 뒤부터 선택할 수 있어요.
                 </p>
+                {selectedMethod === 'offline' ? (
+                  <p className="font-designer-12r text-text-subtle mb-150">
+                    대면상담은 희망 지역이나 이동 제약도 요청서에 함께 적어두는
+                    편이 안전합니다.
+                  </p>
+                ) : null}
 
                 <div className="grid grid-cols-1 gap-200 md:grid-cols-[280px_1fr]">
                   <div>
@@ -213,20 +233,26 @@ export default function MentoringApplyPageView({
             </div>
 
             <div className="space-y-150 p-200">
-              <p className="font-designer-13r text-text-subtle leading-relaxed">
-                길게 쓰지 않아도 됩니다. 아래 3가지만 적어도 멘토가 현재 상황을
-                빠르게 이해할 수 있어요.
-              </p>
-
-              <div className="rounded-125 bg-background-alternative p-150">
-                {MENTORING_APPLY_WRITING_GUIDE.map((guide, index) => (
-                  <p key={guide} className="font-designer-13r text-text-subtle">
-                    {index + 1}. {guide}
-                  </p>
-                ))}
+              <div className="rounded-125 bg-background-alternative px-150 py-125">
+                <p className="font-designer-13b text-text-default mb-75">
+                  요청서에 이런 내용을 적어주세요
+                </p>
+                <div className="space-y-50">
+                  {writingGuideItems.map((item, index) => (
+                    <div key={item} className="flex items-start gap-75">
+                      <span className="bg-fill-brand-subtle-default text-text-brand font-designer-11m inline-flex h-18 w-18 shrink-0 items-center justify-center rounded-full">
+                        {index + 1}
+                      </span>
+                      <p className="font-designer-12r text-text-subtle leading-relaxed">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               <MentoringRequestEditor
+                method={selectedMethod}
                 value={state.requestContents}
                 onChange={actions.onRequestContentsChange}
               />
@@ -240,7 +266,7 @@ export default function MentoringApplyPageView({
                       : 'text-text-subtlest',
                   )}
                 >
-                  텍스트는 최소 10자 이상 입력해주세요.
+                  텍스트 10자 이상
                 </span>
                 <span className="font-designer-13r text-text-subtlest">
                   {viewModel.requestTextLength}자
@@ -249,8 +275,8 @@ export default function MentoringApplyPageView({
 
               <p className="font-designer-13r text-text-subtle leading-relaxed">
                 {viewModel.requiresAttachment
-                  ? '쪽지/간편 상담은 이미지, 첨부파일, 링크 중 1개 이상 포함해주세요.'
-                  : '필요한 자료가 있다면 이미지/첨부파일/링크를 함께 남겨주세요.'}
+                  ? '쪽지/간편 상담은 이미지, 파일, 링크 중 1개 이상 필요합니다.'
+                  : '필요한 자료가 있으면 이미지, 파일, 링크를 함께 남겨주세요.'}
               </p>
 
               {viewModel.shouldShowAttachmentError && (
@@ -261,26 +287,104 @@ export default function MentoringApplyPageView({
             </div>
           </SurfacePanel>
 
-          <SurfacePanel radius="md" className="p-200">
-            <div className="mb-150 flex items-center gap-75">
-              <ShieldCheck className="text-text-success h-16 w-16" />
-              <p className="font-designer-14b text-text-default">결제 안내</p>
+          <SurfacePanel radius="lg">
+            <div className="border-border-subtle bg-background-alternative flex items-center gap-100 border-b px-200 py-150">
+              <span className="font-designer-16b text-text-strong">
+                {viewModel.messageStepNumber + 1}. 결제 방식 선택
+              </span>
             </div>
-            <p className="font-designer-13r text-text-subtle leading-relaxed">
-              카드/가상계좌 결제는 결제 내역이 자동 반영되며, 수동결제는 입금
-              확인 후 멘토가 신청을 수락할 수 있습니다. 환불은 시작 120시간
-              전까지 전액, 120~24시간 전 30%, 24시간 내 환불 불가 기준을
-              따릅니다.
-            </p>
+
+            <div className="space-y-175 p-200">
+              <div>
+                <p className="font-designer-13r text-text-subtle mb-75">
+                  결제 방식
+                </p>
+                <div className="grid grid-cols-1 gap-100 md:grid-cols-3">
+                  {viewModel.paymentMethodOptions.map((option) => {
+                    const isSelected =
+                      state.selectedPaymentMethod === option.id;
+
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => actions.onPaymentMethodSelect(option.id)}
+                        className={cn(
+                          'rounded-125 border px-150 py-150 text-left transition-colors',
+                          isSelected
+                            ? 'border-border-brand bg-fill-brand-subtle-default'
+                            : 'border-border-subtle bg-background-default hover:border-border-brand',
+                        )}
+                      >
+                        <p className="font-designer-14b text-text-default">
+                          {option.label}
+                        </p>
+                        <p className="font-designer-12r text-text-subtle mt-50 leading-relaxed">
+                          {option.description}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="rounded-125 border-border-subtle bg-background-alternative border p-150">
+                <div className="mb-75 flex items-center justify-between gap-75">
+                  <p className="font-designer-14b text-text-default inline-flex items-center gap-50">
+                    <Banknote className="h-14 w-14" />
+                    {viewModel.selectedPaymentMethodCopy.title}
+                  </p>
+                  <Badge color="gray" shape="round">
+                    {viewModel.needsPaymentMemo ? '멘토 확인' : '자동 반영'}
+                  </Badge>
+                </div>
+                <p className="font-designer-12r text-text-subtle leading-relaxed">
+                  {viewModel.selectedPaymentMethodCopy.description}
+                </p>
+                <p className="font-designer-12r text-text-subtle mt-75 inline-flex items-center gap-50">
+                  <CheckCircle2 className="h-14 w-14" />
+                  {viewModel.selectedPaymentMethodCopy.helper}
+                </p>
+              </div>
+
+              {viewModel.needsPaymentMemo && (
+                <div>
+                  <p className="font-designer-13r text-text-subtle mb-75">
+                    결제 메모 <span className="text-text-brand">*</span>
+                  </p>
+                  <p className="font-designer-12r text-text-subtle mb-75">
+                    입금 시각, 송금자명, 채널을 남겨주세요.
+                  </p>
+                  <textarea
+                    value={state.paymentMemo}
+                    onChange={(event) =>
+                      actions.onPaymentMemoChange(event.target.value)
+                    }
+                    className={cn(
+                      'font-designer-13r rounded-100 bg-background-default border',
+                      'text-text-default min-h-[112px] w-full resize-y px-125 py-100',
+                      'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
+                      viewModel.shouldShowPaymentMemoError
+                        ? 'border-border-error'
+                        : 'border-border-subtle',
+                    )}
+                    placeholder="예: 21:30, 홍길동, 카카오뱅크"
+                  />
+                  {viewModel.shouldShowPaymentMemoError && (
+                    <p className="font-designer-12r text-text-error mt-50">
+                      수동결제 신청은 결제 메모를 2자 이상 입력해주세요.
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
           </SurfacePanel>
         </div>
 
-        <aside className="h-fit space-y-175 xl:sticky xl:top-[96px]">
+        <aside className="h-fit xl:sticky xl:top-[96px]">
           <SurfacePanel radius="lg" className="p-200">
             <div className="mb-125 flex items-center justify-between">
-              <h2 className="font-designer-18b text-text-strong">
-                신청자 정보
-              </h2>
+              <h2 className="font-designer-18b text-text-strong">신청 확인</h2>
               <Link href="/my-page">
                 <Button color="outlined" size="small">
                   정보 수정
@@ -288,35 +392,73 @@ export default function MentoringApplyPageView({
               </Link>
             </div>
 
-            <div className="font-designer-14r text-text-subtle space-y-75">
-              <p>
-                이름{' '}
-                <span className="text-text-default">
-                  {viewModel.applicantName}
-                </span>
-              </p>
-              <p>
-                이메일 <span className="text-text-default">-</span>
-              </p>
-              <p>
-                휴대폰 번호{' '}
-                <span className="text-text-default">
-                  {viewModel.applicantPhone}
-                </span>
-              </p>
+            <div className="rounded-125 border-border-subtle bg-background-alternative space-y-100 border p-150">
+              <SummaryRow label="신청자" value={viewModel.applicantName} />
+              <SummaryRow
+                label="연락처"
+                value={
+                  viewModel.applicantPhone === '-'
+                    ? '등록된 번호 없음'
+                    : viewModel.applicantPhone
+                }
+              />
+              <SummaryRow
+                label={viewModel.needsSchedule ? '희망 일정' : '진행 방식'}
+                value={selectedScheduleSummary}
+                multiline
+              />
             </div>
-          </SurfacePanel>
 
-          <section className="rounded-200 border-border-subtle bg-background-default border p-225">
-            <div className="mb-150 flex items-center justify-between">
-              <h2 className="font-designer-18b text-text-strong">결제/신청</h2>
-              <Badge color="green" shape="round">
-                안전 결제
-              </Badge>
+            <div className="rounded-125 border-border-subtle mt-150 border p-150">
+              <div className="mb-100 flex items-center justify-between">
+                <h3 className="font-designer-16b text-text-strong">
+                  결제 요약
+                </h3>
+                <Badge color="green" shape="round">
+                  안전 결제
+                </Badge>
+              </div>
+              <div className="space-y-100">
+                <SummaryRow
+                  label="상담 방식"
+                  value={getMethodLabel(selectedMethod)}
+                />
+                <SummaryRow
+                  label="기본 금액"
+                  value={formatWon(viewModel.selectedOption.price)}
+                  strong
+                />
+                <SummaryRow
+                  label="결제 진행"
+                  value={viewModel.selectedPaymentMethodCopy.flowLabel}
+                />
+                <SummaryRow
+                  label={selectedMethod === 'note' ? '시작 기준' : '확인 기준'}
+                  value={responseSummary}
+                />
+              </div>
+            </div>
+
+            <div className="rounded-125 bg-background-alternative mt-150 p-150">
+              <p className="font-designer-13b text-text-default mb-75">
+                진행 요약
+              </p>
+              <div className="space-y-100">
+                {applySummaryItems.map((item) => (
+                  <div key={item.label}>
+                    <p className="font-designer-12m text-text-subtle mb-25">
+                      {item.label}
+                    </p>
+                    <p className="font-designer-12r text-text-subtle leading-relaxed">
+                      {item.value}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {viewModel.isRequestBlockedByOperation ? (
-              <div className="rounded-100 border-border-subtle bg-background-accent-orange-subtle mb-150 border px-125 py-100">
+              <div className="rounded-100 border-border-subtle bg-background-accent-orange-subtle mt-150 border px-125 py-100">
                 <p className="font-designer-13b text-text-default">
                   {viewModel.operationBlockedMessage}
                 </p>
@@ -326,184 +468,110 @@ export default function MentoringApplyPageView({
               </div>
             ) : null}
 
-            <div className="mb-150">
-              <p className="font-designer-13r text-text-subtle mb-75">
-                결제 방식
-              </p>
-              <div className="space-y-100">
-                {viewModel.paymentMethodOptions.map((option) => {
-                  const isSelected = state.selectedPaymentMethod === option.id;
-
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      onClick={() => actions.onPaymentMethodSelect(option.id)}
-                      className={cn(
-                        'rounded-100 w-full border px-125 py-100 text-left transition-colors',
-                        isSelected
-                          ? 'border-border-brand bg-fill-brand-subtle-default'
-                          : 'border-border-subtle bg-background-default hover:border-border-brand',
-                      )}
-                    >
-                      <p className="font-designer-14b text-text-default">
-                        {option.label}
-                      </p>
-                      <p className="font-designer-12r text-text-subtle mt-50">
-                        {option.description}
-                      </p>
-                    </button>
-                  );
-                })}
+            {remainingChecklist.length > 0 ? (
+              <div className="rounded-125 border-border-subtle mt-150 border p-125">
+                <p className="font-designer-13b text-text-default mb-75">
+                  제출 전 체크
+                </p>
+                <div className="space-y-75">
+                  {remainingChecklist.map((item) => (
+                    <ApplyChecklistItem
+                      key={item.label}
+                      label={item.label}
+                      done={item.done}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-
-            <div className="rounded-125 border-border-subtle bg-background-alternative mb-150 border p-125">
-              <div className="mb-75 flex items-center justify-between gap-75">
-                <p className="font-designer-14b text-text-default inline-flex items-center gap-50">
-                  <Banknote className="h-14 w-14" />
-                  {viewModel.selectedPaymentMethodCopy.title}
+            ) : (
+              <div className="rounded-125 bg-fill-success-subtle-default mt-150 px-125 py-100">
+                <p className="font-designer-13b text-text-default">
+                  신청 준비가 끝났습니다.
                 </p>
-                <Badge color="gray" shape="round">
-                  {viewModel.needsPaymentMemo ? '멘토 확인' : '자동 반영'}
-                </Badge>
-              </div>
-              <p className="font-designer-12r text-text-subtle">
-                {viewModel.selectedPaymentMethodCopy.description}
-              </p>
-              <p className="font-designer-12r text-text-subtle mt-75 inline-flex items-center gap-50">
-                <CheckCircle2 className="h-14 w-14" />
-                {viewModel.selectedPaymentMethodCopy.helper}
-              </p>
-            </div>
-
-            {viewModel.needsPaymentMemo && (
-              <div className="mb-150">
-                <p className="font-designer-13r text-text-subtle mb-75">
-                  결제 메모 <span className="text-text-brand">*</span>
+                <p className="font-designer-12r text-text-subtle mt-25">
+                  {progressGuide}
                 </p>
-                <p className="font-designer-12r text-text-subtle mb-75">
-                  입금 예정 시각/송금자명/송금 채널을 남겨주세요.
-                </p>
-                <textarea
-                  value={state.paymentMemo}
-                  onChange={(event) =>
-                    actions.onPaymentMemoChange(event.target.value)
-                  }
-                  className={cn(
-                    'font-designer-13r rounded-100 bg-background-default border',
-                    'text-text-default min-h-[112px] w-full resize-y px-125 py-100',
-                    'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
-                    viewModel.shouldShowPaymentMemoError
-                      ? 'border-border-error'
-                      : 'border-border-subtle',
-                  )}
-                  placeholder="예: 21:30, 홍길동, 카카오뱅크"
-                />
-                {viewModel.shouldShowPaymentMemoError && (
-                  <p className="font-designer-12r text-text-error mt-50">
-                    수동결제 신청은 결제 메모를 2자 이상 입력해주세요.
-                  </p>
-                )}
               </div>
             )}
 
-            <div className="rounded-100 border-border-subtle mb-150 border px-125 py-100">
-              <div className="mb-75 flex items-center justify-between">
-                <span className="font-designer-13r text-text-subtle">
-                  상담 방식
-                </span>
-                <span className="font-designer-14b text-text-default">
-                  {getMethodLabel(selectedMethod)}
-                </span>
-              </div>
-              <div className="mb-75 flex items-center justify-between">
-                <span className="font-designer-13r text-text-subtle">
-                  상담 기본 금액
-                </span>
-                <span className="font-designer-16b text-text-default">
-                  {formatWon(viewModel.selectedOption.price)}
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-designer-13r text-text-subtle">
-                  결제 진행 방식
-                </span>
-                <span className="font-designer-16b text-text-default">
-                  {viewModel.selectedPaymentMethodCopy.flowLabel}
-                </span>
-              </div>
-              <div className="mt-75 flex items-center justify-between">
-                <span className="font-designer-13r text-text-subtle">
-                  예상 확인
-                </span>
-                <span className="font-designer-14b text-text-default">
-                  {responseSummary}
-                </span>
-              </div>
+            <div className="mt-150">
+              <Button
+                color="primary"
+                size="large"
+                className="w-full"
+                onClick={actions.onSubmit}
+                disabled={viewModel.isSubmitDisabled}
+              >
+                {viewModel.submitButtonLabel}
+              </Button>
+              {viewModel.isSubmitDisabled &&
+              !viewModel.isRequestBlockedByOperation ? (
+                <p className="font-designer-12r text-text-subtle mt-75 leading-relaxed">
+                  필수 항목을 채우면 신청할 수 있어요.
+                </p>
+              ) : null}
+              <p className="font-designer-12r text-text-subtle mt-100 leading-relaxed">
+                {MENTORING_REFUND_POLICY_DETAIL}.{' '}
+                {MENTORING_CHANGE_AND_NO_SHOW_GUIDE}
+              </p>
             </div>
-
-            <div className="rounded-125 bg-background-alternative mb-150 p-125">
-              <div className="mb-75 flex items-center gap-50">
-                <CircleHelp className="text-text-brand h-14 w-14" />
-                <p className="font-designer-13b text-text-default">진행 안내</p>
-              </div>
-              <div className="space-y-75">
-                <p className="font-designer-12r text-text-subtle leading-relaxed">
-                  {responseGuide}
-                </p>
-                <p className="font-designer-12r text-text-subtle leading-relaxed">
-                  {MENTORING_DEFAULT_CHANNEL_GUIDE}
-                </p>
-                <p className="font-designer-12r text-text-subtle leading-relaxed">
-                  {MENTORING_PROGRESS_CHECK_GUIDE}
-                </p>
-              </div>
-            </div>
-
-            <Button
-              color="primary"
-              size="large"
-              className="w-full"
-              onClick={actions.onSubmit}
-              disabled={viewModel.isSubmitDisabled}
-            >
-              {viewModel.submitButtonLabel}
-            </Button>
-          </section>
-
-          <section className="rounded-150 bg-background-alternative p-150">
-            <p className="font-designer-13r text-text-subtle leading-relaxed">
-              선택한 결제 방식과 무관하게 환불 정책은 동일하게 적용됩니다.
-              <br />
-              일반 기준: 시작 120시간 전 전액, 120~24시간 전 30%, 24시간 내 환불
-              불가
-            </p>
-          </section>
+          </SurfacePanel>
         </aside>
       </div>
     </PageContainer>
   );
 }
 
-function ApplyGuideCard({
-  icon,
-  title,
-  description,
+function SummaryRow({
+  label,
+  value,
+  multiline = false,
+  strong = false,
 }: {
-  icon: ReactNode;
-  title: string;
-  description: string;
+  label: string;
+  value: string;
+  multiline?: boolean;
+  strong?: boolean;
 }) {
   return (
-    <div className="rounded-150 bg-background-alternative flex items-start gap-100 p-150">
-      <div className="text-text-brand mt-[2px] shrink-0">{icon}</div>
-      <div>
-        <p className="font-designer-13b text-text-default mb-25">{title}</p>
-        <p className="font-designer-12r text-text-subtle leading-relaxed">
-          {description}
-        </p>
-      </div>
+    <div className="flex items-start justify-between gap-100">
+      <span className="font-designer-12m text-text-subtle shrink-0">
+        {label}
+      </span>
+      <span
+        className={cn(
+          'text-right text-text-default',
+          multiline ? 'font-designer-13r leading-relaxed' : 'font-designer-14r',
+          strong ? 'font-designer-16b' : '',
+        )}
+      >
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function ApplyChecklistItem({ label, done }: { label: string; done: boolean }) {
+  return (
+    <div className="flex items-center gap-75">
+      <span
+        className={cn(
+          'inline-flex h-18 w-18 shrink-0 items-center justify-center rounded-full border',
+          done
+            ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
+            : 'border-border-subtle bg-background-default text-text-subtlest',
+        )}
+      >
+        <CheckCircle2 className="h-12 w-12" />
+      </span>
+      <span
+        className={cn(
+          'font-designer-12r',
+          done ? 'text-text-default' : 'text-text-subtle',
+        )}
+      >
+        {label}
+      </span>
     </div>
   );
 }

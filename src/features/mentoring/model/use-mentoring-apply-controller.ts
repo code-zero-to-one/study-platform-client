@@ -4,7 +4,11 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { type DateRange } from 'react-day-picker';
-import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
+import {
+  getMentorDisplayTitle,
+  getMethodLabel,
+  getMentorSettings,
+} from '@/features/mentoring/model/mentor-profile-utils';
 import {
   extractMentoringTimeSlotStart,
   filterMentoringTimeSlotsByWeekday,
@@ -153,6 +157,8 @@ export interface MentoringApplyControllerViewModel {
   applicantPhone: string;
   submitButtonLabel: string;
   isSubmitDisabled: boolean;
+  isAttachmentReady: boolean;
+  isPaymentMemoReady: boolean;
   isDateDisabled: (date: Date) => boolean;
 }
 
@@ -194,8 +200,7 @@ export const useMentoringApplyController = ({
   const selectedOption = mentor.methods[selectedMethod];
   const mentorSettings = getMentorSettings(mentor);
   const needsSchedule = selectedOption.requiresSchedule;
-  const requiresAttachment =
-    selectedMethod === 'note' || selectedMethod === 'simple';
+  const requiresAttachment = selectedMethod === 'note';
   const methodDurationMinutes =
     parseDurationLabelToMinutes(selectedOption.durationLabel) ??
     mentorSettings.deepDurationMinutes;
@@ -348,6 +353,11 @@ export const useMentoringApplyController = ({
       const requestId = createRequest({
         mentorId: mentor.id,
         method: selectedMethod,
+        mentorDisplayTitle: getMentorDisplayTitle(mentor),
+        mentorNickname: mentor.nickname,
+        methodLabel: getMethodLabel(selectedMethod),
+        durationLabel: selectedOption.durationLabel,
+        paymentAmount: selectedOption.price,
         paymentMode,
         paymentMethod: selectedPaymentMethod,
         paymentMemo: needsPaymentMemo ? paymentMemo.trim() : undefined,
@@ -429,6 +439,8 @@ export const useMentoringApplyController = ({
       submitButtonLabel,
       isSubmitDisabled:
         !isValidForm || isSubmitting || isRequestBlockedByOperation,
+      isAttachmentReady: !requiresAttachment || hasAttachment,
+      isPaymentMemoReady: !needsPaymentMemo || paymentMemo.trim().length >= 2,
       isDateDisabled: (date: Date) =>
         dayjs(date).isBefore(minSelectableDate, 'day'),
     },

@@ -2,7 +2,10 @@
 
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
-import { MENTORING_REQUEST_STATUS_META } from '@/features/mentoring/model/management-status-meta';
+import {
+  MENTORING_PAYMENT_STATUS_META,
+  MENTORING_REQUEST_STATUS_META,
+} from '@/features/mentoring/model/management-status-meta';
 import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentoringRequest } from '@/types/mentoring/management-domain';
@@ -19,18 +22,108 @@ import type {
 const MENTORING_REQUEST_DETAIL_BASE_PATH = '/mentoring-management/requests';
 
 const getPreferredScheduleText = (request: MentoringRequest) => {
+  if (request.method === 'note') {
+    return request.status === 'ACCEPTED'
+      ? '첫 답변과 후속 질문으로 진행'
+      : '수락 후 첫 답변으로 시작';
+  }
+
   if (!request.preferredDate) {
     return '수락 후 확인가능';
   }
   if (!request.preferredTime) {
-    return request.preferredDate;
+    return dayjs(request.preferredDate).format('YYYY.MM.DD');
   }
 
-  return `${dayjs(request.preferredDate).format('YY. MM. DD.')} ${request.preferredTime}`;
+  return `${dayjs(request.preferredDate).format('YYYY.MM.DD')} ${request.preferredTime}`;
 };
 
 const toRequestDetailHref = (requestId: string) => {
   return `${MENTORING_REQUEST_DETAIL_BASE_PATH}?id=${requestId}`;
+};
+
+const hasMentorFirstReply = (request: MentoringRequest) => {
+  return request.conversation.some((message) => message.sender === 'MENTOR');
+};
+
+const getAttentionMeta = (request: MentoringRequest) => {
+  if (
+    request.status === 'PENDING' &&
+    request.paymentMode === 'MANUAL_TRANSFER' &&
+    request.paymentStatus === 'PENDING_TRANSFER'
+  ) {
+    return {
+      label: '입금 확인 필요',
+      color: 'orange' as const,
+    };
+  }
+
+  if (request.status === 'PENDING') {
+    const hours = dayjs().diff(dayjs(request.requestedAt), 'hour');
+    if (hours >= 24) {
+      return {
+        label: '24시간 초과',
+        color: 'red' as const,
+      };
+    }
+  }
+
+  if (
+    request.method === 'note' &&
+    request.status === 'ACCEPTED' &&
+    !hasMentorFirstReply(request)
+  ) {
+    return {
+      label: '첫 답변 필요',
+      color: 'blue' as const,
+    };
+  }
+
+  return undefined;
+};
+
+const getActionMeta = (request: MentoringRequest) => {
+  if (
+    request.status === 'PENDING' &&
+    request.paymentMode === 'MANUAL_TRANSFER' &&
+    request.paymentStatus === 'PENDING_TRANSFER'
+  ) {
+    return {
+      label: '입금 확인',
+      description: '입금 여부를 먼저 확인한 뒤 수락 또는 거절을 결정하세요.',
+    };
+  }
+
+  if (request.status === 'PENDING') {
+    return {
+      label: request.method === 'note' ? '수락 결정' : '일정 검토',
+      description:
+        request.method === 'note'
+          ? '질문 범위와 자료를 보고 수락 또는 거절을 결정하세요.'
+          : '희망 일정과 질문 범위를 보고 수락 또는 거절을 결정하세요.',
+    };
+  }
+
+  if (request.status === 'ACCEPTED') {
+    if (request.method === 'note') {
+      return {
+        label: hasMentorFirstReply(request) ? '대화 확인' : '첫 답변 준비',
+        description: hasMentorFirstReply(request)
+          ? '후속 질문이 이어지고 있는지 바로 확인하세요.'
+          : '첫 답변을 보내야 멘티가 같은 화면에서 이어서 질문할 수 있습니다.',
+      };
+    }
+
+    return {
+      label: '확정 내용 확인',
+      description: '확정 시간과 진행 채널 또는 장소가 최신인지 확인하세요.',
+    };
+  }
+
+  return {
+    label: '처리 확인',
+    description: '남긴 사유와 기록이 멘티에게 충분히 전달되는지 확인하세요.',
+  };
 };
 
 export const useMentoringRequestPanelController = ({
@@ -72,16 +165,28 @@ export const useMentoringRequestPanelController = ({
   const rows = useMemo<MentoringRequestRowViewModel[]>(() => {
     return requests.map((request) => {
       const statusMeta = MENTORING_REQUEST_STATUS_META[request.status];
+      const paymentMeta = MENTORING_PAYMENT_STATUS_META[request.paymentStatus];
+      const attentionMeta = getAttentionMeta(request);
+      const actionMeta = getActionMeta(request);
 
       return {
         id: request.id,
         statusLabel: statusMeta.label,
         statusColor: statusMeta.color,
+        paymentStatusLabel: paymentMeta.label,
+        paymentStatusColor: paymentMeta.color,
         methodLabel: getMethodLabel(request.method),
         menteeName: request.menteeName,
         menteeRole: request.menteeRole,
-        requestedAtText: dayjs(request.requestedAt).format('YYYY.MM.DD (ddd)'),
+        requestedAtText: dayjs(request.requestedAt).format('YYYY.MM.DD HH:mm'),
+        requestedAtLabel: '접수일',
         preferredScheduleText: getPreferredScheduleText(request),
+        preferredScheduleLabel:
+          request.method === 'note' ? '진행 방식' : '희망 일정',
+        attentionLabel: attentionMeta?.label,
+        attentionColor: attentionMeta?.color,
+        actionLabel: actionMeta.label,
+        actionDescription: actionMeta.description,
       };
     });
   }, [requests]);
@@ -93,7 +198,7 @@ export const useMentoringRequestPanelController = ({
       detailRequest: mode === 'detail' ? requests[0] : undefined,
     } satisfies MentoringRequestPanelState,
     viewModel: {
-      titleText: '개별지',
+      titleText: '개별 신청',
       showUrgentBanner: urgentCount > 0 && mode === 'list',
       rows,
     } satisfies MentoringRequestPanelViewModel,

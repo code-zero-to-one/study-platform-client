@@ -1,6 +1,7 @@
 'use client';
 
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
+import dayjs from 'dayjs';
 import { useEffect, useMemo } from 'react';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
@@ -99,7 +100,19 @@ const buildNoteConsultationList = ({
             }),
           );
 
-  return { sentItems, receivedItems };
+  const sortByLastMessage = (items: NoteConsultationListItem[]) => {
+    return [...items].sort((first, second) => {
+      return (
+        dayjs(second.lastMessageCreatedAt).valueOf() -
+        dayjs(first.lastMessageCreatedAt).valueOf()
+      );
+    });
+  };
+
+  return {
+    sentItems: sortByLastMessage(sentItems),
+    receivedItems: sortByLastMessage(receivedItems),
+  };
 };
 
 const getNoteConsultationList = (

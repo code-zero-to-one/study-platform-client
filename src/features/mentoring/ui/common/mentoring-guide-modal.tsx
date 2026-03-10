@@ -5,8 +5,12 @@ import Link from 'next/link';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import {
+  MENTORING_DISCORD_INVITE_URL,
+  getMentoringChannelGuide,
+  getMentoringProgressCheckGuide,
   getMentoringResponseGuide,
-  MENTORING_DEFAULT_CHANNEL_GUIDE,
+  MENTORING_MENTOR_CHANNEL_GUIDE,
+  MENTORING_MENTOR_RESPONSE_EXPECTATION_GUIDE,
 } from '@/features/mentoring/model/mentoring-flow-policy';
 
 interface MentoringGuideModalProps {
@@ -16,45 +20,30 @@ interface MentoringGuideModalProps {
 
 const GUIDE_CONTENT = [
   {
-    title: '멘토링이 뭔가요?',
+    title: '멘토링 소개',
     description:
-      '멘토와 멘티를 1:1로 연결해 약속을 잡아주는 기능입니다. 멘토가 가능한 시간과 비용을 설정하면 멘티는 원하는 일정에 멘토링을 신청할 수 있어요.',
+      '멘토와 멘티를 1:1로 연결해 예약형 상담과 쪽지상담을 운영합니다.',
   },
   {
-    title: '관리 페이지는 어떻게 구분되나요?',
+    title: '관리 화면',
     description:
-      '유저(멘티) 관점 관리: 내가 신청한 예약형 상담 일정과 쪽지 상담, 후기를 관리합니다.\n- /my-mentoring\n- /note-consultation\n- /my-study-review\n\n멘토 관점 관리: 멘토링 신청 확인, 입금 확인, 일정 확정/변경을 관리합니다.\n- /mentoring-management\n- /mentoring-management/requests',
+      '신청 내역은 나의 멘토링, 쪽지상담, 후기 관리에서 보고, 받은 신청과 일정은 멘토 운영 관리에서 처리합니다.',
   },
   {
-    title: '어떤 목적으로 사용할까요?',
-    description:
-      '커리어 상담, 코드리뷰, 포트폴리오 리뷰, 기술 컨설팅, 모의 면접 등 지식과 경험을 공유하는 목적이라면 다양하게 활용할 수 있습니다.',
+    title: '상담 방식',
+    description: `쪽지상담: ${getMentoringChannelGuide('note')}\n간편/심층상담: ${getMentoringChannelGuide('deep')}\n대면상담: ${getMentoringChannelGuide('offline')}`,
   },
   {
-    title: '형식이 있나요?',
-    description:
-      '쪽지상담/간편상담/심층상담/대면상담 4가지 포맷으로 운영합니다. 멘토가 각 포맷의 가격과 시간을 설정할 수 있습니다.',
+    title: '응답 기준',
+    description: `쪽지상담: ${getMentoringResponseGuide('note')}\n예약형 상담: ${getMentoringResponseGuide('deep')}\n진행 확인: ${getMentoringProgressCheckGuide('deep')}`,
   },
   {
-    title: '수락 정책은 어떻게 되나요?',
-    description: `쪽지상담은 ${getMentoringResponseGuide('note')}\n\n간편/심층/대면 상담은 ${getMentoringResponseGuide('deep')}`,
-  },
-  {
-    title: '어디서 진행하나요?',
-    description: MENTORING_DEFAULT_CHANNEL_GUIDE,
-  },
-  {
-    title: '멘토가 되려면?',
-    description: '지식공유자 권한이 있으면 누구든 멘토가 될 수 있습니다.',
+    title: '멘토 등록/운영',
+    description: `지식공유자 권한이 있으면 등록할 수 있습니다.\n${MENTORING_MENTOR_RESPONSE_EXPECTATION_GUIDE}\n${MENTORING_MENTOR_CHANNEL_GUIDE}`,
   },
 ];
 
-const GUIDE_STEPS = [
-  '멘토링 설정 후 활성화',
-  '멘티가 신청서와 자료를 제출',
-  '멘토가 수락 또는 거절 사유 입력',
-  '비용 정산',
-];
+const GUIDE_STEPS = ['설정', '신청 확인', '수락/거절', '상담 진행'];
 
 export default function MentoringGuideModal({
   open,
@@ -88,7 +77,7 @@ export default function MentoringGuideModal({
 
             <section>
               <h3 className="font-designer-20b text-text-default mb-125">
-                ○ 이용 과정
+                ○ 진행 순서
               </h3>
               <div className="flex flex-col gap-100">
                 {GUIDE_STEPS.map((step, index) => (
@@ -103,6 +92,25 @@ export default function MentoringGuideModal({
                 ))}
               </div>
             </section>
+
+            <section>
+              <h3 className="font-designer-20b text-text-default mb-75">
+                ○ 멘토링 디스코드 채널
+              </h3>
+              <p className="font-designer-16r text-text-subtle mb-125 leading-relaxed">
+                운영 전에 디스코드 채널에 먼저 입장해두세요. 공지와 진행 링크를
+                같은 기준으로 공유할 수 있습니다.
+              </p>
+              <Button asChild color="outlined" size="medium">
+                <a
+                  href={MENTORING_DISCORD_INVITE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  디스코드 채널 입장
+                </a>
+              </Button>
+            </section>
           </Modal.Body>
 
           <Modal.Footer className="flex flex-col-reverse gap-100 sm:flex-row sm:items-center sm:justify-end">
@@ -112,7 +120,7 @@ export default function MentoringGuideModal({
                 size="large"
                 className="w-full sm:w-auto"
               >
-                멘토링 소개 페이지
+                멘토링 소개 보기
               </Button>
             </Link>
             <Button

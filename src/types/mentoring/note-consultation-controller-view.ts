@@ -4,6 +4,26 @@ import type {
 } from '@/types/mentoring/note-consultation-view';
 
 export type NoteConsultationListUiState = 'ready' | 'loading' | 'error';
+export type NoteConsultationStatusTone = 'blue' | 'green' | 'orange' | 'red';
+
+export interface NoteConsultationItemStatusSummary {
+  key:
+    | 'mentor-confirmation'
+    | 'payment-confirmation'
+    | 'first-reply'
+    | 'my-reply'
+    | 'counterpart-reply'
+    | 'rejected';
+  label: string;
+  tone: NoteConsultationStatusTone;
+}
+
+export interface NoteConsultationChannelSummaryItem {
+  key: NoteConsultationItemStatusSummary['key'];
+  label: string;
+  tone: NoteConsultationStatusTone;
+  count: number;
+}
 
 export interface NoteConsultationControllerState {
   listState: NoteConsultationListUiState;
@@ -19,6 +39,12 @@ export interface NoteConsultationControllerViewModel {
   filteredItems: NoteConsultationListItem[];
   selectedItem?: NoteConsultationListItem;
   canSend: boolean;
+  itemStatusSummaries: Record<string, NoteConsultationItemStatusSummary>;
+  activeChannelSummaryItems: NoteConsultationChannelSummaryItem[];
+  pinnedItem?: NoteConsultationListItem;
+  pinnedItemStatusSummary?: NoteConsultationItemStatusSummary;
+  isRestoringPinnedItem: boolean;
+  hasMissingPinnedItem: boolean;
   errorMessage: string;
 }
 

@@ -1,14 +1,6 @@
 'use client';
 
-import {
-  ArrowRight,
-  Info,
-  MessageCircle,
-  Monitor,
-  Phone,
-  RotateCcw,
-  Users,
-} from 'lucide-react';
+import { MessageCircle, Monitor, Phone, Users } from 'lucide-react';
 import Link from 'next/link';
 import { type ReactNode } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -20,8 +12,10 @@ import {
   getMethodLabel,
 } from '@/features/mentoring/model/mentor-profile-utils';
 import {
-  MENTORING_DEFAULT_CHANNEL_GUIDE,
-  MENTORING_PROGRESS_CHECK_GUIDE,
+  MENTORING_CHANGE_AND_NO_SHOW_GUIDE,
+  MENTORING_REFUND_POLICY_GUIDE,
+  getMentoringChannelGuide,
+  getMentoringProgressCheckGuide,
   getMentoringResponseGuide,
 } from '@/features/mentoring/model/mentoring-flow-policy';
 import type {
@@ -64,16 +58,23 @@ export default function MentorDetailSidebarCta({
   headlineBadges,
 }: MentorDetailSidebarCtaProps) {
   const applyHref = `/mentoring/${mentor.id}/apply?type=${selectedMethod}`;
-  const acceptancePolicy =
-    selectedMethod === 'note'
-      ? {
-          title: '쪽지상담 진행 안내',
-          description: getMentoringResponseGuide(selectedMethod),
-        }
-      : {
-          title: '예약형 상담 진행 안내',
-          description: getMentoringResponseGuide(selectedMethod),
-        };
+  const channelGuide = getMentoringChannelGuide(selectedMethod);
+  const progressGuide = getMentoringProgressCheckGuide(selectedMethod);
+  const primaryCtaLabel = '신청하기';
+  const quickGuideItems = [
+    {
+      label: selectedMethod === 'note' ? '시작 기준' : '확인 기준',
+      value: getMentoringResponseGuide(selectedMethod),
+    },
+    {
+      label: '진행 채널',
+      value: channelGuide,
+    },
+    {
+      label: '진행 확인',
+      value: progressGuide,
+    },
+  ];
 
   return (
     <div className="rounded-200 border-border-subtle bg-background-default shadow-1 overflow-hidden border">
@@ -181,43 +182,34 @@ export default function MentorDetailSidebarCta({
         </div>
 
         <Button asChild color="primary" size="large" className="mb-150 w-full">
-          <Link href={applyHref}>
-            <ArrowRight className="h-16 w-16 shrink-0" />
-            신청/결제 진행하기
-          </Link>
+          <Link href={applyHref}>{primaryCtaLabel}</Link>
         </Button>
 
-        <div className="bg-background-alternative mb-200 rounded-150 p-150">
-          <p className="font-designer-12b text-text-default mb-50">
-            진행 도구 안내
+        <div className="bg-background-alternative mb-150 rounded-150 p-150">
+          <p className="font-designer-12b text-text-default mb-75">
+            신청 전에 확인할 내용
           </p>
-          <p className="font-designer-11r text-text-subtlest leading-relaxed">
-            {MENTORING_DEFAULT_CHANNEL_GUIDE}
-          </p>
-        </div>
-
-        <div className="mb-150 flex items-start gap-75">
-          <Info className="text-text-subtlest mt-[2px] h-14 w-14 shrink-0" />
-          <div>
-            <p className="font-designer-12b text-text-subtle mb-25">
-              {acceptancePolicy.title}
-            </p>
-            <p className="font-designer-11r text-text-subtlest leading-relaxed">
-              {acceptancePolicy.description}
-            </p>
-            <p className="font-designer-11r text-text-subtlest mt-50 leading-relaxed">
-              {MENTORING_PROGRESS_CHECK_GUIDE}
-            </p>
+          <div className="space-y-75">
+            {quickGuideItems.map((item) => (
+              <div key={item.label} className="flex items-start gap-75">
+                <span className="font-designer-11m text-text-subtle mt-[1px] w-[48px] shrink-0">
+                  {item.label}
+                </span>
+                <p className="font-designer-11r text-text-subtlest leading-relaxed">
+                  {item.value}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
         <div className="border-border-subtlest border-t pt-150">
-          <div className="flex items-center justify-center gap-75">
-            <RotateCcw className="text-text-subtlest h-12 w-12 shrink-0" />
-            <p className="font-designer-11r text-text-subtlest leading-relaxed">
-              멘토링 시작 120시간 전까지 전액 환불 가능합니다.
-            </p>
-          </div>
+          <p className="font-designer-11r text-text-subtlest text-center leading-relaxed">
+            {MENTORING_REFUND_POLICY_GUIDE}
+          </p>
+          <p className="font-designer-11r text-text-subtlest mt-50 text-center leading-relaxed">
+            {MENTORING_CHANGE_AND_NO_SHOW_GUIDE}
+          </p>
         </div>
       </div>
     </div>

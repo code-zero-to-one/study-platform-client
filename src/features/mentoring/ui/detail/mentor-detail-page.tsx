@@ -18,7 +18,7 @@ import MentorDetailHeaderSection from './mentor-detail-header-section';
 import MentorDetailMethodSection from './mentor-detail-method-section';
 import MentorDetailReviewSection from './mentor-detail-review-section';
 import MentorDetailSidebarCta from './mentor-detail-sidebar-cta';
-import MentorMarkdownContent from '../registration/mentor-markdown-content';
+import MentorMarkdownContent from '../common/mentoring-markdown-content';
 
 type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
 

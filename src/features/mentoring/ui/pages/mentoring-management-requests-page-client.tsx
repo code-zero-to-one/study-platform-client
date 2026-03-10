@@ -11,11 +11,22 @@ import { useMemo } from 'react';
 import Button from '@/components/common/ui/button';
 import SurfacePanel from '@/components/common/ui/surface-panel';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
+import {
+  getMentoringMethodFlowMeta,
+  MENTORING_DISCORD_INVITE_URL,
+} from '@/features/mentoring/model/mentoring-flow-policy';
+import { useMyMentorProfileQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringRequestPanel from '@/features/mentoring/ui/management/mentoring-request-panel';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
+
+const REQUEST_CHECKLIST = [
+  '예약형: 수락 시 시간·채널 함께 남기기',
+  '쪽지상담: 수락 후 첫 답변까지 보내기',
+  '수동결제: 입금 확인 전 답변 입력 금지',
+] as const;
 
 const getMethodDurations = (mentor: MentorProfile) => {
   const settings = getMentorSettings(mentor);
@@ -39,15 +50,10 @@ export default function MentoringManagementRequestsPageClient({
   const highlightRequestId = initialRequestId;
 
   const hasHydrated = useMentorDirectoryStore((state) => state.hasHydrated);
-  const mentorIdByMember = useMentorDirectoryStore(
-    (state) => state.mentorIdByMember,
+  const myMentorProfileQuery = useMyMentorProfileQuery(
+    hasHydrated && Boolean(memberId),
   );
-  const createdMentors = useMentorDirectoryStore(
-    (state) => state.createdMentors,
-  );
-
-  const myMentorId = memberId ? mentorIdByMember[memberId] : undefined;
-  const myMentorProfile = createdMentors.find((m) => m.id === myMentorId);
+  const myMentorProfile = myMentorProfileQuery.mentor;
 
   const methodDurations = useMemo(
     () => (myMentorProfile ? getMethodDurations(myMentorProfile) : null),
@@ -56,13 +62,29 @@ export default function MentoringManagementRequestsPageClient({
 
   return (
     <MentoringStateBoundary
-      state={hasHydrated ? 'ready' : 'loading'}
+      state={
+        !hasHydrated || myMentorProfileQuery.isLoading
+          ? 'loading'
+          : myMentorProfileQuery.isError
+            ? 'error'
+            : 'ready'
+      }
       loading={
         <div className="flex flex-col gap-300">
           <div className="rounded-100 bg-background-alternative h-[32px] w-[120px] animate-pulse" />
           <div className="rounded-200 bg-background-alternative h-[80px] animate-pulse" />
           <div className="rounded-200 bg-background-alternative h-[480px] animate-pulse" />
         </div>
+      }
+      error={
+        <SurfacePanel radius="lg" className="p-300 text-center">
+          <h2 className="font-designer-20b text-text-default mb-75">
+            멘토 신청 정보를 불러오지 못했어요
+          </h2>
+          <p className="font-designer-14r text-text-subtle">
+            잠시 후 다시 시도해주세요.
+          </p>
+        </SurfacePanel>
       }
       ready={
         <div className="flex flex-col gap-300">
@@ -72,7 +94,7 @@ export default function MentoringManagementRequestsPageClient({
             className="font-designer-14m text-text-subtle hover:text-text-default inline-flex w-fit items-center gap-75 transition-colors"
           >
             <ArrowLeft className="h-14 w-14" />
-            일정 관리
+            운영 관리
           </Link>
 
           {/* 페이지 타이틀 */}
@@ -85,10 +107,84 @@ export default function MentoringManagementRequestsPageClient({
             </div>
             <p className="font-designer-14r text-text-subtle">
               {highlightRequestId
-                ? '해당 신청을 검토하고 수락하거나 거절하세요.'
-                : '멘티의 신청을 검토하고 수락하거나 거절하세요.'}
+                ? '선택한 신청을 처리하세요.'
+                : '들어온 신청을 처리하세요.'}
             </p>
           </div>
+
+          <SurfacePanel radius="lg" className="p-250">
+            <div className="flex flex-col gap-200 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-125">
+                <div>
+                  <h2 className="font-designer-18b text-text-default">
+                    처리 전 체크
+                  </h2>
+                  <p className="font-designer-13r text-text-subtle mt-50">
+                    바로 필요한 기준만 모았습니다.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-125 md:grid-cols-3">
+                  {REQUEST_CHECKLIST.map((item) => (
+                    <article
+                      key={item}
+                      className="rounded-150 border-border-subtle bg-background-alternative border p-200"
+                    >
+                      <p className="font-designer-14m text-text-default">
+                        {item}
+                      </p>
+                    </article>
+                  ))}
+                </div>
+              </div>
+              <Button asChild color="outlined" size="medium">
+                <a
+                  href={MENTORING_DISCORD_INVITE_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  디스코드 입장
+                  <SquareArrowOutUpRight className="h-16 w-16" />
+                </a>
+              </Button>
+            </div>
+          </SurfacePanel>
+
+          <SurfacePanel radius="lg" className="p-250">
+            <div className="mb-150">
+              <h2 className="font-designer-18b text-text-default">
+                상담 방식별 핵심
+              </h2>
+              <p className="font-designer-13r text-text-subtle mt-50">
+                방식별 처리 기준만 정리했습니다.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-125 md:grid-cols-2">
+              {(
+                [
+                  ['note', '쪽지상담'],
+                  ['simple', '간편상담'],
+                  ['deep', '심층상담'],
+                  ['offline', '대면상담'],
+                ] as const
+              ).map(([method, label]) => {
+                const flowMeta = getMentoringMethodFlowMeta(method);
+
+                return (
+                  <article
+                    key={method}
+                    className="rounded-150 border-border-subtle bg-background-alternative border p-200"
+                  >
+                    <p className="font-designer-14b text-text-default">
+                      {label}
+                    </p>
+                    <p className="font-designer-13r text-text-subtle mt-50 leading-relaxed">
+                      {flowMeta.mentorAction}
+                    </p>
+                  </article>
+                );
+              })}
+            </div>
+          </SurfacePanel>
 
           {myMentorProfile && memberId && methodDurations ? (
             <MentoringRequestPanel
@@ -109,7 +205,7 @@ export default function MentoringManagementRequestsPageClient({
                 등록된 멘토 프로필이 없습니다
               </h2>
               <p className="font-designer-14r text-text-subtle mb-250">
-                멘토링을 먼저 등록해야 신청 내역을 관리할 수 있어요.
+                멘토링을 먼저 등록해야 신청을 관리할 수 있어요.
               </p>
               <Link href="/mentoring/become-mentor">
                 <Button color="primary" size="large">
