@@ -1,10 +1,10 @@
 import { Metadata } from 'next';
-import StartStudyButton from '@/components/home/start-study-button';
-import GlobalToast from '@/components/ui/global-toast';
+import HomePageClient from '@/components/pages/home-page-client';
+import HomePageServerContent from '@/components/pages/home-page-server-content';
+import { parseHomePageSearchParams } from '@/features/home/model/home-page-search-params';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
-import Banner from '@/widgets/home/banner';
-import FeedbackLink from '@/widgets/home/feedback-link';
-import HomeContent from './home-content';
+import { getServerCookie } from '@/utils/server-cookie';
+import { isNumeric } from '@/utils/validation';
 
 export const metadata: Metadata = generateSEOMetadata({
   title: '홈 - ZERO-ONE',
@@ -18,19 +18,19 @@ export const metadata: Metadata = generateSEOMetadata({
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: Promise<{ tab?: string }>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const activeTab = resolvedSearchParams?.tab || 'study';
+  const { activeTab } = parseHomePageSearchParams(resolvedSearchParams);
+  const memberIdStr = await getServerCookie('memberId');
+  const memberId =
+    memberIdStr && isNumeric(memberIdStr) ? Number(memberIdStr) : undefined;
 
   return (
-    <div className="mx-auto flex w-[1496px] flex-col gap-500 px-600 py-600">
-      <GlobalToast />
-      <Banner />
-      <FeedbackLink />
-      <StartStudyButton />
-      <HomeContent activeTab={activeTab} />
-      <div className="h-[400px]" aria-hidden />
-    </div>
+    <HomePageClient
+      activeTab={activeTab}
+      memberId={memberId}
+      content={<HomePageServerContent activeTab={activeTab} />}
+    />
   );
 }
