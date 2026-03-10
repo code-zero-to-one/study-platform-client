@@ -81,6 +81,26 @@ export default function StudyReviewModal({
     handleDismiss();
   };
 
+  const handleToggleHideForOneHour = () => {
+    const nextHideForOneHour = !hideForOneHour;
+
+    setHideForOneHour(nextHideForOneHour);
+
+    if (nextHideForOneHour) {
+      setHideForever(false);
+    }
+  };
+
+  const handleToggleHideForever = () => {
+    const nextHideForever = !hideForever;
+
+    setHideForever(nextHideForever);
+
+    if (nextHideForever) {
+      setHideForOneHour(false);
+    }
+  };
+
   return (
     <Modal.Root open={open} onOpenChange={handleOpenChange}>
       <Modal.Portal>
@@ -110,26 +130,8 @@ export default function StudyReviewModal({
             onSubmitSuccessClose={() => onOpenChange(false)}
             hideForOneHour={hideForOneHour}
             hideForever={hideForever}
-            onToggleHideForOneHour={() => {
-              setHideForOneHour((prev) => {
-                const next = !prev;
-                if (next) {
-                  setHideForever(false);
-                }
-
-                return next;
-              });
-            }}
-            onToggleHideForever={() => {
-              setHideForever((prev) => {
-                const next = !prev;
-                if (next) {
-                  setHideForOneHour(false);
-                }
-
-                return next;
-              });
-            }}
+            onToggleHideForOneHour={handleToggleHideForOneHour}
+            onToggleHideForever={handleToggleHideForever}
           />
         </Modal.Content>
       </Modal.Portal>

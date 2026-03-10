@@ -1,5 +1,5 @@
-import dynamic from 'next/dynamic';
 import { MessageCircle, Users } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';

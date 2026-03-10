@@ -1,5 +1,5 @@
-import dynamic from 'next/dynamic';
 import { UserRoundPlus } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';

@@ -26,6 +26,7 @@ interface Props {
   onChange?: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   hideMeta?: boolean;
   className?: string;
+  disabled?: boolean;
 }
 
 function TextAreaInput({
@@ -38,6 +39,7 @@ function TextAreaInput({
   onChange,
   hideMeta = false,
   className,
+  disabled = false,
 }: Props) {
   const current = value ?? '';
 
@@ -54,13 +56,14 @@ function TextAreaInput({
         id={id}
         placeholder={placeholder}
         className={cn(
-          'rounded-100 border-border-default h-[60px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none',
+          'rounded-100 border-border-default disabled:border-border-disabled disabled:bg-background-disabled disabled:text-text-disabled h-[60px] w-full border p-150 focus-visible:ring-0 focus-visible:outline-none disabled:cursor-not-allowed',
           className,
         )}
         value={current}
         onChange={handleChange}
         minLength={minLength}
         maxLength={maxLength}
+        disabled={disabled}
       />
       {!hideMeta && (
         <div className="font-designer-13r text-text-subtlest flex justify-between">

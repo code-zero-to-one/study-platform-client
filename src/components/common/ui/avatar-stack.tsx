@@ -1,7 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { Crown, X } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useCallback, useState } from 'react';
 import UserAvatar from '@/components/common/ui/avatar';
 import { cn } from './(shadcn)/lib/utils';

@@ -1,7 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { Plus } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import Pagination from '@/components/common/ui/pagination';

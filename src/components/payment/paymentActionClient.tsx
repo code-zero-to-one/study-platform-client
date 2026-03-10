@@ -1,7 +1,7 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { StudyPaymentPrepareResponse } from '@/api/openapi';
 import { useUserStore } from '@/stores/useUserStore';

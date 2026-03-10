@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useState } from 'react';
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import Pagination from '@/components/common/ui/pagination';

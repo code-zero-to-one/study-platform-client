@@ -1,8 +1,8 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import StudyActiveTicker from '@/components/common/ui/study-active-ticker';

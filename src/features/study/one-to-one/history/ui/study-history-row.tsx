@@ -1,6 +1,5 @@
 'use client';
 
-import dynamic from 'next/dynamic';
 import {
   Calendar,
   Mic,
@@ -10,6 +9,7 @@ import {
   ExternalLink,
   CheckCircle2,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import UserAvatar from '@/components/common/ui/avatar';
 import { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
 

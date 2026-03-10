@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';

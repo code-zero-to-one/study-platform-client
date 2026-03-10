@@ -1,6 +1,6 @@
-import dynamic from 'next/dynamic';
 import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import UserAvatar from '@/components/common/ui/avatar';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';

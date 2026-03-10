@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic';
 import { formatDistanceToNow } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import {
@@ -9,6 +8,7 @@ import {
   Clock,
   MessageCircle,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';

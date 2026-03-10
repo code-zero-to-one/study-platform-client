@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import KeywordReview from '@/components/common/cards/keyword-review';
 import UserAvatar from '@/components/common/ui/avatar';
