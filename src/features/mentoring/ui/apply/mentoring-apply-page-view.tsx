@@ -1,8 +1,12 @@
 import dayjs from 'dayjs';
 import {
   Banknote,
+  BellRing,
+  CalendarClock,
   CheckCircle2,
   ChevronLeft,
+  CircleHelp,
+  FileText,
   MessageCircle,
   Monitor,
   Phone,
@@ -22,6 +26,12 @@ import {
   getMentorDisplayTitle,
   getMethodLabel,
 } from '@/features/mentoring/model/mentor-profile-utils';
+import {
+  MENTORING_APPLY_WRITING_GUIDE,
+  MENTORING_DEFAULT_CHANNEL_GUIDE,
+  MENTORING_PROGRESS_CHECK_GUIDE,
+  getMentoringResponseGuide,
+} from '@/features/mentoring/model/mentoring-flow-policy';
 import { type MentoringApplyControllerResult } from '@/features/mentoring/model/use-mentoring-apply-controller';
 import MentoringRequestEditor from '@/features/mentoring/ui/apply/mentoring-request-editor';
 import type {
@@ -42,13 +52,6 @@ const methodIconMap: Record<MentoringMethodType, ReactNode> = {
   offline: <Users className="h-20 w-20" />,
 };
 
-const exampleQuestions = [
-  '멘토링 목적이 무엇인가요?',
-  '멘토링에 도움이 될 정보를 작성해 주세요. (재직중인 회사, 수료한 교육, 작업 내용 등)',
-  '질문하고 싶은 내용을 작성해주세요.',
-  '멘토에게 전하고 싶은 말',
-];
-
 export default function MentoringApplyPageView({
   mentor,
   selectedMethod,
@@ -56,6 +59,14 @@ export default function MentoringApplyPageView({
 }: MentoringApplyPageViewProps) {
   const { state, actions, viewModel } = controller;
   const mentorDisplayTitle = getMentorDisplayTitle(mentor);
+  const requestFlowSummary = viewModel.needsSchedule
+    ? '일정 선택 → 요청서 작성 → 결제'
+    : '질문 작성 → 결제 → 답장 확인';
+  const responseGuide = getMentoringResponseGuide(selectedMethod);
+  const responseSummary =
+    selectedMethod === 'note'
+      ? '멘토 첫 답장 시 시작'
+      : '보통 24시간 안에 확인';
 
   return (
     <PageContainer spacing="content">
@@ -96,6 +107,32 @@ export default function MentoringApplyPageView({
           <Badge color="green" shape="round">
             {formatWon(viewModel.selectedOption.price)}
           </Badge>
+        </div>
+      </SurfacePanel>
+
+      <SurfacePanel radius="lg" className="mb-250 p-200">
+        <div className="mb-150 flex items-center gap-75">
+          <CircleHelp className="text-text-brand h-16 w-16" />
+          <p className="font-designer-16b text-text-default">
+            신청 전에 확인하세요
+          </p>
+        </div>
+        <div className="grid gap-125 md:grid-cols-3">
+          <ApplyGuideCard
+            icon={<FileText className="h-16 w-16" />}
+            title="신청 순서"
+            description={requestFlowSummary}
+          />
+          <ApplyGuideCard
+            icon={<BellRing className="h-16 w-16" />}
+            title="응답 예상"
+            description={responseGuide}
+          />
+          <ApplyGuideCard
+            icon={<CalendarClock className="h-16 w-16" />}
+            title="진행 채널"
+            description={MENTORING_DEFAULT_CHANNEL_GUIDE}
+          />
         </div>
       </SurfacePanel>
 
@@ -169,7 +206,7 @@ export default function MentoringApplyPageView({
             <div className="border-border-subtle bg-background-alternative flex items-center gap-100 border-b px-200 py-150">
               <div className="flex items-center gap-75">
                 <span className="font-designer-16b text-text-strong">
-                  {viewModel.messageStepNumber}. 멘토에게 보낼 질문 작성
+                  {viewModel.messageStepNumber}. 상담 요청서 작성
                 </span>
                 <span className="font-designer-16b text-text-brand">*</span>
               </div>
@@ -177,17 +214,14 @@ export default function MentoringApplyPageView({
 
             <div className="space-y-150 p-200">
               <p className="font-designer-13r text-text-subtle leading-relaxed">
-                블로그 에디터처럼 글자 크기/강조/목록/인용을 적용하고, 이미지와
-                첨부파일, 링크를 한 화면에서 함께 작성할 수 있어요.
+                길게 쓰지 않아도 됩니다. 아래 3가지만 적어도 멘토가 현재 상황을
+                빠르게 이해할 수 있어요.
               </p>
 
               <div className="rounded-125 bg-background-alternative p-150">
-                {exampleQuestions.map((question) => (
-                  <p
-                    key={question}
-                    className="font-designer-13r text-text-subtle"
-                  >
-                    Q. {question}
+                {MENTORING_APPLY_WRITING_GUIDE.map((guide, index) => (
+                  <p key={guide} className="font-designer-13r text-text-subtle">
+                    {index + 1}. {guide}
                   </p>
                 ))}
               </div>
@@ -247,12 +281,11 @@ export default function MentoringApplyPageView({
               <h2 className="font-designer-18b text-text-strong">
                 신청자 정보
               </h2>
-              <button
-                type="button"
-                className="font-designer-14b rounded-100 border-border-subtle text-text-default border px-100 py-50"
-              >
-                수정
-              </button>
+              <Link href="/my-page">
+                <Button color="outlined" size="small">
+                  정보 수정
+                </Button>
+              </Link>
             </div>
 
             <div className="font-designer-14r text-text-subtle space-y-75">
@@ -277,8 +310,8 @@ export default function MentoringApplyPageView({
           <section className="rounded-200 border-border-subtle bg-background-default border p-225">
             <div className="mb-150 flex items-center justify-between">
               <h2 className="font-designer-18b text-text-strong">결제/신청</h2>
-              <Badge color="blue" shape="round">
-                결제 API 미연동
+              <Badge color="green" shape="round">
+                안전 결제
               </Badge>
             </div>
 
@@ -394,11 +427,37 @@ export default function MentoringApplyPageView({
               </div>
               <div className="flex items-center justify-between">
                 <span className="font-designer-13r text-text-subtle">
-                  실제 결제 진행
+                  결제 진행 방식
                 </span>
                 <span className="font-designer-16b text-text-default">
                   {viewModel.selectedPaymentMethodCopy.flowLabel}
                 </span>
+              </div>
+              <div className="mt-75 flex items-center justify-between">
+                <span className="font-designer-13r text-text-subtle">
+                  예상 확인
+                </span>
+                <span className="font-designer-14b text-text-default">
+                  {responseSummary}
+                </span>
+              </div>
+            </div>
+
+            <div className="rounded-125 bg-background-alternative mb-150 p-125">
+              <div className="mb-75 flex items-center gap-50">
+                <CircleHelp className="text-text-brand h-14 w-14" />
+                <p className="font-designer-13b text-text-default">진행 안내</p>
+              </div>
+              <div className="space-y-75">
+                <p className="font-designer-12r text-text-subtle leading-relaxed">
+                  {responseGuide}
+                </p>
+                <p className="font-designer-12r text-text-subtle leading-relaxed">
+                  {MENTORING_DEFAULT_CHANNEL_GUIDE}
+                </p>
+                <p className="font-designer-12r text-text-subtle leading-relaxed">
+                  {MENTORING_PROGRESS_CHECK_GUIDE}
+                </p>
               </div>
             </div>
 
@@ -424,5 +483,27 @@ export default function MentoringApplyPageView({
         </aside>
       </div>
     </PageContainer>
+  );
+}
+
+function ApplyGuideCard({
+  icon,
+  title,
+  description,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-150 bg-background-alternative flex items-start gap-100 p-150">
+      <div className="text-text-brand mt-[2px] shrink-0">{icon}</div>
+      <div>
+        <p className="font-designer-13b text-text-default mb-25">{title}</p>
+        <p className="font-designer-12r text-text-subtle leading-relaxed">
+          {description}
+        </p>
+      </div>
+    </div>
   );
 }

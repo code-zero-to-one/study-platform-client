@@ -74,6 +74,15 @@ export const createDefaultMentorSettings = (): MentorSettings => {
   };
 };
 
+const TIME_SLOT_WEEKDAY_PREFIX_REGEX = /^(MON|TUE|WED|THU|FRI|SAT|SUN)\s+(.+)$/;
+
+const stripWeekdayPrefixFromTimeSlot = (timeSlot: string) => {
+  const trimmed = timeSlot.trim();
+  const match = trimmed.match(TIME_SLOT_WEEKDAY_PREFIX_REGEX);
+
+  return match?.[2]?.trim() ?? trimmed;
+};
+
 export const getWeekdayKeyFromDate = (date: Date): WeekdayKey => {
   const day = date.getDay();
   const map: WeekdayKey[] = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
@@ -113,6 +122,64 @@ export const toTimeRangeLabel = (
   durationMinutes: number,
 ): string => {
   return `${startTime}~${addMinutesToTime(startTime, durationMinutes)}`;
+};
+
+export const parseWeekdayFromTimeSlot = (
+  timeSlot: string,
+): WeekdayKey | undefined => {
+  const match = timeSlot.trim().match(TIME_SLOT_WEEKDAY_PREFIX_REGEX);
+
+  return match?.[1] as WeekdayKey | undefined;
+};
+
+export const normalizeMentoringTimeSlotLabel = ({
+  timeSlot,
+  durationMinutes,
+}: {
+  timeSlot: string;
+  durationMinutes: number;
+}) => {
+  const normalized = stripWeekdayPrefixFromTimeSlot(timeSlot).replace(
+    /\s*~\s*/g,
+    '~',
+  );
+
+  if (/^\d{2}:\d{2}$/.test(normalized)) {
+    return toTimeRangeLabel(normalized, durationMinutes);
+  }
+
+  return normalized;
+};
+
+export const extractMentoringTimeSlotStart = (timeSlot: string) => {
+  return stripWeekdayPrefixFromTimeSlot(timeSlot).split('~')[0]?.trim() ?? '';
+};
+
+export const filterMentoringTimeSlotsByWeekday = ({
+  timeSlots,
+  weekday,
+  durationMinutes,
+}: {
+  timeSlots: string[];
+  weekday: WeekdayKey;
+  durationMinutes: number;
+}) => {
+  const normalizedSlots = timeSlots.flatMap((timeSlot) => {
+    const slotWeekday = parseWeekdayFromTimeSlot(timeSlot);
+
+    if (slotWeekday && slotWeekday !== weekday) {
+      return [];
+    }
+
+    const normalizedLabel = normalizeMentoringTimeSlotLabel({
+      timeSlot,
+      durationMinutes,
+    });
+
+    return normalizedLabel ? [normalizedLabel] : [];
+  });
+
+  return Array.from(new Set(normalizedSlots));
 };
 
 export const hasAnyWeeklyScheduleSlots = (

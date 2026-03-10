@@ -1,5 +1,5 @@
-import { notFound } from 'next/navigation';
+import MyMentoringPageClient from '@/features/mentoring/ui/pages/my-mentoring-page-client';
 
 export default function MyMentoringRoute() {
-  notFound();
+  return <MyMentoringPageClient />;
 }

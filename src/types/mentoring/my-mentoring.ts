@@ -1,8 +1,8 @@
 export type MyMentoringMethod = 'ONLINE' | 'OFFLINE' | 'CALL';
-export type MyMentoringStatus = 'CONFIRMED' | 'PENDING';
+export type MyMentoringStatus = 'REQUESTED' | 'PENDING' | 'CONFIRMED';
 
 export interface MyMentoringItem {
-  id: number;
+  id: string;
   title: string;
   mentorName: string;
   method: MyMentoringMethod;
@@ -11,4 +11,8 @@ export interface MyMentoringItem {
   requestedAt: string;
   pendingWindow?: string;
   description: string;
+  paymentMethodLabel: string;
+  paymentAmountLabel: string;
+  paymentStatusLabel: string;
+  paymentStatusTone: 'green' | 'orange';
 }
