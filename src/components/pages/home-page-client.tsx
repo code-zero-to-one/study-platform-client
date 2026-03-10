@@ -1,12 +1,12 @@
 'use client';
 
 import { type ReactNode } from 'react';
+import StudyReviewModal from '@/components/common/modals/study-review-modal';
 import StartStudyButton from '@/components/home/start-study-button';
 import TabNavigation from '@/components/home/tab-navigation';
 import GlobalToast from '@/components/ui/global-toast';
-import { useReviewReminder } from '@/entities/review/lib/use-reminder-review';
-import StudyReviewModal from '@/entities/review/ui/study-review-modal';
 import type { HomeTab } from '@/features/home/model/home-page-search-params';
+import { useReviewReminder } from '@/hooks/common/use-reminder-review';
 import Banner from '@/widgets/home/banner';
 import FeedbackLink from '@/widgets/home/feedback-link';
 
