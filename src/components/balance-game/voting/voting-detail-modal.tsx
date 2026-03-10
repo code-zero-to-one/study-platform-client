@@ -1,6 +1,6 @@
 import { X, TrendingUp, Info, MessageCircle } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
@@ -9,6 +9,10 @@ import { Voting } from '@/types/one-to-one-study/voting';
 import { CommentFormData } from '@/types/schemas/zod-schema';
 import VoteResultsChart from './vote-results-chart';
 import VoteTimer from './vote-timer';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface VotingDetailModalProps {
   voting: Voting;

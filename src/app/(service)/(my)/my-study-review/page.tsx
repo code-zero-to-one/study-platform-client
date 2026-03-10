@@ -1,9 +1,9 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import KeywordReview from '@/components/common/cards/keyword-review';
-import MoreKeywordReviewModal from '@/components/common/modals/more-keyword-review-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import {
   useMyNegativeKeywordsQuery,
@@ -12,6 +12,11 @@ import {
 } from '@/hooks/queries/use-review-query';
 import { MyReviewItem } from '@/types/api/review.types';
 import { formatKoreaRelativeTime } from '@/utils/time';
+
+const MoreKeywordReviewModal = dynamic(
+  () => import('@/components/common/modals/more-keyword-review-modal'),
+  { ssr: false },
+);
 
 export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({

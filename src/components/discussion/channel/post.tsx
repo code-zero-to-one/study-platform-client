@@ -1,10 +1,17 @@
 import dayjs from 'dayjs';
-import GroupStudyNoticeModal from '@/components/common/modals/group-notice-modal';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
+import dynamic from 'next/dynamic';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import { useIsLeader, useLeaderStore } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
+
+const GroupStudyNoticeModal = dynamic(
+  () => import('@/components/common/modals/group-notice-modal'),
+);
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface PostProps {
   data: {

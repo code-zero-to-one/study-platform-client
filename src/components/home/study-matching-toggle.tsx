@@ -1,8 +1,7 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
-import StartStudyModal from '@/components/common/modals/start-study-modal';
 import { ToggleSwitch } from '@/components/common/ui/toggle';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
@@ -10,6 +9,16 @@ import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
 } from '@/hooks/queries/use-user-profile-query';
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+  { ssr: false },
+);
+
+const StartStudyModal = dynamic(
+  () => import('@/components/common/modals/start-study-modal'),
+  { ssr: false },
+);
 
 export default function StudyMatchingToggle() {
   const { memberId, isAuthReady } = useAuthReady();

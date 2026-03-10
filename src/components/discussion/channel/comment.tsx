@@ -1,9 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
-import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
-import DeleteGroupStudyMemberModal from '@/components/common/modals/delete-group-study-member';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 
@@ -17,6 +15,18 @@ import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { ResizedImage } from '@/types/api/group-study.types';
 import CommentInput from './comment-input';
+
+const ConfirmDeleteModal = dynamic(
+  () => import('@/components/common/modals/confirm-delete-modal'),
+);
+
+const DeleteGroupStudyMemberModal = dynamic(
+  () => import('@/components/common/modals/delete-group-study-member'),
+);
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+);
 
 interface CommentProps {
   data: {

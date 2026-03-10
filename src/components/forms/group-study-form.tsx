@@ -1,6 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createContext, useContext, useMemo, useState } from 'react';
-import { FormProvider, type UseFormReturn, useForm } from 'react-hook-form';
+import {
+  FormProvider,
+  type UseFormReturn,
+  useForm,
+  useWatch,
+} from 'react-hook-form';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
@@ -53,10 +58,13 @@ export default function GroupStudyForm({
 
   const methods = externalMethods ?? internalMethods;
 
-  const { handleSubmit, trigger, formState, watch } = methods;
-  const classification = watch('classification');
+  const { handleSubmit, trigger, formState, control, watch } = methods;
+  const classification = useWatch({ name: 'classification', control });
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
+
+  const currentStepFields = STEP_FIELDS[step];
+  const currentStepValues = useWatch({ name: currentStepFields, control });
 
   const goNext = async () => {
     const fields = STEP_FIELDS[step];
@@ -76,13 +84,9 @@ export default function GroupStudyForm({
     if (step > 1) setStep((s) => (s - 1) as 1 | 2 | 3);
   };
 
-  const currentValues = watch();
-
   const isNextButtonDisabled = useMemo(() => {
-    const currentStepFields = STEP_FIELDS[step];
-
-    return currentStepFields.some((field) => {
-      const value = currentValues[field];
+    return currentStepFields.some((field, index) => {
+      const value = currentStepValues[index];
       const error = formState.errors[field];
 
       // 에러가 있으면 비활성화
@@ -127,7 +131,7 @@ export default function GroupStudyForm({
 
       return false;
     });
-  }, [step, currentValues, formState.errors, classification]);
+  }, [currentStepFields, currentStepValues, formState.errors, classification]);
 
   return (
     <ClassificationContext.Provider value={classification}>

@@ -1,6 +1,7 @@
 'use client';
 
 import { format } from 'date-fns';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
@@ -10,9 +11,6 @@ import type {
   UserTransactionListResponse,
   UserTransactionListResponseLatestTransactionTypeEnum,
 } from '@/api/openapi/models';
-import PremiumStudyCancelPaymentModal from '@/components/common/modals/premium-study-cancel-payment-modal';
-import PremiumStudyRefundRequestModal from '@/components/common/modals/premium-study-refund-request-modal';
-import VirtualAccountInfoModal from '@/components/common/modals/virtual-account-info-modal';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
@@ -26,6 +24,21 @@ import {
 import { formatToKST } from '@/utils/time';
 import CaretDownIcon from 'public/icons/caret-down.svg';
 import CaretUpIcon from 'public/icons/caret-up.svg';
+
+const PremiumStudyCancelPaymentModal = dynamic(
+  () => import('@/components/common/modals/premium-study-cancel-payment-modal'),
+  { ssr: false },
+);
+
+const PremiumStudyRefundRequestModal = dynamic(
+  () => import('@/components/common/modals/premium-study-refund-request-modal'),
+  { ssr: false },
+);
+
+const VirtualAccountInfoModal = dynamic(
+  () => import('@/components/common/modals/virtual-account-info-modal'),
+  { ssr: false },
+);
 
 const TRANSACTION_TYPE_MAP: Record<
   UserTransactionListResponseLatestTransactionTypeEnum,

@@ -1,10 +1,9 @@
 'use client';
 
 import { ChevronRight } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import ProfileDefault from '@/components/common/cards/icon/profile-default.svg';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
-import StartStudyModal from '@/components/common/modals/start-study-modal';
 import SectionHeader from '@/components/common/ui/section-header';
 import ReservationCard from '@/components/participation/reservation-user-card';
 import { useAuthReady } from '@/hooks/common/use-auth';
@@ -14,6 +13,16 @@ import {
   usePatchAutoMatchingMutation,
   useUserProfileQuery,
 } from '@/hooks/queries/use-user-profile-query';
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+  { ssr: false },
+);
+
+const StartStudyModal = dynamic(
+  () => import('@/components/common/modals/start-study-modal'),
+  { ssr: false },
+);
 
 interface ReservationListProps {
   studyDate?: string;

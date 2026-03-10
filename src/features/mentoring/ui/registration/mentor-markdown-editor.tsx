@@ -1,5 +1,6 @@
 'use client';
 
+import 'highlight.js/styles/github.css';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import ImageExtension from '@tiptap/extension-image';
 import LinkExtension from '@tiptap/extension-link';

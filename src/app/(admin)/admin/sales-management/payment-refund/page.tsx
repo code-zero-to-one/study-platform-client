@@ -1,14 +1,13 @@
 'use client';
 
 import { format } from 'date-fns';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import {
   AdminTransactionListResponse,
   PaymentSearchConditionTypeEnum,
 } from '@/api/openapi';
-import AdminForcedCancellationModal from '@/components/common/modals/admin-forced-cancellation-modal';
-import AdminRefundApprovalModal from '@/components/common/modals/admin-refund-approval-modal';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
@@ -17,6 +16,16 @@ import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
 import { useGetTransactionsForAdmin } from '@/hooks/queries/admin-payment-api';
 import { formatToKST } from '@/utils/time';
+
+const AdminForcedCancellationModal = dynamic(
+  () => import('@/components/common/modals/admin-forced-cancellation-modal'),
+  { ssr: false },
+);
+
+const AdminRefundApprovalModal = dynamic(
+  () => import('@/components/common/modals/admin-refund-approval-modal'),
+  { ssr: false },
+);
 
 const PAYMENT_HISTORY_TYPE_MAP: Record<
   NonNullable<AdminTransactionListResponse['paymentHistoryType']>,
