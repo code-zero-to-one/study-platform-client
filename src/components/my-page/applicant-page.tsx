@@ -6,7 +6,7 @@ import React from 'react';
 import {
   useApplicantsByStatusQuery,
   useUpdateApplicantByStatusMutation,
-} from '@/hooks/queries/use-applicant-qeury';
+} from '@/hooks/queries/use-applicant-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { ApplyStatus } from '@/types/api/group-study-application.types';
 import ProfileCard from './profile-card';

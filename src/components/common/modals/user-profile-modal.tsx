@@ -16,7 +16,7 @@ import PhoneIcon from '@/components/my-page/icon/phone.svg';
 import TechStackIcon from '@/components/my-page/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/components/my-page/icon/verified-check.svg';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
-import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 import { useUserPositiveKeywordsQuery } from '@/hooks/queries/use-review-query';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 import { formatPhoneNumber } from '@/utils/format';

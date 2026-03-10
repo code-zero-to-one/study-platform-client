@@ -8,7 +8,7 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
-import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
