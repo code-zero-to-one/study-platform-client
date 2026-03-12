@@ -113,7 +113,7 @@ export default function BalanceGameFiltersBar({
   return (
     <div className="flex flex-col gap-300">
       <div className="flex flex-col gap-300 md:flex-row md:items-center md:justify-between">
-        <div className="hide-scrollbar flex items-center gap-200 overflow-x-auto pb-100 md:pb-0">
+        <div className="scrollbar-hide flex items-center gap-200 overflow-x-auto pb-100 md:pb-0">
           <FilterPillButton
             isActive={statusFilter === 'active'}
             onClick={() => onStatusChange('active')}

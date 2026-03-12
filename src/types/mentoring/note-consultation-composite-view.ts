@@ -1,43 +1,39 @@
 import type {
-  NoteConsultationChannelSummaryItem,
   NoteConsultationItemStatusSummary,
+  NoteConsultationStatusTab,
+  NoteConsultationStatusFilter,
 } from '@/types/mentoring/note-consultation-controller-view';
 import type {
   NoteConsultationChannel,
   NoteConsultationListItem,
 } from '@/types/mentoring/note-consultation-view';
-
 export interface NoteConsultationFiltersProps {
   activeChannel: NoteConsultationChannel;
-  searchKeyword: string;
+  statusFilter: NoteConsultationStatusFilter;
+  statusTabs: NoteConsultationStatusTab[];
+  showChannelTabs?: boolean;
   onActiveChannelChange: (channel: NoteConsultationChannel) => void;
-  onSearchKeywordChange: (keyword: string) => void;
+  onStatusFilterChange: (filter: NoteConsultationStatusFilter) => void;
 }
-
 export interface NoteConsultationListProps {
   items: NoteConsultationListItem[];
   itemStatusSummaries: Record<string, NoteConsultationItemStatusSummary>;
   selectedRequestId: string;
   onSelectRequestId: (requestId: string) => void;
 }
-
 export interface NoteConsultationGridProps {
   activeChannel: NoteConsultationChannel;
-  searchKeyword: string;
+  statusFilter: NoteConsultationStatusFilter;
+  statusTabs: NoteConsultationStatusTab[];
+  showChannelTabs?: boolean;
   filteredItems: NoteConsultationListItem[];
   itemStatusSummaries: Record<string, NoteConsultationItemStatusSummary>;
-  activeChannelSummaryItems: NoteConsultationChannelSummaryItem[];
   selectedRequestId: string;
   selectedItem?: NoteConsultationListItem;
-  pinnedItem?: NoteConsultationListItem;
-  pinnedItemStatusSummary?: NoteConsultationItemStatusSummary;
   isRestoringPinnedItem: boolean;
   hasMissingPinnedItem: boolean;
-  draft: string;
-  canSend: boolean;
   onActiveChannelChange: (channel: NoteConsultationChannel) => void;
-  onSearchKeywordChange: (keyword: string) => void;
+  onStatusFilterChange: (filter: NoteConsultationStatusFilter) => void;
   onSelectRequestId: (requestId: string) => void;
-  onDraftChange: (value: string) => void;
-  onSend: () => void;
+  onBack: () => void;
 }

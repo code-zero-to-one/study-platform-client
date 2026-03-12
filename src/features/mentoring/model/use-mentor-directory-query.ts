@@ -131,7 +131,13 @@ export const useMyMentorSettingsQuery = (enabled = true) => {
     : 'guest';
 
   return useQuery({
-    queryKey: [...mentorDirectoryQueryKeys.mySettings(), localMentorSignature],
+    queryKey: [
+      ...mentorDirectoryQueryKeys.mySettings(),
+      memberId,
+      mentorIdByMember,
+      createdMentors,
+      localMentorSignature,
+    ],
     queryFn: async () => {
       const localFallback = findLocalMyMentorSettingsFallback({
         memberId,

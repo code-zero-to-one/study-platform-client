@@ -35,20 +35,17 @@ import type {
   MentorProfile,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
-
 interface MentoringApplyPageViewProps {
   mentor: MentorProfile;
   selectedMethod: MentoringMethodType;
   controller: MentoringApplyControllerResult;
 }
-
 const methodIconMap: Record<MentoringMethodType, ReactNode> = {
   note: <MessageCircle className="h-20 w-20" />,
   simple: <Phone className="h-20 w-20" />,
   deep: <Monitor className="h-20 w-20" />,
   offline: <Users className="h-20 w-20" />,
 };
-
 export default function MentoringApplyPageView({
   mentor,
   selectedMethod,
@@ -69,15 +66,21 @@ export default function MentoringApplyPageView({
       label: selectedMethod === 'note' ? '시작 기준' : '확인 기준',
       value: responseGuide,
     },
-    {
-      label: '진행 채널',
-      value: channelGuide,
-    },
-    {
-      label: '진행 확인',
-      value: progressGuide,
-    },
+    { label: '진행 채널', value: channelGuide },
+    { label: '진행 확인', value: progressGuide },
   ];
+  const acceptancePolicy =
+    selectedMethod === 'note'
+      ? {
+          title: '쪽지상담 수락 정책',
+          description:
+            '결제 완료 후 멘토의 첫 답장이 수락으로 처리됩니다. 별도 수락 단계 없이 바로 진행됩니다.',
+        }
+      : {
+          title: '예약형 상담 수락 정책',
+          description:
+            '결제 후 멘토가 48시간 내 수락/거절을 결정합니다. 48시간 내 응답이 없으면 자동 거절되며, 멘토는 거절 사유를 남길 수 있습니다.',
+        };
   const selectedScheduleSummary = viewModel.needsSchedule
     ? state.selectedDate
       ? state.selectedTime
@@ -92,10 +95,7 @@ export default function MentoringApplyPageView({
         ? state.selectedDate !== undefined && state.selectedTime !== ''
         : true,
     },
-    {
-      label: '요청서 10자 이상',
-      done: viewModel.requestTextLength >= 10,
-    },
+    { label: '요청서 10자 이상', done: viewModel.requestTextLength >= 10 },
     {
       label:
         selectedMethod === 'note' ? '자료 또는 링크 포함' : '자료 첨부는 선택',
@@ -110,90 +110,111 @@ export default function MentoringApplyPageView({
 
   return (
     <PageContainer spacing="content">
-      <div className="mb-250">
+      {' '}
+      <div className="mb-200">
+        {' '}
         <Link
           href={`/mentoring/${mentor.id}`}
-          className="font-designer-14r text-text-subtle hover:text-text-default inline-flex items-center gap-50"
+          className="hover:text-text-default inline-flex items-center gap-50 transition-colors font-designer-14r text-text-subtle"
         >
-          <ChevronLeft className="h-16 w-16" />
-          상세로 돌아가기
-        </Link>
-      </div>
-
-      <h1 className="font-designer-28b text-text-strong mb-300">멘토링 신청</h1>
-
-      <SurfacePanel radius="lg" className="mb-250 p-200">
-        <div className="mb-125 flex items-start gap-125">
-          <span className="bg-fill-brand-subtle-default text-text-brand rounded-100 inline-flex h-[44px] w-[44px] shrink-0 items-center justify-center">
-            {methodIconMap[selectedMethod]}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="font-designer-18b text-text-default line-clamp-2 leading-snug">
-              {mentorDisplayTitle}
-            </p>
-            <p className="font-designer-13r text-text-subtle mt-50 line-clamp-1">
-              {mentor.nickname} · {mentor.role}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-75">
+          {' '}
+          <ChevronLeft className="h-16 w-16" /> 상세로 돌아가기{' '}
+        </Link>{' '}
+      </div>{' '}
+      <h1 className="mb-250 font-designer-28b text-text-strong">
+        {' '}
+        멘토링 신청{' '}
+      </h1>{' '}
+      <SurfacePanel radius="lg" className="mb-250 p-250">
+        {' '}
+        <div className="flex items-start gap-150">
+          {' '}
+          <span className="bg-fill-brand-subtle-default text-text-brand inline-flex h-40 w-40 items-center justify-center rounded-125">
+            {' '}
+            {methodIconMap[selectedMethod]}{' '}
+          </span>{' '}
+          <div className="min-w-0">
+            {' '}
+            <p className="mb-25 font-designer-18b text-text-default">
+              {' '}
+              {mentorDisplayTitle}{' '}
+            </p>{' '}
+            <p className="leading-relaxed font-designer-13r text-text-subtle">
+              {' '}
+              {mentor.nickname} · {mentor.role}{' '}
+            </p>{' '}
+          </div>{' '}
+        </div>{' '}
+        <div className="mt-150 flex flex-wrap items-center gap-75">
+          {' '}
           <Badge color="blue" shape="round">
-            {getMethodLabel(selectedMethod)}
-          </Badge>
+            {' '}
+            {getMethodLabel(selectedMethod)}{' '}
+          </Badge>{' '}
           <Badge color="gray" shape="round">
-            {viewModel.selectedOption.durationLabel}
-          </Badge>
+            {' '}
+            {viewModel.selectedOption.durationLabel}{' '}
+          </Badge>{' '}
           <Badge color="green" shape="round">
-            {formatWon(viewModel.selectedOption.price)}
-          </Badge>
-        </div>
-      </SurfacePanel>
-
-      <div className="grid grid-cols-1 gap-300 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div className="min-w-0 space-y-250">
+            {' '}
+            {formatWon(viewModel.selectedOption.price)}{' '}
+          </Badge>{' '}
+        </div>{' '}
+      </SurfacePanel>{' '}
+      <div className="grid grid-cols-1 gap-300 xl:grid-cols-[minmax(0,1fr)_360px]">
+        {' '}
+        <div className="flex min-w-0 flex-col gap-300">
+          {' '}
           {viewModel.needsSchedule && (
             <SurfacePanel radius="lg">
-              <div className="border-border-subtle bg-background-alternative flex items-center gap-100 border-b px-200 py-150">
+              {' '}
+              <div className="mb-150 flex items-start justify-between gap-100">
+                {' '}
                 <span className="font-designer-16b text-text-strong">
-                  {viewModel.scheduleStepNumber}. 일정 선택
-                </span>
+                  {' '}
+                  {viewModel.scheduleStepNumber}. 일정 선택{' '}
+                </span>{' '}
                 <span className="font-designer-18b text-text-brand">
+                  {' '}
                   {state.selectedDate
                     ? `${dayjs(state.selectedDate).format('YY.MM.DD')} ${state.selectedTime}`
-                    : ''}
-                </span>
-              </div>
-
-              <div className="p-200">
-                <p className="font-designer-13r text-text-subtle mb-150">
+                    : ''}{' '}
+                </span>{' '}
+              </div>{' '}
+              <div className="flex flex-col gap-200">
+                {' '}
+                <p className="leading-relaxed font-designer-13r text-text-subtle">
+                  {' '}
                   상담 시간은 {viewModel.selectedOption.durationLabel}이며,
-                  날짜는 신청일 기준 3일 뒤부터 선택할 수 있어요.
-                </p>
+                  날짜는 신청일 기준 3일 뒤부터 선택할 수 있어요.{' '}
+                </p>{' '}
                 {selectedMethod === 'offline' ? (
-                  <p className="font-designer-12r text-text-subtle mb-150">
+                  <p className="mt-50 font-designer-12r text-text-subtle">
+                    {' '}
                     대면상담은 희망 지역이나 이동 제약도 요청서에 함께 적어두는
-                    편이 안전합니다.
+                    편이 안전합니다.{' '}
                   </p>
-                ) : null}
-
-                <div className="grid grid-cols-1 gap-200 md:grid-cols-[280px_1fr]">
+                ) : null}{' '}
+                <div className="grid gap-150 lg:grid-cols-2">
+                  {' '}
                   <div>
+                    {' '}
                     <DatePicker
                       mode="single"
                       selected={state.selectedDate}
                       onSelect={actions.onDatePickerSelect}
                       placeholder="날짜를 선택해주세요"
                       disabled={viewModel.isDateDisabled}
-                    />
-                  </div>
-
-                  <div className="flex flex-wrap gap-100">
+                    />{' '}
+                  </div>{' '}
+                  <div className="rounded-125 bg-background-alternative flex min-h-[220px] flex-col gap-75 p-150">
+                    {' '}
                     {!state.selectedDate && (
-                      <p className="font-designer-13r text-text-subtle w-full">
-                        먼저 날짜를 선택해 주세요.
+                      <p className="py-100 font-designer-13r text-text-subtle">
+                        {' '}
+                        먼저 날짜를 선택해 주세요.{' '}
                       </p>
-                    )}
+                    )}{' '}
                     {state.selectedDate &&
                       viewModel.availableTimeSlots.map((timeSlot) => (
                         <button
@@ -201,63 +222,75 @@ export default function MentoringApplyPageView({
                           type="button"
                           onClick={() => actions.onTimeSelect(timeSlot)}
                           className={cn(
-                            'font-designer-14r rounded-100 border px-150 py-125 transition-colors',
+                            'rounded-100 border px-150 py-125 text-left transition-colors font-designer-14r',
                             state.selectedTime === timeSlot
                               ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
-                              : 'border-border-subtle bg-background-default text-text-default hover:border-border-brand',
+                              : 'border-border-subtle bg-background-default hover:border-border-default hover:bg-background-alternative',
                           )}
                         >
-                          {timeSlot}
+                          {' '}
+                          {timeSlot}{' '}
                         </button>
-                      ))}
+                      ))}{' '}
                     {state.selectedDate &&
                       viewModel.availableTimeSlots.length === 0 && (
-                        <p className="font-designer-13r text-text-subtle w-full">
-                          선택한 날짜에 가능한 시간이 없습니다.
+                        <p className="py-100 font-designer-13r text-text-subtle">
+                          {' '}
+                          선택한 날짜에 가능한 시간이 없습니다.{' '}
                         </p>
-                      )}
-                  </div>
-                </div>
-              </div>
+                      )}{' '}
+                  </div>{' '}
+                </div>{' '}
+              </div>{' '}
             </SurfacePanel>
-          )}
-
+          )}{' '}
           <SurfacePanel radius="lg">
-            <div className="border-border-subtle bg-background-alternative flex items-center gap-100 border-b px-200 py-150">
-              <div className="flex items-center gap-75">
+            {' '}
+            <div className="mb-150 flex items-start justify-between gap-100">
+              {' '}
+              <div className="flex items-center gap-50">
+                {' '}
                 <span className="font-designer-16b text-text-strong">
-                  {viewModel.messageStepNumber}. 상담 요청서 작성
-                </span>
-                <span className="font-designer-16b text-text-brand">*</span>
-              </div>
-            </div>
-
-            <div className="space-y-150 p-200">
-              <div className="rounded-125 bg-background-alternative px-150 py-125">
-                <p className="font-designer-13b text-text-default mb-75">
-                  요청서에 이런 내용을 적어주세요
-                </p>
-                <div className="space-y-50">
+                  {' '}
+                  {viewModel.messageStepNumber}. 상담 요청서 작성{' '}
+                </span>{' '}
+                <span className="font-designer-16b text-text-brand">
+                  *
+                </span>{' '}
+              </div>{' '}
+            </div>{' '}
+            <div className="flex flex-col gap-150">
+              {' '}
+              <div className="rounded-125 bg-background-alternative p-150">
+                {' '}
+                <p className="mb-100 font-designer-13b text-text-default">
+                  {' '}
+                  요청서에 이런 내용을 적어주세요{' '}
+                </p>{' '}
+                <div className="flex flex-col gap-75">
+                  {' '}
                   {writingGuideItems.map((item, index) => (
                     <div key={item} className="flex items-start gap-75">
-                      <span className="bg-fill-brand-subtle-default text-text-brand font-designer-11m inline-flex h-18 w-18 shrink-0 items-center justify-center rounded-full">
-                        {index + 1}
-                      </span>
-                      <p className="font-designer-12r text-text-subtle leading-relaxed">
-                        {item}
-                      </p>
+                      {' '}
+                      <span className="bg-fill-brand-subtle-default inline-flex h-18 w-18 shrink-0 items-center justify-center rounded-full font-designer-11m text-text-brand">
+                        {' '}
+                        {index + 1}{' '}
+                      </span>{' '}
+                      <p className="leading-relaxed font-designer-12r text-text-subtle">
+                        {' '}
+                        {item}{' '}
+                      </p>{' '}
                     </div>
-                  ))}
-                </div>
-              </div>
-
+                  ))}{' '}
+                </div>{' '}
+              </div>{' '}
               <MentoringRequestEditor
                 method={selectedMethod}
                 value={state.requestContents}
                 onChange={actions.onRequestContentsChange}
-              />
-
+              />{' '}
               <div className="flex items-center justify-between">
+                {' '}
                 <span
                   className={cn(
                     'font-designer-13r',
@@ -266,40 +299,47 @@ export default function MentoringApplyPageView({
                       : 'text-text-subtlest',
                   )}
                 >
-                  텍스트 10자 이상
-                </span>
+                  {' '}
+                  텍스트 10자 이상{' '}
+                </span>{' '}
                 <span className="font-designer-13r text-text-subtlest">
-                  {viewModel.requestTextLength}자
-                </span>
-              </div>
-
-              <p className="font-designer-13r text-text-subtle leading-relaxed">
+                  {' '}
+                  {viewModel.requestTextLength}자{' '}
+                </span>{' '}
+              </div>{' '}
+              <p className="leading-relaxed font-designer-13r text-text-subtle">
+                {' '}
                 {viewModel.requiresAttachment
                   ? '쪽지/간편 상담은 이미지, 파일, 링크 중 1개 이상 필요합니다.'
-                  : '필요한 자료가 있으면 이미지, 파일, 링크를 함께 남겨주세요.'}
-              </p>
-
+                  : '필요한 자료가 있으면 이미지, 파일, 링크를 함께 남겨주세요.'}{' '}
+              </p>{' '}
               {viewModel.shouldShowAttachmentError && (
                 <p className="font-designer-12r text-text-error">
-                  이미지, 첨부파일, 링크 중 최소 1개를 포함해주세요.
+                  {' '}
+                  이미지, 첨부파일, 링크 중 최소 1개를 포함해주세요.{' '}
                 </p>
-              )}
-            </div>
-          </SurfacePanel>
-
+              )}{' '}
+            </div>{' '}
+          </SurfacePanel>{' '}
           <SurfacePanel radius="lg">
-            <div className="border-border-subtle bg-background-alternative flex items-center gap-100 border-b px-200 py-150">
+            {' '}
+            <div className="mb-150 flex items-start justify-between gap-100">
+              {' '}
               <span className="font-designer-16b text-text-strong">
-                {viewModel.messageStepNumber + 1}. 결제 방식 선택
-              </span>
-            </div>
-
-            <div className="space-y-175 p-200">
+                {' '}
+                {viewModel.messageStepNumber + 1}. 결제 방식 선택{' '}
+              </span>{' '}
+            </div>{' '}
+            <div className="flex flex-col gap-200">
+              {' '}
               <div>
-                <p className="font-designer-13r text-text-subtle mb-75">
-                  결제 방식
-                </p>
-                <div className="grid grid-cols-1 gap-100 md:grid-cols-3">
+                {' '}
+                <p className="mb-75 font-designer-13r text-text-subtle">
+                  {' '}
+                  결제 방식{' '}
+                </p>{' '}
+                <div className="grid gap-100 md:grid-cols-2">
+                  {' '}
                   {viewModel.paymentMethodOptions.map((option) => {
                     const isSelected =
                       state.selectedPaymentMethod === option.id;
@@ -310,90 +350,105 @@ export default function MentoringApplyPageView({
                         type="button"
                         onClick={() => actions.onPaymentMethodSelect(option.id)}
                         className={cn(
-                          'rounded-125 border px-150 py-150 text-left transition-colors',
+                          'rounded-125 border p-150 text-left transition-colors',
                           isSelected
                             ? 'border-border-brand bg-fill-brand-subtle-default'
-                            : 'border-border-subtle bg-background-default hover:border-border-brand',
+                            : 'border-border-subtle bg-background-default hover:border-border-default hover:bg-background-alternative',
                         )}
                       >
+                        {' '}
                         <p className="font-designer-14b text-text-default">
-                          {option.label}
-                        </p>
-                        <p className="font-designer-12r text-text-subtle mt-50 leading-relaxed">
-                          {option.description}
-                        </p>
+                          {' '}
+                          {option.label}{' '}
+                        </p>{' '}
+                        <p className="mt-50 leading-relaxed font-designer-12r text-text-subtle">
+                          {' '}
+                          {option.description}{' '}
+                        </p>{' '}
                       </button>
                     );
-                  })}
-                </div>
-              </div>
-
-              <div className="rounded-125 border-border-subtle bg-background-alternative border p-150">
-                <div className="mb-75 flex items-center justify-between gap-75">
-                  <p className="font-designer-14b text-text-default inline-flex items-center gap-50">
-                    <Banknote className="h-14 w-14" />
-                    {viewModel.selectedPaymentMethodCopy.title}
-                  </p>
+                  })}{' '}
+                </div>{' '}
+              </div>{' '}
+              <div className="rounded-125 bg-background-alternative p-150">
+                {' '}
+                <div className="mb-100 flex items-center justify-between gap-100">
+                  {' '}
+                  <p className="inline-flex items-center gap-50 font-designer-14b text-text-default">
+                    {' '}
+                    <Banknote className="h-14 w-14" />{' '}
+                    {viewModel.selectedPaymentMethodCopy.title}{' '}
+                  </p>{' '}
                   <Badge color="gray" shape="round">
-                    {viewModel.needsPaymentMemo ? '멘토 확인' : '자동 반영'}
-                  </Badge>
-                </div>
-                <p className="font-designer-12r text-text-subtle leading-relaxed">
-                  {viewModel.selectedPaymentMethodCopy.description}
-                </p>
-                <p className="font-designer-12r text-text-subtle mt-75 inline-flex items-center gap-50">
-                  <CheckCircle2 className="h-14 w-14" />
-                  {viewModel.selectedPaymentMethodCopy.helper}
-                </p>
-              </div>
-
+                    {' '}
+                    {viewModel.needsPaymentMemo
+                      ? '멘토 확인'
+                      : '자동 반영'}{' '}
+                  </Badge>{' '}
+                </div>{' '}
+                <p className="mb-75 leading-relaxed font-designer-12r text-text-subtle">
+                  {' '}
+                  {viewModel.selectedPaymentMethodCopy.description}{' '}
+                </p>{' '}
+                <p className="inline-flex items-start gap-50 leading-relaxed font-designer-12r text-text-subtle">
+                  {' '}
+                  <CheckCircle2 className="h-14 w-14" />{' '}
+                  {viewModel.selectedPaymentMethodCopy.helper}{' '}
+                </p>{' '}
+              </div>{' '}
               {viewModel.needsPaymentMemo && (
                 <div>
-                  <p className="font-designer-13r text-text-subtle mb-75">
-                    결제 메모 <span className="text-text-brand">*</span>
-                  </p>
-                  <p className="font-designer-12r text-text-subtle mb-75">
-                    입금 시각, 송금자명, 채널을 남겨주세요.
-                  </p>
+                  {' '}
+                  <p className="mb-75 font-designer-13r text-text-subtle">
+                    {' '}
+                    결제 메모 <span className="text-text-brand">*</span>{' '}
+                  </p>{' '}
+                  <p className="mb-75 leading-relaxed font-designer-12r text-text-subtle">
+                    {' '}
+                    입금 시각, 송금자명, 채널을 남겨주세요.{' '}
+                  </p>{' '}
                   <textarea
                     value={state.paymentMemo}
                     onChange={(event) =>
                       actions.onPaymentMemoChange(event.target.value)
                     }
                     className={cn(
-                      'font-designer-13r rounded-100 bg-background-default border',
-                      'text-text-default min-h-[112px] w-full resize-y px-125 py-100',
-                      'placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
+                      'rounded-125 min-h-[84px] w-full resize-none border px-150 py-125 transition-colors font-designer-13r text-text-default',
                       viewModel.shouldShowPaymentMemoError
-                        ? 'border-border-error'
-                        : 'border-border-subtle',
+                        ? 'border-border-error bg-background-accent-red-subtle'
+                        : 'border-border-subtle bg-background-default',
                     )}
                     placeholder="예: 21:30, 홍길동, 카카오뱅크"
-                  />
+                  />{' '}
                   {viewModel.shouldShowPaymentMemoError && (
-                    <p className="font-designer-12r text-text-error mt-50">
-                      수동결제 신청은 결제 메모를 2자 이상 입력해주세요.
+                    <p className="mt-50 font-designer-12r text-text-error">
+                      {' '}
+                      수동결제 신청은 결제 메모를 2자 이상 입력해주세요.{' '}
                     </p>
-                  )}
+                  )}{' '}
                 </div>
-              )}
-            </div>
-          </SurfacePanel>
-        </div>
-
+              )}{' '}
+            </div>{' '}
+          </SurfacePanel>{' '}
+        </div>{' '}
         <aside className="h-fit xl:sticky xl:top-[96px]">
+          {' '}
           <SurfacePanel radius="lg" className="p-200">
+            {' '}
             <div className="mb-125 flex items-center justify-between">
-              <h2 className="font-designer-18b text-text-strong">신청 확인</h2>
+              {' '}
+              <h2 className="font-designer-18b text-text-strong">신청 확인</h2>{' '}
               <Link href="/my-page">
+                {' '}
                 <Button color="outlined" size="small">
-                  정보 수정
-                </Button>
-              </Link>
-            </div>
-
+                  {' '}
+                  정보 수정{' '}
+                </Button>{' '}
+              </Link>{' '}
+            </div>{' '}
             <div className="rounded-125 border-border-subtle bg-background-alternative space-y-100 border p-150">
-              <SummaryRow label="신청자" value={viewModel.applicantName} />
+              {' '}
+              <SummaryRow label="신청자" value={viewModel.applicantName} />{' '}
               <SummaryRow
                 label="연락처"
                 value={
@@ -401,100 +456,149 @@ export default function MentoringApplyPageView({
                     ? '등록된 번호 없음'
                     : viewModel.applicantPhone
                 }
-              />
+              />{' '}
               <SummaryRow
                 label={viewModel.needsSchedule ? '희망 일정' : '진행 방식'}
                 value={selectedScheduleSummary}
                 multiline
-              />
-            </div>
-
+              />{' '}
+            </div>{' '}
             <div className="rounded-125 border-border-subtle mt-150 border p-150">
+              {' '}
               <div className="mb-100 flex items-center justify-between">
+                {' '}
                 <h3 className="font-designer-16b text-text-strong">
-                  결제 요약
-                </h3>
+                  {' '}
+                  결제 요약{' '}
+                </h3>{' '}
                 <Badge color="green" shape="round">
-                  안전 결제
-                </Badge>
-              </div>
+                  {' '}
+                  안전 결제{' '}
+                </Badge>{' '}
+              </div>{' '}
               <div className="space-y-100">
+                {' '}
                 <SummaryRow
                   label="상담 방식"
                   value={getMethodLabel(selectedMethod)}
-                />
+                />{' '}
                 <SummaryRow
                   label="기본 금액"
                   value={formatWon(viewModel.selectedOption.price)}
                   strong
-                />
+                />{' '}
                 <SummaryRow
                   label="결제 진행"
                   value={viewModel.selectedPaymentMethodCopy.flowLabel}
-                />
+                />{' '}
                 <SummaryRow
                   label={selectedMethod === 'note' ? '시작 기준' : '확인 기준'}
                   value={responseSummary}
-                />
-              </div>
-            </div>
-
+                />{' '}
+              </div>{' '}
+            </div>{' '}
             <div className="rounded-125 bg-background-alternative mt-150 p-150">
-              <p className="font-designer-13b text-text-default mb-75">
-                진행 요약
-              </p>
+              {' '}
+              <p className="mb-75 font-designer-13b text-text-default">
+                {' '}
+                진행 요약{' '}
+              </p>{' '}
               <div className="space-y-100">
+                {' '}
                 {applySummaryItems.map((item) => (
                   <div key={item.label}>
-                    <p className="font-designer-12m text-text-subtle mb-25">
-                      {item.label}
-                    </p>
-                    <p className="font-designer-12r text-text-subtle leading-relaxed">
-                      {item.value}
-                    </p>
+                    {' '}
+                    <p className="mb-25 font-designer-12m text-text-subtle">
+                      {' '}
+                      {item.label}{' '}
+                    </p>{' '}
+                    <p className="leading-relaxed font-designer-12r text-text-subtle">
+                      {' '}
+                      {item.value}{' '}
+                    </p>{' '}
                   </div>
-                ))}
-              </div>
-            </div>
-
+                ))}{' '}
+              </div>{' '}
+            </div>{' '}
+            <div className="rounded-125 border-border-subtle mt-150 border p-150">
+              {' '}
+              <p className="mb-100 font-designer-13b text-text-default">
+                {' '}
+                신청 전에 확인할 내용{' '}
+              </p>{' '}
+              <div className="space-y-100">
+                {' '}
+                <div>
+                  {' '}
+                  <p className="mb-25 font-designer-12m text-text-subtle">
+                    {' '}
+                    {acceptancePolicy.title}{' '}
+                  </p>{' '}
+                  <p className="leading-relaxed font-designer-12r text-text-subtle">
+                    {' '}
+                    {acceptancePolicy.description}{' '}
+                  </p>{' '}
+                </div>{' '}
+                <div>
+                  {' '}
+                  <p className="mb-25 font-designer-12m text-text-subtle">
+                    {' '}
+                    환불 및 변경 안내{' '}
+                  </p>{' '}
+                  <p className="leading-relaxed font-designer-12r text-text-subtle">
+                    {' '}
+                    {MENTORING_REFUND_POLICY_DETAIL}.{' '}
+                    {MENTORING_CHANGE_AND_NO_SHOW_GUIDE}{' '}
+                  </p>{' '}
+                </div>{' '}
+              </div>{' '}
+            </div>{' '}
             {viewModel.isRequestBlockedByOperation ? (
               <div className="rounded-100 border-border-subtle bg-background-accent-orange-subtle mt-150 border px-125 py-100">
+                {' '}
                 <p className="font-designer-13b text-text-default">
-                  {viewModel.operationBlockedMessage}
-                </p>
-                <p className="font-designer-12r text-text-subtle mt-50">
-                  사유: {viewModel.operationBlockedReason}
-                </p>
+                  {' '}
+                  {viewModel.operationBlockedMessage}{' '}
+                </p>{' '}
+                <p className="mt-50 font-designer-12r text-text-subtle">
+                  {' '}
+                  사유: {viewModel.operationBlockedReason}{' '}
+                </p>{' '}
               </div>
-            ) : null}
-
+            ) : null}{' '}
             {remainingChecklist.length > 0 ? (
               <div className="rounded-125 border-border-subtle mt-150 border p-125">
-                <p className="font-designer-13b text-text-default mb-75">
-                  제출 전 체크
-                </p>
+                {' '}
+                <p className="mb-75 font-designer-13b text-text-default">
+                  {' '}
+                  제출 전 체크{' '}
+                </p>{' '}
                 <div className="space-y-75">
+                  {' '}
                   {remainingChecklist.map((item) => (
                     <ApplyChecklistItem
                       key={item.label}
                       label={item.label}
                       done={item.done}
                     />
-                  ))}
-                </div>
+                  ))}{' '}
+                </div>{' '}
               </div>
             ) : (
               <div className="rounded-125 bg-fill-success-subtle-default mt-150 px-125 py-100">
+                {' '}
                 <p className="font-designer-13b text-text-default">
-                  신청 준비가 끝났습니다.
-                </p>
-                <p className="font-designer-12r text-text-subtle mt-25">
-                  {progressGuide}
-                </p>
+                  {' '}
+                  신청 준비가 끝났습니다.{' '}
+                </p>{' '}
+                <p className="mt-25 font-designer-12r text-text-subtle">
+                  {' '}
+                  {progressGuide}{' '}
+                </p>{' '}
               </div>
-            )}
-
+            )}{' '}
             <div className="mt-150">
+              {' '}
               <Button
                 color="primary"
                 size="large"
@@ -502,26 +606,23 @@ export default function MentoringApplyPageView({
                 onClick={actions.onSubmit}
                 disabled={viewModel.isSubmitDisabled}
               >
-                {viewModel.submitButtonLabel}
-              </Button>
+                {' '}
+                {viewModel.submitButtonLabel}{' '}
+              </Button>{' '}
               {viewModel.isSubmitDisabled &&
               !viewModel.isRequestBlockedByOperation ? (
-                <p className="font-designer-12r text-text-subtle mt-75 leading-relaxed">
-                  필수 항목을 채우면 신청할 수 있어요.
+                <p className="mt-75 leading-relaxed font-designer-12r text-text-subtle">
+                  {' '}
+                  필수 항목을 채우면 신청할 수 있어요.{' '}
                 </p>
-              ) : null}
-              <p className="font-designer-12r text-text-subtle mt-100 leading-relaxed">
-                {MENTORING_REFUND_POLICY_DETAIL}.{' '}
-                {MENTORING_CHANGE_AND_NO_SHOW_GUIDE}
-              </p>
-            </div>
-          </SurfacePanel>
-        </aside>
-      </div>
+              ) : null}{' '}
+            </div>{' '}
+          </SurfacePanel>{' '}
+        </aside>{' '}
+      </div>{' '}
     </PageContainer>
   );
 }
-
 function SummaryRow({
   label,
   value,
@@ -535,25 +636,28 @@ function SummaryRow({
 }) {
   return (
     <div className="flex items-start justify-between gap-100">
-      <span className="font-designer-12m text-text-subtle shrink-0">
-        {label}
-      </span>
+      {' '}
+      <span className="shrink-0 font-designer-12m text-text-subtle">
+        {' '}
+        {label}{' '}
+      </span>{' '}
       <span
         className={cn(
           'text-right text-text-default',
-          multiline ? 'font-designer-13r leading-relaxed' : 'font-designer-14r',
+          multiline ? 'leading-relaxed font-designer-13r' : 'font-designer-14r',
           strong ? 'font-designer-16b' : '',
         )}
       >
-        {value}
-      </span>
+        {' '}
+        {value}{' '}
+      </span>{' '}
     </div>
   );
 }
-
 function ApplyChecklistItem({ label, done }: { label: string; done: boolean }) {
   return (
     <div className="flex items-center gap-75">
+      {' '}
       <span
         className={cn(
           'inline-flex h-18 w-18 shrink-0 items-center justify-center rounded-full border',
@@ -562,16 +666,18 @@ function ApplyChecklistItem({ label, done }: { label: string; done: boolean }) {
             : 'border-border-subtle bg-background-default text-text-subtlest',
         )}
       >
-        <CheckCircle2 className="h-12 w-12" />
-      </span>
+        {' '}
+        <CheckCircle2 className="h-150 w-150" />{' '}
+      </span>{' '}
       <span
         className={cn(
           'font-designer-12r',
           done ? 'text-text-default' : 'text-text-subtle',
         )}
       >
-        {label}
-      </span>
+        {' '}
+        {label}{' '}
+      </span>{' '}
     </div>
   );
 }

@@ -2,60 +2,47 @@ import type {
   NoteConsultationChannel,
   NoteConsultationListItem,
 } from '@/types/mentoring/note-consultation-view';
-
 export type NoteConsultationListUiState = 'ready' | 'loading' | 'error';
 export type NoteConsultationStatusTone = 'blue' | 'green' | 'orange' | 'red';
-
-export interface NoteConsultationItemStatusSummary {
-  key:
-    | 'mentor-confirmation'
-    | 'payment-confirmation'
-    | 'first-reply'
-    | 'my-reply'
-    | 'counterpart-reply'
-    | 'rejected';
+export type NoteConsultationStatusFilter =
+  | 'all'
+  | 'mentor-requested'
+  | 'mentor-drafting'
+  | 'mentor-completed'
+  | 'mentee-pending'
+  | 'mentee-answered'
+  | 'mentee-completed';
+export interface NoteConsultationStatusTab {
+  key: NoteConsultationStatusFilter;
   label: string;
-  tone: NoteConsultationStatusTone;
-}
-
-export interface NoteConsultationChannelSummaryItem {
-  key: NoteConsultationItemStatusSummary['key'];
-  label: string;
-  tone: NoteConsultationStatusTone;
   count: number;
 }
-
+export interface NoteConsultationItemStatusSummary {
+  key: 'pending' | 'rejected' | 'completed';
+  label: string;
+  tone: NoteConsultationStatusTone;
+}
 export interface NoteConsultationControllerState {
   listState: NoteConsultationListUiState;
   activeChannel: NoteConsultationChannel;
-  searchKeyword: string;
+  statusFilter: NoteConsultationStatusFilter;
   selectedRequestId: string;
-  draft: string;
-  isSending: boolean;
 }
-
 export interface NoteConsultationControllerViewModel {
   hasAnyRequest: boolean;
   filteredItems: NoteConsultationListItem[];
+  statusTabs: NoteConsultationStatusTab[];
   selectedItem?: NoteConsultationListItem;
-  canSend: boolean;
   itemStatusSummaries: Record<string, NoteConsultationItemStatusSummary>;
-  activeChannelSummaryItems: NoteConsultationChannelSummaryItem[];
-  pinnedItem?: NoteConsultationListItem;
-  pinnedItemStatusSummary?: NoteConsultationItemStatusSummary;
   isRestoringPinnedItem: boolean;
   hasMissingPinnedItem: boolean;
   errorMessage: string;
 }
-
 export interface NoteConsultationControllerActions {
   setActiveChannel: (channel: NoteConsultationChannel) => void;
-  setSearchKeyword: (keyword: string) => void;
+  setStatusFilter: (filter: NoteConsultationStatusFilter) => void;
   selectRequest: (requestId: string) => void;
-  updateDraft: (value: string) => void;
-  sendMessage: () => void;
 }
-
 export interface NoteConsultationControllerResult {
   state: NoteConsultationControllerState;
   viewModel: NoteConsultationControllerViewModel;

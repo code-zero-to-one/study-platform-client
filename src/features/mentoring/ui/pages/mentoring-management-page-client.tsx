@@ -1,5 +1,4 @@
 'use client';
-
 import {
   GraduationCap,
   Info,
@@ -7,33 +6,29 @@ import {
   SquareArrowOutUpRight,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
-import Badge from '@/components/common/ui/badge';
+import { useMemo, useState } from 'react';
 import Button from '@/components/common/ui/button';
+import SectionHeader from '@/components/common/ui/section-header';
+import SectionShell from '@/components/common/ui/section-shell';
 import SurfacePanel from '@/components/common/ui/surface-panel';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
-import { MENTORING_DISCORD_INVITE_URL } from '@/features/mentoring/model/mentoring-flow-policy';
 import { useMyMentorProfileQuery } from '@/features/mentoring/model/use-mentor-directory-query';
-import { MENTORING_NOTE_LABEL } from '@/features/mentoring/model/my-mentoring-display-meta';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentorManagementWorkspace from '@/features/mentoring/ui/management/mentor-management-workspace';
+import NoteConsultationContainer from '@/features/mentoring/ui/note-consultation/note-consultation-container';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
+import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
-
-const OPERATION_CHECKPOINTS = [
-  '예약형 상담은 24시간 안에 확인',
-  '기본 채널은 디스코드',
-  '운영 전 디스코드 입장',
-] as const;
-
+import type { MentoringRequest } from '@/types/mentoring/management-domain';
+type ManagementViewTab = 'NOTE' | 'RESERVATION';
+const EMPTY_REQUESTS: MentoringRequest[] = [];
 const getEnabledMethodCount = (mentor: MentorProfile) => {
   return Object.values(mentor.methods).filter(
     (method) => method.enabled === true,
   ).length;
 };
-
 export default function MentoringManagementPageClient() {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const { memberId } = useAuthReady();
@@ -53,240 +48,218 @@ export default function MentoringManagementPageClient() {
       }
       error={
         <SurfacePanel radius="lg" className="p-300 text-center">
-          <h2 className="font-designer-20b text-text-default mb-75">
-            멘토 운영 정보를 불러오지 못했어요
-          </h2>
+          {' '}
+          <h2 className="mb-75 font-designer-20b text-text-default">
+            {' '}
+            멘토 운영 정보를 불러오지 못했어요{' '}
+          </h2>{' '}
           <p className="font-designer-14r text-text-subtle">
-            잠시 후 다시 시도해주세요.
-          </p>
+            {' '}
+            잠시 후 다시 시도해주세요.{' '}
+          </p>{' '}
         </SurfacePanel>
       }
       ready={(() => {
         const myMentorProfile = myMentorProfileQuery.mentor;
-        const myMentorSettings = myMentorProfile
-          ? getMentorSettings(myMentorProfile)
-          : null;
-        const profileDescription =
-          myMentorSettings?.appealLine?.trim() ||
-          myMentorSettings?.mentoringTitle?.trim() ||
-          '-';
+        if (!myMentorProfile) {
+          return <MentoringManagementEmpty />;
+        }
 
         return (
-          <div className="flex flex-col gap-300">
-            <header className="flex items-center justify-between">
-              <h1 className="font-designer-24b text-text-default">
-                멘토 운영 관리
-              </h1>
-              <button
-                type="button"
-                className="font-designer-14m text-text-subtle hover:text-text-default inline-flex items-center gap-50"
-                onClick={() => setIsGuideOpen(true)}
-              >
-                <Info className="h-14 w-14" />
-                멘토 운영 안내
-              </button>
-            </header>
-
-            <SurfacePanel
-              radius="lg"
-              className="border-border-information bg-background-accent-blue-subtle p-250"
-            >
-              <h2 className="font-designer-18b text-text-default">빠른 이동</h2>
-              <p className="font-designer-13r text-text-subtle mt-50">
-                필요한 화면으로 바로 이동하세요.
-              </p>
-              <div className="mt-200 grid grid-cols-1 gap-125 md:grid-cols-2">
-                <article className="rounded-150 border-border-subtle bg-background-default border p-200">
-                  <h3 className="font-designer-14b text-text-default">
-                    내가 신청한 멘토링
-                  </h3>
-                  <p className="font-designer-13r text-text-subtle mt-50">
-                    신청 내역, 답변, 후기 확인
-                  </p>
-                  <div className="mt-100 flex flex-wrap gap-100">
-                    <Link
-                      href="/my-mentoring"
-                      className="font-designer-12m text-text-information hover:underline"
-                    >
-                      나의 멘토링
-                    </Link>
-                    <Link
-                      href="/note-consultation"
-                      className="font-designer-12m text-text-information hover:underline"
-                    >
-                      {MENTORING_NOTE_LABEL} 관리
-                    </Link>
-                    <Link
-                      href="/my-study-review"
-                      className="font-designer-12m text-text-information hover:underline"
-                    >
-                      후기 관리
-                    </Link>
-                  </div>
-                </article>
-                <article className="rounded-150 border-border-subtle bg-background-default border p-200">
-                  <h3 className="font-designer-14b text-text-default">
-                    내가 운영하는 멘토링
-                  </h3>
-                  <p className="font-designer-13r text-text-subtle mt-50">
-                    신청 처리, 입금 확인, 일정 조율
-                  </p>
-                  <div className="mt-100 flex flex-wrap gap-100">
-                    <Link
-                      href="/mentoring-management/requests"
-                      className="font-designer-12m text-text-information hover:underline"
-                    >
-                      신청 관리
-                    </Link>
-                  </div>
-                </article>
-              </div>
-            </SurfacePanel>
-
-            <SurfacePanel radius="lg" className="p-250">
-              <div className="flex flex-col gap-200 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-125">
-                  <div>
-                    <h2 className="font-designer-18b text-text-default">
-                      운영 체크
-                    </h2>
-                    <p className="font-designer-13r text-text-subtle mt-50">
-                      운영 전에 꼭 볼 기준만 모았습니다.
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-1 gap-125 md:grid-cols-3">
-                    {OPERATION_CHECKPOINTS.map((item) => (
-                      <article
-                        key={item}
-                        className="rounded-150 border-border-subtle bg-background-alternative border p-200"
-                      >
-                        <p className="font-designer-14m text-text-default">
-                          {item}
-                        </p>
-                      </article>
-                    ))}
-                  </div>
-                </div>
-                <Button asChild color="outlined" size="medium">
-                  <a
-                    href={MENTORING_DISCORD_INVITE_URL}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    디스코드 입장
-                    <SquareArrowOutUpRight className="h-16 w-16" />
-                  </a>
-                </Button>
-              </div>
-            </SurfacePanel>
-
-            {myMentorProfile ? (
-              <>
-                <SurfacePanel
-                  radius="lg"
-                  className="flex flex-col gap-200 p-300"
-                >
-                  <div className="flex items-start justify-between gap-200">
-                    <div>
-                      <p className="font-designer-14r text-text-subtle mb-50">
-                        등록한 멘토 프로필
-                      </p>
-                      <h2 className="font-designer-20b text-text-default line-clamp-2">
-                        {myMentorSettings?.mentoringTitle?.trim() || '-'}
-                      </h2>
-                    </div>
-                    <Badge color="green" shape="round">
-                      상담 방식 {getEnabledMethodCount(myMentorProfile)}개
-                    </Badge>
-                  </div>
-
-                  <p className="font-designer-14r text-text-subtle line-clamp-2">
-                    {profileDescription}
-                  </p>
-
-                  <div className="flex flex-wrap gap-100">
-                    {myMentorProfile.tags.slice(0, 5).map((tag) => (
-                      <Badge key={tag} color="gray" shape="round">
-                        #{tag}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center gap-100">
-                    <Link href="/mentoring/become-mentor">
-                      <Button
-                        color="outlined"
-                        size="medium"
-                        icon={<Settings2 className="h-16 w-16" />}
-                      >
-                        멘토링 설정 수정
-                      </Button>
-                    </Link>
-                    <Link href={`/mentoring/${myMentorProfile.id}`}>
-                      <Button color="primary" size="medium">
-                        멘토 프로필 보기
-                      </Button>
-                    </Link>
-                    <Link href="/mentoring">
-                      <Button color="outlined" size="medium">
-                        멘토링 목록
-                      </Button>
-                    </Link>
-                    <Link href="/note-consultation">
-                      <Button color="outlined" size="medium">
-                        {MENTORING_NOTE_LABEL}
-                      </Button>
-                    </Link>
-                  </div>
-                </SurfacePanel>
-                {memberId ? (
-                  <MentorManagementWorkspace
-                    memberId={memberId}
-                    mentor={myMentorProfile}
-                  />
-                ) : null}
-              </>
-            ) : (
-              <SurfacePanel
-                radius="lg"
-                className="flex min-h-[420px] flex-col items-center justify-center px-300 py-500 text-center"
-              >
-                <div className="bg-fill-brand-subtle-default rounded-500 mb-200 flex h-[72px] w-[72px] items-center justify-center">
-                  <GraduationCap className="text-text-brand h-32 w-32" />
-                </div>
-                <h2 className="font-designer-24b text-text-default mb-75">
-                  아직 운영 중인 멘토링이 없어요
-                </h2>
-                <p className="font-designer-16m text-text-default mb-50">
-                  멘토로 운영할 멘토링을 먼저 등록하세요.
-                </p>
-                <p className="font-designer-14r text-text-subtle mb-250">
-                  등록 후 이 화면에서 신청과 일정을 관리할 수 있어요.
-                </p>
-
-                <Link href="/mentoring/become-mentor">
-                  <Button color="primary" size="large">
-                    멘토링 만들기
-                  </Button>
-                </Link>
-
-                <Link
-                  href="/mentoring"
-                  className="font-designer-14m text-text-subtle mt-150 inline-flex items-center gap-50"
-                >
-                  멘토링 목록 보러가기
-                  <SquareArrowOutUpRight className="h-14 w-14" />
-                </Link>
-              </SurfacePanel>
-            )}
-
-            <MentoringGuideModal
-              open={isGuideOpen}
-              onOpenChange={setIsGuideOpen}
-            />
-          </div>
+          <MentoringManagementReady
+            memberId={memberId}
+            mentor={myMentorProfile}
+            isGuideOpen={isGuideOpen}
+            onGuideOpenChange={setIsGuideOpen}
+          />
         );
       })()}
     />
+  );
+}
+function MentoringManagementReady({
+  memberId,
+  mentor,
+  isGuideOpen,
+  onGuideOpenChange,
+}: {
+  memberId?: number;
+  mentor: MentorProfile;
+  isGuideOpen: boolean;
+  onGuideOpenChange: (open: boolean) => void;
+}) {
+  const mentorSettings = getMentorSettings(mentor);
+  const mentorRequests = useMentoringManagementStore(
+    (state) => state.requestsByMentor[mentor.id],
+  );
+  const requests = mentorRequests ?? EMPTY_REQUESTS;
+  const noteCount = useMemo(
+    () => requests.filter((r) => r.method === 'note').length,
+    [requests],
+  );
+  const reservationCount = useMemo(
+    () => requests.filter((r) => r.method !== 'note').length,
+    [requests],
+  );
+  const [activeView, setActiveView] = useState<ManagementViewTab>('NOTE');
+  const viewTabs = [
+    {
+      key: 'NOTE' as const,
+      label: '쪽지상담',
+      description: '멘티가 보낸 비동기 상담을 확인하고 답변합니다.',
+      count: noteCount,
+    },
+    {
+      key: 'RESERVATION' as const,
+      label: '예약상담',
+      description: '간편상담, 심층상담, 대면상담 신청을 단계별로 관리합니다.',
+      count: reservationCount,
+    },
+  ];
+
+  return (
+    <SectionShell className="gap-400">
+      {' '}
+      <SectionHeader
+        title="멘토 운영 관리"
+        description={`${mentorSettings.mentoringTitle?.trim() || '멘토링'} · 상담 방식 ${getEnabledMethodCount(mentor)}개 운영 중`}
+        titleClassName="font-designer-24b text-text-default"
+        descriptionClassName="max-w-[720px] font-designer-14r text-text-subtle"
+        rightSlot={
+          <div className="flex shrink-0 items-center gap-100">
+            {' '}
+            <Link href="/mentoring/become-mentor">
+              {' '}
+              <Button
+                color="outlined"
+                size="small"
+                icon={<Settings2 className="h-14 w-14" />}
+              >
+                {' '}
+                설정 수정{' '}
+              </Button>{' '}
+            </Link>{' '}
+            <Link href={`/mentoring/${mentor.id}`}>
+              {' '}
+              <Button color="outlined" size="small">
+                {' '}
+                프로필 보기{' '}
+              </Button>{' '}
+            </Link>{' '}
+            <button
+              type="button"
+              className="hover:text-text-default inline-flex items-center gap-50 transition-colors font-designer-14m text-text-subtle"
+              onClick={() => onGuideOpenChange(true)}
+            >
+              {' '}
+              <Info className="h-14 w-14" /> 운영 안내{' '}
+            </button>{' '}
+          </div>
+        }
+      />{' '}
+      <section className="rounded-200 border-border-subtle bg-background-default border p-150">
+        {' '}
+        <div className="bg-background-alternative rounded-150 grid grid-cols-1 gap-75 p-50 md:grid-cols-2">
+          {' '}
+          {viewTabs.map((tab) => {
+            const isActive = tab.key === activeView;
+
+            return (
+              <button
+                key={tab.key}
+                type="button"
+                onClick={() => setActiveView(tab.key)}
+                className={`rounded-100 px-200 py-200 text-left transition-colors ${isActive ? 'bg-fill-brand-subtle-default' : 'hover:bg-background-default'}`}
+              >
+                {' '}
+                <div className="flex items-start justify-between gap-100">
+                  {' '}
+                  <div className="min-w-0">
+                    {' '}
+                    <p
+                      className={`font-designer-15b ${isActive ? 'text-text-brand' : 'text-text-default'}`}
+                    >
+                      {' '}
+                      {tab.label}{' '}
+                    </p>{' '}
+                    <p className="mt-25 font-designer-12r text-text-subtle">
+                      {' '}
+                      {tab.description}{' '}
+                    </p>{' '}
+                  </div>{' '}
+                  <span className="shrink-0 font-designer-12m text-text-subtle">
+                    {' '}
+                    {tab.count}건{' '}
+                  </span>{' '}
+                </div>{' '}
+              </button>
+            );
+          })}{' '}
+        </div>{' '}
+      </section>{' '}
+      {activeView === 'NOTE' ? (
+        <NoteConsultationContainer
+          initialChannel="received"
+          lockedChannel="received"
+          statusTabPreset="mentor"
+          hideToolbar
+        />
+      ) : memberId ? (
+        <MentorManagementWorkspace memberId={memberId} mentor={mentor} />
+      ) : null}{' '}
+      <MentoringGuideModal
+        open={isGuideOpen}
+        onOpenChange={onGuideOpenChange}
+      />{' '}
+    </SectionShell>
+  );
+}
+function MentoringManagementEmpty() {
+  return (
+    <SectionShell className="gap-400">
+      {' '}
+      <SectionHeader
+        title="멘토 운영 관리"
+        description="멘티의 상담 신청을 확인하고, 단계별로 관리합니다."
+        titleClassName="font-designer-24b text-text-default"
+        descriptionClassName="font-designer-14r text-text-subtle"
+      />{' '}
+      <SurfacePanel
+        radius="lg"
+        className="flex min-h-[420px] flex-col items-center justify-center px-300 py-500 text-center"
+      >
+        {' '}
+        <div className="bg-fill-brand-subtle-default rounded-500 mb-200 flex h-[72px] w-[72px] items-center justify-center">
+          {' '}
+          <GraduationCap className="text-text-brand h-32 w-32" />{' '}
+        </div>{' '}
+        <h2 className="mb-75 font-designer-24b text-text-default">
+          {' '}
+          아직 운영 중인 멘토링이 없어요{' '}
+        </h2>{' '}
+        <p className="mb-50 font-designer-16m text-text-default">
+          {' '}
+          멘토로 운영할 멘토링을 먼저 등록하세요.{' '}
+        </p>{' '}
+        <p className="mb-250 font-designer-14r text-text-subtle">
+          {' '}
+          등록 후 이 화면에서 신청과 일정을 관리할 수 있어요.{' '}
+        </p>{' '}
+        <Link href="/mentoring/become-mentor">
+          {' '}
+          <Button color="primary" size="large">
+            {' '}
+            멘토링 만들기{' '}
+          </Button>{' '}
+        </Link>{' '}
+        <Link
+          href="/mentoring"
+          className="mt-150 inline-flex items-center gap-50 font-designer-14m text-text-subtle"
+        >
+          {' '}
+          멘토링 목록 보러가기 <SquareArrowOutUpRight className="h-14 w-14" />{' '}
+        </Link>{' '}
+      </SurfacePanel>{' '}
+    </SectionShell>
   );
 }

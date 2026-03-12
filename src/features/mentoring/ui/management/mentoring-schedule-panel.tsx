@@ -25,6 +25,8 @@ import MentoringScheduleCalendar from './mentoring-schedule-calendar';
 import ScheduleEditorModal, {
   type ScheduleEditorSubmitPayload,
 } from './schedule-editor-modal';
+const EMPTY_REQUESTS: MentoringRequest[] = [];
+const EMPTY_SESSIONS: MentoringSession[] = [];
 
 const getOverlappingIds = (sessions: MentoringSession[]): Set<string> => {
   const scheduled = sessions
@@ -78,12 +80,14 @@ export default function MentoringSchedulePanel({
   methodDurations,
 }: MentoringSchedulePanelProps) {
   const { showToast } = useToastStore();
-  const sessions = useMentoringManagementStore(
-    (state) => state.sessionsByMentor[mentorId] ?? [],
+  const mentorSessions = useMentoringManagementStore(
+    (state) => state.sessionsByMentor[mentorId],
   );
-  const requests = useMentoringManagementStore(
-    (state) => state.requestsByMentor[mentorId] ?? [],
+  const mentorRequests = useMentoringManagementStore(
+    (state) => state.requestsByMentor[mentorId],
   );
+  const sessions = mentorSessions ?? EMPTY_SESSIONS;
+  const requests = mentorRequests ?? EMPTY_REQUESTS;
   const rescheduleSession = useMentoringManagementStore(
     (state) => state.rescheduleSession,
   );

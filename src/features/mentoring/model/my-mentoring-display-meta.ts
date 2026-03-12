@@ -26,7 +26,7 @@ export const MY_MENTORING_STATUS_META: Record<
   { label: string; color: MyMentoringBadgeColor }
 > = {
   REQUESTED: { label: '멘토 확인 대기', color: 'orange' },
-  PENDING: { label: '일정 조율 중', color: 'orange' },
+  PENDING: { label: '멘토 확인 대기', color: 'orange' },
   CONFIRMED: { label: '일정 확정', color: 'green' },
   COMPLETED: { label: '상담 완료', color: 'blue' },
   NO_SHOW: { label: '노쇼 처리', color: 'red' },

@@ -20,6 +20,7 @@ import type {
 } from '@/types/mentoring/management-request-panel-view';
 
 const MENTORING_REQUEST_DETAIL_BASE_PATH = '/mentoring-management/requests';
+const EMPTY_REQUESTS: MentoringRequest[] = [];
 
 const getPreferredScheduleText = (request: MentoringRequest) => {
   if (request.method === 'note') {
@@ -130,9 +131,10 @@ export const useMentoringRequestPanelController = ({
   mentorId,
   filterRequestId,
 }: UseMentoringRequestPanelControllerParams): MentoringRequestPanelControllerResult => {
-  const allRequests = useMentoringManagementStore(
-    (state) => state.requestsByMentor[mentorId] ?? [],
+  const mentorRequests = useMentoringManagementStore(
+    (state) => state.requestsByMentor[mentorId],
   );
+  const allRequests = mentorRequests ?? EMPTY_REQUESTS;
 
   const requests = useMemo(() => {
     if (!filterRequestId) {

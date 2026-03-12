@@ -14,8 +14,8 @@ export default function MyLayout({
   return (
     <div className="flex h-full">
       <Sidebar />
-      <div className="m-auto pt-500 pb-[100px]">
-        <div className="w-[780px]">{children}</div>
+      <div className="m-600 flex-1 pb-[100px]">
+        <div className="w-full">{children}</div>
       </div>
     </div>
   );

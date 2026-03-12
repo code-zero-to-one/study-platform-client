@@ -1,5 +1,4 @@
 'use client';
-
 import { CircleCheck } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -18,17 +17,14 @@ import MentorDetailHeaderSection from './mentor-detail-header-section';
 import MentorDetailMethodSection from './mentor-detail-method-section';
 import MentorDetailReviewSection from './mentor-detail-review-section';
 import MentorDetailSidebarCta from './mentor-detail-sidebar-cta';
-import MentorMarkdownContent from '../common/mentoring-markdown-content';
-
+import MentorMarkdownContent from '../registration/mentor-markdown-content';
 type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
-
 interface MentorDetailPageProps {
   mentor: MentorProfile;
   previewMode?: boolean;
   showSettingsEditButton?: boolean;
   highlightedSections?: PreviewHighlightSection[];
 }
-
 export default function MentorDetailPage({
   mentor,
   previewMode,
@@ -56,7 +52,6 @@ export default function MentorDetailPage({
     value: string;
     color: 'green' | 'gray';
   }> = [];
-
   if (appealLine.length > 0) {
     headlineBadges.push({
       key: 'appealLine',
@@ -64,7 +59,6 @@ export default function MentorDetailPage({
       color: 'green',
     });
   }
-
   if (companyCategoryLabel.length > 0 && companyCategoryLabel !== '기타') {
     headlineBadges.push({
       key: 'companyCategory',
@@ -72,7 +66,6 @@ export default function MentorDetailPage({
       color: 'gray',
     });
   }
-
   const enabledMethods = useMemo(() => {
     return getEnabledMentoringMethods(mentor);
   }, [mentor]);
@@ -80,7 +73,6 @@ export default function MentorDetailPage({
     (question) => question.trim().length > 0,
   );
   const metMenteeCount = mentor.menteeCount ?? mentor.mentoringCount;
-
   const [selectedMethod, setSelectedMethod] = useState<MentoringMethodType>(
     enabledMethods[0] ?? 'note',
   );
@@ -94,13 +86,16 @@ export default function MentorDetailPage({
         previewMode && 'py-400',
       )}
     >
+      {' '}
       <div
         className={cn(
           'grid grid-cols-1 gap-500',
           !previewMode && 'xl:grid-cols-[1fr_360px]',
         )}
       >
+        {' '}
         <div className="min-w-0">
+          {' '}
           <MentorDetailHeaderSection
             mentor={mentor}
             mentoringTitleLabel={mentoringTitleLabel}
@@ -109,8 +104,7 @@ export default function MentorDetailPage({
             previewMode={previewMode}
             showSettingsEditButton={showSettingsEditButton}
             isHeadlineHighlighted={isHighlighted('headline')}
-          />
-
+          />{' '}
           <section
             data-preview-section="description"
             className={cn(
@@ -118,30 +112,35 @@ export default function MentorDetailPage({
               isHighlighted('description') && 'preview-section-highlight',
             )}
           >
-            <h2 className="font-designer-18b text-text-strong mb-200">
-              멘토 소개
-            </h2>
+            {' '}
+            <h2 className="mb-200 font-designer-18b text-text-strong">
+              {' '}
+              멘토 소개{' '}
+            </h2>{' '}
             <MentorMarkdownContent
               content={mentorSettings.detailedDescription}
               className="mb-250"
               emptyMessage="멘토 소개가 아직 등록되지 않았습니다."
-            />
+            />{' '}
             <div className="mb-200 flex flex-wrap gap-100">
+              {' '}
               {mentorSettings.skillTags.map((tag) => (
                 <Badge key={tag} color="blue" shape="round">
-                  #{tag}
+                  {' '}
+                  #{tag}{' '}
                 </Badge>
-              ))}
-            </div>
+              ))}{' '}
+            </div>{' '}
             {mentorSettings.mentoringTitle && (
               <div className="rounded-150 bg-background-alternative p-200">
-                <p className="font-designer-13r text-text-subtle leading-relaxed">
-                  {mentorSettings.mentoringTitle}
-                </p>
+                {' '}
+                <p className="leading-relaxed font-designer-13r text-text-subtle">
+                  {' '}
+                  {mentorSettings.mentoringTitle}{' '}
+                </p>{' '}
               </div>
-            )}
-          </section>
-
+            )}{' '}
+          </section>{' '}
           {interviewQuestions.length > 0 && (
             <section
               data-preview-section="interview"
@@ -150,28 +149,31 @@ export default function MentorDetailPage({
                 isHighlighted('interview') && 'preview-section-highlight',
               )}
             >
-              <h2 className="font-designer-18b text-text-strong mb-200">
-                상담 전 준비사항
-              </h2>
+              {' '}
+              <h2 className="mb-200 font-designer-18b text-text-strong">
+                {' '}
+                상담 전 준비사항{' '}
+              </h2>{' '}
               <ul className="flex flex-col gap-100">
+                {' '}
                 {interviewQuestions.map((question) => (
                   <li key={question} className="flex items-start gap-100">
-                    <CircleCheck className="text-text-success mt-[2px] h-16 w-16 shrink-0" />
-                    <span className="font-designer-14r text-text-default leading-relaxed">
-                      {question}
-                    </span>
+                    {' '}
+                    <CircleCheck className="text-text-success mt-[2px] h-16 w-16 shrink-0" />{' '}
+                    <span className="leading-relaxed font-designer-14r text-text-default">
+                      {' '}
+                      {question}{' '}
+                    </span>{' '}
                   </li>
-                ))}
-              </ul>
+                ))}{' '}
+              </ul>{' '}
             </section>
-          )}
-
+          )}{' '}
           <MentorDetailMethodSection
             mentor={mentor}
             enabledMethods={enabledMethods}
             isMethodsHighlighted={isHighlighted('methods')}
-          />
-
+          />{' '}
           {mentorSettings.preNotice.trim() && (
             <section
               data-preview-section="notice"
@@ -180,24 +182,26 @@ export default function MentorDetailPage({
                 isHighlighted('notice') && 'preview-section-highlight',
               )}
             >
-              <h2 className="font-designer-18b text-text-strong mb-200">
-                멘토링 사전 안내
-              </h2>
-              <p className="font-designer-14r text-text-subtle leading-loose whitespace-pre-line">
-                {mentorSettings.preNotice}
-              </p>
+              {' '}
+              <h2 className="mb-200 font-designer-18b text-text-strong">
+                {' '}
+                멘토링 사전 안내{' '}
+              </h2>{' '}
+              <p className="leading-loose whitespace-pre-line font-designer-14r text-text-subtle">
+                {' '}
+                {mentorSettings.preNotice}{' '}
+              </p>{' '}
             </section>
-          )}
-
-          <MentorDetailReviewSection mentor={mentor} />
-        </div>
-
+          )}{' '}
+          <MentorDetailReviewSection mentor={mentor} />{' '}
+        </div>{' '}
         <aside
           className={cn(
             'h-fit',
             !previewMode && 'lg:sticky lg:top-[88px] lg:self-start',
           )}
         >
+          {' '}
           <MentorDetailSidebarCta
             mentor={mentor}
             profileSummaryLine={profileSummaryLine}
@@ -207,9 +211,9 @@ export default function MentorDetailPage({
             selectedOption={selectedOption}
             onSelectMethod={setSelectedMethod}
             headlineBadges={headlineBadges}
-          />
-        </aside>
-      </div>
+          />{' '}
+        </aside>{' '}
+      </div>{' '}
     </div>
   );
 }

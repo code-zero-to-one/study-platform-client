@@ -22,16 +22,13 @@ const noteConsultationConversationSenderSchema = z.enum([
   'MENTOR',
   'SYSTEM',
 ]);
-
 export const noteConsultationChannelSchema = z.enum(['sent', 'received']);
-
 export const noteConsultationConversationMessageSchema = z.object({
   id: z.string(),
   sender: noteConsultationConversationSenderSchema,
   content: z.string(),
   createdAt: z.string(),
 });
-
 export const noteConsultationRequestSchema = z.object({
   id: z.string(),
   mentorId: z.number(),
@@ -64,22 +61,23 @@ export const noteConsultationListItemSchema = z.object({
   displayName: z.string(),
   displayRole: z.string(),
   channel: noteConsultationChannelSchema,
+  counterpartMemberId: z.number().optional(),
+  counterpartProfileImageUrl: z.string().optional(),
   lastMessageContent: z.string(),
   lastMessageCreatedAt: z.string(),
   mentorReplyCount: z.number().int().nonnegative(),
 });
-
 export const noteConsultationListResponseSchema = z.object({
   sentItems: z.array(noteConsultationListItemSchema),
   receivedItems: z.array(noteConsultationListItemSchema),
 });
-
 export const noteConsultationCreatedMentorSchema = z.object({
   id: z.number(),
+  memberId: z.number().optional(),
   nickname: z.string(),
   role: z.string(),
+  imageUrl: z.string().optional(),
 });
-
 export const noteConsultationQuerySourceSchema = z.object({
   memberId: z.number().optional(),
   myMentorId: z.number().optional(),
@@ -89,13 +87,11 @@ export const noteConsultationQuerySourceSchema = z.object({
     z.array(noteConsultationRequestSchema),
   ),
 });
-
 export const sendNoteConsultationMessageParamsSchema = z.object({
   mentorId: z.number(),
   requestId: z.string().trim().min(1),
   content: z.string().trim().min(1, '메시지 내용을 입력해주세요.'),
 });
-
 export type NoteConsultationChannel = z.infer<
   typeof noteConsultationChannelSchema
 >;

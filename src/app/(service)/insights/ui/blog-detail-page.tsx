@@ -281,7 +281,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       return (
         <div
           key={index}
-          className="blog-content-markdown font-designer-18r text-[#333D4B]"
+          className="font-designer-18r text-[#333D4B]"
         >
           {block.body ? (
             <ReactMarkdown

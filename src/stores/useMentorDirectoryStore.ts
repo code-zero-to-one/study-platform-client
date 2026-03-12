@@ -9,7 +9,6 @@ import type {
 } from '@/types/mentoring/domain';
 import { type MentorSettings } from '@/types/mentoring/settings';
 import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
-
 interface MentorDirectoryState {
   memberId: number | undefined;
   createdMentors: MentorProfile[];
@@ -19,39 +18,28 @@ interface MentorDirectoryState {
   registerMentorProfile: (
     memberId: number,
     formValues: MentorRegistrationFormValues,
-    options?: {
-      imageUrl?: string;
-    },
+    options?: { imageUrl?: string },
   ) => number;
   reset: () => void;
   setHasHydrated: (hasHydrated: boolean) => void;
 }
-
 type PersistedMentorDirectoryState = Pick<
   MentorDirectoryState,
   'memberId' | 'createdMentors' | 'mentorIdByMember' | 'nextMentorId'
 >;
-
 const MIN_GENERATED_MENTOR_ID = 1;
 const INITIAL_MENTOR_ID = MIN_GENERATED_MENTOR_ID;
-
 const normalizePersistedMentor = (mentor: MentorProfile): MentorProfile => {
-  return {
-    ...mentor,
-    mentorSettings: getMentorSettings(mentor),
-  };
+  return { ...mentor, mentorSettings: getMentorSettings(mentor) };
 };
-
 const collectScheduleSlots = (formValues: MentorRegistrationFormValues) => {
   const uniqueSlots = new Set<string>();
-
   Object.values(formValues.schedule.weekly).forEach((slots) => {
     slots.forEach((slot) => uniqueSlots.add(slot));
   });
 
   return Array.from(uniqueSlots).sort().slice(0, 8);
 };
-
 const makeMethodTimeRanges = (
   formValues: MentorRegistrationFormValues,
   durationMinutes: number,
@@ -60,7 +48,6 @@ const makeMethodTimeRanges = (
     toTimeRangeLabel(slot, durationMinutes),
   );
 };
-
 const createMentoringMethodOption = ({
   type,
   enabled,
@@ -87,7 +74,6 @@ const createMentoringMethodOption = ({
       timeSlots: [],
     };
   }
-
   if (type === 'simple') {
     return {
       type,
@@ -101,7 +87,6 @@ const createMentoringMethodOption = ({
       timeSlots: timeRanges,
     };
   }
-
   if (type === 'deep') {
     return {
       type,
@@ -128,7 +113,6 @@ const createMentoringMethodOption = ({
     timeSlots: timeRanges,
   };
 };
-
 const buildCareerHistory = (formValues: MentorRegistrationFormValues) => {
   const trimmedCompanyName = formValues.companyName.trim();
   const companyLabel =
@@ -140,7 +124,6 @@ const buildCareerHistory = (formValues: MentorRegistrationFormValues) => {
 
   return [`${companyLabel} · ${roleLabel} · ${careerLabel}`];
 };
-
 export const createMentorProfileFromRegistration = (
   mentorId: number,
   formValues: MentorRegistrationFormValues,
@@ -256,7 +239,6 @@ export const createMentorProfileFromRegistration = (
     mentorSettings: normalizedSettings,
   };
 };
-
 const normalizePersistedState = (
   state: PersistedMentorDirectoryState,
 ): PersistedMentorDirectoryState => {
@@ -278,13 +260,8 @@ const normalizePersistedState = (
     MIN_GENERATED_MENTOR_ID,
   );
 
-  return {
-    ...state,
-    createdMentors: nextCreatedMentors,
-    nextMentorId,
-  };
+  return { ...state, createdMentors: nextCreatedMentors, nextMentorId };
 };
-
 export const useMentorDirectoryStore = create<MentorDirectoryState>()(
   persist(
     (set, get): MentorDirectoryState => ({
@@ -302,13 +279,15 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
           MIN_GENERATED_MENTOR_ID,
         );
         const mentorId = existingMentorId ?? nextMentorId;
-        const nextMentor = createMentorProfileFromRegistration(
-          mentorId,
-          formValues,
-          now,
-          options?.imageUrl,
-        );
-
+        const nextMentor = {
+          ...createMentorProfileFromRegistration(
+            mentorId,
+            formValues,
+            now,
+            options?.imageUrl,
+          ),
+          memberId,
+        };
         set((prevState) => {
           const withoutCurrentMentor = prevState.createdMentors.filter(
             (mentor) => mentor.id !== mentorId,
@@ -346,9 +325,7 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
         if (!persistedState) {
           return persistedState;
         }
-
         const typedState = persistedState as PersistedMentorDirectoryState;
-
         if (version < 3) {
           return normalizePersistedState(typedState);
         }
