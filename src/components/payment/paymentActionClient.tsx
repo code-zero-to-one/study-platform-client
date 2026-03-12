@@ -4,7 +4,6 @@ import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
 import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { StudyPaymentPrepareResponse } from '@/api/openapi';
-import PaymentTermsModal from '@/components/common/modals/payment-terms-modal';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
 import Button from '../common/ui/button';

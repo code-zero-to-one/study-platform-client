@@ -11,8 +11,8 @@ import {
   useUpdateCommentMutation,
   useUpdateThreadMutation,
 } from '@/hooks/queries/use-channel-query';
-import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useToastStore } from '@/stores/use-toast-store';
+import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { ResizedImage } from '@/types/api/group-study.types';
 import CommentInput from './comment-input';
