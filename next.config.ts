@@ -1,11 +1,20 @@
-import bundleAnalyzer from '@next/bundle-analyzer';
 import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 import type { RemotePattern } from 'next/dist/shared/lib/image-config';
 
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
+// @next/bundle-analyzer는 devDependency이므로 런타임 컨테이너에 없을 수 있습니다.
+// 런타임에서는 항상 초기화하되, enabled 옵션으로 제어합니다.
+let withBundleAnalyzer: (config: NextConfig) => NextConfig = (config) => config;
+
+if (process.env.ANALYZE === 'true') {
+  try {
+    const bundleAnalyzer = require('@next/bundle-analyzer');
+    withBundleAnalyzer = bundleAnalyzer({ enabled: true });
+  } catch (error) {
+    // devDependencies가 없는 환경에서는 무시
+    console.warn('@next/bundle-analyzer를 로드할 수 없습니다:', error);
+  }
+}
 
 const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV === 'development';
