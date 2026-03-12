@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import MyPageContentLayout from '@/components/common/layout/sidebar/my-page-content-layout';
 import MyPageMobileNav from '@/components/common/layout/sidebar/my-page-mobile-nav';
 import Sidebar from '@/components/common/layout/sidebar/my-page-sidebar';
 import { requireAuthenticatedMemberRoute } from '@/features/auth/model/server-route-guard';
@@ -21,9 +22,7 @@ export default async function MyLayout({
       <MyPageMobileNav />
       {/* 데스크톱 사이드바 */}
       <Sidebar />
-      <div className="flex-1 px-400 pt-400 pb-[100px] lg:m-600 lg:px-0 lg:pt-0">
-        <div className="w-full">{children}</div>
-      </div>
+      <MyPageContentLayout>{children}</MyPageContentLayout>
     </div>
   );
 }

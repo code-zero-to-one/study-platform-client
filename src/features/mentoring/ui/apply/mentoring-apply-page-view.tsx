@@ -14,6 +14,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
+import { BaseInput } from '@/components/common/ui/input';
 import PageContainer from '@/components/common/ui/page-container';
 import SurfacePanel from '@/components/common/ui/surface-panel';
 import {
@@ -89,6 +90,14 @@ export default function MentoringApplyPageView({
       : '날짜/시간 선택 전'
     : '질문 접수 후 멘토 답장을 기다리는 방식';
   const requestChecklist = [
+    ...(viewModel.requiresRequestTitle
+      ? [
+          {
+            label: '요청 제목 2자 이상',
+            done: !viewModel.isRequestTitleTooShort,
+          },
+        ]
+      : []),
     {
       label: viewModel.needsSchedule ? '희망 일정 선택' : '상담 방식 확인',
       done: viewModel.needsSchedule
@@ -115,7 +124,7 @@ export default function MentoringApplyPageView({
         {' '}
         <Link
           href={`/mentoring/${mentor.id}`}
-          className="hover:text-text-default inline-flex items-center gap-50 transition-colors font-designer-14r text-text-subtle"
+          className="hover:text-text-default inline-flex items-center gap-50 transition-colors font-designer-13r text-text-subtle"
         >
           {' '}
           <ChevronLeft className="h-16 w-16" /> 상세로 돌아가기{' '}
@@ -145,28 +154,20 @@ export default function MentoringApplyPageView({
             </p>{' '}
           </div>{' '}
         </div>{' '}
-        <div className="mt-150 flex flex-wrap items-center gap-75">
+        <p className="mt-150 font-designer-13r text-text-subtle">
           {' '}
-          <Badge color="blue" shape="round">
-            {' '}
-            {getMethodLabel(selectedMethod)}{' '}
-          </Badge>{' '}
-          <Badge color="gray" shape="round">
-            {' '}
-            {viewModel.selectedOption.durationLabel}{' '}
-          </Badge>{' '}
-          <Badge color="green" shape="round">
-            {' '}
-            {formatWon(viewModel.selectedOption.price)}{' '}
-          </Badge>{' '}
-        </div>{' '}
+          {getMethodLabel(selectedMethod)} · {viewModel.selectedOption.durationLabel}
+          <span className="ml-75 font-designer-13m text-text-default">
+            {formatWon(viewModel.selectedOption.price)}
+          </span>
+        </p>{' '}
       </SurfacePanel>{' '}
       <div className="grid grid-cols-1 gap-300 xl:grid-cols-[minmax(0,1fr)_360px]">
         {' '}
         <div className="flex min-w-0 flex-col gap-300">
           {' '}
           {viewModel.needsSchedule && (
-            <SurfacePanel radius="lg">
+            <SurfacePanel radius="lg" className="p-250">
               {' '}
               <div className="mb-150 flex items-start justify-between gap-100">
                 {' '}
@@ -174,7 +175,7 @@ export default function MentoringApplyPageView({
                   {' '}
                   {viewModel.scheduleStepNumber}. 일정 선택{' '}
                 </span>{' '}
-                <span className="font-designer-18b text-text-brand">
+                <span className="font-designer-16b text-text-brand">
                   {' '}
                   {state.selectedDate
                     ? `${dayjs(state.selectedDate).format('YY.MM.DD')} ${state.selectedTime}`
@@ -222,7 +223,7 @@ export default function MentoringApplyPageView({
                           type="button"
                           onClick={() => actions.onTimeSelect(timeSlot)}
                           className={cn(
-                            'rounded-100 border px-150 py-125 text-left transition-colors font-designer-14r',
+                            'rounded-100 border px-150 py-125 text-left transition-colors font-designer-13r',
                             state.selectedTime === timeSlot
                               ? 'border-border-brand bg-fill-brand-subtle-default text-text-brand'
                               : 'border-border-subtle bg-background-default hover:border-border-default hover:bg-background-alternative',
@@ -244,7 +245,7 @@ export default function MentoringApplyPageView({
               </div>{' '}
             </SurfacePanel>
           )}{' '}
-          <SurfacePanel radius="lg">
+          <SurfacePanel radius="lg" className="p-250">
             {' '}
             <div className="mb-150 flex items-start justify-between gap-100">
               {' '}
@@ -263,7 +264,7 @@ export default function MentoringApplyPageView({
               {' '}
               <div className="rounded-125 bg-background-alternative p-150">
                 {' '}
-                <p className="mb-100 font-designer-13b text-text-default">
+                <p className="mb-100 font-designer-13m text-text-default">
                   {' '}
                   요청서에 이런 내용을 적어주세요{' '}
                 </p>{' '}
@@ -272,11 +273,11 @@ export default function MentoringApplyPageView({
                   {writingGuideItems.map((item, index) => (
                     <div key={item} className="flex items-start gap-75">
                       {' '}
-                      <span className="bg-fill-brand-subtle-default inline-flex h-18 w-18 shrink-0 items-center justify-center rounded-full font-designer-11m text-text-brand">
+                      <span className="bg-fill-brand-subtle-default inline-flex h-18 w-18 shrink-0 items-center justify-center rounded-full font-designer-12m text-text-brand">
                         {' '}
                         {index + 1}{' '}
                       </span>{' '}
-                      <p className="leading-relaxed font-designer-12r text-text-subtle">
+                      <p className="leading-relaxed font-designer-13r text-text-subtle">
                         {' '}
                         {item}{' '}
                       </p>{' '}
@@ -284,6 +285,24 @@ export default function MentoringApplyPageView({
                   ))}{' '}
                 </div>{' '}
               </div>{' '}
+              {viewModel.requiresRequestTitle ? (
+                <div className="flex flex-col gap-75">
+                  <p className="font-designer-13m text-text-default">요청 제목</p>
+                  <BaseInput
+                    value={state.requestTitle}
+                    onValueChange={actions.onRequestTitleChange}
+                    placeholder="예) 포트폴리오 방향성 피드백 요청"
+                    maxLength={60}
+                    hideMeta={false}
+                    guideText="멘토가 상담 목적을 빠르게 파악할 수 있게 제목을 적어주세요."
+                  />
+                  {viewModel.shouldShowRequestTitleError ? (
+                    <p className="font-designer-12r text-text-error">
+                      제목은 2자 이상 입력해주세요.
+                    </p>
+                  ) : null}
+                </div>
+              ) : null}
               <MentoringRequestEditor
                 method={selectedMethod}
                 value={state.requestContents}
@@ -321,7 +340,7 @@ export default function MentoringApplyPageView({
               )}{' '}
             </div>{' '}
           </SurfacePanel>{' '}
-          <SurfacePanel radius="lg">
+          <SurfacePanel radius="lg" className="p-250">
             {' '}
             <div className="mb-150 flex items-start justify-between gap-100">
               {' '}
@@ -334,7 +353,7 @@ export default function MentoringApplyPageView({
               {' '}
               <div>
                 {' '}
-                <p className="mb-75 font-designer-13r text-text-subtle">
+                <p className="mb-75 font-designer-13m text-text-subtle">
                   {' '}
                   결제 방식{' '}
                 </p>{' '}
@@ -357,11 +376,11 @@ export default function MentoringApplyPageView({
                         )}
                       >
                         {' '}
-                        <p className="font-designer-14b text-text-default">
+                        <p className="font-designer-13m text-text-default">
                           {' '}
                           {option.label}{' '}
                         </p>{' '}
-                        <p className="mt-50 leading-relaxed font-designer-12r text-text-subtle">
+                        <p className="mt-50 leading-relaxed font-designer-13r text-text-subtle">
                           {' '}
                           {option.description}{' '}
                         </p>{' '}
@@ -374,7 +393,7 @@ export default function MentoringApplyPageView({
                 {' '}
                 <div className="mb-100 flex items-center justify-between gap-100">
                   {' '}
-                  <p className="inline-flex items-center gap-50 font-designer-14b text-text-default">
+                  <p className="inline-flex items-center gap-50 font-designer-13m text-text-default">
                     {' '}
                     <Banknote className="h-14 w-14" />{' '}
                     {viewModel.selectedPaymentMethodCopy.title}{' '}
@@ -386,11 +405,11 @@ export default function MentoringApplyPageView({
                       : '자동 반영'}{' '}
                   </Badge>{' '}
                 </div>{' '}
-                <p className="mb-75 leading-relaxed font-designer-12r text-text-subtle">
+                <p className="mb-75 leading-relaxed font-designer-13r text-text-subtle">
                   {' '}
                   {viewModel.selectedPaymentMethodCopy.description}{' '}
                 </p>{' '}
-                <p className="inline-flex items-start gap-50 leading-relaxed font-designer-12r text-text-subtle">
+                <p className="inline-flex items-start gap-50 leading-relaxed font-designer-13r text-text-subtle">
                   {' '}
                   <CheckCircle2 className="h-14 w-14" />{' '}
                   {viewModel.selectedPaymentMethodCopy.helper}{' '}
@@ -399,11 +418,11 @@ export default function MentoringApplyPageView({
               {viewModel.needsPaymentMemo && (
                 <div>
                   {' '}
-                  <p className="mb-75 font-designer-13r text-text-subtle">
+                  <p className="mb-75 font-designer-13m text-text-subtle">
                     {' '}
                     결제 메모 <span className="text-text-brand">*</span>{' '}
                   </p>{' '}
-                  <p className="mb-75 leading-relaxed font-designer-12r text-text-subtle">
+                  <p className="mb-75 leading-relaxed font-designer-13r text-text-subtle">
                     {' '}
                     입금 시각, 송금자명, 채널을 남겨주세요.{' '}
                   </p>{' '}
@@ -437,7 +456,7 @@ export default function MentoringApplyPageView({
             {' '}
             <div className="mb-125 flex items-center justify-between">
               {' '}
-              <h2 className="font-designer-18b text-text-strong">신청 확인</h2>{' '}
+              <h2 className="font-designer-16b text-text-strong">신청 확인</h2>{' '}
               <Link href="/my-page">
                 {' '}
                 <Button color="outlined" size="small">
@@ -499,7 +518,7 @@ export default function MentoringApplyPageView({
             </div>{' '}
             <div className="rounded-125 bg-background-alternative mt-150 p-150">
               {' '}
-              <p className="mb-75 font-designer-13b text-text-default">
+              <p className="mb-75 font-designer-13m text-text-default">
                 {' '}
                 진행 요약{' '}
               </p>{' '}
@@ -508,11 +527,11 @@ export default function MentoringApplyPageView({
                 {applySummaryItems.map((item) => (
                   <div key={item.label}>
                     {' '}
-                    <p className="mb-25 font-designer-12m text-text-subtle">
+                    <p className="mb-25 font-designer-13m text-text-subtle">
                       {' '}
                       {item.label}{' '}
                     </p>{' '}
-                    <p className="leading-relaxed font-designer-12r text-text-subtle">
+                    <p className="leading-relaxed font-designer-13r text-text-subtle">
                       {' '}
                       {item.value}{' '}
                     </p>{' '}
@@ -522,7 +541,7 @@ export default function MentoringApplyPageView({
             </div>{' '}
             <div className="rounded-125 border-border-subtle mt-150 border p-150">
               {' '}
-              <p className="mb-100 font-designer-13b text-text-default">
+              <p className="mb-100 font-designer-13m text-text-default">
                 {' '}
                 신청 전에 확인할 내용{' '}
               </p>{' '}
@@ -530,22 +549,22 @@ export default function MentoringApplyPageView({
                 {' '}
                 <div>
                   {' '}
-                  <p className="mb-25 font-designer-12m text-text-subtle">
+                  <p className="mb-25 font-designer-13m text-text-subtle">
                     {' '}
                     {acceptancePolicy.title}{' '}
                   </p>{' '}
-                  <p className="leading-relaxed font-designer-12r text-text-subtle">
+                  <p className="leading-relaxed font-designer-13r text-text-subtle">
                     {' '}
                     {acceptancePolicy.description}{' '}
                   </p>{' '}
                 </div>{' '}
                 <div>
                   {' '}
-                  <p className="mb-25 font-designer-12m text-text-subtle">
+                  <p className="mb-25 font-designer-13m text-text-subtle">
                     {' '}
                     환불 및 변경 안내{' '}
                   </p>{' '}
-                  <p className="leading-relaxed font-designer-12r text-text-subtle">
+                  <p className="leading-relaxed font-designer-13r text-text-subtle">
                     {' '}
                     {MENTORING_REFUND_POLICY_DETAIL}.{' '}
                     {MENTORING_CHANGE_AND_NO_SHOW_GUIDE}{' '}
@@ -556,7 +575,7 @@ export default function MentoringApplyPageView({
             {viewModel.isRequestBlockedByOperation ? (
               <div className="rounded-100 border-border-subtle bg-background-accent-orange-subtle mt-150 border px-125 py-100">
                 {' '}
-                <p className="font-designer-13b text-text-default">
+                <p className="font-designer-13m text-text-default">
                   {' '}
                   {viewModel.operationBlockedMessage}{' '}
                 </p>{' '}
@@ -569,7 +588,7 @@ export default function MentoringApplyPageView({
             {remainingChecklist.length > 0 ? (
               <div className="rounded-125 border-border-subtle mt-150 border p-125">
                 {' '}
-                <p className="mb-75 font-designer-13b text-text-default">
+                <p className="mb-75 font-designer-13m text-text-default">
                   {' '}
                   제출 전 체크{' '}
                 </p>{' '}
@@ -587,7 +606,7 @@ export default function MentoringApplyPageView({
             ) : (
               <div className="rounded-125 bg-fill-success-subtle-default mt-150 px-125 py-100">
                 {' '}
-                <p className="font-designer-13b text-text-default">
+                <p className="font-designer-13m text-text-default">
                   {' '}
                   신청 준비가 끝났습니다.{' '}
                 </p>{' '}
@@ -637,14 +656,14 @@ function SummaryRow({
   return (
     <div className="flex items-start justify-between gap-100">
       {' '}
-      <span className="shrink-0 font-designer-12m text-text-subtle">
+      <span className="shrink-0 font-designer-13m text-text-subtle">
         {' '}
         {label}{' '}
       </span>{' '}
       <span
         className={cn(
           'text-right text-text-default',
-          multiline ? 'leading-relaxed font-designer-13r' : 'font-designer-14r',
+          multiline ? 'leading-relaxed font-designer-13r' : 'font-designer-13r',
           strong ? 'font-designer-16b' : '',
         )}
       >
@@ -671,7 +690,7 @@ function ApplyChecklistItem({ label, done }: { label: string; done: boolean }) {
       </span>{' '}
       <span
         className={cn(
-          'font-designer-12r',
+          'font-designer-13r',
           done ? 'text-text-default' : 'text-text-subtle',
         )}
       >

@@ -60,6 +60,7 @@ export default function NoteConsultationContainer({
                 statusFilter={state.statusFilter}
                 statusTabs={viewModel.statusTabs}
                 showChannelTabs={!lockedChannel}
+                compactLayout={hideToolbar}
                 filteredItems={viewModel.filteredItems}
                 itemStatusSummaries={viewModel.itemStatusSummaries}
                 selectedRequestId={state.selectedRequestId}

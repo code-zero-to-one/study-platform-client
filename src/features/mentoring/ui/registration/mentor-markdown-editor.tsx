@@ -84,6 +84,8 @@ const CODE_LANGUAGES = [
 const IMAGE_URL_PATTERN =
   /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i;
 const INSTANT_CODE_BLOCK_INPUT_REGEX = /^```$/;
+const IMAGE_HTML_SRC_PATTERN =
+  /<img[^>]+src=(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi;
 const MENTOR_MARKDOWN_IMAGE_MIN_WIDTH = 80;
 const MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH = 200;
 const MENTOR_MARKDOWN_IMAGE_MAX_WIDTH = 400;
@@ -144,6 +146,72 @@ const MentorCodeBlockExtension = CodeBlockLowlight.extend({
 
 const toFileFromBlob = (blob: Blob, fileName: string): File => {
   return new File([blob], fileName, { type: blob.type });
+};
+
+const isHttpUrl = (value: string) => /^https?:\/\//i.test(value.trim());
+
+const isRenderableImageSrc = (value: string) => {
+  const normalized = value.trim();
+
+  return (
+    normalized.startsWith('http://') ||
+    normalized.startsWith('https://') ||
+    normalized.startsWith('blob:') ||
+    normalized.startsWith('data:image/') ||
+    normalized.startsWith('/')
+  );
+};
+
+const extractImageSourcesFromHtml = (html: string) => {
+  return Array.from(html.matchAll(IMAGE_HTML_SRC_PATTERN))
+    .map((match) => (match[1] ?? match[2] ?? match[3] ?? '').trim())
+    .filter((src) => src.length > 0);
+};
+
+const extractImageFiles = (transfer: DataTransfer | undefined): File[] => {
+  if (!transfer) {
+    return [];
+  }
+
+  const filesFromItems = Array.from(transfer.items ?? [])
+    .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+    .map((item) => item.getAsFile() ?? undefined)
+    .filter((file): file is File => file !== undefined);
+
+  const filesFromFileList = Array.from(transfer.files ?? []).filter((file) =>
+    file.type.startsWith('image/'),
+  );
+
+  if (filesFromItems.length > 0) {
+    return filesFromItems;
+  }
+
+  return filesFromFileList;
+};
+
+const toFileFromDataUrl = (
+  dataUrl: string,
+  fileName: string,
+): File | undefined => {
+  const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
+  if (!match) {
+    return undefined;
+  }
+
+  const mimeType = match[1];
+  const base64 = match[2];
+
+  try {
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let index = 0; index < binary.length; index += 1) {
+      bytes[index] = binary.charCodeAt(index);
+    }
+
+    return new File([bytes], fileName, { type: mimeType });
+  } catch {
+    return undefined;
+  }
 };
 
 const guessExtensionFromMime = (mimeType: string): string => {
@@ -209,6 +277,8 @@ function MentorMarkdownEditor({
   const [, forceEditorRerender] = useState(0);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const editorContentWrapperRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<Editor | null>(null);
+  const objectUrlRegistryRef = useRef<string[]>([]);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeMentorMarkdownContent(value);
 
@@ -225,11 +295,18 @@ function MentorMarkdownEditor({
         file,
       });
 
+      const imageSrc = isRenderableImageSrc(ticket.publicUrl)
+        ? ticket.publicUrl
+        : URL.createObjectURL(file);
+      if (imageSrc !== ticket.publicUrl) {
+        objectUrlRegistryRef.current.push(imageSrc);
+      }
+
       editor
         .chain()
         .focus()
         .setImage({
-          src: ticket.publicUrl,
+          src: imageSrc,
           width: MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH,
         })
         .run();
@@ -370,6 +447,15 @@ function MentorMarkdownEditor({
     [maxImageCount, uploadAndInsertFile],
   );
 
+  useEffect(() => {
+    return () => {
+      objectUrlRegistryRef.current.forEach((objectUrl) => {
+        URL.revokeObjectURL(objectUrl);
+      });
+      objectUrlRegistryRef.current = [];
+    };
+  }, []);
+
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
@@ -395,6 +481,12 @@ function MentorMarkdownEditor({
       }),
     ],
     content: normalizedValue || '',
+    onCreate: ({ editor: createdEditor }) => {
+      editorRef.current = createdEditor;
+    },
+    onDestroy: () => {
+      editorRef.current = null;
+    },
     onUpdate: ({ editor: updatedEditor }) => {
       isInternalUpdate.current = true;
       onChange(normalizeMentorMarkdownContent(updatedEditor.getHTML()));
@@ -422,15 +514,11 @@ function MentorMarkdownEditor({
           return false;
         }
 
-        const imageFiles = Array.from(clipboardData.files).filter((file) =>
-          file.type.startsWith('image/'),
-        );
+        const imageFiles = extractImageFiles(clipboardData);
 
         if (imageFiles.length > 0) {
           event.preventDefault();
-          const editorInstance = view.state
-            ? (view as unknown as { editor?: Editor }).editor
-            : undefined;
+          const editorInstance = editorRef.current;
 
           if (editorInstance) {
             handleImageFiles(editorInstance, imageFiles).catch(() => {
@@ -444,8 +532,9 @@ function MentorMarkdownEditor({
         const pastedText = clipboardData.getData('text/plain').trim();
         if (pastedText && isImageUrl(pastedText)) {
           event.preventDefault();
-          const editorInstance = (view as unknown as { editor?: Editor })
-            .editor;
+          const editorInstance =
+            editorRef.current ??
+            (view as unknown as { editor?: Editor }).editor;
 
           if (editorInstance) {
             handlePasteImageUrl(editorInstance, pastedText).catch(() => {
@@ -456,24 +545,70 @@ function MentorMarkdownEditor({
           return true;
         }
 
+        const pastedHtml = clipboardData.getData('text/html').trim();
+        const htmlImageSources = extractImageSourcesFromHtml(pastedHtml);
+        if (htmlImageSources.length > 0) {
+          event.preventDefault();
+          const editorInstance = editorRef.current;
+          if (!editorInstance) {
+            return true;
+          }
+
+          const dataUrlFiles = htmlImageSources
+            .filter((source) => source.startsWith('data:image/'))
+            .map((source, index) => {
+              const file = toFileFromDataUrl(
+                source,
+                `pasted-image-${Date.now()}-${index + 1}.png`,
+              );
+
+              return file;
+            })
+            .filter((file): file is File => file !== undefined);
+
+          if (dataUrlFiles.length > 0) {
+            handleImageFiles(editorInstance, dataUrlFiles).catch(() => {
+              setImageInsertError('이미지 붙여넣기에 실패했습니다.');
+            });
+
+            return true;
+          }
+
+          const imageUrlSource = htmlImageSources.find((source) => {
+            return isHttpUrl(source);
+          });
+
+          if (imageUrlSource) {
+            handlePasteImageUrl(editorInstance, imageUrlSource).catch(() => {
+              setImageInsertError('이미지 URL 처리에 실패했습니다.');
+            });
+
+            return true;
+          }
+
+          setImageInsertError(
+            '이미지 붙여넣기에 실패했습니다. 이미지 파일을 직접 복사해서 다시 시도해주세요.',
+          );
+
+          return true;
+        }
+
         return false;
       },
-      handleDrop: (view, event) => {
+      handleDrop: (_view, event) => {
         const dataTransfer = event.dataTransfer;
         if (!dataTransfer) {
           return false;
         }
 
-        const imageFiles = Array.from(dataTransfer.files).filter((file) =>
-          file.type.startsWith('image/'),
-        );
+        const imageFiles = extractImageFiles(dataTransfer);
 
         if (imageFiles.length === 0) {
           return false;
         }
 
         event.preventDefault();
-        const editorInstance = (view as unknown as { editor?: Editor }).editor;
+        const editorInstance = editorRef.current;
 
         if (editorInstance) {
           handleImageFiles(editorInstance, imageFiles).catch(() => {
@@ -715,12 +850,13 @@ function MentorMarkdownEditor({
         accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
         className="hidden"
         onChange={(event) => {
-          if (!editor) {
+          const editorInstance = editorRef.current;
+          if (!editorInstance) {
             return;
           }
 
           const files = Array.from(event.target.files ?? []);
-          handleImageFiles(editor, files).catch(() => {
+          handleImageFiles(editorInstance, files).catch(() => {
             setImageInsertError(
               '이미지 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
             );

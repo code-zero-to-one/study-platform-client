@@ -2,7 +2,6 @@ import { ArrowLeft, ClipboardList } from 'lucide-react';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import Badge from '@/components/common/ui/badge';
-import Button from '@/components/common/ui/button';
 import SectionShell from '@/components/common/ui/section-shell';
 import {
   getMyMentoringStatusGuide,
@@ -12,11 +11,12 @@ import {
   MENTORING_REFUND_POLICY_GUIDE,
 } from '@/features/mentoring/model/mentoring-flow-policy';
 import {
-  getMyMentoringSecondaryActionMeta,
+  getMyMentoringMethodType,
   MENTORING_SESSION_GUIDE_LABEL,
   MY_MENTORING_METHOD_LABEL_MAP,
   MY_MENTORING_STATUS_META,
 } from '@/features/mentoring/model/my-mentoring-display-meta';
+import { mentoringMethodIconMap } from '@/features/mentoring/ui/common/mentoring-method-icons';
 import type {
   MyMentoringItem,
   MyMentoringStatus,
@@ -41,8 +41,6 @@ const TEXT = {
   memoTitle: '멘토에게 전달한 내용',
   operationTitle: '운영 기록',
   currentPriorityTitle: '지금 먼저 할 일',
-  nextStepsTitle: '다음으로 확인할 것',
-  actionSectionTitle: '다음 행동',
   requestedTitle: '멘토가 신청 내용을 확인하고 있습니다.',
   pendingTitle: '일정 조율이 진행 중입니다.',
   confirmedTitle: '일정이 확정되었습니다.',
@@ -118,10 +116,7 @@ const getImmediateActionCard = (mentoring: MyMentoringItem) => {
 };
 const getNextSteps = (mentoring: MyMentoringItem) => {
   if (mentoring.status === 'REQUESTED') {
-    return [
-      '보통 24시간 안에 멘토 확인이 시작됩니다.',
-      '수락/거절 결과는 알림함에서 먼저 확인하세요.',
-    ];
+    return ['보통 24시간 안에 멘토 확인이 시작됩니다.'];
   }
   if (mentoring.status === 'PENDING') {
     return [
@@ -255,78 +250,6 @@ const getReasonTitle = (status: MyMentoringStatus) => {
 
   return null;
 };
-const getPrimaryAction = (mentoring: MyMentoringItem) => {
-  return {
-    href: mentoring.nextActionHref,
-    label: mentoring.nextActionLabel,
-    color: 'primary' as const,
-  };
-};
-const getSecondaryAction = (mentoring: MyMentoringItem) => {
-  const action = getMyMentoringSecondaryActionMeta(mentoring);
-
-  return { href: action.href, label: action.label, color: 'outlined' as const };
-};
-const getActionDescriptions = (mentoring: MyMentoringItem) => {
-  if (mentoring.status === 'REQUESTED') {
-    return {
-      primary: '수락 또는 거절 결과가 먼저 반영되는 곳입니다.',
-      secondary:
-        '기다리는 동안 멘토 프로필과 상담 방식만 다시 확인해두면 충분합니다.',
-    };
-  }
-  if (mentoring.status === 'PENDING') {
-    return {
-      primary:
-        '멘토가 보낸 조율안이나 확정 결과를 가장 빨리 확인할 수 있습니다.',
-      secondary: '준비물과 상담 기대치를 다시 맞출 때만 멘토 프로필을 보세요.',
-    };
-  }
-  if (mentoring.status === 'CONFIRMED') {
-    return {
-      primary: '직전 변경이나 링크 안내는 알림함에서 가장 먼저 갱신됩니다.',
-      secondary: '준비물과 상담 스타일을 다시 복기할 때 유용합니다.',
-    };
-  }
-  if (mentoring.status === 'COMPLETED') {
-    return {
-      primary: '상담 직후에 남기는 후기가 가장 정확합니다.',
-      secondary:
-        '같은 흐름을 이어가고 싶다면 바로 다시 신청하는 편이 빠릅니다.',
-    };
-  }
-  if (mentoring.status === 'NO_SHOW') {
-    return mentoring.refundStatus === 'PENDING'
-      ? {
-          primary: '환불 또는 후속 안내가 먼저 오는 곳입니다.',
-          secondary:
-            '정리가 끝난 뒤에는 다른 멘토 후보를 바로 비교할 수 있습니다.',
-        }
-      : {
-          primary: '같은 주제가 급하면 같은 방식으로 바로 다시 신청하세요.',
-          secondary:
-            '다른 멘토 후보를 같이 보고 싶다면 목록으로 돌아가면 됩니다.',
-        };
-  }
-  if (mentoring.status === 'CANCELLED') {
-    return mentoring.refundStatus === 'PENDING'
-      ? {
-          primary:
-            '취소 후속과 환불 진행은 알림 기준으로 먼저 확인하는 편이 안전합니다.',
-          secondary: '다음 후보를 비교하고 싶다면 멘토 목록으로 돌아가세요.',
-        }
-      : {
-          primary:
-            '같은 멘토와 다시 진행할 생각이면 같은 방식으로 재신청하는 편이 가장 빠릅니다.',
-          secondary: '다른 멘토도 같이 비교하려면 멘토 목록으로 돌아가세요.',
-        };
-  }
-
-  return {
-    primary: '다른 멘토를 바로 비교해 새로 신청하는 편이 빠릅니다.',
-    secondary: '같은 멘토를 다시 볼 필요가 있을 때만 프로필을 확인하세요.',
-  };
-};
 export default function MyMentoringDetailPage({
   mentoring,
 }: MyMentoringDetailPageProps) {
@@ -340,9 +263,6 @@ export default function MyMentoringDetailPage({
       ? TEXT.sessionGuideFallback
       : undefined);
   const reasonTitle = getReasonTitle(mentoring.status);
-  const primaryAction = getPrimaryAction(mentoring);
-  const secondaryAction = getSecondaryAction(mentoring);
-  const actionDescriptions = getActionDescriptions(mentoring);
   const nextSteps = getNextSteps(mentoring);
   const issuePlaybook = getMentoringIssuePlaybook({
     viewer: 'mentee',
@@ -358,6 +278,9 @@ export default function MyMentoringDetailPage({
     mentoring.preferredWindow !== undefined &&
     mentoring.preferredWindow !== '' &&
     mentoring.preferredWindow !== mentoring.mentoringTime;
+  const MethodIcon = mentoringMethodIconMap[
+    getMyMentoringMethodType(mentoring.method)
+  ];
 
   return (
     <SectionShell className="gap-300">
@@ -384,8 +307,10 @@ export default function MyMentoringDetailPage({
           <div className="mb-75 flex flex-wrap items-center gap-75">
             {' '}
             <Badge color="blue" shape="round">
-              {' '}
-              {MY_MENTORING_METHOD_LABEL_MAP[mentoring.method]}{' '}
+              <span className="inline-flex items-center gap-50">
+                <MethodIcon className="h-14 w-14" />
+                {MY_MENTORING_METHOD_LABEL_MAP[mentoring.method]}
+              </span>
             </Badge>{' '}
             <Badge
               color={MY_MENTORING_STATUS_META[mentoring.status].color}
@@ -573,11 +498,6 @@ export default function MyMentoringDetailPage({
             </section>
           ) : null}{' '}
           <section>
-            {' '}
-            <h2 className="mb-150 font-designer-16b text-text-default">
-              {' '}
-              {TEXT.nextStepsTitle}{' '}
-            </h2>{' '}
             <div className="rounded-150 border-border-subtle bg-background-alternative space-y-100 border px-150 py-125">
               {' '}
               {nextSteps.map((step, index) => (
@@ -637,30 +557,6 @@ export default function MyMentoringDetailPage({
               </div>{' '}
             </section>
           ) : null}{' '}
-          <section>
-            {' '}
-            <h2 className="mb-150 font-designer-16b text-text-default">
-              {' '}
-              {TEXT.actionSectionTitle}{' '}
-            </h2>{' '}
-            <div className="grid gap-100 sm:grid-cols-2">
-              {' '}
-              <DetailActionCard
-                title={primaryAction.label}
-                description={actionDescriptions.primary}
-                href={primaryAction.href}
-                buttonColor={primaryAction.color}
-                tone="brand"
-              />{' '}
-              <DetailActionCard
-                title={secondaryAction.label}
-                description={actionDescriptions.secondary}
-                href={secondaryAction.href}
-                buttonColor={secondaryAction.color}
-                tone="subtle"
-              />{' '}
-            </div>{' '}
-          </section>{' '}
         </div>{' '}
       </div>{' '}
     </SectionShell>
@@ -678,44 +574,6 @@ function InfoRow({ label, children }: { label: string; children: ReactNode }) {
         {' '}
         {children}{' '}
       </div>{' '}
-    </div>
-  );
-}
-function DetailActionCard({
-  title,
-  description,
-  href,
-  buttonColor,
-  tone,
-}: {
-  title: string;
-  description: string;
-  href: string;
-  buttonColor: 'primary' | 'outlined';
-  tone: 'brand' | 'subtle';
-}) {
-  return (
-    <div
-      className={`rounded-150 border px-150 py-150 ${tone === 'brand' ? 'border-border-brand bg-background-accent-blue-subtle' : 'border-border-subtle bg-background-alternative'}`}
-    >
-      {' '}
-      <p
-        className={`leading-relaxed font-designer-13m ${tone === 'brand' ? 'text-text-brand' : 'text-text-subtle'}`}
-      >
-        {' '}
-        {title}{' '}
-      </p>{' '}
-      <p className="mt-50 leading-relaxed font-designer-12r text-text-subtle">
-        {' '}
-        {description}{' '}
-      </p>{' '}
-      <Link href={href} className="mt-125 block">
-        {' '}
-        <Button size="medium" color={buttonColor} className="w-full">
-          {' '}
-          {title}{' '}
-        </Button>{' '}
-      </Link>{' '}
     </div>
   );
 }

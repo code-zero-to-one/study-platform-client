@@ -42,6 +42,7 @@ export const noteConsultationRequestSchema = z.object({
   requestedAt: z.string(),
   preferredDate: z.string().optional(),
   preferredTime: z.string().optional(),
+  requestTitle: z.string().optional(),
   requestMessage: z.string(),
   // request contents는 구조가 확장 중이라 경계에서 타입만 유지합니다.
   requestContents: z.array(z.custom<MentoringRequestContentBlock>()).optional(),

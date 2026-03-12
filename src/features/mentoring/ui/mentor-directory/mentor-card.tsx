@@ -57,6 +57,7 @@ const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
 };
 
 const MAX_KEYWORD_COUNT = 5;
+
 export default function MentorCard({ mentor }: MentorCardProps) {
   const router = useRouter();
   const mentorSettings = getMentorSettings(mentor);

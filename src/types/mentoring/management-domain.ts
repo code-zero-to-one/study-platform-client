@@ -55,6 +55,7 @@ export interface MentoringRequest {
   requestedAt: string;
   preferredDate?: string;
   preferredTime?: string;
+  requestTitle?: string;
   requestMessage: string;
   requestContents?: MentoringRequestContentBlock[];
   attachedFileNames?: string[];

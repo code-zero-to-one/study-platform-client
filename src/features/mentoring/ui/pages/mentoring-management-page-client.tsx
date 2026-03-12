@@ -16,6 +16,7 @@ import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-uti
 import { useMyMentorProfileQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
+import MentoringViewTabs from '@/features/mentoring/ui/common/mentoring-view-tabs';
 import MentorManagementWorkspace from '@/features/mentoring/ui/management/mentor-management-workspace';
 import NoteConsultationContainer from '@/features/mentoring/ui/note-consultation/note-consultation-container';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
@@ -159,43 +160,11 @@ function MentoringManagementReady({
       />{' '}
       <section className="rounded-200 border-border-subtle bg-background-default border p-150">
         {' '}
-        <div className="bg-background-alternative rounded-150 grid grid-cols-1 gap-75 p-50 md:grid-cols-2">
-          {' '}
-          {viewTabs.map((tab) => {
-            const isActive = tab.key === activeView;
-
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveView(tab.key)}
-                className={`rounded-100 px-200 py-200 text-left transition-colors ${isActive ? 'bg-fill-brand-subtle-default' : 'hover:bg-background-default'}`}
-              >
-                {' '}
-                <div className="flex items-start justify-between gap-100">
-                  {' '}
-                  <div className="min-w-0">
-                    {' '}
-                    <p
-                      className={`font-designer-15b ${isActive ? 'text-text-brand' : 'text-text-default'}`}
-                    >
-                      {' '}
-                      {tab.label}{' '}
-                    </p>{' '}
-                    <p className="mt-25 font-designer-12r text-text-subtle">
-                      {' '}
-                      {tab.description}{' '}
-                    </p>{' '}
-                  </div>{' '}
-                  <span className="shrink-0 font-designer-12m text-text-subtle">
-                    {' '}
-                    {tab.count}건{' '}
-                  </span>{' '}
-                </div>{' '}
-              </button>
-            );
-          })}{' '}
-        </div>{' '}
+        <MentoringViewTabs
+          tabs={viewTabs}
+          activeKey={activeView}
+          onChange={(key) => setActiveView(key as ManagementViewTab)}
+        />{' '}
       </section>{' '}
       {activeView === 'NOTE' ? (
         <NoteConsultationContainer

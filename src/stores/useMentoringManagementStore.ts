@@ -942,6 +942,7 @@ export const useMentoringManagementStore = create<MentoringManagementState>()(
             requestedAt: now,
             preferredDate: payload.preferredDate,
             preferredTime: payload.preferredTime,
+            requestTitle: payload.requestTitle?.trim() || undefined,
             requestMessage: payload.requestMessage,
             requestContents: payload.requestContents,
             attachedFileNames: payload.attachedFileNames,

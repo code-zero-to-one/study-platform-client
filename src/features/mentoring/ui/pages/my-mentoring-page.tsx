@@ -1,5 +1,5 @@
 'use client';
-import { CalendarDays, ChevronRight, UserRound } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import Avatar from '@/components/common/ui/avatar';
@@ -8,10 +8,16 @@ import Button from '@/components/common/ui/button';
 import SectionHeader from '@/components/common/ui/section-header';
 import SectionShell from '@/components/common/ui/section-shell';
 import {
+  getMyMentoringMethodType,
   MENTORING_SESSION_GUIDE_LABEL,
   MY_MENTORING_METHOD_LABEL_MAP,
   MY_MENTORING_STATUS_META,
 } from '@/features/mentoring/model/my-mentoring-display-meta';
+import MentoringCardInfoRow from '@/features/mentoring/ui/common/mentoring-card-info-row';
+import MentoringEmptyPanel from '@/features/mentoring/ui/common/mentoring-empty-panel';
+import MentoringStageSelector from '@/features/mentoring/ui/common/mentoring-stage-selector';
+import { mentoringMethodIconMap } from '@/features/mentoring/ui/common/mentoring-method-icons';
+import MentoringViewTabs from '@/features/mentoring/ui/common/mentoring-view-tabs';
 import NoteConsultationContainer from '@/features/mentoring/ui/note-consultation/note-consultation-container';
 import type {
   MyMentoringItem,
@@ -51,34 +57,42 @@ const TEXT = {
   cancelledFallback: '확정된 일정이 취소되었습니다.',
   rejectedFallback: '신청이 거절되었습니다.',
 };
-const getScheduleText = (mentoring: MyMentoringItem) => {
+const getScheduleMeta = (mentoring: MyMentoringItem) => {
   if (mentoring.status === 'CONFIRMED') {
-    return mentoring.mentoringTime ?? TEXT.requestedFallback;
+    return {
+      label: TEXT.requestedPrefix,
+      value: mentoring.mentoringTime ?? TEXT.requestedFallback,
+    };
   }
   if (mentoring.status === 'REQUESTED' || mentoring.status === 'PENDING') {
-    return mentoring.pendingWindow
-      ? `${TEXT.requestedPrefix}: ${mentoring.pendingWindow}`
-      : TEXT.requestedFallback;
+    return {
+      label: TEXT.requestedPrefix,
+      value: mentoring.pendingWindow ?? TEXT.requestedFallback,
+    };
   }
   if (mentoring.status === 'COMPLETED') {
-    return mentoring.mentoringTime
-      ? `${TEXT.completedPrefix}: ${mentoring.mentoringTime}`
-      : TEXT.completedFallback;
+    return {
+      label: TEXT.completedPrefix,
+      value: mentoring.mentoringTime ?? TEXT.completedFallback,
+    };
   }
   if (mentoring.status === 'NO_SHOW') {
-    return mentoring.mentoringTime
-      ? `${TEXT.noShowPrefix}: ${mentoring.mentoringTime}`
-      : TEXT.noShowFallback;
+    return {
+      label: TEXT.noShowPrefix,
+      value: mentoring.mentoringTime ?? TEXT.noShowFallback,
+    };
   }
   if (mentoring.status === 'CANCELLED') {
-    return mentoring.mentoringTime
-      ? `${TEXT.cancelledPrefix}: ${mentoring.mentoringTime}`
-      : TEXT.cancelledFallback;
+    return {
+      label: TEXT.cancelledPrefix,
+      value: mentoring.mentoringTime ?? TEXT.cancelledFallback,
+    };
   }
 
-  return mentoring.pendingWindow
-    ? `${TEXT.rejectedPrefix}: ${mentoring.pendingWindow}`
-    : TEXT.rejectedFallback;
+  return {
+    label: TEXT.rejectedPrefix,
+    value: mentoring.pendingWindow ?? TEXT.rejectedFallback,
+  };
 };
 const getReservationStageKey = (
   status: MyMentoringStatus,
@@ -208,43 +222,11 @@ export default function MyMentoringPage({
       />{' '}
       <section className="rounded-200 border-border-subtle bg-background-default border p-150">
         {' '}
-        <div className="grid grid-cols-1 gap-75 p-50 md:grid-cols-2 bg-background-alternative rounded-150">
-          {' '}
-          {viewTabs.map((tab) => {
-            const isActive = tab.key === activeView;
-
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => setActiveView(tab.key)}
-                className={`rounded-100 px-200 py-200 text-left transition-colors ${isActive ? 'bg-fill-brand-subtle-default' : 'hover:bg-background-default'}`}
-              >
-                {' '}
-                <div className="flex items-start justify-between gap-100">
-                  {' '}
-                  <div className="min-w-0">
-                    {' '}
-                    <p
-                      className={`font-designer-15b ${isActive ? 'text-text-brand' : 'text-text-default'}`}
-                    >
-                      {' '}
-                      {tab.label}{' '}
-                    </p>{' '}
-                    <p className="mt-25 font-designer-12r text-text-subtle">
-                      {' '}
-                      {tab.description}{' '}
-                    </p>{' '}
-                  </div>{' '}
-                  <span className="shrink-0 font-designer-12m text-text-subtle">
-                    {' '}
-                    {tab.count}건{' '}
-                  </span>{' '}
-                </div>{' '}
-              </button>
-            );
-          })}{' '}
-        </div>{' '}
+        <MentoringViewTabs
+          tabs={viewTabs}
+          activeKey={activeView}
+          onChange={(key) => setActiveView(key as MyMentoringViewTab)}
+        />{' '}
       </section>{' '}
       {activeView === 'NOTE' ? (
         <NoteConsultationContainer
@@ -274,56 +256,20 @@ export default function MyMentoringPage({
               전체 {items.length}건{' '}
             </p>{' '}
           </div>{' '}
-          <div className="grid grid-cols-1 gap-125 lg:grid-cols-3">
-            {' '}
-            {reservationStages.map((stage) => {
-              const isActive = stage.key === activeReservationStage;
-
-              return (
-                <button
-                  key={stage.key}
-                  type="button"
-                  onClick={() => setActiveReservationStage(stage.key)}
-                  className={`rounded-150 border p-200 text-left transition-colors ${isActive ? 'border-border-brand bg-background-default' : 'border-border-subtle bg-background-default hover:bg-background-alternative'}`}
-                >
-                  {' '}
-                  <div className="flex items-center justify-between">
-                    {' '}
-                    <div className="flex items-center gap-100">
-                      {' '}
-                      <span
-                        className={`inline-flex h-300 w-300 shrink-0 items-center justify-center rounded-full font-designer-12b ${isActive ? 'bg-fill-brand-default-default text-text-inverse' : 'bg-background-alternative text-text-subtle'}`}
-                      >
-                        {' '}
-                        {stage.step}{' '}
-                      </span>{' '}
-                      <span
-                        className={`font-designer-15b ${isActive ? 'text-text-brand' : 'text-text-default'}`}
-                      >
-                        {' '}
-                        {stage.label}{' '}
-                      </span>{' '}
-                    </div>{' '}
-                    <span className="shrink-0 font-designer-13m text-text-subtle">
-                      {' '}
-                      {stage.count}건{' '}
-                    </span>{' '}
-                  </div>{' '}
-                  <p className="mt-100 font-designer-12r text-text-subtle">
-                    {' '}
-                    {stage.description}{' '}
-                  </p>{' '}
-                </button>
-              );
-            })}{' '}
-          </div>{' '}
+          <MentoringStageSelector
+            stages={reservationStages}
+            activeKey={activeReservationStage}
+            onChange={(key) =>
+              setActiveReservationStage(key as ReservationStageKey)
+            }
+          />{' '}
           {filteredReservationItems.length === 0 ? (
-            <EmptyPanel
+            <MentoringEmptyPanel
               title={activeReservationStageMeta.emptyTitle}
               description={activeReservationStageMeta.emptyDescription}
             />
           ) : (
-            <div className="grid grid-cols-1 gap-150 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-125 md:grid-cols-2 xl:grid-cols-3">
               {' '}
               {filteredReservationItems.map((mentoring) => (
                 <ReservationMentoringCard
@@ -338,54 +284,38 @@ export default function MyMentoringPage({
     </SectionShell>
   );
 }
-function EmptyPanel({
-  title,
-  description,
-}: {
-  title: string;
-  description: string;
-}) {
-  return (
-    <div className="rounded-150 bg-background-alternative px-200 py-250 text-center">
-      {' '}
-      <p className="font-designer-15b text-text-default">{title}</p>{' '}
-      <p className="mt-50 font-designer-13r text-text-subtle">
-        {' '}
-        {description}{' '}
-      </p>{' '}
-    </div>
-  );
-}
 function ReservationMentoringCard({
   mentoring,
 }: {
   mentoring: MyMentoringItem;
 }) {
   const detailCopy = getReservationDetailCopy(mentoring);
+  const scheduleMeta = getScheduleMeta(mentoring);
   const statusMeta = MY_MENTORING_STATUS_META[mentoring.status];
+  const MethodIcon = mentoringMethodIconMap[
+    getMyMentoringMethodType(mentoring.method)
+  ];
 
   return (
-    <article className="rounded-150 border-border-subtle bg-background-default flex h-full flex-col border p-200">
+    <article className="rounded-200 border-border-subtle bg-background-default flex h-full flex-col border p-200">
       {' '}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-100">
         {' '}
-        <div className="flex min-w-0 items-center gap-75">
-          {' '}
-          <span className="shrink-0 font-designer-12m text-text-subtle">
-            {' '}
-            {getReservationMethodLabel(mentoring)}{' '}
-          </span>{' '}
-          <span className="truncate font-designer-12r text-text-subtle">
-            {' '}
-            · {detailCopy.metaText}{' '}
-          </span>{' '}
+        <div className="min-w-0">
+          <p className="font-designer-13m text-text-default inline-flex items-center gap-50">
+            <MethodIcon className="text-text-brand h-14 w-14 shrink-0" />
+            {getReservationMethodLabel(mentoring)}
+          </p>
+          <p className="mt-25 line-clamp-1 font-designer-12r text-text-subtle">
+            {detailCopy.metaText}
+          </p>
         </div>{' '}
-        <Badge color={statusMeta.color} shape="rectangle">
+        <Badge color={statusMeta.color} shape="rectangle" className="shrink-0">
           {' '}
           {statusMeta.label}{' '}
         </Badge>{' '}
       </div>{' '}
-      <div className="mt-150 flex items-center gap-125">
+      <div className="mt-150 flex items-center gap-100">
         {' '}
         <Avatar
           image={mentoring.mentorImageUrl}
@@ -398,42 +328,33 @@ function ReservationMentoringCard({
           {`${mentoring.mentorName} 멘토`}{' '}
         </h3>{' '}
       </div>{' '}
-      <div className="bg-background-alternative mt-150 rounded-100 p-150">
-        {' '}
-        <div className="flex items-start gap-75">
-          {' '}
-          <CalendarDays className="mt-25 h-14 w-14 shrink-0 text-text-subtle" />{' '}
-          <p className="font-designer-13m text-text-default">
-            {' '}
-            {getScheduleText(mentoring)}{' '}
-          </p>{' '}
-        </div>{' '}
-        <div className="mt-100 flex items-start gap-75">
-          {' '}
-          <UserRound className="mt-25 h-14 w-14 shrink-0 text-text-subtle" />{' '}
-          <p className="line-clamp-2 font-designer-13r text-text-subtle">
-            {' '}
-            {detailCopy.detailText}{' '}
-          </p>{' '}
-        </div>{' '}
+      <div className="bg-background-alternative border-border-subtle mt-150 rounded-100 border p-150">
+        <MentoringCardInfoRow
+          label={scheduleMeta.label}
+          value={scheduleMeta.value}
+          valueClassName="font-designer-13m text-text-default"
+        />
+        <MentoringCardInfoRow
+          label={detailCopy.detailLabel}
+          value={detailCopy.detailText}
+          className="mt-100"
+          valueClassName="line-clamp-2 font-designer-13r text-text-subtle"
+        />
       </div>{' '}
-      <div className="mt-auto flex items-center justify-between pt-175">
-        {' '}
-        <Link href={mentoring.detailHref}>
-          {' '}
-          <Button color="outlined" size="small">
-            {' '}
-            {TEXT.reservationCardActionLabel}{' '}
-          </Button>{' '}
-        </Link>{' '}
+      <div className="mt-auto flex flex-wrap items-center justify-end gap-100 pt-150">
+        <Button asChild color="outlined" size="small">
+          <Link href={mentoring.detailHref}>{TEXT.reservationCardActionLabel}</Link>
+        </Button>
         {shouldShowReservationAction(mentoring) ? (
-          <Link
-            href={mentoring.nextActionHref}
-            className="hover:text-text-default inline-flex items-center gap-25 transition-colors font-designer-13m text-text-subtle"
-          >
-            {' '}
-            {mentoring.nextActionLabel} <ChevronRight className="h-14 w-14" />{' '}
-          </Link>
+          <Button asChild color="primary" size="small">
+            <Link
+              href={mentoring.nextActionHref}
+              className="inline-flex items-center gap-25"
+            >
+              {mentoring.nextActionLabel}
+              <ChevronRight className="h-14 w-14" />
+            </Link>
+          </Button>
         ) : null}{' '}
       </div>{' '}
     </article>

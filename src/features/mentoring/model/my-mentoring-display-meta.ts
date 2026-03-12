@@ -3,6 +3,7 @@ import type {
   MyMentoringMethod,
   MyMentoringStatus,
 } from '@/types/mentoring/my-mentoring';
+import type { MentoringMethodType } from '@/types/mentoring/domain';
 
 type MyMentoringBadgeColor = 'green' | 'orange' | 'blue' | 'red';
 
@@ -21,6 +22,16 @@ export const MY_MENTORING_METHOD_LABEL_MAP: Record<MyMentoringMethod, string> =
     CALL: '간편상담',
   };
 
+export const getMyMentoringMethodType = (
+  method: MyMentoringMethod,
+): MentoringMethodType => {
+  return method === 'ONLINE'
+    ? 'deep'
+    : method === 'OFFLINE'
+      ? 'offline'
+      : 'simple';
+};
+
 export const MY_MENTORING_STATUS_META: Record<
   MyMentoringStatus,
   { label: string; color: MyMentoringBadgeColor }
@@ -37,12 +48,7 @@ export const MY_MENTORING_STATUS_META: Record<
 export const getMyMentoringReapplyHref = (
   mentoring: Pick<MyMentoringItem, 'method' | 'mentorId'>,
 ) => {
-  const type =
-    mentoring.method === 'ONLINE'
-      ? 'deep'
-      : mentoring.method === 'OFFLINE'
-        ? 'offline'
-        : 'simple';
+  const type = getMyMentoringMethodType(mentoring.method);
 
   return `/mentoring/${mentoring.mentorId}/apply?type=${type}`;
 };
