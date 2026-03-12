@@ -74,6 +74,7 @@ export interface CreateMentoringRequestParams {
   menteeRole: string;
   preferredDate?: string;
   preferredTime?: string;
+  requestTitle?: string;
   requestMessage: string;
   requestContents?: MentoringRequestContentBlock[];
   attachedFileNames?: string[];

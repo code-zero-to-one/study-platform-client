@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import MyPageContentLayout from '@/components/common/layout/sidebar/my-page-content-layout';
 import Sidebar from '@/components/common/layout/sidebar/my-page-sidebar';
 
 export const metadata: Metadata = {
@@ -14,9 +15,7 @@ export default function MyLayout({
   return (
     <div className="flex h-full">
       <Sidebar />
-      <div className="m-600 flex-1 pb-[100px]">
-        <div className="w-full">{children}</div>
-      </div>
+      <MyPageContentLayout>{children}</MyPageContentLayout>
     </div>
   );
 }

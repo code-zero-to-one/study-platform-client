@@ -116,6 +116,7 @@ interface UseMentoringApplyControllerParams {
 export interface MentoringApplyControllerState {
   selectedDate: Date | undefined;
   selectedTime: string;
+  requestTitle: string;
   requestContents: MentoringRequestContentBlock[];
   paymentMemo: string;
   selectedPaymentMethod: MentoringApplyPaymentMethod;
@@ -125,6 +126,7 @@ export interface MentoringApplyControllerState {
 export interface MentoringApplyControllerActions {
   onDatePickerSelect: (nextDate: Date | DateRange | undefined) => void;
   onTimeSelect: (timeSlot: string) => void;
+  onRequestTitleChange: (nextRequestTitle: string) => void;
   onRequestContentsChange: (
     nextContents: MentoringRequestContentBlock[],
   ) => void;
@@ -138,11 +140,15 @@ export interface MentoringApplyControllerActions {
 export interface MentoringApplyControllerViewModel {
   selectedOption: MentorProfile['methods'][MentoringMethodType];
   needsSchedule: boolean;
+  requiresRequestTitle: boolean;
   requiresAttachment: boolean;
   minSelectableDate: Date;
   availableTimeSlots: string[];
   scheduleStepNumber: number;
   messageStepNumber: number;
+  requestTitleLength: number;
+  isRequestTitleTooShort: boolean;
+  shouldShowRequestTitleError: boolean;
   requestTextLength: number;
   isRequestTextTooShort: boolean;
   shouldShowAttachmentError: boolean;
@@ -168,6 +174,8 @@ export interface MentoringApplyControllerResult {
   viewModel: MentoringApplyControllerViewModel;
 }
 
+const REQUEST_TITLE_MIN_LENGTH = 2;
+
 export const useMentoringApplyController = ({
   mentor,
   selectedMethod,
@@ -188,6 +196,7 @@ export const useMentoringApplyController = ({
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState('');
+  const [requestTitle, setRequestTitle] = useState('');
   const [requestContents, setRequestContents] = useState<
     MentoringRequestContentBlock[]
   >([createMentoringRequestRichTextBlock()]);
@@ -200,6 +209,7 @@ export const useMentoringApplyController = ({
   const selectedOption = mentor.methods[selectedMethod];
   const mentorSettings = getMentorSettings(mentor);
   const needsSchedule = selectedOption.requiresSchedule;
+  const requiresRequestTitle = selectedMethod === 'note';
   const requiresAttachment = selectedMethod === 'note';
   const methodDurationMinutes =
     parseDurationLabelToMinutes(selectedOption.durationLabel) ??
@@ -267,6 +277,8 @@ export const useMentoringApplyController = ({
   const requestMessage = useMemo(() => {
     return buildMentoringRequestMessage(requestContents);
   }, [requestContents]);
+  const normalizedRequestTitle = requestTitle.trim();
+  const requestTitleLength = normalizedRequestTitle.length;
   const attachedFileNames = useMemo(() => {
     return getMentoringRequestAttachedFileNames(requestContents);
   }, [requestContents]);
@@ -275,6 +287,9 @@ export const useMentoringApplyController = ({
   }, [requestContents]);
 
   const isValidForm = useMemo(() => {
+    const hasRequestTitle = requiresRequestTitle
+      ? requestTitleLength >= REQUEST_TITLE_MIN_LENGTH
+      : true;
     const hasMessage = requestTextLength >= 10;
     const isAttachmentValid = requiresAttachment ? hasAttachment : true;
     const hasPaymentMemo = needsPaymentMemo
@@ -282,10 +297,11 @@ export const useMentoringApplyController = ({
       : true;
 
     if (!needsSchedule) {
-      return hasMessage && isAttachmentValid && hasPaymentMemo;
+      return hasRequestTitle && hasMessage && isAttachmentValid && hasPaymentMemo;
     }
 
     return (
+      hasRequestTitle &&
       hasMessage &&
       selectedDate !== undefined &&
       selectedTime !== '' &&
@@ -297,11 +313,17 @@ export const useMentoringApplyController = ({
     needsPaymentMemo,
     needsSchedule,
     paymentMemo,
+    requestTitleLength,
     requestTextLength,
+    requiresRequestTitle,
     requiresAttachment,
     selectedDate,
     selectedTime,
   ]);
+  const shouldShowRequestTitleError =
+    requiresRequestTitle &&
+    requestTitleLength < REQUEST_TITLE_MIN_LENGTH &&
+    hasSubmitAttempt;
 
   const shouldShowAttachmentError =
     requiresAttachment && !hasAttachment && hasSubmitAttempt;
@@ -369,6 +391,8 @@ export const useMentoringApplyController = ({
           : undefined,
         preferredTime:
           preferredTimeStart === '' ? undefined : preferredTimeStart,
+        requestTitle:
+          normalizedRequestTitle.length > 0 ? normalizedRequestTitle : undefined,
         requestMessage,
         requestContents: sanitizeMentoringRequestContents(requestContents),
         attachedFileNames:
@@ -396,6 +420,7 @@ export const useMentoringApplyController = ({
     state: {
       selectedDate,
       selectedTime,
+      requestTitle,
       requestContents,
       paymentMemo,
       selectedPaymentMethod,
@@ -404,6 +429,7 @@ export const useMentoringApplyController = ({
     actions: {
       onDatePickerSelect: handleDatePickerSelect,
       onTimeSelect: setSelectedTime,
+      onRequestTitleChange: setRequestTitle,
       onRequestContentsChange: setRequestContents,
       onPaymentMemoChange: setPaymentMemo,
       onPaymentMethodSelect: setSelectedPaymentMethod,
@@ -412,11 +438,17 @@ export const useMentoringApplyController = ({
     viewModel: {
       selectedOption,
       needsSchedule,
+      requiresRequestTitle,
       requiresAttachment,
       minSelectableDate: minSelectableDate.toDate(),
       availableTimeSlots,
       scheduleStepNumber: 1,
       messageStepNumber: needsSchedule ? 2 : 1,
+      requestTitleLength,
+      isRequestTitleTooShort:
+        requiresRequestTitle &&
+        requestTitleLength < REQUEST_TITLE_MIN_LENGTH,
+      shouldShowRequestTitleError,
       requestTextLength,
       isRequestTextTooShort: requestTextLength < 10,
       shouldShowAttachmentError,

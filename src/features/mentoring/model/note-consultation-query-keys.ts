@@ -60,6 +60,7 @@ const toNoteRequestSignature = (
             request.status,
             request.paymentStatus,
             request.requestedAt,
+            request.requestTitle?.length ?? 0,
             request.requestMessage.length,
             request.conversation.length,
             lastMessage?.id ?? '',

@@ -12,6 +12,7 @@ export interface NoteConsultationFiltersProps {
   statusFilter: NoteConsultationStatusFilter;
   statusTabs: NoteConsultationStatusTab[];
   showChannelTabs?: boolean;
+  compactLayout?: boolean;
   onActiveChannelChange: (channel: NoteConsultationChannel) => void;
   onStatusFilterChange: (filter: NoteConsultationStatusFilter) => void;
 }
@@ -19,6 +20,7 @@ export interface NoteConsultationListProps {
   items: NoteConsultationListItem[];
   itemStatusSummaries: Record<string, NoteConsultationItemStatusSummary>;
   selectedRequestId: string;
+  compactLayout?: boolean;
   onSelectRequestId: (requestId: string) => void;
 }
 export interface NoteConsultationGridProps {
@@ -26,6 +28,7 @@ export interface NoteConsultationGridProps {
   statusFilter: NoteConsultationStatusFilter;
   statusTabs: NoteConsultationStatusTab[];
   showChannelTabs?: boolean;
+  compactLayout?: boolean;
   filteredItems: NoteConsultationListItem[];
   itemStatusSummaries: Record<string, NoteConsultationItemStatusSummary>;
   selectedRequestId: string;

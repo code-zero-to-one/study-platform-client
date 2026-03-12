@@ -227,7 +227,7 @@ export default function MentoringRequestEditor({
                   <p className="font-designer-13r text-text-default truncate">
                     {block.fileName}
                   </p>
-                  <p className="font-designer-11r text-text-subtle mt-25">
+                  <p className="font-designer-12r text-text-subtle mt-25">
                     {getAttachmentKindLabel(block)}
                   </p>
                 </div>

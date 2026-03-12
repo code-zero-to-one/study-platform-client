@@ -1,9 +1,6 @@
-import * as React from 'react';
-import SurfacePanel from '@/components/common/ui/surface-panel';
-
 interface MentoringEmptyPanelProps {
-  title: React.ReactNode;
-  description?: React.ReactNode;
+  title: string;
+  description: string;
 }
 
 export default function MentoringEmptyPanel({
@@ -11,13 +8,11 @@ export default function MentoringEmptyPanel({
   description,
 }: MentoringEmptyPanelProps) {
   return (
-    <SurfacePanel className="px-250 py-300 text-center">
-      <p className="font-designer-18b text-text-default">{title}</p>
-      {description ? (
-        <p className="font-designer-14r text-text-subtle mt-75">
-          {description}
-        </p>
-      ) : null}
-    </SurfacePanel>
+    <div className="rounded-150 bg-background-alternative px-200 py-250 text-center">
+      <p className="font-designer-15b text-text-default">{title}</p>
+      <p className="mt-50 font-designer-13r text-text-subtle">
+        {description}
+      </p>
+    </div>
   );
 }

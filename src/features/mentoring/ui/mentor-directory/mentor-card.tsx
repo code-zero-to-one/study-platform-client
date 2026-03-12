@@ -4,13 +4,9 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import {
   Briefcase,
   Building2,
-  MessageCircle,
-  Monitor,
-  Phone,
   Star,
   TrendingUp,
   UserRound,
-  Users,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { type KeyboardEvent } from 'react';
@@ -23,6 +19,7 @@ import {
   getLowestPriceOption,
   getMentorSettings,
 } from '@/features/mentoring/model/mentor-profile-utils';
+import { mentoringMethodIconMap } from '@/features/mentoring/ui/common/mentoring-method-icons';
 import type { MentorCardProps } from '@/types/mentoring/directory-view';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 
@@ -45,13 +42,6 @@ const methodLabelMap: Record<MentoringMethodType, string> = {
   simple: 'text-text-brand',
   deep: 'text-text-brand',
   offline: 'text-text-brand',
-};
-
-const methodIconMap: Record<MentoringMethodType, typeof MessageCircle> = {
-  note: MessageCircle,
-  simple: Phone,
-  deep: Monitor,
-  offline: Users,
 };
 
 const MAX_KEYWORD_COUNT = 6;
@@ -215,7 +205,7 @@ export default function MentorCard({ mentor }: MentorCardProps) {
           )}
         >
           {METHOD_ORDER.map((method) => {
-            const Icon = methodIconMap[method];
+            const Icon = mentoringMethodIconMap[method];
             const isEnabled = availableMethods[method];
 
             return (

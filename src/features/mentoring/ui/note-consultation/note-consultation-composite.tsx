@@ -92,6 +92,23 @@ const getQuestionTitle = (content: string, questionOrder: number) => {
 
   return `${firstLine.slice(0, 42)}...`;
 };
+
+const getRequestTitle = (
+  request: Pick<MentoringRequest, 'requestTitle' | 'requestMessage'>,
+  fallback: string,
+) => {
+  const explicitTitle = request.requestTitle?.trim();
+  if (explicitTitle && explicitTitle.length > 0) {
+    return explicitTitle;
+  }
+  const firstLine = request.requestMessage
+    .split('\n')
+    .map((line) => line.trim())
+    .find((line) => line.length > 0);
+
+  return firstLine || fallback;
+};
+
 const buildQuestionBoard = (
   request: MentoringRequest,
 ): BoardQuestionEntry[] => {
@@ -103,9 +120,13 @@ const buildQuestionBoard = (
   messages.forEach((message) => {
     if (message.sender === 'MENTEE') {
       const nextQuestionOrder = board.length + 1;
+      const defaultTitle = getQuestionTitle(message.content, nextQuestionOrder);
       const question: BoardQuestionEntry = {
         id: `${request.id}-question-${message.id}`,
-        title: getQuestionTitle(message.content, nextQuestionOrder),
+        title:
+          nextQuestionOrder === 1
+            ? getRequestTitle(request, defaultTitle)
+            : defaultTitle,
         content: message.content.trim() || '질문 본문이 비어 있습니다.',
         createdAt: message.createdAt,
         answers: [],
@@ -118,7 +139,7 @@ const buildQuestionBoard = (
     if (!activeQuestion) {
       const fallbackQuestion: BoardQuestionEntry = {
         id: `${request.id}-question-fallback`,
-        title: getQuestionTitle(request.requestMessage, 1),
+        title: getRequestTitle(request, '질문 1'),
         content: request.requestMessage.trim() || '질문 본문이 비어 있습니다.',
         createdAt: request.requestedAt,
         answers: [],
@@ -135,7 +156,7 @@ const buildQuestionBoard = (
   if (board.length === 0) {
     board.push({
       id: `${request.id}-question-initial`,
-      title: getQuestionTitle(request.requestMessage, 1),
+      title: getRequestTitle(request, '질문 1'),
       content: request.requestMessage.trim() || '질문 본문이 비어 있습니다.',
       createdAt: request.requestedAt,
       answers: [],
@@ -196,7 +217,7 @@ function RequestListCard({
 }) {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const detailRows = getMentoringDetailRows(item.request);
-  const title = item.request.requestMessage.trim() || '멘토링 쪽지 상담';
+  const title = getRequestTitle(item.request, '멘토링 쪽지 상담');
 
   return (
     <>
@@ -312,9 +333,6 @@ function DetailPanel({
   onBack: () => void;
 }) {
   const questionBoard = buildQuestionBoard(request);
-  const totalAnswerCount = questionBoard.reduce((count, question) => {
-    return count + question.answers.length;
-  }, 0);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden bg-background-default">
@@ -365,18 +383,6 @@ function DetailPanel({
       </header>{' '}
       <div className="min-h-0 overflow-y-auto overscroll-contain min-h-0 flex-1 px-250 pb-250">
         {' '}
-        <section className="rounded-200 border-border-subtle bg-background-alternative mt-175 border px-200 py-175">
-          {' '}
-          <p className="mb-50 font-designer-16b text-text-default">
-            {' '}
-            질문 게시판{' '}
-          </p>{' '}
-          <p className="mt-50 leading-relaxed font-designer-13r text-text-subtle">
-            {' '}
-            질문 {questionBoard.length}건, 멘토 답변 {totalAnswerCount}건이
-            누적되어 표시됩니다.{' '}
-          </p>{' '}
-        </section>{' '}
         <div className="mt-175 space-y-150">
           {' '}
           {questionBoard.map((question, questionIndex) => (
@@ -424,6 +430,30 @@ function DetailPanel({
                         className="rounded-150 bg-background-alternative px-150 py-125"
                       >
                         {' '}
+                        <div className="mb-75 flex min-w-0 items-center gap-75">
+                          {' '}
+                          <ParticipantProfileAvatar
+                            name={displayName}
+                            imageUrl={counterpartProfileImageUrl}
+                            memberId={counterpartMemberId}
+                            size={28}
+                          />{' '}
+                          <div className="min-w-0">
+                            {' '}
+                            <p className="truncate font-designer-12m text-text-default">
+                              {' '}
+                              {displayName}{' '}
+                            </p>{' '}
+                            <p className="truncate font-designer-11r text-text-subtle">
+                              {' '}
+                              {displayRole || '상담 참여자'}{' '}
+                            </p>{' '}
+                            <p className="mt-25 truncate font-designer-11r text-text-subtlest">
+                              {' '}
+                              요청 시각 {formatDateTime(request.requestedAt)}{' '}
+                            </p>{' '}
+                          </div>{' '}
+                        </div>{' '}
                         <p className="mb-50 font-designer-12m text-text-brand">
                           {' '}
                           답변 {answerIndex + 1}{' '}
@@ -472,7 +502,7 @@ export function NoteConsultationHeader() {
       </div>{' '}
       <p className="max-w-[720px] font-designer-14r text-text-subtle">
         {' '}
-        신청 내역을 목록에서 선택하면 질문 게시판과 멘토 답변을 바로 확인합니다.{' '}
+        신청 내역을 목록에서 선택하면 질문과 멘토 답변을 바로 확인합니다.{' '}
       </p>{' '}
     </header>
   );
@@ -495,7 +525,7 @@ export function NoteConsultationEmpty() {
       </p>{' '}
       <p className="mb-250 font-designer-14r text-text-subtle">
         {' '}
-        신청만 있어도 이 곳에서 질문 게시판과 멘토 답변을 확인할 수 있어요.{' '}
+        신청만 있어도 이 곳에서 질문과 멘토 답변을 확인할 수 있어요.{' '}
       </p>{' '}
       <Link href="/mentoring">
         {' '}
@@ -512,6 +542,7 @@ export function NoteConsultationFilters({
   statusFilter,
   statusTabs,
   showChannelTabs = true,
+  compactLayout = false,
   onActiveChannelChange,
   onStatusFilterChange,
 }: NoteConsultationFiltersProps) {
@@ -521,7 +552,9 @@ export function NoteConsultationFilters({
   }
 
   return (
-    <div className="px-250 py-175 flex flex-col gap-75">
+    <div
+      className={`flex flex-col gap-75 ${compactLayout ? '' : 'px-250 py-175'}`}
+    >
       {' '}
       {showChannelTabs ? (
         <div className="bg-background-alternative rounded-150 flex p-50">
@@ -598,10 +631,17 @@ export function NoteConsultationFilters({
 export function NoteConsultationList({
   items,
   selectedRequestId,
+  compactLayout = false,
   onSelectRequestId,
 }: NoteConsultationListProps) {
   return (
-    <div className="min-h-[640px] flex-1 space-y-100 px-250 py-175 min-h-0 overflow-y-auto overscroll-contain">
+    <div
+      className={
+        compactLayout
+          ? 'min-h-0 flex-1 space-y-100 overflow-y-auto overscroll-contain'
+          : 'min-h-[640px] min-h-0 flex-1 space-y-100 px-250 py-175 overflow-y-auto overscroll-contain'
+      }
+    >
       {' '}
       {items.length === 0 ? (
         <div className="rounded-150 bg-background-alternative px-150 py-175 text-center">
@@ -669,6 +709,7 @@ export function NoteConsultationGrid({
   statusFilter,
   statusTabs,
   showChannelTabs = true,
+  compactLayout = false,
   filteredItems,
   itemStatusSummaries,
   selectedRequestId,
@@ -683,7 +724,7 @@ export function NoteConsultationGrid({
   const board = (
     <>
       {' '}
-      <div className="px-250 pt-250 pb-150">
+      <div className={compactLayout ? 'pb-150' : 'px-250 pt-250 pb-150'}>
         {' '}
         <h2 className="font-designer-20b text-text-default">상담 목록</h2>{' '}
         <p className="mt-25 font-designer-12r text-text-subtle">
@@ -696,6 +737,7 @@ export function NoteConsultationGrid({
         statusFilter={statusFilter}
         statusTabs={statusTabs}
         showChannelTabs={showChannelTabs}
+        compactLayout={compactLayout}
         onActiveChannelChange={onActiveChannelChange}
         onStatusFilterChange={onStatusFilterChange}
       />{' '}
@@ -707,12 +749,21 @@ export function NoteConsultationGrid({
         items={filteredItems}
         itemStatusSummaries={itemStatusSummaries}
         selectedRequestId={selectedRequestId}
+        compactLayout={compactLayout}
         onSelectRequestId={onSelectRequestId}
       />{' '}
     </>
   );
   if (!selectedItem) {
-    return <div className="min-h-0 flex flex-col">{board}</div>;
+    return (
+      <div
+        className={
+          compactLayout ? 'min-h-0 flex flex-col gap-200' : 'min-h-0 flex flex-col'
+        }
+      >
+        {board}
+      </div>
+    );
   }
 
   return (

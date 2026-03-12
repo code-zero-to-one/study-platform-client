@@ -1,8 +1,8 @@
 'use client';
 import dayjs from 'dayjs';
-import { CalendarDays, Check, ChevronRight, UserRound, X } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import Avatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import {
@@ -11,6 +11,10 @@ import {
   MENTORING_SESSION_STATUS_META,
 } from '@/features/mentoring/model/management-status-meta';
 import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
+import MentoringCardInfoRow from '@/features/mentoring/ui/common/mentoring-card-info-row';
+import MentoringEmptyPanel from '@/features/mentoring/ui/common/mentoring-empty-panel';
+import { mentoringMethodIconMap } from '@/features/mentoring/ui/common/mentoring-method-icons';
+import MentoringStageSelector from '@/features/mentoring/ui/common/mentoring-stage-selector';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type {
@@ -24,9 +28,12 @@ const EMPTY_SESSIONS: MentoringSession[] = [];
 interface ManagementCardItem {
   id: string;
   requestId: string;
+  method: MentoringRequest['method'];
   menteeName: string;
+  menteeRole: string;
   methodLabel: string;
   dateLabel: string;
+  scheduleLabel: string;
   scheduleText: string;
   previewText: string;
   previewLabel: string;
@@ -102,12 +109,20 @@ const getScheduleText = (
   if (request.preferredDate) {
     const date = dayjs(request.preferredDate).format('YYYY.MM.DD');
 
-    return request.preferredTime
-      ? `희망 일정: ${date} ${request.preferredTime}`
-      : `희망 일정: ${date}`;
+    return request.preferredTime ? `${date} ${request.preferredTime}` : date;
   }
 
   return '일정 미정';
+};
+const getScheduleLabel = (
+  request: MentoringRequest,
+  session?: MentoringSession,
+) => {
+  if (session?.status === 'SCHEDULED') {
+    return '확정 일정';
+  }
+
+  return request.status === 'REJECTED' ? '신청 일정' : '멘티 희망 일정';
 };
 const getPreviewInfo = (
   request: MentoringRequest,
@@ -143,9 +158,12 @@ const buildManagementCards = (
       return {
         id: session?.id ?? request.id,
         requestId: request.id,
+        method: request.method,
         menteeName: request.menteeName,
+        menteeRole: request.menteeRole,
         methodLabel: getMethodLabel(request.method),
         dateLabel: `신청일 ${dayjs(request.requestedAt).format('YYYY.MM.DD')}`,
+        scheduleLabel: getScheduleLabel(request, session),
         scheduleText: getScheduleText(request, session),
         previewText: preview.text,
         previewLabel: preview.label,
@@ -277,63 +295,21 @@ export default function MentorManagementWorkspace({
               전체 {cards.length}건{' '}
             </p>{' '}
           </div>{' '}
-          <div className="grid grid-cols-1 gap-125 lg:grid-cols-3">
-            {' '}
-            {STAGES.map((stage) => {
-              const isActive = stage.key === activeStage;
-
-              return (
-                <button
-                  key={stage.key}
-                  type="button"
-                  onClick={() => setActiveStage(stage.key)}
-                  className={`rounded-150 border p-200 text-left transition-colors ${isActive ? 'border-border-brand bg-background-default' : 'border-border-subtle bg-background-default hover:bg-background-alternative'}`}
-                >
-                  {' '}
-                  <div className="flex items-center justify-between">
-                    {' '}
-                    <div className="flex items-center gap-100">
-                      {' '}
-                      <span
-                        className={`inline-flex h-300 w-300 shrink-0 items-center justify-center rounded-full font-designer-12b ${isActive ? 'bg-fill-brand-default-default text-text-inverse' : 'bg-background-alternative text-text-subtle'}`}
-                      >
-                        {' '}
-                        {stage.step}{' '}
-                      </span>{' '}
-                      <span
-                        className={`font-designer-15b ${isActive ? 'text-text-brand' : 'text-text-default'}`}
-                      >
-                        {' '}
-                        {stage.label}{' '}
-                      </span>{' '}
-                    </div>{' '}
-                    <span className="shrink-0 font-designer-13m text-text-subtle">
-                      {' '}
-                      {stageCounts[stage.key]}건{' '}
-                    </span>{' '}
-                  </div>{' '}
-                  <p className="mt-100 font-designer-12r text-text-subtle">
-                    {' '}
-                    {stage.description}{' '}
-                  </p>{' '}
-                </button>
-              );
-            })}{' '}
-          </div>{' '}
+          <MentoringStageSelector
+            stages={STAGES.map((stage) => ({
+              ...stage,
+              count: stageCounts[stage.key],
+            }))}
+            activeKey={activeStage}
+            onChange={(key) => setActiveStage(key as ManagementStageKey)}
+          />{' '}
           {filteredCards.length === 0 ? (
-            <div className="rounded-150 bg-background-alternative px-200 py-250 text-center">
-              {' '}
-              <p className="font-designer-15b text-text-default">
-                {' '}
-                {activeStageMeta.emptyTitle}{' '}
-              </p>{' '}
-              <p className="mt-50 font-designer-13r text-text-subtle">
-                {' '}
-                {activeStageMeta.emptyDescription}{' '}
-              </p>{' '}
-            </div>
+            <MentoringEmptyPanel
+              title={activeStageMeta.emptyTitle}
+              description={activeStageMeta.emptyDescription}
+            />
           ) : (
-            <div className="grid grid-cols-1 gap-150 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-125 md:grid-cols-2 xl:grid-cols-3">
               {' '}
               {filteredCards.map((card) => (
                 <ManagementCard
@@ -359,96 +335,74 @@ function ManagementCard({
   onAccept: () => void;
   onReject: () => void;
 }) {
+  const MethodIcon = mentoringMethodIconMap[card.method];
+
   return (
-    <article className="rounded-150 border-border-subtle bg-background-default flex h-full flex-col border p-200">
+    <article className="rounded-200 border-border-subtle bg-background-default flex h-full flex-col border p-200">
       {' '}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start justify-between gap-100">
         {' '}
-        <div className="flex min-w-0 items-center gap-75">
-          {' '}
-          <span className="shrink-0 font-designer-12m text-text-subtle">
-            {' '}
-            {card.methodLabel}{' '}
-          </span>{' '}
-          <span className="truncate font-designer-12r text-text-subtle">
-            {' '}
-            · {card.dateLabel}{' '}
-          </span>{' '}
+        <div className="min-w-0">
+          <p className="font-designer-13m text-text-default inline-flex items-center gap-50">
+            <MethodIcon className="text-text-brand h-14 w-14 shrink-0" />
+            {card.methodLabel}
+          </p>
+          <p className="mt-25 line-clamp-1 font-designer-12r text-text-subtle">
+            {card.dateLabel}
+          </p>
         </div>{' '}
-        <Badge color={card.statusColor} shape="rectangle">
+        <Badge
+          color={card.statusColor}
+          shape="rectangle"
+          className="shrink-0"
+        >
           {' '}
           {card.statusLabel}{' '}
         </Badge>{' '}
       </div>{' '}
-      <div className="mt-150">
-        {' '}
-        <h3 className="line-clamp-1 font-designer-16b text-text-default">
-          {' '}
-          {card.menteeName}{' '}
-        </h3>{' '}
+      <div className="mt-150 flex items-center gap-100">
+        <Avatar
+          image={undefined}
+          alt={`${card.menteeName} 프로필`}
+          size={40}
+          className="shrink-0"
+        />
+        <div className="min-w-0">
+          <h3 className="line-clamp-1 font-designer-16b text-text-default">
+            {card.menteeName}
+          </h3>
+          <p className="mt-25 line-clamp-1 font-designer-12r text-text-subtle">
+            {card.menteeRole}
+          </p>
+        </div>
       </div>{' '}
-      <div className="bg-background-alternative mt-150 rounded-100 p-150">
-        {' '}
-        <div className="flex items-start gap-75">
-          {' '}
-          <CalendarDays className="text-text-subtle mt-25 h-14 w-14 shrink-0" />{' '}
-          <p className="font-designer-13m text-text-default">
-            {' '}
-            {card.scheduleText}{' '}
-          </p>{' '}
-        </div>{' '}
-        <div className="mt-100 flex items-start gap-75">
-          {' '}
-          <UserRound className="text-text-subtle mt-25 h-14 w-14 shrink-0" />{' '}
-          <p className="line-clamp-2 font-designer-13r text-text-subtle">
-            {' '}
-            {card.previewText}{' '}
-          </p>{' '}
-        </div>{' '}
+      <div className="bg-background-alternative border-border-subtle mt-150 rounded-100 border p-150">
+        <MentoringCardInfoRow
+          label={card.scheduleLabel}
+          value={card.scheduleText}
+          valueClassName="font-designer-13m text-text-default"
+        />
+        <MentoringCardInfoRow
+          label={card.previewLabel}
+          value={card.previewText}
+          className="mt-100"
+          valueClassName="line-clamp-2 font-designer-13r text-text-subtle"
+        />
       </div>{' '}
-      <div className="mt-auto pt-175">
-        {' '}
+      <div className="mt-auto flex flex-wrap items-center justify-end gap-100 pt-150">
+        <Button asChild color="outlined" size="small">
+          <Link href={card.detailHref}>상세 보기</Link>
+        </Button>
+        {card.canReject ? (
+          <Button color="outlined" size="small" onClick={onReject}>
+            거절
+          </Button>
+        ) : null}
         {card.canAccept ? (
-          <div className="flex items-center gap-100">
-            {' '}
-            <Button
-              color="primary"
-              size="small"
-              icon={<Check className="h-14 w-14" />}
-              onClick={onAccept}
-            >
-              {' '}
-              수락{' '}
-            </Button>{' '}
-            <Button
-              color="outlined"
-              size="small"
-              icon={<X className="h-14 w-14" />}
-              onClick={onReject}
-            >
-              {' '}
-              거절{' '}
-            </Button>{' '}
-            <Link
-              href={card.detailHref}
-              className="hover:text-text-default ml-auto inline-flex items-center gap-25 transition-colors font-designer-13m text-text-subtle"
-            >
-              {' '}
-              상세 <ChevronRight className="h-14 w-14" />{' '}
-            </Link>{' '}
-          </div>
-        ) : (
-          <div className="flex items-center justify-between">
-            {' '}
-            <Link href={card.detailHref}>
-              {' '}
-              <Button color="outlined" size="small">
-                {' '}
-                상세 보기{' '}
-              </Button>{' '}
-            </Link>{' '}
-          </div>
-        )}{' '}
+          <Button color="primary" size="small" onClick={onAccept}>
+            수락
+          </Button>
+        ) : null}
       </div>{' '}
     </article>
   );
