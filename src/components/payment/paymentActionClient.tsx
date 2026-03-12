@@ -1,6 +1,7 @@
 'use client';
 
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { StudyPaymentPrepareResponse } from '@/api/openapi';
 import PaymentTermsModal from '@/components/common/modals/payment-terms-modal';
@@ -9,6 +10,11 @@ import { useUserStore } from '@/stores/useUserStore';
 import Button from '../common/ui/button';
 import Checkbox from '../common/ui/checkbox';
 import { RadioGroup, RadioGroupItem } from '../common/ui/radio';
+
+const PaymentTermsModal = dynamic(
+  () => import('@/components/common/modals/payment-terms-modal'),
+  { ssr: false },
+);
 
 interface Props {
   study: StudyPaymentPrepareResponse;

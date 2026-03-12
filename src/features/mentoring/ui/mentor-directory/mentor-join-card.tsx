@@ -1,8 +1,12 @@
 import { UserRoundPlus } from 'lucide-react';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
+import dynamic from 'next/dynamic';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { MENTORING_LIST_LABELS } from '@/features/mentoring/const/mentoring-list-labels';
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+);
 
 interface MentorJoinCardProps {
   memberId: number | undefined;

@@ -4,12 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import type { GroupStudyFullResponseDto } from '@/api/openapi';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import { Modal } from '@/components/common/ui/modal';
 import GroupStudyForm from '@/components/forms/group-study-form';
 import { useAuthReady } from '@/hooks/common/use-auth';
@@ -28,6 +28,11 @@ import {
   toCreateRequest,
   toUpdateRequest,
 } from '@/types/schemas/group-study-form.schema';
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+  { ssr: false },
+);
 
 interface GroupStudyModalProps {
   trigger?: React.ReactNode;
@@ -59,7 +64,9 @@ export default function GroupStudyFormModal({
     data: groupStudyInfo,
     isLoading: isGroupStudyLoading,
     refetch: refetchGroupStudyInfo,
-  } = useGroupStudyDetailQuery(groupStudyId!);
+  } = useGroupStudyDetailQuery(
+    mode === 'edit' && controlledOpen ? (groupStudyId ?? 0) : 0,
+  );
 
   const {
     isVerified,

@@ -1,10 +1,10 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo } from 'react';
 import { GroupStudyFullResponseDto } from '@/api/openapi';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
@@ -14,6 +14,11 @@ import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury'
 import { CurriculumSummaryItem } from '@/types/api/group-study.types';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
 
 interface StudyInfoSectionProps {
   study: GroupStudyFullResponseDto;

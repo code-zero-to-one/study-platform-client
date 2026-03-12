@@ -1,9 +1,8 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import React, { useState } from 'react';
-import StartStudyModal from '@/components/common/modals/start-study-modal';
-import StudyReviewModal from '@/components/common/modals/study-review-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import { ToggleSwitch } from '@/components/common/ui/toggle';
@@ -15,6 +14,16 @@ import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import CodeIcon from 'public/icons/code.svg';
 import SettingIcon from 'public/icons/setting.svg';
+
+const StartStudyModal = dynamic(
+  () => import('@/components/common/modals/start-study-modal'),
+  { ssr: false },
+);
+
+const StudyReviewModal = dynamic(
+  () => import('@/components/common/modals/study-review-modal'),
+  { ssr: false },
+);
 
 interface MyProfileCardProps {
   memberId: number;
@@ -41,8 +50,12 @@ export default function MyProfileCard({
   studyApplied,
   sincerityTemp,
 }: MyProfileCardProps) {
-  const { showReviewReminder, setShowReviewReminder } =
-    useReviewReminder(memberId);
+  const {
+    showReviewReminder,
+    setShowReviewReminder,
+    applyDismissPreference,
+    targetStudySpaceId,
+  } = useReviewReminder(memberId);
 
   const [enabled, setEnabled] = useState(matching);
   const [isStartStudyModalOpen, setIsStartStudyModalOpen] = useState(false); // 모달 상태 추가
@@ -77,6 +90,8 @@ export default function MyProfileCard({
       <StudyReviewModal
         open={showReviewReminder}
         onOpenChange={setShowReviewReminder}
+        onDismissPreferenceChange={applyDismissPreference}
+        targetStudySpaceId={targetStudySpaceId}
       />
       {/* 스터디 신청 모달 (토글 클릭 시 실행됨) */}
       <StartStudyModal

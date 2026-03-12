@@ -1,10 +1,9 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
+import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
-import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
-import GroupStudyFormModal from '@/components/common/modals/group-study-form-modal';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
@@ -23,6 +22,16 @@ import {
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
 import { GroupStudyFullResponse, Leader } from '@/types/api/group-study.types';
+
+const ConfirmDeleteModal = dynamic(
+  () => import('@/components/common/modals/confirm-delete-modal'),
+  { ssr: false },
+);
+
+const GroupStudyFormModal = dynamic(
+  () => import('@/components/common/modals/group-study-form-modal'),
+  { ssr: false },
+);
 
 type ActionKey = 'end' | 'delete';
 

@@ -4,13 +4,12 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 import type { Metadata } from 'next';
+import { createApiServerInstance } from '@/api/client/open-api-instance.server';
 import { getGroupStudyDetailInServer } from '@/api/endpoints/group-study/get-group-study-detail.server';
 import { getGroupStudyMyStatusInServer } from '@/api/endpoints/group-study/get-group-study-my-status.server';
 import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-management-api';
-import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
 import StudyDetailPage from '@/components/pages/group-study-detail-page';
-import { GroupStudyDetailResponse } from '@/types/api/group-study.types';
 import { getServerCookie } from '@/utils/server-cookie';
 
 interface Props {
@@ -25,11 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
 
   try {
-    const config = new Configuration({
-      basePath: process.env.NEXT_PUBLIC_API_BASE_URL,
-    });
-
-    const groupStudyApi = new GroupStudyManagementApi(config, config.basePath);
+    const groupStudyApi = createApiServerInstance(GroupStudyManagementApi);
 
     const response = await groupStudyApi.getGroupStudy(Number(id));
     const groupStudy = (response.data as GroupStudyResponse)?.content;
@@ -109,7 +104,7 @@ export default async function Page({
     queryFn: () => getGroupStudyDetailInServer({ groupStudyId: Number(id) }),
   });
 
-  const data = queryClient.getQueryData<GroupStudyDetailResponse>([
+  const data = queryClient.getQueryData<GroupStudyFullResponseDto>([
     'groupStudyDetail',
     Number(id),
   ])!;
@@ -117,7 +112,7 @@ export default async function Page({
   const memberIdStr = await getServerCookie('memberId');
   const memberId = memberIdStr ? Number(memberIdStr) : undefined;
 
-  const isLeader = data.basicInfo.leader.memberId === memberId;
+  const isLeader = data.basicInfo?.leader?.memberId === memberId;
 
   if (!isLeader && memberId) {
     // 내가 리더가 아닐 경우에만 내 신청 상태 정보 미리 가져오기

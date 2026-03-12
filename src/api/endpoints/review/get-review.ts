@@ -1,6 +1,7 @@
 import { axiosInstance } from '@/api/client/axios';
 import type {
   AddStudyReviewRequest,
+  DismissStudyReviewModalRequest,
   UserPositiveKeywordsResponse,
   UserPositiveKeywordsRequest,
   StudyEvaluationResponse,
@@ -8,7 +9,7 @@ import type {
   MyNegativeKeywordsResponse,
   MyReviewsResponse,
   MyReviewsRequest,
-  ShouldReviewPartnerResponse,
+  StudyReviewModalStateResponse,
 } from '@/types/api/review.types';
 
 export const getPartnerStudyReview =
@@ -81,9 +82,17 @@ export const getMyReviews = async ({
   return res.data.content;
 };
 
-export const getShouldReviewPartner =
-  async (): Promise<ShouldReviewPartnerResponse> => {
-    const res = await axiosInstance.get('/study/reviews/this-week/is-writer');
+export const getStudyReviewModalState =
+  async (): Promise<StudyReviewModalStateResponse> => {
+    const res = await axiosInstance.get('/study/reviews/this-week/modal-state');
 
     return res.data.content;
   };
+
+export const dismissStudyReviewModal = async ({
+  targetStudySpaceId,
+}: DismissStudyReviewModalRequest) => {
+  await axiosInstance.post('/study/reviews/this-week/modal-dismiss', {
+    targetStudySpaceId,
+  });
+};

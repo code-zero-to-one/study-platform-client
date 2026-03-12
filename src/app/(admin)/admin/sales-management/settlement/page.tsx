@@ -1,14 +1,13 @@
 'use client';
 
 import { format } from 'date-fns';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import {
   SettlementSearchConditionStatusEnum,
   StudySettlementSummaryResponse,
 } from '@/api/openapi/models';
-import AdminApproveSettlementModal from '@/components/common/modals/admin-approve-settlement-modal';
-import AdminCompleteSettlementModal from '@/components/common/modals/admin-complete-settlement-modal';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
@@ -17,6 +16,16 @@ import { BaseInput } from '@/components/common/ui/input';
 import Pagination from '@/components/common/ui/pagination';
 import { useGetSettlementsForAdmin } from '@/hooks/queries/admin-settlement-api';
 import { formatToKST } from '@/utils/time';
+
+const AdminApproveSettlementModal = dynamic(
+  () => import('@/components/common/modals/admin-approve-settlement-modal'),
+  { ssr: false },
+);
+
+const AdminCompleteSettlementModal = dynamic(
+  () => import('@/components/common/modals/admin-complete-settlement-modal'),
+  { ssr: false },
+);
 
 const SETTLEMENT_STATUS_MAP: Record<
   StudySettlementSummaryResponse['status'],

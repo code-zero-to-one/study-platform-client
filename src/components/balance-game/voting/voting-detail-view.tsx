@@ -11,12 +11,11 @@ import {
   Lock,
   Share2,
 } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import React, { useState, useEffect } from 'react';
 import DailyStatsChart from '@/components/balance-game/voting/daily-stats-chart';
 import VoteResultsChart from '@/components/balance-game/voting/vote-results-chart';
 import VoteTimer from '@/components/balance-game/voting/vote-timer';
-import LoginModal from '@/components/common/modals/login-modal';
-import UserProfileModal from '@/components/common/modals/user-profile-modal';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
@@ -47,6 +46,54 @@ import {
   VotingCreateFormData,
 } from '@/types/schemas/zod-schema';
 import VotingEditModal from './voting-edit-modal';
+
+const LoginModal = dynamic(
+  () => import('@/components/common/modals/login-modal'),
+  { ssr: false },
+);
+
+const UserProfileModal = dynamic(
+  () => import('@/components/common/modals/user-profile-modal'),
+  { ssr: false },
+);
+
+const OPTION_COLORS = [
+  {
+    border: 'border-blue-500',
+    bg: 'bg-blue-50',
+    text: 'text-blue-600',
+    ring: 'ring-blue-500',
+    primary: 'bg-blue-500',
+  },
+  {
+    border: 'border-green-500',
+    bg: 'bg-green-50',
+    text: 'text-green-600',
+    ring: 'ring-green-500',
+    primary: 'bg-green-500',
+  },
+  {
+    border: 'border-purple-500',
+    bg: 'bg-purple-50',
+    text: 'text-purple-600',
+    ring: 'ring-purple-500',
+    primary: 'bg-purple-500',
+  },
+  {
+    border: 'border-orange-500',
+    bg: 'bg-orange-50',
+    text: 'text-orange-600',
+    ring: 'ring-orange-500',
+    primary: 'bg-orange-500',
+  },
+  {
+    border: 'border-pink-500',
+    bg: 'bg-pink-50',
+    text: 'text-pink-600',
+    ring: 'ring-pink-500',
+    primary: 'bg-pink-500',
+  },
+];
 
 interface VotingDetailViewProps {
   votingId: number;
@@ -128,11 +175,9 @@ export default function VotingDetailView({
 
   // isActive는 백엔드가 내려줄 수도 있고(권장), 없으면 endsAt 기준으로 프론트에서 계산
   // VoteTimer도 endsAt으로 "종료"를 판단하므로, 두 로직이 어긋나지 않게 맞춘다.
-  const isActiveByEndsAt = React.useMemo(() => {
-    if (!voting?.endsAt) return true;
-
-    return new Date(voting.endsAt).getTime() > Date.now();
-  }, [voting?.endsAt]);
+  const isActiveByEndsAt = voting?.endsAt
+    ? new Date(voting.endsAt).getTime() > Date.now()
+    : true;
 
   const isActive = voting?.isActive ?? isActiveByEndsAt;
 
@@ -320,9 +365,7 @@ export default function VotingDetailView({
   }
 
   // Adapt BalanceGame options to VotingOption for compatibility
-  const votingOptions: VotingOption[] = voting.options.map((opt) => ({
-    ...opt,
-  }));
+  const votingOptions: VotingOption[] = voting.options;
 
   // 디버깅용 로그 추가
   console.log('Voting Data:', {
@@ -492,44 +535,7 @@ export default function VotingDetailView({
             <div className="mb-400 flex flex-col gap-300">
               {voting.options.map((option, index) => {
                 const isSelected = selectedOption === option.id;
-                const colors = [
-                  {
-                    border: 'border-blue-500',
-                    bg: 'bg-blue-50',
-                    text: 'text-blue-600',
-                    ring: 'ring-blue-500',
-                    primary: 'bg-blue-500',
-                  },
-                  {
-                    border: 'border-green-500',
-                    bg: 'bg-green-50',
-                    text: 'text-green-600',
-                    ring: 'ring-green-500',
-                    primary: 'bg-green-500',
-                  },
-                  {
-                    border: 'border-purple-500',
-                    bg: 'bg-purple-50',
-                    text: 'text-purple-600',
-                    ring: 'ring-purple-500',
-                    primary: 'bg-purple-500',
-                  },
-                  {
-                    border: 'border-orange-500',
-                    bg: 'bg-orange-50',
-                    text: 'text-orange-600',
-                    ring: 'ring-orange-500',
-                    primary: 'bg-orange-500',
-                  },
-                  {
-                    border: 'border-pink-500',
-                    bg: 'bg-pink-50',
-                    text: 'text-pink-600',
-                    ring: 'ring-pink-500',
-                    primary: 'bg-pink-500',
-                  },
-                ];
-                const color = colors[index % colors.length];
+                const color = OPTION_COLORS[index % OPTION_COLORS.length];
 
                 return (
                   <button

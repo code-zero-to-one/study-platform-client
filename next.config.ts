@@ -1,6 +1,11 @@
 import { withSentryConfig } from '@sentry/nextjs';
+import bundleAnalyzer from '@next/bundle-analyzer';
 import type { NextConfig } from 'next';
 import type { RemotePattern } from 'next/dist/shared/lib/image-config';
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+});
 
 const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV === 'development';
@@ -151,23 +156,16 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withSentryConfig(nextConfig, {
-  // CI에서만 소스맵 업로드 (SENTRY_AUTH_TOKEN이 있을 때)
+const sentryConfig = withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
-
-  // 로컬 빌드 시 소스맵 업로드 로그 억제
   silent: !process.env.SENTRY_AUTH_TOKEN,
-
-  // Production에서 Sentry 로거 트리셰이킹
   disableLogger: true,
-
-  // 소스맵: 업로드 후 삭제 (Production에서 비공개)
   sourcemaps: {
     filesToDeleteAfterUpload: ['.next/static/**/*.map'],
   },
-
-  // 클라이언트 소스맵 업로드 범위 확장
   widenClientFileUpload: true,
 });
+
+export default withBundleAnalyzer(sentryConfig);
