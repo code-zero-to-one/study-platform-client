@@ -39,7 +39,7 @@ function TableBody({ className, ...props }: React.ComponentProps<'tbody'>) {
   );
 }
 
-export function TableFooter({
+function TableFooter({
   className,
   ...props
 }: React.ComponentProps<'tfoot'>) {
