@@ -22,23 +22,15 @@ import type {
   MyNoteConsultationSummary,
   MyMentoringStatus,
 } from '@/types/mentoring/my-mentoring';
-
 const REQUEST_PREVIEW_MAX_LENGTH = 80;
-
 const MY_MENTORING_METHOD_MAP: Partial<
   Record<MentoringMethodType, MyMentoringMethod>
-> = {
-  simple: 'CALL',
-  deep: 'ONLINE',
-  offline: 'OFFLINE',
-};
-
+> = { simple: 'CALL', deep: 'ONLINE', offline: 'OFFLINE' };
 const PAYMENT_METHOD_LABEL_MAP: Record<MentoringPaymentMethod, string> = {
   CARD: '카드 결제',
   VIRTUAL_ACCOUNT: '가상계좌',
   MANUAL_TRANSFER: '수동 계좌이체',
 };
-
 const STATUS_ORDER: Record<MyMentoringStatus, number> = {
   REQUESTED: 0,
   PENDING: 1,
@@ -48,7 +40,6 @@ const STATUS_ORDER: Record<MyMentoringStatus, number> = {
   CANCELLED: 5,
   REJECTED: 6,
 };
-
 const toRequestPreview = (requestMessage: string) => {
   const normalized = requestMessage.replace(/\s+/g, ' ').trim();
   if (normalized.length <= REQUEST_PREVIEW_MAX_LENGTH) {
@@ -57,33 +48,27 @@ const toRequestPreview = (requestMessage: string) => {
 
   return `${normalized.slice(0, REQUEST_PREVIEW_MAX_LENGTH).trimEnd()}...`;
 };
-
 const toDateLabel = (value: string) => {
   return dayjs(value).format('YYYY.MM.DD');
 };
-
 const toPendingWindow = (request: MentoringRequest) => {
   if (!request.preferredDate) {
     return undefined;
   }
-
   if (!request.preferredTime) {
     return toDateLabel(request.preferredDate);
   }
 
   return `${toDateLabel(request.preferredDate)} ${request.preferredTime}`;
 };
-
 const toMentoringTime = (session: MentoringSession) => {
   return `${dayjs(session.startsAt).format('YYYY.MM.DD HH:mm')} - ${dayjs(session.endsAt).format('HH:mm')}`;
 };
-
 const toSessionGuide = (session?: MentoringSession) => {
   const nextGuide = session?.placeNote?.trim();
 
   return nextGuide ? nextGuide : undefined;
 };
-
 const toPaymentMethodLabel = (request: MentoringRequest) => {
   const paymentMethod =
     request.paymentMethod ??
@@ -91,49 +76,36 @@ const toPaymentMethodLabel = (request: MentoringRequest) => {
 
   return PAYMENT_METHOD_LABEL_MAP[paymentMethod];
 };
-
 const isManualTransferPending = (request: MentoringRequest) => {
   return (
     request.paymentMode === 'MANUAL_TRANSFER' &&
     request.paymentStatus !== 'CONFIRMED'
   );
 };
-
 const hasMentorFirstReply = (request: MentoringRequest) => {
   return request.conversation.some((message) => message.sender === 'MENTOR');
 };
-
 const getLastConversationSender = (request: MentoringRequest) => {
   return [...request.conversation]
     .filter((message) => message.sender !== 'SYSTEM')
     .at(-1)?.sender;
 };
-
 const toLastConversationValue = (request: MentoringRequest) => {
   return [...request.conversation]
     .filter((message) => message.sender !== 'SYSTEM')
     .at(-1)?.createdAt;
 };
-
 const toConversationSortValue = (request: MentoringRequest) => {
   return dayjs(
     toLastConversationValue(request) ?? request.requestedAt,
   ).valueOf();
 };
-
 const toPaymentStatusMeta = (request: MentoringRequest) => {
   if (request.paymentStatus === 'CONFIRMED') {
-    return {
-      label: '결제 완료',
-      color: 'green' as const,
-    };
+    return { label: '결제 완료', color: 'green' as const };
   }
-
   if (request.paymentStatus === 'NOT_REQUIRED') {
-    return {
-      label: '결제 없음',
-      color: 'gray' as const,
-    };
+    return { label: '결제 없음', color: 'gray' as const };
   }
 
   return {
@@ -144,49 +116,25 @@ const toPaymentStatusMeta = (request: MentoringRequest) => {
     color: 'orange' as const,
   };
 };
-
 const toNoteStatusMeta = (request: MentoringRequest) => {
   if (request.status === 'REJECTED') {
-    return {
-      label: '신청 거절',
-      color: 'red' as const,
-    };
+    return { label: '신청 거절', color: 'red' as const };
   }
-
   if (request.status !== 'ACCEPTED') {
-    return {
-      label: '멘토 확인 대기',
-      color: 'orange' as const,
-    };
+    return { label: '멘토 확인 대기', color: 'orange' as const };
   }
-
   if (isManualTransferPending(request)) {
-    return {
-      label: '입금 확인 대기',
-      color: 'orange' as const,
-    };
+    return { label: '입금 확인 대기', color: 'orange' as const };
   }
-
   if (!hasMentorFirstReply(request)) {
-    return {
-      label: '첫 답변 대기',
-      color: 'blue' as const,
-    };
+    return { label: '첫 답변 대기', color: 'blue' as const };
   }
-
   if (getLastConversationSender(request) === 'MENTOR') {
-    return {
-      label: '답변 확인 필요',
-      color: 'blue' as const,
-    };
+    return { label: '답변 확인 필요', color: 'blue' as const };
   }
 
-  return {
-    label: '멘토 답변 대기',
-    color: 'green' as const,
-  };
+  return { label: '멘토 답변 대기', color: 'green' as const };
 };
-
 const toPaymentAmountLabel = (
   request: MentoringRequest,
   mentorMap: Map<number, MentorProfile>,
@@ -194,13 +142,11 @@ const toPaymentAmountLabel = (
   if (typeof request.paymentAmount === 'number') {
     return formatWon(request.paymentAmount);
   }
-
   const mentor = mentorMap.get(request.mentorId);
   const amount = mentor?.methods[request.method]?.price;
 
   return typeof amount === 'number' ? formatWon(amount) : '-';
 };
-
 const toMyMentoringStatus = ({
   request,
   session,
@@ -211,32 +157,27 @@ const toMyMentoringStatus = ({
   if (request.status === 'REJECTED') {
     return 'REJECTED';
   }
-
   if (
     session?.issueType === 'MENTEE_NO_SHOW' ||
     session?.issueType === 'MENTOR_NO_SHOW'
   ) {
     return 'NO_SHOW';
   }
-
   if (session?.status === 'CANCELLED') {
     return 'CANCELLED';
   }
-
   if (
     session &&
     (session.status === 'COMPLETED' || dayjs(session.endsAt).isBefore(dayjs()))
   ) {
     return 'COMPLETED';
   }
-
   if (request.status === 'PENDING') {
     return 'REQUESTED';
   }
 
   return session ? 'CONFIRMED' : 'PENDING';
 };
-
 const toMentorName = (
   request: MentoringRequest,
   mentorMap: Map<number, MentorProfile>,
@@ -244,12 +185,10 @@ const toMentorName = (
   if (request.mentorNickname?.trim()) {
     return request.mentorNickname.trim();
   }
-
   const mentor = mentorMap.get(request.mentorId);
 
   return mentor?.nickname ?? `멘토 #${request.mentorId}`;
 };
-
 const getLastMessageBySender = (
   request: MentoringRequest,
   sender: ConversationSender,
@@ -258,12 +197,10 @@ const getLastMessageBySender = (
     .reverse()
     .find((message) => message.sender === sender);
 };
-
 const toLastConversationPreview = (request: MentoringRequest) => {
   const lastMessage = [...request.conversation]
     .filter((message) => message.sender !== 'SYSTEM')
     .at(-1);
-
   if (lastMessage?.content?.trim()) {
     const prefix = lastMessage.sender === 'MENTOR' ? '멘토 답변' : '내 질문';
 
@@ -272,7 +209,6 @@ const toLastConversationPreview = (request: MentoringRequest) => {
 
   return toRequestPreview(request.requestMessage);
 };
-
 const toStatusReason = ({
   request,
   session,
@@ -289,7 +225,6 @@ const toStatusReason = ({
       '멘토가 이번 신청을 진행하기 어렵다고 안내했습니다.'
     );
   }
-
   if (status === 'CANCELLED') {
     return (
       session?.operationNote?.trim() ||
@@ -297,24 +232,20 @@ const toStatusReason = ({
       '확정된 일정이 취소되었습니다.'
     );
   }
-
   if (status === 'NO_SHOW') {
     if (session?.operationNote?.trim()) {
       return session.operationNote.trim();
     }
-
     if (session?.issueType === 'MENTOR_NO_SHOW') {
       return '멘토 미입장으로 상담이 진행되지 않았습니다.';
     }
 
     return '정해진 시간에 미입장으로 노쇼 처리되었습니다.';
   }
-
   if (status === 'COMPLETED') {
     if (session?.operationNote?.trim()) {
       return session.operationNote.trim();
     }
-
     if (session?.status === 'COMPLETED') {
       return '상담이 완료된 내역입니다.';
     }
@@ -324,7 +255,6 @@ const toStatusReason = ({
 
   return undefined;
 };
-
 const toHistoryDateLabel = ({
   request,
   session,
@@ -337,22 +267,18 @@ const toHistoryDateLabel = ({
   if (status === 'REJECTED') {
     return `거절일 ${toDateLabel(request.rejectedAt ?? request.requestedAt)}`;
   }
-
   if (status === 'CANCELLED' && session) {
     return `취소일 ${toDateLabel(session.updatedAt)}`;
   }
-
   if (status === 'NO_SHOW' && session) {
     return `처리일 ${toDateLabel(session.updatedAt)}`;
   }
-
   if (status === 'COMPLETED' && session) {
     return `종료일 ${toDateLabel(session.endsAt)}`;
   }
 
   return undefined;
 };
-
 const toSortValue = ({
   request,
   session,
@@ -365,30 +291,24 @@ const toSortValue = ({
   if (status === 'CONFIRMED' && session) {
     return dayjs(session.startsAt).valueOf();
   }
-
   if (status === 'COMPLETED' && session) {
     return dayjs(session.endsAt).valueOf();
   }
-
   if (status === 'CANCELLED' && session) {
     return dayjs(session.updatedAt).valueOf();
   }
-
   if (status === 'NO_SHOW' && session) {
     return dayjs(session.updatedAt).valueOf();
   }
-
   if (status === 'REJECTED' && request.rejectedAt) {
     return dayjs(request.rejectedAt).valueOf();
   }
-
   if (request.acceptedAt) {
     return dayjs(request.acceptedAt).valueOf();
   }
 
   return dayjs(request.requestedAt).valueOf();
 };
-
 const toIssueMeta = ({
   session,
   status,
@@ -399,14 +319,12 @@ const toIssueMeta = ({
   if (!session?.issueType || session.issueType === 'NONE') {
     return undefined;
   }
-
   if (status !== 'CANCELLED' && status !== 'NO_SHOW') {
     return undefined;
   }
 
   return MENTORING_SESSION_ISSUE_META[session.issueType];
 };
-
 const toRefundMeta = (session?: MentoringSession) => {
   const refundStatus = session?.refundStatus;
   if (!refundStatus || refundStatus === 'NOT_APPLICABLE') {
@@ -415,11 +333,9 @@ const toRefundMeta = (session?: MentoringSession) => {
 
   return MENTORING_REFUND_STATUS_META[refundStatus];
 };
-
 const toDetailHref = (requestId: string) => {
   return `/my-mentoring/${requestId}`;
 };
-
 const toMyMentoringItem = ({
   request,
   session,
@@ -431,11 +347,9 @@ const toMyMentoringItem = ({
 }): MyMentoringItem | undefined => {
   const method = MY_MENTORING_METHOD_MAP[request.method];
   const status = toMyMentoringStatus({ request, session });
-
   if (!method || !status) {
     return undefined;
   }
-
   const paymentMeta = toPaymentStatusMeta(request);
   const issueMeta = toIssueMeta({ session, status });
   const refundMeta = toRefundMeta(session);
@@ -451,6 +365,7 @@ const toMyMentoringItem = ({
     mentorId: request.mentorId,
     title: toRequestPreview(request.requestMessage),
     mentorName: toMentorName(request, mentorMap),
+    mentorImageUrl: mentorMap.get(request.mentorId)?.imageUrl,
     method,
     status,
     detailHref: toDetailHref(request.id),
@@ -479,13 +394,11 @@ const toMyMentoringItem = ({
     nextActionHref: nextActionMeta.href,
   };
 };
-
 export const createMentorMap = (mentors: MentorProfile[]) => {
   return new Map<number, MentorProfile>(
     mentors.map((mentor) => [mentor.id, mentor]),
   );
 };
-
 export const buildMyMentoringItems = ({
   memberId,
   requestsByMentor,
@@ -513,11 +426,7 @@ export const buildMyMentoringItems = ({
             ? sessions.find((item) => item.id === request.linkedSessionId)
             : undefined;
 
-          return toMyMentoringItem({
-            request,
-            session,
-            mentorMap,
-          });
+          return toMyMentoringItem({ request, session, mentorMap });
         })
         .filter((item): item is MyMentoringItem => item !== undefined);
     })
@@ -525,7 +434,6 @@ export const buildMyMentoringItems = ({
       if (first.status !== second.status) {
         return STATUS_ORDER[first.status] - STATUS_ORDER[second.status];
       }
-
       if (first.status === 'CONFIRMED') {
         return first.sortValue - second.sortValue;
       }
@@ -533,7 +441,6 @@ export const buildMyMentoringItems = ({
       return second.sortValue - first.sortValue;
     });
 };
-
 export const buildMyNoteConsultationSummary = ({
   memberId,
   requestsByMentor,
@@ -544,27 +451,22 @@ export const buildMyNoteConsultationSummary = ({
   if (!memberId) {
     return undefined;
   }
-
   const noteRequests = Object.values(requestsByMentor)
     .flat()
     .filter((request) => {
       return request.method === 'note' && request.menteeMemberId === memberId;
     });
-
   if (noteRequests.length === 0) {
     return undefined;
   }
-
   const waitingRequests = noteRequests
     .filter((request) => {
       if (request.status === 'REJECTED') {
         return false;
       }
-
       if (request.status !== 'ACCEPTED' || isManualTransferPending(request)) {
         return true;
       }
-
       if (!hasMentorFirstReply(request)) {
         return true;
       }
@@ -577,7 +479,6 @@ export const buildMyNoteConsultationSummary = ({
         dayjs(toLastConversationValue(first) ?? first.requestedAt).valueOf()
       );
     });
-
   const actionableRequests = noteRequests
     .filter((request) => {
       return (
@@ -605,7 +506,6 @@ export const buildMyNoteConsultationSummary = ({
       : undefined,
   };
 };
-
 export const buildMyNoteConsultationItems = ({
   memberId,
   requestsByMentor,

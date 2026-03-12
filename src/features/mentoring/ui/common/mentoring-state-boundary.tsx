@@ -3,7 +3,6 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import ListStateBoundary, {
   type ListUiState,
 } from '@/components/common/ui/list/list-state-boundary';
-
 interface MentoringStateBoundaryProps {
   state: ListUiState;
   ready: React.ReactNode;
@@ -13,18 +12,16 @@ interface MentoringStateBoundaryProps {
   forbidden?: React.ReactNode;
   loadingClassName?: string;
 }
-
 function DefaultMentoringLoading({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        'rounded-200 bg-background-alternative h-[360px] animate-pulse',
+        'h-[360px] rounded-200 bg-background-alternative animate-pulse',
         className,
       )}
     />
   );
 }
-
 export default function MentoringStateBoundary({
   state,
   ready,

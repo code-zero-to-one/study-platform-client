@@ -2,7 +2,6 @@ import { Metadata } from 'next';
 import { Suspense } from 'react';
 import MentoringListPage from '@/features/mentoring/ui/pages/mentoring-list-page';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
-
 export const metadata: Metadata = generateSEOMetadata({
   title: '1:1 멘토링 - ZERO-ONE',
   description:
@@ -18,21 +17,21 @@ export const metadata: Metadata = generateSEOMetadata({
   ],
   canonicalUrl: 'https://www.zeroone.it.kr/mentoring',
 });
-
 export default function MentoringPage() {
   return (
     <Suspense fallback={<MentoringListPageSkeleton />}>
-      <MentoringListPage />
+      {' '}
+      <MentoringListPage />{' '}
     </Suspense>
   );
 }
-
 function MentoringListPageSkeleton() {
   return (
     <div className="mx-auto w-full max-w-[1280px] px-400 py-600">
       <div className="flex h-[400px] items-center justify-center">
-        <span className="text-text-subtle">로딩 중...</span>
-      </div>
+        {' '}
+        <span className="text-text-subtle">로딩 중...</span>{' '}
+      </div>{' '}
     </div>
   );
 }

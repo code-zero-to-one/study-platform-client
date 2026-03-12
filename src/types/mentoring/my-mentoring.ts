@@ -18,6 +18,7 @@ export interface MyMentoringItem {
   mentorId: number;
   title: string;
   mentorName: string;
+  mentorImageUrl?: string;
   method: MyMentoringMethod;
   status: MyMentoringStatus;
   detailHref: string;

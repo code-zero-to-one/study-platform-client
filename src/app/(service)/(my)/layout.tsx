@@ -21,8 +21,8 @@ export default async function MyLayout({
       <MyPageMobileNav />
       {/* 데스크톱 사이드바 */}
       <Sidebar />
-      <div className="flex-1 px-400 pt-400 pb-[100px] lg:px-0 lg:pt-500">
-        <div className="w-full max-w-[780px] mx-auto">{children}</div>
+      <div className="flex-1 px-400 pt-400 pb-[100px] lg:m-600 lg:px-0 lg:pt-0">
+        <div className="w-full">{children}</div>
       </div>
     </div>
   );

@@ -1,29 +1,200 @@
 'use client';
-
 import dayjs from 'dayjs';
-import {
-  CalendarDays,
-  CircleDollarSign,
-  ClockAlert,
-  ShieldAlert,
-} from 'lucide-react';
+import { CalendarDays, Check, ChevronRight, UserRound, X } from 'lucide-react';
 import Link from 'next/link';
-import { useEffect, useMemo } from 'react';
-import SurfacePanel from '@/components/common/ui/surface-panel';
+import { useEffect, useMemo, useState } from 'react';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
 import {
-  getMentorSettings,
-  getMethodLabel,
-} from '@/features/mentoring/model/mentor-profile-utils';
+  MENTORING_REQUEST_STATUS_META,
+  MENTORING_SESSION_ISSUE_META,
+  MENTORING_SESSION_STATUS_META,
+} from '@/features/mentoring/model/management-status-meta';
+import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import type { MentoringRequest } from '@/types/mentoring/management-domain';
+import type {
+  MentoringRequest,
+  MentoringSession,
+} from '@/types/mentoring/management-domain';
 import type { MentorManagementWorkspaceProps } from '@/types/mentoring/management-view';
-import MentoringSchedulePanel from './mentoring-schedule-panel';
+type ManagementStageKey = 'PENDING' | 'SCHEDULED' | 'DONE';
+const EMPTY_REQUESTS: MentoringRequest[] = [];
+const EMPTY_SESSIONS: MentoringSession[] = [];
+interface ManagementCardItem {
+  id: string;
+  requestId: string;
+  menteeName: string;
+  methodLabel: string;
+  dateLabel: string;
+  scheduleText: string;
+  previewText: string;
+  previewLabel: string;
+  statusLabel: string;
+  statusColor: 'green' | 'orange' | 'blue' | 'red' | 'gray';
+  stage: ManagementStageKey;
+  canAccept: boolean;
+  canReject: boolean;
+  detailHref: string;
+  sortValue: number;
+}
+const REQUEST_PREVIEW_MAX = 80;
+const toPreview = (text: string) => {
+  const normalized = text.replace(/\s+/g, ' ').trim();
+  if (normalized.length <= REQUEST_PREVIEW_MAX) {
+    return normalized;
+  }
 
-const hasMentorFirstReply = (request: MentoringRequest) => {
-  return request.conversation.some((message) => message.sender === 'MENTOR');
+  return `${normalized.slice(0, REQUEST_PREVIEW_MAX).trimEnd()}...`;
 };
+const getStageForRequest = (
+  request: MentoringRequest,
+  session?: MentoringSession,
+): ManagementStageKey => {
+  if (request.status === 'PENDING') {
+    return 'PENDING';
+  }
+  if (request.status === 'REJECTED') {
+    return 'DONE';
+  }
+  if (!session) {
+    return 'PENDING';
+  }
+  if (session.status === 'SCHEDULED') {
+    return 'SCHEDULED';
+  }
 
+  return 'DONE';
+};
+const getCardStatus = (
+  request: MentoringRequest,
+  session?: MentoringSession,
+): { label: string; color: 'green' | 'orange' | 'blue' | 'red' | 'gray' } => {
+  if (request.status === 'PENDING') {
+    return MENTORING_REQUEST_STATUS_META.PENDING;
+  }
+  if (request.status === 'REJECTED') {
+    return MENTORING_REQUEST_STATUS_META.REJECTED;
+  }
+  if (!session) {
+    return { label: '수락 완료', color: 'green' };
+  }
+  const issueType = session.issueType;
+  if (
+    issueType &&
+    issueType !== 'NONE' &&
+    (session.status === 'CANCELLED' ||
+      issueType === 'MENTOR_NO_SHOW' ||
+      issueType === 'MENTEE_NO_SHOW')
+  ) {
+    return MENTORING_SESSION_ISSUE_META[issueType];
+  }
+
+  return MENTORING_SESSION_STATUS_META[session.status];
+};
+const getScheduleText = (
+  request: MentoringRequest,
+  session?: MentoringSession,
+) => {
+  if (session) {
+    return `${dayjs(session.startsAt).format('YYYY.MM.DD HH:mm')} - ${dayjs(session.endsAt).format('HH:mm')}`;
+  }
+  if (request.preferredDate) {
+    const date = dayjs(request.preferredDate).format('YYYY.MM.DD');
+
+    return request.preferredTime
+      ? `희망 일정: ${date} ${request.preferredTime}`
+      : `희망 일정: ${date}`;
+  }
+
+  return '일정 미정';
+};
+const getPreviewInfo = (
+  request: MentoringRequest,
+  session?: MentoringSession,
+) => {
+  if (request.status === 'REJECTED' && request.decisionNote?.trim()) {
+    return { label: '거절 사유', text: toPreview(request.decisionNote) };
+  }
+  if (session?.operationNote?.trim()) {
+    return { label: '운영 메모', text: toPreview(session.operationNote) };
+  }
+  if (session?.placeNote?.trim()) {
+    return { label: '진행 장소', text: toPreview(session.placeNote) };
+  }
+
+  return { label: '요청 내용', text: toPreview(request.requestMessage) };
+};
+const buildManagementCards = (
+  requests: MentoringRequest[],
+  sessions: MentoringSession[],
+): ManagementCardItem[] => {
+  const sessionMap = new Map(sessions.map((s) => [s.id, s]));
+
+  return requests
+    .map((request) => {
+      const session = request.linkedSessionId
+        ? sessionMap.get(request.linkedSessionId)
+        : undefined;
+      const stage = getStageForRequest(request, session);
+      const status = getCardStatus(request, session);
+      const preview = getPreviewInfo(request, session);
+
+      return {
+        id: session?.id ?? request.id,
+        requestId: request.id,
+        menteeName: request.menteeName,
+        methodLabel: getMethodLabel(request.method),
+        dateLabel: `신청일 ${dayjs(request.requestedAt).format('YYYY.MM.DD')}`,
+        scheduleText: getScheduleText(request, session),
+        previewText: preview.text,
+        previewLabel: preview.label,
+        statusLabel: status.label,
+        statusColor: status.color,
+        stage,
+        canAccept: request.status === 'PENDING',
+        canReject: request.status === 'PENDING',
+        detailHref: `/mentoring-management/requests?id=${request.id}`,
+        sortValue:
+          session && stage === 'SCHEDULED'
+            ? dayjs(session.startsAt).valueOf()
+            : dayjs(request.requestedAt).valueOf(),
+      };
+    })
+    .sort((a, b) => {
+      if (a.stage === 'SCHEDULED' && b.stage === 'SCHEDULED') {
+        return a.sortValue - b.sortValue;
+      }
+
+      return b.sortValue - a.sortValue;
+    });
+};
+const STAGES = [
+  {
+    key: 'PENDING' as const,
+    step: '01',
+    label: '신청 접수',
+    description: '새 신청을 확인하고 수락 또는 거절을 결정합니다.',
+    emptyTitle: '접수된 신청이 없습니다.',
+    emptyDescription: '새 상담 신청이 들어오면 이 단계에 먼저 표시됩니다.',
+  },
+  {
+    key: 'SCHEDULED' as const,
+    step: '02',
+    label: '일정 확정',
+    description: '수락 후 시간이 확정된 상담을 확인합니다.',
+    emptyTitle: '확정된 일정이 없습니다.',
+    emptyDescription: '신청을 수락하고 일정을 잡으면 이 단계에 표시됩니다.',
+  },
+  {
+    key: 'DONE' as const,
+    step: '03',
+    label: '처리 완료',
+    description: '완료, 취소, 거절된 건을 확인합니다.',
+    emptyTitle: '처리 완료된 내역이 없습니다.',
+    emptyDescription: '상담이 끝나거나 거절된 내역이 이 단계로 이동합니다.',
+  },
+];
 export default function MentorManagementWorkspace({
   memberId,
   mentor,
@@ -32,487 +203,253 @@ export default function MentorManagementWorkspace({
     (state) => state.ensureDemoRequests,
   );
   const hasHydrated = useMentoringManagementStore((state) => state.hasHydrated);
-  const requests = useMentoringManagementStore(
-    (state) => state.requestsByMentor[mentor.id] ?? [],
+  const mentorRequests = useMentoringManagementStore(
+    (state) => state.requestsByMentor[mentor.id],
   );
-  const sessions = useMentoringManagementStore(
-    (state) => state.sessionsByMentor[mentor.id] ?? [],
+  const mentorSessions = useMentoringManagementStore(
+    (state) => state.sessionsByMentor[mentor.id],
   );
-
+  const requests = mentorRequests ?? EMPTY_REQUESTS;
+  const sessions = mentorSessions ?? EMPTY_SESSIONS;
+  const acceptRequest = useMentoringManagementStore(
+    (state) => state.acceptRequest,
+  );
+  const rejectRequest = useMentoringManagementStore(
+    (state) => state.rejectRequest,
+  );
   useEffect(() => {
     ensureDemoRequests(memberId, mentor.id);
   }, [ensureDemoRequests, memberId, mentor.id]);
-
-  const mentorSettings = useMemo(() => getMentorSettings(mentor), [mentor]);
-
-  const methodDurations = useMemo(
-    () =>
-      ({
-        note: 0,
-        simple: 15,
-        deep: mentorSettings.deepDurationMinutes,
-        offline: mentorSettings.offlineDurationMinutes,
-      }) as const,
-    [mentorSettings.offlineDurationMinutes, mentorSettings.deepDurationMinutes],
+  const reservationRequests = useMemo(
+    () => requests.filter((r) => r.method !== 'note'),
+    [requests],
   );
+  const cards = useMemo(
+    () => buildManagementCards(reservationRequests, sessions),
+    [reservationRequests, sessions],
+  );
+  const stageCounts = useMemo(() => {
+    return cards.reduce<Record<ManagementStageKey, number>>(
+      (acc, card) => {
+        acc[card.stage] += 1;
 
-  const dashboardStats = useMemo(() => {
-    const pendingRequests = requests.filter((r) => r.status === 'PENDING');
-    const pendingCount = pendingRequests.length;
-    const today = dayjs().format('YYYY-MM-DD');
-    const overduePendingCount = pendingRequests.filter((request) => {
-      return dayjs().diff(dayjs(request.requestedAt), 'hour') >= 24;
-    }).length;
-    const paymentPendingCount = pendingRequests.filter((request) => {
-      return (
-        request.paymentMode === 'MANUAL_TRANSFER' &&
-        request.paymentStatus === 'PENDING_TRANSFER'
-      );
-    }).length;
-    const noteFirstReplyCount = requests.filter((request) => {
-      return (
-        request.method === 'note' &&
-        request.status === 'ACCEPTED' &&
-        !hasMentorFirstReply(request)
-      );
-    }).length;
-    const todaySessionCount = sessions.filter(
-      (s) =>
-        s.status === 'SCHEDULED' &&
-        dayjs(s.startsAt).format('YYYY-MM-DD') === today,
-    ).length;
-    const scheduledCount = sessions.filter(
-      (s) => s.status === 'SCHEDULED',
-    ).length;
-    const followUpCount = sessions.filter((session) => {
-      return (
-        session.issueType !== undefined &&
-        session.issueType !== 'NONE' &&
-        (session.refundStatus === 'PENDING' || session.status === 'CANCELLED')
-      );
-    }).length;
-
-    return {
-      pendingCount,
-      overduePendingCount,
-      paymentPendingCount,
-      noteFirstReplyCount,
-      todaySessionCount,
-      scheduledCount,
-      followUpCount,
-    };
-  }, [requests, sessions]);
-
-  const exceptionBreakdown = useMemo(() => {
-    return [
-      {
-        key: 'mentor-cancelled',
-        label: '멘토 취소',
-        count: sessions.filter(
-          (session) => session.issueType === 'MENTOR_CANCELLED',
-        ).length,
-        description:
-          '멘토 사정으로 취소된 건입니다. 후속 안내와 환불 상태를 같이 확인하세요.',
+        return acc;
       },
-      {
-        key: 'mentee-cancelled',
-        label: '멘티 취소',
-        count: sessions.filter(
-          (session) => session.issueType === 'MENTEE_CANCELLED',
-        ).length,
-        description: '취소 시점에 따라 환불 기준이 달라질 수 있습니다.',
-      },
-      {
-        key: 'mentor-no-show',
-        label: '멘토 노쇼',
-        count: sessions.filter(
-          (session) => session.issueType === 'MENTOR_NO_SHOW',
-        ).length,
-        description: '재예약 또는 환불 공지를 빠르게 남기는 편이 안전합니다.',
-      },
-      {
-        key: 'mentee-no-show',
-        label: '멘티 노쇼',
-        count: sessions.filter(
-          (session) => session.issueType === 'MENTEE_NO_SHOW',
-        ).length,
-        description:
-          '판단 근거와 환불 불가 여부를 명확히 남겨야 분쟁을 줄일 수 있습니다.',
-      },
-      {
-        key: 'refund-pending',
-        label: '환불 대기',
-        count: sessions.filter((session) => session.refundStatus === 'PENDING')
-          .length,
-        description: '후속 알림과 환불 상태 갱신이 남아 있는 상담입니다.',
-      },
-    ].filter((item) => item.count > 0);
-  }, [sessions]);
-
-  const priorityQueue = useMemo(() => {
-    const queue: Array<{
-      key: string;
-      title: string;
-      subtitle: string;
-      description: string;
-      href: string;
-      actionLabel: string;
-      tone: 'red' | 'orange' | 'blue';
-      priority: number;
-      sortValue: number;
-    }> = [];
-
-    requests.forEach((request) => {
-      const requestedAtValue = dayjs(request.requestedAt).valueOf();
-      const requestedAtLabel = dayjs(request.requestedAt).format(
-        'MM.DD HH:mm 접수',
-      );
-      const methodLabel = getMethodLabel(request.method);
-      const requestHref = `/mentoring-management/requests?id=${request.id}`;
-      const overdueHours = dayjs().diff(dayjs(request.requestedAt), 'hour');
-
-      if (
-        request.status === 'PENDING' &&
-        request.paymentMode === 'MANUAL_TRANSFER' &&
-        request.paymentStatus === 'PENDING_TRANSFER'
-      ) {
-        queue.push({
-          key: `payment-${request.id}`,
-          title: `${request.menteeName} · 입금 확인`,
-          subtitle: `${methodLabel} · ${requestedAtLabel}`,
-          description:
-            '수동결제 건입니다. 입금 확인이 끝나야 수락과 답변이 열립니다.',
-          href: requestHref,
-          actionLabel: '입금 확인',
-          tone: overdueHours >= 24 ? 'red' : 'orange',
-          priority: overdueHours >= 24 ? 0 : 1,
-          sortValue: requestedAtValue,
-        });
-
-        return;
-      }
-
-      if (request.status === 'PENDING') {
-        queue.push({
-          key: `pending-${request.id}`,
-          title: `${request.menteeName} · ${
-            request.method === 'note' ? '수락 결정' : '일정 검토'
-          }`,
-          subtitle: `${methodLabel} · ${requestedAtLabel}`,
-          description:
-            overdueHours >= 24
-              ? '24시간 넘긴 신청입니다. 확인 지연은 이탈과 CS로 바로 이어질 수 있습니다.'
-              : '질문 범위와 희망 일정을 본 뒤 수락 또는 거절을 결정하세요.',
-          href: requestHref,
-          actionLabel: request.method === 'note' ? '수락 결정' : '일정 검토',
-          tone: overdueHours >= 24 ? 'red' : 'orange',
-          priority: overdueHours >= 24 ? 1 : 2,
-          sortValue: requestedAtValue,
-        });
-
-        return;
-      }
-
-      if (request.method === 'note' && !hasMentorFirstReply(request)) {
-        queue.push({
-          key: `note-reply-${request.id}`,
-          title: `${request.menteeName} · 첫 답변 필요`,
-          subtitle: `${methodLabel} · ${requestedAtLabel}`,
-          description:
-            '첫 답변을 보내야 멘티가 같은 화면에서 후속 질문을 이어갈 수 있습니다.',
-          href: requestHref,
-          actionLabel: '첫 답변 준비',
-          tone: 'blue',
-          priority: 3,
-          sortValue: requestedAtValue,
-        });
-      }
+      { PENDING: 0, SCHEDULED: 0, DONE: 0 },
+    );
+  }, [cards]);
+  const [activeStage, setActiveStage] = useState<ManagementStageKey>('PENDING');
+  const filteredCards = cards.filter((card) => card.stage === activeStage);
+  const activeStageMeta =
+    STAGES.find((s) => s.key === activeStage) ?? STAGES[0];
+  const handleAccept = (card: ManagementCardItem) => {
+    acceptRequest({ mentorId: mentor.id, requestId: card.requestId });
+  };
+  const handleReject = (card: ManagementCardItem) => {
+    rejectRequest({
+      mentorId: mentor.id,
+      requestId: card.requestId,
+      reason: '일정 사정으로 이번 신청은 진행이 어렵습니다.',
     });
-
-    sessions.forEach((session) => {
-      const startsAtValue = dayjs(session.startsAt).valueOf();
-      const startsAtLabel = dayjs(session.startsAt).format('MM.DD HH:mm');
-      const methodLabel = getMethodLabel(session.method);
-
-      if (
-        session.status === 'SCHEDULED' &&
-        dayjs(session.startsAt).isSame(dayjs(), 'day')
-      ) {
-        queue.push({
-          key: `today-${session.id}`,
-          title: `${session.menteeName} · 오늘 상담 준비`,
-          subtitle: `${methodLabel} · ${startsAtLabel}`,
-          description:
-            '진행 채널, 링크, 장소 안내가 최신인지 상담 전에 다시 확인하세요.',
-          href: '/mentoring-management',
-          actionLabel: '일정 확인',
-          tone: 'blue',
-          priority: 4,
-          sortValue: startsAtValue,
-        });
-      }
-
-      if (
-        session.refundStatus === 'PENDING' ||
-        session.status === 'CANCELLED'
-      ) {
-        queue.push({
-          key: `follow-up-${session.id}`,
-          title: `${session.menteeName} · 후속 처리`,
-          subtitle: `${methodLabel} · ${startsAtLabel}`,
-          description:
-            session.refundStatus === 'PENDING'
-              ? '환불 진행과 후속 안내가 아직 끝나지 않았습니다.'
-              : '취소 또는 예외 처리 결과가 멘티에게 충분히 전달됐는지 확인하세요.',
-          href: '/mentoring-management',
-          actionLabel: '후속 확인',
-          tone: session.refundStatus === 'PENDING' ? 'red' : 'orange',
-          priority: session.refundStatus === 'PENDING' ? 2 : 5,
-          sortValue: startsAtValue,
-        });
-      }
-    });
-
-    return queue
-      .sort((first, second) => {
-        if (first.priority !== second.priority) {
-          return first.priority - second.priority;
-        }
-
-        return first.sortValue - second.sortValue;
-      })
-      .slice(0, 6);
-  }, [requests, sessions]);
+  };
 
   return (
     <MentoringStateBoundary
       state={hasHydrated ? 'ready' : 'loading'}
       ready={
         <section className="flex flex-col gap-200">
-          <div className="grid grid-cols-2 gap-100 xl:grid-cols-4">
-            <Link href="/mentoring-management/requests">
-              <SurfacePanel
-                as="div"
-                radius="md"
-                className={`hover:bg-background-alternative h-full px-200 py-150 transition-colors ${
-                  dashboardStats.pendingCount > 0
-                    ? 'border-border-warning'
-                    : 'border-border-subtle'
-                }`}
-              >
-                <p className="font-designer-12m text-text-subtle mb-75 inline-flex items-center gap-50">
-                  <ClockAlert
-                    className={`h-14 w-14 ${dashboardStats.pendingCount > 0 ? 'text-text-warning' : ''}`}
-                  />
-                  처리 대기
-                </p>
-                <p
-                  className={`font-designer-24b ${
-                    dashboardStats.pendingCount > 0
-                      ? 'text-text-warning'
-                      : 'text-text-default'
-                  }`}
-                >
-                  {dashboardStats.pendingCount}건
-                </p>
-                <p
-                  className={`font-designer-11m mt-50 ${
-                    dashboardStats.pendingCount > 0
-                      ? 'text-text-warning'
-                      : 'text-text-subtlest'
-                  }`}
-                >
-                  {dashboardStats.pendingCount > 0
-                    ? '신청 처리 현황 보기 →'
-                    : '신청 처리 보기 →'}
-                </p>
-              </SurfacePanel>
-            </Link>
+          {' '}
+          <div className="flex flex-wrap items-start justify-between gap-200">
+            {' '}
+            <div className="min-w-0">
+              {' '}
+              <h2 className="font-designer-18b text-text-default">
+                {' '}
+                예약상담 내역{' '}
+              </h2>{' '}
+              <p className="mt-25 font-designer-13r text-text-subtle">
+                {' '}
+                신청 접수부터 일정 확정, 처리 완료까지 단계별로 관리합니다.{' '}
+              </p>{' '}
+            </div>{' '}
+            <p className="shrink-0 font-designer-13m text-text-subtle">
+              {' '}
+              전체 {cards.length}건{' '}
+            </p>{' '}
+          </div>{' '}
+          <div className="grid grid-cols-1 gap-125 lg:grid-cols-3">
+            {' '}
+            {STAGES.map((stage) => {
+              const isActive = stage.key === activeStage;
 
-            <Link href="/mentoring-management/requests">
-              <SurfacePanel
-                as="div"
-                radius="md"
-                className={`hover:bg-background-alternative h-full px-200 py-150 transition-colors ${
-                  dashboardStats.paymentPendingCount > 0
-                    ? 'border-border-warning'
-                    : 'border-border-subtle'
-                }`}
-              >
-                <p className="font-designer-12m text-text-subtle mb-75 inline-flex items-center gap-50">
-                  <CircleDollarSign
-                    className={`h-14 w-14 ${dashboardStats.paymentPendingCount > 0 ? 'text-text-warning' : ''}`}
-                  />
-                  입금 확인
-                </p>
-                <p
-                  className={`font-designer-24b ${
-                    dashboardStats.paymentPendingCount > 0
-                      ? 'text-text-warning'
-                      : 'text-text-default'
-                  }`}
+              return (
+                <button
+                  key={stage.key}
+                  type="button"
+                  onClick={() => setActiveStage(stage.key)}
+                  className={`rounded-150 border p-200 text-left transition-colors ${isActive ? 'border-border-brand bg-background-default' : 'border-border-subtle bg-background-default hover:bg-background-alternative'}`}
                 >
-                  {dashboardStats.paymentPendingCount}건
-                </p>
-                <p className="font-designer-11m text-text-subtlest mt-50">
-                  수동결제 현황 보기 →
-                </p>
-              </SurfacePanel>
-            </Link>
-
-            <Link href="/mentoring-management">
-              <SurfacePanel
-                as="div"
-                radius="md"
-                className={`hover:bg-background-alternative h-full px-200 py-150 transition-colors ${
-                  dashboardStats.scheduledCount > 0
-                    ? 'border-border-information'
-                    : 'border-border-subtle'
-                }`}
-              >
-                <p className="font-designer-12m text-text-subtle mb-75 inline-flex items-center gap-50">
-                  <CalendarDays
-                    className={`h-14 w-14 ${dashboardStats.scheduledCount > 0 ? 'text-text-information' : ''}`}
-                  />
-                  확정 일정
-                </p>
-                <p
-                  className={`font-designer-24b ${
-                    dashboardStats.scheduledCount > 0
-                      ? 'text-text-information'
-                      : 'text-text-default'
-                  }`}
-                >
-                  {dashboardStats.scheduledCount}건
-                </p>
-                <p
-                  className={`font-designer-11m mt-50 ${
-                    dashboardStats.todaySessionCount > 0
-                      ? 'text-text-information'
-                      : 'text-text-subtlest'
-                  }`}
-                >
-                  {dashboardStats.todaySessionCount > 0
-                    ? `오늘 ${dashboardStats.todaySessionCount}건 예정 →`
-                    : '일정 관리 보기 →'}
-                </p>
-              </SurfacePanel>
-            </Link>
-
-            <Link href="/mentoring-management">
-              <SurfacePanel
-                as="div"
-                radius="md"
-                className={`hover:bg-background-alternative h-full px-200 py-150 transition-colors ${
-                  dashboardStats.followUpCount > 0
-                    ? 'border-border-warning'
-                    : 'border-border-subtle'
-                }`}
-              >
-                <p className="font-designer-12m text-text-subtle mb-75 inline-flex items-center gap-50">
-                  <ShieldAlert
-                    className={`h-14 w-14 ${dashboardStats.followUpCount > 0 ? 'text-text-warning' : ''}`}
-                  />
-                  후속 처리
-                </p>
-                <p
-                  className={`font-designer-24b ${
-                    dashboardStats.followUpCount > 0
-                      ? 'text-text-warning'
-                      : 'text-text-default'
-                  }`}
-                >
-                  {dashboardStats.followUpCount}건
-                </p>
-                <p className="font-designer-11m text-text-subtlest mt-50">
-                  예외 상황 현황 보기 →
-                </p>
-              </SurfacePanel>
-            </Link>
-          </div>
-
-          {priorityQueue.length > 0 ? (
-            <SurfacePanel radius="md" className="p-200">
-              <div className="mb-125 flex items-center gap-75">
-                <ClockAlert className="text-text-warning h-16 w-16" />
-                <h2 className="font-designer-16b text-text-default">
-                  지금 처리할 일
-                </h2>
-              </div>
-              <div className="grid gap-100 md:grid-cols-2 xl:grid-cols-3">
-                {priorityQueue.map((item) => (
-                  <Link
-                    key={item.key}
-                    href={item.href}
-                    className="rounded-150 border-border-subtle bg-background-alternative hover:bg-background-default border px-150 py-125 transition-colors"
-                  >
-                    <div className="flex items-start justify-between gap-75">
-                      <div className="min-w-0">
-                        <p className="font-designer-14b text-text-default">
-                          {item.title}
-                        </p>
-                        <p className="font-designer-12r text-text-subtle mt-25">
-                          {item.subtitle}
-                        </p>
-                      </div>
+                  {' '}
+                  <div className="flex items-center justify-between">
+                    {' '}
+                    <div className="flex items-center gap-100">
+                      {' '}
                       <span
-                        className={`font-designer-12m shrink-0 ${
-                          item.tone === 'red'
-                            ? 'text-text-error'
-                            : item.tone === 'orange'
-                              ? 'text-text-warning'
-                              : 'text-text-information'
-                        }`}
+                        className={`inline-flex h-300 w-300 shrink-0 items-center justify-center rounded-full font-designer-12b ${isActive ? 'bg-fill-brand-default-default text-text-inverse' : 'bg-background-alternative text-text-subtle'}`}
                       >
-                        {item.actionLabel}
-                      </span>
-                    </div>
-                    <p className="font-designer-12r text-text-subtle mt-50 leading-relaxed">
-                      {item.description}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            </SurfacePanel>
-          ) : null}
-
-          {exceptionBreakdown.length > 0 ? (
-            <SurfacePanel radius="md" className="p-200">
-              <div className="mb-125 flex items-center gap-75">
-                <ShieldAlert className="text-text-warning h-16 w-16" />
-                <h2 className="font-designer-16b text-text-default">
-                  예외 상황 분해
-                </h2>
-              </div>
-              <div className="grid gap-100 md:grid-cols-2 xl:grid-cols-3">
-                {exceptionBreakdown.map((item) => (
-                  <div
-                    key={item.key}
-                    className="rounded-150 border-border-subtle bg-background-alternative border px-150 py-125"
-                  >
-                    <div className="flex items-center justify-between gap-75">
-                      <p className="font-designer-14b text-text-default">
-                        {item.label}
-                      </p>
-                      <span className="font-designer-12m text-text-warning">
-                        {item.count}건
-                      </span>
-                    </div>
-                    <p className="font-designer-12r text-text-subtle mt-25">
-                      {item.description}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            </SurfacePanel>
-          ) : null}
-
-          <MentoringSchedulePanel
-            mentorId={mentor.id}
-            methodDurations={methodDurations}
-          />
+                        {' '}
+                        {stage.step}{' '}
+                      </span>{' '}
+                      <span
+                        className={`font-designer-15b ${isActive ? 'text-text-brand' : 'text-text-default'}`}
+                      >
+                        {' '}
+                        {stage.label}{' '}
+                      </span>{' '}
+                    </div>{' '}
+                    <span className="shrink-0 font-designer-13m text-text-subtle">
+                      {' '}
+                      {stageCounts[stage.key]}건{' '}
+                    </span>{' '}
+                  </div>{' '}
+                  <p className="mt-100 font-designer-12r text-text-subtle">
+                    {' '}
+                    {stage.description}{' '}
+                  </p>{' '}
+                </button>
+              );
+            })}{' '}
+          </div>{' '}
+          {filteredCards.length === 0 ? (
+            <div className="rounded-150 bg-background-alternative px-200 py-250 text-center">
+              {' '}
+              <p className="font-designer-15b text-text-default">
+                {' '}
+                {activeStageMeta.emptyTitle}{' '}
+              </p>{' '}
+              <p className="mt-50 font-designer-13r text-text-subtle">
+                {' '}
+                {activeStageMeta.emptyDescription}{' '}
+              </p>{' '}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-150 md:grid-cols-2 xl:grid-cols-3">
+              {' '}
+              {filteredCards.map((card) => (
+                <ManagementCard
+                  key={card.id}
+                  card={card}
+                  onAccept={() => handleAccept(card)}
+                  onReject={() => handleReject(card)}
+                />
+              ))}{' '}
+            </div>
+          )}{' '}
         </section>
       }
     />
+  );
+}
+function ManagementCard({
+  card,
+  onAccept,
+  onReject,
+}: {
+  card: ManagementCardItem;
+  onAccept: () => void;
+  onReject: () => void;
+}) {
+  return (
+    <article className="rounded-150 border-border-subtle bg-background-default flex h-full flex-col border p-200">
+      {' '}
+      <div className="flex items-center justify-between">
+        {' '}
+        <div className="flex min-w-0 items-center gap-75">
+          {' '}
+          <span className="shrink-0 font-designer-12m text-text-subtle">
+            {' '}
+            {card.methodLabel}{' '}
+          </span>{' '}
+          <span className="truncate font-designer-12r text-text-subtle">
+            {' '}
+            · {card.dateLabel}{' '}
+          </span>{' '}
+        </div>{' '}
+        <Badge color={card.statusColor} shape="rectangle">
+          {' '}
+          {card.statusLabel}{' '}
+        </Badge>{' '}
+      </div>{' '}
+      <div className="mt-150">
+        {' '}
+        <h3 className="line-clamp-1 font-designer-16b text-text-default">
+          {' '}
+          {card.menteeName}{' '}
+        </h3>{' '}
+      </div>{' '}
+      <div className="bg-background-alternative mt-150 rounded-100 p-150">
+        {' '}
+        <div className="flex items-start gap-75">
+          {' '}
+          <CalendarDays className="text-text-subtle mt-25 h-14 w-14 shrink-0" />{' '}
+          <p className="font-designer-13m text-text-default">
+            {' '}
+            {card.scheduleText}{' '}
+          </p>{' '}
+        </div>{' '}
+        <div className="mt-100 flex items-start gap-75">
+          {' '}
+          <UserRound className="text-text-subtle mt-25 h-14 w-14 shrink-0" />{' '}
+          <p className="line-clamp-2 font-designer-13r text-text-subtle">
+            {' '}
+            {card.previewText}{' '}
+          </p>{' '}
+        </div>{' '}
+      </div>{' '}
+      <div className="mt-auto pt-175">
+        {' '}
+        {card.canAccept ? (
+          <div className="flex items-center gap-100">
+            {' '}
+            <Button
+              color="primary"
+              size="small"
+              icon={<Check className="h-14 w-14" />}
+              onClick={onAccept}
+            >
+              {' '}
+              수락{' '}
+            </Button>{' '}
+            <Button
+              color="outlined"
+              size="small"
+              icon={<X className="h-14 w-14" />}
+              onClick={onReject}
+            >
+              {' '}
+              거절{' '}
+            </Button>{' '}
+            <Link
+              href={card.detailHref}
+              className="hover:text-text-default ml-auto inline-flex items-center gap-25 transition-colors font-designer-13m text-text-subtle"
+            >
+              {' '}
+              상세 <ChevronRight className="h-14 w-14" />{' '}
+            </Link>{' '}
+          </div>
+        ) : (
+          <div className="flex items-center justify-between">
+            {' '}
+            <Link href={card.detailHref}>
+              {' '}
+              <Button color="outlined" size="small">
+                {' '}
+                상세 보기{' '}
+              </Button>{' '}
+            </Link>{' '}
+          </div>
+        )}{' '}
+      </div>{' '}
+    </article>
   );
 }

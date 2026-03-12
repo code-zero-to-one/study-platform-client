@@ -24,6 +24,7 @@ export interface MentorReview {
 
 export interface MentorProfile {
   id: number;
+  memberId?: number;
   nickname: string;
   role: string;
   career: string;

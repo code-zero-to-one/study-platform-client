@@ -5,7 +5,6 @@ import type {
   NoteConsultationListQueryKeyParams,
   NoteConsultationQuerySnapshot,
 } from '@/types/mentoring/note-consultation-query';
-
 const toCreatedMentorSignature = (createdMentors: MentorProfile[]) => {
   if (createdMentors.length === 0) {
     return 'empty';
@@ -14,11 +13,16 @@ const toCreatedMentorSignature = (createdMentors: MentorProfile[]) => {
   return [...createdMentors]
     .sort((first, second) => first.id - second.id)
     .map((mentor) => {
-      return `${mentor.id}:${mentor.nickname}:${mentor.role}`;
+      return [
+        mentor.id,
+        mentor.memberId ?? '',
+        mentor.nickname,
+        mentor.role,
+        mentor.imageUrl ?? '',
+      ].join(':');
     })
     .join('|');
 };
-
 const toMentorMemberMappingSignature = (
   mentorIdByMember: Record<number, number>,
 ) => {
@@ -32,14 +36,12 @@ const toMentorMemberMappingSignature = (
     .sort((first, second) => first.localeCompare(second))
     .join('|');
 };
-
 const toNoteRequestSignature = (
   requestsByMentor: Record<number, MentoringRequest[]>,
 ) => {
   const mentorIds = Object.keys(requestsByMentor)
     .map(Number)
     .sort((first, second) => first - second);
-
   if (mentorIds.length === 0) {
     return 'empty';
   }
@@ -71,7 +73,6 @@ const toNoteRequestSignature = (
     })
     .join('|');
 };
-
 export const createNoteConsultationQuerySnapshot = ({
   requestsByMentor,
   createdMentors,
@@ -88,7 +89,6 @@ export const createNoteConsultationQuerySnapshot = ({
       toMentorMemberMappingSignature(mentorIdByMember),
   };
 };
-
 export const noteConsultationQueryKeys = {
   all: ['mentoring'] as const,
   noteConsultations: () =>
@@ -108,5 +108,4 @@ export const noteConsultationQueryKeys = {
     params.createdMentors,
   ],
 };
-
 export const NOTE_CONSULTATION_QUERY_KEYS = noteConsultationQueryKeys;

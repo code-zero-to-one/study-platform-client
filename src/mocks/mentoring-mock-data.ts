@@ -16,7 +16,6 @@ export type {
   MentoringMethodOption,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
-
 const DEFAULT_TIME_SLOTS = ['21:00~21:30', '21:30~22:00', '22:00~22:30'];
 const METHOD_ORDER: MentoringMethodType[] = [
   'note',
@@ -24,7 +23,6 @@ const METHOD_ORDER: MentoringMethodType[] = [
   'deep',
   'offline',
 ];
-
 const normalizeConsultingDuration = (minutes: number) => {
   if (minutes <= 30) {
     return 30 as const;
@@ -35,7 +33,6 @@ const normalizeConsultingDuration = (minutes: number) => {
 
   return 90 as const;
 };
-
 const createMethodOption = (
   type: MentoringMethodType,
   overrides: Partial<MentoringMethodOption>,
@@ -87,12 +84,8 @@ const createMethodOption = (
     },
   };
 
-  return {
-    ...defaults[type],
-    ...overrides,
-  };
+  return { ...defaults[type], ...overrides };
 };
-
 const getNormalizedMethods = (
   mentor: MentorProfile,
 ): Record<MentoringMethodType, MentoringMethodOption> => {
@@ -153,11 +146,11 @@ const getNormalizedMethods = (
     }),
   };
 };
-
 export const MENTOR_PROFILES: MentorProfile[] = [
   {
     id: 101,
-    nickname: 'DevDevDev',
+    memberId: 101,
+    nickname: '민재',
     role: '백엔드/서버 개발자',
     career: '미들 (4~8년)',
     company: '네카라쿠배',
@@ -168,11 +161,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     tags: ['Java', 'Kotlin', 'MySQL', 'Spring Boot', 'backend'],
     summary:
       '채용 관점에서 이력서/포트폴리오를 점검하고 실전 면접 피드백을 제공합니다.',
-    bio: `대기업과 스타트업을 모두 경험한 백엔드 개발자입니다.
-
-지원자 평가와 기술 인터뷰를 다수 진행해왔고, 지원자 입장에서 막히는 지점을 채용자 시선으로 명확히 짚어드립니다.
-
-서류 합격률을 높이고 싶은 분, 모의 면접으로 실전 감각을 만들고 싶은 분에게 적합합니다.`,
+    bio: `대기업과 스타트업을 모두 경험한 백엔드 개발자입니다. 지원자 평가와 기술 인터뷰를 다수 진행해왔고, 지원자 입장에서 막히는 지점을 채용자 시선으로 명확히 짚어드립니다. 서류 합격률을 높이고 싶은 분, 모의 면접으로 실전 감각을 만들고 싶은 분에게 적합합니다.`,
     careerHistory: [
       'IT 대기업 백엔드 개발자 (2019 ~ 현재)',
       '채용 인터뷰어 및 과제 평가 200+건',
@@ -185,18 +174,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     ],
     avatarEmoji: 'D',
     methods: {
-      note: createMethodOption('note', {
-        price: 33000,
-      }),
-      simple: createMethodOption('simple', {
-        price: 39000,
-      }),
-      deep: createMethodOption('deep', {
-        price: 49000,
-      }),
-      offline: createMethodOption('offline', {
-        price: 89000,
-      }),
+      note: createMethodOption('note', { price: 33000 }),
+      simple: createMethodOption('simple', { price: 39000 }),
+      deep: createMethodOption('deep', { price: 49000 }),
+      offline: createMethodOption('offline', { price: 89000 }),
     },
     reviews: [
       {
@@ -229,6 +210,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 102,
+    memberId: 102,
     nickname: '송이',
     role: '프론트엔드/웹퍼블리셔',
     career: '미들 (4~8년)',
@@ -240,11 +222,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     tags: ['JavaScript', 'React', '면접', '이력서', 'frontend'],
     summary:
       '프론트엔드 취업 시장에 맞춘 이력서/과제전형/면접 답변 전략을 제공합니다.',
-    bio: `프론트엔드 개발자로 대기업, 스타트업을 모두 경험했습니다.
-
-채용 과제에서 자주 감점되는 지점과 포트폴리오 구성 전략을 멘티 상황에 맞춰 구체적으로 안내합니다.
-
-취업과 이직 준비 과정에서 "뭘 먼저 해야 하는지"를 명확히 만들고 싶은 분께 추천합니다.`,
+    bio: `프론트엔드 개발자로 대기업, 스타트업을 모두 경험했습니다. 채용 과제에서 자주 감점되는 지점과 포트폴리오 구성 전략을 멘티 상황에 맞춰 구체적으로 안내합니다. 취업과 이직 준비 과정에서 "뭘 먼저 해야 하는지"를 명확히 만들고 싶은 분께 추천합니다.`,
     careerHistory: [
       '국내 대기업 프론트엔드 개발자 (2021 ~ 현재)',
       '스타트업 프론트엔드 개발자 (2018 ~ 2021)',
@@ -257,18 +235,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     ],
     avatarEmoji: 'S',
     methods: {
-      note: createMethodOption('note', {
-        price: 40000,
-      }),
-      simple: createMethodOption('simple', {
-        price: 45000,
-      }),
-      deep: createMethodOption('deep', {
-        price: 55000,
-      }),
-      offline: createMethodOption('offline', {
-        price: 95000,
-      }),
+      note: createMethodOption('note', { price: 40000 }),
+      simple: createMethodOption('simple', { price: 45000 }),
+      deep: createMethodOption('deep', { price: 55000 }),
+      offline: createMethodOption('offline', { price: 95000 }),
     },
     reviews: [
       {
@@ -291,6 +261,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 103,
+    memberId: 103,
     nickname: '티아',
     role: '게임 서버 개발자',
     career: 'Lead 레벨',
@@ -302,11 +273,7 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     tags: ['Unity', 'Unreal Engine', '면접', 'backend', 'game-programming'],
     summary:
       '게임 개발 커리어 전환부터 포트폴리오 구성, 실무 기반 기술면접까지 코칭합니다.',
-    bio: `게임 클라이언트/서버를 모두 경험한 개발자입니다.
-
-학습 우선순위, 프로젝트 포지셔닝, 포트폴리오 메시지까지 한 번에 정리해드립니다.
-
-취업/이직 준비 중인 게임 개발자 분들이 가장 많이 막히는 지점을 짧은 세션에서도 해결할 수 있도록 구조화해 진행합니다.`,
+    bio: `게임 클라이언트/서버를 모두 경험한 개발자입니다. 학습 우선순위, 프로젝트 포지셔닝, 포트폴리오 메시지까지 한 번에 정리해드립니다. 취업/이직 준비 중인 게임 개발자 분들이 가장 많이 막히는 지점을 짧은 세션에서도 해결할 수 있도록 구조화해 진행합니다.`,
     careerHistory: [
       '게임사 서버 개발 리드 (2022 ~ 현재)',
       '클라이언트 개발자 (2018 ~ 2022)',
@@ -319,18 +286,10 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     ],
     avatarEmoji: 'T',
     methods: {
-      note: createMethodOption('note', {
-        price: 49500,
-      }),
-      simple: createMethodOption('simple', {
-        price: 55000,
-      }),
-      deep: createMethodOption('deep', {
-        price: 65000,
-      }),
-      offline: createMethodOption('offline', {
-        price: 120000,
-      }),
+      note: createMethodOption('note', { price: 49500 }),
+      simple: createMethodOption('simple', { price: 55000 }),
+      deep: createMethodOption('deep', { price: 65000 }),
+      offline: createMethodOption('offline', { price: 120000 }),
     },
     reviews: [
       {
@@ -378,7 +337,8 @@ export const MENTOR_PROFILES: MentorProfile[] = [
   },
   {
     id: 104,
-    nickname: '마리골드A',
+    memberId: 104,
+    nickname: '마리',
     role: '프론트엔드/웹퍼블리셔',
     career: '시니어 (9년 이상)',
     company: 'ex-네카라쿠배',
@@ -393,24 +353,17 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['레벨 진단', '서류/면접 통합 코칭'],
     avatarEmoji: 'M',
     methods: {
-      note: createMethodOption('note', {
-        price: 66000,
-      }),
-      simple: createMethodOption('simple', {
-        enabled: false,
-      }),
-      deep: createMethodOption('deep', {
-        enabled: false,
-      }),
-      offline: createMethodOption('offline', {
-        enabled: false,
-      }),
+      note: createMethodOption('note', { price: 66000 }),
+      simple: createMethodOption('simple', { enabled: false }),
+      deep: createMethodOption('deep', { enabled: false }),
+      offline: createMethodOption('offline', { enabled: false }),
     },
     reviews: [],
   },
   {
     id: 105,
-    nickname: '취업꼭찍기 제로미니',
+    memberId: 105,
+    nickname: '제로',
     role: '보안 엔지니어',
     career: '시니어 (9년 이상)',
     company: '프리랜서',
@@ -426,23 +379,16 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['보안 직무 로드맵', '이직 전략'],
     avatarEmoji: 'J',
     methods: {
-      note: createMethodOption('note', {
-        price: 22000,
-      }),
-      simple: createMethodOption('simple', {
-        price: 29000,
-      }),
-      deep: createMethodOption('deep', {
-        price: 35000,
-      }),
-      offline: createMethodOption('offline', {
-        enabled: false,
-      }),
+      note: createMethodOption('note', { price: 22000 }),
+      simple: createMethodOption('simple', { price: 29000 }),
+      deep: createMethodOption('deep', { price: 35000 }),
+      offline: createMethodOption('offline', { enabled: false }),
     },
     reviews: [],
   },
   {
     id: 106,
+    memberId: 106,
     nickname: '까이',
     role: 'PO/PM',
     career: '미들 (4~8년)',
@@ -459,24 +405,17 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['기획 포트폴리오', '케이스 스터디'],
     avatarEmoji: 'K',
     methods: {
-      note: createMethodOption('note', {
-        price: 49500,
-      }),
-      simple: createMethodOption('simple', {
-        price: 56000,
-      }),
-      deep: createMethodOption('deep', {
-        price: 62000,
-      }),
-      offline: createMethodOption('offline', {
-        enabled: false,
-      }),
+      note: createMethodOption('note', { price: 49500 }),
+      simple: createMethodOption('simple', { price: 56000 }),
+      deep: createMethodOption('deep', { price: 62000 }),
+      offline: createMethodOption('offline', { enabled: false }),
     },
     reviews: [],
   },
   {
     id: 107,
-    nickname: '열정개발자',
+    memberId: 107,
+    nickname: '준혁',
     role: '백엔드/서버 개발자',
     career: '주니어 (1~3년)',
     company: '네카라 중 한 곳',
@@ -492,24 +431,17 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['이력서 피드백', '주니어 취업 전략'],
     avatarEmoji: 'E',
     methods: {
-      note: createMethodOption('note', {
-        price: 11000,
-      }),
-      simple: createMethodOption('simple', {
-        enabled: false,
-      }),
-      deep: createMethodOption('deep', {
-        enabled: false,
-      }),
-      offline: createMethodOption('offline', {
-        enabled: false,
-      }),
+      note: createMethodOption('note', { price: 11000 }),
+      simple: createMethodOption('simple', { enabled: false }),
+      deep: createMethodOption('deep', { enabled: false }),
+      offline: createMethodOption('offline', { enabled: false }),
     },
     reviews: [],
   },
   {
     id: 108,
-    nickname: 'kaya',
+    memberId: 108,
+    nickname: '카야',
     role: '프론트엔드/웹퍼블리셔',
     career: 'Lead 레벨',
     company: '글로벌 IT 기업',
@@ -524,30 +456,20 @@ export const MENTOR_PROFILES: MentorProfile[] = [
     strengths: ['커리어 코칭', '면접 대비'],
     avatarEmoji: 'K',
     methods: {
-      note: createMethodOption('note', {
-        price: 39000,
-      }),
-      simple: createMethodOption('simple', {
-        price: 47000,
-      }),
-      deep: createMethodOption('deep', {
-        price: 54000,
-      }),
-      offline: createMethodOption('offline', {
-        price: 88000,
-      }),
+      note: createMethodOption('note', { price: 39000 }),
+      simple: createMethodOption('simple', { price: 47000 }),
+      deep: createMethodOption('deep', { price: 54000 }),
+      offline: createMethodOption('offline', { price: 88000 }),
     },
     reviews: [],
   },
 ];
-
 export const sortOptions = [
   { value: 'default', label: '기본순' },
   { value: 'rating', label: '평점순' },
   { value: 'review', label: '리뷰순' },
   { value: 'low-price', label: '낮은 가격순' },
 ] as const satisfies readonly MentorSortOption[];
-
 export const getEnabledMentoringMethods = (mentor: MentorProfile) => {
   const methods = getNormalizedMethods(mentor);
 
@@ -555,11 +477,9 @@ export const getEnabledMentoringMethods = (mentor: MentorProfile) => {
     (method) => methods[method] && methods[method].enabled !== false,
   );
 };
-
 export const getLowestPriceOption = (mentor: MentorProfile) => {
   const methods = getEnabledMentoringMethods(mentor);
   const normalizedMethods = getNormalizedMethods(mentor);
-
   if (methods.length === 0) {
     return null;
   }
@@ -568,19 +488,15 @@ export const getLowestPriceOption = (mentor: MentorProfile) => {
     .map((method) => normalizedMethods[method])
     .sort((a, b) => a.price - b.price)[0];
 };
-
 export const getMentorById = (id: number) => {
   const mentor = MENTOR_PROFILES.find((item) => item.id === id);
-
   if (!mentor) {
     return undefined;
   }
 
   return withMentorSettings(mentor);
 };
-
 export const formatWon = (price: number) => `₩${price.toLocaleString('ko-KR')}`;
-
 export const getMethodLabel = (method: MentoringMethodType) => {
   return {
     note: '쪽지상담',
@@ -589,7 +505,6 @@ export const getMethodLabel = (method: MentoringMethodType) => {
     offline: '대면상담',
   }[method];
 };
-
 const getNormalizedSettings = (mentor: MentorProfile): MentorSettings => {
   const defaults = createDefaultMentorSettings();
   const methods = getNormalizedMethods(mentor);
@@ -637,11 +552,9 @@ const getNormalizedSettings = (mentor: MentorProfile): MentorSettings => {
       source?.interviewQuestions ?? defaults.interviewQuestions,
   };
 };
-
 export const getMentorSettings = (mentor: MentorProfile): MentorSettings => {
   return getNormalizedSettings(mentor);
 };
-
 export function withMentorSettings(mentor: MentorProfile): MentorProfile {
   return {
     ...mentor,
