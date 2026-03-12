@@ -11,6 +11,7 @@ import { BaseInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
 import ModalShell from '@/components/common/ui/modal-shell';
 import { useUpdateDailyStudyMutation } from '@/hooks/queries/use-interview-query';
+import { useToastStore } from '@/stores/use-toast-store';
 import type {
   DailyStudyDetail,
   PrepareStudyRequest,
@@ -124,6 +125,7 @@ function StudyReadyForm({
   }) => void;
 }) {
   const { mutate, isPending } = useUpdateDailyStudyMutation();
+  const showToast = useToastStore((state) => state.showToast);
 
   const methods = useForm<StudyReadyFormValues>({
     resolver: zodResolver(StudyReadyFormSchema),
@@ -167,7 +169,7 @@ function StudyReadyForm({
             event: 'study_ready_error',
             study_date: studyDate,
           });
-          alert('요청 처리에 실패했습니다. 다시 시도해주세요.');
+          showToast('요청 처리에 실패했습니다. 다시 시도해주세요.', 'error');
         },
       },
     );

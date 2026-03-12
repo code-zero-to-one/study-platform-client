@@ -4,6 +4,7 @@ import {
   changeMemberStatus,
   getMemberList,
 } from '@/api/endpoints/admin/member-list';
+import { useToastStore } from '@/stores/use-toast-store';
 import {
   ChangeMemberRoleRequest,
   ChangeMemberStatusRequest,
@@ -67,9 +68,12 @@ export const useChangeMemberStatusMutation = () => {
           .filter((member) => failedMemberIds.includes(member.memberId))
           .map((member) => member.memberName);
 
-        alert(
-          `다음 회원들의 상태 변경에 실패했습니다: ${failedMemberNames.join(', ')}`,
-        );
+        useToastStore
+          .getState()
+          .showToast(
+            `다음 회원들의 상태 변경에 실패했습니다: ${failedMemberNames.join(', ')}`,
+            'error',
+          );
       }
     },
     onSuccess: async () => {
@@ -115,9 +119,12 @@ export const useChangeMemberRoleMutation = () => {
           .filter((member) => failedMemberIds.includes(member.memberId))
           .map((member) => member.memberName);
 
-        alert(
-          `다음 회원들의 권한 변경에 실패했습니다: ${failedMemberNames.join(', ')}`,
-        );
+        useToastStore
+          .getState()
+          .showToast(
+            `다음 회원들의 권한 변경에 실패했습니다: ${failedMemberNames.join(', ')}`,
+            'error',
+          );
       }
     },
     onSuccess: async () => {

@@ -13,6 +13,7 @@ import {
   getMyReviews,
   getStudyReviewModalState,
 } from '@/api/endpoints/review/get-review';
+import { useToastStore } from '@/stores/use-toast-store';
 import {
   DismissStudyReviewModalRequest,
   MyNegativeKeywordsRequest,
@@ -53,8 +54,9 @@ export const useAddStudyReviewMutation = () => {
   return useMutation({
     mutationFn: addStudyReview,
     onSuccess: async () => {
-      // todo: 모달로 변경
-      alert('후기 작성이 완료되었습니다.');
+      useToastStore
+        .getState()
+        .showToast('후기 작성이 완료되었습니다.', 'success');
       await queryClient.invalidateQueries({
         queryKey: reviewQueryKeys.modalState(),
       });

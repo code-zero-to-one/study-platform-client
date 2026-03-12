@@ -19,6 +19,7 @@ import {
   useTechStacksQuery,
   useUpdateUserProfileMutation,
 } from '@/hooks/queries/use-update-user-profile-mutation';
+import { useToastStore } from '@/stores/use-toast-store';
 import { MemberProfile } from '@/types/api/user.types';
 
 import {
@@ -74,6 +75,7 @@ function ProfileEditForm({
   memberId,
   onClose,
 }: Props & { onClose: () => void }) {
+  const showToast = useToastStore((state) => state.showToast);
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
   const { mutateAsync: uploadProfileImage } = useUploadProfileImageMutation();
@@ -136,7 +138,7 @@ function ProfileEditForm({
           await uploadProfileImage({ memberId, filename, file: imageFormData });
         } catch (error) {
           console.error('이미지 업로드 실패:', error);
-          alert('이미지 업로드에 실패했습니다.');
+          showToast('이미지 업로드에 실패했습니다.', 'error');
         }
       }
     }

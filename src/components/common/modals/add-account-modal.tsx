@@ -11,6 +11,7 @@ import {
   useRegisterSettlementAccount,
   useUpdateSettlementAccount,
 } from '@/hooks/queries/settlement-account-api';
+import { useToastStore } from '@/stores/use-toast-store';
 
 // Form Schema
 const AddAccountFormSchema = z.object({
@@ -60,6 +61,7 @@ interface AddAccountFormProps {
 }
 
 function AddAccountForm({ defaultValues, onClose }: AddAccountFormProps) {
+  const showToast = useToastStore((state) => state.showToast);
   const methods = useForm<AddAccountFormValues>({
     resolver: zodResolver(AddAccountFormSchema),
     mode: 'onChange',
@@ -81,11 +83,11 @@ function AddAccountForm({ defaultValues, onClose }: AddAccountFormProps) {
     if (mode === 'add') {
       registerAccount(values, {
         onSuccess: () => {
-          alert('계좌가 성공적으로 등록되었습니다!');
+          showToast('계좌가 성공적으로 등록되었습니다!', 'success');
           onClose();
         },
         onError: () => {
-          alert('계좌 등록에 실패했습니다. 다시 시도해주세요.');
+          showToast('계좌 등록에 실패했습니다. 다시 시도해주세요.', 'error');
         },
       });
 
@@ -93,11 +95,14 @@ function AddAccountForm({ defaultValues, onClose }: AddAccountFormProps) {
     } else if (mode === 'update') {
       updateAccount(values, {
         onSuccess: () => {
-          alert('계좌 정보가 성공적으로 변경되었습니다!');
+          showToast('계좌 정보가 성공적으로 변경되었습니다!', 'success');
           onClose();
         },
         onError: () => {
-          alert('계좌 정보 변경에 실패했습니다. 다시 시도해주세요.');
+          showToast(
+            '계좌 정보 변경에 실패했습니다. 다시 시도해주세요.',
+            'error',
+          );
         },
       });
     }

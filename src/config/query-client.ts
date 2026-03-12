@@ -1,4 +1,6 @@
-import { isServer, QueryClient } from '@tanstack/react-query';
+import { isServer, MutationCache, QueryClient } from '@tanstack/react-query';
+import { useToastStore } from '@/stores/use-toast-store';
+import { analyzeError, logError } from '@/utils/error-handler';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -12,6 +14,18 @@ function makeQueryClient() {
         retry: 1,
       },
     },
+    mutationCache: new MutationCache({
+      onError: (error, _variables, _context, mutation) => {
+        // 개별 onError가 있으면 이미 처리된 것으로 간주
+        if (mutation.options.onError) return;
+
+        if (isServer) return;
+
+        const errorInfo = analyzeError(error);
+        useToastStore.getState().showToast(errorInfo.userMessage, 'error');
+        logError(errorInfo, { source: 'MutationCache.onError' });
+      },
+    }),
   });
 }
 

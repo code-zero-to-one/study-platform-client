@@ -5,6 +5,7 @@ import type {
   SettlementSearchConditionStatusEnum,
   StudySettlementCreateRequest,
 } from '@/api/openapi/models';
+import { useToastStore } from '@/stores/use-toast-store';
 
 const adminSettlementApi = createApiInstance(AdminSettlementApi);
 
@@ -97,13 +98,12 @@ export const useCompleteSettlement = () => {
       return data.content;
     },
     onSuccess: async () => {
-      alert('정산 확정 처리가 완료되었습니다.');
+      useToastStore
+        .getState()
+        .showToast('정산 확정 처리가 완료되었습니다.', 'success');
       await queryClient.invalidateQueries({
         queryKey: ['settlementsForAdmin'],
       });
-    },
-    onError: () => {
-      alert('정산 확정 처리에 실패했습니다. 다시 시도해주세요.');
     },
   });
 };
@@ -118,13 +118,12 @@ export const useApproveSettlement = () => {
       return data.content;
     },
     onSuccess: async () => {
-      alert('정산 승인 처리가 완료되었습니다.');
+      useToastStore
+        .getState()
+        .showToast('정산 승인 처리가 완료되었습니다.', 'success');
       await queryClient.invalidateQueries({
         queryKey: ['settlementsForAdmin'],
       });
-    },
-    onError: () => {
-      alert('정산 승인 처리에 실패했습니다. 다시 시도해주세요.');
     },
   });
 };
