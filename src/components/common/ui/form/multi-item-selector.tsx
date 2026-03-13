@@ -219,7 +219,12 @@ export default function SelectableTagsInput({
             onChange={(e) => setCustomInput(e.target.value)}
             onKeyDown={handleCustomKeyDown}
           />
-          <Button type="button" onClick={addCustom} disabled={!canAddMore}>
+          <Button
+            type="button"
+            onClick={addCustom}
+            disabled={!canAddMore}
+            className="whitespace-nowrap shrink-0"
+          >
             추가
           </Button>
           <Button
@@ -230,6 +235,7 @@ export default function SelectableTagsInput({
               setCustomInput('');
               setIsLimitExceeded(false);
             }}
+            className="whitespace-nowrap shrink-0"
           >
             취소
           </Button>

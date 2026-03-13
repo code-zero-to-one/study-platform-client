@@ -274,10 +274,6 @@ export default function MentorRegistrationForm({
         })),
     [jobGroup, jobTitle, options.coreKeywords],
   );
-  const coreKeywordValueSet = useMemo(
-    () => new Set(coreKeywordOptions.map((option) => option.value)),
-    [coreKeywordOptions],
-  );
   const validJobTitleSet = useMemo(
     () => new Set(jobTitleOptions.map((option) => option.value)),
     [jobTitleOptions],
@@ -341,11 +337,19 @@ export default function MentorRegistrationForm({
 
   useEffect(() => {
     const maxSelectable = Math.max(1, options.maxCoreKeywordCount);
-    const nextSelected = skillTags
-      .filter((code) => coreKeywordValueSet.has(code))
-      .slice(0, maxSelectable);
+    const nextSelected = Array.from(
+      new Set(
+        skillTags
+          .map((keyword) => keyword.trim())
+          .filter((keyword) => keyword.length > 0),
+      ),
+    ).slice(0, maxSelectable);
 
-    if (nextSelected.length === skillTags.length) {
+    const isSameSelection =
+      nextSelected.length === skillTags.length &&
+      nextSelected.every((keyword, index) => keyword === skillTags[index]);
+
+    if (isSameSelection) {
       return;
     }
 
@@ -353,7 +357,7 @@ export default function MentorRegistrationForm({
       shouldDirty: false,
       shouldValidate: true,
     });
-  }, [coreKeywordValueSet, options.maxCoreKeywordCount, setValue, skillTags]);
+  }, [options.maxCoreKeywordCount, setValue, skillTags]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-225 pb-500">
@@ -605,7 +609,7 @@ export default function MentorRegistrationForm({
                   onChange={field.onChange}
                   maxSelectable={Math.max(1, options.maxCoreKeywordCount)}
                   options={coreKeywordOptions}
-                  allowCustom={false}
+                  allowCustom
                 />
               )}
             />

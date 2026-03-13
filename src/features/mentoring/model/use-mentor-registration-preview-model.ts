@@ -145,7 +145,8 @@ export const useMentorRegistrationPreviewModel = ({
   const displayJobTitle = jobTitleLabelMap.get(fields.jobTitle ?? '') ?? '';
   const displayCareer = careerLabelMap.get(fields.careerYears ?? '') ?? '';
   const displayCoreKeywords = (fields.skillTags ?? [])
-    .map((code) => coreKeywordLabelMap.get(code) ?? '')
+    .map((keyword) => coreKeywordLabelMap.get(keyword) ?? keyword)
+    .map((keyword) => keyword.trim())
     .filter((label) => label.length > 0);
 
   const previewFormValues = useMemo<MentorRegistrationFormValues>(() => {
