@@ -343,9 +343,25 @@ function AnswerForm({ groupStudyId, questionId }: AnswerFormProps) {
   const [content, setContent] = useState('');
   const { mutate: createAnswer, isPending } = useCreateAnswer();
 
+  const showToast = useToastStore((state) => state.showToast);
+
   const handleSubmit = () => {
+    const trimmedContent = content.trim();
+    if (!trimmedContent) {
+      showToast('답변 내용을 입력해주세요.', 'info');
+
+      return;
+    }
+
     if (!content.trim()) return;
-    createAnswer({ groupStudyId, questionId, content });
+    createAnswer(
+      { groupStudyId, questionId, content },
+      {
+        onError: () => {
+          showToast('답변 등록에 실패했습니다. 다시 시도해주세요.', 'error');
+        },
+      },
+    );
   };
 
   return (
