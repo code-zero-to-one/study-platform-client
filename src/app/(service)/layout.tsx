@@ -7,6 +7,7 @@ import localFont from 'next/font/local';
 import React from 'react';
 import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
+import SentryInit from '@/components/common/sentry-init';
 import Header from '@/components/common/layout/home-header';
 import FloatingInquiryButton from '@/components/common/ui/floating-inquiry-button';
 import GlobalToast from '@/components/common/ui/global-toast';
@@ -41,6 +42,7 @@ export default async function ServiceLayout({
     <html lang="ko" className="overflow-x-hidden">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'min-h-screen w-screen')}>
+        <SentryInit />
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
           <GlobalToast />
           <ClarityInit projectId={CLARITY_PROJECT_ID} />
