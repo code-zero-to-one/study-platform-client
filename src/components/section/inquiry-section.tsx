@@ -41,6 +41,9 @@ export default function InquirySection({
   const router = useRouter();
   const searchParams = useSearchParams();
   const questionIdParam = searchParams.get('questionId');
+  const parsedQuestionId = Number(questionIdParam);
+  const hasValidQuestionId =
+    Number.isInteger(parsedQuestionId) && parsedQuestionId > 0;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
@@ -59,7 +62,7 @@ export default function InquirySection({
 
   return (
     <div className="mx-auto w-full max-w-7xl px-400 py-600">
-      {!questionIdParam ? (
+      {!hasValidQuestionId ? (
         <ListView
           groupStudyId={groupStudyId}
           isPremium={isPremium}
@@ -70,7 +73,7 @@ export default function InquirySection({
       ) : (
         <DetailView
           groupStudyId={groupStudyId}
-          questionId={Number(questionIdParam)}
+          questionId={parsedQuestionId}
           onBack={handleBack}
           isPremium={isPremium}
           isLeader={isLeader}
@@ -340,6 +343,7 @@ interface AnswerFormProps {
 }
 
 function AnswerForm({ groupStudyId, questionId }: AnswerFormProps) {
+  const [isOpen, setIsOpen] = useState(false);
   const [content, setContent] = useState('');
   const { mutate: createAnswer, isPending } = useCreateAnswer();
 
@@ -364,11 +368,19 @@ function AnswerForm({ groupStudyId, questionId }: AnswerFormProps) {
     );
   };
 
+  if (!isOpen) {
+    return (
+      <div className="flex flex-col items-center gap-300 py-300">
+        <p className="font-designer-14r text-text-subtle">
+          아직 답변이 등록되지 않았습니다.
+        </p>
+        <Button onClick={() => setIsOpen(true)}>답변하기</Button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-300">
-      <p className="font-designer-14r text-text-subtle">
-        아직 답변이 등록되지 않았습니다.
-      </p>
       <textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
