@@ -2,12 +2,16 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useMemo, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
-import { STUDY_DETAIL_TABS, StudyTabValue } from '@/config/constants';
+import {
+  isStudyTabValue,
+  STUDY_DETAIL_TABS,
+  type StudyTabValue,
+} from '@/config/constants';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import {
@@ -37,6 +41,23 @@ const GroupStudyFormModal = dynamic(
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
+const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
+const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
+
+const END_MODAL_CONTENT = (
+  <>
+    종료 후에는 더 이상 모집/활동이 불가합니다.
+    <br />이 동작은 되돌릴 수 없습니다.
+  </>
+);
+
+const DELETE_MODAL_CONTENT = (
+  <>
+    삭제 시 모든 데이터가 영구적으로 제거됩니다.
+    <br />이 동작은 되돌릴 수 없습니다.
+  </>
+);
+
 interface StudyDetailPageProps {
   groupStudyId: number;
   memberId?: number;
@@ -47,16 +68,18 @@ export default function StudyDetailPage({
   memberId,
 }: StudyDetailPageProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
   const showToast = useToastStore((state) => state.showToast);
 
-  const tabFromUrl = searchParams.get('tab') as StudyTabValue | null;
+  const tabParam = searchParams.get('tab') ?? undefined;
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
+  const leader = studyDetail?.basicInfo.leader;
 
   const isLeader = leaderId === memberId;
 
@@ -65,93 +88,125 @@ export default function StudyDetailPage({
 
   // 리더 정보를 Zustand store에 저장
   useEffect(() => {
-    if (studyDetail?.basicInfo.leader) {
-      setLeaderInfo(studyDetail.basicInfo.leader as Leader);
+    if (leader) {
+      setLeaderInfo(leader as Leader);
     }
-  }, [studyDetail?.basicInfo.leader, setLeaderInfo]);
-
-  const [active, setActive] = useState<StudyTabValue>(tabFromUrl || 'intro');
-  const [showModal, setShowModal] = useState<boolean>(false);
-  const [action, setAction] = useState<ActionKey | null>(null);
+  }, [leader, setLeaderInfo]);
+  const [confirmAction, setConfirmAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
-  const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
-    groupStudyId,
-    isLeader,
-  });
+  const { data: myApplicationStatus, isLoading: isMyStatusLoading } =
+    useGetGroupStudyMyStatus({
+      groupStudyId,
+      isLeader,
+    });
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
 
-  const ModalContent = {
+  const handleEndStudy = () => {
+    completeStudy(
+      { groupStudyId },
+      {
+        onSuccess: () => {
+          sendGTMEvent({
+            event: 'group_study_end',
+            group_study_id: String(groupStudyId),
+          });
+          showToast('스터디가 종료되었습니다.');
+          router.push('/group-study');
+        },
+        onError: () => {
+          showToast('스터디 종료에 실패하였습니다.', 'error');
+        },
+        onSettled: () => {
+          setConfirmAction(null);
+        },
+      },
+    );
+  };
+
+  const handleDeleteStudy = () => {
+    deleteGroupStudy(
+      { groupStudyId },
+      {
+        onSuccess: () => {
+          sendGTMEvent({
+            event: 'group_study_delete',
+            group_study_id: String(groupStudyId),
+          });
+          showToast('스터디가 삭제되었습니다.');
+          router.push('/group-study');
+        },
+        onError: () => {
+          showToast('스터디 삭제에 실패하였습니다.', 'error');
+        },
+        onSettled: () => {
+          setConfirmAction(null);
+        },
+      },
+    );
+  };
+
+  const MODAL_CONFIG: Record<
+    ActionKey,
+    {
+      title: string;
+      content: React.ReactNode;
+      confirmText: string;
+      onConfirm: () => void;
+    }
+  > = {
     end: {
       title: '스터디를 종료하시겠어요?',
-      content: (
-        <>
-          종료 후에는 더 이상 모집/활동이 불가합니다.
-          <br />이 동작은 되돌릴 수 없습니다.
-        </>
-      ),
+      content: END_MODAL_CONTENT,
       confirmText: '스터디 종료',
-      onConfirm: () => {
-        completeStudy(
-          { groupStudyId },
-          {
-            onSuccess: () => {
-              sendGTMEvent({
-                event: 'group_study_end',
-                group_study_id: String(groupStudyId),
-              });
-              showToast('스터디가 종료되었습니다.');
-              router.push('/group-study');
-            },
-            onError: () => {
-              showToast('스터디 종료에 실패하였습니다.', 'error');
-            },
-            onSettled: () => {
-              setShowModal(false);
-            },
-          },
-        );
-      },
+      onConfirm: handleEndStudy,
     },
     delete: {
       title: '스터디를 삭제하시겠어요?',
-      content: (
-        <>
-          삭제 시 모든 데이터가 영구적으로 제거됩니다.
-          <br />이 동작은 되돌릴 수 없습니다.
-        </>
-      ),
+      content: DELETE_MODAL_CONTENT,
       confirmText: '스터디 삭제',
-      onConfirm: () => {
-        deleteGroupStudy(
-          { groupStudyId },
-          {
-            onSuccess: () => {
-              sendGTMEvent({
-                event: 'group_study_delete',
-                group_study_id: String(groupStudyId),
-              });
-              showToast('스터디가 삭제되었습니다.');
-              router.push('/group-study');
-            },
-            onError: () => {
-              showToast('스터디 삭제에 실패하였습니다.', 'error');
-            },
-            onSettled: () => {
-              setShowModal(false);
-            },
-          },
-        );
-      },
+      onConfirm: handleDeleteStudy,
     },
   };
 
   // 참가자, 채널 탭 접근 가능 여부 = 스터디 참가자 또는 방장만 가능
+  // KICKED 상태도 포함: 강퇴 후에도 기존 활동 내역 열람 보장
   const isMember =
     myApplicationStatus?.status === 'APPROVED' ||
     myApplicationStatus?.status === 'KICKED';
+
+  const availableTabs = useMemo(
+    () =>
+      STUDY_DETAIL_TABS.map((tab) => ({
+        ...tab,
+        locked: MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember,
+      })),
+    [isLeader, isMember],
+  );
+
+  const activeTab = useMemo(() => {
+    const requested = isStudyTabValue(tabParam) ? tabParam : 'intro';
+    const matched = availableTabs.find((tab) => tab.value === requested);
+
+    return matched && !matched.locked ? requested : 'intro';
+  }, [availableTabs, tabParam]);
+
+  // 잠긴 탭으로 직접 진입 시 URL 정규화 (새로고침·공유·뒤로가기 대응)
+  useEffect(() => {
+    // 권한 판단이 완료되기 전(로딩 중)에는 replace 금지 → flicker 방지
+    if (isLoading || isMyStatusLoading) return;
+
+    const currentParam = tabParam ?? undefined;
+    const resolvedParam = activeTab === 'intro' ? undefined : activeTab;
+    if (currentParam === resolvedParam) return;
+
+    const newUrl = resolvedParam
+      ? `${pathname}?tab=${resolvedParam}`
+      : pathname;
+    router.replace(newUrl, { scroll: false });
+  }, [activeTab, isLoading, isMyStatusLoading, pathname, router, tabParam]);
 
   if (isLoading || !studyDetail) {
     return <div>로딩중...</div>;
@@ -160,12 +215,18 @@ export default function StudyDetailPage({
   return (
     <div className="flex h-full w-full flex-col items-center">
       <ConfirmDeleteModal
-        open={showModal}
-        onOpenChange={() => setShowModal(!showModal)}
-        title={ModalContent[action]?.title}
-        content={ModalContent[action]?.content}
-        confirmText={ModalContent[action]?.confirmText}
-        onConfirm={ModalContent[action]?.onConfirm}
+        open={confirmAction !== null}
+        onOpenChange={() => setConfirmAction(null)}
+        title={confirmAction ? MODAL_CONFIG[confirmAction].title : undefined}
+        content={
+          confirmAction ? MODAL_CONFIG[confirmAction].content : undefined
+        }
+        confirmText={
+          confirmAction ? MODAL_CONFIG[confirmAction].confirmText : undefined
+        }
+        onConfirm={
+          confirmAction ? MODAL_CONFIG[confirmAction].onConfirm : undefined
+        }
       />
       <GroupStudyFormModal
         open={showStudyFormModal}
@@ -174,19 +235,23 @@ export default function StudyDetailPage({
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
       {/* 플로팅 정보 바 */}
-      <div className="mt-500 w-[1164px]">
+      <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
         <StudyActiveTicker
           approvedCount={studyDetail.basicInfo.approvedCount}
+          remainingSlot={studyDetail.basicInfo.remainingSlots}
           maxMembersCount={studyDetail.basicInfo.maxMembersCount}
           startDate={studyDetail.basicInfo.startDate}
+          viewCount={studyDetail.viewCount}
         />
       </div>
-      <div className="mb-500 flex w-[1164px] items-start justify-between">
+      <div
+        className={`mb-500 flex ${DETAIL_CONTENT_WIDTH} items-start justify-between`}
+      >
         <div className="flex w-full flex-col gap-150">
-          <div className="font-designer-28b flex justify-between text-[#181D27]">
+          <div className="font-designer-28b flex justify-between text-text-strong">
             {studyDetail?.detailInfo.title}
           </div>
-          <p className="font-designer-18r text-[#252B37]">
+          <p className="font-designer-18r text-text-default">
             {studyDetail?.detailInfo.summary}
           </p>
         </div>
@@ -203,18 +268,12 @@ export default function StudyDetailPage({
               {
                 label: '스터디 종료',
                 value: 'end',
-                onMenuClick: () => {
-                  setAction('end');
-                  setShowModal(true);
-                },
+                onMenuClick: () => setConfirmAction('end'),
               },
               {
                 label: '스터디 삭제',
                 value: 'delete',
-                onMenuClick: () => {
-                  setAction('delete');
-                  setShowModal(true);
-                },
+                onMenuClick: () => setConfirmAction('delete'),
               },
             ]}
             iconSize={35}
@@ -224,20 +283,13 @@ export default function StudyDetailPage({
 
       {/** 탭리스트 */}
       <Tabs
-        className="w-[1164px]"
-        tabs={STUDY_DETAIL_TABS.filter(
-          (tab) =>
-            tab.value === 'intro' ||
-            tab.value === 'inquiry' ||
-            isLeader ||
-            isMember,
-        )}
-        activeTab={active}
+        className={DETAIL_CONTENT_WIDTH}
+        tabs={availableTabs}
+        activeTab={activeTab}
         onChange={(value: StudyTabValue) => {
-          setActive(value);
-
-          // 탭 변경 시 URL 파라미터 초기화 및 탭 값 설정
-          router.replace(`?tab=${value}`);
+          const params = new URLSearchParams(searchParams.toString());
+          params.set('tab', value);
+          router.push(`${pathname}?${params.toString()}`, { scroll: false });
 
           sendGTMEvent({
             event: 'group_study_tab_change',
@@ -246,10 +298,14 @@ export default function StudyDetailPage({
           });
         }}
       />
-      {active === 'intro' && (
-        <StudyInfoSection study={studyDetail} isLeader={isLeader} />
+      {activeTab === 'intro' && (
+        <StudyInfoSection
+          study={studyDetail}
+          isLeader={isLeader}
+          isMember={isMember}
+        />
       )}
-      {active === 'members' && (
+      {activeTab === 'members' && (
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
@@ -257,15 +313,21 @@ export default function StudyDetailPage({
         />
       )}
 
-      {active === 'mission' && <MissionSection groupStudyId={groupStudyId} />}
-      {active === 'lounge' && (
+      {activeTab === 'mission' && (
+        <MissionSection
+          groupStudyId={groupStudyId}
+          isMember={isMember}
+          isLeader={isLeader}
+        />
+      )}
+      {activeTab === 'lounge' && (
         <ChannelSection
           groupStudyId={groupStudyId}
           memberId={memberId}
           myApplicationStatus={myApplicationStatus}
         />
       )}
-      {active === 'inquiry' && (
+      {activeTab === 'inquiry' && (
         <InquirySection
           groupStudyId={groupStudyId}
           isLeader={isLeader}

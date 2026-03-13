@@ -27,8 +27,6 @@ export default function MyHomeworkStatusCard({
     return mission.homeworks.find((hw) => hw.submitterId === memberId) ?? null;
   }, [mission?.homeworks, memberId]);
 
-  const isMissionClosed = mission?.status === 'ENDED';
-
   const handleSelectHomework = (homeworkId: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('homeworkId', String(homeworkId));
@@ -52,7 +50,7 @@ export default function MyHomeworkStatusCard({
     );
   }
 
-  // 제출 완료 상태 (평가 대기)
+  // 제출 완료 상태
   if (myHomework.homeworkStatus === 'SUBMITTED') {
     return (
       <div className="flex flex-col gap-300">
@@ -78,18 +76,6 @@ export default function MyHomeworkStatusCard({
             과제 상세 보기
           </Button>
         </div>
-        {isMissionClosed && (
-          <div className="flex flex-col gap-300">
-            <span className="font-designer-18b text-text-default">
-              리더 평가
-            </span>
-            <div className="border-border-default rounded-100 flex flex-col items-center justify-center border py-400">
-              <span className="text-text-subtlest font-designer-14r">
-                리더의 과제 평가를 기다려 주세요.
-              </span>
-            </div>
-          </div>
-        )}
       </div>
     );
   }

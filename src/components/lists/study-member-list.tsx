@@ -47,14 +47,14 @@ export default function StudyMemberList({
   const memberList = data?.members || [];
 
   // memberList의 첫 번째 요소는 내 정보
-  const myInfo = memberList[0];
+  const myInfo = memberList[0] ?? null;
   const isLeader = isAuthReady && leaderId === memberId;
   const totalPages = Math.ceil((data?.totalMemberCount || 0) / PAGE_SIZE) || 1;
 
   return (
     <PageContainer className="flex flex-col gap-300 py-500">
       {/* 리더가 아닌 참가자에게 내 정보 상단에 노출 */}
-      {!isLeader && (
+      {!isLeader && myInfo && (
         <SelfMemberInfo
           groupStudyId={groupStudyId}
           leaderId={leaderId}
@@ -79,7 +79,7 @@ export default function StudyMemberList({
 
             return (
               <GroupStudyMemberItem
-                key={`${member.id}-${idx}`}
+                key={member.id}
                 groupStudyId={groupStudyId}
                 leaderId={leaderId}
                 {...member}

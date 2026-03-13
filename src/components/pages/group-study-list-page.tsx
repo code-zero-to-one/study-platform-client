@@ -50,7 +50,7 @@ export default function GroupStudyListPage() {
   }
 
   return (
-    <div className="mx-auto w-[1280px] px-400 py-600">
+    <div className="mx-auto w-7xl px-400 py-600">
       {/* 배너 */}
       <div className="mb-600">
         <Banner />

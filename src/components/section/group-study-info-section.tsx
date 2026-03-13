@@ -3,15 +3,15 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { GroupStudyFullResponseDto } from '@/api/openapi';
+import ApplyGroupStudyModal from '@/components/common/modals/apply-group-study-modal';
 import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
 import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
-import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
-import { CurriculumSummaryItem } from '@/types/api/group-study.types';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
 
@@ -23,16 +23,23 @@ const UserProfileModal = dynamic(
 interface StudyInfoSectionProps {
   study: GroupStudyFullResponseDto;
   isLeader: boolean;
+  isMember?: boolean;
 }
 
 export default function StudyInfoSection({
   study: studyDetail,
   isLeader,
+  isMember,
 }: StudyInfoSectionProps) {
   const router = useRouter();
   const params = useParams();
 
   const groupStudyId = Number(params.id);
+  const applyTriggerRef = useRef<HTMLButtonElement>(null);
+
+  const handleLockedClick = () => {
+    applyTriggerRef.current?.click();
+  };
 
   const { data: approvedApplicants } = useApplicantsByStatusQuery({
     groupStudyId,
@@ -151,17 +158,28 @@ export default function StudyInfoSection({
           </div>
         </div>
       </div>
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-400">
         <SummaryStudyInfo data={studyDetail} />
         <CurriculumSummarySection
-          curriculumSummary={
-            (
-              studyDetail as GroupStudyFullResponseDto & {
-                curriculumSummary?: CurriculumSummaryItem[];
-              }
-            ).curriculumSummary ?? []
-          }
+          curriculumSummary={studyDetail.curriculumSummary ?? []}
+          canAccessAll={isMember || isLeader}
+          onLockedClick={handleLockedClick}
         />
+        {!isMember && !isLeader && (
+          <ApplyGroupStudyModal
+            groupStudyId={groupStudyId}
+            title={studyDetail.detailInfo?.title ?? ''}
+            questions={studyDetail.interviewPost?.interviewPost ?? []}
+            trigger={
+              <button
+                ref={applyTriggerRef}
+                className="sr-only"
+                aria-hidden
+                tabIndex={-1}
+              />
+            }
+          />
+        )}
       </div>
     </div>
   );

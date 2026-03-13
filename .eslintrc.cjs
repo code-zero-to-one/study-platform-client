@@ -29,7 +29,13 @@ module.exports = {
   },
 
   // ESLint가 무시할 디렉토리 및 파일 지정
-  ignorePatterns: ['dist', '.eslintrc.cjs', '.next', 'src/api/openapi/**'],
+  ignorePatterns: [
+    'next.config.ts',
+    'dist',
+    '.eslintrc.cjs',
+    '.next',
+    'src/api/openapi/**',
+  ],
 
   // TypeScript용 ESLint 파서를 사용하도록 설정
   parser: '@typescript-eslint/parser',

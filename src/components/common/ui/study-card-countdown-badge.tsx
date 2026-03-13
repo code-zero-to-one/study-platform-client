@@ -2,6 +2,8 @@
 
 import dayjs from 'dayjs';
 
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Badge from '@/components/common/ui/badge';
 import { useNow } from '@/hooks/use-now';
 import { getCountdownState } from '@/lib/countdown';
 
@@ -18,33 +20,19 @@ export default function StudyCardCountdownBadge({
 }: Props) {
   const now = useNow();
 
-  // 종료 배지 (gray)
   if (status === 'COMPLETED') {
-    return (
-      <span className="rounded-50 bg-gray-500 px-200 py-50 text-[12px] font-semibold text-white">
-        종료
-      </span>
-    );
+    return <Badge color="gray">종료</Badge>;
   }
 
-  // 진행 중 배지 (purple)
   if (status === 'IN_PROGRESS') {
-    return (
-      <span className="rounded-50 bg-purple-500 px-200 py-50 text-[12px] font-semibold text-white">
-        진행 중
-      </span>
-    );
+    return <Badge color="gray">진행 중</Badge>;
   }
 
   const isRecruiting = status === 'RECRUITING' || status === 'ENDING_SOON';
   if (!isRecruiting) return null;
 
   if (remaining !== undefined && remaining <= 0) {
-    return (
-      <span className="rounded-50 bg-red-500 px-200 py-50 text-[12px] font-semibold text-white">
-        모집 마감
-      </span>
-    );
+    return <Badge className="bg-red-500 px-200 text-white">모집 마감</Badge>;
   }
 
   if (!startDate) return null;
@@ -56,24 +44,25 @@ export default function StudyCardCountdownBadge({
   if (!state || !state.urgent) {
     if (status === 'ENDING_SOON') {
       return (
-        <span className="rounded-50 bg-green-500 px-200 py-50 text-[12px] font-semibold text-white">
-          마감 임박
-        </span>
+        <Badge className="bg-green-500 px-200 text-white">마감 임박</Badge>
       );
     }
 
-    return (
-      <span className="rounded-50 bg-blue-500 px-200 py-50 text-[12px] font-semibold text-white">
-        모집 중
-      </span>
-    );
+    return <Badge color="green">모집 중</Badge>;
   }
 
   return (
-    <span
-      className={`rounded-50 px-200 py-50 text-[12px] text-white ${state.isHourly ? 'font-bold' : 'font-semibold'} ${state.bgClass} ${state.pulse ? 'animate-pulse' : ''}`}
+    <Badge
+      className={cn(
+        'px-100',
+        state.bgClass,
+        state.textColorClass,
+        state.borderClass,
+        state.pulse && 'animate-pulse',
+        state.isHourly && 'font-bold',
+      )}
     >
       마감까지 {state.label}
-    </span>
+    </Badge>
   );
 }

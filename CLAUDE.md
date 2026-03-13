@@ -93,11 +93,40 @@ export const useCreateMission = () => {
 };
 ```
 
+**useMutation 콜백 패턴:**
+
+`onSettled`는 성공/실패 무관하게 항상 실행된다 (`finally` 블록과 동일). 성공 시에만 필요한 동작(페이지 이동, 성공 토스트)은 반드시 `onSuccess`에, 실패 처리는 `onError`에, UI 정리(모달 닫기, 상태 초기화)는 `onSettled`에 배치한다.
+
+```typescript
+// 올바른 패턴
+mutate(params, {
+  onSuccess: () => {
+    showToast('완료되었습니다.');
+    router.push('/list'); // 성공 시에만 이동
+  },
+  onError: () => {
+    showToast('실패하였습니다.', 'error');
+  },
+  onSettled: () => {
+    setConfirmAction(null); // 항상 UI 초기화
+  },
+});
+```
+
 **queryKey 컨벤션:**
 
 - 단일 리소스: `['mission', missionId]`
 - 목록 리소스: `['missions', groupStudyId, page, size]`
 - 무효화 시 상위 키 사용: `queryKey: ['missions']` (해당 리소스 전체 무효화)
+- mutation이 여러 리소스에 영향을 줄 경우 관련 queryKey를 모두 무효화:
+
+```typescript
+onSuccess: async (_, variables) => {
+  // 신청자 상태 변경 → 멤버 목록 + 신청자 목록 모두 갱신
+  await queryClient.invalidateQueries({ queryKey: ['groupStudyMemberList', variables.groupStudyId] });
+  await queryClient.invalidateQueries({ queryKey: ['entryList', variables.groupStudyId] });
+},
+```
 
 #### 레거시 방식 (features 내부 API)
 
@@ -130,6 +159,62 @@ export const getArchive = async (params: GetArchiveParams) => {
 - 공용 모달은 `src/components/common/modals/` 아래에 위치한다
 - 페이지 단위 조합 컴포넌트는 `src/components/pages/`, 도메인별 조합은 `payment/`, `discussion/`, `archive/`, `balance-game/`, `mentoring` 관련 디렉토리 등으로 분산되어 있다
 - `src/features/` 기반 구조와 전통적인 `components/`, `hooks/queries/` 구조가 공존한다. 신규 변경 시 xkdl 한 PR 안에서 구조를 섞어 바꾸지 않는다
+
+### 백엔드 데이터 처리 안전 패턴
+
+빈 배열 안전성은 상위 컴포넌트의 `if (!arr?.length) return null` 가드로 이미 보장되므로 `Math.max` 호출 전 별도 방어 코드는 불필요하다.
+
+#### optional 필드를 React key와 핸들러에서 안전하게 사용하기
+
+백엔드에서 optional(`?`)로 내려오는 ID 필드를 React `key` prop에 직접 사용하면 여러 항목이 `undefined`로 중복되어 React가 잘못된 DOM 재사용을 할 수 있다. `??` 연산자로 `index` 폴백을 둔다.
+
+```typescript
+// 잘못된 패턴 — missionId가 undefined이면 모든 항목이 key="undefined"로 중복
+{items.map((item) => <div key={item.missionId}>...</div>)}
+
+// 올바른 패턴 — optional 필드 ?? index
+{items.map((item, index) => <div key={item.missionId ?? index}>...</div>)}
+```
+
+optional 필드를 이벤트 핸들러 내에서 사용할 때도 가드가 필요하다:
+
+```typescript
+// 잘못된 패턴 — missionId가 undefined이면 ?missionId=undefined 라우팅
+const handleClick = (id: number) => router.push(`...?missionId=${id}`);
+
+// 올바른 패턴 — 복구 가능한 실패는 Toast로 안내
+const handleClick = (id: number | undefined) => {
+  if (!id) {
+    showToast('정보를 불러올 수 없습니다.', 'error');
+    return;
+  }
+  router.push(`...?missionId=${id}`);
+};
+```
+
+#### enum-like 문자열 타입 단언 안전 가드
+
+백엔드에서 프론트 타입 정의에 없는 값이 올 수 있다. `as StudyType` 같은 단순 타입 단언 대신 `in` 가드 + 폴백을 사용한다. TypeScript `as`는 런타임을 보호하지 않는다.
+
+```typescript
+// 잘못된 패턴 — 알 수 없는 값 수신 시 undefined 렌더링 또는 런타임 오류
+const studyType = type as StudyType;
+<Badge>{STUDY_TYPE_LABELS[studyType]}</Badge>
+
+// 올바른 패턴 — in 가드 후 폴백 처리
+const studyType =
+  type && type in STUDY_TYPE_LABELS ? (type as StudyType) : undefined;
+<Badge>{studyType ? STUDY_TYPE_LABELS[studyType] : '스터디'}</Badge>
+
+// 목록 순회 시
+{experienceLevels?.map((level) => (
+  <Badge key={level}>
+    {level in EXPERIENCE_LEVEL_LABELS
+      ? EXPERIENCE_LEVEL_LABELS[level as ExperienceLevel]
+      : level}
+  </Badge>
+))}
+```
 
 ### 스타일링
 
@@ -279,6 +364,54 @@ export default async function Page() {
 - 기능 개발 또는 버그 수정을 완료한 직후 **자동으로** `/doc` 커맨드를 실행해 `docs/` 폴더에 문서를 생성한다.
 - `/doc`는 `.claude/commands/doc.md`에 정의된 **로컬 프로젝트 커맨드**다. `Skill` tool 없이 파일의 지시를 직접 따른다.
 - 유형 판별은 브랜치명이 아닌 **커밋 메시지와 코드 패턴**으로만 한다.
+
+### 버그 수정 문서 (`bugfix-*.md`) 필수 서술 흐름
+
+문서는 반드시 아래 3단계 서술 구조를 따른다. "WHAT을 바꿨나"가 아니라 **"WHY → HOW & WHY THIS → RESULT"** 흐름으로 작성한다.
+
+1. **문제 파악** — 어떤 문제가 있었는가
+   - 증상: 사용자 관점에서 어떤 상황에서 무슨 문제가 발생했는가
+   - 근본 원인: 코드 레벨에서 왜 이 버그가 생겼는가 (문제 코드 + 발생 흐름)
+2. **해결 — 어떻게 & 왜 이 방법인가**
+   - 선택한 접근법과 그 이유 (수정 전/후 코드)
+   - **고려했지만 선택하지 않은 대안**: 다른 해결 방식은 없었는지, 왜 선택하지 않았는지 명시
+3. **결과** — 수정 후 무엇이 달라졌는가 (UX 변화, 동작 변화, 재발 방지 포인트)
+
+### 기능 개발 문서 (`feature-*.md`) 필수 서술 흐름
+
+1. **배경 — 왜 필요했나**
+   - 이 기능이 없을 때 어떤 불편함·한계가 있었는가. 어떤 사용자 문제를 해결하는가
+2. **구현 — 어떻게 & 왜 이 방법인가**
+   - 핵심 접근법과 선택 이유 (핵심 코드 + 구현 흐름)
+   - **고려한 다른 구현 방식**: 대안이 있었다면 왜 선택하지 않았는지 명시
+3. **결과** — 구현 후 무엇이 가능해졌는가 (사용자·개발자 관점 변화)
+
+## Claude 커맨드 & 스킬
+
+### 자주 사용하는 커맨드
+
+```bash
+/commit-title              # 현재 변경사항으로 커밋 메시지 자동 생성
+/commit-title <설명>       # 설명 기반으로 커밋 메시지 생성
+/explain <개념>            # 프레임워크 개념을 프로젝트 코드 예시와 함께 설명
+/doc                       # 작업 완료 후 docs/ 문서 자동 생성
+```
+
+### 브라우저 검증 (staging-verify 스킬)
+
+스테이징 환경 URL: `https://test.zeroone.it.kr`
+
+"크롬에서 확인해줘 (스터디 id: XXX)" 형태로 요청하면 Chrome DevTools MCP로 자동 검증.
+지원 패턴:
+
+- 그룹스터디 상세: `/group-study/{id}`
+- 미션 탭: `/group-study/{id}?tab=mission`
+- 평가 탭: `/group-study/{id}?tab=evaluation`
+
+### 커밋 리뷰 (commit-reviewer 에이전트)
+
+"이 커밋 문제 없는지 봐줘", "변경사항 로직 문제 있는지 파악해줘" 등 요청 시 자동 활성화.
+프로젝트 컨벤션(OpenAPI 우선, queryKey 패턴, staleTime 60초) 기준으로 검토.
 
 ## 환경 변수
 

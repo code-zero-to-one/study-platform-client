@@ -3,11 +3,17 @@
 import { ArrowLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
+import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import InquiryListTable from '@/components/lists/inquiry-list-table';
-import { useGetQuestion, useGetQuestions } from '@/hooks/queries/question-api';
+import {
+  useCreateAnswer,
+  useGetQuestion,
+  useGetQuestions,
+} from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
@@ -32,27 +38,43 @@ export default function InquirySection({
   isLeader = false,
   isAdmin = false,
 }: InquirySectionProps) {
-  const [selectedQuestionId, setSelectedQuestionId] = useState<
-    number | undefined
-  >(undefined);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const questionIdParam = searchParams.get('questionId');
+  const parsedQuestionId = Number(questionIdParam);
+  const hasValidQuestionId =
+    Number.isInteger(parsedQuestionId) && parsedQuestionId > 0;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
 
+  const handleSelectQuestion = (id: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('questionId', String(id));
+    router.push(`?${params.toString()}`);
+  };
+
+  const handleBack = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('questionId');
+    router.push(`?${params.toString()}`);
+  };
+
   return (
     <div className="mx-auto w-full max-w-7xl px-400 py-600">
-      {selectedQuestionId === undefined ? (
+      {!hasValidQuestionId ? (
         <ListView
           groupStudyId={groupStudyId}
           isPremium={isPremium}
           page={page}
           onPageChange={setPage}
-          onSelectQuestion={setSelectedQuestionId}
+          onSelectQuestion={handleSelectQuestion}
         />
       ) : (
         <DetailView
           groupStudyId={groupStudyId}
-          questionId={selectedQuestionId}
-          onBack={() => setSelectedQuestionId(undefined)}
+          questionId={parsedQuestionId}
+          onBack={handleBack}
           isPremium={isPremium}
           isLeader={isLeader}
           isAdmin={isAdmin}
@@ -294,14 +316,82 @@ function DetailView({
               </p>
             </div>
           ) : (
-            <div className="border-border-default rounded-200 flex items-center justify-center border bg-white py-500">
-              <p className="font-designer-14r text-text-subtle">
-                아직 답변이 등록되지 않았습니다.
-              </p>
+            <div className="border-border-default rounded-200 border bg-white p-500">
+              {isLeader || isAdmin ? (
+                <AnswerForm
+                  groupStudyId={groupStudyId}
+                  questionId={questionId}
+                />
+              ) : (
+                <div className="flex items-center justify-center py-300">
+                  <p className="font-designer-14r text-text-subtle">
+                    아직 답변이 등록되지 않았습니다.
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>
       )}
     </>
+  );
+}
+
+interface AnswerFormProps {
+  groupStudyId: number;
+  questionId: number;
+}
+
+function AnswerForm({ groupStudyId, questionId }: AnswerFormProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [content, setContent] = useState('');
+  const { mutate: createAnswer, isPending } = useCreateAnswer();
+
+  const showToast = useToastStore((state) => state.showToast);
+
+  const handleSubmit = () => {
+    const trimmedContent = content.trim();
+    if (!trimmedContent) {
+      showToast('답변 내용을 입력해주세요.', 'info');
+
+      return;
+    }
+
+    if (!content.trim()) return;
+    createAnswer(
+      { groupStudyId, questionId, content },
+      {
+        onError: () => {
+          showToast('답변 등록에 실패했습니다. 다시 시도해주세요.', 'error');
+        },
+      },
+    );
+  };
+
+  if (!isOpen) {
+    return (
+      <div className="flex flex-col items-center gap-300 py-300">
+        <p className="font-designer-14r text-text-subtle">
+          아직 답변이 등록되지 않았습니다.
+        </p>
+        <Button onClick={() => setIsOpen(true)}>답변하기</Button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-300">
+      <textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder="답변을 입력해주세요."
+        className="font-designer-14r border-border-default rounded-100 min-h-[120px] w-full resize-none border p-200 focus:outline-none"
+      />
+      <div className="flex justify-end">
+        <Button onClick={handleSubmit} disabled={isPending || !content.trim()}>
+          답변하기
+        </Button>
+      </div>
+    </div>
   );
 }

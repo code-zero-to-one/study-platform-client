@@ -43,8 +43,5 @@ next-env.d.ts
 
 *storybook.log
 
-# sentry
-.sentryclirc
-
 # package manager locks
 package-lock.json

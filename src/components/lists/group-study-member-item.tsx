@@ -8,7 +8,6 @@ import DiscretionaryEvaluationModal, {
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import DiscretionGradeHistoryList from '@/components/lists/discretion-grade-history-list';
-import MissionProgressHistoryList from '@/components/lists/mission-progress-history-list';
 
 import { useAuthReady } from '@/hooks/common/use-auth';
 import type { GroupStudyMember } from '@/types/api/group-study.types';
@@ -159,12 +158,6 @@ export default function GroupStudyMemberItem({
         {isProgressHistoryOpen && (
           <DiscretionGradeHistoryList
             discretionGradeHistory={member.progress.discretionGradeHistory}
-          />
-        )}
-
-        {isProgressHistoryOpen && (
-          <MissionProgressHistoryList
-            missionProgressHistory={member.progress.missionProgressHistory}
           />
         )}
 

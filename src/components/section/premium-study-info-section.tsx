@@ -8,11 +8,11 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
-import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-qeury';
+import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
-import { GroupStudyFullResponse } from '@/types/api/group-study.types';
+import type { GroupStudyFullResponse } from '@/types/api/group-study.types';
 
 import SummaryStudyInfo from '../summary/study-info-summary';
 
@@ -48,20 +48,29 @@ export default function PremiumStudyInfoSection({
 
   const applicantsList = getApplicantsList(approvedApplicants?.pages);
 
+  const { data: pendingApplicants } = useApplicantsByStatusQuery({
+    groupStudyId,
+    status: 'PENDING',
+  });
+  const pendingCount = pendingApplicants?.pages[0]?.totalElements ?? 0;
+
   const avatarMembers = useMemo<AvatarStackMember[]>(() => {
-    return [...applicantsList]
-      .sort(
-        (a, b) =>
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
-      )
-      .map((data) => ({
-        memberId: data.applicantInfo.memberId,
-        nickname: data.applicantInfo.memberNickname || '익명',
-        profileImageUrl:
-          data.applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ??
-          '',
-        isLeader: data.role === 'LEADER',
-      }));
+    const isNotLeader = [...applicantsList].filter(
+      (data) => data.role !== 'LEADER',
+    );
+
+    const sortedNotLeader = isNotLeader.sort(
+      (a, b) =>
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+    );
+
+    return sortedNotLeader.map(({ applicantInfo }) => ({
+      memberId: applicantInfo.memberId,
+      nickname: applicantInfo.memberNickname || '익명',
+      profileImageUrl:
+        applicantInfo.profileImage?.resizedImages[0]?.resizedImageUrl ?? '',
+      isLeader: false,
+    }));
   }, [applicantsList]);
 
   return (
@@ -124,17 +133,24 @@ export default function PremiumStudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>멘티 목록</span>
-                <span className="text-[#A4A7AE]">{`${applicantsList.length}명`}</span>
+                <span className="text-[#A4A7AE]">{`${avatarMembers.length}명`}</span>
               </div>
               {isLeader && (
-                <Button
-                  className="h-500 w-[80px] text-[16px] font-bold"
-                  onClick={() =>
-                    router.push(`/application-list/${groupStudyId}`)
-                  }
-                >
-                  관리하기
-                </Button>
+                <div className="relative">
+                  <Button
+                    className="h-500 w-[80px] text-[16px] font-bold"
+                    onClick={() =>
+                      router.push(`/application-list/${groupStudyId}`)
+                    }
+                  >
+                    관리하기
+                  </Button>
+                  {pendingCount > 0 && (
+                    <span className="absolute -right-[6px] -top-[6px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-[3px] text-[11px] font-bold text-white">
+                      {pendingCount}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 

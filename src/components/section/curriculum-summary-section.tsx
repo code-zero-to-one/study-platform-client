@@ -1,51 +1,125 @@
-import { ExternalLink } from 'lucide-react';
-import { usePathname, useRouter } from 'next/navigation';
+'use client';
 
-import { CurriculumSummaryItem } from '@/types/api/group-study.types';
+import { ExternalLink, Lock } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useRef } from 'react';
+
+import type { CurriculumSummaryDto } from '@/api/openapi';
+import LoginModal from '@/components/common/modals/login-modal';
+import Tooltip from '@/components/common/ui/tooltip';
+import { useAuthReady } from '@/hooks/common/use-auth';
+import { useToastStore } from '@/stores/use-toast-store';
+
+const FIRST_INDEX = 0;
 
 interface CurriculumSummarySectionProps {
-  curriculumSummary: CurriculumSummaryItem[];
+  curriculumSummary: CurriculumSummaryDto[];
+  canAccessAll?: boolean;
+  onLockedClick?: () => void;
 }
 
 export default function CurriculumSummarySection({
   curriculumSummary,
+  canAccessAll = true,
+  onLockedClick,
 }: CurriculumSummarySectionProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { isAuthenticated } = useAuthReady();
+  const loginTriggerRef = useRef<HTMLButtonElement>(null);
+  const showToast = useToastStore((state) => state.showToast);
+
   if (!curriculumSummary?.length) return null;
 
-  const weekCount = Math.max(...curriculumSummary.map((item) => item.weekNum));
+  const handleClickCurriculum = (id: number | undefined) => {
+    if (!id) {
+      showToast('미션 정보를 불러올 수 없습니다.', 'error');
 
-  const handleClickCurriculum = (id: number) => {
+      return;
+    }
     router.push(`${pathname}?tab=mission&missionId=${id}`);
   };
 
+  const handleLockedClick = () => {
+    if (!isAuthenticated) {
+      loginTriggerRef.current?.click();
+    } else {
+      onLockedClick?.();
+    }
+  };
+
   return (
-    <div className="rounded-150 flex w-[335px] flex-col border border-[#D5D7DA] bg-white px-300 py-400">
+    <div className="rounded-150 flex w-[335px] flex-col border border-[#D5D7DA] px-300 py-400">
       <div className="mb-300 flex items-center gap-100">
         <p className="font-designer-20b">커리큘럼 요약</p>
-        <span className="font-designer-16r text-[#A4A7AE]">{weekCount}주</span>
+        <span className="font-designer-16r text-[#A4A7AE]">
+          {curriculumSummary.length}주
+        </span>
       </div>
 
       <div className="flex flex-col gap-150">
-        {curriculumSummary.map((item) => (
-          <div
-            key={item.missionId}
-            className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300"
-          >
-            <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
-              {item.weekNum}
-            </span>
-            <span className="font-designer-15m text-text-default flex-1 leading-snug">
-              {item.title}
-            </span>
-            <ExternalLink
-              onClick={() => handleClickCurriculum(item.missionId)}
-              className="h-[18px] w-[18px] shrink-0 cursor-pointer text-[#A4A7AE]"
-            />
-          </div>
-        ))}
+        {curriculumSummary
+          .sort((a, b) => a.weekNum - b.weekNum)
+          .map((item, index) => {
+            // 스터디 멤버도 아니고 스터디 개설자도 아니며, 첫 번째 미션이 아닌 경우 잠금 처리
+            const isLocked = !canAccessAll && index > FIRST_INDEX;
+
+            if (isLocked) {
+              return (
+                <Tooltip
+                  delayDuration={0}
+                  key={item.missionId ?? index}
+                  trigger={
+                    <div
+                      className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300 cursor-not-allowed"
+                      onClick={handleLockedClick}
+                    >
+                      <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                        {item.weekNum}
+                      </span>
+                      <span className="font-designer-15m text-text-default flex-1 leading-snug">
+                        {item.title}
+                      </span>
+                      <Lock className="h-225 w-225 shrink-0 text-[#A4A7AE]" />
+                    </div>
+                  }
+                  value="스터디 가입하여 확인"
+                  side="bottom"
+                  contentClassName="font-designer-12m rounded-100 bg-background-neutral-strong whitespace-nowrap px-200 shadow-lg"
+                />
+              );
+            }
+
+            return (
+              <div
+                key={item.missionId ?? index}
+                className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300 hover:bg-fill-neutral-subtle-hover cursor-pointer"
+              >
+                <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                  {item.weekNum}
+                </span>
+                <span className="font-designer-15m text-text-default flex-1 leading-snug">
+                  {item.title}
+                </span>
+                <ExternalLink
+                  onClick={() => handleClickCurriculum(item.missionId)}
+                  className="h-225 w-225 shrink-0 cursor-pointer text-[#A4A7AE]"
+                />
+              </div>
+            );
+          })}
       </div>
+
+      <LoginModal
+        openTrigger={
+          <button
+            ref={loginTriggerRef}
+            className="sr-only"
+            aria-hidden
+            tabIndex={-1}
+          />
+        }
+      />
     </div>
   );
 }
