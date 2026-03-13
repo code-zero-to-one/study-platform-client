@@ -282,7 +282,11 @@ export default function StudyDetailPage({
         }}
       />
       {activeTab === 'intro' && (
-        <StudyInfoSection study={studyDetail} isLeader={isLeader} />
+        <StudyInfoSection
+          study={studyDetail}
+          isLeader={isLeader}
+          isMember={isMember}
+        />
       )}
       {activeTab === 'members' && (
         <GroupStudyMemberList

@@ -3,8 +3,9 @@
 import { ChevronLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useGetMissions } from '@/hooks/queries/mission-api';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import MissionCard from '../card/mission-card';
 import PageContainer from '../common/layout/page-container';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
@@ -13,6 +14,16 @@ import MissionDetailContent from '../contents/mission-detail-content';
 
 const CreateMissionModal = dynamic(
   () => import('@/components/common/modals/create-mission-modal'),
+  { ssr: false },
+);
+
+const LoginModal = dynamic(
+  () => import('@/components/common/modals/login-modal'),
+  { ssr: false },
+);
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
   { ssr: false },
 );
 
@@ -34,6 +45,9 @@ export default function MissionSection({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filter, setFilter] = useState<FilterType>('all');
+  const { isAuthenticated } = useAuthReady();
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const loginTriggerRef = useRef<HTMLButtonElement>(null);
 
   const missionId = searchParams.get('missionId');
   const homeworkId = searchParams.get('homeworkId');
@@ -49,11 +63,17 @@ export default function MissionSection({
 
   const missionList = data.content;
 
-  // 가입자(리더 포함)이면 전체 주차, 비회원/미가입자이면 1주차만 표시
   const canAccessAll = isMember || isLeaderProp;
-  const visibleMissionList = canAccessAll
-    ? missionList
-    : (missionList?.filter((m) => m.weekNum === FIRST_WEEK) ?? []);
+  // 비가입자도 전체 주차 목록을 보여주되, 2주차+ 카드에 잠금 UI 적용
+  const visibleMissionList = missionList ?? [];
+
+  const handleLockedClick = () => {
+    if (!isAuthenticated) {
+      loginTriggerRef.current?.click();
+    } else {
+      setIsPhoneModalOpen(true);
+    }
+  };
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -200,6 +220,8 @@ export default function MissionSection({
                   mission.status === 'IN_PROGRESS' ||
                   mission.status === 'NOT_STARTED'
                 }
+                isLocked={!canAccessAll && (mission.weekNum ?? 1) > FIRST_WEEK}
+                onLockedClick={handleLockedClick}
               />
             ))}
           </ul>
@@ -207,6 +229,22 @@ export default function MissionSection({
           <EmptyMissionState />
         )}
       </div>
+
+      <LoginModal
+        openTrigger={
+          <button
+            type="button"
+            ref={loginTriggerRef}
+            className="sr-only"
+            aria-hidden
+            tabIndex={-1}
+          />
+        }
+      />
+      <PhoneVerificationModal
+        open={isPhoneModalOpen}
+        onOpenChange={setIsPhoneModalOpen}
+      />
     </section>
   );
 }

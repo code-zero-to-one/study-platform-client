@@ -17,7 +17,8 @@ export default function StudyActiveTicker({
   viewCount = 0,
   className = '',
 }: StudyActiveTickerProps) {
-  const remaining = Math.max(0, maxMembersCount - approvedCount);
+  const totalCount = approvedCount + 1; // 리더 포함
+  const remaining = Math.max(0, maxMembersCount - totalCount);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const messages = [
@@ -38,7 +39,7 @@ export default function StudyActiveTicker({
       content: (
         <p className="font-designer-16m text-text-default">
           <span className="font-designer-16b text-text-brand">
-            {approvedCount}명
+            {totalCount}명
           </span>
           이 가입했고 현재{' '}
           <span className="font-designer-16b text-text-error">

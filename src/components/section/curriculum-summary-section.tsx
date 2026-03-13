@@ -1,25 +1,48 @@
-import { ExternalLink } from 'lucide-react';
+'use client';
+
+import { ExternalLink, Lock } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
+import { useRef, useState } from 'react';
 
 import type { CurriculumSummaryDto } from '@/api/openapi';
+import LoginModal from '@/components/common/modals/login-modal';
+import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
+import Tooltip from '@/components/common/ui/tooltip';
+import { useAuthReady } from '@/hooks/common/use-auth';
+
+const FIRST_WEEK = 1;
 
 interface CurriculumSummarySectionProps {
   curriculumSummary: CurriculumSummaryDto[];
+  canAccessAll?: boolean;
 }
 
 export default function CurriculumSummarySection({
   curriculumSummary,
+  canAccessAll = true,
 }: CurriculumSummarySectionProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { isAuthenticated } = useAuthReady();
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const loginTriggerRef = useRef<HTMLButtonElement>(null);
+
   if (!curriculumSummary?.length) return null;
 
   const handleClickCurriculum = (id: number) => {
     router.push(`${pathname}?tab=mission&missionId=${id}`);
   };
 
+  const handleLockedClick = () => {
+    if (!isAuthenticated) {
+      loginTriggerRef.current?.click();
+    } else {
+      setIsPhoneModalOpen(true);
+    }
+  };
+
   return (
-    <div className="rounded-150 flex w-[335px] flex-col border border-[#D5D7DA] bg-white px-300 py-400">
+    <div className="rounded-150 flex w-[335px] flex-col border border-[#D5D7DA] px-300 py-400">
       <div className="mb-300 flex items-center gap-100">
         <p className="font-designer-20b">커리큘럼 요약</p>
         <span className="font-designer-16r text-[#A4A7AE]">
@@ -28,24 +51,69 @@ export default function CurriculumSummarySection({
       </div>
 
       <div className="flex flex-col gap-150">
-        {curriculumSummary.map((item) => (
-          <div
-            key={item.missionId}
-            className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300"
-          >
-            <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
-              {item.weekNum}
-            </span>
-            <span className="font-designer-15m text-text-default flex-1 leading-snug">
-              {item.title}
-            </span>
-            <ExternalLink
-              onClick={() => handleClickCurriculum(item.missionId)}
-              className="h-[18px] w-[18px] shrink-0 cursor-pointer text-[#A4A7AE]"
-            />
-          </div>
-        ))}
+        {curriculumSummary.map((item) => {
+          const isLocked = !canAccessAll && (item.weekNum ?? 0) > FIRST_WEEK;
+
+          if (isLocked) {
+            return (
+              <Tooltip
+                delayDuration={0}
+                key={item.missionId}
+                trigger={
+                  <div
+                    className="rounded-100 flex items-center cursor-not-allowed gap-150 border border-[#E9EAEB] bg-fill-neutral-subtle-default p-300 opacity-80 transition-colors"
+                    onClick={handleLockedClick}
+                  >
+                    <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                      {item.weekNum}
+                    </span>
+                    <span className="font-designer-15m text-text-default flex-1 leading-snug">
+                      {item.title}
+                    </span>
+                    <Lock className="h-225 w-225 shrink-0 text-[#A4A7AE]" />
+                  </div>
+                }
+                value="스터디 가입 후 확인 가능"
+                side="bottom"
+                contentClassName="rounded-100 text-text-inverse font-designer-12m pointer-events-none absolute top-full left-1/2 z-50 mt-100 -translate-x-1/2 px-200 py-100 whitespace-nowrap shadow-lg"
+              />
+            );
+          }
+
+          return (
+            <div
+              key={item.missionId}
+              className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300"
+            >
+              <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                {item.weekNum}
+              </span>
+              <span className="font-designer-15m text-text-default flex-1 leading-snug">
+                {item.title}
+              </span>
+              <ExternalLink
+                onClick={() => handleClickCurriculum(item.missionId)}
+                className="h-225 w-225 shrink-0 cursor-pointer text-[#A4A7AE]"
+              />
+            </div>
+          );
+        })}
       </div>
+
+      <LoginModal
+        openTrigger={
+          <button
+            ref={loginTriggerRef}
+            className="sr-only"
+            aria-hidden
+            tabIndex={-1}
+          />
+        }
+      />
+      <PhoneVerificationModal
+        open={isPhoneModalOpen}
+        onOpenChange={setIsPhoneModalOpen}
+      />
     </div>
   );
 }

@@ -22,11 +22,13 @@ const UserProfileModal = dynamic(
 interface StudyInfoSectionProps {
   study: GroupStudyFullResponseDto;
   isLeader: boolean;
+  isMember?: boolean;
 }
 
 export default function StudyInfoSection({
   study: studyDetail,
   isLeader,
+  isMember,
 }: StudyInfoSectionProps) {
   const router = useRouter();
   const params = useParams();
@@ -154,6 +156,7 @@ export default function StudyInfoSection({
         <SummaryStudyInfo data={studyDetail} />
         <CurriculumSummarySection
           curriculumSummary={studyDetail.curriculumSummary ?? []}
+          canAccessAll={isMember || isLeader}
         />
       </div>
     </div>

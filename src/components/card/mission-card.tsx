@@ -1,12 +1,14 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { Lock } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { ComponentProps } from 'react';
 
-import { MissionListResponse } from '@/api/openapi/models';
+import type { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
+import Tooltip from '@/components/common/ui/tooltip';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
 
 const DeleteMissionModal = dynamic(
@@ -26,6 +28,8 @@ interface MissionCardProps {
   showDeadline?: boolean;
   isMember?: boolean;
   isLeader?: boolean;
+  isLocked?: boolean;
+  onLockedClick?: () => void;
 }
 
 const STATUS_CONFIG = {
@@ -88,7 +92,7 @@ function isCardClickable(
   if (isLeader || isMember) return true;
   // 비회원/미가입자: 1주차 필터는 상위에서 처리되므로 모든 상태 클릭 가능
 
-  return status !== 'NOT_STARTED';
+  return true;
 }
 
 export default function MissionCard({
@@ -98,6 +102,8 @@ export default function MissionCard({
   showDeadline = false,
   isMember = false,
   isLeader = false,
+  isLocked = false,
+  onLockedClick,
 }: MissionCardProps) {
   const statusConfig =
     mission.status && mission.status in STATUS_CONFIG
@@ -115,6 +121,32 @@ export default function MissionCard({
     showDeadline && mission.status === 'IN_PROGRESS'
       ? getDeadlineInfo(mission.endDate)
       : undefined;
+
+  // 비가입자 2주차+ 잠금 카드
+  if (isLocked) {
+    return (
+      <Tooltip
+        trigger={
+          <li
+            className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
+            onClick={onLockedClick}
+          >
+            <MissionCardContent
+              title={mission.title}
+              weekNum={mission.weekNum}
+              statusConfig={statusConfig}
+              startDate={mission.startDate}
+              endDate={mission.endDate}
+              deadlineInfo={undefined}
+            />
+            <Lock className="text-text-subtle h-[18px] w-[18px] shrink-0" />
+          </li>
+        }
+        value="스터디 가입 후 확인 가능"
+        side="top"
+      />
+    );
+  }
 
   // 리더 + 진행 예정: 클릭 가능 + 수정/삭제 버튼 노출
   if (isLeader && mission.status === 'NOT_STARTED') {
