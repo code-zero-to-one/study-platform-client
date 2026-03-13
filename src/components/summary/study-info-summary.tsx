@@ -190,10 +190,10 @@ export default function SummaryStudyInfo({ data }: Props) {
     router.push(`/payment/${groupStudyId}`);
   };
 
-  const handleVerificationCompleteForPayment = (phoneNumber: string) => {
+  const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
     setIsPhoneVerificationOpen(false);
-    router.push(`/payment/${groupStudyId}`);
+    // 인증 완료 후 자동 진행 없음 — 유저가 신청하기 버튼을 다시 눌러 진행
   };
 
   const renderApplyButton = () => {
@@ -323,7 +323,7 @@ export default function SummaryStudyInfo({ data }: Props) {
           <PhoneVerificationModal
             open={isPhoneVerificationOpen}
             onOpenChange={setIsPhoneVerificationOpen}
-            onVerificationComplete={handleVerificationCompleteForPayment}
+            onVerificationComplete={handleVerificationComplete}
             memberId={memberId}
           />
         )}
