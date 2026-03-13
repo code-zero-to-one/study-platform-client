@@ -5,8 +5,8 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
-import Button from '@/components/common/ui/button';
 import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
+import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import InquiryListTable from '@/components/lists/inquiry-list-table';
 import {
