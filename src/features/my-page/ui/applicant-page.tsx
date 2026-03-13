@@ -7,7 +7,7 @@ import { ApplyStatus } from '@/features/study/group/application/api/type';
 import {
   useApplicantsByStatusQuery,
   useUpdateApplicantByStatusMutation,
-} from '@/features/study/group/application/model/use-applicant-qeury';
+} from '@/features/study/group/application/model/use-applicant-query';
 import ProfileCard from './profile-card';
 
 interface ApplicantListProps {

@@ -18,7 +18,7 @@ import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
-import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-query';
 import { formatPhoneNumber } from '@/utils/format';
 import { decodeJwt } from '@/utils/jwt';
 
