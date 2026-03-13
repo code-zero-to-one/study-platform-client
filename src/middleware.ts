@@ -223,7 +223,8 @@ export async function middleware(request: NextRequest) {
 
   if (pathname === '/') return NextResponse.next();
   if (pathname === '/sign-up') return handleSignUp(request, ctx);
-  if (pathname.startsWith('/group-study')) return handleGroupStudy(request, ctx);
+  if (pathname.startsWith('/group-study'))
+    return handleGroupStudy(request, ctx);
   if (pathname === '/login') return handleLogin(request, ctx);
 
   return handleProtected(request, ctx);
