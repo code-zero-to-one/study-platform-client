@@ -128,7 +128,7 @@ export default function MissionCard({
       <Tooltip
         trigger={
           <li
-            className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
+            className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-background-default p-300"
             onClick={onLockedClick}
           >
             <MissionCardContent
