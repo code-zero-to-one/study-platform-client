@@ -145,7 +145,8 @@ export default function SummaryStudyInfo({ data }: Props) {
   const isApplyDisabled =
     isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
-    groupStudyStatus !== 'RECRUITING' ||
+    groupStudyStatus === 'IN_PROGRESS' ||
+    groupStudyStatus === 'COMPLETED' ||
     approvedCount >= maxMembersCount ||
     isDeadlinePassed;
 
@@ -160,7 +161,8 @@ export default function SummaryStudyInfo({ data }: Props) {
       return '신청 거절됨';
     }
     if (
-      groupStudyStatus !== 'RECRUITING' ||
+      groupStudyStatus === 'IN_PROGRESS' ||
+      groupStudyStatus === 'COMPLETED' ||
       approvedCount >= maxMembersCount ||
       isDeadlinePassed
     ) {
