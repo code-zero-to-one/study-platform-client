@@ -78,6 +78,8 @@ export default function StudyDetailPage({
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
+  console.log({ studyDetail });
+
   const leaderId = studyDetail?.basicInfo.leader.memberId;
   const leader = studyDetail?.basicInfo.leader;
 
@@ -222,6 +224,7 @@ export default function StudyDetailPage({
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
         <StudyActiveTicker
           approvedCount={studyDetail.basicInfo.approvedCount}
+          remainingSlot={studyDetail.basicInfo.remainingSlots}
           maxMembersCount={studyDetail.basicInfo.maxMembersCount}
           startDate={studyDetail.basicInfo.startDate}
           viewCount={studyDetail.viewCount}

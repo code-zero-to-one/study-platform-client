@@ -9,16 +9,16 @@ interface StudyActiveTickerProps {
   startDate: string;
   viewCount?: number;
   className?: string;
+  remainingSlot?: number;
 }
 
 export default function StudyActiveTicker({
   approvedCount,
-  maxMembersCount,
   viewCount = 0,
+  remainingSlot = 0,
   className = '',
 }: StudyActiveTickerProps) {
   const totalCount = approvedCount + 1; // 리더 포함
-  const remaining = Math.max(0, maxMembersCount - totalCount);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const messages = [
@@ -43,7 +43,7 @@ export default function StudyActiveTicker({
           </span>
           이 가입했고 현재{' '}
           <span className="font-designer-16b text-text-error">
-            {remaining}자리
+            {remainingSlot}자리
           </span>{' '}
           남았어요.
         </p>
