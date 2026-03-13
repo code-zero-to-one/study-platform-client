@@ -85,10 +85,9 @@ export function initClientSentry() {
   if (typeof window === 'undefined') return;
 
   // replayIntegration은 클라이언트 전용
+  // @sentry/nextjs 10.42.0에서는 replayIntegration을 직접 export하지 않음
+  // replaysOnErrorSampleRate만 설정하면 자동으로 활성화됨
   const integrations: any[] = [];
-  if (Sentry.replayIntegration) {
-    integrations.push(Sentry.replayIntegration());
-  }
 
   initSentry({
     tracesSampleRate: 0.1,

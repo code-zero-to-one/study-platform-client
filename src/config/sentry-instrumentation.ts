@@ -40,5 +40,17 @@ export function onRequestError(
   }
 
   // API 라우트나 미들웨어에서 발생한 에러만 Sentry로 전송
-  Sentry.captureRequestError(err, requestInfo);
+  // captureRequestError는 3개의 인자를 요구: error, requestInfo, errorContext
+  Sentry.captureRequestError(
+    err,
+    {
+      ...requestInfo,
+      headers: {}, // headers는 필수이지만 여기서는 사용하지 않음
+    },
+    {
+      routerKind: 'Pages Router', // 또는 'App Router'
+      routePath: requestInfo.path,
+      routeType: 'route',
+    },
+  );
 }
