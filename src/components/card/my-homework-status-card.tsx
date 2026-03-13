@@ -62,9 +62,7 @@ export default function MyHomeworkStatusCard({
             {myHomework.submissionTime?.split('T')[0]}일 과제를 제출
             완료하였습니다.
           </span>
-          <span className="text-text-subtlest font-designer-14r">
-            리더의 과제 평가를 기다려 주세요.
-          </span>
+
           <Button
             color="outlined"
             className="mt-100"
