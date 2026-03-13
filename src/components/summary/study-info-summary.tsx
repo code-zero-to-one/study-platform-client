@@ -8,6 +8,9 @@ import { useState } from 'react';
 import Button from '@/components/ui/button';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
+import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
+import LoginModal from '@/features/auth/ui/login-modal';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
@@ -30,6 +33,9 @@ export default function SummaryStudyInfo({ data }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { memberId, isAuthReady, isHydrated } = useAuthReady();
   const showToast = useToastStore((state) => state.showToast);
+  const { isVerified, isLoading: isVerificationLoading, setVerified } =
+    usePhoneVerificationStatus(memberId);
+  const [isPhoneVerificationOpen, setIsPhoneVerificationOpen] = useState(false);
 
   const { basicInfo, detailInfo, interviewPost } = data;
   const {
@@ -133,9 +139,6 @@ export default function SummaryStudyInfo({ data }: Props) {
     await queryClient.invalidateQueries({
       queryKey: ['groupStudyMemberStatus', groupStudyId],
     });
-    if (price > 0) {
-      router.push(`/payment/${groupStudyId}`);
-    }
   };
 
   // 신청 마감 여부 체크 (스터디 시작일이 오늘 이전이거나 같은 경우)
@@ -145,6 +148,13 @@ export default function SummaryStudyInfo({ data }: Props) {
   const isApplyDisabled =
     isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
+    groupStudyStatus === 'IN_PROGRESS' ||
+    groupStudyStatus === 'COMPLETED' ||
+    approvedCount >= maxMembersCount ||
+    isDeadlinePassed;
+
+  // 비로그인 유저에게도 표시할 공개 모집 마감 조건 (myApplicationStatus 미참조)
+  const isClosedForPublic =
     groupStudyStatus === 'IN_PROGRESS' ||
     groupStudyStatus === 'COMPLETED' ||
     approvedCount >= maxMembersCount ||
@@ -160,22 +170,102 @@ export default function SummaryStudyInfo({ data }: Props) {
     if (myApplicationStatus?.status === 'REJECTED') {
       return '신청 거절됨';
     }
-    if (
-      groupStudyStatus === 'IN_PROGRESS' ||
-      groupStudyStatus === 'COMPLETED' ||
-      approvedCount >= maxMembersCount ||
-      isDeadlinePassed
-    ) {
+    if (isClosedForPublic) {
       return '모집 마감';
     }
 
     return '신청하기';
   };
 
-  const handleApplyClick = () => {
-    if (!isLoggedIn) {
-      router.push('/login');
+  const handlePaidStudyApplyClick = () => {
+    if (isVerificationLoading) return;
+    if (!isVerified) {
+      setIsPhoneVerificationOpen(true);
+      return;
     }
+    router.push(`/payment/${groupStudyId}`);
+  };
+
+  const handleVerificationCompleteForPayment = (phoneNumber: string) => {
+    setVerified(phoneNumber);
+    setIsPhoneVerificationOpen(false);
+    router.push(`/payment/${groupStudyId}`);
+  };
+
+  const renderApplyButton = () => {
+    if (!isHydrated) {
+      return (
+        <Button size="large" color="primary" className="h-600" disabled>
+          신청하기
+        </Button>
+      );
+    }
+
+    if (price > 0) {
+      if (!isLoggedIn) {
+        return (
+          <LoginModal
+            openTrigger={
+              <Button
+                size="large"
+                color="primary"
+                className="h-600"
+                disabled={isClosedForPublic}
+              >
+                {isClosedForPublic ? '모집 마감' : '신청하기'}
+              </Button>
+            }
+          />
+        );
+      }
+      return (
+        <Button
+          size="large"
+          color="primary"
+          className="h-600"
+          disabled={isApplyDisabled}
+          onClick={handlePaidStudyApplyClick}
+        >
+          {getButtonText()}
+        </Button>
+      );
+    }
+
+    if (isLoggedIn) {
+      return (
+        <ApplyGroupStudyModal
+          groupStudyId={groupStudyId}
+          title={title}
+          questions={questions}
+          onSuccess={handleApplySuccess}
+          trigger={
+            <Button
+              size="large"
+              color="primary"
+              className="h-600"
+              disabled={isApplyDisabled}
+            >
+              {getButtonText()}
+            </Button>
+          }
+        />
+      );
+    }
+
+    return (
+      <LoginModal
+        openTrigger={
+          <Button
+            size="large"
+            color="primary"
+            className="h-600"
+            disabled={isClosedForPublic}
+          >
+            {isClosedForPublic ? '모집 마감' : '신청하기'}
+          </Button>
+        }
+      />
+    );
   };
 
   return (
@@ -222,38 +312,15 @@ export default function SummaryStudyInfo({ data }: Props) {
 
       {/* 버튼 영역 */}
       <div className="flex flex-col gap-100">
-        {/* 스터디 신청 모달 (유료/무료 공통) */}
+        {renderApplyButton()}
 
-        {!isHydrated ? (
-          <Button size="large" color="primary" className="h-600" disabled>
-            신청하기
-          </Button>
-        ) : isLoggedIn ? (
-          <ApplyGroupStudyModal
-            groupStudyId={groupStudyId}
-            title={title}
-            questions={questions}
-            onSuccess={handleApplySuccess}
-            trigger={
-              <Button
-                size="large"
-                color="primary"
-                className="h-600"
-                disabled={isApplyDisabled}
-              >
-                {getButtonText()}
-              </Button>
-            }
+        {price > 0 && (
+          <PhoneVerificationModal
+            open={isPhoneVerificationOpen}
+            onOpenChange={setIsPhoneVerificationOpen}
+            onVerificationComplete={handleVerificationCompleteForPayment}
+            memberId={memberId}
           />
-        ) : (
-          <Button
-            size="large"
-            color="primary"
-            className="h-600"
-            onClick={handleApplyClick}
-          >
-            신청하기
-          </Button>
         )}
 
         <Button

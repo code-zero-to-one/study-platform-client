@@ -5,6 +5,12 @@ import { decodeJwt } from '@/utils/jwt';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
 
+const ACCESS_TOKEN_COOKIE_OPTIONS = {
+  secure: true,
+  sameSite: 'lax' as const,
+  path: '/',
+};
+
 const verifyAccessToken = async (accessToken: string) => {
   try {
     // Access token로 memberId만 반환하는 api
@@ -97,12 +103,51 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  if (request.nextUrl.pathname === '/login') {
-    if (hasAccessToken && hasMemberId) {
-      // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
-      const mainUrl = new URL('/home', request.url);
+  // 그룹스터디 상세: 비회원도 접근 가능, 로그인된 사용자는 토큰 갱신만 수행
+  if (request.nextUrl.pathname.startsWith('/group-study')) {
+    // 비회원(토큰 없음)은 그대로 통과
+    if (!hasAccessToken || !hasMemberId || !accessToken) {
+      return NextResponse.next();
+    }
 
-      return NextResponse.redirect(mainUrl);
+    // 로그인된 사용자는 토큰 유효성 검증 후 필요 시 갱신
+    const verifyResponse = await verifyAccessToken(accessToken);
+    const response = NextResponse.next();
+
+    if (verifyResponse.state === 'invalid') {
+      const newAccessToken = await refreshAccessToken();
+
+      if (newAccessToken) {
+        // 갱신 성공 → 새 토큰 쿠키 저장
+        response.cookies.set('accessToken', newAccessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+      } else {
+        // refresh token도 만료 → 쿠키 삭제 후 비회원으로 통과
+        response.cookies.delete('accessToken');
+        response.cookies.delete('memberId');
+      }
+    }
+
+    return response;
+  }
+
+  if (request.nextUrl.pathname === '/login') {
+    if (hasAccessToken && hasMemberId && accessToken) {
+      const verifyResponse = await verifyAccessToken(accessToken);
+
+      if (verifyResponse.state === 'valid') {
+        // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
+        const mainUrl = new URL('/home', request.url);
+
+        return NextResponse.redirect(mainUrl);
+      }
+
+      // 만료/유효하지 않은 토큰으로 로그인 페이지 진입 시 루프 방지를 위해 세션 쿠키를 정리
+      const response = NextResponse.next();
+      response.cookies.delete('accessToken');
+      response.cookies.delete('memberId');
+      response.cookies.delete('socialImageURL');
+
+      return response;
     }
 
     return NextResponse.next();
@@ -126,11 +171,7 @@ export async function middleware(request: NextRequest) {
 
     if (newAccessToken) {
       // 갱신 성공
-      response.cookies.set('accessToken', newAccessToken, {
-        secure: true,
-        sameSite: 'lax', // strict에서 lax로 변경: 외부 사이트에서 redirect 시 쿠키 전송 허용
-        path: '/',
-      });
+      response.cookies.set('accessToken', newAccessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
     } else {
       // 갱신 실패 - 쿠키 삭제 후 랜딩 페이지로 리디렉션
       response.cookies.delete('accessToken');
@@ -160,7 +201,6 @@ export const config = {
   matcher: [
     '/',
     '/login',
-    // '/home', // 공개 페이지로 변경하여 제거
     '/my-page',
     '/payment-management',
     '/settlement-management',
@@ -169,5 +209,6 @@ export const config = {
     '/sign-up',
     '/payment/:path*', // 결제 관련 모든 경로
     '/admin/:path*',
+    '/group-study/:path*', // 그룹스터디 상세 (비회원 접근 가능, 토큰 갱신 필요)
   ],
 };
