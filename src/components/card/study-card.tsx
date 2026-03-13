@@ -56,12 +56,7 @@ function getRecruitmentBadge(remaining: number) {
   );
 }
 
-export default function StudyCard({
-  study,
-  href,
-  onClick,
-  viewCount,
-}: StudyCardProps) {
+export default function StudyCard({ study, href, onClick }: StudyCardProps) {
   const {
     basicInfo: {
       type,
@@ -164,6 +159,10 @@ export default function StudyCard({
                 : ''}
             </span>
           </div>
+          <div className="text-text-subtlest flex items-center gap-50">
+            <Eye width={16} height={16} />
+            <span className="font-designer-13r">{study.viewCount}</span>
+          </div>
         </div>
 
         {/* 리더 정보 & 가격 */}
@@ -193,14 +192,6 @@ export default function StudyCard({
                   원
                 </span>
               </span>
-            )}
-            {viewCount !== undefined && viewCount > 0 && (
-              <div className="text-text-subtlest flex items-center gap-50">
-                <Eye width={16} height={16} />
-                <span className="font-designer-13r">
-                  {formatCount(viewCount)}
-                </span>
-              </div>
             )}
           </div>
         </div>
