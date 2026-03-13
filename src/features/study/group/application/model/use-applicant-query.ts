@@ -4,7 +4,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { getApplicantsByStatus } from '../api/get-applicants-by-status';
-import { ApplyStatus, UpdateApplicantByStatusRequest } from '../api/type';
+import type { ApplyStatus, UpdateApplicantByStatusRequest } from '../api/type';
 import { updateApplicantByStatus } from '../api/update-applicant-by-status';
 
 export const useApplicantsByStatusQuery = ({

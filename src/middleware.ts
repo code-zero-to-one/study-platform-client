@@ -103,11 +103,15 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 그룹스터디 상세: 비회원도 접근 가능, 로그인된 사용자는 토큰 갱신만 수행
+  // 그룹스터디 상세: 비회원도 접근 가능, 로그인된 사용자는 토큰 갱신 + memberId 정규화
   if (request.nextUrl.pathname.startsWith('/group-study')) {
-    // 비회원(토큰 없음)은 그대로 통과
-    if (!hasAccessToken || !hasMemberId || !accessToken) {
-      return NextResponse.next();
+    // 비회원(accessToken 없음): identity 쿠키 삭제 후 통과 (쿠키 위조 방지)
+    if (!accessToken) {
+      const response = NextResponse.next();
+      response.cookies.delete('memberId');
+      response.cookies.delete('socialImageURL');
+
+      return response;
     }
 
     // 로그인된 사용자는 토큰 유효성 검증 후 필요 시 갱신
@@ -128,6 +132,16 @@ export async function middleware(request: NextRequest) {
         // refresh token도 만료 → 쿠키 삭제 후 비회원으로 통과
         response.cookies.delete('accessToken');
         response.cookies.delete('memberId');
+        response.cookies.delete('socialImageURL');
+      }
+    } else if (
+      verifyResponse.state === 'valid' &&
+      verifyResponse.memberId !== undefined
+    ) {
+      // 서버 검증된 memberId로 쿠키 정규화 (임의 위조 방지)
+      const serverMemberId = String(verifyResponse.memberId);
+      if (memberId !== serverMemberId) {
+        response.cookies.set('memberId', serverMemberId, { path: '/' });
       }
     }
 
