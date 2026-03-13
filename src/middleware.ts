@@ -172,7 +172,6 @@ export const config = {
   matcher: [
     '/',
     '/login',
-    // '/home', // 공개 페이지로 변경하여 제거
     '/my-page',
     '/payment-management',
     '/settlement-management',

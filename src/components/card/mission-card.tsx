@@ -177,7 +177,6 @@ export default function MissionCard({
     );
   }
 
-  // 리더 + 제출 마감: 평가하기 버튼 노출
   if (isLeader && mission.status === 'ENDED') {
     return (
       <li
@@ -192,16 +191,6 @@ export default function MissionCard({
           endDate={mission.endDate}
           deadlineInfo={undefined}
         />
-        <Button
-          color="outlined"
-          size="medium"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSelectMission();
-          }}
-        >
-          평가하기
-        </Button>
       </li>
     );
   }
