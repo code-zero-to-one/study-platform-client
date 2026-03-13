@@ -7,6 +7,7 @@ import type {
   StudyPaymentPrepareResponse,
   TossPaymentConfirmRequest,
 } from '@/api/openapi/models';
+import { useToastStore } from '@/stores/use-toast-store';
 
 interface PreparePaymentResult {
   data: StudyPaymentPrepareResponse | undefined;
@@ -178,10 +179,7 @@ export const useCancelPayment = () => {
       await queryClient.invalidateQueries({
         queryKey: ['myTransactions'],
       });
-      alert('결제가 취소되었습니다.');
-    },
-    onError: () => {
-      alert('결제 취소에 실패했습니다. 다시 시도해주세요.');
+      useToastStore.getState().showToast('결제가 취소되었습니다.', 'success');
     },
   });
 };

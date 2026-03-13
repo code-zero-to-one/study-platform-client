@@ -8,6 +8,7 @@ import { ReactNode, useEffect, useState } from 'react';
 import { setCookie } from '@/api/client/cookie';
 import { testLogin } from '@/api/endpoints/auth/test-login';
 import { Modal } from '@/components/common/ui/modal';
+import { useToastStore } from '@/stores/use-toast-store';
 import { getAttributionParams } from '@/utils/attribution-tracker';
 
 export default function LoginModal({
@@ -18,6 +19,7 @@ export default function LoginModal({
   const [state, setState] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
+  const showToast = useToastStore((state) => state.showToast);
 
   // Test Login State
   const [testMemberId, setTestMemberId] = useState('1');
@@ -48,7 +50,7 @@ export default function LoginModal({
       // alert(`테스트 로그인 성공! (ID: ${memberId})`);
     } catch (error) {
       console.error('Test login failed:', error);
-      alert('테스트 로그인 실패 (백엔드 실행 여부를 확인하세요)');
+      showToast('테스트 로그인 실패 (백엔드 실행 여부를 확인하세요)', 'error');
     } finally {
       setIsTestLoading(false);
     }

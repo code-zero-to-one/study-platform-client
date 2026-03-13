@@ -7,6 +7,7 @@ import FormField from '@/components/common/ui/form/form-field';
 import { TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
 import { useUpdateGreeting } from '@/hooks/queries/group-study-member-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import {
   WriteGreetingFormSchema,
   WriteGreetingFormValues,
@@ -55,6 +56,7 @@ interface WriteGreetingFormProps {
 }
 
 function WriteGreetingForm({ onClose, groupStudyId }: WriteGreetingFormProps) {
+  const showToast = useToastStore((state) => state.showToast);
   const methods = useForm<WriteGreetingFormValues>({
     resolver: zodResolver(WriteGreetingFormSchema),
     mode: 'onChange',
@@ -73,7 +75,7 @@ function WriteGreetingForm({ onClose, groupStudyId }: WriteGreetingFormProps) {
       },
       {
         onSuccess: () => {
-          alert('가입인사를 작성하였습니다!');
+          showToast('가입인사를 작성하였습니다!', 'success');
           onClose();
         },
       },

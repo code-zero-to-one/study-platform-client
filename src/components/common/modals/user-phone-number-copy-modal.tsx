@@ -1,6 +1,7 @@
 import { XIcon } from 'lucide-react';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
+import { useToastStore } from '@/stores/use-toast-store';
 
 export default function UserPhoneNumberCopyModal({
   trigger,
@@ -11,12 +12,14 @@ export default function UserPhoneNumberCopyModal({
   phoneNumber: string;
   realName?: string;
 }) {
+  const showToast = useToastStore((state) => state.showToast);
+
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      alert('전화번호가 복사되었습니다.');
+      showToast('전화번호가 복사되었습니다.', 'success');
     } catch (e) {
-      alert('전화번호 복사에 실패하였습니다');
+      showToast('전화번호 복사에 실패하였습니다', 'error');
     }
   };
 

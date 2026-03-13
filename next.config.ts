@@ -1,10 +1,20 @@
-import bundleAnalyzer from '@next/bundle-analyzer';
+import { withSentryConfig } from '@sentry/nextjs';
 import type { NextConfig } from 'next';
 import type { RemotePattern } from 'next/dist/shared/lib/image-config';
 
-const withBundleAnalyzer = bundleAnalyzer({
-  enabled: process.env.ANALYZE === 'true',
-});
+// @next/bundle-analyzer는 devDependency이므로 런타임 컨테이너에 없을 수 있습니다.
+// 런타임에서는 항상 초기화하되, enabled 옵션으로 제어합니다.
+let withBundleAnalyzer: (config: NextConfig) => NextConfig = (config) => config;
+
+if (process.env.ANALYZE === 'true') {
+  try {
+    const bundleAnalyzer = require('@next/bundle-analyzer');
+    withBundleAnalyzer = bundleAnalyzer({ enabled: true });
+  } catch (error) {
+    // devDependencies가 없는 환경에서는 무시
+    console.warn('@next/bundle-analyzer를 로드할 수 없습니다:', error);
+  }
+}
 
 const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV === 'development';
@@ -17,15 +27,16 @@ const nextConfig: NextConfig = {
     const cspDirectives = [
       "default-src 'self'",
       // GTM, Clarity, 토스페이먼츠 스크립트 허용. 개발 환경에서는 'unsafe-eval' 추가(Next.js HMR 필요).
-      `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms https://js.tosspayments.com${isDev ? " 'unsafe-eval'" : ''}`,
+      `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms https://js.tosspayments.com https://browser.sentry-cdn.com${isDev ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       // 카카오·구글 프로필 이미지, 자사 API/CMS 이미지 도메인 허용
       "img-src 'self' data: blob: https://img1.kakaocdn.net https://lh3.googleusercontent.com https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.zeroone.it.kr https://test-blog.zeroone.it.kr",
       // API, GA, Clarity, 토스, 카카오/구글 OAuth 연결 허용. 개발에서는 HMR WebSocket 추가.
-      `connect-src 'self' https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.google-analytics.com https://www.clarity.ms https://api.tosspayments.com https://kauth.kakao.com https://accounts.google.com${isDev ? ' ws://localhost:*' : ''}`,
+      `connect-src 'self' https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.google-analytics.com https://www.clarity.ms https://api.tosspayments.com https://kauth.kakao.com https://accounts.google.com https://*.ingest.sentry.io${isDev ? ' ws://localhost:*' : ''}`,
       // 토스 결제창 iframe 허용
       'frame-src https://pay.toss.im https://cert.tosspayments.com',
       "font-src 'self' data:",
+      "worker-src 'self' blob:",
     ].join('; ');
 
     return [
@@ -154,4 +165,16 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withBundleAnalyzer(nextConfig);
+const sentryConfig = withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
+  silent: !process.env.SENTRY_AUTH_TOKEN,
+  disableLogger: true,
+  sourcemaps: {
+    filesToDeleteAfterUpload: ['.next/static/**/*.map'],
+  },
+  widenClientFileUpload: true,
+});
+
+export default withBundleAnalyzer(sentryConfig);

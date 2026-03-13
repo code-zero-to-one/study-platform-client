@@ -16,6 +16,7 @@ import {
   useSignUpMutation,
   useUploadProfileImageMutation,
 } from '@/hooks/queries/use-auth-mutation';
+import { useToastStore } from '@/stores/use-toast-store';
 import { SignUpRequest } from '@/types/api/auth.types';
 import { getAttributionParams } from '@/utils/attribution-tracker';
 import { hashValue } from '@/utils/hash';
@@ -45,6 +46,7 @@ export default function SignupModal({
   onClose: () => void;
 }) {
   const [currentStep, setCurrentStep] = useState<Step>('nickname');
+  const showToast = useToastStore((state) => state.showToast);
   const signUp = useSignUpMutation();
   const uploadProfileImage = useUploadProfileImageMutation();
   const [signupData, setSignupData] = useState<{
@@ -147,7 +149,7 @@ export default function SignupModal({
       },
       onError: (error) => {
         console.error('회원가입 실패:', error);
-        alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+        showToast('회원가입에 실패했습니다. 다시 시도해주세요.', 'error');
       },
     });
   };

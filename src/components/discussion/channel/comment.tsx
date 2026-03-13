@@ -11,6 +11,7 @@ import {
   useUpdateCommentMutation,
   useUpdateThreadMutation,
 } from '@/hooks/queries/use-channel-query';
+import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderInfo } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { ResizedImage } from '@/types/api/group-study.types';
@@ -49,6 +50,7 @@ interface CommentProps {
 // 스레드용이냐 커맨트용이냐에 따라서 호출하는 함수가 달라짐
 export default function Comment({ data, groupStudyId, mode }: CommentProps) {
   const memberId = useUserStore((state) => state.memberId);
+  const showToast = useToastStore((state) => state.showToast);
   const leader = useLeaderInfo();
 
   const qc = useQueryClient();
@@ -118,14 +120,20 @@ export default function Comment({ data, groupStudyId, mode }: CommentProps) {
     if (mode === 'thread') {
       deleteThread(base, {
         onSuccess: async () => {
-          alert(mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!');
+          showToast(
+            mode === 'thread' ? '스레드 삭제 성공!' : '댓글 삭제 성공!',
+            'success',
+          );
 
           await qc.invalidateQueries({
             queryKey: ['get-threads', groupStudyId],
           });
         },
         onError: (err: unknown) => {
-          alert(mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:');
+          showToast(
+            mode === 'thread' ? '스레드 삭제 실패:' : '댓글 삭제 실패:',
+            'error',
+          );
         },
         onSettled: () => {
           setShowConfirmModal(false);

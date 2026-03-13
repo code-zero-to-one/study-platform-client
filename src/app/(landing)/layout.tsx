@@ -7,6 +7,7 @@ import localFont from 'next/font/local';
 import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import Header from '@/components/common/layout/home-header';
+import GlobalToast from '@/components/common/ui/global-toast';
 import MainProvider from '@/providers';
 import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
 import { getServerCookie } from '@/utils/server-cookie';
@@ -99,6 +100,7 @@ export default async function LandingPageLayout({
               <main className="w-full">{children}</main>
             </div>
           </div>
+          <GlobalToast />
         </MainProvider>
       </body>
     </html>

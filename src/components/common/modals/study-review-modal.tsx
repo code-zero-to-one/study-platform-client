@@ -16,6 +16,7 @@ import {
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
 } from '@/hooks/queries/use-review-query';
+import { useToastStore } from '@/stores/use-toast-store';
 import { EvalKeyword, StudyEvaluationResponse } from '@/types/api/review.types';
 
 interface FormState {
@@ -158,6 +159,7 @@ function StudyReviewForm({
   onToggleHideForOneHour: () => void;
   onToggleHideForever: () => void;
 }) {
+  const showToast = useToastStore((state) => state.showToast);
   const queryClient = useQueryClient();
   const { data, error, isError, isFetching } = usePartnerStudyReviewQuery({
     enabled: open,
@@ -291,7 +293,7 @@ function StudyReviewForm({
             return;
           }
 
-          alert('후기 작성에 실패했습니다. 다시 시도해주세요.');
+          showToast('후기 작성에 실패했습니다. 다시 시도해주세요.', 'error');
         },
       },
     );
