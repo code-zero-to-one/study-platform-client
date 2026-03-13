@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Button from '@/components/common/ui/button';
-import { analyzeError, logError, type ErrorInfo } from '@/utils/error-handler';
+import { analyzeError, sendErrorToSentry, type ErrorInfo } from '@/utils/error-handler';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -14,22 +14,40 @@ interface ErrorProps {
 export default function ServiceError({ error, reset }: ErrorProps) {
   const router = useRouter();
   const [errorInfo, setErrorInfo] = useState<ErrorInfo | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
 
   useEffect(() => {
+    // 서버 사이드 에러 감지
+    // Next.js 서버 사이드 에러는 digest가 있거나 스택에 서버 관련 키워드가 있음
+    const isServerSideError = 
+      error.digest !== undefined ||
+      (error.stack && (
+        error.stack.includes('next-server') ||
+        error.stack.includes('node_modules/next') ||
+        error.stack.includes('server-components')
+      ));
+
     // 에러 분석 및 로깅
-    const analyzed = analyzeError(error);
-    setErrorInfo(analyzed);
-    logError(analyzed, {
+    const analyzed = analyzeError(error, { isServerSide: isServerSideError });
+    
+    // 서버 사이드 에러는 사용자에게 일반적인 메시지만 표시
+    if (isServerSideError) {
+      setErrorInfo({
+        ...analyzed,
+        userMessage: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        technicalMessage: analyzed.technicalMessage, // Sentry에는 상세 정보 전송
+      });
+    } else {
+      setErrorInfo(analyzed);
+    }
+
+    // Sentry 전송 (서버 에러는 상세 정보 포함)
+    sendErrorToSentry(analyzed, {
       digest: error.digest,
       url: window.location.href,
       // 서버 사이드 에러 정보 추가
       serverError: error.message,
       serverStack: error.stack,
-      isServerError:
-        !error.stack ||
-        error.stack.includes('node_modules') ||
-        error.stack.includes('next-server'),
+      isServerError: isServerSideError,
     });
   }, [error]);
 
@@ -46,74 +64,6 @@ export default function ServiceError({ error, reset }: ErrorProps) {
       <p className="max-w-md text-center text-gray-600">
         {errorInfo.userMessage}
       </p>
-
-      {/* 개발팀용 상세 정보 (접을 수 있게) */}
-      <div className="flex w-full max-w-md flex-col items-center">
-        <button
-          type="button"
-          onClick={() => setShowDetails(!showDetails)}
-          className="text-sm text-gray-400 underline hover:text-gray-600"
-        >
-          {showDetails ? '상세 정보 숨기기' : '상세 정보 보기'}
-        </button>
-
-        {showDetails && (
-          <div className="mt-3 rounded-lg bg-gray-50 p-4 text-left">
-            <div className="space-y-2 font-mono text-xs">
-              <div>
-                <span className="font-bold">에러 타입:</span> {errorInfo.type}
-              </div>
-              {errorInfo.errorCode && (
-                <div>
-                  <span className="font-bold">에러 코드:</span>{' '}
-                  {errorInfo.errorCode}
-                </div>
-              )}
-              {errorInfo.statusCode && (
-                <div>
-                  <span className="font-bold">HTTP 상태:</span>{' '}
-                  {errorInfo.statusCode}
-                </div>
-              )}
-              {error.digest && (
-                <div>
-                  <span className="font-bold">서버 에러 Digest:</span>{' '}
-                  {error.digest}
-                  <p className="mt-1 text-xs text-gray-500">
-                    이 Digest로 서버 로그에서 해당 에러를 찾을 수 있습니다.
-                  </p>
-                </div>
-              )}
-              {process.env.NODE_ENV === 'development' && (
-                <>
-                  <div className="border-t pt-2">
-                    <span className="font-bold">기술적 메시지:</span>
-                    <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
-                      {errorInfo.technicalMessage}
-                    </pre>
-                  </div>
-                  {error.message && (
-                    <div className="border-t pt-2">
-                      <span className="font-bold">서버 에러 메시지:</span>
-                      <pre className="mt-1 text-xs break-words whitespace-pre-wrap">
-                        {error.message}
-                      </pre>
-                    </div>
-                  )}
-                  {error.stack && (
-                    <div className="border-t pt-2">
-                      <span className="font-bold">스택 트레이스:</span>
-                      <pre className="mt-1 max-h-40 overflow-auto text-xs break-words whitespace-pre-wrap">
-                        {error.stack}
-                      </pre>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
 
       <div className="flex gap-100">
         <Button type="button" color="primary" size="large" onClick={reset}>
