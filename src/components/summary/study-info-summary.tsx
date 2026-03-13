@@ -248,7 +248,7 @@ export default function SummaryStudyInfo({ data }: Props) {
               size="large"
               color="primary"
               className="h-600"
-              disabled={isApplyDisabled}
+              disabled={isApplyDisabled || isVerificationLoading}
             >
               {getButtonText()}
             </Button>
