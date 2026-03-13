@@ -6,13 +6,13 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/button';
-import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
-import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
+import LoginModal from '@/features/auth/ui/login-modal';
 import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
 import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
-import LoginModal from '@/features/auth/ui/login-modal';
-import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
+import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   EXPERIENCE_LEVEL_LABELS,
@@ -184,6 +184,7 @@ export default function SummaryStudyInfo({ data }: Props) {
     if (isVerificationLoading) return;
     if (!isVerified) {
       setIsPhoneVerificationOpen(true);
+
       return;
     }
     router.push(`/payment/${groupStudyId}`);
@@ -221,6 +222,7 @@ export default function SummaryStudyInfo({ data }: Props) {
           />
         );
       }
+
       return (
         <Button
           size="large"
