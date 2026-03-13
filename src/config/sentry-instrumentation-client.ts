@@ -8,4 +8,3 @@ export { initClientSentry } from './sentry';
 // Note: onRouterTransitionStart는 현재 @sentry/nextjs 버전에서 지원되지 않습니다.
 // Next.js 15.4.1 이상에서 지원될 예정입니다.
 // export { onRouterTransitionStart };
-

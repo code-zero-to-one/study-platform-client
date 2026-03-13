@@ -4,7 +4,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Button from '@/components/common/ui/button';
-import { analyzeError, sendErrorToSentry, type ErrorInfo } from '@/utils/error-handler';
+import {
+  analyzeError,
+  sendErrorToSentry,
+  type ErrorInfo,
+} from '@/utils/error-handler';
 
 interface ErrorProps {
   error: Error & { digest?: string };
@@ -18,17 +22,16 @@ export default function ServiceError({ error, reset }: ErrorProps) {
   useEffect(() => {
     // 서버 사이드 에러 감지
     // Next.js 서버 사이드 에러는 digest가 있거나 스택에 서버 관련 키워드가 있음
-    const isServerSideError = 
+    const isServerSideError =
       error.digest !== undefined ||
-      (error.stack && (
-        error.stack.includes('next-server') ||
-        error.stack.includes('node_modules/next') ||
-        error.stack.includes('server-components')
-      ));
+      (error.stack &&
+        (error.stack.includes('next-server') ||
+          error.stack.includes('node_modules/next') ||
+          error.stack.includes('server-components')));
 
     // 에러 분석 및 로깅
     const analyzed = analyzeError(error, { isServerSide: isServerSideError });
-    
+
     // 서버 사이드 에러는 사용자에게 일반적인 메시지만 표시
     if (isServerSideError) {
       setErrorInfo({

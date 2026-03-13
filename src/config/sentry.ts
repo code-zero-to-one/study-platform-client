@@ -4,13 +4,13 @@ import * as Sentry from '@sentry/nextjs';
  * ============================================================================
  * Sentry 설정 통합 파일
  * ============================================================================
- * 
+ *
  * 모든 Sentry 설정이 이 파일에 통합되어 있습니다.
  * - 서버, 엣지, 클라이언트 초기화
  * - 환경 감지
  * - beforeSend 훅
  * - 라우터 전환 추적
- * 
+ *
  * 다른 파일들은 Next.js 요구사항에 따라 얇은 래퍼로만 존재하며, 모든 로직은 이 파일에서 관리됩니다.
  * - src/config/sentry-instrumentation.ts: 서버/엣지 초기화
  * - src/config/sentry-instrumentation-client.ts: 클라이언트 초기화
@@ -57,11 +57,13 @@ function initSentry(config: {
       // Slack 알림에 ErrorType과 ErrorInfo 내용이 표시되도록 메시지 수정
       const errorType = event.tags?.['error.type'] as string | undefined;
       const errorCodeExtra = event.extra?.errorCode as string | undefined;
-      const technicalMessage = event.extra?.technicalMessage as string | undefined;
+      const technicalMessage = event.extra?.technicalMessage as
+        | string
+        | undefined;
 
       if (errorType) {
         const enhancedMessage = `[${errorType}] ${technicalMessage || event.message || 'Error'}${errorCodeExtra ? ` (${errorCodeExtra})` : ''}`;
-        
+
         if (event.exception?.values?.[0]) {
           event.exception.values[0].value = enhancedMessage;
         }
@@ -116,7 +118,7 @@ export function initEdgeSentry() {
 
 /**
  * Next.js 라우터 전환 추적 (클라이언트 전용)
- * 
+ *
  * Note: captureRouterTransitionStart는 현재 @sentry/nextjs 버전에서 지원되지 않습니다.
  * Next.js 15.4.1 이상에서 지원될 예정입니다.
  * 현재는 라우터 전환 추적이 비활성화되어 있습니다.

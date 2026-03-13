@@ -3,7 +3,11 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Button from '@/components/common/ui/button';
-import { analyzeError, sendErrorToSentry, type ErrorInfo } from '@/utils/error-handler';
+import {
+  analyzeError,
+  sendErrorToSentry,
+  type ErrorInfo,
+} from '@/utils/error-handler';
 
 interface ErrorProps {
   error: Error & { digest?: string };

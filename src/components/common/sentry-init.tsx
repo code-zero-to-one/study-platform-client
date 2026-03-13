@@ -11,4 +11,3 @@ export default function SentryInit(): null {
 
   return null;
 }
-
