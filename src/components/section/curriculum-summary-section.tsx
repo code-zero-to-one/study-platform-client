@@ -2,34 +2,41 @@
 
 import { ExternalLink, Lock } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 
 import type { CurriculumSummaryDto } from '@/api/openapi';
 import LoginModal from '@/components/common/modals/login-modal';
-import PhoneVerificationModal from '@/components/common/modals/phone-verification-modal';
 import Tooltip from '@/components/common/ui/tooltip';
 import { useAuthReady } from '@/hooks/common/use-auth';
+import { useToastStore } from '@/stores/use-toast-store';
 
-const FIRST_WEEK = 1;
+const FIRST_INDEX = 0;
 
 interface CurriculumSummarySectionProps {
   curriculumSummary: CurriculumSummaryDto[];
   canAccessAll?: boolean;
+  onLockedClick?: () => void;
 }
 
 export default function CurriculumSummarySection({
   curriculumSummary,
   canAccessAll = true,
+  onLockedClick,
 }: CurriculumSummarySectionProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated } = useAuthReady();
-  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const loginTriggerRef = useRef<HTMLButtonElement>(null);
+  const showToast = useToastStore((state) => state.showToast);
 
   if (!curriculumSummary?.length) return null;
 
-  const handleClickCurriculum = (id: number) => {
+  const handleClickCurriculum = (id: number | undefined) => {
+    if (!id) {
+      showToast('미션 정보를 불러올 수 없습니다.', 'error');
+
+      return;
+    }
     router.push(`${pathname}?tab=mission&missionId=${id}`);
   };
 
@@ -37,7 +44,7 @@ export default function CurriculumSummarySection({
     if (!isAuthenticated) {
       loginTriggerRef.current?.click();
     } else {
-      setIsPhoneModalOpen(true);
+      onLockedClick?.();
     }
   };
 
@@ -51,53 +58,56 @@ export default function CurriculumSummarySection({
       </div>
 
       <div className="flex flex-col gap-150">
-        {curriculumSummary.map((item) => {
-          const isLocked = !canAccessAll && (item.weekNum ?? 0) > FIRST_WEEK;
+        {curriculumSummary
+          .sort((a, b) => a.weekNum - b.weekNum)
+          .map((item, index) => {
+            // 스터디 멤버도 아니고 스터디 개설자도 아니며, 첫 번째 미션이 아닌 경우 잠금 처리
+            const isLocked = !canAccessAll && index > FIRST_INDEX;
 
-          if (isLocked) {
+            if (isLocked) {
+              return (
+                <Tooltip
+                  delayDuration={0}
+                  key={item.missionId ?? index}
+                  trigger={
+                    <div
+                      className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300 cursor-not-allowed"
+                      onClick={handleLockedClick}
+                    >
+                      <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                        {item.weekNum}
+                      </span>
+                      <span className="font-designer-15m text-text-default flex-1 leading-snug">
+                        {item.title}
+                      </span>
+                      <Lock className="h-225 w-225 shrink-0 text-[#A4A7AE]" />
+                    </div>
+                  }
+                  value="스터디 가입하여 확인"
+                  side="bottom"
+                  contentClassName="font-designer-12m rounded-100 bg-background-neutral-strong whitespace-nowrap px-200 shadow-lg"
+                />
+              );
+            }
+
             return (
-              <Tooltip
-                delayDuration={0}
-                key={item.missionId}
-                trigger={
-                  <div
-                    className="rounded-100 flex items-center cursor-not-allowed gap-150 border border-[#E9EAEB] bg-fill-neutral-subtle-default p-300 opacity-80 transition-colors"
-                    onClick={handleLockedClick}
-                  >
-                    <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
-                      {item.weekNum}
-                    </span>
-                    <span className="font-designer-15m text-text-default flex-1 leading-snug">
-                      {item.title}
-                    </span>
-                    <Lock className="h-225 w-225 shrink-0 text-[#A4A7AE]" />
-                  </div>
-                }
-                value="스터디 가입 후 확인 가능"
-                side="bottom"
-                contentClassName="font-designer-12m rounded-100 bg-background-neutral-strong whitespace-nowrap px-200 shadow-lg"
-              />
+              <div
+                key={item.missionId ?? index}
+                className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300 hover:bg-fill-neutral-subtle-hover cursor-pointer"
+              >
+                <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                  {item.weekNum}
+                </span>
+                <span className="font-designer-15m text-text-default flex-1 leading-snug">
+                  {item.title}
+                </span>
+                <ExternalLink
+                  onClick={() => handleClickCurriculum(item.missionId)}
+                  className="h-225 w-225 shrink-0 cursor-pointer text-[#A4A7AE]"
+                />
+              </div>
             );
-          }
-
-          return (
-            <div
-              key={item.missionId}
-              className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300"
-            >
-              <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
-                {item.weekNum}
-              </span>
-              <span className="font-designer-15m text-text-default flex-1 leading-snug">
-                {item.title}
-              </span>
-              <ExternalLink
-                onClick={() => handleClickCurriculum(item.missionId)}
-                className="h-225 w-225 shrink-0 cursor-pointer text-[#A4A7AE]"
-              />
-            </div>
-          );
-        })}
+          })}
       </div>
 
       <LoginModal
@@ -109,10 +119,6 @@ export default function CurriculumSummarySection({
             tabIndex={-1}
           />
         }
-      />
-      <PhoneVerificationModal
-        open={isPhoneModalOpen}
-        onOpenChange={setIsPhoneModalOpen}
       />
     </div>
   );
