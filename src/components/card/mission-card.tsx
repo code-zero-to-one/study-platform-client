@@ -129,7 +129,15 @@ export default function MissionCard({
         trigger={
           <li
             className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-background-default p-300"
+            role="button"
+            tabIndex={0}
             onClick={onLockedClick}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onLockedClick?.();
+              }
+            }}
           >
             <MissionCardContent
               title={mission.title}
@@ -153,7 +161,15 @@ export default function MissionCard({
     return (
       <li
         className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
+        role="button"
+        tabIndex={0}
         onClick={handleSelectMission}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSelectMission();
+          }
+        }}
       >
         <MissionCardContent
           title={mission.title}
@@ -181,7 +197,15 @@ export default function MissionCard({
     return (
       <li
         className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
+        role="button"
+        tabIndex={0}
         onClick={handleSelectMission}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSelectMission();
+          }
+        }}
       >
         <MissionCardContent
           title={mission.title}
@@ -205,7 +229,15 @@ export default function MissionCard({
             ? 'border-status-error'
             : 'border-border-default',
         )}
+        role="button"
+        tabIndex={0}
         onClick={handleSelectMission}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSelectMission();
+          }
+        }}
       >
         <MissionCardContent
           title={mission.title}

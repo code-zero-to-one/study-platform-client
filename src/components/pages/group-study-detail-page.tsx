@@ -95,10 +95,11 @@ export default function StudyDetailPage({
   const [confirmAction, setConfirmAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
 
-  const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
-    groupStudyId,
-    isLeader,
-  });
+  const { data: myApplicationStatus, isLoading: isMyStatusLoading } =
+    useGetGroupStudyMyStatus({
+      groupStudyId,
+      isLeader,
+    });
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -191,6 +192,21 @@ export default function StudyDetailPage({
 
     return matched && !matched.locked ? requested : 'intro';
   }, [availableTabs, tabParam]);
+
+  // 잠긴 탭으로 직접 진입 시 URL 정규화 (새로고침·공유·뒤로가기 대응)
+  useEffect(() => {
+    // 권한 판단이 완료되기 전(로딩 중)에는 replace 금지 → flicker 방지
+    if (isLoading || isMyStatusLoading) return;
+
+    const currentParam = tabParam ?? undefined;
+    const resolvedParam = activeTab === 'intro' ? undefined : activeTab;
+    if (currentParam === resolvedParam) return;
+
+    const newUrl = resolvedParam
+      ? `${pathname}?tab=${resolvedParam}`
+      : pathname;
+    router.replace(newUrl, { scroll: false });
+  }, [activeTab, isLoading, isMyStatusLoading, pathname, router, tabParam]);
 
   if (isLoading || !studyDetail) {
     return <div>로딩중...</div>;
