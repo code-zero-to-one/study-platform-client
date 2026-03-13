@@ -112,10 +112,12 @@ export default function PremiumStudyDetailPage({
             group_study_id: String(groupStudyId),
           });
           showToast('스터디가 종료되었습니다.');
-        },
-        onSettled: () => {
           setConfirmAction(null);
           router.push('/premium-study');
+        },
+        onError: () => {
+          showToast('스터디 종료에 실패하였습니다.', 'error');
+          setConfirmAction(null);
         },
       },
     );
@@ -131,13 +133,12 @@ export default function PremiumStudyDetailPage({
             group_study_id: String(groupStudyId),
           });
           showToast('스터디가 삭제되었습니다.');
+          router.push('/premium-study');
         },
         onError: () => {
           showToast('스터디 삭제에 실패하였습니다.', 'error');
         },
         onSettled: () => {
-          refetchStudyDetail().catch(() => {});
-          router.push('/premium-study');
           setConfirmAction(null);
         },
       },

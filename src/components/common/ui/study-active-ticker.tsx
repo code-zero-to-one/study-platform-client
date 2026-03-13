@@ -14,11 +14,13 @@ interface StudyActiveTickerProps {
 
 export default function StudyActiveTicker({
   approvedCount,
+  maxMembersCount,
   viewCount = 0,
   remainingSlot = 0,
   className = '',
 }: StudyActiveTickerProps) {
-  const totalCount = approvedCount + 1; // 리더 포함
+  const remaining = Math.max(0, maxMembersCount - approvedCount);
+  const totalCount = maxMembersCount - remaining;
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const messages = [

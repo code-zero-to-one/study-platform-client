@@ -67,7 +67,7 @@ export default function HomeworkDetailContent({
   const peerReviews = homework.peerReviews ?? [];
 
   // 미션 제출 가능 기간이 지나지 않았는지 확인
-  const isMissionActive = mission.status !== 'ENDED';
+  const isMissionActive = mission.status === 'IN_PROGRESS';
 
   // 수정/삭제 가능 조건: 본인 과제이면서 미션 제출 가능 기간이 지나지 않은 상태
   const isMyHomework = homework.submitterId === currentUserId;

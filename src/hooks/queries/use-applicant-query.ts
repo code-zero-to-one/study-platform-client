@@ -44,6 +44,9 @@ export const useUpdateApplicantByStatusMutation = () => {
       await queryClient.invalidateQueries({
         queryKey: ['groupStudyMemberList', variables.groupStudyId],
       });
+      await queryClient.invalidateQueries({
+        queryKey: ['entryList', variables.groupStudyId],
+      });
     },
   });
 };
