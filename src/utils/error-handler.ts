@@ -200,8 +200,11 @@ export function analyzeError(
   if (isApiError(error)) {
     // 클라이언트 사이드에서 발생한 ApiError는 상태 코드가 500이어도 CLIENT로 분류
     // (서버 사이드에서 발생한 500 에러는 SERVER로 분류)
-    const errorType = getErrorTypeFromStatusCode(error.statusCode, error.errorCode);
-    
+    const errorType = getErrorTypeFromStatusCode(
+      error.statusCode,
+      error.errorCode,
+    );
+
     return {
       type: errorType,
       userMessage: getUserFriendlyMessage(error.errorCode, error.message),
@@ -216,20 +219,19 @@ export function analyzeError(
   if (error instanceof Error) {
     // 서버 사이드 에러 감지
     // Next.js 서버 사이드 에러는 digest가 있거나 스택에 서버 관련 키워드가 있음
-    const isServerSideError = 
+    const isServerSideError =
       options?.isServerSide === true ||
       // Next.js Error Boundary에서 전달되는 서버 에러는 digest가 있음
       (error as Error & { digest?: string }).digest !== undefined ||
       // 스택 트레이스에 서버 사이드 관련 키워드가 있으면 서버 에러
-      (error.stack && (
-        error.stack.includes('next-server') ||
-        error.stack.includes('node_modules/next') ||
-        error.stack.includes('server-components') ||
-        error.stack.includes('app/') && error.stack.includes('page.tsx')
-      ));
+      (error.stack &&
+        (error.stack.includes('next-server') ||
+          error.stack.includes('node_modules/next') ||
+          error.stack.includes('server-components') ||
+          (error.stack.includes('app/') && error.stack.includes('page.tsx'))));
 
     // 네트워크 에러 감지 (fetch API 실패)
-    const isNetworkError = 
+    const isNetworkError =
       error.message.includes('Failed to fetch') ||
       error.message.includes('NetworkError') ||
       error.message.includes('fetch failed') ||
@@ -237,21 +239,20 @@ export function analyzeError(
       (error.name === 'TypeError' && error.message.includes('fetch'));
 
     // JSON 파싱 에러 감지 (HTML 응답 등)
-    const isJsonParseError = 
+    const isJsonParseError =
       error.message.includes('Unexpected token') ||
       error.message.includes('DOCTYPE') ||
       error.message.includes('is not valid JSON') ||
       error.message.includes('JSON.parse');
 
     // 클라이언트 렌더링 에러 감지 (null/undefined 접근 등)
-    const isClientError = 
-      error.name === 'TypeError' && (
-        error.message.includes('Cannot read properties of null') ||
-        error.message.includes('Cannot read properties of undefined') ||
-        error.message.includes('Cannot read property') ||
-        error.message.includes('of null') ||
-        error.message.includes('of undefined')
-      ) ||
+    const isClientError =
+      (error.name === 'TypeError' &&
+        (error.message.includes('Cannot read properties of null') ||
+          error.message.includes('Cannot read properties of undefined') ||
+          error.message.includes('Cannot read property') ||
+          error.message.includes('of null') ||
+          error.message.includes('of undefined'))) ||
       error.name === 'ReferenceError' ||
       error.name === 'SyntaxError';
 
@@ -277,7 +278,8 @@ export function analyzeError(
     if (isJsonParseError) {
       return {
         type: ErrorType.CLIENT,
-        userMessage: '서버 응답 형식 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        userMessage:
+          '서버 응답 형식 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
         technicalMessage: error.message,
         originalError: error,
       };
@@ -324,7 +326,7 @@ function getErrorTypeFromStatusCode(
 
   if (statusCode === 401 || statusCode === 403) return ErrorType.AUTH;
   if (statusCode === 404) return ErrorType.NOT_FOUND;
-  
+
   // 500 에러는 서버 사이드에서 발생한 경우에만 SERVER로 분류
   // 클라이언트 사이드에서 발생한 500 에러는 CLIENT로 분류됨
   // (클라이언트에서 발생한 에러는 analyzeError 호출 시점에서 이미 CLIENT로 분류됨)
@@ -506,21 +508,24 @@ export function sendErrorToSentry(
         scope.setExtra('userMessage', errorInfo.userMessage);
         scope.setExtra('technicalMessage', errorInfo.technicalMessage);
         scope.setExtra('statusCode', errorInfo.statusCode);
-        
+
         if (errorInfo.originalError instanceof Error) {
           scope.setExtra('stack', errorInfo.originalError.stack);
         }
-        
+
         if (context) {
           Object.entries(context).forEach(([key, value]) => {
             scope.setExtra(key, value);
           });
-          
+
           // 테스트 환경에서는 각 테스트가 새 이슈로 생성되도록 fingerprint 설정
           if (context.testType) {
-            scope.setFingerprint([`test-${context.testType}`, Date.now().toString()]);
+            scope.setFingerprint([
+              `test-${context.testType}`,
+              Date.now().toString(),
+            ]);
           }
-          
+
           // 서버 사이드 에러의 중복 전송 방지 (digest 기반)
           if (context.isServerError && context.digest) {
             scope.setFingerprint(['server-error', context.digest as string]);
@@ -538,4 +543,3 @@ export function sendErrorToSentry(
     }
   }
 }
-
