@@ -78,8 +78,6 @@ export default function StudyDetailPage({
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
-  console.log({ studyDetail });
-
   const leaderId = studyDetail?.basicInfo.leader.memberId;
   const leader = studyDetail?.basicInfo.leader;
 
