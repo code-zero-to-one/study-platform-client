@@ -181,6 +181,14 @@ export default function SummaryStudyInfo({ data }: Props) {
   };
 
   const handlePaidStudyApplyClick = () => {
+    if (!groupStudyId) {
+      showToast(
+        '스터디 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
+
+      return;
+    }
     if (isVerificationLoading) return;
     if (!isVerified) {
       setIsPhoneVerificationOpen(true);
@@ -191,6 +199,14 @@ export default function SummaryStudyInfo({ data }: Props) {
   };
 
   const handleVerificationComplete = (phoneNumber: string) => {
+    if (!groupStudyId) {
+      showToast(
+        '스터디 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
+
+      return;
+    }
     setVerified(phoneNumber);
     setIsPhoneVerificationOpen(false);
     // 인증 완료 후 자동 진행 없음 — 유저가 신청하기 버튼을 다시 눌러 진행
