@@ -33,8 +33,11 @@ export default function SummaryStudyInfo({ data }: Props) {
   const [isExpanded, setIsExpanded] = useState(false);
   const { memberId, isAuthReady, isHydrated } = useAuthReady();
   const showToast = useToastStore((state) => state.showToast);
-  const { isVerified, isLoading: isVerificationLoading, setVerified } =
-    usePhoneVerificationStatus(memberId);
+  const {
+    isVerified,
+    isLoading: isVerificationLoading,
+    setVerified,
+  } = usePhoneVerificationStatus(memberId);
   const [isPhoneVerificationOpen, setIsPhoneVerificationOpen] = useState(false);
 
   const { basicInfo, detailInfo, interviewPost } = data;
