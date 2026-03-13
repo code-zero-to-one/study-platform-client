@@ -75,7 +75,7 @@ export default function CurriculumSummarySection({
                 }
                 value="스터디 가입 후 확인 가능"
                 side="bottom"
-                contentClassName="rounded-100 text-text-inverse font-designer-12m pointer-events-none absolute top-full left-1/2 z-50 mt-100 -translate-x-1/2 px-200 py-100 whitespace-nowrap shadow-lg"
+                contentClassName="font-designer-12m rounded-100 bg-background-neutral-strong whitespace-nowrap px-200 shadow-lg"
               />
             );
           }

@@ -360,10 +360,7 @@ function AnswerForm({ groupStudyId, questionId }: AnswerFormProps) {
         className="font-designer-14r border-border-default rounded-100 min-h-[120px] w-full resize-none border p-200 focus:outline-none"
       />
       <div className="flex justify-end">
-        <Button
-          onClick={handleSubmit}
-          disabled={isPending || !content.trim()}
-        >
+        <Button onClick={handleSubmit} disabled={isPending || !content.trim()}>
           답변하기
         </Button>
       </div>
