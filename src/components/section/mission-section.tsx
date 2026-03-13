@@ -45,7 +45,7 @@ export default function MissionSection({
   const router = useRouter();
   const searchParams = useSearchParams();
   const [filter, setFilter] = useState<FilterType>('all');
-  const { isAuthenticated } = useAuthReady();
+  const { isAuthenticated, isHydrated } = useAuthReady();
   const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
   const loginTriggerRef = useRef<HTMLButtonElement>(null);
 
@@ -68,6 +68,7 @@ export default function MissionSection({
   const visibleMissionList = missionList ?? [];
 
   const handleLockedClick = () => {
+    if (!isHydrated) return;
     if (!isAuthenticated) {
       loginTriggerRef.current?.click();
     } else {
