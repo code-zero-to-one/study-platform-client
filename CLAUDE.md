@@ -160,6 +160,62 @@ export const getArchive = async (params: GetArchiveParams) => {
 - 페이지 단위 조합 컴포넌트는 `src/components/pages/`, 도메인별 조합은 `payment/`, `discussion/`, `archive/`, `balance-game/`, `mentoring` 관련 디렉토리 등으로 분산되어 있다
 - `src/features/` 기반 구조와 전통적인 `components/`, `hooks/queries/` 구조가 공존한다. 신규 변경 시 xkdl 한 PR 안에서 구조를 섞어 바꾸지 않는다
 
+### 백엔드 데이터 처리 안전 패턴
+
+빈 배열 안전성은 상위 컴포넌트의 `if (!arr?.length) return null` 가드로 이미 보장되므로 `Math.max` 호출 전 별도 방어 코드는 불필요하다.
+
+#### optional 필드를 React key와 핸들러에서 안전하게 사용하기
+
+백엔드에서 optional(`?`)로 내려오는 ID 필드를 React `key` prop에 직접 사용하면 여러 항목이 `undefined`로 중복되어 React가 잘못된 DOM 재사용을 할 수 있다. `??` 연산자로 `index` 폴백을 둔다.
+
+```typescript
+// 잘못된 패턴 — missionId가 undefined이면 모든 항목이 key="undefined"로 중복
+{items.map((item) => <div key={item.missionId}>...</div>)}
+
+// 올바른 패턴 — optional 필드 ?? index
+{items.map((item, index) => <div key={item.missionId ?? index}>...</div>)}
+```
+
+optional 필드를 이벤트 핸들러 내에서 사용할 때도 가드가 필요하다:
+
+```typescript
+// 잘못된 패턴 — missionId가 undefined이면 ?missionId=undefined 라우팅
+const handleClick = (id: number) => router.push(`...?missionId=${id}`);
+
+// 올바른 패턴 — 복구 가능한 실패는 Toast로 안내
+const handleClick = (id: number | undefined) => {
+  if (!id) {
+    showToast('정보를 불러올 수 없습니다.', 'error');
+    return;
+  }
+  router.push(`...?missionId=${id}`);
+};
+```
+
+#### enum-like 문자열 타입 단언 안전 가드
+
+백엔드에서 프론트 타입 정의에 없는 값이 올 수 있다. `as StudyType` 같은 단순 타입 단언 대신 `in` 가드 + 폴백을 사용한다. TypeScript `as`는 런타임을 보호하지 않는다.
+
+```typescript
+// 잘못된 패턴 — 알 수 없는 값 수신 시 undefined 렌더링 또는 런타임 오류
+const studyType = type as StudyType;
+<Badge>{STUDY_TYPE_LABELS[studyType]}</Badge>
+
+// 올바른 패턴 — in 가드 후 폴백 처리
+const studyType =
+  type && type in STUDY_TYPE_LABELS ? (type as StudyType) : undefined;
+<Badge>{studyType ? STUDY_TYPE_LABELS[studyType] : '스터디'}</Badge>
+
+// 목록 순회 시
+{experienceLevels?.map((level) => (
+  <Badge key={level}>
+    {level in EXPERIENCE_LEVEL_LABELS
+      ? EXPERIENCE_LEVEL_LABELS[level as ExperienceLevel]
+      : level}
+  </Badge>
+))}
+```
+
 ### 스타일링
 
 - Tailwind CSS 4 + `@tailwindcss/postcss` 플러그인
