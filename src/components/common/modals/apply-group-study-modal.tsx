@@ -62,7 +62,7 @@ export default function ApplyGroupStudyModal({
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
     setIsVerificationModalOpen(false);
-    setOpen(true);
+    // 인증 완료 후 자동 진행 없음 — 유저가 신청하기 버튼을 다시 눌러 진행
   };
 
   useEffect(() => {
