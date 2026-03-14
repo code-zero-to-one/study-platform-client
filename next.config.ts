@@ -170,7 +170,8 @@ const sentryConfig = withSentryConfig(nextConfig, {
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
   silent: !process.env.SENTRY_AUTH_TOKEN,
-  disableLogger: true,
+  // disableLogger는 deprecated되었지만 Turbopack에서는 webpack.treeshake.removeDebugLogging를 사용할 수 없음
+  // Next.js 15.4.1 이상으로 업그레이드하면 해결됨
   sourcemaps: {
     filesToDeleteAfterUpload: ['.next/static/**/*.map'],
   },
