@@ -112,39 +112,8 @@ function handleSignUp(request: NextRequest, ctx: AuthContext): NextResponse {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-    return NextResponse.next();
-  }
-
-  // 그룹스터디 상세: 비회원도 접근 가능, 로그인된 사용자는 토큰 갱신만 수행
-  if (request.nextUrl.pathname.startsWith('/group-study')) {
-    // 비회원(토큰 없음)은 그대로 통과
-    if (!hasAccessToken || !hasMemberId || !accessToken) {
-      return NextResponse.next();
-    }
-
-    // 로그인된 사용자는 토큰 유효성 검증 후 필요 시 갱신
-    const verifyResponse = await verifyAccessToken(accessToken);
-    const response = NextResponse.next();
-
-    if (verifyResponse.state === 'invalid') {
-      const newAccessToken = await refreshAccessToken();
-
-      if (newAccessToken) {
-        // 갱신 성공 → 새 토큰 쿠키 저장
-        response.cookies.set(
-          'accessToken',
-          newAccessToken,
-          ACCESS_TOKEN_COOKIE_OPTIONS,
-        );
-      } else {
-        // refresh token도 만료 → 쿠키 삭제 후 비회원으로 통과
-        response.cookies.delete('accessToken');
-        response.cookies.delete('memberId');
-      }
-    }
-
-    return response;
-  }
+  return NextResponse.next();
+}
 
 // /group-study/* — 비회원도 접근 가능, 로그인된 사용자는 토큰 갱신 + memberId 정규화
 async function handleGroupStudy(
@@ -226,11 +195,8 @@ async function handleProtected(
     const newToken = await refreshAccessToken();
     if (newToken) {
       // 갱신 성공
-      response.cookies.set(
-        'accessToken',
-        newAccessToken,
-        ACCESS_TOKEN_COOKIE_OPTIONS,
-      );
+      applyNewToken(response, newToken);
+      effectiveToken = newToken;
     } else {
       // 갱신 실패 - 쿠키 삭제 후 랜딩 페이지로 리디렉션
       const landingResponse = NextResponse.redirect(new URL('/', request.url));
