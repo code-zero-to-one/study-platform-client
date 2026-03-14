@@ -13,8 +13,8 @@ export default function TestSentryPage() {
     try {
       // 실제 클라이언트 렌더링 에러 시뮬레이션 (null 접근 등)
       const obj: { prop?: string } | null = null;
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const value = obj!.prop; // TypeError: Cannot read property 'prop' of null
+      // @ts-expect-error: 테스트를 위해 의도적으로 null 접근
+      const value = obj.prop; // TypeError: Cannot read property 'prop' of null
       console.log(value);
     } catch (error) {
       const errorInfo = analyzeError(error);
