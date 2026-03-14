@@ -1,9 +1,12 @@
 'use client';
 
+import { ArrowUpDown } from 'lucide-react';
 import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { GetGroupStudiesSortEnum } from '@/api/openapi/api/group-study-management-api';
 import PageContainer from '@/components/common/layout/page-container';
 import Button from '@/components/common/ui/button';
+import SortDropdown from '@/components/common/ui/filters/sort-dropdown';
 import StudyFilter from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
 import GroupStudyPagination from '@/components/lists/group-study-pagination';
@@ -11,6 +14,12 @@ import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import GroupStudyList from '../lists/group-study-list';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
+
+const SORT_OPTIONS = [
+  { value: GetGroupStudiesSortEnum.Latest, label: '최신순' },
+  { value: GetGroupStudiesSortEnum.Deadline, label: '마감임박순' },
+  { value: GetGroupStudiesSortEnum.ViewCount, label: '조회수순' },
+] as const;
 
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
@@ -32,9 +41,11 @@ export default function GroupStudyListPage() {
     totalPages,
     displayStudies,
     isLoading,
+    sort,
     handleFilterChange,
     handlePageChange,
     handleSearch,
+    handleSortChange,
   } = useStudyListFilter({
     classification: 'GROUP_STUDY',
   });
@@ -84,7 +95,15 @@ export default function GroupStudyListPage() {
       {/* 필터 및 검색 */}
       <div className="mb-400 flex items-center justify-between">
         <StudyFilter values={filterValues} onChange={handleFilterChange} />
-        <StudySearch value={searchQuery} onChange={handleSearch} />
+        <div className="flex items-center gap-200">
+          <StudySearch value={searchQuery} onChange={handleSearch} />
+          <SortDropdown
+            value={sort}
+            options={SORT_OPTIONS}
+            onChange={handleSortChange}
+            icon={<ArrowUpDown className="h-3 w-3" />}
+          />
+        </div>
       </div>
 
       {/* 스터디 카드 그리드 */}
