@@ -160,9 +160,6 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
     await queryClient.invalidateQueries({
       queryKey: ['groupStudyMemberStatus', groupStudyId],
     });
-    if (price > 0) {
-      router.push(`/payment/${groupStudyId}`);
-    }
   };
 
   // 신청 마감 여부 체크 (스터디 시작일이 오늘 이전이거나 같은 경우)
@@ -381,8 +378,6 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
 
       {/* 버튼 영역 */}
       <div className="flex flex-col gap-100">
-        {/* 스터디 신청 모달 (유료/무료 공통) */}
-
         {applyButtonState.action === 'OPEN_APPLY_MODAL' ? (
           <ApplyGroupStudyModal
             groupStudyId={groupStudyId}
