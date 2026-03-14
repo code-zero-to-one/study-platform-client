@@ -39,7 +39,7 @@ export default function MyStudyInfoCard({
             height={210}
           />
           {status === 'COMPLETED' && (
-            <div className="rounded-100 absolute inset-0 bg-gray-200 opacity-70" />
+            <div className="rounded-100 absolute inset-0 bg-[#000000] opacity-50" />
           )}
         </div>
 
