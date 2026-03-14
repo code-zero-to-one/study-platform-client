@@ -11,20 +11,19 @@ import Button from '@/components/common/ui/button';
 import SectionHeader from '@/components/common/ui/section-header';
 import SectionShell from '@/components/common/ui/section-shell';
 import SurfacePanel from '@/components/common/ui/surface-panel';
-import { useAuthReady } from '@/features/auth/model/use-auth';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import { useMyMentorProfileQuery } from '@/features/mentoring/model/use-mentor-directory-query';
+import { useMentorWorkspaceQuery } from '@/features/mentoring/model/use-mentor-workspace-query';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringViewTabs from '@/features/mentoring/ui/common/mentoring-view-tabs';
 import MentorManagementWorkspace from '@/features/mentoring/ui/management/mentor-management-workspace';
 import NoteConsultationContainer from '@/features/mentoring/ui/note-consultation/note-consultation-container';
+import MentoringReceivedReviewsPanel from '@/features/mentoring/ui/pages/mentoring-received-reviews-panel';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
-import type { MentoringRequest } from '@/types/mentoring/management-domain';
-type ManagementViewTab = 'NOTE' | 'RESERVATION';
-const EMPTY_REQUESTS: MentoringRequest[] = [];
+type ManagementViewTab = 'NOTE' | 'RESERVATION' | 'REVIEW';
 const getEnabledMethodCount = (mentor: MentorProfile) => {
   return Object.values(mentor.methods).filter(
     (method) => method.enabled === true,
@@ -90,18 +89,17 @@ function MentoringManagementReady({
   onGuideOpenChange: (open: boolean) => void;
 }) {
   const mentorSettings = getMentorSettings(mentor);
-  const mentorRequests = useMentoringManagementStore(
-    (state) => state.requestsByMentor[mentor.id],
-  );
-  const requests = mentorRequests ?? EMPTY_REQUESTS;
-  const noteCount = useMemo(
-    () => requests.filter((r) => r.method === 'note').length,
-    [requests],
-  );
-  const reservationCount = useMemo(
-    () => requests.filter((r) => r.method !== 'note').length,
-    [requests],
-  );
+  const workspaceQuery = useMentorWorkspaceQuery({
+    mentorId: mentor.id,
+    enabled: Boolean(memberId),
+  });
+  const noteCount = useMemo(() => {
+    return workspaceQuery.data?.noteRequests.length ?? 0;
+  }, [workspaceQuery.data?.noteRequests]);
+  const reservationCount = useMemo(() => {
+    return workspaceQuery.data?.reservationRequests.length ?? 0;
+  }, [workspaceQuery.data?.reservationRequests]);
+  const reviewCount = workspaceQuery.reviewCount;
   const [activeView, setActiveView] = useState<ManagementViewTab>('NOTE');
   const viewTabs = [
     {
@@ -115,6 +113,12 @@ function MentoringManagementReady({
       label: '예약상담',
       description: '간편상담, 심층상담, 대면상담 신청을 단계별로 관리합니다.',
       count: reservationCount,
+    },
+    {
+      key: 'REVIEW' as const,
+      label: '받은 후기',
+      description: '멘티가 남긴 최신 후기를 확인합니다.',
+      count: reviewCount,
     },
   ];
 
@@ -172,6 +176,14 @@ function MentoringManagementReady({
           lockedChannel="received"
           statusTabPreset="mentor"
           hideToolbar
+          mentorIdOverride={mentor.id}
+        />
+      ) : activeView === 'REVIEW' ? (
+        <MentoringReceivedReviewsPanel
+          reviews={workspaceQuery.allReviews}
+          reviewCount={reviewCount}
+          isLoading={workspaceQuery.isLoading}
+          isError={workspaceQuery.isError}
         />
       ) : memberId ? (
         <MentorManagementWorkspace memberId={memberId} mentor={mentor} />

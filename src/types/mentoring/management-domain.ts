@@ -1,9 +1,23 @@
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 import type { MentoringRequestContentBlock } from '@/types/mentoring/request-content';
 
-export type MentoringRequestStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+export type MentoringRequestStatus =
+  | 'PENDING'
+  | 'ACCEPTED'
+  | 'REJECTED'
+  | 'CLOSED';
 export type MentoringSessionStatus = 'SCHEDULED' | 'CANCELLED' | 'COMPLETED';
+export type MentoringDisplayStatus =
+  | 'REQUESTED'
+  | 'PENDING'
+  | 'NOTE_WAITING'
+  | 'CONFIRMED'
+  | 'COMPLETED'
+  | 'REJECTED'
+  | 'CANCELLED'
+  | 'NO_SHOW';
 export type ConversationSender = 'MENTEE' | 'MENTOR' | 'SYSTEM';
+export type MentoringContentFormat = 'PLAIN_TEXT' | 'HTML';
 export type MentoringSessionIssueType =
   | 'NONE'
   | 'MENTOR_CANCELLED'
@@ -29,17 +43,33 @@ export type MentoringRefundStatus =
   | 'NOT_ELIGIBLE';
 export type MentoringReviewRecommendation = 'RECOMMEND' | 'NOT_RECOMMEND';
 
+export interface MentoringAttachedFile {
+  fileKey?: string;
+  fileName: string;
+  fileSize: number;
+  mimeType?: string;
+  publicUrl?: string;
+  downloadUrl?: string;
+}
+
 export interface MentoringConversationMessage {
   id: string;
   sender: ConversationSender;
   content: string;
+  contentFormat?: MentoringContentFormat;
+  messageContents?: MentoringRequestContentBlock[];
+  attachedFiles?: MentoringAttachedFile[];
+  attachedFileNames?: string[];
+  referenceLinks?: string[];
   createdAt: string;
+  updatedAt?: string;
 }
 
 export interface MentoringRequest {
   id: string;
   mentorId: number;
   method: MentoringMethodType;
+  displayStatus?: MentoringDisplayStatus;
   mentorDisplayTitle?: string;
   mentorNickname?: string;
   methodLabel?: string;
@@ -58,12 +88,15 @@ export interface MentoringRequest {
   requestTitle?: string;
   requestMessage: string;
   requestContents?: MentoringRequestContentBlock[];
+  attachedFiles?: MentoringAttachedFile[];
   attachedFileNames?: string[];
   referenceLinks?: string[];
   status: MentoringRequestStatus;
   decisionNote?: string;
+  closeNote?: string;
   acceptedAt?: string;
   rejectedAt?: string;
+  closedAt?: string;
   linkedSessionId?: string;
   conversation: MentoringConversationMessage[];
 }

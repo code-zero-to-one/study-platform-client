@@ -25,7 +25,7 @@ import type { MentorProfile } from '@/types/mentoring/domain';
 const REQUEST_CHECKLIST = [
   '예약형: 수락 시 시간·채널 함께 남기기',
   '쪽지상담: 수락 후 첫 답변까지 보내기',
-  '수동결제: 입금 확인 전 답변 입력 금지',
+  '결제 확인: 현재는 조회 전용이며 별도 확인 처리는 추후 연결됩니다.',
 ] as const;
 
 const getMethodDurations = (mentor: MentorProfile) => {

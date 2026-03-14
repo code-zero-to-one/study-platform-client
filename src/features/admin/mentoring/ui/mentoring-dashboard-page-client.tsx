@@ -7,10 +7,9 @@ import Button from '@/components/common/ui/button';
 import MetricCard from '@/components/common/ui/metric-card';
 import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model/admin-mentoring-view-state';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
+import { useAdminMentoringMentorsQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-mentors-query';
 import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
-import MentoringFlowGuide from '@/features/admin/mentoring/ui/mentoring-flow-guide';
 import { getMentorDisplayTitle } from '@/features/mentoring/model/mentor-profile-utils';
-import { isMentoringAdminMockEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
 
@@ -29,8 +28,14 @@ const formatDateTime = (value: string | undefined) => {
 };
 
 export default function MentoringDashboardPageClient() {
-  const { hasHydrated, mentors, metrics } = useAdminMentoringOverviewQuery();
-  const shouldShowMockGuide = isMentoringAdminMockEnabled();
+  const metricsQuery = useAdminMentoringOverviewQuery();
+  const mentorsQuery = useAdminMentoringMentorsQuery({
+    page: 0,
+    size: 8,
+  });
+  const metrics = metricsQuery.metrics;
+  const mentors = mentorsQuery.mentors;
+  const hasHydrated = metricsQuery.hasHydrated && mentorsQuery.hasHydrated;
   const listState = resolveAdminMentoringViewState({
     hasHydrated,
     itemCount: mentors.length,
@@ -42,8 +47,6 @@ export default function MentoringDashboardPageClient() {
       state={listState}
       ready={
         <div className="flex flex-col gap-200">
-          {shouldShowMockGuide && <MentoringFlowGuide />}
-
           <section className="grid grid-cols-1 gap-200 sm:grid-cols-2 xl:grid-cols-4">
             <MetricCard
               className="bg-background-accent-blue-subtle"

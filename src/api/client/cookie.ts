@@ -11,6 +11,16 @@ interface CookieOptions {
   httpOnly?: boolean;
 }
 
+export const AUTH_COOKIE_SYNC_EVENT = 'zeroone-auth-cookie-sync';
+
+const dispatchAuthCookieSyncEvent = () => {
+  if (typeof window === 'undefined') {
+    return;
+  }
+
+  window.dispatchEvent(new Event(AUTH_COOKIE_SYNC_EVENT));
+};
+
 const resolveSecureOption = (secure: boolean | undefined): boolean => {
   if (secure !== undefined) {
     return secure;
@@ -23,7 +33,6 @@ const resolveSecureOption = (secure: boolean | undefined): boolean => {
   return window.location.protocol === 'https:';
 };
 
-// 쿠키 설정
 export const setCookie = (
   name: string,
   value: string,
@@ -32,8 +41,8 @@ export const setCookie = (
   const {
     path = '/',
     secure,
-    sameSite = 'Lax', // Strict에서 Lax로 변경: 외부 사이트에서 redirect 시 쿠키 전송 허용
-    maxAge = 86400, // 1일
+    sameSite = 'Lax',
+    maxAge = 86400,
     httpOnly = false,
   } = options;
   const shouldUseSecure = resolveSecureOption(secure);
@@ -50,11 +59,10 @@ export const setCookie = (
     .join('; ');
 
   document.cookie = cookie;
+  dispatchAuthCookieSyncEvent();
 };
 
-// 쿠키 조회
 export const getCookie = (name: string): string | undefined => {
-  // 서버 사이드에서 쿠키 조회를 할 때 발생하는 ReferenceError: document is not defined 에러방지
   if (typeof window === 'undefined') {
     return undefined;
   }
@@ -68,7 +76,6 @@ export const getCookie = (name: string): string | undefined => {
   return undefined;
 };
 
-// 쿠키 삭제
 export const deleteCookie = (name: string, path = '/'): void => {
   setCookie(name, '', {
     path,
@@ -76,7 +83,6 @@ export const deleteCookie = (name: string, path = '/'): void => {
   });
 };
 
-// 사용자 세션 초기화
 export const clearUserSession = (): void => {
   CLIENT_AUTH_COOKIE_NAMES.forEach((cookieName: AuthCookieName) => {
     deleteCookie(cookieName);

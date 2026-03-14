@@ -1,10 +1,23 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useMemo } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+
+const MY_PAGE_ROUTES = [
+  { href: '/my-page', label: '프로필' },
+  { href: '/notification', label: '알림' },
+  { href: '/my-activity', label: '내 활동' },
+  { href: '/my-study', label: '마이스터디' },
+  { href: '/my-study-review', label: '스터디 후기' },
+  { href: '/my-mentoring', label: '나의 멘토링' },
+  { href: '/mentoring-management', label: '멘토 운영 관리' },
+  { href: '/payment-management', label: '결제 관리' },
+] as const;
 
 export default function Sidebar() {
   const router = useRouter();
@@ -14,6 +27,21 @@ export default function Sidebar() {
   const { mutateAsync: logout } = useLogoutMutation();
 
   const { data: profile } = useUserProfileQuery(memberId ?? 0);
+
+  const sidebarRoutes = useMemo(() => {
+    return profile?.premiumCreator
+      ? [
+          ...MY_PAGE_ROUTES,
+          { href: '/settlement-management', label: '정산 관리' as const },
+        ]
+      : MY_PAGE_ROUTES;
+  }, [profile?.premiumCreator]);
+
+  useEffect(() => {
+    sidebarRoutes.forEach((route) => {
+      router.prefetch(route.href);
+    });
+  }, [router, sidebarRoutes]);
 
   const handleLogout = async () => {
     await logout();
@@ -25,88 +53,61 @@ export default function Sidebar() {
 
   return (
     <div className="border-border-subtle box-border hidden w-[300px] flex-col gap-150 border-x-1 px-300 pt-500 lg:flex">
-      <SidebarItem
-        onClick={() => router.push('/my-page')}
-        isActive={isActivePath('/my-page')}
-      >
-        프로필
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/notification')}
-        isActive={isActivePath('/notification')}
-      >
-        알림
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/my-activity')}
-        isActive={isActivePath('/my-activity')}
-      >
-        내 활동
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/my-study')}
-        isActive={isActivePath('/my-study')}
-      >
-        마이스터디
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/my-study-review')}
-        isActive={isActivePath('/my-study-review')}
-      >
-        스터디 후기
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/my-mentoring')}
-        isActive={isActivePath('/my-mentoring')}
-      >
-        나의 멘토링
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/mentoring-management')}
-        isActive={isActivePath('/mentoring-management')}
-      >
-        멘토 운영 관리
-      </SidebarItem>
-      <SidebarItem
-        onClick={() => router.push('/payment-management')}
-        isActive={isActivePath('/payment-management')}
-      >
-        결제 관리
-      </SidebarItem>
-      {profile?.premiumCreator && (
-        <SidebarItem
-          onClick={() => router.push('/settlement-management')}
-          isActive={isActivePath('/settlement-management')}
+      {sidebarRoutes.map((route) => (
+        <SidebarLinkItem
+          key={route.href}
+          href={route.href}
+          isActive={isActivePath(route.href)}
         >
-          정산 관리
-        </SidebarItem>
-      )}
+          {route.label}
+        </SidebarLinkItem>
+      ))}
       <div className="bg-border-subtlest h-[1px]" />
-      <SidebarItem onClick={handleLogout} isActive={false}>
+      <SidebarActionItem onClick={handleLogout}>
         로그아웃
-      </SidebarItem>
+      </SidebarActionItem>
     </div>
   );
 }
 
-function SidebarItem({
+function SidebarLinkItem({
   children,
+  href,
   isActive,
-  onClick,
 }: {
   children: React.ReactNode;
+  href: string;
   isActive: boolean;
-  onClick: () => void;
 }) {
   return (
-    <div className="flex py-[14px] pr-150 pl-150">
-      <button
-        type="button"
-        onClick={onClick}
+    <div className="flex py-[14px] pr-[12px] pl-[24px]">
+      <Link
+        href={href}
+        prefetch
         className={cn(
           'font-designer-18m text-text-default cursor-pointer',
           isActive && 'font-designer-18b text-text-default',
         )}
+      >
+        {children}
+      </Link>
+    </div>
+  );
+}
+
+function SidebarActionItem({
+  children,
+  onClick,
+}: {
+  children: React.ReactNode;
+  onClick: () => void;
+}) {
+  return (
+    <div className="flex py-[14px] pr-[12px] pl-[24px]">
+      <button
+        type="button"
+        onClick={onClick}
+        className="font-designer-18m text-text-default cursor-pointer"
       >
         {children}
       </button>

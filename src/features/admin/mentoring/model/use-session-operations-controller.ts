@@ -1,8 +1,11 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { useQueries } from '@tanstack/react-query';
 import { useEffect, useMemo, useState } from 'react';
-import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
+import { getAdminMentoringMentorDetail } from '@/features/mentoring/api/mentoring-lifecycle-api';
+import { mentoringLifecycleQueryKeys } from '@/features/mentoring/model/mentoring-lifecycle-query-keys';
+import { useAdminMentoringMentorsQuery } from './use-admin-mentoring-mentors-query';
 import type {
   SessionMentorFilter,
   SessionOperationsActions,
@@ -17,7 +20,11 @@ export const useSessionOperationsController = ({
 }: {
   initialMentorId?: number;
 }) => {
-  const { hasHydrated, mentors } = useAdminMentoringOverviewQuery();
+  const mentorsQuery = useAdminMentoringMentorsQuery({
+    page: 0,
+    size: 100,
+  });
+  const mentors = mentorsQuery.mentors;
   const [selectedMentorId, setSelectedMentorId] =
     useState<SessionMentorFilter>('ALL');
 
@@ -28,13 +35,11 @@ export const useSessionOperationsController = ({
       return;
     }
 
-    const mentorIdQuery = initialMentorId;
-    const hasMentorIdQuery = typeof mentorIdQuery === 'number';
     if (
-      hasMentorIdQuery &&
-      mentors.some((mentor) => mentor.mentorId === mentorIdQuery)
+      typeof initialMentorId === 'number' &&
+      mentors.some((mentor) => mentor.mentorId === initialMentorId)
     ) {
-      setSelectedMentorId(mentorIdQuery);
+      setSelectedMentorId(initialMentorId);
 
       return;
     }
@@ -55,57 +60,94 @@ export const useSessionOperationsController = ({
     return mentors.filter((mentor) => mentor.mentorId === selectedMentorId);
   }, [mentors, selectedMentorId]);
 
-  const requestRows = useMemo<SessionRequestRow[]>(() => {
-    return filteredMentors
-      .flatMap((mentor) =>
-        mentor.requests.map((request) => ({
+  const mentorDetails = useQueries({
+    queries: filteredMentors.map((mentor) => ({
+      queryKey: mentoringLifecycleQueryKeys.adminMentorDetail(mentor.mentorId, {
+        requestsPage: 0,
+        requestsSize: 50,
+        sessionsPage: 0,
+        sessionsSize: 50,
+        reviewsPage: 0,
+        reviewsSize: 20,
+      }),
+      queryFn: () =>
+        getAdminMentoringMentorDetail({
           mentorId: mentor.mentorId,
-          mentorMemberId: mentor.memberId,
+          requestsPage: 0,
+          requestsSize: 50,
+          sessionsPage: 0,
+          sessionsSize: 50,
+          reviewsPage: 0,
+          reviewsSize: 20,
+        }),
+      staleTime: 30_000,
+      gcTime: 5 * 60_000,
+      enabled: mentorsQuery.hasHydrated,
+    })),
+  });
+
+  const requestRows = useMemo<SessionRequestRow[]>(() => {
+    return mentorDetails
+      .flatMap((detailQuery) => {
+        const detail = detailQuery.data;
+        if (!detail) {
+          return [] as SessionRequestRow[];
+        }
+
+        return detail.requestsPage.items.map((request) => ({
+          mentorMemberId: detail.memberId,
           ...request,
-        })),
-      )
+        }));
+      })
       .sort((first, second) => {
         return (
           dayjs(second.requestedAt).valueOf() -
           dayjs(first.requestedAt).valueOf()
         );
       });
-  }, [filteredMentors]);
+  }, [mentorDetails]);
 
   const sessionRows = useMemo<SessionScheduleRow[]>(() => {
-    return filteredMentors
-      .flatMap((mentor) =>
-        mentor.sessions.map((session) => ({
-          mentorId: mentor.mentorId,
-          mentorMemberId: mentor.memberId,
+    return mentorDetails
+      .flatMap((detailQuery) => {
+        const detail = detailQuery.data;
+        if (!detail) {
+          return [] as SessionScheduleRow[];
+        }
+
+        return detail.sessionsPage.items.map((session) => ({
+          mentorMemberId: detail.memberId,
           ...session,
-        })),
-      )
+        }));
+      })
       .sort((first, second) => {
         return (
           dayjs(second.startsAt).valueOf() - dayjs(first.startsAt).valueOf()
         );
       });
-  }, [filteredMentors]);
+  }, [mentorDetails]);
 
   const summary = useMemo(() => {
     return {
       totalRequestCount: requestRows.length,
-      pendingPaymentCount: requestRows.filter(
-        (request) => request.paymentStatus === 'PENDING_TRANSFER',
+      pendingRequestCount: requestRows.filter(
+        (request) => request.status === 'PENDING',
       ).length,
-      confirmedPaymentCount: requestRows.filter(
-        (request) => request.paymentStatus === 'CONFIRMED',
+      closedNoteCount: requestRows.filter(
+        (request) => request.method === 'note' && request.status === 'CLOSED',
       ).length,
       scheduledSessionCount: sessionRows.filter(
         (session) => session.status === 'SCHEDULED',
       ).length,
-      readyToProcessCount: requestRows.filter(
-        (request) =>
-          request.paymentStatus === 'CONFIRMED' && request.status === 'PENDING',
+      completedSessionCount: sessionRows.filter(
+        (session) => session.status === 'COMPLETED',
       ).length,
     };
   }, [requestRows, sessionRows]);
+
+  const hasHydrated =
+    mentorsQuery.hasHydrated &&
+    mentorDetails.every((detailQuery) => !detailQuery.isLoading);
 
   return {
     state: {

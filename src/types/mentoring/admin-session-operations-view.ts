@@ -16,10 +16,10 @@ export type SessionScheduleRow = MentoringSession & {
 
 export interface SessionOperationsSummary {
   totalRequestCount: number;
-  pendingPaymentCount: number;
-  confirmedPaymentCount: number;
+  pendingRequestCount: number;
+  closedNoteCount: number;
   scheduledSessionCount: number;
-  readyToProcessCount: number;
+  completedSessionCount: number;
 }
 
 export interface SessionOperationsState {

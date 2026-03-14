@@ -300,6 +300,21 @@ export interface MentorIntroImageUploadUrlResponseDto {
   publicUrl?: string;
 }
 
+export interface MentorAvailableSlotResponseDto {
+  startTime?: string;
+  endTime?: string;
+  label?: string;
+}
+
+export interface MentorAvailabilityResponseDto {
+  mentorId?: number;
+  method?: string;
+  date?: string;
+  timezone?: string;
+  durationMinutes?: number;
+  slots?: MentorAvailableSlotResponseDto[];
+}
+
 export interface MentorMethodRequestDto {
   type: 'NOTE' | 'SIMPLE' | 'IN_DEPTH' | 'OFFLINE';
   enabled: boolean;

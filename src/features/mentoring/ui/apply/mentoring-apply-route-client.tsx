@@ -1,15 +1,10 @@
 'use client';
 
 import { ApiError } from '@/api/client/api-error';
-import {
-  findLocalFallbackMentor,
-  shouldUseLocalMentorFallback,
-} from '@/features/mentoring/model/mentor-directory-local-fallback';
 import { getEnabledMentoringMethods } from '@/features/mentoring/model/mentor-profile-utils';
 import { getMentorPublicReadiness } from '@/features/mentoring/model/mentor-public-readiness';
 import { useMentorDetailQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { useToastStore } from '@/stores/use-toast-store';
-import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile, MentoringMethodType } from '@/types/mentoring/domain';
 import MentoringApplyPage from './mentoring-apply-page';
 import {
@@ -66,30 +61,13 @@ export default function MentoringApplyRouteClient({
   selectedType,
 }: MentoringApplyRouteClientProps) {
   const { showToast } = useToastStore();
-  const createdMentors = useMentorDirectoryStore(
-    (state) => state.createdMentors,
-  );
   const mentorDetailQuery = useMentorDetailQuery(mentorId);
-  const fallbackMentor = findLocalFallbackMentor({
-    mentorId,
-    createdMentors,
-  });
 
   if (mentorDetailQuery.isLoading) {
     return <MentorRouteLoading />;
   }
 
   if (mentorDetailQuery.isError) {
-    if (
-      fallbackMentor &&
-      shouldUseLocalMentorFallback(mentorDetailQuery.error)
-    ) {
-      return resolveApplyPage({
-        mentor: fallbackMentor,
-        selectedType,
-      });
-    }
-
     if (
       mentorDetailQuery.error instanceof ApiError &&
       mentorDetailQuery.error.statusCode === 404
@@ -120,13 +98,6 @@ export default function MentoringApplyRouteClient({
   const mentor = mentorDetailQuery.data;
 
   if (!mentor) {
-    if (fallbackMentor) {
-      return resolveApplyPage({
-        mentor: fallbackMentor,
-        selectedType,
-      });
-    }
-
     return <MentorNotFoundState />;
   }
 

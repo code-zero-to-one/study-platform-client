@@ -36,6 +36,7 @@ export const COMPANY_CATEGORY_OPTIONS = [
   '기타',
 ] as const;
 export type CompanyCategory = (typeof COMPANY_CATEGORY_OPTIONS)[number];
+export type SettlementPayerType = 'INDIVIDUAL' | 'BUSINESS' | 'OVERSEAS';
 
 export interface MentorCareerEntry {
   description: string;
@@ -52,6 +53,19 @@ export interface MentorWeeklySchedule {
 }
 
 export type MentorScheduleTextDrafts = Record<WeekdayKey, string[]>;
+
+export interface MentorSettlementDraft {
+  payerType: SettlementPayerType;
+  contractName: string;
+  accountHolder: string;
+  bankCode: string;
+  accountNumber: string;
+  residentId?: string;
+  businessName?: string;
+  businessRegistrationNumber?: string;
+  verified: boolean;
+  updatedAt: string;
+}
 
 export interface MentorSettings {
   contactCountryCode: ContactCountryCode;
@@ -88,5 +102,6 @@ export interface MentorSettings {
   detailedDescription: string;
   interviewQuestions: string[];
   preNotice: string;
+  settlementDraft: MentorSettlementDraft | null;
   updatedAt: string;
 }

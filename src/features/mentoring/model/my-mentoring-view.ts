@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import { getMentoringSessionGuide } from '@/features/mentoring/model/mentoring-channel-guide';
 import {
   MENTORING_REFUND_STATUS_META,
   MENTORING_SESSION_ISSUE_META,
@@ -65,9 +66,14 @@ const toMentoringTime = (session: MentoringSession) => {
   return `${dayjs(session.startsAt).format('YYYY.MM.DD HH:mm')} - ${dayjs(session.endsAt).format('HH:mm')}`;
 };
 const toSessionGuide = (session?: MentoringSession) => {
-  const nextGuide = session?.placeNote?.trim();
+  if (!session) {
+    return undefined;
+  }
 
-  return nextGuide ? nextGuide : undefined;
+  return getMentoringSessionGuide({
+    method: session.method,
+    placeNote: session.placeNote,
+  });
 };
 const toPaymentMethodLabel = (request: MentoringRequest) => {
   const paymentMethod =
@@ -76,10 +82,10 @@ const toPaymentMethodLabel = (request: MentoringRequest) => {
 
   return PAYMENT_METHOD_LABEL_MAP[paymentMethod];
 };
-const isManualTransferPending = (request: MentoringRequest) => {
+
+const isNoteClosed = (request: MentoringRequest) => {
   return (
-    request.paymentMode === 'MANUAL_TRANSFER' &&
-    request.paymentStatus !== 'CONFIRMED'
+    request.status === 'CLOSED' || request.displayStatus === 'COMPLETED'
   );
 };
 const hasMentorFirstReply = (request: MentoringRequest) => {
@@ -120,20 +126,17 @@ const toNoteStatusMeta = (request: MentoringRequest) => {
   if (request.status === 'REJECTED') {
     return { label: '신청 거절', color: 'red' as const };
   }
+  if (isNoteClosed(request)) {
+    return { label: '상담 종료', color: 'blue' as const };
+  }
   if (request.status !== 'ACCEPTED') {
     return { label: '멘토 확인 대기', color: 'orange' as const };
-  }
-  if (isManualTransferPending(request)) {
-    return { label: '입금 확인 대기', color: 'orange' as const };
   }
   if (!hasMentorFirstReply(request)) {
     return { label: '첫 답변 대기', color: 'blue' as const };
   }
-  if (getLastConversationSender(request) === 'MENTOR') {
-    return { label: '답변 확인 필요', color: 'blue' as const };
-  }
 
-  return { label: '멘토 답변 대기', color: 'green' as const };
+  return { label: '답변 확인 필요', color: 'blue' as const };
 };
 const toPaymentAmountLabel = (
   request: MentoringRequest,
@@ -154,8 +157,32 @@ const toMyMentoringStatus = ({
   request: MentoringRequest;
   session?: MentoringSession;
 }): MyMentoringStatus | undefined => {
+  if (request.displayStatus === 'REQUESTED') {
+    return 'REQUESTED';
+  }
+  if (request.displayStatus === 'PENDING' || request.displayStatus === 'NOTE_WAITING') {
+    return 'PENDING';
+  }
+  if (request.displayStatus === 'CONFIRMED') {
+    return 'CONFIRMED';
+  }
+  if (request.displayStatus === 'COMPLETED') {
+    return 'COMPLETED';
+  }
+  if (request.displayStatus === 'REJECTED') {
+    return 'REJECTED';
+  }
+  if (request.displayStatus === 'CANCELLED') {
+    return 'CANCELLED';
+  }
+  if (request.displayStatus === 'NO_SHOW') {
+    return 'NO_SHOW';
+  }
   if (request.status === 'REJECTED') {
     return 'REJECTED';
+  }
+  if (request.status === 'CLOSED') {
+    return 'COMPLETED';
   }
   if (
     session?.issueType === 'MENTEE_NO_SHOW' ||
@@ -336,7 +363,7 @@ const toRefundMeta = (session?: MentoringSession) => {
 const toDetailHref = (requestId: string) => {
   return `/my-mentoring/${requestId}`;
 };
-const toMyMentoringItem = ({
+export const buildMyMentoringItem = ({
   request,
   session,
   mentorMap,
@@ -426,7 +453,7 @@ export const buildMyMentoringItems = ({
             ? sessions.find((item) => item.id === request.linkedSessionId)
             : undefined;
 
-          return toMyMentoringItem({ request, session, mentorMap });
+          return buildMyMentoringItem({ request, session, mentorMap });
         })
         .filter((item): item is MyMentoringItem => item !== undefined);
     })
@@ -464,14 +491,16 @@ export const buildMyNoteConsultationSummary = ({
       if (request.status === 'REJECTED') {
         return false;
       }
-      if (request.status !== 'ACCEPTED' || isManualTransferPending(request)) {
+      if (isNoteClosed(request)) {
+        return false;
+      }
+      if (request.status !== 'ACCEPTED') {
         return true;
       }
       if (!hasMentorFirstReply(request)) {
         return true;
       }
-
-      return getLastConversationSender(request) === 'MENTEE';
+      return false;
     })
     .sort((first, second) => {
       return (
@@ -483,8 +512,8 @@ export const buildMyNoteConsultationSummary = ({
     .filter((request) => {
       return (
         request.status === 'ACCEPTED' &&
-        hasMentorFirstReply(request) &&
-        getLastConversationSender(request) === 'MENTOR'
+        !isNoteClosed(request) &&
+        hasMentorFirstReply(request)
       );
     })
     .sort((first, second) => {

@@ -230,6 +230,15 @@ export interface MentoringMarkdownEditorProps {
   onChange: (next: string) => void;
   placeholder?: string;
   maxImageCount?: number;
+  requestImageUploadTicket?: (params: {
+    fileName: string;
+    fileType: string;
+    fileSize: number;
+  }) => Promise<{
+    uploadUrl: string;
+    publicUrl?: string;
+  }>;
+  uploadImageFile?: (params: { uploadUrl: string; file: File }) => Promise<void>;
 }
 
 interface ToolbarButtonProps {
@@ -270,6 +279,8 @@ function MentorMarkdownEditor({
   onChange,
   placeholder,
   maxImageCount = MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
+  requestImageUploadTicket = requestMentorMarkdownImageUploadTicket,
+  uploadImageFile = uploadMentorMarkdownImageFile,
 }: MentoringMarkdownEditorProps) {
   const [imageInsertError, setImageInsertError] = useState('');
   const [isUploadingImages, setIsUploadingImages] = useState(false);
@@ -282,21 +293,35 @@ function MentorMarkdownEditor({
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeMentorMarkdownContent(value);
 
+  const getSafeNodeAt = useCallback((editorInstance: Editor, position: number) => {
+    if (position < 0 || position > editorInstance.state.doc.content.size) {
+      return null;
+    }
+
+    try {
+      return editorInstance.state.doc.nodeAt(position);
+    } catch {
+      return null;
+    }
+  }, []);
+
   const uploadAndInsertFile = useCallback(
     async (editor: Editor, file: File) => {
-      const ticket = await requestMentorMarkdownImageUploadTicket({
+      const ticket = await requestImageUploadTicket({
         fileName: file.name,
         fileType: file.type,
         fileSize: file.size,
       });
 
-      await uploadMentorMarkdownImageFile({
+      await uploadImageFile({
         uploadUrl: ticket.uploadUrl,
         file,
       });
 
-      const imageSrc = isRenderableImageSrc(ticket.publicUrl)
-        ? ticket.publicUrl
+      const imageSrc =
+        typeof ticket.publicUrl === 'string' &&
+        isRenderableImageSrc(ticket.publicUrl)
+          ? ticket.publicUrl
         : URL.createObjectURL(file);
       if (imageSrc !== ticket.publicUrl) {
         objectUrlRegistryRef.current.push(imageSrc);
@@ -311,7 +336,7 @@ function MentorMarkdownEditor({
         })
         .run();
     },
-    [],
+    [requestImageUploadTicket, uploadImageFile],
   );
 
   const validateImageFile = (file: File): string | undefined => {
@@ -650,6 +675,17 @@ function MentorMarkdownEditor({
     };
   }, []);
 
+  useEffect(() => {
+    if (!editor || editor.isDestroyed || selectedImagePos === null) {
+      return;
+    }
+
+    const selectedNode = getSafeNodeAt(editor, selectedImagePos);
+    if (!selectedNode || selectedNode.type.name !== 'image') {
+      setSelectedImagePos(null);
+    }
+  }, [editor, getSafeNodeAt, selectedImagePos]);
+
   const handleToggleLink = () => {
     if (!editor) {
       return;
@@ -675,7 +711,7 @@ function MentorMarkdownEditor({
       return;
     }
 
-    const selectedNode = editor.state.doc.nodeAt(selectedImagePos);
+    const selectedNode = getSafeNodeAt(editor, selectedImagePos);
     if (!selectedNode || selectedNode.type.name !== 'image') {
       setSelectedImagePos(null);
 
@@ -703,7 +739,9 @@ function MentorMarkdownEditor({
   const isImageActive = selectedImagePos !== null;
   const selectedImageWidth =
     editor && selectedImagePos !== null
-      ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
+      ? parseImageWidth(
+          getSafeNodeAt(editor, selectedImagePos)?.attrs.width,
+        )
       : MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH;
   const activeCodeBlockControl = (() => {
     if (!editor || !editor.isActive('codeBlock')) {

@@ -1,4 +1,6 @@
+import type { MentorAvailabilityQueryParams } from '@/types/mentoring/availability';
 import type {
+  MentorAvailabilityQueryKey,
   MentorDirectoryDetailQueryKey,
   MentorDirectoryMySettingsQueryKey,
   MentorDirectoryListQueryKey,
@@ -22,6 +24,14 @@ export const mentorDirectoryQueryKeys = {
   detail: (mentorId: number): MentorDirectoryDetailQueryKey => [
     ...mentorDirectoryQueryKeys.details(),
     mentorId,
+  ],
+  availabilities: () =>
+    [...mentorDirectoryQueryKeys.directories(), 'availability'] as const,
+  availability: (
+    params: MentorAvailabilityQueryParams,
+  ): MentorAvailabilityQueryKey => [
+    ...mentorDirectoryQueryKeys.availabilities(),
+    params,
   ],
   mySettings: (): MentorDirectoryMySettingsQueryKey => [
     ...mentorDirectoryQueryKeys.directories(),

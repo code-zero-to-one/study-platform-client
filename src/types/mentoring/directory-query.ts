@@ -1,4 +1,5 @@
 import type { MentorSortType } from '@/types/mentoring/domain';
+import type { MentorAvailabilityQueryParams } from '@/types/mentoring/availability';
 
 export interface MentorDirectoryListQueryParams {
   keyword?: string;
@@ -20,6 +21,13 @@ export type MentorDirectoryDetailQueryKey = readonly [
   'mentor-directory',
   'detail',
   number,
+];
+
+export type MentorAvailabilityQueryKey = readonly [
+  'mentoring',
+  'mentor-directory',
+  'availability',
+  MentorAvailabilityQueryParams,
 ];
 
 export type MentorDirectoryMySettingsQueryKey = readonly [

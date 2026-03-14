@@ -242,6 +242,7 @@ export const createMentorProfileFromRegistration = (
     preNotice: formValues.preNotice ?? '',
     detailedDescription: formValues.detailedDescription ?? '',
     interviewQuestions: formValues.interviewQuestions ?? [],
+    settlementDraft: null,
     updatedAt: nowIso,
   };
 

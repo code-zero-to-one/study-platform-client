@@ -1,7 +1,7 @@
 'use client';
 import dayjs from 'dayjs';
 import Link from 'next/link';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Avatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
@@ -10,13 +10,18 @@ import {
   MENTORING_SESSION_ISSUE_META,
   MENTORING_SESSION_STATUS_META,
 } from '@/features/mentoring/model/management-status-meta';
-import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringCardInfoRow from '@/features/mentoring/ui/common/mentoring-card-info-row';
 import MentoringEmptyPanel from '@/features/mentoring/ui/common/mentoring-empty-panel';
 import { mentoringMethodIconMap } from '@/features/mentoring/ui/common/mentoring-method-icons';
 import MentoringStageSelector from '@/features/mentoring/ui/common/mentoring-stage-selector';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
+import { useMentorWorkspaceQuery } from '@/features/mentoring/model/use-mentor-workspace-query';
+import {
+  useAcceptMentoringRequestMutation,
+  useRejectMentoringRequestMutation,
+} from '@/features/mentoring/model/use-mentoring-lifecycle-mutations';
+import { useToastStore } from '@/stores/use-toast-store';
 import type {
   MentoringRequest,
   MentoringSession,
@@ -217,27 +222,15 @@ export default function MentorManagementWorkspace({
   memberId,
   mentor,
 }: MentorManagementWorkspaceProps) {
-  const ensureDemoRequests = useMentoringManagementStore(
-    (state) => state.ensureDemoRequests,
-  );
-  const hasHydrated = useMentoringManagementStore((state) => state.hasHydrated);
-  const mentorRequests = useMentoringManagementStore(
-    (state) => state.requestsByMentor[mentor.id],
-  );
-  const mentorSessions = useMentoringManagementStore(
-    (state) => state.sessionsByMentor[mentor.id],
-  );
-  const requests = mentorRequests ?? EMPTY_REQUESTS;
-  const sessions = mentorSessions ?? EMPTY_SESSIONS;
-  const acceptRequest = useMentoringManagementStore(
-    (state) => state.acceptRequest,
-  );
-  const rejectRequest = useMentoringManagementStore(
-    (state) => state.rejectRequest,
-  );
-  useEffect(() => {
-    ensureDemoRequests(memberId, mentor.id);
-  }, [ensureDemoRequests, memberId, mentor.id]);
+  const { showToast } = useToastStore();
+  const workspaceQuery = useMentorWorkspaceQuery({
+    mentorId: mentor.id,
+    enabled: Boolean(memberId),
+  });
+  const acceptRequestMutation = useAcceptMentoringRequestMutation();
+  const rejectRequestMutation = useRejectMentoringRequestMutation();
+  const requests = workspaceQuery.data?.allRequests ?? EMPTY_REQUESTS;
+  const sessions = workspaceQuery.data?.allSessions ?? EMPTY_SESSIONS;
   const reservationRequests = useMemo(
     () => requests.filter((r) => r.method !== 'note'),
     [requests],
@@ -260,20 +253,45 @@ export default function MentorManagementWorkspace({
   const filteredCards = cards.filter((card) => card.stage === activeStage);
   const activeStageMeta =
     STAGES.find((s) => s.key === activeStage) ?? STAGES[0];
-  const handleAccept = (card: ManagementCardItem) => {
-    acceptRequest({ mentorId: mentor.id, requestId: card.requestId });
+  const handleAccept = async (card: ManagementCardItem) => {
+    try {
+      await acceptRequestMutation.mutateAsync({
+        mentorId: mentor.id,
+        requestId: card.requestId,
+      });
+      showToast('신청을 수락했습니다.', 'success');
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : '신청 수락에 실패했습니다.',
+        'error',
+      );
+    }
   };
-  const handleReject = (card: ManagementCardItem) => {
-    rejectRequest({
-      mentorId: mentor.id,
-      requestId: card.requestId,
-      reason: '일정 사정으로 이번 신청은 진행이 어렵습니다.',
-    });
+  const handleReject = async (card: ManagementCardItem) => {
+    try {
+      await rejectRequestMutation.mutateAsync({
+        mentorId: mentor.id,
+        requestId: card.requestId,
+        reason: '일정 사정으로 이번 신청은 진행이 어렵습니다.',
+      });
+      showToast('신청을 거절했습니다.', 'success');
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : '신청 거절에 실패했습니다.',
+        'error',
+      );
+    }
   };
 
   return (
     <MentoringStateBoundary
-      state={hasHydrated ? 'ready' : 'loading'}
+      state={
+        workspaceQuery.isLoading
+          ? 'loading'
+          : workspaceQuery.isError
+            ? 'error'
+            : 'ready'
+      }
       ready={
         <section className="flex flex-col gap-200">
           {' '}
@@ -351,11 +369,7 @@ function ManagementCard({
             {card.dateLabel}
           </p>
         </div>{' '}
-        <Badge
-          color={card.statusColor}
-          shape="rectangle"
-          className="shrink-0"
-        >
+        <Badge color={card.statusColor} shape="rectangle" className="shrink-0">
           {' '}
           {card.statusLabel}{' '}
         </Badge>{' '}

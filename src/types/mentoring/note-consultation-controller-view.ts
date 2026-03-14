@@ -3,7 +3,6 @@ import type {
   NoteConsultationListItem,
 } from '@/types/mentoring/note-consultation-view';
 export type NoteConsultationListUiState = 'ready' | 'loading' | 'error';
-export type NoteConsultationStatusTone = 'blue' | 'green' | 'orange' | 'red';
 export type NoteConsultationStatusFilter =
   | 'all'
   | 'mentor-requested'
@@ -17,11 +16,6 @@ export interface NoteConsultationStatusTab {
   label: string;
   count: number;
 }
-export interface NoteConsultationItemStatusSummary {
-  key: 'pending' | 'rejected' | 'completed';
-  label: string;
-  tone: NoteConsultationStatusTone;
-}
 export interface NoteConsultationControllerState {
   listState: NoteConsultationListUiState;
   activeChannel: NoteConsultationChannel;
@@ -33,7 +27,6 @@ export interface NoteConsultationControllerViewModel {
   filteredItems: NoteConsultationListItem[];
   statusTabs: NoteConsultationStatusTab[];
   selectedItem?: NoteConsultationListItem;
-  itemStatusSummaries: Record<string, NoteConsultationItemStatusSummary>;
   isRestoringPinnedItem: boolean;
   hasMissingPinnedItem: boolean;
   errorMessage: string;

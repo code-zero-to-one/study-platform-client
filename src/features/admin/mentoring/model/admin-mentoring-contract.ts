@@ -1,13 +1,10 @@
 import type { ZodIssue } from 'zod';
-import type { AdminMentoringOverviewQueryResult } from '@/types/mentoring/admin-domain';
 import {
-  adminMentoringOverviewResponseSchema,
   sessionOperationsSearchParamsSchema,
   type SessionOperationsSearchParamsInput,
 } from '@/types/schemas/mentoring-admin-schema';
 
 type AdminMentoringContractScope =
-  | 'query-response'
   | 'mentor-filter-search-params'
   | 'query-error';
 
@@ -53,21 +50,6 @@ const toContractError = ({
     message,
     causeData,
   });
-};
-
-export const parseAdminMentoringOverviewResponseOrThrow = (
-  input: AdminMentoringOverviewQueryResult,
-): AdminMentoringOverviewQueryResult => {
-  const parsed = adminMentoringOverviewResponseSchema.safeParse(input);
-
-  if (!parsed.success) {
-    throw toContractError({
-      scope: 'query-response',
-      issues: parsed.error.issues,
-    });
-  }
-
-  return parsed.data as unknown as AdminMentoringOverviewQueryResult;
 };
 
 export const parseAdminMentoringMentorFilterSearchParams = (

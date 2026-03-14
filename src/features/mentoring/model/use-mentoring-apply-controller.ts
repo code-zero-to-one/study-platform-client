@@ -4,23 +4,16 @@ import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { type DateRange } from 'react-day-picker';
-import { useAuthReady } from '@/features/auth/model/use-auth';
+import { extractMentoringTimeSlotStart } from '@/features/mentoring/model/mentor-settings';
 import {
-  getMentorDisplayTitle,
-  getMethodLabel,
-  getMentorSettings,
-} from '@/features/mentoring/model/mentor-profile-utils';
-import {
-  extractMentoringTimeSlotStart,
-  filterMentoringTimeSlotsByWeekday,
-  getWeekdayKeyFromDate,
-  hasAnyWeeklyScheduleSlots,
-  parseDurationLabelToMinutes,
-  toTimeRangeLabel,
-} from '@/features/mentoring/model/mentor-settings';
+  getMentoringApplyAvailableTimeSlots,
+  getMentoringApplyAvailabilityLoadingState,
+  getMentoringApplyAvailabilityStatusMessage,
+} from '@/features/mentoring/model/mentoring-apply-availability';
 import {
   buildMentoringRequestMessage,
   createMentoringRequestRichTextBlock,
+  getMentoringRequestAttachmentFileKeys,
   getMentoringRequestAttachedFileNames,
   getMentoringRequestReferenceLinks,
   getMentoringRequestTextLength,
@@ -28,11 +21,11 @@ import {
   sanitizeMentoringRequestContents,
   type MentoringRequestContentBlock,
 } from '@/features/mentoring/model/request-content';
+import { useMentorAvailabilityQuery } from '@/features/mentoring/model/use-mentor-availability-query';
+import { useCreateMentoringRequestMutation } from '@/features/mentoring/model/use-mentoring-lifecycle-mutations';
 import { useToastStore } from '@/stores/use-toast-store';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import { useUserStore } from '@/stores/useUserStore';
-import type { MentorOperationStatus } from '@/types/mentoring/admin-domain';
+import type { MentoringReservableMethodType } from '@/types/mentoring/availability';
 import type {
   MentorProfile,
   MentoringMethodType,
@@ -100,14 +93,6 @@ const PAYMENT_METHOD_COPY_MAP: Record<
   MANUAL_TRANSFER: PAYMENT_METHOD_OPTIONS[2],
 };
 
-const getOperationBlockMessage = (status: MentorOperationStatus) => {
-  if (status === 'REQUESTS_PAUSED') {
-    return '관리자 조치로 신규 신청이 일시 중지된 멘토입니다.';
-  }
-
-  return '관리자 조치로 운영 정지된 멘토입니다.';
-};
-
 interface UseMentoringApplyControllerParams {
   mentor: MentorProfile;
   selectedMethod: MentoringMethodType;
@@ -144,6 +129,8 @@ export interface MentoringApplyControllerViewModel {
   requiresAttachment: boolean;
   minSelectableDate: Date;
   availableTimeSlots: string[];
+  isAvailabilityLoading: boolean;
+  availabilityStatusMessage: string | undefined;
   scheduleStepNumber: number;
   messageStepNumber: number;
   requestTitleLength: number;
@@ -181,16 +168,7 @@ export const useMentoringApplyController = ({
   selectedMethod,
 }: UseMentoringApplyControllerParams): MentoringApplyControllerResult => {
   const router = useRouter();
-  const { memberId } = useAuthReady();
-  const createRequest = useMentoringManagementStore(
-    (storeState) => storeState.createRequest,
-  );
-  const mentorOperationRecord = useMentorOperationStore(
-    (storeState) => storeState.recordsByMentorId[mentor.id],
-  );
-  const mentorOperationHydrated = useMentorOperationStore(
-    (storeState) => storeState.hasHydrated,
-  );
+  const createRequestMutation = useCreateMentoringRequestMutation();
   const { showToast } = useToastStore();
   const { memberName, nickname, tel } = useUserStore();
 
@@ -207,65 +185,48 @@ export const useMentoringApplyController = ({
   const [hasSubmitAttempt, setHasSubmitAttempt] = useState(false);
 
   const selectedOption = mentor.methods[selectedMethod];
-  const mentorSettings = getMentorSettings(mentor);
   const needsSchedule = selectedOption.requiresSchedule;
-  const requiresRequestTitle = selectedMethod === 'note';
+  const requiresRequestTitle = true;
   const requiresAttachment = selectedMethod === 'note';
-  const methodDurationMinutes =
-    parseDurationLabelToMinutes(selectedOption.durationLabel) ??
-    mentorSettings.deepDurationMinutes;
   const minSelectableDate = dayjs().add(3, 'day').startOf('day');
-  const hasWeeklySchedule = hasAnyWeeklyScheduleSlots(mentorSettings.schedule);
   const selectedPaymentMethodCopy =
     PAYMENT_METHOD_COPY_MAP[selectedPaymentMethod];
-  const paymentMode = selectedPaymentMethodCopy.paymentMode;
   const needsPaymentMemo = selectedPaymentMethodCopy.requiresMemo;
-
-  const selectedWeekday = selectedDate
-    ? getWeekdayKeyFromDate(selectedDate)
+  const selectedDateKey = selectedDate
+    ? dayjs(selectedDate).format('YYYY-MM-DD')
     : undefined;
-
-  const scheduleBasedTimeRanges = useMemo(() => {
-    const scheduleBasedSlots = selectedWeekday
-      ? (mentorSettings.schedule.weekly[selectedWeekday] ?? [])
-      : [];
-
-    return scheduleBasedSlots.map((slot) =>
-      toTimeRangeLabel(slot, methodDurationMinutes),
-    );
-  }, [mentorSettings.schedule.weekly, methodDurationMinutes, selectedWeekday]);
-
-  const legacyTimeRanges = useMemo(() => {
-    if (!selectedWeekday) {
-      return [];
-    }
-
-    return filterMentoringTimeSlotsByWeekday({
-      timeSlots: selectedOption.timeSlots,
-      weekday: selectedWeekday,
-      durationMinutes: methodDurationMinutes,
-    });
-  }, [methodDurationMinutes, selectedOption.timeSlots, selectedWeekday]);
+  const reservableMethod = needsSchedule
+    ? (selectedMethod as MentoringReservableMethodType)
+    : undefined;
+  const availabilityQuery = useMentorAvailabilityQuery({
+    mentorId: mentor.id,
+    method: reservableMethod,
+    date: selectedDateKey,
+    enabled: needsSchedule,
+  });
+  const hasAvailability = availabilityQuery.data !== undefined;
 
   const availableTimeSlots = useMemo(() => {
-    if (!selectedDate) {
-      return [];
-    }
-
-    if (scheduleBasedTimeRanges.length > 0) {
-      return scheduleBasedTimeRanges;
-    }
-
-    if (hasWeeklySchedule) {
-      return [];
-    }
-
-    return legacyTimeRanges;
+    return getMentoringApplyAvailableTimeSlots(availabilityQuery.data);
+  }, [availabilityQuery.data]);
+  const isAvailabilityLoading = getMentoringApplyAvailabilityLoadingState({
+    hasSelectedDate: needsSchedule && selectedDateKey !== undefined,
+    isLoading: availabilityQuery.isLoading,
+    hasAvailability,
+  });
+  const availabilityStatusMessage = useMemo(() => {
+    return getMentoringApplyAvailabilityStatusMessage({
+      hasSelectedDate: needsSchedule && selectedDateKey !== undefined,
+      isLoading: isAvailabilityLoading,
+      isError: availabilityQuery.isError,
+      availableTimeSlotCount: availableTimeSlots.length,
+    });
   }, [
-    hasWeeklySchedule,
-    legacyTimeRanges,
-    scheduleBasedTimeRanges,
-    selectedDate,
+    availabilityQuery.isError,
+    availableTimeSlots.length,
+    isAvailabilityLoading,
+    needsSchedule,
+    selectedDateKey,
   ]);
 
   const requestTextLength = useMemo(() => {
@@ -285,6 +246,9 @@ export const useMentoringApplyController = ({
   const referenceLinks = useMemo(() => {
     return getMentoringRequestReferenceLinks(requestContents);
   }, [requestContents]);
+  const attachmentFileKeys = useMemo(() => {
+    return getMentoringRequestAttachmentFileKeys(requestContents);
+  }, [requestContents]);
 
   const isValidForm = useMemo(() => {
     const hasRequestTitle = requiresRequestTitle
@@ -297,7 +261,9 @@ export const useMentoringApplyController = ({
       : true;
 
     if (!needsSchedule) {
-      return hasRequestTitle && hasMessage && isAttachmentValid && hasPaymentMemo;
+      return (
+        hasRequestTitle && hasMessage && isAttachmentValid && hasPaymentMemo
+      );
     }
 
     return (
@@ -329,10 +295,6 @@ export const useMentoringApplyController = ({
     requiresAttachment && !hasAttachment && hasSubmitAttempt;
   const shouldShowPaymentMemoError =
     needsPaymentMemo && paymentMemo.trim().length < 2 && hasSubmitAttempt;
-  const isRequestBlockedByOperation =
-    mentorOperationHydrated &&
-    mentorOperationRecord !== undefined &&
-    mentorOperationRecord.status !== 'OPEN';
 
   useEffect(() => {
     if (selectedTime && !availableTimeSlots.includes(selectedTime)) {
@@ -359,52 +321,38 @@ export const useMentoringApplyController = ({
       return;
     }
 
-    if (isRequestBlockedByOperation && mentorOperationRecord) {
-      showToast(
-        getOperationBlockMessage(mentorOperationRecord.status),
-        'error',
-      );
-
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
       const preferredTimeStart = extractMentoringTimeSlotStart(selectedTime);
-      const requestId = createRequest({
+      const result = await createRequestMutation.mutateAsync({
         mentorId: mentor.id,
         method: selectedMethod,
-        mentorDisplayTitle: getMentorDisplayTitle(mentor),
-        mentorNickname: mentor.nickname,
-        methodLabel: getMethodLabel(selectedMethod),
-        durationLabel: selectedOption.durationLabel,
-        paymentAmount: selectedOption.price,
-        paymentMode,
-        paymentMethod: selectedPaymentMethod,
-        paymentMemo: needsPaymentMemo ? paymentMemo.trim() : undefined,
-        menteeMemberId: memberId,
-        menteeName: memberName ?? nickname ?? '익명 멘티',
-        menteeRole: 'ZERO-ONE 멘티',
         preferredDate: selectedDate
           ? dayjs(selectedDate).format('YYYY-MM-DD')
           : undefined,
         preferredTime:
           preferredTimeStart === '' ? undefined : preferredTimeStart,
         requestTitle:
-          normalizedRequestTitle.length > 0 ? normalizedRequestTitle : undefined,
+          normalizedRequestTitle.length > 0
+            ? normalizedRequestTitle
+            : undefined,
         requestMessage,
         requestContents: sanitizeMentoringRequestContents(requestContents),
+        attachmentFileKeys:
+          attachmentFileKeys.length > 0 ? attachmentFileKeys : undefined,
         attachedFileNames:
           attachedFileNames.length > 0 ? attachedFileNames : undefined,
         referenceLinks: referenceLinks.length > 0 ? referenceLinks : undefined,
       });
-
-      await new Promise((resolve) => {
-        window.setTimeout(resolve, 400);
-      });
-
-      router.push(`/mentoring/${mentor.id}/complete?requestId=${requestId}`);
+      router.push(
+        `/mentoring/${mentor.id}/complete?requestId=${result.requestId}`,
+      );
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : '멘토링 신청에 실패했습니다.',
+        'error',
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -412,9 +360,7 @@ export const useMentoringApplyController = ({
 
   const submitButtonLabel = isSubmitting
     ? '처리 중...'
-    : isRequestBlockedByOperation
-      ? '현재 신청이 제한되었습니다'
-      : selectedPaymentMethodCopy.submitLabel;
+    : selectedPaymentMethodCopy.submitLabel;
 
   return {
     state: {
@@ -442,12 +388,13 @@ export const useMentoringApplyController = ({
       requiresAttachment,
       minSelectableDate: minSelectableDate.toDate(),
       availableTimeSlots,
+      isAvailabilityLoading,
+      availabilityStatusMessage,
       scheduleStepNumber: 1,
       messageStepNumber: needsSchedule ? 2 : 1,
       requestTitleLength,
       isRequestTitleTooShort:
-        requiresRequestTitle &&
-        requestTitleLength < REQUEST_TITLE_MIN_LENGTH,
+        requiresRequestTitle && requestTitleLength < REQUEST_TITLE_MIN_LENGTH,
       shouldShowRequestTitleError,
       requestTextLength,
       isRequestTextTooShort: requestTextLength < 10,
@@ -456,21 +403,13 @@ export const useMentoringApplyController = ({
       shouldShowPaymentMemoError,
       paymentMethodOptions: PAYMENT_METHOD_OPTIONS,
       selectedPaymentMethodCopy,
-      isRequestBlockedByOperation,
-      operationBlockedMessage:
-        isRequestBlockedByOperation && mentorOperationRecord
-          ? getOperationBlockMessage(mentorOperationRecord.status)
-          : undefined,
-      operationBlockedReason:
-        isRequestBlockedByOperation && mentorOperationRecord
-          ? (mentorOperationRecord.reason ??
-            '관리자 조치로 신규 신청이 제한되었습니다.')
-          : undefined,
+      isRequestBlockedByOperation: false,
+      operationBlockedMessage: undefined,
+      operationBlockedReason: undefined,
       applicantName: memberName ?? nickname ?? '-',
       applicantPhone: tel ?? '-',
       submitButtonLabel,
-      isSubmitDisabled:
-        !isValidForm || isSubmitting || isRequestBlockedByOperation,
+      isSubmitDisabled: !isValidForm || isSubmitting,
       isAttachmentReady: !requiresAttachment || hasAttachment,
       isPaymentMemoReady: !needsPaymentMemo || paymentMemo.trim().length >= 2,
       isDateDisabled: (date: Date) =>

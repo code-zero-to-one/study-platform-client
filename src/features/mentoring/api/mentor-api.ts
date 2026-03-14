@@ -6,12 +6,14 @@ import type { MentorRegistrationFormValues } from '@/types/schemas/mentor-regist
 import { requireInteger, requireObject } from './mentor-api-contract';
 import type {
   ApiResponse,
+  MentorAvailabilityResponseDto,
   MentorIntroImageUploadUrlResponseDto,
   MentorSettingsUpsertRequestDto,
   MentorUpsertResponseDto,
 } from './mentor-api.types';
 import { mapMentorDetailContent } from './mentor-detail.mapper';
 import { mapMentorListContent } from './mentor-list.mapper';
+import { mapMentorAvailabilityContent } from './mentor-availability.mapper';
 import {
   mapMentorEntryOnboardingStatusContent,
   type MentorEntryOnboardingStatus,
@@ -24,6 +26,9 @@ import {
   type MyMentorSettingsNotFoundResult,
   type MyMentorSettingsResult,
 } from './mentor-settings.mapper';
+import type {
+  MentorAvailabilityQueryParams,
+} from '@/types/mentoring/availability';
 
 const IMAGE_EXTENSION_MAP: Record<string, string> = {
   jpg: 'JPG',
@@ -64,6 +69,12 @@ const normalizeCareerCodes = (careerCodes: string[] | undefined) => {
   );
 
   return normalized.length > 0 ? normalized : undefined;
+};
+
+const normalizeAvailabilityMethod = (
+  method: MentorAvailabilityQueryParams['method'],
+) => {
+  return method === 'deep' ? 'in_depth' : method;
 };
 
 const serializeMentorListParams = (params: {
@@ -163,6 +174,24 @@ export const getMentorDetail = async (mentorId: number) => {
   );
 
   return mapMentorDetailContent(response.data.content);
+};
+
+export const getMentorAvailability = async ({
+  mentorId,
+  method,
+  date,
+}: MentorAvailabilityQueryParams) => {
+  const response = await axiosInstance.get<ApiResponse<MentorAvailabilityResponseDto>>(
+    `/mentors/${mentorId}/availability`,
+    {
+      params: {
+        method: normalizeAvailabilityMethod(method),
+        date,
+      },
+    },
+  );
+
+  return mapMentorAvailabilityContent(response.data.content);
 };
 
 export const getMyMentorSettings =

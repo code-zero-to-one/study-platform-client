@@ -1,7 +1,7 @@
 'use client';
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import { sendNoteConsultationMessage } from '@/features/mentoring/api/mentoring-lifecycle-api';
 import type {
   SendNoteConsultationMessageMutationParams,
   SendNoteConsultationMessageMutationResult,
@@ -11,13 +11,10 @@ import {
   normalizeNoteConsultationMutationError,
   parseSendNoteConsultationMessageParamsOrThrow,
 } from './note-consultation-contract';
-import { noteConsultationQueryKeys } from './note-consultation-query-keys';
+import { mentoringLifecycleQueryKeys } from './mentoring-lifecycle-query-keys';
 
 export const useSendNoteConsultationMessageMutation = () => {
   const queryClient = useQueryClient();
-  const sendMentorMessage = useMentoringManagementStore(
-    (state) => state.sendMentorMessage,
-  );
 
   return useMutation<
     SendNoteConsultationMessageMutationResult,
@@ -28,24 +25,38 @@ export const useSendNoteConsultationMessageMutation = () => {
       try {
         const parsedInput =
           parseSendNoteConsultationMessageParamsOrThrow(input);
-        const result = sendMentorMessage({
+
+        return await sendNoteConsultationMessage({
           mentorId: parsedInput.mentorId,
           requestId: parsedInput.requestId,
+          messageId: parsedInput.messageId,
           content: parsedInput.content,
+          messageContents: parsedInput.messageContents,
+          attachmentFileKeys: parsedInput.attachmentFileKeys,
+          attachedFileNames: parsedInput.attachedFileNames,
+          referenceLinks: parsedInput.referenceLinks,
         });
-        if (!result.ok) {
-          throw new Error(result.reason ?? '메시지 전송에 실패했습니다.');
-        }
-
-        return result;
       } catch (error) {
         throw normalizeNoteConsultationMutationError(error);
       }
     },
-    onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: noteConsultationQueryKeys.lists(),
-      });
+    onSuccess: async (_, variables) => {
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: mentoringLifecycleQueryKeys.noteConsultations(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: mentoringLifecycleQueryKeys.myDashboards(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: mentoringLifecycleQueryKeys.mentorWorkspaces(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: mentoringLifecycleQueryKeys.requestDetail(
+            variables.requestId,
+          ),
+        }),
+      ]);
     },
   });
 };

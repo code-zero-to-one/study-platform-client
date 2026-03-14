@@ -186,25 +186,12 @@ const toOperationSignature = (
   return mentorIds
     .map((mentorId) => {
       const record = operationByMentor[mentorId];
-      const historySignature = record.history
-        .map((entry) =>
-          [
-            entry.id,
-            entry.fromStatus,
-            entry.toStatus,
-            entry.reason ?? '',
-            entry.changedAt,
-            entry.changedByMemberId ?? '',
-          ].join(':'),
-        )
-        .join(',');
 
       return [
         mentorId,
         record.status,
         record.reason ?? '',
         record.changedAt ?? '',
-        historySignature,
       ].join(':');
     })
     .join('|');

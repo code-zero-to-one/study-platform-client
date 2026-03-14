@@ -2,13 +2,11 @@
 
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useMentorDirectoryListQuery } from '@/features/mentoring/model/use-mentor-directory-query';
+import { useUpsertMentoringReviewMutation } from '@/features/mentoring/model/use-mentoring-lifecycle-mutations';
+import { useMyMentoringDashboardQuery } from '@/features/mentoring/model/use-my-mentoring-dashboard-query';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
-import {
-  getRequestReviewEligibility,
-  useMentoringManagementStore,
-} from '@/stores/useMentoringManagementStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
 import type {
   MentoringRequest,
@@ -87,20 +85,14 @@ export const useMyMentoringReviewController = () => {
     page: 0,
     size: 100,
   });
+  const dashboardQuery = useMyMentoringDashboardQuery({
+    enabled: Boolean(memberId),
+    page: 0,
+    size: 100,
+  });
   const mentors = useMemo(() => mentorsData?.mentors ?? [], [mentorsData]);
   const { showToast } = useToastStore();
-  const requestsByMentor = useMentoringManagementStore(
-    (state) => state.requestsByMentor,
-  );
-  const sessionsByMentor = useMentoringManagementStore(
-    (state) => state.sessionsByMentor,
-  );
-  const reviewsByMentor = useMentoringManagementStore(
-    (state) => state.reviewsByMentor,
-  );
-  const submitReview = useMentoringManagementStore(
-    (state) => state.submitReview,
-  );
+  const upsertReviewMutation = useUpsertMentoringReviewMutation();
   const [activeDraftKey, setActiveDraftKey] = useState<ActiveDraftKey | null>(
     null,
   );
@@ -118,12 +110,12 @@ export const useMyMentoringReviewController = () => {
       return [] as ReviewCardItem[];
     }
 
-    return Object.entries(requestsByMentor)
+    return Object.entries(dashboardQuery.requestsByMentor)
       .flatMap(([mentorIdKey, requests]) => {
         const mentorId = Number(mentorIdKey);
         const mentor = mentorMap.get(mentorId);
-        const sessions = sessionsByMentor[mentorId] ?? [];
-        const reviews = reviewsByMentor[mentorId] ?? [];
+        const sessions = dashboardQuery.sessionsByMentor[mentorId] ?? [];
+        const reviews = dashboardQuery.reviewsByMentor[mentorId] ?? [];
 
         return requests
           .filter((request) => request.menteeMemberId === memberId)
@@ -139,10 +131,14 @@ export const useMyMentoringReviewController = () => {
                 review.menteeMemberId === memberId
               );
             });
-            const eligibility = getRequestReviewEligibility({
-              request,
-              session: linkedSession,
+            const dashboardItem = dashboardQuery.data?.items.find((item) => {
+              return item.request.id === request.id;
             });
+            const eligibility = dashboardItem?.reviewEligibility ?? {
+              canReview: false,
+              reason: '상담 종료 후 작성할 수 있습니다.',
+              isCompleted: false,
+            };
             const status: ReviewCardStatus = linkedReview
               ? 'WRITTEN'
               : eligibility.canReview
@@ -173,9 +169,10 @@ export const useMyMentoringReviewController = () => {
   }, [
     memberId,
     mentorMap,
-    requestsByMentor,
-    reviewsByMentor,
-    sessionsByMentor,
+    dashboardQuery.data?.items,
+    dashboardQuery.requestsByMentor,
+    dashboardQuery.reviewsByMentor,
+    dashboardQuery.sessionsByMentor,
   ]);
 
   const readyCount = useMemo(() => {
@@ -257,35 +254,40 @@ export const useMyMentoringReviewController = () => {
     setDraft((previous) => ({ ...previous, content }));
   }, []);
 
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback(async () => {
     if (!activeItem || !memberId) {
       return;
     }
 
-    const result = submitReview({
-      mentorId: activeItem.request.mentorId,
-      requestId: activeItem.request.id,
-      menteeMemberId: memberId,
-      menteeName: activeItem.request.menteeName,
-      rating: draft.rating,
-      recommendation: draft.recommendation,
-      content: draft.content,
-    });
-
-    if (!result.ok) {
-      const reason = result.reason ?? '후기 등록에 실패했습니다.';
+    try {
+      const result = await upsertReviewMutation.mutateAsync({
+        mentorId: activeItem.request.mentorId,
+        requestId: activeItem.request.id,
+        menteeMemberId: memberId,
+        menteeName: activeItem.request.menteeName,
+        rating: draft.rating,
+        recommendation: draft.recommendation,
+        content: draft.content,
+      });
+      showToast(
+        result.isUpdated ? '후기를 수정했습니다.' : '후기를 등록했습니다.',
+        'success',
+      );
+      handleCloseDraft();
+    } catch (error) {
+      const reason =
+        error instanceof Error ? error.message : '후기 등록에 실패했습니다.';
       setFormError(reason);
       showToast(reason, 'error');
-
-      return;
     }
-
-    showToast(
-      result.isUpdated ? '후기를 수정했습니다.' : '후기를 등록했습니다.',
-      'success',
-    );
-    handleCloseDraft();
-  }, [activeItem, draft, handleCloseDraft, memberId, showToast, submitReview]);
+  }, [
+    activeItem,
+    draft,
+    handleCloseDraft,
+    memberId,
+    showToast,
+    upsertReviewMutation,
+  ]);
 
   return {
     state: {

@@ -6,27 +6,19 @@ import { useRouter } from 'next/navigation';
 import { getCookie } from '@/api/client/cookie';
 import { logout, signUp, uploadProfileImage } from '@/api/endpoints/auth/auth';
 import { clearClientSession } from '@/features/auth/model/client-auth-session';
-
-// 로그아웃 시 인증 상태 리셋을 위해 store 직접 사용 (mutation 내부 사용)
-
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
-import { useMentorScreeningStore } from '@/stores/useMentorScreeningStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
 import { hashValue } from '@/utils/hash';
 import { usePhoneVerificationStore } from './use-phone-verification-status';
 import { VIEWED_ARCHIVES_KEY } from './use-view-mutation';
 
-// 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
   return useMutation<SignUpResponse, Error, SignUpRequest>({
     mutationFn: (data: SignUpRequest) => signUp(data),
   });
 };
 
-// 프로필 이미지 업로드 요청 커스텀 훅
 export function useUploadProfileImageMutation() {
   return useMutation({
     mutationFn: (data: {
@@ -45,11 +37,6 @@ export const useLogoutMutation = () => {
     (state) => state.reset,
   );
   const resetMentorDirectory = useMentorDirectoryStore((state) => state.reset);
-  const resetMentoringManagement = useMentoringManagementStore(
-    (state) => state.reset,
-  );
-  const resetMentorScreening = useMentorScreeningStore((state) => state.reset);
-  const resetMentorOperation = useMentorOperationStore((state) => state.reset);
 
   return useMutation({
     mutationFn: logout,
@@ -70,12 +57,9 @@ export const useLogoutMutation = () => {
       resetUserStore();
       resetPhoneVerification();
       resetMentorDirectory();
-      resetMentoringManagement();
-      resetMentorScreening();
-      resetMentorOperation();
       queryClient.clear();
 
-      router.push('/home');
+      router.push('/');
       router.refresh();
     },
   });

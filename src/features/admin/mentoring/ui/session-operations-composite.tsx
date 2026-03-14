@@ -12,7 +12,6 @@ import {
   DataTableRow,
 } from '@/components/common/ui/table/data-table';
 import {
-  MENTORING_PAYMENT_STATUS_META,
   MENTORING_REQUEST_STATUS_META,
   MENTORING_SESSION_STATUS_META,
 } from '@/features/mentoring/model/management-status-meta';
@@ -40,14 +39,14 @@ const formatDateTime = (value: string | undefined) => {
 interface SessionOperationsFiltersProps {
   mentors: AdminMentorItem[];
   selectedMentorId: SessionMentorFilter;
-  readyToProcessCount: number;
+  pendingRequestCount: number;
   onSelectMentorId: (mentorId: SessionMentorFilter) => void;
 }
 
 export function SessionOperationsFilters({
   mentors,
   selectedMentorId,
-  readyToProcessCount,
+  pendingRequestCount,
   onSelectMentorId,
 }: SessionOperationsFiltersProps) {
   return (
@@ -84,7 +83,7 @@ export function SessionOperationsFilters({
           ))}
         </NativeSelect>
         <p className="font-designer-13r text-text-subtle">
-          결제 확인 후 멘토 처리 가능 대기: {readyToProcessCount}건
+          멘토 확인 대기 신청: {pendingRequestCount}건
         </p>
       </div>
     </SurfacePanel>
@@ -93,16 +92,18 @@ export function SessionOperationsFilters({
 
 interface SessionOperationsGridProps {
   totalRequestCount: number;
-  pendingPaymentCount: number;
-  confirmedPaymentCount: number;
+  pendingRequestCount: number;
+  closedNoteCount: number;
   scheduledSessionCount: number;
+  completedSessionCount: number;
 }
 
 export function SessionOperationsGrid({
   totalRequestCount,
-  pendingPaymentCount,
-  confirmedPaymentCount,
+  pendingRequestCount,
+  closedNoteCount,
   scheduledSessionCount,
+  completedSessionCount,
 }: SessionOperationsGridProps) {
   return (
     <section className="grid grid-cols-1 gap-200 sm:grid-cols-2 xl:grid-cols-4">
@@ -113,18 +114,18 @@ export function SessionOperationsGrid({
       />
       <MetricCard
         className="bg-background-accent-orange-subtle"
-        label="결제 대기"
-        value={`${pendingPaymentCount}건`}
+        label="신청 대기"
+        value={`${pendingRequestCount}건`}
       />
       <MetricCard
         className="bg-background-accent-green-subtle"
-        label="결제 확인"
-        value={`${confirmedPaymentCount}건`}
+        label="쪽지 종료"
+        value={`${closedNoteCount}건`}
       />
       <MetricCard
         className="bg-background-accent-indigo-subtle"
-        label="확정 일정"
-        value={`${scheduledSessionCount}건`}
+        label="예정 / 완료"
+        value={`${scheduledSessionCount} / ${completedSessionCount}건`}
       />
     </section>
   );
@@ -138,7 +139,7 @@ export function SessionRequestList({ requestRows }: SessionRequestListProps) {
   return (
     <MentoringTablePanel
       title="멘토링 신청 현황"
-      description="결제 확인 상태를 먼저 보고, 이후 멘토 처리 상태를 확인합니다."
+      description="멘토 신청 상태와 각 방식별 처리 현황을 확인합니다."
       isEmpty={requestRows.length === 0}
       emptyContent={
         <p className="font-designer-14r text-text-subtle">
@@ -153,16 +154,13 @@ export function SessionRequestList({ requestRows }: SessionRequestListProps) {
             <DataTableHeadCell>멘토</DataTableHeadCell>
             <DataTableHeadCell>멘티</DataTableHeadCell>
             <DataTableHeadCell>방식</DataTableHeadCell>
-            <DataTableHeadCell>결제 상태</DataTableHeadCell>
-            <DataTableHeadCell>멘토 처리 상태</DataTableHeadCell>
+            <DataTableHeadCell>신청 상태</DataTableHeadCell>
             <DataTableHeadCell>신청 시각</DataTableHeadCell>
           </tr>
         </DataTableHead>
         <tbody>
           {requestRows.slice(0, 20).map((request, index) => {
             const statusMeta = MENTORING_REQUEST_STATUS_META[request.status];
-            const paymentMeta =
-              MENTORING_PAYMENT_STATUS_META[request.paymentStatus];
             const isLastRow = index === Math.min(requestRows.length, 20) - 1;
 
             return (
@@ -181,11 +179,6 @@ export function SessionRequestList({ requestRows }: SessionRequestListProps) {
                 </DataTableCell>
                 <DataTableCell>{request.menteeName}</DataTableCell>
                 <DataTableCell>{getMethodLabel(request.method)}</DataTableCell>
-                <DataTableCell tone="inherit">
-                  <Badge color={paymentMeta.color} shape="rectangle">
-                    {paymentMeta.label}
-                  </Badge>
-                </DataTableCell>
                 <DataTableCell tone="inherit">
                   <Badge color={statusMeta.color} shape="rectangle">
                     {statusMeta.label}

@@ -1,19 +1,23 @@
 'use client';
 
 import {
+  ArrowRight,
   ChevronLeft,
   ChevronRight,
   CircleCheck,
+  Clock3,
   Eye,
   Info,
   MessageCircle,
   Monitor,
   Phone,
+  Plus,
   RotateCcw,
   SquareArrowOutUpRight,
   Star,
   UserRound,
   Users,
+  XIcon,
 } from 'lucide-react';
 import {
   type KeyboardEvent as ReactKeyboardEvent,
@@ -106,10 +110,39 @@ const METHOD_FIELDS: MentorRegistrationMethodField[] = [
 ];
 
 const MENTOR_OPERATION_CHECKPOINTS = [
-  '24시간 안에 확인',
-  '48시간 넘기면 자동 거절될 수 있음',
-  '기본 진행은 디스코드',
+  {
+    title: '24시간 안에 1차 확인',
+    description: '멘티의 신청은 24시간 안에 확인해주세요.',
+    icon: <Clock3 className="h-16 w-16" />,
+    iconClassName:
+      'bg-background-accent-blue-subtle text-text-information border-border-information',
+    stripClassName: 'bg-background-accent-blue-default',
+  },
+  {
+    title: '48시간 무응답은 자동 거절 가능',
+    description: '48시간 넘기면 자동 거절될 수 있어요.',
+    icon: <CircleCheck className="h-16 w-16" />,
+    iconClassName:
+      'bg-background-accent-gray-subtle text-text-default border-border-default',
+    stripClassName: 'bg-background-neutral-default',
+  },
+  {
+    title: '기본 진행 채널은 디스코드',
+    description: '기본 진행은 디스코드 서버에서 진행돼요.',
+    icon: <MessageCircle className="h-16 w-16" />,
+    iconClassName:
+      'bg-background-accent-grape-subtle text-text-brand border-border-brand',
+    stripClassName: 'bg-background-brand-subtle',
+  },
 ] as const;
+const INTERVIEW_QUESTION_PLACEHOLDERS = [
+  '예) 이력서/포트폴리오 링크를 미리 공유해주세요.',
+  '예) 상담에서 다루고 싶은 질문 2~3개를 정리해주세요.',
+  '예) 사전 과제/코드가 있다면 레포지토리 링크를 남겨주세요.',
+] as const;
+const SUBTLE_PULSE_ANIMATION = {
+  animation: 'subtle-pulse 2.2s ease-in-out infinite',
+} as const;
 
 const MIN_MENTORING_PRICE = 3000;
 const MAX_MENTORING_PRICE = 1_000_000;
@@ -742,6 +775,7 @@ export default function MentorRegistrationForm({
     register,
     control,
     watch,
+    getValues,
     setValue,
     trigger,
     handleSubmit,
@@ -798,6 +832,13 @@ export default function MentorRegistrationForm({
   const simpleEnabled = watch('simpleEnabled');
   const deepEnabled = watch('deepEnabled');
   const offlineEnabled = watch('offlineEnabled');
+  const [interviewQuestionInputs, setInterviewQuestionInputs] = useState<
+    string[]
+  >(() => {
+    const initialQuestions = getValues('interviewQuestions');
+
+    return initialQuestions.length > 0 ? initialQuestions : [''];
+  });
   const methodEnabledState: Record<
     MentorRegistrationMethodField['enabledField'],
     boolean
@@ -1140,6 +1181,10 @@ export default function MentorRegistrationForm({
   const isScheduleDraftValid = scheduleDraftMessages.length === 0;
   const isSelectionValid = selectionValidationMessages.length === 0;
   const isFormInteractionDisabled = isSaving || isSubmitting;
+  const filledInterviewQuestionCount = interviewQuestionInputs.filter(
+    (question) => question.trim().length > 0,
+  ).length;
+  const canAddInterviewQuestion = interviewQuestionInputs.length < 8;
   const isSaveDisabled =
     Boolean(normalizedExternalSaveBlockingMessage) ||
     !isSelectionValid ||
@@ -1247,6 +1292,41 @@ export default function MentorRegistrationForm({
         ? normalizeMentorRegistrationStepId(initialStepId)
         : MENTOR_REGISTRATION_STEPS[0].id,
     );
+
+  const syncInterviewQuestions = (nextInputs: string[]) => {
+    setInterviewQuestionInputs(nextInputs);
+    setValue(
+      'interviewQuestions',
+      nextInputs
+        .map((question) => question.trim())
+        .filter((question) => question.length > 0),
+      dirtyValidationOptions,
+    );
+  };
+
+  const handleInterviewQuestionChange = (index: number, value: string) => {
+    syncInterviewQuestions(
+      interviewQuestionInputs.map((question, questionIndex) =>
+        questionIndex === index ? value : question,
+      ),
+    );
+  };
+
+  const handleInterviewQuestionAdd = () => {
+    if (!canAddInterviewQuestion) {
+      return;
+    }
+
+    syncInterviewQuestions([...interviewQuestionInputs, '']);
+  };
+
+  const handleInterviewQuestionRemove = (index: number) => {
+    const nextInputs = interviewQuestionInputs.filter(
+      (_, questionIndex) => questionIndex !== index,
+    );
+
+    syncInterviewQuestions(nextInputs.length > 0 ? nextInputs : ['']);
+  };
 
   useEffect(() => {
     const normalizedInitialStepId = initialStepId

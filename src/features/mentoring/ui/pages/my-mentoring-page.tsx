@@ -31,7 +31,7 @@ const TEXT = {
   pageDescription:
     '쪽지상담과 예약상담을 나눠 보고, 예약상담은 진행 단계별로 바로 확인합니다.',
   noteTabTitle: '쪽지상담',
-  noteTabDescription: '멘토와 주고받은 비동기 상담만 모아봅니다.',
+  noteTabDescription: '멘티 질문 1회와 멘토 답변 1회로 진행한 비동기 상담을 모아봅니다.',
   reservationTabTitle: '예약상담',
   reservationTabDescription:
     '간편상담, 심층상담, 대면상담을 한 흐름으로 확인합니다.',

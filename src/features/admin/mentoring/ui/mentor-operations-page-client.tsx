@@ -15,15 +15,16 @@ import {
   MENTOR_OPERATION_STATUS_OPTIONS,
 } from '@/features/admin/mentoring/model/operations';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
-import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
+import { useAdminMentoringMentorDetailQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-mentor-detail-query';
+import { useAdminMentoringMentorsQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-mentors-query';
 import MentorRegistrationDetail from '@/features/admin/mentoring/ui/mentor-registration-detail';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { getMentorDisplayTitle } from '@/features/mentoring/model/mentor-profile-utils';
+import { useUpdateMentorOperationMutation } from '@/features/mentoring/model/use-mentoring-lifecycle-mutations';
 import MentoringEmptyPanel from '@/features/mentoring/ui/common/mentoring-empty-panel';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
 import { useToastStore } from '@/stores/use-toast-store';
-import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import type { MentorOperationStatus } from '@/types/mentoring/admin-domain';
 
 const formatDateTime = (value: string | undefined) => {
@@ -66,12 +67,14 @@ interface MentorOperationsPageClientProps {
 export default function MentorOperationsPageClient({
   initialMentorId,
 }: MentorOperationsPageClientProps) {
-  const { memberId: operatorMemberId } = useAuthReady();
   const { showToast } = useToastStore();
-  const { hasHydrated, mentors } = useAdminMentoringOverviewQuery();
-  const upsertOperationRecord = useMentorOperationStore(
-    (state) => state.upsertRecord,
-  );
+  const mentorsQuery = useAdminMentoringMentorsQuery({
+    page: 0,
+    size: 100,
+  });
+  const updateOperationMutation = useUpdateMentorOperationMutation();
+  const hasHydrated = mentorsQuery.hasHydrated;
+  const mentors = mentorsQuery.mentors;
   const [selectedMentorId, setSelectedMentorId] = useState<number>();
   const [nextOperationStatus, setNextOperationStatus] =
     useState<MentorOperationStatus>('OPEN');
@@ -108,7 +111,7 @@ export default function MentorOperationsPageClient({
     }
   }, [initialMentorId, mentors, selectedMentorId]);
 
-  const selectedMentor = useMemo(() => {
+  const selectedMentorListItem = useMemo(() => {
     if (!selectedMentorId) {
       return undefined;
     }
@@ -116,17 +119,26 @@ export default function MentorOperationsPageClient({
     return mentors.find((mentor) => mentor.mentorId === selectedMentorId);
   }, [mentors, selectedMentorId]);
 
+  const detailQuery = useAdminMentoringMentorDetailQuery({
+    mentorId: selectedMentorId,
+    enabled: typeof selectedMentorId === 'number',
+    requestsSize: 10,
+    sessionsSize: 10,
+    reviewsSize: 10,
+  });
+  const selectedMentor = detailQuery.data ?? selectedMentorListItem;
+
   const selectedOperationHistory = useMemo(() => {
     if (!selectedMentor) {
       return [];
     }
 
-    return [...selectedMentor.operation.history].sort((first, second) => {
+    return [...(detailQuery.data?.operationHistory ?? [])].sort((first, second) => {
       return (
         dayjs(second.changedAt).valueOf() - dayjs(first.changedAt).valueOf()
       );
     });
-  }, [selectedMentor]);
+  }, [detailQuery.data?.operationHistory, selectedMentor]);
 
   useEffect(() => {
     if (!selectedMentor) {
@@ -172,13 +184,23 @@ export default function MentorOperationsPageClient({
       return;
     }
 
-    upsertOperationRecord({
-      mentorId: selectedMentor.mentorId,
-      status: nextOperationStatus,
-      reason: normalizedReason,
-      changedByMemberId: operatorMemberId,
-    });
-    showToast(getOperationToastText(nextOperationStatus), 'success');
+    void updateOperationMutation
+      .mutateAsync({
+        mentorId: selectedMentor.mentorId,
+        status: nextOperationStatus,
+        reason: normalizedReason,
+      })
+      .then(() => {
+        showToast(getOperationToastText(nextOperationStatus), 'success');
+      })
+      .catch((error) => {
+        showToast(
+          error instanceof Error
+            ? error.message
+            : '운영 상태 변경에 실패했습니다.',
+          'error',
+        );
+      });
   };
 
   return (
@@ -366,7 +388,10 @@ export default function MentorOperationsPageClient({
                     type="button"
                     size="small"
                     onClick={handleApplyOperationChange}
-                    disabled={!canManageSelectedMentorOperation}
+                    disabled={
+                      !canManageSelectedMentorOperation ||
+                      updateOperationMutation.isPending
+                    }
                   >
                     조치 변경
                   </Button>

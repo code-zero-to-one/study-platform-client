@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { CalendarClock, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import PageContainer from '@/components/common/ui/page-container';
@@ -12,6 +13,10 @@ import {
   getMethodLabel,
 } from '@/features/mentoring/model/mentor-profile-utils';
 import {
+  getMentoringChannelDisplayKindFromMethod,
+  getMentoringChannelDisplayMeta,
+} from '@/features/mentoring/model/mentoring-channel-display';
+import {
   MENTORING_CHANGE_AND_NO_SHOW_GUIDE,
   MENTORING_REFUND_POLICY_GUIDE,
   getMentoringChannelGuide,
@@ -19,12 +24,12 @@ import {
   getMentoringCompletionSummary,
   getMentoringPendingPaymentGuide,
 } from '@/features/mentoring/model/mentoring-flow-policy';
+import { useMentoringRequestDetailQuery } from '@/features/mentoring/model/use-mentoring-request-detail-query';
 import { MENTORING_NOTE_LABEL } from '@/features/mentoring/model/my-mentoring-display-meta';
 import { useMentorDirectoryListQuery } from '@/features/mentoring/model/use-mentor-directory-query';
+import MentoringChannelGuideContent from '@/features/mentoring/ui/common/mentoring-channel-guide-content';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 
 interface MentoringPaymentCompletePageClientProps {
@@ -91,31 +96,22 @@ export default function MentoringPaymentCompletePageClient({
   requestId,
 }: MentoringPaymentCompletePageClientProps) {
   const { isHydrated: isAuthHydrated, memberId } = useAuthReady();
-  const mentorStoreHydrated = useMentorDirectoryStore(
-    (state) => state.hasHydrated,
-  );
-  const createdMentors = useMentorDirectoryStore(
-    (state) => state.createdMentors,
-  );
-  const managementStoreHydrated = useMentoringManagementStore(
-    (state) => state.hasHydrated,
-  );
-  const requestsByMentor = useMentoringManagementStore(
-    (state) => state.requestsByMentor,
-  );
   const mentorDirectoryQuery = useMentorDirectoryListQuery({
     page: 0,
     size: 100,
   });
+  const requestDetailQuery = useMentoringRequestDetailQuery(
+    requestId,
+    isAuthHydrated && Boolean(memberId),
+  );
 
-  const mentors = [
-    ...(mentorDirectoryQuery.data?.mentors ?? []),
-    ...createdMentors,
-  ];
+  const mentors = mentorDirectoryQuery.data?.mentors ?? [];
   const mentor = mentors.find((item) => item.id === mentorId);
-  const request = (requestsByMentor[mentorId] ?? []).find((item) => {
-    return item.id === requestId && item.menteeMemberId === memberId;
-  });
+  const request =
+    requestDetailQuery.data?.request &&
+    requestDetailQuery.data.request.menteeMemberId === memberId
+      ? requestDetailQuery.data.request
+      : undefined;
   const paymentAmount = request
     ? typeof request.paymentAmount === 'number'
       ? request.paymentAmount
@@ -125,18 +121,19 @@ export default function MentoringPaymentCompletePageClient({
     ? getPaymentStatusMeta(request.paymentStatus)
     : undefined;
 
-  const isReady =
-    isAuthHydrated && mentorStoreHydrated && managementStoreHydrated;
-
   return (
     <MentoringStateBoundary
       state={
-        !isReady
+        !isAuthHydrated ||
+        mentorDirectoryQuery.isLoading ||
+        (memberId ? requestDetailQuery.isLoading : false)
           ? 'loading'
           : memberId
-            ? request
-              ? 'ready'
-              : 'empty'
+            ? mentorDirectoryQuery.isError || requestDetailQuery.isError
+              ? 'error'
+              : request
+                ? 'ready'
+                : 'empty'
             : 'forbidden'
       }
       ready={
@@ -230,7 +227,10 @@ function MentoringPaymentCompletePage({
   completionTitle: string;
   detailHref: string;
 }) {
-  const channelGuide = getMentoringChannelGuide(method);
+  const channelGuideMeta = getMentoringChannelDisplayMeta({
+    kind: getMentoringChannelDisplayKindFromMethod(method),
+    guide: getMentoringChannelGuide(method),
+  });
   const defaultStatusDescription = getMentoringCompletionSummary(method);
   const nextSteps = getMentoringCompletionSteps(method);
   const isPaymentPending = paymentStatusTone === 'orange';
@@ -245,7 +245,7 @@ function MentoringPaymentCompletePage({
       ? '희망 일정/장소'
       : '희망 일정';
   const requestOverviewValue = isNoteConsultation
-    ? '멘토 첫 답변이 도착하면 같은 화면에서 바로 이어집니다.'
+    ? '멘토 첫 답변이 도착하면 이 상담방에서 내용을 확인할 수 있습니다.'
     : method === 'offline'
       ? `${preferredScheduleLabel} · 장소는 멘토 확인 후 안내됩니다.`
       : preferredScheduleLabel;
@@ -260,12 +260,12 @@ function MentoringPaymentCompletePage({
       ? `${MENTORING_NOTE_LABEL}으로 이동`
       : '신청 내역 보기';
   const secondaryActionHref = isPaymentPending
-    ? '/notification'
+    ? '/my-mentoring'
     : isNoteConsultation
       ? '/my-mentoring'
       : '/my-mentoring';
   const secondaryActionLabel = isPaymentPending
-    ? '알림함 보기'
+    ? '나의 멘토링으로 이동'
     : isNoteConsultation
       ? '나의 멘토링 허브'
       : '나의 멘토링으로 이동';
@@ -301,34 +301,31 @@ function MentoringPaymentCompletePage({
 
             <div className="rounded-150 bg-background-alternative p-175">
               <div className="space-y-125">
-                <CompletionDetailRow label="멘토" value={mentorName} />
-                <CompletionDetailRow
-                  label="상담 방식"
-                  value={
-                    durationLabel
-                      ? `${methodLabel} · ${durationLabel}`
-                      : methodLabel
-                  }
-                />
-                <CompletionDetailRow
-                  label="결제 수단"
-                  value={paymentMethodLabel}
-                />
-                <CompletionDetailRow
-                  label="결제 금액"
-                  value={paymentAmountLabel}
-                  emphasize
-                />
-                <CompletionDetailRow
-                  label={requestOverviewLabel}
-                  value={requestOverviewValue}
-                  multiline
-                />
+                <CompletionDetailRow label="멘토">{mentorName}</CompletionDetailRow>
+                <CompletionDetailRow label="상담 방식">
+                  {durationLabel
+                    ? `${methodLabel} · ${durationLabel}`
+                    : methodLabel}
+                </CompletionDetailRow>
+                <CompletionDetailRow label="결제 수단">
+                  {paymentMethodLabel}
+                </CompletionDetailRow>
+                <CompletionDetailRow label="결제 금액" emphasize>
+                  {paymentAmountLabel}
+                </CompletionDetailRow>
+                <CompletionDetailRow label={requestOverviewLabel} multiline>
+                  {requestOverviewValue}
+                </CompletionDetailRow>
                 <CompletionDetailRow
                   label="진행 채널"
-                  value={channelGuide}
                   multiline
-                />
+                >
+                  <MentoringChannelGuideContent
+                    description={channelGuideMeta.description}
+                    actionHref={channelGuideMeta.actionHref}
+                    actionLabel={channelGuideMeta.actionLabel}
+                  />
+                </CompletionDetailRow>
               </div>
             </div>
 
@@ -404,12 +401,12 @@ function MentoringPaymentCompletePage({
 
 function CompletionDetailRow({
   label,
-  value,
+  children,
   multiline = false,
   emphasize = false,
 }: {
   label: string;
-  value: string;
+  children: ReactNode;
   multiline?: boolean;
   emphasize?: boolean;
 }) {
@@ -418,7 +415,7 @@ function CompletionDetailRow({
       <p className="font-designer-12m text-text-subtle shrink-0 md:w-[120px]">
         {label}
       </p>
-      <p
+      <div
         className={
           multiline
             ? 'font-designer-14r text-text-default leading-relaxed whitespace-pre-line'
@@ -427,8 +424,8 @@ function CompletionDetailRow({
               : 'font-designer-16b text-text-default leading-relaxed whitespace-pre-line'
         }
       >
-        {value}
-      </p>
+        {children}
+      </div>
     </div>
   );
 }

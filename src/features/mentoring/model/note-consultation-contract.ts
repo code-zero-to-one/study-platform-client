@@ -1,20 +1,14 @@
 import type { ZodIssue } from 'zod';
-import type { MentorProfile } from '@/types/mentoring/domain';
-import type { MentoringRequest } from '@/types/mentoring/management-domain';
 import type {
   NoteConsultationListQueryResult,
-  NoteConsultationListQuerySource,
   SendNoteConsultationMessageMutationParams,
 } from '@/types/mentoring/note-consultation-query';
 import {
   noteConsultationListResponseSchema,
-  noteConsultationQuerySourceSchema,
   sendNoteConsultationMessageParamsSchema,
-  type NoteConsultationQuerySourceInput,
 } from '@/types/schemas/note-consultation-schema';
 
 type NoteConsultationContractScope =
-  | 'query-source'
   | 'query-response'
   | 'send-message-params'
   | 'query-error'
@@ -62,58 +56,6 @@ const toContractError = ({
     message,
     causeData,
   });
-};
-
-const toStringKeyedRequestsByMentor = (
-  requestsByMentor: Record<number, MentoringRequest[]>,
-) => {
-  return Object.entries(requestsByMentor).reduce<
-    Record<string, MentoringRequest[]>
-  >((accumulator, [mentorId, requests]) => {
-    accumulator[mentorId] = requests;
-
-    return accumulator;
-  }, {});
-};
-
-const toNumberKeyedRequestsByMentor = (
-  requestsByMentor: Record<string, MentoringRequest[]>,
-) => {
-  return Object.entries(requestsByMentor).reduce<
-    Record<number, MentoringRequest[]>
-  >((accumulator, [mentorId, requests]) => {
-    accumulator[Number(mentorId)] = requests;
-
-    return accumulator;
-  }, {});
-};
-
-export const parseNoteConsultationQuerySourceOrThrow = (
-  input: NoteConsultationListQuerySource,
-): NoteConsultationListQuerySource => {
-  const parseInput = {
-    memberId: input.memberId,
-    myMentorId: input.myMentorId,
-    createdMentors: input.createdMentors,
-    requestsByMentor: toStringKeyedRequestsByMentor(input.requestsByMentor),
-  } satisfies NoteConsultationQuerySourceInput;
-
-  const parsed = noteConsultationQuerySourceSchema.safeParse(parseInput);
-  if (!parsed.success) {
-    throw toContractError({
-      scope: 'query-source',
-      issues: parsed.error.issues,
-    });
-  }
-
-  return {
-    memberId: parsed.data.memberId,
-    myMentorId: parsed.data.myMentorId,
-    createdMentors: parsed.data.createdMentors as unknown as MentorProfile[],
-    requestsByMentor: toNumberKeyedRequestsByMentor(
-      parsed.data.requestsByMentor as Record<string, MentoringRequest[]>,
-    ),
-  };
 };
 
 export const parseNoteConsultationResponseOrThrow = (

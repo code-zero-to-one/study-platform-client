@@ -2,6 +2,7 @@ export type MentorApiContractScope =
   | 'mentor-registration-options-response'
   | 'mentor-list-response'
   | 'mentor-detail-response'
+  | 'mentor-availability-response'
   | 'my-mentor-settings-response'
   | 'mentor-entry-onboarding-response';
 

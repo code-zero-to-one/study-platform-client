@@ -55,6 +55,7 @@ export interface ScheduleEditorModalProps {
   title: string;
   description: string;
   confirmLabel: string;
+  method: MentoringMethodType;
   durationMinutes: number;
   defaultDate?: string;
   defaultTime?: string;

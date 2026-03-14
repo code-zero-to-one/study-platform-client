@@ -8,16 +8,6 @@ import {
   getMentorRegistrationOptions,
   getMyMentorSettings,
 } from '@/features/mentoring/api/mentor-api';
-import {
-  findLocalFallbackMentor,
-  getLocalMentorDirectoryPage,
-  shouldUseLocalMentorFallback,
-} from '@/features/mentoring/model/mentor-directory-local-fallback';
-import {
-  findLocalMyMentorSettingsFallback,
-  getLocalMentorRegistrationOptions,
-} from '@/features/mentoring/model/mentor-registration-local-fallback';
-import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useUserStore } from '@/stores/useUserStore';
 import type { MentorSortType } from '@/types/mentoring/domain';
 import { mentorDirectoryQueryKeys } from './mentor-directory-query-keys';
@@ -37,9 +27,6 @@ export const useMentorDirectoryListQuery = ({
   page,
   size,
 }: UseMentorDirectoryListQueryParams = {}) => {
-  const createdMentors = useMentorDirectoryStore(
-    (state) => state.createdMentors,
-  );
   const mentorDirectoryQuery = useQuery({
     queryKey: mentorDirectoryQueryKeys.list({
       keyword,
@@ -48,30 +35,14 @@ export const useMentorDirectoryListQuery = ({
       page,
       size,
     }),
-    queryFn: async () => {
-      try {
-        return await getMentorList({
-          keyword,
-          sortType,
-          careerCodes,
-          page,
-          size,
-        });
-      } catch (error) {
-        if (shouldUseLocalMentorFallback(error)) {
-          return getLocalMentorDirectoryPage({
-            createdMentors,
-            keyword,
-            sortType,
-            careerCodes,
-            page,
-            size,
-          });
-        }
-
-        throw error;
-      }
-    },
+    queryFn: () =>
+      getMentorList({
+        keyword,
+        sortType,
+        careerCodes,
+        page,
+        size,
+      }),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     placeholderData: keepPreviousData,
@@ -88,30 +59,9 @@ export const useMentorDirectoryListQuery = ({
 };
 
 export const useMentorDetailQuery = (mentorId: number, enabled = true) => {
-  const createdMentors = useMentorDirectoryStore(
-    (state) => state.createdMentors,
-  );
-
   return useQuery({
     queryKey: mentorDirectoryQueryKeys.detail(mentorId),
-    queryFn: async () => {
-      try {
-        return await getMentorDetail(mentorId);
-      } catch (error) {
-        if (shouldUseLocalMentorFallback(error)) {
-          const fallbackMentor = findLocalFallbackMentor({
-            mentorId,
-            createdMentors,
-          });
-
-          if (fallbackMentor) {
-            return fallbackMentor;
-          }
-        }
-
-        throw error;
-      }
-    },
+    queryFn: () => getMentorDetail(mentorId),
     staleTime: 60_000,
     gcTime: 5 * 60_000,
     enabled,
@@ -119,58 +69,11 @@ export const useMentorDetailQuery = (mentorId: number, enabled = true) => {
 };
 
 export const useMyMentorSettingsQuery = (enabled = true) => {
-  const createdMentors = useMentorDirectoryStore(
-    (state) => state.createdMentors,
-  );
-  const mentorIdByMember = useMentorDirectoryStore(
-    (state) => state.mentorIdByMember,
-  );
   const memberId = useUserStore((state) => state.memberId ?? undefined);
-  const localMentorSignature = memberId
-    ? `${memberId}:${mentorIdByMember[memberId] ?? 'none'}:${createdMentors.length}`
-    : 'guest';
 
   return useQuery({
-    queryKey: [
-      ...mentorDirectoryQueryKeys.mySettings(),
-      memberId,
-      mentorIdByMember,
-      createdMentors,
-      localMentorSignature,
-    ],
-    queryFn: async () => {
-      const localFallback = findLocalMyMentorSettingsFallback({
-        memberId,
-        mentorIdByMember,
-        createdMentors,
-      });
-
-      try {
-        const serverSettings = await getMyMentorSettings();
-
-        if (serverSettings.kind === 'found' || !localFallback) {
-          return serverSettings;
-        }
-
-        return {
-          kind: 'found' as const,
-          mentorId: localFallback.mentorId,
-          settings: localFallback.settings,
-          savedCoreKeywords: localFallback.savedCoreKeywords,
-        };
-      } catch (error) {
-        if (shouldUseLocalMentorFallback(error) && localFallback) {
-          return {
-            kind: 'found' as const,
-            mentorId: localFallback.mentorId,
-            settings: localFallback.settings,
-            savedCoreKeywords: localFallback.savedCoreKeywords,
-          };
-        }
-
-        throw error;
-      }
-    },
+    queryKey: [...mentorDirectoryQueryKeys.mySettings(), memberId],
+    queryFn: getMyMentorSettings,
     staleTime: 30_000,
     gcTime: 5 * 60_000,
     retry: false,
@@ -212,17 +115,7 @@ export const useMyMentorProfileQuery = (enabled = true) => {
 export const useMentorRegistrationOptionsQuery = (enabled = true) => {
   return useQuery({
     queryKey: mentorDirectoryQueryKeys.registrationOptions(),
-    queryFn: async () => {
-      try {
-        return await getMentorRegistrationOptions();
-      } catch (error) {
-        if (shouldUseLocalMentorFallback(error)) {
-          return getLocalMentorRegistrationOptions();
-        }
-
-        throw error;
-      }
-    },
+    queryFn: () => getMentorRegistrationOptions(),
     staleTime: 5 * 60_000,
     gcTime: 10 * 60_000,
     enabled,

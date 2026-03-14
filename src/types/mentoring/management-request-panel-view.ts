@@ -2,7 +2,11 @@ import type { MentoringRequest } from '@/types/mentoring/management-domain';
 
 export type MentoringRequestPanelMode = 'empty' | 'detail' | 'list';
 
-export type MentoringRequestPanelStatusColor = 'orange' | 'green' | 'red';
+export type MentoringRequestPanelStatusColor =
+  | 'orange'
+  | 'green'
+  | 'red'
+  | 'blue';
 export type MentoringRequestPanelMetaColor =
   | 'orange'
   | 'green'

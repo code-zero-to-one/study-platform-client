@@ -75,7 +75,7 @@ export default function MentoringApplyPageView({
       ? {
           title: '쪽지상담 수락 정책',
           description:
-            '결제 완료 후 멘토의 첫 답장이 수락으로 처리됩니다. 별도 수락 단계 없이 바로 진행됩니다.',
+            '결제 완료 후 멘토의 첫 답장이 수락으로 처리됩니다. 쪽지상담 1회에는 최초 질문과 멘토 답변 1회만 포함되며, 추가 질문은 새 쪽지상담 결제가 필요합니다.',
         }
       : {
           title: '예약형 상담 수락 정책',
@@ -187,7 +187,8 @@ export default function MentoringApplyPageView({
                 <p className="leading-relaxed font-designer-13r text-text-subtle">
                   {' '}
                   상담 시간은 {viewModel.selectedOption.durationLabel}이며,
-                  날짜는 신청일 기준 3일 뒤부터 선택할 수 있어요.{' '}
+                  날짜는 신청일 기준 3일 뒤부터 선택할 수 있어요. 멘토가 열어둔
+                  시간 중 이미 예약된 시간은 자동으로 제외돼요.{' '}
                 </p>{' '}
                 {selectedMethod === 'offline' ? (
                   <p className="mt-50 font-designer-12r text-text-subtle">
@@ -216,7 +217,14 @@ export default function MentoringApplyPageView({
                         먼저 날짜를 선택해 주세요.{' '}
                       </p>
                     )}{' '}
+                    {state.selectedDate && viewModel.isAvailabilityLoading && (
+                      <p className="py-100 font-designer-13r text-text-subtle">
+                        {' '}
+                        {viewModel.availabilityStatusMessage}{' '}
+                      </p>
+                    )}{' '}
                     {state.selectedDate &&
+                      !viewModel.isAvailabilityLoading &&
                       viewModel.availableTimeSlots.map((timeSlot) => (
                         <button
                           key={timeSlot}
@@ -234,10 +242,12 @@ export default function MentoringApplyPageView({
                         </button>
                       ))}{' '}
                     {state.selectedDate &&
+                      !viewModel.isAvailabilityLoading &&
                       viewModel.availableTimeSlots.length === 0 && (
                         <p className="py-100 font-designer-13r text-text-subtle">
                           {' '}
-                          선택한 날짜에 가능한 시간이 없습니다.{' '}
+                          {viewModel.availabilityStatusMessage ??
+                            '선택한 날짜에 가능한 시간이 없습니다.'}{' '}
                         </p>
                       )}{' '}
                   </div>{' '}

@@ -4,6 +4,10 @@ import type { ReactNode } from 'react';
 import Badge from '@/components/common/ui/badge';
 import SectionShell from '@/components/common/ui/section-shell';
 import {
+  getMentoringChannelDisplayKindFromMyMethod,
+  getMentoringChannelDisplayMeta,
+} from '@/features/mentoring/model/mentoring-channel-display';
+import {
   getMyMentoringStatusGuide,
   getMentoringIssuePlaybook,
   MENTORING_CHANGE_AND_NO_SHOW_GUIDE,
@@ -16,7 +20,13 @@ import {
   MY_MENTORING_METHOD_LABEL_MAP,
   MY_MENTORING_STATUS_META,
 } from '@/features/mentoring/model/my-mentoring-display-meta';
+import MentoringChannelGuideContent from '@/features/mentoring/ui/common/mentoring-channel-guide-content';
 import { mentoringMethodIconMap } from '@/features/mentoring/ui/common/mentoring-method-icons';
+import MentoringReviewSummaryCard from '@/features/mentoring/ui/review/mentoring-review-summary-card';
+import type {
+  MentoringReview,
+  MentoringReviewEligibility,
+} from '@/types/mentoring/management-domain';
 import type {
   MyMentoringItem,
   MyMentoringStatus,
@@ -40,7 +50,8 @@ const TEXT = {
   refundStatus: '환불 상태',
   memoTitle: '멘토에게 전달한 내용',
   operationTitle: '운영 기록',
-  currentPriorityTitle: '지금 먼저 할 일',
+  currentPriorityTitle: '지금 확인할 내용',
+  reviewTitle: '후기 작성',
   requestedTitle: '멘토가 신청 내용을 확인하고 있습니다.',
   pendingTitle: '일정 조율이 진행 중입니다.',
   confirmedTitle: '일정이 확정되었습니다.',
@@ -61,27 +72,37 @@ const TEXT = {
   completedReason: '진행 메모',
   noShowReason: '운영 메모',
 };
-const getImmediateActionCard = (mentoring: MyMentoringItem) => {
+const getImmediateActionCard = ({
+  mentoring,
+  hasOnlineEntryAction,
+  sessionGuideDescription,
+}: {
+  mentoring: MyMentoringItem;
+  hasOnlineEntryAction: boolean;
+  sessionGuideDescription?: string;
+}) => {
   if (mentoring.status === 'REQUESTED') {
     return {
       tone: 'orange' as const,
       title: '멘토 확인 결과를 먼저 기다리세요.',
-      body: '보통 24시간 안에 확인이 시작됩니다. 수락/거절 결과는 알림함에서 먼저 확인하는 편이 가장 빠릅니다.',
+      body: '보통 24시간 안에 확인이 시작됩니다. 결과는 나의 멘토링 상세에 반영되니 이 화면을 다시 확인해주세요.',
     };
   }
   if (mentoring.status === 'PENDING') {
     return {
       tone: 'orange' as const,
       title: '멘토가 보낸 확정안이 있는지 확인하세요.',
-      body: '시간, 진행 채널, 장소 제안은 이 화면과 알림함에 함께 반영됩니다. 조율 중이면 자주 열람하는 편이 안전합니다.',
+      body: '시간, 진행 채널, 장소 제안은 이 상세 화면에 반영됩니다. 확정 전에는 자주 열어두는 편이 안전합니다.',
     };
   }
   if (mentoring.status === 'CONFIRMED') {
     return {
       tone: 'green' as const,
       title: '확정 시간과 진행 채널 또는 장소를 다시 확인하세요.',
-      body: mentoring.sessionGuide
-        ? `현재 안내 기준: ${mentoring.sessionGuide}`
+      body: hasOnlineEntryAction
+        ? '아래 진행 채널 · 장소에서 디스코드 입장 링크를 눌러 상담 전에 바로 입장할 수 있습니다.'
+        : sessionGuideDescription
+          ? `현재 안내 기준: ${sessionGuideDescription}`
         : '진행 채널 또는 장소 안내가 비어 있다면 상담 전에 멘토 공지를 다시 확인하세요.',
     };
   }
@@ -97,14 +118,14 @@ const getImmediateActionCard = (mentoring: MyMentoringItem) => {
       return {
         tone: 'red' as const,
         title: '환불 진행 여부를 먼저 확인하세요.',
-        body: '후속 안내는 알림함과 운영 기록에 같이 남습니다. 환불 완료 전에는 상태 확인을 우선하는 편이 안전합니다.',
+        body: '후속 안내는 이 화면의 운영 기록에 같이 남습니다. 환불 완료 전에는 상태 확인을 우선하는 편이 안전합니다.',
       };
     }
 
     return {
       tone: 'orange' as const,
       title: '같은 주제가 급하면 재신청 여부를 결정하세요.',
-      body: '취소 또는 노쇼 처리 결과를 확인한 뒤, 같은 멘토/같은 방식으로 다시 신청할지 판단하면 됩니다.',
+      body: '취소 또는 노쇼 처리 결과를 확인한 뒤, 같은 멘토에게 재상담할지 판단하면 됩니다.',
     };
   }
 
@@ -121,13 +142,13 @@ const getNextSteps = (mentoring: MyMentoringItem) => {
   if (mentoring.status === 'PENDING') {
     return [
       '멘토가 보낸 시간, 진행 채널, 장소 제안을 먼저 확인하세요.',
-      '확정 결과는 알림과 이 화면에 함께 반영됩니다.',
+      '확정 결과는 이 상세 화면에 함께 반영됩니다.',
     ];
   }
   if (mentoring.status === 'CONFIRMED') {
     return [
       '상담 전날에 확정 시간과 진행 채널 또는 장소를 다시 확인하세요.',
-      '직전 변경이나 취소가 생기면 알림과 운영 기록에 함께 남습니다.',
+      '직전 변경이나 취소가 생기면 이 화면과 운영 기록에 함께 남습니다.',
     ];
   }
   if (mentoring.status === 'COMPLETED') {
@@ -140,13 +161,13 @@ const getNextSteps = (mentoring: MyMentoringItem) => {
     if (mentoring.issueType === 'MENTOR_NO_SHOW') {
       return [
         '멘토 미입장 처리 결과와 환불 또는 재예약 안내를 먼저 확인하세요.',
-        '후속 안내는 알림함과 운영 기록에 함께 반영됩니다.',
+        '후속 안내는 이 화면과 운영 기록에 함께 반영됩니다.',
       ];
     }
 
     return [
       '노쇼 처리 결과를 확인한 뒤, 같은 상담이 필요하면 새로 신청하세요.',
-      '환불 불가 또는 재예약 기준은 운영 기록과 알림을 함께 확인하세요.',
+      '환불 불가 또는 재예약 기준은 운영 기록과 상태를 함께 확인하세요.',
     ];
   }
   if (mentoring.status === 'CANCELLED') {
@@ -170,6 +191,11 @@ const getNextSteps = (mentoring: MyMentoringItem) => {
 };
 interface MyMentoringDetailPageProps {
   mentoring: MyMentoringItem;
+  reservationCancelSlot?: ReactNode;
+  review?: MentoringReview;
+  reviewEligibility?: MentoringReviewEligibility;
+  onWriteReview?: () => void;
+  onEditReview?: () => void;
 }
 const getStatusTitle = (status: MyMentoringStatus) => {
   if (status === 'REQUESTED') {
@@ -252,13 +278,28 @@ const getReasonTitle = (status: MyMentoringStatus) => {
 };
 export default function MyMentoringDetailPage({
   mentoring,
+  reservationCancelSlot,
+  review,
+  reviewEligibility,
+  onWriteReview,
+  onEditReview,
 }: MyMentoringDetailPageProps) {
-  const immediateAction = getImmediateActionCard(mentoring);
+  const sessionGuideMeta = mentoring.sessionGuide
+    ? getMentoringChannelDisplayMeta({
+        kind: getMentoringChannelDisplayKindFromMyMethod(mentoring.method),
+        guide: mentoring.sessionGuide,
+      })
+    : undefined;
+  const immediateAction = getImmediateActionCard({
+    mentoring,
+    hasOnlineEntryAction: Boolean(sessionGuideMeta?.actionHref),
+    sessionGuideDescription: sessionGuideMeta?.description,
+  });
   const nextUpdateText = getMyMentoringStatusGuide(mentoring.status);
   const scheduleText = getScheduleText(mentoring);
   const scheduleLabel = getScheduleLabel(mentoring.status);
   const sessionGuideText =
-    mentoring.sessionGuide ??
+    sessionGuideMeta?.description ??
     (mentoring.status === 'PENDING' || mentoring.status === 'CONFIRMED'
       ? TEXT.sessionGuideFallback
       : undefined);
@@ -351,22 +392,34 @@ export default function MyMentoringDetailPage({
             {' '}
             <h2 className="mb-150 font-designer-16b text-text-default">
               {' '}
-              {TEXT.currentPriorityTitle}{' '}
+              {mentoring.status === 'COMPLETED'
+                ? TEXT.reviewTitle
+                : TEXT.currentPriorityTitle}{' '}
             </h2>{' '}
-            <div
-              className={`rounded-150 border px-200 py-150 ${immediateAction.tone === 'red' ? 'border-border-error bg-background-accent-red-subtle' : immediateAction.tone === 'orange' ? 'border-border-warning bg-background-accent-orange-subtle' : immediateAction.tone === 'green' ? 'border-border-success bg-background-accent-green-subtle' : 'border-border-information bg-background-accent-blue-subtle'}`}
-            >
-              {' '}
-              <p className="font-designer-14b text-text-default">
+            {mentoring.status === 'COMPLETED' ? (
+              <MentoringReviewSummaryCard
+                review={review}
+                reviewEligibility={reviewEligibility}
+                onWriteReview={onWriteReview}
+                onEditReview={onEditReview}
+              />
+            ) : (
+              <div
+                className={`rounded-150 border px-200 py-150 ${immediateAction.tone === 'red' ? 'border-border-error bg-background-accent-red-subtle' : immediateAction.tone === 'orange' ? 'border-border-warning bg-background-accent-orange-subtle' : immediateAction.tone === 'green' ? 'border-border-success bg-background-accent-green-subtle' : 'border-border-information bg-background-accent-blue-subtle'}`}
+              >
                 {' '}
-                {immediateAction.title}{' '}
-              </p>{' '}
-              <p className="mt-50 leading-relaxed font-designer-13r text-text-subtle">
-                {' '}
-                {immediateAction.body}{' '}
-              </p>{' '}
-            </div>{' '}
+                <p className="font-designer-14b text-text-default">
+                  {' '}
+                  {immediateAction.title}{' '}
+                </p>{' '}
+                <p className="mt-50 leading-relaxed font-designer-13r text-text-subtle">
+                  {' '}
+                  {immediateAction.body}{' '}
+                </p>{' '}
+              </div>
+            )}{' '}
           </section>{' '}
+          {reservationCancelSlot ? reservationCancelSlot : null}
           <section>
             {' '}
             <h2 className="mb-150 font-designer-16b text-text-default">
@@ -394,7 +447,13 @@ export default function MyMentoringDetailPage({
               ) : null}{' '}
               <InfoRow label={scheduleLabel}>{scheduleText}</InfoRow>{' '}
               {sessionGuideText ? (
-                <InfoRow label={TEXT.sessionGuide}>{sessionGuideText}</InfoRow>
+                <InfoRow label={TEXT.sessionGuide}>
+                  <MentoringChannelGuideContent
+                    description={sessionGuideText}
+                    actionHref={sessionGuideMeta?.actionHref}
+                    actionLabel={sessionGuideMeta?.actionLabel}
+                  />
+                </InfoRow>
               ) : null}{' '}
             </div>{' '}
           </section>{' '}

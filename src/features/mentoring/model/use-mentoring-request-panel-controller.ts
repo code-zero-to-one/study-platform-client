@@ -7,7 +7,6 @@ import {
   MENTORING_REQUEST_STATUS_META,
 } from '@/features/mentoring/model/management-status-meta';
 import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentoringRequest } from '@/types/mentoring/management-domain';
 import type {
   MentoringRequestPanelActions,
@@ -18,6 +17,7 @@ import type {
   MentoringRequestRowViewModel,
   UseMentoringRequestPanelControllerParams,
 } from '@/types/mentoring/management-request-panel-view';
+import { useMentorWorkspaceQuery } from './use-mentor-workspace-query';
 
 const MENTORING_REQUEST_DETAIL_BASE_PATH = '/mentoring-management/requests';
 const EMPTY_REQUESTS: MentoringRequest[] = [];
@@ -25,7 +25,7 @@ const EMPTY_REQUESTS: MentoringRequest[] = [];
 const getPreferredScheduleText = (request: MentoringRequest) => {
   if (request.method === 'note') {
     return request.status === 'ACCEPTED'
-      ? '첫 답변과 후속 질문으로 진행'
+      ? '멘토 답변 1회로 진행'
       : '수락 후 첫 답변으로 시작';
   }
 
@@ -48,17 +48,6 @@ const hasMentorFirstReply = (request: MentoringRequest) => {
 };
 
 const getAttentionMeta = (request: MentoringRequest) => {
-  if (
-    request.status === 'PENDING' &&
-    request.paymentMode === 'MANUAL_TRANSFER' &&
-    request.paymentStatus === 'PENDING_TRANSFER'
-  ) {
-    return {
-      label: '입금 확인 필요',
-      color: 'orange' as const,
-    };
-  }
-
   if (request.status === 'PENDING') {
     const hours = dayjs().diff(dayjs(request.requestedAt), 'hour');
     if (hours >= 24) {
@@ -67,6 +56,17 @@ const getAttentionMeta = (request: MentoringRequest) => {
         color: 'red' as const,
       };
     }
+  }
+
+  if (
+    request.method !== 'note' &&
+    request.status === 'ACCEPTED' &&
+    !request.linkedSessionId
+  ) {
+    return {
+      label: '일정 확정 필요',
+      color: 'orange' as const,
+    };
   }
 
   if (
@@ -84,17 +84,6 @@ const getAttentionMeta = (request: MentoringRequest) => {
 };
 
 const getActionMeta = (request: MentoringRequest) => {
-  if (
-    request.status === 'PENDING' &&
-    request.paymentMode === 'MANUAL_TRANSFER' &&
-    request.paymentStatus === 'PENDING_TRANSFER'
-  ) {
-    return {
-      label: '입금 확인',
-      description: '입금 여부를 먼저 확인한 뒤 수락 또는 거절을 결정하세요.',
-    };
-  }
-
   if (request.status === 'PENDING') {
     return {
       label: request.method === 'note' ? '수락 결정' : '일정 검토',
@@ -108,16 +97,18 @@ const getActionMeta = (request: MentoringRequest) => {
   if (request.status === 'ACCEPTED') {
     if (request.method === 'note') {
       return {
-        label: hasMentorFirstReply(request) ? '대화 확인' : '첫 답변 준비',
+        label: hasMentorFirstReply(request) ? '답변 확인' : '첫 답변 준비',
         description: hasMentorFirstReply(request)
-          ? '후속 질문이 이어지고 있는지 바로 확인하세요.'
-          : '첫 답변을 보내야 멘티가 같은 화면에서 이어서 질문할 수 있습니다.',
+          ? '답변 내용과 상담 종료 여부를 바로 확인하세요.'
+          : '첫 답변 1회가 이번 쪽지상담의 핵심 응답입니다.',
       };
     }
 
     return {
-      label: '확정 내용 확인',
-      description: '확정 시간과 진행 채널 또는 장소가 최신인지 확인하세요.',
+      label: request.linkedSessionId ? '확정 내용 확인' : '일정 확정',
+      description: request.linkedSessionId
+        ? '확정 시간과 진행 채널 또는 장소가 최신인지 확인하세요.'
+        : '상세 화면에서 시간과 진행 방식 또는 장소를 확정하세요.',
     };
   }
 
@@ -131,10 +122,11 @@ export const useMentoringRequestPanelController = ({
   mentorId,
   filterRequestId,
 }: UseMentoringRequestPanelControllerParams): MentoringRequestPanelControllerResult => {
-  const mentorRequests = useMentoringManagementStore(
-    (state) => state.requestsByMentor[mentorId],
-  );
-  const allRequests = mentorRequests ?? EMPTY_REQUESTS;
+  const workspaceQuery = useMentorWorkspaceQuery({
+    mentorId,
+    enabled: true,
+  });
+  const allRequests = workspaceQuery.data?.allRequests ?? EMPTY_REQUESTS;
 
   const requests = useMemo(() => {
     if (!filterRequestId) {
@@ -148,13 +140,16 @@ export const useMentoringRequestPanelController = ({
     return requests.filter(
       (request) =>
         request.status === 'PENDING' &&
-        request.paymentMode === 'MANUAL_TRANSFER' &&
-        request.paymentStatus === 'PENDING_TRANSFER',
+        dayjs().diff(dayjs(request.requestedAt), 'hour') >= 24,
     ).length;
   }, [requests]);
 
   const mode = useMemo<MentoringRequestPanelMode>(() => {
-    if (requests.length === 0) {
+    if (!workspaceQuery.isFetched) {
+      return filterRequestId ? 'detail' : 'list';
+    }
+
+    if (workspaceQuery.isFetched && requests.length === 0) {
       return 'empty';
     }
     if (filterRequestId && requests.length === 1) {
@@ -162,7 +157,7 @@ export const useMentoringRequestPanelController = ({
     }
 
     return 'list';
-  }, [filterRequestId, requests.length]);
+  }, [filterRequestId, requests.length, workspaceQuery.isFetched]);
 
   const rows = useMemo<MentoringRequestRowViewModel[]>(() => {
     return requests.map((request) => {
@@ -200,7 +195,7 @@ export const useMentoringRequestPanelController = ({
       detailRequest: mode === 'detail' ? requests[0] : undefined,
     } satisfies MentoringRequestPanelState,
     viewModel: {
-      titleText: '개별 신청',
+      titleText: '신청 목록',
       showUrgentBanner: urgentCount > 0 && mode === 'list',
       rows,
     } satisfies MentoringRequestPanelViewModel,

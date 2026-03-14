@@ -27,6 +27,15 @@ export const DEFAULT_MENTORING_REQUEST_RICH_TEXT_DOCUMENT: MentoringRequestRichT
     },
   ];
 
+interface MentoringRequestAttachmentLike {
+  fileKey?: string;
+  fileName: string;
+  fileSize: number;
+  mimeType?: string;
+  publicUrl?: string;
+  downloadUrl?: string;
+}
+
 const HTML_TAG_PATTERN = /<[a-z][\s\S]*>/i;
 const HTML_LINK_PATTERN = /<a[^>]+href="([^"]+)"/gi;
 
@@ -266,10 +275,18 @@ export const createMentoringRequestImageBlock = ({
   fileName,
   fileSize,
   mimeType,
+  fileKey,
+  publicUrl,
+  downloadUrl,
+  file,
 }: {
   fileName: string;
   fileSize: number;
   mimeType?: string;
+  fileKey?: string;
+  publicUrl?: string;
+  downloadUrl?: string;
+  file?: File;
 }): MentoringRequestImageBlock => {
   return {
     id: createBlockId(),
@@ -277,21 +294,40 @@ export const createMentoringRequestImageBlock = ({
     fileName,
     fileSize,
     mimeType,
+    fileKey,
+    publicUrl,
+    downloadUrl,
+    file,
   };
 };
 
 export const createMentoringRequestFileBlock = ({
   fileName,
   fileSize,
+  mimeType,
+  fileKey,
+  downloadUrl,
+  publicUrl,
+  file,
 }: {
   fileName: string;
   fileSize: number;
+  mimeType?: string;
+  fileKey?: string;
+  downloadUrl?: string;
+  publicUrl?: string;
+  file?: File;
 }): MentoringRequestFileBlock => {
   return {
     id: createBlockId(),
     type: 'file',
     fileName,
     fileSize,
+    mimeType,
+    fileKey,
+    downloadUrl,
+    publicUrl,
+    file,
   };
 };
 
@@ -337,6 +373,50 @@ export const convertMentoringRequestLegacyTextToHtml = (text: string) => {
     .split(/\n{2,}/)
     .map((paragraph) => {
       return `<p>${escapeHtml(paragraph).replace(/\n/g, '<br />')}</p>`;
+    })
+    .join('');
+};
+
+export const convertMentoringRequestContentsToHtml = (
+  contents: MentoringRequestContentBlock[],
+) => {
+  return contents
+    .flatMap((block) => {
+      if (block.type === 'richText') {
+        if (isMentoringRequestHtmlDocument(block.document)) {
+          return block.document.trim().length > 0 ? [block.document] : [];
+        }
+
+        return [
+          convertMentoringRequestLegacyTextToHtml(
+            buildMentoringRequestMessage([block]),
+          ),
+        ].filter((html) => html.trim().length > 0);
+      }
+
+      if (block.type === 'paragraph') {
+        const trimmed = block.text.trim();
+
+        return trimmed.length > 0 ? [`<p>${escapeHtml(trimmed)}</p>`] : [];
+      }
+
+      if (block.type === 'link') {
+        const url = block.url.trim();
+        if (url.length === 0) {
+          return [];
+        }
+
+        const escapedUrl = escapeHtml(url);
+
+        return [`<p><a href="${escapedUrl}">${escapedUrl}</a></p>`];
+      }
+
+      const label = block.type === 'image' ? '[이미지]' : '[첨부파일]';
+      const fileName = block.fileName.trim();
+
+      return fileName.length > 0
+        ? [`<p>${label} ${escapeHtml(fileName)}</p>`]
+        : [];
     })
     .join('');
 };
@@ -464,6 +544,24 @@ export const getMentoringRequestAttachedFileNames = (
   return Array.from(new Set(fileNames));
 };
 
+export const getMentoringRequestAttachmentFileKeys = (
+  contents: MentoringRequestContentBlock[],
+) => {
+  return Array.from(
+    new Set(
+      contents.flatMap((block) => {
+        if (block.type !== 'image' && block.type !== 'file') {
+          return [];
+        }
+
+        const fileKey = block.fileKey?.trim();
+
+        return fileKey ? [fileKey] : [];
+      }),
+    ),
+  );
+};
+
 export const getMentoringRequestReferenceLinks = (
   contents: MentoringRequestContentBlock[],
 ) => {
@@ -540,4 +638,72 @@ export const sanitizeMentoringRequestContents = (
   });
 
   return sanitized;
+};
+
+export const createMentoringRequestAttachmentBlock = (
+  attachment: MentoringRequestAttachmentLike,
+) => {
+  const commonFields = {
+    fileKey: attachment.fileKey,
+    fileName: attachment.fileName,
+    fileSize: attachment.fileSize,
+    mimeType: attachment.mimeType,
+    publicUrl: attachment.publicUrl,
+    downloadUrl: attachment.downloadUrl,
+  };
+
+  if (attachment.mimeType?.startsWith('image/')) {
+    return createMentoringRequestImageBlock(commonFields);
+  }
+
+  return createMentoringRequestFileBlock(commonFields);
+};
+
+export const mergeMentoringRequestContentsWithAttachments = ({
+  contents,
+  attachments,
+}: {
+  contents?: MentoringRequestContentBlock[];
+  attachments?: MentoringRequestAttachmentLike[];
+}) => {
+  const normalizedContents = contents ?? [];
+  const normalizedAttachments = attachments ?? [];
+
+  if (normalizedAttachments.length === 0) {
+    return normalizedContents;
+  }
+
+  const existingAttachmentKeys = new Set(
+    normalizedContents.flatMap((block) => {
+      if (block.type !== 'image' && block.type !== 'file') {
+        return [];
+      }
+
+      const candidates = [block.fileKey, block.fileName]
+        .map((value) => value?.trim())
+        .filter((value): value is string => !!value);
+
+      return candidates;
+    }),
+  );
+  const nextAttachmentBlocks = normalizedAttachments.flatMap((attachment) => {
+    const attachmentKeys = [attachment.fileKey, attachment.fileName]
+      .map((value) => value?.trim())
+      .filter((value): value is string => !!value);
+    const alreadyExists = attachmentKeys.some((value) => {
+      return existingAttachmentKeys.has(value);
+    });
+
+    if (alreadyExists) {
+      return [];
+    }
+
+    attachmentKeys.forEach((value) => {
+      existingAttachmentKeys.add(value);
+    });
+
+    return [createMentoringRequestAttachmentBlock(attachment)];
+  });
+
+  return [...normalizedContents, ...nextAttachmentBlocks];
 };

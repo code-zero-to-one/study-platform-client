@@ -24,7 +24,9 @@ export {
   type MentorCareerEntry,
   type MentorScheduleTextDrafts,
   type MentorSettings,
+  type MentorSettlementDraft,
   type MentorWeeklySchedule,
+  type SettlementPayerType,
   type WeekdayKey,
 } from '@/types/mentoring/settings';
 
@@ -215,6 +217,7 @@ export const createDefaultMentorSettings = (): MentorSettings => {
     detailedDescription: '',
     interviewQuestions: [],
     preNotice: '',
+    settlementDraft: null,
     updatedAt: '',
   };
 };

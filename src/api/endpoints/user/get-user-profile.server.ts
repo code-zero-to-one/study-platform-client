@@ -2,6 +2,7 @@ import { isAxiosError } from 'axios';
 import { redirect } from 'next/navigation';
 import { axiosServerInstance } from '@/api/client/axios.server';
 import { GetUserProfileResponse } from '@/types/api/user.types';
+import { normalizeUserProfileResponse } from './normalize-user-profile';
 
 const shouldRedirectToLoginAfterProfileError = (status?: number) =>
   status === 401 || status === 403 || status === 404;
@@ -19,7 +20,7 @@ export const getUserProfileInServer = async (
   try {
     const res = await axiosServerInstance.get(`/members/${memberId}/profile`);
 
-    return res.data.content;
+    return normalizeUserProfileResponse(res.data.content);
   } catch (error) {
     // 회원가입 직후 프로필이 아직 생성되지 않았거나 인증 문제인 경우
     // Route Handler로 리다이렉트하여 쿠키 삭제 후 로그인 페이지로 이동

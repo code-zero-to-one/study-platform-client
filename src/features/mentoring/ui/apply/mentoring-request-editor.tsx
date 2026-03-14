@@ -5,6 +5,10 @@ import { useMemo, useRef, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { getMentoringApplyPlaceholder } from '@/features/mentoring/model/mentoring-flow-policy';
 import {
+  requestMentoringMessageAttachmentUploadTicket,
+  uploadMentoringMessageAttachmentFile,
+} from '@/features/mentoring/model/mentoring-message-attachment-upload';
+import {
   buildMentoringRequestMessage,
   convertMentoringRequestLegacyTextToHtml,
   createMentoringRequestFileBlock,
@@ -107,6 +111,7 @@ export default function MentoringRequestEditor({
 }: MentoringRequestEditorProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [editorError, setEditorError] = useState('');
+  const [isUploadingAttachments, setIsUploadingAttachments] = useState(false);
 
   const richTextBlock = useMemo(() => value.find(isRichTextBlock), [value]);
   const attachmentBlocks = useMemo(
@@ -134,7 +139,7 @@ export default function MentoringRequestEditor({
     ]);
   };
 
-  const handleFileSelection = (files: FileList | null) => {
+  const handleFileSelection = async (files: FileList | null) => {
     const selectedFiles = Array.from(files ?? []);
     if (selectedFiles.length === 0) {
       return;
@@ -149,34 +154,69 @@ export default function MentoringRequestEditor({
       return;
     }
 
-    const filesToInsert = selectedFiles.slice(0, remainCount).map((file) => {
-      if (file.type.startsWith('image/')) {
-        return createMentoringRequestImageBlock({
-          fileName: file.name,
-          fileSize: file.size,
-          mimeType: file.type || undefined,
-        });
+    const filesToInsert = selectedFiles.slice(0, remainCount);
+    const uploadedBlocks: Array<
+      MentoringRequestFileBlock | MentoringRequestImageBlock
+    > = [];
+    const uploadErrors: string[] = [];
+
+    setIsUploadingAttachments(true);
+
+    try {
+      for (const file of filesToInsert) {
+        try {
+          const ticket = await requestMentoringMessageAttachmentUploadTicket({
+            fileName: file.name,
+            fileType: file.type,
+            fileSize: file.size,
+            attachmentType: 'FILE',
+          });
+
+          await uploadMentoringMessageAttachmentFile({
+            uploadUrl: ticket.uploadUrl,
+            file,
+          });
+
+          uploadedBlocks.push(
+            file.type.startsWith('image/')
+              ? createMentoringRequestImageBlock({
+                  fileName: file.name,
+                  fileSize: file.size,
+                  mimeType: file.type || undefined,
+                  fileKey: ticket.fileKey,
+                  publicUrl: ticket.publicUrl,
+                  downloadUrl: ticket.downloadUrl,
+                })
+              : createMentoringRequestFileBlock({
+                  fileName: file.name,
+                  fileSize: file.size,
+                  mimeType: file.type || undefined,
+                  fileKey: ticket.fileKey,
+                  publicUrl: ticket.publicUrl,
+                  downloadUrl: ticket.downloadUrl,
+                }),
+          );
+        } catch {
+          uploadErrors.push(`${file.name}: 업로드 실패`);
+        }
       }
-
-      return createMentoringRequestFileBlock({
-        fileName: file.name,
-        fileSize: file.size,
-      });
-    });
-
-    syncContents({
-      nextAttachments: [...attachmentBlocks, ...filesToInsert],
-    });
-
-    if (selectedFiles.length > filesToInsert.length) {
-      setEditorError(
-        `일부 파일은 제외되었습니다. 이미지/파일은 최대 ${MAX_MEDIA_BLOCK_COUNT}개까지 첨부할 수 있습니다.`,
-      );
-
-      return;
+    } finally {
+      setIsUploadingAttachments(false);
     }
 
-    setEditorError('');
+    if (uploadedBlocks.length > 0) {
+      syncContents({
+        nextAttachments: [...attachmentBlocks, ...uploadedBlocks],
+      });
+    }
+
+    if (selectedFiles.length > filesToInsert.length) {
+      uploadErrors.push(
+        `일부 파일은 제외되었습니다. 이미지/파일은 최대 ${MAX_MEDIA_BLOCK_COUNT}개까지 첨부할 수 있습니다.`,
+      );
+    }
+
+    setEditorError(uploadErrors.join(' '));
   };
 
   return (
@@ -189,6 +229,15 @@ export default function MentoringRequestEditor({
         }}
         placeholder={getMentoringApplyPlaceholder(method)}
         maxImageCount={MAX_MEDIA_BLOCK_COUNT}
+        requestImageUploadTicket={({ fileName, fileType, fileSize }) =>
+          requestMentoringMessageAttachmentUploadTicket({
+            fileName,
+            fileType,
+            fileSize,
+            attachmentType: 'INLINE_IMAGE',
+          })
+        }
+        uploadImageFile={uploadMentoringMessageAttachmentFile}
       />
 
       <div className="rounded-125 border-border-subtle bg-background-alternative space-y-100 border px-150 py-125">
@@ -198,9 +247,10 @@ export default function MentoringRequestEditor({
             color="secondary"
             size="small"
             onClick={() => fileInputRef.current?.click()}
+            disabled={isUploadingAttachments}
           >
             <Paperclip className="h-14 w-14" />
-            첨부파일
+            {isUploadingAttachments ? '업로드 중...' : '첨부파일'}
           </Button>
           <span className="font-designer-12r text-text-subtle inline-flex items-center gap-50">
             <ImagePlus className="h-14 w-14" />
@@ -255,6 +305,10 @@ export default function MentoringRequestEditor({
 
       {editorError ? (
         <p className="font-designer-12r text-text-error">{editorError}</p>
+      ) : isUploadingAttachments ? (
+        <p className="font-designer-12r text-text-subtle">
+          첨부파일을 업로드하는 중입니다.
+        </p>
       ) : null}
 
       <input

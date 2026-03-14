@@ -10,9 +10,7 @@ type MyMentoringBadgeColor = 'green' | 'orange' | 'blue' | 'red';
 export const MENTORING_NOTE_LABEL = '쪽지상담';
 export const MENTORING_BROWSE_MENTORS_LABEL = '멘토 둘러보기';
 export const MENTORING_VIEW_MENTOR_PROFILE_LABEL = '멘토 프로필 보기';
-export const MENTORING_REAPPLY_SAME_METHOD_LABEL = '같은 방식으로 다시 신청';
-export const MENTORING_OPEN_NOTIFICATIONS_LABEL = '알림함 보기';
-export const MENTORING_REVIEW_MANAGEMENT_LABEL = '후기 관리로 이동';
+export const MENTORING_REAPPLY_SAME_METHOD_LABEL = '재상담하기';
 export const MENTORING_SESSION_GUIDE_LABEL = '진행 채널 · 장소';
 
 export const MY_MENTORING_METHOD_LABEL_MAP: Record<MyMentoringMethod, string> =
@@ -71,23 +69,23 @@ export const getMyMentoringPrimaryActionMeta = (
     mentoring.status === 'CONFIRMED'
   ) {
     return {
-      label: MENTORING_OPEN_NOTIFICATIONS_LABEL,
-      href: '/notification',
+      label: MENTORING_VIEW_MENTOR_PROFILE_LABEL,
+      href: getMyMentoringMentorProfileHref(mentoring),
     };
   }
 
   if (mentoring.status === 'COMPLETED') {
     return {
-      label: MENTORING_REVIEW_MANAGEMENT_LABEL,
-      href: '/my-study-review',
+      label: MENTORING_REAPPLY_SAME_METHOD_LABEL,
+      href: getMyMentoringReapplyHref(mentoring),
     };
   }
 
   if (mentoring.status === 'NO_SHOW' || mentoring.status === 'CANCELLED') {
     if (mentoring.refundStatus === 'PENDING') {
       return {
-        label: MENTORING_OPEN_NOTIFICATIONS_LABEL,
-        href: '/notification',
+        label: MENTORING_VIEW_MENTOR_PROFILE_LABEL,
+        href: getMyMentoringMentorProfileHref(mentoring),
       };
     }
 
@@ -122,8 +120,8 @@ export const getMyMentoringSecondaryActionMeta = (
 
   if (mentoring.status === 'COMPLETED') {
     return {
-      label: MENTORING_REAPPLY_SAME_METHOD_LABEL,
-      href: getMyMentoringReapplyHref(mentoring),
+      label: MENTORING_VIEW_MENTOR_PROFILE_LABEL,
+      href: getMyMentoringMentorProfileHref(mentoring),
     };
   }
 

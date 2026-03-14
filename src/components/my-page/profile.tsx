@@ -42,6 +42,10 @@ export default function Profile({
   hidePhoneNumber = false,
 }: ProfileProps) {
   const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
+  const interests = memberProfile.interests ?? [];
+  const techStackNames =
+    memberProfile.techStacks?.map((tech) => tech.techStackName).join(', ') ??
+    '';
 
   const { isVerified, isLoading, isError, phoneNumber, setVerified } =
     usePhoneVerificationStatus(memberId);
@@ -61,6 +65,13 @@ export default function Profile({
   const handleVerificationComplete = (phone: string) => {
     setVerified(phone);
   };
+
+  const showVerifiedState =
+    !hidePhoneNumber && !resolvedIsLoading && !resolvedIsError;
+  const showVerifiedBadge = showVerifiedState && resolvedIsVerified;
+  const showVerifiedPhoneNumber =
+    showVerifiedState && resolvedIsVerified && Boolean(resolvedPhoneNumber);
+  const showVerificationCta = showVerifiedState && !resolvedIsVerified;
 
   return (
     <div className="flex w-full flex-col gap-400">
@@ -83,7 +94,7 @@ export default function Profile({
                 {memberProfile.mbti && (
                   <Badge color="orange">{memberProfile.mbti}</Badge>
                 )}
-                {memberProfile.interests.slice(0, 4).map((interest) => (
+                {interests.slice(0, 4).map((interest) => (
                   <Badge key={interest.id} color="purple">
                     {interest.name}
                   </Badge>
@@ -93,38 +104,31 @@ export default function Profile({
                 <div className="flex items-center gap-50">
                   {memberProfile.nickname ?? '닉네임을 입력해주세요'}
                   {/* 본인 인증 배지 (트위터 스타일) */}
-                  {!hidePhoneNumber &&
-                    !resolvedIsLoading &&
-                    !resolvedIsError &&
-                    resolvedIsVerified && (
-                      <VerifiedCheckIcon className="shrink-0" />
-                    )}
+                  {showVerifiedBadge && <VerifiedCheckIcon className="shrink-0" />}
                 </div>
                 {/* 전화번호 - 인증 완료 시에만 표시 (hidePhoneNumber가 true면 숨김) */}
-                {!hidePhoneNumber &&
-                  resolvedIsVerified &&
-                  resolvedPhoneNumber && (
-                    <div className="flex flex-col items-start sm:items-end">
-                      <div className="font-designer-14r text-text-subtle leading-none">
-                        {memberProfile.memberName}
-                      </div>
-                      <div className="flex flex-row flex-wrap items-center gap-100">
-                        <PhoneIcon />
-                        <span className="font-designer-14r text-text-subtle leading-none">
-                          {formatPhoneNumber(resolvedPhoneNumber)}
-                        </span>
-                        <Badge color="green" shape="rectangle">
-                          인증완료
-                        </Badge>
-                        <button
-                          className="font-designer-13r text-text-subtlest hover:text-text-subtle underline"
-                          onClick={() => setIsVerificationModalOpen(true)}
-                        >
-                          변경
-                        </button>
-                      </div>
+                {showVerifiedPhoneNumber && (
+                  <div className="flex flex-col items-start sm:items-end">
+                    <div className="font-designer-14r text-text-subtle leading-none">
+                      {memberProfile.memberName}
                     </div>
-                  )}
+                    <div className="flex flex-row flex-wrap items-center gap-100">
+                      <PhoneIcon />
+                      <span className="font-designer-14r text-text-subtle leading-none">
+                        {formatPhoneNumber(resolvedPhoneNumber ?? '')}
+                      </span>
+                      <Badge color="green" shape="rectangle">
+                        인증완료
+                      </Badge>
+                      <button
+                        className="font-designer-13r text-text-subtlest hover:text-text-subtle underline"
+                        onClick={() => setIsVerificationModalOpen(true)}
+                      >
+                        변경
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
               <p className="font-designer-15m text-text-default">
                 {memberProfile.simpleIntroduction ??
@@ -143,9 +147,7 @@ export default function Profile({
               <div className="flex items-center gap-100">
                 <TechStackIcon />
                 <span className="font-designer-14r text-text-subtle leading-none">
-                  {memberProfile.techStacks
-                    ?.map((tech) => tech.techStackName)
-                    .join(', ') ?? '(아이콘) 기술 스택을 선택해주세요!'}
+                  {techStackNames || '(아이콘) 기술 스택을 선택해주세요!'}
                 </span>
               </div>
 
@@ -213,22 +215,18 @@ export default function Profile({
       </div>
 
       {/* 하단 영역: 전화번호 미인증 시에만 인증 요청 블록 표시 (hidePhoneNumber가 true면 숨김) */}
-      {!hidePhoneNumber &&
-        !resolvedIsLoading &&
-        !resolvedIsError &&
-        !resolvedIsVerified && (
-          <div className="rounded-100 bg-background-alternative flex w-full flex-col gap-100 p-200">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-100">
-                <PhoneIcon className="h-5 w-5 text-yellow-500" fill="#fbbf24" />
-                <div className="flex flex-col gap-50">
-                  <span className="font-designer-14b text-text-strong">
-                    전화번호 인증이 필요해요
-                  </span>
-                  <span className="font-designer-13r text-text-subtle">
-                    스터디 참여와 알림 수신을 위해 인증을 진행해주세요.
-                  </span>
-                </div>
+      {showVerificationCta && (
+        <div className="rounded-100 bg-background-alternative flex w-full flex-col gap-100 p-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-100">
+              <PhoneIcon className="h-5 w-5 text-yellow-500" fill="#fbbf24" />
+              <div className="flex flex-col gap-50">
+                <span className="font-designer-14b text-text-strong">
+                  전화번호 인증이 필요해요
+                </span>
+                <span className="font-designer-13r text-text-subtle">
+                  스터디 참여와 알림 수신을 위해 인증을 진행해주세요.
+                </span>
               </div>
               <button
                 className="rounded-75 bg-fill-brand-default-default font-designer-14b text-text-inverse hover:bg-fill-brand-default-hover active:bg-fill-brand-default-pressed px-150 py-75"
@@ -238,6 +236,7 @@ export default function Profile({
               </button>
             </div>
           </div>
+        </div>
         )}
 
       {/* 전화번호 인증 모달 */}

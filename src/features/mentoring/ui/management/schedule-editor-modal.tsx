@@ -7,8 +7,9 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { BaseInput } from '@/components/common/ui/input';
 import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
+import { getMentoringPlaceNotePlaceholder } from '@/features/mentoring/model/mentoring-channel-guide';
+import { hasSessionConflict } from '@/features/mentoring/model/mentoring-session-conflict';
 import { Modal } from '@/components/common/ui/modal';
-import { hasSessionConflict } from '@/stores/useMentoringManagementStore';
 import type {
   ScheduleEditorModalProps,
   ScheduleEditorSubmitParams,
@@ -40,6 +41,7 @@ export default function ScheduleEditorModal({
   title,
   description,
   confirmLabel,
+  method,
   durationMinutes,
   defaultDate,
   defaultTime,
@@ -220,7 +222,7 @@ export default function ScheduleEditorModal({
               <BaseInput
                 value={placeNote}
                 onValueChange={setPlaceNote}
-                placeholder="예: Google Meet 링크 전송 / 강남역 카페"
+                placeholder={getMentoringPlaceNotePlaceholder(method)}
               />
             </div>
 

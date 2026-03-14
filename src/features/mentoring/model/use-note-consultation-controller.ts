@@ -1,13 +1,13 @@
 'use client';
+
 import { useEffect, useMemo, useState } from 'react';
-import { useAuthReady } from '@/features/auth/model/use-auth';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import type { MentoringRequest } from '@/types/mentoring/management-domain';
 import type {
   NoteConsultationControllerActions,
   NoteConsultationControllerResult,
   NoteConsultationControllerState,
   NoteConsultationControllerViewModel,
-  NoteConsultationItemStatusSummary,
   NoteConsultationStatusFilter,
   NoteConsultationStatusTab,
 } from '@/types/mentoring/note-consultation-controller-view';
@@ -22,85 +22,67 @@ const NOTE_CONSULTATION_LIST_ERROR_MESSAGE =
 
 type NoteConsultationStatusTabPreset = 'mentor' | 'mentee' | 'none';
 
-const isManualTransferPending = (request: MentoringRequest) => {
+const hasMentorFirstReply = (item: NoteConsultationListItem) => {
   return (
-    request.paymentMode === 'MANUAL_TRANSFER' &&
-    request.paymentStatus !== 'CONFIRMED'
+    item.mentorReplyCount > 0 ||
+    item.request.conversation.some((message) => {
+      return message.sender === 'MENTOR';
+    })
   );
 };
 
-const hasMentorFirstReply = (request: MentoringRequest) => {
-  return request.conversation.some((message) => {
-    return message.sender === 'MENTOR';
-  });
+const hasAcceptedRequest = (request: MentoringRequest) => {
+  return (
+    request.status === 'ACCEPTED' ||
+    request.displayStatus === 'NOTE_WAITING' ||
+    request.displayStatus === 'COMPLETED'
+  );
 };
 
-const getItemStatusSummary = (
-  item: NoteConsultationListItem,
-): NoteConsultationItemStatusSummary => {
-  const { request } = item;
-  const mentorFirstReplyExists = hasMentorFirstReply(request);
-  const manualTransferPending = isManualTransferPending(request);
-  if (request.status === 'REJECTED') {
-    return { key: 'rejected', label: '답변거절', tone: 'red' };
-  }
-  const isCompleted =
-    request.status === 'ACCEPTED' &&
-    !manualTransferPending &&
-    mentorFirstReplyExists;
-  if (isCompleted) {
-    return { key: 'completed', label: '답변 완료', tone: 'green' };
-  }
-
-  return { key: 'pending', label: '확인대기', tone: 'orange' };
+const isRejectedRequest = (request: MentoringRequest) => {
+  return request.status === 'REJECTED' || request.displayStatus === 'REJECTED';
 };
 
-const MENTOR_STATUS_TABS: Array<{
-  key: NoteConsultationStatusFilter;
-  label: string;
-}> = [
-  { key: 'mentor-requested', label: '신청접수' },
-  { key: 'mentor-drafting', label: '답변작성' },
-  { key: 'mentor-completed', label: '처리완료' },
-];
-const MENTEE_STATUS_TABS: Array<{
-  key: NoteConsultationStatusFilter;
-  label: string;
-}> = [
-  { key: 'mentee-pending', label: '승인 대기' },
-  { key: 'mentee-answered', label: '답변완료' },
-  { key: 'mentee-completed', label: '처리완료' },
-];
+const isClosedRequest = (request: MentoringRequest) => {
+  return (
+    request.status === 'CLOSED' ||
+    request.displayStatus === 'COMPLETED' ||
+    request.displayStatus === 'CANCELLED'
+  );
+};
 
 const getMentorStageFilter = (
-  request: MentoringRequest,
+  item: NoteConsultationListItem,
 ): NoteConsultationStatusFilter => {
-  const mentorFirstReplyExists = hasMentorFirstReply(request);
-  if (request.status === 'PENDING' || isManualTransferPending(request)) {
-    return 'mentor-requested';
+  const { request } = item;
+  const mentorFirstReplyExists = hasMentorFirstReply(item);
+
+  if (isRejectedRequest(request) || isClosedRequest(request)) {
+    return 'mentor-completed';
   }
-  if (request.status === 'ACCEPTED' && !mentorFirstReplyExists) {
+  if (mentorFirstReplyExists) {
+    return 'mentor-completed';
+  }
+  if (hasAcceptedRequest(request)) {
     return 'mentor-drafting';
   }
 
-  return 'mentor-completed';
+  return 'mentor-requested';
 };
 
 const getMenteeStageFilter = (
-  request: MentoringRequest,
+  item: NoteConsultationListItem,
 ): NoteConsultationStatusFilter => {
-  const mentorFirstReplyExists = hasMentorFirstReply(request);
-  if (request.status === 'PENDING') {
-    return 'mentee-pending';
+  const { request } = item;
+  const mentorFirstReplyExists = hasMentorFirstReply(item);
+
+  if (isRejectedRequest(request) || isClosedRequest(request)) {
+    return 'mentee-completed';
   }
-  if (
-    request.status === 'ACCEPTED' &&
-    !isManualTransferPending(request) &&
-    mentorFirstReplyExists
-  ) {
+  if (mentorFirstReplyExists) {
     return 'mentee-answered';
   }
-  if (request.status === 'ACCEPTED') {
+  if (hasAcceptedRequest(request) || request.status === 'PENDING') {
     return 'mentee-pending';
   }
 
@@ -116,29 +98,49 @@ const matchesStatusFilter = (
     return true;
   }
   if (preset === 'mentor') {
-    return getMentorStageFilter(item.request) === filter;
+    return getMentorStageFilter(item) === filter;
   }
   if (preset === 'mentee') {
-    return getMenteeStageFilter(item.request) === filter;
+    return getMenteeStageFilter(item) === filter;
   }
 
   return false;
 };
+
+const MENTOR_STATUS_TABS: Array<{
+  key: NoteConsultationStatusFilter;
+  label: string;
+}> = [
+  { key: 'mentor-requested', label: '신청접수' },
+  { key: 'mentor-drafting', label: '답변작성' },
+  { key: 'mentor-completed', label: '처리완료' },
+];
+
+const MENTEE_STATUS_TABS: Array<{
+  key: NoteConsultationStatusFilter;
+  label: string;
+}> = [
+  { key: 'mentee-pending', label: '승인 대기' },
+  { key: 'mentee-answered', label: '답변완료' },
+  { key: 'mentee-completed', label: '처리완료' },
+];
 
 export const useNoteConsultationController = ({
   initialRequestId,
   initialChannel,
   lockedChannel,
   statusTabPreset = 'none',
+  mentorIdOverride,
 }: {
   initialRequestId?: string;
   initialChannel?: NoteConsultationChannel;
   lockedChannel?: NoteConsultationChannel;
   statusTabPreset?: NoteConsultationStatusTabPreset;
+  mentorIdOverride?: number;
 } = {}): NoteConsultationControllerResult => {
   const { memberId, isHydrated: isAuthHydrated } = useAuthReady();
   const { hasHydrated, sentItems, receivedItems, isError, isFetching } =
-    useNoteConsultationQuery({ memberId });
+    useNoteConsultationQuery({ memberId, mentorIdOverride });
   const [activeChannel, setActiveChannel] = useState<NoteConsultationChannel>(
     lockedChannel ?? initialChannel ?? 'sent',
   );
@@ -147,16 +149,13 @@ export const useNoteConsultationController = ({
   );
   const [statusFilter, setStatusFilter] =
     useState<NoteConsultationStatusFilter>('all');
+
   const allItems = useMemo(
     () => [...sentItems, ...receivedItems],
     [receivedItems, sentItems],
   );
   const activeItems = activeChannel === 'sent' ? sentItems : receivedItems;
-  const itemStatusSummaries = useMemo(() => {
-    return Object.fromEntries(
-      allItems.map((item) => [item.id, getItemStatusSummary(item)]),
-    ) as Record<string, NoteConsultationItemStatusSummary>;
-  }, [allItems]);
+
   const statusTabs = useMemo<NoteConsultationStatusTab[]>(() => {
     if (statusTabPreset === 'mentor') {
       return MENTOR_STATUS_TABS.map((tab) => ({
@@ -177,6 +176,7 @@ export const useNoteConsultationController = ({
 
     return [];
   }, [activeItems, statusTabPreset]);
+
   useEffect(() => {
     if (statusTabs.length === 0) {
       if (statusFilter !== 'all') {
@@ -191,6 +191,7 @@ export const useNoteConsultationController = ({
       setStatusFilter(statusTabs[0].key);
     }
   }, [statusFilter, statusTabs]);
+
   const filteredItems = useMemo(() => {
     if (statusTabPreset === 'none' || statusFilter === 'all') {
       return activeItems;
@@ -200,6 +201,7 @@ export const useNoteConsultationController = ({
       return matchesStatusFilter(item, statusFilter, statusTabPreset);
     });
   }, [activeItems, statusFilter, statusTabPreset]);
+
   const pinnedItem = useMemo(() => {
     if (!initialRequestId) {
       return undefined;
@@ -207,12 +209,15 @@ export const useNoteConsultationController = ({
 
     return allItems.find((item) => item.id === initialRequestId);
   }, [allItems, initialRequestId]);
+
   useEffect(() => {
     if (!pinnedItem || pinnedItem.channel === activeChannel) {
       return;
     }
+
     setActiveChannel(pinnedItem.channel);
   }, [activeChannel, pinnedItem]);
+
   useEffect(() => {
     if (lockedChannel) {
       return;
@@ -221,35 +226,42 @@ export const useNoteConsultationController = ({
       setActiveChannel(initialChannel);
     }
   }, [initialChannel, lockedChannel]);
+
   useEffect(() => {
     if (!lockedChannel) {
       return;
     }
     setActiveChannel(lockedChannel);
   }, [lockedChannel]);
+
   useEffect(() => {
     if (initialRequestId) {
       setSelectedRequestId(initialRequestId);
     }
   }, [initialRequestId]);
+
   useEffect(() => {
+    const hasSelectedInActiveItems = activeItems.some(
+      (item) => item.id === selectedRequestId,
+    );
+
     if (!filteredItems.length) {
-      if (!initialRequestId) {
+      if (!initialRequestId && !hasSelectedInActiveItems) {
         setSelectedRequestId('');
       }
 
       return;
     }
-    const hasSelected = filteredItems.some(
-      (item) => item.id === selectedRequestId,
-    );
-    if (!hasSelected && !initialRequestId) {
+
+    if (!hasSelectedInActiveItems && !initialRequestId) {
       setSelectedRequestId('');
     }
-  }, [filteredItems, initialRequestId, selectedRequestId]);
+  }, [activeItems, filteredItems, initialRequestId, selectedRequestId]);
+
   const selectedItem =
     filteredItems.find((item) => item.id === selectedRequestId) ??
     activeItems.find((item) => item.id === selectedRequestId);
+
   const listState =
     !isAuthHydrated || !hasHydrated ? 'loading' : isError ? 'error' : 'ready';
   const hasAnyRequest = allItems.length > 0;
@@ -276,7 +288,6 @@ export const useNoteConsultationController = ({
       filteredItems,
       statusTabs,
       selectedItem,
-      itemStatusSummaries,
       isRestoringPinnedItem,
       hasMissingPinnedItem,
       errorMessage: NOTE_CONSULTATION_LIST_ERROR_MESSAGE,

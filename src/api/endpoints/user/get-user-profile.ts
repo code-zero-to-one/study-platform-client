@@ -3,13 +3,14 @@ import type {
   GetUserProfileResponse,
   PatchAutoMatchingParams,
 } from '@/types/api/user.types';
+import { normalizeUserProfileResponse } from './normalize-user-profile';
 
 export const getUserProfile = async (
   memberId: number,
 ): Promise<GetUserProfileResponse> => {
   const res = await axiosInstance.get(`/members/${memberId}/profile`);
 
-  return res.data.content;
+  return normalizeUserProfileResponse(res.data.content);
 };
 
 export const patchAutoMatching = async ({

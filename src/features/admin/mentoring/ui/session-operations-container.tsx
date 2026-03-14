@@ -36,16 +36,17 @@ export default function SessionOperationsContainer({
             <SessionOperationsFilters
               mentors={state.mentors}
               selectedMentorId={state.selectedMentorId}
-              readyToProcessCount={viewModel.summary.readyToProcessCount}
+              pendingRequestCount={viewModel.summary.pendingRequestCount}
               onSelectMentorId={actions.selectMentorId}
             />
           }
           summary={
             <SessionOperationsGrid
               totalRequestCount={viewModel.summary.totalRequestCount}
-              pendingPaymentCount={viewModel.summary.pendingPaymentCount}
-              confirmedPaymentCount={viewModel.summary.confirmedPaymentCount}
+              pendingRequestCount={viewModel.summary.pendingRequestCount}
+              closedNoteCount={viewModel.summary.closedNoteCount}
               scheduledSessionCount={viewModel.summary.scheduledSessionCount}
+              completedSessionCount={viewModel.summary.completedSessionCount}
             />
           }
           content={<SessionRequestList requestRows={viewModel.requestRows} />}

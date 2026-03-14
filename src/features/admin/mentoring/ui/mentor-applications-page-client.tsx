@@ -10,14 +10,14 @@ import KeyValueRow from '@/components/common/ui/key-value-row';
 import SurfacePanel from '@/components/common/ui/surface-panel';
 import { resolveAdminMentoringViewState } from '@/features/admin/mentoring/model/admin-mentoring-view-state';
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
-import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
-import { useAuthReady } from '@/features/auth/model/use-auth';
+import { useAdminMentoringMentorDetailQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-mentor-detail-query';
+import { useAdminMentoringMentorsQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-mentors-query';
 import { getMentorDisplayTitle } from '@/features/mentoring/model/mentor-profile-utils';
+import { useUpdateMentorScreeningMutation } from '@/features/mentoring/model/use-mentoring-lifecycle-mutations';
 import MentoringEmptyPanel from '@/features/mentoring/ui/common/mentoring-empty-panel';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
 import { useToastStore } from '@/stores/use-toast-store';
-import { useMentorScreeningStore } from '@/stores/useMentorScreeningStore';
 
 const formatDateTime = (value: string | undefined) => {
   if (!value) {
@@ -75,10 +75,14 @@ interface MentorApplicationsPageClientProps {
 export default function MentorApplicationsPageClient({
   initialMentorId,
 }: MentorApplicationsPageClientProps) {
-  const { memberId: reviewerMemberId } = useAuthReady();
   const { showToast } = useToastStore();
-  const { hasHydrated, mentors } = useAdminMentoringOverviewQuery();
-  const upsertRecord = useMentorScreeningStore((state) => state.upsertRecord);
+  const mentorsQuery = useAdminMentoringMentorsQuery({
+    page: 0,
+    size: 100,
+  });
+  const updateScreeningMutation = useUpdateMentorScreeningMutation();
+  const hasHydrated = mentorsQuery.hasHydrated;
+  const mentors = mentorsQuery.mentors;
 
   const [selectedMentorId, setSelectedMentorId] = useState<number>();
   const [reviewNote, setReviewNote] = useState('');
@@ -115,13 +119,22 @@ export default function MentorApplicationsPageClient({
     }
   }, [initialMentorId, mentors, selectedMentorId]);
 
-  const selectedMentor = useMemo(() => {
+  const selectedMentorListItem = useMemo(() => {
     if (!selectedMentorId) {
       return undefined;
     }
 
     return mentors.find((mentor) => mentor.mentorId === selectedMentorId);
   }, [mentors, selectedMentorId]);
+
+  const detailQuery = useAdminMentoringMentorDetailQuery({
+    mentorId: selectedMentorId,
+    enabled: typeof selectedMentorId === 'number',
+    requestsSize: 10,
+    sessionsSize: 10,
+    reviewsSize: 10,
+  });
+  const selectedMentor = detailQuery.data ?? selectedMentorListItem;
 
   useEffect(() => {
     if (!selectedMentor) {
@@ -133,18 +146,24 @@ export default function MentorApplicationsPageClient({
     setReviewNote(selectedMentor.screening.note ?? '');
   }, [selectedMentor]);
 
-  const handleUpdateStatus = (status: 'APPROVED' | 'REJECTED') => {
+  const handleUpdateStatus = async (status: 'APPROVED' | 'REJECTED') => {
     if (!selectedMentor) {
       return;
     }
 
-    upsertRecord({
-      mentorId: selectedMentor.mentorId,
-      status,
-      note: reviewNote,
-      reviewedByMemberId: reviewerMemberId,
-    });
-    showToast(getStatusToastText(status), 'success');
+    try {
+      await updateScreeningMutation.mutateAsync({
+        mentorId: selectedMentor.mentorId,
+        status,
+        note: reviewNote.trim() || undefined,
+      });
+      showToast(getStatusToastText(status), 'success');
+    } catch (error) {
+      showToast(
+        error instanceof Error ? error.message : '심사 상태 변경에 실패했습니다.',
+        'error',
+      );
+    }
   };
 
   return (
@@ -316,7 +335,10 @@ export default function MentorApplicationsPageClient({
                   <Button
                     type="button"
                     size="small"
-                    onClick={() => handleUpdateStatus('APPROVED')}
+                    onClick={async () => {
+                      await handleUpdateStatus('APPROVED');
+                    }}
+                    disabled={updateScreeningMutation.isPending}
                   >
                     승인
                   </Button>
@@ -324,7 +346,10 @@ export default function MentorApplicationsPageClient({
                     type="button"
                     size="small"
                     color="outlined"
-                    onClick={() => handleUpdateStatus('REJECTED')}
+                    onClick={async () => {
+                      await handleUpdateStatus('REJECTED');
+                    }}
+                    disabled={updateScreeningMutation.isPending}
                   >
                     반려
                   </Button>

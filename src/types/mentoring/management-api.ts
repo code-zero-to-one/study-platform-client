@@ -29,7 +29,12 @@ export interface RejectMentoringRequestParams {
 export interface SendMentoringMessageParams {
   mentorId: number;
   requestId: string;
+  messageId?: string;
   content: string;
+  messageContents?: MentoringRequestContentBlock[];
+  attachmentFileKeys?: string[];
+  attachedFileNames?: string[];
+  referenceLinks?: string[];
 }
 
 export interface RescheduleMentoringSessionParams {
@@ -42,7 +47,8 @@ export interface RescheduleMentoringSessionParams {
 }
 
 export interface CancelMentoringSessionParams {
-  mentorId: number;
+  mentorId?: number;
+  requestId?: string;
   sessionId: string;
   reason: string;
   issueType?: Extract<
@@ -66,25 +72,26 @@ export interface CreateMentoringRequestParams {
   methodLabel?: string;
   durationLabel?: string;
   paymentAmount?: number;
-  paymentMode: MentoringPaymentMode;
-  paymentMethod: MentoringPaymentMethod;
+  paymentMode?: MentoringPaymentMode;
+  paymentMethod?: MentoringPaymentMethod;
   paymentMemo?: string;
   menteeMemberId?: number;
-  menteeName: string;
-  menteeRole: string;
+  menteeName?: string;
+  menteeRole?: string;
   preferredDate?: string;
   preferredTime?: string;
   requestTitle?: string;
   requestMessage: string;
   requestContents?: MentoringRequestContentBlock[];
+  attachmentFileKeys?: string[];
   attachedFileNames?: string[];
   referenceLinks?: string[];
 }
 
-export interface ConfirmManualMentoringPaymentParams {
+export interface CloseMentoringRequestParams {
   mentorId: number;
   requestId: string;
-  memo?: string;
+  note?: string;
 }
 
 export interface SubmitMentoringReviewParams {
@@ -95,9 +102,4 @@ export interface SubmitMentoringReviewParams {
   rating: number;
   recommendation: MentoringReviewRecommendation;
   content: string;
-}
-
-export interface SeedMentoringScenarioParams {
-  mentorId: number;
-  baseMenteeMemberId?: number;
 }

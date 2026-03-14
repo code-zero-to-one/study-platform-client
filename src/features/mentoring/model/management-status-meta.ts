@@ -6,7 +6,7 @@ import type {
   MentoringSessionStatus,
 } from '@/types/mentoring/management-domain';
 
-type RequestStatusColor = 'orange' | 'green' | 'red';
+type RequestStatusColor = 'orange' | 'green' | 'red' | 'blue';
 type PaymentStatusColor = 'orange' | 'blue' | 'green';
 type SessionStatusColor = 'green' | 'blue' | 'red';
 type SessionIssueColor = 'green' | 'orange' | 'blue' | 'red' | 'gray';
@@ -32,6 +32,10 @@ export const MENTORING_REQUEST_STATUS_META: Record<
   REJECTED: {
     label: '신청 거절',
     color: 'red',
+  },
+  CLOSED: {
+    label: '상담 종료',
+    color: 'blue',
   },
 };
 

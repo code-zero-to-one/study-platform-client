@@ -8,11 +8,10 @@ import {
   buildMyMentoringItems,
 } from '@/features/mentoring/model/my-mentoring-view';
 import { useMentorDirectoryListQuery } from '@/features/mentoring/model/use-mentor-directory-query';
+import { useMyMentoringDashboardQuery } from '@/features/mentoring/model/use-my-mentoring-dashboard-query';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MyMentoringPage from '@/features/mentoring/ui/pages/my-mentoring-page';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
-import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 function MentoringForbiddenState() {
   return (
     <SurfacePanel radius="lg" className="px-300 py-500 text-center">
@@ -37,45 +36,40 @@ function MentoringForbiddenState() {
 }
 export default function MyMentoringPageClient() {
   const { isHydrated: isAuthHydrated, memberId } = useAuthReady();
-  const mentorStoreHydrated = useMentorDirectoryStore(
-    (state) => state.hasHydrated,
-  );
-  const createdMentors = useMentorDirectoryStore(
-    (state) => state.createdMentors,
-  );
-  const managementStoreHydrated = useMentoringManagementStore(
-    (state) => state.hasHydrated,
-  );
-  const requestsByMentor = useMentoringManagementStore(
-    (state) => state.requestsByMentor,
-  );
-  const sessionsByMentor = useMentoringManagementStore(
-    (state) => state.sessionsByMentor,
-  );
   const mentorDirectoryQuery = useMentorDirectoryListQuery({
     page: 0,
     size: 100,
   });
-  const mentorMap = createMentorMap([
-    ...(mentorDirectoryQuery.data?.mentors ?? []),
-    ...createdMentors,
-  ]);
+  const dashboardQuery = useMyMentoringDashboardQuery({
+    enabled: isAuthHydrated && Boolean(memberId),
+    page: 0,
+    size: 100,
+  });
+  const mentorMap = createMentorMap(mentorDirectoryQuery.data?.mentors ?? []);
   const items = buildMyMentoringItems({
     memberId,
-    requestsByMentor,
-    sessionsByMentor,
+    requestsByMentor: dashboardQuery.requestsByMentor,
+    sessionsByMentor: dashboardQuery.sessionsByMentor,
     mentorMap,
   });
   const noteSummary = buildMyNoteConsultationSummary({
     memberId,
-    requestsByMentor,
+    requestsByMentor: dashboardQuery.requestsByMentor,
   });
-  const isReady =
-    isAuthHydrated && mentorStoreHydrated && managementStoreHydrated;
 
   return (
     <MentoringStateBoundary
-      state={!isReady ? 'loading' : memberId ? 'ready' : 'forbidden'}
+      state={
+        !isAuthHydrated ||
+        mentorDirectoryQuery.isLoading ||
+        (memberId ? dashboardQuery.isLoading : false)
+          ? 'loading'
+          : memberId
+            ? mentorDirectoryQuery.isError || dashboardQuery.isError
+              ? 'error'
+              : 'ready'
+            : 'forbidden'
+      }
       ready={<MyMentoringPage items={items} noteSummary={noteSummary} />}
       forbidden={<MentoringForbiddenState />}
     />
