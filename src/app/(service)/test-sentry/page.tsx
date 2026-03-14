@@ -14,7 +14,7 @@ export default function TestSentryPage() {
       // 실제 클라이언트 렌더링 에러 시뮬레이션 (null 접근 등)
       const obj: { prop?: string } | null = null;
       // 테스트를 위해 의도적으로 null 접근 (런타임 에러 발생)
-       
+
       const value = obj!.prop; // TypeError: Cannot read property 'prop' of null
       console.log(value);
     } catch (error) {
