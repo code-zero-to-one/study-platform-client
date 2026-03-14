@@ -8,6 +8,7 @@ import { deleteCookie, getCookie } from '@/api/client/cookie';
 // 로그아웃 시 인증 상태 리셋을 위해 store 직접 사용 (mutation 내부 사용)
 
 import { logout, signUp, uploadProfileImage } from '@/api/endpoints/auth/auth';
+import { VIEWED_ARCHIVES_KEY } from './use-view-mutation';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useUserStore } from '@/stores/useUserStore';
@@ -60,6 +61,8 @@ export const useLogoutMutation = () => {
       deleteCookie('accessToken');
       deleteCookie('memberId');
       deleteCookie('socialImageURL');
+
+      localStorage.removeItem(VIEWED_ARCHIVES_KEY);
 
       resetUserStore();
       resetPhoneVerification();
