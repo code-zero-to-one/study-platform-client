@@ -119,7 +119,11 @@ export async function middleware(request: NextRequest) {
 
       if (newAccessToken) {
         // 갱신 성공 → 새 토큰 쿠키 저장
-        response.cookies.set('accessToken', newAccessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+        response.cookies.set(
+          'accessToken',
+          newAccessToken,
+          ACCESS_TOKEN_COOKIE_OPTIONS,
+        );
       } else {
         // refresh token도 만료 → 쿠키 삭제 후 비회원으로 통과
         response.cookies.delete('accessToken');
@@ -171,7 +175,11 @@ export async function middleware(request: NextRequest) {
 
     if (newAccessToken) {
       // 갱신 성공
-      response.cookies.set('accessToken', newAccessToken, ACCESS_TOKEN_COOKIE_OPTIONS);
+      response.cookies.set(
+        'accessToken',
+        newAccessToken,
+        ACCESS_TOKEN_COOKIE_OPTIONS,
+      );
     } else {
       // 갱신 실패 - 쿠키 삭제 후 랜딩 페이지로 리디렉션
       response.cookies.delete('accessToken');
