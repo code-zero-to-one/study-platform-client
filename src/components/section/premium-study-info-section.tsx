@@ -13,7 +13,6 @@ import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
 import type { GroupStudyFullResponse } from '@/types/api/group-study.types';
-
 import SummaryStudyInfo from '../summary/study-info-summary';
 
 const UserProfileModal = dynamic(
