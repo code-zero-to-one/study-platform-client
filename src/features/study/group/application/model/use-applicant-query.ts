@@ -1,6 +1,10 @@
-import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { getApplicantsByStatus } from '../api/get-applicants-by-status';
-import { ApplyStatus, UpdateApplicantByStatusRequest } from '../api/type';
+import type { ApplyStatus, UpdateApplicantByStatusRequest } from '../api/type';
 import { updateApplicantByStatus } from '../api/update-applicant-by-status';
 
 export const useApplicantsByStatusQuery = ({
@@ -28,8 +32,18 @@ export const useApplicantsByStatusQuery = ({
 };
 
 export const useUpdateApplicantByStatusMutation = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: (params: UpdateApplicantByStatusRequest) =>
       updateApplicantByStatus(params),
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['groupStudyMemberList', variables.groupStudyId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['entryList', variables.groupStudyId],
+      });
+    },
   });
 };

@@ -6,11 +6,14 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import Button from '@/components/ui/button';
+import LoginModal from '@/features/auth/ui/login-modal';
+import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
+import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
 import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
 import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { useUserStore } from '@/stores/useUserStore';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -28,8 +31,14 @@ export default function SummaryStudyInfo({ data }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(false);
-  const memberId = useUserStore((state) => state.memberId);
+  const { memberId, isAuthReady, isHydrated } = useAuthReady();
   const showToast = useToastStore((state) => state.showToast);
+  const {
+    isVerified,
+    isLoading: isVerificationLoading,
+    setVerified,
+  } = usePhoneVerificationStatus(memberId);
+  const [isPhoneVerificationOpen, setIsPhoneVerificationOpen] = useState(false);
 
   const { basicInfo, detailInfo, interviewPost } = data;
   const {
@@ -51,7 +60,7 @@ export default function SummaryStudyInfo({ data }: Props) {
   const { title } = detailInfo ?? {};
   const { interviewPost: questions } = interviewPost ?? {};
 
-  const isLoggedIn = !!memberId;
+  const isLoggedIn = isAuthReady;
   const isLeader = leader?.memberId === memberId;
 
   const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
@@ -133,9 +142,6 @@ export default function SummaryStudyInfo({ data }: Props) {
     await queryClient.invalidateQueries({
       queryKey: ['groupStudyMemberStatus', groupStudyId],
     });
-    if (price > 0) {
-      router.push(`/payment/${groupStudyId}`);
-    }
   };
 
   // 신청 마감 여부 체크 (스터디 시작일이 오늘 이전이거나 같은 경우)
@@ -145,7 +151,15 @@ export default function SummaryStudyInfo({ data }: Props) {
   const isApplyDisabled =
     isLeader ||
     myApplicationStatus?.status !== 'NONE' ||
-    groupStudyStatus !== 'RECRUITING' ||
+    groupStudyStatus === 'IN_PROGRESS' ||
+    groupStudyStatus === 'COMPLETED' ||
+    approvedCount >= maxMembersCount ||
+    isDeadlinePassed;
+
+  // 비로그인 유저에게도 표시할 공개 모집 마감 조건 (myApplicationStatus 미참조)
+  const isClosedForPublic =
+    groupStudyStatus === 'IN_PROGRESS' ||
+    groupStudyStatus === 'COMPLETED' ||
     approvedCount >= maxMembersCount ||
     isDeadlinePassed;
 
@@ -159,17 +173,120 @@ export default function SummaryStudyInfo({ data }: Props) {
     if (myApplicationStatus?.status === 'REJECTED') {
       return '신청 거절됨';
     }
-    if (isDeadlinePassed) {
+    if (isClosedForPublic) {
       return '모집 마감';
     }
 
     return '신청하기';
   };
 
-  const handleApplyClick = () => {
-    if (!isLoggedIn) {
-      router.push('/login');
+  const handlePaidStudyApplyClick = () => {
+    if (!groupStudyId) {
+      showToast(
+        '스터디 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
+
+      return;
     }
+    if (isVerificationLoading) return;
+    if (!isVerified) {
+      setIsPhoneVerificationOpen(true);
+
+      return;
+    }
+    router.push(`/payment/${groupStudyId}`);
+  };
+
+  const handleVerificationComplete = (phoneNumber: string) => {
+    if (!groupStudyId) {
+      showToast(
+        '스터디 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
+
+      return;
+    }
+    setVerified(phoneNumber);
+    setIsPhoneVerificationOpen(false);
+    // 인증 완료 후 자동 진행 없음 — 유저가 신청하기 버튼을 다시 눌러 진행
+  };
+
+  const renderApplyButton = () => {
+    if (!isHydrated) {
+      return (
+        <Button size="large" color="primary" className="h-600" disabled>
+          신청하기
+        </Button>
+      );
+    }
+
+    if (price > 0) {
+      if (!isLoggedIn) {
+        return (
+          <LoginModal
+            openTrigger={
+              <Button
+                size="large"
+                color="primary"
+                className="h-600"
+                disabled={isClosedForPublic}
+              >
+                {isClosedForPublic ? '모집 마감' : '신청하기'}
+              </Button>
+            }
+          />
+        );
+      }
+
+      return (
+        <Button
+          size="large"
+          color="primary"
+          className="h-600"
+          disabled={isApplyDisabled}
+          onClick={handlePaidStudyApplyClick}
+        >
+          {getButtonText()}
+        </Button>
+      );
+    }
+
+    if (isLoggedIn) {
+      return (
+        <ApplyGroupStudyModal
+          groupStudyId={groupStudyId}
+          title={title}
+          questions={questions}
+          onSuccess={handleApplySuccess}
+          trigger={
+            <Button
+              size="large"
+              color="primary"
+              className="h-600"
+              disabled={isApplyDisabled || isVerificationLoading}
+            >
+              {getButtonText()}
+            </Button>
+          }
+        />
+      );
+    }
+
+    return (
+      <LoginModal
+        openTrigger={
+          <Button
+            size="large"
+            color="primary"
+            className="h-600"
+            disabled={isClosedForPublic}
+          >
+            {isClosedForPublic ? '모집 마감' : '신청하기'}
+          </Button>
+        }
+      />
+    );
   };
 
   return (
@@ -216,34 +333,15 @@ export default function SummaryStudyInfo({ data }: Props) {
 
       {/* 버튼 영역 */}
       <div className="flex flex-col gap-100">
-        {/* 스터디 신청 모달 (유료/무료 공통) */}
+        {renderApplyButton()}
 
-        {isLoggedIn ? (
-          <ApplyGroupStudyModal
-            groupStudyId={groupStudyId}
-            title={title}
-            questions={questions}
-            onSuccess={handleApplySuccess}
-            trigger={
-              <Button
-                size="large"
-                color="primary"
-                className="h-600"
-                disabled={isApplyDisabled}
-              >
-                {getButtonText()}
-              </Button>
-            }
+        {price > 0 && (
+          <PhoneVerificationModal
+            open={isPhoneVerificationOpen}
+            onOpenChange={setIsPhoneVerificationOpen}
+            onVerificationComplete={handleVerificationComplete}
+            memberId={memberId}
           />
-        ) : (
-          <Button
-            size="large"
-            color="primary"
-            className="h-600"
-            onClick={handleApplyClick}
-          >
-            신청하기
-          </Button>
         )}
 
         <Button

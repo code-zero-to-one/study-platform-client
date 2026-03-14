@@ -9,7 +9,7 @@ import UserAvatar from '@/components/ui/avatar';
 import Button from '@/components/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import UserProfileModal from '@/entities/user/ui/user-profile-modal';
-import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-query';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';

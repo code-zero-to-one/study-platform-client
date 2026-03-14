@@ -5,6 +5,12 @@ import { decodeJwt } from '@/utils/jwt';
 import { getServerCookie } from '@/utils/server-cookie';
 import { isNumeric } from '@/utils/validation';
 
+const ACCESS_TOKEN_COOKIE_OPTIONS = {
+  secure: true,
+  sameSite: 'lax' as const,
+  path: '/',
+};
+
 const verifyAccessToken = async (accessToken: string) => {
   try {
     // Access token로 memberId만 반환하는 api
@@ -28,9 +34,10 @@ const verifyAccessToken = async (accessToken: string) => {
       return { state: 'unknownError' };
     }
 
-    const data: { content: number } = await response.json();
+    const data: { content: { memberId: number; roleId: string } } =
+      await response.json();
 
-    return { state: 'valid', memberId: data.content };
+    return { state: 'valid', memberId: data.content.memberId };
   } catch (error) {
     return { state: 'unknownError' };
   }
@@ -51,6 +58,8 @@ const refreshAccessToken = async () => {
       },
     );
 
+    if (!response.ok) return null;
+
     const data: { content: { accessToken: string } } = await response.json();
 
     return data.content.accessToken;
@@ -59,100 +68,166 @@ const refreshAccessToken = async () => {
   }
 };
 
-export async function middleware(request: NextRequest) {
+// 토큰 갱신 성공 시 쿠키 일괄 적용
+function applyNewToken(response: NextResponse, token: string): void {
+  response.cookies.set('accessToken', token, ACCESS_TOKEN_COOKIE_OPTIONS);
+  const decoded = decodeJwt(token);
+  if (decoded?.memberId !== undefined) {
+    response.cookies.set('memberId', String(decoded.memberId), { path: '/' });
+  }
+}
+
+// 인증 쿠키 전체 삭제
+function clearAuthCookies(response: NextResponse): void {
+  response.cookies.delete('accessToken');
+  response.cookies.delete('memberId');
+  response.cookies.delete('socialImageURL');
+}
+
+interface AuthContext {
+  accessToken: string | undefined;
+  memberId: string | undefined;
+  hasAccessToken: boolean;
+  hasMemberId: boolean;
+}
+
+function getAuthContext(request: NextRequest): AuthContext {
   const accessToken = request.cookies.get('accessToken')?.value;
   const memberId = request.cookies.get('memberId')?.value;
 
-  const hasAccessToken = request.cookies.has('accessToken');
-  const hasMemberId = request.cookies.has('memberId') && isNumeric(memberId);
-  // 랜딩 페이지(/)는 인증 체크를 하지 않음
-  if (request.nextUrl.pathname === '/') {
-    // 이미 로그인된 사용자가 랜딩 페이지에 접근하면 1:1 스터디 화면인 /home 으로 리디렉션시키는 코드
+  return {
+    accessToken,
+    memberId,
+    hasAccessToken: request.cookies.has('accessToken'),
+    hasMemberId: request.cookies.has('memberId') && isNumeric(memberId),
+  };
+}
 
-    // if (hasAccessToken && hasMemberId) {
-    //   const mainUrl = new URL('/home', request.url);
-
-    //   return NextResponse.redirect(mainUrl);
-    // }
-
-    // 모든 사용자는 '/' 주소로 접근시 랜딩 페이지에 진입
-    return NextResponse.next();
+// /sign-up
+function handleSignUp(request: NextRequest, ctx: AuthContext): NextResponse {
+  if (ctx.hasAccessToken && ctx.hasMemberId) {
+    return NextResponse.redirect(new URL('/home', request.url));
+  }
+  if (!ctx.hasAccessToken) {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 회원가입 페이지는 accessToken만 체크 (memberId는 회원가입 후에 생성됨)
-  if (request.nextUrl.pathname === '/sign-up') {
-    if (hasAccessToken && hasMemberId) {
-      // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
-      const mainUrl = new URL('/home', request.url);
+  return NextResponse.next();
+}
 
-      return NextResponse.redirect(mainUrl);
-    }
-    // accessToken이 없으면 랜딩 페이지로 리디렉션
-    if (!hasAccessToken) {
-      const landingUrl = new URL('/', request.url);
-
-      return NextResponse.redirect(landingUrl);
-    }
-
-    return NextResponse.next();
-  }
-
-  if (request.nextUrl.pathname === '/login') {
-    if (hasAccessToken && hasMemberId) {
-      // 이미 회원가입 완료된 사용자는 홈으로 리디렉션
-      const mainUrl = new URL('/home', request.url);
-
-      return NextResponse.redirect(mainUrl);
-    }
-
-    return NextResponse.next();
-  }
-
-  // 다른 모든 페이지는 인증이 필요함
-  if (!hasAccessToken || !hasMemberId) {
-    const landingUrl = new URL('/', request.url);
-
-    return NextResponse.redirect(landingUrl);
-  }
-
-  // access token 갱신 필요 여부 확인
-  const verifyResponse = await verifyAccessToken(accessToken);
-
+// /group-study/* — 비회원도 접근 가능, 로그인된 사용자는 토큰 갱신 + memberId 정규화
+async function handleGroupStudy(
+  _: NextRequest,
+  ctx: AuthContext,
+): Promise<NextResponse> {
   const response = NextResponse.next();
 
-  // access token이 유효하지 않을 경우 -> 갱신
-  if (verifyResponse.state === 'invalid') {
-    const newAccessToken = await refreshAccessToken();
+  // 비회원(accessToken 없음): identity 쿠키 삭제 후 통과 (쿠키 위조 방지)
+  if (!ctx.accessToken) {
+    clearAuthCookies(response);
 
-    if (newAccessToken) {
+    return response;
+  }
+
+  const verify = await verifyAccessToken(ctx.accessToken);
+
+  if (verify.state === 'invalid') {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
+      // 갱신 성공 → 새 토큰 쿠키 저장
+      applyNewToken(response, newToken);
+    } else {
+      // refresh token도 만료 → 쿠키 삭제 후 비회원으로 통과
+      clearAuthCookies(response);
+    }
+  } else if (verify.state === 'valid' && verify.memberId !== undefined) {
+    // 서버 검증된 memberId로 쿠키 정규화 (임의 위조 방지)
+    const serverMemberId = String(verify.memberId);
+    if (ctx.memberId !== serverMemberId) {
+      response.cookies.set('memberId', serverMemberId, { path: '/' });
+    }
+  } else {
+    // unknownError: 검증 불확실 → memberId 쿠키 삭제 (fail-secure)
+    // accessToken은 유지 — 일시적 오류일 수 있으며, 다음 요청에서 재검증됨
+    response.cookies.delete('memberId');
+    response.cookies.delete('socialImageURL');
+  }
+
+  return response;
+}
+
+// /login
+async function handleLogin(
+  request: NextRequest,
+  ctx: AuthContext,
+): Promise<NextResponse> {
+  if (ctx.hasAccessToken && ctx.hasMemberId && ctx.accessToken) {
+    const verify = await verifyAccessToken(ctx.accessToken);
+
+    if (verify.state === 'valid') {
+      return NextResponse.redirect(new URL('/home', request.url));
+    }
+
+    // 만료/유효하지 않은 토큰으로 로그인 페이지 진입 시 루프 방지를 위해 세션 쿠키를 정리
+    const response = NextResponse.next();
+    clearAuthCookies(response);
+
+    return response;
+  }
+
+  return NextResponse.next();
+}
+
+// 나머지 모든 인증 필요 경로
+async function handleProtected(
+  request: NextRequest,
+  ctx: AuthContext,
+): Promise<NextResponse> {
+  if (!ctx.hasAccessToken || !ctx.hasMemberId) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  const verify = await verifyAccessToken(ctx.accessToken!);
+  const response = NextResponse.next();
+  let effectiveToken = ctx.accessToken!;
+
+  if (verify.state === 'invalid') {
+    const newToken = await refreshAccessToken();
+    if (newToken) {
       // 갱신 성공
-      response.cookies.set('accessToken', newAccessToken, {
-        secure: true,
-        sameSite: 'lax', // strict에서 lax로 변경: 외부 사이트에서 redirect 시 쿠키 전송 허용
-        path: '/',
-      });
+      applyNewToken(response, newToken);
+      effectiveToken = newToken;
     } else {
       // 갱신 실패 - 쿠키 삭제 후 랜딩 페이지로 리디렉션
-      response.cookies.delete('accessToken');
-      response.cookies.delete('memberId');
-      const landingUrl = new URL('/', request.url);
+      const landingResponse = NextResponse.redirect(new URL('/', request.url));
+      clearAuthCookies(landingResponse);
 
-      return NextResponse.redirect(landingUrl);
+      return landingResponse;
     }
   }
 
   // 관리자 페이지 권한 체크
   if (request.nextUrl.pathname.startsWith('/admin')) {
-    const decodedJwt = decodeJwt(accessToken);
-
-    if (!decodedJwt || !decodedJwt.roleIds.includes('ROLE_ADMIN')) {
-      const homeUrl = new URL('/home', request.url);
-
-      return NextResponse.redirect(homeUrl);
+    const decoded = decodeJwt(effectiveToken);
+    if (!decoded?.roleIds.includes('ROLE_ADMIN')) {
+      return NextResponse.redirect(new URL('/home', request.url));
     }
   }
 
   return response;
+}
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+  const ctx = getAuthContext(request);
+
+  if (pathname === '/') return NextResponse.next();
+  if (pathname === '/sign-up') return handleSignUp(request, ctx);
+  if (pathname.startsWith('/group-study'))
+    return handleGroupStudy(request, ctx);
+  if (pathname === '/login') return handleLogin(request, ctx);
+
+  return handleProtected(request, ctx);
 }
 
 // middleware가 적용될 경로 설정
@@ -160,7 +235,6 @@ export const config = {
   matcher: [
     '/',
     '/login',
-    // '/home', // 공개 페이지로 변경하여 제거
     '/my-page',
     '/payment-management',
     '/settlement-management',
@@ -169,5 +243,6 @@ export const config = {
     '/sign-up',
     '/payment/:path*', // 결제 관련 모든 경로
     '/admin/:path*',
+    '/group-study/:path*', // 그룹스터디 상세 (비회원 접근 가능, 토큰 갱신 필요)
   ],
 };

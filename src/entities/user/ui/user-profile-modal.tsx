@@ -18,7 +18,7 @@ import GlobeIcon from '@/features/my-page/ui/icon/globe-simple.svg';
 import PhoneIcon from '@/features/my-page/ui/icon/phone.svg';
 import TechStackIcon from '@/features/my-page/ui/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/features/my-page/ui/icon/verified-check.svg';
-import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-qeury';
+import { useApplicantsByStatusQuery } from '@/features/study/group/application/model/use-applicant-query';
 import { formatPhoneNumber } from '@/utils/format';
 import { decodeJwt } from '@/utils/jwt';
 
@@ -63,14 +63,15 @@ function UserProfileBody({
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     memberId,
   });
-  // 본인 여부 확인
-  const currentMemberId = Number(getCookie('memberId'));
-  const isMe = currentMemberId === memberId; // 본인
-
-  // 관리자 여부 확인
+  // 관리자 여부 확인 (JWT 서명으로 보호됨)
   const accessToken = getCookie('accessToken');
   const decodedJwt = accessToken ? decodeJwt(accessToken) : null;
   const isAdmin = decodedJwt?.roleIds?.includes('ROLE_ADMIN') ?? false;
+
+  // 본인 여부 확인: accessToken이 없으면 비인증 사용자이므로 항상 false
+  // middleware가 인증된 사용자의 memberId 쿠키를 /auth/me 응답값으로 정규화하므로 신뢰 가능
+  const currentMemberId = accessToken ? Number(getCookie('memberId')) : null;
+  const isMe = currentMemberId !== null && currentMemberId === memberId;
 
   //  같은 스터디 참가자 여부 확인
   const params = useParams();
@@ -82,15 +83,21 @@ function UserProfileBody({
   });
 
   const isSameStudyMember = useMemo(() => {
-    if (!groupStudyId || !approvedApplicantsData?.pages) return false;
+    // 열람자(currentMemberId)가 이 스터디의 승인된 멤버인지 확인
+    if (
+      !groupStudyId ||
+      !approvedApplicantsData?.pages ||
+      currentMemberId === null
+    )
+      return false;
     const approvedApplicants = approvedApplicantsData.pages.flatMap(
       (page) => page.content,
     );
 
     return approvedApplicants.some(
-      (apply) => apply.applicantInfo.memberId === memberId,
+      (apply) => apply.applicantInfo.memberId === currentMemberId,
     );
-  }, [groupStudyId, approvedApplicantsData, memberId]);
+  }, [groupStudyId, approvedApplicantsData, currentMemberId]);
 
   // 최종 이름, 전화번호 표시 가능 여부
   const canSeePhoneNumber = isMe || isAdmin || isSameStudyMember;
