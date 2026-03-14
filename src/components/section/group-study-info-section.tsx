@@ -45,6 +45,13 @@ export default function StudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
+
+  const { data: pendingApplicants } = useApplicantsByStatusQuery({
+    groupStudyId,
+    status: 'PENDING',
+  });
+  const pendingCount = pendingApplicants?.pages[0]?.totalElements ?? 0;
+
   const applicants = useMemo(
     () => approvedApplicants?.pages[0]?.content ?? [],
     [approvedApplicants?.pages],
@@ -140,14 +147,21 @@ export default function StudyInfoSection({
                 <span className="text-[#A4A7AE]">{`${approvedApplicants?.pages[0]?.totalElements ?? 0}명`}</span>
               </div>
               {isLeader && (
-                <Button
-                  className="h-500 w-[80px] text-[16px] font-bold"
-                  onClick={() =>
-                    router.push(`/application-list/${groupStudyId}`)
-                  }
-                >
-                  관리하기
-                </Button>
+                <div className="relative">
+                  <Button
+                    className="h-500 w-[80px] text-[16px] font-bold"
+                    onClick={() =>
+                      router.push(`/application-list/${groupStudyId}`)
+                    }
+                  >
+                    관리하기
+                  </Button>
+                  {pendingCount > 0 && (
+                    <span className="absolute -right-[6px] -top-[6px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-[3px] text-[11px] font-bold text-white">
+                      {pendingCount}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 
