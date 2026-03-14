@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { AdminPaymentApi } from '@/api/openapi';
 import type { PaymentSearchConditionTypeEnum } from '@/api/openapi/models';
+import { useToastStore } from '@/stores/use-toast-store';
 
 const adminPaymentApi = createApiInstance(AdminPaymentApi);
 
@@ -81,13 +82,12 @@ export const useForceCancelPayment = () => {
       return data.content;
     },
     onSuccess: async () => {
-      alert('강제 취소가 완료되었습니다.');
+      useToastStore
+        .getState()
+        .showToast('강제 취소가 완료되었습니다.', 'success');
       await queryClient.invalidateQueries({
         queryKey: ['transactionsForAdmin'],
       });
-    },
-    onError: () => {
-      alert('강제 취소에 실패했습니다. 다시 시도해주세요.');
     },
   });
 };

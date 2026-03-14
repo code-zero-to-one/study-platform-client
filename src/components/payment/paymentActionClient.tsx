@@ -1,13 +1,19 @@
 'use client';
 
 import { loadTossPayments } from '@tosspayments/tosspayments-sdk';
+import dynamic from 'next/dynamic';
 import { useEffect, useState } from 'react';
 import { StudyPaymentPrepareResponse } from '@/api/openapi';
+import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
-import PaymentTermsModal from '../modals/payment-terms-modal';
-import Button from '../ui/button';
-import Checkbox from '../ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '../ui/radio';
+import Button from '../common/ui/button';
+import Checkbox from '../common/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '../common/ui/radio';
+
+const PaymentTermsModal = dynamic(
+  () => import('@/components/common/modals/payment-terms-modal'),
+  { ssr: false },
+);
 
 interface Props {
   study: StudyPaymentPrepareResponse;
@@ -26,6 +32,7 @@ export default function PaymentCheckoutPage({ study }: Props) {
   const [isAgreed, setIsAgreed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { memberName, tel } = useUserStore();
+  const showToast = useToastStore((state) => state.showToast);
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('CARD');
 
@@ -37,7 +44,10 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
   const onPay = async () => {
     if (!payment) {
-      alert('결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+      showToast(
+        '결제 모듈을 불러오는 중입니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
 
       return;
     }
@@ -94,7 +104,10 @@ export default function PaymentCheckoutPage({ study }: Props) {
         return;
       }
 
-      alert('결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      showToast(
+        '결제 처리 중 오류가 발생했습니다. 다시 시도해주세요.',
+        'error',
+      );
       console.error('Payment error:', error);
     } finally {
       setIsLoading(false);
@@ -116,8 +129,21 @@ export default function PaymentCheckoutPage({ study }: Props) {
 
         // 회원 결제
         // @docs https://docs.tosspayments.com/sdk/v2/js#tosspaymentspayment
+        // customerKey 형식: 영문 대소문자, 숫자, 특수문자 -, _, =, ., @로 2자 이상 50자 이하
+        // memberId를 안전한 형식으로 변환 (예: 기존 123 -> 변경 후 member-123)
+        const customerKey = `member-${study.memberId}`.replace(
+          /[^a-zA-Z0-9\-_=.@]/g,
+          '',
+        );
+
+        // Toss 에서 2자이상 50자이하 문자열을 요구함.
+        if (customerKey.length < 2 || customerKey.length > 50) {
+          throw new Error(
+            `customerKey가 유효하지 않습니다: ${customerKey} (길이: ${customerKey.length})`,
+          );
+        }
         const payment = tossPayments.payment({
-          customerKey: String(study.memberId),
+          customerKey,
         });
 
         setPayment(payment);

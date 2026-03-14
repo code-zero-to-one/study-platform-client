@@ -1,20 +1,29 @@
 'use client';
 
 import { format } from 'date-fns';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 
 import type { StudySettlementSummaryResponse } from '@/api/openapi/models';
-import AccountInfoModal from '@/components/modals/account-info-modal';
-import AddAccountModal from '@/components/modals/add-account-modal';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import DatePicker from '@/components/ui/date-picker';
-import { BaseInput } from '@/components/ui/input';
-import Pagination from '@/components/ui/pagination';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import DatePicker from '@/components/common/ui/date-picker';
+import { BaseInput } from '@/components/common/ui/input';
+import Pagination from '@/components/common/ui/pagination';
 import { useGetSettlementAccount } from '@/hooks/queries/settlement-account-api';
 import { useGetMySettlements } from '@/hooks/queries/settlement-user-api';
 import { formatToKST } from '@/utils/time';
+
+const AccountInfoModal = dynamic(
+  () => import('@/components/common/modals/account-info-modal'),
+  { ssr: false },
+);
+
+const AddAccountModal = dynamic(
+  () => import('@/components/common/modals/add-account-modal'),
+  { ssr: false },
+);
 
 const SETTLEMENT_STATUS_MAP: Record<
   NonNullable<StudySettlementSummaryResponse['status']>,
@@ -101,7 +110,7 @@ export default function SettlementManagementPage() {
           <DatePicker
             mode="range"
             selected={dateRange}
-            onSelect={(range) => setDateRange(range as DateRange)}
+            onSelect={setDateRange}
           />
         </div>
 

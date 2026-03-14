@@ -1,14 +1,26 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 
+// new URL(path, base)는 path가 절대 URL이면 base를 무시하므로 반드시 사전 검증 필요.
+function isSafeRedirectPath(path: string) {
+  if (!path) return false;
+  if (!path.startsWith('/')) return false; // 절대 URL(https://evil.com) 차단
+  if (path.startsWith('//')) return false; // 프로토콜-상대 URL(//evil.com) 차단
+  if (path.startsWith('\\')) return false; // 역슬래시로 시작하는 경로 차단 (예: \evil.com)
+
+  return true;
+}
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
-  const redirectTo = searchParams.get('redirect') || '/login';
+  const rawRedirect = searchParams.get('redirect') || '/login';
+  const redirectTo = isSafeRedirectPath(rawRedirect) ? rawRedirect : '/login';
 
   // 쿠키 삭제
   const cookieStore = await cookies();
   cookieStore.delete('accessToken');
   cookieStore.delete('memberId');
+  cookieStore.delete('refresh_token');
   cookieStore.delete('socialImageURL');
 
   // 절대 URL 생성: 요청의 origin을 우선 사용 (이미 protocol 포함)

@@ -1,9 +1,8 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
 import { useEffect, useState } from 'react';
-import Button from '@/components/ui/button';
-import { BaseInput, NativeSelect } from '@/components/ui/input';
+import Button from '@/components/common/ui/button';
+import { BaseInput, NativeSelect } from '@/components/common/ui/input';
 import {
   ADMIN_MATCHING_TARGET_WEEK_OPTIONS,
   ADMIN_MATCHING_TEMPLATE_OPTIONS,
@@ -124,12 +123,6 @@ export default function AdminMatchingRunFormPanel({
     }));
   };
 
-  const handleInputChange =
-    (field: keyof AutoRunMatchingFormInput) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      handleFieldChange(field, event.target.value);
-    };
-
   const handleSubmit = async () => {
     const parsed = autoRunMatchingFormSchema.safeParse(formValues);
 
@@ -172,7 +165,9 @@ export default function AdminMatchingRunFormPanel({
               disabled={
                 isPending || isAdminOptionsLoading || adminOptions.length === 0
               }
-              onChange={handleInputChange('adminId')}
+              onChange={(event) =>
+                handleFieldChange('adminId', event.target.value)
+              }
             >
               <option value="" disabled>
                 {isAdminOptionsLoading
@@ -199,7 +194,9 @@ export default function AdminMatchingRunFormPanel({
               id="run-target-week"
               value={formValues.targetWeek}
               disabled={isPending}
-              onChange={handleInputChange('targetWeek')}
+              onChange={(event) =>
+                handleFieldChange('targetWeek', event.target.value)
+              }
             >
               {ADMIN_MATCHING_TARGET_WEEK_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -219,7 +216,9 @@ export default function AdminMatchingRunFormPanel({
               id="run-template-type"
               value={formValues.templateType}
               disabled={isPending}
-              onChange={handleInputChange('templateType')}
+              onChange={(event) =>
+                handleFieldChange('templateType', event.target.value)
+              }
             >
               {ADMIN_MATCHING_TEMPLATE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -241,7 +240,9 @@ export default function AdminMatchingRunFormPanel({
               inputMode="numeric"
               value={formValues.matchingKValue ?? ''}
               disabled={isPending}
-              onChange={handleInputChange('matchingKValue')}
+              onChange={(event) =>
+                handleFieldChange('matchingKValue', event.target.value)
+              }
             />
           </MatchingFormField>
 
@@ -257,7 +258,12 @@ export default function AdminMatchingRunFormPanel({
               inputMode="numeric"
               value={formValues.numberOfNearestNeighbors ?? ''}
               disabled={isPending}
-              onChange={handleInputChange('numberOfNearestNeighbors')}
+              onChange={(event) =>
+                handleFieldChange(
+                  'numberOfNearestNeighbors',
+                  event.target.value,
+                )
+              }
             />
           </MatchingFormField>
 
@@ -273,7 +279,9 @@ export default function AdminMatchingRunFormPanel({
               inputMode="numeric"
               value={formValues.chunkSize ?? ''}
               disabled={isPending}
-              onChange={handleInputChange('chunkSize')}
+              onChange={(event) =>
+                handleFieldChange('chunkSize', event.target.value)
+              }
             />
           </MatchingFormField>
 
@@ -289,7 +297,9 @@ export default function AdminMatchingRunFormPanel({
               inputMode="numeric"
               value={formValues.saveResultsChunkSize ?? ''}
               disabled={isPending}
-              onChange={handleInputChange('saveResultsChunkSize')}
+              onChange={(event) =>
+                handleFieldChange('saveResultsChunkSize', event.target.value)
+              }
             />
           </MatchingFormField>
         </div>

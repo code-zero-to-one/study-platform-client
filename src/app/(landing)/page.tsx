@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import LandingForm from '@/components/ui/form/landing-form';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import LandingForm from '@/components/common/ui/form/landing-form';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 export const metadata: Metadata = generateSEOMetadata({
@@ -125,6 +125,7 @@ export default async function Landing() {
               className="rounded-100"
               width={1000}
               height={590}
+              priority
             />
             {/* 배너 사진 하단 그라데이션 */}
             <div className="pointer-events-none absolute bottom-0 left-0 h-[120px] w-full bg-gradient-to-t from-[#ffffff] to-transparent" />

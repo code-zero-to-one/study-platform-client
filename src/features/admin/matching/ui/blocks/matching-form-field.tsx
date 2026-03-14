@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import FieldErrorText from '@/components/common/ui/form/field-error-text';
 
 interface MatchingFormFieldProps {
   label: string;
@@ -34,11 +35,7 @@ export default function MatchingFormField({
         <p className="font-designer-13r text-text-subtle">{helper}</p>
       ) : null}
       {children}
-      {error ? (
-        <p className="font-designer-13r text-text-error mt-0" role="alert">
-          {error}
-        </p>
-      ) : null}
+      <FieldErrorText message={error} className="mt-0" />
     </div>
   );
 }

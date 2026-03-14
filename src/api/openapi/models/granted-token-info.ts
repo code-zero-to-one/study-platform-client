@@ -30,7 +30,8 @@ export interface GrantedTokenInfo {
 export const GrantedTokenInfoAuthVendorEnum = {
     Kakao: 'KAKAO',
     Google: 'GOOGLE',
-    Native: 'NATIVE'
+    Native: 'NATIVE',
+    Test: 'TEST'
 } as const;
 
 export type GrantedTokenInfoAuthVendorEnum = typeof GrantedTokenInfoAuthVendorEnum[keyof typeof GrantedTokenInfoAuthVendorEnum];

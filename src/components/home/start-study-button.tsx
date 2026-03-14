@@ -1,9 +1,14 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { useUserProfileQuery } from '@/entities/user/model/use-user-profile-query';
-import StartStudyModal from '@/features/study/participation/ui/start-study-modal';
 import { useAuthReady } from '@/hooks/common/use-auth';
+import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+
+const StartStudyModal = dynamic(
+  () => import('@/components/common/modals/start-study-modal'),
+  { ssr: false },
+);
 
 export default function StartStudyButton() {
   const { memberId, isAuthReady } = useAuthReady();

@@ -5,7 +5,7 @@ class ApiError extends Error {
   public errorName: string;
   public message: string;
 
-  constructor({
+  public constructor({
     statusCode,
     errorCode,
     errorName,

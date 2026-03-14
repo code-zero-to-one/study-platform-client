@@ -2,9 +2,9 @@
 
 import type { ReactNode } from 'react';
 import type { AdminMatchingCreateRequest } from '@/api/openapi/models';
-import Badge from '@/components/ui/badge';
-import SectionHeader from '@/components/ui/section-header';
-import SurfacePanel from '@/components/ui/surface-panel';
+import Badge from '@/components/common/ui/badge';
+import SectionHeader from '@/components/common/ui/section-header';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 import { useAdminMatchingController } from '@/features/admin/matching/model/use-admin-matching-controller';
 import AdminMatchingCreatePanel from '@/features/admin/matching/ui/blocks/admin-matching-create-panel';
 import AdminMatchingRequestDetailPanel from '@/features/admin/matching/ui/blocks/admin-matching-request-detail-panel';

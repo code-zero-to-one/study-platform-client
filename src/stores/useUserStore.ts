@@ -1,12 +1,14 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import { getUserProfile } from '@/entities/user/api/get-user-profile';
+import { createJSONStorage, persist } from 'zustand/middleware';
+import { isApiError } from '@/api/client/api-error';
+import { getUserProfile } from '@/api/endpoints/user/get-user-profile';
 
 interface UserInfo {
   memberId: number | null;
   nickname: string | null;
   memberName: string | null;
   tel: string | null;
+  profileImageUrl: string | null;
 }
 
 interface UserStore extends UserInfo {
@@ -20,6 +22,7 @@ const initialState: UserInfo = {
   nickname: null,
   memberName: null,
   tel: null,
+  profileImageUrl: null,
 };
 
 export const useUserStore = create<UserStore>()(
@@ -30,13 +33,27 @@ export const useUserStore = create<UserStore>()(
       fetchAndSetUser: async (memberId: number) => {
         try {
           const profile = await getUserProfile(memberId);
+          const originalProfileImageUrl =
+            profile.memberProfile.profileImage?.resizedImages?.find(
+              (image) => image.imageSizeType.imageTypeName === 'ORIGINAL',
+            )?.resizedImageUrl;
+          const fallbackProfileImageUrl =
+            profile.memberProfile.profileImage?.resizedImages?.[0]
+              ?.resizedImageUrl ?? null;
           set({
             memberId: profile.memberId,
             nickname: profile.memberProfile.nickname,
             memberName: profile.memberProfile.memberName,
             tel: profile.memberProfile.tel ?? null,
+            profileImageUrl: originalProfileImageUrl ?? fallbackProfileImageUrl,
           });
         } catch (error) {
+          if (isApiError(error) && error.statusCode === 404) {
+            set(initialState);
+
+            return;
+          }
+
           console.error('Failed to fetch user profile:', error);
         }
       },
@@ -44,6 +61,9 @@ export const useUserStore = create<UserStore>()(
     }),
     {
       name: 'user-info-storage',
+
+      // 새 탭에서 열면 providers/index.tsx의 UserInitializer가 fetchAndSetUser()로 재취득하므로 UX 영향 없음.
+      storage: createJSONStorage(() => sessionStorage),
     },
   ),
 );

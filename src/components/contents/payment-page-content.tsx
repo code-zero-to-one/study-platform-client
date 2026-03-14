@@ -6,6 +6,7 @@ import PaymentCheckoutPage from '@/components/payment/paymentActionClient';
 import OrderSummary from '@/components/summary/order-summary';
 import PriceSummary from '@/components/summary/price-summary';
 import { usePreparePaymentQuery } from '@/hooks/queries/payment-user-api';
+import { useToastStore } from '@/stores/use-toast-store';
 
 interface PaymentPageContentProps {
   id: string;
@@ -13,14 +14,15 @@ interface PaymentPageContentProps {
 
 export default function PaymentPageContent({ id }: PaymentPageContentProps) {
   const router = useRouter();
+  const showToast = useToastStore((state) => state.showToast);
   const { data: result } = usePreparePaymentQuery(Number(id));
 
   useEffect(() => {
     if (result?.errorMessage) {
-      alert(result.errorMessage);
+      showToast(result.errorMessage, 'error');
       router.back();
     }
-  }, [result, router]);
+  }, [result, router, showToast]);
 
   if (!result?.data) return null;
 

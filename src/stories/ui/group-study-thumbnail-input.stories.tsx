@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { useState } from 'react';
-import GroupStudyThumbnailInput from '@/features/study/group/ui/group-study-thumbnail-input';
+import GroupStudyThumbnailInput from '@/components/forms/group-study-thumbnail-input';
 
 const meta: Meta<typeof GroupStudyThumbnailInput> = {
   component: GroupStudyThumbnailInput,

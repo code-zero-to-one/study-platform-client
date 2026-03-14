@@ -1,7 +1,7 @@
 import type {
   GetDailyStudiesParams,
   GetMonthlyCalendarParams,
-} from '@/features/study/one-to-one/schedule/api/schedule-types';
+} from '@/types/api/schedule.types';
 
 export const scheduleQueryKeys = {
   all: ['schedule'] as const,

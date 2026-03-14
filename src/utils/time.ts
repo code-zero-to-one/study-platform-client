@@ -10,6 +10,7 @@ import {
   parseISO,
   startOfWeek,
 } from 'date-fns';
+import { ko } from 'date-fns/locale';
 
 // todo: formatToKST로 통일하도록 리팩토링 필요 (getKoreaDate와 혼용 중)
 /**
@@ -64,15 +65,6 @@ export const formatHHMM = (dateString: string) => {
 
 export const formatKoreaYMD = (targetDate?: Date) =>
   format(getKoreaDate(targetDate), 'yyyy-MM-dd');
-
-export const formatDateDot = (dateString: string) =>
-  format(parseISO(dateString), 'yyyy.MM.dd');
-
-export const formatDateTimeDot = (dateString: string) => {
-  const kstDate = formatToKST(dateString) ?? parseISO(dateString);
-
-  return format(kstDate, 'yyyy.MM.dd HH:mm');
-};
 
 export const MONDAY_DATE_INPUT_MIN = '1970-01-05';
 
@@ -189,3 +181,19 @@ export const createDisabledDateMatcherForMission = (
     return false;
   };
 };
+
+export function formatDateDot(dateString: string): string {
+  if (!dateString) return '-';
+  const parsed = parseISO(dateString);
+  if (!isValid(parsed)) return '-';
+
+  return format(parsed, 'yyyy.MM.dd', { locale: ko });
+}
+
+export function formatDateTimeDot(dateString: string): string {
+  if (!dateString) return '-';
+  const parsed = parseISO(dateString);
+  if (!isValid(parsed)) return '-';
+
+  return format(parsed, 'yyyy.MM.dd HH:mm', { locale: ko });
+}

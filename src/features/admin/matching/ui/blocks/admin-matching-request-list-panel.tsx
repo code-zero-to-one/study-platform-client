@@ -1,19 +1,17 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
 import { useEffect, useState } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import { BaseInput, NativeSelect } from '@/components/ui/input';
-import Pagination from '@/components/ui/pagination';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import { BaseInput, NativeSelect } from '@/components/common/ui/input';
+import Pagination from '@/components/common/ui/pagination';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+  DataTable,
+  DataTableCell,
+  DataTableHead,
+  DataTableHeadCell,
+  DataTableRow,
+} from '@/components/common/ui/table/data-table';
 import {
   ADMIN_MATCHING_REQUEST_STATUS_META,
   ADMIN_MATCHING_STATUS_OPTIONS,
@@ -93,12 +91,6 @@ export default function AdminMatchingRequestListPanel({
     }));
   };
 
-  const handleInputChange =
-    (field: keyof AdminMatchingRequestListFilterFormInput) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      handleFieldChange(field, event.target.value);
-    };
-
   const handleSubmit = () => {
     const parsed =
       adminMatchingRequestListFilterFormSchema.safeParse(filterValues);
@@ -167,7 +159,12 @@ export default function AdminMatchingRequestListPanel({
                 step={7}
                 value={filterValues.weeklyPeriodIdentifier}
                 disabled={isLoading}
-                onChange={handleInputChange('weeklyPeriodIdentifier')}
+                onChange={(event) =>
+                  handleFieldChange(
+                    'weeklyPeriodIdentifier',
+                    event.target.value,
+                  )
+                }
               />
             </MatchingFormField>
 
@@ -180,7 +177,9 @@ export default function AdminMatchingRequestListPanel({
                 id="request-list-status"
                 value={filterValues.status}
                 disabled={isLoading}
-                onChange={handleInputChange('status')}
+                onChange={(event) =>
+                  handleFieldChange('status', event.target.value)
+                }
               >
                 <option value={ADMIN_MATCHING_FILTER_ALL_VALUE}>
                   전체 상태
@@ -202,7 +201,9 @@ export default function AdminMatchingRequestListPanel({
                 id="request-list-type"
                 value={filterValues.type}
                 disabled={isLoading}
-                onChange={handleInputChange('type')}
+                onChange={(event) =>
+                  handleFieldChange('type', event.target.value)
+                }
               >
                 <option value={ADMIN_MATCHING_FILTER_ALL_VALUE}>
                   전체 유형
@@ -228,7 +229,9 @@ export default function AdminMatchingRequestListPanel({
                 size="m"
                 value={filterValues.searchKeyword}
                 disabled={isLoading}
-                onChange={handleInputChange('searchKeyword')}
+                onChange={(event) =>
+                  handleFieldChange('searchKeyword', event.target.value)
+                }
               />
             </MatchingFormField>
 
@@ -241,7 +244,9 @@ export default function AdminMatchingRequestListPanel({
                 id="request-list-page-size"
                 value={filterValues.pageSize}
                 disabled={isLoading}
-                onChange={handleInputChange('pageSize')}
+                onChange={(event) =>
+                  handleFieldChange('pageSize', event.target.value)
+                }
               >
                 {PAGE_SIZE_OPTIONS.map((pageSize) => (
                   <option key={pageSize} value={pageSize}>
@@ -293,36 +298,20 @@ export default function AdminMatchingRequestListPanel({
         requestList.content.length > 0 ? (
           <>
             <div className="border-border-subtle rounded-100 overflow-hidden border">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-background-alternative hover:bg-background-alternative border-border-subtle">
-                    <TableHead className="font-designer-13r text-text-subtle px-150 py-125 text-left">
-                      요청 ID
-                    </TableHead>
-                    <TableHead className="font-designer-13r text-text-subtle px-150 py-125 text-left">
-                      회원
-                    </TableHead>
-                    <TableHead className="font-designer-13r text-text-subtle px-150 py-125 text-left">
-                      파트너
-                    </TableHead>
-                    <TableHead className="font-designer-13r text-text-subtle px-150 py-125 text-left">
-                      상태
-                    </TableHead>
-                    <TableHead className="font-designer-13r text-text-subtle px-150 py-125 text-left">
-                      유형
-                    </TableHead>
-                    <TableHead className="font-designer-13r text-text-subtle px-150 py-125 text-left">
-                      주차
-                    </TableHead>
-                    <TableHead className="font-designer-13r text-text-subtle px-150 py-125 text-left">
-                      수정일
-                    </TableHead>
-                    <TableHead className="font-designer-13r text-text-subtle px-150 py-125 text-right">
-                      선택
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              <DataTable>
+                <DataTableHead>
+                  <tr>
+                    <DataTableHeadCell>요청 ID</DataTableHeadCell>
+                    <DataTableHeadCell>회원</DataTableHeadCell>
+                    <DataTableHeadCell>파트너</DataTableHeadCell>
+                    <DataTableHeadCell>상태</DataTableHeadCell>
+                    <DataTableHeadCell>유형</DataTableHeadCell>
+                    <DataTableHeadCell>주차</DataTableHeadCell>
+                    <DataTableHeadCell>수정일</DataTableHeadCell>
+                    <DataTableHeadCell align="right">선택</DataTableHeadCell>
+                  </tr>
+                </DataTableHead>
+                <tbody>
                   {requestList.content.map((request, index) => {
                     const statusMeta =
                       ADMIN_MATCHING_REQUEST_STATUS_META[request.status];
@@ -332,19 +321,19 @@ export default function AdminMatchingRequestListPanel({
                     const isLastRow = index === requestList.content.length - 1;
 
                     return (
-                      <TableRow
+                      <DataTableRow
                         key={request.matchingRequestId}
+                        bordered={!isLastRow}
                         className={
                           isSelected
                             ? 'bg-background-accent-blue-subtle'
                             : undefined
                         }
-                        data-last-row={isLastRow || undefined}
                       >
-                        <TableCell className="font-designer-14b text-text-default px-150 py-150 align-middle">
+                        <DataTableCell tone="strong">
                           #{request.matchingRequestId}
-                        </TableCell>
-                        <TableCell className="px-150 py-150 align-middle">
+                        </DataTableCell>
+                        <DataTableCell tone="inherit">
                           <div className="flex flex-col gap-25">
                             <span className="font-designer-14m text-text-default">
                               {request.memberName ?? '-'}
@@ -353,8 +342,8 @@ export default function AdminMatchingRequestListPanel({
                               #{request.memberId}
                             </span>
                           </div>
-                        </TableCell>
-                        <TableCell className="px-150 py-150 align-middle">
+                        </DataTableCell>
+                        <DataTableCell tone="inherit">
                           <div className="flex flex-col gap-25">
                             <span className="font-designer-14m text-text-default">
                               {request.partnerName ?? '-'}
@@ -363,28 +352,28 @@ export default function AdminMatchingRequestListPanel({
                               #{request.partnerId}
                             </span>
                           </div>
-                        </TableCell>
-                        <TableCell className="px-150 py-150 align-middle">
+                        </DataTableCell>
+                        <DataTableCell tone="inherit">
                           <Badge color={statusMeta.color} shape="rectangle">
                             {statusMeta.label}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="px-150 py-150 align-middle">
+                        </DataTableCell>
+                        <DataTableCell tone="inherit">
                           <Badge color={typeMeta.color} shape="rectangle">
                             {typeMeta.label}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="font-designer-13r text-text-subtle px-150 py-150 align-middle">
+                        </DataTableCell>
+                        <DataTableCell tone="subtle">
                           {request.weeklyPeriodIdentifier
                             ? formatDateDot(request.weeklyPeriodIdentifier)
                             : '-'}
-                        </TableCell>
-                        <TableCell className="font-designer-13r text-text-subtle px-150 py-150 align-middle">
+                        </DataTableCell>
+                        <DataTableCell tone="subtle">
                           {request.updatedAt
                             ? formatDateTimeDot(request.updatedAt)
                             : '-'}
-                        </TableCell>
-                        <TableCell className="px-150 py-150 text-right align-middle">
+                        </DataTableCell>
+                        <DataTableCell align="right">
                           <Button
                             type="button"
                             size="small"
@@ -399,12 +388,12 @@ export default function AdminMatchingRequestListPanel({
                           >
                             {isSelected ? '선택됨' : '상세 보기'}
                           </Button>
-                        </TableCell>
-                      </TableRow>
+                        </DataTableCell>
+                      </DataTableRow>
                     );
                   })}
-                </TableBody>
-              </Table>
+                </tbody>
+              </DataTable>
             </div>
 
             <div className="flex flex-col gap-100 xl:flex-row xl:items-center xl:justify-between">

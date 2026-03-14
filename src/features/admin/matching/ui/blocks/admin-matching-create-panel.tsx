@@ -1,13 +1,9 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
 import { useEffect, useState } from 'react';
-import Button from '@/components/ui/button';
-import {
-  BaseInput,
-  NativeSelect,
-  TextAreaInput as BorderedTextarea,
-} from '@/components/ui/input';
+import Button from '@/components/common/ui/button';
+import { BaseInput, NativeSelect } from '@/components/common/ui/input';
+import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
 import {
   ADMIN_MATCHING_STATUS_OPTIONS,
   ADMIN_MATCHING_TYPE_OPTIONS,
@@ -73,16 +69,6 @@ export default function AdminMatchingCreatePanel({
     }));
   };
 
-  const handleInputChange =
-    (field: keyof AdminMatchingCreateFormInput) =>
-    (
-      event: ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >,
-    ) => {
-      handleFieldChange(field, event.target.value);
-    };
-
   const handleSubmit = async () => {
     const parsed = adminMatchingCreateFormSchema.safeParse(formValues);
 
@@ -129,7 +115,9 @@ export default function AdminMatchingCreatePanel({
               inputMode="numeric"
               value={formValues.memberId}
               disabled={isPending}
-              onChange={handleInputChange('memberId')}
+              onChange={(event) =>
+                handleFieldChange('memberId', event.target.value)
+              }
             />
           </MatchingFormField>
 
@@ -145,7 +133,9 @@ export default function AdminMatchingCreatePanel({
               inputMode="numeric"
               value={formValues.partnerId}
               disabled={isPending}
-              onChange={handleInputChange('partnerId')}
+              onChange={(event) =>
+                handleFieldChange('partnerId', event.target.value)
+              }
             />
           </MatchingFormField>
 
@@ -159,7 +149,9 @@ export default function AdminMatchingCreatePanel({
               id="create-status"
               value={formValues.status}
               disabled={isPending}
-              onChange={handleInputChange('status')}
+              onChange={(event) =>
+                handleFieldChange('status', event.target.value)
+              }
             >
               {ADMIN_MATCHING_STATUS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -179,7 +171,9 @@ export default function AdminMatchingCreatePanel({
               id="create-type"
               value={formValues.type}
               disabled={isPending}
-              onChange={handleInputChange('type')}
+              onChange={(event) =>
+                handleFieldChange('type', event.target.value)
+              }
             >
               {ADMIN_MATCHING_TYPE_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -205,7 +199,9 @@ export default function AdminMatchingCreatePanel({
             step={7}
             value={formValues.weeklyPeriodIdentifier}
             disabled={isPending}
-            onChange={handleInputChange('weeklyPeriodIdentifier')}
+            onChange={(event) =>
+              handleFieldChange('weeklyPeriodIdentifier', event.target.value)
+            }
           />
         </MatchingFormField>
 
@@ -220,7 +216,9 @@ export default function AdminMatchingCreatePanel({
             maxLength={255}
             value={formValues.content}
             disabled={isPending}
-            onChange={handleInputChange('content')}
+            onChange={(event) =>
+              handleFieldChange('content', event.target.value)
+            }
           />
         </MatchingFormField>
 

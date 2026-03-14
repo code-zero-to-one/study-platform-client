@@ -34,6 +34,11 @@ CI 파이프라인: lint → typecheck → prettier → build → build-storyboo
 
 ### API 레이어
 
+**백엔드 API 문서 (Swagger):**
+
+- 스테이징: https://test-api.zeroone.it.kr/v3/api-docs
+- Swagger UI: https://test-api.zeroone.it.kr/swagger-ui/index.html
+
 두 가지 통신 패턴이 공존:
 
 1. **레거시 axios** (`src/api/client/axios.ts`): baseURL `/api/v1/`, 토큰 갱신 큐 구현 (AUTH001 에러 시 갱신 트리거). 커스텀 엔드포인트에 사용.
@@ -149,10 +154,67 @@ export const getArchive = async (params: GetArchiveParams) => {
 
 ### 컴포넌트 구성
 
-- `src/components/ui/` — shadcn/ui 기본 컴포넌트 (Button, Input, Dialog 등). 스타일: `new-york`. `components.json`에서 설정.
-- `src/components/layout/` — Header, Sidebar, Footer
-- `src/components/modals/`, `cards/`, `lists/`, `payment/`, `premium/` — 도메인별 그룹화된 컴포넌트
-- `src/features/`, `src/entities/`, `src/widgets/` — 부분적 FSD (Feature-Sliced Design) 구조, 향후 타입 기반 구조로 통합 예정
+- 공용 UI는 주로 `src/components/common/ui/` 아래에 위치한다. 예: `Button`, `Dialog`, `Toast`, `FloatingInquiryButton`
+- 공용 레이아웃은 `src/components/common/layout/` 아래에 위치한다. 예: `Header`, `AdminSideBar`
+- 공용 모달은 `src/components/common/modals/` 아래에 위치한다
+- 페이지 단위 조합 컴포넌트는 `src/components/pages/`, 도메인별 조합은 `payment/`, `discussion/`, `archive/`, `balance-game/`, `mentoring` 관련 디렉토리 등으로 분산되어 있다
+- `src/features/` 기반 구조와 전통적인 `components/`, `hooks/queries/` 구조가 공존한다. 신규 변경 시 xkdl 한 PR 안에서 구조를 섞어 바꾸지 않는다
+
+### 백엔드 데이터 처리 안전 패턴
+
+빈 배열 안전성은 상위 컴포넌트의 `if (!arr?.length) return null` 가드로 이미 보장되므로 `Math.max` 호출 전 별도 방어 코드는 불필요하다.
+
+#### optional 필드를 React key와 핸들러에서 안전하게 사용하기
+
+백엔드에서 optional(`?`)로 내려오는 ID 필드를 React `key` prop에 직접 사용하면 여러 항목이 `undefined`로 중복되어 React가 잘못된 DOM 재사용을 할 수 있다. `??` 연산자로 `index` 폴백을 둔다.
+
+```typescript
+// 잘못된 패턴 — missionId가 undefined이면 모든 항목이 key="undefined"로 중복
+{items.map((item) => <div key={item.missionId}>...</div>)}
+
+// 올바른 패턴 — optional 필드 ?? index
+{items.map((item, index) => <div key={item.missionId ?? index}>...</div>)}
+```
+
+optional 필드를 이벤트 핸들러 내에서 사용할 때도 가드가 필요하다:
+
+```typescript
+// 잘못된 패턴 — missionId가 undefined이면 ?missionId=undefined 라우팅
+const handleClick = (id: number) => router.push(`...?missionId=${id}`);
+
+// 올바른 패턴 — 복구 가능한 실패는 Toast로 안내
+const handleClick = (id: number | undefined) => {
+  if (!id) {
+    showToast('정보를 불러올 수 없습니다.', 'error');
+    return;
+  }
+  router.push(`...?missionId=${id}`);
+};
+```
+
+#### enum-like 문자열 타입 단언 안전 가드
+
+백엔드에서 프론트 타입 정의에 없는 값이 올 수 있다. `as StudyType` 같은 단순 타입 단언 대신 `in` 가드 + 폴백을 사용한다. TypeScript `as`는 런타임을 보호하지 않는다.
+
+```typescript
+// 잘못된 패턴 — 알 수 없는 값 수신 시 undefined 렌더링 또는 런타임 오류
+const studyType = type as StudyType;
+<Badge>{STUDY_TYPE_LABELS[studyType]}</Badge>
+
+// 올바른 패턴 — in 가드 후 폴백 처리
+const studyType =
+  type && type in STUDY_TYPE_LABELS ? (type as StudyType) : undefined;
+<Badge>{studyType ? STUDY_TYPE_LABELS[studyType] : '스터디'}</Badge>
+
+// 목록 순회 시
+{experienceLevels?.map((level) => (
+  <Badge key={level}>
+    {level in EXPERIENCE_LEVEL_LABELS
+      ? EXPERIENCE_LEVEL_LABELS[level as ExperienceLevel]
+      : level}
+  </Badge>
+))}
+```
 
 ### 스타일링
 
@@ -160,6 +222,7 @@ export const getArchive = async (params: GetArchiveParams) => {
 - 클래스 유틸리티: `clsx`, `tailwind-merge`, `class-variance-authority` (CVA)
 - `prettier-plugin-tailwindcss`로 Tailwind 클래스 정렬
 - `src/app/global.css`에서 CSS 변수로 테마 관리
+- `src/app/global.css`의 `@theme inline`에서 기본 토큰(`--color-*`, `--radius-*`, `--spacing-*`, `--shadow-*`)을 초기화하므로 기본 Tailwind 스케일 클래스(`p-4`, `rounded-lg`, `shadow-md`, `text-sm` 등) 사용 금지. 프로젝트 커스텀 토큰(`p-200`, `rounded-150`, `shadow-2`, `font-designer-*`, `text-text-*`)만 사용
 
 ### 인증 플로우
 
@@ -167,6 +230,122 @@ export const getArchive = async (params: GetArchiveParams) => {
 2. `accessToken`은 쿠키에 저장 (JS 접근 가능), `refresh_token`은 httpOnly 쿠키에 저장
 3. Axios 인터셉터가 `AUTH001` 에러 감지 → 토큰 갱신 → 실패한 요청 재시도 (중복 갱신 방지를 위한 큐 사용)
 4. 미들웨어가 서버 측에서 네비게이션 시 토큰 검증, 유효하지 않으면 `/`로 리다이렉트
+
+### 에러 핸들링
+
+에러 처리는 `src/utils/error-handler.ts`를 중심으로 중앙 집중식 관리한다. `src/utils/error.ts`는 `extractErrorCode()` 하위 호환성용 deprecated 래퍼다.
+
+#### 핵심 파일
+
+- `src/utils/error-handler.ts` — `analyzeError()`, `logError()`, `ErrorType`, `ErrorInfo`. 에러 코드-메시지 매핑(~40개), 한국어 fallback, Sentry 보고를 모두 담당
+- `src/config/query-client.ts` — `MutationCache` 글로벌 에러 핸들러. `onError`가 없는 mutation 실패 시 자동으로 에러 toast + Sentry 보고
+- `src/app/(service)/error.tsx`, `(landing)/error.tsx`, `(admin)/error.tsx` — route segment 에러 경계
+- `src/app/global-error.tsx` — root 에러 경계 (Sentry 자동 캡처)
+- `src/app/not-found.tsx` 및 각 route group의 `not-found.tsx`
+
+#### 에러 분류 체계
+
+`analyzeError()`는 3가지 에러 타입을 순서대로 분류한다:
+
+1. **AxiosError** — `isAxiosError()` 통과. HTTP 상태 코드 + API 에러 응답 추출
+2. **ApiError** — axios 인터셉터가 변환한 커스텀 에러. `isApiError()` 타입 가드로 `errorCode`, `statusCode` 보존
+3. **일반 Error / unknown** — fallback 처리
+
+```
+AxiosError → isAxiosError() ✅ → HTTP 상태/에러 코드 추출
+ApiError   → isApiError() ✅   → errorCode/statusCode 보존 (인터셉터 변환 에러)
+Error      → instanceof Error  → UNKNOWN 타입
+unknown    → String(error)     → 기본 메시지
+```
+
+#### 에러 코드-메시지 매핑
+
+`error-handler.ts`의 `codeMessages` 객체에서 중앙 관리. 에러 코드 prefix별 분류:
+
+| Prefix | 도메인 | 예시 |
+|--------|--------|------|
+| AUTH | 인증 | AUTH001(토큰 만료), AUTH002(권한 없음) |
+| CMM | 공통 | CMM001(입력값 오류), CMM006(접근 권한) |
+| MEM | 회원 | MEM002(회원 미존재), MEM003(중복 가입) |
+| GSM/GSA | 스터디 관리/신청 | GSM001(스터디 미존재), GSA003(정원 초과) |
+| HWK/EVL | 과제/평가 | HWK003(제출 기간 만료), EVL002(중복 평가) |
+| PAY 2xx | 결제 | PAY202(중복 승인), PAY207(금액 불일치) |
+| PAY 3xx | 환불 | PAY302(중복 환불), PAY307(환불 불가) |
+| FILE | 파일 | FILE001(업로드 실패), FILE002(형식 미지원) |
+
+매핑에 없는 코드는 백엔드 `message`가 한국어이면 그대로 사용(`/[가-힣]/` 정규식). 에러 코드를 사용자에게 직접 노출하지 않는다.
+
+#### Mutation 에러 글로벌 핸들러
+
+`query-client.ts`의 `MutationCache.onError`가 안전망 역할:
+
+- `onError` 핸들러가 없는 mutation 실패 시 자동으로 에러 toast 표시 + Sentry 보고
+- 개별 `onError`가 있으면 글로벌 핸들러 스킵 (중복 방지)
+- Query 에러는 글로벌 핸들러 미적용 (다중 동시 실패 시 toast 폭주 방지)
+
+#### 클라이언트 에러 처리 원칙
+
+- 복구 가능한 실패 (`recoverable`): 사용자 흐름을 유지한다. Inline error를 우선하고, Toast를 보조적으로 사용한다. **브라우저 시스템 `alert()`는 사용하지 않는다** — Toast(`useToastStore`)를 사용한다
+- 사용자 판단이 필요한 실패 (`action required`): 다음 행동을 선택해야 할 때 Modal 또는 앱 내 확인 UI를 사용한다. 브라우저 시스템 `alert()`는 사용하지 않으며 기존의 디자인 시스템을 활용한다
+- 치명적 실패 (`fatal`, page-level): 특정 화면이 더 이상 정상 동작할 수 없을 때 route segment의 `error.tsx` 또는 client error boundary를 사용한다
+- 애플리케이션 전체 실패 (`critical`, app-level): hydration mismatch, 인증 컨텍스트 붕괴, 전역 provider 오류처럼 앱 전체에 영향을 주는 경우 `global-error.tsx`가 잡고 Sentry로 자동 보고
+
+Toast 사용 패턴:
+
+```typescript
+// 컴포넌트 내부 (React hook 사용)
+const showToast = useToastStore((state) => state.showToast);
+showToast('환불 요청이 접수되었습니다.', 'success');
+
+// Hook / React 외부 (getState 사용)
+useToastStore.getState().showToast(errorInfo.userMessage, 'error');
+```
+
+`<GlobalToast />`는 `(service)`, `(landing)`, `(admin)` 세 레이아웃 모두에 마운트되어 있다.
+
+#### 서버 에러 처리 원칙
+
+- SSR/Server Component에서 필수 데이터 로딩에 실패해 페이지가 성립하지 않으면 예외를 다시 던져 `error.tsx`로 보낸다
+- 리소스가 존재하지 않는 케이스는 `notFound()`로 분기한다
+- `fetchQuery()` / `prefetchQuery()`의 `queryFn`은 `undefined`를 반환하면 안 된다. 404는 `notFound()`, 그 외는 반드시 `throw error`
+
+예: `src/api/endpoints/group-study/get-group-study-detail.server.ts`는 `GSM001`이면 `notFound()`, 나머지 에러는 `throw error` 한다
+
+```typescript
+export default async function Page() {
+  const data = await fetchData();
+  return <PageView data={data} />;
+}
+```
+
+불필요한 `try/catch`로 에러를 삼켜 `undefined`를 반환하지 않는다.
+
+#### 운영 보안 원칙
+
+- Production에서는 `stack trace`, 원문 서버 메시지, 내부 경로, 민감한 백엔드 응답을 사용자 화면에 직접 노출하지 않는다
+- 3개 `error.tsx` 모두 `process.env.NODE_ENV === 'development'` 게이팅 적용: technicalMessage, error.message, error.stack은 개발 환경에서만 표시
+- 사용자 화면에는 일반화된 `userMessage`, 필요 시 `errorCode`, `statusCode`, `digest` 정도만 노출한다
+- `digest`는 서버 로그 또는 Sentry에서 원인을 찾기 위한 추적용 식별자로 사용한다
+- API route에서도 production 응답에는 상세 `details`를 그대로 넣지 않는 방향을 기본 원칙으로 삼는다
+
+#### 성공 페이지 원칙
+
+- 스터디 생성, 스터디 참여, 결제 완료 같은 주요 성공 이벤트는 별도 success page 또는 완료 화면으로 사용자의 다음 행동을 명확히 안내한다
+- 브랜딩 요소는 환영 문구, 운영팀 메시지, 후속 행동 CTA 중심으로 넣고, 정보량이 많은 경우에도 핵심 CTA를 먼저 보이게 한다
+
+#### 모니터링 (Sentry)
+
+`@sentry/nextjs`가 통합되어 있다. 에러는 `logError()` → `Sentry.captureException()` 경로로 자동 보고된다.
+
+- **SDK 설정 파일**: `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` (프로젝트 루트)
+- **Next.js instrumentation**: `src/instrumentation.ts` — 서버/엣지 런타임 초기화 + `onRequestError` 자동 캡처
+- **next.config.ts**: `withSentryConfig()` 래핑 — 소스맵 업로드, 트리셰이킹
+- **환경 변수**: `NEXT_PUBLIC_SENTRY_DSN` (런타임), `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` (CI 소스맵 업로드)
+- **환경 감지**: `NEXT_PUBLIC_API_BASE_URL` 기반으로 `production` / `staging` / `development` 자동 분류
+- **필터링**: AUTH001(토큰 만료)은 정상 플로우이므로 `beforeSend`에서 Sentry 보고 제외
+- **성능**: `tracesSampleRate: 0.1` (10%), Session Replay는 에러 시에만 기록 (`replaysOnErrorSampleRate: 1.0`)
+- DSN이 없으면 Sentry가 초기화되지 않으므로, 로컬 개발에서는 환경 변수 없이도 정상 동작한다
+- 운영 단계에서는 Slack 즉시 알림을 연동할 수 있지만, 노이즈를 줄이기 위해 임계치와 대상 에러 범위를 먼저 정의한다
 
 ### 경로 별칭
 
@@ -244,3 +423,7 @@ export const getArchive = async (params: GetArchiveParams) => {
 - `NEXT_PUBLIC_TOSS_CLIENT_KEY` — 토스페이먼츠
 - `NEXT_PUBLIC_CLARITY_PROJECT_ID` — Microsoft Clarity
 - `NEXT_PUBLIC_GTM_ID` — Google Tag Manager
+- `NEXT_PUBLIC_SENTRY_DSN` — Sentry DSN (없으면 Sentry 비활성화)
+- `SENTRY_ORG` — Sentry 조직 (CI 소스맵 업로드용)
+- `SENTRY_PROJECT` — Sentry 프로젝트 (CI 소스맵 업로드용)
+- `SENTRY_AUTH_TOKEN` — Sentry 인증 토큰 (CI 소스맵 업로드용)

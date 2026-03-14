@@ -2,13 +2,13 @@
 
 import { type ReactNode } from 'react';
 import StudyReviewModal from '@/components/common/modals/study-review-modal';
+import GlobalToast from '@/components/common/ui/global-toast';
+import Banner from '@/components/home/banner';
+import FeedbackLink from '@/components/home/feedback-link';
 import StartStudyButton from '@/components/home/start-study-button';
 import TabNavigation from '@/components/home/tab-navigation';
-import GlobalToast from '@/components/ui/global-toast';
 import type { HomeTab } from '@/features/home/model/home-page-search-params';
 import { useReviewReminder } from '@/hooks/common/use-reminder-review';
-import Banner from '@/widgets/home/banner';
-import FeedbackLink from '@/widgets/home/feedback-link';
 
 interface HomePageClientProps {
   activeTab: HomeTab;

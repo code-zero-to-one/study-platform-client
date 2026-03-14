@@ -1,17 +1,22 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
-import UserAvatar from '@/components/ui/avatar';
-import { MyReviewItem } from '@/entities/review/api/review-types';
+import KeywordReview from '@/components/common/cards/keyword-review';
+import UserAvatar from '@/components/common/ui/avatar';
 import {
   useMyNegativeKeywordsQuery,
   useMyReviewsInfinityQuery,
   useUserPositiveKeywordsQuery,
-} from '@/entities/review/model/use-review-query';
-import KeywordReview from '@/entities/user/ui/keyword-review';
-import MoreKeywordReviewModal from '@/entities/user/ui/more-keyword-review-modal';
+} from '@/hooks/queries/use-review-query';
+import { MyReviewItem } from '@/types/api/review.types';
 import { formatKoreaRelativeTime } from '@/utils/time';
+
+const MoreKeywordReviewModal = dynamic(
+  () => import('@/components/common/modals/more-keyword-review-modal'),
+  { ssr: false },
+);
 
 export default function MyStudyReview() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
@@ -39,7 +44,7 @@ export default function MyStudyReview() {
 
   return (
     <>
-      <section>
+      <section className="mt-300">
         <div className="mb-200">
           <div className="flex items-center gap-100">
             <div className="font-designer-20b text-text-default">받은 평가</div>

@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { isAxiosError } from 'axios';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { PaymentUserApi } from '@/api/openapi/api/payment-user-api';
@@ -7,6 +7,7 @@ import type {
   StudyPaymentPrepareResponse,
   TossPaymentConfirmRequest,
 } from '@/api/openapi/models';
+import { useToastStore } from '@/stores/use-toast-store';
 
 interface PreparePaymentResult {
   data: StudyPaymentPrepareResponse | undefined;
@@ -28,6 +29,7 @@ interface TransactionsByGroupStudyParams {
   groupStudyId: number;
   page?: number;
   size?: number;
+  enabled?: boolean;
 }
 
 export const useGetMyTransactions = ({
@@ -77,6 +79,7 @@ export const useGetMyTransactionsByGroupStudy = ({
   groupStudyId,
   page = 0,
   size = 20,
+  enabled = true,
 }: TransactionsByGroupStudyParams) => {
   return useQuery({
     queryKey: ['myTransactionsByGroupStudy', groupStudyId, page, size],
@@ -93,6 +96,7 @@ export const useGetMyTransactionsByGroupStudy = ({
 
       return data.content;
     },
+    enabled,
   });
 };
 
@@ -162,6 +166,8 @@ export const useConfirmTossPayment = () => {
 };
 
 export const useCancelPayment = () => {
+  const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: async (paymentId: number) => {
       const { data } = await paymentUserApi.cancelPayment(paymentId);
@@ -169,10 +175,11 @@ export const useCancelPayment = () => {
       return data.content;
     },
     onSuccess: async () => {
-      alert('결제가 취소되었습니다.');
-    },
-    onError: () => {
-      alert('결제 취소에 실패했습니다. 다시 시도해주세요.');
+      // 취소시 화면 즉시 갱신
+      await queryClient.invalidateQueries({
+        queryKey: ['myTransactions'],
+      });
+      useToastStore.getState().showToast('결제가 취소되었습니다.', 'success');
     },
   });
 };

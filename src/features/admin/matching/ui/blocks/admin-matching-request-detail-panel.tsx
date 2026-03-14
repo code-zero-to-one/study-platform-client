@@ -1,21 +1,17 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
 import { useEffect, useState } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import {
-  BaseInput,
-  NativeSelect,
-  TextAreaInput as BorderedTextarea,
-} from '@/components/ui/input';
-import KeyValueRow from '@/components/ui/key-value-row';
-import SurfacePanel from '@/components/ui/surface-panel';
+import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import { BaseInput, NativeSelect } from '@/components/common/ui/input';
+import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
+import KeyValueRow from '@/components/common/ui/key-value-row';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 import {
   ADMIN_MATCHING_STATUS_OPTIONS,
   ADMIN_MATCHING_TYPE_META,
 } from '@/features/admin/matching/model/admin-matching-meta';
-import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
 import type { AdminMatchingRequestDetail } from '@/types/matching/admin-domain';
 import type {
   AdminMatchingUpdateFormInput,
@@ -124,28 +120,6 @@ export default function AdminMatchingRequestDetailPanel({
       // Error toast is already handled in the controller action.
     }
   };
-
-  const handleInputChange =
-    (field: keyof AdminMatchingUpdateFormInput) =>
-    (
-      event: ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
-      >,
-    ) => {
-      const nextValue = event.target.value;
-
-      setUpdateFormValues((previous) => ({
-        ...previous,
-        [field]:
-          field === 'status'
-            ? (nextValue as AdminMatchingUpdateFormInput['status'])
-            : nextValue,
-      }));
-      setUpdateErrors((previous) => ({
-        ...previous,
-        [field]: undefined,
-      }));
-    };
 
   const typeMeta = selectedRequest
     ? ADMIN_MATCHING_TYPE_META[selectedRequest.type]
@@ -259,7 +233,16 @@ export default function AdminMatchingRequestDetailPanel({
                       inputMode="numeric"
                       value={updateFormValues.partnerId}
                       disabled={isUpdatePending || isDeletePending}
-                      onChange={handleInputChange('partnerId')}
+                      onChange={(event) => {
+                        setUpdateFormValues((previous) => ({
+                          ...previous,
+                          partnerId: event.target.value,
+                        }));
+                        setUpdateErrors((previous) => ({
+                          ...previous,
+                          partnerId: undefined,
+                        }));
+                      }}
                     />
                   </MatchingFormField>
 
@@ -273,7 +256,17 @@ export default function AdminMatchingRequestDetailPanel({
                       id="update-status"
                       value={updateFormValues.status}
                       disabled={isUpdatePending || isDeletePending}
-                      onChange={handleInputChange('status')}
+                      onChange={(event) => {
+                        setUpdateFormValues((previous) => ({
+                          ...previous,
+                          status: event.target
+                            .value as AdminMatchingUpdateFormInput['status'],
+                        }));
+                        setUpdateErrors((previous) => ({
+                          ...previous,
+                          status: undefined,
+                        }));
+                      }}
                     >
                       {ADMIN_MATCHING_STATUS_OPTIONS.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -295,7 +288,16 @@ export default function AdminMatchingRequestDetailPanel({
                     maxLength={255}
                     value={updateFormValues.content}
                     disabled={isUpdatePending || isDeletePending}
-                    onChange={handleInputChange('content')}
+                    onChange={(event) => {
+                      setUpdateFormValues((previous) => ({
+                        ...previous,
+                        content: event.target.value,
+                      }));
+                      setUpdateErrors((previous) => ({
+                        ...previous,
+                        content: undefined,
+                      }));
+                    }}
                   />
                 </MatchingFormField>
 

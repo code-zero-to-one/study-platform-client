@@ -19,9 +19,15 @@ import type { MemberFeature } from './member-feature';
 
 export interface CreateStudySpaceRequest {
     'memberId'?: number;
+    /**
+     * 면접 역할
+     */
     'memberInterviewOrNot'?: CreateStudySpaceRequestMemberInterviewOrNotEnum;
     'memberFeature'?: MemberFeature;
     'partnerId'?: number;
+    /**
+     * 면접 역할
+     */
     'partnerInterviewOrNot'?: CreateStudySpaceRequestPartnerInterviewOrNotEnum;
     'subject'?: string;
     'personalCount'?: number;

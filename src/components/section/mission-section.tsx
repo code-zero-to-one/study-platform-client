@@ -1,30 +1,53 @@
 'use client';
 
 import { ChevronLeft } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useAuthReady } from '@/hooks/common/use-auth';
 import { useGetMissions } from '@/hooks/queries/mission-api';
-import { useIsLeader } from '@/stores/useLeaderStore';
-import { useUserStore } from '@/stores/useUserStore';
 import MissionCard from '../card/mission-card';
+import PageContainer from '../common/layout/page-container';
+import { cn } from '../common/ui/(shadcn)/lib/utils';
 import HomeworkDetailContent from '../contents/homework-detail-content';
 import MissionDetailContent from '../contents/mission-detail-content';
-import PageContainer from '../layout/page-container';
-import CreateMissionModal from '../modals/create-mission-modal';
-import { cn } from '../ui/(shadcn)/lib/utils';
+
+const CreateMissionModal = dynamic(
+  () => import('@/components/common/modals/create-mission-modal'),
+  { ssr: false },
+);
+
+const LoginModal = dynamic(
+  () => import('@/components/common/modals/login-modal'),
+  { ssr: false },
+);
+
+const PhoneVerificationModal = dynamic(
+  () => import('@/components/common/modals/phone-verification-modal'),
+  { ssr: false },
+);
 
 type FilterType = 'all' | 'inProgress' | 'completed';
 
 interface MissionSectionProps {
   groupStudyId: number;
+  isMember?: boolean;
+  isLeader?: boolean;
 }
 
-export default function MissionSection({ groupStudyId }: MissionSectionProps) {
+const FIRST_WEEK = 1;
+
+export default function MissionSection({
+  groupStudyId,
+  isMember,
+  isLeader: isLeaderProp,
+}: MissionSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const memberId = useUserStore((state) => state.memberId);
-  const isLeader = useIsLeader(memberId);
   const [filter, setFilter] = useState<FilterType>('all');
+  const { isAuthenticated, isHydrated } = useAuthReady();
+  const [isPhoneModalOpen, setIsPhoneModalOpen] = useState(false);
+  const loginTriggerRef = useRef<HTMLButtonElement>(null);
 
   const missionId = searchParams.get('missionId');
   const homeworkId = searchParams.get('homeworkId');
@@ -40,12 +63,25 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
 
   const missionList = data.content;
 
+  const canAccessAll = isMember || isLeaderProp;
+  // 비가입자도 전체 주차 목록을 보여주되, 2주차+ 카드에 잠금 UI 적용
+  const visibleMissionList = missionList ?? [];
+
+  const handleLockedClick = () => {
+    if (!isHydrated) return;
+    if (!isAuthenticated) {
+      loginTriggerRef.current?.click();
+    } else {
+      setIsPhoneModalOpen(true);
+    }
+  };
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   // endDate가 오늘 기준으로 지났으면 완료된 미션
   const completedMissions =
-    missionList?.filter((mission) => {
+    visibleMissionList?.filter((mission) => {
       if (!mission.endDate) return false;
       const endDate = new Date(mission.endDate);
 
@@ -54,14 +90,14 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
 
   // endDate가 오늘 이후이면 진행 중인 미션
   const inProgressMissions =
-    missionList?.filter((mission) => {
+    visibleMissionList?.filter((mission) => {
       if (!mission.endDate) return true;
       const endDate = new Date(mission.endDate);
 
       return endDate >= today;
     }) || [];
 
-  const hasMissions = missionList && missionList.length > 0;
+  const hasMissions = visibleMissionList && visibleMissionList.length > 0;
 
   const getFilteredMissions = () => {
     switch (filter) {
@@ -70,7 +106,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
       case 'completed':
         return completedMissions;
       default:
-        return missionList || [];
+        return visibleMissionList || [];
     }
   };
 
@@ -99,6 +135,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
     return (
       <PageContainer className="my-500 flex flex-col gap-300">
         <button
+          type="button"
           onClick={handleBack}
           className="text-text-default font-designer-16b flex w-fit items-center gap-50"
         >
@@ -107,7 +144,6 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
         </button>
 
         <HomeworkDetailContent
-          groupStudyId={groupStudyId}
           missionId={Number(missionId)}
           homeworkId={Number(homeworkId)}
         />
@@ -120,6 +156,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
     return (
       <section className="flex flex-col gap-300">
         <button
+          type="button"
           onClick={handleBack}
           className="text-text-default font-designer-16b flex w-fit items-center gap-50"
         >
@@ -140,6 +177,7 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
     return (
       <PageContainer className="flex flex-col gap-300 py-500">
         <button
+          type="button"
           onClick={handleBack}
           className="text-text-default font-designer-16b flex w-fit items-center gap-50"
         >
@@ -158,13 +196,13 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
       <div className="m-auto my-500 w-[1164px]">
         <div className="flex items-center justify-between">
           <span className="font-designer-20b text-text-default">미션 목록</span>
-          {isLeader && <CreateMissionModal groupStudyId={groupStudyId} />}
+          {isLeaderProp && <CreateMissionModal groupStudyId={groupStudyId} />}
         </div>
 
         <MissionFilterTabs
           filter={filter}
           onFilterChange={setFilter}
-          totalCount={missionList?.length || 0}
+          totalCount={visibleMissionList?.length || 0}
           inProgressCount={inProgressMissions.length}
           completedCount={completedMissions.length}
         />
@@ -177,10 +215,14 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
                 mission={mission}
                 groupStudyId={groupStudyId}
                 onSelectMission={handleSelectMission}
+                isMember={canAccessAll}
+                isLeader={isLeaderProp}
                 showDeadline={
                   mission.status === 'IN_PROGRESS' ||
                   mission.status === 'NOT_STARTED'
                 }
+                isLocked={!canAccessAll && (mission.weekNum ?? 1) > FIRST_WEEK}
+                onLockedClick={handleLockedClick}
               />
             ))}
           </ul>
@@ -188,6 +230,22 @@ export default function MissionSection({ groupStudyId }: MissionSectionProps) {
           <EmptyMissionState />
         )}
       </div>
+
+      <LoginModal
+        openTrigger={
+          <button
+            type="button"
+            ref={loginTriggerRef}
+            className="sr-only"
+            aria-hidden
+            tabIndex={-1}
+          />
+        }
+      />
+      <PhoneVerificationModal
+        open={isPhoneModalOpen}
+        onOpenChange={setIsPhoneModalOpen}
+      />
     </section>
   );
 }
@@ -215,6 +273,7 @@ function MissionFilterTabs({
     <div className="mt-400 mb-200 flex gap-100">
       {tabs.map((tab) => (
         <button
+          type="button"
           key={tab.key}
           onClick={() => onFilterChange(tab.key)}
           className={cn(

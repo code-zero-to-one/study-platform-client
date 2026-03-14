@@ -14,6 +14,7 @@ Name | Type | Description | Notes
 **targetRoles** | **Array&lt;string&gt;** | 스터디 모집 대상 (복수 선택 가능) | [optional] [default to undefined]
 **maxMembersCount** | **number** | 스터디 최대 모집인원 | [optional] [default to undefined]
 **pendingCount** | **number** | 대기 중인 신청 수 | [optional] [default to undefined]
+**remainingSlots** | **number** | 남은 모집 인원 | [optional] [default to undefined]
 **approvedCount** | **number** | 승인된 참여자 수 (현재 참여 인원) | [optional] [default to undefined]
 **rejectedCount** | **number** | 거절된 신청 수 | [optional] [default to undefined]
 **kickedCount** | **number** | 추방/탈퇴한 인원 수 | [optional] [default to undefined]
@@ -44,6 +45,7 @@ const instance: GroupStudyBasicInfoResponseDto = {
     targetRoles,
     maxMembersCount,
     pendingCount,
+    remainingSlots,
     approvedCount,
     rejectedCount,
     kickedCount,

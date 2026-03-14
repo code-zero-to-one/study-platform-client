@@ -4,12 +4,13 @@ import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import ClarityInit from '@/components/analytics/clarity-init';
-import PageViewTracker from '@/components/analytics/page-view-tracker';
+import ClarityInit from '@/components/common/analytics/clarity-init';
+import PageViewTracker from '@/components/common/analytics/page-view-tracker';
+import Header from '@/components/common/layout/home-header';
+import GlobalToast from '@/components/common/ui/global-toast';
 import MainProvider from '@/providers';
 import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
 import { getServerCookie } from '@/utils/server-cookie';
-import Header from '@/widgets/home/header';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE - 1:1 기상 스터디 플랫폼',
@@ -92,13 +93,14 @@ export default async function LandingPageLayout({
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
           <ClarityInit projectId={CLARITY_PROJECT_ID} />
           <PageViewTracker />
-          <div className="w-full overflow-auto">
+          <div className="w-full">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
             <div className="m-auto flex min-w-[1496px] flex-1 flex-col items-center">
               <Header />
               <main className="w-full">{children}</main>
             </div>
           </div>
+          <GlobalToast />
         </MainProvider>
       </body>
     </html>

@@ -1,12 +1,11 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import { BaseInput, NativeSelect } from '@/components/ui/input';
-import KeyValueRow from '@/components/ui/key-value-row';
-import { ToggleSwitch } from '@/components/ui/toggle';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import { BaseInput, NativeSelect } from '@/components/common/ui/input';
+import KeyValueRow from '@/components/common/ui/key-value-row';
+import { ToggleSwitch } from '@/components/common/ui/toggle';
 import {
   ADMIN_MATCHING_SCHEDULED_DAY_OPTIONS,
   ADMIN_MATCHING_SCHEDULER_ENABLED_META,
@@ -144,12 +143,6 @@ export default function AdminMatchingSchedulerConfigPanel({
     }));
   };
 
-  const handleInputChange =
-    (field: keyof AdminMatchingSchedulerConfigFormInput) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-      handleFieldChange(field, event.target.value);
-    };
-
   const handleSubmit = async () => {
     const parsed = adminMatchingSchedulerConfigFormSchema.safeParse(formValues);
 
@@ -227,7 +220,7 @@ export default function AdminMatchingSchedulerConfigPanel({
                 size="lg"
                 checked={formValues.enabled}
                 disabled={isDisabled}
-                onCheckedChange={(checked: boolean) =>
+                onCheckedChange={(checked) =>
                   handleFieldChange('enabled', checked)
                 }
               />
@@ -261,7 +254,7 @@ export default function AdminMatchingSchedulerConfigPanel({
                 size="lg"
                 checked={formValues.autoCycleEndEnabled}
                 disabled={isDisabled}
-                onCheckedChange={(checked: boolean) =>
+                onCheckedChange={(checked) =>
                   handleFieldChange('autoCycleEndEnabled', checked)
                 }
               />
@@ -333,7 +326,9 @@ export default function AdminMatchingSchedulerConfigPanel({
               id="scheduler-admin-id"
               value={formValues.adminId}
               disabled={isDisabled || isAdminOptionsLoading}
-              onChange={handleInputChange('adminId')}
+              onChange={(event) =>
+                handleFieldChange('adminId', event.target.value)
+              }
             >
               <option value="">
                 {isAdminOptionsLoading
@@ -360,7 +355,9 @@ export default function AdminMatchingSchedulerConfigPanel({
               id="scheduler-template-type"
               value={formValues.templateType}
               disabled={isDisabled}
-              onChange={handleInputChange('templateType')}
+              onChange={(event) =>
+                handleFieldChange('templateType', event.target.value)
+              }
             >
               <option value="">서버 기본값 사용</option>
               {ADMIN_MATCHING_TEMPLATE_OPTIONS.map((option) => (
@@ -382,7 +379,9 @@ export default function AdminMatchingSchedulerConfigPanel({
               id="scheduler-day-of-week"
               value={formValues.scheduledDayOfWeek}
               disabled={isDisabled}
-              onChange={handleInputChange('scheduledDayOfWeek')}
+              onChange={(event) =>
+                handleFieldChange('scheduledDayOfWeek', event.target.value)
+              }
             >
               {ADMIN_MATCHING_SCHEDULED_DAY_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -405,7 +404,9 @@ export default function AdminMatchingSchedulerConfigPanel({
               size="m"
               value={formValues.scheduledTime}
               disabled={isDisabled}
-              onChange={handleInputChange('scheduledTime')}
+              onChange={(event) =>
+                handleFieldChange('scheduledTime', event.target.value)
+              }
             />
           </MatchingFormField>
 
@@ -421,7 +422,9 @@ export default function AdminMatchingSchedulerConfigPanel({
               inputMode="numeric"
               value={formValues.matchingKValue}
               disabled={isDisabled}
-              onChange={handleInputChange('matchingKValue')}
+              onChange={(event) =>
+                handleFieldChange('matchingKValue', event.target.value)
+              }
             />
           </MatchingFormField>
 
@@ -437,7 +440,12 @@ export default function AdminMatchingSchedulerConfigPanel({
               inputMode="numeric"
               value={formValues.numberOfNearestNeighbors}
               disabled={isDisabled}
-              onChange={handleInputChange('numberOfNearestNeighbors')}
+              onChange={(event) =>
+                handleFieldChange(
+                  'numberOfNearestNeighbors',
+                  event.target.value,
+                )
+              }
             />
           </MatchingFormField>
 
@@ -453,7 +461,9 @@ export default function AdminMatchingSchedulerConfigPanel({
               inputMode="numeric"
               value={formValues.chunkSize}
               disabled={isDisabled}
-              onChange={handleInputChange('chunkSize')}
+              onChange={(event) =>
+                handleFieldChange('chunkSize', event.target.value)
+              }
             />
           </MatchingFormField>
 
@@ -469,7 +479,9 @@ export default function AdminMatchingSchedulerConfigPanel({
               inputMode="numeric"
               value={formValues.saveResultsChunkSize}
               disabled={isDisabled}
-              onChange={handleInputChange('saveResultsChunkSize')}
+              onChange={(event) =>
+                handleFieldChange('saveResultsChunkSize', event.target.value)
+              }
             />
           </MatchingFormField>
         </div>

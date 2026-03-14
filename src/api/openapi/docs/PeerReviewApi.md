@@ -54,7 +54,7 @@ const { status, data } = await apiInstance.createPeerReview(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -64,6 +64,8 @@ const { status, data } = await apiInstance.createPeerReview(
 |**400** | 잘못된 요청 (validation 실패) |  -  |
 |**404** | 리소스를 찾을 수 없음 |  -  |
 |**409** | Conflict |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -115,8 +117,9 @@ const { status, data } = await apiInstance.deletePeerReview(
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**204** | 피어리뷰 삭제 성공 |  -  |
-|**403** | 권한 없음 (본인 피어리뷰가 아님) |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 |**404** | 피어리뷰를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -161,13 +164,15 @@ const { status, data } = await apiInstance.getPeerReviews(
 ### HTTP request headers
 
  - **Content-Type**: Not defined
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 |**200** | 피어리뷰 목록 조회 성공 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 
@@ -216,7 +221,7 @@ const { status, data } = await apiInstance.updatePeerReview(
 ### HTTP request headers
 
  - **Content-Type**: application/json
- - **Accept**: application/json
+ - **Accept**: application/json, */*
 
 
 ### HTTP response details
@@ -224,8 +229,9 @@ const { status, data } = await apiInstance.updatePeerReview(
 |-------------|-------------|------------------|
 |**204** | 피어리뷰 수정 성공 |  -  |
 |**400** | 잘못된 요청 (validation 실패) |  -  |
-|**403** | 권한 없음 (본인 피어리뷰가 아님) |  -  |
+|**403** | You are authenticated but not allowed authorization |  -  |
 |**404** | 피어리뷰를 찾을 수 없음 |  -  |
+|**401** | Bearer Token is invalid or no bearer token |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
 

@@ -5,26 +5,24 @@ import { isAxiosError } from 'axios';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import UserAvatar from '@/components/ui/avatar';
-import Button from '@/components/ui/button';
-import Checkbox from '@/components/ui/checkbox';
-import { TextAreaInput } from '@/components/ui/input';
-import List from '@/components/ui/list';
-import { Modal } from '@/components/ui/modal';
+import UserAvatar from '@/components/common/ui/avatar';
+import Button from '@/components/common/ui/button';
+import Checkbox from '@/components/common/ui/checkbox';
+import { TextAreaInput } from '@/components/common/ui/input';
+import List from '@/components/common/ui/list';
+import { Modal } from '@/components/common/ui/modal';
 import {
   reviewQueryKeys,
   useAddStudyReviewMutation,
   usePartnerStudyReviewQuery,
 } from '@/hooks/queries/use-review-query';
-import type {
-  EvalKeyword,
-  StudyEvaluationResponse,
-} from '@/types/api/review.types';
+import { useToastStore } from '@/stores/use-toast-store';
+import { EvalKeyword, StudyEvaluationResponse } from '@/types/api/review.types';
 
 interface FormState {
   studySpaceId: number;
   targetMemberId: number;
-  satisfactionId: 10 | 20 | 30 | undefined;
+  satisfactionId: 10 | 20 | 30 | undefined; // 10 - "좋았어요", 20 - "괜찮아요", 30 - "아쉬워요"
   keywordIds: number[];
   content: string;
 }
@@ -161,6 +159,7 @@ function StudyReviewForm({
   onToggleHideForOneHour: () => void;
   onToggleHideForever: () => void;
 }) {
+  const showToast = useToastStore((state) => state.showToast);
   const queryClient = useQueryClient();
   const { data, error, isError, isFetching } = usePartnerStudyReviewQuery({
     enabled: open,
@@ -294,7 +293,7 @@ function StudyReviewForm({
             return;
           }
 
-          alert('후기 작성에 실패했습니다. 다시 시도해주세요.');
+          showToast('후기 작성에 실패했습니다. 다시 시도해주세요.', 'error');
         },
       },
     );

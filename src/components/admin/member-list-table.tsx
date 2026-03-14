@@ -1,0 +1,330 @@
+'use client';
+
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import Checkbox from '@/components/common/ui/checkbox';
+import { SingleDropdown } from '@/components/common/ui/dropdown';
+import Pagination from '@/components/common/ui/pagination';
+import {
+  getRoleLabel,
+  isManageableRoleId,
+  MEMBER_STATUS_MAP,
+  MEMBER_STATUS_OPTIONS,
+  ROLE_OPTIONS,
+} from '@/config/admin-member';
+import { useDebounce } from '@/hooks/common/use-debounce';
+import { useGetMemberListQuery } from '@/hooks/queries/use-member-list-query';
+import {
+  type ManageableRoleId,
+  type MemberStatus,
+} from '@/types/api/admin.types';
+import { formatYYYYMMDD } from '@/utils/time';
+import FilledX from 'public/icons/filled-x.svg';
+import SearchIcon from 'public/icons/search.svg';
+import ChangeStatusModal from './chage-status-modal';
+import ChangeRoleModal from './change-role-modal';
+
+export default function MemberListTable() {
+  const [roleId, setRoleId] = useState<ManageableRoleId | undefined>(undefined);
+  const [memberStatus, setMemberStatus] = useState<MemberStatus | undefined>(
+    undefined,
+  );
+  const [page, setPage] = useState<number>(1);
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const debouncedSearchKeyword = useDebounce(searchKeyword, 500);
+
+  const { data } = useGetMemberListQuery({
+    roleId,
+    memberStatus,
+    searchKeyword: debouncedSearchKeyword,
+    page,
+  });
+
+  const memberList = data?.content || [];
+
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(() => new Set());
+  const headerCheckboxRef = useRef(null);
+
+  const visibleSelectedIds = useMemo(
+    () =>
+      new Set(
+        memberList
+          .map((member) => member.memberId)
+          .filter((id) => selectedIds.has(id)),
+      ),
+    [memberList, selectedIds],
+  );
+
+  const selectedMembers = memberList.filter((member) =>
+    visibleSelectedIds.has(member.memberId),
+  );
+
+  const allSelected =
+    memberList.length > 0 && visibleSelectedIds.size === memberList.length;
+  const someSelected =
+    visibleSelectedIds.size > 0 && visibleSelectedIds.size < memberList.length;
+
+  // 페이지/필터 변경 시 선택 상태 초기화
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [page, roleId, memberStatus, debouncedSearchKeyword]);
+
+  useEffect(() => {
+    if (headerCheckboxRef.current) {
+      headerCheckboxRef.current.indeterminate = someSelected;
+    }
+  }, [someSelected]);
+
+  const toggleAll = () => {
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(memberList.map((u) => u.memberId)));
+    }
+  };
+
+  const toggleRow = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+
+      return next;
+    });
+  };
+
+  const router = useRouter();
+
+  return (
+    <>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-bold-h4">사용자 관리</h1>
+          <span className="font-designer-16r text-text-subtle">총 </span>
+          <span className="font-designer-16r text-text-information">
+            {data?.totalElements}
+          </span>
+          <span className="font-designer-16r text-text-subtle">
+            명의 사용자
+          </span>
+        </div>
+
+        <MemberListSearchInput
+          value={searchKeyword}
+          onChange={(keyword) => {
+            setPage(1);
+            setSearchKeyword(keyword);
+          }}
+        />
+      </div>
+
+      <div className="mt-300 mb-200 flex w-full items-center justify-between py-100">
+        <div>
+          {(someSelected || allSelected) && (
+            <div className="border-border-default rounded-100 flex h-[56px] items-center gap-300 border px-200 py-150">
+              <p className="font-designer-14r">
+                <span className="text-text-information">
+                  {visibleSelectedIds.size}
+                </span>
+                <span className="text-text-subtle">명 선택</span>
+              </p>
+
+              <div className="flex items-center gap-150">
+                <ChangeRoleModal members={selectedMembers} />
+                <ChangeStatusModal members={selectedMembers} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <MemberListFilter
+          roleId={roleId}
+          memberStatus={memberStatus}
+          onSelectRoleId={setRoleId}
+          onSelectMemberStatus={setMemberStatus}
+        />
+      </div>
+
+      <div>
+        <div className="border-border-subtle rounded-100 overflow-hidden border">
+          <table className="rounded-100 w-full">
+            <thead className="bg-background-neutral-subtle h-[54px]">
+              <tr>
+                <th className="flex h-[54px] w-fit justify-center pr-100 pl-300">
+                  <Checkbox
+                    id="all"
+                    onToggle={toggleAll}
+                    checked={allSelected}
+                  />
+                </th>
+                <th className="font-designer-14m text-text-default px-300 text-left">
+                  닉네임 (이름)
+                </th>
+                <th className="font-designer-14m text-text-default px-300 text-left">
+                  가입일
+                </th>
+                <th className="font-designer-14m text-text-default px-300 text-left">
+                  최근 로그인
+                </th>
+                <th className="font-designer-14m text-text-default px-300 text-left">
+                  권한
+                </th>
+                <th className="font-designer-14m text-text-default pr-500 pl-300 text-left">
+                  상태
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {memberList.map((user, idx) => (
+                <tr
+                  key={user.memberId}
+                  className={`${
+                    idx === memberList.length - 1
+                      ? ''
+                      : 'border-b-border-subtle border-b'
+                  } ${
+                    visibleSelectedIds.has(user.memberId)
+                      ? 'bg-background-accent-blue-subtle'
+                      : ''
+                  } hover:bg-fill-neutral-subtle-hover active:bg-fill-neutral-subtle-pressed`}
+                  onClick={() => {
+                    router.push(`/admin/detail/${user.memberId}/profile`);
+                  }}
+                >
+                  <td
+                    className="flex h-[54px] w-fit justify-center pr-100 pl-300"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Checkbox
+                      id={user.memberId.toString()}
+                      onToggle={() => toggleRow(user.memberId)}
+                      checked={visibleSelectedIds.has(user.memberId)}
+                    />
+                  </td>
+                  <td className="font-designer-16m text-text-default px-300 text-left">
+                    {user.memberName
+                      ? `${user.memberNickname} (${user.memberName})`
+                      : `${user.memberNickname} (-)`}
+                  </td>
+                  <td className="font-designer-14r text-text-subtle px-300 text-left">
+                    {formatYYYYMMDD(user.joinedAt)}
+                  </td>
+                  <td className="font-designer-14r text-text-subtle px-300 text-left">
+                    {user.loginMostRecentlyAt
+                      ? formatYYYYMMDD(user.loginMostRecentlyAt)
+                      : '-'}
+                  </td>
+                  <td className="font-designer-14r text-text-subtle flex items-center px-300 text-left">
+                    {getRoleLabel(user.role.roleId, user.role.roleName)}
+                  </td>
+                  <td className="pr-500 pl-300">
+                    <Badge
+                      color={user.memberStatus === 'ACTIVE' ? 'green' : 'gray'}
+                      shape="rectangle"
+                    >
+                      {MEMBER_STATUS_MAP[user.memberStatus]}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <Pagination
+          className="mt-200"
+          page={page}
+          onChangePage={setPage}
+          totalPages={data?.totalPages || 1}
+        />
+      </div>
+    </>
+  );
+}
+
+function MemberListFilter({
+  roleId,
+  memberStatus,
+  onSelectRoleId,
+  onSelectMemberStatus,
+}: {
+  roleId: ManageableRoleId | undefined;
+  memberStatus: MemberStatus | undefined;
+  onSelectRoleId: (roleId: ManageableRoleId | undefined) => void;
+  onSelectMemberStatus: (memberStatus: MemberStatus | undefined) => void;
+}) {
+  return (
+    <div className="flex items-center gap-200">
+      {(roleId || memberStatus) && (
+        <Button
+          size="small"
+          className="h-fit"
+          onClick={() => {
+            onSelectRoleId(undefined);
+            onSelectMemberStatus(undefined);
+          }}
+        >
+          필터 제거
+        </Button>
+      )}
+      <div className="flex w-[300px] items-center gap-150">
+        <SingleDropdown
+          value={roleId}
+          onChange={(value) => {
+            if (!value) {
+              onSelectRoleId(undefined);
+
+              return;
+            }
+
+            if (isManageableRoleId(value)) {
+              onSelectRoleId(value);
+            }
+          }}
+          options={ROLE_OPTIONS}
+          placeholder="권한"
+        />
+        <SingleDropdown
+          value={memberStatus}
+          onChange={onSelectMemberStatus}
+          options={MEMBER_STATUS_OPTIONS}
+          placeholder="계정 상태"
+        />
+      </div>
+    </div>
+  );
+}
+
+function MemberListSearchInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="rounded-100 border-border-default text-text-default placeholder:text-text-subtlest font-designer-14m flex h-[40px] items-center justify-between border px-150">
+      <div className="flex items-center gap-100">
+        <SearchIcon />
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="outline-0"
+          placeholder="이름으로 검색"
+        />
+      </div>
+
+      {value.length > 0 && (
+        <button className="cursor-pointer" onClick={() => onChange('')}>
+          <FilledX />
+        </button>
+      )}
+    </div>
+  );
+}

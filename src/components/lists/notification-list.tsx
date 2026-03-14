@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
 import { MemberNotificationResponse } from '@/api/openapi';
-import Badge from '../ui/badge';
+import Badge from '../common/ui/badge';
 
 const getBadgeColor = (
   topicType: string,
@@ -25,17 +25,20 @@ const getBadgeColor = (
 
 interface NotificationListProps {
   notifications?: MemberNotificationResponse[];
+  onNotificationClick?: (notification: MemberNotificationResponse) => void;
 }
 
 export default function NotificationList({
   notifications,
+  onNotificationClick,
 }: NotificationListProps) {
   return (
     <ul>
       {notifications?.map((notification) => (
         <li
           key={notification.id}
-          className="border-bottom-border-default bg-background-default flex items-center justify-between border-b py-150"
+          className="border-bottom-border-default bg-background-default hover:bg-background-neutral-subtle flex cursor-pointer items-center justify-between border-b py-150"
+          onClick={() => onNotificationClick?.(notification)}
         >
           <div className="flex items-center gap-150">
             <Badge
@@ -50,9 +53,11 @@ export default function NotificationList({
               {notification.title}
             </span>
           </div>
-          <span className="font-designer-11r text-text-subtlest whitespace-nowrap">
-            {format(notification.createdAt, 'yyyy.MM.dd HH:mm')}
-          </span>
+          <div className="flex items-center gap-100">
+            <span className="font-designer-11r text-text-subtlest whitespace-nowrap">
+              {format(notification.createdAt, 'yyyy.MM.dd HH:mm')}
+            </span>
+          </div>
         </li>
       ))}
     </ul>

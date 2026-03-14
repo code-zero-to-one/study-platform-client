@@ -1,23 +1,35 @@
 'use client';
 
 import dayjs from 'dayjs';
+import { Lock } from 'lucide-react';
+import dynamic from 'next/dynamic';
 import { ComponentProps } from 'react';
 
-import { MissionListResponse } from '@/api/openapi/models';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import { useIsLeader } from '@/stores/useLeaderStore';
-import { useUserStore } from '@/stores/useUserStore';
+import type { MissionListResponse } from '@/api/openapi/models';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import Tooltip from '@/components/common/ui/tooltip';
+import { cn } from '../common/ui/(shadcn)/lib/utils';
 
-import DeleteMissionModal from '../modals/delete-mission-modal';
-import EditMissionModal from '../modals/edit-mission-modal';
-import { cn } from '../ui/(shadcn)/lib/utils';
+const DeleteMissionModal = dynamic(
+  () => import('@/components/common/modals/delete-mission-modal'),
+  { ssr: false },
+);
+
+const EditMissionModal = dynamic(
+  () => import('@/components/common/modals/edit-mission-modal'),
+  { ssr: false },
+);
 
 interface MissionCardProps {
   mission: MissionListResponse;
   groupStudyId: number;
   onSelectMission: (missionId: number) => void;
   showDeadline?: boolean;
+  isMember?: boolean;
+  isLeader?: boolean;
+  isLocked?: boolean;
+  onLockedClick?: () => void;
 }
 
 const STATUS_CONFIG = {
@@ -48,16 +60,18 @@ function formatDate(dateString?: string) {
   return dayjs(dateString).format('YYYY-MM-DD');
 }
 
-function getDeadlineInfo(endDate?: string): {
-  text: string;
-  isUrgent: boolean;
-} | null {
-  if (!endDate) return null;
+function getDeadlineInfo(endDate?: string):
+  | {
+      text: string;
+      isUrgent: boolean;
+    }
+  | undefined {
+  if (!endDate) return undefined;
 
   const now = dayjs();
   const end = dayjs(endDate).endOf('day');
 
-  if (end.isBefore(now)) return null;
+  if (end.isBefore(now)) return undefined;
 
   const diffHours = end.diff(now, 'hour');
   const diffDays = Math.ceil(end.diff(now, 'day', true));
@@ -72,27 +86,13 @@ function getDeadlineInfo(endDate?: string): {
 function isCardClickable(
   status: MissionListResponse['status'],
   isLeader: boolean,
+  isMember: boolean,
 ): boolean {
-  // 진행 예정은 리더/비리더 모두 클릭 불가
-  if (status === 'NOT_STARTED') {
-    return false;
-  }
+  // 가입자(리더 포함): 모든 상태 클릭 가능
+  if (isLeader || isMember) return true;
+  // 비회원/미가입자: 1주차 필터는 상위에서 처리되므로 모든 상태 클릭 가능
 
-  if (isLeader) {
-    // 리더: 진행중, 평가완료, 제출마감(평가하기) 시 클릭 가능
-    return (
-      status === 'IN_PROGRESS' ||
-      status === 'EVALUATION_COMPLETED' ||
-      status === 'ENDED'
-    );
-  }
-
-  // 비리더: 진행중, 제출마감, 평가완료 시 클릭 가능
-  return (
-    status === 'IN_PROGRESS' ||
-    status === 'ENDED' ||
-    status === 'EVALUATION_COMPLETED'
-  );
+  return true;
 }
 
 export default function MissionCard({
@@ -100,9 +100,11 @@ export default function MissionCard({
   groupStudyId,
   onSelectMission,
   showDeadline = false,
+  isMember = false,
+  isLeader = false,
+  isLocked = false,
+  onLockedClick,
 }: MissionCardProps) {
-  const memberId = useUserStore((state) => state.memberId);
-  const isLeader = useIsLeader(memberId);
   const statusConfig =
     mission.status && mission.status in STATUS_CONFIG
       ? STATUS_CONFIG[mission.status as keyof typeof STATUS_CONFIG]
@@ -114,23 +116,68 @@ export default function MissionCard({
     }
   };
 
-  const clickable = isCardClickable(mission.status, isLeader);
+  const clickable = isCardClickable(mission.status, isLeader, isMember);
   const deadlineInfo =
     showDeadline && mission.status === 'IN_PROGRESS'
       ? getDeadlineInfo(mission.endDate)
-      : null;
+      : undefined;
 
-  // 리더 + 진행 예정: 수정/삭제 버튼만 노출
+  // 비가입자 2주차+ 잠금 카드
+  if (isLocked) {
+    return (
+      <Tooltip
+        trigger={
+          <li
+            className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-background-default p-300"
+            role="button"
+            tabIndex={0}
+            onClick={onLockedClick}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onLockedClick?.();
+              }
+            }}
+          >
+            <MissionCardContent
+              title={mission.title}
+              weekNum={mission.weekNum}
+              statusConfig={statusConfig}
+              startDate={mission.startDate}
+              endDate={mission.endDate}
+              deadlineInfo={undefined}
+            />
+            <Lock className="text-text-subtle h-[18px] w-[18px] shrink-0" />
+          </li>
+        }
+        value="스터디 가입 후 확인 가능"
+        side="top"
+      />
+    );
+  }
+
+  // 리더 + 진행 예정: 클릭 가능 + 수정/삭제 버튼 노출
   if (isLeader && mission.status === 'NOT_STARTED') {
     return (
-      <li className="border-border-default rounded-100 flex items-center justify-between border bg-[#fff] p-300">
+      <li
+        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
+        role="button"
+        tabIndex={0}
+        onClick={handleSelectMission}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSelectMission();
+          }
+        }}
+      >
         <MissionCardContent
           title={mission.title}
           weekNum={mission.weekNum}
           statusConfig={statusConfig}
           startDate={mission.startDate}
           endDate={mission.endDate}
-          deadlineInfo={null}
+          deadlineInfo={undefined}
         />
         <div className="flex flex-col gap-100">
           <EditMissionModal
@@ -146,12 +193,19 @@ export default function MissionCard({
     );
   }
 
-  // 리더 + 제출 마감: 평가하기 버튼 노출
   if (isLeader && mission.status === 'ENDED') {
     return (
       <li
         className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
+        role="button"
+        tabIndex={0}
         onClick={handleSelectMission}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSelectMission();
+          }
+        }}
       >
         <MissionCardContent
           title={mission.title}
@@ -159,18 +213,8 @@ export default function MissionCard({
           statusConfig={statusConfig}
           startDate={mission.startDate}
           endDate={mission.endDate}
-          deadlineInfo={null}
+          deadlineInfo={undefined}
         />
-        <Button
-          color="outlined"
-          size="medium"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSelectMission();
-          }}
-        >
-          평가하기
-        </Button>
       </li>
     );
   }
@@ -185,7 +229,15 @@ export default function MissionCard({
             ? 'border-status-error'
             : 'border-border-default',
         )}
+        role="button"
+        tabIndex={0}
         onClick={handleSelectMission}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleSelectMission();
+          }
+        }}
       >
         <MissionCardContent
           title={mission.title}
@@ -234,7 +286,7 @@ function MissionCardContent({
   statusConfig: { label: string; color: ComponentProps<typeof Badge>['color'] };
   startDate?: string;
   endDate?: string;
-  deadlineInfo: { text: string; isUrgent: boolean } | null;
+  deadlineInfo: { text: string; isUrgent: boolean } | undefined;
 }) {
   const displayTitle = weekNum ? `${weekNum}주차 미션 : ${title}` : title;
 

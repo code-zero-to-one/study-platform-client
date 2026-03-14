@@ -1,4 +1,7 @@
-import { Discussion, DiscussionTopic } from '@/types/discussion';
+import {
+  Discussion,
+  DiscussionTopic,
+} from '@/types/one-to-one-study/discussion';
 
 // Mock Discussion 데이터
 export const MOCK_DISCUSSIONS: Discussion[] = [

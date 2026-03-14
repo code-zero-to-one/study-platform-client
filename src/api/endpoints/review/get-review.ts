@@ -2,14 +2,14 @@ import { axiosInstance } from '@/api/client/axios';
 import type {
   AddStudyReviewRequest,
   DismissStudyReviewModalRequest,
+  UserPositiveKeywordsResponse,
+  UserPositiveKeywordsRequest,
+  StudyEvaluationResponse,
   MyNegativeKeywordsRequest,
   MyNegativeKeywordsResponse,
-  MyReviewsRequest,
   MyReviewsResponse,
-  StudyEvaluationResponse,
+  MyReviewsRequest,
   StudyReviewModalStateResponse,
-  UserPositiveKeywordsRequest,
-  UserPositiveKeywordsResponse,
 } from '@/types/api/review.types';
 
 export const getPartnerStudyReview =
@@ -36,7 +36,6 @@ export const getUserPositiveKeywords = async ({
   if (memberId) {
     params['member-id'] = memberId;
   }
-
   if (pageSize) {
     params['page-size'] = pageSize;
   }
@@ -73,6 +72,7 @@ export const getMyReviews = async ({
     'page-size': 10,
   };
 
+  // cursor 전송하지 않는 경우 첫 데이터부터 조회
   if (cursor) {
     params.cursor = cursor;
   }

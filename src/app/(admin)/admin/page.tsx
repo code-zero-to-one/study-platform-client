@@ -3,8 +3,8 @@ import {
   HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query';
-import { getMemberListInServer } from '@/features/admin/api/member-list.server';
-import MemberListTable from '@/features/admin/ui/member-list-table';
+import { getMemberListInServer } from '@/api/endpoints/admin/member-list.server';
+import MemberListTable from '@/components/admin/member-list-table';
 
 export default async function AdminPage() {
   const queryClient = new QueryClient();

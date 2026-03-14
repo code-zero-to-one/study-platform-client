@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Suspense } from 'react';
-import Button from '@/components/ui/button';
+import Button from '@/components/common/ui/button';
 
 // 토스페이먼츠 에러 코드별 사용자 친화적 메시지
 const ERROR_MESSAGES: Record<string, { title: string; message: string }> = {

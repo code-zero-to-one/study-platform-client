@@ -1,22 +1,31 @@
 'use client';
 
 import { format } from 'date-fns';
+import dynamic from 'next/dynamic';
 import React, { useState } from 'react';
 import { DateRange } from 'react-day-picker';
 import {
   AdminTransactionListResponse,
   PaymentSearchConditionTypeEnum,
 } from '@/api/openapi';
-import AdminForcedCancellationModal from '@/components/modals/admin-forced-cancellation-modal';
-import AdminRefundApprovalModal from '@/components/modals/admin-refund-approval-modal';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import DatePicker from '@/components/ui/date-picker';
-import SingleDropdown from '@/components/ui/dropdown/single';
-import { BaseInput } from '@/components/ui/input';
-import Pagination from '@/components/ui/pagination';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import DatePicker from '@/components/common/ui/date-picker';
+import SingleDropdown from '@/components/common/ui/dropdown/single';
+import { BaseInput } from '@/components/common/ui/input';
+import Pagination from '@/components/common/ui/pagination';
 import { useGetTransactionsForAdmin } from '@/hooks/queries/admin-payment-api';
 import { formatToKST } from '@/utils/time';
+
+const AdminForcedCancellationModal = dynamic(
+  () => import('@/components/common/modals/admin-forced-cancellation-modal'),
+  { ssr: false },
+);
+
+const AdminRefundApprovalModal = dynamic(
+  () => import('@/components/common/modals/admin-refund-approval-modal'),
+  { ssr: false },
+);
 
 const PAYMENT_HISTORY_TYPE_MAP: Record<
   NonNullable<AdminTransactionListResponse['paymentHistoryType']>,
@@ -43,6 +52,7 @@ const STUDY_STATUS_MAP: Record<
   string
 > = {
   RECRUITING: '진행전',
+  ENDING_SOON: '마감 임박',
   IN_PROGRESS: '진행중',
   COMPLETED: '완료',
 };
@@ -135,19 +145,19 @@ export default function PaymentRefundPage() {
               <th className="font-designer-14m text-text-subtlest py-100 pl-250 text-left">
                 거래 ID
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 스터디명(진행 상태)
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 결제자(ID)
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 결제 내역(결제 수단)
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 상태
               </th>
-              <th className="font-designer-14m text-text-subtlest py-100 pl-[10px] text-left">
+              <th className="font-designer-14m text-text-subtlest py-100 pl-125 text-left">
                 일시
               </th>
               <th className="py-100 pr-250" />
@@ -164,7 +174,7 @@ export default function PaymentRefundPage() {
 
                 return (
                   <tr
-                    key={`${transaction.paymentCode}-${index}`}
+                    key={`${transaction.paymentCode}`}
                     className="border-b-border-default border-b"
                   >
                     {/* 거래 ID */}
@@ -175,7 +185,7 @@ export default function PaymentRefundPage() {
                     </td>
 
                     {/* 스터디명 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <span className="font-designer-14r text-text-default">
                         {`${transaction.groupStudyName} (${
                           STUDY_STATUS_MAP[transaction.groupStudyStatus]
@@ -184,7 +194,7 @@ export default function PaymentRefundPage() {
                     </td>
 
                     {/* 결제자 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <span className="font-designer-14r text-text-default">
                         {transaction.paymentMemberName || '-'}(
                         {transaction.paymentMemberId || '-'})
@@ -192,7 +202,7 @@ export default function PaymentRefundPage() {
                     </td>
 
                     {/* 결제 내역 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <span className="font-designer-14r text-text-default">
                         {transaction.transactionAmount?.toLocaleString() || 0}
                         원(
@@ -201,14 +211,14 @@ export default function PaymentRefundPage() {
                     </td>
 
                     {/* 상태 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <Badge color={statusConfig.color} shape="rectangle">
                         {statusConfig.label}
                       </Badge>
                     </td>
 
                     {/* 일시 */}
-                    <td className="py-200 pl-[10px]">
+                    <td className="py-200 pl-125">
                       <span className="font-designer-14r text-text-default">
                         {formatToKST(transaction.transactionedAt)
                           ? format(

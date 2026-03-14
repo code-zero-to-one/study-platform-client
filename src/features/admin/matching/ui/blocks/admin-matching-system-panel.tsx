@@ -1,9 +1,9 @@
 'use client';
 
 import type { ComponentProps } from 'react';
-import Badge from '@/components/ui/badge';
-import Button from '@/components/ui/button';
-import KeyValueRow from '@/components/ui/key-value-row';
+import Badge from '@/components/common/ui/badge';
+import Button from '@/components/common/ui/button';
+import KeyValueRow from '@/components/common/ui/key-value-row';
 import AdminMatchingPanel from './admin-matching-panel';
 
 interface AdminMatchingSystemPanelProps {

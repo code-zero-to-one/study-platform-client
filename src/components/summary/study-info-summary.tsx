@@ -5,15 +5,9 @@ import dayjs from 'dayjs';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Button from '@/components/ui/button';
-import LoginModal from '@/features/auth/ui/login-modal';
-import { usePhoneVerificationStatus } from '@/features/phone-verification/model/use-phone-verification-status';
-import PhoneVerificationModal from '@/features/phone-verification/ui/phone-verification-modal';
-import { GroupStudyFullResponse } from '@/features/study/group/api/group-study-types';
-import ApplyGroupStudyModal from '@/features/study/group/ui/apply-group-study-modal';
-import { useAuthReady } from '@/hooks/common/use-auth';
-import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
-import { useToastStore } from '@/stores/use-toast-store';
+import { UserTransactionDetailResponseTransactionTypeEnum } from '@/api/openapi';
+import ApplyGroupStudyModal from '@/components/common/modals/apply-group-study-modal';
+import Button from '@/components/common/ui/button';
 import {
   EXPERIENCE_LEVEL_LABELS,
   REGULAR_MEETING_LABELS,
@@ -21,24 +15,36 @@ import {
   STUDY_METHOD_LABELS,
   STUDY_STATUS_LABELS,
   STUDY_TYPE_LABELS,
-} from '../../features/study/group/const/group-study-const';
+} from '@/config/group-study-const';
+import { useAuth } from '@/hooks/common/use-auth';
+import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useGetMyTransactionsByGroupStudy } from '@/hooks/queries/payment-user-api';
+import { useToastStore } from '@/stores/use-toast-store';
+import { GroupStudyFullResponse } from '@/types/api/group-study.types';
 
-interface Props {
+interface SummaryStudyInfoProps {
   data: GroupStudyFullResponse;
 }
 
-export default function SummaryStudyInfo({ data }: Props) {
+type ApplyButtonAction =
+  | 'OPEN_APPLY_MODAL'
+  | 'REDIRECT_LOGIN'
+  | 'REDIRECT_PAYMENT'
+  | 'REDIRECT_PAYMENT_MANAGEMENT'
+  | 'DISABLED';
+
+interface ApplyButtonState {
+  text: string;
+  disabled: boolean;
+  action: ApplyButtonAction;
+}
+
+export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [isExpanded, setIsExpanded] = useState(false);
-  const { memberId, isAuthReady, isHydrated } = useAuthReady();
+  const { isAuthenticated, data: authData } = useAuth();
   const showToast = useToastStore((state) => state.showToast);
-  const {
-    isVerified,
-    isLoading: isVerificationLoading,
-    setVerified,
-  } = usePhoneVerificationStatus(memberId);
-  const [isPhoneVerificationOpen, setIsPhoneVerificationOpen] = useState(false);
 
   const { basicInfo, detailInfo, interviewPost } = data;
   const {
@@ -60,13 +66,25 @@ export default function SummaryStudyInfo({ data }: Props) {
   const { title } = detailInfo ?? {};
   const { interviewPost: questions } = interviewPost ?? {};
 
-  const isLoggedIn = isAuthReady;
-  const isLeader = leader?.memberId === memberId;
+  const isLoggedIn = isAuthenticated;
+  const isLeader = leader?.memberId === authData?.memberId;
 
   const { data: myApplicationStatus } = useGetGroupStudyMyStatus({
     groupStudyId,
     isLeader,
   });
+
+  // open api로 결제 상태 조회 (유료 스터디일때만)
+  const { data: paymentTransactionsData } = useGetMyTransactionsByGroupStudy({
+    groupStudyId,
+    page: 0,
+    size: 1,
+    enabled: price > 0 && isLoggedIn && !isLeader,
+  });
+  const latestPaymentType = paymentTransactionsData?.content?.[0]
+    ?.transactionType as
+    | UserTransactionDetailResponseTransactionTypeEnum
+    | undefined;
 
   const getDurationText = (start: string, end: string): string => {
     const startDateObj = new Date(start);
@@ -111,7 +129,7 @@ export default function SummaryStudyInfo({ data }: Props) {
       value: STUDY_STATUS_LABELS[groupStudyStatus],
     },
     {
-      label: '현직자 참여 여부',
+      label: '스터디 대상',
       value:
         experienceLevels
           .map((level) => EXPERIENCE_LEVEL_LABELS[level])
@@ -148,145 +166,172 @@ export default function SummaryStudyInfo({ data }: Props) {
   const isDeadlinePassed =
     !!startDate && !dayjs(startDate).isAfter(dayjs(), 'day');
 
-  const isApplyDisabled =
-    isLeader ||
-    myApplicationStatus?.status !== 'NONE' ||
-    groupStudyStatus === 'IN_PROGRESS' ||
-    groupStudyStatus === 'COMPLETED' ||
-    approvedCount >= maxMembersCount ||
-    isDeadlinePassed;
+  const getApplyButtonState = (): ApplyButtonState => {
+    if (!isLoggedIn) {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'REDIRECT_LOGIN',
+      };
+    }
 
-  // 비로그인 유저에게도 표시할 공개 모집 마감 조건 (myApplicationStatus 미참조)
-  const isClosedForPublic =
-    groupStudyStatus === 'IN_PROGRESS' ||
-    groupStudyStatus === 'COMPLETED' ||
-    approvedCount >= maxMembersCount ||
-    isDeadlinePassed;
+    if (isLeader) {
+      return {
+        text: '내가 개설한 스터디',
+        disabled: true,
+        action: 'DISABLED',
+      };
+    }
 
-  const getButtonText = () => {
+    if (
+      isDeadlinePassed ||
+      groupStudyStatus === 'IN_PROGRESS' ||
+      groupStudyStatus === 'COMPLETED' ||
+      approvedCount >= maxMembersCount
+    ) {
+      return {
+        text: '모집 마감',
+        disabled: true,
+        action: 'DISABLED',
+      };
+    }
+
+    if (myApplicationStatus?.status === 'NONE') {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'OPEN_APPLY_MODAL',
+      };
+    }
+
     if (myApplicationStatus?.status === 'APPROVED') {
-      return '참여 중인 스터디';
+      return {
+        text: '참여 중인 스터디',
+        disabled: true,
+        action: 'DISABLED',
+      };
     }
+
     if (myApplicationStatus?.status === 'PENDING') {
-      return '승인 대기중';
-    }
-    if (myApplicationStatus?.status === 'REJECTED') {
-      return '신청 거절됨';
-    }
-    if (isClosedForPublic) {
-      return '모집 마감';
-    }
-
-    return '신청하기';
-  };
-
-  const handlePaidStudyApplyClick = () => {
-    if (!groupStudyId) {
-      showToast(
-        '스터디 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
-        'error',
-      );
-
-      return;
-    }
-    if (isVerificationLoading) return;
-    if (!isVerified) {
-      setIsPhoneVerificationOpen(true);
-
-      return;
-    }
-    router.push(`/payment/${groupStudyId}`);
-  };
-
-  const handleVerificationComplete = (phoneNumber: string) => {
-    if (!groupStudyId) {
-      showToast(
-        '스터디 정보를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
-        'error',
-      );
-
-      return;
-    }
-    setVerified(phoneNumber);
-    setIsPhoneVerificationOpen(false);
-    // 인증 완료 후 자동 진행 없음 — 유저가 신청하기 버튼을 다시 눌러 진행
-  };
-
-  const renderApplyButton = () => {
-    if (!isHydrated) {
-      return (
-        <Button size="large" color="primary" className="h-600" disabled>
-          신청하기
-        </Button>
-      );
-    }
-
-    if (price > 0) {
-      if (!isLoggedIn) {
-        return (
-          <LoginModal
-            openTrigger={
-              <Button
-                size="large"
-                color="primary"
-                className="h-600"
-                disabled={isClosedForPublic}
-              >
-                {isClosedForPublic ? '모집 마감' : '신청하기'}
-              </Button>
-            }
-          />
-        );
+      // 유료 스터디이고 결제 완료된 경우
+      if (
+        price > 0 &&
+        latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentSuccess
+      ) {
+        return {
+          text: '승인 대기중',
+          disabled: true,
+          action: 'DISABLED',
+        };
       }
 
-      return (
-        <Button
-          size="large"
-          color="primary"
-          className="h-600"
-          disabled={isApplyDisabled}
-          onClick={handlePaidStudyApplyClick}
-        >
-          {getButtonText()}
-        </Button>
-      );
+      // 유료 스터디이고 결제 취소 또는 실패한 경우 - 재결제 가능 (입금 대기중보다 우선)
+      if (
+        price > 0 &&
+        (latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentCanceled ||
+          latestPaymentType ===
+            UserTransactionDetailResponseTransactionTypeEnum.PaymentFailed)
+      ) {
+        return {
+          text: '결제하기',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT',
+        };
+      }
+
+      // 유료 스터디이고 가상계좌 입금 대기 중
+      if (
+        price > 0 &&
+        latestPaymentType ===
+          UserTransactionDetailResponseTransactionTypeEnum.PaymentWaitingForDeposit
+      ) {
+        return {
+          text: '입금 대기중',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT_MANAGEMENT',
+        };
+      }
+
+      // 유료 스터디인데 결제 이력이 없는 경우 (신청서만 제출하고 결제 안 함)
+      if (price > 0 && latestPaymentType === undefined) {
+        return {
+          text: '결제하기',
+          disabled: false,
+          action: 'REDIRECT_PAYMENT',
+        };
+      }
+
+      // 무료 스터디이거나 결제 이력이 없는 경우
+      return {
+        text: '승인 대기중',
+        disabled: true,
+        action: 'DISABLED',
+      };
     }
 
-    if (isLoggedIn) {
-      return (
-        <ApplyGroupStudyModal
-          groupStudyId={groupStudyId}
-          title={title}
-          questions={questions}
-          onSuccess={handleApplySuccess}
-          trigger={
-            <Button
-              size="large"
-              color="primary"
-              className="h-600"
-              disabled={isApplyDisabled || isVerificationLoading}
-            >
-              {getButtonText()}
-            </Button>
-          }
-        />
-      );
+    if (myApplicationStatus?.status === 'REJECTED') {
+      return {
+        text: '참여불가',
+        disabled: true,
+        action: 'DISABLED',
+      };
     }
 
-    return (
-      <LoginModal
-        openTrigger={
-          <Button
-            size="large"
-            color="primary"
-            className="h-600"
-            disabled={isClosedForPublic}
-          >
-            {isClosedForPublic ? '모집 마감' : '신청하기'}
-          </Button>
-        }
-      />
-    );
+    if (price <= 0) {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'OPEN_APPLY_MODAL',
+      };
+    }
+
+    if (
+      latestPaymentType ===
+      UserTransactionDetailResponseTransactionTypeEnum.PaymentWaitingForDeposit
+    ) {
+      return {
+        text: '결제관리로 이동',
+        disabled: false,
+        action: 'REDIRECT_PAYMENT_MANAGEMENT',
+      };
+    }
+
+    if (
+      latestPaymentType ===
+      UserTransactionDetailResponseTransactionTypeEnum.PaymentSuccess
+    ) {
+      return {
+        text: '신청하기',
+        disabled: false,
+        action: 'OPEN_APPLY_MODAL',
+      };
+    }
+
+    return {
+      text: '결제하기',
+      disabled: false,
+      action: 'REDIRECT_PAYMENT',
+    };
+  };
+
+  const applyButtonState = getApplyButtonState();
+
+  const handleApplyAction = () => {
+    switch (applyButtonState.action) {
+      case 'REDIRECT_LOGIN':
+        router.push('/login');
+        break;
+      case 'REDIRECT_PAYMENT':
+        router.push(`/payment/${groupStudyId}`);
+        break;
+      case 'REDIRECT_PAYMENT_MANAGEMENT':
+        router.push('/payment-management');
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -333,15 +378,33 @@ export default function SummaryStudyInfo({ data }: Props) {
 
       {/* 버튼 영역 */}
       <div className="flex flex-col gap-100">
-        {renderApplyButton()}
-
-        {price > 0 && (
-          <PhoneVerificationModal
-            open={isPhoneVerificationOpen}
-            onOpenChange={setIsPhoneVerificationOpen}
-            onVerificationComplete={handleVerificationComplete}
-            memberId={memberId}
+        {applyButtonState.action === 'OPEN_APPLY_MODAL' ? (
+          <ApplyGroupStudyModal
+            groupStudyId={groupStudyId}
+            title={title}
+            questions={questions}
+            onSuccess={handleApplySuccess}
+            trigger={
+              <Button
+                size="large"
+                color="primary"
+                className="h-600"
+                disabled={applyButtonState.disabled}
+              >
+                {applyButtonState.text}
+              </Button>
+            }
           />
+        ) : (
+          <Button
+            size="large"
+            color="primary"
+            className="h-600"
+            disabled={applyButtonState.disabled}
+            onClick={handleApplyAction}
+          >
+            {applyButtonState.text}
+          </Button>
         )}
 
         <Button

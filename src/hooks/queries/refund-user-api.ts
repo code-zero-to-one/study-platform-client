@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { RefundUserApi } from '@/api/openapi';
 import type { StudyRefundCreateRequest } from '@/api/openapi/models';
+import { useToastStore } from '@/stores/use-toast-store';
 
 const refundUserApi = createApiInstance(RefundUserApi);
 
@@ -53,10 +54,9 @@ export const useRequestRefund = () => {
       await queryClient.invalidateQueries({
         queryKey: ['myTransactions'],
       });
-      alert('환불 요청이 접수되었습니다.');
-    },
-    onError: () => {
-      alert('환불 요청에 실패했습니다. 다시 시도해주세요.');
+      useToastStore
+        .getState()
+        .showToast('환불 요청이 접수되었습니다.', 'success');
     },
   });
 };
@@ -74,10 +74,9 @@ export const useCancelRefundRequest = () => {
       await queryClient.invalidateQueries({
         queryKey: ['myTransactions'],
       });
-      alert('환불 요청이 취소되었습니다.');
-    },
-    onError: () => {
-      alert('환불 요청 취소에 실패했습니다. 다시 시도해주세요.');
+      useToastStore
+        .getState()
+        .showToast('환불 요청이 취소되었습니다.', 'success');
     },
   });
 };

@@ -1,12 +1,11 @@
 'use client';
 
-import type { ChangeEvent } from 'react';
 import { useEffect, useState } from 'react';
-import Button from '@/components/ui/button';
-import { BaseInput } from '@/components/ui/input';
-import KeyValueRow from '@/components/ui/key-value-row';
-import { Modal } from '@/components/ui/modal';
-import SurfacePanel from '@/components/ui/surface-panel';
+import Button from '@/components/common/ui/button';
+import { BaseInput } from '@/components/common/ui/input';
+import KeyValueRow from '@/components/common/ui/key-value-row';
+import { Modal } from '@/components/common/ui/modal';
+import SurfacePanel from '@/components/common/ui/surface-panel';
 import type { AdminMatchingResetSummary } from '@/types/matching/admin-domain';
 import type {
   ResetWeeklyMatchingFormInput,
@@ -105,13 +104,6 @@ export default function AdminMatchingResetPanel({
     }
   };
 
-  const handleDateChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setFormValues({
-      weeklyPeriodIdentifier: event.target.value,
-    });
-    setErrors({});
-  };
-
   return (
     <AdminMatchingPanel
       title="주차 매칭 데이터 초기화"
@@ -133,7 +125,12 @@ export default function AdminMatchingResetPanel({
             step={7}
             value={formValues.weeklyPeriodIdentifier}
             disabled={isPending}
-            onChange={handleDateChange}
+            onChange={(event) => {
+              setFormValues({
+                weeklyPeriodIdentifier: event.target.value,
+              });
+              setErrors({});
+            }}
           />
         </MatchingFormField>
 
@@ -151,7 +148,7 @@ export default function AdminMatchingResetPanel({
 
         <Modal.Root
           open={isConfirmOpen}
-          onOpenChange={(nextOpen: boolean) => {
+          onOpenChange={(nextOpen) => {
             if (isPending) {
               return;
             }
@@ -165,10 +162,10 @@ export default function AdminMatchingResetPanel({
               size="small"
               description="선택한 주차의 매칭 운영 데이터를 초기화할지 다시 확인합니다."
             >
-              <Modal.Header className="px-400 pt-300 pb-150">
+              <Modal.Header variant="alert">
                 <Modal.Title>주차 데이터 초기화 확인</Modal.Title>
               </Modal.Header>
-              <Modal.Body className="text-left">
+              <Modal.Body variant="alert" className="items-start text-left">
                 <div className="flex flex-col gap-100">
                   <p className="font-designer-14b text-text-default">
                     {formValues.weeklyPeriodIdentifier || '-'} 주차 데이터를
@@ -181,7 +178,7 @@ export default function AdminMatchingResetPanel({
                   <p>삭제 후에는 되돌릴 수 없습니다.</p>
                 </div>
               </Modal.Body>
-              <Modal.Footer className="flex justify-end gap-100">
+              <Modal.Footer variant="alert">
                 <Button
                   type="button"
                   color="secondary"

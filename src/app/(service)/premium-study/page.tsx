@@ -4,7 +4,7 @@ import PremiumStudyListPage from '@/components/pages/premium-study-list-page';
 export default function PremiumStudyPage() {
   return (
     <Suspense fallback={<PremiumStudyListPageSkeleton />}>
-      <PremiumStudyListPage />;
+      <PremiumStudyListPage />
     </Suspense>
   );
 }

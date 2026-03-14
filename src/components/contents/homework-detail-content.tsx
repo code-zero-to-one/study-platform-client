@@ -1,13 +1,13 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
 import type { PeerReviewResponse } from '@/api/openapi/models';
-import Avatar from '@/components/ui/avatar';
-import Button from '@/components/ui/button';
-import MoreMenu from '@/components/ui/dropdown/more-menu';
-import ConfirmDeleteModal from '@/features/study/group/ui/confirm-delete-modal';
+import Avatar from '@/components/common/ui/avatar';
+import Button from '@/components/common/ui/button';
+import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import { useGetHomework } from '@/hooks/queries/group-study-homework-api';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import {
@@ -15,12 +15,25 @@ import {
   useDeletePeerReview,
   useUpdatePeerReview,
 } from '@/hooks/queries/peer-review-api';
+
 import { useUserStore } from '@/stores/useUserStore';
-import DeleteHomeworkModal from '../modals/delete-homework-modal';
-import EditHomeworkModal from '../modals/edit-homework-modal';
+
+const ConfirmDeleteModal = dynamic(
+  () => import('@/components/common/modals/confirm-delete-modal'),
+  { ssr: false },
+);
+
+const DeleteHomeworkModal = dynamic(
+  () => import('@/components/common/modals/delete-homework-modal'),
+  { ssr: false },
+);
+
+const EditHomeworkModal = dynamic(
+  () => import('@/components/common/modals/edit-homework-modal'),
+  { ssr: false },
+);
 
 interface HomeworkDetailContentProps {
-  groupStudyId: number;
   missionId: number;
   homeworkId: number;
 }
@@ -54,7 +67,7 @@ export default function HomeworkDetailContent({
   const peerReviews = homework.peerReviews ?? [];
 
   // 미션 제출 가능 기간이 지나지 않았는지 확인
-  const isMissionActive = mission.status !== 'ENDED';
+  const isMissionActive = mission.status === 'IN_PROGRESS';
 
   // 수정/삭제 가능 조건: 본인 과제이면서 미션 제출 가능 기간이 지나지 않은 상태
   const isMyHomework = homework.submitterId === currentUserId;
@@ -151,6 +164,7 @@ function PeerReviewSection({
   peerReviews,
   isMyHomework,
 }: PeerReviewSectionProps) {
+  // 자기 과제가 아닌 경우에만 리뷰 작성 가능 (리더도 허용)
   const canWriteReview = !isMyHomework;
   const [reviewText, setReviewText] = useState('');
   const { mutate: createPeerReview, isPending } = useCreatePeerReview();
@@ -194,7 +208,7 @@ function PeerReviewSection({
           </div>
         )}
 
-        {/* 리뷰 입력 - 리더가 아니고 자기 과제가 아닌 경우에만 표시 */}
+        {/* 리뷰 입력 - 자기 과제가 아닌 경우에만 표시 */}
         {canWriteReview && (
           <PeerReviewInput
             value={reviewText}
@@ -221,8 +235,7 @@ function PeerReviewItem({ review, homeworkId }: PeerReviewItemProps) {
 
   const { mutate: updatePeerReview, isPending: isUpdating } =
     useUpdatePeerReview();
-  const { mutate: deletePeerReview, isPending: isDeleting } =
-    useDeletePeerReview();
+  const { mutate: deletePeerReview } = useDeletePeerReview();
 
   const isMyReview = review.reviewerId === currentUserId;
 
@@ -353,7 +366,9 @@ function PeerReviewItem({ review, homeworkId }: PeerReviewItemProps) {
           </div>
         </div>
       ) : (
-        <p className="text-text-default font-designer-14r">{review.comment}</p>
+        <p className="text-text-default font-designer-14r wrap-anywhere whitespace-pre-wrap">
+          {review.comment}
+        </p>
       )}
     </div>
   );

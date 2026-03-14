@@ -4,8 +4,9 @@ import { GoogleTagManager } from '@next/third-parties/google';
 import { clsx } from 'clsx';
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import PageViewTracker from '@/components/analytics/page-view-tracker';
-import AdminSideBar from '@/components/layout/sidebar/admin-sidebar';
+import PageViewTracker from '@/components/common/analytics/page-view-tracker';
+import AdminSideBar from '@/components/common/layout/sidebar/admin-sidebar';
+import GlobalToast from '@/components/common/ui/global-toast';
 import MainProvider from '@/providers';
 import { getServerCookie } from '@/utils/server-cookie';
 
@@ -37,7 +38,7 @@ export default async function AdminLayout({
   const initialAccessToken = await getServerCookie('accessToken');
 
   return (
-    <html lang="ko">
+    <html lang="ko" className="overflow-x-hidden">
       <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
       <body className={clsx(pretendard.className, 'h-screen w-screen')}>
         <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
@@ -47,6 +48,7 @@ export default async function AdminLayout({
 
             <main className="flex-1 p-300">{children}</main>
           </div>
+          <GlobalToast />
         </MainProvider>
       </body>
     </html>

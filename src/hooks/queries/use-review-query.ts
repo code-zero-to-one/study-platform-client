@@ -7,13 +7,14 @@ import {
 import {
   addStudyReview,
   dismissStudyReviewModal,
+  getUserPositiveKeywords,
+  getPartnerStudyReview,
   getMyNegativeKeywords,
   getMyReviews,
-  getPartnerStudyReview,
   getStudyReviewModalState,
-  getUserPositiveKeywords,
 } from '@/api/endpoints/review/get-review';
-import type {
+import { useToastStore } from '@/stores/use-toast-store';
+import {
   DismissStudyReviewModalRequest,
   MyNegativeKeywordsRequest,
   PartnerStudyReviewQueryParams,
@@ -53,7 +54,9 @@ export const useAddStudyReviewMutation = () => {
   return useMutation({
     mutationFn: addStudyReview,
     onSuccess: async () => {
-      alert('후기 작성이 완료되었습니다.');
+      useToastStore
+        .getState()
+        .showToast('후기 작성이 완료되었습니다.', 'success');
       await queryClient.invalidateQueries({
         queryKey: reviewQueryKeys.modalState(),
       });
@@ -138,6 +141,6 @@ export const useStudyReviewModalStateQuery = () => {
   return useQuery({
     queryKey: reviewQueryKeys.modalState(),
     queryFn: getStudyReviewModalState,
-    refetchInterval: 1000 * 60 * 30,
+    refetchInterval: 1000 * 60 * 30, // 30분
   });
 };

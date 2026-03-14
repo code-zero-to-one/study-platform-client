@@ -72,9 +72,7 @@ export const useReadNotifications = () => {
 
   return useMutation({
     mutationFn: async (ids?: number[]) => {
-      const { data } = await notificationApi.readMemberNotifications(ids);
-
-      // return data.content;
+      await notificationApi.readMemberNotifications(ids);
     },
     onSuccess: async () => {
       await Promise.all([
@@ -92,9 +90,7 @@ export const useDeleteNotifications = () => {
 
   return useMutation({
     mutationFn: async (ids?: number[]) => {
-      const { data } = await notificationApi.deleteMemberNotifications(ids);
-
-      // return data.content;
+      await notificationApi.deleteMemberNotifications(ids);
     },
     onSuccess: async () => {
       await Promise.all([

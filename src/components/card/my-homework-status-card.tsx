@@ -3,10 +3,10 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useMemo } from 'react';
 
-import Button from '@/components/ui/button';
+import SubmitHomeworkModal from '@/components/common/modals/submit-homework-modal';
+import Button from '@/components/common/ui/button';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import { useUserStore } from '@/stores/useUserStore';
-import SubmitHomeworkModal from '../modals/submit-homework-modal';
 
 interface MyHomeworkStatusProps {
   missionId: number;
@@ -17,14 +17,15 @@ export default function MyHomeworkStatusCard({
 }: MyHomeworkStatusProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  const { data: mission } = useGetMission(missionId);
   const memberId = useUserStore((state) => state.memberId);
 
-  const myHomework = useMemo(
-    () => mission?.homeworks?.find((h) => h.submitterId === memberId),
-    [mission, memberId],
-  );
+  const { data: mission } = useGetMission(missionId);
+
+  const myHomework = useMemo(() => {
+    if (!mission?.homeworks || !memberId) return null;
+
+    return mission.homeworks.find((hw) => hw.submitterId === memberId) ?? null;
+  }, [mission?.homeworks, memberId]);
 
   const handleSelectHomework = (homeworkId: number) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -49,7 +50,7 @@ export default function MyHomeworkStatusCard({
     );
   }
 
-  // 제출 완료 상태 (평가 대기)
+  // 제출 완료 상태
   if (myHomework.homeworkStatus === 'SUBMITTED') {
     return (
       <div className="flex flex-col gap-300">

@@ -1,5 +1,3 @@
-/* eslint-disable @rushstack/no-new-null */
-
 export interface EvalKeyword {
   id: number;
   keyword: string;
@@ -17,8 +15,8 @@ export interface StudyEvaluationResponse {
   studySpaceId: number;
   targetMembers: Partner[];
   studySubject: string;
-  startDate: string;
-  endDate: string;
+  startDate: string; // "yyyy-MM-dd" 형식
+  endDate: string; // "yyyy-MM-dd" 형식
   satisfiedEvalKeywords: EvalKeyword[];
   notBadEvalKeywords: EvalKeyword[];
   unsatisfiedEvalKeywords: EvalKeyword[];
@@ -44,8 +42,8 @@ export interface UserPositiveKeywordsRequest {
 }
 
 export interface UserPositiveKeywordsResponse {
-  totalCount: number | null;
-  reviewerCount: number | null;
+  totalCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
+  reviewerCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
   keywords: Keyword[];
 }
 
@@ -54,8 +52,8 @@ export interface MyNegativeKeywordsRequest {
 }
 
 export interface MyNegativeKeywordsResponse {
-  totalCount: number | null;
-  reviewerCount: number | null;
+  totalCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
+  reviewerCount: number | null; // params에 pageSize 값을 보내지 않는 경우 null
   keywords: Keyword[];
 }
 
@@ -68,11 +66,11 @@ export interface MyReviewWriter {
 export interface MyReviewItem {
   id: number;
   writer: MyReviewWriter;
-  reviewedAt: string;
+  reviewedAt: string; // ISO 날짜 문자열
   content: string;
   studySpaceId: number;
-  startDate: string;
-  endDate: string;
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
   studySubjects: string[];
 }
 
