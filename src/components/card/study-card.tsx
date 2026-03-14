@@ -77,7 +77,7 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
     <Link
       href={href}
       onClick={onClick}
-      className={`hover:shadow-2 hover:border-border-brand rounded-150 cursor-pointer overflow-hidden border border-[#E5E7EB] transition-all ${isCompleted ? 'bg-[#000000] opacity-50' : 'bg-white'}`}
+      className={`hover:shadow-2 hover:border-border-brand rounded-150 cursor-pointer overflow-hidden border border-[#E5E7EB] transition-all ${isCompleted ? 'bg-black opacity-50' : 'bg-white'}`}
     >
       {/* 썸네일 영역 */}
       <div className="relative flex h-[180px] items-center justify-center bg-linear-to-br from-[#F87171] to-[#EC4899]">
