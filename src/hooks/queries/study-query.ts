@@ -7,6 +7,7 @@ import {
 import type {
   GetGroupStudiesClassificationEnum,
   GetGroupStudiesMethodEnum,
+  GetGroupStudiesSortEnum,
   GetGroupStudiesTargetRolesEnum,
   GetGroupStudiesTypeEnum,
 } from '@/api/openapi/api/group-study-management-api';
@@ -21,6 +22,7 @@ interface GetStudiesParams {
   targetRoles?: GetGroupStudiesTargetRolesEnum[];
   method?: GetGroupStudiesMethodEnum[];
   recruiting?: boolean;
+  sort?: GetGroupStudiesSortEnum;
 }
 
 export const useGetStudies = ({
@@ -31,6 +33,7 @@ export const useGetStudies = ({
   targetRoles,
   method,
   recruiting,
+  sort,
 }: GetStudiesParams) => {
   return useQuery({
     queryKey: [
@@ -42,6 +45,7 @@ export const useGetStudies = ({
       targetRoles,
       method,
       recruiting,
+      sort,
     ],
     queryFn: async () => {
       const statuses = recruiting
@@ -55,6 +59,7 @@ export const useGetStudies = ({
         targetRoles,
         method,
         statuses,
+        sort,
       );
 
       return data.content;
