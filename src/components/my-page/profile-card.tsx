@@ -53,8 +53,8 @@ export default function ProfileCard(props: ProfileCardProps) {
           trigger={
             <UserAvatar
               image={
-                applicant.applicantInfo.profileImage?.resizedImages[0]
-                  .resizedImageUrl
+                applicant.applicantInfo.profileImage?.resizedImages?.[0]
+                  ?.resizedImageUrl
               }
               size={48}
               className="shrink-0 cursor-pointer"
