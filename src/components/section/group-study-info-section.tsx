@@ -150,7 +150,7 @@ export default function StudyInfoSection({
               {isLeader && (
                 <div className="relative">
                   <Button
-                    className="h-500 w-[80px] text-[16px] font-bold"
+                    className="h-500 w-[80px] font-designer-16b"
                     onClick={() =>
                       router.push(`/application-list/${groupStudyId}`)
                     }
