@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import {
@@ -51,18 +51,14 @@ export default function ProfileCard(props: ProfileCardProps) {
         <UserProfileModal
           memberId={applicant.applicantInfo.memberId}
           trigger={
-            <div className="relative h-600 w-600 shrink-0 cursor-pointer overflow-hidden rounded-full">
-              <Image
-                src={
-                  applicant.applicantInfo.profileImage?.resizedImages[0]
-                    .resizedImageUrl ?? ''
-                }
-                alt="profile"
-                width={48}
-                height={48}
-                className="h-full w-full object-cover"
-              />
-            </div>
+            <UserAvatar
+              image={
+                applicant.applicantInfo.profileImage?.resizedImages[0]
+                  .resizedImageUrl
+              }
+              size={48}
+              className="shrink-0 cursor-pointer"
+            />
           }
         />
         <div>
