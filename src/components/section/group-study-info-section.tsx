@@ -49,6 +49,7 @@ export default function StudyInfoSection({
   const { data: pendingApplicants } = useApplicantsByStatusQuery({
     groupStudyId,
     status: 'PENDING',
+    enabled: isLeader,
   });
   const pendingCount = pendingApplicants?.pages[0]?.totalElements ?? 0;
 
@@ -157,7 +158,7 @@ export default function StudyInfoSection({
                     관리하기
                   </Button>
                   {pendingCount > 0 && (
-                    <span className="absolute -right-[6px] -top-[6px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-[3px] text-[11px] font-bold text-white">
+                    <span className="absolute -right-75 -top-75 flex h-225 min-w-225 items-center justify-center rounded-full bg-fill-danger-default-default px-30 font-designer-11b text-text-inverse">
                       {pendingCount}
                     </span>
                   )}
@@ -186,6 +187,7 @@ export default function StudyInfoSection({
             questions={studyDetail.interviewPost?.interviewPost ?? []}
             trigger={
               <button
+                type="button"
                 ref={applyTriggerRef}
                 className="sr-only"
                 aria-hidden
