@@ -10,7 +10,7 @@ import { getMemberId } from '@/api/endpoints/auth/auth';
 // 회원 Id 조회
 export const useMemberId = () => {
   return useQuery<{ memberId: string }>({
-    queryKey: ['member'],
+    queryKey: ['member', 'me'],
     queryFn: getMemberId,
     enabled: !!getCookie('accessToken'), // 토큰이 있을 때만 실행
   });

@@ -2,8 +2,8 @@
 
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useMentorDirectoryListQuery } from '@/features/mentoring/model/use-mentor-directory-query';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   getRequestReviewEligibility,

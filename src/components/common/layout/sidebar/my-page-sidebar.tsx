@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 

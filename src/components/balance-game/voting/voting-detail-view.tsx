@@ -21,9 +21,9 @@ import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import Toast from '@/components/common/ui/toast';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import CommentForm from '@/features/study/one-to-one/discussion/ui/comment-form';
 import CommentList from '@/features/study/one-to-one/discussion/ui/comment-list';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import {
   useVoteBalanceGameMutation,
   useCancelVoteBalanceGameMutation,

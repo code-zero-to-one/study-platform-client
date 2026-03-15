@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import StudyCard from '@/components/card/study-card';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 import { hashValue } from '@/utils/hash';

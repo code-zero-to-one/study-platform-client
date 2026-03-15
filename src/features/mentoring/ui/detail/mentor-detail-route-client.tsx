@@ -3,12 +3,12 @@
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { ApiError } from '@/api/client/api-error';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { MENTOR_REGISTRATION_TOAST_MESSAGES } from '@/features/mentoring/const/mentor-registration-labels';
 import {
   useMentorDetailQuery,
   useMyMentorSettingsQuery,
 } from '@/features/mentoring/model/use-mentor-directory-query';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import MentorDetailPage from './mentor-detail-page';
 import {

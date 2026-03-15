@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
 import { fetchArticleBySlug } from '@/api/strapi/api/fetch-articles';
-import { getServerCookie } from '@/utils/server-cookie';
+import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
 import BlogDetailPage from '../ui/blog-detail-page';
 
 export const revalidate = 60;
@@ -144,9 +144,7 @@ export default async function Page({
   }
 
   const article = res.data;
-
-  const memberIdStr = await getServerCookie('memberId');
-  const memberId = memberIdStr ? Number(memberIdStr) : undefined;
+  const memberId = await readAuthenticatedMemberId();
 
   return <BlogDetailPage article={article} memberId={memberId} />;
 }

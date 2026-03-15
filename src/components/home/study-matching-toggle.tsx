@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
 import { ToggleSwitch } from '@/components/common/ui/toggle';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import {
   usePatchAutoMatchingMutation,

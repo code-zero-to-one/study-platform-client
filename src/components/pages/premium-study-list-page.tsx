@@ -8,7 +8,7 @@ import StudyFilter from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
 import PremiumStudyList from '@/components/premium/premium-study-list';
 import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
 

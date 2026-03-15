@@ -8,7 +8,7 @@ import type {
   AutoRunMatchingRequestDto,
   ResetWeeklyMatchingRequest,
 } from '@/api/openapi/models';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   getAdminMatchingRequest,
   useAdminMatchingAdminOptionsQuery,

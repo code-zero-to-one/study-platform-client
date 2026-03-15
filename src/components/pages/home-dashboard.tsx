@@ -6,7 +6,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import FeedbackLink from '@/components/home/feedback-link';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
-import { getServerCookie } from '@/utils/server-cookie';
+import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
 import AccessTimeIcon from 'public/icons/access_time.svg';
 import AssignmentIcon from 'public/icons/assignment.svg';
 import SettingIcon from 'public/icons/setting.svg';
@@ -16,8 +16,11 @@ const StartStudyModal = dynamic(
 );
 
 export default async function HomeDashboard() {
-  const memberIdStr = await getServerCookie('memberId');
-  const memberId = Number(memberIdStr);
+  const memberId = await readAuthenticatedMemberId();
+
+  if (!memberId) {
+    return null;
+  }
 
   const userProfile = await getUserProfileInServer(memberId);
   const temperPreset = getSincerityPresetByLevelName(

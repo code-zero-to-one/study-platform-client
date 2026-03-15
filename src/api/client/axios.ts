@@ -1,7 +1,9 @@
 import axios, { InternalAxiosRequestConfig, isAxiosError } from 'axios';
+import { AUTH_COOKIE_NAMES } from '@/features/auth/model/auth-cookie';
+import { writeAccessTokenSession } from '@/features/auth/model/client-auth-session';
 import { ApiError, isApiError } from './api-error';
 import { attachApiLogger } from './api-logger';
-import { getCookie, setCookie } from './cookie';
+import { getCookie } from './cookie';
 
 // * client-side axios 인스턴스
 
@@ -28,7 +30,7 @@ attachApiLogger(axiosInstance, 'client-json');
 attachApiLogger(axiosInstanceForMultipart, 'client-multipart');
 
 const onRequestClient = (config: InternalAxiosRequestConfig) => {
-  const accessToken = getCookie('accessToken');
+  const accessToken = getCookie(AUTH_COOKIE_NAMES.ACCESS_TOKEN);
 
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
@@ -53,7 +55,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
     const newAccessToken = response.data.content.accessToken;
 
     if (newAccessToken) {
-      setCookie('accessToken', newAccessToken);
+      writeAccessTokenSession(newAccessToken);
 
       return newAccessToken;
     }
@@ -88,7 +90,7 @@ const processFailedQueue = (error: unknown, token?: string) => {
 };
 
 const hasAuthToken = (requestConfig?: InternalAxiosRequestConfig) => {
-  const accessToken = getCookie('accessToken');
+  const accessToken = getCookie(AUTH_COOKIE_NAMES.ACCESS_TOKEN);
   if (accessToken) {
     return true;
   }

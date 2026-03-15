@@ -9,7 +9,7 @@ import {
 } from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
 
 interface DropdownOption {

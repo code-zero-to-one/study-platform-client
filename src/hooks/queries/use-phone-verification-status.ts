@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef } from 'react';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 // 내부 구현에서는 store 직접 사용 허용 (서버 상태와 동기화 목적)
 import { usePhoneVerificationStore } from '@/stores/use-phone-verification-store';

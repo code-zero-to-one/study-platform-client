@@ -1,9 +1,7 @@
 import '../global.css';
 
 import { GoogleTagManager } from '@next/third-parties/google';
-import { clsx } from 'clsx';
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
 import React from 'react';
 import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
@@ -11,8 +9,10 @@ import Header from '@/components/common/layout/home-header';
 import SentryInit from '@/components/common/sentry-init';
 import FloatingInquiryButton from '@/components/common/ui/floating-inquiry-button';
 import GlobalToast from '@/components/common/ui/global-toast';
+import type { AuthHydrationSession } from '@/features/auth/model/auth-hydration-context';
+import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 import MainProvider from '@/providers';
-import { getServerCookie } from '@/utils/server-cookie';
+import { AUTH_SESSION_STATES } from '@/types/auth/domain';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -22,12 +22,6 @@ export const metadata: Metadata = {
   },
 };
 
-const pretendard = localFont({
-  src: '../../../public/fonts/PretendardVariable.woff2',
-  variable: '--font-pretendard',
-  display: 'swap',
-});
-
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
@@ -36,24 +30,32 @@ export default async function ServiceLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialAccessToken = await getServerCookie('accessToken');
+  const initialSession = await readServerAuthSession();
+  const initialHydrationSession: AuthHydrationSession = {
+    accessToken:
+      initialSession.sessionState === AUTH_SESSION_STATES.ANONYMOUS
+        ? undefined
+        : initialSession.accessToken,
+    memberId:
+      initialSession.sessionState === AUTH_SESSION_STATES.AUTHENTICATED_MEMBER
+        ? initialSession.memberId
+        : undefined,
+  };
 
   return (
-    <html lang="ko" className="overflow-x-hidden">
-      <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
-      <body className={clsx(pretendard.className, 'min-h-screen w-screen')}>
-        <SentryInit />
-        <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
-          <GlobalToast />
-          <ClarityInit projectId={CLARITY_PROJECT_ID} />
-          <PageViewTracker />
-          <div className="flex min-h-screen w-full flex-col">
-            <Header />
-            <main className="w-full flex-1">{children}</main>
-            <FloatingInquiryButton />
-          </div>
-        </MainProvider>
-      </body>
-    </html>
+    <>
+      {GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
+      <SentryInit />
+      <MainProvider initialSession={initialHydrationSession}>
+        <GlobalToast />
+        <ClarityInit projectId={CLARITY_PROJECT_ID} />
+        <PageViewTracker />
+        <div className="flex min-h-screen w-full flex-col overflow-x-hidden">
+          <Header />
+          <main className="w-full flex-1">{children}</main>
+          <FloatingInquiryButton />
+        </div>
+      </MainProvider>
+    </>
   );
 }

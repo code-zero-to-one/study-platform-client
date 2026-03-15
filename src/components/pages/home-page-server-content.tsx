@@ -4,9 +4,10 @@ import CommunityTab from '@/components/balance-game/community-tab';
 import HallOfFameTab from '@/components/hall-of-fame/hall-of-fame-tab';
 import StudyTab from '@/components/schedule/home-study-tab';
 import StudyHistoryTab from '@/components/study-history/study-history-tab';
+import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
+import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 import type { HomeTab } from '@/features/home/model/home-page-search-params';
-import { getServerCookie } from '@/utils/server-cookie';
-import { isNumeric } from '@/utils/validation';
+import { AUTH_SESSION_STATES } from '@/types/auth/domain';
 
 interface HomePageServerContentProps {
   activeTab: HomeTab;
@@ -16,10 +17,10 @@ export default async function HomePageServerContent({
   activeTab,
 }: HomePageServerContentProps) {
   const isHistoryTab = activeTab === 'history';
-  const memberIdString = isHistoryTab
-    ? await getServerCookie('memberId')
-    : null;
-  const canViewHistory = !!memberIdString && isNumeric(memberIdString);
+  const { sessionState } = isHistoryTab
+    ? await readServerAuthSession()
+    : { sessionState: AUTH_SESSION_STATES.ANONYMOUS };
+  const canViewHistory = isAuthenticatedMemberSessionState(sessionState);
 
   const renderTabContent = () => {
     switch (activeTab) {
