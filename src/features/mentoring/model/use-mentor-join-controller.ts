@@ -2,8 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { MENTORING_LIST_ERROR_MESSAGES } from '@/features/mentoring/const/mentoring-list-labels';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import { useToastStore } from '@/stores/use-toast-store';
 import { hasMentorWritePermission } from './mentor-permission';

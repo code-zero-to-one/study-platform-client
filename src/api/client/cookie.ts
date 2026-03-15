@@ -1,3 +1,8 @@
+import {
+  CLIENT_AUTH_COOKIE_NAMES,
+  type AuthCookieName,
+} from '@/features/auth/model/auth-cookie';
+
 interface CookieOptions {
   path?: string;
   secure?: boolean;
@@ -5,6 +10,18 @@ interface CookieOptions {
   maxAge?: number;
   httpOnly?: boolean;
 }
+
+const resolveSecureOption = (secure: boolean | undefined): boolean => {
+  if (secure !== undefined) {
+    return secure;
+  }
+
+  if (typeof window === 'undefined') {
+    return process.env.NODE_ENV === 'production';
+  }
+
+  return window.location.protocol === 'https:';
+};
 
 // 쿠키 설정
 export const setCookie = (
@@ -14,17 +31,18 @@ export const setCookie = (
 ): void => {
   const {
     path = '/',
-    secure = true,
+    secure,
     sameSite = 'Lax', // Strict에서 Lax로 변경: 외부 사이트에서 redirect 시 쿠키 전송 허용
     maxAge = 86400, // 1일
     httpOnly = false,
   } = options;
+  const shouldUseSecure = resolveSecureOption(secure);
 
   const cookie = [
     `${name}=${encodeURIComponent(value)}`,
     `path=${path}`,
     `max-age=${maxAge}`,
-    secure ? 'secure' : '',
+    shouldUseSecure ? 'secure' : '',
     `samesite=${sameSite}`,
     httpOnly ? 'httponly' : '',
   ]
@@ -60,9 +78,7 @@ export const deleteCookie = (name: string, path = '/'): void => {
 
 // 사용자 세션 초기화
 export const clearUserSession = (): void => {
-  ['memberId', 'userName', 'profileImage', 'accessToken'].forEach(
-    (cookieName) => {
-      deleteCookie(cookieName);
-    },
-  );
+  CLIENT_AUTH_COOKIE_NAMES.forEach((cookieName: AuthCookieName) => {
+    deleteCookie(cookieName);
+  });
 };

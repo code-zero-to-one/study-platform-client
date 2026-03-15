@@ -3,11 +3,11 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/common/ui/button';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   createDefaultMentorSettings,
   createEmptyWeeklySchedule,
 } from '@/features/mentoring/model/mentor-settings';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';

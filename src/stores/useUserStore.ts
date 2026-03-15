@@ -25,14 +25,26 @@ const initialState: UserInfo = {
   profileImageUrl: null,
 };
 
+const createPendingUserInfo = (memberId: number): UserInfo => ({
+  ...initialState,
+  memberId,
+});
+
 export const useUserStore = create<UserStore>()(
   persist(
     (set) => ({
       ...initialState,
       setUserInfo: (info) => set((state) => ({ ...state, ...info })),
       fetchAndSetUser: async (memberId: number) => {
+        set(createPendingUserInfo(memberId));
+
         try {
           const profile = await getUserProfile(memberId);
+
+          if (useUserStore.getState().memberId !== memberId) {
+            return;
+          }
+
           const originalProfileImageUrl =
             profile.memberProfile.profileImage?.resizedImages?.find(
               (image) => image.imageSizeType.imageTypeName === 'ORIGINAL',
@@ -48,8 +60,12 @@ export const useUserStore = create<UserStore>()(
             profileImageUrl: originalProfileImageUrl ?? fallbackProfileImageUrl,
           });
         } catch (error) {
+          if (useUserStore.getState().memberId !== memberId) {
+            return;
+          }
+
           if (isApiError(error) && error.statusCode === 404) {
-            set(initialState);
+            set(createPendingUserInfo(memberId));
 
             return;
           }

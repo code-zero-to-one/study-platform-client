@@ -10,7 +10,7 @@ import SortDropdown from '@/components/common/ui/filters/sort-dropdown';
 import StudyFilter from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
 import GroupStudyPagination from '@/components/lists/group-study-pagination';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import GroupStudyList from '../lists/group-study-list';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';

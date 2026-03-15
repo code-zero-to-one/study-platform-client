@@ -3,7 +3,6 @@
 import { XIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState, useMemo } from 'react';
-import { getCookie } from '@/api/client/cookie';
 import KeywordReview from '@/components/common/cards/keyword-review';
 import ProfileInfoCard from '@/components/common/cards/profile-info-card';
 import UserAvatar from '@/components/common/ui/avatar';
@@ -16,11 +15,12 @@ import PhoneIcon from '@/components/my-page/icon/phone.svg';
 import TechStackIcon from '@/components/my-page/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/components/my-page/icon/verified-check.svg';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 import { useUserPositiveKeywordsQuery } from '@/hooks/queries/use-review-query';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+import { AUTH_ROLE_IDS } from '@/types/auth/domain';
 import { formatPhoneNumber } from '@/utils/format';
-import { decodeJwt } from '@/utils/jwt';
 
 interface UserProfileModalProps {
   memberId: number;
@@ -63,15 +63,14 @@ function UserProfileBody({
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     memberId,
   });
-  // 관리자 여부 확인 (JWT 서명으로 보호됨)
-  const accessToken = getCookie('accessToken');
-  const decodedJwt = accessToken ? decodeJwt(accessToken) : null;
-  const isAdmin = decodedJwt?.roleIds?.includes('ROLE_ADMIN') ?? false;
-
-  // 본인 여부 확인: accessToken이 없으면 비인증 사용자이므로 항상 false
-  // middleware가 인증된 사용자의 memberId 쿠키를 /auth/me 응답값으로 정규화하므로 신뢰 가능
-  const currentMemberId = accessToken ? Number(getCookie('memberId')) : null;
-  const isMe = currentMemberId !== null && currentMemberId === memberId;
+  const {
+    data: authData,
+    isAuthReady,
+    memberId: authMemberId,
+  } = useAuthReady();
+  const isAdmin =
+    isAuthReady && authData?.roleIds.includes(AUTH_ROLE_IDS.ADMIN) === true;
+  const isMe = isAuthReady && authMemberId === memberId;
 
   //  같은 스터디 참가자 여부 확인
   const params = useParams();
@@ -87,7 +86,7 @@ function UserProfileBody({
     if (
       !groupStudyId ||
       !approvedApplicantsData?.pages ||
-      currentMemberId === null
+      typeof authMemberId !== 'number'
     )
       return false;
     const approvedApplicants = approvedApplicantsData.pages.flatMap(
@@ -95,9 +94,9 @@ function UserProfileBody({
     );
 
     return approvedApplicants.some(
-      (apply) => apply.applicantInfo.memberId === currentMemberId,
+      (apply) => apply.applicantInfo.memberId === authMemberId,
     );
-  }, [groupStudyId, approvedApplicantsData, currentMemberId]);
+  }, [authMemberId, groupStudyId, approvedApplicantsData]);
 
   // 최종 이름, 전화번호 표시 가능 여부
   const canSeePhoneNumber = isMe || isAdmin || isSameStudyMember;

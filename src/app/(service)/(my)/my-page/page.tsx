@@ -8,12 +8,11 @@ import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile
 import Button from '@/components/common/ui/button';
 import Profile from '@/components/my-page/profile';
 import ProfileInfo from '@/components/my-page/profile-info';
+import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
 import type { GetUserProfileResponse } from '@/types/api/user.types';
-import { getServerCookie } from '@/utils/server-cookie';
 
 export default async function MyPage() {
-  const memberIdStr = await getServerCookie('memberId');
-  const memberId = Number(memberIdStr);
+  const memberId = await readAuthenticatedMemberId();
 
   if (!Number.isFinite(memberId) || memberId <= 0) {
     return (

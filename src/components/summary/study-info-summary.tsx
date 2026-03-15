@@ -16,7 +16,7 @@ import {
   STUDY_STATUS_LABELS,
   STUDY_TYPE_LABELS,
 } from '@/config/group-study-const';
-import { useAuth } from '@/hooks/common/use-auth';
+import { useAuth } from '@/features/auth/model/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import { useGetMyTransactionsByGroupStudy } from '@/hooks/queries/payment-user-api';
 import { useToastStore } from '@/stores/use-toast-store';

@@ -12,7 +12,7 @@ import {
   STUDY_DETAIL_TABS,
   type StudyTabValue,
 } from '@/config/constants';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import {
   useCompleteGroupStudyMutation,
