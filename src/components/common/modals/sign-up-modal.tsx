@@ -1,7 +1,6 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { XIcon, ArrowLeft } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { setCookie } from '@/api/client/cookie';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { Modal } from '@/components/common/ui/modal';
 import {
@@ -12,6 +11,7 @@ import {
   GoalStep,
   SuccessStep,
 } from '@/components/forms/sign-up-steps';
+import { writeExistingMemberSession } from '@/features/auth/model/client-auth-session';
 import {
   useSignUpMutation,
   useUploadProfileImageMutation,
@@ -116,12 +116,11 @@ export default function SignupModal({
         const content = data?.content;
         const memberId = content?.generatedMemberId;
         const accessToken = content?.accessToken;
-        const refreshToken = content?.refreshToken;
-        if (memberId && accessToken && refreshToken) {
-          setCookie('memberId', memberId);
-          setCookie('accessToken', accessToken);
-          // refreshToken도 쿠키에 저장 (필요 시 secure, httpOnly 설정 등 고려)
-          setCookie('refresh_token', refreshToken);
+        if (memberId && accessToken) {
+          writeExistingMemberSession({
+            accessToken,
+            memberId,
+          });
 
           // 이미지 업로드
           if (signupData.file) {

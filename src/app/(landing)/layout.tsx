@@ -1,16 +1,16 @@
 import '../global.css';
 
 import { GoogleTagManager } from '@next/third-parties/google';
-import { clsx } from 'clsx';
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
 import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import Header from '@/components/common/layout/home-header';
 import GlobalToast from '@/components/common/ui/global-toast';
+import type { AuthHydrationSession } from '@/features/auth/model/auth-hydration-context';
+import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 import MainProvider from '@/providers';
+import { AUTH_SESSION_STATES } from '@/types/auth/domain';
 import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
-import { getServerCookie } from '@/utils/server-cookie';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE - 1:1 기상 스터디 플랫폼',
@@ -48,12 +48,6 @@ export const metadata: Metadata = {
   },
 };
 
-const pretendard = localFont({
-  src: '../../../public/fonts/PretendardVariable.woff2',
-  variable: '--font-pretendard',
-  display: 'swap',
-});
-
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
@@ -62,37 +56,39 @@ export default async function LandingPageLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialAccessToken = await getServerCookie('accessToken');
+  const initialSession = await readServerAuthSession();
+  const initialHydrationSession: AuthHydrationSession = {
+    accessToken:
+      initialSession.sessionState === AUTH_SESSION_STATES.ANONYMOUS
+        ? undefined
+        : initialSession.accessToken,
+    memberId:
+      initialSession.sessionState === AUTH_SESSION_STATES.AUTHENTICATED_MEMBER
+        ? initialSession.memberId
+        : undefined,
+  };
   const organizationSchema = getOrganizationSchema();
   const websiteSchema = getWebsiteSchema();
 
   return (
-    <html lang="ko">
-      <head>
-        {GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
-        {/* Organization Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationSchema),
-          }}
-        />
-        {/* Website Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(websiteSchema),
-          }}
-        />
-        {/* Additional Meta Tags */}
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#000000" />
-        <link rel="manifest" href="/manifest.json" />
-      </head>
-      <body className={clsx(pretendard.className, 'h-screen w-screen')}>
-        <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
-          <ClarityInit projectId={CLARITY_PROJECT_ID} />
-          <PageViewTracker />
+    <>
+      {GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(organizationSchema),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(websiteSchema),
+        }}
+      />
+      <MainProvider initialSession={initialHydrationSession}>
+        <ClarityInit projectId={CLARITY_PROJECT_ID} />
+        <PageViewTracker />
+        <div className="h-screen w-screen">
           <div className="w-full">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
             <div className="m-auto flex min-w-[1496px] flex-1 flex-col items-center">
@@ -100,9 +96,9 @@ export default async function LandingPageLayout({
               <main className="w-full">{children}</main>
             </div>
           </div>
-          <GlobalToast />
-        </MainProvider>
-      </body>
-    </html>
+        </div>
+        <GlobalToast />
+      </MainProvider>
+    </>
   );
 }

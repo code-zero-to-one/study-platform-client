@@ -3,11 +3,12 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { deleteCookie, getCookie } from '@/api/client/cookie';
+import { getCookie } from '@/api/client/cookie';
+import { logout, signUp, uploadProfileImage } from '@/api/endpoints/auth/auth';
+import { clearClientSession } from '@/features/auth/model/client-auth-session';
 
 // 로그아웃 시 인증 상태 리셋을 위해 store 직접 사용 (mutation 내부 사용)
 
-import { logout, signUp, uploadProfileImage } from '@/api/endpoints/auth/auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useUserStore } from '@/stores/useUserStore';
@@ -57,9 +58,7 @@ export const useLogoutMutation = () => {
           dl_member_id: hashValue(memberId),
         });
 
-      deleteCookie('accessToken');
-      deleteCookie('memberId');
-      deleteCookie('socialImageURL');
+      clearClientSession();
 
       resetUserStore();
       resetPhoneVerification();

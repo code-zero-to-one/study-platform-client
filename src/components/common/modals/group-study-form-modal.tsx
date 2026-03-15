@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import type { GroupStudyFullResponseDto } from '@/api/openapi';
 import { Modal } from '@/components/common/ui/modal';
 import GroupStudyForm from '@/components/forms/group-study-form';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useCreateGroupStudyMutation,
   useUpdateGroupStudyMutation,

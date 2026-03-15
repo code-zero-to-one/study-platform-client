@@ -1,14 +1,13 @@
 import '../global.css';
 
 import { GoogleTagManager } from '@next/third-parties/google';
-import { clsx } from 'clsx';
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import AdminSideBar from '@/components/common/layout/sidebar/admin-sidebar';
 import GlobalToast from '@/components/common/ui/global-toast';
+import type { AuthHydrationSession } from '@/features/auth/model/auth-hydration-context';
+import { requireAdminRoute } from '@/features/auth/model/server-route-guard';
 import MainProvider from '@/providers';
-import { getServerCookie } from '@/utils/server-cookie';
 
 export const metadata: Metadata = {
   title: '관리자 - ZERO-ONE',
@@ -22,12 +21,6 @@ export const metadata: Metadata = {
   },
 };
 
-const pretendard = localFont({
-  src: '../../../public/fonts/PretendardVariable.woff2',
-  variable: '--font-pretendard',
-  display: 'swap',
-});
-
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 
 export default async function AdminLayout({
@@ -35,22 +28,23 @@ export default async function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialAccessToken = await getServerCookie('accessToken');
+  const { accessToken, memberId } = await requireAdminRoute();
+  const initialSession: AuthHydrationSession = {
+    accessToken,
+    memberId: String(memberId),
+  };
 
   return (
-    <html lang="ko" className="overflow-x-hidden">
-      <head>{GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}</head>
-      <body className={clsx(pretendard.className, 'h-screen w-screen')}>
-        <MainProvider initialAccessToken={initialAccessToken ?? undefined}>
-          <PageViewTracker />
-          <div className="flex min-w-[1200px]">
-            <AdminSideBar />
-
-            <main className="flex-1 p-300">{children}</main>
-          </div>
-          <GlobalToast />
-        </MainProvider>
-      </body>
-    </html>
+    <>
+      {GTM_ID && <GoogleTagManager gtmId={GTM_ID} />}
+      <MainProvider initialSession={initialSession}>
+        <PageViewTracker />
+        <div className="flex min-w-[1200px] overflow-x-hidden">
+          <AdminSideBar />
+          <main className="flex-1 p-300">{children}</main>
+        </div>
+        <GlobalToast />
+      </MainProvider>
+    </>
   );
 }

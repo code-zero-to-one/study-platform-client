@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { redirect } from 'next/navigation';
+import { AUTH_COOKIE_NAMES } from '@/features/auth/model/auth-cookie';
+import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 import { getServerCookie, setServerCookie } from './server-cookie';
 
 export async function getLoginUserId(): Promise<number | undefined> {
-  // memberId 쿠키 우선 확인 (기존 로직)
-  const memberIdStr = await getServerCookie('memberId');
+  const { accessToken: sessionAccessToken, memberId: memberIdStr } =
+    await readServerAuthSession();
   if (!memberIdStr) return null;
 
   const memberId = Number(memberIdStr);
@@ -15,7 +17,7 @@ export async function getLoginUserId(): Promise<number | undefined> {
   */
 
   // 1. accessToken 쿠키 확인
-  let accessToken = await getServerCookie('accessToken');
+  let accessToken = sessionAccessToken;
   if (!accessToken) return null;
 
   // 2. accessToken으로 /auth/me 호출
@@ -42,7 +44,9 @@ export async function getLoginUserId(): Promise<number | undefined> {
         );
         accessToken = refreshRes.data.accessToken;
         // 5. SSR에서 최신화된 AccessToken을 쿠키등록
-        await setServerCookie('accessToken', accessToken, { path: '/' });
+        await setServerCookie(AUTH_COOKIE_NAMES.ACCESS_TOKEN, accessToken, {
+          path: '/',
+        });
 
         // 6. 갱신된 토큰으로 다시 /auth/me 호출
         const res2 = await axios.get(

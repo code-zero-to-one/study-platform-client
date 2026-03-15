@@ -7,7 +7,7 @@ import { useRef } from 'react';
 import type { CurriculumSummaryDto } from '@/api/openapi';
 import LoginModal from '@/components/common/modals/login-modal';
 import Tooltip from '@/components/common/ui/tooltip';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 
 const FIRST_INDEX = 0;

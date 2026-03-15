@@ -3,7 +3,7 @@
 import dayjs from 'dayjs';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/common/ui/button';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useUserStore } from '@/stores/useUserStore';

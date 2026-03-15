@@ -10,6 +10,7 @@ import {
   useState,
 } from 'react';
 import { useForm, type UseFormReturn, useWatch } from 'react-hook-form';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { MENTOR_REGISTRATION_TOAST_MESSAGES } from '@/features/mentoring/const/mentor-registration-labels';
 import { hasMentorWritePermission } from '@/features/mentoring/model/mentor-permission';
 import {
@@ -31,7 +32,6 @@ import {
 import { useMentorRegistrationPreviewModel } from '@/features/mentoring/model/use-mentor-registration-preview-model';
 import { useMentorRegistrationPreviewPanel } from '@/features/mentoring/model/use-mentor-registration-preview-panel';
 import { useUpsertMyMentorSettingsMutation } from '@/features/mentoring/model/use-upsert-my-mentor-settings-mutation';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';

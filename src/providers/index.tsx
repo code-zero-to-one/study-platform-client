@@ -1,32 +1,33 @@
 'use client';
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useEffect } from 'react';
-import { getCookie } from '@/api/client/cookie';
-import { AuthHydrationProvider } from '@/hooks/common/auth-hydration-context';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useEffect, useLayoutEffect } from 'react';
+import {
+  AuthHydrationProvider,
+  type AuthHydrationSession,
+} from '@/features/auth/model/auth-hydration-context';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import QueryProvider from '@/providers/query-provider';
 import { useUserStore } from '@/stores/useUserStore';
 
 interface ProviderProps {
   children: React.ReactNode;
-  initialAccessToken?: string;
+  initialSession?: AuthHydrationSession;
 }
 
 function UserInitializer({ children }: ProviderProps) {
-  const { memberId: authMemberId, isAuthReady } = useAuthReady();
+  const { memberId: authMemberId, isAuthReady, isHydrated } = useAuthReady();
   const { memberId, fetchAndSetUser, reset } = useUserStore();
 
-  // 로컬 로그인의 경우 localStorage에 담은 유저정보를 로그아웃시 초기화하는 로직 (QA, Live 환경에선 사용하지 않음)
-  useEffect(() => {
-    if (isAuthReady) {
-      const isAccessToken = getCookie('accessToken');
-
-      if (!isAccessToken) {
-        reset();
-      }
+  useLayoutEffect(() => {
+    if (!isHydrated) {
+      return;
     }
-  }, [isAuthReady, reset]);
+
+    if (!isAuthReady) {
+      reset();
+    }
+  }, [isAuthReady, isHydrated, reset]);
 
   useEffect(() => {
     // [보안 마이그레이션] sessionStorage 전환 이후 localStorage의 잔여 민감 데이터 정리.
@@ -34,18 +35,8 @@ function UserInitializer({ children }: ProviderProps) {
     localStorage.removeItem('user-info-storage');
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isAuthReady || !authMemberId) {
-      return;
-    }
-
-    const cookieMemberId = Number(getCookie('memberId'));
-    const hasValidCookieMemberId =
-      Number.isInteger(cookieMemberId) && cookieMemberId > 0;
-
-    if (!hasValidCookieMemberId || cookieMemberId !== authMemberId) {
-      reset();
-
       return;
     }
 
@@ -53,14 +44,14 @@ function UserInitializer({ children }: ProviderProps) {
       // eslint-disable-next-line no-void
       void fetchAndSetUser(authMemberId);
     }
-  }, [isAuthReady, authMemberId, memberId, fetchAndSetUser, reset]);
+  }, [isAuthReady, authMemberId, memberId, fetchAndSetUser]);
 
   return <>{children}</>;
 }
 
-function MainProvider({ children, initialAccessToken }: ProviderProps) {
+function MainProvider({ children, initialSession }: ProviderProps) {
   return (
-    <AuthHydrationProvider initialAccessToken={initialAccessToken}>
+    <AuthHydrationProvider initialSession={initialSession}>
       <QueryProvider>
         <UserInitializer>
           {children}
