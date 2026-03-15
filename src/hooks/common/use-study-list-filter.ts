@@ -1,11 +1,12 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
+import { GetGroupStudiesSortEnum } from '@/api/openapi/api/group-study-management-api';
 import type {
-  GetGroupStudiesTypeEnum,
-  GetGroupStudiesTargetRolesEnum,
-  GetGroupStudiesMethodEnum,
   GetGroupStudiesClassificationEnum,
+  GetGroupStudiesMethodEnum,
+  GetGroupStudiesTargetRolesEnum,
+  GetGroupStudiesTypeEnum,
 } from '@/api/openapi/api/group-study-management-api';
 import type { StudyFilterValues } from '@/components/filtering/study-filter';
 import { useGetStudies } from '@/hooks/queries/study-query';
@@ -28,6 +29,9 @@ export function useStudyListFilter({
     recruiting: true,
   });
   const [currentPage, setCurrentPage] = useState(1);
+  const [sort, setSort] = useState<GetGroupStudiesSortEnum>(
+    GetGroupStudiesSortEnum.Latest,
+  );
 
   const isClientFiltered =
     !!searchQuery || filterValues.experienceLevels.length > 0;
@@ -49,9 +53,15 @@ export function useStudyListFilter({
         ? (filterValues.method as GetGroupStudiesMethodEnum[])
         : undefined,
     recruiting: filterValues.recruiting ? true : undefined,
+    sort,
   });
 
   const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
+
+  const handleSortChange = useCallback((value: GetGroupStudiesSortEnum) => {
+    setSort(value);
+    setCurrentPage(1);
+  }, []);
 
   const handleFilterChange = useCallback((values: StudyFilterValues) => {
     setFilterValues(values);
@@ -107,8 +117,10 @@ export function useStudyListFilter({
     totalPages,
     displayStudies,
     isLoading,
+    sort,
     handleFilterChange,
     handlePageChange,
     handleSearch,
+    handleSortChange,
   };
 }

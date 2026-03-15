@@ -105,7 +105,6 @@ export default function GroupStudyMemberItem({
               member.id !== myId &&
               (discretionCount < EVALUATION_COUNT ? (
                 <DiscretionaryEvaluationModal
-                  key={discretionCount}
                   groupStudyId={groupStudyId}
                   memberId={member.id}
                 />

@@ -45,6 +45,14 @@ export default function StudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
+
+  const { data: pendingApplicants } = useApplicantsByStatusQuery({
+    groupStudyId,
+    status: 'PENDING',
+    enabled: isLeader,
+  });
+  const pendingCount = pendingApplicants?.pages[0]?.totalElements ?? 0;
+
   const applicants = useMemo(
     () => approvedApplicants?.pages[0]?.content ?? [],
     [approvedApplicants?.pages],
@@ -140,14 +148,21 @@ export default function StudyInfoSection({
                 <span className="text-[#A4A7AE]">{`${approvedApplicants?.pages[0]?.totalElements ?? 0}명`}</span>
               </div>
               {isLeader && (
-                <Button
-                  className="h-500 w-[80px] text-[16px] font-bold"
-                  onClick={() =>
-                    router.push(`/application-list/${groupStudyId}`)
-                  }
-                >
-                  관리하기
-                </Button>
+                <div className="relative">
+                  <Button
+                    className="h-500 w-[80px] font-designer-16b"
+                    onClick={() =>
+                      router.push(`/application-list/${groupStudyId}`)
+                    }
+                  >
+                    관리하기
+                  </Button>
+                  {pendingCount > 0 && (
+                    <span className="absolute -right-75 -top-75 flex h-225 min-w-225 items-center justify-center rounded-full bg-fill-danger-default-default px-30 font-designer-11b text-text-inverse">
+                      {pendingCount}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 
@@ -172,6 +187,7 @@ export default function StudyInfoSection({
             questions={studyDetail.interviewPost?.interviewPost ?? []}
             trigger={
               <button
+                type="button"
                 ref={applyTriggerRef}
                 className="sr-only"
                 aria-hidden

@@ -3,7 +3,7 @@ import { recordArchiveView } from '@/api/endpoints/archive/record-view';
 import { ARCHIVE_QUERY_KEYS } from '@/hooks/queries/archive-keys';
 import { ArchiveResponse } from '@/types/one-to-one-study/archive';
 
-const VIEWED_ARCHIVES_KEY = 'viewed_archives';
+export const VIEWED_ARCHIVES_KEY = 'viewed_archives';
 
 // localStorage에서 조회한 아카이브 목록 가져오기
 const getViewedArchives = (): Record<number, number> => {
@@ -57,6 +57,10 @@ export const useRecordArchiveViewMutation = () => {
       if (hasViewed(id)) {
         return;
       }
+
+      // window focus 등으로 진행 중인 아카이브 재요청을 취소하여
+      // 낙관적 업데이트가 구버전 데이터로 덮어씌워지지 않도록 보호
+      await queryClient.cancelQueries({ queryKey: ARCHIVE_QUERY_KEYS.all });
 
       // 낙관적 업데이트: 조회수 즉시 +1
       queryClient.setQueriesData<ArchiveResponse>(

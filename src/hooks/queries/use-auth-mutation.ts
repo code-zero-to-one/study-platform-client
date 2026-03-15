@@ -14,6 +14,7 @@ import { useUserStore } from '@/stores/useUserStore';
 import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
 import { hashValue } from '@/utils/hash';
 import { usePhoneVerificationStore } from './use-phone-verification-status';
+import { VIEWED_ARCHIVES_KEY } from './use-view-mutation';
 
 // 회원가입 요청 커스텀 훅
 export const useSignUpMutation = () => {
@@ -60,6 +61,8 @@ export const useLogoutMutation = () => {
       deleteCookie('accessToken');
       deleteCookie('memberId');
       deleteCookie('socialImageURL');
+
+      localStorage.removeItem(VIEWED_ARCHIVES_KEY);
 
       resetUserStore();
       resetPhoneVerification();
