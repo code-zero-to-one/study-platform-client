@@ -8,9 +8,21 @@ import {
   NoteConsultationGrid,
   NoteConsultationHeader,
 } from '@/features/mentoring/ui/note-consultation/note-consultation-composite';
+import type { NoteConsultationChannel } from '@/types/mentoring/note-consultation-view';
 
-export default function NoteConsultationContainer() {
-  const { state, viewModel, actions } = useNoteConsultationController();
+interface NoteConsultationContainerProps {
+  initialRequestId?: string;
+  initialChannel?: NoteConsultationChannel;
+}
+
+export default function NoteConsultationContainer({
+  initialRequestId,
+  initialChannel,
+}: NoteConsultationContainerProps) {
+  const { state, viewModel, actions } = useNoteConsultationController({
+    initialRequestId,
+    initialChannel,
+  });
 
   return (
     <MentoringStateBoundary
@@ -37,8 +49,14 @@ export default function NoteConsultationContainer() {
                 activeChannel={state.activeChannel}
                 searchKeyword={state.searchKeyword}
                 filteredItems={viewModel.filteredItems}
+                itemStatusSummaries={viewModel.itemStatusSummaries}
+                activeChannelSummaryItems={viewModel.activeChannelSummaryItems}
                 selectedRequestId={state.selectedRequestId}
                 selectedItem={viewModel.selectedItem}
+                pinnedItem={viewModel.pinnedItem}
+                pinnedItemStatusSummary={viewModel.pinnedItemStatusSummary}
+                isRestoringPinnedItem={viewModel.isRestoringPinnedItem}
+                hasMissingPinnedItem={viewModel.hasMissingPinnedItem}
                 draft={state.draft}
                 canSend={viewModel.canSend}
                 onActiveChannelChange={actions.setActiveChannel}

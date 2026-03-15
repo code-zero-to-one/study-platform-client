@@ -10,6 +10,7 @@ import {
   Monitor,
   Phone,
   RotateCcw,
+  SquareArrowOutUpRight,
   Star,
   UserRound,
   Users,
@@ -45,7 +46,8 @@ import {
   getMentorScheduleDraftErrors,
 } from '@/features/mentoring/model/mentor-settings';
 import MentorCareerEntriesEditor from '@/features/mentoring/ui/registration/mentor-career-entries-editor';
-import MentorMarkdownEditor from '@/features/mentoring/ui/registration/mentor-markdown-editor';
+import { MENTORING_DISCORD_INVITE_URL } from '@/features/mentoring/model/mentoring-flow-policy';
+import MentorMarkdownEditor from '@/features/mentoring/ui/common/mentoring-markdown-editor';
 import WeeklyScheduleGrid from '@/features/mentoring/ui/settings/weekly-schedule-grid';
 import { normalizeMentorMarkdownContent } from '@/types/mentoring/markdown';
 import {
@@ -73,18 +75,15 @@ const METHOD_FIELDS: MentorRegistrationMethodField[] = [
     enabledField: 'noteEnabled',
     priceField: 'notePrice',
     label: '쪽지상담',
-    description:
-      '미리 질문/고민/자료를 전달하고 텍스트로 빠르게 답변받는 비동기 상담입니다.',
-    policySummary: '결제 후 멘토의 첫 답장이 수락 처리됩니다.',
+    description: '질문과 자료를 먼저 받고 텍스트로 답변합니다.',
+    policySummary: '결제 후 첫 답장이 시작입니다.',
   },
   {
     enabledField: 'simpleEnabled',
     priceField: 'simplePrice',
     label: '간편상담',
-    description:
-      '허들을 낮춘 빠른 상담 방식입니다. 질문/자료를 선제출하고 15분 내 핵심 피드백을 받습니다.',
-    policySummary:
-      '결제 후 멘토 수락이 필요하며, 48시간 내 미응답 시 자동 거절됩니다.',
+    description: '질문을 먼저 받고 15분 안에 핵심만 상담합니다.',
+    policySummary: '결제 후 수락, 48시간 무응답 시 자동 거절.',
   },
   {
     enabledField: 'deepEnabled',
@@ -101,12 +100,16 @@ const METHOD_FIELDS: MentorRegistrationMethodField[] = [
     priceField: 'offlinePrice',
     durationField: 'offlineDurationMinutes',
     label: '대면상담',
-    description:
-      '커피챗/심층 상담 방식입니다. 필요 시 세일즈 제안 목적 상담으로도 활용할 수 있습니다.',
-    policySummary:
-      '결제 후 멘토 수락이 필요하며, 48시간 내 미응답 시 자동 거절됩니다.',
+    description: '오프라인에서 커피챗이나 심층 상담을 진행합니다.',
+    policySummary: '결제 후 수락, 48시간 무응답 시 자동 거절.',
   },
 ];
+
+const MENTOR_OPERATION_CHECKPOINTS = [
+  '24시간 안에 확인',
+  '48시간 넘기면 자동 거절될 수 있음',
+  '기본 진행은 디스코드',
+] as const;
 
 const MIN_MENTORING_PRICE = 3000;
 const MAX_MENTORING_PRICE = 1_000_000;

@@ -1,3 +1,4 @@
+import { extractImageUrls } from '@/types/mentoring/markdown';
 import type {
   MentoringRequestContentBlock,
   MentoringRequestFileBlock,
@@ -25,6 +26,79 @@ export const DEFAULT_MENTORING_REQUEST_RICH_TEXT_DOCUMENT: MentoringRequestRichT
       children: [{ text: '' }],
     },
   ];
+
+const HTML_TAG_PATTERN = /<[a-z][\s\S]*>/i;
+const HTML_LINK_PATTERN = /<a[^>]+href="([^"]+)"/gi;
+
+const decodeHtmlEntities = (value: string) => {
+  return value
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'");
+};
+
+const escapeHtml = (value: string) => {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
+const stripHtmlTags = (html: string) => {
+  return decodeHtmlEntities(
+    html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/(p|div|h1|h2|h3|blockquote|pre)>/gi, '\n')
+      .replace(/<li[^>]*>/gi, '- ')
+      .replace(/<\/li>/gi, '\n')
+      .replace(/<[^>]+>/g, ''),
+  );
+};
+
+const getFileNameFromUrl = (url: string) => {
+  try {
+    const pathname = new URL(url, 'https://zeroone.local').pathname;
+    const fileName = pathname.split('/').pop()?.trim();
+
+    return fileName && fileName.length > 0 ? fileName : url;
+  } catch {
+    return url;
+  }
+};
+
+const extractHtmlLinks = (html: string) => {
+  return Array.from(html.matchAll(HTML_LINK_PATTERN))
+    .map((match) => (match[1] ?? '').trim())
+    .filter((url) => url.length > 0);
+};
+
+const getHtmlAttachmentData = (html: string) => {
+  return {
+    fileNames: extractImageUrls(html).map(getFileNameFromUrl),
+    links: extractHtmlLinks(html),
+  };
+};
+
+const getHtmlMessageLines = (html: string) => {
+  const plainText = stripHtmlTags(html)
+    .split(/\n{2,}/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+  const attachmentData = getHtmlAttachmentData(html);
+  const imageLines = attachmentData.fileNames.map((fileName) => {
+    return `[이미지] ${fileName}`;
+  });
+  const linkLines = attachmentData.links.map((url) => {
+    return `[링크] ${url}`;
+  });
+
+  return [...plainText, ...imageLines, ...linkLines];
+};
 
 const isRecord = (value: unknown): value is Record<string, unknown> => {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -152,6 +226,10 @@ const createBlockId = () => {
 export const parseMentoringRequestRichTextDocument = (
   document: string,
 ): MentoringRequestRichTextNode[] => {
+  if (HTML_TAG_PATTERN.test(document)) {
+    return [];
+  }
+
   try {
     const parsed = JSON.parse(document);
     if (!Array.isArray(parsed)) {
@@ -168,6 +246,10 @@ export const serializeMentoringRequestRichTextDocument = (
   document: MentoringRequestRichTextNode[],
 ) => {
   return JSON.stringify(document);
+};
+
+export const isMentoringRequestHtmlDocument = (document: string) => {
+  return HTML_TAG_PATTERN.test(document);
 };
 
 export const createMentoringRequestParagraphBlock = (
@@ -234,6 +316,31 @@ export const createMentoringRequestRichTextBlock = (
   };
 };
 
+export const createMentoringRequestHtmlBlock = (
+  html: string,
+  id?: string,
+): MentoringRequestRichTextBlock => {
+  return {
+    id: id ?? createBlockId(),
+    type: 'richText',
+    document: html,
+  };
+};
+
+export const convertMentoringRequestLegacyTextToHtml = (text: string) => {
+  const trimmed = text.trim();
+  if (trimmed.length === 0) {
+    return '';
+  }
+
+  return trimmed
+    .split(/\n{2,}/)
+    .map((paragraph) => {
+      return `<p>${escapeHtml(paragraph).replace(/\n/g, '<br />')}</p>`;
+    })
+    .join('');
+};
+
 export const getMentoringRequestTextLength = (
   contents: MentoringRequestContentBlock[],
 ) => {
@@ -243,6 +350,10 @@ export const getMentoringRequestTextLength = (
     }
 
     if (block.type === 'richText') {
+      if (isMentoringRequestHtmlDocument(block.document)) {
+        return length + stripHtmlTags(block.document).trim().length;
+      }
+
       const parsedDocument = parseMentoringRequestRichTextDocument(
         block.document,
       );
@@ -262,6 +373,14 @@ export const hasMentoringRequestAttachment = (
 ) => {
   return contents.some((block) => {
     if (block.type === 'richText') {
+      if (isMentoringRequestHtmlDocument(block.document)) {
+        const attachmentData = getHtmlAttachmentData(block.document);
+
+        return (
+          attachmentData.fileNames.length > 0 || attachmentData.links.length > 0
+        );
+      }
+
       const parsedDocument = parseMentoringRequestRichTextDocument(
         block.document,
       );
@@ -284,6 +403,10 @@ export const buildMentoringRequestMessage = (
   const lines = contents
     .map((block) => {
       if (block.type === 'richText') {
+        if (isMentoringRequestHtmlDocument(block.document)) {
+          return getHtmlMessageLines(block.document).join('\n\n');
+        }
+
         const parsedDocument = parseMentoringRequestRichTextDocument(
           block.document,
         );
@@ -321,6 +444,14 @@ export const getMentoringRequestAttachedFileNames = (
     }
 
     if (block.type === 'richText') {
+      if (isMentoringRequestHtmlDocument(block.document)) {
+        const attachmentData = getHtmlAttachmentData(block.document);
+
+        fileNames.push(...attachmentData.fileNames);
+
+        return;
+      }
+
       const parsedDocument = parseMentoringRequestRichTextDocument(
         block.document,
       );
@@ -346,6 +477,14 @@ export const getMentoringRequestReferenceLinks = (
     }
 
     if (block.type === 'richText') {
+      if (isMentoringRequestHtmlDocument(block.document)) {
+        const attachmentData = getHtmlAttachmentData(block.document);
+
+        links.push(...attachmentData.links);
+
+        return;
+      }
+
       const parsedDocument = parseMentoringRequestRichTextDocument(
         block.document,
       );
@@ -363,6 +502,17 @@ export const sanitizeMentoringRequestContents = (
 ): MentoringRequestContentBlock[] => {
   const sanitized = contents.filter((block) => {
     if (block.type === 'richText') {
+      if (isMentoringRequestHtmlDocument(block.document)) {
+        const plainText = stripHtmlTags(block.document);
+        const attachmentData = getHtmlAttachmentData(block.document);
+
+        return (
+          plainText.trim().length > 0 ||
+          attachmentData.fileNames.length > 0 ||
+          attachmentData.links.length > 0
+        );
+      }
+
       const parsedDocument = parseMentoringRequestRichTextDocument(
         block.document,
       );

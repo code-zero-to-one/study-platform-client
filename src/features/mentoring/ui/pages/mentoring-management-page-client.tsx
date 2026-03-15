@@ -13,11 +13,20 @@ import Button from '@/components/common/ui/button';
 import SurfacePanel from '@/components/common/ui/surface-panel';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
+import { MENTORING_DISCORD_INVITE_URL } from '@/features/mentoring/model/mentoring-flow-policy';
+import { useMyMentorProfileQuery } from '@/features/mentoring/model/use-mentor-directory-query';
+import { MENTORING_NOTE_LABEL } from '@/features/mentoring/model/my-mentoring-display-meta';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentorManagementWorkspace from '@/features/mentoring/ui/management/mentor-management-workspace';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import type { MentorProfile } from '@/types/mentoring/domain';
+
+const OPERATION_CHECKPOINTS = [
+  '예약형 상담은 24시간 안에 확인',
+  '기본 채널은 디스코드',
+  '운영 전 디스코드 입장',
+] as const;
 
 const getEnabledMethodCount = (mentor: MentorProfile) => {
   return Object.values(mentor.methods).filter(
@@ -29,21 +38,31 @@ export default function MentoringManagementPageClient() {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const { memberId } = useAuthReady();
   const hasHydrated = useMentorDirectoryStore((state) => state.hasHydrated);
-  const mentorIdByMember = useMentorDirectoryStore(
-    (state) => state.mentorIdByMember,
-  );
-  const createdMentors = useMentorDirectoryStore(
-    (state) => state.createdMentors,
+  const myMentorProfileQuery = useMyMentorProfileQuery(
+    hasHydrated && Boolean(memberId),
   );
 
   return (
     <MentoringStateBoundary
-      state={hasHydrated ? 'ready' : 'loading'}
+      state={
+        !hasHydrated || myMentorProfileQuery.isLoading
+          ? 'loading'
+          : myMentorProfileQuery.isError
+            ? 'error'
+            : 'ready'
+      }
+      error={
+        <SurfacePanel radius="lg" className="p-300 text-center">
+          <h2 className="font-designer-20b text-text-default mb-75">
+            멘토 운영 정보를 불러오지 못했어요
+          </h2>
+          <p className="font-designer-14r text-text-subtle">
+            잠시 후 다시 시도해주세요.
+          </p>
+        </SurfacePanel>
+      }
       ready={(() => {
-        const myMentorId = memberId ? mentorIdByMember[memberId] : undefined;
-        const myMentorProfile = createdMentors.find(
-          (mentor) => mentor.id === myMentorId,
-        );
+        const myMentorProfile = myMentorProfileQuery.mentor;
         const myMentorSettings = myMentorProfile
           ? getMentorSettings(myMentorProfile)
           : null;
@@ -56,7 +75,7 @@ export default function MentoringManagementPageClient() {
           <div className="flex flex-col gap-300">
             <header className="flex items-center justify-between">
               <h1 className="font-designer-24b text-text-default">
-                멘토링 관리
+                멘토 운영 관리
               </h1>
               <button
                 type="button"
@@ -64,7 +83,7 @@ export default function MentoringManagementPageClient() {
                 onClick={() => setIsGuideOpen(true)}
               >
                 <Info className="h-14 w-14" />
-                멘토링 안내
+                멘토 운영 안내
               </button>
             </header>
 
@@ -72,60 +91,92 @@ export default function MentoringManagementPageClient() {
               radius="lg"
               className="border-border-information bg-background-accent-blue-subtle p-250"
             >
-              <h2 className="font-designer-18b text-text-default">
-                관리 화면 역할 구분
-              </h2>
+              <h2 className="font-designer-18b text-text-default">빠른 이동</h2>
               <p className="font-designer-13r text-text-subtle mt-50">
-                현재 페이지(`/mentoring-management`)는 멘토 운영 화면입니다.
-                유저(멘티)와 멘토의 관리 범위는 아래처럼 분리됩니다.
+                필요한 화면으로 바로 이동하세요.
               </p>
-              <div className="mt-175 grid grid-cols-1 gap-125 md:grid-cols-2">
-                <article className="rounded-150 border-border-subtle bg-background-default border p-175">
+              <div className="mt-200 grid grid-cols-1 gap-125 md:grid-cols-2">
+                <article className="rounded-150 border-border-subtle bg-background-default border p-200">
                   <h3 className="font-designer-14b text-text-default">
-                    유저(멘티) 입장 관리
+                    내가 신청한 멘토링
                   </h3>
                   <p className="font-designer-13r text-text-subtle mt-50">
-                    내가 신청한 상담 내역 확인, 멘토 답변 확인, 상담 완료 후
-                    후기 작성
+                    신청 내역, 답변, 후기 확인
                   </p>
                   <div className="mt-100 flex flex-wrap gap-100">
+                    <Link
+                      href="/my-mentoring"
+                      className="font-designer-12m text-text-information hover:underline"
+                    >
+                      나의 멘토링
+                    </Link>
                     <Link
                       href="/note-consultation"
                       className="font-designer-12m text-text-information hover:underline"
                     >
-                      쪽지 상담 관리
+                      {MENTORING_NOTE_LABEL} 관리
                     </Link>
                     <Link
                       href="/my-study-review"
                       className="font-designer-12m text-text-information hover:underline"
                     >
-                      내 멘토링 후기 관리
+                      후기 관리
                     </Link>
                   </div>
                 </article>
-                <article className="rounded-150 border-border-subtle bg-background-default border p-175">
+                <article className="rounded-150 border-border-subtle bg-background-default border p-200">
                   <h3 className="font-designer-14b text-text-default">
-                    멘토 입장 관리
+                    내가 운영하는 멘토링
                   </h3>
                   <p className="font-designer-13r text-text-subtle mt-50">
-                    신청서 검토 및 수락/거절, 입금 확인, 상담 일정
-                    확정/변경/취소
+                    신청 처리, 입금 확인, 일정 조율
                   </p>
                   <div className="mt-100 flex flex-wrap gap-100">
-                    <Link
-                      href="/mentoring-management"
-                      className="font-designer-12m text-text-information hover:underline"
-                    >
-                      일정 대시보드
-                    </Link>
                     <Link
                       href="/mentoring-management/requests"
                       className="font-designer-12m text-text-information hover:underline"
                     >
-                      신청 처리 페이지
+                      신청 관리
                     </Link>
                   </div>
                 </article>
+              </div>
+            </SurfacePanel>
+
+            <SurfacePanel radius="lg" className="p-250">
+              <div className="flex flex-col gap-200 lg:flex-row lg:items-start lg:justify-between">
+                <div className="space-y-125">
+                  <div>
+                    <h2 className="font-designer-18b text-text-default">
+                      운영 체크
+                    </h2>
+                    <p className="font-designer-13r text-text-subtle mt-50">
+                      운영 전에 꼭 볼 기준만 모았습니다.
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 gap-125 md:grid-cols-3">
+                    {OPERATION_CHECKPOINTS.map((item) => (
+                      <article
+                        key={item}
+                        className="rounded-150 border-border-subtle bg-background-alternative border p-200"
+                      >
+                        <p className="font-designer-14m text-text-default">
+                          {item}
+                        </p>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+                <Button asChild color="outlined" size="medium">
+                  <a
+                    href={MENTORING_DISCORD_INVITE_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    디스코드 입장
+                    <SquareArrowOutUpRight className="h-16 w-16" />
+                  </a>
+                </Button>
               </div>
             </SurfacePanel>
 
@@ -183,7 +234,7 @@ export default function MentoringManagementPageClient() {
                     </Link>
                     <Link href="/note-consultation">
                       <Button color="outlined" size="medium">
-                        쪽지 상담
+                        {MENTORING_NOTE_LABEL}
                       </Button>
                     </Link>
                   </div>
@@ -204,13 +255,13 @@ export default function MentoringManagementPageClient() {
                   <GraduationCap className="text-text-brand h-32 w-32" />
                 </div>
                 <h2 className="font-designer-24b text-text-default mb-75">
-                  아직 등록한 멘토링이 없어요
+                  아직 운영 중인 멘토링이 없어요
                 </h2>
                 <p className="font-designer-16m text-text-default mb-50">
-                  멘티가 당신의 인사이트를 기다리고 있어요.
+                  멘토로 운영할 멘토링을 먼저 등록하세요.
                 </p>
                 <p className="font-designer-14r text-text-subtle mb-250">
-                  멘토링을 만들고 경험을 공유해보세요.
+                  등록 후 이 화면에서 신청과 일정을 관리할 수 있어요.
                 </p>
 
                 <Link href="/mentoring/become-mentor">

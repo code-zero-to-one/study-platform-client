@@ -6,10 +6,15 @@ import { ApiError } from '@/api/client/api-error';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { MENTOR_REGISTRATION_TOAST_MESSAGES } from '@/features/mentoring/const/mentor-registration-labels';
 import {
+  findLocalFallbackMentor,
+  shouldUseLocalMentorFallback,
+} from '@/features/mentoring/model/mentor-directory-local-fallback';
+import {
   useMentorDetailQuery,
   useMyMentorSettingsQuery,
 } from '@/features/mentoring/model/use-mentor-directory-query';
 import { useToastStore } from '@/stores/use-toast-store';
+import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import MentorDetailPage from './mentor-detail-page';
 import {
   MentorNotFoundState,
@@ -30,11 +35,18 @@ export default function MentorDetailRouteClient({
   const pathname = usePathname();
   const { isHydrated, isAuthenticated } = useAuthReady();
   const { showToast } = useToastStore();
+  const createdMentors = useMentorDirectoryStore(
+    (state) => state.createdMentors,
+  );
   const mentorDetailQuery = useMentorDetailQuery(mentorId, isHydrated);
   const myMentorSettingsQuery = useMyMentorSettingsQuery(
     isHydrated && isAuthenticated,
   );
   const isSavedToastShownRef = useRef(false);
+  const fallbackMentor = findLocalFallbackMentor({
+    mentorId,
+    createdMentors,
+  });
 
   useEffect(() => {
     if (!showSavedToast || !mentorDetailQuery.isSuccess) {
@@ -65,6 +77,18 @@ export default function MentorDetailRouteClient({
   }
 
   if (mentorDetailQuery.isError) {
+    if (
+      fallbackMentor &&
+      shouldUseLocalMentorFallback(mentorDetailQuery.error)
+    ) {
+      return (
+        <MentorDetailPage
+          mentor={fallbackMentor}
+          showSettingsEditButton={false}
+        />
+      );
+    }
+
     if (
       mentorDetailQuery.error instanceof ApiError &&
       mentorDetailQuery.error.statusCode === 404
@@ -101,6 +125,15 @@ export default function MentorDetailRouteClient({
     myMentorSettingsQuery.isSuccess && myMentorId === mentorId;
 
   if (!mentor) {
+    if (fallbackMentor) {
+      return (
+        <MentorDetailPage
+          mentor={fallbackMentor}
+          showSettingsEditButton={false}
+        />
+      );
+    }
+
     return (
       <MentorRouteErrorState
         message="멘토 상세 응답 계약이 올바르지 않습니다."

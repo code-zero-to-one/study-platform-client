@@ -1,16 +1,8 @@
 'use client';
 
 import dayjs from 'dayjs';
-import {
-  BellRing,
-  CalendarClock,
-  CheckCircle2,
-  ChevronRight,
-  MessageCircleMore,
-  MonitorPlay,
-} from 'lucide-react';
+import { CalendarClock, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
-import type { ReactNode } from 'react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import PageContainer from '@/components/common/ui/page-container';
@@ -20,15 +12,20 @@ import {
   getMethodLabel,
 } from '@/features/mentoring/model/mentor-profile-utils';
 import {
-  MENTORING_DEFAULT_CHANNEL_GUIDE,
-  MENTORING_PROGRESS_CHECK_GUIDE,
-  getMentoringResponseGuide,
+  MENTORING_CHANGE_AND_NO_SHOW_GUIDE,
+  MENTORING_REFUND_POLICY_GUIDE,
+  getMentoringChannelGuide,
+  getMentoringCompletionSteps,
+  getMentoringCompletionSummary,
+  getMentoringPendingPaymentGuide,
 } from '@/features/mentoring/model/mentoring-flow-policy';
+import { MENTORING_NOTE_LABEL } from '@/features/mentoring/model/my-mentoring-display-meta';
 import { useMentorDirectoryListQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import { useAuthReady } from '@/hooks/common/use-auth';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import type { MentoringMethodType } from '@/types/mentoring/domain';
 
 interface MentoringPaymentCompletePageClientProps {
   mentorId: number;
@@ -40,6 +37,32 @@ const PAYMENT_METHOD_LABEL = {
   VIRTUAL_ACCOUNT: '가상계좌',
   MANUAL_TRANSFER: '수동 계좌이체',
 } as const;
+
+const getPaymentStatusMeta = (
+  paymentStatus: 'PENDING_TRANSFER' | 'NOT_REQUIRED' | 'CONFIRMED',
+) => {
+  if (paymentStatus === 'CONFIRMED') {
+    return {
+      label: '결제 완료',
+      tone: 'green' as const,
+      title: '멘토링 신청이 완료되었어요',
+    };
+  }
+
+  if (paymentStatus === 'NOT_REQUIRED') {
+    return {
+      label: '결제 없음',
+      tone: 'blue' as const,
+      title: '멘토링 신청이 접수되었어요',
+    };
+  }
+
+  return {
+    label: '입금 확인 대기',
+    tone: 'orange' as const,
+    title: '멘토링 신청이 접수되었어요',
+  };
+};
 
 function CompletionFallback({
   title,
@@ -94,7 +117,12 @@ export default function MentoringPaymentCompletePageClient({
     return item.id === requestId && item.menteeMemberId === memberId;
   });
   const paymentAmount = request
-    ? mentor?.methods[request.method]?.price
+    ? typeof request.paymentAmount === 'number'
+      ? request.paymentAmount
+      : mentor?.methods[request.method]?.price
+    : undefined;
+  const paymentStatusMeta = request
+    ? getPaymentStatusMeta(request.paymentStatus)
     : undefined;
 
   const isReady =
@@ -114,8 +142,17 @@ export default function MentoringPaymentCompletePageClient({
       ready={
         request ? (
           <MentoringPaymentCompletePage
-            mentorName={mentor?.nickname ?? `멘토 #${mentorId}`}
-            methodLabel={getMethodLabel(request.method)}
+            mentorName={
+              request.mentorNickname?.trim() ??
+              mentor?.nickname ??
+              `멘토 #${mentorId}`
+            }
+            method={request.method}
+            methodLabel={request.methodLabel ?? getMethodLabel(request.method)}
+            durationLabel={
+              request.durationLabel ??
+              mentor?.methods[request.method]?.durationLabel
+            }
             paymentMethodLabel={
               PAYMENT_METHOD_LABEL[
                 request.paymentMethod ??
@@ -128,14 +165,21 @@ export default function MentoringPaymentCompletePageClient({
               typeof paymentAmount === 'number' ? formatWon(paymentAmount) : '-'
             }
             preferredScheduleLabel={
-              request.preferredDate
-                ? `${dayjs(request.preferredDate).format('YYYY.MM.DD')}${request.preferredTime ? ` ${request.preferredTime}` : ''}`
-                : '상담 방식에 따라 별도 조율'
+              request.method === 'note'
+                ? '질문 접수 후 멘토 답장으로 진행'
+                : request.preferredDate
+                  ? `${dayjs(request.preferredDate).format('YYYY.MM.DD')}${request.preferredTime ? ` ${request.preferredTime}` : ''}`
+                  : '상담 방식에 따라 별도 조율'
             }
             isNoteConsultation={request.method === 'note'}
+            paymentStatusLabel={paymentStatusMeta?.label ?? '결제 확인 중'}
+            paymentStatusTone={paymentStatusMeta?.tone ?? 'orange'}
+            completionTitle={
+              paymentStatusMeta?.title ?? '멘토링 신청 정보를 확인하고 있어요'
+            }
             detailHref={
               request.method === 'note'
-                ? '/note-consultation'
+                ? `/note-consultation?channel=sent&requestId=${request.id}`
                 : `/my-mentoring/${request.id}`
             }
           />
@@ -146,13 +190,13 @@ export default function MentoringPaymentCompletePageClient({
       empty={
         <CompletionFallback
           title="신청 완료 정보를 찾을 수 없습니다"
-          description="신청 내역이 없거나 이미 다른 상태로 이동했습니다. 나의 멘토링에서 최신 상태를 확인해주세요."
+          description="신청 내역이 없거나 상태가 바뀌었습니다. 나의 멘토링에서 확인해주세요."
         />
       }
       forbidden={
         <CompletionFallback
           title="로그인이 필요합니다"
-          description="결제 완료 후 신청 내역은 로그인한 상태에서만 확인할 수 있습니다."
+          description="신청 내역은 로그인 후 확인할 수 있습니다."
         />
       }
     />
@@ -161,185 +205,230 @@ export default function MentoringPaymentCompletePageClient({
 
 function MentoringPaymentCompletePage({
   mentorName,
+  method,
   methodLabel,
+  durationLabel,
   paymentMethodLabel,
   paymentAmountLabel,
   preferredScheduleLabel,
   isNoteConsultation,
+  paymentStatusLabel,
+  paymentStatusTone,
+  completionTitle,
   detailHref,
 }: {
   mentorName: string;
+  method: MentoringMethodType;
   methodLabel: string;
+  durationLabel?: string;
   paymentMethodLabel: string;
   paymentAmountLabel: string;
   preferredScheduleLabel: string;
   isNoteConsultation: boolean;
+  paymentStatusLabel: string;
+  paymentStatusTone: 'green' | 'orange' | 'blue';
+  completionTitle: string;
   detailHref: string;
 }) {
-  const responseGuide = getMentoringResponseGuide(
-    isNoteConsultation ? 'note' : 'deep',
-  );
-  const statusDescription = isNoteConsultation
-    ? '결제가 완료되었고, 이제 멘토의 첫 답장을 기다리는 단계입니다.'
-    : '결제가 완료되었고, 보통 24시간 안에 멘토 확인과 일정 조율이 시작됩니다.';
-  const nextSteps = isNoteConsultation
-    ? [
-        '결제가 완료되면 쪽지상담 요청이 즉시 접수됩니다.',
-        '멘토의 첫 답장이 도착하면 상담이 바로 시작됩니다.',
-        '추가 자료 전달과 후속 질문은 쪽지 상담 화면에서 이어서 진행할 수 있습니다.',
-      ]
-    : [
-        '결제가 완료되면 예약 요청이 즉시 접수됩니다.',
-        '보통 24시간 안에 멘토 확인이 시작되며, 일정 조율 또는 수락 결과가 알림으로 안내됩니다.',
-        '확정 시간과 진행 링크는 알림과 멘토링 상세 화면에서 확인할 수 있습니다.',
-      ];
+  const channelGuide = getMentoringChannelGuide(method);
+  const defaultStatusDescription = getMentoringCompletionSummary(method);
+  const nextSteps = getMentoringCompletionSteps(method);
+  const isPaymentPending = paymentStatusTone === 'orange';
+  const progressBadgeLabel = isPaymentPending
+    ? '입금 확인 후 진행'
+    : isNoteConsultation
+      ? '첫 답변 대기'
+      : '멘토 확인 대기';
+  const requestOverviewLabel = isNoteConsultation
+    ? '상담 시작'
+    : method === 'offline'
+      ? '희망 일정/장소'
+      : '희망 일정';
+  const requestOverviewValue = isNoteConsultation
+    ? '멘토 첫 답변이 도착하면 같은 화면에서 바로 이어집니다.'
+    : method === 'offline'
+      ? `${preferredScheduleLabel} · 장소는 멘토 확인 후 안내됩니다.`
+      : preferredScheduleLabel;
+  const statusDescription = isPaymentPending
+    ? getMentoringPendingPaymentGuide(method)
+    : defaultStatusDescription;
+  const primaryActionLabel = isPaymentPending
+    ? isNoteConsultation
+      ? '쪽지상담 상태 보기'
+      : '신청 상태 보기'
+    : isNoteConsultation
+      ? `${MENTORING_NOTE_LABEL}으로 이동`
+      : '신청 내역 보기';
+  const secondaryActionHref = isPaymentPending
+    ? '/notification'
+    : isNoteConsultation
+      ? '/my-mentoring'
+      : '/my-mentoring';
+  const secondaryActionLabel = isPaymentPending
+    ? '알림함 보기'
+    : isNoteConsultation
+      ? '나의 멘토링 허브'
+      : '나의 멘토링으로 이동';
 
   return (
-    <PageContainer spacing="content">
-      <div className="grid gap-250 xl:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="space-y-250">
-          <SurfacePanel radius="lg" overflow="hidden">
-            <div className="bg-fill-success-subtle-default px-250 py-250">
-              <div className="mb-125 flex items-center gap-100">
-                <CheckCircle2 className="text-text-success h-24 w-24" />
-                <h1 className="font-designer-28b text-text-default">
-                  멘토링 신청이 완료되었어요
-                </h1>
-              </div>
-              <p className="font-designer-14r text-text-subtle leading-relaxed">
-                {statusDescription}
-              </p>
+    <PageContainer spacing="content" className="max-w-[960px]">
+      <div className="space-y-250">
+        <SurfacePanel radius="lg" overflow="hidden">
+          <div className="bg-fill-success-subtle-default px-250 py-250">
+            <div className="mb-125 flex items-center gap-100">
+              <CheckCircle2 className="text-text-success h-24 w-24" />
+              <h1 className="font-designer-28b text-text-default">
+                {completionTitle}
+              </h1>
+            </div>
+            <p className="font-designer-14r text-text-subtle leading-relaxed">
+              {statusDescription}
+            </p>
+          </div>
+
+          <div className="space-y-200 px-250 py-250">
+            <div className="flex flex-wrap items-center gap-75">
+              <Badge color={paymentStatusTone} shape="round">
+                {paymentStatusLabel}
+              </Badge>
+              <Badge color="blue" shape="round">
+                {methodLabel}
+              </Badge>
+              <Badge color="orange" shape="round">
+                {progressBadgeLabel}
+              </Badge>
             </div>
 
-            <div className="space-y-200 px-250 py-250">
-              <div className="flex flex-wrap items-center gap-75">
-                <Badge color="green" shape="round">
-                  결제 완료
-                </Badge>
-                <Badge color="blue" shape="round">
-                  {methodLabel}
-                </Badge>
-                {!isNoteConsultation && (
-                  <Badge color="orange" shape="round">
-                    멘토 확인 대기
-                  </Badge>
-                )}
+            <div className="rounded-150 bg-background-alternative p-175">
+              <div className="space-y-125">
+                <CompletionDetailRow label="멘토" value={mentorName} />
+                <CompletionDetailRow
+                  label="상담 방식"
+                  value={
+                    durationLabel
+                      ? `${methodLabel} · ${durationLabel}`
+                      : methodLabel
+                  }
+                />
+                <CompletionDetailRow
+                  label="결제 수단"
+                  value={paymentMethodLabel}
+                />
+                <CompletionDetailRow
+                  label="결제 금액"
+                  value={paymentAmountLabel}
+                  emphasize
+                />
+                <CompletionDetailRow
+                  label={requestOverviewLabel}
+                  value={requestOverviewValue}
+                  multiline
+                />
+                <CompletionDetailRow
+                  label="진행 채널"
+                  value={channelGuide}
+                  multiline
+                />
               </div>
+            </div>
 
-              <div className="grid gap-125 md:grid-cols-2">
-                <InfoCard label="멘토" value={mentorName} />
-                <InfoCard label="결제 수단" value={paymentMethodLabel} />
-                <InfoCard label="결제 금액" value={paymentAmountLabel} />
-                <InfoCard label="희망 일정" value={preferredScheduleLabel} />
-              </div>
-
-              <div className="rounded-125 bg-background-alternative p-150">
-                <p className="font-designer-13b text-text-default mb-25">
-                  다음 안내
+            {isPaymentPending ? (
+              <div className="rounded-150 border-border-subtle bg-background-accent-orange-subtle border px-150 py-125">
+                <p className="font-designer-13b text-text-default">
+                  입금 확인이 끝난 뒤 다음 단계가 열립니다.
                 </p>
-                <p className="font-designer-13r text-text-subtle leading-relaxed">
-                  {responseGuide}
+                <p className="font-designer-12r text-text-subtle mt-25 leading-relaxed">
+                  {statusDescription}
                 </p>
               </div>
-            </div>
-          </SurfacePanel>
+            ) : null}
+          </div>
+        </SurfacePanel>
 
-          <SurfacePanel radius="lg" className="p-250">
-            <div className="mb-150 flex items-center gap-75">
-              <CalendarClock className="text-text-brand h-18 w-18" />
-              <h2 className="font-designer-18b text-text-default">
-                다음 진행 단계
-              </h2>
-            </div>
-            <div className="space-y-125">
-              {nextSteps.map((step, index) => (
-                <div key={step} className="flex items-start gap-100">
-                  <div className="bg-fill-brand-subtle-default text-text-brand font-designer-13b flex h-24 w-24 shrink-0 items-center justify-center rounded-full">
-                    {index + 1}
-                  </div>
-                  <p className="font-designer-14r text-text-default leading-relaxed">
-                    {step}
-                  </p>
+        <SurfacePanel radius="lg" className="p-250">
+          <div className="mb-150 flex items-center gap-75">
+            <CalendarClock className="text-text-brand h-18 w-18" />
+            <h2 className="font-designer-18b text-text-default">다음 단계</h2>
+          </div>
+          <div className="space-y-125">
+            {nextSteps.map((step, index) => (
+              <div key={step} className="flex items-start gap-100">
+                <div className="bg-fill-brand-subtle-default text-text-brand font-designer-13b flex h-24 w-24 shrink-0 items-center justify-center rounded-full">
+                  {index + 1}
                 </div>
-              ))}
-            </div>
-          </SurfacePanel>
+                <p className="font-designer-14r text-text-default leading-relaxed">
+                  {step}
+                </p>
+              </div>
+            ))}
+          </div>
+        </SurfacePanel>
 
-          <SurfacePanel radius="lg" className="p-250">
-            <div className="mb-150 flex items-center gap-75">
-              <MonitorPlay className="text-text-brand h-18 w-18" />
-              <h2 className="font-designer-18b text-text-default">진행 안내</h2>
-            </div>
-            <div className="space-y-100">
-              <GuideRow
-                icon={<MessageCircleMore className="h-16 w-16" />}
-                title="기본 진행 채널"
-                description={MENTORING_DEFAULT_CHANNEL_GUIDE}
-              />
-              <GuideRow
-                icon={<BellRing className="h-16 w-16" />}
-                title="진행 확인"
-                description={MENTORING_PROGRESS_CHECK_GUIDE}
-              />
-            </div>
-          </SurfacePanel>
-        </div>
+        <SurfacePanel radius="lg" className="p-250">
+          <h2 className="font-designer-18b text-text-default mb-75">
+            바로 할 수 있는 일
+          </h2>
+          <p className="font-designer-13r text-text-subtle mb-150 leading-relaxed">
+            신청 직후 자주 확인하는 화면만 아래에 모았습니다.
+          </p>
+          <div className="space-y-100">
+            <Button asChild color="primary" size="large" className="w-full">
+              <Link href={detailHref}>{primaryActionLabel}</Link>
+            </Button>
+            <Button asChild color="outlined" size="large" className="w-full">
+              <Link href={secondaryActionHref}>{secondaryActionLabel}</Link>
+            </Button>
+            <Button asChild color="outlined" size="large" className="w-full">
+              <Link href="/mentoring">멘토링 더 보기</Link>
+            </Button>
+          </div>
+        </SurfacePanel>
 
-        <aside className="space-y-175 xl:sticky xl:top-[96px] xl:self-start">
-          <SurfacePanel radius="lg" className="p-225">
-            <h2 className="font-designer-18b text-text-default mb-150">
-              바로 이동
-            </h2>
-            <div className="space-y-100">
-              <Button asChild color="primary" size="large" className="w-full">
-                <Link href={detailHref}>
-                  {isNoteConsultation
-                    ? '쪽지 상담으로 이동'
-                    : '예약 내역 바로 보기'}
-                  <ChevronRight className="h-16 w-16" />
-                </Link>
-              </Button>
-              <Button asChild color="outlined" size="large" className="w-full">
-                <Link href="/my-mentoring">나의 멘토링으로 이동</Link>
-              </Button>
-              <Button asChild color="outlined" size="large" className="w-full">
-                <Link href="/mentoring">멘토링 목록 더 보기</Link>
-              </Button>
-            </div>
-          </SurfacePanel>
-        </aside>
+        <SurfacePanel radius="lg" className="p-225">
+          <h2 className="font-designer-16b text-text-default mb-100">
+            변경/취소 안내
+          </h2>
+          <div className="space-y-75">
+            <p className="font-designer-13r text-text-subtle leading-relaxed">
+              {MENTORING_REFUND_POLICY_GUIDE}
+            </p>
+            <p className="font-designer-13r text-text-subtle leading-relaxed">
+              {MENTORING_CHANGE_AND_NO_SHOW_GUIDE}
+            </p>
+          </div>
+        </SurfacePanel>
       </div>
     </PageContainer>
   );
 }
 
-function InfoCard({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-150 bg-background-alternative p-150">
-      <p className="font-designer-12r text-text-subtlest mb-50">{label}</p>
-      <p className="font-designer-16b text-text-default">{value}</p>
-    </div>
-  );
-}
-
-function GuideRow({
-  icon,
-  title,
-  description,
+function CompletionDetailRow({
+  label,
+  value,
+  multiline = false,
+  emphasize = false,
 }: {
-  icon: ReactNode;
-  title: string;
-  description: string;
+  label: string;
+  value: string;
+  multiline?: boolean;
+  emphasize?: boolean;
 }) {
   return (
-    <div className="bg-background-alternative flex items-start gap-100 rounded-150 p-150">
-      <div className="text-text-brand mt-[2px] shrink-0">{icon}</div>
-      <div>
-        <p className="font-designer-13b text-text-default mb-25">{title}</p>
-        <p className="font-designer-12r text-text-subtle leading-relaxed">
-          {description}
-        </p>
-      </div>
+    <div className="border-border-subtle flex flex-col gap-50 border-b pb-125 last:border-b-0 last:pb-0 md:flex-row md:items-start md:justify-between md:gap-150">
+      <p className="font-designer-12m text-text-subtle shrink-0 md:w-[120px]">
+        {label}
+      </p>
+      <p
+        className={
+          multiline
+            ? 'font-designer-14r text-text-default leading-relaxed whitespace-pre-line'
+            : emphasize
+              ? 'font-designer-18b text-text-default leading-relaxed whitespace-pre-line'
+              : 'font-designer-16b text-text-default leading-relaxed whitespace-pre-line'
+        }
+      >
+        {value}
+      </p>
     </div>
   );
 }

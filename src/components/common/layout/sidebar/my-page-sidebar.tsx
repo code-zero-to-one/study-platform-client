@@ -65,13 +65,13 @@ export default function Sidebar() {
         onClick={() => router.push('/note-consultation')}
         isActive={isActivePath('/note-consultation')}
       >
-        쪽지 상담
+        쪽지상담
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/mentoring-management')}
         isActive={isActivePath('/mentoring-management')}
       >
-        멘토링 관리
+        멘토 운영 관리
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/payment-management')}

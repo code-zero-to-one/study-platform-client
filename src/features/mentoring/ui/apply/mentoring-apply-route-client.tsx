@@ -2,12 +2,16 @@
 
 import { ApiError } from '@/api/client/api-error';
 import {
-  getMentorPublicReadiness,
-  MENTOR_APPLY_UNSUPPORTED_MESSAGE,
-} from '@/features/mentoring/model/mentor-public-readiness';
+  findLocalFallbackMentor,
+  shouldUseLocalMentorFallback,
+} from '@/features/mentoring/model/mentor-directory-local-fallback';
+import { getEnabledMentoringMethods } from '@/features/mentoring/model/mentor-profile-utils';
+import { getMentorPublicReadiness } from '@/features/mentoring/model/mentor-public-readiness';
 import { useMentorDetailQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { useToastStore } from '@/stores/use-toast-store';
-import type { MentoringMethodType } from '@/types/mentoring/domain';
+import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
+import type { MentorProfile, MentoringMethodType } from '@/types/mentoring/domain';
+import MentoringApplyPage from './mentoring-apply-page';
 import {
   MentorNotFoundState,
   MentorRouteErrorState,
@@ -20,17 +24,72 @@ interface MentoringApplyRouteClientProps {
   selectedType?: MentoringMethodType;
 }
 
+const resolveApplyPage = ({
+  mentor,
+  selectedType,
+}: {
+  mentor: MentorProfile;
+  selectedType?: MentoringMethodType;
+}) => {
+  const publicReadiness = getMentorPublicReadiness(mentor);
+
+  if (!publicReadiness.isApplicationReady) {
+    return (
+      <MentorRouteUnavailableState
+        title={publicReadiness.applyUnavailableTitle}
+        message={publicReadiness.applyUnavailableMessage}
+        ctaHref={`/mentoring/${mentor.id}`}
+        ctaLabel="상세로 돌아가기"
+      />
+    );
+  }
+
+  const enabledMethods = getEnabledMentoringMethods(mentor);
+
+  if (enabledMethods.length === 0) {
+    return (
+      <MentorNotFoundState message="현재 신청 가능한 멘토링 방식이 없습니다." />
+    );
+  }
+
+  const fallbackType = enabledMethods[0];
+  const resolvedType = selectedType ?? fallbackType;
+  const finalType = enabledMethods.includes(resolvedType)
+    ? resolvedType
+    : fallbackType;
+
+  return <MentoringApplyPage mentor={mentor} selectedMethod={finalType} />;
+};
+
 export default function MentoringApplyRouteClient({
   mentorId,
+  selectedType,
 }: MentoringApplyRouteClientProps) {
   const { showToast } = useToastStore();
+  const createdMentors = useMentorDirectoryStore(
+    (state) => state.createdMentors,
+  );
   const mentorDetailQuery = useMentorDetailQuery(mentorId);
+  const fallbackMentor = findLocalFallbackMentor({
+    mentorId,
+    createdMentors,
+  });
 
   if (mentorDetailQuery.isLoading) {
     return <MentorRouteLoading />;
   }
 
   if (mentorDetailQuery.isError) {
+    if (
+      fallbackMentor &&
+      shouldUseLocalMentorFallback(mentorDetailQuery.error)
+    ) {
+      return resolveApplyPage({
+        mentor: fallbackMentor,
+        selectedType,
+      });
+    }
+
     if (
       mentorDetailQuery.error instanceof ApiError &&
       mentorDetailQuery.error.statusCode === 404
@@ -61,28 +120,18 @@ export default function MentoringApplyRouteClient({
   const mentor = mentorDetailQuery.data;
 
   if (!mentor) {
+    if (fallbackMentor) {
+      return resolveApplyPage({
+        mentor: fallbackMentor,
+        selectedType,
+      });
+    }
+
     return <MentorNotFoundState />;
   }
 
-  const publicReadiness = getMentorPublicReadiness(mentor);
-
-  if (!publicReadiness.isApplicationReady) {
-    return (
-      <MentorRouteUnavailableState
-        title={publicReadiness.applyUnavailableTitle}
-        message={publicReadiness.applyUnavailableMessage}
-        ctaHref={`/mentoring/${mentor.id}`}
-        ctaLabel="상세로 돌아가기"
-      />
-    );
-  }
-
-  return (
-    <MentorRouteUnavailableState
-      title={MENTOR_APPLY_UNSUPPORTED_MESSAGE}
-      message="멘토 상세에서 공개 상태만 확인할 수 있으며, 신청 접수는 추후 지원될 예정입니다."
-      ctaHref={`/mentoring/${mentor.id}`}
-      ctaLabel="상세로 돌아가기"
-    />
-  );
+  return resolveApplyPage({
+    mentor,
+    selectedType,
+  });
 }

@@ -157,10 +157,11 @@ const guessExtensionFromMime = (mimeType: string): string => {
   return map[mimeType] ?? 'png';
 };
 
-interface MentorMarkdownEditorProps {
+export interface MentoringMarkdownEditorProps {
   value: string;
   onChange: (next: string) => void;
   placeholder?: string;
+  maxImageCount?: number;
 }
 
 interface ToolbarButtonProps {
@@ -200,7 +201,8 @@ function MentorMarkdownEditor({
   value,
   onChange,
   placeholder,
-}: MentorMarkdownEditorProps) {
+  maxImageCount = MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
+}: MentoringMarkdownEditorProps) {
   const [imageInsertError, setImageInsertError] = useState('');
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
@@ -263,14 +265,11 @@ function MentorMarkdownEditor({
       }
 
       const existingCount = extractImageUrls(editor.getHTML()).length;
-      const remaining = Math.max(
-        0,
-        MENTOR_MARKDOWN_MAX_IMAGE_COUNT - existingCount,
-      );
+      const remaining = Math.max(0, maxImageCount - existingCount);
 
       if (remaining === 0) {
         setImageInsertError(
-          `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
+          `이미지는 최대 ${maxImageCount}개까지만 등록할 수 있습니다.`,
         );
 
         return;
@@ -311,7 +310,7 @@ function MentorMarkdownEditor({
 
         if (files.length > remaining) {
           errors.push(
-            `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지 등록할 수 있습니다.`,
+            `이미지는 최대 ${maxImageCount}개까지 등록할 수 있습니다.`,
           );
         }
 
@@ -322,15 +321,15 @@ function MentorMarkdownEditor({
         setIsUploadingImages(false);
       }
     },
-    [isUploadingImages, uploadAndInsertFile],
+    [isUploadingImages, maxImageCount, uploadAndInsertFile],
   );
 
   const handlePasteImageUrl = useCallback(
     async (editor: Editor, url: string) => {
       const existingCount = extractImageUrls(editor.getHTML()).length;
-      if (existingCount >= MENTOR_MARKDOWN_MAX_IMAGE_COUNT) {
+      if (existingCount >= maxImageCount) {
         setImageInsertError(
-          `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
+          `이미지는 최대 ${maxImageCount}개까지만 등록할 수 있습니다.`,
         );
 
         return;
@@ -368,7 +367,7 @@ function MentorMarkdownEditor({
         setIsUploadingImages(false);
       }
     },
-    [uploadAndInsertFile],
+    [maxImageCount, uploadAndInsertFile],
   );
 
   const editor = useEditor({

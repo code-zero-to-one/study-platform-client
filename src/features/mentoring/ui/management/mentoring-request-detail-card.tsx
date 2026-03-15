@@ -1,16 +1,31 @@
 'use client';
 
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import BorderedTextarea from '@/components/common/ui/input/bordered-textarea';
 import KeyValueRow from '@/components/common/ui/key-value-row';
 import SurfacePanel from '@/components/common/ui/surface-panel';
 import { MENTORING_PAYMENT_STATUS_META } from '@/features/mentoring/model/management-status-meta';
+import {
+  formatWon,
+  getMethodLabel,
+} from '@/features/mentoring/model/mentor-profile-utils';
+import {
+  getMentoringMethodFlowMeta,
+  getMentoringMentorRequestChecklist,
+  MENTORING_MENTOR_RESPONSE_EXPECTATION_GUIDE,
+} from '@/features/mentoring/model/mentoring-flow-policy';
+import {
+  MENTORING_NOTE_LABEL,
+  MENTORING_SESSION_GUIDE_LABEL,
+} from '@/features/mentoring/model/my-mentoring-display-meta';
+import RequestContentViewer from '@/features/mentoring/ui/apply/request-content-viewer';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
+import type { MentoringRequest } from '@/types/mentoring/management-domain';
 import type { MentoringRequestDetailCardProps } from '@/types/mentoring/management-view';
 
 import ScheduleEditorModal, {
@@ -19,10 +34,16 @@ import ScheduleEditorModal, {
 
 const defaultPlaceByMethod: Record<MentoringMethodType, string> = {
   note: '서비스 내 쪽지로 진행',
-  simple: '온라인 링크 전달 예정 (간편)',
+  simple: '통화 또는 짧은 온라인 미팅으로 진행',
   deep: '화상 링크 전달 예정',
   offline: '만남 장소 전달 예정',
 };
+
+const PAYMENT_METHOD_LABEL_MAP = {
+  CARD: '카드 결제',
+  VIRTUAL_ACCOUNT: '가상계좌',
+  MANUAL_TRANSFER: '수동 계좌이체',
+} as const;
 
 const REJECT_PRESETS = [
   '해당 일자에 이미 다른 일정이 있습니다.',
@@ -30,6 +51,57 @@ const REJECT_PRESETS = [
   '요청하신 분야가 제 전문 영역 밖입니다.',
   '신청하신 상담 방식을 현재 제공하지 않습니다.',
 ];
+
+const getPreferredScheduleLabel = (request: MentoringRequest) => {
+  if (request.method === 'note') {
+    return `결제와 수락이 완료되면 서비스 내 ${MENTORING_NOTE_LABEL}으로 바로 이어집니다.`;
+  }
+
+  if (!request.preferredDate) {
+    return '희망 일정이 아직 없습니다.';
+  }
+
+  if (!request.preferredTime) {
+    return dayjs(request.preferredDate).format('YYYY.MM.DD');
+  }
+
+  return `${dayjs(request.preferredDate).format('YYYY.MM.DD')} ${request.preferredTime}`;
+};
+
+const getPaymentMethodLabel = (request: MentoringRequest) => {
+  const paymentMethod =
+    request.paymentMethod ??
+    (request.paymentMode === 'MANUAL_TRANSFER' ? 'MANUAL_TRANSFER' : 'CARD');
+
+  return PAYMENT_METHOD_LABEL_MAP[paymentMethod];
+};
+
+const getRequestWindowLabel = (request: MentoringRequest) => {
+  if (request.method === 'note') {
+    return '상담 시작';
+  }
+
+  return '희망 일정';
+};
+
+const getChannelGuideLabel = (_method: MentoringMethodType) => {
+  return MENTORING_SESSION_GUIDE_LABEL;
+};
+
+const getPaymentMemoLabel = (request: MentoringRequest) => {
+  if (
+    request.paymentMode === 'MANUAL_TRANSFER' &&
+    request.paymentStatus === 'PENDING_TRANSFER'
+  ) {
+    return '멘티 송금 메모';
+  }
+
+  if (request.paymentMode === 'MANUAL_TRANSFER') {
+    return '입금 확인 메모';
+  }
+
+  return '결제 메모';
+};
 
 export default function MentoringRequestDetailCard({
   request,
@@ -54,7 +126,7 @@ export default function MentoringRequestDetailCard({
   const [scheduleError, setScheduleError] = useState('');
   const [isRejecting, setIsRejecting] = useState(false);
   const [rejectReason, setRejectReason] = useState('');
-  const [mentorMemo, setMentorMemo] = useState('');
+  const [paymentConfirmMemo, setPaymentConfirmMemo] = useState('');
 
   const isPending = request.status === 'PENDING';
   const needsPaymentConfirm =
@@ -64,7 +136,22 @@ export default function MentoringRequestDetailCard({
   const paymentConfirmed =
     request.paymentMode === 'MANUAL_TRANSFER' &&
     request.paymentStatus === 'CONFIRMED';
-  const hasPayment = request.paymentMode === 'MANUAL_TRANSFER';
+  const paymentAmountLabel =
+    typeof request.paymentAmount === 'number'
+      ? formatWon(request.paymentAmount)
+      : '-';
+  const flowMeta = getMentoringMethodFlowMeta(request.method);
+  const mentorChecklist = getMentoringMentorRequestChecklist({
+    method: request.method,
+    paymentStatus: request.paymentStatus,
+  });
+
+  useEffect(() => {
+    setPaymentConfirmMemo('');
+    setIsRejecting(false);
+    setRejectReason('');
+    setScheduleError('');
+  }, [request.id]);
 
   const handleAcceptNote = () => {
     const result = acceptRequest({ mentorId, requestId: request.id });
@@ -113,16 +200,18 @@ export default function MentoringRequestDetailCard({
   };
 
   const handleConfirmPayment = () => {
+    const memo = paymentConfirmMemo.trim() || '입금 확인 완료';
     const result = confirmManualPayment({
       mentorId,
       requestId: request.id,
-      memo: '입금 확인 완료',
+      memo,
     });
     if (!result.ok) {
       showToast(result.reason ?? '입금 확인 처리에 실패했습니다.', 'error');
 
       return;
     }
+    setPaymentConfirmMemo(memo);
     showToast('입금 확인이 완료되었습니다.', 'success');
   };
 
@@ -138,20 +227,14 @@ export default function MentoringRequestDetailCard({
             </h3>
             <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border">
               <KeyValueRow
-                label="멘토명"
+                label="상담 방식"
                 className="py-150"
                 columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
                 labelClassName="font-designer-14m"
               >
-                개발자
-              </KeyValueRow>
-              <KeyValueRow
-                label="신청 강의"
-                className="py-150"
-                columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
-                labelClassName="font-designer-14m"
-              >
-                -
+                {request.durationLabel
+                  ? `${request.methodLabel ?? getMethodLabel(request.method)} · ${request.durationLabel}`
+                  : (request.methodLabel ?? getMethodLabel(request.method))}
               </KeyValueRow>
               <KeyValueRow
                 label="멘티 닉네임"
@@ -162,137 +245,203 @@ export default function MentoringRequestDetailCard({
                 {request.menteeName}
               </KeyValueRow>
               <KeyValueRow
-                label="연락처"
+                label="역할"
                 className="py-150"
                 columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
                 labelClassName="font-designer-14m"
               >
-                수락 후 확인가능
+                {request.menteeRole || '멘티'}
               </KeyValueRow>
               <KeyValueRow
-                label="이메일"
+                label="신청일"
                 className="py-150"
                 columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
                 labelClassName="font-designer-14m"
               >
-                데이터베이스에 배구 섬김다.
+                {dayjs(request.requestedAt).format('YYYY.MM.DD HH:mm')}
               </KeyValueRow>
               <KeyValueRow
-                label="메시지"
+                label={getRequestWindowLabel(request)}
                 className="py-150"
                 columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
                 labelClassName="font-designer-14m"
               >
-                {request.requestMessage}
+                {getPreferredScheduleLabel(request)}
               </KeyValueRow>
               <KeyValueRow
-                label="일정"
+                label={getChannelGuideLabel(request.method)}
                 className="py-150"
                 columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
                 labelClassName="font-designer-14m"
               >
-                {dayjs(request.requestedAt).format(
-                  'YYYY.MM.DD (ddd), HH:mm~HH:mm',
-                )}
+                {flowMeta.channelGuide}
               </KeyValueRow>
+              {isPending ? (
+                <KeyValueRow
+                  label="지금 필요한 처리"
+                  className="py-150"
+                  columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
+                  labelClassName="font-designer-14m"
+                >
+                  {needsPaymentConfirm
+                    ? '먼저 입금 확인을 완료한 뒤 수락 또는 거절을 결정해주세요.'
+                    : flowMeta.mentorAction}
+                </KeyValueRow>
+              ) : null}
               <KeyValueRow
                 label="결제금액"
                 className="py-150"
                 columnsClassName="grid-cols-[100px_minmax(0,1fr)] gap-200"
                 labelClassName="font-designer-14m"
               >
-                3,300원
+                {paymentAmountLabel}
               </KeyValueRow>
             </div>
           </section>
 
-          {/* 멘토링 메모 섹션 */}
+          {/* 요청 내용 섹션 */}
           <section className="mb-300">
-            <div className="mb-150 flex items-center justify-between">
-              <h3 className="font-designer-16b text-text-default">
-                멘토링 메모
-              </h3>
-              <button
-                type="button"
-                className="text-text-brand font-designer-14m flex items-center gap-50"
-              >
-                <span>✏️</span>
-              </button>
-            </div>
-            <BorderedTextarea
-              value={mentorMemo}
-              onChange={(e) => setMentorMemo(e.target.value)}
-              className="rounded-150 border-border-subtle bg-background-alternative min-h-[120px] resize-none py-125"
-              placeholder="메모를 작성하면 멘티에게 공개되지 않습니다."
+            <h3 className="font-designer-16b text-text-default mb-150">
+              멘티가 전달한 내용
+            </h3>
+            <RequestContentViewer
+              requestMessage={request.requestMessage}
+              requestContents={request.requestContents}
             />
           </section>
 
-          {/* 결제 정보 (수동결제인 경우) */}
-          {hasPayment && (
-            <section className="mb-300">
-              <div className="mb-150 flex items-center justify-between">
-                <h3 className="font-designer-16b text-text-default">
-                  결제 정보
-                </h3>
-                <Badge
-                  color={
-                    MENTORING_PAYMENT_STATUS_META[request.paymentStatus].color
-                  }
-                  shape="round"
-                >
-                  {MENTORING_PAYMENT_STATUS_META[request.paymentStatus].label}
-                </Badge>
-              </div>
-              <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border">
-                <div className="flex items-center justify-between px-150 py-125">
-                  <span className="font-designer-14m text-text-subtle">
-                    결제 방식
-                  </span>
-                  <span className="font-designer-14r text-text-default">
-                    수동 계좌이체
-                  </span>
-                </div>
-                <div className="flex items-center justify-between px-150 py-125">
-                  <span className="font-designer-14m text-text-subtle">
-                    입금 상태
-                  </span>
-                  <span className="font-designer-14r text-text-default">
-                    {MENTORING_PAYMENT_STATUS_META[request.paymentStatus].label}
-                  </span>
-                </div>
-                {request.paymentMemo && (
-                  <div className="flex items-center justify-between px-150 py-125">
-                    <span className="font-designer-14m text-text-subtle">
-                      결제 메모
+          <section className="mb-300">
+            <h3 className="font-designer-16b text-text-default mb-150">
+              처리 포인트
+            </h3>
+            <div className="rounded-150 border-border-subtle bg-background-alternative space-y-100 border p-150">
+              <div className="space-y-50">
+                {flowMeta.steps.map((step, index) => (
+                  <div key={step} className="flex items-start gap-75">
+                    <span className="bg-fill-brand-subtle-default text-text-brand font-designer-12b inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full">
+                      {index + 1}
                     </span>
-                    <span className="font-designer-14r text-text-default">
-                      {request.paymentMemo}
-                    </span>
+                    <p className="font-designer-13r text-text-subtle leading-relaxed">
+                      {step}
+                    </p>
                   </div>
-                )}
+                ))}
               </div>
+              <div className="rounded-100 bg-background-default px-125 py-100">
+                <p className="font-designer-13m text-text-default">
+                  {flowMeta.mentorAction}
+                </p>
+                <p className="font-designer-12r text-text-subtle mt-25">
+                  {flowMeta.channelGuide}
+                </p>
+                <p className="font-designer-12r text-text-subtle mt-25">
+                  {flowMeta.issueGuide}
+                </p>
+              </div>
+            </div>
+          </section>
 
-              {needsPaymentConfirm && (
+          <section className="mb-300">
+            <h3 className="font-designer-16b text-text-default mb-150">
+              검토 체크리스트
+            </h3>
+            <div className="rounded-150 border-border-subtle bg-background-alternative space-y-100 border p-150">
+              {mentorChecklist.map((item, index) => (
+                <div key={item} className="flex items-start gap-75">
+                  <span className="bg-fill-brand-subtle-default text-text-brand font-designer-12b inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-full">
+                    {index + 1}
+                  </span>
+                  <p className="font-designer-13r text-text-subtle leading-relaxed">
+                    {item}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* 결제 정보 */}
+          <section className="mb-300">
+            <div className="mb-150 flex items-center justify-between">
+              <h3 className="font-designer-16b text-text-default">결제 정보</h3>
+              <Badge
+                color={
+                  MENTORING_PAYMENT_STATUS_META[request.paymentStatus].color
+                }
+                shape="round"
+              >
+                {MENTORING_PAYMENT_STATUS_META[request.paymentStatus].label}
+              </Badge>
+            </div>
+            <div className="border-border-subtle divide-border-subtle rounded-150 divide-y border">
+              <div className="flex items-center justify-between px-150 py-125">
+                <span className="font-designer-14m text-text-subtle">
+                  결제 방식
+                </span>
+                <span className="font-designer-14r text-text-default">
+                  {getPaymentMethodLabel(request)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-150 py-125">
+                <span className="font-designer-14m text-text-subtle">
+                  결제 금액
+                </span>
+                <span className="font-designer-14r text-text-default">
+                  {paymentAmountLabel}
+                </span>
+              </div>
+              <div className="flex items-center justify-between px-150 py-125">
+                <span className="font-designer-14m text-text-subtle">
+                  결제 상태
+                </span>
+                <span className="font-designer-14r text-text-default">
+                  {MENTORING_PAYMENT_STATUS_META[request.paymentStatus].label}
+                </span>
+              </div>
+              {request.paymentMemo && (
+                <div className="flex items-center justify-between px-150 py-125">
+                  <span className="font-designer-14m text-text-subtle">
+                    {getPaymentMemoLabel(request)}
+                  </span>
+                  <span className="font-designer-14r text-text-default">
+                    {request.paymentMemo}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {needsPaymentConfirm && (
+              <div className="mt-150 space-y-100">
+                <BorderedTextarea
+                  value={paymentConfirmMemo}
+                  onChange={(event) =>
+                    setPaymentConfirmMemo(event.target.value)
+                  }
+                  className="rounded-150 border-border-subtle min-h-[96px] resize-none py-125"
+                  placeholder="입금 확인과 함께 멘티에게 남길 메모가 있으면 적어주세요."
+                />
+                <p className="font-designer-12r text-text-subtle">
+                  비워두면 입금 확인 완료 문구로 처리됩니다.
+                </p>
                 <Button
                   type="button"
                   size="medium"
                   color="secondary"
-                  className="mt-150 w-full"
+                  className="w-full"
                   onClick={handleConfirmPayment}
                 >
                   입금 확인 완료
                 </Button>
-              )}
+              </div>
+            )}
 
-              {paymentConfirmed && isPending && (
-                <div className="rounded-100 bg-background-accent-green-subtle mt-150 px-150 py-125">
-                  <p className="font-designer-14m text-text-success">
-                    입금이 확인되었습니다. 수락할 수 있어요.
-                  </p>
-                </div>
-              )}
-            </section>
-          )}
+            {paymentConfirmed && isPending && (
+              <div className="rounded-100 bg-background-accent-green-subtle mt-150 px-150 py-125">
+                <p className="font-designer-14m text-text-success">
+                  입금 확인이 끝났습니다. 이제 수락 또는 거절을 결정해주세요.
+                </p>
+              </div>
+            )}
+          </section>
 
           {/* 처리 메모 (처리 완료 시) */}
           {!isPending && request.decisionNote && (
@@ -326,9 +475,10 @@ export default function MentoringRequestDetailCard({
                       size="medium"
                       color="primary"
                       className="flex-1"
+                      disabled={needsPaymentConfirm}
                       onClick={handleAcceptNote}
                     >
-                      수락
+                      {needsPaymentConfirm ? '입금 확인 후 수락' : '수락'}
                     </Button>
                   ) : (
                     <Button
@@ -336,12 +486,13 @@ export default function MentoringRequestDetailCard({
                       size="medium"
                       color="primary"
                       className="flex-1"
+                      disabled={needsPaymentConfirm}
                       onClick={() => {
                         setScheduleModalOpen(true);
                         setScheduleError('');
                       }}
                     >
-                      수락
+                      {needsPaymentConfirm ? '입금 확인 후 수락' : '수락'}
                     </Button>
                   )}
                 </div>
@@ -401,9 +552,12 @@ export default function MentoringRequestDetailCard({
         {isPending && (
           <div className="border-border-subtle bg-background-alternative border-t px-300 py-150 text-center">
             <p className="font-designer-13r text-text-subtlest">
-              멘티의 신청이 24시간 내에 수락/거절 되지 않을 때 재신청됩니다.
-              <br />
-              변경하신 내용이 24시간 이내 재신청된 자동 삭제될 수 있습니다.
+              {MENTORING_MENTOR_RESPONSE_EXPECTATION_GUIDE}
+            </p>
+            <p className="font-designer-12r text-text-subtlest mt-50">
+              {needsPaymentConfirm
+                ? '수동결제 건은 입금 확인 완료 후에만 수락과 답변이 열립니다.'
+                : flowMeta.mentorAction}
             </p>
           </div>
         )}

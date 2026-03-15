@@ -3,6 +3,7 @@ import type {
   MentoringPaymentMethod,
   MentoringPaymentMode,
   MentoringReviewRecommendation,
+  MentoringSessionIssueType,
 } from '@/types/mentoring/management-domain';
 import type { MentoringRequestContentBlock } from '@/types/mentoring/request-content';
 
@@ -44,11 +45,27 @@ export interface CancelMentoringSessionParams {
   mentorId: number;
   sessionId: string;
   reason: string;
+  issueType?: Extract<
+    MentoringSessionIssueType,
+    'MENTOR_CANCELLED' | 'MENTEE_CANCELLED'
+  >;
+}
+
+export interface MarkMentoringSessionOutcomeParams {
+  mentorId: number;
+  sessionId: string;
+  outcome: 'COMPLETED' | 'MENTEE_NO_SHOW' | 'MENTOR_NO_SHOW';
+  note?: string;
 }
 
 export interface CreateMentoringRequestParams {
   mentorId: number;
   method: MentoringMethodType;
+  mentorDisplayTitle?: string;
+  mentorNickname?: string;
+  methodLabel?: string;
+  durationLabel?: string;
+  paymentAmount?: number;
   paymentMode: MentoringPaymentMode;
   paymentMethod: MentoringPaymentMethod;
   paymentMemo?: string;

@@ -4,10 +4,12 @@ import { FileText, Link2, Paperclip, PictureInPicture2 } from 'lucide-react';
 import { type ReactNode } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
+  isMentoringRequestHtmlDocument,
   parseMentoringRequestRichTextDocument,
   type MentoringRequestContentBlock,
   type MentoringRequestRichTextNode,
 } from '@/features/mentoring/model/request-content';
+import MentoringMarkdownContent from '@/features/mentoring/ui/common/mentoring-markdown-content';
 
 interface RequestContentViewerProps {
   requestMessage: string;
@@ -297,6 +299,16 @@ export default function RequestContentViewer({
     <div className="rounded-100 bg-background-alternative space-y-100 p-125">
       {requestContents.map((block) => {
         if (block.type === 'richText') {
+          if (isMentoringRequestHtmlDocument(block.document)) {
+            return (
+              <MentoringMarkdownContent
+                key={block.id}
+                content={block.document}
+                className="rounded-100 bg-background-default px-150 py-125"
+              />
+            );
+          }
+
           const parsed = parseMentoringRequestRichTextDocument(block.document);
           if (parsed.length === 0) {
             return null;
