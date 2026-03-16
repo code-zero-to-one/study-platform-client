@@ -27,7 +27,9 @@ interface MobileMenuDrawerProps {
   isLoggedIn: boolean;
 }
 
-export default function MobileMenuDrawer({ isLoggedIn }: MobileMenuDrawerProps) {
+export default function MobileMenuDrawer({
+  isLoggedIn,
+}: MobileMenuDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
@@ -102,7 +104,12 @@ export default function MobileMenuDrawer({ isLoggedIn }: MobileMenuDrawerProps) 
               {/* 패널 헤더 */}
               <div className="flex items-center justify-between border-b border-border-subtle px-400 py-300">
                 <div className="flex items-center gap-[7.5px]">
-                  <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
+                  <Image
+                    src="/icons/logo.svg"
+                    alt="Logo"
+                    width={18}
+                    height={18}
+                  />
                   <Image
                     src="/icons/logo_title.svg"
                     alt="ZERO-ONE"
@@ -110,7 +117,11 @@ export default function MobileMenuDrawer({ isLoggedIn }: MobileMenuDrawerProps) 
                     height={11}
                   />
                 </div>
-                <button onClick={close} aria-label="메뉴 닫기" className="p-100">
+                <button
+                  onClick={close}
+                  aria-label="메뉴 닫기"
+                  className="p-100"
+                >
                   <Image
                     src="/icons/modal-close.svg"
                     alt="닫기"

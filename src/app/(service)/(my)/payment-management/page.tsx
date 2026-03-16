@@ -329,9 +329,7 @@ export default function PaymentManagement() {
                       />
                       <button
                         className="shrink-0"
-                        onClick={() =>
-                          toggleHistory(transaction.groupStudyId!)
-                        }
+                        onClick={() => toggleHistory(transaction.groupStudyId!)}
                       >
                         {isExpanded ? <CaretUpIcon /> : <CaretDownIcon />}
                       </button>
@@ -420,11 +418,7 @@ function TransactionHistory({ groupStudyId }: { groupStudyId: number }) {
   );
 }
 
-function MobileTransactionHistory({
-  groupStudyId,
-}: {
-  groupStudyId: number;
-}) {
+function MobileTransactionHistory({ groupStudyId }: { groupStudyId: number }) {
   const { data } = useGetMyTransactionsByGroupStudy({
     groupStudyId,
     page: 0,
@@ -444,10 +438,7 @@ function MobileTransactionHistory({
             </span>
             <span className="text-text-subtlest">
               {formatToKST(t.transactionedAt)
-                ? format(
-                    formatToKST(t.transactionedAt)!,
-                    'yyyy.MM.dd HH:mm',
-                  )
+                ? format(formatToKST(t.transactionedAt)!, 'yyyy.MM.dd HH:mm')
                 : '-'}
             </span>
           </div>

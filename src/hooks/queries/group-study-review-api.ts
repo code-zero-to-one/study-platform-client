@@ -1,8 +1,4 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { axiosInstance } from '@/api/client/axios';
 import { useToastStore } from '@/stores/use-toast-store';
 
@@ -226,10 +222,7 @@ export const useUpdateGroupStudyReview = () => {
       reviewId: number;
       request: GroupStudyExperienceReviewUpdateRequest;
     }) => {
-      await axiosInstance.put(
-        `/group-studies/reviews/${reviewId}`,
-        request,
-      );
+      await axiosInstance.put(`/group-studies/reviews/${reviewId}`, request);
     },
     onSuccess: async (_, variables) => {
       useToastStore.getState().showToast('후기가 수정되었습니다.', 'success');
