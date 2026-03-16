@@ -182,6 +182,7 @@ export default function StudyDetailPage({
       STUDY_DETAIL_TABS.map((tab) => {
         const locked =
           MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember;
+
         return {
           ...tab,
           locked,

@@ -3,10 +3,10 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-import { usePathname } from 'next/navigation';
 
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
@@ -135,6 +135,7 @@ export default function MobileMenuDrawer({
               <nav className="flex flex-col px-400 py-300">
                 {NAV_ITEMS.map((item) => {
                   const isActive = pathname.startsWith(item.href);
+
                   return (
                     <Link
                       key={item.href}

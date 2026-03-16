@@ -267,6 +267,7 @@ export default function PaymentManagement() {
             );
             const kstDate = formatToKST(transaction.groupStudyStartDate);
             const beforeStarting = kstDate ? kstDate < new Date() : false;
+
             return (
               <React.Fragment key={transaction.groupStudyId}>
                 <div className="rounded-100 border border-border-default overflow-hidden">
