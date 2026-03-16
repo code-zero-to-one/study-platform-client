@@ -152,7 +152,9 @@ export default function PaymentManagement() {
                 const beforeStarting = kstDate ? kstDate < new Date() : false;
 
                 return (
-                  <React.Fragment key={transaction.groupStudyId ?? transaction.paymentCode}>
+                  <React.Fragment
+                    key={transaction.groupStudyId ?? transaction.paymentCode}
+                  >
                     <tr
                       className={
                         isExpanded ? '' : 'border-b-border-default border-b'
@@ -272,7 +274,9 @@ export default function PaymentManagement() {
             const beforeStarting = kstDate ? kstDate < new Date() : false;
 
             return (
-              <React.Fragment key={transaction.groupStudyId ?? transaction.paymentCode}>
+              <React.Fragment
+                key={transaction.groupStudyId ?? transaction.paymentCode}
+              >
                 <div className="rounded-100 border border-border-default overflow-hidden">
                   <div className="flex flex-col gap-150 p-200">
                     {/* 스터디명 + 상태 배지 */}
