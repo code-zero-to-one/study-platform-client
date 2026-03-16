@@ -7,7 +7,6 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
 
