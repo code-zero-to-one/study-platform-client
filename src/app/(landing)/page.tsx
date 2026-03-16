@@ -132,7 +132,7 @@ export default async function Landing() {
           </div>
         </section>
         {/* 제로원 솔루션 소개 */}
-        <section className="flex flex-col items-center gap-500 py-600 md:py-[120px]">
+        <section className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-500 px-300 py-600 md:px-0 md:py-[120px]">
           <Badge className="rounded-200 w-fit">제로원 솔루션</Badge>
 
           <p className="flex flex-col items-center gap-100">
@@ -204,7 +204,7 @@ export default async function Landing() {
               alt={suggestion.badge}
               width={600}
               height={400}
-              className="rounded-200 border-border-default h-auto w-full border"
+              className="rounded-200 border-border-default h-auto w-full border lg:w-1/2"
             />
           </section>
         ))}
