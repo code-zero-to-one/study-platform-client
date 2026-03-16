@@ -132,7 +132,7 @@ export default async function Landing() {
           </div>
         </section>
         {/* 제로원 솔루션 소개 */}
-        <section className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-500 px-300 py-600 md:px-0 md:py-[120px]">
+        <section className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-500 px-300 py-600 lg:px-0 md:py-[120px]">
           <Badge className="rounded-200 w-fit">제로원 솔루션</Badge>
 
           <p className="flex flex-col items-center gap-100">
@@ -177,7 +177,7 @@ export default async function Landing() {
         {SUGGESTION_INFO_LIST.map((suggestion) => (
           <section
             key={suggestion.badge}
-            className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-400 px-300 py-600 md:px-0 md:py-[120px] lg:flex-row lg:justify-between"
+            className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-400 px-300 py-600 lg:px-0 md:py-[120px] lg:flex-row lg:justify-between"
           >
             {/* 왼쪽 컨텐츠 */}
             <div className="flex-1">
@@ -212,7 +212,7 @@ export default async function Landing() {
         {/* 전문가 멘토진 */}
         {/* 다양한 스터디 */}
         {/* 오픈 알림 폼  */}
-        <section className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-400 px-300 py-600 md:px-0 md:py-[120px] lg:flex-row lg:justify-between">
+        <section className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-400 px-300 py-600 lg:px-0 md:py-[120px] lg:flex-row lg:justify-between">
           {/* 왼쪽 컨텐츠 */}
           <div className="flex-1">
             <Badge className="rounded-200 w-fit">

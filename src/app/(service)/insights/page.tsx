@@ -62,19 +62,19 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         </div>
 
         <div className="flex justify-between">
-          <span className="font-designer-20b sm:font-designer-28b text-[#181D27]">
+          <span className="font-designer-20b sm:font-designer-28b text-text-strong">
             ZERO-ONE 인사이트
           </span>
         </div>
 
         {/* 카테고리 탭 */}
-        <div className="flex gap-200 overflow-x-auto border-b border-[#D5D7DA]">
+        <div className="flex gap-200 overflow-x-auto border-b border-border-default">
           <Link
             href="/insights"
             className={`shrink-0 whitespace-nowrap px-300 pb-200 transition-colors ${
               !selectedCategorySlug
-                ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
-                : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
+                ? 'font-designer-15b border-b-2 border-text-strong text-text-strong'
+                : 'font-designer-15r text-text-subtle hover:text-text-strong'
             }`}
           >
             전체
@@ -85,8 +85,8 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               href={`/insights?category=${category.slug}`}
               className={`shrink-0 whitespace-nowrap px-300 pb-200 transition-colors ${
                 selectedCategorySlug === category.slug
-                  ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
-                  : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
+                  ? 'font-designer-15b border-b-2 border-text-strong text-text-strong'
+                  : 'font-designer-15r text-text-subtle hover:text-text-strong'
               }`}
             >
               {category.name}
@@ -96,33 +96,33 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
         {/* 아티클 목록 */}
         {articles.length === 0 ? (
-          <p className="text-gray-500">아직 등록된 글이 없습니다.</p>
+          <p className="text-text-subtle">아직 등록된 글이 없습니다.</p>
         ) : (
           <ul className="space-y-200">
             {articles.map((item) => (
               <li key={item.id}>
                 <Link
                   href={`/insights/${item.slug}`}
-                  className="rounded-100 flex w-full cursor-pointer gap-400 border border-solid border-[#D5D7DA] p-300 transition-colors hover:border-[#9CA3AF]"
+                  className="rounded-100 flex w-full cursor-pointer gap-400 border border-solid border-border-default p-300 transition-colors hover:border-border-subtle"
                 >
                   {/* 왼쪽: 텍스트 콘텐츠 */}
                   <div className="flex flex-1 flex-col justify-between gap-150">
                     {/* 카테고리 */}
                     {item.category && (
-                      <span className="font-designer-13r text-[#9CA3AF]">
+                      <span className="font-designer-13r text-text-subtlest">
                         {item.category.name}
                       </span>
                     )}
                     {/* 제목 */}
-                    <span className="font-designer-18b text-[#252B37]">
+                    <span className="font-designer-18b text-text-default">
                       {item.title}
                     </span>
                     {/* Description */}
-                    <p className="font-designer-15r line-clamp-2 text-[#535862]">
+                    <p className="font-designer-15r line-clamp-2 text-text-subtle">
                       {item.description}
                     </p>
                     {/* 생성일 */}
-                    <span className="font-designer-13r text-[#9CA3AF]">
+                    <span className="font-designer-13r text-text-subtlest">
                       {formatDate(item.createdAt)}
                     </span>
                   </div>

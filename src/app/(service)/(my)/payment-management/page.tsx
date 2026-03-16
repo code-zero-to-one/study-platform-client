@@ -92,7 +92,8 @@ export default function PaymentManagement() {
 
   const paymentList = paymentListData?.content;
 
-  const toggleHistory = (groupStudyId: number) => {
+  const toggleHistory = (groupStudyId: number | undefined) => {
+    if (!groupStudyId) return;
     setExpandedGroupStudyIds((prev) => {
       const newSet = new Set(prev);
 
@@ -144,14 +145,14 @@ export default function PaymentManagement() {
           <tbody>
             {paymentList && paymentList.length > 0 ? (
               paymentList.map((transaction) => {
-                const isExpanded = expandedGroupStudyIds.has(
-                  transaction.groupStudyId!,
-                );
+                const isExpanded = transaction.groupStudyId
+                  ? expandedGroupStudyIds.has(transaction.groupStudyId)
+                  : false;
                 const kstDate = formatToKST(transaction.groupStudyStartDate);
                 const beforeStarting = kstDate ? kstDate < new Date() : false;
 
                 return (
-                  <React.Fragment key={transaction.groupStudyId}>
+                  <React.Fragment key={transaction.groupStudyId ?? transaction.paymentCode}>
                     <tr
                       className={
                         isExpanded ? '' : 'border-b-border-default border-b'
@@ -164,22 +165,24 @@ export default function PaymentManagement() {
                             <h3 className="font-designer-16m text-text-default">
                               {transaction.groupStudyTitle || '-'}
                             </h3>
-                            {transaction.latestTransactionType && (
-                              <Badge
-                                color={
-                                  TRANSACTION_TYPE_MAP[
-                                    transaction.latestTransactionType
-                                  ].color
-                                }
-                                shape="rectangle"
-                              >
-                                {
-                                  TRANSACTION_TYPE_MAP[
-                                    transaction.latestTransactionType
-                                  ].label
-                                }
-                              </Badge>
-                            )}
+                            {transaction.latestTransactionType &&
+                              transaction.latestTransactionType in
+                                TRANSACTION_TYPE_MAP && (
+                                <Badge
+                                  color={
+                                    TRANSACTION_TYPE_MAP[
+                                      transaction.latestTransactionType
+                                    ].color
+                                  }
+                                  shape="rectangle"
+                                >
+                                  {
+                                    TRANSACTION_TYPE_MAP[
+                                      transaction.latestTransactionType
+                                    ].label
+                                  }
+                                </Badge>
+                              )}
                           </div>
                           <div className="font-designer-13r text-text-subtlest">
                             {`${transaction.paymentCode}${beforeStarting && ' / 시작 전'}` ||
@@ -225,7 +228,7 @@ export default function PaymentManagement() {
                       <td className="px-300 py-300 text-center">
                         <button
                           onClick={() =>
-                            toggleHistory(transaction.groupStudyId!)
+                            toggleHistory(transaction.groupStudyId)
                           }
                         >
                           {isExpanded ? <CaretUpIcon /> : <CaretDownIcon />}
@@ -234,9 +237,9 @@ export default function PaymentManagement() {
                     </tr>
 
                     {/* 결제 히스토리 박스 */}
-                    {isExpanded && (
+                    {isExpanded && transaction.groupStudyId !== undefined && (
                       <TransactionHistory
-                        groupStudyId={transaction.groupStudyId!}
+                        groupStudyId={transaction.groupStudyId}
                       />
                     )}
                   </React.Fragment>
@@ -262,14 +265,14 @@ export default function PaymentManagement() {
       <div className="flex flex-col gap-200 sm:hidden">
         {paymentList && paymentList.length > 0 ? (
           paymentList.map((transaction) => {
-            const isExpanded = expandedGroupStudyIds.has(
-              transaction.groupStudyId!,
-            );
+            const isExpanded = transaction.groupStudyId
+              ? expandedGroupStudyIds.has(transaction.groupStudyId)
+              : false;
             const kstDate = formatToKST(transaction.groupStudyStartDate);
             const beforeStarting = kstDate ? kstDate < new Date() : false;
 
             return (
-              <React.Fragment key={transaction.groupStudyId}>
+              <React.Fragment key={transaction.groupStudyId ?? transaction.paymentCode}>
                 <div className="rounded-100 border border-border-default overflow-hidden">
                   <div className="flex flex-col gap-150 p-200">
                     {/* 스터디명 + 상태 배지 */}
@@ -277,22 +280,24 @@ export default function PaymentManagement() {
                       <h3 className="font-designer-16m text-text-default">
                         {transaction.groupStudyTitle || '-'}
                       </h3>
-                      {transaction.latestTransactionType && (
-                        <Badge
-                          color={
-                            TRANSACTION_TYPE_MAP[
-                              transaction.latestTransactionType
-                            ].color
-                          }
-                          shape="rectangle"
-                        >
-                          {
-                            TRANSACTION_TYPE_MAP[
-                              transaction.latestTransactionType
-                            ].label
-                          }
-                        </Badge>
-                      )}
+                      {transaction.latestTransactionType &&
+                        transaction.latestTransactionType in
+                          TRANSACTION_TYPE_MAP && (
+                          <Badge
+                            color={
+                              TRANSACTION_TYPE_MAP[
+                                transaction.latestTransactionType
+                              ].color
+                            }
+                            shape="rectangle"
+                          >
+                            {
+                              TRANSACTION_TYPE_MAP[
+                                transaction.latestTransactionType
+                              ].label
+                            }
+                          </Badge>
+                        )}
                     </div>
                     {/* PAY-ID */}
                     <div className="font-designer-13r text-text-subtlest">
@@ -330,17 +335,17 @@ export default function PaymentManagement() {
                       />
                       <button
                         className="shrink-0"
-                        onClick={() => toggleHistory(transaction.groupStudyId!)}
+                        onClick={() => toggleHistory(transaction.groupStudyId)}
                       >
                         {isExpanded ? <CaretUpIcon /> : <CaretDownIcon />}
                       </button>
                     </div>
                   </div>
                   {/* 히스토리 확장 영역 */}
-                  {isExpanded && (
+                  {isExpanded && transaction.groupStudyId !== undefined && (
                     <div className="border-t border-border-default bg-background-alternative px-200 py-150">
                       <MobileTransactionHistory
-                        groupStudyId={transaction.groupStudyId!}
+                        groupStudyId={transaction.groupStudyId}
                       />
                     </div>
                   )}

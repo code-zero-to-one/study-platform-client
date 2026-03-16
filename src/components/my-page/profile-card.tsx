@@ -86,7 +86,7 @@ export default function ProfileCard(props: ProfileCardProps) {
         const matchedAnswer = applicant.answer.find((a) => a.id === q.id);
 
         return (
-          <div key={q.id} className="mb-4">
+          <div key={q.id} className="mb-200">
             <p className="font-designer-16b text-text-default">
               {q.id}. {q.question}
             </p>
