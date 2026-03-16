@@ -20,7 +20,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="border-border-subtle box-border flex w-[300px] flex-col gap-150 border-x-1 px-300 pt-500">
+    <div className="border-border-subtle box-border hidden w-[300px] flex-col gap-150 border-x-1 px-300 pt-500 lg:flex">
       <SidebarItem
         onClick={() => router.push('/my-page')}
         isActive={pathname === '/my-page'}

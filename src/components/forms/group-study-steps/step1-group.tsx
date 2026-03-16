@@ -82,7 +82,7 @@ export default function Step1OpenGroupStudy() {
         scrollable
       >
         <RadioGroup
-          className="flex flex-row gap-300"
+          className="flex flex-wrap gap-300"
           value={typeField.value}
           onValueChange={(v) => {
             typeField.onChange(v);
@@ -150,7 +150,7 @@ export default function Step1OpenGroupStudy() {
           스터디가 진행되는 방식을 선택해주세요.
         </p>
 
-        <div className="mt-100 flex flex-row items-center gap-200">
+        <div className="mt-100 flex flex-col gap-200 sm:flex-row sm:items-center">
           <Controller
             name="method"
             control={control}
@@ -197,7 +197,7 @@ export default function Step1OpenGroupStudy() {
         scrollable
       >
         <RadioGroup
-          className="flex flex-row gap-300"
+          className="flex flex-wrap gap-300"
           value={regularMeetingField.value}
           onValueChange={(v) => {
             regularMeetingField.onChange(v);

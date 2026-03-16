@@ -22,10 +22,10 @@ export default function SectionHeader({
 }: SectionHeaderProps) {
   return (
     <div className={cn('flex flex-col gap-150', className)}>
-      <div className="flex items-center justify-between gap-200">
+      <div className="flex items-start justify-between gap-200">
         <h2
           className={cn(
-            'font-display-headings6 text-text-strong flex items-center gap-150',
+            'font-display-headings6 text-text-strong min-w-0 flex items-center gap-150 break-keep',
             titleClassName,
           )}
         >

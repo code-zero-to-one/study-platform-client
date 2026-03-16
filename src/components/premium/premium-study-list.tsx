@@ -31,7 +31,7 @@ export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
 
   if (studies.length === 0) {
     return (
-      <div className="bg-background-alternative rounded-100 flex h-[640px] flex-col items-center justify-center gap-300">
+      <div className="bg-background-alternative rounded-100 flex h-[300px] flex-col items-center justify-center gap-300 sm:h-[640px]">
         <Image
           src="/icons/empty-study-case.svg"
           alt="현재 멘토 스터디가 없습니다."
@@ -51,7 +51,7 @@ export default function PremiumStudyList({ studies }: PremiumStudyListProps) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-300">
+    <div className="grid grid-cols-1 gap-300 sm:grid-cols-2 lg:grid-cols-3">
       {studies.map((study) => (
         <StudyCard
           key={study.basicInfo?.groupStudyId}

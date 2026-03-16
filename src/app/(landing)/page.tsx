@@ -88,7 +88,7 @@ export default async function Landing() {
     <>
       <div>
         {/* 메인 소개 */}
-        <section className="relative flex flex-col items-center gap-600 py-[80px]">
+        <section className="relative flex flex-col items-center gap-600 py-400 md:py-[80px]">
           {/* 중앙에서 위아래로 퍼지는 그라데이션 배경 오버레이 */}
           <div className="pointer-events-none absolute top-0 left-0 z-0 h-full w-full bg-gradient-to-b from-white via-[#fff1f3] to-white" />
 
@@ -111,18 +111,18 @@ export default async function Landing() {
             <Link href="/login">
               <Button
                 color="primary"
-                className="w-[190px] py-[12px] text-[20px]"
+                className="w-full max-w-[190px] py-150 font-designer-18m"
               >
                 제로원 시작하기
               </Button>
             </Link>
           </div>
 
-          <div className="relative h-[591px] w-[1000px]">
+          <div className="relative w-full max-w-[1000px]">
             <Image
               src="/images/one-by-one-study.png"
               alt="zeroone 대표 이미지"
-              className="rounded-100"
+              className="h-auto w-full rounded-100"
               width={1000}
               height={590}
               priority
@@ -132,11 +132,11 @@ export default async function Landing() {
           </div>
         </section>
         {/* 제로원 솔루션 소개 */}
-        <section className="flex flex-col items-center gap-500 py-[120px]">
+        <section className="flex flex-col items-center gap-500 py-600 md:py-[120px]">
           <Badge className="rounded-200 w-fit">제로원 솔루션</Badge>
 
           <p className="flex flex-col items-center gap-100">
-            <span className="font-bold-h2 text-text-strong">
+            <span className="font-bold-h4 sm:font-bold-h2 text-text-strong">
               중고 신입만 찾는 상황에서 어떻게 계속 준비할지 막막하신가요?
             </span>
             <span className="text-text-subtle font-designer-16m">
@@ -145,7 +145,7 @@ export default async function Landing() {
             </span>
           </p>
 
-          <ul className="grid grid-cols-3 gap-300">
+          <ul className="grid grid-cols-1 gap-300 sm:grid-cols-2 lg:grid-cols-3">
             {SOLUTION_INFO_LIST.map((solution, index) => (
               <li
                 key={index}
@@ -177,14 +177,14 @@ export default async function Landing() {
         {SUGGESTION_INFO_LIST.map((suggestion) => (
           <section
             key={suggestion.badge}
-            className="mx-auto flex w-[1160px] max-w-7xl items-center justify-between gap-8 gap-400 py-[120px]"
+            className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-400 px-300 py-600 md:px-0 md:py-[120px] lg:flex-row lg:justify-between"
           >
             {/* 왼쪽 컨텐츠 */}
             <div className="flex-1">
               <Badge className="rounded-200 w-fit">{suggestion.badge}</Badge>
 
               <div className="mt-200 flex flex-col gap-300">
-                <p className="font-bold-h2 text-text-strong flex flex-col">
+                <p className="font-bold-h4 sm:font-bold-h2 text-text-strong flex flex-col">
                   {suggestion.title.map((t) => (
                     <span key={t}>{t}</span>
                   ))}
@@ -204,7 +204,7 @@ export default async function Landing() {
               alt={suggestion.badge}
               width={600}
               height={400}
-              className="rounded-200 border-border-default border"
+              className="rounded-200 border-border-default h-auto w-full border"
             />
           </section>
         ))}
@@ -212,7 +212,7 @@ export default async function Landing() {
         {/* 전문가 멘토진 */}
         {/* 다양한 스터디 */}
         {/* 오픈 알림 폼  */}
-        <section className="mx-auto flex w-[1160px] max-w-7xl items-center justify-between gap-8 gap-400 py-[120px]">
+        <section className="mx-auto flex w-full max-w-[1160px] flex-col items-center gap-400 px-300 py-600 md:px-0 md:py-[120px] lg:flex-row lg:justify-between">
           {/* 왼쪽 컨텐츠 */}
           <div className="flex-1">
             <Badge className="rounded-200 w-fit">
@@ -220,7 +220,7 @@ export default async function Landing() {
             </Badge>
 
             <div className="mt-200 flex flex-col gap-300">
-              <p className="font-bold-h2 text-text-strong flex flex-col">
+              <p className="font-bold-h4 sm:font-bold-h2 text-text-strong flex flex-col">
                 <span>당신을 위한 스터디가 준비중입니다.</span>
                 {/* <span>연락드릴게요!</span> */}
               </p>
@@ -244,8 +244,8 @@ export default async function Landing() {
         </section>
       </div>
 
-      <footer className="bg-background-neutral-strong flex flex-col items-center gap-500 px-[80px] py-[64px]">
-        <div className="text-text-inverse font-bold-h3 flex flex-col items-center justify-center gap-200">
+      <footer className="bg-background-neutral-strong flex flex-col items-center gap-500 px-400 py-[64px] lg:px-800">
+        <div className="text-text-inverse font-designer-18b sm:font-bold-h3 flex flex-col items-center justify-center gap-200">
           <span>제로원을 방문해주신 모든 분들에게 감사드립니다.</span>
           <span>더욱 더 좋은 서비스와 기회로 보답하도록 하겠습니다!</span>
         </div>

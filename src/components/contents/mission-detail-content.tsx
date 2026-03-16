@@ -87,7 +87,7 @@ export default function MissionDetailContent({
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-200">
+        <div className="grid grid-cols-1 gap-200 sm:grid-cols-2 lg:grid-cols-3">
           {mission.homeworks?.map((homework) => (
             <HomeworkCard
               key={homework.homeworkId}

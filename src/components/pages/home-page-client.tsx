@@ -29,7 +29,7 @@ export default function HomePageClient({
   } = useReviewReminder(memberId);
 
   return (
-    <div className="mx-auto flex w-[1496px] flex-col gap-500 px-600 py-600">
+    <div className="mx-auto flex w-full max-w-[1496px] flex-col gap-400 px-300 py-400 md:gap-500 md:px-600 md:py-600">
       <StudyReviewModal
         open={showReviewReminder}
         onOpenChange={setShowReviewReminder}
@@ -42,7 +42,7 @@ export default function HomePageClient({
       <StartStudyButton />
       <TabNavigation activeTab={activeTab} />
       {content}
-      <div className="h-[400px]" aria-hidden />
+      <div className="h-200 md:h-[400px]" aria-hidden />
     </div>
   );
 }

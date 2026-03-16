@@ -50,7 +50,7 @@ export default function PremiumStudyListPage() {
   }
 
   return (
-    <div className="mx-auto w-[1280px] px-400 py-600">
+    <div className="mx-auto w-full max-w-[1280px] px-400 py-600">
       {/* 배너 */}
       <div className="mb-600">
         <Banner />
@@ -82,7 +82,7 @@ export default function PremiumStudyListPage() {
       </div>
 
       {/* 필터 및 검색 */}
-      <div className="mb-400 flex items-center justify-between">
+      <div className="mb-400 flex flex-col gap-200 sm:flex-row sm:items-center sm:justify-between">
         <StudyFilter values={filterValues} onChange={handleFilterChange} />
         <StudySearch value={searchQuery} onChange={handleSearch} />
       </div>

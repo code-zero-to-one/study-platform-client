@@ -171,7 +171,7 @@ export default function MyParticipatingStudiesSection({
         )}
       </div>
 
-      <div className="grid grid-cols-3 gap-300">
+      <div className="grid grid-cols-1 gap-300 sm:grid-cols-2 lg:grid-cols-3">
         {participatingStudies.map((study) => {
           const studyId = study.basicInfo?.groupStudyId ?? 0;
           const title = study.simpleDetailInfo?.title ?? '';

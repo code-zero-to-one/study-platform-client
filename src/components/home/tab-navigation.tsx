@@ -97,7 +97,7 @@ export default function TabNavigation({ activeTab }: TabNavigationProps) {
         </Button>
       </div>
 
-      <nav className="border-border-subtle flex gap-100 border-b">
+      <nav className="border-border-subtle flex gap-100 border-b shrink-0 overflow-x-auto">
         {visibleTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;

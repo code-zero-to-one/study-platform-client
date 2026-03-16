@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
 import HeaderNav from '@/components/common/layout/header-nav';
 import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown';
+import MobileMenuDrawer from '@/components/common/layout/mobile-menu-drawer';
 import Button from '@/components/common/ui/button';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import { getServerCookie } from '@/utils/server-cookie';
@@ -46,7 +47,7 @@ export default async function Header() {
 
   return (
     <header className="bg-white py-[11px] mix-blend-multiply">
-      <div className="mx-auto flex w-[1496px] items-center justify-between px-600">
+      <div className="mx-auto flex w-full max-w-[1496px] items-center justify-between px-600">
         <div className="flex items-center gap-[7.5px] px-100 py-[11px]">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
           <Link href="/">
@@ -62,27 +63,35 @@ export default async function Header() {
           </span>
         </div>
 
-        <HeaderNav isLoggedIn={isLoggedIn} />
+        {/* 데스크톱 네비게이션 */}
+        <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-between">
+          <HeaderNav isLoggedIn={isLoggedIn} />
 
-        {accessTokenStr && (
-          <div className="flex items-center gap-200">
-            <StudyMatchingToggle />
-            <NotificationDropdown />
-          </div>
-        )}
-
-        <div className="ml-150">
-          {isLoggedIn ? (
-            <HeaderUserDropdown userImg={userImg} />
-          ) : (
-            <LoginModal
-              openTrigger={
-                <Button size="small" className="font-designer-14m">
-                  로그인 / 회원가입
-                </Button>
-              }
-            />
+          {accessTokenStr && (
+            <div className="flex items-center gap-200">
+              <StudyMatchingToggle />
+              <NotificationDropdown />
+            </div>
           )}
+
+          <div className="ml-150">
+            {isLoggedIn ? (
+              <HeaderUserDropdown userImg={userImg} />
+            ) : (
+              <LoginModal
+                openTrigger={
+                  <Button size="small" className="font-designer-14m">
+                    로그인 / 회원가입
+                  </Button>
+                }
+              />
+            )}
+          </div>
+        </div>
+
+        {/* 모바일 햄버거 메뉴 */}
+        <div className="lg:hidden">
+          <MobileMenuDrawer isLoggedIn={isLoggedIn} />
         </div>
       </div>
     </header>

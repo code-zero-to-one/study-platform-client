@@ -152,7 +152,7 @@ export default function ReservationList({
           </div>
         }
         className="gap-0"
-        titleClassName="text-text-strong font-designer-28b"
+        titleClassName="text-text-strong font-designer-20b sm:font-designer-28b"
       />
 
       <div className="grid grid-cols-1 gap-200 md:grid-cols-2 lg:grid-cols-3">

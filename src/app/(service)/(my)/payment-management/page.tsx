@@ -111,12 +111,12 @@ export default function PaymentManagement() {
       <div className="font-designer-20b text-text-default">결제 관리</div>
 
       {/* 날짜 선택 & 검색 */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-200 sm:flex-row sm:items-center sm:justify-between">
         {/* 캘린더 자리 */}
         <DatePicker mode="range" selected={dateRange} onSelect={setDateRange} />
 
         {/* 검색 */}
-        <div className="w-[240px]">
+        <div className="w-full sm:w-[240px]">
           <BaseInput
             placeholder="스터디명 혹은 거래 ID 검색"
             size="m"
@@ -127,7 +127,7 @@ export default function PaymentManagement() {
       </div>
 
       {/* 결제 내역 테이블 */}
-      <div className="rounded-tl-100 rounded-tr-100 overflow-hidden">
+      <div className="hidden sm:block rounded-tl-100 rounded-tr-100 overflow-x-auto">
         <table className="w-full">
           <thead className="bg-background-alternative border-b-border-default border-b">
             <tr>
@@ -258,6 +258,106 @@ export default function PaymentManagement() {
         </table>
       </div>
 
+      {/* 모바일 카드 리스트 */}
+      <div className="flex flex-col gap-200 sm:hidden">
+        {paymentList && paymentList.length > 0 ? (
+          paymentList.map((transaction) => {
+            const isExpanded = expandedGroupStudyIds.has(
+              transaction.groupStudyId!,
+            );
+            const kstDate = formatToKST(transaction.groupStudyStartDate);
+            const beforeStarting = kstDate ? kstDate < new Date() : false;
+            return (
+              <React.Fragment key={transaction.groupStudyId}>
+                <div className="rounded-100 border border-border-default overflow-hidden">
+                  <div className="flex flex-col gap-150 p-200">
+                    {/* 스터디명 + 상태 배지 */}
+                    <div className="flex items-center gap-100 flex-wrap">
+                      <h3 className="font-designer-16m text-text-default">
+                        {transaction.groupStudyTitle || '-'}
+                      </h3>
+                      {transaction.latestTransactionType && (
+                        <Badge
+                          color={
+                            TRANSACTION_TYPE_MAP[
+                              transaction.latestTransactionType
+                            ].color
+                          }
+                          shape="rectangle"
+                        >
+                          {
+                            TRANSACTION_TYPE_MAP[
+                              transaction.latestTransactionType
+                            ].label
+                          }
+                        </Badge>
+                      )}
+                    </div>
+                    {/* PAY-ID */}
+                    <div className="font-designer-13r text-text-subtlest">
+                      {`${transaction.paymentCode}${beforeStarting ? ' / 시작 전' : ''}` ||
+                        '-'}
+                    </div>
+                    {/* 금액 + 날짜 */}
+                    <div className="flex items-center justify-between">
+                      <span className="font-designer-14m text-text-default">
+                        {transaction.latestTransactionAmount?.toLocaleString() ||
+                          0}
+                        원
+                      </span>
+                      <span className="font-designer-13r text-text-subtlest">
+                        {formatToKST(transaction.paidAt)
+                          ? format(
+                              formatToKST(transaction.paidAt)!,
+                              'yyyy.MM.dd HH:mm',
+                            )
+                          : '-'}{' '}
+                        {transaction.paymentMethod}
+                      </span>
+                    </div>
+                    {/* 액션버튼 + 토글 */}
+                    <div className="flex items-center justify-between gap-100">
+                      <PaymentActionButtons
+                        paymentId={transaction.paymentId}
+                        groupStudyId={transaction.groupStudyId}
+                        latestTransactionType={
+                          transaction.latestTransactionType
+                        }
+                        paymentReceiptUrl={transaction.paymentReceiptUrl}
+                        virtualAccountInfo={transaction.virtualAccountInfo}
+                        layout="row"
+                      />
+                      <button
+                        className="shrink-0"
+                        onClick={() =>
+                          toggleHistory(transaction.groupStudyId!)
+                        }
+                      >
+                        {isExpanded ? <CaretUpIcon /> : <CaretDownIcon />}
+                      </button>
+                    </div>
+                  </div>
+                  {/* 히스토리 확장 영역 */}
+                  {isExpanded && (
+                    <div className="border-t border-border-default bg-background-alternative px-200 py-150">
+                      <MobileTransactionHistory
+                        groupStudyId={transaction.groupStudyId!}
+                      />
+                    </div>
+                  )}
+                </div>
+              </React.Fragment>
+            );
+          })
+        ) : (
+          <div className="py-400 text-center">
+            <p className="font-designer-16r text-text-default">
+              결제 내역이 없습니다.
+            </p>
+          </div>
+        )}
+      </div>
+
       {/* 페이지네이션 */}
       <div className="flex items-center justify-between">
         <span className="text-icon-subtlest font-designer-13r">
@@ -320,12 +420,54 @@ function TransactionHistory({ groupStudyId }: { groupStudyId: number }) {
   );
 }
 
+function MobileTransactionHistory({
+  groupStudyId,
+}: {
+  groupStudyId: number;
+}) {
+  const { data } = useGetMyTransactionsByGroupStudy({
+    groupStudyId,
+    page: 0,
+    size: 20,
+  });
+  const transactions = data?.content || [];
+
+  return (
+    <div className="flex flex-col gap-50">
+      <h4 className="font-designer-13m text-text-subtle">결제 히스토리</h4>
+      {transactions.length > 0 ? (
+        transactions.map((t, i) => (
+          <div key={i} className="font-designer-11r flex justify-between">
+            <span className="text-text-subtlest">
+              {t.transactionTypeDisplayName || '-'}
+              {t.reason && ` / ${t.reason}`}
+            </span>
+            <span className="text-text-subtlest">
+              {formatToKST(t.transactionedAt)
+                ? format(
+                    formatToKST(t.transactionedAt)!,
+                    'yyyy.MM.dd HH:mm',
+                  )
+                : '-'}
+            </span>
+          </div>
+        ))
+      ) : (
+        <div className="font-designer-11r text-text-subtlest">
+          히스토리가 없습니다.
+        </div>
+      )}
+    </div>
+  );
+}
+
 function PaymentActionButtons({
   paymentId,
   groupStudyId,
   latestTransactionType,
   paymentReceiptUrl,
   virtualAccountInfo,
+  layout = 'col',
 }: Pick<
   UserTransactionListResponse,
   | 'paymentId'
@@ -333,11 +475,14 @@ function PaymentActionButtons({
   | 'paymentReceiptUrl'
   | 'groupStudyId'
   | 'virtualAccountInfo'
->) {
+> & { layout?: 'row' | 'col' }) {
+  const containerClass =
+    layout === 'row' ? 'flex flex-row gap-100' : 'flex flex-col gap-100';
+
   switch (latestTransactionType) {
     case 'PAYMENT_REQUESTED':
       return (
-        <div className="flex flex-col gap-100">
+        <div className={containerClass}>
           <PaymentProceedButton groupStudyId={groupStudyId} />
           <PaymentCancelButton paymentId={paymentId} />
         </div>
@@ -345,7 +490,7 @@ function PaymentActionButtons({
 
     case 'PAYMENT_WAITING_FOR_DEPOSIT':
       return (
-        <div className="flex flex-col gap-100">
+        <div className={containerClass}>
           <VirtualAccountInfoButton virtualAccountInfo={virtualAccountInfo} />
           <PaymentCancelButton paymentId={paymentId} />
         </div>
@@ -356,7 +501,7 @@ function PaymentActionButtons({
 
     case 'PAYMENT_SUCCESS':
       return (
-        <div className="flex flex-col gap-100">
+        <div className={containerClass}>
           <ReceiptButton paymentReceiptUrl={paymentReceiptUrl} />
           <RefundRequestButton paymentId={paymentId} />
         </div>

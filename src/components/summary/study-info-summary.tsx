@@ -338,7 +338,7 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
   };
 
   return (
-    <div className="rounded-150 flex w-[335px] flex-col self-start border border-[#D5D7DA] bg-white px-300 py-400">
+    <div className="rounded-150 flex w-full flex-col self-start border border-border-default bg-background-default px-300 py-400 lg:w-[335px]">
       {/* 제목 */}
       <p className="font-designer-20b text-text-default mb-300">{title}</p>
 
@@ -356,7 +356,7 @@ export default function SummaryStudyInfo({ data }: SummaryStudyInfoProps) {
         ))}
       </div>
 
-      <div className="mt-200 h-px w-full bg-[#D5D7DA]" />
+      <div className="mt-200 h-px w-full bg-border-default" />
 
       {/* 더보기/접기 버튼 */}
       {infoItems.length > 4 && (

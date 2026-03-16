@@ -53,7 +53,7 @@ export default function MVPTeamCard({ team, className }: MVPTeamCardProps) {
           <span className="bg-fill-warning-subtle-default text-text-warning font-designer-12b border-border-warning-subtle rounded-[9999px] border px-150 py-50">
             {weekLabel || '최근 MVP 팀'}
           </span>
-          <h3 className="font-display-headings5 text-text-strong">
+          <h3 className="font-display-headings5 text-text-strong break-keep">
             최고의 스터디 메이트
           </h3>
         </div>

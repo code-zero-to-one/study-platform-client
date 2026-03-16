@@ -41,7 +41,7 @@ const GroupStudyFormModal = dynamic(
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
-const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
+const DETAIL_CONTENT_WIDTH = 'w-full max-w-[1164px] px-400';
 const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
 
 const END_MODAL_CONTENT = (
@@ -179,10 +179,15 @@ export default function StudyDetailPage({
 
   const availableTabs = useMemo(
     () =>
-      STUDY_DETAIL_TABS.map((tab) => ({
-        ...tab,
-        locked: MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember,
-      })),
+      STUDY_DETAIL_TABS.map((tab) => {
+        const locked =
+          MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember;
+        return {
+          ...tab,
+          locked,
+          lockedTooltip: locked ? '스터디 가입하여 확인' : undefined,
+        };
+      }),
     [isLeader, isMember],
   );
 

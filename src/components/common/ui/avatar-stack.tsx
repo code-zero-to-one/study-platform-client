@@ -72,7 +72,7 @@ export default function AvatarStack({
             {showOverflow && (
               <div
                 ref={popoverRef}
-                className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-lg border border-[#E9EAEB] p-200 shadow-lg"
+                className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-lg border border-gray-200 p-200 shadow-lg"
               >
                 <div className="mb-100 flex items-center justify-between">
                   <span className="font-designer-14b text-text-default">
