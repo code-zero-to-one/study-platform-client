@@ -91,7 +91,7 @@ export default async function LandingPageLayout({
         <div className="h-screen w-screen">
           <div className="w-full">
             {/** 1400 + 48*2 패딩 양옆 48로 임의적용 */}
-            <div className="m-auto flex min-w-[1496px] flex-1 flex-col items-center">
+            <div className="m-auto flex w-full max-w-[1496px] flex-1 flex-col items-center">
               <Header />
               <main className="w-full">{children}</main>
             </div>

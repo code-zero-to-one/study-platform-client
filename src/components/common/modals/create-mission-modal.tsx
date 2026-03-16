@@ -77,7 +77,7 @@ export default function CreateMissionModal({
 
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content className="w-[840px]">
+        <Modal.Content className="w-full max-w-[840px]">
           <Modal.Header variant="form">
             <Modal.Title className="font-designer-20b text-text-strong">
               새 미션 만들기

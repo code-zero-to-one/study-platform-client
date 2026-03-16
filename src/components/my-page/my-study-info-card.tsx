@@ -34,7 +34,7 @@ export default function MyStudyInfoCard({
           <Image
             src={thumbnail?.resizedImages[0].resizedImageUrl}
             alt={`${studyId}`}
-            className={`rounded-100 h-[244px] w-[280px] object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
+            className={`rounded-100 h-[244px] w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
             width={244}
             height={210}
           />

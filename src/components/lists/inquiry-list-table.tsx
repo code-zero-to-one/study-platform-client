@@ -35,9 +35,9 @@ export default function InquiryListTable({
 
   return (
     <>
-      <div className="border-border-default rounded-100 overflow-hidden border">
+      <div className="border-border-default rounded-100 overflow-x-auto border">
         <table className="w-full">
-          <thead className="bg-background-neutral-subtle font-designer-13r text-text-subtle px-100 py-200 text-left align-middle leading-250">
+          <thead className="bg-background-neutral-subtle font-designer-13r text-text-subtle px-100 py-200 text-left align-middle leading-250 whitespace-nowrap">
             <tr className="border-border-default border-b">
               <th className="font-designer-14b text-text-subtle px-400 py-300 text-left">
                 번호

@@ -132,7 +132,7 @@ function UserProfileBody({
       />
 
       <Modal.Body className="flex flex-col gap-400 p-400">
-        <div className="flex flex-row gap-300 px-200">
+        <div className="flex flex-col gap-300 px-200 sm:flex-row">
           <UserAvatar
             image={
               profile.memberProfile.profileImage?.resizedImages[0]
@@ -141,7 +141,7 @@ function UserProfileBody({
             size={80}
           />
 
-          <div>
+          <div className="min-w-0 w-full">
             <div className="flex flex-wrap gap-75 pb-75">
               {profile.memberProfile.mbti && (
                 <Badge color="orange">{profile.memberProfile.mbti}</Badge>
@@ -335,7 +335,7 @@ function Field({ icon, value }: { icon: React.ReactNode; value?: string }) {
   return (
     <div className="flex items-center gap-100">
       {icon}
-      <span className="font-designer-14r text-text-subtle leading-none">
+      <span className="font-designer-14r text-text-subtle min-w-0 break-all leading-none">
         {value ?? ''}
       </span>
     </div>

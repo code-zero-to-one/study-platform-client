@@ -54,27 +54,27 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const articles = articlesRes.data ?? [];
 
   return (
-    <div className="mx-auto w-[1280px] px-400 py-600">
+    <div className="mx-auto w-full max-w-[1280px] px-200 py-400 sm:px-300 sm:py-500 xl:px-400 xl:py-600">
       <div className="flex flex-1 flex-col gap-500">
         {/* 배너 */}
-        <div className="mb-600">
+        <div className="mb-400 sm:mb-600">
           <Banner />
         </div>
 
         <div className="flex justify-between">
-          <span className="font-designer-28b text-[#181D27]">
+          <span className="font-designer-20b sm:font-designer-28b text-text-strong">
             ZERO-ONE 인사이트
           </span>
         </div>
 
         {/* 카테고리 탭 */}
-        <div className="flex gap-200 border-b border-[#D5D7DA]">
+        <div className="flex gap-200 overflow-x-auto border-b border-border-default">
           <Link
             href="/insights"
-            className={`px-300 pb-200 transition-colors ${
+            className={`shrink-0 whitespace-nowrap px-300 pb-200 transition-colors ${
               !selectedCategorySlug
-                ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
-                : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
+                ? 'font-designer-15b border-b-2 border-text-strong text-text-strong'
+                : 'font-designer-15r text-text-subtle hover:text-text-strong'
             }`}
           >
             전체
@@ -83,10 +83,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <Link
               key={category.id}
               href={`/insights?category=${category.slug}`}
-              className={`px-300 pb-200 transition-colors ${
+              className={`shrink-0 whitespace-nowrap px-300 pb-200 transition-colors ${
                 selectedCategorySlug === category.slug
-                  ? 'font-designer-15b border-b-2 border-[#181D27] text-[#181D27]'
-                  : 'font-designer-15r text-[#535862] hover:text-[#181D27]'
+                  ? 'font-designer-15b border-b-2 border-text-strong text-text-strong'
+                  : 'font-designer-15r text-text-subtle hover:text-text-strong'
               }`}
             >
               {category.name}
@@ -96,40 +96,40 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
         {/* 아티클 목록 */}
         {articles.length === 0 ? (
-          <p className="text-gray-500">아직 등록된 글이 없습니다.</p>
+          <p className="text-text-subtle">아직 등록된 글이 없습니다.</p>
         ) : (
           <ul className="space-y-200">
             {articles.map((item) => (
               <li key={item.id}>
                 <Link
                   href={`/insights/${item.slug}`}
-                  className="rounded-100 flex w-full cursor-pointer gap-400 border border-solid border-[#D5D7DA] p-300 transition-colors hover:border-[#9CA3AF]"
+                  className="rounded-100 flex w-full cursor-pointer gap-400 border border-solid border-border-default p-300 transition-colors hover:border-border-subtle"
                 >
                   {/* 왼쪽: 텍스트 콘텐츠 */}
                   <div className="flex flex-1 flex-col justify-between gap-150">
                     {/* 카테고리 */}
                     {item.category && (
-                      <span className="font-designer-13r text-[#9CA3AF]">
+                      <span className="font-designer-13r text-text-subtlest">
                         {item.category.name}
                       </span>
                     )}
                     {/* 제목 */}
-                    <span className="font-designer-18b text-[#252B37]">
+                    <span className="font-designer-18b text-text-default">
                       {item.title}
                     </span>
                     {/* Description */}
-                    <p className="font-designer-15r line-clamp-2 text-[#535862]">
+                    <p className="font-designer-15r line-clamp-2 text-text-subtle">
                       {item.description}
                     </p>
                     {/* 생성일 */}
-                    <span className="font-designer-13r text-[#9CA3AF]">
+                    <span className="font-designer-13r text-text-subtlest">
                       {formatDate(item.createdAt)}
                     </span>
                   </div>
 
                   {/* 오른쪽: 커버 이미지 */}
                   {item.cover?.url && (
-                    <div className="rounded-100 relative h-[120px] w-[120px] flex-shrink-0 overflow-hidden">
+                    <div className="rounded-100 relative h-[80px] w-[80px] flex-shrink-0 overflow-hidden sm:h-[120px] sm:w-[120px]">
                       <Image
                         src={`${STRAPI_URL}${item.cover.url}`}
                         alt={item.title}

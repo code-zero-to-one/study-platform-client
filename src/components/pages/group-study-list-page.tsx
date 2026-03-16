@@ -61,7 +61,7 @@ export default function GroupStudyListPage() {
   }
 
   return (
-    <div className="mx-auto w-7xl px-400 py-600">
+    <div className="mx-auto w-full max-w-7xl px-400 py-600">
       {/* 배너 */}
       <div className="mb-600">
         <Banner />
@@ -71,7 +71,7 @@ export default function GroupStudyListPage() {
       <MyParticipatingStudiesSection classification="GROUP_STUDY" />
 
       {/* 헤더 */}
-      <div className="mb-400 flex items-center justify-between">
+      <div className="mb-400 flex flex-col items-start gap-200 sm:flex-row sm:items-center sm:justify-between">
         <h1 className="font-designer-24b text-text-default">
           그룹스터디 둘러보기
         </h1>
@@ -93,7 +93,7 @@ export default function GroupStudyListPage() {
       </div>
 
       {/* 필터 및 검색 */}
-      <div className="mb-400 flex items-center justify-between">
+      <div className="mb-400 flex flex-col gap-200 sm:flex-row sm:items-center sm:justify-between">
         <StudyFilter values={filterValues} onChange={handleFilterChange} />
         <div className="flex items-center gap-200">
           <StudySearch value={searchQuery} onChange={handleSearch} />

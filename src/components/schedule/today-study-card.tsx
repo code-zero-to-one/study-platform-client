@@ -281,7 +281,7 @@ function PartnerInfo({
   isInterviewee: boolean;
 }) {
   return (
-    <div className="flex flex-1 items-center justify-between p-300">
+    <div className="flex flex-1 flex-col gap-150 p-300 sm:flex-row sm:items-center sm:justify-between">
       <div className="flex gap-150">
         <UserProfileModal
           memberId={id}
@@ -302,7 +302,7 @@ function PartnerInfo({
         </div>
       </div>
 
-      <div className="rounded-75 border-border-subtle font-designer-14m text-text-default flex h-[44px] w-[200px] border">
+      <div className="rounded-75 border-border-subtle font-designer-14m text-text-default flex h-[44px] w-full border sm:w-[200px]">
         <UserPhoneNumberCopyModal
           phoneNumber={phoneNumber}
           realName={realName ?? name}

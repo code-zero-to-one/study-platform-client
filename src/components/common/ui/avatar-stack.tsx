@@ -72,7 +72,7 @@ export default function AvatarStack({
             {showOverflow && (
               <div
                 ref={popoverRef}
-                className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-lg border border-[#E9EAEB] p-200 shadow-lg"
+                className="bg-background-default absolute top-full left-0 z-50 mt-100 w-[240px] rounded-100 border border-border-subtle p-200 shadow-2"
               >
                 <div className="mb-100 flex items-center justify-between">
                   <span className="font-designer-14b text-text-default">
@@ -94,7 +94,7 @@ export default function AvatarStack({
                         trigger={
                           <button
                             type="button"
-                            className="flex w-full items-center gap-100 rounded-lg px-100 py-75 hover:bg-[#F5F5F5]"
+                            className="flex w-full items-center gap-100 rounded-100 px-100 py-75 hover:bg-gray-100"
                           >
                             <UserAvatar
                               size={32}

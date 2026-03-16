@@ -73,9 +73,9 @@ export default function PremiumStudyInfoSection({
   }, [applicantsList]);
 
   return (
-    <div className="mt-500 flex w-[1164px] gap-600">
+    <div className="mt-500 flex w-full max-w-[1164px] flex-col gap-600 px-400 lg:flex-row">
       <div className="flex flex-1 flex-col gap-500">
-        <div className="relative h-[430px] w-full">
+        <div className="relative h-[220px] w-full lg:h-[430px]">
           <Image
             src={
               studyDetail?.detailInfo.image?.resizedImages[0].resizedImageUrl ??
@@ -106,7 +106,7 @@ export default function PremiumStudyInfoSection({
                     </span>
                     <div className="font-designer-15r text-text-subtle flex items-center gap-100">
                       <span>스터디 멘토</span>
-                      <span className="h-100 w-px bg-[#E9EAEB]" />
+                      <span className="h-100 w-px bg-border-subtle" />
                       <span>
                         {studyDetail.basicInfo.leader.simpleIntroduction}
                       </span>
@@ -123,7 +123,7 @@ export default function PremiumStudyInfoSection({
                 }
               />
             </div>
-            <div className="font-designer-16r whitespace-pre-line text-[#535862]">
+            <div className="font-designer-16r whitespace-pre-line text-text-subtle">
               {studyDetail?.detailInfo.description}
             </div>
           </div>
@@ -132,7 +132,7 @@ export default function PremiumStudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>멘티 목록</span>
-                <span className="text-[#A4A7AE]">{`${avatarMembers.length}명`}</span>
+                <span className="text-text-subtlest">{`${avatarMembers.length}명`}</span>
               </div>
               {isLeader && (
                 <div className="relative">
@@ -145,7 +145,7 @@ export default function PremiumStudyInfoSection({
                     관리하기
                   </Button>
                   {pendingCount > 0 && (
-                    <span className="absolute -right-[6px] -top-[6px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-[3px] text-[11px] font-bold text-white">
+                    <span className="absolute -right-[6px] -top-[6px] flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-[3px] text-[11px] font-bold text-text-inverse">
                       {pendingCount}
                     </span>
                   )}

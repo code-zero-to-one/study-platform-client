@@ -62,9 +62,9 @@ export default function GroupStudyMemberItem({
   const discretionCount = member.progress.discretionGradeHistory.length;
 
   return (
-    <li className="border-border-default rounded-150 flex border">
+    <li className="border-border-default rounded-150 flex flex-col border sm:flex-row">
       <div
-        className={`flex flex-col items-center gap-200 px-300 py-400 ${isMe ? 'bg-background-accent-rose-subtle' : 'bg-background-alternative'} rounded-tl-150 rounded-bl-150 w-[240px] shrink-0`}
+        className={`flex flex-col items-center gap-200 px-300 py-400 ${isMe ? 'bg-background-accent-rose-subtle' : 'bg-background-alternative'} rounded-tl-150 rounded-tr-150 sm:rounded-tr-none sm:rounded-bl-150 w-full sm:w-[240px] shrink-0`}
       >
         {/* 사용자 프로필 */}
         <div className="relative inline-block">

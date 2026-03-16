@@ -49,10 +49,10 @@ export default function CurriculumSummarySection({
   };
 
   return (
-    <div className="rounded-150 flex w-[335px] flex-col border border-[#D5D7DA] px-300 py-400">
+    <div className="rounded-150 flex w-full flex-col border border-border-default px-300 py-400 lg:w-[335px]">
       <div className="mb-300 flex items-center gap-100">
         <p className="font-designer-20b">커리큘럼 요약</p>
-        <span className="font-designer-16r text-[#A4A7AE]">
+        <span className="font-designer-16r text-text-subtlest">
           {curriculumSummary.length}주
         </span>
       </div>
@@ -71,16 +71,16 @@ export default function CurriculumSummarySection({
                   key={item.missionId ?? index}
                   trigger={
                     <div
-                      className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300 cursor-not-allowed"
+                      className="rounded-100 flex cursor-not-allowed items-center gap-150 border border-border-subtle px-200 py-300"
                       onClick={handleLockedClick}
                     >
-                      <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                      <span className="font-designer-15m w-250 shrink-0 text-center text-text-subtlest">
                         {item.weekNum}
                       </span>
                       <span className="font-designer-15m text-text-default flex-1 leading-snug">
                         {item.title}
                       </span>
-                      <Lock className="h-225 w-225 shrink-0 text-[#A4A7AE]" />
+                      <Lock className="h-225 w-225 shrink-0 text-text-subtlest" />
                     </div>
                   }
                   value="스터디 가입하여 확인"
@@ -93,9 +93,9 @@ export default function CurriculumSummarySection({
             return (
               <div
                 key={item.missionId ?? index}
-                className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300 hover:bg-fill-neutral-subtle-hover cursor-pointer"
+                className="rounded-100 flex cursor-pointer items-center gap-150 border border-border-subtle px-200 py-300 hover:bg-fill-neutral-subtle-hover"
               >
-                <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
+                <span className="font-designer-15m w-250 shrink-0 text-center text-text-subtlest">
                   {item.weekNum}
                 </span>
                 <span className="font-designer-15m text-text-default flex-1 leading-snug">
@@ -103,7 +103,7 @@ export default function CurriculumSummarySection({
                 </span>
                 <ExternalLink
                   onClick={() => handleClickCurriculum(item.missionId)}
-                  className="h-225 w-225 shrink-0 cursor-pointer text-[#A4A7AE]"
+                  className="h-225 w-225 shrink-0 cursor-pointer text-text-subtlest"
                 />
               </div>
             );

@@ -102,7 +102,7 @@ function ModalContent({
         'fixed',
         'top-[50%] left-[50%]',
         'translate-x-[-50%] translate-y-[-50%]',
-        'max-w-[calc(100%-2rem)], w-full',
+        'max-w-[calc(100%-2rem)] w-full',
         sizeClass,
         'max-h-[90vh]',
         'bg-background-default',

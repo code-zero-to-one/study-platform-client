@@ -96,7 +96,7 @@ export default function LandingForm() {
   };
 
   return (
-    <div className="w-[680px] rounded-[24px] p-[48px] shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+    <div className="w-full max-w-[680px] rounded-[24px] px-300 py-400 sm:p-[48px] shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
       <form onSubmit={handleSubmit}>
         <div className="flex w-full flex-col">
           <div className="font-designer-16m mb-[12px] text-[#444444]">

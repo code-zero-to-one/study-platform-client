@@ -31,7 +31,7 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
 
       {/* 주제 */}
       <div
-        className="text-text-strong min-w-0 flex-1 truncate pr-200 font-bold"
+        className="text-text-strong min-w-[150px] flex-1 truncate pr-200 font-bold"
         title={item.subject}
       >
         {item.subject}

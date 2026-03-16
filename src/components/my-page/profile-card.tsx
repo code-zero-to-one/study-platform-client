@@ -46,7 +46,7 @@ export default function ProfileCard(props: ProfileCardProps) {
   };
 
   return (
-    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-[#E9EAEB] p-300">
+    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-border-subtle p-300">
       <div className="flex gap-150">
         <UserProfileModal
           memberId={applicant.applicantInfo.memberId}
@@ -86,7 +86,7 @@ export default function ProfileCard(props: ProfileCardProps) {
         const matchedAnswer = applicant.answer.find((a) => a.id === q.id);
 
         return (
-          <div key={q.id} className="mb-4">
+          <div key={q.id} className="mb-200">
             <p className="font-designer-16b text-text-default">
               {q.id}. {q.question}
             </p>
@@ -98,12 +98,12 @@ export default function ProfileCard(props: ProfileCardProps) {
         );
       })}
 
-      <div className="flex w-full justify-end gap-100">
+      <div className="flex w-full gap-100">
         <Button
           size="medium"
           type="button"
           color="secondary"
-          className="w-[120px]"
+          className="flex-1 sm:flex-none sm:w-[120px]"
           onClick={() => onClick('REJECTED')}
         >
           반려
@@ -112,7 +112,7 @@ export default function ProfileCard(props: ProfileCardProps) {
           size="medium"
           type="button"
           color="primary"
-          className="w-[120px]"
+          className="flex-1 sm:flex-none sm:w-[120px]"
           onClick={() => onClick('APPROVED')}
         >
           승인
