@@ -15,11 +15,17 @@ import {
   useGetQuestions,
 } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import { useUserStore } from '@/stores/useUserStore';
 import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
 
 const QuestionModal = dynamic(
   () => import('@/components/common/modals/question-modal'),
+  { ssr: false },
+);
+
+const LoginModal = dynamic(
+  () => import('@/components/common/modals/login-modal'),
   { ssr: false },
 );
 
@@ -107,11 +113,31 @@ function ListView({
   onPageChange,
   onSelectQuestion,
 }: ListViewProps) {
+  const { memberId } = useUserStore();
+
   const { data, isLoading } = useGetQuestions({
     groupStudyId,
     page,
     pageSize: PAGE_SIZE,
+    enabled: !!memberId,
   });
+
+  if (!memberId) {
+    return (
+      <div className="py-800 text-center">
+        <p className="font-designer-14r text-text-subtle mb-300">
+          로그인 후 문의를 확인할 수 있습니다.
+        </p>
+        <LoginModal
+          openTrigger={
+            <button className="font-designer-14m text-text-brand underline">
+              로그인하기
+            </button>
+          }
+        />
+      </div>
+    );
+  }
 
   const items = data?.content ?? [];
   const totalPages = data?.totalPages ?? 1;

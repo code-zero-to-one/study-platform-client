@@ -8,11 +8,10 @@ import {
   History,
 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { getCookie } from '@/api/client/cookie';
+import { useMemo } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useScrollToHomeContent } from '@/hooks/use-scroll-to-home-content';
 
 interface TabNavigationProps {
@@ -56,20 +55,13 @@ export default function TabNavigation({ activeTab }: TabNavigationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthReady, isHydrated, memberId } = useAuthReady();
-  const [canViewHistory, setCanViewHistory] = useState(false);
+  const canViewHistory = useMemo(
+    () => isHydrated && isAuthReady && typeof memberId === 'number',
+    [isAuthReady, isHydrated, memberId],
+  );
   const visibleTabs = canViewHistory
     ? TABS
     : TABS.filter((tab) => tab.id !== 'history');
-
-  useEffect(() => {
-    if (!isHydrated) {
-      setCanViewHistory(false);
-
-      return;
-    }
-    const hasMemberId = !!memberId || !!getCookie('memberId');
-    setCanViewHistory(isAuthReady && hasMemberId);
-  }, [isAuthReady, isHydrated, memberId]);
 
   const scrollToHomeContent = useScrollToHomeContent();
 

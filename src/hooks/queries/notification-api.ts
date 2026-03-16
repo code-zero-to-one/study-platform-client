@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { NotificationApi } from '@/api/openapi';
 import type { GetMemberNotificationsTopicTypeEnum } from '@/api/openapi/api/notification-api';
-import { useAuthReady } from '../common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 
 const notificationApi = createApiInstance(NotificationApi);
 

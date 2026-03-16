@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { UpdateArchiveRequest } from '@/api/endpoints/archive/update-archive';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useToggleArchiveBookmarkMutation } from '@/hooks/queries/use-bookmark-mutation';
 import { useToggleArchiveLikeMutation } from '@/hooks/queries/use-like-mutation';
 import { useUpdateArchiveMutation } from '@/hooks/queries/use-update-archive-mutation';

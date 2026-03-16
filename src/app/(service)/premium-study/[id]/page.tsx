@@ -11,8 +11,8 @@ import { GroupStudyManagementApi } from '@/api/openapi/api/group-study-managemen
 import { Configuration } from '@/api/openapi/configuration';
 import type { GroupStudyFullResponseDto } from '@/api/openapi/models';
 import PremiumStudyDetailPage from '@/components/pages/premium-study-detail-page';
+import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
 import { GroupStudyDetailResponse } from '@/types/api/group-study.types';
-import { getServerCookie } from '@/utils/server-cookie';
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -110,8 +110,7 @@ export default async function Page({
     notFound();
   }
 
-  const memberIdStr = await getServerCookie('memberId');
-  const memberId = memberIdStr ? Number(memberIdStr) : undefined;
+  const memberId = await readAuthenticatedMemberId();
 
   const isLeader = data.basicInfo.leader.memberId === memberId;
 

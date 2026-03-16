@@ -3,7 +3,6 @@
 import { XIcon } from 'lucide-react';
 import { useParams } from 'next/navigation';
 import { useState, useMemo } from 'react';
-import { getCookie } from '@/api/client/cookie';
 import KeywordReview from '@/components/common/cards/keyword-review';
 import ProfileInfoCard from '@/components/common/cards/profile-info-card';
 import UserAvatar from '@/components/common/ui/avatar';
@@ -16,11 +15,12 @@ import PhoneIcon from '@/components/my-page/icon/phone.svg';
 import TechStackIcon from '@/components/my-page/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/components/my-page/icon/verified-check.svg';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 import { useUserPositiveKeywordsQuery } from '@/hooks/queries/use-review-query';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
+import { AUTH_ROLE_IDS } from '@/types/auth/domain';
 import { formatPhoneNumber } from '@/utils/format';
-import { decodeJwt } from '@/utils/jwt';
 
 interface UserProfileModalProps {
   memberId: number;
@@ -63,14 +63,14 @@ function UserProfileBody({
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     memberId,
   });
-  // 본인 여부 확인
-  const currentMemberId = Number(getCookie('memberId'));
-  const isMe = currentMemberId === memberId; // 본인
-
-  // 관리자 여부 확인
-  const accessToken = getCookie('accessToken');
-  const decodedJwt = accessToken ? decodeJwt(accessToken) : null;
-  const isAdmin = decodedJwt?.roleIds?.includes('ROLE_ADMIN') ?? false;
+  const {
+    data: authData,
+    isAuthReady,
+    memberId: authMemberId,
+  } = useAuthReady();
+  const isAdmin =
+    isAuthReady && authData?.roleIds.includes(AUTH_ROLE_IDS.ADMIN) === true;
+  const isMe = isAuthReady && authMemberId === memberId;
 
   //  같은 스터디 참가자 여부 확인
   const params = useParams();
@@ -82,15 +82,21 @@ function UserProfileBody({
   });
 
   const isSameStudyMember = useMemo(() => {
-    if (!groupStudyId || !approvedApplicantsData?.pages) return false;
+    // 열람자(currentMemberId)가 이 스터디의 승인된 멤버인지 확인
+    if (
+      !groupStudyId ||
+      !approvedApplicantsData?.pages ||
+      typeof authMemberId !== 'number'
+    )
+      return false;
     const approvedApplicants = approvedApplicantsData.pages.flatMap(
       (page) => page.content,
     );
 
     return approvedApplicants.some(
-      (apply) => apply.applicantInfo.memberId === memberId,
+      (apply) => apply.applicantInfo.memberId === authMemberId,
     );
-  }, [groupStudyId, approvedApplicantsData, memberId]);
+  }, [authMemberId, groupStudyId, approvedApplicantsData]);
 
   // 최종 이름, 전화번호 표시 가능 여부
   const canSeePhoneNumber = isMe || isAdmin || isSameStudyMember;

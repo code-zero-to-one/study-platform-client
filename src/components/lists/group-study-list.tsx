@@ -4,7 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
 
 import { GroupStudyListItemDto } from '@/api/openapi';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { hashValue } from '@/utils/hash';
 
 import StudyCard from '../card/study-card';

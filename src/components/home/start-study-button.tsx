@@ -2,7 +2,8 @@
 
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useEffect, useState } from 'react';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 
 const StartStudyModal = dynamic(
@@ -12,11 +13,22 @@ const StartStudyModal = dynamic(
 
 export default function StartStudyButton() {
   const { memberId, isAuthReady } = useAuthReady();
+  const [hasMounted, setHasMounted] = useState(false);
   const isLoggedIn = isAuthReady && !!memberId;
 
   const { data: userProfile } = useUserProfileQuery(memberId ?? 0);
 
-  if (!isLoggedIn || !memberId || !userProfile || userProfile.studyApplied) {
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  if (
+    !hasMounted ||
+    !isLoggedIn ||
+    !memberId ||
+    !userProfile ||
+    userProfile.studyApplied
+  ) {
     return null;
   }
 

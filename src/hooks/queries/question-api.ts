@@ -34,10 +34,12 @@ export const useGetQuestions = ({
   groupStudyId,
   page = 1,
   pageSize = 15,
+  enabled = true,
 }: {
   groupStudyId: number;
   page?: number;
   pageSize?: number;
+  enabled?: boolean;
 }) => {
   return useQuery({
     queryKey: ['questions', groupStudyId, page, pageSize],
@@ -46,7 +48,7 @@ export const useGetQuestions = ({
 
       return data.content;
     },
-    enabled: !!groupStudyId,
+    enabled: !!groupStudyId && enabled,
     staleTime: 60 * 1000,
   });
 };

@@ -5,15 +5,13 @@ import StartStudyModal from '@/components/common/modals/start-study-modal';
 import Calendar from '@/components/home/calendar';
 import FeedbackLink from '@/components/home/feedback-link';
 import TodoList from '@/components/lists/todo-list';
+import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
 import type { SincerityTemp } from '@/types/api/user.types';
-import { getServerCookie } from '@/utils/server-cookie';
-import { isNumeric } from '@/utils/validation';
 
 export default async function Sidebar() {
-  const memberIdStr = await getServerCookie('memberId');
-  const memberId = Number(memberIdStr);
+  const memberId = await readAuthenticatedMemberId();
 
-  if (!memberIdStr || !isNumeric(memberIdStr)) {
+  if (!memberId) {
     return null;
   }
 

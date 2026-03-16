@@ -7,8 +7,8 @@ import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown'
 import MobileMenuDrawer from '@/components/common/layout/mobile-menu-drawer';
 import Button from '@/components/common/ui/button';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
-import { getServerCookie } from '@/utils/server-cookie';
-import { isNumeric } from '@/utils/validation';
+import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
+import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 
 const LoginModal = dynamic(
   () => import('@/components/common/modals/login-modal'),
@@ -19,17 +19,13 @@ const NotificationDropdown = dynamic(
 );
 
 export default async function Header() {
-  const memberIdStr = await getServerCookie('memberId');
-  const accessTokenStr = await getServerCookie('accessToken');
-
-  const hasMemberId = !!memberIdStr && isNumeric(memberIdStr);
-  const isLoggedIn = !!accessTokenStr && hasMemberId;
-
-  const memberId = Number(memberIdStr);
+  const { sessionState, authenticatedMemberId: memberId } =
+    await readServerAuthSession();
+  const isLoggedIn = isAuthenticatedMemberSessionState(sessionState);
 
   let userProfile = null;
 
-  if (isLoggedIn) {
+  if (isLoggedIn && memberId) {
     try {
       userProfile = await tryGetUserProfileInServer(memberId);
     } catch (error) {
@@ -67,7 +63,7 @@ export default async function Header() {
         <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-between">
           <HeaderNav isLoggedIn={isLoggedIn} />
 
-          {accessTokenStr && (
+          {isLoggedIn && (
             <div className="flex items-center gap-200">
               <StudyMatchingToggle />
               <NotificationDropdown />

@@ -17,11 +17,11 @@ import {
 import { MENTOR_SCREENING_STATUS_META } from '@/features/admin/mentoring/model/screening';
 import { useAdminMentoringOverviewQuery } from '@/features/admin/mentoring/model/use-admin-mentoring-overview-query';
 import MentorRegistrationDetail from '@/features/admin/mentoring/ui/mentor-registration-detail';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { getMentorDisplayTitle } from '@/features/mentoring/model/mentor-profile-utils';
 import MentoringEmptyPanel from '@/features/mentoring/ui/common/mentoring-empty-panel';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import MentoringTablePanel from '@/features/mentoring/ui/common/mentoring-table-panel';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
 import type { MentorOperationStatus } from '@/types/mentoring/admin-domain';

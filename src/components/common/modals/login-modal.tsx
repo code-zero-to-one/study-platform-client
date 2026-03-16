@@ -5,9 +5,9 @@ import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
-import { setCookie } from '@/api/client/cookie';
 import { testLogin } from '@/api/endpoints/auth/test-login';
 import { Modal } from '@/components/common/ui/modal';
+import { writeExistingMemberSession } from '@/features/auth/model/client-auth-session';
 import { useToastStore } from '@/stores/use-toast-store';
 import { getAttributionParams } from '@/utils/attribution-tracker';
 
@@ -37,11 +37,11 @@ export default function LoginModal({
         Number(testMemberId),
       );
 
-      setCookie('accessToken', accessToken);
-      setCookie('memberId', memberId);
-      if (profileImageUrl) {
-        setCookie('socialImageURL', profileImageUrl);
-      }
+      writeExistingMemberSession({
+        accessToken,
+        memberId,
+        profileImageUrl,
+      });
 
       setIsOpen(false);
       router.push('/home');

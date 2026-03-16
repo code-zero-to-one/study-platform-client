@@ -7,7 +7,7 @@ import StudyListSection from '@/components/lists/study-list-table';
 import ReservationList from '@/components/participation/reservation-list';
 import DateSelector from '@/components/schedule/data-selector';
 import TodayStudyCard from '@/components/schedule/today-study-card';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useStudyStatusQuery,
   useWeeklyParticipationQuery,

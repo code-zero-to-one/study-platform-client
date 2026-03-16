@@ -1,6 +1,63 @@
 /**
  * 전역 에러 핸들링 유틸리티 : 모든 에러 처리는 이 파일에서 중앙 집중식으로 관리됩니다.
  
+ * 에러 처리 플로우:
+┌─────────────────────────────────────────────────────────────┐
+│ 1. 에러 발생                                                  │
+│    - AxiosError (axios 라이브러리)                            │
+│    - ApiError (프로젝트 커스텀, src/api/client/api-error.ts) │
+│    - Error (JavaScript 네이티브, fetch API 등)               │
+└───────────────────────┬─────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 2. analyzeError(error) 호출                                   │
+│    - 에러 타입 분류 (NETWORK, AUTH, SERVER, CLIENT 등)       │
+│    - 사용자 친화적 메시지 생성                                 │
+│    - 기술적 메시지 생성                                       │
+└───────────────────────┬─────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 3. ErrorInfo 반환                                             │
+│    {                                                          │
+│      type: ErrorType,                                         │
+│      userMessage: string,                                     │
+│      technicalMessage: string,                                │
+│      errorCode?: string,                                      │
+│      statusCode?: number,                                     │
+│      originalError: unknown                                   │
+│    }                                                          │
+└───────────────────────┬─────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 4. sendErrorToSentry(errorInfo, context?) 호출                │
+│    - 개발 환경: 콘솔에 상세 로그 출력                          │
+│    - Sentry 전송 (DSN 설정 시)                                │
+└───────────────────────┬─────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 5. 사용자에게 에러 표시                                        │
+│    - Next.js Error Boundary: error.tsx 페이지 표시            │
+│      * (service): src/app/(service)/error.tsx                │
+│      * (landing): src/app/(landing)/error.tsx                 │
+│      * (admin): src/app/(admin)/error.tsx                     │
+│    - Toast 알림: useToastStore().showToast() (별도 호출 필요) │
+│      * 일반적인 API 에러는 컴포넌트에서 직접 toast 표시         │
+│      * Error Boundary는 전체 페이지 에러만 처리                │
+└───────────────────────┬─────────────────────────────────────┘
+                        ↓
+┌─────────────────────────────────────────────────────────────┐
+│ 6. Sentry 전송 플로우                                         │
+│    Sentry.withScope((scope) => {                             │
+│      scope.setTag('error.type', ErrorType)  // 필터링용       │
+│      scope.setExtra(...)                    // 상세 정보       │
+│      Sentry.captureException(error)        // 에러 전송       │
+│    })                                                        │
+│    ↓                                                          │
+│    beforeSend() 훅 실행 (필터링/수정)                         │
+│    ↓                                                          │
+│    Sentry 서버로 전송                                         │
+└─────────────────────────────────────────────────────────────┘
+ 
  * 에러 타입 계층 구조:
 ┌────────────────────────┐
 │ Error (JavaScript 기본) │
@@ -23,7 +80,12 @@
  * 에러 정의 위치:
  - AxiosError: axios 라이브러리 (외부)
  - ApiError: src/api/client/api-error.ts
- - Error: JavaScript 네이티브
+ - Error: JavaScript 네이티브 (fetch API 등)
+ 
+ * fetch vs axios 에러 처리:
+ - fetch: 일반 Error 발생 → analyzeError()에서 ErrorType.NETWORK로 분류
+ - axios: AxiosError 발생 → response.data가 ApiError 형식이면 ApiError로 변환
+ - 둘 다 analyzeError()에서 통합 처리됨
 
  */
 
@@ -89,7 +151,10 @@ export interface ErrorInfo {
  * }
  * ```
  */
-export function analyzeError(error: unknown): ErrorInfo {
+export function analyzeError(
+  error: unknown,
+  options?: { isServerSide?: boolean },
+): ErrorInfo {
   // Axios 에러 처리
   if (isAxiosError(error)) {
     const statusCode = error.response?.status;
@@ -133,8 +198,15 @@ export function analyzeError(error: unknown): ErrorInfo {
 
   // ApiError 처리 (axios 인터셉터가 ApiError로 변환한 에러)
   if (isApiError(error)) {
+    // 클라이언트 사이드에서 발생한 ApiError는 상태 코드가 500이어도 CLIENT로 분류
+    // (서버 사이드에서 발생한 500 에러는 SERVER로 분류)
+    const errorType = getErrorTypeFromStatusCode(
+      error.statusCode,
+      error.errorCode,
+    );
+
     return {
-      type: getErrorTypeFromStatusCode(error.statusCode, error.errorCode),
+      type: errorType,
       userMessage: getUserFriendlyMessage(error.errorCode, error.message),
       technicalMessage: `[${error.errorCode}] ${error.errorName}: ${error.message}`,
       errorCode: error.errorCode,
@@ -145,6 +217,83 @@ export function analyzeError(error: unknown): ErrorInfo {
 
   // 일반 Error 객체
   if (error instanceof Error) {
+    // 서버 사이드 에러 감지
+    // Next.js 서버 사이드 에러는 digest가 있거나 스택에 서버 관련 키워드가 있음
+    const isServerSideError =
+      options?.isServerSide === true ||
+      // Next.js Error Boundary에서 전달되는 서버 에러는 digest가 있음
+      (error as Error & { digest?: string }).digest !== undefined ||
+      // 스택 트레이스에 서버 사이드 관련 키워드가 있으면 서버 에러
+      (error.stack &&
+        (error.stack.includes('next-server') ||
+          error.stack.includes('node_modules/next') ||
+          error.stack.includes('server-components') ||
+          (error.stack.includes('app/') && error.stack.includes('page.tsx'))));
+
+    // 네트워크 에러 감지 (fetch API 실패)
+    const isNetworkError =
+      error.message.includes('Failed to fetch') ||
+      error.message.includes('NetworkError') ||
+      error.message.includes('fetch failed') ||
+      error.message.includes('Network request failed') ||
+      (error.name === 'TypeError' && error.message.includes('fetch'));
+
+    // JSON 파싱 에러 감지 (HTML 응답 등)
+    const isJsonParseError =
+      error.message.includes('Unexpected token') ||
+      error.message.includes('DOCTYPE') ||
+      error.message.includes('is not valid JSON') ||
+      error.message.includes('JSON.parse');
+
+    // 클라이언트 렌더링 에러 감지 (null/undefined 접근 등)
+    const isClientError =
+      (error.name === 'TypeError' &&
+        (error.message.includes('Cannot read properties of null') ||
+          error.message.includes('Cannot read properties of undefined') ||
+          error.message.includes('Cannot read property') ||
+          error.message.includes('of null') ||
+          error.message.includes('of undefined'))) ||
+      error.name === 'ReferenceError' ||
+      error.name === 'SyntaxError';
+
+    // 서버 사이드 에러는 가장 우선적으로 처리
+    if (isServerSideError) {
+      return {
+        type: ErrorType.SERVER,
+        userMessage: '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        technicalMessage: error.message,
+        originalError: error,
+      };
+    }
+
+    if (isNetworkError) {
+      return {
+        type: ErrorType.NETWORK,
+        userMessage: '네트워크 연결을 확인해주세요.',
+        technicalMessage: `Network Error: ${error.message}`,
+        originalError: error,
+      };
+    }
+
+    if (isJsonParseError) {
+      return {
+        type: ErrorType.CLIENT,
+        userMessage:
+          '서버 응답 형식 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        technicalMessage: error.message,
+        originalError: error,
+      };
+    }
+
+    if (isClientError) {
+      return {
+        type: ErrorType.CLIENT,
+        userMessage: '오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+        technicalMessage: error.message,
+        originalError: error,
+      };
+    }
+
     return {
       type: ErrorType.UNKNOWN,
       userMessage: getUserFriendlyMessage(undefined, error.message),
@@ -177,6 +326,10 @@ function getErrorTypeFromStatusCode(
 
   if (statusCode === 401 || statusCode === 403) return ErrorType.AUTH;
   if (statusCode === 404) return ErrorType.NOT_FOUND;
+
+  // 500 에러는 서버 사이드에서 발생한 경우에만 SERVER로 분류
+  // 클라이언트 사이드에서 발생한 500 에러는 CLIENT로 분류됨
+  // (클라이언트에서 발생한 에러는 analyzeError 호출 시점에서 이미 CLIENT로 분류됨)
   if (statusCode >= 500) return ErrorType.SERVER;
   if (statusCode >= 400) return ErrorType.CLIENT;
 
@@ -316,13 +469,13 @@ function getUserFriendlyMessage(
  * @example
  * ```typescript
  * const errorInfo = analyzeError(error);
- * logError(errorInfo, {
+ * sendErrorToSentry(errorInfo, {
  *   url: window.location.href,
  *   digest: error.digest,
  * });
  * ```
  */
-export function logError(
+export function sendErrorToSentry(
   errorInfo: ErrorInfo,
   context?: Record<string, unknown>,
 ): void {
@@ -340,27 +493,53 @@ export function logError(
         : undefined,
   };
 
-  console.error('[Error Handler]', JSON.stringify(logData, null, 2));
+  // 개발 환경에서만 상세 로그 출력
+  if (process.env.NODE_ENV === 'development') {
+    console.error('[Error Handler]', JSON.stringify(logData, null, 2));
+  }
 
   // Sentry 에러 보고
-  Sentry.withScope((scope) => {
-    scope.setTag('error.type', errorInfo.type);
-    if (errorInfo.errorCode) scope.setTag('error.code', errorInfo.errorCode);
-    if (errorInfo.statusCode)
-      scope.setTag('http.status', String(errorInfo.statusCode));
-    scope.setExtra('errorCode', errorInfo.errorCode);
-    scope.setExtra('userMessage', errorInfo.userMessage);
-    scope.setExtra('technicalMessage', errorInfo.technicalMessage);
-    if (context) {
-      Object.entries(context).forEach(([key, value]) => {
-        scope.setExtra(key, value);
-      });
-    }
+  const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+  if (dsn) {
+    try {
+      Sentry.withScope((scope) => {
+        scope.setTag('error.type', errorInfo.type);
+        scope.setExtra('errorCode', errorInfo.errorCode);
+        scope.setExtra('userMessage', errorInfo.userMessage);
+        scope.setExtra('technicalMessage', errorInfo.technicalMessage);
+        scope.setExtra('statusCode', errorInfo.statusCode);
 
-    if (errorInfo.originalError instanceof Error) {
-      Sentry.captureException(errorInfo.originalError);
-    } else {
-      Sentry.captureMessage(errorInfo.technicalMessage, 'error');
+        if (errorInfo.originalError instanceof Error) {
+          scope.setExtra('stack', errorInfo.originalError.stack);
+        }
+
+        if (context) {
+          Object.entries(context).forEach(([key, value]) => {
+            scope.setExtra(key, value);
+          });
+
+          // 테스트 환경에서는 각 테스트가 새 이슈로 생성되도록 fingerprint 설정
+          if (context.testType) {
+            scope.setFingerprint([
+              `test-${context.testType}`,
+              Date.now().toString(),
+            ]);
+          }
+
+          // 서버 사이드 에러의 중복 전송 방지 (digest 기반)
+          if (context.isServerError && context.digest) {
+            scope.setFingerprint(['server-error', context.digest as string]);
+          }
+        }
+
+        if (errorInfo.originalError instanceof Error) {
+          Sentry.captureException(errorInfo.originalError);
+        } else {
+          Sentry.captureMessage(errorInfo.technicalMessage, 'error');
+        }
+      });
+    } catch (sentryError) {
+      console.error('[Sentry Error Handler] Sentry 전송 실패:', sentryError);
     }
-  });
+  }
 }

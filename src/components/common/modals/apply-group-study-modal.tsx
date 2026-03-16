@@ -9,7 +9,7 @@ import { useController, useForm } from 'react-hook-form';
 import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
 import { Modal } from '@/components/common/ui/modal';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useApplyGroupStudyMutation } from '@/hooks/queries/use-apply-group-study';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
 import { useToastStore } from '@/stores/use-toast-store';
@@ -62,7 +62,7 @@ export default function ApplyGroupStudyModal({
   const handleVerificationComplete = (phoneNumber: string) => {
     setVerified(phoneNumber);
     setIsVerificationModalOpen(false);
-    setOpen(true);
+    // 인증 완료 후 자동 진행 없음 — 유저가 신청하기 버튼을 다시 눌러 진행
   };
 
   useEffect(() => {

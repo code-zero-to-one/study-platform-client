@@ -1,6 +1,6 @@
 import { isServer, MutationCache, QueryClient } from '@tanstack/react-query';
 import { useToastStore } from '@/stores/use-toast-store';
-import { analyzeError, logError } from '@/utils/error-handler';
+import { analyzeError, sendErrorToSentry } from '@/utils/error-handler';
 
 function makeQueryClient() {
   return new QueryClient({
@@ -23,7 +23,7 @@ function makeQueryClient() {
 
         const errorInfo = analyzeError(error);
         useToastStore.getState().showToast(errorInfo.userMessage, 'error');
-        logError(errorInfo, { source: 'MutationCache.onError' });
+        sendErrorToSentry(errorInfo, { source: 'MutationCache.onError' });
       },
     }),
   });

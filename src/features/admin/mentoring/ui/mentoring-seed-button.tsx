@@ -7,8 +7,8 @@ import {
   ADMIN_MENTORING_MOCK_SEED_TAG,
   createServerLikeMentorRegistrationValues,
 } from '@/features/admin/mentoring/model/mock-seed';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { isMentoringAdminMockEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
-import { useAuthReady } from '@/hooks/common/use-auth';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';

@@ -4,7 +4,7 @@ import { ChevronLeft } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetMissions } from '@/hooks/queries/mission-api';
 import MissionCard from '../card/mission-card';
 import PageContainer from '../common/layout/page-container';

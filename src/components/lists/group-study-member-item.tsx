@@ -9,7 +9,7 @@ import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import DiscretionGradeHistoryList from '@/components/lists/discretion-grade-history-list';
 
-import { useAuthReady } from '@/hooks/common/use-auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import type { GroupStudyMember } from '@/types/api/group-study.types';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import CaretDownIcon from 'public/icons/caret-down.svg';
@@ -105,7 +105,6 @@ export default function GroupStudyMemberItem({
               member.id !== myId &&
               (discretionCount < EVALUATION_COUNT ? (
                 <DiscretionaryEvaluationModal
-                  key={discretionCount}
                   groupStudyId={groupStudyId}
                   memberId={member.id}
                 />
