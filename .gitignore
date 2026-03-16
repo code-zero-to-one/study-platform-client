@@ -49,7 +49,3 @@ package-lock.json
 # Sentry build plugin (소스맵 업로드용 인증 토큰)
 .env.sentry-build-plugin
 
-docs/
-.agents/
-.claude
-StudyVault/
