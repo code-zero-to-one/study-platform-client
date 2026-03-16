@@ -54,15 +54,15 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const articles = articlesRes.data ?? [];
 
   return (
-    <div className="mx-auto w-full max-w-[1280px] px-400 py-600">
+    <div className="mx-auto w-full max-w-[1280px] px-200 py-400 sm:px-300 sm:py-500 xl:px-400 xl:py-600">
       <div className="flex flex-1 flex-col gap-500">
         {/* 배너 */}
-        <div className="mb-600">
+        <div className="mb-400 sm:mb-600">
           <Banner />
         </div>
 
         <div className="flex justify-between">
-          <span className="font-designer-28b text-[#181D27]">
+          <span className="font-designer-20b sm:font-designer-28b text-[#181D27]">
             ZERO-ONE 인사이트
           </span>
         </div>
@@ -129,7 +129,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
                   {/* 오른쪽: 커버 이미지 */}
                   {item.cover?.url && (
-                    <div className="rounded-100 relative h-[120px] w-[120px] flex-shrink-0 overflow-hidden">
+                    <div className="rounded-100 relative h-[80px] w-[80px] flex-shrink-0 overflow-hidden sm:h-[120px] sm:w-[120px]">
                       <Image
                         src={`${STRAPI_URL}${item.cover.url}`}
                         alt={item.title}

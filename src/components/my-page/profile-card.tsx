@@ -46,7 +46,7 @@ export default function ProfileCard(props: ProfileCardProps) {
   };
 
   return (
-    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-gray-200 p-300">
+    <div className="rounded-100 flex w-full cursor-pointer flex-col gap-150 border border-border-subtle p-300">
       <div className="flex gap-150">
         <UserProfileModal
           memberId={applicant.applicantInfo.memberId}

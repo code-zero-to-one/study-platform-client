@@ -24,7 +24,7 @@ interface SectionTabsProps {
 const tabBaseClass = 'font-designer-16b shrink-0 border-b-2 p-150';
 const lockedTabButtonClass = cn(
   tabBaseClass,
-  'flex cursor-not-allowed items-center gap-50 border-transparent text-[#D5D7DA]',
+  'flex cursor-not-allowed items-center gap-50 border-transparent text-text-disabled',
 );
 
 // lockedTooltip이 없으면 disabled 버튼만 렌더
@@ -109,8 +109,8 @@ export default function Tabs({
               tabBaseClass,
               'transition-colors',
               activeTab === tab.value
-                ? 'border-primary text-primary text-[#181D27]'
-                : 'border-transparent text-[#D5D7DA] hover:text-[#535862]',
+                ? 'border-primary text-primary text-text-strong'
+                : 'border-transparent text-text-disabled hover:text-text-subtle',
             )}
           >
             {tab.label}

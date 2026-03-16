@@ -90,7 +90,7 @@ export default async function Landing() {
         {/* 메인 소개 */}
         <section className="relative flex flex-col items-center gap-600 py-400 md:py-[80px]">
           {/* 중앙에서 위아래로 퍼지는 그라데이션 배경 오버레이 */}
-          <div className="pointer-events-none absolute top-0 left-0 z-0 h-full w-full bg-gradient-to-b from-white via-[#fff1f3] to-white" />
+          <div className="pointer-events-none absolute top-0 left-0 z-0 h-full w-full bg-gradient-to-b from-background-default via-rose-50 to-background-default" />
 
           <div className="relative z-10 flex flex-col items-center justify-center gap-400">
             <div>
@@ -128,7 +128,7 @@ export default async function Landing() {
               priority
             />
             {/* 배너 사진 하단 그라데이션 */}
-            <div className="pointer-events-none absolute bottom-0 left-0 h-[120px] w-full bg-gradient-to-t from-[#ffffff] to-transparent" />
+            <div className="pointer-events-none absolute bottom-0 left-0 h-[120px] w-full bg-gradient-to-t from-background-default to-transparent" />
           </div>
         </section>
         {/* 제로원 솔루션 소개 */}
@@ -149,7 +149,7 @@ export default async function Landing() {
             {SOLUTION_INFO_LIST.map((solution, index) => (
               <li
                 key={index}
-                className="rounded-300 bg-background-default flex flex-col gap-250 px-400 py-500 shadow-[0_8px_30px_rgb(0,0,0,0.12)]"
+                className="rounded-300 bg-background-default flex flex-col gap-250 px-400 py-500 shadow-1"
               >
                 <div className="flex flex-col items-center gap-200">
                   <span className="font-bold-h5 text-text-default">
@@ -290,20 +290,20 @@ export default async function Landing() {
         </div>
 
         {/* 사업자 정보 */}
-        <div className="text-text-inverse font-designer-12m mt-400 flex w-full flex-col items-center gap-100 border-t border-white/20 pt-400">
+        <div className="text-text-inverse font-designer-12m mt-400 flex w-full flex-col items-center gap-100 border-t border-background-default/20 pt-400">
           <div className="flex flex-wrap items-center justify-center gap-200">
             <span>상호명: 정성컴퍼니</span>
-            <span className="text-white/60">|</span>
+            <span className="text-background-default/60">|</span>
             <span>대표자명: 조성진</span>
-            <span className="text-white/60">|</span>
+            <span className="text-background-default/60">|</span>
             <span>전화번호: 010-6856-6609</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-200">
             <span>사업자번호: 798-31-01774</span>
-            <span className="text-white/60">|</span>
+            <span className="text-background-default/60">|</span>
             <span>사업장 주소: 서울시 강남구 역삼동 620-17 203호</span>
           </div>
-          <div className="text-text-inverse font-designer-11m mt-100 text-white/80">
+          <div className="text-text-inverse font-designer-11m mt-100 text-background-default/80">
             © 2024 ZERO-ONE. All rights reserved.
           </div>
         </div>
