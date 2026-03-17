@@ -34,7 +34,9 @@ export default function MyStudyInfoCard({
         <div className="relative">
           <UserAvatar
             image={thumbnail?.resizedImages[0]?.resizedImageUrl ?? undefined}
+            alt={`${title} 썸네일`}
             size={244}
+            fallbackSrc="/apply-study.svg"
             className={`rounded-100 h-study-card w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
           />
           {status === 'COMPLETED' && (
