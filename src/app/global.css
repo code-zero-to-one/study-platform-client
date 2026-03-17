@@ -421,6 +421,18 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   height: 500px;
 }
 
+@utility h-study-card {
+  height: 244px;
+}
+
+@utility max-w-study-content {
+  max-width: 1164px;
+}
+
+@utility max-h-modal {
+  max-height: 90vh;
+}
+
 @utility font-display-headings2 {
   font-size: 64px;
   font-weight: var(--font-weight-bold);

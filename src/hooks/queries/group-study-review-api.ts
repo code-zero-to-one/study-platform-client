@@ -1,70 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { axiosInstance } from '@/api/client/axios';
-import { useToastStore } from '@/stores/use-toast-store';
+import type {
+  GroupStudyExperienceReviewDetail,
+  GroupStudyExperienceReviewPageResponse,
+  GroupStudyExperienceReviewRequest,
+  SelectableReviewItemListResponse,
+} from '@/types/api/group-study-review.types';
 
-// ─── 타입 정의 ────────────────────────────────────────────────────────────────
-
-type ReviewSatisfaction = 'GOOD' | 'DISAPPOINTED';
-
-export interface SelectableReviewItem {
-  id?: number;
-  reviewSelection?: string;
-  label?: string;
-  satisfactionType?: string;
-}
-
-export interface SelectableReviewItemListResponse {
-  goodItems?: SelectableReviewItem[];
-  disappointedItems?: SelectableReviewItem[];
-}
-
-export interface GroupStudyExperienceReviewListItem {
-  reviewId?: number;
-  writerId?: number;
-  writerName?: string;
-  satisfaction?: ReviewSatisfaction;
-  content?: string;
-  rating?: number;
-  createdAt?: string;
-}
-
-export interface GroupStudyExperienceReviewDetail {
-  reviewId?: number;
-  groupStudyId?: number;
-  groupStudyTitle?: string;
-  writerId?: number;
-  writerName?: string;
-  satisfaction?: ReviewSatisfaction;
-  selectableReviewItems?: SelectableReviewItem[];
-  content?: string;
-  rating?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface GroupStudyExperienceReviewPageResponse {
-  content?: GroupStudyExperienceReviewListItem[];
-  page?: number;
-  size?: number;
-  totalElements?: number;
-  totalPages?: number;
-  hasNext?: boolean;
-  hasPrevious?: boolean;
-}
-
-export interface GroupStudyExperienceReviewCreateRequest {
-  satisfaction: ReviewSatisfaction;
-  selectableReviewItemIds: number[];
-  content: string;
-  rating: number;
-}
-
-export interface GroupStudyExperienceReviewUpdateRequest {
-  satisfaction: ReviewSatisfaction;
-  selectableReviewItemIds: number[];
-  content: string;
-  rating: number;
-}
+export type {
+  GroupStudyExperienceReviewDetail,
+  GroupStudyExperienceReviewListItem,
+  GroupStudyExperienceReviewPageResponse,
+  GroupStudyExperienceReviewRequest,
+  ReviewSatisfaction,
+  SelectableReviewItem,
+  SelectableReviewItemListResponse,
+} from '@/types/api/group-study-review.types';
 
 // ─── queryKey 팩토리 ──────────────────────────────────────────────────────────
 
@@ -154,7 +105,10 @@ export const useGetGroupStudyReviewDetail = (reviewId: number) => {
  * 현재 사용자가 해당 그룹스터디에 후기를 작성했는지 여부 확인
  * GET /api/v1/group-studies/{groupStudyId}/reviews/written
  */
-export const useGetGroupStudyReviewWritten = (groupStudyId: number) => {
+export const useGetGroupStudyReviewWritten = (
+  groupStudyId: number,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: groupStudyReviewQueryKeys.written(groupStudyId),
     queryFn: async () => {
@@ -164,7 +118,7 @@ export const useGetGroupStudyReviewWritten = (groupStudyId: number) => {
 
       return data.content;
     },
-    enabled: !!groupStudyId,
+    enabled: (options?.enabled ?? true) && !!groupStudyId,
     staleTime: 60_000,
   });
 };
@@ -185,7 +139,7 @@ export const useCreateGroupStudyReview = () => {
       request,
     }: {
       groupStudyId: number;
-      request: GroupStudyExperienceReviewCreateRequest;
+      request: GroupStudyExperienceReviewRequest;
     }) => {
       const { data } = await axiosInstance.post<{ content: number }>(
         `/group-studies/${groupStudyId}/reviews`,
@@ -195,7 +149,6 @@ export const useCreateGroupStudyReview = () => {
       return data.content; // 생성된 reviewId 반환
     },
     onSuccess: async (_, variables) => {
-      useToastStore.getState().showToast('후기가 작성되었습니다.', 'success');
       await queryClient.invalidateQueries({
         queryKey: groupStudyReviewQueryKeys.lists(),
       });
@@ -220,12 +173,11 @@ export const useUpdateGroupStudyReview = () => {
       request,
     }: {
       reviewId: number;
-      request: GroupStudyExperienceReviewUpdateRequest;
+      request: GroupStudyExperienceReviewRequest;
     }) => {
       await axiosInstance.put(`/group-studies/reviews/${reviewId}`, request);
     },
     onSuccess: async (_, variables) => {
-      useToastStore.getState().showToast('후기가 수정되었습니다.', 'success');
       await queryClient.invalidateQueries({
         queryKey: groupStudyReviewQueryKeys.detail(variables.reviewId),
       });
@@ -255,7 +207,6 @@ export const useDeleteGroupStudyReview = () => {
       await axiosInstance.delete(`/group-studies/reviews/${reviewId}`);
     },
     onSuccess: async (_, variables) => {
-      useToastStore.getState().showToast('후기가 삭제되었습니다.', 'success');
       await queryClient.invalidateQueries({
         queryKey: groupStudyReviewQueryKeys.lists(),
       });

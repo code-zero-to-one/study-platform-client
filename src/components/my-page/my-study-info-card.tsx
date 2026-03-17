@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
-import { MemberStudyItem } from '@/types/api/group-study.types';
+import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 interface MyStudyInfoCardProps extends MemberStudyItem {
   type: 'GROUP_STUDY';
@@ -18,6 +18,7 @@ export default function MyStudyInfoCard({
   endTime,
   participantsCount,
   maxMembersCount,
+  pendingCount,
   studyRole,
   title,
 }: MyStudyInfoCardProps) {
@@ -32,7 +33,7 @@ export default function MyStudyInfoCard({
       >
         <div className="relative">
           <Image
-            src={thumbnail?.resizedImages[0].resizedImageUrl}
+            src={thumbnail?.resizedImages[0]?.resizedImageUrl ?? undefined}
             alt={`${studyId}`}
             className={`rounded-100 h-[244px] w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
             width={244}
@@ -78,14 +79,15 @@ export default function MyStudyInfoCard({
         </div>
       </Link>
 
-      {(status === 'RECRUITING' ||
-        status === 'ENDING_SOON' ||
-        status === 'IN_PROGRESS') &&
+      {!!pendingCount &&
+        (status === 'RECRUITING' ||
+          status === 'ENDING_SOON' ||
+          status === 'IN_PROGRESS') &&
         participantsCount < maxMembersCount &&
         studyRole === 'LEADER' && (
           <Link href={`/application-list/${studyId}`}>
             <Button color="secondary" className="w-full">
-              신청자 N명 확인하기
+              {`신청자 ${pendingCount}명 확인하기`}
             </Button>
           </Link>
         )}

@@ -6,8 +6,9 @@ import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import Pagination from '@/components/common/ui/pagination';
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
-import { MemberStudyItem } from '@/types/api/group-study.types';
+import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
@@ -20,9 +21,10 @@ interface MemberGroupStudyList extends MemberStudyItem {
 }
 
 export default function NotCompletedPage() {
+  const { memberId } = useAuthReady();
   const [page, setPage] = useState<number>(1);
   const { data, isLoading } = useMemberStudyListQuery({
-    memberId: 1,
+    memberId,
     studyType: 'GROUP_STUDY',
     studyStatus: 'NOT_COMPLETED',
     inProgressPage: page,

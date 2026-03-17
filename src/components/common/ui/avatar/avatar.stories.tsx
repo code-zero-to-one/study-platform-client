@@ -14,7 +14,12 @@ const meta: Meta<typeof Avatar> = {
     image: {
       control: 'text',
       description:
-        '프로필 이미지 URL. "default" 또는 빈 문자열이면 기본 아이콘이 노출됩니다.',
+        '이미지 URL. 빈 문자열이거나 로드에 실패하면 fallbackSrc가 노출됩니다.',
+    },
+    fallbackSrc: {
+      control: 'text',
+      description:
+        '이미지 로드 실패 시 표시할 fallback 이미지 경로. 기본값: /profile-default.svg',
     },
     size: {
       control: { type: 'number', min: 16, max: 128, step: 4 },

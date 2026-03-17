@@ -451,7 +451,8 @@ function SatisfactionButton({
 }) {
   return (
     <button
-      className="flex w-[5.75rem] cursor-pointer flex-col items-center gap-100"
+      type="button"
+      className="flex w-fit cursor-pointer flex-col items-center gap-100"
       onClick={onClick}
     >
       <span className="text-text-default font-designer-14r">{label}</span>

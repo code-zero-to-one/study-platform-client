@@ -3,17 +3,20 @@
 import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useMemo } from 'react';
 import Button from '@/components/common/ui/button';
 import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
-import { MemberStudyItem } from '@/types/api/group-study.types';
+import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
   { ssr: false },
 );
+
+const PREVIEW_LIMIT = 9;
 
 interface MemberGroupStudyList extends MemberStudyItem {
   type: 'GROUP_STUDY';
@@ -28,13 +31,30 @@ export default function MyStudy() {
     studyStatus: 'BOTH',
   });
 
-  // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록
-  const notCompletedStudyList = (data?.notCompleted.content ||
-    []) as MemberGroupStudyList[];
+  const { notCompletedStudyList, completedStudyList } = useMemo(() => {
+    const now = new Date();
+    const allNotCompleted = data?.notCompleted.content ?? [];
 
-  // status가 "COMPLETED"인 스터디 목록
-  const completedStudyList = (data?.completed.content ||
-    []) as MemberGroupStudyList[];
+    const isEnded = (study: MemberStudyItem) =>
+      study.status === 'COMPLETED' ||
+      (study.endTime && new Date(study.endTime) < now);
+
+    const isGroupStudy = (
+      study: MemberStudyItem,
+    ): study is MemberGroupStudyList => study.type === 'GROUP_STUDY';
+
+    const groupStudies = allNotCompleted.filter(isGroupStudy);
+    const active = groupStudies.filter((s) => !isEnded(s));
+    const ended = groupStudies.filter(isEnded);
+
+    return {
+      notCompletedStudyList: active.slice(0, PREVIEW_LIMIT),
+      completedStudyList: [
+        ...(data?.completed.content ?? []).filter(isGroupStudy),
+        ...ended,
+      ].slice(0, PREVIEW_LIMIT),
+    };
+  }, [data]);
 
   if (isLoading) {
     return null;
@@ -69,9 +89,7 @@ export default function MyStudy() {
             </Link>
           </div>
 
-          <NotCompletedGroupStudyList
-            studyList={notCompletedStudyList.filter((study, idx) => idx < 9)}
-          />
+          <NotCompletedGroupStudyList studyList={notCompletedStudyList} />
         </div>
 
         <div>
@@ -87,9 +105,7 @@ export default function MyStudy() {
               전체보기
             </Link>
           </div>
-          <CompletedGroupStudyList
-            studyList={completedStudyList.filter((study, idx) => idx < 9)}
-          />
+          <CompletedGroupStudyList studyList={completedStudyList} />
         </div>
       </div>
     </div>

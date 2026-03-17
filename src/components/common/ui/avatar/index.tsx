@@ -14,6 +14,7 @@ interface UserAvatarProps {
   alt?: string;
   size?: number | string;
   className?: string;
+  fallbackSrc?: string;
 }
 
 export default function Avatar({
@@ -21,6 +22,7 @@ export default function Avatar({
   alt = 'profile-image',
   size = 32,
   className,
+  fallbackSrc = '/profile-default.svg',
   ...props
 }: UserAvatarProps) {
   const [isError, setIsError] = useState(false);
@@ -63,7 +65,7 @@ export default function Avatar({
 
       <RadixAvatarFallback>
         <Image
-          src="/profile-default.svg"
+          src={fallbackSrc}
           alt="error-image"
           width={fallbackSize}
           height={fallbackSize}
