@@ -193,7 +193,7 @@ export default function MissionSection({
   // 미션 목록 (기본)
   return (
     <section className="bg-background-alternative flex h-full w-full flex-col gap-300">
-      <div className="m-auto my-500 w-full max-w-[1164px] px-400">
+      <div className="m-auto my-500 w-full max-w-study-content px-400">
         <div className="flex items-center justify-between">
           <span className="font-designer-20b text-text-default">미션 목록</span>
           {isLeaderProp && <CreateMissionModal groupStudyId={groupStudyId} />}
