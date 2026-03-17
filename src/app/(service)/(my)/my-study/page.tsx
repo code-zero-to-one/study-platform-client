@@ -31,30 +31,20 @@ export default function MyStudy() {
 
   const { notCompletedStudyList, completedStudyList } = useMemo(() => {
     const now = new Date();
-    const allNotCompleted = data?.notCompleted.content || [];
+    const allNotCompleted = data?.notCompleted.content ?? [];
 
-    // endTime이 지나지 않고 수동 종료(COMPLETED)되지 않은 스터디만 표시
-    const notCompleted = allNotCompleted.filter(
-      (study) =>
-        study.status !== 'COMPLETED' &&
-        (!study.endTime || new Date(study.endTime) >= now),
-    ) as MemberGroupStudyList[];
-
-    // status=COMPLETED(수동 종료) 또는 endTime 경과 → completed 섹션으로 이동
-    const movedToCompleted = allNotCompleted.filter(
-      (study) =>
-        study.status === 'COMPLETED' ||
-        (study.endTime && new Date(study.endTime) < now),
-    ) as MemberGroupStudyList[];
-
-    const completed = [
-      ...(data?.completed.content || []),
-      ...movedToCompleted,
-    ] as MemberGroupStudyList[];
+    const isEnded = (study: MemberStudyItem) =>
+      study.status === 'COMPLETED' ||
+      (study.endTime && new Date(study.endTime) < now);
 
     return {
-      notCompletedStudyList: notCompleted,
-      completedStudyList: completed,
+      notCompletedStudyList: allNotCompleted.filter(
+        (s) => !isEnded(s),
+      ) as MemberGroupStudyList[],
+      completedStudyList: [
+        ...(data?.completed.content ?? []),
+        ...allNotCompleted.filter(isEnded),
+      ] as MemberGroupStudyList[],
     };
   }, [data]);
 

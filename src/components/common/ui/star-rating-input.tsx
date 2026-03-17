@@ -53,8 +53,12 @@ export default function StarRatingInput({
             }}
             onMouseLeave={() => setHoverValue(0)}
             onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              onChange(getValueFromX(e.clientX, rect, idx));
+              if (e.detail === 0) {
+                onChange(idx + 1);
+              } else {
+                const rect = e.currentTarget.getBoundingClientRect();
+                onChange(getValueFromX(e.clientX, rect, idx));
+              }
             }}
             onTouchEnd={(e) => {
               e.preventDefault();

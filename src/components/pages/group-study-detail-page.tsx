@@ -117,10 +117,11 @@ export default function StudyDetailPage({
 
   const isApprovedMember = myApplicationStatus?.status === 'APPROVED';
 
-  const canWriteReview =
-    (isStudyEnded || isStudyCompleted) &&
-    isWithinReviewWindow &&
-    isApprovedMember;
+  // 수동 종료(COMPLETED) 시: endDate 기반 윈도우 체크 생략 (백엔드에서 7일 검증)
+  // 기간 만료 종료 시: 기존 isWithinReviewWindow(endDate 기준 7일) 유지
+  const canWriteReview = isStudyCompleted
+    ? isApprovedMember
+    : isWithinReviewWindow && isApprovedMember;
 
   const { data: hasWrittenReview } = useGetGroupStudyReviewWritten(
     groupStudyId,
