@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
@@ -10,10 +8,9 @@ import List from '@/components/common/ui/list';
 import { Modal } from '@/components/common/ui/modal';
 import StarRatingInput from '@/components/common/ui/star-rating-input';
 import {
-  useCreateGroupStudyReview,
-  useGetGroupStudyReviewSelectableItems,
-} from '@/hooks/queries/group-study-review-api';
-import { useToastStore } from '@/stores/use-toast-store';
+  MIN_CONTENT_LENGTH,
+  useGroupStudyReviewForm,
+} from '@/hooks/common/use-group-study-review-form';
 import type { ReviewSatisfaction } from '@/types/api/group-study-review.types';
 
 interface GroupStudyReviewModalProps {
@@ -22,20 +19,9 @@ interface GroupStudyReviewModalProps {
   groupStudyId: number;
 }
 
-interface ReviewFormState {
-  satisfaction: ReviewSatisfaction | undefined;
-  selectableReviewItemIds: number[];
-  content: string;
-  rating: number;
-}
-
-const MIN_CONTENT_LENGTH = 20;
-
-const INITIAL_FORM: ReviewFormState = {
-  satisfaction: undefined,
-  selectableReviewItemIds: [],
-  content: '',
-  rating: 0,
+const SATISFACTION_CONFIG: Record<ReviewSatisfaction, { label: string }> = {
+  GOOD: { label: '좋았어요 😊' },
+  DISAPPOINTED: { label: '아쉬웠어요 😅' },
 };
 
 export default function GroupStudyReviewModal({
@@ -86,89 +72,18 @@ function GroupStudyReviewForm({
   groupStudyId: number;
   onClose: () => void;
 }) {
-  const [form, setForm] = useState<ReviewFormState>(INITIAL_FORM);
-  const [submitted, setSubmitted] = useState(false);
-
-  const showToast = useToastStore((state) => state.showToast);
-  const { data: selectableItems } = useGetGroupStudyReviewSelectableItems();
-  const { mutate: createReview, isPending } = useCreateGroupStudyReview();
-
-  // 모달 닫힐 때 폼 초기화
-  useEffect(() => {
-    if (!open) {
-      setForm(INITIAL_FORM);
-      setSubmitted(false);
-    }
-  }, [open]);
-
-  const isFormValid =
-    form.satisfaction !== undefined &&
-    form.selectableReviewItemIds.length > 0 &&
-    form.content.trim().length >= MIN_CONTENT_LENGTH &&
-    form.rating > 0;
-
-  const contentError =
-    submitted && form.content.trim().length < MIN_CONTENT_LENGTH
-      ? `최소 ${MIN_CONTENT_LENGTH}자 이상 입력해주세요.`
-      : undefined;
-
-  const handleSatisfactionChange = (next: ReviewSatisfaction) => {
-    setForm((prev) => ({
-      ...prev,
-      satisfaction: next,
-      selectableReviewItemIds: [], // 만족도 전환 시 선택 항목 초기화
-    }));
-  };
-
-  const handleItemToggle = (id: number) => {
-    setForm((prev) => {
-      const isSelected = prev.selectableReviewItemIds.includes(id);
-
-      return {
-        ...prev,
-        selectableReviewItemIds: isSelected
-          ? prev.selectableReviewItemIds.filter((i) => i !== id)
-          : [...prev.selectableReviewItemIds, id],
-      };
-    });
-  };
-
-  const handleSubmit = () => {
-    setSubmitted(true);
-    if (!isFormValid || !form.satisfaction) return;
-
-    createReview(
-      {
-        groupStudyId,
-        request: {
-          satisfaction: form.satisfaction,
-          selectableReviewItemIds: form.selectableReviewItemIds,
-          content: form.content,
-          rating: form.rating,
-        },
-      },
-      {
-        onSuccess: () => {
-          showToast('후기가 작성되었습니다.', 'success');
-          onClose();
-        },
-        // onError 불필요: 글로벌 MutationCache 핸들러가 처리
-      },
-    );
-  };
-
-  const currentItems = (
-    form.satisfaction === 'GOOD'
-      ? selectableItems?.goodItems
-      : form.satisfaction === 'DISAPPOINTED'
-        ? selectableItems?.disappointedItems
-        : undefined
-  )?.filter((item) => item.id !== undefined);
-
-  const itemsLabel =
-    form.satisfaction === 'GOOD'
-      ? '어떤 점이 좋았나요?'
-      : '어떤 점이 아쉬웠나요?';
+  const {
+    form,
+    setForm,
+    isFormValid,
+    contentError,
+    currentItems,
+    itemsLabel,
+    isPending,
+    handleSatisfactionChange,
+    handleItemToggle,
+    handleSubmit,
+  } = useGroupStudyReviewForm({ open, groupStudyId, onClose });
 
   return (
     <>
@@ -179,16 +94,16 @@ function GroupStudyReviewForm({
             스터디 만족도
           </span>
           <div className="flex gap-200">
-            <SatisfactionButton
-              label="좋았어요 😊"
-              isSelected={form.satisfaction === 'GOOD'}
-              onClick={() => handleSatisfactionChange('GOOD')}
-            />
-            <SatisfactionButton
-              label="아쉬웠어요 😅"
-              isSelected={form.satisfaction === 'DISAPPOINTED'}
-              onClick={() => handleSatisfactionChange('DISAPPOINTED')}
-            />
+            {(Object.keys(SATISFACTION_CONFIG) as ReviewSatisfaction[]).map(
+              (key) => (
+                <SatisfactionButton
+                  key={key}
+                  label={SATISFACTION_CONFIG[key].label}
+                  isSelected={form.satisfaction === key}
+                  onClick={() => handleSatisfactionChange(key)}
+                />
+              ),
+            )}
           </div>
         </div>
 
@@ -207,8 +122,8 @@ function GroupStudyReviewForm({
                 <List.Item key={item.id}>
                   <Checkbox
                     id={`review-item-${item.id}`}
-                    checked={form.selectableReviewItemIds.includes(item.id!)}
-                    onToggle={() => handleItemToggle(item.id!)}
+                    checked={form.selectableReviewItemIds.includes(item.id)}
+                    onToggle={() => handleItemToggle(item.id)}
                   />
                   <label
                     htmlFor={`review-item-${item.id}`}
