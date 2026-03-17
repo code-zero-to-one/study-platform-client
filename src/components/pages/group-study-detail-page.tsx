@@ -1,6 +1,7 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
+import dayjs from 'dayjs';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -48,7 +49,7 @@ const GroupStudyReviewModal = dynamic(
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
-const DETAIL_CONTENT_WIDTH = 'w-full max-w-[1164px] px-400';
+const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
 const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
 
 const END_MODAL_CONTENT = (
@@ -86,20 +87,21 @@ export default function StudyDetailPage({
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
-  const endDateStr = studyDetail?.basicInfo?.endDate;
+  const { isStudyEnded, isWithinReviewWindow } = useMemo(() => {
+    const endDateStr = studyDetail?.basicInfo?.endDate;
+    if (!endDateStr)
+      return { isStudyEnded: false, isWithinReviewWindow: false };
 
-  const endDate = endDateStr ? new Date(`${endDateStr}T00:00:00`) : null;
+    const endDate = dayjs(endDateStr).startOf('day');
+    const today = dayjs().startOf('day');
+    const isEnded = today.isAfter(endDate); // today > endDate (종료일 익일부터)
+    const diffDays = today.diff(endDate, 'day');
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const isStudyEnded = endDate ? endDate <= today : false;
-
-  const REVIEW_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
-  const isWithinReviewWindow = endDate
-    ? endDate <= today &&
-      today.getTime() - endDate.getTime() <= REVIEW_WINDOW_MS
-    : false;
+    return {
+      isStudyEnded: isEnded,
+      isWithinReviewWindow: isEnded && diffDays <= 7,
+    };
+  }, [studyDetail?.basicInfo?.endDate]);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
 
@@ -270,7 +272,7 @@ export default function StudyDetailPage({
   }, [activeTab, isLoading, isMyStatusLoading, pathname, router, tabParam]);
 
   if (isLoading || !studyDetail) {
-    return <div>로딩중...</div>;
+    return null;
   }
 
   return (

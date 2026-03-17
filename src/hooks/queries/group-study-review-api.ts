@@ -1,67 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { axiosInstance } from '@/api/client/axios';
+import type {
+  GroupStudyExperienceReviewDetail,
+  GroupStudyExperienceReviewPageResponse,
+  GroupStudyExperienceReviewRequest,
+  SelectableReviewItemListResponse,
+} from '@/types/api/group-study-review.types';
 
-// ─── 타입 정의 ────────────────────────────────────────────────────────────────
-
-export type ReviewSatisfaction = 'GOOD' | 'DISAPPOINTED';
-
-export interface SelectableReviewItem {
-  id?: number;
-  reviewSelection?: string;
-  label?: string;
-  satisfactionType?: string;
-}
-
-export interface SelectableReviewItemListResponse {
-  goodItems?: SelectableReviewItem[];
-  disappointedItems?: SelectableReviewItem[];
-}
-
-export interface GroupStudyExperienceReviewListItem {
-  reviewId?: number;
-  writerId?: number;
-  writerName?: string;
-  satisfaction?: ReviewSatisfaction;
-  content?: string;
-  rating?: number;
-  createdAt?: string;
-}
-
-export interface GroupStudyExperienceReviewDetail {
-  reviewId?: number;
-  groupStudyId?: number;
-  groupStudyTitle?: string;
-  writerId?: number;
-  writerName?: string;
-  satisfaction?: ReviewSatisfaction;
-  selectableReviewItems?: SelectableReviewItem[];
-  content?: string;
-  rating?: number;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface GroupStudyExperienceReviewPageResponse {
-  content?: GroupStudyExperienceReviewListItem[];
-  page?: number;
-  size?: number;
-  totalElements?: number;
-  totalPages?: number;
-  hasNext?: boolean;
-  hasPrevious?: boolean;
-}
-
-export interface GroupStudyExperienceReviewRequest {
-  satisfaction: ReviewSatisfaction;
-  selectableReviewItemIds: number[];
-  content: string;
-  rating: number;
-}
-
-export type GroupStudyExperienceReviewCreateRequest =
-  GroupStudyExperienceReviewRequest;
-export type GroupStudyExperienceReviewUpdateRequest =
-  GroupStudyExperienceReviewRequest;
+export type {
+  GroupStudyExperienceReviewDetail,
+  GroupStudyExperienceReviewListItem,
+  GroupStudyExperienceReviewPageResponse,
+  GroupStudyExperienceReviewRequest,
+  ReviewSatisfaction,
+  SelectableReviewItem,
+  SelectableReviewItemListResponse,
+} from '@/types/api/group-study-review.types';
 
 // ─── queryKey 팩토리 ──────────────────────────────────────────────────────────
 
@@ -185,7 +139,7 @@ export const useCreateGroupStudyReview = () => {
       request,
     }: {
       groupStudyId: number;
-      request: GroupStudyExperienceReviewCreateRequest;
+      request: GroupStudyExperienceReviewRequest;
     }) => {
       const { data } = await axiosInstance.post<{ content: number }>(
         `/group-studies/${groupStudyId}/reviews`,
@@ -219,7 +173,7 @@ export const useUpdateGroupStudyReview = () => {
       request,
     }: {
       reviewId: number;
-      request: GroupStudyExperienceReviewUpdateRequest;
+      request: GroupStudyExperienceReviewRequest;
     }) => {
       await axiosInstance.put(`/group-studies/reviews/${reviewId}`, request);
     },

@@ -10,10 +10,10 @@ import List from '@/components/common/ui/list';
 import { Modal } from '@/components/common/ui/modal';
 import StarRatingInput from '@/components/common/ui/star-rating-input';
 import {
-  type ReviewSatisfaction,
   useCreateGroupStudyReview,
   useGetGroupStudyReviewSelectableItems,
 } from '@/hooks/queries/group-study-review-api';
+import type { ReviewSatisfaction } from '@/types/api/group-study-review.types';
 import { useToastStore } from '@/stores/use-toast-store';
 
 interface GroupStudyReviewModalProps {
@@ -28,6 +28,8 @@ interface ReviewFormState {
   content: string;
   rating: number;
 }
+
+const MIN_CONTENT_LENGTH = 20;
 
 const INITIAL_FORM: ReviewFormState = {
   satisfaction: undefined,
@@ -52,9 +54,9 @@ export default function GroupStudyReviewModal({
             'top-0 left-0 translate-x-0 translate-y-0',
             'w-screen max-w-full max-h-screen h-screen rounded-none',
             // md 이상: 중앙 모달
-            'md:top-1/2 md:left-[50%]',
+            'md:top-1/2 md:left-1/2',
             'md:-translate-x-1/2 md:-translate-y-1/2',
-            'md:max-w-3xl md:w-full md:h-auto md:max-h-[90vh]',
+            'md:max-w-3xl md:w-full md:h-auto md:max-h-modal',
             'md:rounded-150',
           )}
           description="스터디 경험 후기 작성"
@@ -102,12 +104,12 @@ function GroupStudyReviewForm({
   const isFormValid =
     form.satisfaction !== undefined &&
     form.selectableReviewItemIds.length > 0 &&
-    form.content.trim().length >= 20 &&
+    form.content.trim().length >= MIN_CONTENT_LENGTH &&
     form.rating > 0;
 
   const contentError =
-    submitted && form.content.trim().length < 20
-      ? '최소 20자 이상 입력해주세요.'
+    submitted && form.content.trim().length < MIN_CONTENT_LENGTH
+      ? `최소 ${MIN_CONTENT_LENGTH}자 이상 입력해주세요.`
       : undefined;
 
   const handleSatisfactionChange = (next: ReviewSatisfaction) => {
@@ -155,12 +157,13 @@ function GroupStudyReviewForm({
     );
   };
 
-  const currentItems =
+  const currentItems = (
     form.satisfaction === 'GOOD'
       ? selectableItems?.goodItems
       : form.satisfaction === 'DISAPPOINTED'
         ? selectableItems?.disappointedItems
-        : undefined;
+        : undefined
+  )?.filter((item) => item.id !== undefined);
 
   const itemsLabel =
     form.satisfaction === 'GOOD'
@@ -200,19 +203,15 @@ function GroupStudyReviewForm({
             </div>
 
             <List className="mx-auto">
-              {currentItems.map((item, index) => (
-                <List.Item key={item.id ?? index}>
+              {currentItems.map((item) => (
+                <List.Item key={item.id}>
                   <Checkbox
-                    id={`review-item-${item.id ?? index}`}
-                    checked={form.selectableReviewItemIds.includes(
-                      item.id ?? -1,
-                    )}
-                    onToggle={() => {
-                      if (item.id !== undefined) handleItemToggle(item.id);
-                    }}
+                    id={`review-item-${item.id}`}
+                    checked={form.selectableReviewItemIds.includes(item.id!)}
+                    onToggle={() => handleItemToggle(item.id!)}
                   />
                   <label
-                    htmlFor={`review-item-${item.id ?? index}`}
+                    htmlFor={`review-item-${item.id}`}
                     className="font-designer-14m text-text-subtle cursor-pointer"
                   >
                     {item.label ?? item.reviewSelection}
@@ -252,7 +251,7 @@ function GroupStudyReviewForm({
             <TextAreaInput
               value={form.content}
               maxLength={1000}
-              placeholder="스터디 경험을 20자 이상 작성해주세요"
+              placeholder={`스터디 경험을 ${MIN_CONTENT_LENGTH}자 이상 작성해주세요`}
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, content: e.target.value }))
               }

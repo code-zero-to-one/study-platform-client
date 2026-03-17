@@ -158,21 +158,15 @@ export interface DetailInfo {
   thumbnailExtension: ThumbnailExtension;
 }
 
-export interface SimpleDetailInfo {
-  thumbnail: Thumbnail;
-  title: string;
-  summary: string;
-}
-
 export interface Thumbnail {
   imageId: number;
   resizedImages: ResizedImage[];
 }
 
-export interface ResizedImage {
-  resizedImageId: number;
-  resizedImageUrl: string;
-  imageSizeType: ImageSizeType;
+export interface SimpleDetailInfo {
+  thumbnail: Thumbnail;
+  title: string;
+  summary: string;
 }
 
 export interface ImageSizeType {
@@ -348,11 +342,6 @@ export interface MemberStudyListRequest {
   inProgressPageSize?: number;
   completedPage?: number;
   completedPageSize?: number;
-}
-
-export interface Thumbnail {
-  imageId: number;
-  resizedImages: ResizedImage[];
 }
 
 export interface MemberStudyItem {

@@ -59,10 +59,7 @@ export const useReviewReminder = (memberId?: number) => {
     const hideUntil = Number(localStorage.getItem(hideUntilStorageKey));
     if (Number.isFinite(hideUntil) && hideUntil > Date.now()) return;
 
-    if (Number.isFinite(hideUntil) && hideUntil <= Date.now()) {
-      localStorage.removeItem(hideUntilStorageKey);
-    }
-
+    localStorage.removeItem(hideUntilStorageKey);
     setShowReviewReminder(true);
   }, [modalState, isFetching, hideUntilStorageKey]);
 
