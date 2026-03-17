@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import { Dot, Users } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
