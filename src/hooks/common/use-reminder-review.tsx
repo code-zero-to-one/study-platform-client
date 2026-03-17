@@ -44,7 +44,10 @@ export const useReviewReminder = (memberId?: number) => {
           targetStudySpaceId: modalState.targetStudySpaceId,
         });
       } catch {
-        showToast('다시 보지 않기 저장에 실패했습니다. 다시 시도해주세요.', 'error');
+        showToast(
+          '다시 보지 않기 저장에 실패했습니다. 다시 시도해주세요.',
+          'error',
+        );
       }
     }
   };

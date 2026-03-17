@@ -52,7 +52,10 @@ export default function MyStudy() {
       ...movedToCompleted,
     ] as MemberGroupStudyList[];
 
-    return { notCompletedStudyList: notCompleted, completedStudyList: completed };
+    return {
+      notCompletedStudyList: notCompleted,
+      completedStudyList: completed,
+    };
   }, [data]);
 
   if (isLoading) {
@@ -106,9 +109,7 @@ export default function MyStudy() {
               전체보기
             </Link>
           </div>
-          <CompletedGroupStudyList
-            studyList={completedStudyList.slice(0, 9)}
-          />
+          <CompletedGroupStudyList studyList={completedStudyList.slice(0, 9)} />
         </div>
       </div>
     </div>
