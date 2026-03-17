@@ -13,8 +13,8 @@ import {
   useCreateGroupStudyReview,
   useGetGroupStudyReviewSelectableItems,
 } from '@/hooks/queries/group-study-review-api';
-import type { ReviewSatisfaction } from '@/types/api/group-study-review.types';
 import { useToastStore } from '@/stores/use-toast-store';
+import type { ReviewSatisfaction } from '@/types/api/group-study-review.types';
 
 interface GroupStudyReviewModalProps {
   open: boolean;

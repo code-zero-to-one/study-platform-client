@@ -9,12 +9,14 @@ import CompletedGroupStudyList from '@/components/lists/completed-group-study-li
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
-import { MemberStudyItem } from '@/types/api/group-study.types';
+import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
   { ssr: false },
 );
+
+const PREVIEW_LIMIT = 9;
 
 interface MemberGroupStudyList extends MemberStudyItem {
   type: 'GROUP_STUDY';
@@ -37,14 +39,20 @@ export default function MyStudy() {
       study.status === 'COMPLETED' ||
       (study.endTime && new Date(study.endTime) < now);
 
+    const isGroupStudy = (
+      study: MemberStudyItem,
+    ): study is MemberGroupStudyList => study.type === 'GROUP_STUDY';
+
+    const groupStudies = allNotCompleted.filter(isGroupStudy);
+    const active = groupStudies.filter((s) => !isEnded(s));
+    const ended = groupStudies.filter(isEnded);
+
     return {
-      notCompletedStudyList: allNotCompleted.filter(
-        (s) => !isEnded(s),
-      ) as MemberGroupStudyList[],
+      notCompletedStudyList: active.slice(0, PREVIEW_LIMIT),
       completedStudyList: [
-        ...(data?.completed.content ?? []),
-        ...allNotCompleted.filter(isEnded),
-      ] as MemberGroupStudyList[],
+        ...(data?.completed.content ?? []).filter(isGroupStudy),
+        ...ended,
+      ].slice(0, PREVIEW_LIMIT),
     };
   }, [data]);
 
@@ -81,9 +89,7 @@ export default function MyStudy() {
             </Link>
           </div>
 
-          <NotCompletedGroupStudyList
-            studyList={notCompletedStudyList.slice(0, 9)}
-          />
+          <NotCompletedGroupStudyList studyList={notCompletedStudyList} />
         </div>
 
         <div>
@@ -99,7 +105,7 @@ export default function MyStudy() {
               전체보기
             </Link>
           </div>
-          <CompletedGroupStudyList studyList={completedStudyList.slice(0, 9)} />
+          <CompletedGroupStudyList studyList={completedStudyList} />
         </div>
       </div>
     </div>
