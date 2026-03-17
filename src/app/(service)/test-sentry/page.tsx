@@ -134,12 +134,12 @@ export default function TestSentryPage() {
       // Sentry에 직접 전송 (beforeSend 필터링 테스트)
       Sentry.withScope((scope) => {
         scope.setTag('test.type', 'direct-sentry');
-        scope.setExtra('test.message', '직접 Sentry로 전송한 테스트 에러');
-        Sentry.captureException(new Error('직접 Sentry 전송 테스트'));
+        scope.setExtra('test.message', '직접 GlitchTip로 전송한 테스트 에러');
+        Sentry.captureException(new Error('직접 GlitchTip 전송 테스트'));
       });
-      setResult('✅ Sentry 직접 전송 완료');
+      setResult('✅ GlitchTip 직접 전송 완료');
     } catch (error) {
-      setResult(`❌ Sentry 직접 전송 실패: ${error}`);
+      setResult(`❌ GlitchTip 직접 전송 실패: ${error}`);
     }
   };
 
@@ -149,16 +149,16 @@ export default function TestSentryPage() {
       scope.setExtra('test.message', '테스트 메시지');
       Sentry.captureMessage('테스트 메시지입니다', 'error');
     });
-    setResult('✅ Sentry 메시지 전송 완료');
+    setResult('✅ GlitchTip 메시지 전송 완료');
   };
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold">Sentry 테스트 페이지</h1>
+      <h1 className="mb-6 text-2xl font-bold">GlitchTip 테스트 페이지</h1>
       <p className="mb-4 text-gray-600">
-        각 버튼을 클릭하여 다양한 에러 타입을 Sentry로 전송해보세요.
+        각 버튼을 클릭하여 다양한 에러 타입을 GlitchTip으으로 전송해보세요.
         <br />
-        Sentry 대시보드에서 확인할 수 있습니다.
+        GlitchTip 대시보드에서 확인할 수 있습니다.
       </p>
 
       <div className="mb-6 space-y-3">
@@ -218,7 +218,7 @@ export default function TestSentryPage() {
           size="large"
           className="w-full"
         >
-          Sentry 직접 전송 테스트
+          GlitchTip 직접 전송 테스트
         </Button>
         <Button
           onClick={testMessage}
@@ -226,7 +226,7 @@ export default function TestSentryPage() {
           size="large"
           className="w-full"
         >
-          Sentry 메시지 전송 테스트
+          GlitchTip 메시지 전송 테스트
         </Button>
       </div>
 
@@ -242,12 +242,12 @@ export default function TestSentryPage() {
           <li>브라우저 콘솔에서 에러 로그 확인</li>
           <li>
             <a
-              href="https://code0to1.sentry.io/issues/?project=4511014077530112"
+              href="https://glitchtip.zeroone.it.kr/code0to1/issues?project=1"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 underline"
             >
-              Sentry 대시보드
+              GlitchTip 대시보드
             </a>
             에서 Issues 확인
           </li>

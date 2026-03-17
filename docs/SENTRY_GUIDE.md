@@ -185,7 +185,7 @@ Sentry 이슈를 클릭하면 보이는 각 섹션에 대한 설명:
 5. **Trace Preview**
    - 분산 추적 정보 (Performance Monitoring)
    - `tracesSampleRate` 설정으로 활성화
-   - 현재 설정: 0.1 (10% 수집)
+   - 현재 설정: 1.0 (100% 수집)
 
 6. **HTTP Request**
    - Next.js 통합으로 자동 수집
@@ -308,7 +308,7 @@ captureException/captureMessage 호출
 1. 개발 서버 실행: `yarn dev`
 2. 브라우저에서 `http://localhost:3002/test-sentry` 접속
 3. 각 버튼 클릭하여 에러 타입별 테스트
-4. Sentry 대시보드에서 이슈 확인
+4. GlitchTip 대시보드에서 이슈 확인
 
 ### 삭제 예정
 

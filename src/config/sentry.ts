@@ -29,7 +29,7 @@ function detectEnvironment(): string {
   return 'development';
 }
 
-const dsn = process.env.NEXT_PUBLIC_SENTRY_DSN;
+const SENTRY_DSN = process.env.NEXT_PUBLIC_SENTRY_DSN;
 const environment = detectEnvironment();
 
 /**
@@ -41,12 +41,16 @@ function initSentry(config: {
   replaysOnErrorSampleRate?: number;
   integrations?: any[];
 }) {
-  if (!dsn) return;
+  if (!SENTRY_DSN) {
+    console.error("DSN이 없습니다. .env.local을 확인하세요.");
+
+    return;
+  }
 
   Sentry.init({
-    dsn,
+    dsn: SENTRY_DSN,
     environment,
-    tracesSampleRate: config.tracesSampleRate ?? 0.1,
+    tracesSampleRate: config.tracesSampleRate ?? 1.0,
     replaysSessionSampleRate: config.replaysSessionSampleRate ?? 0,
     replaysOnErrorSampleRate: config.replaysOnErrorSampleRate ?? 1.0,
     integrations: config.integrations ?? [],
@@ -90,7 +94,7 @@ export function initClientSentry() {
   const integrations: any[] = [];
 
   initSentry({
-    tracesSampleRate: 0.1,
+    tracesSampleRate: 1.0,
     replaysSessionSampleRate: 0,
     replaysOnErrorSampleRate: 1.0,
     integrations,
@@ -102,7 +106,7 @@ export function initClientSentry() {
  */
 export function initServerSentry() {
   initSentry({
-    tracesSampleRate: 0.1,
+    tracesSampleRate: 1.0,
   });
 }
 
@@ -111,7 +115,7 @@ export function initServerSentry() {
  */
 export function initEdgeSentry() {
   initSentry({
-    tracesSampleRate: 0.1,
+    tracesSampleRate: 1.0,
   });
 }
 
