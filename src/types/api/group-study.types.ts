@@ -361,6 +361,7 @@ export interface MemberStudyItem {
   thumbnail: Thumbnail;
   maxMembersCount: number;
   participantsCount: number;
+  pendingCount?: number;
   startTime: string;
   endTime: string;
   studyRole: 'PARTICIPANT' | 'LEADER';

@@ -3,7 +3,8 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
@@ -14,6 +15,7 @@ import {
 } from '@/config/constants';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useGetGroupStudyReviewWritten } from '@/hooks/queries/group-study-review-api';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
@@ -21,7 +23,7 @@ import {
 } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import { Leader } from '@/types/api/group-study.types';
+import type { Leader } from '@/types/api/group-study.types';
 
 import StudyActiveTicker from '../common/ui/study-active-ticker';
 import GroupStudyMemberList from '../lists/study-member-list';
@@ -36,6 +38,11 @@ const ConfirmDeleteModal = dynamic(
 
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
+  { ssr: false },
+);
+
+const GroupStudyReviewModal = dynamic(
+  () => import('@/components/common/modals/group-study-review-modal'),
   { ssr: false },
 );
 
@@ -73,15 +80,69 @@ export default function StudyDetailPage({
   const setLeaderInfo = useLeaderStore((state) => state.setLeaderInfo);
   const showToast = useToastStore((state) => state.showToast);
 
-  const tabParam = searchParams.get('tab') ?? undefined;
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const hasAutoOpenedReviewModal = useRef(false);
 
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
+  const endDateStr = studyDetail?.basicInfo?.endDate;
+
+  const endDate = endDateStr ? new Date(`${endDateStr}T00:00:00`) : null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const isStudyEnded = endDate ? endDate <= today : false;
+
+  const REVIEW_WINDOW_MS = 7 * 24 * 60 * 60 * 1000;
+  const isWithinReviewWindow = endDate
+    ? endDate <= today &&
+      today.getTime() - endDate.getTime() <= REVIEW_WINDOW_MS
+    : false;
+
   const leaderId = studyDetail?.basicInfo.leader.memberId;
-  const leader = studyDetail?.basicInfo.leader;
 
   const isLeader = leaderId === memberId;
+
+  const isStudyCompleted = studyDetail?.basicInfo?.status === 'COMPLETED';
+
+  const { data: myApplicationStatus, isLoading: isMyStatusLoading } =
+    useGetGroupStudyMyStatus({
+      groupStudyId,
+      isLeader,
+    });
+
+  const isApprovedMember = myApplicationStatus?.status === 'APPROVED';
+
+  const canWriteReview =
+    (isStudyEnded || isStudyCompleted) &&
+    isWithinReviewWindow &&
+    isApprovedMember;
+
+  const { data: hasWrittenReview } = useGetGroupStudyReviewWritten(
+    groupStudyId,
+    {
+      enabled: canWriteReview,
+    },
+  );
+
+  const leader = studyDetail?.basicInfo.leader;
+
+  useEffect(() => {
+    if (
+      canWriteReview &&
+      hasWrittenReview === false &&
+      !isLoading &&
+      !isMyStatusLoading &&
+      !hasAutoOpenedReviewModal.current
+    ) {
+      hasAutoOpenedReviewModal.current = true;
+      setShowReviewModal(true);
+    }
+  }, [canWriteReview, hasWrittenReview, isLoading, isMyStatusLoading]);
+
+  const tabParam = searchParams.get('tab') ?? undefined;
 
   const { data: authData } = useAuthReady();
   const isAdmin = authData?.roleIds.includes('ROLE_ADMIN') ?? false;
@@ -94,12 +155,6 @@ export default function StudyDetailPage({
   }, [leader, setLeaderInfo]);
   const [confirmAction, setConfirmAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
-
-  const { data: myApplicationStatus, isLoading: isMyStatusLoading } =
-    useGetGroupStudyMyStatus({
-      groupStudyId,
-      isLeader,
-    });
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -240,6 +295,11 @@ export default function StudyDetailPage({
         groupStudyId={groupStudyId}
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
       />
+      <GroupStudyReviewModal
+        open={showReviewModal}
+        onOpenChange={setShowReviewModal}
+        groupStudyId={groupStudyId}
+      />
       {/* 플로팅 정보 바 */}
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
         <StudyActiveTicker
@@ -271,11 +331,15 @@ export default function StudyDetailPage({
                   setShowStudyFormModal(true);
                 },
               },
-              {
-                label: '스터디 종료',
-                value: 'end',
-                onMenuClick: () => setConfirmAction('end'),
-              },
+              ...(!isStudyCompleted
+                ? [
+                    {
+                      label: '스터디 종료',
+                      value: 'end',
+                      onMenuClick: () => setConfirmAction('end'),
+                    },
+                  ]
+                : []),
               {
                 label: '스터디 삭제',
                 value: 'delete',
@@ -286,6 +350,24 @@ export default function StudyDetailPage({
           />
         )}
       </div>
+
+      {/** 후기 작성 CTA — 종료 후 7일 이내 미작성 참가자에게 노출 */}
+      {canWriteReview && hasWrittenReview === false && (
+        <div
+          className={`mb-400 ${DETAIL_CONTENT_WIDTH} flex items-center justify-between rounded-150 bg-fill-neutral-subtle-default px-400 py-300`}
+        >
+          <p className="font-designer-14m text-text-default">
+            스터디 경험 후기를 남겨주세요 (종료 후 7일 이내)
+          </p>
+          <Button
+            color="primary"
+            size="small"
+            onClick={() => setShowReviewModal(true)}
+          >
+            후기 남기기
+          </Button>
+        </div>
+      )}
 
       {/** 탭리스트 */}
       <Tabs

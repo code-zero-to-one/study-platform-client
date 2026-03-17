@@ -3,6 +3,7 @@
 import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { useMemo } from 'react';
 import Button from '@/components/common/ui/button';
 import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
@@ -28,13 +29,31 @@ export default function MyStudy() {
     studyStatus: 'BOTH',
   });
 
-  // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록
-  const notCompletedStudyList = (data?.notCompleted.content ||
-    []) as MemberGroupStudyList[];
+  const { notCompletedStudyList, completedStudyList } = useMemo(() => {
+    const now = new Date();
+    const allNotCompleted = data?.notCompleted.content || [];
 
-  // status가 "COMPLETED"인 스터디 목록
-  const completedStudyList = (data?.completed.content ||
-    []) as MemberGroupStudyList[];
+    // endTime이 지나지 않고 수동 종료(COMPLETED)되지 않은 스터디만 표시
+    const notCompleted = allNotCompleted.filter(
+      (study) =>
+        study.status !== 'COMPLETED' &&
+        (!study.endTime || new Date(study.endTime) >= now),
+    ) as MemberGroupStudyList[];
+
+    // status=COMPLETED(수동 종료) 또는 endTime 경과 → completed 섹션으로 이동
+    const movedToCompleted = allNotCompleted.filter(
+      (study) =>
+        study.status === 'COMPLETED' ||
+        (study.endTime && new Date(study.endTime) < now),
+    ) as MemberGroupStudyList[];
+
+    const completed = [
+      ...(data?.completed.content || []),
+      ...movedToCompleted,
+    ] as MemberGroupStudyList[];
+
+    return { notCompletedStudyList: notCompleted, completedStudyList: completed };
+  }, [data]);
 
   if (isLoading) {
     return null;
@@ -70,7 +89,7 @@ export default function MyStudy() {
           </div>
 
           <NotCompletedGroupStudyList
-            studyList={notCompletedStudyList.filter((study, idx) => idx < 9)}
+            studyList={notCompletedStudyList.slice(0, 9)}
           />
         </div>
 
@@ -88,7 +107,7 @@ export default function MyStudy() {
             </Link>
           </div>
           <CompletedGroupStudyList
-            studyList={completedStudyList.filter((study, idx) => idx < 9)}
+            studyList={completedStudyList.slice(0, 9)}
           />
         </div>
       </div>

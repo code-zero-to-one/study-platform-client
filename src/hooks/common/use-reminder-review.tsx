@@ -4,6 +4,7 @@ import {
   useDismissStudyReviewModalMutation,
   useStudyReviewModalStateQuery,
 } from '@/hooks/queries/use-review-query';
+import { useToastStore } from '@/stores/use-toast-store';
 
 const REVIEW_REMINDER_HIDE_UNTIL_KEY = 'reviewReminderHideUntil';
 const ONE_HOUR_MS = 1000 * 60 * 60;
@@ -17,6 +18,7 @@ export const useReviewReminder = (memberId?: number) => {
   const { data: modalState, isFetching } = useStudyReviewModalStateQuery();
   const { mutateAsync: dismissStudyReviewModal } =
     useDismissStudyReviewModalMutation();
+  const showToast = useToastStore((state) => state.showToast);
   const [showReviewReminder, setShowReviewReminder] = useState(false);
   const hideUntilStorageKey =
     memberId && modalState?.targetStudySpaceId
@@ -42,7 +44,7 @@ export const useReviewReminder = (memberId?: number) => {
           targetStudySpaceId: modalState.targetStudySpaceId,
         });
       } catch {
-        alert('다시 보지 않기 저장에 실패했습니다. 다시 시도해주세요.');
+        showToast('다시 보지 않기 저장에 실패했습니다. 다시 시도해주세요.', 'error');
       }
     }
   };
