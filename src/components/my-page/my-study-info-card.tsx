@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { Dot, Users } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
-import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
@@ -32,12 +32,12 @@ export default function MyStudyInfoCard({
         className="flex w-full flex-col gap-100"
       >
         <div className="relative">
-          <UserAvatar
-            image={thumbnail?.resizedImages[0]?.resizedImageUrl ?? undefined}
-            alt={`${title} 썸네일`}
-            size={244}
-            fallbackSrc="/apply-study.svg"
-            className={`rounded-100 h-study-card w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
+          <Image
+            src={thumbnail?.resizedImages[0]?.resizedImageUrl ?? undefined}
+            alt={`${studyId}`}
+            className={`rounded-100 h-[244px] w-full object-cover ${status === 'COMPLETED' ? 'grayscale' : ''}`}
+            width={244}
+            height={210}
           />
           {status === 'COMPLETED' && (
             <div className="rounded-100 absolute inset-0 bg-black opacity-50" />
