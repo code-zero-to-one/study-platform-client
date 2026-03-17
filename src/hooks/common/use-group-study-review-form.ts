@@ -80,9 +80,7 @@ export function useGroupStudyReviewForm({
 
   // 선택된 만족도에 해당하는 항목 목록 (id 없는 항목 제외)
   const currentItems = form.satisfaction
-    ? selectableItems?.[
-        SATISFACTION_ITEMS[form.satisfaction].itemsKey
-      ]?.filter(
+    ? selectableItems?.[SATISFACTION_ITEMS[form.satisfaction].itemsKey]?.filter(
         (item): item is SelectableReviewItem & { id: number } =>
           item.id !== undefined,
       )
