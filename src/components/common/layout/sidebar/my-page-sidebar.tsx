@@ -47,7 +47,7 @@ export default function Sidebar() {
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/my-study-review')}
-        isActive={pathname === '/my-study-review'}
+        isActive={pathname.startsWith('/my-study-review')}
       >
         스터디 후기
       </SidebarItem>

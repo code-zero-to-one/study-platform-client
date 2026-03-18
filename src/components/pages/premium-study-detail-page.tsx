@@ -37,6 +37,14 @@ const GroupStudyFormModal = dynamic(
   { ssr: false },
 );
 
+const StudyExperienceReviewModal = dynamic(
+  () =>
+    import(
+      '@/components/common/modals/study-experience-review-modal'
+    ),
+  { ssr: false },
+);
+
 type ActionKey = 'end' | 'delete';
 
 const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
@@ -92,6 +100,7 @@ export default function PremiumStudyDetailPage({
   }, [leader, setLeaderInfo]);
   const [confirmAction, setConfirmAction] = useState<ActionKey | null>(null);
   const [showStudyFormModal, setShowStudyFormModal] = useState<boolean>(false);
+  const [showExpReviewModal, setShowExpReviewModal] = useState(true);
 
   const { data: myApplicationStatus, isLoading: isMyApplicationStatusLoading } =
     useGetGroupStudyMyStatus({
@@ -260,6 +269,16 @@ export default function PremiumStudyDetailPage({
         groupStudyId={groupStudyId}
         classification="PREMIUM_STUDY"
         onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
+      />
+      {/* 프로토타이핑: 상세 진입 시 후기 모달 자동 표시 */}
+      <StudyExperienceReviewModal
+        open={showExpReviewModal}
+        onOpenChange={setShowExpReviewModal}
+        studyType="PREMIUM_STUDY"
+        studyId={groupStudyId}
+        studyTitle={studyDetail?.detailInfo.title}
+        studyStartDate={studyDetail?.basicInfo.startDate}
+        studyEndDate={studyDetail?.basicInfo.endDate}
       />
 
       {/* 플로팅 정보 바 */}

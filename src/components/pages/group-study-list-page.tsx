@@ -3,6 +3,7 @@
 import { ArrowUpDown } from 'lucide-react';
 import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import { useState } from 'react';
 import { GetGroupStudiesSortEnum } from '@/api/openapi/api/group-study-management-api';
 import PageContainer from '@/components/common/layout/page-container';
 import Button from '@/components/common/ui/button';
@@ -26,6 +27,14 @@ const GroupStudyFormModal = dynamic(
   { ssr: false },
 );
 
+const StudyExperienceReviewModal = dynamic(
+  () =>
+    import(
+      '@/components/common/modals/study-experience-review-modal'
+    ),
+  { ssr: false },
+);
+
 // Carousel이 클라이언트 전용이므로 dynamic import로 로드
 const Banner = dynamic(() => import('@/components/home/banner'), {
   ssr: false,
@@ -33,6 +42,7 @@ const Banner = dynamic(() => import('@/components/home/banner'), {
 
 export default function GroupStudyListPage() {
   const { isAuthReady } = useAuthReady();
+  const [reviewModalOpen, setReviewModalOpen] = useState(true);
 
   const {
     searchQuery,
@@ -62,6 +72,14 @@ export default function GroupStudyListPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-400 py-600">
+      {/* 후기 작성 모달 (프로토타이핑: 목록 진입 시 자동 표시) */}
+      <StudyExperienceReviewModal
+        open={reviewModalOpen}
+        onOpenChange={setReviewModalOpen}
+        studyType="GROUP_STUDY"
+        studyId={1}
+      />
+
       {/* 배너 */}
       <div className="mb-600">
         <Banner />

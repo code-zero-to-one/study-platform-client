@@ -25,7 +25,7 @@ export default function MyPageMobileNav() {
           onClick={() => router.push(item.href)}
           className={cn(
             'font-designer-14m shrink-0 px-300 py-200 text-text-subtle',
-            pathname === item.href &&
+            (pathname === item.href || pathname.startsWith(item.href + '/')) &&
               'border-b-2 border-text-default text-text-default',
           )}
         >

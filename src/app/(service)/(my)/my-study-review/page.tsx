@@ -3,8 +3,10 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import KeywordReview from '@/components/common/cards/keyword-review';
 import UserAvatar from '@/components/common/ui/avatar';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
   useMyNegativeKeywordsQuery,
   useMyReviewsInfinityQuery,
@@ -18,7 +20,72 @@ const MoreKeywordReviewModal = dynamic(
   { ssr: false },
 );
 
+const GroupStudyReviewList = dynamic(
+  () =>
+    import(
+      '@/components/my-page/study-review/group-study-review-list'
+    ),
+  { ssr: false },
+);
+
+const PremiumStudyReviewList = dynamic(
+  () =>
+    import(
+      '@/components/my-page/study-review/premium-study-review-list'
+    ),
+  { ssr: false },
+);
+
+type ReviewTab = 'one-on-one' | 'group' | 'mentor';
+
+const TABS: { key: ReviewTab; label: string }[] = [
+  { key: 'one-on-one', label: '1:1 스터디' },
+  { key: 'group', label: '그룹스터디' },
+  { key: 'mentor', label: '멘토스터디' },
+];
+
 export default function MyStudyReview() {
+  const searchParams = useSearchParams();
+  const tabFromUrl = searchParams.get('tab') as ReviewTab | null;
+  const [activeTab, setActiveTab] = useState<ReviewTab>(
+    tabFromUrl && TABS.some((t) => t.key === tabFromUrl)
+      ? tabFromUrl
+      : 'one-on-one',
+  );
+
+  return (
+    <>
+      <h1 className="font-designer-24b text-text-strong mb-300">
+        스터디 후기
+      </h1>
+
+      {/* 탭 네비게이션 */}
+      <div className="mb-400 flex gap-0 border-b border-border-subtle">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={cn(
+              'font-designer-15m px-200 py-150 cursor-pointer transition-colors',
+              activeTab === tab.key
+                ? 'border-b-2 border-text-strong text-text-strong font-designer-15b'
+                : 'text-text-subtle hover:text-text-default',
+            )}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 탭 콘텐츠 */}
+      {activeTab === 'one-on-one' && <OneOnOneReviewContent />}
+      {activeTab === 'group' && <GroupStudyReviewList />}
+      {activeTab === 'mentor' && <PremiumStudyReviewList />}
+    </>
+  );
+}
+
+function OneOnOneReviewContent() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     pageSize: 5,
   });
@@ -187,7 +254,7 @@ function Review({ data }: { data: MyReviewItem }) {
         window.getComputedStyle(contentRef.current).lineHeight,
         10,
       );
-      const maxHeight = lineHeight * 3; // 3줄 기준
+      const maxHeight = lineHeight * 3;
       setShowButton(contentRef.current.scrollHeight > maxHeight);
     }
   }, [data.content]);

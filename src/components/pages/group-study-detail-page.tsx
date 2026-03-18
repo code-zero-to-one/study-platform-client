@@ -47,6 +47,14 @@ const GroupStudyReviewModal = dynamic(
   { ssr: false },
 );
 
+const StudyExperienceReviewModal = dynamic(
+  () =>
+    import(
+      '@/components/common/modals/study-experience-review-modal'
+    ),
+  { ssr: false },
+);
+
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
 const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
@@ -82,6 +90,7 @@ export default function StudyDetailPage({
   const showToast = useToastStore((state) => state.showToast);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showExpReviewModal, setShowExpReviewModal] = useState(true);
   const hasAutoOpenedReviewModal = useRef(false);
 
   const { data: studyDetail, isLoading } =
@@ -302,6 +311,16 @@ export default function StudyDetailPage({
         open={showReviewModal}
         onOpenChange={setShowReviewModal}
         groupStudyId={groupStudyId}
+      />
+      {/* 프로토타이핑: 첫번째 스터디 상세 진입 시 후기 모달 자동 표시 */}
+      <StudyExperienceReviewModal
+        open={showExpReviewModal}
+        onOpenChange={setShowExpReviewModal}
+        studyType="GROUP_STUDY"
+        studyId={groupStudyId}
+        studyTitle={studyDetail?.detailInfo.title}
+        studyStartDate={studyDetail?.basicInfo.startDate}
+        studyEndDate={studyDetail?.basicInfo.endDate}
       />
       {/* 플로팅 정보 바 */}
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
