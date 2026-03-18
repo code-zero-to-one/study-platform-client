@@ -4,6 +4,7 @@ import type {
   GroupStudyExperienceReviewDetail,
   GroupStudyExperienceReviewPageResponse,
   GroupStudyExperienceReviewRequest,
+  GroupStudyReviewStatistics,
   SelectableReviewItemListResponse,
 } from '@/types/api/group-study-review.types';
 
@@ -12,6 +13,8 @@ export type {
   GroupStudyExperienceReviewListItem,
   GroupStudyExperienceReviewPageResponse,
   GroupStudyExperienceReviewRequest,
+  GroupStudyReviewStatistics,
+  GroupStudyReviewStatisticsItem,
   ReviewSatisfaction,
   SelectableReviewItem,
   SelectableReviewItemListResponse,
