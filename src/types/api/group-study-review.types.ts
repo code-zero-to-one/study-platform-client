@@ -16,10 +16,26 @@ export interface GroupStudyExperienceReviewListItem {
   reviewId?: number;
   writerId?: number;
   writerName?: string;
+  writerProfileImageUrl?: string;
   satisfaction?: ReviewSatisfaction;
   content?: string;
   rating?: number;
   createdAt?: string;
+}
+
+export interface GroupStudyReviewStatisticsItem {
+  id?: number;
+  label?: string;
+  count?: number;
+}
+
+export interface GroupStudyReviewStatistics {
+  goodCount?: number;
+  disappointedCount?: number;
+  totalCount?: number;
+  averageRating?: number;
+  goodItems?: GroupStudyReviewStatisticsItem[];
+  disappointedItems?: GroupStudyReviewStatisticsItem[];
 }
 
 export interface GroupStudyExperienceReviewDetail {

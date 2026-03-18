@@ -126,6 +126,8 @@ export default async function Landing() {
               width={1000}
               height={590}
               priority
+              fetchPriority="high"
+              sizes="(max-width: 1000px) 100vw, 1000px"
             />
             {/* 배너 사진 하단 그라데이션 */}
             <div className="pointer-events-none absolute bottom-0 left-0 h-[120px] w-full bg-gradient-to-t from-background-default to-transparent" />

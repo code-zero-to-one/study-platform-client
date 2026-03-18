@@ -12,12 +12,12 @@ export type {
   GroupStudyExperienceReviewListItem,
   GroupStudyExperienceReviewPageResponse,
   GroupStudyExperienceReviewRequest,
+  GroupStudyReviewStatistics,
+  GroupStudyReviewStatisticsItem,
   ReviewSatisfaction,
   SelectableReviewItem,
   SelectableReviewItemListResponse,
 } from '@/types/api/group-study-review.types';
-
-// ─── queryKey 팩토리 ──────────────────────────────────────────────────────────
 
 export const groupStudyReviewQueryKeys = {
   all: ['groupStudyReview'] as const,
@@ -33,12 +33,18 @@ export const groupStudyReviewQueryKeys = {
     [...groupStudyReviewQueryKeys.all, 'written', groupStudyId] as const,
 };
 
-// ─── Query Hooks ──────────────────────────────────────────────────────────────
+export const groupStudyReviewDetailQueryOptions = (reviewId: number) => ({
+  queryKey: groupStudyReviewQueryKeys.detail(reviewId),
+  queryFn: async () => {
+    const { data } = await axiosInstance.get<{
+      content: GroupStudyExperienceReviewDetail;
+    }>(`/group-studies/reviews/${reviewId}`);
 
-/**
- * 만족도별 선택형 평가 항목 전체 조회
- * GET /api/v1/group-studies/reviews/selectable-items
- */
+    return data.content;
+  },
+  staleTime: 60_000,
+});
+
 export const useGetGroupStudyReviewSelectableItems = () => {
   return useQuery({
     queryKey: groupStudyReviewQueryKeys.selectableItems(),
@@ -53,10 +59,6 @@ export const useGetGroupStudyReviewSelectableItems = () => {
   });
 };
 
-/**
- * 그룹스터디 경험 후기 목록 조회 (페이지네이션)
- * GET /api/v1/group-studies/{groupStudyId}/reviews
- */
 export const useGetGroupStudyReviews = ({
   groupStudyId,
   page = 1,
@@ -82,10 +84,6 @@ export const useGetGroupStudyReviews = ({
   });
 };
 
-/**
- * 그룹스터디 경험 후기 상세 조회
- * GET /api/v1/group-studies/reviews/{reviewId}
- */
 export const useGetGroupStudyReviewDetail = (reviewId: number) => {
   return useQuery({
     queryKey: groupStudyReviewQueryKeys.detail(reviewId),
@@ -101,10 +99,6 @@ export const useGetGroupStudyReviewDetail = (reviewId: number) => {
   });
 };
 
-/**
- * 현재 사용자가 해당 그룹스터디에 후기를 작성했는지 여부 확인
- * GET /api/v1/group-studies/{groupStudyId}/reviews/written
- */
 export const useGetGroupStudyReviewWritten = (
   groupStudyId: number,
   options?: { enabled?: boolean },

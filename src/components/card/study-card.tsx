@@ -17,7 +17,7 @@ import type { ExperienceLevel, StudyType } from '@/types/api/group-study.types';
 
 interface StudyCardProps {
   study: GroupStudyListItemDto;
-  href: string;
+  href?: string;
   onClick?: () => void;
   viewCount?: number;
 }
