@@ -12,8 +12,8 @@ import {
 } from '@/hooks/queries/use-review-query';
 import type { MyReviewItem } from '@/types/api/review.types';
 import { formatKoreaRelativeTime } from '@/utils/time';
-import { useExpandableContent } from '../_components/use-expandable-content';
 import StudyReviewTabNav from '../_components/study-review-tab-nav';
+import { useExpandableContent } from '../_components/use-expandable-content';
 
 const MoreKeywordReviewModal = dynamic(
   () => import('@/components/common/modals/more-keyword-review-modal'),

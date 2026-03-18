@@ -40,10 +40,15 @@ function StarRating({ rating }: { rating: number }) {
 export default function SatisfactionSection({
   statistics,
 }: SatisfactionSectionProps) {
-  const { goodCount = 0, disappointedCount = 0, totalCount = 0, averageRating = 0 } =
-    statistics;
+  const {
+    goodCount = 0,
+    disappointedCount = 0,
+    totalCount = 0,
+    averageRating = 0,
+  } = statistics;
 
-  const goodPercent = totalCount > 0 ? Math.round((goodCount / totalCount) * 100) : 0;
+  const goodPercent =
+    totalCount > 0 ? Math.round((goodCount / totalCount) * 100) : 0;
   const disappointedPercent =
     totalCount > 0 ? Math.round((disappointedCount / totalCount) * 100) : 0;
 
@@ -75,10 +80,7 @@ export default function SatisfactionSection({
                 {disappointedPercent}% ({disappointedCount}/{totalCount})
               </span>
             </div>
-            <Progress
-              value={disappointedPercent}
-              indicatorColor="bg-red-400"
-            />
+            <Progress value={disappointedPercent} indicatorColor="bg-red-400" />
           </div>
         </div>
       </div>

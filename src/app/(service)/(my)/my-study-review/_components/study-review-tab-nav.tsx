@@ -7,15 +7,24 @@ export default function StudyReviewTabNav() {
   const pathname = usePathname();
   const router = useRouter();
 
+  const tabClassName = 'font-designer-16m px-400 py-200 text-text-subtle';
+  const pathClassName =
+    'font-designer-16b border-b-2 border-text-default text-text-default';
+
+  const checkPathName = (path: string) => {
+    if (pathname.startsWith(path)) {
+      return true;
+    }
+  };
+
   return (
     <nav className="flex border-b border-border-subtle">
       <button
         type="button"
         onClick={() => router.push('/my-study-review/one-to-one')}
         className={cn(
-          'font-designer-16m px-400 py-200 text-text-subtle',
-          pathname.startsWith('/my-study-review/one-to-one') &&
-            'font-designer-16b border-b-2 border-text-default text-text-default',
+          tabClassName,
+          checkPathName('/my-study-review/one-to-one') && pathClassName,
         )}
       >
         1:1 스터디
@@ -24,9 +33,8 @@ export default function StudyReviewTabNav() {
         type="button"
         onClick={() => router.push('/my-study-review/group')}
         className={cn(
-          'font-designer-16m px-400 py-200 text-text-subtle',
-          pathname.startsWith('/my-study-review/group') &&
-            'font-designer-16b border-b-2 border-text-default text-text-default',
+          tabClassName,
+          checkPathName('/my-study-review/group') && pathClassName,
         )}
       >
         그룹 스터디
@@ -35,9 +43,8 @@ export default function StudyReviewTabNav() {
         type="button"
         onClick={() => router.push('/my-study-review/mentor')}
         className={cn(
-          'font-designer-16m px-400 py-200 text-text-subtle',
-          pathname.startsWith('/my-study-review/mentor') &&
-            'font-designer-16b border-b-2 border-text-default text-text-default',
+          tabClassName,
+          checkPathName('/my-study-review/mentor') && pathClassName,
         )}
       >
         멘토 스터디

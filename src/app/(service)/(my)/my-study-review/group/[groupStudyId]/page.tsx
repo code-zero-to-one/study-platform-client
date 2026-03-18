@@ -9,8 +9,8 @@ import {
   useGetGroupStudyReviews,
   type GroupStudyExperienceReviewDetail,
 } from '@/hooks/queries/group-study-review-api';
-import GroupReviewCard from './_components/group-review-card';
 import EvaluationSection from './_components/evaluation-section';
+import GroupReviewCard from './_components/group-review-card';
 import SatisfactionSection from './_components/satisfaction-section';
 
 export default function GroupStudyReviewDetailPage() {
@@ -30,12 +30,13 @@ export default function GroupStudyReviewDetailPage() {
   const totalElements = reviewsData?.totalElements ?? 0;
 
   const detailQueries = useQueries({
-    queries: reviews.map(review => ({
+    queries: reviews.map((review) => ({
       queryKey: groupStudyReviewQueryKeys.detail(review.reviewId!),
       queryFn: async () => {
         const { data } = await axiosInstance.get<{
           content: GroupStudyExperienceReviewDetail;
         }>(`/group-studies/reviews/${review.reviewId}`);
+
         return data.content;
       },
       enabled: !!review.reviewId,
@@ -44,28 +45,31 @@ export default function GroupStudyReviewDetailPage() {
   });
 
   const reviewDetails = detailQueries
-    .map(q => q.data)
+    .map((q) => q.data)
     .filter((d): d is GroupStudyExperienceReviewDetail => !!d);
 
-  const goodCount = reviews.filter(r => r.satisfaction === 'GOOD').length;
+  const goodCount = reviews.filter((r) => r.satisfaction === 'GOOD').length;
   const disappointedCount = reviews.filter(
-    r => r.satisfaction === 'DISAPPOINTED',
+    (r) => r.satisfaction === 'DISAPPOINTED',
   ).length;
   const totalCount = reviews.length;
-  const ratings = reviews.filter(r => r.rating).map(r => r.rating!);
+  const ratings = reviews.filter((r) => r.rating).map((r) => r.rating!);
   const averageRating =
     ratings.length > 0
       ? ratings.reduce((a, b) => a + b, 0) / ratings.length
       : 0;
 
-  const goodItemsMap = new Map<number, { id: number; label: string; count: number }>();
+  const goodItemsMap = new Map<
+    number,
+    { id: number; label: string; count: number }
+  >();
   const disappointedItemsMap = new Map<
     number,
     { id: number; label: string; count: number }
   >();
 
-  reviewDetails.forEach(detail => {
-    detail.selectableReviewItems?.forEach(item => {
+  reviewDetails.forEach((detail) => {
+    detail.selectableReviewItems?.forEach((item) => {
       if (!item.id) return;
       const map =
         item.satisfactionType === 'GOOD' ? goodItemsMap : disappointedItemsMap;
@@ -82,7 +86,9 @@ export default function GroupStudyReviewDetailPage() {
           disappointedCount,
           totalCount,
           averageRating,
-          goodItems: [...goodItemsMap.values()].sort((a, b) => b.count - a.count),
+          goodItems: [...goodItemsMap.values()].sort(
+            (a, b) => b.count - a.count,
+          ),
           disappointedItems: [...disappointedItemsMap.values()].sort(
             (a, b) => b.count - a.count,
           ),

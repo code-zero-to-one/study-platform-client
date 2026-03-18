@@ -23,7 +23,9 @@ function ItemList({ items }: { items: GroupStudyReviewStatisticsItem[] }) {
           <span className="font-designer-13r text-text-default">
             {item.label}
           </span>
-          <span className="font-designer-13r text-text-subtle">{item.count}</span>
+          <span className="font-designer-13r text-text-subtle">
+            {item.count}
+          </span>
         </div>
       ))}
 
@@ -49,7 +51,10 @@ export default function EvaluationSection({
 }: EvaluationSectionProps) {
   const goodItems = statistics.goodItems ?? [];
   const disappointedItems = statistics.disappointedItems ?? [];
-  const goodTotalCount = goodItems.reduce((sum, item) => sum + (item.count ?? 0), 0);
+  const goodTotalCount = goodItems.reduce(
+    (sum, item) => sum + (item.count ?? 0),
+    0,
+  );
 
   return (
     <div className="flex flex-col gap-200">
@@ -65,9 +70,7 @@ export default function EvaluationSection({
       <div className="flex gap-200">
         {/* 좋았던 점 */}
         <div className="bg-background-surface-default flex flex-1 flex-col gap-200 rounded-200 p-250">
-          <span className="font-designer-14b text-text-default">
-            좋았던 점
-          </span>
+          <span className="font-designer-14b text-text-default">좋았던 점</span>
           {goodItems.length > 0 ? (
             <ItemList items={goodItems} />
           ) : (
