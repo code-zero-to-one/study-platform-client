@@ -1,46 +1,12 @@
-import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
 import HeaderNav from '@/components/common/layout/header-nav';
-import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown';
 import MobileMenuDrawer from '@/components/common/layout/mobile-menu-drawer';
-import Button from '@/components/common/ui/button';
+import PrototypeLoginToggle from '@/components/common/layout/prototype-login-toggle';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
-import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
-import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 
-const LoginModal = dynamic(
-  () => import('@/components/common/modals/login-modal'),
-);
-
-const NotificationDropdown = dynamic(
-  () => import('@/components/common/modals/notification-dropdown'),
-);
-
-export default async function Header() {
-  const { sessionState, authenticatedMemberId: memberId } =
-    await readServerAuthSession();
-  const isLoggedIn = isAuthenticatedMemberSessionState(sessionState);
-
-  let userProfile = null;
-
-  if (isLoggedIn && memberId) {
-    try {
-      userProfile = await tryGetUserProfileInServer(memberId);
-    } catch (error) {
-      console.error(
-        `[Header] Failed to fetch user profile for memberId=${memberId}`,
-        error,
-      );
-    }
-  }
-
-  const userInfo = userProfile?.memberProfile;
-  const userImg = userProfile
-    ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl
-    : undefined;
-
+// [프로토타입 브랜치] 서버 사이드 인증 없이 PrototypeLoginToggle로 로그인 상태를 클라이언트에서 제어함.
+export default function Header() {
   return (
     <header className="bg-white py-[11px] mix-blend-multiply">
       <div className="mx-auto flex w-full max-w-[1496px] items-center justify-between px-600">
@@ -61,33 +27,20 @@ export default async function Header() {
 
         {/* 데스크톱 네비게이션 */}
         <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-between">
-          <HeaderNav isLoggedIn={isLoggedIn} />
+          <HeaderNav isLoggedIn={true} />
 
-          {isLoggedIn && (
-            <div className="flex items-center gap-200">
-              <StudyMatchingToggle />
-              <NotificationDropdown />
-            </div>
-          )}
+          <div className="flex items-center gap-200">
+            <StudyMatchingToggle />
+          </div>
 
           <div className="ml-150">
-            {isLoggedIn ? (
-              <HeaderUserDropdown userImg={userImg} />
-            ) : (
-              <LoginModal
-                openTrigger={
-                  <Button size="small" className="font-designer-14m">
-                    로그인 / 회원가입
-                  </Button>
-                }
-              />
-            )}
+            <PrototypeLoginToggle />
           </div>
         </div>
 
         {/* 모바일 햄버거 메뉴 */}
         <div className="lg:hidden">
-          <MobileMenuDrawer isLoggedIn={isLoggedIn} />
+          <MobileMenuDrawer isLoggedIn={true} />
         </div>
       </div>
     </header>

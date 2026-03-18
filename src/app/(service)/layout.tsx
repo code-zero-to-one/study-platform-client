@@ -10,9 +10,8 @@ import SentryInit from '@/components/common/sentry-init';
 import FloatingInquiryButton from '@/components/common/ui/floating-inquiry-button';
 import GlobalToast from '@/components/common/ui/global-toast';
 import type { AuthHydrationSession } from '@/features/auth/model/auth-hydration-context';
-import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
+import { PROTOTYPE_AUTH_SESSION } from '@/mocks/prototype-mock';
 import MainProvider from '@/providers';
-import { AUTH_SESSION_STATES } from '@/types/auth/domain';
 
 export const metadata: Metadata = {
   title: 'ZERO-ONE',
@@ -25,22 +24,12 @@ export const metadata: Metadata = {
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
-export default async function ServiceLayout({
+export default function ServiceLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialSession = await readServerAuthSession();
-  const initialHydrationSession: AuthHydrationSession = {
-    accessToken:
-      initialSession.sessionState === AUTH_SESSION_STATES.ANONYMOUS
-        ? undefined
-        : initialSession.accessToken,
-    memberId:
-      initialSession.sessionState === AUTH_SESSION_STATES.AUTHENTICATED_MEMBER
-        ? initialSession.memberId
-        : undefined,
-  };
+  const initialHydrationSession: AuthHydrationSession = PROTOTYPE_AUTH_SESSION;
 
   return (
     <>

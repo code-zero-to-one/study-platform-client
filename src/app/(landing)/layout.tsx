@@ -7,9 +7,8 @@ import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import Header from '@/components/common/layout/home-header';
 import GlobalToast from '@/components/common/ui/global-toast';
 import type { AuthHydrationSession } from '@/features/auth/model/auth-hydration-context';
-import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
+import { PROTOTYPE_AUTH_SESSION } from '@/mocks/prototype-mock';
 import MainProvider from '@/providers';
-import { AUTH_SESSION_STATES } from '@/types/auth/domain';
 import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
 
 export const metadata: Metadata = {
@@ -51,22 +50,12 @@ export const metadata: Metadata = {
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_PROJECT_ID;
 
-export default async function LandingPageLayout({
+export default function LandingPageLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const initialSession = await readServerAuthSession();
-  const initialHydrationSession: AuthHydrationSession = {
-    accessToken:
-      initialSession.sessionState === AUTH_SESSION_STATES.ANONYMOUS
-        ? undefined
-        : initialSession.accessToken,
-    memberId:
-      initialSession.sessionState === AUTH_SESSION_STATES.AUTHENTICATED_MEMBER
-        ? initialSession.memberId
-        : undefined,
-  };
+  const initialHydrationSession: AuthHydrationSession = PROTOTYPE_AUTH_SESSION;
   const organizationSchema = getOrganizationSchema();
   const websiteSchema = getWebsiteSchema();
 

@@ -107,6 +107,18 @@ const decodeClientToken = (
     return undefined;
   }
 
+  // [프로토타입 브랜치] 목업 토큰은 디코딩 우회
+  if (accessToken === 'prototype-mock-token') {
+    return {
+      roleIds: ['ROLE_MEMBER'],
+      authVendor: AUTH_VENDORS.KAKAO,
+      memberId: 1,
+      sub: '1',
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 86400,
+    };
+  }
+
   try {
     const decoded = decodeJwt(accessToken);
 
