@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
 
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
@@ -9,12 +9,11 @@ import Checkbox from '@/components/common/ui/checkbox';
 import List from '@/components/common/ui/list';
 import { Modal } from '@/components/common/ui/modal';
 import StarRatingInput from '@/components/common/ui/star-rating-input';
-import { useToastStore } from '@/stores/use-toast-store';
 import {
-  POSITIVE_ITEMS,
-  NEGATIVE_ITEMS,
   MOCK_GROUP_STUDIES_FOR_REVIEW,
   MOCK_PREMIUM_STUDIES_FOR_REVIEW,
+  NEGATIVE_ITEMS,
+  POSITIVE_ITEMS,
 } from '@/mocks/study-review-mock-data';
 
 type Satisfaction = 'GOOD' | 'DISAPPOINTED';
@@ -45,6 +44,7 @@ function getStudyInfo(
       ? MOCK_GROUP_STUDIES_FOR_REVIEW
       : MOCK_PREMIUM_STUDIES_FOR_REVIEW;
   const study = list.find((s) => s.studyId === studyId);
+
   return {
     title: study?.title ?? '스터디',
     startDate: study?.startDate ?? '',
@@ -444,46 +444,52 @@ function ReviewSuccessModal({
 }
 
 function fireConfetti() {
-  import('canvas-confetti').then((module) => {
-    const confetti = module.default;
+  import('canvas-confetti')
+    .then((module) => {
+      const confetti = module.default;
 
-    const count = 300;
-    const defaults = { origin: { y: 0.5 }, zIndex: 9999 };
+      const count = 300;
+      const defaults = { origin: { y: 0.5 }, zIndex: 9999 };
 
-    function fire(particleRatio: number, opts: Record<string, unknown>) {
-      confetti({
-        ...defaults,
-        ...opts,
-        particleCount: Math.floor(count * particleRatio),
+      function fire(particleRatio: number, opts: Record<string, unknown>) {
+        confetti({
+          ...defaults,
+          ...opts,
+          particleCount: Math.floor(count * particleRatio),
+        }).catch(() => {
+          // Silently ignore confetti errors
+        });
+      }
+
+      fire(0.25, {
+        spread: 26,
+        startVelocity: 55,
+        colors: ['#FF5C5C', '#FF9900', '#FFD700'],
       });
-    }
-
-    fire(0.25, {
-      spread: 26,
-      startVelocity: 55,
-      colors: ['#FF5C5C', '#FF9900', '#FFD700'],
+      fire(0.2, {
+        spread: 60,
+        colors: ['#00C2FF', '#9B51E0', '#FF5C5C'],
+      });
+      fire(0.35, {
+        spread: 100,
+        decay: 0.91,
+        scalar: 0.8,
+        colors: ['#FF9900', '#00C2FF', '#4CAF50'],
+      });
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 25,
+        decay: 0.92,
+        scalar: 1.2,
+        colors: ['#FFD700', '#9B51E0'],
+      });
+      fire(0.1, {
+        spread: 120,
+        startVelocity: 45,
+        colors: ['#FF5C5C', '#00C2FF'],
+      });
+    })
+    .catch(() => {
+      // Silently ignore confetti import errors
     });
-    fire(0.2, {
-      spread: 60,
-      colors: ['#00C2FF', '#9B51E0', '#FF5C5C'],
-    });
-    fire(0.35, {
-      spread: 100,
-      decay: 0.91,
-      scalar: 0.8,
-      colors: ['#FF9900', '#00C2FF', '#4CAF50'],
-    });
-    fire(0.1, {
-      spread: 120,
-      startVelocity: 25,
-      decay: 0.92,
-      scalar: 1.2,
-      colors: ['#FFD700', '#9B51E0'],
-    });
-    fire(0.1, {
-      spread: 120,
-      startVelocity: 45,
-      colors: ['#FF5C5C', '#00C2FF'],
-    });
-  });
 }

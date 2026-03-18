@@ -1,13 +1,13 @@
 'use client';
 
 import { Dot, Users } from 'lucide-react';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useToastStore } from '@/stores/use-toast-store';
+
 import {
   MOCK_GROUP_STUDIES_FOR_REVIEW,
   type MockStudyForReviewList,
 } from '@/mocks/study-review-mock-data';
+import { useToastStore } from '@/stores/use-toast-store';
 
 export default function GroupStudyReviewList() {
   const router = useRouter();

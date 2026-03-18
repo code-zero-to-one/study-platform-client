@@ -2,9 +2,10 @@
 
 import { ChevronLeft, Star } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import UserAvatar from '@/components/common/ui/avatar';
+
 import KeywordReview from '@/components/common/cards/keyword-review';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import UserAvatar from '@/components/common/ui/avatar';
 import type { MockReviewSummary } from '@/mocks/study-review-mock-data';
 
 interface StudyReviewDetailProps {
@@ -91,27 +92,28 @@ export default function StudyReviewDetail({
           </span>
           <div className="mt-50 flex items-center gap-25">
             {Array.from({ length: 5 }).map((_, i) => {
-              const fill =
-                data.averageRating >= i + 1
-                  ? 'full'
-                  : data.averageRating >= i + 0.5
-                    ? 'half'
-                    : 'empty';
-              return (
-                <div key={i} className="relative">
-                  <Star className="h-250 w-250 shrink-0 fill-current text-icon-disabled" />
-                  {fill !== 'empty' && (
-                    <div
-                      className={cn(
-                        'absolute inset-0 overflow-hidden',
-                        fill === 'half' ? 'w-1/2' : 'w-full',
-                      )}
-                    >
-                      <Star className="h-250 w-250 shrink-0 fill-current text-text-warning" />
-                    </div>
-                  )}
-                </div>
-              );
+            const fill =
+              data.averageRating >= i + 1
+                ? 'full'
+                : data.averageRating >= i + 0.5
+                  ? 'half'
+                  : 'empty';
+
+            return (
+              <div key={i} className="relative">
+                <Star className="h-250 w-250 shrink-0 fill-current text-icon-disabled" />
+                {fill !== 'empty' && (
+                  <div
+                    className={cn(
+                      'absolute inset-0 overflow-hidden',
+                      fill === 'half' ? 'w-1/2' : 'w-full',
+                    )}
+                  >
+                    <Star className="h-250 w-250 shrink-0 fill-current text-text-warning" />
+                  </div>
+                )}
+              </div>
+            );
             })}
           </div>
           <span className="font-designer-13r text-text-subtle mt-50">
