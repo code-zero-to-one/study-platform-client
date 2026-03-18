@@ -80,7 +80,7 @@ export default function NotificationPage() {
 
       {/* Filters */}
       <div className="flex flex-col gap-200 sm:flex-row sm:items-center sm:justify-between">
-        <div className="w-[140px]">
+        <div className="w-140">
           <SingleDropdown
             size="s"
             options={categoryOptions}

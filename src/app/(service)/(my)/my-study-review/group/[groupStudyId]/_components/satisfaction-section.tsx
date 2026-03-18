@@ -1,6 +1,7 @@
 'use client';
 
 import { Star } from 'lucide-react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Progress from '@/components/common/ui/progress';
 import type { GroupStudyReviewStatistics } from '@/hooks/queries/group-study-review-api';
 
@@ -8,10 +9,12 @@ interface SatisfactionSectionProps {
   statistics: GroupStudyReviewStatistics;
 }
 
+const STAR_COUNT = 5;
+
 function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-50">
-      {Array.from({ length: 5 }, (_, i) => {
+      {Array.from({ length: STAR_COUNT }, (_, i) => {
         const filled = i < Math.floor(rating);
         const half = !filled && i < rating;
 
@@ -20,13 +23,14 @@ function StarRating({ rating }: { rating: number }) {
             <Star size={16} className="text-background-accent-gray-subtle" />
             {(filled || half) && (
               <div
-                className="absolute inset-0 overflow-hidden"
-                style={{ width: filled ? '100%' : '50%' }}
+                className={cn(
+                  'absolute inset-0 overflow-hidden',
+                  filled ? 'w-full' : 'w-1/2',
+                )}
               >
                 <Star
                   size={16}
-                  className="fill-yellow-400 text-yellow-400"
-                  style={{ minWidth: 16 }}
+                  className="fill-yellow-400 text-yellow-400 min-w-200"
                 />
               </div>
             )}
@@ -86,7 +90,7 @@ export default function SatisfactionSection({
       </div>
 
       {/* 평균 별점 카드 */}
-      <div className="bg-background-surface-default flex w-[140px] shrink-0 flex-col items-center justify-center gap-100 rounded-200 p-250">
+      <div className="bg-background-surface-default flex w-140 shrink-0 flex-col items-center justify-center gap-100 rounded-200 p-250">
         <span className="font-designer-14b text-text-default">평균 별점</span>
         <span className="font-designer-24b text-text-default">
           {averageRating.toFixed(2)}

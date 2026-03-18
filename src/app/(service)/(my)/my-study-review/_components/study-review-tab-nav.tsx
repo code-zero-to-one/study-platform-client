@@ -11,11 +11,7 @@ export default function StudyReviewTabNav() {
   const pathClassName =
     'font-designer-16b border-b-2 border-text-default text-text-default';
 
-  const checkPathName = (path: string) => {
-    if (pathname.startsWith(path)) {
-      return true;
-    }
-  };
+  const isActive = (path: string) => pathname.startsWith(path);
 
   return (
     <nav className="flex border-b border-border-subtle">
@@ -24,7 +20,7 @@ export default function StudyReviewTabNav() {
         onClick={() => router.push('/my-study-review/one-to-one')}
         className={cn(
           tabClassName,
-          checkPathName('/my-study-review/one-to-one') && pathClassName,
+          isActive('/my-study-review/one-to-one') && pathClassName,
         )}
       >
         1:1 스터디
@@ -34,7 +30,7 @@ export default function StudyReviewTabNav() {
         onClick={() => router.push('/my-study-review/group')}
         className={cn(
           tabClassName,
-          checkPathName('/my-study-review/group') && pathClassName,
+          isActive('/my-study-review/group') && pathClassName,
         )}
       >
         그룹 스터디
@@ -44,7 +40,7 @@ export default function StudyReviewTabNav() {
         onClick={() => router.push('/my-study-review/mentor')}
         className={cn(
           tabClassName,
-          checkPathName('/my-study-review/mentor') && pathClassName,
+          isActive('/my-study-review/mentor') && pathClassName,
         )}
       >
         멘토 스터디

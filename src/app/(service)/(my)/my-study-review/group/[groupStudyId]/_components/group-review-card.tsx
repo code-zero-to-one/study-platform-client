@@ -1,5 +1,6 @@
 'use client';
 
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import type { GroupStudyExperienceReviewListItem } from '@/hooks/queries/group-study-review-api';
 import { formatDateTimeDot } from '@/utils/time';
@@ -34,9 +35,10 @@ export default function GroupReviewCard({
         <div>
           <p
             ref={contentRef}
-            className={`font-designer-15r text-text-default ${
-              expanded ? 'line-clamp-none' : 'line-clamp-3'
-            }`}
+            className={cn(
+              'font-designer-15r text-text-default',
+              expanded ? 'line-clamp-none' : 'line-clamp-3',
+            )}
           >
             {review.content}
           </p>

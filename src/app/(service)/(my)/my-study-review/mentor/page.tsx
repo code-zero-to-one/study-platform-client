@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import KeywordReview from '@/components/common/cards/keyword-review';
 import UserAvatar from '@/components/common/ui/avatar';
 import {
@@ -63,7 +64,7 @@ export default function MentorReviewPage() {
         </div>
 
         <div className="mb-400 grid grid-cols-2 gap-300">
-          <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
+          <div className="rounded-100 border-border-subtle min-h-280 border p-200">
             <div className="mb-200 flex justify-between">
               <h3 className="font-designer-16b text-text-default">좋았던 점</h3>
 
@@ -87,7 +88,7 @@ export default function MentorReviewPage() {
             </ul>
           </div>
 
-          <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
+          <div className="rounded-100 border-border-subtle min-h-280 border p-200">
             <div className="mb-200 flex justify-between">
               <h3 className="font-designer-16b text-text-default">
                 개선이 필요한 점
@@ -131,7 +132,7 @@ export default function MentorReviewPage() {
           {myReviews.length > 0 ? (
             myReviews.map((review) => <Review key={review.id} data={review} />)
           ) : (
-            <div className="font-designer-14r text-text-subtle flex h-[200px] items-center justify-center text-center">
+            <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
               아직까지 받은 후기가 없습니다.
             </div>
           )}
@@ -208,9 +209,10 @@ function Review({ data }: { data: MyReviewItem }) {
       <div>
         <p
           ref={contentRef}
-          className={`font-designer-15r text-text-default ${
-            expanded ? 'line-clamp-none' : 'line-clamp-3'
-          }`}
+          className={cn(
+            'font-designer-15r text-text-default',
+            expanded ? 'line-clamp-none' : 'line-clamp-3',
+          )}
         >
           {data.content}
         </p>
