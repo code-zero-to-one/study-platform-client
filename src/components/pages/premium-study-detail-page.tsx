@@ -80,11 +80,8 @@ export default function PremiumStudyDetailPage({
   const tabParam = searchParams.get('tab') ?? undefined;
   const requestedTab = isStudyTabValue(tabParam) ? tabParam : 'intro';
 
-  const {
-    data: studyDetail,
-    isLoading,
-    refetch: refetchStudyDetail,
-  } = useGroupStudyDetailQuery(groupStudyId);
+  const { data: studyDetail, isLoading } =
+    useGroupStudyDetailQuery(groupStudyId);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
   const leader = studyDetail?.basicInfo.leader;

@@ -83,42 +83,51 @@ export default function StudyReviewDetail({
         </div>
 
         {/* 평균 별점 */}
-        <div className="border-border-subtle flex w-[200px] flex-col items-center justify-center rounded-100 border p-300">
-          <h3 className="font-designer-16b text-text-default mb-100">
+        <div className="border-border-subtle flex-1 rounded-100 border p-300">
+          <h3 className="font-designer-16b text-text-default mb-200">
             평균 별점
           </h3>
-          <span className="font-designer-36b text-text-strong">
-            {data.averageRating.toFixed(2)}
-          </span>
-          <div className="mt-50 flex items-center gap-25">
-            {Array.from({ length: 5 }).map((_, i) => {
-            const fill =
-              data.averageRating >= i + 1
-                ? 'full'
-                : data.averageRating >= i + 0.5
-                  ? 'half'
-                  : 'empty';
+          <div className="flex items-center gap-200">
+            {/* 좌: 큰 별점 숫자 */}
+            <span className="font-designer-36b text-text-strong tabular-nums">
+              {data.averageRating.toFixed(2)}
+            </span>
 
-            return (
-              <div key={i} className="relative">
-                <Star className="h-250 w-250 shrink-0 fill-current text-icon-disabled" />
-                {fill !== 'empty' && (
-                  <div
-                    className={cn(
-                      'absolute inset-0 overflow-hidden',
-                      fill === 'half' ? 'w-1/2' : 'w-full',
-                    )}
-                  >
-                    <Star className="h-250 w-250 shrink-0 fill-current text-text-warning" />
-                  </div>
-                )}
+            {/* 우: 별 게이지 + 참여자 수 */}
+            <div className="flex flex-1 flex-col gap-75">
+              {/* 별 게이지 */}
+              <div className="flex items-center gap-25">
+                {Array.from({ length: 5 }).map((_, i) => {
+                  const fill =
+                    data.averageRating >= i + 1
+                      ? 'full'
+                      : data.averageRating >= i + 0.5
+                        ? 'half'
+                        : 'empty';
+                        
+                  return (
+                    <div key={i} className="relative">
+                      <Star className="h-250 w-250 shrink-0 fill-current text-icon-disabled" />
+                      {fill !== 'empty' && (
+                        <div
+                          className={cn(
+                            'absolute inset-0 overflow-hidden',
+                            fill === 'half' ? 'w-1/2' : 'w-full',
+                          )}
+                        >
+                          <Star className="h-250 w-250 shrink-0 fill-current text-text-warning" />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-            );
-            })}
+              {/* 참여자 수 */}
+              <span className="font-designer-13r text-text-subtle">
+                총 {data.totalRatingCount}명 참여
+              </span>
+            </div>
           </div>
-          <span className="font-designer-13r text-text-subtle mt-50">
-            총 {data.totalRatingCount}명 참여
-          </span>
         </div>
       </div>
 

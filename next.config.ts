@@ -117,6 +117,12 @@ const nextConfig: NextConfig = {
         hostname: 'test-blog.zeroone.it.kr',
         pathname: '/uploads/**',
       },
+      // 목업 데이터용 Unsplash 이미지
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        pathname: '/**',
+      },
     ],
   },
 
@@ -165,15 +171,25 @@ const nextConfig: NextConfig = {
   },
 };
 
+const hasSentryCredentials = !!(
+  process.env.SENTRY_AUTH_TOKEN &&
+  process.env.SENTRY_ORG &&
+  process.env.SENTRY_PROJECT
+);
+
 const sentryConfig = withSentryConfig(nextConfig, {
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
   authToken: process.env.SENTRY_AUTH_TOKEN,
-  silent: !process.env.SENTRY_AUTH_TOKEN,
+  // 인증 정보가 없을 때 로그를 숨김
+  silent: !hasSentryCredentials,
   // disableLogger는 deprecated되었지만 Turbopack에서는 webpack.treeshake.removeDebugLogging를 사용할 수 없음
   // Next.js 15.4.1 이상으로 업그레이드하면 해결됨
   sourcemaps: {
-    filesToDeleteAfterUpload: ['.next/static/**/*.map'],
+    // 인증 토큰이 없으면 소스맵 관련 기능 전체 비활성화
+    // (없으면 자체 GlitchTip 서버로 연결 시도 후 빌드가 무한 대기함)
+    disable: !hasSentryCredentials,
+    deleteSourcemapsAfterUpload: hasSentryCredentials,
   },
   widenClientFileUpload: true,
 });

@@ -1,6 +1,7 @@
 'use client';
 
 import { Dot, Users } from 'lucide-react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 import {
@@ -47,11 +48,12 @@ function StudyReviewCard({
       onClick={onClick}
       className="flex w-full cursor-pointer flex-col gap-100 text-left"
     >
-      <div className="relative w-full overflow-hidden rounded-100">
-        <img
+      <div className="relative h-[160px] w-full overflow-hidden rounded-100">
+        <Image
           src={study.thumbnail}
           alt={study.title}
-          className="h-[160px] w-full object-cover"
+          fill
+          className="object-cover"
         />
       </div>
 

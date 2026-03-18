@@ -96,10 +96,10 @@ export default function StudyDetailPage({
   const { data: studyDetail, isLoading } =
     useGroupStudyDetailQuery(groupStudyId);
 
-  const { isStudyEnded, isWithinReviewWindow } = useMemo(() => {
+  const { isWithinReviewWindow } = useMemo(() => {
     const endDateStr = studyDetail?.basicInfo?.endDate;
     if (!endDateStr)
-      return { isStudyEnded: false, isWithinReviewWindow: false };
+      return { isWithinReviewWindow: false };
 
     const endDate = dayjs(endDateStr).startOf('day');
     const today = dayjs().startOf('day');
@@ -107,7 +107,6 @@ export default function StudyDetailPage({
     const diffDays = today.diff(endDate, 'day');
 
     return {
-      isStudyEnded: isEnded,
       isWithinReviewWindow: isEnded && diffDays <= 7,
     };
   }, [studyDetail?.basicInfo?.endDate]);
