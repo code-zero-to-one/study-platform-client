@@ -74,9 +74,9 @@ export default function MentorStudyReviewDetailPage() {
           </span>
         )}
       </div>
-      {statistics && <SatisfactionSection statistics={statistics} />}
+      <SatisfactionSection statistics={statistics} />
 
-      {statistics && <EvaluationSection statistics={statistics} />}
+      <EvaluationSection statistics={statistics} />
 
       <div className="flex flex-col gap-200">
         <div className="flex items-center gap-100">

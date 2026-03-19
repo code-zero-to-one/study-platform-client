@@ -59,43 +59,49 @@ export default function SatisfactionSection({
       <div className="border-border-subtle flex-1 rounded-100 border p-300">
         <h3 className="font-designer-16b text-text-default mb-200">만족도</h3>
 
-        <div className="flex flex-col gap-150">
-          <div className="flex items-center gap-200">
-            <div className="flex w-[100px] items-center gap-75">
-              <span className="font-designer-14m text-text-default">
-                좋았어요
+        {totalCount === 0 ? (
+          <span className="font-designer-13r text-text-subtlest">
+            아직 없어요
+          </span>
+        ) : (
+          <div className="flex flex-col gap-150">
+            <div className="flex items-center gap-200">
+              <div className="flex w-[100px] items-center gap-75">
+                <span className="font-designer-14m text-text-default">
+                  좋았어요
+                </span>
+                <span>{'\u{1F60A}'}</span>
+              </div>
+              <div className="flex-1">
+                <Progress
+                  value={goodPercent}
+                  indicatorColor="bg-fill-information-default-default"
+                />
+              </div>
+              <span className="font-designer-14m text-text-subtle w-[100px] text-right">
+                {goodPercent}% ({goodCount}/{totalCount})
               </span>
-              <span>{'\u{1F60A}'}</span>
             </div>
-            <div className="flex-1">
-              <Progress
-                value={goodPercent}
-                indicatorColor="bg-fill-information-default-default"
-              />
-            </div>
-            <span className="font-designer-14m text-text-subtle w-[100px] text-right">
-              {goodPercent}% ({goodCount}/{totalCount})
-            </span>
-          </div>
 
-          <div className="flex items-center gap-200">
-            <div className="flex w-[100px] items-center gap-75">
-              <span className="font-designer-14m text-text-default">
-                아쉬웠어요
+            <div className="flex items-center gap-200">
+              <div className="flex w-[100px] items-center gap-75">
+                <span className="font-designer-14m text-text-default">
+                  아쉬웠어요
+                </span>
+                <span>{'\u{1F605}'}</span>
+              </div>
+              <div className="flex-1">
+                <Progress
+                  value={disappointedPercent}
+                  indicatorColor="bg-fill-danger-default-default"
+                />
+              </div>
+              <span className="font-designer-14m text-text-subtle w-[100px] text-right">
+                {disappointedPercent}% ({disappointedCount}/{totalCount})
               </span>
-              <span>{'\u{1F605}'}</span>
             </div>
-            <div className="flex-1">
-              <Progress
-                value={disappointedPercent}
-                indicatorColor="bg-fill-danger-default-default"
-              />
-            </div>
-            <span className="font-designer-14m text-text-subtle w-[100px] text-right">
-              {disappointedPercent}% ({disappointedCount}/{totalCount})
-            </span>
           </div>
-        </div>
+        )}
       </div>
 
       {/* 평균 별점 카드 */}
@@ -103,18 +109,24 @@ export default function SatisfactionSection({
         <h3 className="font-designer-16b text-text-default mb-200">
           평균 별점
         </h3>
-        <div className="flex items-center gap-200">
-          <span className="font-designer-36b text-text-strong tabular-nums">
-            {averageRating.toFixed(2)}
+        {totalCount === 0 ? (
+          <span className="font-designer-13r text-text-subtlest">
+            아직 없어요
           </span>
-
-          <div className="flex flex-1 flex-col gap-75">
-            <StarRating rating={averageRating} />
-            <span className="font-designer-13r text-text-subtle">
-              총 {totalCount}명 참여
+        ) : (
+          <div className="flex items-center gap-200">
+            <span className="font-designer-36b text-text-strong tabular-nums">
+              {averageRating.toFixed(2)}
             </span>
+
+            <div className="flex flex-1 flex-col gap-75">
+              <StarRating rating={averageRating} />
+              <span className="font-designer-13r text-text-subtle">
+                총 {totalCount}명 참여
+              </span>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
