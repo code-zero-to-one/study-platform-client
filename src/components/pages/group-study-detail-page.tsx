@@ -47,6 +47,11 @@ const GroupStudyReviewModal = dynamic(
   { ssr: false },
 );
 
+const StudyCompletionModal = dynamic(
+  () => import('@/components/common/modals/study-completion-modal'),
+  { ssr: false },
+);
+
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
 const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
@@ -82,6 +87,7 @@ export default function StudyDetailPage({
   const showToast = useToastStore((state) => state.showToast);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
   const hasAutoOpenedReviewModal = useRef(false);
 
   const { data: studyDetail, isLoading } =
@@ -304,6 +310,13 @@ export default function StudyDetailPage({
         groupStudyId={groupStudyId}
         detailInfo={studyDetail?.detailInfo}
         basicInfo={studyDetail?.basicInfo}
+        onSubmitSuccess={() =>
+          setTimeout(() => setShowCompletionModal(true), 300)
+        }
+      />
+      <StudyCompletionModal
+        open={showCompletionModal}
+        onOpenChange={setShowCompletionModal}
       />
       {/* 플로팅 정보 바 */}
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>

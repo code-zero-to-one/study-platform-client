@@ -23,6 +23,7 @@ interface GroupStudyReviewModalProps {
   groupStudyId: number;
   detailInfo: GroupStudyDetailInfoResponseDto;
   basicInfo: GroupStudyBasicInfoResponseDto;
+  onSubmitSuccess?: () => void;
 }
 
 const SATISFACTION_CONFIG: Record<
@@ -39,6 +40,7 @@ export default function GroupStudyReviewModal({
   groupStudyId,
   detailInfo,
   basicInfo,
+  onSubmitSuccess,
 }: GroupStudyReviewModalProps) {
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -65,6 +67,7 @@ export default function GroupStudyReviewModal({
             open={open}
             groupStudyId={groupStudyId}
             onClose={() => onOpenChange(false)}
+            onSubmitSuccess={onSubmitSuccess}
           />
         </Modal.Content>
       </Modal.Portal>
@@ -76,10 +79,12 @@ function GroupStudyReviewForm({
   open,
   groupStudyId,
   onClose,
+  onSubmitSuccess,
 }: {
   open: boolean;
   groupStudyId: number;
   onClose: () => void;
+  onSubmitSuccess?: () => void;
 }) {
   const {
     form,
@@ -92,7 +97,7 @@ function GroupStudyReviewForm({
     handleSatisfactionChange,
     handleItemToggle,
     handleSubmit,
-  } = useGroupStudyReviewForm({ open, groupStudyId, onClose });
+  } = useGroupStudyReviewForm({ open, groupStudyId, onClose, onSubmitSuccess });
 
   return (
     <>
