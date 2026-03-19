@@ -9,12 +9,12 @@ import {
   type GroupStudyExperienceReviewDetail,
 } from '@/hooks/queries/group-study-review-api';
 import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
-import EvaluationSection from './_components/evaluation-section';
-import GroupReviewCard from './_components/group-review-card';
-import SatisfactionSection from './_components/satisfaction-section';
-import { useReviewStatistics } from './_hooks/use-review-statistics';
+import EvaluationSection from '../../group/[groupStudyId]/_components/evaluation-section';
+import GroupReviewCard from '../../group/[groupStudyId]/_components/group-review-card';
+import SatisfactionSection from '../../group/[groupStudyId]/_components/satisfaction-section';
+import { useReviewStatistics } from '../../group/[groupStudyId]/_hooks/use-review-statistics';
 
-export default function GroupStudyReviewDetailPage() {
+export default function MentorStudyReviewDetailPage() {
   const { groupStudyId } = useParams<{ groupStudyId: string }>();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -56,13 +56,13 @@ export default function GroupStudyReviewDetailPage() {
     <div className="flex flex-col gap-400">
       <button
         type="button"
-        onClick={() => router.push('/my-study-review/group')}
+        onClick={() => router.push('/my-study-review/mentor')}
         className="flex cursor-pointer items-center gap-50 self-start"
         aria-label="뒤로가기"
       >
         <ChevronLeft className="text-text-subtle" size={20} />
         <span className="font-designer-13r text-text-subtle">
-          그룹 스터디 목록
+          멘토 스터디 목록
         </span>
       </button>
 
@@ -86,7 +86,7 @@ export default function GroupStudyReviewDetailPage() {
           </span>
         </div>
         <span className="font-designer-14r text-text-subtle">
-          수집된 스터디 후기는 서비스 홍보 및 마케팅을 위해 활용될 수 있습니다.
+          모든 후기는 나에게만 보여요
         </span>
 
         {reviews.length > 0 ? (

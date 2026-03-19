@@ -1,5 +1,9 @@
 'use client';
 
+import type {
+  GroupStudyBasicInfoResponseDto,
+  GroupStudyDetailInfoResponseDto,
+} from '@/api/openapi';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
@@ -17,17 +21,26 @@ interface GroupStudyReviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   groupStudyId: number;
+  detailInfo: GroupStudyDetailInfoResponseDto;
+  basicInfo: GroupStudyBasicInfoResponseDto;
+  onSubmitSuccess?: () => void;
 }
 
-const SATISFACTION_CONFIG: Record<ReviewSatisfaction, { label: string }> = {
-  GOOD: { label: '좋았어요 😊' },
-  DISAPPOINTED: { label: '아쉬웠어요 😅' },
+const SATISFACTION_CONFIG: Record<
+  ReviewSatisfaction,
+  { label: string; emoji: string }
+> = {
+  GOOD: { label: '좋았어요', emoji: '\u{1F60A}' },
+  DISAPPOINTED: { label: '아쉬웠어요', emoji: '\u{1F605}' },
 };
 
 export default function GroupStudyReviewModal({
   open,
   onOpenChange,
   groupStudyId,
+  detailInfo,
+  basicInfo,
+  onSubmitSuccess,
 }: GroupStudyReviewModalProps) {
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
@@ -35,20 +48,16 @@ export default function GroupStudyReviewModal({
         <Modal.Overlay />
         <Modal.Content
           onInteractOutside={(e) => e.preventDefault()}
-          className={cn(
-            // 모바일: 전체화면
-            'top-0 left-0 translate-x-0 translate-y-0',
-            'w-screen max-w-full max-h-screen h-screen rounded-none',
-            // md 이상: 중앙 모달
-            'md:top-1/2 md:left-1/2',
-            'md:-translate-x-1/2 md:-translate-y-1/2',
-            'md:max-w-3xl md:w-full md:h-auto md:max-h-modal',
-            'md:rounded-150',
-          )}
+          mobileFullscreen
           description="스터디 경험 후기 작성"
         >
           <Modal.Header variant="form">
-            <Modal.Title>스터디 경험 후기를 남겨주세요</Modal.Title>
+            <div className="flex flex-col gap-50">
+              <Modal.Title className="font-designer-16b text-text-default truncate max-w-[360px]">
+                {detailInfo.title}
+              </Modal.Title>
+              <span className="font-designer-13r text-text-subtlest">{`${basicInfo?.startDate} ~ ${basicInfo?.endDate}`}</span>
+            </div>
             <Modal.CloseButton />
           </Modal.Header>
 
@@ -56,6 +65,7 @@ export default function GroupStudyReviewModal({
             open={open}
             groupStudyId={groupStudyId}
             onClose={() => onOpenChange(false)}
+            onSubmitSuccess={onSubmitSuccess}
           />
         </Modal.Content>
       </Modal.Portal>
@@ -67,10 +77,12 @@ function GroupStudyReviewForm({
   open,
   groupStudyId,
   onClose,
+  onSubmitSuccess,
 }: {
   open: boolean;
   groupStudyId: number;
   onClose: () => void;
+  onSubmitSuccess?: () => void;
 }) {
   const {
     form,
@@ -83,22 +95,30 @@ function GroupStudyReviewForm({
     handleSatisfactionChange,
     handleItemToggle,
     handleSubmit,
-  } = useGroupStudyReviewForm({ open, groupStudyId, onClose });
+  } = useGroupStudyReviewForm({ open, groupStudyId, onClose, onSubmitSuccess });
 
   return (
     <>
-      <Modal.Body className="flex flex-col gap-400">
-        {/* 만족도 선택 */}
+      <Modal.Body className="overflow-auto flex flex-1 flex-col gap-400 px-400 py-300">
+        <div className="flex flex-col items-center gap-75">
+          <h2 className="font-designer-20b text-text-strong text-center">
+            스터디 전체 경험은 어떠셨나요?
+          </h2>
+          <p className="font-designer-14r text-text-subtle text-center">
+            성장하는 스터디 문화를 위해 소중한 의견을 들려주세요.
+          </p>
+        </div>
         <div className="flex flex-col items-center gap-150">
           <span className="font-designer-16b text-text-default">
             스터디 만족도
           </span>
-          <div className="flex gap-200">
+          <div className="flex items-center justify-center gap-300">
             {(Object.keys(SATISFACTION_CONFIG) as ReviewSatisfaction[]).map(
               (key) => (
                 <SatisfactionButton
                   key={key}
                   label={SATISFACTION_CONFIG[key].label}
+                  emoji={SATISFACTION_CONFIG[key].emoji}
                   isSelected={form.satisfaction === key}
                   onClick={() => handleSatisfactionChange(key)}
                 />
@@ -107,7 +127,6 @@ function GroupStudyReviewForm({
           </div>
         </div>
 
-        {/* 세부 항목 선택 */}
         {form.satisfaction && currentItems && currentItems.length > 0 && (
           <div className="flex flex-col gap-150">
             <div className="flex items-center justify-center gap-100">
@@ -117,7 +136,7 @@ function GroupStudyReviewForm({
               <span className="font-designer-13m text-text-error">필수</span>
             </div>
 
-            <List className="mx-auto">
+            <List className="mx-auto w-full">
               {currentItems.map((item) => (
                 <List.Item key={item.id}>
                   <Checkbox
@@ -137,28 +156,10 @@ function GroupStudyReviewForm({
           </div>
         )}
 
-        {/* 별점 입력 */}
-        <div className="flex flex-col items-center gap-150">
-          <div className="flex items-center gap-100">
-            <span className="font-designer-16b text-text-default">별점</span>
-            <span className="font-designer-13m text-text-error">필수</span>
-          </div>
-          <StarRatingInput
-            value={form.rating}
-            onChange={(rating) => setForm((prev) => ({ ...prev, rating }))}
-          />
-          {form.rating > 0 && (
-            <span className="font-designer-14r text-text-subtle">
-              {form.rating}점
-            </span>
-          )}
-        </div>
-
-        {/* 자유 의견 */}
         <div className="flex flex-col gap-100">
-          <div className="flex items-center gap-100">
-            <span className="font-designer-16b text-text-default">
-              스터디 경험을 자유롭게 남겨주세요
+          <div className="flex items-center justify-center gap-100">
+            <span className="font-designer-16b text-text-default text-center">
+              더 자세한 의견을 들려주세요.
             </span>
             <span className="font-designer-13m text-text-error">필수</span>
           </div>
@@ -166,10 +167,11 @@ function GroupStudyReviewForm({
             <TextAreaInput
               value={form.content}
               maxLength={1000}
-              placeholder={`스터디 경험을 ${MIN_CONTENT_LENGTH}자 이상 작성해주세요`}
+              placeholder={`전반적인 스터디 경험에 대한 자유로운 의견을 작성해주세요. (최소 ${MIN_CONTENT_LENGTH}자)`}
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, content: e.target.value }))
               }
+              className="h-[120px] resize-none w-full"
             />
             {contentError && (
               <p className="font-designer-13r text-text-error">
@@ -177,6 +179,27 @@ function GroupStudyReviewForm({
               </p>
             )}
           </div>
+        </div>
+
+        <div className="flex flex-col items-center gap-150">
+          <div className="flex items-center justify-center gap-100">
+            <span className="font-designer-16b text-text-default">
+              스터디 전체 만족도 평가
+            </span>
+            <span className="font-designer-13m text-text-error">필수</span>
+          </div>
+          <div className="flex items-center gap-50">
+            <StarRatingInput
+              value={form.rating}
+              onChange={(rating) => setForm((prev) => ({ ...prev, rating }))}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col items-center">
+          <p className="font-designer-14r text-text-subtle text-center">
+            함께 달려온 시간, 정말 수고 많으셨어요! 🎉<br />
+            남겨주신 한 마디가 더 나은 스터디를 만드는 힘이 됩니다.
+          </p>
         </div>
       </Modal.Body>
 
@@ -190,7 +213,7 @@ function GroupStudyReviewForm({
           disabled={!isFormValid || isPending}
           onClick={handleSubmit}
         >
-          등록하기
+          제출하기
         </Button>
       </Modal.Footer>
     </>
@@ -201,23 +224,33 @@ function SatisfactionButton({
   label,
   isSelected,
   onClick,
+  emoji,
 }: {
   label: string;
   isSelected: boolean;
   onClick: () => void;
+  emoji: string;
 }) {
   return (
     <button
       type="button"
       className={cn(
-        'rounded-150 px-300 py-200 font-designer-14m cursor-pointer transition-colors',
-        isSelected
-          ? 'bg-fill-brand-default-default text-text-inverse'
-          : 'bg-fill-neutral-subtle-default text-text-subtle hover:bg-fill-neutral-subtle-hover',
+        'flex flex-col w-fit gap-75 rounded-150 font-designer-14m cursor-pointer transition-colors',
+        isSelected ? 'text-fill-brand-default-default' : 'text-text-subtlest',
       )}
       onClick={onClick}
     >
       {label}
+      <div
+        className={cn(
+          'flex h-[52px] w-[52px] items-center justify-center rounded-full text-[28px] transition-all bg-fill-neutral-subtle-default',
+          isSelected
+            ? 'bg-fill-neutral-default-default'
+            : ' opacity-50 hover:opacity-80',
+        )}
+      >
+        {emoji}
+      </div>
     </button>
   );
 }

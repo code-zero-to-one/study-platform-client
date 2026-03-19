@@ -80,22 +80,14 @@ export const useGetGroupStudyReviews = ({
       return data.content;
     },
     enabled: !!groupStudyId,
-    staleTime: 60_000,
+    staleTime: 60 * 1000,
   });
 };
 
 export const useGetGroupStudyReviewDetail = (reviewId: number) => {
   return useQuery({
-    queryKey: groupStudyReviewQueryKeys.detail(reviewId),
-    queryFn: async () => {
-      const { data } = await axiosInstance.get<{
-        content: GroupStudyExperienceReviewDetail;
-      }>(`/group-studies/reviews/${reviewId}`);
-
-      return data.content;
-    },
+    ...groupStudyReviewDetailQueryOptions(reviewId),
     enabled: !!reviewId,
-    staleTime: 60_000,
   });
 };
 
@@ -113,17 +105,10 @@ export const useGetGroupStudyReviewWritten = (
       return data.content;
     },
     enabled: (options?.enabled ?? true) && !!groupStudyId,
-    staleTime: 60_000,
+    staleTime: 60 * 1000,
   });
 };
 
-// ─── Mutation Hooks ───────────────────────────────────────────────────────────
-
-/**
- * 그룹스터디 경험 후기 작성
- * POST /api/v1/group-studies/{groupStudyId}/reviews
- * 스터디 종료 후 7일 이내에만 가능
- */
 export const useCreateGroupStudyReview = () => {
   const queryClient = useQueryClient();
 
@@ -153,11 +138,6 @@ export const useCreateGroupStudyReview = () => {
   });
 };
 
-/**
- * 그룹스터디 경험 후기 수정
- * PUT /api/v1/group-studies/reviews/{reviewId}
- * 스터디 종료 후 7일 이내에만 가능
- */
 export const useUpdateGroupStudyReview = () => {
   const queryClient = useQueryClient();
 

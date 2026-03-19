@@ -2,6 +2,22 @@
 
 이 파일은 Claude Code(claude.ai/code)가 본 저장소의 코드를 다룰 때 참고하는 가이드입니다.
 
+## 핵심 규칙 (모든 작업 전 반드시 숙지)
+
+### 구현 시 행동 원칙
+
+- **탐색은 최대 2~3개 파일로 제한**. 탐색·계획에 세션을 소비하지 않는다. 파일 경로와 API 계약을 파악했으면 즉시 코드 작성을 시작한다.
+- **API 엔드포인트 조작 금지**. 존재하지 않는 엔드포인트를 임의로 만들지 않는다. 반드시 `src/hooks/queries/`, `src/api/`, `src/api/openapi/` 에서 실제 API를 확인한 뒤 사용한다. 없으면 TODO 플레이스홀더를 남기고 사용자에게 알린다.
+- **코드 리뷰·정리 시 한 번에 전부 수정**. 동일 파일에 여러 번 패스하지 않는다. 발견된 모든 이슈를 단일 패스로 처리한다.
+
+### 코드 컨벤션 (자동 적용)
+
+- `className` 조합은 항상 `cn()` 사용. 템플릿 리터럴 className 금지.
+- Tailwind 임의값(`p-[4px]`, `w-[320px]`) 금지. 프로젝트 커스텀 토큰 사용.
+- 색상·간격 하드코딩 금지. `global.css`의 `@theme inline` 토큰만 사용.
+
+---
+
 ## 프로젝트 개요
 
 ZERO-ONE 스터디 플랫폼 — 매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼. Next.js 15 (App Router), React 19, TypeScript 5, Tailwind CSS 4 기반. 패키지 매니저는 **Yarn 1.22+**, Node.js >=20 필요.
@@ -353,7 +369,7 @@ export default async function Page() {
 
 ## 주요 컨벤션
 
-- **커밋 메시지**: `feat:`, `fix:`, `refactor:`, `style:`, `docs:`, `test:`, `chore:`
+- **커밋 메시지**: `feat :`, `fix :`, `refactor :`, `style :`, `docs :`, `test :`, `chore :` (콜론 앞뒤 공백 포함)
 - **브랜치 전략**: Feature 브랜치 → `develop` (스테이징: test.zeroone.it.kr) → `main` (프로덕션: www.zeroone.it.kr)
 - **ESLint 설정**: RushStack 기반, strict TypeScript, React hooks, TanStack Query 플러그인, 임포트 정렬 (알파벳 + 그룹별)
 - **Prettier**: 80자 너비, 작은따옴표, trailing comma, 2칸 들여쓰기

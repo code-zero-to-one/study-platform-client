@@ -7,7 +7,8 @@ export default function StudyReviewTabNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const tabClassName = 'font-designer-16m px-400 py-200 text-text-subtle';
+  const tabClassName =
+    'font-designer-16m px-400 py-200 text-text-subtle cursor-pointer';
   const pathClassName =
     'font-designer-16b border-b-2 border-text-default text-text-default';
 

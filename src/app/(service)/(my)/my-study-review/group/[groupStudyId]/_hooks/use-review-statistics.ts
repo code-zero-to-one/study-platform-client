@@ -26,38 +26,45 @@ function groupItemsByType(
   items: SelectableReviewItem[],
   type: 'GOOD' | 'DISAPPOINTED',
 ): GroupedItem[] {
-  return Object.values(
-    items
-      .filter((item) => item.satisfactionType === type)
-      .reduce<Record<number, GroupedItem>>((acc, item) => {
-        const id = item.id as number; // !!item.id 필터로 보장됨
+  const grouped = items
+    .filter((item) => item.satisfactionType === type)
+    .reduce<Record<number, GroupedItem>>((acc, item) => {
+      acc[item.id] = {
+        id: item.id,
+        label: item.label ?? '',
+        count: (acc[item.id]?.count ?? 0) + 1,
+      };
 
-        return {
-          ...acc,
-          [id]: {
-            id,
-            label: item.label ?? '',
-            count: (acc[id]?.count ?? 0) + 1,
-          },
-        };
-      }, {}),
-  ).sort((a, b) => b.count - a.count);
+      return acc;
+    }, {});
+
+  return Object.values(grouped).sort((a, b) => b.count - a.count);
 }
 
 export function useReviewStatistics(
   reviews: GroupStudyExperienceReviewListItem[],
   reviewDetails: GroupStudyExperienceReviewDetail[],
-): ReviewStatistics | null {
+): ReviewStatistics {
   return useMemo(() => {
-    if (!reviews.length) return null;
+    if (!reviews.length) {
+      return {
+        goodCount: 0,
+        disappointedCount: 0,
+        totalCount: 0,
+        averageRating: 0,
+        goodItems: [],
+        disappointedItems: [],
+      };
+    }
 
     const goodCount = reviews.filter((r) => r.satisfaction === 'GOOD').length;
     const disappointedCount = reviews.filter(
-      (r) => r.satisfaction === 'DISAPPOINTED',
+      (review) => review.satisfaction === 'DISAPPOINTED',
     ).length;
-    const validRatings = reviews.flatMap((r) =>
-      r.rating !== undefined ? [r.rating] : [],
-    );
+
+    const validRatings = reviews
+      .filter((review) => review.rating !== undefined)
+      .map((review) => review.rating as number);
     const averageRating =
       validRatings.length > 0
         ? validRatings.reduce((sum, r) => sum + r, 0) / validRatings.length

@@ -59,7 +59,7 @@ function ModalClose({
   return (
     <DialogClose
       data-slot="modal-close"
-      className={cn('cursor-pointer', className)}
+      className={cn('cursor-pointer focus:outline-none', className)}
       {...props}
     />
   );
@@ -86,8 +86,9 @@ function ModalContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   size?: 'small' | 'medium' | 'large';
   description?: string;
+  mobileFullscreen?: boolean;
 }) {
-  const { size = 'small', ...rest } = props;
+  const { size = 'small', mobileFullscreen = false, ...rest } = props;
 
   const sizeClass = {
     small: 'max-w-2xl',
@@ -100,14 +101,25 @@ function ModalContent({
       data-slot="modal-content"
       className={cn(
         'fixed',
-        'top-[50%] left-[50%]',
-        'translate-x-[-50%] translate-y-[-50%]',
-        'max-w-[calc(100%-2rem)] w-full',
-        sizeClass,
-        'max-h-[90vh]',
+        mobileFullscreen
+          ? [
+              'inset-0 w-full h-full rounded-none',
+              'sm:inset-auto sm:top-[50%] sm:left-[50%]',
+              'sm:translate-x-[-50%] sm:translate-y-[-50%]',
+              'sm:max-w-sm sm:w-full',
+              'sm:max-h-modal sm:h-auto',
+              'sm:rounded-150',
+            ]
+          : [
+              'top-[50%] left-[50%]',
+              'translate-x-[-50%] translate-y-[-50%]',
+              'max-w-[calc(100%-2rem)] w-full',
+              sizeClass,
+              'max-h-modal',
+              'rounded-150',
+            ],
         'bg-background-default',
         'z-50',
-        'rounded-150',
         'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200',
         'shadow-[0px_10px_10px_0px_rgba(0,0,0,0.24), 0px_4px_32px_0px_rgba(0,0,0,0.24)]',
         'border-border-default border',
@@ -115,7 +127,14 @@ function ModalContent({
       )}
       {...rest}
     >
-      <div className="flex max-h-[90vh] flex-col">{children}</div>
+      <div
+        className={cn(
+          'flex flex-col',
+          mobileFullscreen ? 'h-full sm:max-h-[90vh]' : 'max-h-[90vh]',
+        )}
+      >
+        {children}
+      </div>
       <DialogDescription className="sr-only">{description}</DialogDescription>
     </DialogPrimitive.Content>
   );
@@ -225,7 +244,7 @@ function ModalCloseButton({
   return (
     <DialogClose
       data-slot="modal-close-button"
-      className={cn('cursor-pointer', className)}
+      className={cn('cursor-pointer focus:outline-none', className)}
       onClick={onClick}
       {...props}
     >

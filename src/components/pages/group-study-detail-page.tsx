@@ -5,7 +5,6 @@ import dayjs from 'dayjs';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
@@ -47,6 +46,11 @@ const GroupStudyReviewModal = dynamic(
   { ssr: false },
 );
 
+const StudyCompletionModal = dynamic(
+  () => import('@/components/common/modals/study-completion-modal'),
+  { ssr: false },
+);
+
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
 const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
@@ -82,6 +86,7 @@ export default function StudyDetailPage({
   const showToast = useToastStore((state) => state.showToast);
 
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
   const hasAutoOpenedReviewModal = useRef(false);
 
   const { data: studyDetail, isLoading } =
@@ -302,6 +307,15 @@ export default function StudyDetailPage({
         open={showReviewModal}
         onOpenChange={setShowReviewModal}
         groupStudyId={groupStudyId}
+        detailInfo={studyDetail?.detailInfo}
+        basicInfo={studyDetail?.basicInfo}
+        onSubmitSuccess={() =>
+          setTimeout(() => setShowCompletionModal(true), 300)
+        }
+      />
+      <StudyCompletionModal
+        open={showCompletionModal}
+        onOpenChange={setShowCompletionModal}
       />
       {/* 플로팅 정보 바 */}
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
@@ -353,24 +367,6 @@ export default function StudyDetailPage({
           />
         )}
       </div>
-
-      {/** 후기 작성 CTA — 종료 후 7일 이내 미작성 참가자에게 노출 */}
-      {canWriteReview && hasWrittenReview === false && (
-        <div
-          className={`mb-400 ${DETAIL_CONTENT_WIDTH} flex items-center justify-between rounded-150 bg-fill-neutral-subtle-default px-400 py-300`}
-        >
-          <p className="font-designer-14m text-text-default">
-            스터디 경험 후기를 남겨주세요 (종료 후 7일 이내)
-          </p>
-          <Button
-            color="primary"
-            size="small"
-            onClick={() => setShowReviewModal(true)}
-          >
-            후기 남기기
-          </Button>
-        </div>
-      )}
 
       {/** 탭리스트 */}
       <Tabs
