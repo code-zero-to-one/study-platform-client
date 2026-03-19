@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import { Dot, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useToastStore } from '@/stores/use-toast-store';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 interface Props {
@@ -11,7 +12,8 @@ interface Props {
   basePath: string;
 }
 
-export default function LeaderStudyCard({ study, basePath }: Props) {
+export default function MemberStudyCard({ study, basePath }: Props) {
+  const showToast = useToastStore((state) => state.showToast);
   const startDate = dayjs(study.startTime).format('YYYY.MM.DD');
   const endDate = study.endTime
     ? dayjs(study.endTime).format('YYYY.MM.DD')
@@ -19,6 +21,13 @@ export default function LeaderStudyCard({ study, basePath }: Props) {
   const thumbnailUrl = study.thumbnail?.resizedImages?.[0]?.resizedImageUrl;
 
   const href = study.studyId ? `${basePath}/${study.studyId}` : null;
+
+  const handleStudyClick = (e: React.MouseEvent) => {
+    if (study.studyRole !== 'LEADER') {
+      e.preventDefault();
+      showToast('준비중인 기능입니다', 'info');
+    }
+  };
 
   const content = (
     <>
@@ -38,7 +47,9 @@ export default function LeaderStudyCard({ study, basePath }: Props) {
       <div className="flex flex-col gap-50">
         <div className="font-designer-15b text-text-default">{study.title}</div>
         <div className="text-text-subtle flex flex-row items-center gap-50">
-          <div className="font-designer-14m">스터디 리더</div>
+          <div className="font-designer-14m">
+            {study.studyRole === 'LEADER' ? '스터디 리더' : '스터디원'}
+          </div>
           <div className="flex flex-row">
             <Users size={16} />
             <Dot size={16} />
@@ -58,7 +69,11 @@ export default function LeaderStudyCard({ study, basePath }: Props) {
   return (
     <li className="flex w-full flex-col gap-100">
       {href ? (
-        <Link href={href} className="flex w-full flex-col gap-100">
+        <Link
+          onClick={handleStudyClick}
+          href={href}
+          className="flex w-full flex-col gap-100"
+        >
           {content}
         </Link>
       ) : (

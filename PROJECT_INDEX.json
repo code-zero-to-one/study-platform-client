@@ -1,0 +1,158 @@
+{
+  "project": "ZERO-ONE Study Platform Client",
+  "version": "0.1.0",
+  "generated": "2026-03-16",
+  "stack": {
+    "framework": "Next.js 15.2.8 (App Router + Turbopack)",
+    "ui": "React 19",
+    "language": "TypeScript 5",
+    "styling": "Tailwind CSS 4 (커스텀 토큰만 사용, global.css @theme inline으로 기본 스케일 초기화됨)",
+    "serverState": "@tanstack/react-query 5 (staleTime: 60s)",
+    "clientState": "Zustand 5",
+    "http": "Axios 1.9",
+    "forms": "React Hook Form 7 + Zod 4",
+    "errorMonitoring": "@sentry/nextjs 10",
+    "testing": "Vitest + Playwright + Storybook",
+    "packageManager": "Yarn 1.22+"
+  },
+  "entryPoints": {
+    "landing": "src/app/(landing)/page.tsx",
+    "serviceHome": "src/app/(service)/home/page.tsx",
+    "middleware": "src/middleware.ts",
+    "providers": "src/providers/index.tsx",
+    "sentry": "src/instrumentation.ts"
+  },
+  "routeGroups": {
+    "(landing)": "공개 랜딩 - /",
+    "(service)": "인증 필요 서비스 - /home, /group-study/*, /payment, ...",
+    "(service)/(my)": "마이페이지 그룹 - /my-page, /my-study, /my-mentoring, ...",
+    "(admin)": "관리자 - /admin/* (ROLE_ADMIN)"
+  },
+  "apiLayer": {
+    "axiosClient": "src/api/client/axios.ts",
+    "openapi": "src/api/openapi/ (자동생성, 수정 금지)",
+    "endpoints": {
+      "path": "src/api/endpoints/",
+      "domains": [
+        "admin",
+        "archive",
+        "auth",
+        "balance-game",
+        "channel",
+        "group-study",
+        "group-study-application",
+        "hall-of-fame",
+        "interview",
+        "participation",
+        "review",
+        "study-history",
+        "user"
+      ]
+    },
+    "strapi": "src/api/strapi/"
+  },
+  "stores": [
+    "src/stores/useUserStore.ts (유저 정보, persist)",
+    "src/stores/useLeaderStore.ts",
+    "src/stores/use-toast-store.ts",
+    "src/stores/use-phone-verification-store.ts",
+    "src/stores/useMentorScreeningStore.ts",
+    "src/stores/useMentoringManagementStore.ts",
+    "src/stores/useMentorDirectoryStore.ts",
+    "src/stores/useMentorOperationStore.ts"
+  ],
+  "queryHooks": {
+    "count": 58,
+    "path": "src/hooks/queries/",
+    "domains": [
+      "admin-matching",
+      "admin-payment",
+      "admin-refund",
+      "admin-settlement",
+      "archive",
+      "balance-game",
+      "bank-search",
+      "evaluation",
+      "group-study-homework",
+      "group-study-member",
+      "group-study-review",
+      "mission",
+      "notification",
+      "payment-user",
+      "peer-review",
+      "question",
+      "refund-user",
+      "settlement-account",
+      "settlement-user",
+      "study-query",
+      "auth"
+    ]
+  },
+  "components": {
+    "commonUI": "src/components/common/ui/",
+    "commonLayout": "src/components/common/layout/",
+    "commonModals": "src/components/common/modals/",
+    "pages": "src/components/pages/",
+    "domains": [
+      "admin",
+      "archive",
+      "balance-game",
+      "calendars",
+      "card",
+      "contents",
+      "discussion",
+      "filtering",
+      "forms",
+      "hall-of-fame",
+      "home",
+      "interview",
+      "lists",
+      "my-page",
+      "one-on-one",
+      "participation",
+      "payment",
+      "premium",
+      "schedule",
+      "section",
+      "seo",
+      "study-history",
+      "summary",
+      "tutorial"
+    ]
+  },
+  "errorHandling": {
+    "centralHandler": "src/utils/error-handler.ts",
+    "globalMutationError": "src/config/query-client.ts (MutationCache.onError)",
+    "errorBoundaries": [
+      "src/app/(service)/error.tsx",
+      "src/app/(landing)/error.tsx",
+      "src/app/(admin)/error.tsx",
+      "src/app/global-error.tsx"
+    ]
+  },
+  "config": {
+    "queryClient": "src/config/query-client.ts",
+    "constants": "src/config/constants.ts",
+    "sentry": "src/config/sentry.ts",
+    "groupStudy": "src/config/group-study-const.ts",
+    "participation": "src/config/participation-const.ts",
+    "archive": "src/config/archive-const.ts"
+  },
+  "scripts": {
+    "apiGenerator": "scripts/api-generator.mjs",
+    "backendSetup": "scripts/setup-backend.sh"
+  },
+  "docs": {
+    "path": "docs/",
+    "count": "15+",
+    "types": ["bugfix-*.md", "feature-*.md", "SENTRY_GUIDE.md", "SEO_GUIDE.md"]
+  },
+  "importantRules": [
+    "src/api/openapi/ 직접 수정 금지 (재생성됨)",
+    "Tailwind 임의값 사용 금지 (p-[4px] 등) → 커스텀 토큰 사용",
+    "기본 Tailwind 스케일 사용 금지 (p-4, rounded-lg 등) → global.css @theme inline으로 초기화됨",
+    "alert() 사용 금지 → useToastStore 사용",
+    "커밋 시 --no-verify 금지",
+    "새 API는 OpenAPI 방식 권장 (generate:api 명령어)"
+  ]
+}

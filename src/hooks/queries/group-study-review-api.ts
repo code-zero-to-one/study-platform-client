@@ -86,16 +86,8 @@ export const useGetGroupStudyReviews = ({
 
 export const useGetGroupStudyReviewDetail = (reviewId: number) => {
   return useQuery({
-    queryKey: groupStudyReviewQueryKeys.detail(reviewId),
-    queryFn: async () => {
-      const { data } = await axiosInstance.get<{
-        content: GroupStudyExperienceReviewDetail;
-      }>(`/group-studies/reviews/${reviewId}`);
-
-      return data.content;
-    },
+    ...groupStudyReviewDetailQueryOptions(reviewId),
     enabled: !!reviewId,
-    staleTime: 60_000,
   });
 };
 

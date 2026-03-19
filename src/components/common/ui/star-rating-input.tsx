@@ -6,9 +6,16 @@ import { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface StarRatingInputProps {
-  value: number; // 0~5, 0.5 단위 (0 = 미선택)
+  value: number;
   onChange: (rating: number) => void;
 }
+
+const roundToNearestHalf = (num: number) => {
+  if (num === 0) {
+    return Number((Math.round(num * 2) / 2).toFixed(1));
+  }
+  return Math.round(num * 2) / 2;
+};
 
 export default function StarRatingInput({
   value,
@@ -16,7 +23,8 @@ export default function StarRatingInput({
 }: StarRatingInputProps) {
   const [hoverValue, setHoverValue] = useState(0);
 
-  const displayValue = hoverValue > 0 ? hoverValue : value;
+  console.log(roundToNearestHalf(3.0));
+  const displayValue = roundToNearestHalf(hoverValue > 0 ? hoverValue : value);
 
   const getStarFill = (idx: number): 'full' | 'half' | 'empty' => {
     const score = idx + 1;
