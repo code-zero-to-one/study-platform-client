@@ -302,6 +302,8 @@ export default function StudyDetailPage({
         open={showReviewModal}
         onOpenChange={setShowReviewModal}
         groupStudyId={groupStudyId}
+        detailInfo={studyDetail?.detailInfo}
+        basicInfo={studyDetail?.basicInfo}
       />
       {/* 플로팅 정보 바 */}
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>

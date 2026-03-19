@@ -16,19 +16,18 @@ export default function GroupReviewCard({
 
   return (
     <li className="border-b-border-subtle flex flex-col gap-150 border-b py-250">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center gap-150">
+        <Avatar image={review.writerProfileImageUrl} size={32} />
         <div className="flex items-center gap-100">
-          <Avatar image={review.writerProfileImageUrl} size={32} />
           <span className="font-designer-14b text-text-default">
             {review.writerName ?? '익명'}
           </span>
+          {review.createdAt && (
+            <span className="font-designer-13r text-text-subtlest">
+              {formatDateTimeDot(review.createdAt)}
+            </span>
+          )}
         </div>
-
-        {review.createdAt && (
-          <span className="font-designer-13r text-text-subtle">
-            {formatDateTimeDot(review.createdAt)}
-          </span>
-        )}
       </div>
 
       {review.content && (

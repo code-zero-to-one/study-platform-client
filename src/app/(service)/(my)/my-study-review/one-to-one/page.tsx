@@ -6,50 +6,40 @@ import {
   useUserPositiveKeywordsQuery,
 } from '@/hooks/queries/use-review-query';
 import StudyReviewTabNav from '../_components/study-review-tab-nav';
+import ReviewPageContent from '../_components/review-page-content';
 
 export default function OnetoOneReviewPage() {
-  const { data: positiveReview } = useUserPositiveKeywordsQuery({
+  const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({
     pageSize: 5,
   });
-
-  const { data: negativeReview } = useMyNegativeKeywordsQuery({
+  const { data: negativeKeywordsData } = useMyNegativeKeywordsQuery({
     pageSize: 5,
   });
+  const { data: allPositiveKeywordsData } = useUserPositiveKeywordsQuery({});
+  const { data: allNegativeKeywordsData } = useMyNegativeKeywordsQuery({});
   const {
     data: myReviewsData,
     fetchNextPage,
     hasNextPage,
   } = useMyReviewsInfinityQuery();
 
-  const positiveKeywords = positiveReview?.keywords || [];
-  const negativeKeywords = negativeReview?.keywords || [];
-
-  const positiveKeywordsCount = positiveReview?.totalCount || 0;
-  const negativeKeywordsCount = negativeReview?.totalCount || 0;
-
-  const totalKeywordsCount = positiveKeywordsCount + negativeKeywordsCount || 0;
-
-  const myReviews = myReviewsData?.reviews || [];
-
-  console.log({ positiveReview });
-
   return (
     <>
       <StudyReviewTabNav />
-      <section className="mt-300">
-        <div className="mb-200">
-          <div className="flex items-center gap-100">
-            <div className="font-designer-20b text-text-default">받은 평가</div>
-            <div className="font-designer-20b text-text-default">
-              {totalKeywordsCount}
-            </div>
-          </div>
-
-          <span className="font-designer-14r text-text-subtle">
-            개선이 필요한 점은 나에게만 보여요
-          </span>
-        </div>
-      </section>
+      <ReviewPageContent
+        positiveKeywords={positiveKeywordsData?.keywords ?? []}
+        negativeKeywords={negativeKeywordsData?.keywords ?? []}
+        allPositiveKeywords={allPositiveKeywordsData?.keywords ?? []}
+        allNegativeKeywords={allNegativeKeywordsData?.keywords ?? []}
+        totalKeywordsCount={
+          (positiveKeywordsData?.totalCount ?? 0) +
+          (negativeKeywordsData?.totalCount ?? 0)
+        }
+        myReviews={myReviewsData?.reviews ?? []}
+        totalReviewsCount={myReviewsData?.totalCount ?? 0}
+        hasNextPage={!!hasNextPage}
+        fetchNextPage={fetchNextPage}
+      />
     </>
   );
 }

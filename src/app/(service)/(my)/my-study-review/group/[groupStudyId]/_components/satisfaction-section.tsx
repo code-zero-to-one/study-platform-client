@@ -13,25 +13,23 @@ const STAR_COUNT = 5;
 
 function StarRating({ rating }: { rating: number }) {
   return (
-    <div className="flex items-center gap-50">
+    <div className="flex items-center gap-25">
       {Array.from({ length: STAR_COUNT }, (_, i) => {
-        const filled = i < Math.floor(rating);
-        const half = !filled && i < rating;
+        console.log({ i });
+        const isFull = rating >= i + 1;
+        const isHalf = rating > i && rating < i + 1;
 
         return (
           <div key={i} className="relative">
-            <Star size={16} className="text-background-accent-gray-subtle" />
-            {(filled || half) && (
+            <Star className="h-250 w-250 shrink-0 fill-current text-icon-disabled" />
+            {(isFull || isHalf) && (
               <div
                 className={cn(
                   'absolute inset-0 overflow-hidden',
-                  filled ? 'w-full' : 'w-1/2',
+                  isFull ? 'w-full' : 'w-1/2',
                 )}
               >
-                <Star
-                  size={16}
-                  className="fill-yellow-400 text-yellow-400 min-w-200"
-                />
+                <Star className="h-250 w-250 shrink-0 fill-current text-text-warning" />
               </div>
             )}
           </div>
@@ -59,46 +57,65 @@ export default function SatisfactionSection({
   return (
     <div className="flex gap-300">
       {/* 만족도 카드 */}
-      <div className="bg-background-surface-default flex flex-1 flex-col gap-200 rounded-200 p-250">
-        <span className="font-designer-14b text-text-default">만족도</span>
+      <div className="border-border-subtle flex-1 rounded-100 border p-300">
+        <h3 className="font-designer-16b text-text-default mb-200">만족도</h3>
 
         <div className="flex flex-col gap-150">
-          <div className="flex flex-col gap-100">
-            <div className="flex items-center justify-between">
-              <span className="font-designer-13r text-text-default">
-                좋았어요 😍
+          <div className="flex items-center gap-200">
+            <div className="flex w-[100px] items-center gap-75">
+              <span className="font-designer-14m text-text-default">
+                좋았어요
               </span>
-              <span className="font-designer-12r text-text-subtle">
-                {goodPercent}% ({goodCount}/{totalCount})
-              </span>
+              <span>{'\u{1F60A}'}</span>
             </div>
-            <Progress value={goodPercent} indicatorColor="bg-blue-500" />
+            <div className="flex-1">
+              <Progress
+                value={goodPercent}
+                indicatorColor="bg-fill-information-default-default"
+              />
+            </div>
+            <span className="font-designer-14m text-text-subtle w-[100px] text-right">
+              {goodPercent}% ({goodCount}/{totalCount})
+            </span>
           </div>
 
-          <div className="flex flex-col gap-100">
-            <div className="flex items-center justify-between">
-              <span className="font-designer-13r text-text-default">
-                아쉬웠어요 😄
+          <div className="flex items-center gap-200">
+            <div className="flex w-[100px] items-center gap-75">
+              <span className="font-designer-14m text-text-default">
+                아쉬웠어요
               </span>
-              <span className="font-designer-12r text-text-subtle">
-                {disappointedPercent}% ({disappointedCount}/{totalCount})
-              </span>
+              <span>{'\u{1F605}'}</span>
             </div>
-            <Progress value={disappointedPercent} indicatorColor="bg-red-400" />
+            <div className="flex-1">
+              <Progress
+                value={disappointedPercent}
+                indicatorColor="bg-fill-danger-default-default"
+              />
+            </div>
+            <span className="font-designer-14m text-text-subtle w-[100px] text-right">
+              {disappointedPercent}% ({disappointedCount}/{totalCount})
+            </span>
           </div>
         </div>
       </div>
 
       {/* 평균 별점 카드 */}
-      <div className="bg-background-surface-default flex w-140 shrink-0 flex-col items-center justify-center gap-100 rounded-200 p-250">
-        <span className="font-designer-14b text-text-default">평균 별점</span>
-        <span className="font-designer-24b text-text-default">
-          {averageRating.toFixed(2)}
-        </span>
-        <StarRating rating={averageRating} />
-        <span className="font-designer-12r text-text-subtle">
-          총 {totalCount}명 참여
-        </span>
+      <div className="border-border-subtle flex-1 rounded-100 border p-300">
+        <h3 className="font-designer-16b text-text-default mb-200">
+          평균 별점
+        </h3>
+        <div className="flex items-center gap-200">
+          <span className="font-designer-36b text-text-strong tabular-nums">
+            {averageRating.toFixed(2)}
+          </span>
+
+          <div className="flex flex-1 flex-col gap-75">
+            <StarRating rating={averageRating} />
+            <span className="font-designer-13r text-text-subtle">
+              총 {totalCount}명 참여
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   );

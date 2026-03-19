@@ -4,7 +4,7 @@ import dayjs from 'dayjs';
 import { Dot, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { MemberStudyItem } from '@/types/api/group-study.types';
+import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 interface Props {
   study: MemberStudyItem;
@@ -18,12 +18,7 @@ export default function LeaderStudyCard({ study, basePath }: Props) {
     : null;
   const thumbnailUrl = study.thumbnail?.resizedImages?.[0]?.resizedImageUrl;
 
-  const params = new URLSearchParams({ title: study.title });
-  if (study.startTime) params.set('startTime', study.startTime);
-  if (study.endTime) params.set('endTime', study.endTime);
-  const href = study.studyId
-    ? `${basePath}/${study.studyId}?${params.toString()}`
-    : null;
+  const href = study.studyId ? `${basePath}/${study.studyId}` : null;
 
   const content = (
     <>
