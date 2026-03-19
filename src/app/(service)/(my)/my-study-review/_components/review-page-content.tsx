@@ -7,7 +7,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import KeywordReview from '@/components/common/cards/keyword-review';
 import UserAvatar from '@/components/common/ui/avatar';
 import type { MyReviewItem } from '@/types/api/review.types';
-import { formatKoreaRelativeTime } from '@/utils/time';
+import { formatDateDot, formatKoreaRelativeTime } from '@/utils/time';
 import { useExpandableContent } from './use-expandable-content';
 
 const MoreKeywordReviewModal = dynamic(
@@ -31,6 +31,38 @@ interface ReviewPageContentProps {
   totalReviewsCount: number;
   hasNextPage: boolean;
   fetchNextPage: () => void;
+}
+
+interface KeywordCardProps {
+  title: string;
+  keywords: ReviewKeyword[];
+  allKeywords: ReviewKeyword[];
+}
+
+function KeywordCard({ title, keywords, allKeywords }: KeywordCardProps) {
+  return (
+    <div className="rounded-100 border-border-subtle min-h-280 border p-200">
+      <div className="mb-200 flex justify-between">
+        <h3 className="font-designer-16b text-text-default">{title}</h3>
+        <MoreKeywordReviewModal title={title} keywords={allKeywords} />
+      </div>
+      <ul className="flex flex-col gap-50">
+        {keywords.length > 0 ? (
+          keywords.map((keyword) => (
+            <KeywordReview
+              key={keyword.id}
+              content={keyword.content}
+              count={keyword.count}
+            />
+          ))
+        ) : (
+          <li className="font-designer-14r text-text-subtle text-center">
+            아직 받은 평가가 없습니다.
+          </li>
+        )}
+      </ul>
+    </div>
+  );
 }
 
 export default function ReviewPageContent({
@@ -61,59 +93,16 @@ export default function ReviewPageContent({
         </div>
 
         <div className="mb-400 grid grid-cols-2 gap-300">
-          <div className="rounded-100 border-border-subtle min-h-280 border p-200">
-            <div className="mb-200 flex justify-between">
-              <h3 className="font-designer-16b text-text-default">좋았던 점</h3>
-              <MoreKeywordReviewModal
-                title="좋았던 점"
-                keywords={allPositiveKeywords}
-              />
-            </div>
-
-            <ul className="flex flex-col gap-50">
-              {positiveKeywords.length > 0 ? (
-                positiveKeywords.map((keyword) => (
-                  <KeywordReview
-                    key={keyword.id}
-                    content={keyword.content}
-                    count={keyword.count}
-                  />
-                ))
-              ) : (
-                <span className="font-designer-14r text-text-subtle text-center">
-                  아직 받은 평가가 없습니다.
-                </span>
-              )}
-            </ul>
-          </div>
-
-          <div className="rounded-100 border-border-subtle min-h-280 border p-200">
-            <div className="mb-200 flex justify-between">
-              <h3 className="font-designer-16b text-text-default">
-                개선이 필요한 점
-              </h3>
-              <MoreKeywordReviewModal
-                title="개선이 필요한 점"
-                keywords={allNegativeKeywords}
-              />
-            </div>
-
-            <ul className="flex flex-col gap-50">
-              {negativeKeywords.length > 0 ? (
-                negativeKeywords.map((keyword) => (
-                  <KeywordReview
-                    key={keyword.id}
-                    content={keyword.content}
-                    count={keyword.count}
-                  />
-                ))
-              ) : (
-                <span className="font-designer-14r text-text-subtle text-center">
-                  아직 받은 평가가 없습니다.
-                </span>
-              )}
-            </ul>
-          </div>
+          <KeywordCard
+            title="좋았던 점"
+            keywords={positiveKeywords}
+            allKeywords={allPositiveKeywords}
+          />
+          <KeywordCard
+            title="개선이 필요한 점"
+            keywords={negativeKeywords}
+            allKeywords={allNegativeKeywords}
+          />
         </div>
       </section>
 
@@ -129,31 +118,33 @@ export default function ReviewPageContent({
           모든 후기는 나에게만 보여요
         </span>
 
-        <ul>
-          {myReviews.length > 0 ? (
-            myReviews.map((review) => <Review key={review.id} data={review} />)
-          ) : (
-            <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
-              아직까지 받은 후기가 없습니다.
-            </div>
-          )}
+        {myReviews.length === 0 ? (
+          <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
+            아직까지 받은 후기가 없습니다.
+          </div>
+        ) : (
+          <ul>
+            {myReviews.map((review) => (
+              <Review key={review.id} data={review} />
+            ))}
+          </ul>
+        )}
 
-          {hasNextPage && (
-            <button
-              type="button"
-              className="font-designer-14m text-text-subtle hover:bg-background-accent-gray-default rounded-50 flex w-full cursor-pointer items-center justify-center py-200"
-              onClick={fetchNextPage}
-            >
-              <span>더보기</span>
-              <Image
-                src="/icons/arrow-down.svg"
-                width={20}
-                height={20}
-                alt="후기 더보기"
-              />
-            </button>
-          )}
-        </ul>
+        {hasNextPage && (
+          <button
+            type="button"
+            className="font-designer-14m text-text-subtle hover:bg-background-accent-gray-default rounded-50 flex w-full cursor-pointer items-center justify-center py-200"
+            onClick={fetchNextPage}
+          >
+            <span>더보기</span>
+            <Image
+              src="/icons/arrow-down.svg"
+              width={20}
+              height={20}
+              alt="후기 더보기"
+            />
+          </button>
+        )}
       </section>
     </>
   );
@@ -209,14 +200,13 @@ function Review({ data }: { data: MyReviewItem }) {
         <div className="text-text-subtle">
           <span className="font-designer-14b mr-100">스터디 기간</span>
           <span className="font-designer-13r">
-            {data.startDate.replace(/-/g, '.')} ~{' '}
-            {data.endDate.replace(/-/g, '.')}
+            {formatDateDot(data.startDate)} ~ {formatDateDot(data.endDate)}
           </span>
         </div>
         <div className="text-text-subtle">
           <span className="font-designer-14b mr-100">스터디 주제</span>
           <span className="font-designer-13r">
-            {data.studySubjects.filter((subject) => subject).join(', ')}
+            {data.studySubjects.filter(Boolean).join(', ')}
           </span>
         </div>
       </div>

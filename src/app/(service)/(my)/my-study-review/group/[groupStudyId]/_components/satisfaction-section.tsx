@@ -15,7 +15,6 @@ function StarRating({ rating }: { rating: number }) {
   return (
     <div className="flex items-center gap-25">
       {Array.from({ length: STAR_COUNT }, (_, i) => {
-        console.log({ i });
         const isFull = rating >= i + 1;
         const isHalf = rating > i && rating < i + 1;
 
