@@ -45,7 +45,6 @@ export default function StudyReviewModal({
   onOpenChange,
   onDismissPreferenceChange,
   targetStudySpaceId,
-  onSubmitSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -53,7 +52,6 @@ export default function StudyReviewModal({
     options: ReminderDismissOptions,
   ) => Promise<void> | void;
   targetStudySpaceId?: number;
-  onSubmitSuccess?: () => void;
 }) {
   const [hideForOneHour, setHideForOneHour] = useState(false);
   const [hideForever, setHideForever] = useState(false);
@@ -130,10 +128,7 @@ export default function StudyReviewModal({
             open={open}
             targetStudySpaceId={targetStudySpaceId}
             onDismiss={handleDismiss}
-            onSubmitSuccessClose={() => {
-              onOpenChange(false);
-              onSubmitSuccess?.();
-            }}
+            onSubmitSuccessClose={() => onOpenChange(false)}
             hideForOneHour={hideForOneHour}
             hideForever={hideForever}
             onToggleHideForOneHour={handleToggleHideForOneHour}
