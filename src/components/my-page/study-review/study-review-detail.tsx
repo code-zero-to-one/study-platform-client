@@ -140,7 +140,7 @@ export default function StudyReviewDetail({
           </span>
         </div>
         <span className="font-designer-14r text-text-subtle">
-          개선이 필요한 점은 나에게만 보여요
+          개선이 필요한 점은 스터디장에게만 보여요
         </span>
 
         <div className="grid grid-cols-2 gap-300">
@@ -150,7 +150,7 @@ export default function StudyReviewDetail({
                 좋았던 점
               </h3>
               <span className="font-designer-14m text-text-subtle">
-                다보기
+                더보기
               </span>
             </div>
             <ul className="flex flex-col gap-50">
@@ -192,7 +192,7 @@ export default function StudyReviewDetail({
           </span>
         </div>
         <span className="font-designer-14r text-text-subtle">
-          모든 후기는 나에게만 보여요
+        수집된 스터디 후기는 서비스 홍보 및 마케팅을 위해 활용될 수 있습니다.
         </span>
 
         <ul className="flex flex-col">
