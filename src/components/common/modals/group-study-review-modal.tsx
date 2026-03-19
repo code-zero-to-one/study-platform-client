@@ -48,9 +48,7 @@ export default function GroupStudyReviewModal({
         <Modal.Overlay />
         <Modal.Content
           onInteractOutside={(e) => e.preventDefault()}
-          className={cn(
-            'fixed bg-background-default z-50 rounded-150 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 duration-200 shadow-[0px_10px_10px_0px_rgba(0,0,0,0.24), 0px_4px_32px_0px_rgba(0,0,0,0.24)] border-border-default border top-0 left-0 translate-x-0 translate-y-0 w-screen max-w-full max-h-screen h-screen md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-[480px] md:w-full md:h-auto md:max-h-modal md:rounded-150',
-          )}
+          mobileFullscreen
           description="스터디 경험 후기 작성"
         >
           <Modal.Header variant="form">
@@ -138,7 +136,7 @@ function GroupStudyReviewForm({
               <span className="font-designer-13m text-text-error">필수</span>
             </div>
 
-            <List className="mx-auto">
+            <List className="mx-auto w-full">
               {currentItems.map((item) => (
                 <List.Item key={item.id}>
                   <Checkbox
@@ -215,7 +213,7 @@ function GroupStudyReviewForm({
           disabled={!isFormValid || isPending}
           onClick={handleSubmit}
         >
-          등록하기
+          제출하기
         </Button>
       </Modal.Footer>
     </>
