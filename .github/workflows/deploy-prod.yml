@@ -22,7 +22,7 @@ jobs:
           echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_KAKAO_CLIENT_ID }}" >> .env
           echo "NEXT_PUBLIC_GOOGLE_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_GOOGLE_CLIENT_ID }}" >> .env
           echo "NEXT_PUBLIC_STRAPI_URL=${{ secrets.NEXT_PUBLIC_PROD_STRAPI_URL }}" >> .env
-          echo "NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_TOSS_CLIENT_KEY }}" >> .env
+          echo "NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_PROD_TOSS_CLIENT_KEY }}" >> .env
 
           # 이 부분 부터 점검 필요 - 프로덕션 환경에서도 같은걸 씀? (GTM도 프로덕션 데브 같이쓰는게 맞음? dev 엔 현재 빠진듯?)
           echo "NEXT_PUBLIC_CLARITY_PROJECT_ID=${{ secrets.NEXT_PUBLIC_CLARITY_PROJECT_ID }}" >> .env 
@@ -101,7 +101,8 @@ jobs:
               cd ~/front/study-platform-client-prod
             }
 
-            echo ".env 파일 생성 (런타임에 필요한 모든 환경변수 포함)"
+            echo ".env 파일 생성 (런타임에 필요한 모든 환경변수 포함/디버깅하려고)"
+            echo "NEXT_PUBLIC_TOSS_CLIENT_KEY=${{ secrets.NEXT_PUBLIC_PROD_TOSS_CLIENT_KEY }}" >> .env
             echo "NEXT_PUBLIC_API_BASE_URL=${{ secrets.NEXT_PUBLIC_API_PROD_BASE_URL }}" > .env
             echo "NEXT_PUBLIC_GTM_ID=${{ secrets.NEXT_PUBLIC_GTM_ID }}" >> .env
             echo "NEXT_PUBLIC_KAKAO_CLIENT_ID=${{ secrets.NEXT_PUBLIC_PROD_KAKAO_CLIENT_ID }}" >> .env
