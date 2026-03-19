@@ -5,8 +5,8 @@ import {
   useMyReviewsInfinityQuery,
   useUserPositiveKeywordsQuery,
 } from '@/hooks/queries/use-review-query';
-import StudyReviewTabNav from '../_components/study-review-tab-nav';
 import ReviewPageContent from '../_components/review-page-content';
+import StudyReviewTabNav from '../_components/study-review-tab-nav';
 
 export default function OnetoOneReviewPage() {
   const { data: positiveKeywordsData } = useUserPositiveKeywordsQuery({

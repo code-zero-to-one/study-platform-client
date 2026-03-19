@@ -14,6 +14,7 @@ const roundToNearestHalf = (num: number) => {
   if (num === 0) {
     return Number((Math.round(num * 2) / 2).toFixed(1));
   }
+
   return Math.round(num * 2) / 2;
 };
 

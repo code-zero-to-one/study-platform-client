@@ -3,8 +3,8 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import KeywordReview from '@/components/common/cards/keyword-review';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import type { MyReviewItem } from '@/types/api/review.types';
 import { formatDateDot, formatKoreaRelativeTime } from '@/utils/time';

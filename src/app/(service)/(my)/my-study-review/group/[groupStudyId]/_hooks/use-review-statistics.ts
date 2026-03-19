@@ -34,6 +34,7 @@ function groupItemsByType(
         label: item.label ?? '',
         count: (acc[item.id]?.count ?? 0) + 1,
       };
+
       return acc;
     }, {});
 
