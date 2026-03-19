@@ -45,10 +45,12 @@ export function useGroupStudyReviewForm({
   open,
   groupStudyId,
   onClose,
+  onSubmitSuccess,
 }: {
   open: boolean;
   groupStudyId: number;
   onClose: () => void;
+  onSubmitSuccess?: () => void;
 }) {
   const [form, setForm] = useState<ReviewFormState>(INITIAL_FORM);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -120,12 +122,18 @@ export function useGroupStudyReviewForm({
     createReview(
       {
         groupStudyId,
-        request: { satisfaction, selectableReviewItemIds, content, rating },
+        request: {
+          satisfaction,
+          selectableReviewItemIds,
+          content,
+          rating: Math.round(rating), // 반별점(0.5 단위) → 백엔드 정수 변환
+        },
       },
       {
         onSuccess: () => {
           showToast('후기가 작성되었습니다.', 'success');
           onClose();
+          onSubmitSuccess?.();
         },
       },
     );

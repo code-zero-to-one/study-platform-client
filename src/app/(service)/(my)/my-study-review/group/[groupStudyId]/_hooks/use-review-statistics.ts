@@ -26,21 +26,26 @@ function groupItemsByType(
   items: SelectableReviewItem[],
   type: 'GOOD' | 'DISAPPOINTED',
 ): GroupedItem[] {
-  return Object.values(
-    items
-      .filter((item) => item.satisfactionType === type)
-      .reduce<Record<number, GroupedItem>>((acc, item) => {
-        const id = item.id as number; // !!item.id 필터로 보장됨
+  const satisfactionType = items.filter(
+    (item) => item.satisfactionType === type,
+  );
+  if (satisfactionType.length === 0) {
+    return;
+  }
 
-        return {
-          ...acc,
-          [id]: {
-            id,
-            label: item.label ?? '',
-            count: (acc[id]?.count ?? 0) + 1,
-          },
-        };
-      }, {}),
+  return Object.values(
+    satisfactionType.reduce<Record<number, GroupedItem>>((acc, item) => {
+      const id = item.id;
+
+      return {
+        ...acc,
+        [id]: {
+          id,
+          label: item.label ?? '',
+          count: (acc[id]?.count ?? 0) + 1,
+        },
+      };
+    }, {}),
   ).sort((a, b) => b.count - a.count);
 }
 
@@ -53,10 +58,11 @@ export function useReviewStatistics(
 
     const goodCount = reviews.filter((r) => r.satisfaction === 'GOOD').length;
     const disappointedCount = reviews.filter(
-      (r) => r.satisfaction === 'DISAPPOINTED',
+      (review) => review.satisfaction === 'DISAPPOINTED',
     ).length;
-    const validRatings = reviews.flatMap((r) =>
-      r.rating !== undefined ? [r.rating] : [],
+
+    const validRatings = reviews.flatMap((review) =>
+      review.rating !== undefined ? [review.rating] : [],
     );
     const averageRating =
       validRatings.length > 0

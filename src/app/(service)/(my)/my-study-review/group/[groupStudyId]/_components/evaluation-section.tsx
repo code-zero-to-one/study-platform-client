@@ -78,7 +78,7 @@ export default function EvaluationSection({
         </span>
       </div>
       <span className="font-designer-14r text-text-subtle">
-        개선이 필요한 점은 나에게만 보여요
+        개선이 필요한 점은 스터디장에게만 보여요
       </span>
 
       <div className="grid grid-cols-2 gap-300">

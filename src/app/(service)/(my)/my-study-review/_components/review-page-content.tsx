@@ -88,7 +88,7 @@ export default function ReviewPageContent({
           </div>
 
           <span className="font-designer-14r text-text-subtle">
-            개선이 필요한 점은 나에게만 보여요
+            개선이 필요한 점은 스터디장에게만 보여요
           </span>
         </div>
 

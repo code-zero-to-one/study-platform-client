@@ -23,7 +23,6 @@ export default function StarRatingInput({
 }: StarRatingInputProps) {
   const [hoverValue, setHoverValue] = useState(0);
 
-  console.log(roundToNearestHalf(3.0));
   const displayValue = roundToNearestHalf(hoverValue > 0 ? hoverValue : value);
 
   const getStarFill = (idx: number): 'full' | 'half' | 'empty' => {
