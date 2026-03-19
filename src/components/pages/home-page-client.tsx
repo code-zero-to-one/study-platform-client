@@ -43,9 +43,6 @@ export default function HomePageClient({
         onOpenChange={setShowReviewReminder}
         onDismissPreferenceChange={applyDismissPreference}
         targetStudySpaceId={targetStudySpaceId}
-        onSubmitSuccess={() =>
-          setTimeout(() => setShowCompletionModal(true), 300)
-        }
       />
       <StudyCompletionModal
         open={showCompletionModal}
