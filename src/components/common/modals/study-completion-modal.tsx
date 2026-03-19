@@ -112,7 +112,7 @@ export default function StudyCompletionModal({
               className="flex-1"
               onClick={() => {
                 handleClose();
-                router.push('/mentoring');
+                router.push('/premium-study');
               }}
             >
               멘토님과 공부하기
