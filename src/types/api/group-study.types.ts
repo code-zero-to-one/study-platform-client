@@ -342,6 +342,7 @@ export interface MemberStudyListRequest {
   inProgressPageSize?: number;
   completedPage?: number;
   completedPageSize?: number;
+  asLeader?: boolean;
 }
 
 export interface MemberStudyItem {

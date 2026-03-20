@@ -17,18 +17,17 @@ export default function GroupStudyReviewListPage() {
     studyStatus: 'COMPLETED',
     completedPage: page,
     completedPageSize: 9,
+    asLeader: true,
   });
 
-  const leaderStudies = (completedGroupStudy?.completed.content ?? []).filter(
-    (study) => study.studyRole === 'LEADER',
-  );
+  const completedGroupStudies = completedGroupStudy?.completed.content ?? [];
 
   return (
     <div className="flex flex-col gap-400">
       <StudyReviewTabNav />
 
       <div className="flex flex-col gap-400">
-        {leaderStudies.length === 0 ? (
+        {completedGroupStudies.length === 0 ? (
           <div className="flex items-center justify-center py-600">
             <span className="font-designer-15r text-text-subtlest">
               운영한 그룹스터디가 없습니다.
@@ -36,7 +35,7 @@ export default function GroupStudyReviewListPage() {
           </div>
         ) : (
           <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
-            {completedGroupStudy.completed.content.map((study) => (
+            {completedGroupStudies.map((study) => (
               <MemberStudyCard
                 key={study.studyId ?? study.title}
                 study={study}
