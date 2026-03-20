@@ -73,8 +73,8 @@ export default function EvaluationSection({
   const emptyMessage = studyTypeName
     ? `아직 받은 ${studyTypeName} 평가가 없습니다`
     : '아직 받은 평가가 없습니다';
-  const goodItems = statistics.goodItems ?? [];
-  const disappointedItems = statistics.disappointedItems ?? [];
+  const goodItems = statistics?.goodItems ?? [];
+  const disappointedItems = statistics?.disappointedItems ?? [];
   const goodTotalCount = goodItems.reduce(
     (sum, item) => sum + (item.count ?? 0),
     0,

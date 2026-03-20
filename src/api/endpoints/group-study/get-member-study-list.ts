@@ -1,8 +1,23 @@
+import { isAxiosError } from 'axios';
 import { axiosInstance } from '@/api/client/axios';
 import type {
+  MemberStudyItem,
   MemberStudyListRequest,
   MemberStudyListResponse,
 } from '@/types/api/group-study.types';
+
+const EMPTY_RESPONSE: MemberStudyListResponse = {
+  notCompleted: null,
+  completed: {
+    content: [] as MemberStudyItem[],
+    page: 1,
+    size: 0,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+  },
+};
 
 const DEFAULT_PARAMS: Omit<MemberStudyListRequest, 'memberId'> = {
   studyType: 'BOTH',
@@ -28,9 +43,16 @@ export const getMemberStudyList = async ({
   memberId,
   ...params
 }: MemberStudyListRequest): Promise<MemberStudyListResponse> => {
-  const res = await axiosInstance.get(`/members/${memberId}/studies`, {
-    params: toKebabParams({ ...DEFAULT_PARAMS, ...params }),
-  });
+  try {
+    const res = await axiosInstance.get(`/members/${memberId}/studies`, {
+      params: toKebabParams({ ...DEFAULT_PARAMS, ...params }),
+    });
 
-  return res.data.content;
+    return res.data.content;
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.status === 400) {
+      return EMPTY_RESPONSE;
+    }
+    throw error;
+  }
 };
