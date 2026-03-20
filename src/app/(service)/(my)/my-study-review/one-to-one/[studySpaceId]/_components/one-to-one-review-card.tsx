@@ -41,9 +41,9 @@ export default function OneToOneReviewCard({
 
       {review.studySubjects.length > 0 && (
         <div className="flex flex-wrap gap-50">
-          {review.studySubjects.map((subject) => (
+          {review.studySubjects.map((subject, index) => (
             <span
-              key={subject}
+              key={`${index}-${subject}`}
               className="font-designer-12r text-text-subtle bg-surface-subtle rounded-50 px-100 py-50"
             >
               {subject}

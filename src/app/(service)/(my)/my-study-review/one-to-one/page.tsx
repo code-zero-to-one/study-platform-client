@@ -34,9 +34,9 @@ export default function OneToOneReviewPage() {
           </div>
         ) : (
           <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
-            {completedStudies.map((study) => (
+            {completedStudies.map((study, index) => (
               <MemberStudyCard
-                key={study.studyId ?? study.title}
+                key={study.studyId ?? index}
                 study={study}
                 basePath="/my-study-review/one-to-one"
                 disableLeaderGuard
