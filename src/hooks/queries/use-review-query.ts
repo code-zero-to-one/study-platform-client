@@ -137,6 +137,18 @@ export const useMyReviewsInfinityQuery = () => {
   });
 };
 
+export const useAllMyReviewsQuery = () => {
+  return useQuery({
+    queryKey: [...reviewQueryKeys.myReviews(), 'all'],
+    queryFn: async () => {
+      const result = await getMyReviews({ cursor: null, pageSize: 200 });
+
+      return result.reviews.items;
+    },
+    staleTime: 60 * 1000,
+  });
+};
+
 export const useStudyReviewModalStateQuery = () => {
   return useQuery({
     queryKey: reviewQueryKeys.modalState(),

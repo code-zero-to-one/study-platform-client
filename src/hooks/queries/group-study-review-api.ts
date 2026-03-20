@@ -173,7 +173,6 @@ export const useDeleteGroupStudyReview = () => {
   return useMutation({
     mutationFn: async ({
       reviewId,
-      groupStudyId,
     }: {
       reviewId: number;
       groupStudyId: number;
