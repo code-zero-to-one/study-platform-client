@@ -52,11 +52,10 @@ export default function OneToOneReviewDetailPage() {
       </div>
 
       <SatisfactionSection
-        statistics={{}}
-        emptyMessage="아직 받은 만족도가 없습니다"
+        emptyMessage={`아직 받은 ${studyTypeName} 만족도가 없습니다`}
       />
 
-      <EvaluationSection statistics={{}} />
+      <EvaluationSection studyTypeName={studyTypeName} />
 
       <div className="flex flex-col gap-200">
         <div className="flex items-center gap-100">

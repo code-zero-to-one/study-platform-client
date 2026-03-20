@@ -6,7 +6,7 @@ import Progress from '@/components/common/ui/progress';
 import type { GroupStudyReviewStatistics } from '@/hooks/queries/group-study-review-api';
 
 interface SatisfactionSectionProps {
-  statistics: GroupStudyReviewStatistics;
+  statistics?: GroupStudyReviewStatistics;
   emptyMessage?: string;
 }
 
