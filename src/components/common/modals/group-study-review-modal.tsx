@@ -138,14 +138,14 @@ function GroupStudyReviewForm({
 
             <List className="mx-auto w-full">
               {currentItems.map((item) => (
-                <List.Item key={item.id}>
+                <List.Item key={item.code}>
                   <Checkbox
-                    id={`review-item-${item.id}`}
-                    checked={form.selectableReviewItemIds.includes(item.id)}
-                    onToggle={() => handleItemToggle(item.id)}
+                    id={`review-item-${item.code}`}
+                    checked={form.selectedCodes.includes(item.code)}
+                    onToggle={() => handleItemToggle(item.code)}
                   />
                   <label
-                    htmlFor={`review-item-${item.id}`}
+                    htmlFor={`review-item-${item.code}`}
                     className="font-designer-14m text-text-subtle cursor-pointer"
                   >
                     {item.label ?? item.reviewSelection}

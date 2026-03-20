@@ -31,7 +31,7 @@ export default function NotCompletedPage() {
   });
 
   // status가 "IN_PROGRESS" 또는 "RECRUITMENT"인 스터디 목록
-  const notCompletedStudyList = (data?.notCompleted.content ||
+  const notCompletedStudyList = (data?.notCompleted?.content ||
     []) as MemberGroupStudyList[];
 
   if (isLoading) {
@@ -66,7 +66,7 @@ export default function NotCompletedPage() {
         <Pagination
           page={page}
           onChangePage={setPage}
-          totalPages={data?.notCompleted.totalPages || 1}
+          totalPages={data?.notCompleted?.totalPages || 1}
         />
       </div>
     </div>

@@ -7,6 +7,7 @@ import type { GroupStudyReviewStatistics } from '@/hooks/queries/group-study-rev
 
 interface SatisfactionSectionProps {
   statistics: GroupStudyReviewStatistics;
+  emptyMessage?: string;
 }
 
 const STAR_COUNT = 5;
@@ -40,6 +41,7 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function SatisfactionSection({
   statistics,
+  emptyMessage,
 }: SatisfactionSectionProps) {
   const {
     goodCount = 0,
@@ -61,7 +63,7 @@ export default function SatisfactionSection({
 
         {totalCount === 0 ? (
           <span className="font-designer-13r text-text-subtlest">
-            아직 없어요
+            {emptyMessage ?? '아직 없어요'}
           </span>
         ) : (
           <div className="flex flex-col gap-150">
@@ -111,7 +113,7 @@ export default function SatisfactionSection({
         </h3>
         {totalCount === 0 ? (
           <span className="font-designer-13r text-text-subtlest">
-            아직 없어요
+            {emptyMessage ?? '아직 없어요'}
           </span>
         ) : (
           <div className="flex items-center gap-200">

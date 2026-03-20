@@ -4,6 +4,8 @@ import { ChevronLeft } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAllMyReviewsQuery } from '@/hooks/queries/use-review-query';
 import OneToOneReviewCard from './_components/one-to-one-review-card';
+import EvaluationSection from '../../group/[groupStudyId]/_components/evaluation-section';
+import SatisfactionSection from '../../group/[groupStudyId]/_components/satisfaction-section';
 
 export default function OneToOneReviewDetailPage() {
   const { studySpaceId } = useParams<{ studySpaceId: string }>();
@@ -47,6 +49,16 @@ export default function OneToOneReviewDetailPage() {
           </span>
         )}
       </div>
+
+      <SatisfactionSection
+        statistics={{}}
+        emptyMessage="아직 받은 만족도가 없습니다"
+      />
+
+      <EvaluationSection
+        statistics={{}}
+        emptyMessage="아직 받은 평가가 없습니다"
+      />
 
       <div className="flex flex-col gap-200">
         <div className="flex items-center gap-100">

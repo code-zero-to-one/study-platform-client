@@ -12,9 +12,15 @@ interface CardProps {
   title: string;
   items: GroupStudyReviewStatisticsItem[];
   showToggle?: boolean;
+  emptyMessage?: string;
 }
 
-function EvaluationCard({ title, items, showToggle = false }: CardProps) {
+function EvaluationCard({
+  title,
+  items,
+  showToggle = false,
+  emptyMessage,
+}: CardProps) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, DEFAULT_SHOW_COUNT);
   const hasMore = items.length > DEFAULT_SHOW_COUNT;
@@ -48,7 +54,7 @@ function EvaluationCard({ title, items, showToggle = false }: CardProps) {
         </ul>
       ) : (
         <span className="font-designer-13r text-text-subtlest">
-          아직 없어요
+          {emptyMessage ?? '아직 없어요'}
         </span>
       )}
     </div>
@@ -57,10 +63,12 @@ function EvaluationCard({ title, items, showToggle = false }: CardProps) {
 
 interface EvaluationSectionProps {
   statistics: GroupStudyReviewStatistics;
+  emptyMessage?: string;
 }
 
 export default function EvaluationSection({
   statistics,
+  emptyMessage,
 }: EvaluationSectionProps) {
   const goodItems = statistics.goodItems ?? [];
   const disappointedItems = statistics.disappointedItems ?? [];
@@ -82,8 +90,17 @@ export default function EvaluationSection({
       </span>
 
       <div className="grid grid-cols-2 gap-300">
-        <EvaluationCard title="좋았던 점" items={goodItems} showToggle />
-        <EvaluationCard title="개선이 필요한 점" items={disappointedItems} />
+        <EvaluationCard
+          title="좋았던 점"
+          items={goodItems}
+          showToggle
+          emptyMessage={emptyMessage}
+        />
+        <EvaluationCard
+          title="개선이 필요한 점"
+          items={disappointedItems}
+          emptyMessage={emptyMessage}
+        />
       </div>
     </div>
   );

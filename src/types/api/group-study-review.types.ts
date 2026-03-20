@@ -1,6 +1,7 @@
 export type ReviewSatisfaction = 'GOOD' | 'DISAPPOINTED';
 
 export interface SelectableReviewItem {
+  code?: string;
   id?: number;
   reviewSelection?: string;
   label?: string;
@@ -64,7 +65,7 @@ export interface GroupStudyExperienceReviewPageResponse {
 
 export interface GroupStudyExperienceReviewRequest {
   satisfaction: ReviewSatisfaction;
-  selectableReviewItemIds: number[];
+  selectableReviewItemCodes: string[];
   content: string;
   rating: number;
 }

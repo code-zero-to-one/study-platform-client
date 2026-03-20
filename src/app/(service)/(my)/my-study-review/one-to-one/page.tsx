@@ -29,7 +29,7 @@ export default function OneToOneReviewPage() {
         {completedStudies.length === 0 ? (
           <div className="flex items-center justify-center py-600">
             <span className="font-designer-15r text-text-subtlest">
-              완료된 1:1 스터디가 없습니다.
+              아직 받은 1:1 스터디 후기가 없습니다.
             </span>
           </div>
         ) : (

@@ -29,14 +29,14 @@ export default function MentorReviewPage() {
         {completedMentorStudies.length === 0 ? (
           <div className="flex items-center justify-center py-600">
             <span className="font-designer-15r text-text-subtlest">
-              운영한 멘토스터디가 없습니다.
+              아직 받은 멘토스터디 후기가 없습니다.
             </span>
           </div>
         ) : (
-          <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
-            {completedMentorStudy.completed.content.map((study) => (
+          <ul className="grid grid-cols-1 gap-300 sm:grid-cols-2 lg:grid-cols-3">
+            {completedMentorStudies.map((study, index) => (
               <MemberStudyCard
-                key={study.studyId ?? study.title}
+                key={study.studyId ?? index}
                 study={study}
                 basePath="/my-study-review/mentor"
               />
