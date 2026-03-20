@@ -12,7 +12,7 @@ interface CardProps {
   title: string;
   items: GroupStudyReviewStatisticsItem[];
   showToggle?: boolean;
-  emptyMessage?: string;
+  emptyMessage: string;
 }
 
 function EvaluationCard({
@@ -54,7 +54,7 @@ function EvaluationCard({
         </ul>
       ) : (
         <span className="font-designer-13r text-text-subtlest">
-          {emptyMessage ?? '아직 없어요'}
+          {emptyMessage}
         </span>
       )}
     </div>
@@ -63,13 +63,16 @@ function EvaluationCard({
 
 interface EvaluationSectionProps {
   statistics: GroupStudyReviewStatistics;
-  emptyMessage?: string;
+  studyTypeName?: string;
 }
 
 export default function EvaluationSection({
   statistics,
-  emptyMessage,
+  studyTypeName,
 }: EvaluationSectionProps) {
+  const emptyMessage = studyTypeName
+    ? `아직 받은 ${studyTypeName} 평가가 없습니다`
+    : '아직 받은 평가가 없습니다';
   const goodItems = statistics.goodItems ?? [];
   const disappointedItems = statistics.disappointedItems ?? [];
   const goodTotalCount = goodItems.reduce(

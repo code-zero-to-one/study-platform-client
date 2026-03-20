@@ -13,6 +13,7 @@ export default function OneToOneReviewDetailPage() {
   const router = useRouter();
 
   const title = searchParams.get('title') ?? '1:1 스터디 후기';
+  const studyTypeName = '1:1스터디';
   const startTime = searchParams.get('startTime');
   const endTime = searchParams.get('endTime');
   const studyPeriod =
@@ -55,10 +56,7 @@ export default function OneToOneReviewDetailPage() {
         emptyMessage="아직 받은 만족도가 없습니다"
       />
 
-      <EvaluationSection
-        statistics={{}}
-        emptyMessage="아직 받은 평가가 없습니다"
-      />
+      <EvaluationSection statistics={{}} />
 
       <div className="flex flex-col gap-200">
         <div className="flex items-center gap-100">
@@ -79,7 +77,7 @@ export default function OneToOneReviewDetailPage() {
           </ul>
         ) : (
           <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
-            아직 작성된 후기가 없습니다.
+            아직 받은 {studyTypeName} 후기가 없습니다.
           </div>
         )}
       </div>
