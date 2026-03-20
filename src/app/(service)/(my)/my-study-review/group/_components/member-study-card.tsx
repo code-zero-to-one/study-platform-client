@@ -10,9 +10,14 @@ import type { MemberStudyItem } from '@/types/api/group-study.types';
 interface Props {
   study: MemberStudyItem;
   basePath: string;
+  disableLeaderGuard?: boolean;
 }
 
-export default function MemberStudyCard({ study, basePath }: Props) {
+export default function MemberStudyCard({
+  study,
+  basePath,
+  disableLeaderGuard,
+}: Props) {
   const showToast = useToastStore((state) => state.showToast);
   const startDate = dayjs(study.startTime).format('YYYY.MM.DD');
   const endDate = study.endTime
@@ -23,7 +28,7 @@ export default function MemberStudyCard({ study, basePath }: Props) {
   const href = study.studyId ? `${basePath}/${study.studyId}` : null;
 
   const handleStudyClick = (e: React.MouseEvent) => {
-    if (study.studyRole !== 'LEADER') {
+    if (!disableLeaderGuard && study.studyRole !== 'LEADER') {
       e.preventDefault();
       showToast('준비중인 기능입니다', 'info');
     }

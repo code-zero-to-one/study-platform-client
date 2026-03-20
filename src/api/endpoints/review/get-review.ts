@@ -63,9 +63,10 @@ export const getMyNegativeKeywords = async ({
 
 export const getMyReviews = async ({
   cursor,
+  pageSize = 10,
 }: MyReviewsRequest): Promise<MyReviewsResponse> => {
   const params: Record<string, number> = {
-    'page-size': 10,
+    'page-size': pageSize,
   };
 
   // cursor 전송하지 않는 경우 첫 데이터부터 조회
