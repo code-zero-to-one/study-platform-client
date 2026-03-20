@@ -62,7 +62,7 @@ function EvaluationCard({
 }
 
 interface EvaluationSectionProps {
-  statistics: GroupStudyReviewStatistics;
+  statistics?: GroupStudyReviewStatistics;
   studyTypeName?: string;
 }
 
