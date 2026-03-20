@@ -34,7 +34,7 @@ export default function GroupStudyReviewListPage() {
             </span>
           </div>
         ) : (
-          <ul className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-300">
+          <ul className="grid grid-cols-1 gap-300 sm:grid-cols-2 lg:grid-cols-3">
             {completedGroupStudies.map((study) => (
               <MemberStudyCard
                 key={study.studyId ?? study.title}
