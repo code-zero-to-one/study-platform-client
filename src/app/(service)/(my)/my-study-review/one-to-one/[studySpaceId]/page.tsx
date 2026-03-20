@@ -23,7 +23,7 @@ export default function OneToOneReviewDetailPage() {
   );
 
   const studyTitle =
-    reviews.length > 0 ? (reviews[0].writer.memberName + '님과의 스터디') : title;
+    reviews.length > 0 ? `${reviews[0].writer.memberName}님과의 스터디` : title;
 
   return (
     <div className="flex flex-col gap-400">
