@@ -27,7 +27,7 @@ function EvaluationCard({
   const hasMore = items.length > DEFAULT_SHOW_COUNT;
 
   return (
-    <div className="rounded-100 border-border-subtle min-h-200 border p-200">
+    <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
       <div className={cn('mb-200 flex', showToggle && 'justify-between')}>
         <h3 className="font-designer-16b text-text-default">{title}</h3>
         {showToggle && hasMore && (
@@ -54,9 +54,11 @@ function EvaluationCard({
           ))}
         </ul>
       ) : (
-        <span className="font-designer-13r text-text-subtlest">
-          {emptyMessage}
-        </span>
+        <div className="flex flex-col gap-50">
+          <span className="text-text-subtle font-designer-14r text-center">
+            {emptyMessage}
+          </span>
+        </div>
       )}
     </div>
   );
