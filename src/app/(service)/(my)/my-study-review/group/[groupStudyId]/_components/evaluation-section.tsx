@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type {
   GroupStudyReviewStatistics,
   GroupStudyReviewStatisticsItem,
@@ -12,16 +13,22 @@ interface CardProps {
   title: string;
   items: GroupStudyReviewStatisticsItem[];
   showToggle?: boolean;
+  emptyMessage: string;
 }
 
-function EvaluationCard({ title, items, showToggle = false }: CardProps) {
+function EvaluationCard({
+  title,
+  items,
+  showToggle = false,
+  emptyMessage,
+}: CardProps) {
   const [expanded, setExpanded] = useState(false);
   const visible = expanded ? items : items.slice(0, DEFAULT_SHOW_COUNT);
   const hasMore = items.length > DEFAULT_SHOW_COUNT;
 
   return (
-    <div className="rounded-100 border-border-subtle min-h-[200px] border p-200">
-      <div className={`mb-200 flex ${showToggle ? 'justify-between' : ''}`}>
+    <div className="rounded-100 border-border-subtle min-h-200 border p-200">
+      <div className={cn('mb-200 flex', showToggle && 'justify-between')}>
         <h3 className="font-designer-16b text-text-default">{title}</h3>
         {showToggle && hasMore && (
           <button
@@ -48,7 +55,7 @@ function EvaluationCard({ title, items, showToggle = false }: CardProps) {
         </ul>
       ) : (
         <span className="font-designer-13r text-text-subtlest">
-          아직 없어요
+          {emptyMessage}
         </span>
       )}
     </div>
@@ -56,14 +63,19 @@ function EvaluationCard({ title, items, showToggle = false }: CardProps) {
 }
 
 interface EvaluationSectionProps {
-  statistics: GroupStudyReviewStatistics;
+  statistics?: GroupStudyReviewStatistics;
+  studyTypeName?: string;
 }
 
 export default function EvaluationSection({
   statistics,
+  studyTypeName,
 }: EvaluationSectionProps) {
-  const goodItems = statistics.goodItems ?? [];
-  const disappointedItems = statistics.disappointedItems ?? [];
+  const emptyMessage = studyTypeName
+    ? `아직 받은 ${studyTypeName} 평가가 없습니다`
+    : '아직 받은 평가가 없습니다';
+  const goodItems = statistics?.goodItems ?? [];
+  const disappointedItems = statistics?.disappointedItems ?? [];
   const goodTotalCount = goodItems.reduce(
     (sum, item) => sum + (item.count ?? 0),
     0,
@@ -82,8 +94,17 @@ export default function EvaluationSection({
       </span>
 
       <div className="grid grid-cols-2 gap-300">
-        <EvaluationCard title="좋았던 점" items={goodItems} showToggle />
-        <EvaluationCard title="개선이 필요한 점" items={disappointedItems} />
+        <EvaluationCard
+          title="좋았던 점"
+          items={goodItems}
+          showToggle
+          emptyMessage={emptyMessage}
+        />
+        <EvaluationCard
+          title="개선이 필요한 점"
+          items={disappointedItems}
+          emptyMessage={emptyMessage}
+        />
       </div>
     </div>
   );

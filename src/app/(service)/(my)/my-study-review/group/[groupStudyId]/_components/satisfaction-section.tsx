@@ -6,7 +6,8 @@ import Progress from '@/components/common/ui/progress';
 import type { GroupStudyReviewStatistics } from '@/hooks/queries/group-study-review-api';
 
 interface SatisfactionSectionProps {
-  statistics: GroupStudyReviewStatistics;
+  statistics?: GroupStudyReviewStatistics;
+  emptyMessage?: string;
 }
 
 const STAR_COUNT = 5;
@@ -40,13 +41,14 @@ function StarRating({ rating }: { rating: number }) {
 
 export default function SatisfactionSection({
   statistics,
+  emptyMessage,
 }: SatisfactionSectionProps) {
   const {
     goodCount = 0,
     disappointedCount = 0,
     totalCount = 0,
     averageRating = 0,
-  } = statistics;
+  } = statistics ?? {};
 
   const goodPercent =
     totalCount > 0 ? Math.round((goodCount / totalCount) * 100) : 0;
@@ -61,12 +63,12 @@ export default function SatisfactionSection({
 
         {totalCount === 0 ? (
           <span className="font-designer-13r text-text-subtlest">
-            아직 없어요
+            {emptyMessage ?? '아직 없어요'}
           </span>
         ) : (
           <div className="flex flex-col gap-150">
             <div className="flex items-center gap-200">
-              <div className="flex w-[100px] items-center gap-75">
+              <div className="flex w-100 items-center gap-75">
                 <span className="font-designer-14m text-text-default">
                   좋았어요
                 </span>
@@ -78,13 +80,13 @@ export default function SatisfactionSection({
                   indicatorColor="bg-fill-information-default-default"
                 />
               </div>
-              <span className="font-designer-14m text-text-subtle w-[100px] text-right">
+              <span className="font-designer-14m text-text-subtle w-100 text-right">
                 {goodPercent}% ({goodCount}/{totalCount})
               </span>
             </div>
 
             <div className="flex items-center gap-200">
-              <div className="flex w-[100px] items-center gap-75">
+              <div className="flex w-100 items-center gap-75">
                 <span className="font-designer-14m text-text-default">
                   아쉬웠어요
                 </span>
@@ -96,7 +98,7 @@ export default function SatisfactionSection({
                   indicatorColor="bg-fill-danger-default-default"
                 />
               </div>
-              <span className="font-designer-14m text-text-subtle w-[100px] text-right">
+              <span className="font-designer-14m text-text-subtle w-100 text-right">
                 {disappointedPercent}% ({disappointedCount}/{totalCount})
               </span>
             </div>
@@ -111,7 +113,7 @@ export default function SatisfactionSection({
         </h3>
         {totalCount === 0 ? (
           <span className="font-designer-13r text-text-subtlest">
-            아직 없어요
+            {emptyMessage ?? '아직 없어요'}
           </span>
         ) : (
           <div className="flex items-center gap-200">

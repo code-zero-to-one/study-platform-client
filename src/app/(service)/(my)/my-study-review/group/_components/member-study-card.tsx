@@ -11,12 +11,14 @@ interface Props {
   study: MemberStudyItem;
   basePath: string;
   disableLeaderGuard?: boolean;
+  onMemberClick?: (study: MemberStudyItem) => void;
 }
 
 export default function MemberStudyCard({
   study,
   basePath,
   disableLeaderGuard,
+  onMemberClick,
 }: Props) {
   const showToast = useToastStore((state) => state.showToast);
   const startDate = dayjs(study.startTime).format('YYYY.MM.DD');
@@ -25,14 +27,10 @@ export default function MemberStudyCard({
     : null;
   const thumbnailUrl = study.thumbnail?.resizedImages?.[0]?.resizedImageUrl;
 
-  const href = study.studyId ? `${basePath}/${study.studyId}` : null;
-
-  const handleStudyClick = (e: React.MouseEvent) => {
-    if (!disableLeaderGuard && study.studyRole !== 'LEADER') {
-      e.preventDefault();
-      showToast('준비중인 기능입니다', 'info');
-    }
-  };
+  // LEADER이거나 disableLeaderGuard인 경우에만 상세 페이지로 이동
+  const shouldNavigate = disableLeaderGuard || study.studyRole === 'LEADER';
+  const href =
+    shouldNavigate && study.studyId ? `${basePath}/${study.studyId}` : null;
 
   const content = (
     <>
@@ -71,18 +69,28 @@ export default function MemberStudyCard({
     </>
   );
 
+  const handleNonLeaderClick = () => {
+    if (onMemberClick) {
+      onMemberClick(study);
+    } else {
+      showToast('준비중인 기능입니다', 'info');
+    }
+  };
+
   return (
     <li className="flex w-full flex-col gap-100">
       {href ? (
-        <Link
-          onClick={handleStudyClick}
-          href={href}
-          className="flex w-full flex-col gap-100"
-        >
+        <Link href={href} className="flex w-full flex-col gap-100">
           {content}
         </Link>
       ) : (
-        <div className="flex w-full flex-col gap-100">{content}</div>
+        <button
+          type="button"
+          className="flex w-full flex-col gap-100 text-left"
+          onClick={handleNonLeaderClick}
+        >
+          {content}
+        </button>
       )}
     </li>
   );

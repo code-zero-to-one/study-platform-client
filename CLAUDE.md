@@ -10,6 +10,20 @@
 - **API 엔드포인트 조작 금지**. 존재하지 않는 엔드포인트를 임의로 만들지 않는다. 반드시 `src/hooks/queries/`, `src/api/`, `src/api/openapi/` 에서 실제 API를 확인한 뒤 사용한다. 없으면 TODO 플레이스홀더를 남기고 사용자에게 알린다.
 - **코드 리뷰·정리 시 한 번에 전부 수정**. 동일 파일에 여러 번 패스하지 않는다. 발견된 모든 이슈를 단일 패스로 처리한다.
 
+### 구현 완료 기준
+
+코드를 작성·수정한 직후, **아래 3가지를 모두 통과해야 완료**로 간주한다:
+
+```bash
+yarn lint:fix       # ESLint 자동 수정
+yarn prettier:fix   # Prettier 포맷 적용
+yarn typecheck      # 타입 에러 없음 확인
+```
+
+- 타입 변경이 없는 UI 수정은 `yarn typecheck` 생략 가능
+- "prettier 정리", "lint 수정" 단독 커밋은 이 기준을 지키지 않았다는 신호
+- 수정 범위가 넓더라도 lint/prettier는 **수정한 파일 범위 내에서만** 실행 (관련 없는 파일 개선 금지 원칙과 충돌하지 않음)
+
 ### 코드 컨벤션 (자동 적용)
 
 - `className` 조합은 항상 `cn()` 사용. 템플릿 리터럴 className 금지.
@@ -38,6 +52,34 @@ yarn generate:api <이름>  # API 쿼리 훅 보일러플레이트 생성 (예: 
 ```
 
 CI 파이프라인: lint → typecheck → prettier → build → build-storybook → 보안 감사.
+
+## 도메인 혼동 주의: 멘토링 vs 멘토스터디
+
+### 멘토링 (1:1 개인 상담)
+- **URL**: `/mentoring`, `/mentoring/[id]`, `/mentoring/[id]/apply`, `/mentoring/become-mentor`
+- **피처**: `src/features/mentoring/`
+- **API 훅**: `useMentorDirectoryQuery`, `useMentorDetail`, `useMentoringApplyController` 등
+- **백엔드 엔드포인트**: `/api/v1/mentors`
+- **성격**: 전문 멘토와 학습자의 1:1 상담. 별도 신청·수락 흐름. 과제·멤버 관리 없음.
+
+### 멘토스터디 (그룹 스터디의 프리미엄 유형)
+- **URL**: `/premium-study`, `/premium-study/[id]`
+- **컴포넌트**: `src/components/pages/premium-study-*.tsx`, `src/app/(service)/premium-study/`
+- **API 훅**: `useGetGroupStudyDetail`, `useGetGroupStudyList` (GroupStudy 훅 공용)
+- **백엔드 엔드포인트**: `/api/v1/group-studies` (쿼리 파라미터로 MENTOR_STUDY 구분)
+- **성격**: 그룹 스터디의 특수 유형(MentorStudy extends GroupStudy). 멤버 관리·과제·평가 포함.
+
+### 핵심 차이 요약
+
+| | 멘토링 | 멘토스터디 |
+|---|---|---|
+| 참여 형태 | 1:1 | 1:N 그룹 |
+| 프론트 URL | `/mentoring/*` | `/premium-study/*` |
+| API 경로 | `/api/v1/mentors` | `/api/v1/group-studies` |
+| 엔티티 | `Mentor`, `MentoringApplication` | `MentorStudy extends GroupStudy` |
+| 과제·평가 | 없음 | 있음 |
+
+---
 
 ## 아키텍처
 
@@ -404,13 +446,41 @@ export default async function Page() {
 
 ## Claude 커맨드 & 스킬
 
+### 로컬 커맨드 우선 원칙
+
+이 프로젝트에는 `.claude/commands/`에 프로젝트 특화 커맨드가 정의되어 있다.
+**전역 스킬보다 로컬 커맨드를 항상 우선 사용한다.**
+
+| 작업 | 사용할 커맨드 | 사용하지 말 것 |
+|------|------------|-------------|
+| 코드 리뷰 | `/review` | `coderabbit:review`, `code-review:code-review` |
+| 커밋 | `/commit` | `sc:git`, `everything-claude-code:*` |
+| PR 생성 | `/pr` | `pr-creator` 에이전트 |
+| 문서 생성 | `/doc` | `sc:document` |
+| 구현 | `/implement` | `sc:implement`, `everything-claude-code:plan` |
+| 개념 설명 | `/explain` | `sc:explain` |
+| 신뢰 자료 | `/ref` | (에이전트 직접 호출 불필요) |
+
+`sc:*` 시리즈(SuperClaude)와 `everything-claude-code:go-*`, `everything-claude-code:springboot-*` 등 백엔드·Go 관련 전역 스킬은 **이 프로젝트에서 사용하지 않는다.**
+
+단, 아래 `sc:` 커맨드는 **로컬에 동등한 커맨드가 없으므로 예외적으로 사용 가능**하다:
+
+| `sc:` 커맨드 | 용도 |
+|-------------|------|
+| `sc:research` | 특정 주제 깊은 웹 리서치 (로컬 `/ref`는 구현 근거 인용 목적, 리서치 목적과 다름) |
+| `sc:brainstorm` | 요구사항 탐색·아이디어 발산 대화 |
+| `sc:estimate` | 개발 공수 산정 |
+
 ### 자주 사용하는 커맨드
 
 ```bash
-/commit-title              # 현재 변경사항으로 커밋 메시지 자동 생성
-/commit-title <설명>       # 설명 기반으로 커밋 메시지 생성
+/commit                    # lint:fix → prettier:fix → typecheck → 커밋 메시지 생성 → 커밋 실행
+/review                    # 변경 파일 자동 감지 → 8기준 리뷰 + 프로젝트 특화 에이전트 연계
+/review-pr <PR번호>        # CodeRabbit 코멘트 수용/기각 + 독립 리뷰 + 수정 계획
+/pr                        # develop 대상 GitHub PR 자동 생성
 /explain <개념>            # 프레임워크 개념을 프로젝트 코드 예시와 함께 설명
-/doc                       # 작업 완료 후 docs/ 문서 자동 생성
+/doc                       # 작업 완료 후 docs/ 문서 자동 생성 (완료 후 /ref 제안)
+/ref <작업>                # MDN·OWASP·공식 문서 근거로 작업 수행 또는 인용 첨부
 ```
 
 ### 브라우저 검증 (staging-verify 스킬)

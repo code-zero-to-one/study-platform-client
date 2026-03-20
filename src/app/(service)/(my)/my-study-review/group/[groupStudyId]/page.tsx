@@ -20,6 +20,7 @@ export default function GroupStudyReviewDetailPage() {
   const router = useRouter();
 
   const title = searchParams.get('title') ?? '스터디 후기';
+  const studyTypeName = '그룹스터디';
 
   const { data: studyDetail } = useGroupStudyDetailQuery(Number(groupStudyId));
 
@@ -76,7 +77,10 @@ export default function GroupStudyReviewDetailPage() {
       </div>
       <SatisfactionSection statistics={statistics} />
 
-      <EvaluationSection statistics={statistics} />
+      <EvaluationSection
+        statistics={statistics}
+        studyTypeName={studyTypeName}
+      />
 
       <div className="flex flex-col gap-200">
         <div className="flex items-center gap-100">
@@ -97,7 +101,7 @@ export default function GroupStudyReviewDetailPage() {
           </ul>
         ) : (
           <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
-            아직 작성된 후기가 없습니다.
+            아직 받은 {studyTypeName} 후기가 없습니다.
           </div>
         )}
       </div>

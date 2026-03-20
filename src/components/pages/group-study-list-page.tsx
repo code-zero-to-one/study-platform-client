@@ -11,6 +11,7 @@ import StudyFilter from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
 import GroupStudyPagination from '@/components/lists/group-study-pagination';
 import { useAuthReady } from '@/features/auth/model/use-auth';
+import { useGroupStudyReviewReminder } from '@/hooks/common/use-group-study-review-reminder';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import GroupStudyList from '../lists/group-study-list';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
@@ -26,6 +27,16 @@ const GroupStudyFormModal = dynamic(
   { ssr: false },
 );
 
+const GroupStudyReviewModal = dynamic(
+  () => import('@/components/common/modals/group-study-review-modal'),
+  { ssr: false },
+);
+
+const StudyCompletionModal = dynamic(
+  () => import('@/components/common/modals/study-completion-modal'),
+  { ssr: false },
+);
+
 // Carousel이 클라이언트 전용이므로 dynamic import로 로드
 const Banner = dynamic(() => import('@/components/home/banner'), {
   ssr: false,
@@ -33,6 +44,16 @@ const Banner = dynamic(() => import('@/components/home/banner'), {
 
 export default function GroupStudyListPage() {
   const { isAuthReady } = useAuthReady();
+
+  const {
+    showReviewModal,
+    setShowReviewModal,
+    showCompletionModal,
+    setShowCompletionModal,
+    reviewStudyId,
+    reviewDetailInfo,
+    reviewBasicInfo,
+  } = useGroupStudyReviewReminder({ studyType: 'GROUP_STUDY' });
 
   const {
     searchQuery,
@@ -62,6 +83,26 @@ export default function GroupStudyListPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-400 py-600">
+      {/* 미작성 후기 모달 — 완료된 스터디 후기를 아직 작성하지 않은 경우 자동으로 열림 */}
+      {reviewStudyId && reviewDetailInfo && reviewBasicInfo && (
+        <>
+          <GroupStudyReviewModal
+            open={showReviewModal}
+            onOpenChange={setShowReviewModal}
+            groupStudyId={reviewStudyId}
+            detailInfo={reviewDetailInfo}
+            basicInfo={reviewBasicInfo}
+            onSubmitSuccess={() =>
+              setTimeout(() => setShowCompletionModal(true), 300)
+            }
+          />
+          <StudyCompletionModal
+            open={showCompletionModal}
+            onOpenChange={setShowCompletionModal}
+          />
+        </>
+      )}
+
       {/* 배너 */}
       <div className="mb-600">
         <Banner />

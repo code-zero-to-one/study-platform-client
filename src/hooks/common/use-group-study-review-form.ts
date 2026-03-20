@@ -13,7 +13,7 @@ import type {
 
 interface ReviewFormState {
   satisfaction: ReviewSatisfaction | undefined;
-  selectableReviewItemIds: number[];
+  selectedCodes: string[];
   content: string;
   rating: number;
 }
@@ -22,7 +22,7 @@ export const MIN_CONTENT_LENGTH = 20;
 
 const INITIAL_FORM: ReviewFormState = {
   satisfaction: undefined,
-  selectableReviewItemIds: [],
+  selectedCodes: [],
   content: '',
   rating: 0,
 };
@@ -71,7 +71,7 @@ export function useGroupStudyReviewForm({
 
   const isFormValid =
     form.satisfaction !== undefined &&
-    form.selectableReviewItemIds.length > 0 &&
+    form.selectedCodes.length > 0 &&
     trimmedContentLength >= MIN_CONTENT_LENGTH &&
     form.rating > 0;
 
@@ -80,11 +80,11 @@ export function useGroupStudyReviewForm({
       ? `최소 ${MIN_CONTENT_LENGTH}자 이상 입력해주세요.`
       : undefined;
 
-  // 선택된 만족도에 해당하는 항목 목록 (id 없는 항목 제외)
+  // 선택된 만족도에 해당하는 항목 목록 (code 없는 항목 제외)
   const currentItems = form.satisfaction
     ? selectableItems?.[SATISFACTION_ITEMS[form.satisfaction].itemsKey]?.filter(
-        (item): item is SelectableReviewItem & { id: number } =>
-          item.id !== undefined,
+        (item): item is SelectableReviewItem & { code: string } =>
+          item.code !== undefined,
       )
     : undefined;
 
@@ -96,19 +96,19 @@ export function useGroupStudyReviewForm({
     setForm((prev) => ({
       ...prev,
       satisfaction: next,
-      selectableReviewItemIds: [], // 만족도 전환 시 선택 항목 초기화
+      selectedCodes: [],
     }));
   };
 
-  const handleItemToggle = (id: number) => {
+  const handleItemToggle = (code: string) => {
     setForm((prev) => {
-      const isSelected = prev.selectableReviewItemIds.includes(id);
+      const isSelected = prev.selectedCodes.includes(code);
 
       return {
         ...prev,
-        selectableReviewItemIds: isSelected
-          ? prev.selectableReviewItemIds.filter((i) => i !== id)
-          : [...prev.selectableReviewItemIds, id],
+        selectedCodes: isSelected
+          ? prev.selectedCodes.filter((selectedCode) => selectedCode !== code)
+          : [...prev.selectedCodes, code],
       };
     });
   };
@@ -117,14 +117,14 @@ export function useGroupStudyReviewForm({
     setHasAttemptedSubmit(true);
     if (!isFormValid || !form.satisfaction) return;
 
-    const { satisfaction, selectableReviewItemIds, content, rating } = form;
+    const { satisfaction, selectedCodes, content, rating } = form;
 
     createReview(
       {
         groupStudyId,
         request: {
           satisfaction,
-          selectableReviewItemIds,
+          selectableReviewItemCodes: selectedCodes,
           content,
           rating: Math.round(rating), // 반별점(0.5 단위) → 백엔드 정수 변환
         },

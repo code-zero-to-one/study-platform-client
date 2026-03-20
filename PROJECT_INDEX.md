@@ -1,247 +1,196 @@
-# Project Index: study-platform-client
+# Project Index: ZERO-ONE 스터디 플랫폼
 
-Generated: 2026-03-17
+Generated: 2026-03-19
 
-## Overview
+## 📋 Overview
 
-ZERO-ONE 스터디 플랫폼 — 매일 아침 1:1 기상 스터디 플랫폼.
-Next.js 15 (App Router) · React 19 · TypeScript 5 · Tailwind CSS 4 · Yarn 1.22+
+매일 아침 함께 시작하는 1:1 기상 스터디 플랫폼.
+**Stack**: Next.js 15 (App Router) · React 19 · TypeScript 5 · Tailwind CSS 4
+**Package Manager**: Yarn 1.22+ · Node.js >=20
 
-## Project Structure
+---
+
+## 📁 Directory Structure
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── (landing)/          # 공개 랜딩 (/)
-│   ├── (service)/          # 인증 서비스 페이지
-│   │   ├── (my)/           # My 페이지 그룹 (사이드바 공유)
-│   │   ├── group-study/    # 그룹 스터디 목록·상세
-│   │   ├── mentoring/      # 멘토링 목록·상세·신청
-│   │   ├── payment/        # 결제 플로우
-│   │   ├── insights/       # 인사이트 목록·상세
-│   │   ├── home/           # 홈
-│   │   └── ...
-│   ├── (admin)/            # 관리자 (ROLE_ADMIN JWT)
-│   │   └── admin/          # 매칭·멘토링·매출관리·회원상세
-│   └── api/                # Route Handlers
+├── app/                        # Next.js App Router
+│   ├── (landing)/              # 공개 랜딩 (/)
+│   ├── (service)/              # 서비스 (인증 필요)
+│   │   ├── (my)/               # 마이페이지 그룹
+│   │   │   ├── my-page/        # 마이페이지 메인
+│   │   │   ├── my-study/       # 내 스터디 (completed/not-completed)
+│   │   │   ├── my-study-review/ # 후기 탭 (group/mentor/one-to-one)
+│   │   │   ├── payment-management/
+│   │   │   ├── settlement-management/
+│   │   │   ├── mentoring-management/
+│   │   │   └── notification/
+│   │   ├── group-study/[id]/   # 그룹스터디 상세
+│   │   ├── premium-study/[id]/ # 멘토스터디 상세
+│   │   ├── mentoring/[id]/     # 멘토링 상세
+│   │   ├── insights/           # 블로그/인사이트
+│   │   ├── payment/[id]/       # 결제
+│   │   └── application-list/[studyId]/
+│   ├── (admin)/admin/          # 관리자 (ROLE_ADMIN)
+│   └── api/                    # API Routes
+│       ├── auth/clear-session/ # 세션 초기화
+│       └── notify-user-by-email/
 ├── api/
-│   ├── client/axios.ts     # 레거시 axios (AUTH001 갱신 큐)
-│   ├── endpoints/          # 도메인별 서버 fetch 함수
-│   ├── openapi/            # ⚠️ 자동 생성 — 직접 수정 금지
-│   │   ├── api/            # 45개 API 클래스
-│   │   └── models/         # 388개 DTO 타입
-│   └── strapi/             # CMS API
+│   ├── client/                 # axios 인스턴스 (axios.ts, axiosV2.ts, cookie.ts)
+│   └── openapi/                # Swagger 자동생성 — 직접 수정 금지
 ├── components/
 │   ├── common/
-│   │   ├── ui/             # 공용 UI 원자: Button, Badge, Avatar,
-│   │   │                   #   Carousel, Chip, DatePicker, Dropdown,
-│   │   │                   #   Editor(Tiptap), Modal, Pagination,
-│   │   │                   #   Table, Tabs, Tooltip, ...
-│   │   ├── layout/         # Header, AdminSideBar, sidebar
-│   │   └── modals/         # 공용 모달
-│   └── [domain]/           # 레거시 도메인 컴포넌트(~266 tsx)
-├── features/               # FSD 구조 (신규 코드 우선)
-│   ├── auth/               # OAuth, 회원가입, 미들웨어 헬퍼
-│   ├── study/
-│   │   ├── group/          # 그룹 스터디 생성·운영·채널·신청
-│   │   ├── one-to-one/     # 1:1 스터디 일정·기록·아카이브·밸런스게임
-│   │   ├── interview/      # 인터뷰
-│   │   └── participation/  # 참여 관련
-│   ├── mentoring/          # 멘토링 신청·관리·노트·리뷰·디렉토리
-│   ├── my-page/            # 마이페이지 프로필·설정
-│   ├── home/               # 홈 모델
-│   ├── phone-verification/ # 핸드폰 인증
-│   └── admin/              # 관리자 매칭·멘토링
+│   │   ├── ui/                 # Button, Modal, Avatar, Tabs, StarRatingInput, ...
+│   │   ├── layout/             # Header, HomeHeader, MobileMenuDrawer, MySidebar
+│   │   └── modals/             # GroupStudyReviewModal, StudyCompletionModal, ...
+│   ├── pages/                  # 페이지 조합 컴포넌트
+│   └── [도메인]/               # archive/, balance-game/, card/, section/, ...
+├── features/                   # 도메인 피처 모듈 (신규 패턴)
+│   ├── auth/                   # 인증 전체 (model, server/middleware, ui)
+│   ├── mentoring/              # 멘토링 도메인
+│   ├── admin/                  # 어드민 (matching, mentoring)
+│   ├── study/one-to-one/       # 1:1 스터디 (schedule, history, discussion)
+│   └── home/                   # 홈 검색 파라미터
 ├── hooks/
-│   ├── queries/            # TanStack Query 훅 (56개)
-│   └── common/             # 범용 훅 (debounce, intersection, infinite-scroll, auth, ...)
-├── stores/                 # Zustand 전역 상태
-│   ├── useLeaderStore
-│   ├── use-toast-store
-│   ├── use-phone-verification-store
-│   └── useMentor* (screening, directory, management, operation)
-├── config/                 # 설정 및 상수
-│   ├── query-client.ts     # TanStack QueryClient + MutationCache 글로벌 에러 핸들러
-│   ├── sentry.ts           # Sentry 환경 분류
-│   └── [domain]-const.ts   # 도메인별 상수
-├── providers/
-│   └── query-provider.tsx  # ReactQueryDevtools 포함
-├── types/                  # 도메인 타입 정의
-│   └── schemas/            # Zod 스키마 (React Hook Form 연동)
-├── utils/                  # 유틸리티
-│   ├── error-handler.ts    # ★ 핵심: analyzeError(), logError(), ~40개 에러코드 매핑
-│   ├── jwt.ts
-│   ├── format.ts
-│   ├── server-cookie.ts
-│   └── ...
-├── lib/
-│   └── countdown.ts
-└── middleware.ts            # accessToken 검증, 갱신, /admin 권한 가드
+│   ├── queries/                # TanStack Query 훅 (도메인별)
+│   └── common/                 # 공용 훅 (use-auth, use-group-study-review-form, ...)
+├── stores/                     # Zustand 전역 상태
+├── types/
+│   ├── api/                    # API 응답 타입 (*.types.ts)
+│   ├── schemas/                # Zod 폼 스키마
+│   ├── auth/                   # 인증 도메인 타입
+│   └── mentoring/              # 멘토링 도메인 타입
+├── config/                     # 상수 및 설정 (query-client, sentry, *-const)
+├── utils/                      # 유틸 (error-handler, format, time, jwt, seo, ...)
+└── middleware.ts               # 인증 미들웨어 (토큰 검증 + 리다이렉트)
 ```
 
-## Entry Points
+---
+
+## 🚀 Entry Points
+
+| 경로 | 역할 |
+|---|---|
+| `src/app/layout.tsx` | 루트 레이아웃 (Provider, Sentry init) |
+| `src/middleware.ts` | 인증 처리 (accessToken 검증, 갱신, `/admin/*` 권한) |
+| `src/providers/index.tsx` | QueryClient, Zustand hydration, Toast |
+| `src/instrumentation.ts` | Sentry 서버/엣지 초기화 |
+
+---
+
+## 📦 Core Modules
+
+### API 레이어
 
 | 파일 | 역할 |
-|------|------|
-| `src/middleware.ts` | 모든 요청 인터셉트: 토큰 검증 → 갱신 → admin 권한 확인 |
-| `src/app/layout.tsx` | Root layout (Sentry, GTM, Clarity 초기화) |
-| `src/app/(landing)/layout.tsx` | 랜딩 레이아웃 |
-| `src/app/(service)/layout.tsx` | 서비스 레이아웃 (GlobalToast 마운트) |
-| `src/app/(admin)/layout.tsx` | 관리자 레이아웃 |
-| `src/app/global-error.tsx` | Root 에러 경계 (Sentry 자동 캡처) |
+|---|---|
+| `src/api/client/axios.ts` | 레거시 axios (baseURL `/api/v1/`, AUTH001 갱신 큐) |
+| `src/api/client/axiosV2.ts` | V2 axios 클라이언트 |
+| `src/api/openapi/` | Swagger 자동생성 타입·서비스 — **수정 금지** |
 
-## Key Routes
-
-### 서비스 (인증 필요)
-
-| 경로 | 설명 |
-|------|------|
-| `/` | 랜딩 페이지 |
-| `/home` | 홈 (참여 스터디 대시보드) |
-| `/group-study` | 그룹 스터디 목록 |
-| `/group-study/[id]` | 그룹 스터디 상세 (mission/evaluation 탭) |
-| `/mentoring` | 멘토링 목록 |
-| `/mentoring/[id]` | 멘토링 상세 |
-| `/mentoring/become-mentor` | 멘토 등록 |
-| `/payment/[id]` | 결제 |
-| `/insights` | 인사이트 목록 |
-| `/one-on-one` | 1:1 스터디 |
-| `/my-page` | 마이페이지 |
-| `/my-study` | 마이스터디 (참여 중·종료 미리보기) |
-| `/my-study/not-completed` | 참여 중인 스터디 전체 + 페이지네이션 |
-| `/my-study/completed` | 종료된 스터디 전체 + 페이지네이션 |
-| `/my-mentoring/[id]` | 내 멘토링 상세 |
-| `/my-activity` | 내 활동 |
-| `/my-study-review` | 스터디 리뷰 |
-| `/note-consultation` | 노트 상담 |
-| `/payment-management` | 결제 내역 (my) |
-| `/settlement-management` | 정산 관리 (my) |
-| `/notification` | 알림 목록 |
-| `/mentoring-management` | 멘토 운영 관리 |
-
-### 관리자
-
-| 경로 | 설명 |
-|------|------|
-| `/admin` | 어드민 홈 |
-| `/admin/matching` | 매칭 관리 |
-| `/admin/mentoring` | 멘토링 관리 |
-| `/admin/sales-management/payment-refund` | 결제·환불 관리 |
-| `/admin/sales-management/settlement` | 정산 관리 |
-
-## API Layer
-
-### 두 가지 패턴 공존
-
-**1. OpenAPI 자동 생성** (권장, 신규 API용)
-```bash
-yarn generate:api <swagger-api-title>
-# → src/hooks/queries/<name>.ts 생성 (TanStack Query 훅 보일러플레이트)
-```
-- 타입: `src/api/openapi/models/` (388개)
-- API 클래스: `src/api/openapi/api/` (45개)
-- Swagger: https://test-api.zeroone.it.kr/swagger-ui/index.html
-
-**2. 레거시 axios** (`src/api/client/axios.ts`)
-- baseURL: `/api/v1/`
-- AUTH001 에러 시 자동 갱신 + 큐잉
-- 커스텀/레거시 엔드포인트용
-
-### TanStack Query 훅 (src/hooks/queries/)
+### TanStack Query 훅 (`src/hooks/queries/`)
 
 | 파일 | 도메인 |
-|------|--------|
-| `use-group-study-list-query.ts` | 그룹 스터디 목록 |
-| `mission-api.ts` | 미션 CRUD |
+|---|---|
+| `study-query.ts` | 스터디 기본 쿼리 |
+| `group-study-review-api.ts` | 그룹스터디 리뷰 CRUD + 통계 |
+| `group-study-member-api.ts` | 스터디 멤버 관리 |
+| `mission-api.ts` | 미션 생성/조회/제출 |
 | `evaluation-api.ts` | 평가 |
 | `peer-review-api.ts` | 동료 평가 |
-| `payment-user-api.ts` | 결제 (사용자) |
-| `refund-user-api.ts` | 환불 (사용자) |
-| `settlement-user-api.ts` | 정산 (사용자) |
+| `payment-user-api.ts` | 결제 |
+| `refund-user-api.ts` | 환불 |
+| `settlement-user-api.ts` | 정산 |
 | `notification-api.ts` | 알림 |
-| `group-study-member-api.ts` | 스터디 멤버 |
-| `bank-search-api.ts` | 은행 검색 |
+| `use-auth.ts`, `use-auth-mutation.ts` | 인증 쿼리/뮤테이션 |
 
-## State Management
+### 전역 상태 (`src/stores/`)
 
-| 스토어 | 용도 |
-|--------|------|
-| `useLeaderStore` | 리더 정보 |
-| `use-toast-store` | 전역 토스트 (GlobalToast 연동) |
-| `use-phone-verification-store` | 휴대폰 인증 상태 |
-| `useMentor*` | 멘토 스크리닝·디렉토리·운영 |
+| 파일 | 역할 |
+|---|---|
+| `useUserStore.ts` | 유저 정보 (persist) |
+| `useLeaderStore.ts` | 리더 여부 |
+| `use-toast-store.ts` | Toast 전역 알림 |
+| `use-phone-verification-store.ts` | 본인인증 상태 |
 
-- 기본 staleTime: 60초
-- QueryClient: `src/config/query-client.ts` — MutationCache 글로벌 onError
+### 인증 피처 (`src/features/auth/`)
 
-## Error Handling
+| 경로 | 역할 |
+|---|---|
+| `model/use-auth.ts` | 클라이언트 인증 훅 |
+| `model/auth-session.ts` | 세션 도메인 로직 |
+| `server/middleware/` | 미들웨어 분리 모듈 (route-policy, access-token-session, ...) |
+| `model/parse-oauth-redirect-result.ts` | OAuth 리다이렉트 파싱 |
 
-```
-AxiosError  → isAxiosError()  → HTTP 코드/에러 코드 추출
-ApiError    → isApiError()    → errorCode/statusCode 보존
-Error       → instanceof      → UNKNOWN 타입
-```
+### 에러 핸들링
 
-- 핵심: `src/utils/error-handler.ts` — `analyzeError()`, `logError()`
-- Sentry: AUTH001 제외, replaysOnErrorSampleRate: 1.0
-- 브라우저 alert() 사용 금지 → `useToastStore.showToast()`
+| 파일 | 역할 |
+|---|---|
+| `src/utils/error-handler.ts` | `analyzeError()`, `logError()`, 코드→메시지 매핑 (~40개) |
+| `src/config/query-client.ts` | MutationCache 글로벌 에러 핸들러 |
+| `src/config/sentry.ts` | Sentry 설정 (DSN, 환경 감지, AUTH001 제외) |
 
-## Styling
+---
 
-- Tailwind CSS 4 + `@tailwindcss/postcss`
-- 기본 Tailwind 스케일(`p-4`, `rounded-lg` 등) **사용 금지** → 프로젝트 커스텀 토큰만
-- 토큰 정의: `src/app/global.css` (`@theme inline`)
-- 클래스 유틸: `clsx`, `tailwind-merge`, CVA
+## 🔧 Configuration
 
-## Key Dependencies
+| 파일 | 목적 |
+|---|---|
+| `next.config.ts` | SVGR, Sentry, Bundle Analyzer |
+| `tsconfig.json` | `@/*` → `./src/*` 별칭 |
+| `src/app/global.css` | `@theme inline` — 프로젝트 디자인 토큰 정의 |
+| `src/config/query-client.ts` | TanStack Query 설정 (staleTime 60s) |
+| `.env` | `NEXT_PUBLIC_API_BASE_URL`, OAuth 키, Toss, Sentry DSN |
 
-| 패키지 | 용도 |
-|--------|------|
-| `next@15.2.8` | App Router, Turbopack |
-| `@tanstack/react-query@^5` | 서버 상태 |
-| `zustand@^5` | 클라이언트 상태 |
-| `react-hook-form + zod` | 폼 + 유효성 |
-| `@tiptap/*` | 리치 텍스트 에디터 |
-| `@tosspayments/tosspayments-sdk` | 결제 |
-| `@sentry/nextjs@^10` | 에러 모니터링 |
-| `framer-motion` | 애니메이션 |
-| `@radix-ui/*` | 접근성 UI primitives |
-| `@svgr/webpack` | SVG → React 컴포넌트 |
+---
 
-## Quick Start
+## 📚 Documentation
+
+| 파일 | 내용 |
+|---|---|
+| `CLAUDE.md` | Claude Code 전체 가이드 (API 패턴, 컨벤션, 에러 처리) |
+| `docs/SENTRY_GUIDE.md` | Sentry 통합 가이드 |
+| `docs/CODEMAPS/` | 인증 리팩토링 상세 문서 |
+
+---
+
+## 🔗 Key Dependencies
+
+| 패키지 | 버전 | 용도 |
+|---|---|---|
+| `next` | 15 | 프레임워크 |
+| `react` | 19 | UI |
+| `@tanstack/react-query` | - | 서버 상태 관리 |
+| `zustand` | - | 전역 클라이언트 상태 |
+| `axios` | ^1.9 | HTTP 클라이언트 |
+| `react-hook-form` + `zod` | - | 폼 상태 + 유효성 |
+| `@radix-ui/*` | - | UI 프리미티브 (Modal, Dialog, ...) |
+| `@sentry/nextjs` | ^10 | 에러 모니터링 |
+| `@tosspayments/tosspayments-sdk` | - | 결제 |
+| `canvas-confetti` | ^1.9 | 완주 모달 효과 |
+| `date-fns`, `dayjs` | - | 날짜 처리 |
+| `@tiptap/react` | ^3 | 리치 텍스트 에디터 |
+| `class-variance-authority` | - | CVA 컴포넌트 변형 |
+
+---
+
+## 📝 Quick Start
 
 ```bash
-yarn          # 의존성 설치
-yarn dev      # Turbopack 개발 서버
-yarn build    # 프로덕션 빌드
-yarn lint     # ESLint
-yarn typecheck  # TypeScript 검사
-yarn storybook  # 컴포넌트 개발 (포트 6006)
-yarn generate:api <name>  # API 훅 보일러플레이트 생성
+yarn install          # 의존성 설치
+yarn dev              # Turbopack 개발 서버
+yarn build            # 프로덕션 빌드
+yarn typecheck        # 타입 검사
+yarn lint:fix         # ESLint 자동 수정
+yarn generate:api <이름>  # API 훅 보일러플레이트 생성
 ```
 
-## Environment Variables
+---
 
-```
-NEXT_PUBLIC_API_BASE_URL       # 백엔드 API
-NEXT_PUBLIC_KAKAO_CLIENT_ID    # 카카오 OAuth
-NEXT_PUBLIC_GOOGLE_CLIENT_ID   # 구글 OAuth
-NEXT_PUBLIC_TOSS_CLIENT_KEY    # 토스페이먼츠
-NEXT_PUBLIC_SENTRY_DSN         # Sentry (없으면 비활성화)
-NEXT_PUBLIC_GTM_ID             # Google Tag Manager
-NEXT_PUBLIC_CLARITY_PROJECT_ID # Microsoft Clarity
-```
+## ⚠️ 중요 제약사항
 
-## CI Pipeline
-
-lint → typecheck → prettier → build → build-storybook → 보안 감사
-
-## Branch Strategy
-
-feature → `develop` (스테이징: test.zeroone.it.kr) → `main` (프로덕션: www.zeroone.it.kr)
-
-## Notes
-
-- `src/api/openapi/` 파일 직접 수정 금지 (재생성됨)
-- `src/components/` + `src/features/` 혼합 구조 — PR 내에서 구조 혼용 금지
-- Tailwind 임의값(`p-[4px]`) 사용 금지 — 프로젝트 커스텀 토큰 사용
+- `src/api/openapi/` 파일 직접 수정 금지 (Swagger 재생성됨)
+- Tailwind 임의값(`p-[4px]`) 금지 → `global.css` 커스텀 토큰 사용
+- 존재하지 않는 API 엔드포인트 임의 생성 금지
+- `alert()` 금지 → `useToastStore` 사용
+- Production에서 stack trace 사용자 노출 금지

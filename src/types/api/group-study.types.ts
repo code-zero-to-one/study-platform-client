@@ -368,7 +368,7 @@ export interface MemberStudyListResponse {
     totalPages: number;
     hasNext: boolean;
     hasPrevious: boolean;
-  };
+  } | null;
   completed: {
     content: MemberStudyItem[];
     page: number;

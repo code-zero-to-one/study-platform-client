@@ -1,16 +1,31 @@
+import { isAxiosError } from 'axios';
 import { axiosInstance } from '@/api/client/axios';
 import type {
+  MemberStudyItem,
   MemberStudyListRequest,
   MemberStudyListResponse,
 } from '@/types/api/group-study.types';
+
+const EMPTY_RESPONSE: MemberStudyListResponse = {
+  notCompleted: null,
+  completed: {
+    content: [] as MemberStudyItem[],
+    page: 1,
+    size: 0,
+    totalElements: 0,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+  },
+};
 
 const DEFAULT_PARAMS: Omit<MemberStudyListRequest, 'memberId'> = {
   studyType: 'BOTH',
   studyStatus: 'BOTH',
   inProgressPage: 1,
-  inProgressPageSize: 9,
+  inProgressPageSize: 3,
   completedPage: 1,
-  completedPageSize: 9,
+  completedPageSize: 6,
 };
 
 const toKebabParams = (params: Record<string, unknown>) => {
@@ -28,9 +43,19 @@ export const getMemberStudyList = async ({
   memberId,
   ...params
 }: MemberStudyListRequest): Promise<MemberStudyListResponse> => {
-  const res = await axiosInstance.get(`/members/${memberId}/studies`, {
-    params: toKebabParams({ ...DEFAULT_PARAMS, ...params }),
-  });
+  try {
+    const definedParams = Object.fromEntries(
+      Object.entries(params).filter(([, v]) => v !== undefined),
+    );
+    const res = await axiosInstance.get(`/members/${memberId}/studies`, {
+      params: toKebabParams({ ...DEFAULT_PARAMS, ...definedParams }),
+    });
 
-  return res.data.content;
+    return res.data.content;
+  } catch (error) {
+    if (isAxiosError(error) && error.response?.status === 400) {
+      return EMPTY_RESPONSE;
+    }
+    throw error;
+  }
 };

@@ -33,7 +33,7 @@ export default function MyStudy() {
 
   const { notCompletedStudyList, completedStudyList } = useMemo(() => {
     const now = new Date();
-    const allNotCompleted = data?.notCompleted.content ?? [];
+    const allNotCompleted = data?.notCompleted?.content ?? [];
 
     const isEnded = (study: MemberStudyItem) =>
       study.status === 'COMPLETED' ||

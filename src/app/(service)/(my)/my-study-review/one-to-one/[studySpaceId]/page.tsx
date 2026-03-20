@@ -4,6 +4,8 @@ import { ChevronLeft } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useAllMyReviewsQuery } from '@/hooks/queries/use-review-query';
 import OneToOneReviewCard from './_components/one-to-one-review-card';
+import EvaluationSection from '../../group/[groupStudyId]/_components/evaluation-section';
+import SatisfactionSection from '../../group/[groupStudyId]/_components/satisfaction-section';
 
 export default function OneToOneReviewDetailPage() {
   const { studySpaceId } = useParams<{ studySpaceId: string }>();
@@ -11,6 +13,7 @@ export default function OneToOneReviewDetailPage() {
   const router = useRouter();
 
   const title = searchParams.get('title') ?? '1:1 스터디 후기';
+  const studyTypeName = '1:1스터디';
   const startTime = searchParams.get('startTime');
   const endTime = searchParams.get('endTime');
   const studyPeriod =
@@ -48,6 +51,12 @@ export default function OneToOneReviewDetailPage() {
         )}
       </div>
 
+      <SatisfactionSection
+        emptyMessage={`아직 받은 ${studyTypeName} 만족도가 없습니다`}
+      />
+
+      <EvaluationSection studyTypeName={studyTypeName} />
+
       <div className="flex flex-col gap-200">
         <div className="flex items-center gap-100">
           <h2 className="font-designer-20b text-text-default">후기</h2>
@@ -67,7 +76,7 @@ export default function OneToOneReviewDetailPage() {
           </ul>
         ) : (
           <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
-            아직 작성된 후기가 없습니다.
+            아직 받은 {studyTypeName} 후기가 없습니다.
           </div>
         )}
       </div>
