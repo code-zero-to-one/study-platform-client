@@ -20,7 +20,7 @@ export default function MentorReviewPage() {
     studyType: 'PREMIUM_STUDY',
     studyStatus: 'COMPLETED',
     completedPage: page,
-    completedPageSize: 9,
+    completedPageSize: 6,
   });
 
   const completedMentorStudies = completedMentorStudy?.completed.content ?? [];
@@ -42,7 +42,7 @@ export default function MentorReviewPage() {
             <span className="font-designer-14r text-text-subtle">
               {reviewSubtitle}
             </span>
-            <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
+            <div className="text-text-subtle font-designer-14r flex h-[200px] items-center justify-center text-center">
               아직까지 받은 후기가 없습니다.
             </div>
           </div>
