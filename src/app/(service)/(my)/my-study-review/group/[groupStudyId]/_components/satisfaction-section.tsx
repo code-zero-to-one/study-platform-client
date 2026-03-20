@@ -48,7 +48,7 @@ export default function SatisfactionSection({
     disappointedCount = 0,
     totalCount = 0,
     averageRating = 0,
-  } = statistics;
+  } = statistics ?? {};
 
   const goodPercent =
     totalCount > 0 ? Math.round((goodCount / totalCount) * 100) : 0;
