@@ -23,9 +23,9 @@ const DEFAULT_PARAMS: Omit<MemberStudyListRequest, 'memberId'> = {
   studyType: 'BOTH',
   studyStatus: 'BOTH',
   inProgressPage: 1,
-  inProgressPageSize: 9,
+  inProgressPageSize: 3,
   completedPage: 1,
-  completedPageSize: 9,
+  completedPageSize: 6,
 };
 
 const toKebabParams = (params: Record<string, unknown>) => {
@@ -44,8 +44,11 @@ export const getMemberStudyList = async ({
   ...params
 }: MemberStudyListRequest): Promise<MemberStudyListResponse> => {
   try {
+    const definedParams = Object.fromEntries(
+      Object.entries(params).filter(([, v]) => v !== undefined),
+    );
     const res = await axiosInstance.get(`/members/${memberId}/studies`, {
-      params: toKebabParams({ ...DEFAULT_PARAMS, ...params }),
+      params: toKebabParams({ ...DEFAULT_PARAMS, ...definedParams }),
     });
 
     return res.data.content;
