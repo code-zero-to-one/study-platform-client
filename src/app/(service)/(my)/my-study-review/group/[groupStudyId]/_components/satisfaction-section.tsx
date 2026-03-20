@@ -68,7 +68,7 @@ export default function SatisfactionSection({
         ) : (
           <div className="flex flex-col gap-150">
             <div className="flex items-center gap-200">
-              <div className="flex w-[100px] items-center gap-75">
+              <div className="flex w-100 items-center gap-75">
                 <span className="font-designer-14m text-text-default">
                   좋았어요
                 </span>
@@ -80,13 +80,13 @@ export default function SatisfactionSection({
                   indicatorColor="bg-fill-information-default-default"
                 />
               </div>
-              <span className="font-designer-14m text-text-subtle w-[100px] text-right">
+              <span className="font-designer-14m text-text-subtle w-100 text-right">
                 {goodPercent}% ({goodCount}/{totalCount})
               </span>
             </div>
 
             <div className="flex items-center gap-200">
-              <div className="flex w-[100px] items-center gap-75">
+              <div className="flex w-100 items-center gap-75">
                 <span className="font-designer-14m text-text-default">
                   아쉬웠어요
                 </span>
@@ -98,7 +98,7 @@ export default function SatisfactionSection({
                   indicatorColor="bg-fill-danger-default-default"
                 />
               </div>
-              <span className="font-designer-14m text-text-subtle w-[100px] text-right">
+              <span className="font-designer-14m text-text-subtle w-100 text-right">
                 {disappointedPercent}% ({disappointedCount}/{totalCount})
               </span>
             </div>

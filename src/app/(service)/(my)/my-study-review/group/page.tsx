@@ -51,7 +51,7 @@ export default function GroupStudyReviewListPage() {
             <span className="font-designer-14r text-text-subtle">
               {reviewSubtitle}
             </span>
-            <div className="text-text-subtle font-designer-14r flex h-[200px] items-center justify-center text-center">
+            <div className="text-text-subtle font-designer-14r flex h-200 items-center justify-center text-center">
               아직까지 받은 후기가 없습니다.
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function GroupStudyReviewListPage() {
         </div>
       )}
 
-      {reviewStudy && (
+      {reviewStudy?.studyId !== undefined && (
         <GroupStudyReviewModal
           open={!!reviewStudy}
           onOpenChange={(open) => {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import type {
   GroupStudyReviewStatistics,
   GroupStudyReviewStatisticsItem,
@@ -26,8 +27,8 @@ function EvaluationCard({
   const hasMore = items.length > DEFAULT_SHOW_COUNT;
 
   return (
-    <div className="rounded-100 border-border-subtle min-h-[200px] border p-200">
-      <div className={`mb-200 flex ${showToggle ? 'justify-between' : ''}`}>
+    <div className="rounded-100 border-border-subtle min-h-200 border p-200">
+      <div className={cn('mb-200 flex', showToggle && 'justify-between')}>
         <h3 className="font-designer-16b text-text-default">{title}</h3>
         {showToggle && hasMore && (
           <button
