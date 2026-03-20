@@ -10,13 +10,20 @@ import { useAuthReady } from '@/features/auth/model/use-auth';
 import { groupStudyReviewQueryKeys } from '@/hooks/queries/group-study-review-api';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 
+interface UseGroupStudyReviewReminderOptions {
+  /** 'GROUP_STUDY' | 'PREMIUM_STUDY' — 목록 페이지 유형에 맞게 지정 */
+  studyType: 'GROUP_STUDY' | 'PREMIUM_STUDY';
+}
+
 /**
- * 그룹스터디 목록 페이지에서 미작성 후기 모달을 자동으로 트리거하는 훅.
+ * 그룹스터디·멘토스터디 목록 페이지에서 미작성 후기 모달을 자동으로 트리거하는 훅.
  *
  * useQueries로 PARTICIPANT 스터디 전체를 병렬 체크:
  * - 첫 번째 스터디만 확인하다 이미 작성된 경우 나머지를 건너뛰는 문제 해결
  */
-export function useGroupStudyReviewReminder() {
+export function useGroupStudyReviewReminder({
+  studyType,
+}: UseGroupStudyReviewReminderOptions) {
   const { memberId } = useAuthReady();
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [showCompletionModal, setShowCompletionModal] = useState(false);
@@ -24,7 +31,7 @@ export function useGroupStudyReviewReminder() {
 
   const { data: memberStudies } = useMemberStudyListQuery({
     memberId: memberId ?? 0,
-    studyType: 'GROUP_STUDY',
+    studyType,
     studyStatus: 'COMPLETED',
     completedPage: 1,
     completedPageSize: 10,

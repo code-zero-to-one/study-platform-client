@@ -53,7 +53,7 @@ export default function GroupStudyListPage() {
     reviewStudyId,
     reviewDetailInfo,
     reviewBasicInfo,
-  } = useGroupStudyReviewReminder();
+  } = useGroupStudyReviewReminder({ studyType: 'GROUP_STUDY' });
 
   const {
     searchQuery,
