@@ -19,12 +19,14 @@ export default function MentorReviewPage() {
     completedPageSize: 9,
   });
 
+  const completedMentorStudies = completedMentorStudy?.completed.content ?? [];
+
   return (
     <div className="flex flex-col gap-400">
       <StudyReviewTabNav />
 
       <div className="flex flex-col gap-400">
-        {completedMentorStudy.completed.content.length === 0 ? (
+        {completedMentorStudies.length === 0 ? (
           <div className="flex items-center justify-center py-600">
             <span className="font-designer-15r text-text-subtlest">
               운영한 멘토스터디가 없습니다.
