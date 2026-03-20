@@ -5,6 +5,8 @@ import { isAxiosError } from 'axios';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { ApiError } from '@/api/client/api-error';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
@@ -17,7 +19,10 @@ import {
   usePartnerStudyReviewQuery,
 } from '@/hooks/queries/use-review-query';
 import { useToastStore } from '@/stores/use-toast-store';
-import { EvalKeyword, StudyEvaluationResponse } from '@/types/api/review.types';
+import type {
+  EvalKeyword,
+  StudyEvaluationResponse,
+} from '@/types/api/review.types';
 
 interface FormState {
   studySpaceId: number;
@@ -39,6 +44,29 @@ const createInitialFormState = (): FormState => ({
   keywordIds: [],
   content: '',
 });
+
+const hasErrorStatus = (error: unknown, statusCode: number) => {
+  if (error instanceof ApiError) return error.statusCode === statusCode;
+  if (isAxiosError(error)) return error.response?.status === statusCode;
+
+  return false;
+};
+
+const getReviewErrorMessage = (error: unknown) => {
+  if (error instanceof Error && error.message.trim().length > 0) {
+    return error.message;
+  }
+
+  if (isAxiosError(error)) {
+    const message = error.response?.data?.message;
+
+    if (typeof message === 'string' && message.trim().length > 0) {
+      return message;
+    }
+  }
+
+  return '후기 작성에 실패했습니다. 다시 시도해주세요.';
+};
 
 export default function StudyReviewModal({
   open,
@@ -170,22 +198,21 @@ function StudyReviewForm({
   const [form, setForm] = useState<FormState>(createInitialFormState);
 
   useEffect(() => {
-    if (!open) {
-      setForm(createInitialFormState());
-
-      return;
-    }
-
     setForm(createInitialFormState());
   }, [open, targetStudySpaceId]);
 
   useEffect(() => {
     if (!open || !isError) return;
 
-    if (isAxiosError(error) && error.response?.status === 404) {
+    if (hasErrorStatus(error, 404)) {
+      queryClient
+        .invalidateQueries({
+          queryKey: reviewQueryKeys.modalState(),
+        })
+        .catch(() => {});
       onSubmitSuccessClose();
     }
-  }, [open, isError, error, onSubmitSuccessClose]);
+  }, [open, isError, error, onSubmitSuccessClose, queryClient]);
 
   useEffect(() => {
     if (!data || data.studySpaceId !== targetStudySpaceId) return;
@@ -284,16 +311,17 @@ function StudyReviewForm({
           onSubmitSuccessClose();
         },
         onError: async (error) => {
-          if (isAxiosError(error) && error.response?.status === 400) {
+          await queryClient.invalidateQueries({
+            queryKey: reviewQueryKeys.modalState(),
+          });
+
+          if (hasErrorStatus(error, 404)) {
             onSubmitSuccessClose();
-            await queryClient.invalidateQueries({
-              queryKey: reviewQueryKeys.modalState(),
-            });
 
             return;
           }
 
-          showToast('후기 작성에 실패했습니다. 다시 시도해주세요.', 'error');
+          showToast(getReviewErrorMessage(error), 'error');
         },
       },
     );
@@ -412,6 +440,8 @@ function StudyReviewForm({
 function PartnerInfo(data: StudyEvaluationResponse) {
   const partner = data.targetMembers[0];
 
+  if (!partner) return null;
+
   return (
     <div className="flex justify-center gap-200">
       <UserAvatar
@@ -458,7 +488,10 @@ function SatisfactionButton({
       <span className="text-text-default font-designer-14r">{label}</span>
 
       <div
-        className={`bg-background-neutral-subtle w-fit rounded-full p-150 ${isSelected ? 'opacity-100' : 'opacity-40'} transform transition-all ease-in-out hover:scale-110 hover:opacity-100`}
+        className={cn(
+          'bg-background-neutral-subtle w-fit rounded-full p-150 transform transition-all ease-in-out hover:scale-110 hover:opacity-100',
+          isSelected ? 'opacity-100' : 'opacity-40',
+        )}
       >
         <Image src={imageSrc} width="24" height="24" alt={label} />
       </div>
@@ -518,6 +551,9 @@ function NegativeReview({
   );
 }
 
+const toggleKeywordId = (ids: number[], id: number) =>
+  ids.includes(id) ? ids.filter((k) => k !== id) : [...ids, id];
+
 function PositiveCheckboxList({
   positiveKeywords,
   keywordIds,
@@ -528,12 +564,7 @@ function PositiveCheckboxList({
   onChange: (keywordIds: FormState['keywordIds']) => void;
 }) {
   const handleToggle = (id: number) => {
-    const isChecked = keywordIds.includes(id);
-    const newKeywordIds = isChecked
-      ? keywordIds.filter((k) => k !== id)
-      : [...keywordIds, id];
-
-    onChange(newKeywordIds);
+    onChange(toggleKeywordId(keywordIds, id));
   };
 
   return (
@@ -604,12 +635,7 @@ function NegativeCheckboxList({
   onChange: (keywordIds: FormState['keywordIds']) => void;
 }) {
   const handleToggle = (id: number) => {
-    const isChecked = keywordIds.includes(id);
-    const newKeywordIds = isChecked
-      ? keywordIds.filter((k) => k !== id)
-      : [...keywordIds, id];
-
-    onChange(newKeywordIds);
+    onChange(toggleKeywordId(keywordIds, id));
   };
 
   return (
