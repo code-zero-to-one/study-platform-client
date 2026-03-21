@@ -21,9 +21,9 @@ import { useToastStore } from '@/stores/use-toast-store';
 import {
   QUESTION_CONTENT_MAX_LENGTH,
   questionSchema,
-  QuestionCategory,
-  QuestionFormValues,
   QUESTION_TITLE_MAX_LENGTH,
+  QuestionCategory,
+  type QuestionFormValues,
 } from '@/types/schemas/question.schema';
 
 const QUESTION_CATEGORY_OPTIONS = [
@@ -92,6 +92,7 @@ export default function QuestionModal({
     undefined,
   );
   const [isImageRemoved, setIsImageRemoved] = useState(false);
+  const [isFinalizingSubmission, setIsFinalizingSubmission] = useState(false);
 
   const isEditMode = mode === 'edit' && !!questionId;
   const initialTitle = initialValues?.title ?? '';
@@ -107,7 +108,9 @@ export default function QuestionModal({
   const { handleSubmit, reset } = form;
   const scrollToNext = useScrollToNextField();
   const isPending =
-    createQuestionMutation.isPending || modifyQuestionMutation.isPending;
+    createQuestionMutation.isPending ||
+    modifyQuestionMutation.isPending ||
+    isFinalizingSubmission;
 
   useEffect(() => {
     if (!open) {
@@ -131,6 +134,7 @@ export default function QuestionModal({
       return isEditMode ? initialImageUrl : undefined;
     });
     setIsImageRemoved(false);
+    setIsFinalizingSubmission(false);
   }, [
     initialCategory,
     initialContent,
@@ -185,26 +189,23 @@ export default function QuestionModal({
     handlePreviewChange(undefined);
   };
 
-  const handleSuccess = async (imageUploadUrl?: string) => {
-    if (imageFile && imageUploadUrl) {
-      try {
-        await uploadImage(imageUploadUrl, imageFile);
-      } catch (error) {
-        showToast('이미지 업로드 오류', 'error');
-
-        return;
-      }
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setIsFinalizingSubmission(false);
+      reset(DEFAULT_FORM_VALUES);
+      resetImageState();
     }
+    onOpenChange(isOpen);
+  };
 
-    showToast(
-      isEditMode
-        ? '문의가 성공적으로 수정되었습니다.'
-        : '문의가 성공적으로 제출되었습니다.',
-      'success',
-    );
+  const finalizeSubmission = (
+    message: string,
+    variant: 'success' | 'info' = 'success',
+  ) => {
+    showToast(message, variant);
     reset(DEFAULT_FORM_VALUES);
     resetImageState();
-    onOpenChange(false);
+    handleOpenChange(false);
 
     if (onAfterSubmit) {
       onAfterSubmit();
@@ -215,6 +216,37 @@ export default function QuestionModal({
     router.push(
       `/inquiry?groupStudyId=${studyId}${studyType ? `&studyType=${studyType}` : ''}`,
     );
+  };
+
+  const handleSuccess = async (imageUploadUrl?: string) => {
+    const successMessage = isEditMode
+      ? '문의가 성공적으로 수정되었습니다.'
+      : '문의가 성공적으로 제출되었습니다.';
+    const imageUploadFailedMessage = isEditMode
+      ? '문의는 수정되었지만 이미지 업로드에 실패해 첨부 이미지는 저장되지 않았습니다.'
+      : '문의는 제출되었지만 이미지 업로드에 실패해 첨부 이미지는 저장되지 않았습니다.';
+
+    if (!imageFile) {
+      finalizeSubmission(successMessage);
+
+      return;
+    }
+
+    setIsFinalizingSubmission(true);
+
+    if (!imageUploadUrl) {
+      finalizeSubmission(imageUploadFailedMessage, 'info');
+
+      return;
+    }
+
+    try {
+      await uploadImage(imageUploadUrl, imageFile);
+      finalizeSubmission(successMessage);
+    } catch (error) {
+      console.error('문의 이미지 업로드 오류:', error);
+      finalizeSubmission(imageUploadFailedMessage, 'info');
+    }
   };
 
   const onSubmit = (data: QuestionFormValues) => {
@@ -267,14 +299,6 @@ export default function QuestionModal({
         },
       },
     );
-  };
-
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      reset(DEFAULT_FORM_VALUES);
-      resetImageState();
-    }
-    onOpenChange(isOpen);
   };
 
   return (

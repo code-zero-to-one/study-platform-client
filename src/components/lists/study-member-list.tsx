@@ -52,15 +52,31 @@ export default function StudyMemberList({
   if (isLoading) {
     return null;
   }
+
+  const visiblePinnedMemberCount = new Set(
+    (data?.members ?? [])
+      .filter((member) => member.ranking >= 1 && member.ranking <= 3)
+      .map((member) => member.id),
+  ).size;
+
+  const baseTotalMemberCount =
+    (data?.totalElements ?? 0) + visiblePinnedMemberCount;
+
+  const shouldExcludeLeaderFromCount =
+    excludeLeaderFromMembers &&
+    (data?.members ?? []).some((member) => member.id === leaderId);
   const visibleTotalMemberCount = Math.max(
-    (data?.totalMemberCount ?? 0) - (excludeLeaderFromMembers ? 1 : 0),
+    baseTotalMemberCount - (shouldExcludeLeaderFromCount ? 1 : 0),
     0,
   );
 
   // memberList의 첫 번째 요소는 내 정보
   const myInfo = visibleMemberList[0] ?? null;
   const isLeader = isAuthReady && leaderId === memberId;
-  const totalPages = Math.ceil((data?.totalMemberCount || 0) / PAGE_SIZE) || 1;
+  const totalPages = Math.max(
+    1,
+    Math.ceil((data?.totalElements ?? 0) / PAGE_SIZE),
+  );
 
   return (
     <PageContainer className="flex flex-col gap-300 py-500">

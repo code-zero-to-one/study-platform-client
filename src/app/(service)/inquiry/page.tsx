@@ -2,9 +2,10 @@
 
 import dynamic from 'next/dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Button from '@/components/common/ui/button';
 import InquiryListTable from '@/components/lists/inquiry-list-table';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetQuestion, useGetQuestions } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
 
@@ -19,6 +20,7 @@ export default function InquiryPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const showToast = useToastStore((state) => state.showToast);
+  const { isHydrated, memberId } = useAuthReady();
   const groupStudyIdStr = searchParams.get('groupStudyId');
   const groupStudyId = groupStudyIdStr ? Number(groupStudyIdStr) : null;
   const studyType = (searchParams.get('studyType') ?? 'group') as
@@ -32,6 +34,7 @@ export default function InquiryPage() {
 
   const [page, setPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const blockedEditQuestionIdRef = useRef<number | null>(null);
 
   const closeEditModal = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -65,6 +68,38 @@ export default function InquiryPage() {
     showToast('수정할 문의 정보를 불러오지 못했습니다.', 'error');
     closeEditModal();
   }, [closeEditModal, hasValidEditQuestionId, isEditQuestionError, showToast]);
+
+  const canEditQuestion =
+    typeof memberId === 'number' && editQuestion?.authorId === memberId;
+
+  useEffect(() => {
+    if (!hasValidEditQuestionId || !editQuestion || !isHydrated) {
+      blockedEditQuestionIdRef.current = null;
+
+      return;
+    }
+
+    if (canEditQuestion) {
+      blockedEditQuestionIdRef.current = null;
+
+      return;
+    }
+
+    if (blockedEditQuestionIdRef.current === editQuestion.questionId) {
+      return;
+    }
+
+    blockedEditQuestionIdRef.current = editQuestion.questionId;
+    showToast('본인이 작성한 문의만 수정할 수 있습니다.', 'error');
+    closeEditModal();
+  }, [
+    canEditQuestion,
+    closeEditModal,
+    editQuestion,
+    hasValidEditQuestionId,
+    isHydrated,
+    showToast,
+  ]);
 
   const handleItemClick = (questionId: number) => {
     router.push(
@@ -128,7 +163,7 @@ export default function InquiryPage() {
       />
 
       <QuestionModal
-        open={hasValidEditQuestionId && !!editQuestion}
+        open={hasValidEditQuestionId && !!editQuestion && canEditQuestion}
         onOpenChange={(open) => {
           if (!open) {
             closeEditModal();
