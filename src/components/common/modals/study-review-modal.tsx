@@ -73,6 +73,7 @@ export default function StudyReviewModal({
   onOpenChange,
   onDismissPreferenceChange,
   targetStudySpaceId,
+  onSubmitSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -80,6 +81,7 @@ export default function StudyReviewModal({
     options: ReminderDismissOptions,
   ) => Promise<void> | void;
   targetStudySpaceId?: number;
+  onSubmitSuccess?: () => void;
 }) {
   const [hideForOneHour, setHideForOneHour] = useState(false);
   const [hideForever, setHideForever] = useState(false);
@@ -157,6 +159,7 @@ export default function StudyReviewModal({
             targetStudySpaceId={targetStudySpaceId}
             onDismiss={handleDismiss}
             onSubmitSuccessClose={() => onOpenChange(false)}
+            onSubmitSuccess={onSubmitSuccess}
             hideForOneHour={hideForOneHour}
             hideForever={hideForever}
             onToggleHideForOneHour={handleToggleHideForOneHour}
@@ -173,6 +176,7 @@ function StudyReviewForm({
   targetStudySpaceId,
   onDismiss,
   onSubmitSuccessClose,
+  onSubmitSuccess,
   hideForOneHour,
   hideForever,
   onToggleHideForOneHour,
@@ -182,6 +186,7 @@ function StudyReviewForm({
   targetStudySpaceId?: number;
   onDismiss: () => void;
   onSubmitSuccessClose: () => void;
+  onSubmitSuccess?: () => void;
   hideForOneHour: boolean;
   hideForever: boolean;
   onToggleHideForOneHour: () => void;
@@ -309,6 +314,7 @@ function StudyReviewForm({
       {
         onSuccess: () => {
           onSubmitSuccessClose();
+          onSubmitSuccess?.();
         },
         onError: async (error) => {
           await queryClient.invalidateQueries({
