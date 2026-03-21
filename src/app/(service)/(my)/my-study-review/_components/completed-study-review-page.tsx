@@ -112,10 +112,7 @@ export default function CompletedStudyReviewPage({
 
   const writtenResults = useQueries({
     queries: participantStudies.map((study) => ({
-      queryKey:
-        studyType === 'ONE_ON_ONE_STUDY'
-          ? ['one-to-one', 'written', study.studyId]
-          : groupStudyReviewQueryKeys.written(study.studyId),
+      queryKey: ['study-review', 'written', studyType, study.studyId],
       queryFn: async () => {
         const url =
           studyType === 'ONE_ON_ONE_STUDY'
