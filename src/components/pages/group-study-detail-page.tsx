@@ -51,7 +51,7 @@ const StudyCompletionModal = dynamic(
   { ssr: false },
 );
 
-type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
+type ActionKey = 'end' | 'delete';
 
 const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
 const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
@@ -396,6 +396,7 @@ export default function StudyDetailPage({
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
+          excludeLeaderFromMembers={false}
           myApplicationStatus={myApplicationStatus}
         />
       )}

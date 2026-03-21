@@ -195,14 +195,21 @@ function DetailView({
   isLeader = false,
   isAdmin = false,
 }: DetailViewProps) {
+  const router = useRouter();
+  const { memberId } = useUserStore();
   const showToast = useToastStore((state) => state.showToast);
   const { data, isLoading } = useGetQuestion({ groupStudyId, questionId });
+  const canEditQuestion = memberId === data?.authorId;
 
   const moreMenuOptions = [
     {
       label: '수정하기',
       value: 'edit',
-      onMenuClick: () => showToast('준비 중인 기능입니다.', 'info'),
+      onMenuClick: () => {
+        router.push(
+          `/inquiry?groupStudyId=${groupStudyId}&studyType=${isPremium ? 'premium' : 'group'}&editQuestionId=${questionId}`,
+        );
+      },
     },
     {
       label: '삭제하기',
@@ -239,7 +246,9 @@ function DetailView({
                   {CATEGORY_LABEL[data.category] ?? data.category}
                 </span>
               )}
-              <MoreMenu options={moreMenuOptions} iconSize={20} />
+              {canEditQuestion && (
+                <MoreMenu options={moreMenuOptions} iconSize={20} />
+              )}
             </div>
 
             <h1 className="font-designer-24b text-text-default mb-300">

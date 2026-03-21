@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { GetGroupStudyMemberStatusResponseContent } from '@/api/openapi';
 import Pagination from '@/components/common/ui/pagination';
 import GroupStudyMemberItem from '@/components/lists/group-study-member-item';
@@ -20,12 +20,14 @@ const KickedReasonModal = dynamic(
 interface GroupStudyMemberListProps {
   groupStudyId: number;
   leaderId: number;
+  excludeLeaderFromMembers?: boolean;
   myApplicationStatus?: GetGroupStudyMemberStatusResponseContent;
 }
 
 export default function StudyMemberList({
   groupStudyId,
   leaderId,
+  excludeLeaderFromMembers = false,
   myApplicationStatus,
 }: GroupStudyMemberListProps) {
   const [pageNumber, setPageNumber] = useState<number>(1);
@@ -39,15 +41,27 @@ export default function StudyMemberList({
   });
   const { memberId, isAuthReady } = useAuthReady();
 
+  const visibleMemberList = useMemo(
+    () => {
+      const memberList = data?.members ?? [];
+
+      return excludeLeaderFromMembers
+        ? memberList.filter((member) => member.id !== leaderId)
+        : memberList;
+    },
+    [excludeLeaderFromMembers, leaderId, data?.members],
+  );
+
   if (isLoading) {
     return null;
   }
-
-  // 리더는 memberList에 포함 x
-  const memberList = data?.members || [];
+  const visibleTotalMemberCount = Math.max(
+    (data?.totalMemberCount ?? 0) - (excludeLeaderFromMembers ? 1 : 0),
+    0,
+  );
 
   // memberList의 첫 번째 요소는 내 정보
-  const myInfo = memberList[0] ?? null;
+  const myInfo = visibleMemberList[0] ?? null;
   const isLeader = isAuthReady && leaderId === memberId;
   const totalPages = Math.ceil((data?.totalMemberCount || 0) / PAGE_SIZE) || 1;
 
@@ -67,13 +81,13 @@ export default function StudyMemberList({
           스터디 참가자
         </span>
         <span className="text-text-subtle font-designer-14r">
-          {data?.totalMemberCount}명
+          {visibleTotalMemberCount}명
         </span>
       </div>
 
-      {memberList.length > 0 ? (
+      {visibleMemberList.length > 0 ? (
         <ul className="flex flex-col gap-200">
-          {memberList.map((member, idx) => {
+          {visibleMemberList.map((member, idx) => {
             // 리더가 아닌 참가자는 이미 내 정보가 위에 노출되어 있으므로 제외
             if (idx === 0 && !isLeader) return null;
 
