@@ -1,11 +1,9 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
-import { ApiError } from '@/api/client/api-error';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
@@ -23,6 +21,7 @@ import type {
   EvalKeyword,
   StudyEvaluationResponse,
 } from '@/types/api/review.types';
+import { ErrorType, analyzeError } from '@/utils/error-handler';
 
 interface FormState {
   studySpaceId: number;
@@ -44,29 +43,6 @@ const createInitialFormState = (): FormState => ({
   keywordIds: [],
   content: '',
 });
-
-const hasErrorStatus = (error: unknown, statusCode: number) => {
-  if (error instanceof ApiError) return error.statusCode === statusCode;
-  if (isAxiosError(error)) return error.response?.status === statusCode;
-
-  return false;
-};
-
-const getReviewErrorMessage = (error: unknown) => {
-  if (error instanceof Error && error.message.trim().length > 0) {
-    return error.message;
-  }
-
-  if (isAxiosError(error)) {
-    const message = error.response?.data?.message;
-
-    if (typeof message === 'string' && message.trim().length > 0) {
-      return message;
-    }
-  }
-
-  return '후기 작성에 실패했습니다. 다시 시도해주세요.';
-};
 
 export default function StudyReviewModal({
   open,
@@ -209,7 +185,7 @@ function StudyReviewForm({
   useEffect(() => {
     if (!open || !isError) return;
 
-    if (hasErrorStatus(error, 404)) {
+    if (analyzeError(error).type === ErrorType.NOT_FOUND) {
       queryClient
         .invalidateQueries({
           queryKey: reviewQueryKeys.modalState(),
@@ -321,13 +297,15 @@ function StudyReviewForm({
             queryKey: reviewQueryKeys.modalState(),
           });
 
-          if (hasErrorStatus(error, 404)) {
+          const errorInfo = analyzeError(error);
+
+          if (errorInfo.type === ErrorType.NOT_FOUND) {
             onSubmitSuccessClose();
 
             return;
           }
 
-          showToast(getReviewErrorMessage(error), 'error');
+          showToast(errorInfo.userMessage, 'error');
         },
       },
     );
