@@ -82,9 +82,7 @@ export const useReviewReminder = (memberId?: number) => {
       return;
     }
 
-    if (isTargetStudyFetching) return;
-
-    if (!hasValidTargetStudy) {
+    if (isTargetStudyFetching || !hasValidTargetStudy) {
       setShowReviewReminder(false);
 
       return;
