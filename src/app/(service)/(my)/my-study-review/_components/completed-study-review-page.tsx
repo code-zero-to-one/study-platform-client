@@ -12,7 +12,6 @@ import type {
 import GroupStudyReviewModal from '@/components/common/modals/group-study-review-modal';
 import Pagination from '@/components/common/ui/pagination';
 import { useAuthReady } from '@/hooks/common/use-auth';
-import { groupStudyReviewQueryKeys } from '@/hooks/queries/group-study-review-api';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
