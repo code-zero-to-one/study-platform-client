@@ -1,22 +1,14 @@
 'use client';
 
-import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import PageContainer from '@/components/common/layout/page-container';
-import Button from '@/components/common/ui/button';
-import StudyFilter from '@/components/filtering/study-filter';
-import StudySearch from '@/components/filtering/study-search';
+import StudyListToolbar from '@/components/pages/study-list-toolbar';
 import PremiumStudyList from '@/components/premium/premium-study-list';
 import PremiumStudyPagination from '@/components/premium/premium-study-pagination';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGroupStudyReviewReminder } from '@/hooks/common/use-group-study-review-reminder';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
-
-const GroupStudyFormModal = dynamic(
-  () => import('@/components/common/modals/group-study-form-modal'),
-  { ssr: false },
-);
 
 const GroupStudyReviewModal = dynamic(
   () => import('@/components/common/modals/group-study-review-modal'),
@@ -53,9 +45,11 @@ export default function PremiumStudyListPage() {
     totalPages,
     displayStudies,
     isLoading,
+    sort,
     handleFilterChange,
     handlePageChange,
     handleSearch,
+    handleSortChange,
   } = useStudyListFilter({
     classification: 'PREMIUM_STUDY',
   });
@@ -100,33 +94,19 @@ export default function PremiumStudyListPage() {
       {/* 내가 참여중인 스터디 섹션 */}
       <MyParticipatingStudiesSection classification="PREMIUM_STUDY" />
 
-      {/* 헤더 */}
-      <div className="mb-400 flex items-center justify-between">
-        <h1 className="font-designer-24b text-text-default">
-          멘토스터디 둘러보기
-        </h1>
-        <GroupStudyFormModal
-          mode="create"
-          classification="PREMIUM_STUDY"
-          trigger={
-            <Button
-              color="primary"
-              size="small"
-              icon={<Plus className="h-200 w-200" />}
-              iconPosition="left"
-              disabled={!isAuthReady}
-            >
-              스터디 개설하기
-            </Button>
-          }
-        />
-      </div>
-
-      {/* 필터 및 검색 */}
-      <div className="mb-400 flex flex-col gap-200 sm:flex-row sm:items-center sm:justify-between">
-        <StudyFilter values={filterValues} onChange={handleFilterChange} />
-        <StudySearch value={searchQuery} onChange={handleSearch} />
-      </div>
+      <StudyListToolbar
+        title="멘토스터디 둘러보기"
+        classification="PREMIUM_STUDY"
+        isAuthReady={isAuthReady}
+        controls={{
+          searchQuery,
+          filterValues,
+          sort,
+          onSearchChange: handleSearch,
+          onFilterChange: handleFilterChange,
+          onSortChange: handleSortChange,
+        }}
+      />
 
       {/* 스터디 카드 그리드 */}
       <PremiumStudyList studies={displayStudies} />
