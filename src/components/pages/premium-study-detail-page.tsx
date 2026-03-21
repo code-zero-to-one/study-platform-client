@@ -333,6 +333,7 @@ export default function PremiumStudyDetailPage({
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
+          excludeLeaderFromMembers
           myApplicationStatus={myApplicationStatus}
         />
       )}

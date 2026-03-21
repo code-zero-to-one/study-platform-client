@@ -9,13 +9,13 @@ import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badg
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import InquiryListTable from '@/components/lists/inquiry-list-table';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useCreateAnswer,
   useGetQuestion,
   useGetQuestions,
 } from '@/hooks/queries/question-api';
 import { useToastStore } from '@/stores/use-toast-store';
-import { useUserStore } from '@/stores/useUserStore';
 import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
 
@@ -113,16 +113,20 @@ function ListView({
   onPageChange,
   onSelectQuestion,
 }: ListViewProps) {
-  const { memberId } = useUserStore();
+  const { isHydrated, isAuthReady, memberId } = useAuthReady();
 
   const { data, isLoading } = useGetQuestions({
     groupStudyId,
     page,
     pageSize: PAGE_SIZE,
-    enabled: !!memberId,
+    enabled: isAuthReady && typeof memberId === 'number',
   });
 
-  if (!memberId) {
+  if (!isHydrated) {
+    return null;
+  }
+
+  if (!isAuthReady || typeof memberId !== 'number') {
     return (
       <div className="py-800 text-center">
         <p className="font-designer-14r text-text-subtle mb-300">
@@ -195,14 +199,21 @@ function DetailView({
   isLeader = false,
   isAdmin = false,
 }: DetailViewProps) {
+  const router = useRouter();
+  const { memberId } = useAuthReady();
   const showToast = useToastStore((state) => state.showToast);
   const { data, isLoading } = useGetQuestion({ groupStudyId, questionId });
+  const canEditQuestion = memberId === data?.authorId;
 
   const moreMenuOptions = [
     {
       label: '수정하기',
       value: 'edit',
-      onMenuClick: () => showToast('준비 중인 기능입니다.', 'info'),
+      onMenuClick: () => {
+        router.push(
+          `/inquiry?groupStudyId=${groupStudyId}&studyType=${isPremium ? 'premium' : 'group'}&editQuestionId=${questionId}`,
+        );
+      },
     },
     {
       label: '삭제하기',
@@ -239,7 +250,9 @@ function DetailView({
                   {CATEGORY_LABEL[data.category] ?? data.category}
                 </span>
               )}
-              <MoreMenu options={moreMenuOptions} iconSize={20} />
+              {canEditQuestion && (
+                <MoreMenu options={moreMenuOptions} iconSize={20} />
+              )}
             </div>
 
             <h1 className="font-designer-24b text-text-default mb-300">

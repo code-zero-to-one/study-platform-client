@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { axiosInstanceForMultipart } from '@/api/client/axios';
 import Button from '@/components/common/ui/button';
@@ -12,15 +12,18 @@ import FormField from '@/components/common/ui/form/form-field';
 import ImageUploadInput from '@/components/common/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
-import { useCreateQuestion } from '@/hooks/queries/question-api';
+import {
+  useCreateQuestion,
+  useModifyQuestion,
+} from '@/hooks/queries/question-api';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   QUESTION_CONTENT_MAX_LENGTH,
   questionSchema,
-  QuestionCategory,
-  QuestionFormValues,
   QUESTION_TITLE_MAX_LENGTH,
+  QuestionCategory,
+  type QuestionFormValues,
 } from '@/types/schemas/question.schema';
 
 const QUESTION_CATEGORY_OPTIONS = [
@@ -31,13 +34,44 @@ const QUESTION_CATEGORY_OPTIONS = [
   { value: QuestionCategory.CONCERN, label: '고민' },
 ] as const;
 
+const DEFAULT_FORM_VALUES: Partial<QuestionFormValues> = {
+  title: '',
+  content: '',
+  category: undefined,
+};
+
 interface QuestionModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   studyId: number;
   studyType?: 'group' | 'premium';
   onAfterSubmit?: () => void;
+  mode?: 'create' | 'edit';
+  questionId?: number;
+  initialValues?: {
+    title?: string;
+    content?: string;
+    category?: QuestionCategory;
+    imageUrl?: string;
+  };
 }
+
+const revokeObjectUrl = (url?: string) => {
+  if (url?.startsWith('blob:')) {
+    URL.revokeObjectURL(url);
+  }
+};
+
+const getImageExtension = (file: File) => {
+  const mimeSubtype = file.type.split('/')[1]?.toLowerCase();
+
+  switch (mimeSubtype) {
+    case 'svg+xml':
+      return 'SVG';
+    default:
+      return mimeSubtype;
+  }
+};
 
 export default function QuestionModal({
   open,
@@ -45,37 +79,98 @@ export default function QuestionModal({
   studyId,
   studyType,
   onAfterSubmit,
+  mode = 'create',
+  questionId,
+  initialValues,
 }: QuestionModalProps) {
   const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
-  const { mutate: createQuestion, isPending } = useCreateQuestion();
+  const createQuestionMutation = useCreateQuestion();
+  const modifyQuestionMutation = useModifyQuestion();
   const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [imagePreview, setImagePreview] = useState<string | undefined>(
     undefined,
   );
+  const [isImageRemoved, setIsImageRemoved] = useState(false);
+  const [isFinalizingSubmission, setIsFinalizingSubmission] = useState(false);
+
+  const isEditMode = mode === 'edit' && !!questionId;
+  const initialTitle = initialValues?.title ?? '';
+  const initialContent = initialValues?.content ?? '';
+  const initialCategory = initialValues?.category;
+  const initialImageUrl = initialValues?.imageUrl;
 
   const form = useForm<QuestionFormValues>({
     resolver: zodResolver(questionSchema),
-    defaultValues: {
-      title: '',
-      content: '',
-      category: undefined,
-    },
+    defaultValues: DEFAULT_FORM_VALUES,
   });
 
   const { handleSubmit, reset } = form;
   const scrollToNext = useScrollToNextField();
+  const isPending =
+    createQuestionMutation.isPending ||
+    modifyQuestionMutation.isPending ||
+    isFinalizingSubmission;
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    reset(
+      isEditMode
+        ? {
+            title: initialTitle,
+            content: initialContent,
+            category: initialCategory,
+          }
+        : DEFAULT_FORM_VALUES,
+    );
+
+    setImageFile(undefined);
+    setImagePreview((currentPreview) => {
+      revokeObjectUrl(currentPreview);
+
+      return isEditMode ? initialImageUrl : undefined;
+    });
+    setIsImageRemoved(false);
+    setIsFinalizingSubmission(false);
+  }, [
+    initialCategory,
+    initialContent,
+    initialImageUrl,
+    initialTitle,
+    isEditMode,
+    open,
+    reset,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      revokeObjectUrl(imagePreview);
+    };
+  }, [imagePreview]);
+
+  const handlePreviewChange = (nextPreview?: string) => {
+    setImagePreview((currentPreview) => {
+      revokeObjectUrl(currentPreview);
+
+      return nextPreview;
+    });
+  };
 
   const handleChangeImage = (file: File | undefined) => {
     if (file) {
-      if (imagePreview) URL.revokeObjectURL(imagePreview);
       setImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
-    } else {
-      if (imagePreview) URL.revokeObjectURL(imagePreview);
-      setImageFile(undefined);
-      setImagePreview(undefined);
+      setIsImageRemoved(false);
+      handlePreviewChange(URL.createObjectURL(file));
+
+      return;
     }
+
+    setImageFile(undefined);
+    setIsImageRemoved(Boolean(isEditMode && initialImageUrl));
+    handlePreviewChange(undefined);
   };
 
   const uploadImage = async (uploadUrl: string, file: File) => {
@@ -89,46 +184,114 @@ export default function QuestionModal({
   };
 
   const resetImageState = () => {
-    if (imagePreview) URL.revokeObjectURL(imagePreview);
     setImageFile(undefined);
-    setImagePreview(undefined);
+    setIsImageRemoved(false);
+    handlePreviewChange(undefined);
+  };
+
+  const handleOpenChange = (isOpen: boolean) => {
+    if (!isOpen) {
+      setIsFinalizingSubmission(false);
+      reset(DEFAULT_FORM_VALUES);
+      resetImageState();
+    }
+    onOpenChange(isOpen);
+  };
+
+  const finalizeSubmission = (
+    message: string,
+    variant: 'success' | 'info' = 'success',
+  ) => {
+    showToast(message, variant);
+    reset(DEFAULT_FORM_VALUES);
+    resetImageState();
+    handleOpenChange(false);
+
+    if (onAfterSubmit) {
+      onAfterSubmit();
+
+      return;
+    }
+
+    router.push(
+      `/inquiry?groupStudyId=${studyId}${studyType ? `&studyType=${studyType}` : ''}`,
+    );
+  };
+
+  const handleSuccess = async (imageUploadUrl?: string) => {
+    const successMessage = isEditMode
+      ? '문의가 성공적으로 수정되었습니다.'
+      : '문의가 성공적으로 제출되었습니다.';
+    const imageUploadFailedMessage = isEditMode
+      ? '문의는 수정되었지만 이미지 업로드에 실패해 첨부 이미지는 저장되지 않았습니다.'
+      : '문의는 제출되었지만 이미지 업로드에 실패해 첨부 이미지는 저장되지 않았습니다.';
+
+    if (!imageFile) {
+      finalizeSubmission(successMessage);
+
+      return;
+    }
+
+    setIsFinalizingSubmission(true);
+
+    if (!imageUploadUrl) {
+      finalizeSubmission(imageUploadFailedMessage, 'info');
+
+      return;
+    }
+
+    try {
+      await uploadImage(imageUploadUrl, imageFile);
+      finalizeSubmission(successMessage);
+    } catch (error) {
+      console.error('문의 이미지 업로드 오류:', error);
+      finalizeSubmission(imageUploadFailedMessage, 'info');
+    }
   };
 
   const onSubmit = (data: QuestionFormValues) => {
-    const imageExtension = imageFile ? imageFile.type.split('/')[1] : undefined;
+    const imageExtension = imageFile
+      ? getImageExtension(imageFile)
+      : isEditMode && isImageRemoved
+        ? 'DEFAULT'
+        : undefined;
 
-    createQuestion(
+    const request = {
+      title: data.title,
+      content: data.content,
+      category: data.category,
+      imageExtension,
+    };
+
+    if (isEditMode && questionId) {
+      modifyQuestionMutation.mutate(
+        {
+          groupStudyId: studyId,
+          questionId,
+          request,
+        },
+        {
+          onSuccess: async (result) => {
+            await handleSuccess(result.imageUploadUrl);
+          },
+          onError: (error) => {
+            showToast('문의 수정에 실패했습니다. 다시 시도해주세요.', 'error');
+            console.error('문의 수정 오류:', error);
+          },
+        },
+      );
+
+      return;
+    }
+
+    createQuestionMutation.mutate(
       {
         groupStudyId: studyId,
-        request: {
-          title: data.title,
-          content: data.content,
-          category: data.category,
-          imageExtension,
-        },
+        request,
       },
       {
         onSuccess: async (result) => {
-          if (imageFile && result.imageUploadUrl) {
-            try {
-              await uploadImage(result.imageUploadUrl, imageFile);
-            } catch (error) {
-              showToast('이미지 업로드 오류', 'error');
-
-              return;
-            }
-          }
-          showToast('문의가 성공적으로 제출되었습니다.', 'success');
-          reset();
-          resetImageState();
-          onOpenChange(false);
-          if (onAfterSubmit) {
-            onAfterSubmit();
-          } else {
-            router.push(
-              `/inquiry?groupStudyId=${studyId}${studyType ? `&studyType=${studyType}` : ''}`,
-            );
-          }
+          await handleSuccess(result.imageUploadUrl);
         },
         onError: (error) => {
           showToast('문의 제출에 실패했습니다. 다시 시도해주세요.', 'error');
@@ -138,14 +301,6 @@ export default function QuestionModal({
     );
   };
 
-  const handleOpenChange = (isOpen: boolean) => {
-    if (!isOpen) {
-      reset();
-      resetImageState();
-    }
-    onOpenChange(isOpen);
-  };
-
   return (
     <Modal.Root open={open} onOpenChange={handleOpenChange}>
       <Modal.Portal>
@@ -153,7 +308,7 @@ export default function QuestionModal({
         <Modal.Content size="medium" className="w-full sm:w-[500px]">
           <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title className="font-designer-20b text-text-strong">
-              스터디 문의하기
+              {isEditMode ? '스터디 문의 수정하기' : '스터디 문의하기'}
             </Modal.Title>
             <Modal.Close>
               <XIcon />
@@ -227,7 +382,13 @@ export default function QuestionModal({
                   취소
                 </Button>
                 <Button type="submit" color="primary" disabled={isPending}>
-                  {isPending ? '제출 중...' : '문의 제출'}
+                  {isPending
+                    ? isEditMode
+                      ? '수정 중...'
+                      : '제출 중...'
+                    : isEditMode
+                      ? '문의 수정'
+                      : '문의 제출'}
                 </Button>
               </Modal.Footer>
             </form>
