@@ -17,15 +17,18 @@ interface ReviewReminderDismissOptions {
 
 export const useReviewReminder = (memberId?: number) => {
   const { data: modalState, isFetching } = useStudyReviewModalStateQuery();
+
+  const { shouldShowModal, targetStudySpaceId } = modalState ?? {};
+
   const { mutateAsync: dismissStudyReviewModal } =
     useDismissStudyReviewModalMutation();
   const showToast = useToastStore((state) => state.showToast);
   const [showReviewReminder, setShowReviewReminder] = useState(false);
-  const targetStudySpaceId = modalState?.targetStudySpaceId;
 
   const shouldValidateTargetStudy = Boolean(
-    modalState?.shouldShowModal && targetStudySpaceId,
+    shouldShowModal && targetStudySpaceId,
   );
+
   const { data: targetStudy, isFetching: isTargetStudyFetching } =
     usePartnerStudyReviewQuery({
       enabled: shouldValidateTargetStudy,

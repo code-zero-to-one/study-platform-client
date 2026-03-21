@@ -1,7 +1,9 @@
 'use client';
 
+import { useQueries } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import { axiosInstance } from '@/api/client/axios';
 import type {
   GroupStudyBasicInfoResponseDto,
   GroupStudyDetailInfoResponseDto,
@@ -9,7 +11,9 @@ import type {
 import GroupStudyReviewModal from '@/components/common/modals/group-study-review-modal';
 import Pagination from '@/components/common/ui/pagination';
 import { useAuthReady } from '@/hooks/common/use-auth';
+import { groupStudyReviewQueryKeys } from '@/hooks/queries/group-study-review-api';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
+import { useToastStore } from '@/stores/use-toast-store';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 import StudyReviewTabNav from '../_components/study-review-tab-nav';
 import EvaluationSection from './[groupStudyId]/_components/evaluation-section';
@@ -22,7 +26,9 @@ const reviewSubtitle =
 export default function GroupStudyReviewListPage() {
   const [page, setPage] = useState(1);
   const [reviewStudy, setReviewStudy] = useState<MemberStudyItem | null>(null);
+  const [submittedStudyIds, setSubmittedStudyIds] = useState<number[]>([]);
   const { memberId } = useAuthReady();
+  const showToast = useToastStore((state) => state.showToast);
 
   const { data: completedGroupStudy } = useMemberStudyListQuery({
     memberId: memberId ?? 0,
@@ -33,6 +39,59 @@ export default function GroupStudyReviewListPage() {
   });
 
   const completedGroupStudies = completedGroupStudy?.completed.content ?? [];
+  const participantStudies = completedGroupStudies.filter(
+    (study) => study.studyRole === 'PARTICIPANT',
+  );
+
+  const writtenResults = useQueries({
+    queries: participantStudies.map((study) => ({
+      queryKey: groupStudyReviewQueryKeys.written(study.studyId),
+      queryFn: async () => {
+        const { data } = await axiosInstance.get<{ content: boolean }>(
+          `/group-studies/${study.studyId}/reviews/written`,
+        );
+
+        return data.content;
+      },
+      enabled: !!study.studyId,
+      staleTime: 60 * 1000,
+    })),
+  });
+
+  const reviewWrittenByStudyId = new Map<number, boolean | undefined>();
+
+  participantStudies.forEach((study, index) => {
+    const writtenResult = writtenResults[index];
+    const isRecentlySubmitted = submittedStudyIds.includes(study.studyId);
+
+    reviewWrittenByStudyId.set(
+      study.studyId,
+      isRecentlySubmitted || writtenResult?.data === true
+        ? true
+        : writtenResult?.data,
+    );
+  });
+
+  const handleParticipantStudyClick = (study: MemberStudyItem) => {
+    const reviewWritten = reviewWrittenByStudyId.get(study.studyId);
+
+    if (reviewWritten === true) {
+      showToast('이미 후기를 작성한 스터디입니다.', 'info');
+
+      return;
+    }
+
+    if (reviewWritten === undefined) {
+      showToast(
+        '후기 작성 가능 여부를 확인하는 중입니다. 잠시 후 다시 시도해주세요.',
+        'info',
+      );
+
+      return;
+    }
+
+    setReviewStudy(study);
+  };
 
   return (
     <div className="flex flex-col gap-400">
@@ -65,7 +124,9 @@ export default function GroupStudyReviewListPage() {
                 study={study}
                 basePath="/my-study-review/group"
                 onMemberClick={
-                  study.studyRole === 'PARTICIPANT' ? setReviewStudy : undefined
+                  study.studyRole === 'PARTICIPANT'
+                    ? handleParticipantStudyClick
+                    : undefined
                 }
               />
             ))}
@@ -94,6 +155,13 @@ export default function GroupStudyReviewListPage() {
               endDate: dayjs(reviewStudy.endTime).format('YYYY.MM.DD'),
             } as GroupStudyBasicInfoResponseDto
           }
+          onSubmitSuccess={() => {
+            setSubmittedStudyIds((prev) =>
+              prev.includes(reviewStudy.studyId)
+                ? prev
+                : [...prev, reviewStudy.studyId],
+            );
+          }}
         />
       )}
     </div>
