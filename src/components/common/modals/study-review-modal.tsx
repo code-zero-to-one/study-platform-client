@@ -1,10 +1,10 @@
 'use client';
 
 import { useQueryClient } from '@tanstack/react-query';
-import { isAxiosError } from 'axios';
 import { XIcon } from 'lucide-react';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import Checkbox from '@/components/common/ui/checkbox';
@@ -17,7 +17,11 @@ import {
   usePartnerStudyReviewQuery,
 } from '@/hooks/queries/use-review-query';
 import { useToastStore } from '@/stores/use-toast-store';
-import { EvalKeyword, StudyEvaluationResponse } from '@/types/api/review.types';
+import type {
+  EvalKeyword,
+  StudyEvaluationResponse,
+} from '@/types/api/review.types';
+import { ErrorType, analyzeError } from '@/utils/error-handler';
 
 interface FormState {
   studySpaceId: number;
@@ -45,6 +49,7 @@ export default function StudyReviewModal({
   onOpenChange,
   onDismissPreferenceChange,
   targetStudySpaceId,
+  onSubmitSuccess,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -52,6 +57,7 @@ export default function StudyReviewModal({
     options: ReminderDismissOptions,
   ) => Promise<void> | void;
   targetStudySpaceId?: number;
+  onSubmitSuccess?: () => void;
 }) {
   const [hideForOneHour, setHideForOneHour] = useState(false);
   const [hideForever, setHideForever] = useState(false);
@@ -129,6 +135,7 @@ export default function StudyReviewModal({
             targetStudySpaceId={targetStudySpaceId}
             onDismiss={handleDismiss}
             onSubmitSuccessClose={() => onOpenChange(false)}
+            onSubmitSuccess={onSubmitSuccess}
             hideForOneHour={hideForOneHour}
             hideForever={hideForever}
             onToggleHideForOneHour={handleToggleHideForOneHour}
@@ -145,6 +152,7 @@ function StudyReviewForm({
   targetStudySpaceId,
   onDismiss,
   onSubmitSuccessClose,
+  onSubmitSuccess,
   hideForOneHour,
   hideForever,
   onToggleHideForOneHour,
@@ -154,6 +162,7 @@ function StudyReviewForm({
   targetStudySpaceId?: number;
   onDismiss: () => void;
   onSubmitSuccessClose: () => void;
+  onSubmitSuccess?: () => void;
   hideForOneHour: boolean;
   hideForever: boolean;
   onToggleHideForOneHour: () => void;
@@ -170,22 +179,21 @@ function StudyReviewForm({
   const [form, setForm] = useState<FormState>(createInitialFormState);
 
   useEffect(() => {
-    if (!open) {
-      setForm(createInitialFormState());
-
-      return;
-    }
-
     setForm(createInitialFormState());
   }, [open, targetStudySpaceId]);
 
   useEffect(() => {
     if (!open || !isError) return;
 
-    if (isAxiosError(error) && error.response?.status === 404) {
+    if (analyzeError(error).type === ErrorType.NOT_FOUND) {
+      queryClient
+        .invalidateQueries({
+          queryKey: reviewQueryKeys.modalState(),
+        })
+        .catch(() => {});
       onSubmitSuccessClose();
     }
-  }, [open, isError, error, onSubmitSuccessClose]);
+  }, [open, isError, error, onSubmitSuccessClose, queryClient]);
 
   useEffect(() => {
     if (!data || data.studySpaceId !== targetStudySpaceId) return;
@@ -282,18 +290,22 @@ function StudyReviewForm({
       {
         onSuccess: () => {
           onSubmitSuccessClose();
+          onSubmitSuccess?.();
         },
         onError: async (error) => {
-          if (isAxiosError(error) && error.response?.status === 400) {
+          await queryClient.invalidateQueries({
+            queryKey: reviewQueryKeys.modalState(),
+          });
+
+          const errorInfo = analyzeError(error);
+
+          if (errorInfo.type === ErrorType.NOT_FOUND) {
             onSubmitSuccessClose();
-            await queryClient.invalidateQueries({
-              queryKey: reviewQueryKeys.modalState(),
-            });
 
             return;
           }
 
-          showToast('후기 작성에 실패했습니다. 다시 시도해주세요.', 'error');
+          showToast(errorInfo.userMessage, 'error');
         },
       },
     );
@@ -412,6 +424,8 @@ function StudyReviewForm({
 function PartnerInfo(data: StudyEvaluationResponse) {
   const partner = data.targetMembers[0];
 
+  if (!partner) return null;
+
   return (
     <div className="flex justify-center gap-200">
       <UserAvatar
@@ -458,7 +472,10 @@ function SatisfactionButton({
       <span className="text-text-default font-designer-14r">{label}</span>
 
       <div
-        className={`bg-background-neutral-subtle w-fit rounded-full p-150 ${isSelected ? 'opacity-100' : 'opacity-40'} transform transition-all ease-in-out hover:scale-110 hover:opacity-100`}
+        className={cn(
+          'bg-background-neutral-subtle w-fit rounded-full p-150 transform transition-all ease-in-out hover:scale-110 hover:opacity-100',
+          isSelected ? 'opacity-100' : 'opacity-40',
+        )}
       >
         <Image src={imageSrc} width="24" height="24" alt={label} />
       </div>
@@ -518,6 +535,9 @@ function NegativeReview({
   );
 }
 
+const toggleKeywordId = (ids: number[], id: number) =>
+  ids.includes(id) ? ids.filter((k) => k !== id) : [...ids, id];
+
 function PositiveCheckboxList({
   positiveKeywords,
   keywordIds,
@@ -528,12 +548,7 @@ function PositiveCheckboxList({
   onChange: (keywordIds: FormState['keywordIds']) => void;
 }) {
   const handleToggle = (id: number) => {
-    const isChecked = keywordIds.includes(id);
-    const newKeywordIds = isChecked
-      ? keywordIds.filter((k) => k !== id)
-      : [...keywordIds, id];
-
-    onChange(newKeywordIds);
+    onChange(toggleKeywordId(keywordIds, id));
   };
 
   return (
@@ -604,12 +619,7 @@ function NegativeCheckboxList({
   onChange: (keywordIds: FormState['keywordIds']) => void;
 }) {
   const handleToggle = (id: number) => {
-    const isChecked = keywordIds.includes(id);
-    const newKeywordIds = isChecked
-      ? keywordIds.filter((k) => k !== id)
-      : [...keywordIds, id];
-
-    onChange(newKeywordIds);
+    onChange(toggleKeywordId(keywordIds, id));
   };
 
   return (

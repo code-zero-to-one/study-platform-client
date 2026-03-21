@@ -31,15 +31,23 @@ interface ReviewPageContentProps {
   totalReviewsCount: number;
   hasNextPage: boolean;
   fetchNextPage: () => void;
+  keywordEmptyMessage?: string;
+  reviewEmptyMessage?: string;
 }
 
 interface KeywordCardProps {
   title: string;
   keywords: ReviewKeyword[];
   allKeywords: ReviewKeyword[];
+  emptyMessage?: string;
 }
 
-function KeywordCard({ title, keywords, allKeywords }: KeywordCardProps) {
+function KeywordCard({
+  title,
+  keywords,
+  allKeywords,
+  emptyMessage,
+}: KeywordCardProps) {
   return (
     <div className="rounded-100 border-border-subtle min-h-280 border p-200">
       <div className="mb-200 flex justify-between">
@@ -57,7 +65,7 @@ function KeywordCard({ title, keywords, allKeywords }: KeywordCardProps) {
           ))
         ) : (
           <li className="font-designer-14r text-text-subtle text-center">
-            아직 받은 평가가 없습니다.
+            {emptyMessage ?? '아직 받은 평가가 없습니다.'}
           </li>
         )}
       </ul>
@@ -75,6 +83,8 @@ export default function ReviewPageContent({
   totalReviewsCount,
   hasNextPage,
   fetchNextPage,
+  keywordEmptyMessage,
+  reviewEmptyMessage,
 }: ReviewPageContentProps) {
   return (
     <>
@@ -97,11 +107,13 @@ export default function ReviewPageContent({
             title="좋았던 점"
             keywords={positiveKeywords}
             allKeywords={allPositiveKeywords}
+            emptyMessage={keywordEmptyMessage}
           />
           <KeywordCard
             title="개선이 필요한 점"
             keywords={negativeKeywords}
             allKeywords={allNegativeKeywords}
+            emptyMessage={keywordEmptyMessage}
           />
         </div>
       </section>
@@ -120,7 +132,7 @@ export default function ReviewPageContent({
 
         {myReviews.length === 0 ? (
           <div className="text-text-subtle font-designer-14r flex h-200 items-center justify-center text-center">
-            아직까지 받은 후기가 없습니다.
+            {reviewEmptyMessage ?? '아직까지 받은 후기가 없습니다.'}
           </div>
         ) : (
           <ul>

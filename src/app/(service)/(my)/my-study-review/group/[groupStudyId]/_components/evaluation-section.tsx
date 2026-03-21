@@ -27,13 +27,18 @@ function EvaluationCard({
   const hasMore = items.length > DEFAULT_SHOW_COUNT;
 
   return (
-    <div className="rounded-100 border-border-subtle min-h-200 border p-200">
-      <div className={cn('mb-200 flex', showToggle && 'justify-between')}>
+    <div className="rounded-100 border-border-subtle min-h-[280px] border p-200">
+      <div
+        className={cn(
+          'mb-200 flex flex-col gap-100 sm:flex-row sm:items-center',
+          showToggle && 'sm:justify-between',
+        )}
+      >
         <h3 className="font-designer-16b text-text-default">{title}</h3>
         {showToggle && hasMore && (
           <button
             type="button"
-            className="font-designer-14m text-text-subtle cursor-pointer"
+            className="font-designer-14m text-text-subtle cursor-pointer self-start"
             onClick={() => setExpanded(!expanded)}
           >
             {expanded ? '접기' : '더보기'}
@@ -46,17 +51,23 @@ function EvaluationCard({
           {visible.map((item, index) => (
             <li
               key={item.id ?? index}
-              className="bg-background-accent-gray-default text-text-default rounded-50 flex justify-between px-200 py-100"
+              className="bg-background-accent-gray-default text-text-default rounded-50 flex items-start justify-between gap-150 px-200 py-100"
             >
-              <span className="font-designer-14r">{item.label}</span>
-              <span className="font-designer-14b">{item.count}</span>
+              <span className="font-designer-14r min-w-0 break-words">
+                {item.label}
+              </span>
+              <span className="font-designer-14b shrink-0 tabular-nums">
+                {item.count}
+              </span>
             </li>
           ))}
         </ul>
       ) : (
-        <span className="font-designer-13r text-text-subtlest">
-          {emptyMessage}
-        </span>
+        <div className="flex flex-col gap-50">
+          <span className="text-text-subtle font-designer-14r text-center">
+            {emptyMessage}
+          </span>
+        </div>
       )}
     </div>
   );
@@ -93,7 +104,7 @@ export default function EvaluationSection({
         개선이 필요한 점은 스터디장에게만 보여요
       </span>
 
-      <div className="grid grid-cols-2 gap-300">
+      <div className="grid grid-cols-1 gap-300 md:grid-cols-2">
         <EvaluationCard
           title="좋았던 점"
           items={goodItems}

@@ -40,12 +40,16 @@ export default function MemberStudyCard({
             src={thumbnailUrl}
             alt={study.title}
             fill
-            className="object-cover"
+            className={`object-cover ${study.status === 'COMPLETED' ? 'grayscale' : ''}`}
           />
         ) : (
           <div className="h-full w-full" />
         )}
-        <div className="absolute inset-0 rounded-100" />
+        {study.status === 'COMPLETED' ? (
+          <div className="absolute inset-0 bg-black opacity-50" />
+        ) : (
+          <div className="absolute inset-0 rounded-100" />
+        )}
       </div>
       <div className="flex flex-col gap-50">
         <div className="font-designer-15b text-text-default">{study.title}</div>
