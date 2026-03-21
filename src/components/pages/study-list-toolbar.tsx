@@ -2,16 +2,14 @@
 
 import { ArrowUpDown, Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import {
-  GetGroupStudiesSortEnum,
-  type GetGroupStudiesClassificationEnum,
-} from '@/api/openapi/api/group-study-management-api';
+import { GetGroupStudiesSortEnum } from '@/api/openapi/api/group-study-management-api';
 import Button from '@/components/common/ui/button';
 import SortDropdown from '@/components/common/ui/filters/sort-dropdown';
 import StudyFilter, {
   type StudyFilterValues,
 } from '@/components/filtering/study-filter';
 import StudySearch from '@/components/filtering/study-search';
+import type { StudyClassification } from '@/types/schemas/group-study-form.schema';
 
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
@@ -26,7 +24,7 @@ const SORT_OPTIONS = [
 
 interface StudyListToolbarProps {
   title: string;
-  classification: GetGroupStudiesClassificationEnum;
+  classification: StudyClassification;
   isAuthReady: boolean;
   controls: {
     searchQuery: string;
