@@ -41,16 +41,13 @@ export default function StudyMemberList({
   });
   const { memberId, isAuthReady } = useAuthReady();
 
-  const visibleMemberList = useMemo(
-    () => {
-      const memberList = data?.members ?? [];
+  const visibleMemberList = useMemo(() => {
+    const memberList = data?.members ?? [];
 
-      return excludeLeaderFromMembers
-        ? memberList.filter((member) => member.id !== leaderId)
-        : memberList;
-    },
-    [excludeLeaderFromMembers, leaderId, data?.members],
-  );
+    return excludeLeaderFromMembers
+      ? memberList.filter((member) => member.id !== leaderId)
+      : memberList;
+  }, [excludeLeaderFromMembers, leaderId, data?.members]);
 
   if (isLoading) {
     return null;
