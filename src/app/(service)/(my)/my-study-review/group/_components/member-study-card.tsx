@@ -40,7 +40,7 @@ export default function MemberStudyCard({
             src={thumbnailUrl}
             alt={study.title}
             fill
-            className={`object-cover ${study.status === 'COMPLETED' ? 'grayscale' : ''}`}
+            className="object-cover"
           />
         ) : (
           <div className="h-full w-full" />
