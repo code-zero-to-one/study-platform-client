@@ -820,8 +820,8 @@ function CTASection() {
             스터디와 멘토, 놓치지 마세요.
           </p>
           <p className="mt-[12px] font-designer-16m text-text-subtle md:mt-[16px]">
-            관심 분야와 현재 상황을 알려주시면, 관련 스터디가
-            개설되거나 꼭 맞는 개발자 멘토가 등록될 때 가장 먼저 알려드려요.
+            관심 분야와 현재 상황을 알려주시면, 관련 스터디가 개설되거나 꼭 맞는
+            개발자 멘토가 등록될 때 가장 먼저 알려드려요.
           </p>
 
           <div className="mt-[28px] inline-flex flex-col gap-[14px] md:mt-[40px] md:gap-[16px]">
