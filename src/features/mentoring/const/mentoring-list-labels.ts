@@ -7,7 +7,7 @@ export const MENTORING_LIST_LABELS = {
   joinMeta: '1:1 멘토링 · 일정 기반 운영',
   joinCta: '멘토 등록하기',
   joinMethods: ['쪽지상담', '간편상담', '심층상담', '대면상담'] as const,
-  recruitCaption: '멘토 모집 중',
+  recruitCaption: '개발자 모집 중',
 } as const;
 
 export const MENTORING_LIST_ERROR_MESSAGES = {
