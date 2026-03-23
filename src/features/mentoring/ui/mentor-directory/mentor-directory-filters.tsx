@@ -44,35 +44,38 @@ export default function MentorDirectoryFilters({
   ];
 
   return (
-    <>
-      <div className="w-full sm:w-[320px]">
-        <SingleDropdown
-          options={options}
-          value={keyword}
-          onChange={(nextKeyword) => onKeywordChange(nextKeyword ?? '')}
-          placeholder={MENTORING_LIST_LABELS.searchPlaceholder}
-          className="rounded-100 bg-background-default"
-          size="m"
-        />
-      </div>
-      <div className="w-full sm:w-[320px]">
-        <MultiDropdown
-          options={careerOptions.map((careerOption) => ({
-            value: careerOption.code,
-            label: careerOption.label,
-          }))}
-          value={careerCodes}
-          onChange={onCareerCodesChange}
-          placeholder="경력 선택"
-          className="rounded-100 bg-background-default"
-        />
+    <div className="flex w-full flex-col gap-150 lg:flex-row lg:items-center lg:gap-200">
+      <div className="flex min-w-0 flex-1 flex-col gap-150 md:flex-row md:items-center md:gap-200">
+        <div className="w-full md:w-320">
+          <SingleDropdown
+            options={options}
+            value={keyword}
+            onChange={(nextKeyword) => onKeywordChange(nextKeyword ?? '')}
+            placeholder={MENTORING_LIST_LABELS.searchPlaceholder}
+            className="rounded-100 bg-background-default"
+            size="m"
+          />
+        </div>
+        <div className="w-full md:w-320">
+          <MultiDropdown
+            options={careerOptions.map((careerOption) => ({
+              value: careerOption.code,
+              label: careerOption.label,
+            }))}
+            value={careerCodes}
+            onChange={onCareerCodesChange}
+            placeholder="경력 선택"
+            className="rounded-100 bg-background-default"
+          />
+        </div>
       </div>
       <SortDropdown<MentorSortType>
         value={sortType}
         options={sortOptions}
         onChange={onSortTypeChange}
         icon={<ArrowUpDown className="h-14 w-14" />}
+        className="lg:ml-auto"
       />
-    </>
+    </div>
   );
 }

@@ -5,7 +5,7 @@ import type { SettlementAccountRegisterRequest } from '@/api/openapi/models/sett
 
 const settlementAccountApi = createApiInstance(SettlementAccountApi);
 
-export const useGetSettlementAccount = () => {
+export const useGetSettlementAccount = (enabled = true) => {
   return useQuery({
     queryKey: ['settlementAccount'],
     queryFn: async () => {
@@ -14,6 +14,7 @@ export const useGetSettlementAccount = () => {
       return data.content;
     },
     retry: false,
+    enabled,
   });
 };
 

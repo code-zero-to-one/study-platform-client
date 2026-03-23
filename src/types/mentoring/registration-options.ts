@@ -22,7 +22,7 @@ export interface MentorRegistrationCareerOption {
   active: boolean;
 }
 
-export interface MentorRegistrationCoreKeywordOption {
+export interface MentorRegistrationSelectableCoreKeywordOption {
   code: string;
   label: string;
   jobGroupCodes: string[];
@@ -31,10 +31,17 @@ export interface MentorRegistrationCoreKeywordOption {
   active: boolean;
 }
 
+export type MentorRegistrationCoreKeywordOption =
+  MentorRegistrationSelectableCoreKeywordOption;
+
 export interface MentorRegistrationOptions {
   maxCoreKeywordCount: number;
   jobGroups: MentorRegistrationJobGroupOption[];
   jobTitles: MentorRegistrationJobTitleOption[];
   careers: MentorRegistrationCareerOption[];
-  coreKeywords: MentorRegistrationCoreKeywordOption[];
+  /**
+   * 등록 화면에서만 노출하는 운영 키워드 풀이다.
+   * 실제 멘토 프로필에 저장되거나 공개 화면에서 노출되는 키워드와는 분리한다.
+   */
+  selectableCoreKeywords: MentorRegistrationSelectableCoreKeywordOption[];
 }

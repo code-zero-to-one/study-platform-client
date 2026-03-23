@@ -6,14 +6,21 @@ import {
   toDurationMinutes,
   toSafeInteger,
 } from '@/features/mentoring/model/mentor-registration-preview';
-import { createDefaultMentorSettings } from '@/features/mentoring/model/mentor-settings';
+import {
+  applyMentorScheduleTextDrafts,
+  createDefaultMentorSettings,
+} from '@/features/mentoring/model/mentor-settings';
 import type { MentorProfile } from '@/types/mentoring/domain';
+import { normalizeMentorMarkdownContent } from '@/types/mentoring/markdown';
 import type { MentorRegistrationOptions } from '@/types/mentoring/registration-options';
-import type { MentorRegistrationEntryOnboardingValues } from '@/types/mentoring/registration-view';
-import type { MentorSettlementDraft } from '@/types/mentoring/settings';
 import type {
-  MentorRegistrationFormInputValues,
-  MentorRegistrationFormValues,
+  MentorRegistrationEntryOnboardingValues,
+  MentorRegistrationPersistedPredefinedCoreKeyword,
+} from '@/types/mentoring/registration-view';
+import {
+  createEmptyMentorScheduleDrafts,
+  type MentorRegistrationFormInputValues,
+  type MentorRegistrationFormValues,
 } from '@/types/schemas/mentor-registration-schema';
 
 export const EMPTY_REGISTRATION_OPTIONS: MentorRegistrationOptions = {
@@ -21,7 +28,19 @@ export const EMPTY_REGISTRATION_OPTIONS: MentorRegistrationOptions = {
   jobGroups: [],
   jobTitles: [],
   careers: [],
-  coreKeywords: [],
+  selectableCoreKeywords: [],
+};
+
+const normalizePreviewString = (value: unknown): string => {
+  return typeof value === 'string' ? value : '';
+};
+
+const normalizePreviewStringArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter((item): item is string => typeof item === 'string');
 };
 
 interface MentorRegistrationPreviewFields {
@@ -33,6 +52,7 @@ interface MentorRegistrationPreviewFields {
   jobGroup?: string;
   jobTitle?: string;
   careerYears?: string;
+  careerEntries?: MentorRegistrationFormValues['careerEntries'];
   skillTags: string[];
   companyCategory?: MentorRegistrationFormValues['companyCategory'];
   companyName?: string;
@@ -50,16 +70,16 @@ interface MentorRegistrationPreviewFields {
   offlinePrice?: MentorRegistrationFormInputValues['offlinePrice'];
   offlineDurationMinutes?: MentorRegistrationFormInputValues['offlineDurationMinutes'];
   schedule?: MentorRegistrationFormValues['schedule'];
+  scheduleDrafts?: MentorRegistrationFormValues['scheduleDrafts'];
   detailedDescription?: string;
   interviewQuestions?: string[];
   preNotice?: string;
-  // eslint-disable-next-line @rushstack/no-new-null -- legacy form model keeps null for unset settlement draft.
-  settlementDraft?: MentorSettlementDraft | null;
   updatedAt?: string;
 }
 
 interface UseMentorRegistrationPreviewModelParams {
   registrationOptions: MentorRegistrationOptions | undefined;
+  persistedPredefinedCoreKeywords?: ReadonlyArray<MentorRegistrationPersistedPredefinedCoreKeyword>;
   myMentorId: number | undefined;
   memberId: number | undefined;
   profileImageUrl: string | undefined;
@@ -74,12 +94,11 @@ interface MentorRegistrationPreviewModel {
   entryOnboardingValues: MentorRegistrationEntryOnboardingValues;
   previewFormValues: MentorRegistrationFormValues;
   previewMentor: MentorProfile;
-  // eslint-disable-next-line @rushstack/no-new-null -- legacy form model keeps null for unset settlement draft.
-  settlementDraft: MentorSettlementDraft | null | undefined;
 }
 
 export const useMentorRegistrationPreviewModel = ({
   registrationOptions,
+  persistedPredefinedCoreKeywords = [],
   myMentorId,
   memberId,
   profileImageUrl,
@@ -118,13 +137,22 @@ export const useMentorRegistrationPreviewModel = ({
   }, [selectedRegistrationOptions.careers]);
 
   const coreKeywordLabelMap = useMemo(() => {
-    return new Map(
-      selectedRegistrationOptions.coreKeywords.map((item) => [
+    const labelMap = new Map(
+      selectedRegistrationOptions.selectableCoreKeywords.map((item) => [
         item.code,
         item.label,
       ]),
     );
-  }, [selectedRegistrationOptions.coreKeywords]);
+
+    persistedPredefinedCoreKeywords.forEach((keyword) => {
+      labelMap.set(keyword.code, keyword.label);
+    });
+
+    return labelMap;
+  }, [
+    persistedPredefinedCoreKeywords,
+    selectedRegistrationOptions.selectableCoreKeywords,
+  ]);
 
   const entryOnboardingValues =
     useMemo<MentorRegistrationEntryOnboardingValues>(() => {
@@ -144,12 +172,18 @@ export const useMentorRegistrationPreviewModel = ({
   const displayJobGroup = jobGroupLabelMap.get(fields.jobGroup ?? '') ?? '';
   const displayJobTitle = jobTitleLabelMap.get(fields.jobTitle ?? '') ?? '';
   const displayCareer = careerLabelMap.get(fields.careerYears ?? '') ?? '';
-  const displayCoreKeywords = (fields.skillTags ?? [])
-    .map((code) => coreKeywordLabelMap.get(code) ?? '')
+  const displayProfileKeywords = (fields.skillTags ?? [])
+    .map((keyword) => coreKeywordLabelMap.get(keyword) ?? keyword)
     .filter((label) => label.length > 0);
 
   const previewFormValues = useMemo<MentorRegistrationFormValues>(() => {
     const defaults = createDefaultMentorSettings();
+    const scheduleDrafts =
+      fields.scheduleDrafts ?? createEmptyMentorScheduleDrafts();
+    const schedule = applyMentorScheduleTextDrafts({
+      schedule: fields.schedule ?? defaults.schedule,
+      drafts: scheduleDrafts,
+    }).schedule;
 
     return {
       ...defaults,
@@ -163,10 +197,11 @@ export const useMentorRegistrationPreviewModel = ({
       jobGroup: fields.jobGroup ?? '',
       jobTitle: fields.jobTitle ?? '',
       careerYears: fields.careerYears ?? '',
+      careerEntries: fields.careerEntries ?? [],
       skillTags: fields.skillTags,
       companyCategory: fields.companyCategory ?? defaults.companyCategory,
       companyName: fields.companyName ?? '',
-      hideCompanyName: fields.hideCompanyName ?? false,
+      hideCompanyName: fields.hideCompanyName ?? defaults.hideCompanyName,
       listVisible: fields.listVisible ?? defaults.listVisible,
       maxParticipants: Math.min(
         10,
@@ -191,12 +226,16 @@ export const useMentorRegistrationPreviewModel = ({
         fields.offlineDurationMinutes,
         defaults.offlineDurationMinutes,
       ),
-      schedule: fields.schedule ?? defaults.schedule,
-      detailedDescription: fields.detailedDescription ?? '',
-      interviewQuestions: fields.interviewQuestions ?? [],
-      preNotice: fields.preNotice ?? '',
-      settlementDraft: fields.settlementDraft ?? null,
-      updatedAt: fields.updatedAt ?? defaults.updatedAt,
+      schedule,
+      scheduleDrafts,
+      detailedDescription: normalizeMentorMarkdownContent(
+        fields.detailedDescription,
+      ),
+      interviewQuestions: normalizePreviewStringArray(
+        fields.interviewQuestions,
+      ),
+      preNotice: normalizePreviewString(fields.preNotice),
+      updatedAt: normalizePreviewString(fields.updatedAt) || defaults.updatedAt,
     };
   }, [fields]);
 
@@ -209,13 +248,15 @@ export const useMentorRegistrationPreviewModel = ({
       displayJobGroup,
       displayJobTitle,
       displayCareer,
-      displayCoreKeywords,
+      displayProfileKeywords,
+      companyName: previewFormValues.companyName,
+      hideCompanyName: previewFormValues.hideCompanyName,
       imageUrl: profileImageUrl?.trim() || undefined,
       nickname: nickname?.trim() || memberName?.trim() || '',
     });
   }, [
     displayCareer,
-    displayCoreKeywords,
+    displayProfileKeywords,
     displayJobGroup,
     displayJobTitle,
     memberName,
@@ -231,6 +272,5 @@ export const useMentorRegistrationPreviewModel = ({
     entryOnboardingValues,
     previewFormValues,
     previewMentor,
-    settlementDraft: fields.settlementDraft,
   };
 };

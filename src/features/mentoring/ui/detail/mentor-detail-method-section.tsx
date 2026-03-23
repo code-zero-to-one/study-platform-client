@@ -50,6 +50,17 @@ export default function MentorDetailMethodSection({
       </p>
 
       <div className="flex flex-col gap-150">
+        {enabledMethods.length === 0 && (
+          <div className="rounded-150 border-border-subtle bg-background-alternative border px-250 py-200">
+            <p className="font-designer-14b text-text-default">
+              상담 방식 정보를 준비 중입니다.
+            </p>
+            <p className="font-designer-12r text-text-subtle mt-50">
+              멘토가 스케줄과 가격 설정을 완료하면 신청 가능한 방식이
+              노출됩니다.
+            </p>
+          </div>
+        )}
         {enabledMethods.map((method) => {
           const option = mentor.methods[method];
 

@@ -28,6 +28,8 @@ export interface MentorProfile {
   role: string;
   career: string;
   company: string;
+  publicReadinessStage?: 'DETAIL_PREPARING' | 'APPLY_PREPARING' | 'APPLY_READY';
+  applicationReady?: boolean;
   rating: number;
   reviewCount: number;
   mentoringCount: number;

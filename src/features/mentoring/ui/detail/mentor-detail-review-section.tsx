@@ -10,6 +10,7 @@ import ReviewStars from './review-stars';
 
 interface MentorDetailReviewSectionProps {
   mentor: MentorProfile;
+  displayReviewCount: number;
 }
 
 const reviewMethodMap: Record<MentoringMethodType, string> = {
@@ -21,26 +22,31 @@ const reviewMethodMap: Record<MentoringMethodType, string> = {
 
 export default function MentorDetailReviewSection({
   mentor,
+  displayReviewCount,
 }: MentorDetailReviewSectionProps) {
+  const hasReviewList = mentor.reviews.length > 0;
+
   return (
     <section>
       <div className="mb-75 flex items-center justify-between">
         <h2 className="font-designer-18b text-text-strong">멘토링 리뷰</h2>
         <div className="flex items-center gap-75">
-          <ReviewStars rating={Math.floor(mentor.rating)} />
+          <ReviewStars rating={mentor.rating} />
           <span className="font-designer-14b text-text-strong ml-50">
             {mentor.rating.toFixed(1)}
           </span>
         </div>
       </div>
       <p className="font-designer-13r text-text-subtlest mb-250">
-        리뷰 {mentor.reviewCount}개
+        리뷰 {displayReviewCount}개
       </p>
 
-      {mentor.reviews.length === 0 ? (
+      {!hasReviewList ? (
         <div className="rounded-150 bg-background-alternative px-200 py-400 text-center">
           <p className="font-designer-14r text-text-subtle">
-            아직 등록된 리뷰가 없습니다.
+            {displayReviewCount > 0
+              ? '리뷰 상세는 곧 제공될 예정입니다.'
+              : '아직 등록된 리뷰가 없습니다.'}
           </p>
         </div>
       ) : (

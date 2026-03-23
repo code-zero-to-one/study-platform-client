@@ -28,6 +28,12 @@ export interface MentorSettingsUpsertRequest {
     'jobGroupCode': string;
     'jobTitleCode': string;
     'careerCode': string;
+    'careerEntries'?: Array<{
+        'description': string;
+        'isCurrent'?: boolean;
+        'startMonth'?: string;
+        'endMonth'?: string;
+    }>;
     'coreKeywordCodes': Array<string>;
     'companyName': string;
     'companyVisible': boolean;
@@ -36,11 +42,10 @@ export interface MentorSettingsUpsertRequest {
     'schedule': MentorScheduleRequest;
     'detailedDescription': string;
     'interviewQuestions': Array<string>;
-    'preNotice': string;
+    'preNotice'?: string;
     'anyMethodEnabled'?: boolean;
     'scheduleValidWhenRealtimeEnabled'?: boolean;
     'durationValid'?: boolean;
     'interviewQuestionUnique'?: boolean;
     'coreKeywordUnique'?: boolean;
 }
-

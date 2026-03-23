@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useUserProfileQuery } from '@/hooks/queries/use-user-profile-query';
 // 내부 구현에서는 store 직접 사용 허용 (서버 상태와 동기화 목적)
@@ -71,6 +71,7 @@ export function usePhoneVerificationStatus(
 ): UsePhoneVerificationStatusReturn {
   const { memberId: authMemberId } = useAuthReady();
   const memberId = overrideMemberId ?? authMemberId ?? null;
+  const [hasMounted, setHasMounted] = useState(false);
 
   const {
     data: userProfile,
@@ -89,8 +90,12 @@ export function usePhoneVerificationStatus(
   // 스토어가 현재 유저 소유인지 확인 (계정 전환 대응)
   const storeMatchesUser = memberId !== null && store.memberId === memberId;
   const canUseStoreVerified =
-    storeMatchesUser && store.hasHydrated && store.isVerified;
+    hasMounted && storeMatchesUser && store.hasHydrated && store.isVerified;
   const hasServerProfile = isProfileSuccess && !!userProfile;
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   // 서버 데이터를 우선시하여 최종 인증 상태 결정
   // 서버에 tel이 있으면 인증된 것으로 간주 (isVerified보다 tel 존재 여부가 더 확실한 지표)

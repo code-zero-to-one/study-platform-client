@@ -34,18 +34,25 @@ type TextActionButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> &
     icon?: React.ReactNode;
   };
 
-export default function TextActionButton({
-  type = 'button',
-  className,
-  tone,
-  weight,
-  withTransition,
-  icon,
-  children,
-  ...props
-}: TextActionButtonProps) {
+const TextActionButton = React.forwardRef<
+  HTMLButtonElement,
+  TextActionButtonProps
+>(function TextActionButton(
+  {
+    type = 'button',
+    className,
+    tone,
+    weight,
+    withTransition,
+    icon,
+    children,
+    ...props
+  },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       type={type}
       className={cn(
         textActionButtonVariants({ tone, weight, withTransition }),
@@ -57,4 +64,6 @@ export default function TextActionButton({
       {children}
     </button>
   );
-}
+});
+
+export default TextActionButton;

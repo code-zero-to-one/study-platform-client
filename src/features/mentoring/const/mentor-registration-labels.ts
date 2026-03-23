@@ -57,11 +57,14 @@ export const MENTOR_REGISTRATION_GUARD_CARD_CONTENT: Record<
 export const MENTOR_REGISTRATION_TOAST_MESSAGES = {
   memberInfoMissing: '로그인 정보를 확인할 수 없습니다.',
   entryOnboardingCompleted: '멘토 기본 정보가 등록 폼에 채워졌습니다.',
-  settingsSaving: '멘토링 저장중...',
+  invalidCoreKeywordSelection:
+    '운영 핵심 키워드 목록이 변경되었습니다. 핵심 키워드를 다시 선택해주세요.',
   verificationLoading:
     '본인인증 상태를 확인 중입니다. 잠시 후 다시 시도해주세요.',
   verificationError:
     '본인인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.',
+  optionsLoadError:
+    '등록 옵션을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
   mySettingsLoadError:
     '기존 멘토 설정을 불러오지 못했습니다. 잠시 후 다시 시도해주세요.',
   verificationRequired: '멘토 등록 전 본인인증이 필요합니다.',

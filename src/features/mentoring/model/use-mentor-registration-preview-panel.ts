@@ -26,8 +26,12 @@ const PREVIEW_PANEL_FORM_GAP = 60;
 export interface MentorRegistrationPreviewPanelState {
   isPreviewOpen: boolean;
   isResizing: boolean;
+  formOverflowWidth: number;
+  committedFormOverflowWidth: number;
   panelWidth: number;
   committedPanelWidth: number;
+  panelOverflowWidth: number;
+  committedPanelOverflowWidth: number;
 }
 
 export interface MentorRegistrationPreviewPanelRefs {
@@ -39,7 +43,7 @@ export interface MentorRegistrationPreviewPanelActions {
   closePreview: () => void;
   onPreviewResizeStart: (
     event: ReactPointerEvent<HTMLDivElement>,
-    direction?: 'left' | 'right',
+    direction?: 'form-left' | 'left' | 'right',
   ) => void;
 }
 
@@ -50,13 +54,60 @@ export const useMentorRegistrationPreviewPanel = (): {
 } => {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [formOverflowWidth, setFormOverflowWidth] = useState(0);
+  const [committedFormOverflowWidth, setCommittedFormOverflowWidth] =
+    useState(0);
   const [panelWidth, setPanelWidth] = useState(PREVIEW_PANEL_DEFAULT_WIDTH);
   const [committedPanelWidth, setCommittedPanelWidth] = useState(
     PREVIEW_PANEL_DEFAULT_WIDTH,
   );
+  const [panelOverflowWidth, setPanelOverflowWidth] = useState(0);
+  const [committedPanelOverflowWidth, setCommittedPanelOverflowWidth] =
+    useState(0);
 
+  const formOverflowWidthRef = useRef(0);
   const panelWidthRef = useRef(PREVIEW_PANEL_DEFAULT_WIDTH);
+  const panelOverflowWidthRef = useRef(0);
+  const resizeCleanupRef = useRef<(() => void) | null>(null);
   const previewLayoutRef = useRef<HTMLDivElement>(null);
+
+  const clearPreviewResizeListeners = useCallback(() => {
+    const cleanup = resizeCleanupRef.current;
+
+    if (!cleanup) {
+      return;
+    }
+
+    resizeCleanupRef.current = null;
+    cleanup();
+  }, []);
+
+  const getFormPanelMaxOverflowWidth = useCallback(() => {
+    const layoutRect = previewLayoutRef.current?.getBoundingClientRect();
+
+    if (!layoutRect) {
+      return 0;
+    }
+
+    return Math.max(0, Math.floor(layoutRect.left));
+  }, []);
+
+  const clampFormOverflowWidth = useCallback(
+    (width: number) => {
+      return Math.max(0, Math.min(width, getFormPanelMaxOverflowWidth()));
+    },
+    [getFormPanelMaxOverflowWidth],
+  );
+
+  const syncFormOverflowWidth = useCallback(
+    (nextWidth: number) => {
+      const clampedWidth = clampFormOverflowWidth(nextWidth);
+      formOverflowWidthRef.current = clampedWidth;
+      setFormOverflowWidth(clampedWidth);
+      setCommittedFormOverflowWidth(clampedWidth);
+    },
+    [clampFormOverflowWidth],
+  );
 
   const getPreviewPanelMaxWidth = useCallback(() => {
     const viewportLimit =
@@ -97,74 +148,178 @@ export const useMentorRegistrationPreviewPanel = (): {
     [clampPreviewPanelWidth],
   );
 
+  const getPreviewPanelMaxOverflowWidth = useCallback(() => {
+    const layoutRect = previewLayoutRef.current?.getBoundingClientRect();
+
+    if (!layoutRect) {
+      return 0;
+    }
+
+    return Math.max(0, Math.floor(window.innerWidth - layoutRect.right));
+  }, []);
+
+  const clampPreviewPanelOverflowWidth = useCallback(
+    (width: number) => {
+      return Math.max(0, Math.min(width, getPreviewPanelMaxOverflowWidth()));
+    },
+    [getPreviewPanelMaxOverflowWidth],
+  );
+
+  const syncPreviewPanelOverflowWidth = useCallback(
+    (nextWidth: number) => {
+      const clampedWidth = clampPreviewPanelOverflowWidth(nextWidth);
+      panelOverflowWidthRef.current = clampedWidth;
+      setPanelOverflowWidth(clampedWidth);
+      setCommittedPanelOverflowWidth(clampedWidth);
+    },
+    [clampPreviewPanelOverflowWidth],
+  );
+
   useEffect(() => {
     const handleWindowResize = () => {
+      const clampedFormOverflowWidth = clampFormOverflowWidth(
+        formOverflowWidthRef.current,
+      );
       const clampedWidth = clampPreviewPanelWidth(panelWidthRef.current);
-      if (clampedWidth === panelWidthRef.current) {
+      const clampedOverflowWidth = clampPreviewPanelOverflowWidth(
+        panelOverflowWidthRef.current,
+      );
+
+      if (clampedFormOverflowWidth !== formOverflowWidthRef.current) {
+        formOverflowWidthRef.current = clampedFormOverflowWidth;
+        setFormOverflowWidth(clampedFormOverflowWidth);
+        setCommittedFormOverflowWidth(clampedFormOverflowWidth);
+      }
+
+      if (clampedWidth !== panelWidthRef.current) {
+        panelWidthRef.current = clampedWidth;
+        setPanelWidth(clampedWidth);
+        setCommittedPanelWidth(clampedWidth);
+      }
+
+      if (clampedOverflowWidth === panelOverflowWidthRef.current) {
         return;
       }
 
-      panelWidthRef.current = clampedWidth;
-      setPanelWidth(clampedWidth);
-      setCommittedPanelWidth(clampedWidth);
+      panelOverflowWidthRef.current = clampedOverflowWidth;
+      setPanelOverflowWidth(clampedOverflowWidth);
+      setCommittedPanelOverflowWidth(clampedOverflowWidth);
     };
 
     handleWindowResize();
     window.addEventListener('resize', handleWindowResize);
 
     return () => window.removeEventListener('resize', handleWindowResize);
-  }, [clampPreviewPanelWidth]);
+  }, [
+    clampFormOverflowWidth,
+    clampPreviewPanelOverflowWidth,
+    clampPreviewPanelWidth,
+  ]);
+
+  useEffect(() => {
+    return () => {
+      clearPreviewResizeListeners();
+    };
+  }, [clearPreviewResizeListeners]);
 
   const openPreview = useCallback(() => {
+    syncFormOverflowWidth(formOverflowWidthRef.current);
     syncPreviewPanelWidth(panelWidthRef.current);
+    syncPreviewPanelOverflowWidth(panelOverflowWidthRef.current);
     setIsPreviewOpen(true);
-  }, [syncPreviewPanelWidth]);
+  }, [
+    syncFormOverflowWidth,
+    syncPreviewPanelOverflowWidth,
+    syncPreviewPanelWidth,
+  ]);
 
   const closePreview = useCallback(() => {
+    clearPreviewResizeListeners();
+    setIsResizing(false);
     setIsPreviewOpen(false);
-  }, []);
+  }, [clearPreviewResizeListeners]);
 
   const onPreviewResizeStart = useCallback(
     (
       event: ReactPointerEvent<HTMLDivElement>,
-      direction: 'left' | 'right' = 'left',
+      direction: 'form-left' | 'left' | 'right' = 'left',
     ) => {
+      clearPreviewResizeListeners();
       event.preventDefault();
       event.currentTarget.setPointerCapture(event.pointerId);
 
       const startX = event.clientX;
+      const startFormOverflowWidth = formOverflowWidthRef.current;
       const startWidth = panelWidthRef.current;
+      const startOverflowWidth = panelOverflowWidthRef.current;
       setIsResizing(true);
 
       const handlePointerMove = (moveEvent: PointerEvent) => {
-        const delta =
-          direction === 'left'
-            ? startX - moveEvent.clientX
-            : moveEvent.clientX - startX;
+        if (direction === 'form-left') {
+          const delta = startX - moveEvent.clientX;
+          const newFormOverflowWidth = clampFormOverflowWidth(
+            startFormOverflowWidth + delta,
+          );
+
+          formOverflowWidthRef.current = newFormOverflowWidth;
+          setFormOverflowWidth(newFormOverflowWidth);
+
+          return;
+        }
+
+        if (direction === 'right') {
+          const delta = moveEvent.clientX - startX;
+          const newOverflowWidth = clampPreviewPanelOverflowWidth(
+            startOverflowWidth + delta,
+          );
+
+          panelOverflowWidthRef.current = newOverflowWidth;
+          setPanelOverflowWidth(newOverflowWidth);
+
+          return;
+        }
+
+        const delta = startX - moveEvent.clientX;
         const newWidth = clampPreviewPanelWidth(startWidth + delta);
         panelWidthRef.current = newWidth;
         setPanelWidth(newWidth);
       };
 
-      const handlePointerUp = () => {
+      const handlePointerComplete = () => {
+        clearPreviewResizeListeners();
         setIsResizing(false);
+        setCommittedFormOverflowWidth(formOverflowWidthRef.current);
         setCommittedPanelWidth(panelWidthRef.current);
-        document.removeEventListener('pointermove', handlePointerMove);
-        document.removeEventListener('pointerup', handlePointerUp);
+        setCommittedPanelOverflowWidth(panelOverflowWidthRef.current);
       };
 
+      resizeCleanupRef.current = () => {
+        document.removeEventListener('pointermove', handlePointerMove);
+        document.removeEventListener('pointerup', handlePointerComplete);
+        document.removeEventListener('pointercancel', handlePointerComplete);
+      };
       document.addEventListener('pointermove', handlePointerMove);
-      document.addEventListener('pointerup', handlePointerUp);
+      document.addEventListener('pointerup', handlePointerComplete);
+      document.addEventListener('pointercancel', handlePointerComplete);
     },
-    [clampPreviewPanelWidth],
+    [
+      clearPreviewResizeListeners,
+      clampFormOverflowWidth,
+      clampPreviewPanelOverflowWidth,
+      clampPreviewPanelWidth,
+    ],
   );
 
   return {
     state: {
       isPreviewOpen,
       isResizing,
+      formOverflowWidth,
+      committedFormOverflowWidth,
       panelWidth,
       committedPanelWidth,
+      panelOverflowWidth,
+      committedPanelOverflowWidth,
     },
     refs: {
       previewLayoutRef,

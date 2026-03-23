@@ -7,6 +7,7 @@ export const WEEKDAY_KEYS = [
   'SAT',
   'SUN',
 ] as const;
+export const MENTOR_SCHEDULE_TIMEZONE = 'Asia/Seoul' as const;
 
 export type WeekdayKey = (typeof WEEKDAY_KEYS)[number];
 
@@ -26,6 +27,7 @@ export type ContactCountryCode = (typeof CONTACT_COUNTRY_CODES)[number];
 export const CONSULTING_DURATION_OPTIONS = [30, 60, 90] as const;
 export type ConsultingDurationMinutes =
   (typeof CONSULTING_DURATION_OPTIONS)[number];
+export const MENTOR_CAREER_ENTRY_MAX_COUNT = 5;
 
 export const COMPANY_CATEGORY_OPTIONS = [
   '네카라쿠배',
@@ -35,30 +37,27 @@ export const COMPANY_CATEGORY_OPTIONS = [
 ] as const;
 export type CompanyCategory = (typeof COMPANY_CATEGORY_OPTIONS)[number];
 
-export type SettlementPayerType = 'INDIVIDUAL' | 'BUSINESS' | 'OVERSEAS';
+export interface MentorCareerEntry {
+  description: string;
+  isCurrent: boolean;
+  periodEnabled: boolean;
+  startMonth: string;
+  endMonth: string;
+}
 
 export interface MentorWeeklySchedule {
-  timezone: 'Asia/Seoul';
+  timezone: typeof MENTOR_SCHEDULE_TIMEZONE;
   slotUnitMinutes: 30;
   weekly: Record<WeekdayKey, string[]>;
 }
 
-export interface MentorSettlementDraft {
-  payerType: SettlementPayerType;
-  contractName: string;
-  accountHolder: string;
-  bankCode: string;
-  accountNumber: string;
-  residentId?: string;
-  businessName?: string;
-  businessRegistrationNumber?: string;
-  verified: boolean;
-  updatedAt: string;
-}
+export type MentorScheduleTextDrafts = Record<WeekdayKey, string[]>;
 
 export interface MentorSettings {
   contactCountryCode: ContactCountryCode;
   contactPhone: string;
+  // Compatibility-only until the remaining registration/controller layers stop
+  // threading the removed mentor contact email field end-to-end.
   contactEmail: string;
   categories: string[];
   mentoringTitle: string;
@@ -66,8 +65,11 @@ export interface MentorSettings {
   jobGroup: string;
   jobTitle: string;
   careerYears: string;
+  careerEntries: MentorCareerEntry[];
   skillTags: string[];
   companyCategory: CompanyCategory;
+  // Owner/admin editing still stores company visibility here. Public screens
+  // must rely on structured backend visibility fields instead of legacy labels.
   companyName: string;
   hideCompanyName: boolean;
   listVisible: boolean;
@@ -86,7 +88,5 @@ export interface MentorSettings {
   detailedDescription: string;
   interviewQuestions: string[];
   preNotice: string;
-  // eslint-disable-next-line @rushstack/no-new-null -- legacy API contract uses null to represent absent settlement draft.
-  settlementDraft: MentorSettlementDraft | null;
   updatedAt: string;
 }

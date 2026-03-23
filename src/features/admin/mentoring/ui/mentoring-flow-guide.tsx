@@ -236,7 +236,7 @@ const ENUM_GROUPS = [
         color: 'gray',
         label: '심층상담',
         definition:
-          '화면 공유·코드 리뷰 등 실시간 상담. 30분 또는 60분 중 멘토가 선택. 수락 시 세션 생성.',
+          '화면 공유·코드 리뷰 등 실시간 상담. 30·60·90분 중 멘토가 선택. 수락 시 세션 생성.',
         setter: '멘토가 등록 시 활성화',
       },
       {
@@ -546,7 +546,7 @@ export default function MentoringFlowGuide() {
                       schedule: '날짜·시간',
                       session: 'SCHEDULED 생성',
                       reviewTiming: '세션 종료 후',
-                      note: '30분 / 60분 선택',
+                      note: '30분 / 60분 / 90분 선택',
                     },
                     {
                       value: 'offline',

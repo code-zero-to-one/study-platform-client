@@ -95,6 +95,20 @@ export interface CompanyResponseDto {
   hideCompanyName?: boolean;
 }
 
+export interface MentorSavedCoreKeywordResponseDto {
+  type?: 'PREDEFINED' | 'CUSTOM';
+  code?: string;
+  label?: string;
+}
+
+export interface MentorCareerEntryResponseDto {
+  description?: string;
+  isCurrent?: boolean;
+  periodEnabled?: boolean;
+  startMonth?: string;
+  endMonth?: string;
+}
+
 export interface ProfileResponseDto {
   categories?: string[];
   mentoringTitle?: string;
@@ -107,11 +121,9 @@ export interface ProfileResponseDto {
   career?: string | CareerCodeLabelResponseDto;
   careerCode?: string;
   careerYears?: string;
-  coreKeywords?: Array<string | CodeLabelResponseDto>;
-  coreKeywordCodes?: string[];
+  careerEntries?: MentorCareerEntryResponseDto[];
+  coreKeywords?: MentorSavedCoreKeywordResponseDto[];
   skillTags?: string[];
-  companyName?: string;
-  companyVisible?: boolean;
   company?: CompanyResponseDto;
 }
 
@@ -147,6 +159,8 @@ export interface MentorProfileResponseDto {
   role?: string;
   career?: string;
   company?: string;
+  publicReadinessStage?: string;
+  applicationReady?: boolean;
   identity?: IdentityResponseDto;
   stats?: StatsResponseDto;
   introduction?: IntroductionResponseDto;
@@ -315,14 +329,17 @@ export interface MentorWeeklyRangesRequestDto {
 }
 
 export interface MentorSettingsUpsertRequestDto {
-  contactEmail: string;
+  // The mentoring registration form no longer owns mentor email as an input.
+  // Omission must be accepted while the backend removes this legacy field.
+  contactEmail?: string;
   categories: string[];
   mentoringTitle: string;
   appealLine: string;
   jobGroupCode: string;
   jobTitleCode: string;
   careerCode: string;
-  coreKeywordCodes: string[];
+  careerEntries?: MentorCareerEntryRequestDto[];
+  coreKeywords: MentorCoreKeywordRequestDto[];
   companyName: string;
   companyVisible: boolean;
   listVisible: boolean;
@@ -334,5 +351,21 @@ export interface MentorSettingsUpsertRequestDto {
   };
   detailedDescription: string;
   interviewQuestions: string[];
-  preNotice: string;
+  // Legacy backend field. The form no longer owns this as a primary source of
+  // truth, so empty deletion semantics stay optional until the backend
+  // contract explicitly defines whether omission means keep or clear.
+  preNotice?: string;
+}
+
+export interface MentorCareerEntryRequestDto {
+  description: string;
+  isCurrent: boolean;
+  startMonth?: string;
+  endMonth?: string;
+}
+
+export interface MentorCoreKeywordRequestDto {
+  type: 'PREDEFINED' | 'CUSTOM';
+  code?: string;
+  label?: string;
 }

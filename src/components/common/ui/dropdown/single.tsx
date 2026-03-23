@@ -17,6 +17,7 @@ interface Props {
   value?: string;
   onChange?: (value: string | undefined) => void;
   placeholder?: string;
+  ariaLabel?: string;
   error?: boolean;
   disabled?: boolean;
   className?: string;
@@ -28,6 +29,7 @@ function SingleDropdown({
   value,
   onChange,
   placeholder,
+  ariaLabel,
   error = false,
   disabled = false,
   className,
@@ -60,6 +62,7 @@ function SingleDropdown({
       <DropdownMenuTrigger
         type="button"
         className="w-full focus:outline-none"
+        aria-label={ariaLabel}
         aria-invalid={error || undefined}
         aria-expanded={isOpen}
         aria-haspopup="menu"

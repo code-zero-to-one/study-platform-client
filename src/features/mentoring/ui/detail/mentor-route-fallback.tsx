@@ -65,3 +65,29 @@ export function MentorRouteErrorState({
     </PageContainer>
   );
 }
+
+export function MentorRouteUnavailableState({
+  title,
+  message,
+  ctaHref = '/mentoring',
+  ctaLabel = '멘토링 목록으로 이동',
+}: {
+  title: string;
+  message: string;
+  ctaHref?: string;
+  ctaLabel?: string;
+}) {
+  return (
+    <PageContainer spacing="fallback">
+      <SurfacePanel radius="lg" className="px-300 py-500 text-center">
+        <h1 className="font-designer-24b text-text-strong mb-100">{title}</h1>
+        <p className="font-designer-14r text-text-subtle mb-250">{message}</p>
+        <Link href={ctaHref}>
+          <Button color="primary" size="large">
+            {ctaLabel}
+          </Button>
+        </Link>
+      </SurfacePanel>
+    </PageContainer>
+  );
+}

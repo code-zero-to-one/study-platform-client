@@ -1,14 +1,17 @@
-import { createDefaultMentorSettings } from '@/features/mentoring/model/mentor-settings';
+import {
+  createDefaultMentorSettings,
+  normalizeMentorCareerEntries,
+} from '@/features/mentoring/model/mentor-settings';
 import { parseMentoringMethodType } from '@/features/mentoring/model/mentoring-method';
 import type {
   MentorProfile,
   MentoringMethodOption,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
+import { normalizeMentorMarkdownContent } from '@/types/mentoring/markdown';
 import type { MentorSettings } from '@/types/mentoring/settings';
 import {
   type MentorApiContractScope,
-  requireArray,
   requireInteger,
   requireNonEmptyString,
   requireObject,
@@ -23,6 +26,7 @@ import {
   type IdentityResponseDto,
   type ProfileResponseDto,
 } from './mentor-api.types';
+import { requireMentorCoreKeywordLabels } from './mentor-core-keyword-contract';
 
 const COMPANY_CATEGORY_SET = new Set([
   '네카라쿠배',
@@ -31,12 +35,49 @@ const COMPANY_CATEGORY_SET = new Set([
   '기타',
 ]);
 
+const MENTOR_ASSET_BASE_URL = (
+  process.env.NEXT_PUBLIC_API_PROD_BASE_URL ??
+  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  ''
+).replace(/\/api\/v1\/?$/, '');
+
 const toTrimmedString = (value: unknown): string => {
   if (typeof value !== 'string') {
     return '';
   }
 
   return value.trim();
+};
+
+const toMentorImageUrl = (value: unknown): string | undefined => {
+  const imageUrl = toTrimmedString(value);
+
+  if (!imageUrl || imageUrl.toUpperCase() === 'LOCAL') {
+    return undefined;
+  }
+
+  if (
+    imageUrl.startsWith('http://') ||
+    imageUrl.startsWith('https://') ||
+    imageUrl.startsWith('blob:') ||
+    imageUrl.startsWith('data:')
+  ) {
+    return imageUrl;
+  }
+
+  if (imageUrl.startsWith('/images/') && MENTOR_ASSET_BASE_URL) {
+    return `${MENTOR_ASSET_BASE_URL}${imageUrl}`;
+  }
+
+  if (imageUrl.startsWith('/')) {
+    return imageUrl;
+  }
+
+  if (MENTOR_ASSET_BASE_URL) {
+    return `${MENTOR_ASSET_BASE_URL}/${imageUrl.replace(/^\/+/, '')}`;
+  }
+
+  return imageUrl;
 };
 
 const toStringArray = (value: unknown): string[] => {
@@ -85,33 +126,6 @@ const requireCodeLabel = ({
       field: `${field}.label`,
     }),
   };
-};
-
-const requireCodeLabelLabels = ({
-  value,
-  scope,
-  field,
-}: {
-  value: unknown;
-  scope: Extract<
-    MentorApiContractScope,
-    'mentor-list-response' | 'mentor-detail-response'
-  >;
-  field: string;
-}) => {
-  const items = requireArray<unknown>({
-    value,
-    scope,
-    field,
-  });
-
-  return items.map((item, index) => {
-    return requireCodeLabel({
-      value: item,
-      scope,
-      field: `${field}[${index}]`,
-    }).label;
-  });
 };
 
 const requireBooleanValue = ({
@@ -176,6 +190,16 @@ const normalizeCompanyCategory = (
   return COMPANY_CATEGORY_SET.has(value)
     ? (value as MentorSettings['companyCategory'])
     : '기타';
+};
+
+const normalizePublicReadinessStage = (
+  value: unknown,
+): MentorProfile['publicReadinessStage'] => {
+  return value === 'DETAIL_PREPARING' ||
+    value === 'APPLY_PREPARING' ||
+    value === 'APPLY_READY'
+    ? value
+    : undefined;
 };
 
 const normalizeMethodOption = ({
@@ -299,14 +323,15 @@ const toMentorSettingsFromBoundary = ({
     boundary?.profile,
   );
   const company = boundaryProfile?.company ?? profile?.company;
-  const companyVisible =
-    typeof company?.visible === 'boolean'
-      ? company.visible
-      : typeof boundaryProfile?.companyVisible === 'boolean'
-        ? boundaryProfile.companyVisible
-        : typeof profile.companyVisible === 'boolean'
-          ? profile.companyVisible
-          : undefined;
+  const companyVisible = company?.visible === true;
+  const companyName = toTrimmedString(company?.name);
+  // Public payloads fail closed. Company exposure now trusts only the
+  // structured company object and ignores legacy top-level fallbacks.
+  const exposeCompanyName =
+    companyName.length > 0 &&
+    companyVisible === true &&
+    company?.hideCompanyName !== true;
+  const hideCompanyName = !exposeCompanyName;
   const jobGroup = requireCodeLabel({
     value: boundaryProfile?.jobGroup ?? profile.jobGroup,
     scope,
@@ -322,7 +347,7 @@ const toMentorSettingsFromBoundary = ({
     scope,
     field: 'mentor.profile.career',
   });
-  const keywordLabels = requireCodeLabelLabels({
+  const keywordLabels = requireMentorCoreKeywordLabels({
     value: boundaryProfile?.coreKeywords ?? profile.coreKeywords,
     scope,
     field: 'mentor.profile.coreKeywords',
@@ -362,15 +387,15 @@ const toMentorSettingsFromBoundary = ({
     jobGroup: jobGroup.label,
     jobTitle: jobTitle.label,
     careerYears: career.label,
+    // Structured major-history entries are independent from legacy company
+    // visibility and should render whenever the backend provides them.
+    careerEntries: normalizeMentorCareerEntries(
+      boundaryProfile?.careerEntries ?? profile.careerEntries,
+    ),
     skillTags: keywordLabels,
     companyCategory: normalizeCompanyCategory(company?.category),
-    companyName: toTrimmedString(
-      company?.name ?? boundaryProfile?.companyName ?? profile.companyName,
-    ),
-    hideCompanyName:
-      companyVisible !== undefined
-        ? !companyVisible
-        : company?.hideCompanyName === true,
+    companyName: exposeCompanyName ? companyName : '',
+    hideCompanyName,
     noteEnabled: methods.note.enabled === true,
     notePrice: methods.note.price,
     simpleEnabled: methods.simple.enabled === true,
@@ -387,7 +412,9 @@ const toMentorSettingsFromBoundary = ({
       'offline',
       methods.offline.durationLabel,
     ),
-    detailedDescription: toTrimmedString(content?.detailedDescription),
+    detailedDescription: normalizeMentorMarkdownContent(
+      content?.detailedDescription,
+    ),
     interviewQuestions: toStringArray(content?.interviewQuestions),
     preNotice: toTrimmedString(content?.preNotice),
     updatedAt: toTrimmedString(boundary?.metadata?.updatedAt),
@@ -471,9 +498,7 @@ export const mapMentorProfile = ({
       ...toStringArray(source.introduction?.tags),
     ]),
   );
-  const companyLabel = settings.hideCompanyName
-    ? '비공개'
-    : settings.companyName || toTrimmedString(source.company);
+  const companyLabel = settings.hideCompanyName ? '' : settings.companyName;
 
   return {
     id: mentorId,
@@ -485,6 +510,13 @@ export const mapMentorProfile = ({
     role: settings.jobTitle,
     career: settings.careerYears,
     company: companyLabel,
+    publicReadinessStage: normalizePublicReadinessStage(
+      source.publicReadinessStage,
+    ),
+    applicationReady:
+      typeof source.applicationReady === 'boolean'
+        ? source.applicationReady
+        : undefined,
     rating: typeof source.stats?.rating === 'number' ? source.stats.rating : 0,
     reviewCount:
       typeof source.stats?.reviewCount === 'number'
@@ -503,7 +535,7 @@ export const mapMentorProfile = ({
     bio: settings.detailedDescription,
     careerHistory: toStringArray(source.introduction?.careerHistory),
     strengths: toStringArray(source.introduction?.strengths),
-    imageUrl: toTrimmedString(identity.imageUrl) || undefined,
+    imageUrl: toMentorImageUrl(identity.imageUrl),
     methods,
     reviews: (source.reviews ?? []).map((review, index) =>
       toMentorReview({

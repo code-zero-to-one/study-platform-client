@@ -12,6 +12,7 @@ const badgeVariants = cva(
       color: {
         default: 'text-text-subtlest',
         primary: 'text-text-brand bg-fill-brand-subtle-default',
+        rose: 'bg-background-accent-rose-subtle text-background-accent-rose-strong',
         green: 'bg-fill-success-subtle-default text-text-success',
         red: 'bg-fill-danger-subtle-default text-text-error',
         blue: 'bg-background-accent-blue-subtle text-text-information',

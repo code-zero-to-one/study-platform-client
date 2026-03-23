@@ -11,6 +11,8 @@ import { clearClientSession } from '@/features/auth/model/client-auth-session';
 
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
+import { useMentorOperationStore } from '@/stores/useMentorOperationStore';
+import { useMentorScreeningStore } from '@/stores/useMentorScreeningStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { SignUpRequest, SignUpResponse } from '@/types/api/auth.types';
 import { hashValue } from '@/utils/hash';
@@ -45,6 +47,8 @@ export const useLogoutMutation = () => {
   const resetMentoringManagement = useMentoringManagementStore(
     (state) => state.reset,
   );
+  const resetMentorScreening = useMentorScreeningStore((state) => state.reset);
+  const resetMentorOperation = useMentorOperationStore((state) => state.reset);
 
   return useMutation({
     mutationFn: logout,
@@ -64,6 +68,8 @@ export const useLogoutMutation = () => {
       resetPhoneVerification();
       resetMentorDirectory();
       resetMentoringManagement();
+      resetMentorScreening();
+      resetMentorOperation();
       queryClient.clear();
 
       router.push('/home');

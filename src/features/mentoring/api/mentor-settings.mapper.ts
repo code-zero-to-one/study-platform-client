@@ -1,5 +1,7 @@
 import {
+  createMentorScheduleTextDrafts,
   createDefaultMentorSettings,
+  normalizeMentorCareerEntries,
   WEEKDAY_KEYS,
 } from '@/features/mentoring/model/mentor-settings';
 import {
@@ -9,12 +11,13 @@ import {
   parseMentoringMethodType,
 } from '@/features/mentoring/model/mentoring-method';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
+import { normalizeMentorMarkdownContent } from '@/types/mentoring/markdown';
 import type {
   MentorRegistrationOptions,
   MentorRegistrationCareerOption,
-  MentorRegistrationCoreKeywordOption,
   MentorRegistrationJobGroupOption,
   MentorRegistrationJobTitleOption,
+  MentorRegistrationSelectableCoreKeywordOption,
 } from '@/types/mentoring/registration-options';
 import type { MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
 import {
@@ -41,11 +44,18 @@ import type {
   MentorSettingsResponseDto,
   MentorSettingsUpsertRequestDto,
 } from './mentor-api.types';
+import {
+  buildMentorCoreKeywordRequests,
+  requireMentorCoreKeywordSnapshots,
+  requireMentorCoreKeywordFormValues,
+  type MentorCoreKeywordSnapshot,
+} from './mentor-core-keyword-contract';
 
 export interface MyMentorSettingsFoundResult {
   kind: 'found';
   mentorId: number;
   settings: MentorRegistrationFormValues;
+  savedCoreKeywords: MentorCoreKeywordSnapshot[];
 }
 
 export interface MyMentorSettingsNotFoundResult {
@@ -117,49 +127,6 @@ const requireCodeFromCodeLabel = ({
   });
 };
 
-const requireCodeStringArray = ({
-  value,
-  field,
-}: {
-  value: unknown;
-  field: string;
-}) => {
-  const values = requireArray<unknown>({
-    value,
-    scope: 'my-mentor-settings-response',
-    field,
-  });
-
-  return values.map((item, index) => {
-    return requireNonEmptyString({
-      value: item,
-      scope: 'my-mentor-settings-response',
-      field: `${field}[${index}]`,
-    });
-  });
-};
-
-const requireCodeArrayFromCodeLabel = ({
-  value,
-  field,
-}: {
-  value: unknown;
-  field: string;
-}) => {
-  const values = requireArray<unknown>({
-    value,
-    scope: 'my-mentor-settings-response',
-    field,
-  });
-
-  return values.map((item, index) => {
-    return requireCodeFromCodeLabel({
-      value: item,
-      field: `${field}[${index}]`,
-    });
-  });
-};
-
 const toDurationMinutes = (
   value: unknown,
   fallback: 30 | 60 | 90,
@@ -203,6 +170,10 @@ const toTimeMinutes = ({ value, field }: { value: unknown; field: string }) => {
     scope: 'my-mentor-settings-response',
     field,
   });
+  if (time === '24:00') {
+    return 24 * 60;
+  }
+
   const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(time);
 
   if (!match) {
@@ -422,11 +393,7 @@ const toMentorSettingsFormValues = (
   });
   const company = profile?.company;
   const companyVisible =
-    typeof company?.visible === 'boolean'
-      ? company.visible
-      : typeof profile.companyVisible === 'boolean'
-        ? profile.companyVisible
-        : undefined;
+    typeof company?.visible === 'boolean' ? company.visible : undefined;
   const listVisible =
     typeof source.listVisible === 'boolean'
       ? source.listVisible
@@ -434,24 +401,19 @@ const toMentorSettingsFormValues = (
         ? profile.listVisible
         : defaults.listVisible;
   const content = source.content;
-  const coreKeywordCodeArray =
-    profile.coreKeywordCodes === undefined
-      ? undefined
-      : requireCodeStringArray({
-          value: profile.coreKeywordCodes,
-          field: 'content.settings.profile.coreKeywordCodes',
-        });
-  const coreKeywordCodes =
-    coreKeywordCodeArray && coreKeywordCodeArray.length > 0
-      ? coreKeywordCodeArray
-      : requireCodeArrayFromCodeLabel({
-          value: profile.coreKeywords,
-          field: 'content.settings.profile.coreKeywords',
-        });
+  const coreKeywordValues = requireMentorCoreKeywordFormValues({
+    value: profile.coreKeywords,
+    scope: 'my-mentor-settings-response',
+    field: 'content.settings.profile.coreKeywords',
+  });
+  const schedule = {
+    timezone: 'Asia/Seoul' as const,
+    slotUnitMinutes: 30 as const,
+    weekly: toWeeklySchedule(source.schedule),
+  };
 
   return {
     ...defaults,
-    contactEmail: toTrimmedString(source.contact?.email),
     categories: toStringArray(profile.categories),
     mentoringTitle: toTrimmedString(profile.mentoringTitle),
     appealLine: toTrimmedString(profile.appealLine),
@@ -467,13 +429,12 @@ const toMentorSettingsFormValues = (
       value: profile.career,
       field: 'content.settings.profile.career',
     }),
-    skillTags: coreKeywordCodes,
+    careerEntries: normalizeMentorCareerEntries(profile.careerEntries),
+    skillTags: coreKeywordValues,
     companyCategory: normalizeCompanyCategory(company?.category),
-    companyName: toTrimmedString(company?.name ?? profile.companyName),
+    companyName: toTrimmedString(company?.name),
     hideCompanyName:
-      companyVisible !== undefined
-        ? !companyVisible
-        : company?.hideCompanyName === true,
+      companyVisible !== undefined ? !companyVisible : defaults.hideCompanyName,
     listVisible,
     maxParticipants:
       typeof source.policy?.maxParticipants === 'number'
@@ -495,17 +456,31 @@ const toMentorSettingsFormValues = (
       Number(methods.offline.durationLabel.replace(/\D/g, '')) || 60,
       60,
     ),
-    schedule: {
-      timezone: 'Asia/Seoul',
-      slotUnitMinutes: 30,
-      weekly: toWeeklySchedule(source.schedule),
-    },
-    detailedDescription: toTrimmedString(content?.detailedDescription),
+    schedule,
+    scheduleDrafts: createMentorScheduleTextDrafts(schedule),
+    detailedDescription: normalizeMentorMarkdownContent(
+      content?.detailedDescription,
+    ),
     interviewQuestions: toStringArray(content?.interviewQuestions),
     preNotice: toTrimmedString(content?.preNotice),
     updatedAt: toTrimmedString(source.metadata?.updatedAt),
-    settlementDraft: null,
   };
+};
+
+const toMentorSavedCoreKeywordSnapshots = (
+  source: MentorSettingsResponseDto,
+): MentorCoreKeywordSnapshot[] => {
+  const profile = requireObject<ProfileResponseDto>({
+    value: source.profile,
+    scope: 'my-mentor-settings-response',
+    field: 'content.settings.profile',
+  });
+
+  return requireMentorCoreKeywordSnapshots({
+    value: profile.coreKeywords,
+    scope: 'my-mentor-settings-response',
+    field: 'content.settings.profile.coreKeywords',
+  });
 };
 
 const mapRegistrationJobGroups = (
@@ -618,7 +593,7 @@ const mapRegistrationCareers = (
 
 const mapRegistrationCoreKeywords = (
   source: CoreKeywordResponseDto[],
-): MentorRegistrationCoreKeywordOption[] => {
+): MentorRegistrationSelectableCoreKeywordOption[] => {
   return source.map((item, index) => {
     const code = requireNonEmptyString({
       value: item.code,
@@ -699,7 +674,7 @@ export const mapRegistrationOptionsContent = (
       mapRegistrationJobTitles(jobTitlesSource),
     ),
     careers: toSortedByDisplayOrder(mapRegistrationCareers(careersSource)),
-    coreKeywords: toSortedByDisplayOrder(
+    selectableCoreKeywords: toSortedByDisplayOrder(
       mapRegistrationCoreKeywords(coreKeywordsSource),
     ),
   };
@@ -739,6 +714,7 @@ export const mapMyMentorSettingsContent = (
     kind: 'found',
     mentorId,
     settings: toMentorSettingsFormValues(settings),
+    savedCoreKeywords: toMentorSavedCoreKeywordSnapshots(settings),
   };
 };
 
@@ -805,22 +781,48 @@ const toWeeklyRangesFromWeekly = (
   };
 };
 
-export const buildMentorSettingsUpsertRequest = (
-  values: MentorRegistrationFormValues,
-): MentorSettingsUpsertRequestDto => {
+export const buildMentorSettingsUpsertRequest = ({
+  values,
+  registrationOptions,
+  persistedPredefinedCoreKeywords = [],
+}: {
+  values: MentorRegistrationFormValues;
+  registrationOptions: MentorRegistrationOptions;
+  persistedPredefinedCoreKeywords?: ReadonlyArray<{
+    code: string;
+    label: string;
+  }>;
+}): MentorSettingsUpsertRequestDto => {
   const weekly = values.schedule.weekly;
   const weeklyRanges = toWeeklyRangesFromWeekly(weekly);
+  const careerEntries = normalizeMentorCareerEntries(values.careerEntries);
+  const contactEmail = values.contactEmail.trim();
+  const preNotice = values.preNotice.trim();
 
   return {
-    contactEmail: values.contactEmail,
+    ...(contactEmail.length > 0 ? { contactEmail } : {}),
     categories: values.categories,
     mentoringTitle: values.mentoringTitle,
     appealLine: values.appealLine,
     jobGroupCode: values.jobGroup,
     jobTitleCode: values.jobTitle,
     careerCode: values.careerYears,
-    coreKeywordCodes: values.skillTags,
-    companyName: values.companyName,
+    careerEntries: careerEntries.map((entry) => ({
+      description: entry.description,
+      isCurrent: entry.isCurrent,
+      ...(entry.periodEnabled && entry.startMonth
+        ? { startMonth: entry.startMonth }
+        : {}),
+      ...(entry.periodEnabled && entry.endMonth
+        ? { endMonth: entry.endMonth }
+        : {}),
+    })),
+    coreKeywords: buildMentorCoreKeywordRequests({
+      profileKeywords: values.skillTags,
+      registrationOptions,
+      persistedPredefinedCoreKeywords,
+    }),
+    companyName: values.companyName.trim(),
     companyVisible: !values.hideCompanyName,
     listVisible: values.listVisible,
     methods: [
@@ -861,8 +863,10 @@ export const buildMentorSettingsUpsertRequest = (
       },
       weeklyRanges,
     },
-    detailedDescription: values.detailedDescription,
+    detailedDescription: normalizeMentorMarkdownContent(
+      values.detailedDescription,
+    ),
     interviewQuestions: values.interviewQuestions,
-    preNotice: values.preNotice,
+    ...(preNotice.length > 0 ? { preNotice } : {}),
   };
 };

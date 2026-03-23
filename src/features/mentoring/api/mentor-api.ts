@@ -1,6 +1,7 @@
 import { ApiError } from '@/api/client/api-error';
 import { axiosInstance } from '@/api/client/axios';
 import type { MentorSortType } from '@/types/mentoring/domain';
+import type { MentorRegistrationOptions } from '@/types/mentoring/registration-options';
 import type { MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
 import { requireInteger, requireObject } from './mentor-api-contract';
 import type {
@@ -184,11 +185,24 @@ export const getMyMentorSettings =
     }
   };
 
-export const upsertMyMentorSettings = async (
-  values: MentorRegistrationFormValues,
-) => {
+export const upsertMyMentorSettings = async ({
+  values,
+  registrationOptions,
+  persistedPredefinedCoreKeywords,
+}: {
+  values: MentorRegistrationFormValues;
+  registrationOptions: MentorRegistrationOptions;
+  persistedPredefinedCoreKeywords?: ReadonlyArray<{
+    code: string;
+    label: string;
+  }>;
+}) => {
   const payload: MentorSettingsUpsertRequestDto =
-    buildMentorSettingsUpsertRequest(values);
+    buildMentorSettingsUpsertRequest({
+      values,
+      registrationOptions,
+      persistedPredefinedCoreKeywords,
+    });
   const response = await axiosInstance.put<
     ApiResponse<MentorUpsertResponseDto>
   >('/mentors/me', payload);
