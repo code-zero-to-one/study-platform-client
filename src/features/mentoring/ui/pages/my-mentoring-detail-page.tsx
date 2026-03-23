@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import SectionShell from '@/components/common/ui/section-shell';
+import { isMentoringNoteConsultationEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 import type {
   MyMentoringItem,
   MyMentoringStatus,
@@ -69,6 +70,7 @@ interface MyMentoringDetailPageProps {
 export default function MyMentoringDetailPage({
   mentoring,
 }: MyMentoringDetailPageProps) {
+  const isNoteConsultationEnabled = isMentoringNoteConsultationEnabled();
   const scheduleText =
     mentoring.status === 'CONFIRMED'
       ? (mentoring.mentoringTime ?? '-')
@@ -191,11 +193,13 @@ export default function MyMentoringDetailPage({
                     {TEXT.moveToList}
                   </Button>
                 </Link>
-                <Link href="/note-consultation" className="flex-1">
-                  <Button size="medium" color="primary" className="w-full">
-                    {TEXT.moveToNoteConsultation}
-                  </Button>
-                </Link>
+                {isNoteConsultationEnabled && (
+                  <Link href="/note-consultation" className="flex-1">
+                    <Button size="medium" color="primary" className="w-full">
+                      {TEXT.moveToNoteConsultation}
+                    </Button>
+                  </Link>
+                )}
               </div>
             </section>
           )}

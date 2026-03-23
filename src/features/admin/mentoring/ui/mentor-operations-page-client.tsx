@@ -194,7 +194,7 @@ export default function MentorOperationsPageClient({
         <div className="grid grid-cols-[minmax(0,420px)_minmax(0,1fr)] gap-200">
           <MentoringTablePanel
             title="등록 멘토 목록"
-            description="멘토를 선택하면 등록한 정보 전체를 우측에서 확인합니다."
+            description="현재 관리자 멘토링 운영 스토어 기준 등록 정보를 우측에서 확인합니다."
             bodyClassName="max-h-[calc(100vh-260px)] overflow-y-auto"
           >
             {mentors.map((mentor, index) => {

@@ -5,14 +5,23 @@ import Link from 'next/link';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
+import MentorProfileMetaList from '@/features/mentoring/ui/common/mentor-profile-meta-list';
 import type { MentorProfile } from '@/types/mentoring/domain';
+import type { MentorCareerEntry } from '@/types/mentoring/settings';
+import MentorCareerHistoryPanel from './mentor-career-history-panel';
 import ReviewStars from './review-stars';
 
 interface MentorDetailHeaderSectionProps {
   mentor: MentorProfile;
   mentoringTitleLabel: string;
-  profileSummaryLine: string;
-  metMenteeCount: number;
+  appealLine: string;
+  companyLabel: string;
+  jobTitleLabel: string;
+  careerLabel: string;
+  careerEntries: MentorCareerEntry[];
+  careerHistory: string[];
+  metMenteeCount?: number;
+  displayReviewCount: number;
   previewMode?: boolean;
   showSettingsEditButton: boolean;
   isHeadlineHighlighted: boolean;
@@ -21,8 +30,14 @@ interface MentorDetailHeaderSectionProps {
 export default function MentorDetailHeaderSection({
   mentor,
   mentoringTitleLabel,
-  profileSummaryLine,
+  appealLine,
+  companyLabel,
+  jobTitleLabel,
+  careerLabel,
+  careerEntries,
+  careerHistory,
   metMenteeCount,
+  displayReviewCount,
   previewMode,
   showSettingsEditButton,
   isHeadlineHighlighted,
@@ -58,51 +73,70 @@ export default function MentorDetailHeaderSection({
           isHeadlineHighlighted && 'preview-section-highlight',
         )}
       >
-        <h1 className="font-designer-24b text-text-strong mb-300 leading-snug sm:text-[30px]">
-          {mentoringTitleLabel}
-        </h1>
+        <>
+          <h1 className="font-designer-24b text-text-strong mb-300 leading-snug sm:text-[30px]">
+            {mentoringTitleLabel}
+          </h1>
 
-        <div className="flex flex-col gap-250 sm:flex-row sm:items-start sm:gap-400">
-          <div className="flex-1">
-            <div className="mb-75 flex items-start gap-200">
-              <Avatar
-                image={mentor.imageUrl}
-                alt={mentor.nickname}
-                size={48}
-                className="shrink-0"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="font-designer-18b text-text-strong">
-                  {mentor.nickname}
-                </p>
-                <p className="font-designer-14b text-text-brand mt-50">
-                  {mentor.company}
-                </p>
-                <p className="font-designer-13r text-text-subtle mt-25">
-                  {profileSummaryLine}
-                </p>
+          <div className="grid grid-cols-1 gap-300 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] xl:items-start">
+            <div className="min-w-0">
+              <div className="mb-125 flex items-start gap-300">
+                <Avatar
+                  image={mentor.imageUrl}
+                  alt={mentor.nickname}
+                  size={72}
+                  className="shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="font-designer-20b text-text-strong">
+                    {mentor.nickname}
+                  </p>
+                  <MentorProfileMetaList
+                    variant="detail"
+                    appealLine={appealLine}
+                    companyLabel={companyLabel}
+                    jobTitleLabel={jobTitleLabel}
+                    careerLabel={careerLabel}
+                    className="mt-75"
+                  />
+                </div>
+              </div>
+              <div className="mt-100 flex flex-col gap-75">
+                <div className="flex items-center gap-100">
+                  <ReviewStars rating={mentor.rating} />
+                  <span className="font-designer-14b text-text-strong">
+                    {mentor.rating.toFixed(1)}
+                  </span>
+                </div>
+                <div className="flex flex-wrap items-center gap-75">
+                  <span className="font-designer-14b text-text-subtle">
+                    리뷰 {displayReviewCount}개
+                  </span>
+                  <span className="font-designer-12r text-text-subtlest">
+                    |
+                  </span>
+                  {metMenteeCount !== undefined && (
+                    <>
+                      <span className="font-designer-14b text-text-subtle">
+                        만난 멘티 {metMenteeCount}명
+                      </span>
+                      <span className="font-designer-12r text-text-subtlest">
+                        |
+                      </span>
+                    </>
+                  )}
+                  <span className="font-designer-14b text-text-subtle">
+                    멘토링 {mentor.mentoringCount}건
+                  </span>
+                </div>
               </div>
             </div>
-            <div className="flex flex-wrap items-center gap-100">
-              <ReviewStars rating={Math.floor(mentor.rating)} />
-              <span className="font-designer-14b text-text-strong">
-                {mentor.rating.toFixed(1)}
-              </span>
-              <span className="font-designer-12r text-text-subtlest">·</span>
-              <span className="font-designer-13r text-text-subtle">
-                리뷰 {mentor.reviewCount}개
-              </span>
-              <span className="font-designer-12r text-text-subtlest">·</span>
-              <span className="font-designer-13r text-text-subtle">
-                만난 멘티 {metMenteeCount}명
-              </span>
-              <span className="font-designer-12r text-text-subtlest">·</span>
-              <span className="font-designer-13r text-text-subtle">
-                멘토링 {mentor.mentoringCount}건
-              </span>
-            </div>
+            <MentorCareerHistoryPanel
+              careerEntries={careerEntries}
+              careerHistory={careerHistory}
+            />
           </div>
-        </div>
+        </>
       </section>
     </>
   );

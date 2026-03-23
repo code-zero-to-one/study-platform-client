@@ -1,6 +1,7 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
+import { textblockTypeInputRule } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import ImageExtension from '@tiptap/extension-image';
 import LinkExtension from '@tiptap/extension-link';
@@ -45,6 +46,7 @@ import {
   isAllowedMarkdownImageExtension,
   MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
   MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE,
+  normalizeMentorMarkdownContent,
 } from '@/types/mentoring/markdown';
 
 const lowlight = createLowlight(common);
@@ -81,6 +83,7 @@ const CODE_LANGUAGES = [
 
 const IMAGE_URL_PATTERN =
   /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i;
+const INSTANT_CODE_BLOCK_INPUT_REGEX = /^```$/;
 const MENTOR_MARKDOWN_IMAGE_MIN_WIDTH = 80;
 const MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH = 200;
 const MENTOR_MARKDOWN_IMAGE_MAX_WIDTH = 400;
@@ -119,6 +122,23 @@ const MentorImageExtension = ImageExtension.extend({
         }),
       },
     };
+  },
+});
+
+const MentorCodeBlockExtension = CodeBlockLowlight.extend({
+  addInputRules() {
+    const parentInputRules = this.parent?.() ?? [];
+
+    return [
+      textblockTypeInputRule({
+        find: INSTANT_CODE_BLOCK_INPUT_REGEX,
+        type: this.type,
+        getAttributes: () => ({
+          language: 'plaintext',
+        }),
+      }),
+      ...parentInputRules,
+    ];
   },
 });
 
@@ -184,9 +204,11 @@ function MentorMarkdownEditor({
   const [imageInsertError, setImageInsertError] = useState('');
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
+  const [, forceEditorRerender] = useState(0);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const editorContentWrapperRef = useRef<HTMLDivElement>(null);
   const isInternalUpdate = useRef(false);
-  const [, setRenderKey] = useState(0);
+  const normalizedValue = normalizeMentorMarkdownContent(value);
 
   const uploadAndInsertFile = useCallback(
     async (editor: Editor, file: File) => {
@@ -356,7 +378,7 @@ function MentorMarkdownEditor({
         heading: { levels: [2, 3] },
         codeBlock: false,
       }),
-      CodeBlockLowlight.configure({
+      MentorCodeBlockExtension.configure({
         lowlight,
         defaultLanguage: 'plaintext',
       }),
@@ -373,15 +395,17 @@ function MentorMarkdownEditor({
         placeholder: placeholder ?? '멘토 소개를 자유롭게 작성해주세요.',
       }),
     ],
-    content: value || '',
+    content: normalizedValue || '',
     onUpdate: ({ editor: updatedEditor }) => {
       isInternalUpdate.current = true;
-      onChange(updatedEditor.getHTML());
+      onChange(normalizeMentorMarkdownContent(updatedEditor.getHTML()));
     },
     onTransaction() {
-      setRenderKey((prev) => prev + 1);
+      forceEditorRerender((prev) => prev + 1);
     },
     onSelectionUpdate: ({ editor: nextEditor }) => {
+      forceEditorRerender((prev) => prev + 1);
+
       if (nextEditor.isActive('image')) {
         setSelectedImagePos(nextEditor.state.selection.from);
 
@@ -474,11 +498,23 @@ function MentorMarkdownEditor({
       return;
     }
 
-    const currentHtml = editor.getHTML();
-    if (currentHtml !== value) {
-      editor.commands.setContent(value || '', { emitUpdate: false });
+    const currentHtml = normalizeMentorMarkdownContent(editor.getHTML());
+    if (currentHtml !== normalizedValue) {
+      editor.commands.setContent(normalizedValue || '', { emitUpdate: false });
     }
-  }, [editor, value]);
+  }, [editor, normalizedValue]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      forceEditorRerender((prev) => prev + 1);
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   const handleToggleLink = () => {
     if (!editor) {
@@ -527,7 +563,7 @@ function MentorMarkdownEditor({
 
     // 이미지 width 변경은 onUpdate가 누락될 수 있어 폼 값을 직접 동기화한다.
     isInternalUpdate.current = true;
-    onChange(editor.getHTML());
+    onChange(normalizeMentorMarkdownContent(editor.getHTML()));
   };
 
   const isImageActive = selectedImagePos !== null;
@@ -535,6 +571,38 @@ function MentorMarkdownEditor({
     editor && selectedImagePos !== null
       ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
       : MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH;
+  const activeCodeBlockControl = (() => {
+    if (!editor || !editor.isActive('codeBlock')) {
+      return null;
+    }
+
+    const editorContentWrapper = editorContentWrapperRef.current;
+    if (!editorContentWrapper) {
+      return null;
+    }
+
+    const { $from } = editor.state.selection;
+    if ($from.parent.type.name !== 'codeBlock') {
+      return null;
+    }
+
+    const codeBlockPos = $from.before();
+    const codeBlockNode = editor.view.nodeDOM(codeBlockPos);
+    if (!(codeBlockNode instanceof HTMLElement)) {
+      return null;
+    }
+
+    const wrapperRect = editorContentWrapper.getBoundingClientRect();
+    const codeBlockRect = codeBlockNode.getBoundingClientRect();
+
+    return {
+      language:
+        (editor.getAttributes('codeBlock').language as string | undefined) ??
+        'plaintext',
+      top: Math.max(6, codeBlockRect.top - wrapperRect.top + 6),
+      left: Math.max(10, codeBlockRect.left - wrapperRect.left + 10),
+    };
+  })();
 
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
@@ -593,34 +661,6 @@ function MentorMarkdownEditor({
           isActive={editor?.isActive('codeBlock')}
           onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
         />
-        {editor?.isActive('codeBlock') && (
-          <select
-            className={cn(
-              'font-designer-12r text-text-default',
-              'rounded-75 border-border-subtle bg-background-default',
-              'border px-75 py-50',
-            )}
-            value={
-              (editor.getAttributes('codeBlock').language as string) ??
-              'plaintext'
-            }
-            onChange={(event) => {
-              editor
-                .chain()
-                .focus()
-                .updateAttributes('codeBlock', {
-                  language: event.target.value,
-                })
-                .run();
-            }}
-          >
-            {CODE_LANGUAGES.map((lang) => (
-              <option key={lang.value} value={lang.value}>
-                {lang.label}
-              </option>
-            ))}
-          </select>
-        )}
         <Button
           type="button"
           color="secondary"
@@ -690,14 +730,52 @@ function MentorMarkdownEditor({
         }}
       />
 
-      <EditorContent
-        editor={editor}
-        className={cn(
-          'tiptap-editor',
-          'bg-background-default',
-          'min-h-[260px] w-full px-150 py-125',
+      <div ref={editorContentWrapperRef} className="relative">
+        {activeCodeBlockControl && (
+          <div
+            className="absolute z-10"
+            style={{
+              top: `${activeCodeBlockControl.top}px`,
+              left: `${activeCodeBlockControl.left}px`,
+            }}
+          >
+            <div className="rounded-75 border-border-subtle bg-background-default flex items-center border px-75 py-50">
+              <select
+                aria-label="코드 언어 선택"
+                className={cn(
+                  'font-designer-12r text-text-default bg-background-default',
+                  'min-w-0 border-0 p-0',
+                  'focus:outline-none',
+                )}
+                value={activeCodeBlockControl.language}
+                onChange={(event) => {
+                  editor
+                    ?.chain()
+                    .focus()
+                    .updateAttributes('codeBlock', {
+                      language: event.target.value,
+                    })
+                    .run();
+                }}
+              >
+                {CODE_LANGUAGES.map((lang) => (
+                  <option key={lang.value} value={lang.value}>
+                    {lang.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
         )}
-      />
+        <EditorContent
+          editor={editor}
+          className={cn(
+            'tiptap-editor',
+            'bg-background-default',
+            'min-h-260 w-full px-150 py-125',
+          )}
+        />
+      </div>
 
       {isUploadingImages && (
         <div className="border-border-subtle flex items-center gap-75 border-t px-150 py-100">

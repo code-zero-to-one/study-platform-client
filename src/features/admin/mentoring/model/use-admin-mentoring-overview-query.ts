@@ -1,6 +1,5 @@
 'use client';
 
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { useMemo } from 'react';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
@@ -19,14 +18,9 @@ import type {
   AdminMentoringOverviewQueryResult,
 } from '@/types/mentoring/admin-domain';
 import {
-  AdminMentoringContractError,
   normalizeAdminMentoringOverviewQueryError,
   parseAdminMentoringOverviewResponseOrThrow,
 } from './admin-mentoring-contract';
-import {
-  adminMentoringQueryKeys,
-  createAdminMentoringOverviewSnapshot,
-} from './admin-mentoring-query-keys';
 
 const toSafeTime = (value: string | undefined) => {
   if (!value) {
@@ -279,39 +273,25 @@ export const useAdminMentoringOverviewQuery = () => {
     screeningStoreHydrated &&
     operationStoreHydrated;
 
-  const snapshot = useMemo(() => {
-    return createAdminMentoringOverviewSnapshot({
-      createdMentors,
-      mentorIdByMember,
-      requestsByMentor,
-      sessionsByMentor,
-      reviewsByMentor,
-      screeningByMentor,
-      operationByMentor,
-    });
-  }, [
-    createdMentors,
-    mentorIdByMember,
-    operationByMentor,
-    requestsByMentor,
-    reviewsByMentor,
-    screeningByMentor,
-    sessionsByMentor,
-  ]);
-
-  const fallbackData = useMemo(() => {
+  const overviewState = useMemo(() => {
     try {
-      return getAdminMentoringOverview({
-        createdMentors,
-        mentorIdByMember,
-        requestsByMentor,
-        sessionsByMentor,
-        reviewsByMentor,
-        screeningByMentor,
-        operationByMentor,
-      });
-    } catch {
-      return EMPTY_ADMIN_MENTORING_OVERVIEW;
+      return {
+        data: getAdminMentoringOverview({
+          createdMentors,
+          mentorIdByMember,
+          requestsByMentor,
+          sessionsByMentor,
+          reviewsByMentor,
+          screeningByMentor,
+          operationByMentor,
+        }),
+        error: undefined,
+      } as const;
+    } catch (error) {
+      return {
+        data: EMPTY_ADMIN_MENTORING_OVERVIEW,
+        error: normalizeAdminMentoringOverviewQueryError(error),
+      } as const;
     }
   }, [
     createdMentors,
@@ -323,51 +303,14 @@ export const useAdminMentoringOverviewQuery = () => {
     sessionsByMentor,
   ]);
 
-  const adminMentoringOverviewQuery = useQuery<
-    AdminMentoringOverviewQueryResult,
-    AdminMentoringContractError
-  >({
-    queryKey: adminMentoringQueryKeys.overview({
-      snapshot,
-      createdMentors,
-      mentorIdByMember,
-      requestsByMentor,
-      sessionsByMentor,
-      reviewsByMentor,
-      screeningByMentor,
-      operationByMentor,
-    }),
-    queryFn: () => {
-      try {
-        return getAdminMentoringOverview({
-          createdMentors,
-          mentorIdByMember,
-          requestsByMentor,
-          sessionsByMentor,
-          reviewsByMentor,
-          screeningByMentor,
-          operationByMentor,
-        });
-      } catch (error) {
-        throw normalizeAdminMentoringOverviewQueryError(error);
-      }
-    },
-    staleTime: 60_000,
-    gcTime: 5 * 60_000,
-    enabled: hasHydrated,
-    placeholderData: keepPreviousData,
-  });
-
-  const data = adminMentoringOverviewQuery.data ?? fallbackData;
-
   return {
     hasHydrated,
-    mentors: data.mentors,
-    metrics: data.metrics,
-    isLoading: !hasHydrated || adminMentoringOverviewQuery.isLoading,
-    isFetching: adminMentoringOverviewQuery.isFetching,
-    isError: adminMentoringOverviewQuery.isError,
-    error: adminMentoringOverviewQuery.error,
+    mentors: overviewState.data.mentors,
+    metrics: overviewState.data.metrics,
+    isLoading: !hasHydrated,
+    isFetching: false,
+    isError: overviewState.error !== undefined,
+    error: overviewState.error,
   };
 };
 

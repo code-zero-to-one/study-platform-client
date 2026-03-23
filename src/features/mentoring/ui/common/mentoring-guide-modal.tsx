@@ -4,6 +4,7 @@ import { XIcon } from 'lucide-react';
 import Link from 'next/link';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
+import { isMentoringNoteConsultationEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 
 interface MentoringGuideModalProps {
   open: boolean;
@@ -19,7 +20,7 @@ const GUIDE_CONTENT = [
   {
     title: '관리 페이지는 어떻게 구분되나요?',
     description:
-      '유저(멘티) 관점 관리: 내가 신청한 상담 내역/멘토 답변/후기 작성을 관리합니다.\n- /note-consultation\n- /my-study-review\n\n멘토 운영 관리 화면은 현재 배포 범위에서 비활성화되어 있습니다.',
+      '유저(멘티) 관점 관리: 내가 신청한 멘토링 내역과 후기 작성을 관리합니다.\n- /my-study-review\n\n쪽지상담함과 멘토 운영 관리 화면은 현재 제공하지 않습니다.',
   },
   {
     title: '어떤 목적으로 사용할까요?',
@@ -53,6 +54,10 @@ export default function MentoringGuideModal({
   open,
   onOpenChange,
 }: MentoringGuideModalProps) {
+  const noteConsultationGuideLine = isMentoringNoteConsultationEnabled()
+    ? '- /note-consultation'
+    : '쪽지상담함은 현재 제공하지 않습니다.';
+
   return (
     <Modal.Root open={open} onOpenChange={onOpenChange}>
       <Modal.Portal>
@@ -74,7 +79,9 @@ export default function MentoringGuideModal({
                   ○ {item.title}
                 </h3>
                 <p className="font-designer-16r text-text-subtle leading-relaxed whitespace-pre-line">
-                  {item.description}
+                  {item.title === '관리 페이지는 어떻게 구분되나요?'
+                    ? `유저(멘티) 관점 관리: 내가 신청한 멘토링 내역과 후기 작성을 관리합니다.\n- /my-study-review\n\n${noteConsultationGuideLine}\n멘토 운영 관리 화면도 현재 제공하지 않습니다.`
+                    : item.description}
                 </p>
               </section>
             ))}

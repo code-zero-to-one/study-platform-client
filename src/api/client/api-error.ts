@@ -4,23 +4,27 @@ class ApiError extends Error {
   public errorCode: string;
   public errorName: string;
   public message: string;
+  public detail?: unknown;
 
   public constructor({
     statusCode,
     errorCode,
     errorName,
     message,
+    detail,
   }: {
     statusCode: number;
     errorCode: string;
     errorName: string;
     message: string;
+    detail?: unknown;
   }) {
     super(message);
     this.statusCode = statusCode;
     this.errorCode = errorCode;
     this.errorName = errorName;
     this.message = message;
+    this.detail = detail;
   }
 }
 
