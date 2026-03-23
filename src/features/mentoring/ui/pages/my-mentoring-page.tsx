@@ -11,6 +11,7 @@ import Button from '@/components/common/ui/button';
 import List from '@/components/common/ui/list';
 import SectionHeader from '@/components/common/ui/section-header';
 import SectionShell from '@/components/common/ui/section-shell';
+import { isMentoringNoteConsultationEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 import type { MyMentoringItem } from '@/types/mentoring/my-mentoring';
 
 const METHOD_LABEL: Record<'ONLINE' | 'OFFLINE' | 'CALL', string> = {
@@ -51,6 +52,7 @@ export default function MyMentoringPage({
 }: {
   items?: MyMentoringItem[];
 }) {
+  const isNoteConsultationEnabled = isMentoringNoteConsultationEnabled();
   const confirmedMentoring = items.filter(
     (item) => item.status === 'CONFIRMED',
   );
@@ -79,15 +81,17 @@ export default function MyMentoringPage({
         description={TEXT.confirmedDescription}
         items={confirmedMentoring}
         headerAction={
-          <Link href="/note-consultation">
-            <Button
-              color="outlined"
-              size="small"
-              icon={<MessageCircle className="h-14 w-14" />}
-            >
-              {TEXT.noteConsultation}
-            </Button>
-          </Link>
+          isNoteConsultationEnabled ? (
+            <Link href="/note-consultation">
+              <Button
+                color="outlined"
+                size="small"
+                icon={<MessageCircle className="h-14 w-14" />}
+              >
+                {TEXT.noteConsultation}
+              </Button>
+            </Link>
+          ) : undefined
         }
       />
 

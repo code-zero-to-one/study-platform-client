@@ -81,6 +81,9 @@ export default function StudyCompletionModal({
       <Modal.Portal>
         <Modal.Overlay />
         <Modal.Content size="small" description="스터디 완주 축하">
+          <Modal.Title className="sr-only">
+            스터디 완주를 축하합니다!
+          </Modal.Title>
           <Modal.Body className="flex flex-col items-center gap-200 py-500">
             <span className="text-[64px] leading-none" aria-hidden="true">
               🎉

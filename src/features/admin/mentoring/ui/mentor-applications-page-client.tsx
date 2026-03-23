@@ -160,7 +160,7 @@ export default function MentorApplicationsPageClient({
         <div className="grid grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)] gap-200">
           <MentoringTablePanel
             title="멘토 심사 큐"
-            description="실제 멘토 등록폼 데이터만 대상으로 심사 상태를 관리합니다."
+            description="현재 관리자 멘토링 운영 스토어를 기준으로 심사 상태를 관리합니다."
           >
             <table className="w-full">
               <thead className="bg-background-neutral-subtle h-[52px]">
@@ -289,10 +289,7 @@ export default function MentorApplicationsPageClient({
                     columnsClassName="grid-cols-[110px_minmax(0,1fr)]"
                     valueAs="p"
                   >
-                    {selectedMentor.mentor.mentorSettings?.settlementDraft
-                      ?.verified
-                      ? '완료'
-                      : '미완료'}
+                    서버 정산 readiness 계약 필요
                   </KeyValueRow>
                   <KeyValueRow
                     label="최종 처리 시각"

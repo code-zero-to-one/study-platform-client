@@ -1,4 +1,5 @@
 import { createEmptyWeeklySchedule } from '@/features/mentoring/model/mentor-settings';
+import { createEmptyMentorScheduleDrafts } from '@/types/schemas/mentor-registration-schema';
 import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
 
 export const ADMIN_MENTORING_MOCK_SEED_TAG = 'ADMIN_MENTORING_SERVER_LIKE_V1';
@@ -24,10 +25,26 @@ export const createServerLikeMentorRegistrationValues = (
     jobGroup: '백엔드/서버 개발자',
     jobTitle: '시니어 백엔드 엔지니어',
     careerYears: '시니어 (9년 이상)',
+    careerEntries: [
+      {
+        description: 'ZERO-ONE 백엔드 리드',
+        isCurrent: true,
+        periodEnabled: false,
+        startMonth: '',
+        endMonth: '',
+      },
+      {
+        description: '카카오엔터프라이즈 백엔드 플랫폼 개발',
+        isCurrent: false,
+        periodEnabled: false,
+        startMonth: '',
+        endMonth: '',
+      },
+    ],
     skillTags: ['Java', 'Spring', 'Kotlin', 'MySQL', '시스템설계'],
-    companyCategory: '창업',
-    companyName: 'ZERO-ONE',
-    hideCompanyName: false,
+    companyCategory: '기타',
+    companyName: '',
+    hideCompanyName: true,
     listVisible: true,
     maxParticipants: 2,
     noteEnabled: true,
@@ -45,6 +62,7 @@ export const createServerLikeMentorRegistrationValues = (
       slotUnitMinutes: 30,
       weekly,
     },
+    scheduleDrafts: createEmptyMentorScheduleDrafts(),
     detailedDescription: `실제 채용 과정에서 많이 막히는 이력서 구조화, 프로젝트 성과 정리, 기술면접 답변 설계를 중심으로 진행합니다.
 
 멘티 상황에 맞춰 우선순위를 짚고, 바로 적용 가능한 액션 아이템으로 정리해드립니다.`,
@@ -53,20 +71,7 @@ export const createServerLikeMentorRegistrationValues = (
       '현재 이력서에서 가장 약하다고 느끼는 섹션은 어디인가요?',
       '이번 멘토링에서 꼭 해결하고 싶은 목표를 적어주세요.',
     ],
-    preNotice:
-      '상담 24시간 전까지 핵심 질문 3개와 이력서/포트폴리오 링크를 남겨주세요.',
-    settlementDraft: {
-      payerType: 'INDIVIDUAL',
-      contractName: '홍길동',
-      accountHolder: '홍길동',
-      bankCode: '004',
-      accountNumber: '123-45-678901',
-      residentId: '9001011234567',
-      businessName: '',
-      businessRegistrationNumber: '',
-      verified: true,
-      updatedAt: nowIso,
-    },
+    preNotice: '',
     updatedAt: nowIso,
   };
 };

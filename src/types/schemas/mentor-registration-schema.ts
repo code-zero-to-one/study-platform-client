@@ -1,66 +1,62 @@
 import { z } from 'zod';
 import {
+  getCurrentMentorCareerEntryMonth,
+  MENTOR_SCHEDULE_TIMEZONE,
+  MENTOR_SCHEDULE_DRAFT_MAX_LENGTH,
+  normalizeMentorCareerEntries,
+} from '@/features/mentoring/model/mentor-settings';
+import {
   extractImageUrls,
   hasAllowedMarkdownImageExtension,
   isHttpsMarkdownImageUrl,
   MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
+  normalizeMentorMarkdownContent,
 } from '@/types/mentoring/markdown';
 import {
   COMPANY_CATEGORY_OPTIONS,
   CONSULTING_DURATION_OPTIONS,
   CONTACT_COUNTRY_CODES,
+  MENTOR_CAREER_ENTRY_MAX_COUNT,
   WEEKDAY_KEYS,
 } from '@/types/mentoring/settings';
 
 export const MENTORING_TITLE_MIN_LENGTH = 10;
 export const MENTORING_TITLE_MAX_LENGTH = 40;
-const EMAIL_ADDRESS_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-const isIgnoredEmailCharacter = (char: string): boolean => {
-  if (char.trim().length === 0) {
-    return true;
-  }
-
-  const code = char.codePointAt(0);
-  if (code === undefined) {
-    return true;
-  }
-
-  if (
-    (code >= 0x0000 && code <= 0x001f) ||
-    code === 0x007f ||
-    (code >= 0x0080 && code <= 0x009f)
-  ) {
-    return true;
-  }
-
-  if (
-    code === 0x00a0 ||
-    code === 0x1680 ||
-    code === 0x180e ||
-    (code >= 0x2000 && code <= 0x200f) ||
-    (code >= 0x2028 && code <= 0x202f) ||
-    (code >= 0x205f && code <= 0x206f) ||
-    code === 0x3000 ||
-    code === 0xfeff
-  ) {
-    return true;
-  }
-
-  return false;
-};
-
-const normalizeEmailInput = (value: string): string => {
-  const normalized = value.normalize('NFKC');
-  const compact = Array.from(normalized)
-    .filter((char) => !isIgnoredEmailCharacter(char))
-    .join('');
-
-  const match = compact.match(/<([^<>]+)>/);
-
-  return match?.[1]?.trim() ?? compact.trim();
-};
-
+export const APPEAL_LINE_MIN_LENGTH = 2;
+export const APPEAL_LINE_MAX_LENGTH = 24;
+export const MENTOR_SKILL_TAG_MIN_LENGTH = 2;
+export const MENTOR_SKILL_TAG_MAX_LENGTH = 13;
+export const CAREER_ENTRY_MAX_COUNT = MENTOR_CAREER_ENTRY_MAX_COUNT;
+export const MAJOR_HISTORY_ENTRY_MAX_LENGTH = 60;
+export const SCHEDULE_DAY_MAX_SLOT_COUNT = 48;
+export const MENTOR_DESCRIPTION_MIN_LENGTH = 30;
+export const MENTOR_DESCRIPTION_MAX_LENGTH = 30_000;
+export const INTERVIEW_QUESTION_MIN_LENGTH = 8;
+export const INTERVIEW_QUESTION_MAX_LENGTH = 120;
+export const INTERVIEW_QUESTION_MAX_COUNT = 8;
+export const INTERVIEW_QUESTION_TEXTAREA_MAX_LENGTH =
+  INTERVIEW_QUESTION_MAX_LENGTH * INTERVIEW_QUESTION_MAX_COUNT +
+  (INTERVIEW_QUESTION_MAX_COUNT - 1);
+export const PRICE_FIELD_HARD_MIN = 0;
+export const PRICE_FIELD_HARD_MAX = 1_000_000;
+export const METHOD_PRICE_LIMITS = {
+  note: {
+    min: 3000,
+    max: 100_000,
+  },
+  simple: {
+    min: 3000,
+    max: 200_000,
+  },
+  deep: {
+    min: 3000,
+    max: 300_000,
+  },
+  offline: {
+    min: 3000,
+    max: 1_000_000,
+  },
+} as const;
 const timeSlotSchema = z
   .string()
   .regex(
@@ -70,13 +66,48 @@ const timeSlotSchema = z
 
 const weeklyScheduleSchema = z
   .object({
-    MON: z.array(timeSlotSchema),
-    TUE: z.array(timeSlotSchema),
-    WED: z.array(timeSlotSchema),
-    THU: z.array(timeSlotSchema),
-    FRI: z.array(timeSlotSchema),
-    SAT: z.array(timeSlotSchema),
-    SUN: z.array(timeSlotSchema),
+    MON: z
+      .array(timeSlotSchema)
+      .max(
+        SCHEDULE_DAY_MAX_SLOT_COUNT,
+        '하루 스케줄은 최대 48개 슬롯까지 입력할 수 있습니다.',
+      ),
+    TUE: z
+      .array(timeSlotSchema)
+      .max(
+        SCHEDULE_DAY_MAX_SLOT_COUNT,
+        '하루 스케줄은 최대 48개 슬롯까지 입력할 수 있습니다.',
+      ),
+    WED: z
+      .array(timeSlotSchema)
+      .max(
+        SCHEDULE_DAY_MAX_SLOT_COUNT,
+        '하루 스케줄은 최대 48개 슬롯까지 입력할 수 있습니다.',
+      ),
+    THU: z
+      .array(timeSlotSchema)
+      .max(
+        SCHEDULE_DAY_MAX_SLOT_COUNT,
+        '하루 스케줄은 최대 48개 슬롯까지 입력할 수 있습니다.',
+      ),
+    FRI: z
+      .array(timeSlotSchema)
+      .max(
+        SCHEDULE_DAY_MAX_SLOT_COUNT,
+        '하루 스케줄은 최대 48개 슬롯까지 입력할 수 있습니다.',
+      ),
+    SAT: z
+      .array(timeSlotSchema)
+      .max(
+        SCHEDULE_DAY_MAX_SLOT_COUNT,
+        '하루 스케줄은 최대 48개 슬롯까지 입력할 수 있습니다.',
+      ),
+    SUN: z
+      .array(timeSlotSchema)
+      .max(
+        SCHEDULE_DAY_MAX_SLOT_COUNT,
+        '하루 스케줄은 최대 48개 슬롯까지 입력할 수 있습니다.',
+      ),
   })
   .superRefine((weekly, ctx) => {
     WEEKDAY_KEYS.forEach((dayKey) => {
@@ -91,99 +122,129 @@ const weeklyScheduleSchema = z
     });
   });
 
-const settlementDraftSchema = z
+const careerEntrySchema = z
   .object({
-    payerType: z.enum(['INDIVIDUAL', 'BUSINESS', 'OVERSEAS']),
-    contractName: z
+    description: z
       .string()
       .trim()
-      .min(1, '계약자명을 입력해주세요.')
-      .max(50, '계약자명은 50자 이하로 입력해주세요.'),
-    accountHolder: z
-      .string()
-      .trim()
-      .min(1, '정산자명을 입력해주세요.')
-      .max(50, '정산자명은 50자 이하로 입력해주세요.'),
-    bankCode: z.string().trim().min(1, '은행을 선택해주세요.'),
-    accountNumber: z
-      .string()
-      .trim()
-      .min(8, '계좌번호를 입력해주세요.')
-      .max(30, '계좌번호는 30자 이하로 입력해주세요.')
-      .regex(/^[0-9-]+$/, '계좌번호는 숫자와 하이픈만 입력할 수 있습니다.'),
-    residentId: z
-      .string()
-      .trim()
-      .regex(/^[0-9]*$/, '주민등록번호는 숫자만 입력해주세요.')
-      .optional()
-      .or(z.literal('')),
-    businessName: z.string().trim().max(60).optional().or(z.literal('')),
-    businessRegistrationNumber: z
-      .string()
-      .trim()
-      .regex(
-        /^[0-9-]*$/,
-        '사업자등록번호는 숫자와 하이픈만 입력할 수 있습니다.',
-      )
-      .optional()
-      .or(z.literal('')),
-    verified: z.boolean(),
-    updatedAt: z.string(),
+      .min(1, '주요 이력 내용을 입력해주세요.')
+      .max(
+        MAJOR_HISTORY_ENTRY_MAX_LENGTH,
+        `주요 이력은 ${MAJOR_HISTORY_ENTRY_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
+    periodEnabled: z.boolean(),
+    startMonth: z.string().trim(),
+    endMonth: z.string().trim(),
+    isCurrent: z.boolean(),
   })
-  .superRefine((values, ctx) => {
-    if (!values.verified) {
+  .superRefine((entry, ctx) => {
+    if (!entry.periodEnabled) {
+      return;
+    }
+
+    const hasStartMonth = entry.startMonth.length > 0;
+    const hasEndMonth = entry.endMonth.length > 0;
+    const currentMonth = getCurrentMentorCareerEntryMonth();
+    const isCurrent = entry.isCurrent === true;
+
+    if (!hasStartMonth && (hasEndMonth || isCurrent)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['verified'],
-        message: '정산정보 인증을 완료해주세요.',
+        path: ['startMonth'],
+        message: '시작 기간을 입력해주세요.',
       });
     }
 
-    if (values.payerType === 'INDIVIDUAL' && !values.residentId?.trim()) {
+    if (hasStartMonth && entry.startMonth > currentMonth) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['residentId'],
-        message: '주민등록번호를 입력해주세요.',
+        path: ['startMonth'],
+        message: '시작 기간은 현재 월 이후로 입력할 수 없습니다.',
       });
     }
 
-    if (values.payerType === 'BUSINESS') {
-      if (!values.businessName?.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['businessName'],
-          message: '사업체명을 입력해주세요.',
-        });
-      }
-      if (!values.businessRegistrationNumber?.trim()) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['businessRegistrationNumber'],
-          message: '사업자등록번호를 입력해주세요.',
-        });
-      }
+    if (hasStartMonth && !hasEndMonth && !isCurrent) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['endMonth'],
+        message: '종료 기간을 입력해주세요.',
+      });
+    }
+
+    if (isCurrent && hasEndMonth) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['endMonth'],
+        message: '현재 재직 중이면 종료 기간을 비워주세요.',
+      });
+    }
+
+    if (
+      hasStartMonth &&
+      hasEndMonth &&
+      !isCurrent &&
+      entry.startMonth > entry.endMonth
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['endMonth'],
+        message: '종료 기간은 시작 기간보다 빠를 수 없습니다.',
+      });
+    }
+
+    if (hasEndMonth && !isCurrent && entry.endMonth > currentMonth) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['endMonth'],
+        message: '종료 기간은 현재 월 이후로 입력할 수 없습니다.',
+      });
     }
   });
 
+const careerEntryInputSchema = z.object({
+  description: z.string().optional().default(''),
+  periodEnabled: z.boolean().optional(),
+  startMonth: z.string().optional().default(''),
+  endMonth: z.string().optional().default(''),
+  isCurrent: z.boolean().optional().default(false),
+});
+
 const scheduleSchema = z.object({
-  timezone: z.literal('Asia/Seoul'),
+  timezone: z.literal(MENTOR_SCHEDULE_TIMEZONE),
   slotUnitMinutes: z.literal(30),
   weekly: weeklyScheduleSchema,
 });
 
-const isAnyMethodEnabled = (values: {
-  noteEnabled: boolean;
-  simpleEnabled: boolean;
-  deepEnabled: boolean;
-  offlineEnabled: boolean;
-}) => {
-  return (
-    values.noteEnabled ||
-    values.simpleEnabled ||
-    values.deepEnabled ||
-    values.offlineEnabled
-  );
+export const createEmptyMentorScheduleDrafts = (): Record<
+  (typeof WEEKDAY_KEYS)[number],
+  string[]
+> => {
+  return Object.fromEntries(
+    WEEKDAY_KEYS.map((day): [(typeof WEEKDAY_KEYS)[number], string[]] => [
+      day,
+      [],
+    ]),
+  ) as Record<(typeof WEEKDAY_KEYS)[number], string[]>;
 };
+
+const scheduleDraftTextSchema = z
+  .string()
+  .max(
+    MENTOR_SCHEDULE_DRAFT_MAX_LENGTH,
+    `스케줄 입력은 ${MENTOR_SCHEDULE_DRAFT_MAX_LENGTH}자 이하로 입력해주세요.`,
+  );
+
+const scheduleDraftsSchema = z.object({
+  MON: z.array(scheduleDraftTextSchema),
+  TUE: z.array(scheduleDraftTextSchema),
+  WED: z.array(scheduleDraftTextSchema),
+  THU: z.array(scheduleDraftTextSchema),
+  FRI: z.array(scheduleDraftTextSchema),
+  SAT: z.array(scheduleDraftTextSchema),
+  SUN: z.array(scheduleDraftTextSchema),
+});
+
+const legacyContactEmailSchema = z.string().trim().default('');
 
 const hasAnySchedule = (schedule: z.infer<typeof scheduleSchema>) => {
   return WEEKDAY_KEYS.some((key) => schedule.weekly[key].length > 0);
@@ -198,17 +259,7 @@ export const mentorRegistrationSchema = z
       .refine((value) => value === '' || /^\d{8,12}$/.test(value), {
         message: '연락처는 숫자 8~12자리로 입력해주세요.',
       }),
-    contactEmail: z
-      .string()
-      .transform(normalizeEmailInput)
-      .pipe(
-        z
-          .string()
-          .min(1, '이메일을 입력해주세요.')
-          .refine((value) => EMAIL_ADDRESS_REGEX.test(value), {
-            message: '이메일 형식이 올바르지 않습니다.',
-          }),
-      ),
+    contactEmail: legacyContactEmailSchema,
     categories: z.array(z.string().trim().min(1)).default([]),
     mentoringTitle: z
       .string()
@@ -224,30 +275,50 @@ export const mentorRegistrationSchema = z
     appealLine: z
       .string()
       .trim()
-      .min(2, '한 줄 어필은 2자 이상 입력해주세요.')
-      .max(24, '한 줄 어필은 24자 이하로 입력해주세요.'),
+      .min(
+        APPEAL_LINE_MIN_LENGTH,
+        `한 줄 어필은 ${APPEAL_LINE_MIN_LENGTH}자 이상 입력해주세요.`,
+      )
+      .max(
+        APPEAL_LINE_MAX_LENGTH,
+        `한 줄 어필은 ${APPEAL_LINE_MAX_LENGTH}자 이하로 입력해주세요.`,
+      ),
     jobGroup: z.string().trim().min(1, '멘토 직군을 선택해주세요.'),
     jobTitle: z.string().trim().min(1, '멘토 직무를 선택해주세요.'),
     careerYears: z.string().trim().min(1, '멘토 경력을 선택해주세요.'),
+    careerEntries: z
+      .array(careerEntryInputSchema)
+      .default([])
+      .transform((entries) => normalizeMentorCareerEntries(entries))
+      .pipe(
+        z
+          .array(careerEntrySchema)
+          .max(
+            CAREER_ENTRY_MAX_COUNT,
+            `주요 이력은 최대 ${CAREER_ENTRY_MAX_COUNT}개까지 입력할 수 있습니다.`,
+          ),
+      ),
     skillTags: z
       .array(
         z
           .string()
           .trim()
-          .min(2, '스킬 태그는 2자 이상이어야 합니다.')
-          .max(24, '스킬 태그는 24자 이하로 입력해주세요.'),
+          .min(
+            MENTOR_SKILL_TAG_MIN_LENGTH,
+            '핵심 키워드는 2자 이상이어야 합니다.',
+          )
+          .max(
+            MENTOR_SKILL_TAG_MAX_LENGTH,
+            `핵심 키워드는 ${MENTOR_SKILL_TAG_MAX_LENGTH}자 이하로 입력해주세요.`,
+          ),
       )
-      .min(1, '멘토링 스킬 태그를 최소 1개 선택해주세요.')
-      .max(5, '멘토링 스킬 태그는 최대 5개까지 선택할 수 있습니다.'),
-    companyCategory: z.enum(COMPANY_CATEGORY_OPTIONS, {
-      message: '회사 카테고리를 선택해주세요.',
-    }),
-    companyName: z
-      .string()
-      .trim()
-      .min(1, '회사명을 입력해주세요.')
-      .max(40, '회사명은 40자 이하로 입력해주세요.'),
-    hideCompanyName: z.boolean(),
+      .min(1, '핵심 키워드를 최소 1개 선택해주세요.')
+      .refine((skillTags) => new Set(skillTags).size === skillTags.length, {
+        message: '핵심 키워드는 중복 없이 선택해주세요.',
+      }),
+    companyCategory: z.enum(COMPANY_CATEGORY_OPTIONS).default('기타'),
+    companyName: z.string().default(''),
+    hideCompanyName: z.boolean().default(true),
     listVisible: z.boolean(),
     maxParticipants: z.coerce
       .number()
@@ -258,20 +329,20 @@ export const mentorRegistrationSchema = z
     notePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
-      .min(0, '가격은 0원 이상이어야 합니다.')
-      .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
+      .min(PRICE_FIELD_HARD_MIN, '가격은 0원 이상이어야 합니다.')
+      .max(PRICE_FIELD_HARD_MAX, '가격은 1,000,000원 이하여야 합니다.'),
     simpleEnabled: z.boolean(),
     simplePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
-      .min(0, '가격은 0원 이상이어야 합니다.')
-      .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
+      .min(PRICE_FIELD_HARD_MIN, '가격은 0원 이상이어야 합니다.')
+      .max(PRICE_FIELD_HARD_MAX, '가격은 1,000,000원 이하여야 합니다.'),
     deepEnabled: z.boolean(),
     deepPrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
-      .min(0, '가격은 0원 이상이어야 합니다.')
-      .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
+      .min(PRICE_FIELD_HARD_MIN, '가격은 0원 이상이어야 합니다.')
+      .max(PRICE_FIELD_HARD_MAX, '가격은 1,000,000원 이하여야 합니다.'),
     deepDurationMinutes: z.union(
       CONSULTING_DURATION_OPTIONS.map((value) => z.literal(value)) as [
         z.ZodLiteral<30>,
@@ -283,8 +354,8 @@ export const mentorRegistrationSchema = z
     offlinePrice: z.coerce
       .number()
       .int('가격은 정수여야 합니다.')
-      .min(0, '가격은 0원 이상이어야 합니다.')
-      .max(1000000, '가격은 1,000,000원 이하여야 합니다.'),
+      .min(PRICE_FIELD_HARD_MIN, '가격은 0원 이상이어야 합니다.')
+      .max(PRICE_FIELD_HARD_MAX, '가격은 1,000,000원 이하여야 합니다.'),
     offlineDurationMinutes: z.union(
       CONSULTING_DURATION_OPTIONS.map((value) => z.literal(value)) as [
         z.ZodLiteral<30>,
@@ -293,39 +364,45 @@ export const mentorRegistrationSchema = z
       ],
     ),
     schedule: scheduleSchema,
+    scheduleDrafts: scheduleDraftsSchema.default(
+      createEmptyMentorScheduleDrafts,
+    ),
     detailedDescription: z
       .string()
       .trim()
-      .min(30, '멘토 소개는 30자 이상 입력해주세요.')
-      .max(1500000, '멘토 소개는 1,500,000자 이하로 입력해주세요.'),
+      .max(
+        MENTOR_DESCRIPTION_MAX_LENGTH,
+        `멘토 소개는 ${MENTOR_DESCRIPTION_MAX_LENGTH.toLocaleString()}자 이하로 입력해주세요.`,
+      )
+      .default(''),
     interviewQuestions: z
       .array(
         z
           .string()
           .trim()
-          .min(8, '상담 전 준비사항은 8자 이상 입력해주세요.')
-          .max(120, '상담 전 준비사항은 120자 이하로 입력해주세요.'),
+          .min(
+            INTERVIEW_QUESTION_MIN_LENGTH,
+            `상담 전 준비사항은 ${INTERVIEW_QUESTION_MIN_LENGTH}자 이상 입력해주세요.`,
+          )
+          .max(
+            INTERVIEW_QUESTION_MAX_LENGTH,
+            `상담 전 준비사항은 ${INTERVIEW_QUESTION_MAX_LENGTH}자 이하로 입력해주세요.`,
+          ),
       )
-      .max(8, '상담 전 준비사항은 최대 8개까지 입력할 수 있습니다.')
+      .max(
+        INTERVIEW_QUESTION_MAX_COUNT,
+        `상담 전 준비사항은 최대 ${INTERVIEW_QUESTION_MAX_COUNT}개까지 입력할 수 있습니다.`,
+      )
       .refine((questions) => new Set(questions).size === questions.length, {
         message: '상담 전 준비사항은 중복 없이 입력해주세요.',
       }),
-    preNotice: z
-      .string()
-      .trim()
-      .max(2000, '사전 안내는 2000자 이하로 입력해주세요.'),
-    settlementDraft: settlementDraftSchema.nullable(),
+    preNotice: z.string().default(''),
     updatedAt: z.string(),
   })
   .superRefine((values, ctx) => {
-    if (!isAnyMethodEnabled(values)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['noteEnabled'],
-        message: '최소 1개 이상의 멘토링 방식을 활성화해주세요.',
-      });
-    }
-
+    const normalizedDescription = normalizeMentorMarkdownContent(
+      values.detailedDescription,
+    );
     const validateEnabledPriceRange = ({
       enabled,
       price,
@@ -354,35 +431,46 @@ export const mentorRegistrationSchema = z
       }
     };
 
+    if (
+      normalizedDescription.length > 0 &&
+      normalizedDescription.length < MENTOR_DESCRIPTION_MIN_LENGTH
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['detailedDescription'],
+        message: `멘토 소개는 ${MENTOR_DESCRIPTION_MIN_LENGTH}자 이상 입력해주세요.`,
+      });
+    }
+
     validateEnabledPriceRange({
       enabled: values.noteEnabled,
       price: values.notePrice,
-      min: 3000,
-      max: 100000,
+      min: METHOD_PRICE_LIMITS.note.min,
+      max: METHOD_PRICE_LIMITS.note.max,
       path: 'notePrice',
       label: '쪽지상담',
     });
     validateEnabledPriceRange({
       enabled: values.simpleEnabled,
       price: values.simplePrice,
-      min: 3000,
-      max: 200000,
+      min: METHOD_PRICE_LIMITS.simple.min,
+      max: METHOD_PRICE_LIMITS.simple.max,
       path: 'simplePrice',
       label: '간편상담',
     });
     validateEnabledPriceRange({
       enabled: values.deepEnabled,
       price: values.deepPrice,
-      min: 3000,
-      max: 300000,
+      min: METHOD_PRICE_LIMITS.deep.min,
+      max: METHOD_PRICE_LIMITS.deep.max,
       path: 'deepPrice',
       label: '심층상담',
     });
     validateEnabledPriceRange({
       enabled: values.offlineEnabled,
       price: values.offlinePrice,
-      min: 3000,
-      max: 1000000,
+      min: METHOD_PRICE_LIMITS.offline.min,
+      max: METHOD_PRICE_LIMITS.offline.max,
       path: 'offlinePrice',
       label: '대면상담',
     });
@@ -399,7 +487,7 @@ export const mentorRegistrationSchema = z
       });
     }
 
-    const markdownImageUrls = extractImageUrls(values.detailedDescription);
+    const markdownImageUrls = extractImageUrls(normalizedDescription);
     if (markdownImageUrls.length > MENTOR_MARKDOWN_MAX_IMAGE_COUNT) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -421,6 +509,17 @@ export const mentorRegistrationSchema = z
         code: z.ZodIssueCode.custom,
         path: ['detailedDescription'],
         message: '이미지는 jpg/png/webp/gif 확장자만 허용됩니다.',
+      });
+    }
+
+    const currentCareerEntryCount = values.careerEntries.filter(
+      (entry) => entry.isCurrent === true,
+    ).length;
+    if (currentCareerEntryCount > 1) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['careerEntries'],
+        message: '현재 재직 항목은 1개만 선택할 수 있습니다.',
       });
     }
   });

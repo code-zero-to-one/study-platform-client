@@ -11,7 +11,10 @@ import {
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentorDirectoryStore } from '@/stores/useMentorDirectoryStore';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
-import { type MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
+import {
+  createEmptyMentorScheduleDrafts,
+  type MentorRegistrationFormValues,
+} from '@/types/schemas/mentor-registration-schema';
 
 const buildTempMentorRegistrationValues = (): MentorRegistrationFormValues => {
   const defaults = createDefaultMentorSettings();
@@ -31,8 +34,6 @@ const buildTempMentorRegistrationValues = (): MentorRegistrationFormValues => {
     jobTitle: '프론트엔드 개발자',
     careerYears: '5년 이상',
     skillTags: ['React', 'Next.js'],
-    companyCategory: '창업',
-    companyName: 'ZERO-ONE',
     noteEnabled: true,
     simpleEnabled: true,
     deepEnabled: true,
@@ -42,11 +43,11 @@ const buildTempMentorRegistrationValues = (): MentorRegistrationFormValues => {
       slotUnitMinutes: 30,
       weekly,
     },
+    scheduleDrafts: createEmptyMentorScheduleDrafts(),
     detailedDescription:
       '임시 검증용으로 생성된 멘토 프로필입니다. 신청함 운영과 연락 로그를 빠르게 확인할 수 있습니다.',
     interviewQuestions: ['현재 가장 고민인 부분을 간단히 적어주세요.'],
-    preNotice: '임시 검증용 사전 안내입니다.',
-    settlementDraft: null,
+    preNotice: defaults.preNotice,
     updatedAt: nowIso,
   };
 };

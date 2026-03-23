@@ -7,6 +7,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import TextActionButton from '@/components/common/ui/text-action-button';
+import { useFloatingPanelScrollNudge } from '@/features/mentoring/model/use-floating-panel-scroll-nudge';
 import { type MentorRegistrationControllerResult } from '@/features/mentoring/model/use-mentor-registration-controller';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentorDetailPage from '@/features/mentoring/ui/detail/mentor-detail-page';
@@ -22,17 +23,10 @@ const PhoneVerificationModal = dynamic(
 
 const PAGE_CONTAINER_CLASS =
   'mx-auto w-full max-w-[1280px] px-150 py-400 sm:px-300 xl:px-400 xl:py-500';
-const PREVIEW_SCROLL_NUDGE_MAX = 44;
-const PREVIEW_SCROLL_RESPONSE_RATIO = 0.6;
-const PREVIEW_SCROLL_TARGET_DAMPING = 0.62;
-const PREVIEW_SCROLL_SMOOTHING = 0.42;
-const PREVIEW_SCROLL_IDLE_THRESHOLD = 0.18;
 const PREVIEW_PANEL_EXTRA_WIDTH = 200;
 const PREVIEW_FORM_GAP = 60;
-
-const clamp = (value: number, min: number, max: number) => {
-  return Math.max(min, Math.min(max, value));
-};
+const PREVIEW_PANEL_TOP_OFFSET = 108;
+const PREVIEW_PANEL_BOTTOM_OFFSET = 60;
 
 interface MentorRegistrationPageViewProps {
   controller: MentorRegistrationControllerResult;
@@ -42,154 +36,85 @@ export default function MentorRegistrationPageView({
   controller,
 }: MentorRegistrationPageViewProps) {
   const { state, refs, actions } = controller;
+  const welcomeOnboarding = state.welcomeOnboarding;
+  const welcomeChecklist = welcomeOnboarding?.checklist ?? [];
+  const completedWelcomeChecklistCount = welcomeChecklist.filter(
+    (item) => item.done,
+  ).length;
   const previewPanelRef = useRef<HTMLElement>(null);
-  const [previewPanelRightOffset, setPreviewPanelRightOffset] = useState(0);
-  const previousScrollYRef = useRef(0);
-  const currentOffsetRef = useRef(0);
-  const targetOffsetRef = useRef(0);
-  const animationFrameRef = useRef<number | null>(null);
+  const previewCloseButtonRef = useRef<HTMLButtonElement>(null);
+  const desktopPreviewOpenButtonRef = useRef<HTMLButtonElement>(null);
+  const mobilePreviewOpenButtonRef = useRef<HTMLButtonElement>(null);
+  const lastPreviewTriggerRef = useRef<'desktop' | 'mobile'>('desktop');
+  const [previewPanelViewportRightGap, setPreviewPanelViewportRightGap] =
+    useState(0);
+  const formPanelOverflowWidth = state.isPreviewOpen
+    ? state.isResizing
+      ? state.formOverflowWidth
+      : state.committedFormOverflowWidth
+    : 0;
   const previewPanelBaseWidth = state.isResizing
     ? state.panelWidth
     : state.committedPanelWidth;
+  const previewPanelOverflowWidth = state.isResizing
+    ? state.panelOverflowWidth
+    : state.committedPanelOverflowWidth;
   const previewPanelTotalWidth = state.isPreviewOpen
     ? previewPanelBaseWidth + PREVIEW_PANEL_EXTRA_WIDTH
     : 0;
+  const previewPanelActualWidth = state.isPreviewOpen
+    ? previewPanelTotalWidth + previewPanelOverflowWidth
+    : 0;
+  const previewPanelRightOffset =
+    previewPanelViewportRightGap - previewPanelOverflowWidth;
+
+  useFloatingPanelScrollNudge({
+    enabled: state.isPreviewOpen,
+    panelRef: previewPanelRef,
+    cssVariableName: '--preview-scroll-nudge',
+  });
 
   useEffect(() => {
     if (!state.isPreviewOpen) {
-      setPreviewPanelRightOffset(0);
+      setPreviewPanelViewportRightGap(0);
+
+      if (document.activeElement === previewCloseButtonRef.current) {
+        const nextFocusTarget =
+          lastPreviewTriggerRef.current === 'mobile'
+            ? mobilePreviewOpenButtonRef.current
+            : desktopPreviewOpenButtonRef.current;
+
+        nextFocusTarget?.focus();
+      }
 
       return;
     }
 
-    const syncPreviewPanelRightOffset = () => {
+    const syncPreviewPanelViewportRightGap = () => {
       const layoutRect = refs.previewLayoutRef.current?.getBoundingClientRect();
 
       if (!layoutRect) {
-        setPreviewPanelRightOffset(0);
+        setPreviewPanelViewportRightGap(0);
 
         return;
       }
 
-      const viewportRightGutter = Math.max(
-        0,
-        Math.floor(window.innerWidth - layoutRect.right),
+      setPreviewPanelViewportRightGap(
+        Math.max(0, Math.floor(window.innerWidth - layoutRect.right)),
       );
-      setPreviewPanelRightOffset(viewportRightGutter);
     };
 
-    syncPreviewPanelRightOffset();
-    window.addEventListener('resize', syncPreviewPanelRightOffset);
+    syncPreviewPanelViewportRightGap();
+    window.addEventListener('resize', syncPreviewPanelViewportRightGap);
 
     return () =>
-      window.removeEventListener('resize', syncPreviewPanelRightOffset);
+      window.removeEventListener('resize', syncPreviewPanelViewportRightGap);
   }, [refs.previewLayoutRef, state.isPreviewOpen]);
 
-  useEffect(() => {
-    if (!state.isPreviewOpen) {
-      previousScrollYRef.current = window.scrollY;
-      currentOffsetRef.current = 0;
-      targetOffsetRef.current = 0;
-      previewPanelRef.current?.style.setProperty(
-        '--preview-scroll-nudge',
-        '0px',
-      );
-      if (animationFrameRef.current !== null) {
-        window.cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-
-      return;
-    }
-
-    const desktopQuery = window.matchMedia('(min-width: 1280px)');
-
-    const animateOffset = () => {
-      targetOffsetRef.current *= PREVIEW_SCROLL_TARGET_DAMPING;
-      const nextOffset =
-        currentOffsetRef.current +
-        (targetOffsetRef.current - currentOffsetRef.current) *
-          PREVIEW_SCROLL_SMOOTHING;
-
-      currentOffsetRef.current = nextOffset;
-      previewPanelRef.current?.style.setProperty(
-        '--preview-scroll-nudge',
-        `${nextOffset}px`,
-      );
-
-      const shouldStop =
-        Math.abs(nextOffset) < PREVIEW_SCROLL_IDLE_THRESHOLD &&
-        Math.abs(targetOffsetRef.current) < PREVIEW_SCROLL_IDLE_THRESHOLD;
-
-      if (shouldStop) {
-        currentOffsetRef.current = 0;
-        targetOffsetRef.current = 0;
-        previewPanelRef.current?.style.setProperty(
-          '--preview-scroll-nudge',
-          '0px',
-        );
-        animationFrameRef.current = null;
-
-        return;
-      }
-
-      animationFrameRef.current = window.requestAnimationFrame(animateOffset);
-    };
-
-    const startAnimation = () => {
-      if (animationFrameRef.current !== null) {
-        return;
-      }
-
-      animationFrameRef.current = window.requestAnimationFrame(animateOffset);
-    };
-
-    const handleScroll = () => {
-      const nextScrollY = window.scrollY;
-      const delta = nextScrollY - previousScrollYRef.current;
-      previousScrollYRef.current = nextScrollY;
-
-      if (!desktopQuery.matches || delta === 0) {
-        return;
-      }
-
-      targetOffsetRef.current = clamp(
-        targetOffsetRef.current + delta * PREVIEW_SCROLL_RESPONSE_RATIO,
-        -PREVIEW_SCROLL_NUDGE_MAX,
-        PREVIEW_SCROLL_NUDGE_MAX,
-      );
-
-      startAnimation();
-    };
-
-    const handleViewportChange = () => {
-      if (desktopQuery.matches) {
-        return;
-      }
-
-      targetOffsetRef.current = 0;
-      startAnimation();
-    };
-
-    previousScrollYRef.current = window.scrollY;
-    previewPanelRef.current?.style.setProperty('--preview-scroll-nudge', '0px');
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    desktopQuery.addEventListener('change', handleViewportChange);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      desktopQuery.removeEventListener('change', handleViewportChange);
-      if (animationFrameRef.current !== null) {
-        window.cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
-    };
-  }, [state.isPreviewOpen]);
-
-  if (state.guardState !== 'ready') {
+  if (state.guardState !== 'ready' || state.isEntryOnboardingPending) {
     return (
       <MentorRegistrationStateBoundary
-        state={state.guardState}
+        state={state.guardState !== 'ready' ? state.guardState : 'loading'}
         onOpenPhoneVerification={actions.onOpenPhoneVerification}
         phoneVerificationModal={
           state.shouldRenderPhoneVerificationModal &&
@@ -230,7 +155,7 @@ export default function MentorRegistrationPageView({
       <div
         ref={refs.previewLayoutRef}
         className={cn(
-          'xl:grid xl:grid-cols-[minmax(0,1fr)_var(--preview-panel-total-width)] xl:gap-x-[var(--preview-form-gap)]',
+          'relative xl:grid xl:grid-cols-[minmax(0,1fr)_var(--preview-panel-total-width)] xl:gap-x-[var(--preview-form-gap)]',
           !state.isResizing &&
             'xl:transition-[grid-template-columns] xl:duration-300',
         )}
@@ -238,23 +163,63 @@ export default function MentorRegistrationPageView({
           {
             '--preview-panel-width': `${previewPanelBaseWidth}px`,
             '--preview-panel-total-width': `${previewPanelTotalWidth}px`,
+            '--preview-panel-actual-width': `${previewPanelActualWidth}px`,
             '--preview-form-gap': `${PREVIEW_FORM_GAP}px`,
+            '--preview-panel-right-offset': `${previewPanelRightOffset}px`,
           } as CSSProperties
         }
       >
+        {state.isPreviewOpen && (
+          <div
+            aria-hidden="true"
+            className="absolute top-0 z-30 hidden h-full w-[16px] cursor-col-resize bg-transparent xl:block"
+            style={{
+              right: `calc(var(--preview-panel-total-width) + (var(--preview-form-gap) / 2) + 2px)`,
+            }}
+            onPointerDown={(event) =>
+              actions.onPreviewResizeStart(event, 'left')
+            }
+          />
+        )}
+
         {/* LEFT: 폼 영역 */}
         {/* min-w-0: grid item shrink 허용 / overflow-x-auto: 패널이 좁아져도 reflow 없이 가로 스크롤 */}
         <div className="min-w-0">
-          <MentorRegistrationHeader
-            onOpenGuide={actions.onOpenGuide}
-            onReopenEntryOnboarding={actions.onReopenEntryOnboarding}
-          />
-          <div className="overflow-x-auto">
+          <div
+            className="relative overflow-x-auto"
+            style={
+              formPanelOverflowWidth > 0
+                ? {
+                    marginLeft: `${-formPanelOverflowWidth}px`,
+                    width: `calc(100% + ${formPanelOverflowWidth}px)`,
+                  }
+                : undefined
+            }
+          >
+            {state.isPreviewOpen && (
+              <div
+                className="group absolute top-0 left-0 z-10 hidden h-full w-[8px] cursor-col-resize xl:block"
+                onPointerDown={(event) =>
+                  actions.onPreviewResizeStart(event, 'form-left')
+                }
+              />
+            )}
+            <MentorRegistrationHeader
+              onOpenGuide={actions.onOpenGuide}
+              onReopenEntryOnboarding={actions.onReopenEntryOnboarding}
+            />
             <MentorRegistrationForm
               form={state.form}
               options={state.registrationOptions}
+              persistedPredefinedCoreKeywords={
+                state.persistedPredefinedCoreKeywords
+              }
               onSubmit={actions.onSave}
               onCancel={actions.onCancel}
+              isSaving={state.isSaving}
+              initialStepId={state.currentStepId}
+              externalSaveBlockingMessage={state.saveBlockingMessage}
+              onStepChange={actions.onStepChange}
             />
           </div>
         </div>
@@ -266,6 +231,7 @@ export default function MentorRegistrationPageView({
          */}
         <aside
           ref={previewPanelRef}
+          aria-hidden={!state.isPreviewOpen}
           className={cn(
             'bg-background-default border-border-subtle flex flex-col',
             state.isPreviewOpen && 'xl:border',
@@ -274,25 +240,20 @@ export default function MentorRegistrationPageView({
             !state.isResizing && 'transition-transform duration-300',
             state.isPreviewOpen ? 'translate-x-0' : 'translate-x-full',
             // XL: 고정 미리보기 카드 + 스크롤 관성 nudge
-            'xl:rounded-200 xl:top-1/2 xl:right-[var(--preview-panel-right-offset)] xl:z-20 xl:h-[calc(100dvh-120px)] xl:w-[var(--preview-panel-total-width)] xl:self-start xl:overflow-hidden xl:transition-none',
+            'xl:rounded-200 xl:top-[var(--preview-panel-top-offset)] xl:right-[var(--preview-panel-right-offset)] xl:z-20 xl:h-[var(--preview-panel-height)] xl:w-[var(--preview-panel-actual-width)] xl:self-start xl:overflow-hidden xl:transition-none',
             state.isPreviewOpen
-              ? 'xl:[transform:translate3d(0,calc(-50%+var(--preview-scroll-nudge,0px)),0)]'
+              ? 'xl:[transform:translate3d(0,var(--preview-scroll-nudge,0px),0)]'
               : 'xl:translate-x-full',
           )}
           style={
             {
               '--preview-scroll-nudge': '0px',
-              '--preview-panel-right-offset': `${previewPanelRightOffset}px`,
+              '--preview-panel-top-offset': `${PREVIEW_PANEL_TOP_OFFSET}px`,
+              '--preview-panel-height': `calc(100dvh - ${PREVIEW_PANEL_TOP_OFFSET + PREVIEW_PANEL_BOTTOM_OFFSET}px)`,
             } as CSSProperties
           }
         >
           {/* 리사이즈 핸들 (XL 이상에서만) */}
-          <div
-            className="group absolute top-0 left-0 z-10 hidden h-full w-[8px] cursor-col-resize xl:block"
-            onPointerDown={(event) =>
-              actions.onPreviewResizeStart(event, 'left')
-            }
-          />
           <div
             className="group absolute top-0 right-0 z-10 hidden h-full w-[8px] cursor-col-resize xl:block"
             onPointerDown={(event) =>
@@ -308,15 +269,17 @@ export default function MentorRegistrationPageView({
                 실시간 미리보기
               </span>
               <span className="font-designer-12r text-text-subtlest">
-                · 실제 화면과 동일하게 표시됩니다
+                · 입력 내용이 실시간으로 반영됩니다
               </span>
             </div>
             <TextActionButton
+              ref={previewCloseButtonRef}
               tone="default"
               weight="bold"
               withTransition
               icon={<X className="h-14 w-14" />}
               onClick={actions.onClosePreview}
+              tabIndex={state.isPreviewOpen ? 0 : -1}
               aria-label="실시간 미리보기 닫기"
             >
               닫기
@@ -325,7 +288,7 @@ export default function MentorRegistrationPageView({
           {/* overflow-x-auto: 패널이 좁아져도 preview 내용은 reflow 없이 가로 스크롤 */}
           <div className="min-h-0 flex-1 overflow-x-auto overflow-y-auto xl:pointer-events-auto xl:overscroll-contain">
             {state.isPreviewOpen && (
-              <div className="min-w-[360px] [&_a]:pointer-events-none [&_button]:pointer-events-none">
+              <div className="min-w-[360px] [&_a]:pointer-events-none">
                 <MentorDetailPage
                   mentor={state.previewMentor}
                   previewMode
@@ -341,10 +304,14 @@ export default function MentorRegistrationPageView({
         <>
           {/* XL: 뷰포트 오른쪽 끝에 붙는 세로 탭 버튼 */}
           <button
+            ref={desktopPreviewOpenButtonRef}
             type="button"
             className="bg-fill-brand-default-default text-text-inverse border-border-brand rounded-l-150 font-designer-13b shadow-2 fixed right-0 z-30 hidden items-center gap-100 border px-125 py-300 xl:flex xl:flex-col"
             style={{ top: '50%', transform: 'translateY(-50%)' }}
-            onClick={actions.onOpenPreview}
+            onClick={() => {
+              lastPreviewTriggerRef.current = 'desktop';
+              actions.onOpenPreview();
+            }}
             aria-label="실시간 미리보기 열기"
           >
             <Eye className="h-16 w-16" />
@@ -354,9 +321,13 @@ export default function MentorRegistrationPageView({
           </button>
           {/* 모바일/태블릿: 우측 하단 FAB */}
           <button
+            ref={mobilePreviewOpenButtonRef}
             type="button"
             className="bg-fill-brand-default-default text-text-inverse border-border-brand font-designer-14b shadow-3 rounded-500 fixed right-200 bottom-200 z-40 flex items-center gap-75 border px-200 py-150 xl:hidden"
-            onClick={actions.onOpenPreview}
+            onClick={() => {
+              lastPreviewTriggerRef.current = 'mobile';
+              actions.onOpenPreview();
+            }}
             aria-label="실시간 미리보기 열기"
           >
             <Eye className="h-16 w-16" />
@@ -389,7 +360,7 @@ export default function MentorRegistrationPageView({
         />
       )}
 
-      <Modal.Root open={Boolean(state.welcomeOnboarding)}>
+      <Modal.Root open={Boolean(welcomeOnboarding)}>
         <Modal.Portal>
           <Modal.Overlay />
           <Modal.Content
@@ -399,14 +370,9 @@ export default function MentorRegistrationPageView({
           >
             <Modal.Header className="border-border-default border-b py-200">
               <div className="flex flex-col gap-50">
-                <Modal.Title>
-                  {state.welcomeOnboarding?.displayName ?? '멘토님'}, 멘토가
-                  되신 걸 환영합니다
-                </Modal.Title>
+                <Modal.Title>{welcomeOnboarding?.title ?? ''}</Modal.Title>
                 <p className="font-designer-13r text-text-subtle">
-                  {state.welcomeOnboarding?.listVisible
-                    ? '프로필이 공개되어 멘티가 신청할 수 있습니다. 첫 운영 준비를 체크해보세요.'
-                    : '현재 멘토링 목록 비노출 상태입니다. 설정에서 노출로 바꾸면 멘티 신청을 받을 수 있어요.'}
+                  {welcomeOnboarding?.description ?? ''}
                 </p>
               </div>
             </Modal.Header>
@@ -415,15 +381,12 @@ export default function MentorRegistrationPageView({
                 <p className="font-designer-13m text-text-default">
                   준비 체크{' '}
                   <span className="font-designer-13b">
-                    {state.welcomeOnboarding?.checklist.filter(
-                      (item) => item.done,
-                    ).length ?? 0}
-                    /{state.welcomeOnboarding?.checklist.length ?? 0}
+                    {completedWelcomeChecklistCount}/{welcomeChecklist.length}
                   </span>
                 </p>
               </div>
               <div className="mt-150 flex flex-col gap-100">
-                {state.welcomeOnboarding?.checklist.map((item) => (
+                {welcomeChecklist.map((item) => (
                   <div
                     key={item.title}
                     className={cn(
@@ -445,7 +408,7 @@ export default function MentorRegistrationPageView({
                             : 'bg-background-alternative text-text-subtle',
                         )}
                       >
-                        {item.done ? '완료' : '권장'}
+                        {item.done ? '완료' : '신청 전 필요'}
                       </span>
                     </div>
                     <p className="font-designer-12r text-text-subtle">
@@ -468,9 +431,9 @@ export default function MentorRegistrationPageView({
                 color="primary"
                 className="font-designer-14b w-full sm:w-auto"
                 size="medium"
-                onClick={actions.onWelcomeModalToMentorPage}
+                onClick={actions.onWelcomeModalConfirm}
               >
-                내 멘토 페이지 보기
+                확인
               </Button>
             </Modal.Footer>
           </Modal.Content>

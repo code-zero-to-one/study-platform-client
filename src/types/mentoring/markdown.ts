@@ -7,6 +7,13 @@ export const MENTOR_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS = [
   'webp',
   'gif',
 ] as const;
+const HTML_BREAK_TAG_PATTERN = /<br\s*\/?>/gi;
+const HTML_TAG_PATTERN = /<[^>]+>/g;
+const HTML_MEDIA_TAG_PATTERN = /<(img|video|audio|iframe|embed)\b/i;
+const HTML_ENTITY_NBSP_PATTERN = /&nbsp;/gi;
+const HTML_OPEN_TAG_PATTERN = /<[a-z][a-z0-9-]*(?:\s[^<>]*?)?>/i;
+const HTML_CLOSE_TAG_PATTERN = /<\/[a-z][a-z0-9-]*\s*>/i;
+const HTML_SELF_CLOSING_TAG_PATTERN = /<[a-z][a-z0-9-]*(?:\s[^<>]*?)?\/>/i;
 
 const markdownImagePattern = /!\[[^\]]*]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
 
@@ -94,7 +101,40 @@ export const extractHtmlImageUrls = (html: string): string[] => {
 };
 
 const isHtmlContent = (content: string): boolean => {
-  return /<[a-z][\s\S]*>/i.test(content);
+  return (
+    HTML_OPEN_TAG_PATTERN.test(content) ||
+    HTML_CLOSE_TAG_PATTERN.test(content) ||
+    HTML_SELF_CLOSING_TAG_PATTERN.test(content)
+  );
+};
+
+const toHtmlTextContent = (content: string) => {
+  return content
+    .replace(HTML_BREAK_TAG_PATTERN, ' ')
+    .replace(HTML_ENTITY_NBSP_PATTERN, ' ')
+    .replace(HTML_TAG_PATTERN, ' ')
+    .trim();
+};
+
+export const normalizeMentorMarkdownContent = (content: unknown): string => {
+  if (typeof content !== 'string') {
+    return '';
+  }
+
+  const trimmed = content.trim();
+  if (!trimmed) {
+    return '';
+  }
+
+  if (!isHtmlContent(trimmed)) {
+    return trimmed;
+  }
+
+  if (HTML_MEDIA_TAG_PATTERN.test(trimmed)) {
+    return trimmed;
+  }
+
+  return toHtmlTextContent(trimmed).length > 0 ? trimmed : '';
 };
 
 export const extractImageUrls = (content: string): string[] => {

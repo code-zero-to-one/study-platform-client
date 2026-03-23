@@ -21,7 +21,7 @@ import swift from 'highlight.js/lib/languages/swift';
 import typescript from 'highlight.js/lib/languages/typescript';
 import xml from 'highlight.js/lib/languages/xml';
 import { marked } from 'marked';
-import { useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 hljs.registerLanguage('kotlin', kotlin);
@@ -47,7 +47,7 @@ hljs.registerLanguage('swift', swift);
 hljs.registerLanguage('dart', dart);
 
 interface MentorMarkdownContentProps {
-  content: string;
+  content: unknown;
   className?: string;
   emptyMessage?: string;
 }
@@ -82,7 +82,9 @@ const SANITIZE_OPTIONS: DOMPurify.Config = {
 const MENTOR_MARKDOWN_IMAGE_MIN_WIDTH = 80;
 const MENTOR_MARKDOWN_IMAGE_MAX_WIDTH = 400;
 
-const parseSanitizedImageWidth = (value: string | null): number | undefined => {
+const parseSanitizedImageWidth = (
+  value: string | undefined,
+): number | undefined => {
   if (!value) {
     return undefined;
   }
@@ -127,7 +129,9 @@ const applyPostSanitizeAttributes = ({
       return;
     }
 
-    const width = parseSanitizedImageWidth(imageElement.getAttribute('width'));
+    const width = parseSanitizedImageWidth(
+      imageElement.getAttribute('width') ?? undefined,
+    );
     if (width === undefined) {
       return;
     }
@@ -170,12 +174,13 @@ const applyPostSanitizeAttributes = ({
   return document.body.innerHTML;
 };
 
-export default function MentorMarkdownContent({
+function MentorMarkdownContent({
   content,
   className,
   emptyMessage = '아직 작성된 소개가 없습니다.',
 }: MentorMarkdownContentProps) {
-  const hasContent = content.trim().length > 0;
+  const normalizedContent = typeof content === 'string' ? content : '';
+  const hasContent = normalizedContent.trim().length > 0;
   const containerRef = useRef<HTMLDivElement>(null);
 
   const sanitizedHtml = useMemo(() => {
@@ -185,10 +190,10 @@ export default function MentorMarkdownContent({
 
     let html: string;
 
-    if (isHtmlContent(content)) {
-      html = content;
+    if (isHtmlContent(normalizedContent)) {
+      html = normalizedContent;
     } else {
-      const rendered = marked.parse(content, {
+      const rendered = marked.parse(normalizedContent, {
         breaks: true,
         gfm: true,
       });
@@ -201,7 +206,7 @@ export default function MentorMarkdownContent({
       originalHtml: html,
       sanitizedHtml: sanitized,
     });
-  }, [content, hasContent]);
+  }, [hasContent, normalizedContent]);
 
   useEffect(() => {
     if (!containerRef.current) {
@@ -249,3 +254,5 @@ export default function MentorMarkdownContent({
     />
   );
 }
+
+export default memo(MentorMarkdownContent);

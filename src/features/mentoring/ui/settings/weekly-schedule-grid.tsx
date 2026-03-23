@@ -1,13 +1,24 @@
 'use client';
 
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { BaseInput } from '@/components/common/ui/input';
 import {
-  addMinutesToTime,
+  createEmptyMentorScheduleDraftErrors,
+  createMentorScheduleTextDrafts,
+  createEmptyWeeklySchedule,
   createHalfHourTimeSlots,
+  EMPTY_MENTOR_SCHEDULE_DRAFT_MESSAGE,
+  getMentorScheduleDraftErrors,
+  MENTOR_SCHEDULE_DRAFT_MAX_LENGTH,
+  normalizeMentorScheduleTextDrafts,
+  parseMentorScheduleTimeRangeText,
+  sortMentorScheduleSlots,
+  toMentorScheduleTextRanges,
 } from '@/features/mentoring/model/mentor-settings';
+import type { MentorRegistrationScheduleDraftState } from '@/types/mentoring/registration-view';
 import {
+  type MentorScheduleTextDrafts,
   WEEKDAY_KEYS,
   WEEKDAY_LABEL_MAP,
   type MentorWeeklySchedule,
@@ -15,36 +26,13 @@ import {
 } from '@/types/mentoring/settings';
 
 interface WeeklyScheduleGridProps {
-  value: MentorWeeklySchedule;
+  value: MentorWeeklySchedule | undefined;
   onChange: (next: MentorWeeklySchedule) => void;
+  initialTextDrafts?: MentorScheduleTextDrafts;
+  onDraftStateChange?: (state: MentorRegistrationScheduleDraftState) => void;
 }
 
 const TIME_SLOTS = createHalfHourTimeSlots();
-
-const sortSlots = (slots: string[]) =>
-  [...slots].sort((a, b) => a.localeCompare(b));
-
-const toTimeRanges = (slots: string[]): string[] => {
-  if (slots.length === 0) return [];
-  const sorted = sortSlots(slots);
-  const ranges: string[] = [];
-  let start = sorted[0];
-  let prev = sorted[0];
-
-  for (let i = 1; i < sorted.length; i++) {
-    const curr = sorted[i];
-    if (addMinutesToTime(prev, 30) === curr) {
-      prev = curr;
-    } else {
-      ranges.push(`${start}~${addMinutesToTime(prev, 30)}`);
-      start = curr;
-      prev = curr;
-    }
-  }
-  ranges.push(`${start}~${addMinutesToTime(prev, 30)}`);
-
-  return ranges;
-};
 
 const getSlotsInRange = (from: string, to: string) =>
   TIME_SLOTS.filter((slot) => slot >= from && slot < to);
@@ -58,11 +46,6 @@ const QUICK_RANGES = [
 const TIME_RANGE_PLACEHOLDER = '예: 09:00~12:00 / 13:30~15:00';
 const TIME_RANGE_BLOCK_PLACEHOLDER = '예: 09:00~12:00';
 const RANGE_DELIMITER = ' / ';
-const RANGE_TOKEN_SPLIT_REGEX = /[,\n/]/;
-const RANGE_TEXT_REGEX = /^(\d{2}:\d{2})\s*[~-]\s*(\d{2}:\d{2}|24:00)$/;
-const TIME_TEXT_REGEX = /^([01]\d|2[0-3]):([0-5]\d)$/;
-const MINUTES_PER_SLOT = 30;
-const DAY_END_MINUTES = 24 * 60;
 
 const DAY_INDEX_MAP = Object.fromEntries(
   WEEKDAY_KEYS.map((day, index) => [day, index]),
@@ -127,109 +110,41 @@ const createWeekdayRecord = <T,>(
   return record;
 };
 
-const buildTimeRangeDrafts = (
-  schedule: MentorWeeklySchedule,
-): Record<WeekdayKey, string[]> =>
-  createWeekdayRecord((day) => {
-    return toTimeRanges(schedule.weekly[day]);
-  });
-
-const createEmptyTimeRangeErrors = (): Record<WeekdayKey, string> =>
-  createWeekdayRecord(() => '');
-
-const parseTimeTextToMinutes = (timeText: string): number | undefined => {
-  if (timeText === '24:00') {
-    return DAY_END_MINUTES;
-  }
-
-  if (!TIME_TEXT_REGEX.test(timeText)) {
-    return undefined;
-  }
-
-  const [hourText, minuteText] = timeText.split(':');
-
-  return Number(hourText) * 60 + Number(minuteText);
-};
-
-const toSlotText = (minutes: number): string => {
-  const hour = Math.floor(minutes / 60);
-  const minute = minutes % 60;
-
-  return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-};
-
-const parseTimeRangeText = (
-  rawValue: string,
-):
-  | { slots: string[]; normalizedText: string }
-  | { error: string; slots?: never; normalizedText?: never } => {
-  const trimmed = rawValue.trim();
-
-  if (trimmed.length === 0) {
-    return { slots: [], normalizedText: '' };
-  }
-
-  const tokens = trimmed
-    .split(RANGE_TOKEN_SPLIT_REGEX)
-    .map((token) => token.trim())
-    .filter((token) => token.length > 0);
-
-  if (tokens.length === 0) {
-    return { slots: [], normalizedText: '' };
-  }
-
-  const slotSet = new Set<string>();
-
-  for (const token of tokens) {
-    const match = token.match(RANGE_TEXT_REGEX);
-
-    if (!match) {
-      return {
-        error: `시간 형식이 올바르지 않아요. ${TIME_RANGE_PLACEHOLDER}`,
-      };
-    }
-
-    const [, startText, endText] = match;
-    const startMinutes = parseTimeTextToMinutes(startText);
-    const endMinutes = parseTimeTextToMinutes(endText);
-
-    if (startMinutes === undefined || endMinutes === undefined) {
-      return {
-        error: `시간은 HH:mm 형식으로 입력해주세요. ${TIME_RANGE_PLACEHOLDER}`,
-      };
-    }
-
-    if (startMinutes >= DAY_END_MINUTES || endMinutes > DAY_END_MINUTES) {
-      return { error: '시간은 00:00~24:00 범위에서 입력해주세요.' };
-    }
-
-    if (
-      startMinutes % MINUTES_PER_SLOT !== 0 ||
-      endMinutes % MINUTES_PER_SLOT !== 0
-    ) {
-      return { error: '시간은 30분 단위(00, 30)로 입력해주세요.' };
-    }
-
-    if (startMinutes >= endMinutes) {
-      return { error: '종료 시간은 시작 시간보다 늦어야 합니다.' };
-    }
-
-    for (
-      let cursor = startMinutes;
-      cursor < endMinutes;
-      cursor += MINUTES_PER_SLOT
-    ) {
-      slotSet.add(toSlotText(cursor));
-    }
-  }
-
-  const slots = sortSlots(Array.from(slotSet));
-
+const createFallbackSchedule = (): MentorWeeklySchedule => {
   return {
-    slots,
-    normalizedText: toTimeRanges(slots).join(RANGE_DELIMITER),
+    timezone: 'Asia/Seoul',
+    slotUnitMinutes: 30,
+    weekly: createEmptyWeeklySchedule(),
   };
 };
+
+const normalizeWeeklySchedule = (
+  value: MentorWeeklySchedule | undefined,
+): MentorWeeklySchedule => {
+  if (!value) {
+    return createFallbackSchedule();
+  }
+
+  return {
+    timezone: value.timezone === 'Asia/Seoul' ? 'Asia/Seoul' : 'Asia/Seoul',
+    slotUnitMinutes: value.slotUnitMinutes === 30 ? 30 : 30,
+    weekly: createWeekdayRecord((day) => {
+      const slots = value.weekly?.[day];
+
+      if (!Array.isArray(slots)) {
+        return [];
+      }
+
+      return sortMentorScheduleSlots(
+        slots.filter((slot): slot is string => typeof slot === 'string'),
+      );
+    }),
+  };
+};
+
+const buildTimeRangeDrafts = (
+  schedule: MentorWeeklySchedule,
+): Record<WeekdayKey, string[]> => createMentorScheduleTextDrafts(schedule);
 
 const areSameSlots = (left: string[], right: string[]) => {
   if (left.length !== right.length) {
@@ -247,31 +162,118 @@ const areSameTextRanges = (left: string[], right: string[]) => {
   return left.every((value, index) => value === right[index]);
 };
 
-function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
+const areSameDraftErrors = (
+  left: Record<WeekdayKey, string>,
+  right: Record<WeekdayKey, string>,
+) => {
+  return WEEKDAY_KEYS.every((day) => left[day] === right[day]);
+};
+
+function WeeklyScheduleGrid({
+  value,
+  onChange,
+  initialTextDrafts,
+  onDraftStateChange,
+}: WeeklyScheduleGridProps) {
+  const normalizedValue = useMemo(
+    () => normalizeWeeklySchedule(value),
+    [value],
+  );
+  const normalizedInitialTextDrafts = useMemo(
+    () => normalizeMentorScheduleTextDrafts(initialTextDrafts, normalizedValue),
+    [initialTextDrafts, normalizedValue],
+  );
+  const normalizedInitialTimeRangeErrors = useMemo(
+    () => getMentorScheduleDraftErrors(normalizedInitialTextDrafts),
+    [normalizedInitialTextDrafts],
+  );
+  const displayedWeekly = normalizedValue.weekly;
   const dragModeRef = useRef<'add' | 'remove' | null>(null);
   const dragLastCellRef = useRef<{ day: WeekdayKey; slot: string } | null>(
     null,
   );
-  const currentValueRef = useRef(value);
+  const currentValueRef = useRef(normalizedValue);
   const [mobileDay, setMobileDay] = useState<WeekdayKey>(WEEKDAY_KEYS[0]);
   const [timeRangeDrafts, setTimeRangeDrafts] = useState<
     Record<WeekdayKey, string[]>
-  >(() => buildTimeRangeDrafts(value));
+  >(() => normalizedInitialTextDrafts);
   const [timeRangeErrors, setTimeRangeErrors] = useState<
     Record<WeekdayKey, string>
-  >(() => createEmptyTimeRangeErrors());
+  >(() => normalizedInitialTimeRangeErrors);
   const containerRef = useRef<HTMLDivElement>(null);
+  const previousIncomingDraftsRef = useRef(normalizedInitialTextDrafts);
+  const previousIncomingErrorsRef = useRef(normalizedInitialTimeRangeErrors);
 
   useEffect(() => {
-    currentValueRef.current = value;
-    setTimeRangeDrafts(buildTimeRangeDrafts(value));
-    setTimeRangeErrors(createEmptyTimeRangeErrors());
-  }, [value]);
+    currentValueRef.current = normalizedValue;
+
+    if (
+      WEEKDAY_KEYS.every((day) =>
+        areSameTextRanges(
+          previousIncomingDraftsRef.current[day],
+          normalizedInitialTextDrafts[day],
+        ),
+      ) &&
+      areSameDraftErrors(
+        previousIncomingErrorsRef.current,
+        normalizedInitialTimeRangeErrors,
+      )
+    ) {
+      return;
+    }
+
+    previousIncomingDraftsRef.current = normalizedInitialTextDrafts;
+    previousIncomingErrorsRef.current = normalizedInitialTimeRangeErrors;
+    setTimeRangeDrafts(normalizedInitialTextDrafts);
+    setTimeRangeErrors(normalizedInitialTimeRangeErrors);
+  }, [
+    normalizedInitialTextDrafts,
+    normalizedInitialTimeRangeErrors,
+    normalizedValue,
+  ]);
+
+  useEffect(() => {
+    if (!onDraftStateChange) {
+      return;
+    }
+
+    onDraftStateChange({
+      drafts: timeRangeDrafts,
+      errors: timeRangeErrors,
+    });
+  }, [onDraftStateChange, timeRangeDrafts, timeRangeErrors]);
 
   const commitSchedule = useCallback(
-    (next: MentorWeeklySchedule) => {
-      currentValueRef.current = next;
-      onChange(next);
+    (
+      next: MentorWeeklySchedule,
+      options?: { syncTextDrafts?: boolean; resetErrors?: boolean },
+    ) => {
+      const normalizedNext = normalizeWeeklySchedule(next);
+      const shouldSyncTextDrafts = options?.syncTextDrafts ?? true;
+      const shouldResetErrors = options?.resetErrors ?? shouldSyncTextDrafts;
+
+      currentValueRef.current = normalizedNext;
+
+      if (shouldSyncTextDrafts) {
+        const nextDrafts = buildTimeRangeDrafts(normalizedNext);
+        setTimeRangeDrafts((prev) =>
+          WEEKDAY_KEYS.every((day) =>
+            areSameTextRanges(prev[day], nextDrafts[day]),
+          )
+            ? prev
+            : nextDrafts,
+        );
+      }
+
+      if (shouldResetErrors) {
+        setTimeRangeErrors((prev) =>
+          WEEKDAY_KEYS.every((day) => prev[day].length === 0)
+            ? prev
+            : createEmptyMentorScheduleDraftErrors(),
+        );
+      }
+
+      onChange(normalizedNext);
     },
     [onChange],
   );
@@ -308,7 +310,7 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
           ...currentSchedule.weekly,
           [day]:
             mode === 'add'
-              ? sortSlots([...daySlots, slot])
+              ? sortMentorScheduleSlots([...daySlots, slot])
               : daySlots.filter((selected) => selected !== slot),
         },
       };
@@ -385,40 +387,21 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
     applyDragPath(day, slot);
   };
 
-  const handleTimeRangeDraftChange = (
-    day: WeekdayKey,
-    blockIndex: number,
-    nextValue: string,
-  ) => {
-    setTimeRangeDrafts((prev) => {
-      const nextDayDrafts = [...prev[day]];
-      nextDayDrafts[blockIndex] = nextValue;
-
-      return {
-        ...prev,
-        [day]: nextDayDrafts,
-      };
-    });
-
-    setTimeRangeErrors((prev) => {
-      if (!prev[day]) {
-        return prev;
-      }
-
-      return {
-        ...prev,
-        [day]: '',
-      };
-    });
-  };
-
-  const applyTimeRangeText = useCallback(
-    (day: WeekdayKey, drafts: string[]) => {
+  const syncTimeRangeText = useCallback(
+    ({
+      day,
+      drafts,
+      normalizeDrafts,
+    }: {
+      day: WeekdayKey;
+      drafts: string[];
+      normalizeDrafts: boolean;
+    }) => {
       const joinedText = drafts
         .map((draft) => draft.trim())
         .filter((draft) => draft.length > 0)
         .join(RANGE_DELIMITER);
-      const parsed = parseTimeRangeText(joinedText);
+      const parsed = parseMentorScheduleTimeRangeText(joinedText);
 
       if ('error' in parsed) {
         setTimeRangeErrors((prev) => ({
@@ -426,7 +409,7 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
           [day]: parsed.error,
         }));
 
-        return;
+        return false;
       }
 
       setTimeRangeErrors((prev) => {
@@ -440,43 +423,74 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
         };
       });
 
-      const normalizedDrafts = toTimeRanges(parsed.slots);
-      const nextDrafts = normalizedDrafts;
+      if (normalizeDrafts) {
+        const nextDrafts = toMentorScheduleTextRanges(parsed.slots);
+        setTimeRangeDrafts((prev) => {
+          if (areSameTextRanges(prev[day], nextDrafts)) {
+            return prev;
+          }
 
-      setTimeRangeDrafts((prev) => {
-        if (areSameTextRanges(prev[day], nextDrafts)) {
-          return prev;
-        }
-
-        return {
-          ...prev,
-          [day]: nextDrafts,
-        };
-      });
-
-      const currentSchedule = currentValueRef.current;
-      const currentSlots = sortSlots(currentSchedule.weekly[day]);
-
-      if (areSameSlots(currentSlots, parsed.slots)) {
-        return;
+          return {
+            ...prev,
+            [day]: nextDrafts,
+          };
+        });
       }
 
-      commitSchedule({
-        ...currentSchedule,
-        weekly: {
-          ...currentSchedule.weekly,
-          [day]: parsed.slots,
+      const currentSchedule = currentValueRef.current;
+      const currentSlots = sortMentorScheduleSlots(currentSchedule.weekly[day]);
+
+      if (areSameSlots(currentSlots, parsed.slots)) {
+        return true;
+      }
+
+      commitSchedule(
+        {
+          ...currentSchedule,
+          weekly: {
+            ...currentSchedule.weekly,
+            [day]: parsed.slots,
+          },
         },
-      });
+        {
+          syncTextDrafts: false,
+          resetErrors: false,
+        },
+      );
       resetDragState();
+
+      return true;
     },
     [commitSchedule, resetDragState],
   );
+
+  const handleTimeRangeDraftChange = (
+    day: WeekdayKey,
+    blockIndex: number,
+    nextValue: string,
+  ) => {
+    const nextDrafts = [...timeRangeDrafts[day]];
+    nextDrafts[blockIndex] = nextValue;
+
+    setTimeRangeDrafts((prev) => ({
+      ...prev,
+      [day]: nextDrafts,
+    }));
+    syncTimeRangeText({
+      day,
+      drafts: nextDrafts,
+      normalizeDrafts: false,
+    });
+  };
 
   const handleAddTimeRangeDraft = (day: WeekdayKey) => {
     setTimeRangeDrafts((prev) => ({
       ...prev,
       [day]: [...prev[day], ''],
+    }));
+    setTimeRangeErrors((prev) => ({
+      ...prev,
+      [day]: EMPTY_MENTOR_SCHEDULE_DRAFT_MESSAGE,
     }));
   };
 
@@ -487,7 +501,11 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
         ...prev,
         [day]: [],
       }));
-      applyTimeRangeText(day, []);
+      syncTimeRangeText({
+        day,
+        drafts: [],
+        normalizeDrafts: true,
+      });
 
       return;
     }
@@ -497,7 +515,11 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
       ...prev,
       [day]: nextDrafts,
     }));
-    applyTimeRangeText(day, nextDrafts);
+    syncTimeRangeText({
+      day,
+      drafts: nextDrafts,
+      normalizeDrafts: true,
+    });
   };
 
   const handleTimeRangeDraftKeyDown = (
@@ -512,7 +534,11 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
     event.preventDefault();
     const nextDrafts = [...timeRangeDrafts[day]];
     nextDrafts[blockIndex] = event.currentTarget.value;
-    applyTimeRangeText(day, nextDrafts);
+    syncTimeRangeText({
+      day,
+      drafts: nextDrafts,
+      normalizeDrafts: true,
+    });
   };
 
   const toggleDay = (day: WeekdayKey) => {
@@ -537,7 +563,7 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
     WEEKDAY_KEYS.forEach((day) => {
       const existing = newWeekly[day];
       const merged = Array.from(new Set([...existing, ...rangeSlots]));
-      newWeekly[day] = sortSlots(merged);
+      newWeekly[day] = sortMentorScheduleSlots(merged);
     });
     commitSchedule({ ...currentSchedule, weekly: newWeekly });
     resetDragState();
@@ -553,7 +579,9 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
     resetDragState();
   };
 
-  const hasAnySlot = WEEKDAY_KEYS.some((day) => value.weekly[day].length > 0);
+  const hasAnySlot = WEEKDAY_KEYS.some(
+    (day) => displayedWeekly[day].length > 0,
+  );
 
   return (
     <div className="space-y-150" ref={containerRef}>
@@ -588,7 +616,7 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
         {/* 요일 탭 */}
         <div className="mb-100 flex gap-50 overflow-x-auto pb-50">
           {WEEKDAY_KEYS.map((day) => {
-            const count = value.weekly[day].length;
+            const count = displayedWeekly[day].length;
 
             return (
               <button
@@ -624,12 +652,12 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
               onClick={() => toggleDay(mobileDay)}
               className={cn(
                 'font-designer-12m',
-                value.weekly[mobileDay].length === TIME_SLOTS.length
+                displayedWeekly[mobileDay].length === TIME_SLOTS.length
                   ? 'text-text-error'
                   : 'text-text-brand',
               )}
             >
-              {value.weekly[mobileDay].length === TIME_SLOTS.length
+              {displayedWeekly[mobileDay].length === TIME_SLOTS.length
                 ? '전체 해제'
                 : '전체 선택'}
             </button>
@@ -639,8 +667,8 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
               const h = String(hour).padStart(2, '0');
               const slot1 = `${h}:00`;
               const slot2 = `${h}:30`;
-              const active1 = value.weekly[mobileDay].includes(slot1);
-              const active2 = value.weekly[mobileDay].includes(slot2);
+              const active1 = displayedWeekly[mobileDay].includes(slot1);
+              const active2 = displayedWeekly[mobileDay].includes(slot2);
 
               return (
                 <div
@@ -688,7 +716,7 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
           <div className="bg-background-alternative border-border-default sticky top-0 z-10 grid grid-cols-[52px_repeat(7,1fr)] border-b">
             <div className="border-border-subtlest border-r" />
             {WEEKDAY_KEYS.map((day) => {
-              const count = value.weekly[day].length;
+              const count = displayedWeekly[day].length;
               const allSelected = count === TIME_SLOTS.length;
 
               return (
@@ -744,7 +772,7 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
                     {slot}
                   </div>
                   {WEEKDAY_KEYS.map((day) => {
-                    const isActive = value.weekly[day].includes(slot);
+                    const isActive = displayedWeekly[day].includes(slot);
 
                     return (
                       <div
@@ -797,12 +825,17 @@ function WeeklyScheduleGrid({ value, onChange }: WeeklyScheduleGridProps) {
                         onBlur={(event) => {
                           const nextDrafts = [...timeRangeDrafts[day]];
                           nextDrafts[blockIndex] = event.currentTarget.value;
-                          applyTimeRangeText(day, nextDrafts);
+                          syncTimeRangeText({
+                            day,
+                            drafts: nextDrafts,
+                            normalizeDrafts: true,
+                          });
                         }}
                         onKeyDown={(event) =>
                           handleTimeRangeDraftKeyDown(day, blockIndex, event)
                         }
                         placeholder={TIME_RANGE_BLOCK_PLACEHOLDER}
+                        maxLength={MENTOR_SCHEDULE_DRAFT_MAX_LENGTH}
                         color={timeRangeErrors[day] ? 'error' : 'default'}
                         className="font-designer-13r h-[36px] py-75"
                       />
@@ -847,7 +880,12 @@ const areWeeklyScheduleGridPropsEqual = (
   prev: WeeklyScheduleGridProps,
   next: WeeklyScheduleGridProps,
 ) => {
-  return prev.value === next.value && prev.onChange === next.onChange;
+  return (
+    prev.value === next.value &&
+    prev.onChange === next.onChange &&
+    prev.initialTextDrafts === next.initialTextDrafts &&
+    prev.onDraftStateChange === next.onDraftStateChange
+  );
 };
 
 export default memo(WeeklyScheduleGrid, areWeeklyScheduleGridPropsEqual);

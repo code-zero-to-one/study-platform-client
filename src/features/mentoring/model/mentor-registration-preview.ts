@@ -1,5 +1,9 @@
+import { buildMentorRequiredStepChecklist } from '@/features/mentoring/model/mentor-public-readiness';
 import {
+  applyMentorScheduleTextDrafts,
   createDefaultMentorSettings,
+  formatMentorCareerEntryPeriodLabel,
+  normalizeMentorCareerEntries,
   toTimeRangeLabel,
   WEEKDAY_KEYS,
 } from '@/features/mentoring/model/mentor-settings';
@@ -11,6 +15,7 @@ import type {
   MentorRegistrationPreviewHighlightSection,
   MentorRegistrationWelcomeChecklistItem,
 } from '@/types/mentoring/registration-view';
+import type { MentorCareerEntry } from '@/types/mentoring/settings';
 import type { MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
 
 export const toSafeInteger = (value: unknown, fallback: number) => {
@@ -33,13 +38,6 @@ export const toDurationMinutes = (
   }
 
   return fallback;
-};
-
-const countScheduleSlots = (values: MentorRegistrationFormValues) => {
-  return Object.values(values.schedule.weekly).reduce(
-    (count, slots) => count + slots.length,
-    0,
-  );
 };
 
 const collectScheduleSlots = (values: MentorRegistrationFormValues) => {
@@ -74,6 +72,45 @@ const isSameWeeklySchedule = (
   return WEEKDAY_KEYS.every((weekdayKey) =>
     isSameStringArray(first.weekly[weekdayKey], second.weekly[weekdayKey]),
   );
+};
+
+const isSameCareerEntries = (
+  first: MentorRegistrationFormValues['careerEntries'],
+  second: MentorRegistrationFormValues['careerEntries'],
+) => {
+  const normalizedFirst = normalizeMentorCareerEntries(first);
+  const normalizedSecond = normalizeMentorCareerEntries(second);
+
+  if (normalizedFirst.length !== normalizedSecond.length) {
+    return false;
+  }
+
+  return normalizedFirst.every((entry: MentorCareerEntry, index: number) => {
+    const target = normalizedSecond[index];
+
+    return (
+      entry.description === target?.description &&
+      entry.isCurrent === target?.isCurrent &&
+      entry.periodEnabled === target?.periodEnabled &&
+      entry.startMonth === target?.startMonth &&
+      entry.endMonth === target?.endMonth
+    );
+  });
+};
+
+const buildCareerHistoryLines = (values: MentorRegistrationFormValues) => {
+  return normalizeMentorCareerEntries(values.careerEntries)
+    .map((entry: MentorCareerEntry) => {
+      const description = entry.description.trim();
+      const periodLabel = formatMentorCareerEntryPeriodLabel(entry);
+
+      if (!description) {
+        return '';
+      }
+
+      return periodLabel ? `${periodLabel} · ${description}` : description;
+    })
+    .filter((entry: string) => entry.length > 0);
 };
 
 const buildMethod = ({
@@ -123,7 +160,9 @@ export const buildPreviewMentorProfile = ({
   displayJobGroup,
   displayJobTitle,
   displayCareer,
-  displayCoreKeywords,
+  displayProfileKeywords,
+  companyName,
+  hideCompanyName,
   imageUrl,
   nickname,
 }: {
@@ -132,120 +171,102 @@ export const buildPreviewMentorProfile = ({
   displayJobGroup: string;
   displayJobTitle: string;
   displayCareer: string;
-  displayCoreKeywords: string[];
+  displayProfileKeywords: string[];
+  companyName: string;
+  hideCompanyName: boolean;
   imageUrl?: string;
   nickname: string;
 }): MentorProfile => {
-  const scheduleSlots = collectScheduleSlots(values);
+  const previewSchedule = applyMentorScheduleTextDrafts({
+    schedule: values.schedule,
+    drafts: values.scheduleDrafts,
+  }).schedule;
+  const previewValues = {
+    ...values,
+    schedule: previewSchedule,
+  };
+  const scheduleSlots = collectScheduleSlots(previewValues);
   const simpleTimeSlots = scheduleSlots.map((slot) =>
     toTimeRangeLabel(slot, 15),
   );
   const deepTimeSlots = scheduleSlots.map((slot) =>
-    toTimeRangeLabel(slot, values.deepDurationMinutes),
+    toTimeRangeLabel(slot, previewValues.deepDurationMinutes),
   );
   const offlineTimeSlots = scheduleSlots.map((slot) =>
-    toTimeRangeLabel(slot, values.offlineDurationMinutes),
+    toTimeRangeLabel(slot, previewValues.offlineDurationMinutes),
   );
-  const company = values.hideCompanyName
-    ? '비공개'
-    : values.companyName.trim() || '소속 비공개';
-  const careerHistoryLine = [company, displayJobTitle, displayCareer]
-    .map((value) => value.trim())
-    .filter((value) => value.length > 0)
-    .join(' · ');
+  const careerEntries = previewValues.careerEntries;
+  const careerHistory = buildCareerHistoryLines(previewValues);
 
   return {
     id: mentorId,
     nickname: nickname.trim() || `멘토${mentorId}`,
     role: displayJobGroup,
     career: displayCareer,
-    company,
+    company: hideCompanyName ? '' : companyName.trim(),
     rating: 0,
     reviewCount: 0,
     mentoringCount: 0,
     menteeCount: 0,
-    tags: displayCoreKeywords,
-    summary: values.appealLine,
-    bio: values.detailedDescription,
-    careerHistory: careerHistoryLine ? [careerHistoryLine] : [],
+    tags: displayProfileKeywords,
+    summary: previewValues.appealLine,
+    bio: previewValues.detailedDescription,
+    careerHistory,
     strengths: [],
     imageUrl: imageUrl?.trim() || undefined,
     methods: {
       note: buildMethod({
         type: 'note',
-        enabled: values.noteEnabled,
-        price: values.notePrice,
+        enabled: previewValues.noteEnabled,
+        price: previewValues.notePrice,
         durationMinutes: 0,
         timeSlots: [],
       }),
       simple: buildMethod({
         type: 'simple',
-        enabled: values.simpleEnabled,
-        price: values.simplePrice,
+        enabled: previewValues.simpleEnabled,
+        price: previewValues.simplePrice,
         durationMinutes: 15,
         timeSlots: simpleTimeSlots,
       }),
       deep: buildMethod({
         type: 'deep',
-        enabled: values.deepEnabled,
-        price: values.deepPrice,
-        durationMinutes: values.deepDurationMinutes,
+        enabled: previewValues.deepEnabled,
+        price: previewValues.deepPrice,
+        durationMinutes: previewValues.deepDurationMinutes,
         timeSlots: deepTimeSlots,
       }),
       offline: buildMethod({
         type: 'offline',
-        enabled: values.offlineEnabled,
-        price: values.offlinePrice,
-        durationMinutes: values.offlineDurationMinutes,
+        enabled: previewValues.offlineEnabled,
+        price: previewValues.offlinePrice,
+        durationMinutes: previewValues.offlineDurationMinutes,
         timeSlots: offlineTimeSlots,
       }),
     },
     reviews: [],
     mentorSettings: {
       ...createDefaultMentorSettings(),
-      ...values,
+      ...previewValues,
       jobGroup: displayJobGroup,
       jobTitle: displayJobTitle,
       careerYears: displayCareer,
-      skillTags: displayCoreKeywords,
-      updatedAt: values.updatedAt,
-      settlementDraft: values.settlementDraft ?? null,
+      careerEntries,
+      skillTags: displayProfileKeywords,
+      companyName: companyName.trim(),
+      hideCompanyName,
+      updatedAt: previewValues.updatedAt,
     },
   };
 };
 
 export const buildWelcomeChecklist = (
-  values: MentorRegistrationFormValues,
+  mentor: MentorProfile,
+  options?: {
+    settlementAccountReady?: boolean;
+  },
 ): MentorRegistrationWelcomeChecklistItem[] => {
-  const realtimeEnabled =
-    values.simpleEnabled || values.deepEnabled || values.offlineEnabled;
-  const scheduleSlots = countScheduleSlots(values);
-  const interviewQuestionCount = values.interviewQuestions.length;
-
-  return [
-    {
-      title: '정산정보 등록 (추후 제공)',
-      description:
-        '정산 기능은 추후 업데이트 예정이며, 오픈 시 별도 안내를 제공할 예정입니다.',
-      done: true,
-    },
-    {
-      title: '실시간 상담 슬롯 오픈',
-      description:
-        realtimeEnabled && scheduleSlots > 0
-          ? `간편/심층/대면 상담 슬롯 ${scheduleSlots}개가 열려 있어요.`
-          : '간편/심층/대면 상담을 열고 가능한 시간을 등록해보세요.',
-      done: realtimeEnabled && scheduleSlots > 0,
-    },
-    {
-      title: '상담 전 준비사항 등록',
-      description:
-        interviewQuestionCount >= 2
-          ? `상담 전 준비사항 ${interviewQuestionCount}개를 등록해 사전 준비를 안내할 수 있어요.`
-          : '상담 전 준비사항을 2개 이상 등록하면 상담 효율이 높아집니다.',
-      done: interviewQuestionCount >= 2,
-    },
-  ];
+  return buildMentorRequiredStepChecklist(mentor, options);
 };
 
 export const getChangedSections = (
@@ -253,6 +274,14 @@ export const getChangedSections = (
   next: MentorRegistrationFormValues,
 ): MentorRegistrationPreviewHighlightSection[] => {
   const changed: MentorRegistrationPreviewHighlightSection[] = [];
+  const prevPreviewSchedule = applyMentorScheduleTextDrafts({
+    schedule: prev.schedule,
+    drafts: prev.scheduleDrafts,
+  }).schedule;
+  const nextPreviewSchedule = applyMentorScheduleTextDrafts({
+    schedule: next.schedule,
+    drafts: next.scheduleDrafts,
+  }).schedule;
 
   if (
     prev.mentoringTitle !== next.mentoringTitle ||
@@ -260,9 +289,9 @@ export const getChangedSections = (
     prev.jobGroup !== next.jobGroup ||
     prev.jobTitle !== next.jobTitle ||
     prev.careerYears !== next.careerYears ||
-    prev.companyCategory !== next.companyCategory ||
     prev.companyName !== next.companyName ||
     prev.hideCompanyName !== next.hideCompanyName ||
+    !isSameCareerEntries(prev.careerEntries, next.careerEntries) ||
     prev.listVisible !== next.listVisible
   ) {
     changed.push('headline');
@@ -291,13 +320,9 @@ export const getChangedSections = (
     prev.offlinePrice !== next.offlinePrice ||
     prev.offlineDurationMinutes !== next.offlineDurationMinutes ||
     prev.maxParticipants !== next.maxParticipants ||
-    !isSameWeeklySchedule(prev.schedule, next.schedule)
+    !isSameWeeklySchedule(prevPreviewSchedule, nextPreviewSchedule)
   ) {
     changed.push('methods');
-  }
-
-  if (prev.preNotice !== next.preNotice) {
-    changed.push('notice');
   }
 
   return changed;
