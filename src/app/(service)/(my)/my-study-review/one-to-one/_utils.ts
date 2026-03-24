@@ -1,21 +1,24 @@
-import type { GroupStudyReviewStatistics } from '@/types/api/group-study-review.types';
+import type {
+  GroupStudyReviewStatistics,
+  GroupStudyReviewStatisticsItem,
+} from '@/types/api/group-study-review.types';
 
 interface ReviewStatisticsProps {
-  id: number;
-  content: string;
+  code: string;
+  label: string;
   count: number;
 }
 
 export function buildEvaluationStatistics(
   positiveKeywords: ReviewStatisticsProps[],
   negativeKeywords: ReviewStatisticsProps[],
-): GroupStudyReviewStatistics {
-  const filterAndMap = (keywords: ReviewStatisticsProps[]) =>
+): Omit<GroupStudyReviewStatistics, 'averageRating' | 'totalCount'> {
+  const filterAndMap = (keywords: ReviewStatisticsProps[]): GroupStudyReviewStatisticsItem[] =>
     keywords
       .filter((keyword) => keyword.count > 0)
       .map((keyword) => ({
-        id: keyword.id,
-        label: keyword.content,
+        code: keyword.code,
+        label: keyword.label,
         count: keyword.count,
       }));
 
