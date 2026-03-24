@@ -30,7 +30,9 @@ export type StudyClassification = (typeof STUDY_CLASSIFICATION)[number];
 const GroupStudyBaseObjectSchema = z.object({
   classification: z.enum(STUDY_CLASSIFICATION),
   // 스터디 리더 참여 여부(1)
-  studyLeaderParticipation: z.boolean('참여 여부를 체크해주세요'),
+  studyLeaderParticipation: z.boolean({
+    error: '참여 여부를 체크해주세요',
+  }),
   // 스터디 유형(1)
   type: z.enum(STUDY_TYPES),
   // 모집 대상(1)
