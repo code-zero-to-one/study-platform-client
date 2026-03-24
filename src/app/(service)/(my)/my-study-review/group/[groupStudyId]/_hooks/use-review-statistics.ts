@@ -22,17 +22,34 @@ export interface ReviewStatistics {
   disappointedItems: GroupedItem[];
 }
 
+const getGroupingKey = (item: SelectableReviewItem) =>
+  item.code ??
+  (item.id ? `id:${item.id}` : undefined) ??
+  item.label ??
+  item.reviewSelection;
+
+const getItemLabel = (item: SelectableReviewItem, fallback: string) =>
+  item.label ?? item.reviewSelection ?? fallback;
+
 function groupItemsByType(
   items: SelectableReviewItem[],
   type: 'GOOD' | 'DISAPPOINTED',
 ): GroupedItem[] {
   const grouped = items
     .filter((item) => item.satisfactionType === type)
-    .reduce<Record<number, GroupedItem>>((acc, item) => {
-      acc[item.id] = {
-        id: item.id,
-        label: item.label ?? '',
-        count: (acc[item.id]?.count ?? 0) + 1,
+    .reduce<Record<string, GroupedItem>>((acc, item) => {
+      const groupingKey = getGroupingKey(item);
+
+      if (!groupingKey) {
+        return acc;
+      }
+
+      const existing = acc[groupingKey];
+
+      acc[groupingKey] = {
+        id: existing?.id ?? item.id ?? Object.keys(acc).length + 1,
+        label: getItemLabel(item, groupingKey),
+        count: (existing?.count ?? 0) + 1,
       };
 
       return acc;
@@ -71,8 +88,7 @@ export function useReviewStatistics(
         : 0;
 
     const allItems = reviewDetails.flatMap(
-      (detail) =>
-        detail.selectableReviewItems?.filter((item) => !!item.id) ?? [],
+      (detail) => detail.selectableReviewItems ?? [],
     );
 
     return {

@@ -127,7 +127,7 @@ export default function ReviewPageContent({
         </div>
 
         <span className="font-designer-14r text-text-subtle">
-          모든 후기는 나에게만 보여요
+          수집된 스터디 후기는 서비스 홍보 및 마케팅을 위해 활용될 수 있습니다.
         </span>
 
         {myReviews.length === 0 ? (
