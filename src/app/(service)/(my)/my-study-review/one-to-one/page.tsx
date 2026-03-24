@@ -9,7 +9,7 @@ import {
 import { buildEvaluationStatistics } from './_utils';
 import CompletedStudyReviewPage from '../_components/completed-study-review-page';
 import StudyReviewTabNav from '../_components/study-review-tab-nav';
-import OneToOneReviewCard from './[studySpaceId]/_components/one-to-one-review-card';
+import OneToOneReviewCard from './_components/one-to-one-review-card';
 import EvaluationSection from '../group/[groupStudyId]/_components/evaluation-section';
 
 export default function OneToOneReviewPage() {
@@ -33,7 +33,7 @@ export default function OneToOneReviewPage() {
     <div className="flex flex-col gap-400">
       <StudyReviewTabNav />
 
-      <EvaluationSection statistics={statistics} studyTypeName="1:1스터디" />
+      <EvaluationSection statistics={statistics} />
 
       <section className="flex flex-col gap-200">
         <div className="flex items-center gap-100">
