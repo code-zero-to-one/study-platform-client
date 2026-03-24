@@ -10,7 +10,7 @@ import { buildEvaluationStatistics } from './_utils';
 import CompletedStudyReviewPage from '../_components/completed-study-review-page';
 import StudyReviewTabNav from '../_components/study-review-tab-nav';
 import OneToOneReviewCard from './_components/one-to-one-review-card';
-import EvaluationSection from '../group/[groupStudyId]/_components/evaluation-section';
+import EvaluationSection from '../group/_components/evaluation-section';
 
 export default function OneToOneReviewPage() {
   const { data: positiveData } = useUserPositiveKeywordsQuery({});
