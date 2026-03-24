@@ -5,10 +5,6 @@ import dayjs from 'dayjs';
 import dynamic from 'next/dynamic';
 import { useMemo, useState } from 'react';
 import { axiosInstance } from '@/api/client/axios';
-import type {
-  GroupStudyBasicInfoResponseDto,
-  GroupStudyDetailInfoResponseDto,
-} from '@/api/openapi';
 import GroupStudyReviewModal from '@/components/common/modals/group-study-review-modal';
 import Pagination from '@/components/common/ui/pagination';
 import { useAuthReady } from '@/hooks/common/use-auth';
@@ -32,6 +28,8 @@ interface CompletedStudyReviewPageProps {
   basePath: string;
   studyType: 'GROUP_STUDY' | 'PREMIUM_STUDY' | 'ONE_ON_ONE_STUDY';
   studyTypeName: string;
+  hideTabNav?: boolean;
+  hideEmptyMessage?: boolean;
 }
 
 interface StudyRoleSectionProps {
@@ -51,10 +49,8 @@ function StudyRoleSection({
 }: StudyRoleSectionProps) {
   return (
     <section className="flex flex-col gap-200">
-      <div className="flex flex-col gap-50">
-        <div className="flex items-center gap-100">
-          <h2 className="font-designer-20b text-text-default">{title}</h2>
-        </div>
+      <div className="flex items-center gap-100">
+        <h2 className="font-designer-20b text-text-default">{title}</h2>
       </div>
 
       {studies.length > 0 ? (
@@ -81,6 +77,8 @@ export default function CompletedStudyReviewPage({
   basePath,
   studyType,
   studyTypeName,
+  hideTabNav = false,
+  hideEmptyMessage = false,
 }: CompletedStudyReviewPageProps) {
   const [page, setPage] = useState(1);
   const [reviewStudy, setReviewStudy] = useState<MemberStudyItem | null>(null);
@@ -162,17 +160,30 @@ export default function CompletedStudyReviewPage({
   };
 
   const activeReviewStudyId = reviewStudy?.studyId;
+
+  const handleSubmitSuccess = () => {
+    if (activeReviewStudyId === undefined) return;
+    setSubmittedStudyIds((prev) =>
+      prev.includes(activeReviewStudyId)
+        ? prev
+        : [...prev, activeReviewStudyId],
+    );
+    setTimeout(() => setShowCompletionModal(true), 300);
+  };
+
   const emptyParticipatedMessage = `아직 참여한 ${studyTypeName}가 없습니다.`;
   const emptyLedMessage = `아직 개설한 ${studyTypeName}가 없습니다.`;
 
   return (
     <div className="flex flex-col gap-400">
-      <StudyReviewTabNav />
+      {!hideTabNav && <StudyReviewTabNav />}
 
       {completedStudies.length === 0 ? (
-        <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
-          {emptyParticipatedMessage}
-        </div>
+        !hideEmptyMessage && (
+          <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
+            {emptyParticipatedMessage}
+          </div>
+        )
       ) : (
         <>
           <StudyRoleSection
@@ -184,7 +195,7 @@ export default function CompletedStudyReviewPage({
           />
 
           <StudyRoleSection
-            title="종료된 스터디"
+            title="운영한 스터디"
             studies={leaderStudies}
             basePath={basePath}
             emptyMessage={emptyLedMessage}
@@ -200,38 +211,7 @@ export default function CompletedStudyReviewPage({
 
       {activeReviewStudyId !== undefined &&
         reviewStudy &&
-        studyType !== 'ONE_ON_ONE_STUDY' && (
-          <GroupStudyReviewModal
-            open={!!reviewStudy}
-            onOpenChange={(open) => {
-              if (!open) {
-                setReviewStudy(null);
-              }
-            }}
-            groupStudyId={activeReviewStudyId}
-            detailInfo={
-              { title: reviewStudy.title } as GroupStudyDetailInfoResponseDto
-            }
-            basicInfo={
-              {
-                startDate: dayjs(reviewStudy.startTime).format('YYYY.MM.DD'),
-                endDate: dayjs(reviewStudy.endTime).format('YYYY.MM.DD'),
-              } as GroupStudyBasicInfoResponseDto
-            }
-            onSubmitSuccess={() => {
-              setSubmittedStudyIds((prev) =>
-                prev.includes(activeReviewStudyId)
-                  ? prev
-                  : [...prev, activeReviewStudyId],
-              );
-              setTimeout(() => setShowCompletionModal(true), 300);
-            }}
-          />
-        )}
-
-      {activeReviewStudyId !== undefined &&
-        reviewStudy &&
-        studyType === 'ONE_ON_ONE_STUDY' && (
+        (studyType === 'ONE_ON_ONE_STUDY' ? (
           <StudyReviewModal
             open={!!reviewStudy}
             onOpenChange={(open) => {
@@ -240,16 +220,25 @@ export default function CompletedStudyReviewPage({
               }
             }}
             targetStudySpaceId={activeReviewStudyId}
-            onSubmitSuccess={() => {
-              setSubmittedStudyIds((prev) =>
-                prev.includes(activeReviewStudyId)
-                  ? prev
-                  : [...prev, activeReviewStudyId],
-              );
-              setTimeout(() => setShowCompletionModal(true), 300);
-            }}
+            onSubmitSuccess={handleSubmitSuccess}
           />
-        )}
+        ) : (
+          <GroupStudyReviewModal
+            open={!!reviewStudy}
+            onOpenChange={(open) => {
+              if (!open) {
+                setReviewStudy(null);
+              }
+            }}
+            groupStudyId={activeReviewStudyId}
+            detailInfo={{ title: reviewStudy.title }}
+            basicInfo={{
+              startDate: dayjs(reviewStudy.startTime).format('YYYY.MM.DD'),
+              endDate: dayjs(reviewStudy.endTime).format('YYYY.MM.DD'),
+            }}
+            onSubmitSuccess={handleSubmitSuccess}
+          />
+        ))}
 
       <StudyCompletionModal
         open={showCompletionModal}

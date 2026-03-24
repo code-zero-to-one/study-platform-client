@@ -62,7 +62,7 @@ export default function GroupStudyReviewDetailPage() {
         aria-label="뒤로가기"
       >
         <ChevronLeft className="text-text-subtle" size={20} />
-        <span className="font-designer-13r text-text-subtle">
+        <span className="text-text-subtle font-designer-14m flex cursor-pointer items-center gap-50 hover:text-text-default">
           그룹 스터디 목록
         </span>
       </button>
@@ -100,7 +100,7 @@ export default function GroupStudyReviewDetailPage() {
             ))}
           </ul>
         ) : (
-          <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center text-center">
+          <div className="flex flex-col font-designer-14r text-text-subtle h-200 items-center justify-center text-center">
             아직 받은 {studyTypeName} 후기가 없습니다.
           </div>
         )}
