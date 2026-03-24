@@ -147,7 +147,10 @@ const parseDate = (s: string) => {
   return new Date(y, m - 1, d);
 };
 
-function buildGroupStudyRefine(startDateMode: 'create' | 'edit') {
+function buildGroupStudyRefine(
+  startDateMode: 'create' | 'edit',
+  originalStartDate?: string,
+) {
   return (data: GroupStudyBaseData, ctx: z.RefinementCtx) => {
     const priceNum = Number(data.price);
     // 프리미엄 스터디: 10,000원 이상 필수
@@ -170,20 +173,23 @@ function buildGroupStudyRefine(startDateMode: 'create' | 'edit') {
     }
 
     if (ISO_DATE_REGEX.test(data.startDate)) {
-      const todayKst = getKoreaDate();
-      const minDate = new Date(todayKst);
-      if (startDateMode === 'create') minDate.setDate(todayKst.getDate() + 1);
-      const minYmd = toYmd(minDate);
+      // edit 모드에서 기존 날짜 그대로 유지하는 경우 → 검증 skip
+      if (!(startDateMode === 'edit' && data.startDate === originalStartDate)) {
+        const todayKst = getKoreaDate();
+        const minDate = new Date(todayKst);
+        if (startDateMode === 'create') minDate.setDate(todayKst.getDate() + 1);
+        const minYmd = toYmd(minDate);
 
-      if (data.startDate < minYmd) {
-        ctx.addIssue({
-          code: 'custom',
-          message:
-            startDateMode === 'create'
-              ? '스터디 시작일은 내일부터 설정할 수 있습니다.'
-              : '스터디 시작일은 오늘 이후부터 설정할 수 있습니다.',
-          path: ['startDate'],
-        });
+        if (data.startDate < minYmd) {
+          ctx.addIssue({
+            code: 'custom',
+            message:
+              startDateMode === 'create'
+                ? '스터디 시작일은 내일부터 설정할 수 있습니다.'
+                : '스터디 시작일은 오늘 이후부터 설정할 수 있습니다.',
+            path: ['startDate'],
+          });
+        }
       }
     }
 
@@ -210,10 +216,12 @@ export const GroupStudyFormSchema = GroupStudyBaseObjectSchema.superRefine(
   buildGroupStudyRefine('create'),
 );
 
-// 스터디 수정용 스키마 (시작일 최소: 오늘 — 기존 스터디의 시작일 유지 허용)
-export const GroupStudyEditFormSchema = GroupStudyBaseObjectSchema.superRefine(
-  buildGroupStudyRefine('edit'),
-);
+// 스터디 수정용 스키마 팩토리 (시작일 최소: 오늘 — 기존 스터디의 시작일 유지 허용)
+export function buildGroupStudyEditFormSchema(originalStartDate?: string) {
+  return GroupStudyBaseObjectSchema.superRefine(
+    buildGroupStudyRefine('edit', originalStartDate),
+  );
+}
 
 // 사진 상태 저장을 위한 로컬용 state
 export type GroupStudyFormValues = z.input<typeof GroupStudyFormSchema> & {

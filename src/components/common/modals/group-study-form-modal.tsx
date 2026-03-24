@@ -6,12 +6,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 
 import type { GroupStudyFullResponseDto } from '@/api/openapi';
 import { Modal } from '@/components/common/ui/modal';
 import GroupStudyForm from '@/components/forms/group-study-form';
+import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useCreateGroupStudyMutation,
@@ -21,8 +22,8 @@ import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verificati
 import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
+  buildGroupStudyEditFormSchema,
   buildOpenGroupDefaultValues,
-  GroupStudyEditFormSchema,
   GroupStudyFormSchema,
   type GroupStudyFormValues,
   type StudyClassification,
@@ -77,6 +78,8 @@ export default function GroupStudyFormModal({
   } = usePhoneVerificationStatus(memberId ?? undefined);
   const [isVerificationModalOpen, setIsVerificationModalOpen] = useState(false);
 
+  const originalStartDateRef = useRef<string | undefined>(undefined);
+
   const createMethods = useForm<GroupStudyFormValues>({
     resolver: zodResolver(GroupStudyFormSchema),
     mode: 'onChange',
@@ -84,7 +87,13 @@ export default function GroupStudyFormModal({
   });
 
   const editMethods = useForm<GroupStudyFormValues>({
-    resolver: zodResolver(GroupStudyEditFormSchema),
+    resolver: (values, context, options) => {
+      const schema = buildGroupStudyEditFormSchema(
+        originalStartDateRef.current,
+      );
+
+      return zodResolver(schema)(values, context, options);
+    },
     mode: 'onChange',
   });
 
@@ -124,8 +133,15 @@ export default function GroupStudyFormModal({
 
   const refineStudyDetail = useCallback(
     (value: GroupStudyFullResponseDto) => {
-      const refinedClassification = (value.basicInfo?.classification ??
-        classification) as StudyClassification;
+      const rawClassification = value.basicInfo?.classification;
+      // 백엔드 normalizeClassification(): PREMIUM_STUDY → MENTOR_STUDY 로 응답 시 자동 변환
+      // 프론트 폼은 PREMIUM_STUDY 를 사용하므로 역매핑
+      const refinedClassification: StudyClassification =
+        rawClassification === 'GROUP_STUDY'
+          ? 'GROUP_STUDY'
+          : rawClassification === 'MENTOR_STUDY'
+            ? 'PREMIUM_STUDY'
+            : classification;
       const originalType = value.basicInfo?.type;
 
       let refinedType = originalType;
@@ -156,11 +172,17 @@ export default function GroupStudyFormModal({
         interviewPost: value.interviewPost?.interviewPost?.map(
           (q: { question?: string }) => q.question,
         ),
-        thumbnailExtension:
-          value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
-            ?.split('.')
-            .pop()
-            ?.toUpperCase() as GroupStudyFormValues['thumbnailExtension'],
+        thumbnailExtension: (() => {
+          const ext =
+            value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
+              ?.split('.')
+              .pop()
+              ?.toUpperCase();
+
+          return (THUMBNAIL_EXTENSION as readonly string[]).includes(ext ?? '')
+            ? (ext as GroupStudyFormValues['thumbnailExtension'])
+            : 'DEFAULT';
+        })(),
         thumbnailUrl:
           value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
       };
@@ -271,6 +293,7 @@ export default function GroupStudyFormModal({
 
   useEffect(() => {
     if (mode === 'edit' && controlledOpen && groupStudyInfo) {
+      originalStartDateRef.current = groupStudyInfo.basicInfo?.startDate;
       editMethods.reset(refineStudyDetail(groupStudyInfo));
     }
   }, [controlledOpen, groupStudyInfo, editMethods, mode, refineStudyDetail]);
@@ -297,10 +320,11 @@ export default function GroupStudyFormModal({
               <GroupStudyForm
                 methods={createMethods}
                 onSubmit={handleSubmitForm}
+                mode="create"
               />
             )}
             {mode === 'edit' && isGroupStudyLoading && (
-              <Modal.Body className="font-designer-16m text-text-subtle py-800 text-center">
+              <Modal.Body className="font-designer-16m text-text-subtle py-700 text-center">
                 스터디 정보를 불러오는 중입니다...
               </Modal.Body>
             )}
@@ -308,6 +332,7 @@ export default function GroupStudyFormModal({
               <GroupStudyForm
                 methods={editMethods}
                 onSubmit={handleSubmitForm}
+                mode="edit"
               />
             )}
           </Modal.Content>

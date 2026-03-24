@@ -13,7 +13,10 @@ import FormField from '@/components/common/ui/form/form-field';
 import { BaseInput } from '@/components/common/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/common/ui/radio';
 import { GroupItems } from '@/components/common/ui/toggle';
-import { useClassification } from '@/components/forms/group-study-form';
+import {
+  useClassification,
+  useMode,
+} from '@/components/forms/group-study-form';
 import {
   STUDY_TYPES,
   ROLE_OPTIONS_UI,
@@ -46,6 +49,7 @@ const memberOptions = Array.from({ length: 20 }, (_, i) => {
 export default function Step1OpenGroupStudy() {
   const { control, formState, watch } = useFormContext<GroupStudyFormValues>();
   const classification = useClassification();
+  const mode = useMode();
   const isPremiumStudy = classification === 'PREMIUM_STUDY';
 
   const { field: typeField } = useController({
@@ -61,6 +65,11 @@ export default function Step1OpenGroupStudy() {
     name: 'method',
     control,
   });
+
+  const startDateMin =
+    mode === 'create'
+      ? formatKoreaYMD(addDays(getKoreaDate(), 1))
+      : formatKoreaYMD(getKoreaDate());
 
   const scrollToNext = useScrollToNextField();
 
@@ -141,9 +150,7 @@ export default function Step1OpenGroupStudy() {
         className="flex flex-col gap-100"
       >
         <div className="flex items-center gap-75">
-          <label className="font-designer-16b text-text-default">
-            진행 방식
-          </label>
+          <span className="font-designer-16b text-text-default">진행 방식</span>
           <span className="font-designer-13r text-text-error">필수</span>
         </div>
         <p className="font-designer-14r text-text-subtle">
@@ -222,9 +229,7 @@ export default function Step1OpenGroupStudy() {
         className="flex flex-col gap-100"
       >
         <div className="flex items-center gap-75">
-          <label className="font-designer-16b text-text-default">
-            진행 기간
-          </label>
+          <span className="font-designer-16b text-text-default">진행 기간</span>
           <span className="font-designer-13r text-text-error">필수</span>
         </div>
         <p className="font-designer-14r text-text-subtle">
@@ -240,7 +245,7 @@ export default function Step1OpenGroupStudy() {
                 type="date"
                 value={field.value}
                 onChange={field.onChange}
-                min={formatKoreaYMD(addDays(getKoreaDate(), 1))}
+                min={startDateMin}
                 max={watch('endDate') || undefined}
               />
             )}
