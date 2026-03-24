@@ -114,6 +114,7 @@ export default function EvaluationSection({
         <EvaluationCard
           title="개선이 필요한 점"
           items={disappointedItems}
+					showToggle
           emptyMessage={emptyMessage}
         />
       </div>
