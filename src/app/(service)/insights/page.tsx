@@ -6,7 +6,7 @@ import {
   fetchArticles,
   fetchCategories,
 } from '@/api/strapi/api/fetch-articles';
-import Banner from '@/components/home/banner';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 export const revalidate = 60;
@@ -27,7 +27,6 @@ export const metadata: Metadata = generateSEOMetadata({
   canonicalUrl: 'https://www.zeroone.it.kr/insights',
 });
 
-// 날짜 포맷팅 함수
 function formatDate(dateString: string): string {
   const date = new Date(dateString);
   const year = date.getFullYear();
@@ -44,37 +43,43 @@ interface BlogPageProps {
 export default async function BlogPage({ searchParams }: BlogPageProps) {
   const { category: selectedCategorySlug } = await searchParams;
 
-  // 카테고리 목록과 아티클 목록을 병렬로 가져오기
-  const [categoriesRes, articlesRes] = await Promise.all([
+  const [categoriesRes, allArticlesRes] = await Promise.all([
     fetchCategories(),
-    fetchArticles(selectedCategorySlug),
+    fetchArticles(),
   ]);
 
   const categories = categoriesRes.data ?? [];
-  const articles = articlesRes.data ?? [];
+  const allArticles = allArticlesRes.data ?? [];
+
+  const articles = selectedCategorySlug
+    ? allArticles.filter((a) => a.category?.slug === selectedCategorySlug)
+    : allArticles;
+
+  const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
+  const recentCategorySlugs = new Set(
+    allArticles
+      .filter((a) => new Date(a.publishedAt) >= threeDaysAgo)
+      .map((a) => a.category?.slug)
+      .filter((slug): slug is string => Boolean(slug)),
+  );
 
   return (
     <div className="mx-auto w-full max-w-[1280px] px-200 py-400 sm:px-300 sm:py-500 xl:px-400 xl:py-600">
       <div className="flex flex-1 flex-col gap-500">
-        {/* 배너 */}
-        <div className="mb-400 sm:mb-600">
-          <Banner />
-        </div>
-
-        <div className="flex justify-between">
+        <div className="mb-300 flex justify-between">
           <span className="font-designer-20b sm:font-designer-28b text-text-strong">
             ZERO-ONE 인사이트
           </span>
         </div>
 
         {/* 카테고리 탭 */}
-        <div className="flex gap-200 overflow-x-auto border-b border-border-default">
+        <div className="flex gap-300 overflow-x-auto border-b border-border-default">
           <Link
             href="/insights"
             className={`shrink-0 whitespace-nowrap px-300 pb-200 transition-colors ${
               !selectedCategorySlug
-                ? 'font-designer-15b border-b-2 border-text-strong text-text-strong'
-                : 'font-designer-15r text-text-subtle hover:text-text-strong'
+                ? 'font-designer-18b border-b-2 border-text-strong text-text-strong'
+                : 'font-designer-18r text-text-subtle hover:text-text-strong'
             }`}
           >
             전체
@@ -83,16 +88,38 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <Link
               key={category.id}
               href={`/insights?category=${category.slug}`}
-              className={`shrink-0 whitespace-nowrap px-300 pb-200 transition-colors ${
+              className={cn(
+                'shrink-0 whitespace-nowrap px-300 pb-200 transition-colors',
                 selectedCategorySlug === category.slug
-                  ? 'font-designer-15b border-b-2 border-text-strong text-text-strong'
-                  : 'font-designer-15r text-text-subtle hover:text-text-strong'
-              }`}
+                  ? 'font-designer-18b border-b-2 border-text-strong text-text-strong'
+                  : 'font-designer-18r text-text-subtle hover:text-text-strong',
+              )}
             >
-              {category.name}
+              <span className="relative">
+                {category.name}
+                {recentCategorySlugs.has(category.slug) && (
+                  <span className="absolute -right-75 -top-50 h-75 w-75 rounded-full bg-pink-500" />
+                )}
+              </span>
             </Link>
           ))}
         </div>
+
+        {/* 카테고리 description 콜아웃 */}
+        {(() => {
+          const description = selectedCategorySlug
+            ? categories.find((c) => c.slug === selectedCategorySlug)
+                ?.description
+            : '🧑‍🍳 카테고리별로 특화된 인사이트들이 준비되어 있어요.';
+
+          return description ? (
+            <div className="flex items-start gap-300 rounded-r-150 border-l-2 border-pink-500 bg-background-accent-pink-subtle px-400 py-300">
+              <p className="font-designer-18r text-text-subtle">
+                {description}
+              </p>
+            </div>
+          ) : null;
+        })()}
 
         {/* 아티클 목록 */}
         {articles.length === 0 ? (
@@ -105,29 +132,23 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                   href={`/insights/${item.slug}`}
                   className="rounded-100 flex w-full cursor-pointer gap-400 border border-solid border-border-default p-300 transition-colors hover:border-border-subtle"
                 >
-                  {/* 왼쪽: 텍스트 콘텐츠 */}
                   <div className="flex flex-1 flex-col justify-between gap-150">
-                    {/* 카테고리 */}
                     {item.category && (
                       <span className="font-designer-13r text-text-subtlest">
                         {item.category.name}
                       </span>
                     )}
-                    {/* 제목 */}
                     <span className="font-designer-18b text-text-default">
                       {item.title}
                     </span>
-                    {/* Description */}
                     <p className="font-designer-15r line-clamp-2 text-text-subtle">
                       {item.description}
                     </p>
-                    {/* 생성일 */}
                     <span className="font-designer-13r text-text-subtlest">
                       {formatDate(item.createdAt)}
                     </span>
                   </div>
 
-                  {/* 오른쪽: 커버 이미지 */}
                   {item.cover?.url && (
                     <div className="rounded-100 relative h-[80px] w-[80px] flex-shrink-0 overflow-hidden sm:h-[120px] sm:w-[120px]">
                       <Image
