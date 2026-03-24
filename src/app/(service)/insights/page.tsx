@@ -114,7 +114,9 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
           return description ? (
             <div className="flex items-start gap-300 rounded-r-150 border-l-2 border-pink-500 bg-background-accent-pink-subtle px-400 py-300">
-              <p className="font-designer-18r text-text-subtle">{description}</p>
+              <p className="font-designer-18r text-text-subtle">
+                {description}
+              </p>
             </div>
           ) : null;
         })()}

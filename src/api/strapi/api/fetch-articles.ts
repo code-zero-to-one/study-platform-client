@@ -63,11 +63,15 @@ const CATEGORY_SLUG_ORDER = [
   'patch-note',
 ];
 
-// 전체 아티클 목록 조회 (최신 publishedAt 내림차순)
-export async function fetchArticles() {
+// 전체 아티클 목록 조회 (최신 publishedAt 내림차순, 카테고리 slug로 필터링 가능)
+export async function fetchArticles(categorySlug?: string) {
   const query = new URLSearchParams();
   query.append('populate', '*');
   query.append('sort', 'publishedAt:desc');
+
+  if (categorySlug) {
+    query.append('filters[category][slug][$eq]', categorySlug);
+  }
 
   return strapiFetch<StrapiCollectionResponse<Article>>(
     `/api/articles?${query.toString()}`,
@@ -85,6 +89,7 @@ export async function fetchCategories() {
     const bi = CATEGORY_SLUG_ORDER.indexOf(b.slug);
     const aOrder = ai === -1 ? Infinity : ai;
     const bOrder = bi === -1 ? Infinity : bi;
+
     return aOrder - bOrder;
   });
 

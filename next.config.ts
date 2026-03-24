@@ -30,7 +30,7 @@ const nextConfig: NextConfig = {
       `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms https://js.tosspayments.com https://browser.sentry-cdn.com${isDev ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
       // 카카오·구글 프로필 이미지, 자사 API/CMS 이미지 도메인 허용
-      "img-src 'self' data: blob: https://img1.kakaocdn.net https://lh3.googleusercontent.com https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.zeroone.it.kr https://test-blog.zeroone.it.kr",
+      "img-src 'self' data: blob: https://img1.kakaocdn.net https://lh3.googleusercontent.com https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.zeroone.it.kr https://test-blog.zeroone.it.kr https://blog.zeroone.it.kr",
       // API, GA, Clarity, 토스, 카카오/구글 OAuth 연결 허용. 개발에서는 HMR WebSocket 추가.
       `connect-src 'self' https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.google-analytics.com https://www.clarity.ms https://api.tosspayments.com https://kauth.kakao.com https://accounts.google.com https://*.ingest.sentry.io${isDev ? ' ws://localhost:*' : ''}`,
       // 토스 결제창 iframe 허용
@@ -118,7 +118,7 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'blog.zeroone.it.kr', 
+        hostname: 'blog.zeroone.it.kr',
         pathname: '/uploads/**',
       },
     ],
