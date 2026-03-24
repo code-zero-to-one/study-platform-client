@@ -1,0 +1,223 @@
+import { normalizeMentorProfileKeywordValues } from '@/features/mentoring/model/mentor-registration-keywords';
+import type { MentorRegistrationOptions } from '@/types/mentoring/registration-options';
+import type { MentorApiContractScope } from './mentor-api-contract';
+import {
+  requireArray,
+  requireNonEmptyString,
+  requireObject,
+  toContractError,
+} from './mentor-api-contract';
+import type {
+  MentorCoreKeywordRequestDto,
+  MentorSavedCoreKeywordResponseDto,
+} from './mentor-api.types';
+
+export interface MentorCoreKeywordSnapshot {
+  type: 'PREDEFINED' | 'CUSTOM';
+  code?: string;
+  label: string;
+}
+
+const normalizeSavedCoreKeywordType = ({
+  value,
+  scope,
+  field,
+}: {
+  value: unknown;
+  scope: MentorApiContractScope;
+  field: string;
+}): NonNullable<MentorSavedCoreKeywordResponseDto['type']> => {
+  if (value === 'PREDEFINED' || value === 'CUSTOM') {
+    return value;
+  }
+
+  throw toContractError({
+    scope,
+    field,
+    causeData: value,
+  });
+};
+
+export const requireMentorCoreKeywordFormValues = ({
+  value,
+  scope,
+  field,
+}: {
+  value: unknown;
+  scope: MentorApiContractScope;
+  field: string;
+}) => {
+  const keywords = requireArray<unknown>({
+    value,
+    scope,
+    field,
+  });
+
+  return keywords.map((item, index) => {
+    const keyword = requireObject<MentorSavedCoreKeywordResponseDto>({
+      value: item,
+      scope,
+      field: `${field}[${index}]`,
+    });
+    const type = normalizeSavedCoreKeywordType({
+      value: keyword.type,
+      scope,
+      field: `${field}[${index}].type`,
+    });
+
+    if (type === 'PREDEFINED') {
+      return requireNonEmptyString({
+        value: keyword.code,
+        scope,
+        field: `${field}[${index}].code`,
+      });
+    }
+
+    return requireNonEmptyString({
+      value: keyword.label,
+      scope,
+      field: `${field}[${index}].label`,
+    });
+  });
+};
+
+export const requireMentorCoreKeywordSnapshots = ({
+  value,
+  scope,
+  field,
+}: {
+  value: unknown;
+  scope: MentorApiContractScope;
+  field: string;
+}): MentorCoreKeywordSnapshot[] => {
+  const keywords = requireArray<unknown>({
+    value,
+    scope,
+    field,
+  });
+
+  return keywords.map((item, index) => {
+    const keyword = requireObject<MentorSavedCoreKeywordResponseDto>({
+      value: item,
+      scope,
+      field: `${field}[${index}]`,
+    });
+    const type = normalizeSavedCoreKeywordType({
+      value: keyword.type,
+      scope,
+      field: `${field}[${index}].type`,
+    });
+    const label = requireNonEmptyString({
+      value: keyword.label,
+      scope,
+      field: `${field}[${index}].label`,
+    });
+
+    if (type === 'PREDEFINED') {
+      return {
+        type,
+        code: requireNonEmptyString({
+          value: keyword.code,
+          scope,
+          field: `${field}[${index}].code`,
+        }),
+        label,
+      };
+    }
+
+    return {
+      type,
+      label,
+    };
+  });
+};
+
+export const requireMentorCoreKeywordLabels = ({
+  value,
+  scope,
+  field,
+}: {
+  value: unknown;
+  scope: MentorApiContractScope;
+  field: string;
+}) => {
+  const keywords = requireArray<unknown>({
+    value,
+    scope,
+    field,
+  });
+
+  return keywords.map((item, index) => {
+    const keyword = requireObject<MentorSavedCoreKeywordResponseDto>({
+      value: item,
+      scope,
+      field: `${field}[${index}]`,
+    });
+
+    normalizeSavedCoreKeywordType({
+      value: keyword.type,
+      scope,
+      field: `${field}[${index}].type`,
+    });
+
+    return requireNonEmptyString({
+      value: keyword.label,
+      scope,
+      field: `${field}[${index}].label`,
+    });
+  });
+};
+
+export const buildMentorCoreKeywordRequests = ({
+  profileKeywords,
+  registrationOptions,
+  persistedPredefinedCoreKeywords = [],
+}: {
+  profileKeywords: string[];
+  registrationOptions: MentorRegistrationOptions;
+  persistedPredefinedCoreKeywords?: ReadonlyArray<{
+    code: string;
+    label: string;
+  }>;
+}): MentorCoreKeywordRequestDto[] => {
+  const normalizedProfileKeywords = normalizeMentorProfileKeywordValues({
+    profileKeywords,
+    registrationOptions,
+    persistedPredefinedCoreKeywords,
+  });
+  const predefinedCodeMap = new Map(
+    registrationOptions.selectableCoreKeywords.map((keyword) => [
+      keyword.code.trim().toLowerCase(),
+      keyword.code,
+    ]),
+  );
+  persistedPredefinedCoreKeywords.forEach((keyword) => {
+    const normalizedCode = keyword.code.trim().toLowerCase();
+
+    if (!predefinedCodeMap.has(normalizedCode)) {
+      predefinedCodeMap.set(normalizedCode, keyword.code);
+    }
+  });
+
+  return normalizedProfileKeywords.flatMap<MentorCoreKeywordRequestDto>(
+    (profileKeyword) => {
+      const predefinedCode = predefinedCodeMap.get(
+        profileKeyword.trim().toLowerCase(),
+      );
+
+      return predefinedCode
+        ? [
+            {
+              type: 'PREDEFINED',
+              code: predefinedCode,
+            },
+          ]
+        : [
+            {
+              type: 'CUSTOM',
+              label: profileKeyword,
+            },
+          ];
+    },
+  );
+};

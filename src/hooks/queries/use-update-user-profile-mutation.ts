@@ -1,6 +1,7 @@
-import { useMutation, useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { axiosInstanceV2 } from '@/api/client/axiosV2';
+import { mentorDirectoryQueryKeys } from '@/features/mentoring/model/mentor-directory-query-keys';
 import type {
   AvailableStudyTimeResponse,
   CareerResponse,
@@ -17,6 +18,7 @@ import type {
 
 export const useUpdateUserProfileMutation = (memberId: number) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationKey: ['updateUserProfile', memberId],
@@ -31,7 +33,10 @@ export const useUpdateUserProfileMutation = (memberId: number) => {
       return res.data.content;
     },
 
-    onSuccess: () => {
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: mentorDirectoryQueryKeys.all,
+      });
       router.refresh();
     },
   });

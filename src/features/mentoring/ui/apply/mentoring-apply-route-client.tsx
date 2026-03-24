@@ -1,15 +1,18 @@
 'use client';
 
 import { ApiError } from '@/api/client/api-error';
-import { getEnabledMentoringMethods } from '@/features/mentoring/model/mentor-profile-utils';
+import {
+  getMentorPublicReadiness,
+  MENTOR_APPLY_UNSUPPORTED_MESSAGE,
+} from '@/features/mentoring/model/mentor-public-readiness';
 import { useMentorDetailQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
-import MentoringApplyPage from './mentoring-apply-page';
 import {
   MentorNotFoundState,
   MentorRouteErrorState,
   MentorRouteLoading,
+  MentorRouteUnavailableState,
 } from '../detail/mentor-route-fallback';
 
 interface MentoringApplyRouteClientProps {
@@ -19,7 +22,6 @@ interface MentoringApplyRouteClientProps {
 
 export default function MentoringApplyRouteClient({
   mentorId,
-  selectedType,
 }: MentoringApplyRouteClientProps) {
   const { showToast } = useToastStore();
   const mentorDetailQuery = useMentorDetailQuery(mentorId);
@@ -62,19 +64,25 @@ export default function MentoringApplyRouteClient({
     return <MentorNotFoundState />;
   }
 
-  const enabledMethods = getEnabledMentoringMethods(mentor);
+  const publicReadiness = getMentorPublicReadiness(mentor);
 
-  if (enabledMethods.length === 0) {
+  if (!publicReadiness.isApplicationReady) {
     return (
-      <MentorNotFoundState message="현재 신청 가능한 멘토링 방식이 없습니다." />
+      <MentorRouteUnavailableState
+        title={publicReadiness.applyUnavailableTitle}
+        message={publicReadiness.applyUnavailableMessage}
+        ctaHref={`/mentoring/${mentor.id}`}
+        ctaLabel="상세로 돌아가기"
+      />
     );
   }
 
-  const fallbackType = enabledMethods[0];
-  const resolvedType = selectedType ?? fallbackType;
-  const finalType = enabledMethods.includes(resolvedType)
-    ? resolvedType
-    : fallbackType;
-
-  return <MentoringApplyPage mentor={mentor} selectedMethod={finalType} />;
+  return (
+    <MentorRouteUnavailableState
+      title={MENTOR_APPLY_UNSUPPORTED_MESSAGE}
+      message="멘토 상세에서 공개 상태만 확인할 수 있으며, 신청 접수는 추후 지원될 예정입니다."
+      ctaHref={`/mentoring/${mentor.id}`}
+      ctaLabel="상세로 돌아가기"
+    />
+  );
 }

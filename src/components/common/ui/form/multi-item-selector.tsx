@@ -10,6 +10,7 @@ import { BaseInput } from '../input';
 interface Props {
   value?: string[];
   maxSelectable?: number;
+  maxCustomLength?: number;
   onChange?: (updated: string[]) => void;
   options?: Array<string | { value: string; label: string }>;
   // 대소문자 구분
@@ -21,6 +22,7 @@ export default function SelectableTagsInput({
   value,
   onChange,
   maxSelectable = 4,
+  maxCustomLength,
   options = [],
   caseSensitive = false,
   allowCustom = true,
@@ -82,6 +84,12 @@ export default function SelectableTagsInput({
 
   const emit = useCallback((next: string[]) => onChange?.(next), [onChange]);
 
+  const closeCustomInput = useCallback(() => {
+    setShowInput(false);
+    setCustomInput('');
+    setIsLimitExceeded(false);
+  }, []);
+
   const toggleItem = useCallback(
     (key: string) => {
       const k = caseSensitive ? key : key.toLowerCase();
@@ -105,9 +113,12 @@ export default function SelectableTagsInput({
 
   const addCustom = useCallback(() => {
     const trimmed = customInput.trim();
-    if (!allowCustom || !trimmed) return;
+    const nextCustomTag = maxCustomLength
+      ? trimmed.slice(0, maxCustomLength)
+      : trimmed;
+    if (!allowCustom || !nextCustomTag) return;
 
-    const key = caseSensitive ? trimmed : trimmed.toLowerCase();
+    const key = caseSensitive ? nextCustomTag : nextCustomTag.toLowerCase();
     if (selectedSet.has(key)) return;
     if (!canAddMore) {
       setIsLimitExceeded(true);
@@ -115,12 +126,13 @@ export default function SelectableTagsInput({
       return;
     }
 
-    emit([...selected, trimmed]);
+    emit([...selected, nextCustomTag]);
     setCustomInput('');
     setIsLimitExceeded(false);
   }, [
     allowCustom,
     customInput,
+    maxCustomLength,
     caseSensitive,
     selectedSet,
     canAddMore,
@@ -134,11 +146,10 @@ export default function SelectableTagsInput({
         e.preventDefault();
         addCustom();
       } else if (e.key === 'Escape') {
-        setShowInput(false);
-        setCustomInput('');
+        closeCustomInput();
       }
     },
-    [addCustom],
+    [addCustom, closeCustomInput],
   );
 
   return (
@@ -169,14 +180,16 @@ export default function SelectableTagsInput({
         {customTags.map((item) => (
           <div
             key={item}
-            className="rounded-150 border-border-brand bg-fill-brand-subtle-default font-designer-13m text-text-brand flex items-center gap-75 border px-150 py-75"
+            className="rounded-150 border-border-brand bg-fill-brand-subtle-default font-designer-13m text-text-brand flex min-w-0 max-w-full items-center gap-75 border px-150 py-75"
           >
-            {item}
+            <span className="min-w-0 truncate" title={item}>
+              {item}
+            </span>
             <button
               type="button"
               onClick={() => removeCustomTag(item)}
               aria-label={`${item} 제거`}
-              className="text-text-brand ml-50 hover:opacity-70"
+              className="text-text-brand ml-50 shrink-0 hover:opacity-70"
             >
               ✕
             </button>
@@ -188,8 +201,16 @@ export default function SelectableTagsInput({
             type="button"
             color="secondary"
             size="small"
-            onClick={() => setShowInput(true)}
-            disabled={!canAddMore}
+            onClick={() => {
+              if (showInput) {
+                closeCustomInput();
+
+                return;
+              }
+
+              setShowInput(true);
+            }}
+            disabled={!canAddMore && !showInput}
             aria-expanded={showInput}
             aria-controls="custom-tag-input"
           >
@@ -201,13 +222,14 @@ export default function SelectableTagsInput({
       {allowCustom && showInput && (
         <div
           id="custom-tag-input"
-          className="rounded-150 border-border-default bg-background mt-10 flex items-center gap-100 border px-150"
+          className="rounded-150 border-border-default bg-background-default mt-100 flex flex-col gap-100 border px-150 py-100 sm:flex-row sm:items-center sm:gap-100"
         >
           <BaseInput
             ref={inputRef}
             type="text"
             appearance="bare"
-            className="flex-1"
+            size="m"
+            className="min-w-0 flex-1"
             placeholder={
               canAddMore
                 ? 'IT, Back-end, AI'
@@ -216,23 +238,36 @@ export default function SelectableTagsInput({
             color={canAddMore ? 'default' : 'error'}
             disabled={!canAddMore}
             value={customInput}
-            onChange={(e) => setCustomInput(e.target.value)}
+            maxLength={maxCustomLength}
+            onChange={(e) =>
+              setCustomInput(
+                maxCustomLength
+                  ? e.target.value.slice(0, maxCustomLength)
+                  : e.target.value,
+              )
+            }
             onKeyDown={handleCustomKeyDown}
           />
-          <Button type="button" onClick={addCustom} disabled={!canAddMore}>
-            추가
-          </Button>
-          <Button
-            type="button"
-            color="secondary"
-            onClick={() => {
-              setShowInput(false);
-              setCustomInput('');
-              setIsLimitExceeded(false);
-            }}
-          >
-            취소
-          </Button>
+          <div className="flex w-full shrink-0 items-center justify-end gap-75 sm:w-auto">
+            <Button
+              type="button"
+              onClick={addCustom}
+              disabled={!canAddMore}
+              size="small"
+              className="shrink-0 whitespace-nowrap"
+            >
+              추가
+            </Button>
+            <Button
+              type="button"
+              color="secondary"
+              size="small"
+              className="shrink-0 whitespace-nowrap"
+              onClick={closeCustomInput}
+            >
+              취소
+            </Button>
+          </div>
         </div>
       )}
 

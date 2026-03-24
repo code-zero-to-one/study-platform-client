@@ -6,6 +6,8 @@ interface ReviewStarsProps {
 }
 
 export default function ReviewStars({ rating }: ReviewStarsProps) {
+  const roundedRating = Math.max(0, Math.min(5, Math.round(rating)));
+
   return (
     <div className="flex items-center gap-50">
       {Array.from({ length: 5 }).map((_, index) => {
@@ -16,7 +18,7 @@ export default function ReviewStars({ rating }: ReviewStarsProps) {
             key={score}
             className={cn(
               'h-14 w-14 shrink-0',
-              score <= rating
+              score <= roundedRating
                 ? 'text-text-warning fill-current'
                 : 'text-icon-disabled fill-current',
             )}

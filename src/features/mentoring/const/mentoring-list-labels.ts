@@ -5,7 +5,7 @@ export const MENTORING_LIST_LABELS = {
   joinTitle: '멘토로 합류하세요',
   joinDescription: '실무 경험으로 멘티의 커리어 방향을 잡아주세요.',
   joinMeta: '1:1 멘토링 · 일정 기반 운영',
-  joinCta: '멘토 등록하기',
+  joinCta: '개발자 등록하기',
   joinMethods: ['쪽지상담', '간편상담', '심층상담', '대면상담'] as const,
   recruitCaption: '멘토 모집 중',
 } as const;

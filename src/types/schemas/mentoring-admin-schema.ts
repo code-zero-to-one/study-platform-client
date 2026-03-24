@@ -36,26 +36,27 @@ const mentorOperationStatusSchema = z.enum([
   'REQUESTS_PAUSED',
   'SUSPENDED',
 ]);
-const mentorSettlementPayerTypeSchema = z.enum([
-  'INDIVIDUAL',
-  'BUSINESS',
-  'OVERSEAS',
-]);
-
 const mentorSettingsSummarySchema = z
   .object({
     contactCountryCode: z.string().optional(),
     contactPhone: z.string().optional(),
-    contactEmail: z.string().optional(),
     categories: z.array(z.string()).optional(),
     mentoringTitle: z.string().optional(),
     jobGroup: z.string().optional(),
     jobTitle: z.string().optional(),
     careerYears: z.string().optional(),
+    careerEntries: z
+      .array(
+        z.object({
+          description: z.string().optional(),
+          isCurrent: z.boolean().optional(),
+          periodEnabled: z.boolean().optional(),
+          startMonth: z.string().optional(),
+          endMonth: z.string().optional(),
+        }),
+      )
+      .optional(),
     skillTags: z.array(z.string()).optional(),
-    companyCategory: z.string().optional(),
-    companyName: z.string().optional(),
-    hideCompanyName: z.boolean().optional(),
     maxParticipants: z.number().optional(),
     noteEnabled: z.boolean().optional(),
     notePrice: z.number().optional(),
@@ -71,17 +72,6 @@ const mentorSettingsSummarySchema = z
       .object({
         weekly: z.record(z.string(), z.array(z.string())),
       })
-      .optional(),
-    settlementDraft: z
-      .object({
-        payerType: mentorSettlementPayerTypeSchema.optional(),
-        contractName: z.string().optional(),
-        accountHolder: z.string().optional(),
-        bankCode: z.string().optional(),
-        accountNumber: z.string().optional(),
-        verified: z.boolean(),
-      })
-      .nullable()
       .optional(),
     detailedDescription: z.string().optional(),
     interviewQuestions: z.array(z.string()).optional(),

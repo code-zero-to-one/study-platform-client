@@ -1,7 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
-import { toTimeRangeLabel } from '@/features/mentoring/model/mentor-settings';
+import {
+  formatMentorCareerEntryPeriodLabel,
+  normalizeMentorCareerEntries,
+  toTimeRangeLabel,
+} from '@/features/mentoring/model/mentor-settings';
 import type {
   MentorProfile,
   MentoringMethodOption,
@@ -35,10 +39,49 @@ type PersistedMentorDirectoryState = Pick<
 const MIN_GENERATED_MENTOR_ID = 1;
 const INITIAL_MENTOR_ID = MIN_GENERATED_MENTOR_ID;
 
+const GENERATED_WELCOME_REVIEW_CONTENT =
+  '새로 등록된 멘토입니다. 첫 멘토링을 통해 리뷰를 쌓아보세요.';
+
+const sanitizeMentorSettingsForDirectoryPersistence = (
+  settings: MentorSettings,
+): MentorSettings => {
+  return {
+    ...settings,
+    contactCountryCode: settings.contactCountryCode,
+    contactPhone: '',
+    contactEmail: '',
+    companyName: '',
+    hideCompanyName: true,
+    preNotice: '',
+  };
+};
+
+const isGeneratedWelcomeReview = (
+  mentorId: number,
+  review: MentorProfile['reviews'][number],
+) => {
+  return (
+    review.id === mentorId * 10 &&
+    review.authorName === 'ZERO-ONE' &&
+    review.content === GENERATED_WELCOME_REVIEW_CONTENT
+  );
+};
+
 const normalizePersistedMentor = (mentor: MentorProfile): MentorProfile => {
+  const mentorSettings = sanitizeMentorSettingsForDirectoryPersistence(
+    getMentorSettings(mentor),
+  );
+  const reviews =
+    mentor.reviewCount === 0 && mentor.rating === 0
+      ? mentor.reviews.filter(
+          (review) => !isGeneratedWelcomeReview(mentor.id, review),
+        )
+      : mentor.reviews;
+
   return {
     ...mentor,
-    mentorSettings: getMentorSettings(mentor),
+    reviews,
+    mentorSettings,
   };
 };
 
@@ -130,15 +173,26 @@ const createMentoringMethodOption = ({
 };
 
 const buildCareerHistory = (formValues: MentorRegistrationFormValues) => {
-  const trimmedCompanyName = formValues.companyName.trim();
-  const companyLabel =
-    formValues.hideCompanyName || trimmedCompanyName === ''
-      ? '소속 비공개'
-      : trimmedCompanyName;
-  const roleLabel = formValues.jobTitle || formValues.jobGroup || '직무 미입력';
-  const careerLabel = formValues.careerYears || '경력 미입력';
+  const structuredCareerHistory = normalizeMentorCareerEntries(
+    formValues.careerEntries,
+  )
+    .map((entry: MentorRegistrationFormValues['careerEntries'][number]) => {
+      const description = entry.description.trim();
+      const periodLabel = formatMentorCareerEntryPeriodLabel(entry);
 
-  return [`${companyLabel} · ${roleLabel} · ${careerLabel}`];
+      if (!description) {
+        return '';
+      }
+
+      return periodLabel ? `${periodLabel} · ${description}` : description;
+    })
+    .filter((entry: string) => entry.length > 0);
+
+  if (structuredCareerHistory.length > 0) {
+    return structuredCareerHistory;
+  }
+
+  return [];
 };
 
 export const createMentorProfileFromRegistration = (
@@ -147,12 +201,6 @@ export const createMentorProfileFromRegistration = (
   nowIso: string,
   profileImageUrl?: string,
 ): MentorProfile => {
-  const trimmedCompanyName = formValues.companyName.trim();
-  const company = formValues.hideCompanyName
-    ? '비공개'
-    : trimmedCompanyName === ''
-      ? '소속 비공개'
-      : trimmedCompanyName;
   const skillTags = formValues.skillTags;
   const simpleTimeRanges = makeMethodTimeRanges(formValues, 15);
   const deepTimeRanges = makeMethodTimeRanges(
@@ -164,36 +212,36 @@ export const createMentorProfileFromRegistration = (
     formValues.offlineDurationMinutes,
   );
   const normalizedSettings: MentorSettings = {
-    contactCountryCode: formValues.contactCountryCode ?? '+82',
-    contactPhone: formValues.contactPhone ?? '',
-    contactEmail: formValues.contactEmail ?? '',
+    contactCountryCode: formValues.contactCountryCode,
+    contactPhone: formValues.contactPhone,
+    contactEmail: formValues.contactEmail,
     categories: formValues.categories ?? [],
     mentoringTitle: formValues.mentoringTitle ?? '',
     appealLine: formValues.appealLine ?? '',
     jobGroup: formValues.jobGroup ?? '',
     jobTitle: formValues.jobTitle ?? '',
     careerYears: formValues.careerYears ?? '',
+    careerEntries: formValues.careerEntries ?? [],
     skillTags: formValues.skillTags ?? [],
     companyCategory: formValues.companyCategory ?? '기타',
     companyName: formValues.companyName ?? '',
-    hideCompanyName: formValues.hideCompanyName ?? false,
+    hideCompanyName: formValues.hideCompanyName ?? true,
     listVisible: formValues.listVisible ?? true,
     maxParticipants: formValues.maxParticipants ?? 1,
-    noteEnabled: formValues.noteEnabled ?? true,
-    notePrice: formValues.notePrice ?? 5000,
-    simpleEnabled: formValues.simpleEnabled ?? true,
-    simplePrice: formValues.simplePrice ?? 15000,
-    deepEnabled: formValues.deepEnabled ?? true,
-    deepPrice: formValues.deepPrice ?? 30000,
+    noteEnabled: formValues.noteEnabled ?? false,
+    notePrice: formValues.notePrice ?? 0,
+    simpleEnabled: formValues.simpleEnabled ?? false,
+    simplePrice: formValues.simplePrice ?? 0,
+    deepEnabled: formValues.deepEnabled ?? false,
+    deepPrice: formValues.deepPrice ?? 0,
     deepDurationMinutes: formValues.deepDurationMinutes ?? 60,
     offlineEnabled: formValues.offlineEnabled ?? false,
-    offlinePrice: formValues.offlinePrice ?? 100000,
+    offlinePrice: formValues.offlinePrice ?? 0,
     offlineDurationMinutes: formValues.offlineDurationMinutes ?? 60,
     schedule: formValues.schedule,
+    preNotice: formValues.preNotice ?? '',
     detailedDescription: formValues.detailedDescription ?? '',
     interviewQuestions: formValues.interviewQuestions ?? [],
-    preNotice: formValues.preNotice ?? '',
-    settlementDraft: formValues.settlementDraft ?? null,
     updatedAt: nowIso,
   };
 
@@ -202,7 +250,10 @@ export const createMentorProfileFromRegistration = (
     nickname: `멘토${mentorId}`,
     role: formValues.jobGroup,
     career: formValues.careerYears,
-    company,
+    company:
+      formValues.hideCompanyName || !formValues.companyName?.trim()
+        ? ''
+        : formValues.companyName.trim(),
     rating: 0,
     reviewCount: 0,
     mentoringCount: 0,
@@ -243,16 +294,7 @@ export const createMentorProfileFromRegistration = (
         timeRanges: offlineTimeRanges,
       }),
     },
-    reviews: [
-      {
-        id: mentorId * 10,
-        authorName: 'ZERO-ONE',
-        rating: 5,
-        createdAt: nowIso.slice(0, 10).replace(/-/g, '.'),
-        method: 'note',
-        content: '새로 등록된 멘토입니다. 첫 멘토링을 통해 리뷰를 쌓아보세요.',
-      },
-    ],
+    reviews: [],
     mentorSettings: normalizedSettings,
   };
 };
@@ -341,7 +383,7 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
     }),
     {
       name: 'mentor-directory-storage',
-      version: 4,
+      version: 5,
       migrate: (persistedState, version) => {
         if (!persistedState) {
           return persistedState;
@@ -357,7 +399,7 @@ export const useMentorDirectoryStore = create<MentorDirectoryState>()(
       },
       partialize: (state): PersistedMentorDirectoryState => ({
         memberId: state.memberId,
-        createdMentors: state.createdMentors,
+        createdMentors: state.createdMentors.map(normalizePersistedMentor),
         mentorIdByMember: state.mentorIdByMember,
         nextMentorId: state.nextMentorId,
       }),

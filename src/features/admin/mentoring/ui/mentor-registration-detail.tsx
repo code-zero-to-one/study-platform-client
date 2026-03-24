@@ -11,6 +11,7 @@ import {
   getMethodLabel,
 } from '@/features/mentoring/model/mentor-profile-utils';
 import {
+  formatMentorCareerEntryPeriodLabel,
   type WeekdayKey,
   WEEKDAY_KEYS,
 } from '@/features/mentoring/model/mentor-settings';
@@ -110,7 +111,12 @@ export default function MentorRegistrationDetail({
 }) {
   const settings = item.mentor.mentorSettings;
   const screeningMeta = MENTOR_SCREENING_STATUS_META[item.screening.status];
-  const settlementDraft = settings?.settlementDraft;
+  const contactPhone = settings?.contactPhone?.trim() ?? '';
+  const hasContactInfo = contactPhone.length > 0;
+  const majorHistoryEntries =
+    settings?.careerEntries?.filter(
+      (entry) => entry.description.trim().length > 0,
+    ) ?? [];
 
   return (
     <SurfacePanel className="p-200">
@@ -173,20 +179,6 @@ export default function MentorRegistrationDetail({
             {settings?.skillTags?.map((tag) => `#${tag}`).join(', ') || '-'}
           </KeyValueRow>
           <KeyValueRow
-            label="회사 카테고리"
-            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-          >
-            {settings?.companyCategory ?? '-'}
-          </KeyValueRow>
-          <KeyValueRow
-            label="회사명"
-            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-          >
-            {settings?.hideCompanyName
-              ? '비공개'
-              : settings?.companyName?.trim() || '-'}
-          </KeyValueRow>
-          <KeyValueRow
             label="최대 인원"
             columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
           >
@@ -194,22 +186,52 @@ export default function MentorRegistrationDetail({
           </KeyValueRow>
         </Section>
 
-        <Section title="연락처">
-          <KeyValueRow
-            label="전화"
-            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-          >
-            {(settings?.contactCountryCode ?? '') +
-              ' ' +
-              (settings?.contactPhone ?? '-')}
-          </KeyValueRow>
-          <KeyValueRow
-            label="이메일"
-            columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-          >
-            {settings?.contactEmail ?? '-'}
-          </KeyValueRow>
+        <Section title="주요 이력">
+          {majorHistoryEntries.length > 0 ? (
+            <div className="space-y-75">
+              {majorHistoryEntries.map((entry, index) => (
+                <div
+                  key={`${entry.description}-${index}`}
+                  className="flex items-start gap-75"
+                >
+                  <span className="font-designer-14r text-text-default">-</span>
+                  <div className="min-w-0 flex-1">
+                    {formatMentorCareerEntryPeriodLabel(entry) && (
+                      <p className="font-designer-12r text-text-subtle mb-25">
+                        {formatMentorCareerEntryPeriodLabel(entry)}
+                      </p>
+                    )}
+                    <p className="font-designer-14r text-text-default whitespace-pre-wrap">
+                      {entry.description}
+                    </p>
+                    {entry.isCurrent && (
+                      <p className="font-designer-12r text-text-information mt-25">
+                        재직 중
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="font-designer-13r text-text-subtle">
+              등록된 주요 이력이 없습니다.
+            </p>
+          )}
         </Section>
+
+        {hasContactInfo && (
+          <Section title="연락처">
+            {contactPhone.length > 0 && (
+              <KeyValueRow
+                label="전화"
+                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
+              >
+                {`${settings?.contactCountryCode ?? ''} ${contactPhone}`.trim()}
+              </KeyValueRow>
+            )}
+          </Section>
+        )}
 
         <Section title="상담 방식 / 가격">
           <div className="space-y-100">
@@ -256,53 +278,6 @@ export default function MentorRegistrationDetail({
           </div>
         </Section>
 
-        <Section title="정산 정보">
-          {settlementDraft ? (
-            <div className="space-y-75">
-              <KeyValueRow
-                label="정산자 타입"
-                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-              >
-                {settlementDraft.payerType}
-              </KeyValueRow>
-              <KeyValueRow
-                label="계약자명"
-                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-              >
-                {settlementDraft.contractName}
-              </KeyValueRow>
-              <KeyValueRow
-                label="예금주"
-                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-              >
-                {settlementDraft.accountHolder}
-              </KeyValueRow>
-              <KeyValueRow
-                label="은행"
-                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-              >
-                {settlementDraft.bankCode}
-              </KeyValueRow>
-              <KeyValueRow
-                label="계좌번호"
-                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-              >
-                {settlementDraft.accountNumber}
-              </KeyValueRow>
-              <KeyValueRow
-                label="인증 상태"
-                columnsClassName="grid-cols-[120px_minmax(0,1fr)]"
-              >
-                {settlementDraft.verified ? '완료' : '미완료'}
-              </KeyValueRow>
-            </div>
-          ) : (
-            <p className="font-designer-13r text-text-subtle">
-              정산 정보가 등록되지 않았습니다.
-            </p>
-          )}
-        </Section>
-
         <Section title="멘토 소개">
           <p className="font-designer-14r text-text-default whitespace-pre-wrap">
             {settings?.detailedDescription || '-'}
@@ -327,12 +302,6 @@ export default function MentorRegistrationDetail({
               등록된 준비사항이 없습니다.
             </p>
           )}
-        </Section>
-
-        <Section title="멘티 사전 안내">
-          <p className="font-designer-14r text-text-default whitespace-pre-wrap">
-            {settings?.preNotice || '-'}
-          </p>
         </Section>
 
         <Section title="운영 지표">

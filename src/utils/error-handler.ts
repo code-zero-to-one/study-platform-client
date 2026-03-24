@@ -131,6 +131,24 @@ export interface ErrorInfo {
   originalError: unknown;
 }
 
+const extractApiErrorDetail = (error: unknown): unknown => {
+  if (isApiError(error)) {
+    return error.detail;
+  }
+
+  if (!isAxiosError(error)) {
+    return undefined;
+  }
+
+  const responseData = error.response?.data;
+
+  if (!isApiError(responseData)) {
+    return undefined;
+  }
+
+  return responseData.detail;
+};
+
 /**
  * 에러를 분석하고 분류합니다.
  *
@@ -479,6 +497,7 @@ export function sendErrorToSentry(
   errorInfo: ErrorInfo,
   context?: Record<string, unknown>,
 ): void {
+  const detail = extractApiErrorDetail(errorInfo.originalError);
   const logData = {
     timestamp: new Date().toISOString(),
     type: errorInfo.type,
@@ -486,6 +505,7 @@ export function sendErrorToSentry(
     technicalMessage: errorInfo.technicalMessage,
     errorCode: errorInfo.errorCode,
     statusCode: errorInfo.statusCode,
+    detail,
     context,
     stack:
       errorInfo.originalError instanceof Error
@@ -508,6 +528,7 @@ export function sendErrorToSentry(
         scope.setExtra('userMessage', errorInfo.userMessage);
         scope.setExtra('technicalMessage', errorInfo.technicalMessage);
         scope.setExtra('statusCode', errorInfo.statusCode);
+        scope.setExtra('detail', detail);
 
         if (errorInfo.originalError instanceof Error) {
           scope.setExtra('stack', errorInfo.originalError.stack);

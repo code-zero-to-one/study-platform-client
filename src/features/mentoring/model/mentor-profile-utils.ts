@@ -1,5 +1,6 @@
 import {
   createDefaultMentorSettings,
+  normalizeMentorCareerEntries,
   parseDurationLabelToMinutes,
 } from '@/features/mentoring/model/mentor-settings';
 import {
@@ -13,7 +14,23 @@ import type {
   MentoringMethodOption,
   MentoringMethodType,
 } from '@/types/mentoring/domain';
+import { normalizeMentorMarkdownContent } from '@/types/mentoring/markdown';
 import type { MentorSettings } from '@/types/mentoring/settings';
+
+const toTrimmedString = (value: unknown): string => {
+  return typeof value === 'string' ? value.trim() : '';
+};
+
+const toStringArray = (value: unknown): string[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is string => typeof item === 'string')
+    .map((item) => item.trim())
+    .filter((item) => item.length > 0);
+};
 
 const normalizeConsultingDuration = (minutes: number) => {
   if (minutes <= 30) {
@@ -115,13 +132,19 @@ const getNormalizedSettings = (mentor: MentorProfile): MentorSettings => {
   return {
     ...defaults,
     ...source,
-    jobGroup: source?.jobGroup?.trim() ?? '',
-    jobTitle: source?.jobTitle?.trim() ?? '',
-    careerYears: source?.careerYears?.trim() ?? '',
-    mentoringTitle: source?.mentoringTitle?.trim() ?? '',
-    appealLine: source?.appealLine?.trim() ?? '',
-    companyName: source?.companyName?.trim() ?? '',
-    skillTags: source?.skillTags ?? mentor.tags ?? [],
+    jobGroup: toTrimmedString(source?.jobGroup),
+    jobTitle: toTrimmedString(source?.jobTitle),
+    careerYears: toTrimmedString(source?.careerYears),
+    careerEntries: normalizeMentorCareerEntries(source?.careerEntries),
+    mentoringTitle: toTrimmedString(source?.mentoringTitle),
+    appealLine: toTrimmedString(source?.appealLine),
+    companyName: toTrimmedString(source?.companyName),
+    detailedDescription: normalizeMentorMarkdownContent(
+      source?.detailedDescription,
+    ),
+    interviewQuestions: toStringArray(source?.interviewQuestions),
+    preNotice: toTrimmedString(source?.preNotice),
+    skillTags: toStringArray(source?.skillTags),
     noteEnabled: source?.noteEnabled ?? methods.note.enabled === true,
     notePrice: source?.notePrice ?? methods.note.price,
     simpleEnabled: source?.simpleEnabled ?? methods.simple.enabled === true,
