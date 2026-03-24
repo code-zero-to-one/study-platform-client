@@ -22,6 +22,7 @@ import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   buildOpenGroupDefaultValues,
+  GroupStudyEditFormSchema,
   GroupStudyFormSchema,
   type GroupStudyFormValues,
   type StudyClassification,
@@ -83,7 +84,7 @@ export default function GroupStudyFormModal({
   });
 
   const editMethods = useForm<GroupStudyFormValues>({
-    resolver: zodResolver(GroupStudyFormSchema),
+    resolver: zodResolver(GroupStudyEditFormSchema),
     mode: 'onChange',
   });
 

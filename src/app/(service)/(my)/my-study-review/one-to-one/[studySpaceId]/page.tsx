@@ -2,10 +2,14 @@
 
 import { ChevronLeft } from 'lucide-react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { useAllMyReviewsQuery } from '@/hooks/queries/use-review-query';
+import {
+  useMyNegativeKeywordsQuery,
+  useAllMyReviewsQuery,
+  useUserPositiveKeywordsQuery,
+} from '@/hooks/queries/use-review-query';
 import OneToOneReviewCard from './_components/one-to-one-review-card';
 import EvaluationSection from '../../group/[groupStudyId]/_components/evaluation-section';
-import SatisfactionSection from '../../group/[groupStudyId]/_components/satisfaction-section';
+import { buildEvaluationStatistics } from '../_utils';
 
 export default function OneToOneReviewDetailPage() {
   const { studySpaceId } = useParams<{ studySpaceId: string }>();
@@ -27,6 +31,14 @@ export default function OneToOneReviewDetailPage() {
 
   const studyTitle =
     reviews.length > 0 ? `${reviews[0].writer.memberName}님과의 스터디` : title;
+
+  const { data: positiveData } = useUserPositiveKeywordsQuery({});
+  const { data: negativeData } = useMyNegativeKeywordsQuery({});
+
+  const statistics = buildEvaluationStatistics(
+    positiveData?.keywords ?? [],
+    negativeData?.keywords ?? [],
+  );
 
   return (
     <div className="flex flex-col gap-400">
@@ -51,11 +63,10 @@ export default function OneToOneReviewDetailPage() {
         )}
       </div>
 
-      <SatisfactionSection
-        emptyMessage={`아직 받은 ${studyTypeName} 만족도가 없습니다`}
+      <EvaluationSection
+        statistics={statistics}
+        studyTypeName={studyTypeName}
       />
-
-      <EvaluationSection studyTypeName={studyTypeName} />
 
       <div className="flex flex-col gap-200">
         <div className="flex items-center gap-100">
