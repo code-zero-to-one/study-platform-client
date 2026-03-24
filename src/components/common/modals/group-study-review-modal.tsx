@@ -48,7 +48,6 @@ export default function GroupStudyReviewModal({
         <Modal.Overlay />
         <Modal.Content
           onInteractOutside={(e) => e.preventDefault()}
-          mobileFullscreen
           description="스터디 경험 후기 작성"
         >
           <Modal.Header variant="form">

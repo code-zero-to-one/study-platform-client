@@ -9,10 +9,10 @@ import {
   type GroupStudyExperienceReviewDetail,
 } from '@/hooks/queries/group-study-review-api';
 import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
-import EvaluationSection from '../_components/evaluation-section';
-import SatisfactionSection from '../_components/satisfaction-section';
+import EvaluationSection from './_components/evaluation-section';
+import SatisfactionSection from './_components/satisfaction-section';
 import { useReviewStatistics } from './_hooks/use-review-statistics';
-import GroupReviewCard from '../_components/group-review-card';
+import GroupReviewCard from './_components/group-review-card';
 
 export default function GroupStudyReviewDetailPage() {
   const { groupStudyId } = useParams<{ groupStudyId: string }>();

@@ -10,7 +10,7 @@ import { buildEvaluationStatistics } from './_utils';
 import CompletedStudyReviewPage from '../_components/completed-study-review-page';
 import StudyReviewTabNav from '../_components/study-review-tab-nav';
 import OneToOneReviewCard from './_components/one-to-one-review-card';
-import EvaluationSection from '../group/_components/evaluation-section';
+import EvaluationSection from '../group/[groupStudyId]/_components/evaluation-section';
 
 export default function OneToOneReviewPage() {
   const { data: positiveData } = useUserPositiveKeywordsQuery({});
@@ -43,7 +43,7 @@ export default function OneToOneReviewPage() {
           </span>
         </div>
         <span className="font-designer-14r text-text-subtle">
-          모든 후기는 나에게만 보여요.
+          수집된 스터디 후기는 서비스 홍보 및 마케팅을 위해 활용될 수 있습니다.
         </span>
 
         {reviews.length > 0 ? (

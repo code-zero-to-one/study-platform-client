@@ -9,10 +9,12 @@ import {
   type GroupStudyExperienceReviewDetail,
 } from '@/hooks/queries/group-study-review-api';
 import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
-import EvaluationSection from '../../group/[groupStudyId]/_components/evaluation-section';
-import GroupReviewCard from '../../group/[groupStudyId]/_components/group-review-card';
-import SatisfactionSection from '../../group/[groupStudyId]/_components/satisfaction-section';
+
 import { useReviewStatistics } from '../../group/[groupStudyId]/_hooks/use-review-statistics';
+
+import EvaluationSection from '../../group/[groupStudyId]/_components/evaluation-section';
+import SatisfactionSection from '../../group/[groupStudyId]/_components/satisfaction-section';
+import GroupReviewCard from '../../group/[groupStudyId]/_components/group-review-card';
 
 export default function MentorStudyReviewDetailPage() {
   const { groupStudyId } = useParams<{ groupStudyId: string }>();
