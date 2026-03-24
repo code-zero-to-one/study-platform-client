@@ -127,6 +127,9 @@ export default function MentorCareerEntriesEditor({
     typeof errors.careerEntries?.message === 'string'
       ? errors.careerEntries.message
       : undefined;
+  const currentCareerEntryIndex = watchedCareerEntries.findIndex(
+    (entry) => entry?.isCurrent === true,
+  );
   const splitCareerEntryMonth = (value?: string) => {
     if (!value || !value.includes('-')) {
       return {
@@ -204,16 +207,32 @@ export default function MentorCareerEntriesEditor({
     index: number;
     nextIsCurrent: boolean;
   }) => {
-    if (nextIsCurrent) {
-      setValue(`careerEntries.${index}.endMonth`, '', DIRTY_VALIDATION_OPTIONS);
-      clearErrors(`careerEntries.${index}.endMonth`);
-    }
-
     setValue(
-      `careerEntries.${index}.isCurrent`,
-      nextIsCurrent,
+      'careerEntries',
+      watchedCareerEntries.map((entry, entryIndex) => {
+        const currentEntry = entry ?? createEmptyMentorCareerEntry();
+
+        if (entryIndex !== index) {
+          return nextIsCurrent
+            ? {
+                ...currentEntry,
+                isCurrent: false,
+              }
+            : currentEntry;
+        }
+
+        return {
+          ...currentEntry,
+          isCurrent: nextIsCurrent,
+          endMonth: nextIsCurrent ? '' : (currentEntry.endMonth ?? ''),
+        };
+      }),
       DIRTY_VALIDATION_OPTIONS,
     );
+
+    if (nextIsCurrent) {
+      clearErrors([`careerEntries.${index}.endMonth`, 'careerEntries']);
+    }
   };
   const handleRemove = (index: number) => {
     remove(index);
@@ -272,6 +291,10 @@ export default function MentorCareerEntriesEditor({
                   : undefined;
             const isPeriodEditorOpen = currentEntry?.periodEnabled === true;
             const isCurrentCareerEntry = currentEntry?.isCurrent === true;
+            const isAnotherCurrentCareerEntrySelected =
+              currentCareerEntryIndex >= 0 &&
+              currentCareerEntryIndex !== index &&
+              !isCurrentCareerEntry;
             const startMonthOptions =
               startParts.year === String(currentCareerEntryYear)
                 ? monthOptions.filter(
@@ -341,6 +364,7 @@ export default function MentorCareerEntriesEditor({
                             type="checkbox"
                             className="border-border-default rounded-50 accent-fill-brand-default-default size-200 border"
                             checked={isCurrentCareerEntry}
+                            disabled={isAnotherCurrentCareerEntrySelected}
                             onChange={(event) =>
                               handleIsCurrentChange({
                                 index,

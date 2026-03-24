@@ -101,6 +101,10 @@ export interface MentorSavedCoreKeywordResponseDto {
   label?: string;
 }
 
+export type MentorReadableCoreKeywordResponseDto =
+  | CodeLabelResponseDto
+  | MentorSavedCoreKeywordResponseDto;
+
 export interface MentorCareerEntryResponseDto {
   description?: string;
   isCurrent?: boolean;
@@ -122,7 +126,7 @@ export interface ProfileResponseDto {
   careerCode?: string;
   careerYears?: string;
   careerEntries?: MentorCareerEntryResponseDto[];
-  coreKeywords?: MentorSavedCoreKeywordResponseDto[];
+  coreKeywords?: MentorReadableCoreKeywordResponseDto[];
   skillTags?: string[];
   company?: CompanyResponseDto;
 }
