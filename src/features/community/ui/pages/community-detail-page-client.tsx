@@ -1,17 +1,20 @@
 'use client';
 
-import { ChevronLeft, ThumbsUp } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import Button from '@/components/common/ui/button';
+import { useEffect, useState } from 'react';
 import PageContainer from '@/components/common/ui/page-container';
 import { COMMUNITY_MOCK_AUTHOR } from '@/features/community/model/community-page-mock-data';
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
 import MentorMarkdownContent from '@/features/mentoring/ui/registration/mentor-markdown-content';
+import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
 import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorProfileCard from '../community-author-profile-card';
 import CommunityCommentSection from '../community-comment-section';
+import CommunityDetailFeedSection from '../community-detail-feed-section';
 import { CommunityBoardBadge } from '../community-meta-badge';
+import CommunityReactionButton from '../community-reaction-button';
 import CommunitySectionShell from '../community-section-shell';
 
 interface CommunityDetailPageClientProps {
@@ -27,6 +30,21 @@ export default function CommunityDetailPageClient({
     initialPost,
     postId,
   });
+  const [isFeedVisible, setIsFeedVisible] = useState(false);
+  const feedTriggerRef = useIntersectionObserver(
+    () => {
+      setIsFeedVisible(true);
+    },
+    {
+      enabled: !isFeedVisible,
+      rootMargin: '320px 0px',
+      threshold: 0,
+    },
+  );
+
+  useEffect(() => {
+    setIsFeedVisible(false);
+  }, [postId]);
 
   if (!state.isResolved) {
     return (
@@ -100,14 +118,16 @@ export default function CommunityDetailPageClient({
             <span className="font-designer-14r text-text-subtle">
               댓글 {viewModel.commentCount}
             </span>
-            <Button
-              color={viewModel.isLikedByViewer ? 'primary' : 'outlined'}
-              size="small"
-              icon={<ThumbsUp className="h-14 w-14" />}
+            <CommunityReactionButton
+              isActive={viewModel.isLikedByViewer}
+              count={viewModel.reactionCount}
               onClick={actions.handleToggleLike}
-            >
-              좋아요 {viewModel.reactionCount}
-            </Button>
+              ariaLabel={
+                viewModel.isLikedByViewer
+                  ? '이 게시글 좋아요 취소'
+                  : '이 게시글 좋아요'
+              }
+            />
           </div>
         </div>
       </CommunitySectionShell>
@@ -163,6 +183,19 @@ export default function CommunityDetailPageClient({
         onSubmitEditedComment={actions.handleSubmitEditedComment}
         onSubmitReply={actions.handleSubmitReply}
         onToggleCommentReaction={actions.handleToggleCommentReaction}
+      />
+
+      <div
+        ref={(node) => {
+          feedTriggerRef.current = node;
+        }}
+        aria-hidden="true"
+        className="h-px w-full"
+      />
+
+      <CommunityDetailFeedSection
+        currentPostId={state.post.id}
+        isVisible={isFeedVisible}
       />
     </PageContainer>
   );
