@@ -9,6 +9,7 @@ import {
 } from './mentor-api-contract';
 import type {
   MentorCoreKeywordRequestDto,
+  MentorReadableCoreKeywordResponseDto,
   MentorSavedCoreKeywordResponseDto,
 } from './mentor-api.types';
 
@@ -38,6 +39,70 @@ const normalizeSavedCoreKeywordType = ({
   });
 };
 
+const toTrimmedString = (value: unknown) => {
+  return typeof value === 'string' ? value.trim() : '';
+};
+
+const readMentorCoreKeyword = ({
+  value,
+  scope,
+  field,
+}: {
+  value: unknown;
+  scope: MentorApiContractScope;
+  field: string;
+}): MentorCoreKeywordSnapshot => {
+  const keyword = requireObject<MentorReadableCoreKeywordResponseDto>({
+    value,
+    scope,
+    field,
+  });
+  const label = requireNonEmptyString({
+    value: keyword.label,
+    scope,
+    field: `${field}.label`,
+  });
+  const code = toTrimmedString(keyword.code);
+
+  if ('type' in keyword && keyword.type !== undefined) {
+    const type = normalizeSavedCoreKeywordType({
+      value: keyword.type,
+      scope,
+      field: `${field}.type`,
+    });
+
+    if (type === 'PREDEFINED') {
+      return {
+        type,
+        code: requireNonEmptyString({
+          value: keyword.code,
+          scope,
+          field: `${field}.code`,
+        }),
+        label,
+      };
+    }
+
+    return {
+      type,
+      label,
+    };
+  }
+
+  if (code.length > 0) {
+    return {
+      type: 'PREDEFINED',
+      code,
+      label,
+    };
+  }
+
+  return {
+    type: 'CUSTOM',
+    label,
+  };
+};
+
 export const requireMentorCoreKeywordFormValues = ({
   value,
   scope,
@@ -54,30 +119,17 @@ export const requireMentorCoreKeywordFormValues = ({
   });
 
   return keywords.map((item, index) => {
-    const keyword = requireObject<MentorSavedCoreKeywordResponseDto>({
+    const keyword = readMentorCoreKeyword({
       value: item,
       scope,
       field: `${field}[${index}]`,
     });
-    const type = normalizeSavedCoreKeywordType({
-      value: keyword.type,
-      scope,
-      field: `${field}[${index}].type`,
-    });
 
-    if (type === 'PREDEFINED') {
-      return requireNonEmptyString({
-        value: keyword.code,
-        scope,
-        field: `${field}[${index}].code`,
-      });
+    if (keyword.type === 'PREDEFINED' && keyword.code) {
+      return keyword.code;
     }
 
-    return requireNonEmptyString({
-      value: keyword.label,
-      scope,
-      field: `${field}[${index}].label`,
-    });
+    return keyword.label;
   });
 };
 
@@ -97,38 +149,11 @@ export const requireMentorCoreKeywordSnapshots = ({
   });
 
   return keywords.map((item, index) => {
-    const keyword = requireObject<MentorSavedCoreKeywordResponseDto>({
+    return readMentorCoreKeyword({
       value: item,
       scope,
       field: `${field}[${index}]`,
     });
-    const type = normalizeSavedCoreKeywordType({
-      value: keyword.type,
-      scope,
-      field: `${field}[${index}].type`,
-    });
-    const label = requireNonEmptyString({
-      value: keyword.label,
-      scope,
-      field: `${field}[${index}].label`,
-    });
-
-    if (type === 'PREDEFINED') {
-      return {
-        type,
-        code: requireNonEmptyString({
-          value: keyword.code,
-          scope,
-          field: `${field}[${index}].code`,
-        }),
-        label,
-      };
-    }
-
-    return {
-      type,
-      label,
-    };
   });
 };
 
@@ -148,23 +173,13 @@ export const requireMentorCoreKeywordLabels = ({
   });
 
   return keywords.map((item, index) => {
-    const keyword = requireObject<MentorSavedCoreKeywordResponseDto>({
+    const keyword = readMentorCoreKeyword({
       value: item,
       scope,
       field: `${field}[${index}]`,
     });
 
-    normalizeSavedCoreKeywordType({
-      value: keyword.type,
-      scope,
-      field: `${field}[${index}].type`,
-    });
-
-    return requireNonEmptyString({
-      value: keyword.label,
-      scope,
-      field: `${field}[${index}].label`,
-    });
+    return keyword.label;
   });
 };
 
