@@ -1329,7 +1329,7 @@ export const useMentorRegistrationController =
                 ? '저장은 완료되었고 신청 가능 상태로 반영됩니다'
                 : isDetailPreparing
                   ? '저장은 완료되었지만 공개 준비가 더 필요합니다'
-                  : '저장은 완료되었고 상세 공개 준비 상태로 반영됩니다',
+                  : '✅ 저장은 완료되었고 상세 공개 준비 상태로 반영됩니다',
               description: finalizedValues.listVisible
                 ? isApplyReady
                   ? '목록 공개가 켜져 있으며 저장된 멘토링 정보가 신청 가능 상태로 반영됩니다.'
