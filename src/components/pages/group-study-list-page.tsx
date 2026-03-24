@@ -1,28 +1,22 @@
 'use client';
 
-import { ArrowUpDown } from 'lucide-react';
-import { Plus } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { GetGroupStudiesSortEnum } from '@/api/openapi/api/group-study-management-api';
 import PageContainer from '@/components/common/layout/page-container';
-import Button from '@/components/common/ui/button';
-import SortDropdown from '@/components/common/ui/filters/sort-dropdown';
-import StudyFilter from '@/components/filtering/study-filter';
-import StudySearch from '@/components/filtering/study-search';
 import GroupStudyPagination from '@/components/lists/group-study-pagination';
 import { useAuthReady } from '@/features/auth/model/use-auth';
+import { useGroupStudyReviewReminder } from '@/hooks/common/use-group-study-review-reminder';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import GroupStudyList from '../lists/group-study-list';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
+import StudyListToolbar from '@/components/pages/study-list-toolbar';
 
-const SORT_OPTIONS = [
-  { value: GetGroupStudiesSortEnum.Latest, label: '최신순' },
-  { value: GetGroupStudiesSortEnum.Deadline, label: '마감임박순' },
-  { value: GetGroupStudiesSortEnum.ViewCount, label: '조회수순' },
-] as const;
+const GroupStudyReviewModal = dynamic(
+  () => import('@/components/common/modals/group-study-review-modal'),
+  { ssr: false },
+);
 
-const GroupStudyFormModal = dynamic(
-  () => import('@/components/common/modals/group-study-form-modal'),
+const StudyCompletionModal = dynamic(
+  () => import('@/components/common/modals/study-completion-modal'),
   { ssr: false },
 );
 
@@ -33,6 +27,16 @@ const Banner = dynamic(() => import('@/components/home/banner'), {
 
 export default function GroupStudyListPage() {
   const { isAuthReady } = useAuthReady();
+
+  const {
+    showReviewModal,
+    setShowReviewModal,
+    showCompletionModal,
+    setShowCompletionModal,
+    reviewStudyId,
+    reviewDetailInfo,
+    reviewBasicInfo,
+  } = useGroupStudyReviewReminder({ studyType: 'GROUP_STUDY' });
 
   const {
     searchQuery,
@@ -61,7 +65,27 @@ export default function GroupStudyListPage() {
   }
 
   return (
-    <div className="mx-auto w-7xl px-400 py-600">
+    <div className="mx-auto w-full max-w-7xl px-400 py-600">
+      {/* 미작성 후기 모달 — 완료된 스터디 후기를 아직 작성하지 않은 경우 자동으로 열림 */}
+      {reviewStudyId && reviewDetailInfo && reviewBasicInfo && (
+        <>
+          <GroupStudyReviewModal
+            open={showReviewModal}
+            onOpenChange={setShowReviewModal}
+            groupStudyId={reviewStudyId}
+            detailInfo={reviewDetailInfo}
+            basicInfo={reviewBasicInfo}
+            onSubmitSuccess={() =>
+              setTimeout(() => setShowCompletionModal(true), 300)
+            }
+          />
+          <StudyCompletionModal
+            open={showCompletionModal}
+            onOpenChange={setShowCompletionModal}
+          />
+        </>
+      )}
+
       {/* 배너 */}
       <div className="mb-600">
         <Banner />
@@ -70,41 +94,19 @@ export default function GroupStudyListPage() {
       {/* 내가 참여중인 스터디 섹션 */}
       <MyParticipatingStudiesSection classification="GROUP_STUDY" />
 
-      {/* 헤더 */}
-      <div className="mb-400 flex items-center justify-between">
-        <h1 className="font-designer-24b text-text-default">
-          그룹스터디 둘러보기
-        </h1>
-        <GroupStudyFormModal
-          mode="create"
-          classification="GROUP_STUDY"
-          trigger={
-            <Button
-              color="primary"
-              size="small"
-              icon={<Plus className="h-200 w-200" />}
-              iconPosition="left"
-              disabled={!isAuthReady}
-            >
-              스터디 개설하기
-            </Button>
-          }
-        />
-      </div>
-
-      {/* 필터 및 검색 */}
-      <div className="mb-400 flex items-center justify-between">
-        <StudyFilter values={filterValues} onChange={handleFilterChange} />
-        <div className="flex items-center gap-200">
-          <StudySearch value={searchQuery} onChange={handleSearch} />
-          <SortDropdown
-            value={sort}
-            options={SORT_OPTIONS}
-            onChange={handleSortChange}
-            icon={<ArrowUpDown className="h-3 w-3" />}
-          />
-        </div>
-      </div>
+      <StudyListToolbar
+        title="그룹스터디 둘러보기"
+        classification="GROUP_STUDY"
+        isAuthReady={isAuthReady}
+        controls={{
+          searchQuery,
+          filterValues,
+          sort,
+          onSearchChange: handleSearch,
+          onFilterChange: handleFilterChange,
+          onSortChange: handleSortChange,
+        }}
+      />
 
       {/* 스터디 카드 그리드 */}
       <GroupStudyList studies={displayStudies} />

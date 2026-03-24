@@ -21,10 +21,14 @@ import {
 const ClassificationContext = createContext<StudyClassification>('GROUP_STUDY');
 export const useClassification = () => useContext(ClassificationContext);
 
+const ModeContext = createContext<'create' | 'edit'>('create');
+export const useMode = () => useContext(ModeContext);
+
 interface GroupStudyFormProps {
   defaultValues?: GroupStudyFormValues;
   methods?: UseFormReturn<GroupStudyFormValues>;
   onSubmit: (values: GroupStudyFormValues) => void;
+  mode?: 'create' | 'edit';
 }
 
 const STEP_FIELDS: Record<1 | 2 | 3, (keyof GroupStudyFormValues)[]> = {
@@ -49,6 +53,7 @@ export default function GroupStudyForm({
   defaultValues,
   methods: externalMethods,
   onSubmit,
+  mode = 'create',
 }: GroupStudyFormProps) {
   const internalMethods = useForm<GroupStudyFormValues>({
     resolver: zodResolver(GroupStudyFormSchema),
@@ -134,69 +139,71 @@ export default function GroupStudyForm({
   }, [currentStepFields, currentStepValues, formState.errors, classification]);
 
   return (
-    <ClassificationContext.Provider value={classification}>
-      <Modal.Body className="flex flex-col gap-150">
-        <Stepper step={step} />
-        <FormProvider {...methods}>
-          <form
-            id="open-group-form"
-            className="flex flex-col gap-400"
-            onSubmit={handleSubmit(onSubmit)}
-          >
-            {step === 1 && <Step1OpenGroupStudy />}
-            {step === 2 && <Step2OpenGroupStudy />}
-            {step === 3 && <Step3OpenGroupStudy />}
-          </form>
-        </FormProvider>
-      </Modal.Body>
-
-      <Modal.Footer className="flex justify-between gap-100">
-        <div>
-          {step > 1 && (
-            <Button
-              color="secondary"
-              size="large"
-              onClick={goPrev}
-              type="button"
+    <ModeContext.Provider value={mode}>
+      <ClassificationContext.Provider value={classification}>
+        <Modal.Body className="flex flex-col gap-150">
+          <Stepper step={step} />
+          <FormProvider {...methods}>
+            <form
+              id="open-group-form"
+              className="flex flex-col gap-400"
+              onSubmit={handleSubmit(onSubmit)}
             >
-              이전
-            </Button>
-          )}
-        </div>
+              {step === 1 && <Step1OpenGroupStudy />}
+              {step === 2 && <Step2OpenGroupStudy />}
+              {step === 3 && <Step3OpenGroupStudy />}
+            </form>
+          </FormProvider>
+        </Modal.Body>
 
-        <div className="flex gap-100">
-          <Modal.Close asChild>
-            <Button color="secondary" size="large">
-              취소
-            </Button>
-          </Modal.Close>
+        <Modal.Footer className="flex justify-between gap-100">
+          <div>
+            {step > 1 && (
+              <Button
+                color="secondary"
+                size="large"
+                onClick={goPrev}
+                type="button"
+              >
+                이전
+              </Button>
+            )}
+          </div>
 
-          {step < 3 ? (
-            <Button
-              key="next"
-              size="large"
-              color="primary"
-              type="button"
-              onClick={goNext}
-              disabled={isNextButtonDisabled}
-            >
-              다음
-            </Button>
-          ) : (
-            <Button
-              key="submit"
-              size="large"
-              color="primary"
-              type="submit"
-              form="open-group-form"
-              disabled={!formState.isValid || formState.isSubmitting}
-            >
-              {formState.isSubmitting ? '제출 중…' : '제출'}
-            </Button>
-          )}
-        </div>
-      </Modal.Footer>
-    </ClassificationContext.Provider>
+          <div className="flex gap-100">
+            <Modal.Close asChild>
+              <Button color="secondary" size="large">
+                취소
+              </Button>
+            </Modal.Close>
+
+            {step < 3 ? (
+              <Button
+                key="next"
+                size="large"
+                color="primary"
+                type="button"
+                onClick={goNext}
+                disabled={isNextButtonDisabled}
+              >
+                다음
+              </Button>
+            ) : (
+              <Button
+                key="submit"
+                size="large"
+                color="primary"
+                type="submit"
+                form="open-group-form"
+                disabled={!formState.isValid || formState.isSubmitting}
+              >
+                {formState.isSubmitting ? '제출 중…' : '제출'}
+              </Button>
+            )}
+          </div>
+        </Modal.Footer>
+      </ClassificationContext.Provider>
+    </ModeContext.Provider>
   );
 }
 
