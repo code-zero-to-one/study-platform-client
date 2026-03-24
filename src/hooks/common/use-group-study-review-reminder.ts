@@ -15,6 +15,20 @@ interface UseGroupStudyReviewReminderOptions {
   studyType: 'GROUP_STUDY' | 'PREMIUM_STUDY';
 }
 
+const REVIEW_AVAILABLE_DAYS = 7;
+
+const isWithinReviewAvailableWindow = (endTime?: string) => {
+  if (!endTime) return false;
+
+  const endDate = dayjs(endTime).startOf('day');
+  if (!endDate.isValid()) return false;
+
+  const today = dayjs().startOf('day');
+  const elapsedDays = today.diff(endDate, 'day');
+
+  return elapsedDays >= 0 && elapsedDays <= REVIEW_AVAILABLE_DAYS;
+};
+
 /**
  * 그룹스터디·멘토스터디 목록 페이지에서 미작성 후기 모달을 자동으로 트리거하는 훅.
  *
@@ -43,9 +57,14 @@ export function useGroupStudyReviewReminder({
       (study) => study.studyRole === 'PARTICIPANT',
     ) ?? [];
 
+  // 종료 후 7일 이내인 스터디만 후기 대상
+  const reviewTargetStudies = participantStudies.filter((study) =>
+    isWithinReviewAvailableWindow(study.endTime),
+  );
+
   // 모든 PARTICIPANT 스터디의 리뷰 작성 여부를 병렬로 조회
   const reviewWrittenResults = useQueries({
-    queries: participantStudies.map((study) => ({
+    queries: reviewTargetStudies.map((study) => ({
       queryKey: groupStudyReviewQueryKeys.written(study.studyId),
       queryFn: async () => {
         const { data } = await axiosInstance.get<{ content: boolean }>(
@@ -64,10 +83,10 @@ export function useGroupStudyReviewReminder({
     (result) => result.data === false,
   );
   const pendingStudy =
-    pendingIndex >= 0 ? participantStudies[pendingIndex] : undefined;
+    pendingIndex >= 0 ? reviewTargetStudies[pendingIndex] : undefined;
 
   const allLoaded =
-    participantStudies.length > 0 &&
+    reviewTargetStudies.length > 0 &&
     reviewWrittenResults.every((r) => r.data !== undefined);
 
   useEffect(() => {
