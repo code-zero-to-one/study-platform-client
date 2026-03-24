@@ -133,7 +133,7 @@ export default function GroupStudyFormModal({
         refinedClassification === 'GROUP_STUDY' &&
         originalType === 'MENTORING'
       ) {
-        refinedType = undefined;
+        refinedType = 'PROJECT';
       }
 
       return {
