@@ -21,8 +21,8 @@ interface GroupStudyReviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   groupStudyId: number;
-  detailInfo: GroupStudyDetailInfoResponseDto;
-  basicInfo: GroupStudyBasicInfoResponseDto;
+  detailInfo: Pick<GroupStudyDetailInfoResponseDto, 'title'>;
+  basicInfo: Pick<GroupStudyBasicInfoResponseDto, 'startDate' | 'endDate'>;
   onSubmitSuccess?: () => void;
 }
 
