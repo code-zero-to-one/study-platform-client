@@ -159,7 +159,7 @@ export default function ImageUploadInput({
         )}
       </div>
       {sizeError && (
-        <p className="font-designer-14r text-text-danger">{sizeError}</p>
+        <p className="font-designer-14r text-text-error">{sizeError}</p>
       )}
     </div>
   );
