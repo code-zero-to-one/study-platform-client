@@ -1,6 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -94,6 +95,7 @@ export default function QuestionModal({
   const [isImageRemoved, setIsImageRemoved] = useState(false);
   const [isFinalizingSubmission, setIsFinalizingSubmission] = useState(false);
 
+  const queryClient = useQueryClient();
   const isEditMode = mode === 'edit' && !!questionId;
   const initialTitle = initialValues?.title ?? '';
   const initialContent = initialValues?.content ?? '';
@@ -203,8 +205,6 @@ export default function QuestionModal({
     variant: 'success' | 'info' = 'success',
   ) => {
     showToast(message, variant);
-    reset(DEFAULT_FORM_VALUES);
-    resetImageState();
     handleOpenChange(false);
 
     if (onAfterSubmit) {
@@ -242,6 +242,13 @@ export default function QuestionModal({
 
     try {
       await uploadImage(imageUploadUrl, imageFile);
+      // S3 업로드 완료 후 재무효화: 훅의 onSuccess가 업로드 전에 실행되므로
+      // 이 시점에 다시 무효화해야 이미지가 포함된 최신 데이터를 가져올 수 있다.
+      if (isEditMode && questionId) {
+        await queryClient.invalidateQueries({
+          queryKey: ['question', studyId, questionId],
+        });
+      }
       finalizeSubmission(successMessage);
     } catch (error) {
       console.error('문의 이미지 업로드 오류:', error);
@@ -305,7 +312,7 @@ export default function QuestionModal({
     <Modal.Root open={open} onOpenChange={handleOpenChange}>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content size="medium" className="w-full sm:w-[500px]">
+        <Modal.Content size="medium" className="w-full sm:max-w-500">
           <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title className="font-designer-20b text-text-strong">
               {isEditMode ? '스터디 문의 수정하기' : '스터디 문의하기'}
@@ -357,7 +364,7 @@ export default function QuestionModal({
                   <TextAreaInput
                     placeholder="내용을 입력하세요"
                     maxLength={QUESTION_CONTENT_MAX_LENGTH}
-                    className="font-designer-16m text-text-default h-auto min-h-[150px]"
+                    className="font-designer-16m text-text-default h-auto min-h-150"
                   />
                 </FormField>
                 <div className="flex flex-col gap-100">
