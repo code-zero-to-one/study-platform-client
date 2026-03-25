@@ -42,9 +42,9 @@ export default async function Header() {
     : undefined;
 
   return (
-    <header className="bg-white py-[11px] mix-blend-multiply">
-      <div className="mx-auto flex w-full max-w-[1496px] items-center justify-between px-600">
-        <div className="flex items-center gap-[7.5px] px-100 py-[11px]">
+    <header className="bg-background-default py-125 mix-blend-multiply">
+      <div className="mx-auto flex w-full max-w-1496 items-center justify-between px-600">
+        <div className="flex items-center gap-100 px-100 py-125">
           <Image src="/icons/logo.svg" alt="Logo" width={18} height={18} />
           <Link href="/">
             <Image
@@ -54,7 +54,7 @@ export default async function Header() {
               height={11}
             />
           </Link>
-          <span className="rounded-full border-[0.5px] border-[#D5D7DA] px-[5px] py-[2.5px] text-center text-[7.5px] leading-normal font-medium">
+          <span className="rounded-full border-[0.5px] border-border-default px-75 py-25 text-center text-[7.5px] leading-normal font-medium">
             BETA
           </span>
         </div>
@@ -86,8 +86,9 @@ export default async function Header() {
         </div>
 
         {/* 모바일 햄버거 메뉴 */}
-        <div className="lg:hidden">
-          <MobileMenuDrawer isLoggedIn={isLoggedIn} />
+        <div className="flex items-center gap-100 lg:hidden">
+          {isLoggedIn && <NotificationDropdown />}
+          <MobileMenuDrawer isLoggedIn={isLoggedIn} userImg={userImg} />
         </div>
       </div>
     </header>
