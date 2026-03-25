@@ -8,7 +8,7 @@ import FormField from '@/components/common/ui/form/form-field';
 import { BaseInput } from '@/components/common/ui/input';
 import { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
 
-export default function Step3OpenGroupStudy() {
+export default function GroupStudyStepApplication() {
   const { setValue, getValues, formState } =
     useFormContext<GroupStudyFormValues>();
 

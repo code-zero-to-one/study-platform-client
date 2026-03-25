@@ -8,6 +8,8 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Avatar from '@/components/common/ui/avatar';
+import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
 
 const LoginModal = dynamic(
@@ -24,10 +26,12 @@ const NAV_ITEMS = [
 
 interface MobileMenuDrawerProps {
   isLoggedIn: boolean;
+  userImg?: string;
 }
 
 export default function MobileMenuDrawer({
   isLoggedIn,
+  userImg,
 }: MobileMenuDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -46,7 +50,7 @@ export default function MobileMenuDrawer({
       <button
         onClick={() => setIsOpen(true)}
         aria-label="메뉴 열기"
-        className="flex flex-col items-center justify-center gap-[5px] p-100"
+        className="flex flex-col items-center justify-center gap-75 p-100"
       >
         <svg
           width="22"
@@ -102,7 +106,7 @@ export default function MobileMenuDrawer({
             >
               {/* 패널 헤더 */}
               <div className="flex items-center justify-between border-b border-border-subtle px-400 py-300">
-                <div className="flex items-center gap-[7.5px]">
+                <div className="flex items-center gap-100">
                   <Image
                     src="/icons/logo.svg"
                     alt="Logo"
@@ -116,18 +120,29 @@ export default function MobileMenuDrawer({
                     height={11}
                   />
                 </div>
-                <button
-                  onClick={close}
-                  aria-label="메뉴 닫기"
-                  className="p-100"
-                >
-                  <Image
-                    src="/icons/modal-close.svg"
-                    alt="닫기"
-                    width={24}
-                    height={24}
-                  />
-                </button>
+                <div className="flex items-center gap-200">
+                  {isLoggedIn && (
+                    <Link
+                      href="/my-page"
+                      onClick={close}
+                      aria-label="마이페이지"
+                    >
+                      <Avatar image={userImg} size={32} />
+                    </Link>
+                  )}
+                  <button
+                    onClick={close}
+                    aria-label="메뉴 닫기"
+                    className="p-100"
+                  >
+                    <Image
+                      src="/icons/modal-close.svg"
+                      alt="닫기"
+                      width={24}
+                      height={24}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* 네비게이션 */}
@@ -151,8 +166,15 @@ export default function MobileMenuDrawer({
                 })}
               </nav>
 
+              {/* 1:1 스터디 매칭 토글 */}
+              {isLoggedIn && (
+                <div className="border-t border-border-subtle px-400 py-200">
+                  <StudyMatchingToggle showLabel />
+                </div>
+              )}
+
               {/* 하단 인증 버튼 */}
-              <div className="mt-auto border-t border-border-subtle px-400 py-300">
+              <div className="border-t border-border-subtle px-400 py-300">
                 {isLoggedIn ? (
                   <div className="flex flex-col gap-200">
                     <Link
