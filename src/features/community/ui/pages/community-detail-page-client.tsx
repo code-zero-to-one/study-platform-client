@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import PageContainer from '@/components/common/ui/page-container';
 import { COMMUNITY_MOCK_AUTHOR } from '@/features/community/model/community-page-mock-data';
+import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
 import MentorMarkdownContent from '@/features/mentoring/ui/registration/mentor-markdown-content';
 import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
@@ -20,17 +21,20 @@ import CommunitySectionShell from '../community-section-shell';
 interface CommunityDetailPageClientProps {
   initialPost?: CommunityPost;
   postId: number;
+  returnPage?: number;
 }
 
 export default function CommunityDetailPageClient({
   initialPost,
   postId,
+  returnPage,
 }: CommunityDetailPageClientProps) {
   const { state, actions, viewModel } = useCommunityDetailController({
     initialPost,
     postId,
   });
   const [isFeedVisible, setIsFeedVisible] = useState(false);
+  const backHref = buildCommunityListHref(returnPage);
   const feedTriggerRef = useIntersectionObserver(
     () => {
       setIsFeedVisible(true);
@@ -51,7 +55,7 @@ export default function CommunityDetailPageClient({
       <PageContainer className="flex flex-col gap-500 xl:gap-600">
         <CommunitySectionShell className="gap-250">
           <p className="font-designer-16r text-text-subtle">
-            글을 불러오는 중입니다.
+            Loading post.
           </p>
         </CommunitySectionShell>
       </PageContainer>
@@ -63,18 +67,18 @@ export default function CommunityDetailPageClient({
       <PageContainer className="flex flex-col gap-500 xl:gap-600">
         <CommunitySectionShell className="gap-250">
           <Link
-            href="/community"
+            href={backHref}
             className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
           >
             <ChevronLeft className="h-16 w-16" />
-            커뮤니티로 돌아가기
+            Back to community
           </Link>
           <div className="rounded-200 border border-border-subtle bg-background-default p-300">
             <p className="font-designer-20b text-text-strong">
-              글을 찾을 수 없습니다.
+              Post not found.
             </p>
             <p className="mt-100 font-designer-14r text-text-subtle">
-              목록으로 돌아가서 다른 글을 확인해주세요.
+              Return to the list and try another post.
             </p>
           </div>
         </CommunitySectionShell>
@@ -88,11 +92,11 @@ export default function CommunityDetailPageClient({
     <PageContainer className="flex flex-col gap-400 xl:gap-500">
       <CommunitySectionShell className="gap-250 border-b border-border-subtle pb-300">
         <Link
-          href="/community"
+          href={backHref}
           className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
         >
           <ChevronLeft className="h-16 w-16" />
-          커뮤니티로 돌아가기
+          Back to community
         </Link>
 
         <div className="flex flex-wrap items-center gap-100">
@@ -113,10 +117,10 @@ export default function CommunityDetailPageClient({
 
           <div className="flex flex-wrap items-center gap-150">
             <span className="font-designer-14r text-text-subtle">
-              조회 {state.post.viewCount}
+              Views {state.post.viewCount}
             </span>
             <span className="font-designer-14r text-text-subtle">
-              댓글 {viewModel.commentCount}
+              Comments {viewModel.commentCount}
             </span>
             <CommunityReactionButton
               isActive={viewModel.isLikedByViewer}
@@ -124,8 +128,8 @@ export default function CommunityDetailPageClient({
               onClick={actions.handleToggleLike}
               ariaLabel={
                 viewModel.isLikedByViewer
-                  ? '이 게시글 좋아요 취소'
-                  : '이 게시글 좋아요'
+                  ? 'Unlike post'
+                  : 'Like post'
               }
             />
           </div>

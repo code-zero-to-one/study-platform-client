@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Avatar from '@/components/common/ui/avatar';
 import { getCommunityPostPreviewText } from '@/features/community/model/community-rich-content';
+import { buildCommunityPostHref } from '@/features/community/model/community-route';
 import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import {
@@ -13,11 +14,16 @@ import {
 import CommunityPostStats from './community-post-stats';
 
 interface CommunityPostCardProps {
+  currentPage?: number;
   post: CommunityPost;
 }
 
-export default function CommunityPostCard({ post }: CommunityPostCardProps) {
+export default function CommunityPostCard({
+  currentPage,
+  post,
+}: CommunityPostCardProps) {
   const previewText = getCommunityPostPreviewText(post);
+  const detailHref = buildCommunityPostHref(post.id, currentPage);
 
   return (
     <article className="flex h-full flex-col rounded-200 border border-border-subtle bg-background-default p-250">
@@ -44,8 +50,8 @@ export default function CommunityPostCard({ post }: CommunityPostCardProps) {
           </div>
 
           <Link
-            href={`/community/${post.id}`}
-            aria-label={`${post.title} 상세 보기`}
+            href={detailHref}
+            aria-label={`${post.title} details`}
             className="mt-150 block rounded-150 transition-opacity hover:opacity-80"
             suppressHydrationWarning={true}
           >
@@ -72,8 +78,8 @@ export default function CommunityPostCard({ post }: CommunityPostCardProps) {
 
       {post.previewImage ? (
         <Link
-          href={`/community/${post.id}`}
-          aria-label={`${post.title} 상세 보기`}
+          href={detailHref}
+          aria-label={`${post.title} details`}
           className="mt-200 block overflow-hidden rounded-150 border border-border-subtle bg-background-alternative transition-opacity hover:opacity-80"
           suppressHydrationWarning={true}
         >

@@ -5,8 +5,16 @@ import { useCommunityPageController } from '@/features/community/model/use-commu
 import CommunityFeedSection from '../community-feed-section';
 import CommunityHeroSection from '../community-hero-section';
 
-export default function CommunityPageClient() {
-  const { state, actions, viewModel } = useCommunityPageController();
+interface CommunityPageClientProps {
+  initialPage: number;
+}
+
+export default function CommunityPageClient({
+  initialPage,
+}: CommunityPageClientProps) {
+  const { state, actions, viewModel } = useCommunityPageController({
+    initialPage,
+  });
 
   return (
     <PageContainer className="flex flex-col gap-500 xl:gap-600">
@@ -15,11 +23,16 @@ export default function CommunityPageClient() {
       <CommunityFeedSection
         activeFilter={state.activeFilter}
         activeView={state.activeView}
+        currentPage={state.currentPage}
         featuredPosts={viewModel.featuredPosts}
         filterOptions={viewModel.filterOptions}
-        posts={viewModel.visiblePosts}
         onFilterChange={actions.handleFilterChange}
+        onPageChange={actions.handlePageChange}
         onViewChange={actions.handleViewChange}
+        postCount={viewModel.postCount}
+        posts={viewModel.paginatedPosts}
+        showPagination={viewModel.showPagination}
+        totalPages={viewModel.totalPages}
         viewOptions={viewModel.viewOptions}
       />
     </PageContainer>
