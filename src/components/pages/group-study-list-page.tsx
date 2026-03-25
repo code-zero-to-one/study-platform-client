@@ -3,12 +3,12 @@
 import dynamic from 'next/dynamic';
 import PageContainer from '@/components/common/layout/page-container';
 import GroupStudyPagination from '@/components/lists/group-study-pagination';
+import StudyListToolbar from '@/components/pages/study-list-toolbar';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGroupStudyReviewReminder } from '@/hooks/common/use-group-study-review-reminder';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import GroupStudyList from '../lists/group-study-list';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
-import StudyListToolbar from '@/components/pages/study-list-toolbar';
 
 const GroupStudyReviewModal = dynamic(
   () => import('@/components/common/modals/group-study-review-modal'),
