@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react';
 import { MENTOR_REGISTRATION_GUARD_CARD_CONTENT } from '@/features/mentoring/const/mentor-registration-labels';
-import MentorRegistrationGuardCard from '@/features/mentoring/ui/registration/mentor-registration-guard-card';
+import MentorRegistrationGuardCard from '@/features/mentoring/ui/registration/shell/mentor-registration-guard-card';
 import { type MentorRegistrationGuardState } from '@/types/mentoring/registration-view';
 
 const GUARD_CONTAINER_CLASS =

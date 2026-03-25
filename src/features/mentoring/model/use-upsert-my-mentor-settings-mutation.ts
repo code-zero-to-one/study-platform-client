@@ -4,7 +4,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { upsertMyMentorSettings } from '@/features/mentoring/api/mentor-api';
 import type { MentorRegistrationOptions } from '@/types/mentoring/registration-options';
 import type { MentorRegistrationFormValues } from '@/types/schemas/mentor-registration-schema';
-import { mentorDirectoryQueryKeys } from './mentor-directory-query-keys';
+import { mentorDirectoryQueryKeys } from './directory/mentor-directory-query-keys';
 
 export const useUpsertMyMentorSettingsMutation = () => {
   const queryClient = useQueryClient();

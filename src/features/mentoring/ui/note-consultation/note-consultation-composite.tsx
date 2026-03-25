@@ -6,7 +6,7 @@ import Link from 'next/link';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import { MENTORING_REQUEST_STATUS_META } from '@/features/mentoring/model/management-status-meta';
-import { getConversationWithFallback } from '@/features/mentoring/model/note-consultation-message';
+import { getConversationWithFallback } from '@/features/mentoring/model/note-consultation/note-consultation-message';
 import type {
   MentoringConversationMessage,
   MentoringRequest,

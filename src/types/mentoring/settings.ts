@@ -21,9 +21,6 @@ export const WEEKDAY_LABEL_MAP: Record<WeekdayKey, string> = {
   SUN: '일',
 };
 
-export const CONTACT_COUNTRY_CODES = ['+82', '+1', '+81', '+86'] as const;
-export type ContactCountryCode = (typeof CONTACT_COUNTRY_CODES)[number];
-
 export const CONSULTING_DURATION_OPTIONS = [30, 60, 90] as const;
 export type ConsultingDurationMinutes =
   (typeof CONSULTING_DURATION_OPTIONS)[number];
@@ -54,11 +51,8 @@ export interface MentorWeeklySchedule {
 export type MentorScheduleTextDrafts = Record<WeekdayKey, string[]>;
 
 export interface MentorSettings {
-  contactCountryCode: ContactCountryCode;
-  contactPhone: string;
-  // Compatibility-only until the remaining registration/controller layers stop
-  // threading the removed mentor contact email field end-to-end.
-  contactEmail: string;
+  contactCountryCode?: string;
+  contactPhone?: string;
   categories: string[];
   mentoringTitle: string;
   appealLine: string;

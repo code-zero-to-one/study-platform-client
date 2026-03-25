@@ -1,7 +1,6 @@
 import {
   COMPANY_CATEGORY_OPTIONS,
   CONSULTING_DURATION_OPTIONS,
-  CONTACT_COUNTRY_CODES,
   type WeekdayKey,
   WEEKDAY_LABEL_MAP,
 } from '@/types/mentoring/settings';
@@ -10,12 +9,6 @@ interface SelectionOption {
   value: string;
   label: string;
 }
-
-export const CONTACT_COUNTRY_OPTIONS: SelectionOption[] =
-  CONTACT_COUNTRY_CODES.map((code) => ({
-    value: code,
-    label: code,
-  }));
 
 export const COMPANY_CATEGORY_DROPDOWN_OPTIONS = COMPANY_CATEGORY_OPTIONS.map(
   (category) => ({
@@ -195,13 +188,6 @@ export const MAX_PARTICIPANT_OPTIONS = Array.from(
       label: String(count),
     };
   },
-);
-
-export const CONTACT_COUNTRY_DROPDOWN_OPTIONS = CONTACT_COUNTRY_CODES.map(
-  (code) => ({
-    value: code,
-    label: code,
-  }),
 );
 
 export const WEEKDAY_ORDERED_OPTIONS: Array<{

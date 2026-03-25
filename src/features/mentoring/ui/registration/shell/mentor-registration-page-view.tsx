@@ -7,14 +7,14 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 import TextActionButton from '@/components/common/ui/text-action-button';
+import { type MentorRegistrationControllerResult } from '@/features/mentoring/model/registration/use-mentor-registration-controller';
 import { useFloatingPanelScrollNudge } from '@/features/mentoring/model/use-floating-panel-scroll-nudge';
-import { type MentorRegistrationControllerResult } from '@/features/mentoring/model/use-mentor-registration-controller';
 import MentoringGuideModal from '@/features/mentoring/ui/common/mentoring-guide-modal';
 import MentorDetailPage from '@/features/mentoring/ui/detail/mentor-detail-page';
-import MentorRegistrationEntryOnboarding from '@/features/mentoring/ui/registration/mentor-registration-entry-onboarding';
 import MentorRegistrationForm from '@/features/mentoring/ui/registration/mentor-registration-form';
-import MentorRegistrationHeader from '@/features/mentoring/ui/registration/mentor-registration-header';
-import MentorRegistrationStateBoundary from '@/features/mentoring/ui/registration/mentor-registration-state-boundary';
+import MentorRegistrationEntryOnboarding from '@/features/mentoring/ui/registration/shell/mentor-registration-entry-onboarding';
+import MentorRegistrationHeader from '@/features/mentoring/ui/registration/shell/mentor-registration-header';
+import MentorRegistrationStateBoundary from '@/features/mentoring/ui/registration/shell/mentor-registration-state-boundary';
 
 const PhoneVerificationModal = dynamic(
   () => import('@/components/common/modals/phone-verification-modal'),
@@ -37,7 +37,13 @@ export default function MentorRegistrationPageView({
 }: MentorRegistrationPageViewProps) {
   const { state, refs, actions } = controller;
   const welcomeOnboarding = state.welcomeOnboarding;
-  const welcomeChecklist = welcomeOnboarding?.checklist ?? [];
+  const lastWelcomeOnboardingRef = useRef(welcomeOnboarding);
+  if (welcomeOnboarding) {
+    lastWelcomeOnboardingRef.current = welcomeOnboarding;
+  }
+  const displayedWelcomeOnboarding =
+    welcomeOnboarding ?? lastWelcomeOnboardingRef.current;
+  const welcomeChecklist = displayedWelcomeOnboarding?.checklist ?? [];
   const completedWelcomeChecklistCount = welcomeChecklist.filter(
     (item) => item.done,
   ).length;
@@ -370,9 +376,11 @@ export default function MentorRegistrationPageView({
           >
             <Modal.Header className="border-border-default border-b py-200">
               <div className="flex flex-col gap-50">
-                <Modal.Title>{welcomeOnboarding?.title ?? ''}</Modal.Title>
+                <Modal.Title>
+                  {displayedWelcomeOnboarding?.title ?? ''}
+                </Modal.Title>
                 <p className="font-designer-13r text-text-subtle">
-                  {welcomeOnboarding?.description ?? ''}
+                  {displayedWelcomeOnboarding?.description ?? ''}
                 </p>
               </div>
             </Modal.Header>
@@ -411,7 +419,7 @@ export default function MentorRegistrationPageView({
                         {item.done ? '완료' : '신청 전 필요'}
                       </span>
                     </div>
-                    <p className="font-designer-12r text-text-subtle">
+                    <p className="font-designer-12r text-text-subtle whitespace-pre-line">
                       {item.description}
                     </p>
                   </div>

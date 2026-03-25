@@ -1,6 +1,6 @@
 'use client';
 
-import { useNoteConsultationController } from '@/features/mentoring/model/use-note-consultation-controller';
+import { useNoteConsultationController } from '@/features/mentoring/model/note-consultation/use-note-consultation-controller';
 import MentoringListTemplate from '@/features/mentoring/ui/common/mentoring-list-template';
 import MentoringStateBoundary from '@/features/mentoring/ui/common/mentoring-state-boundary';
 import {

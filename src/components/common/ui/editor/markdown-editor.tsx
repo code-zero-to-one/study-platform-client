@@ -22,6 +22,9 @@ import swift from 'highlight.js/lib/languages/swift';
 import {
   Bold,
   Code2,
+  Heading1,
+  Heading2,
+  Heading3,
   ImagePlus,
   Italic,
   Link2,
@@ -33,21 +36,22 @@ import {
   Underline as UnderlineIcon,
 } from 'lucide-react';
 import { common, createLowlight } from 'lowlight'; // eslint-disable-line import/order
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+} from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import {
-  requestMentorMarkdownImageUploadTicket,
-  uploadMentorMarkdownImageFile,
-} from '@/features/mentoring/model/mentor-markdown-image-upload';
-import {
+  extractHtmlImageUrls,
   extractImageUrls,
   getFileExtension,
-  isAllowedMarkdownImageExtension,
-  MENTOR_MARKDOWN_MAX_IMAGE_COUNT,
-  MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE,
-  normalizeMentorMarkdownContent,
-} from '@/types/mentoring/markdown';
+  normalizeMarkdownContent,
+} from '@/utils/markdown-content';
 
 const lowlight = createLowlight(common);
 lowlight.register('kotlin', kotlin);
@@ -80,41 +84,79 @@ const CODE_LANGUAGES = [
   { label: 'JSON', value: 'json' },
   { label: 'Bash', value: 'bash' },
 ] as const;
+const HEADING_OPTIONS = [
+  { icon: Heading1, label: 'H1', level: 1 },
+  { icon: Heading2, label: 'H2', level: 2 },
+  { icon: Heading3, label: 'H3', level: 3 },
+] as const;
 
 const IMAGE_URL_PATTERN =
   /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i;
+const REMOTE_URL_PATTERN = /^https?:\/\/\S+$/i;
+const DATA_URL_PATTERN = /^data:image\/[a-z0-9.+-]+;base64,/i;
 const INSTANT_CODE_BLOCK_INPUT_REGEX = /^```$/;
-const MENTOR_MARKDOWN_IMAGE_MIN_WIDTH = 80;
-const MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH = 200;
-const MENTOR_MARKDOWN_IMAGE_MAX_WIDTH = 400;
-const MENTOR_MARKDOWN_IMAGE_WIDTH_STEP = 10;
+const MARKDOWN_IMAGE_MIN_WIDTH = 80;
+const MARKDOWN_IMAGE_DEFAULT_WIDTH = 200;
+const MARKDOWN_IMAGE_MAX_WIDTH = 400;
+const MARKDOWN_IMAGE_WIDTH_STEP = 10;
+
+export interface MarkdownEditorImageConfig {
+  allowedImageExtensions: readonly string[];
+  maxImageCount: number;
+  maxImageFileSize: number;
+  uploadImageFile: (file: File) => Promise<string>;
+}
+
+interface MarkdownEditorProps {
+  value: string;
+  onChange: (next: string) => void;
+  placeholder?: string;
+  normalizeContent?: (content: unknown) => string;
+  imageConfig?: MarkdownEditorImageConfig;
+}
+
+interface ToolbarButtonProps {
+  icon: ComponentType<{ className?: string }>;
+  label: string;
+  isActive?: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+}
 
 const isImageUrl = (text: string): boolean => {
   return IMAGE_URL_PATTERN.test(text.trim());
 };
 
+const isRemoteUrl = (text: string): boolean => {
+  return REMOTE_URL_PATTERN.test(text.trim());
+};
+
+const isDataImageUrl = (text: string): boolean => {
+  return DATA_URL_PATTERN.test(text.trim());
+};
+
 const clampImageWidth = (value: number) => {
   return Math.min(
-    MENTOR_MARKDOWN_IMAGE_MAX_WIDTH,
-    Math.max(MENTOR_MARKDOWN_IMAGE_MIN_WIDTH, Math.round(value)),
+    MARKDOWN_IMAGE_MAX_WIDTH,
+    Math.max(MARKDOWN_IMAGE_MIN_WIDTH, Math.round(value)),
   );
 };
 
 const parseImageWidth = (value: unknown): number => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
-    return MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH;
+    return MARKDOWN_IMAGE_DEFAULT_WIDTH;
   }
 
   return clampImageWidth(parsed);
 };
 
-const MentorImageExtension = ImageExtension.extend({
+const ResizableImageExtension = ImageExtension.extend({
   addAttributes() {
     return {
       ...this.parent?.(),
       width: {
-        default: MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH,
+        default: MARKDOWN_IMAGE_DEFAULT_WIDTH,
         parseHTML: (element: HTMLElement) =>
           parseImageWidth(element.getAttribute('width')),
         renderHTML: (attributes: Record<string, unknown>) => ({
@@ -125,7 +167,7 @@ const MentorImageExtension = ImageExtension.extend({
   },
 });
 
-const MentorCodeBlockExtension = CodeBlockLowlight.extend({
+const InstantCodeBlockExtension = CodeBlockLowlight.extend({
   addInputRules() {
     const parentInputRules = this.parent?.() ?? [];
 
@@ -157,19 +199,68 @@ const guessExtensionFromMime = (mimeType: string): string => {
   return map[mimeType] ?? 'png';
 };
 
-interface MentorMarkdownEditorProps {
-  value: string;
-  onChange: (next: string) => void;
-  placeholder?: string;
-}
+const toImageInputAccept = (extensions: readonly string[]) => {
+  return extensions.map((extension) => `.${extension}`).join(',');
+};
 
-interface ToolbarButtonProps {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  isActive?: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-}
+const isAllowedImageExtension = (
+  extension: string,
+  allowedExtensions: readonly string[],
+) => {
+  return allowedExtensions.includes(extension);
+};
+
+const extractClipboardImageFiles = (clipboardData: DataTransfer): File[] => {
+  const directImageFiles = Array.from(clipboardData.files).filter((file) =>
+    file.type.startsWith('image/'),
+  );
+
+  if (directImageFiles.length > 0) {
+    return directImageFiles;
+  }
+
+  return Array.from(clipboardData.items)
+    .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+    .map((item) => item.getAsFile())
+    .filter((file): file is File => file !== null);
+};
+
+const extractClipboardImageSource = (clipboardData: DataTransfer) => {
+  const pastedHtml = clipboardData.getData('text/html').trim();
+  if (pastedHtml) {
+    const imageSource = extractHtmlImageUrls(pastedHtml)[0]?.trim();
+
+    if (
+      imageSource &&
+      (isDataImageUrl(imageSource) || isRemoteUrl(imageSource))
+    ) {
+      return imageSource;
+    }
+  }
+
+  const pastedText = clipboardData.getData('text/plain').trim();
+  if (pastedText && (isImageUrl(pastedText) || isDataImageUrl(pastedText))) {
+    return pastedText;
+  }
+
+  return '';
+};
+
+const hasClipboardImageHint = (clipboardData: DataTransfer) => {
+  if (extractClipboardImageFiles(clipboardData).length > 0) {
+    return true;
+  }
+
+  if (
+    Array.from(clipboardData.items).some((item) => item.type.includes('html'))
+  ) {
+    return clipboardData.getData('text/html').includes('<img');
+  }
+
+  const pastedText = clipboardData.getData('text/plain').trim();
+
+  return isImageUrl(pastedText) || isDataImageUrl(pastedText);
+};
 
 function ToolbarButton({
   icon: Icon,
@@ -196,81 +287,83 @@ function ToolbarButton({
   );
 }
 
-function MentorMarkdownEditor({
+function MarkdownEditor({
   value,
   onChange,
   placeholder,
-}: MentorMarkdownEditorProps) {
+  normalizeContent = normalizeMarkdownContent,
+  imageConfig,
+}: MarkdownEditorProps) {
   const [imageInsertError, setImageInsertError] = useState('');
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
   const [, forceEditorRerender] = useState(0);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const editorContentWrapperRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<Editor | null>(null);
   const isInternalUpdate = useRef(false);
-  const normalizedValue = normalizeMentorMarkdownContent(value);
+  const normalizedValue = normalizeContent(value);
 
   const uploadAndInsertFile = useCallback(
     async (editor: Editor, file: File) => {
-      const ticket = await requestMentorMarkdownImageUploadTicket({
-        fileName: file.name,
-        fileType: file.type,
-        fileSize: file.size,
-      });
+      if (!imageConfig) {
+        return;
+      }
 
-      await uploadMentorMarkdownImageFile({
-        uploadUrl: ticket.uploadUrl,
-        file,
-      });
+      const publicUrl = await imageConfig.uploadImageFile(file);
 
       editor
         .chain()
         .focus()
         .setImage({
-          src: ticket.publicUrl,
-          width: MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH,
+          src: publicUrl,
+          width: MARKDOWN_IMAGE_DEFAULT_WIDTH,
         })
         .run();
     },
-    [],
+    [imageConfig],
   );
 
-  const validateImageFile = (file: File): string | undefined => {
-    if (!file.type.startsWith('image/')) {
-      return `${file.name}: 이미지 파일이 아닙니다.`;
-    }
+  const validateImageFile = useCallback(
+    (file: File): string | undefined => {
+      if (!imageConfig) {
+        return '이미지 업로드를 지원하지 않습니다.';
+      }
 
-    const extension = getFileExtension(file.name);
-    if (
-      extension &&
-      extension !== 'blob' &&
-      !isAllowedMarkdownImageExtension(extension)
-    ) {
-      return `${file.name}: 허용되지 않은 확장자입니다. (jpg/png/webp/gif)`;
-    }
+      if (!file.type.startsWith('image/')) {
+        return `${file.name}: 이미지 파일이 아닙니다.`;
+      }
 
-    if (file.size > MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE) {
-      return `${file.name}: 5MB를 초과합니다.`;
-    }
+      const extension = getFileExtension(file.name);
+      if (
+        extension &&
+        extension !== 'blob' &&
+        !isAllowedImageExtension(extension, imageConfig.allowedImageExtensions)
+      ) {
+        return `${file.name}: 허용되지 않은 확장자입니다. (${imageConfig.allowedImageExtensions.join('/')})`;
+      }
 
-    return undefined;
-  };
+      if (file.size > imageConfig.maxImageFileSize) {
+        return `${file.name}: ${Math.floor(imageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`;
+      }
+
+      return undefined;
+    },
+    [imageConfig],
+  );
 
   const handleImageFiles = useCallback(
     async (editor: Editor, files: File[]) => {
-      if (files.length === 0 || isUploadingImages) {
+      if (!imageConfig || files.length === 0 || isUploadingImages) {
         return;
       }
 
       const existingCount = extractImageUrls(editor.getHTML()).length;
-      const remaining = Math.max(
-        0,
-        MENTOR_MARKDOWN_MAX_IMAGE_COUNT - existingCount,
-      );
+      const remaining = Math.max(0, imageConfig.maxImageCount - existingCount);
 
       if (remaining === 0) {
         setImageInsertError(
-          `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
+          `이미지는 최대 ${imageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
         );
 
         return;
@@ -311,7 +404,7 @@ function MentorMarkdownEditor({
 
         if (files.length > remaining) {
           errors.push(
-            `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지 등록할 수 있습니다.`,
+            `이미지는 최대 ${imageConfig.maxImageCount}개까지 등록할 수 있습니다.`,
           );
         }
 
@@ -322,15 +415,19 @@ function MentorMarkdownEditor({
         setIsUploadingImages(false);
       }
     },
-    [isUploadingImages, uploadAndInsertFile],
+    [imageConfig, isUploadingImages, uploadAndInsertFile, validateImageFile],
   );
 
-  const handlePasteImageUrl = useCallback(
-    async (editor: Editor, url: string) => {
+  const handlePasteImageSource = useCallback(
+    async (editor: Editor, source: string) => {
+      if (!imageConfig) {
+        return;
+      }
+
       const existingCount = extractImageUrls(editor.getHTML()).length;
-      if (existingCount >= MENTOR_MARKDOWN_MAX_IMAGE_COUNT) {
+      if (existingCount >= imageConfig.maxImageCount) {
         setImageInsertError(
-          `이미지는 최대 ${MENTOR_MARKDOWN_MAX_IMAGE_COUNT}개까지만 등록할 수 있습니다.`,
+          `이미지는 최대 ${imageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
         );
 
         return;
@@ -340,7 +437,7 @@ function MentorMarkdownEditor({
       setImageInsertError('');
 
       try {
-        const response = await fetch(url);
+        const response = await fetch(source);
         if (!response.ok) {
           throw new Error('이미지를 가져올 수 없습니다.');
         }
@@ -353,8 +450,10 @@ function MentorMarkdownEditor({
         const ext = guessExtensionFromMime(blob.type);
         const file = toFileFromBlob(blob, `pasted-image.${ext}`);
 
-        if (file.size > MENTOR_MARKDOWN_MAX_IMAGE_FILE_SIZE) {
-          setImageInsertError('이미지가 5MB를 초과합니다.');
+        if (file.size > imageConfig.maxImageFileSize) {
+          setImageInsertError(
+            `이미지가 ${Math.floor(imageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`,
+          );
 
           return;
         }
@@ -368,17 +467,78 @@ function MentorMarkdownEditor({
         setIsUploadingImages(false);
       }
     },
-    [uploadAndInsertFile],
+    [imageConfig, uploadAndInsertFile],
+  );
+
+  const readClipboardImageFiles = useCallback(async () => {
+    if (
+      typeof navigator === 'undefined' ||
+      !navigator.clipboard ||
+      typeof navigator.clipboard.read !== 'function'
+    ) {
+      return [];
+    }
+
+    try {
+      const clipboardItems = await navigator.clipboard.read();
+      const files: File[] = [];
+
+      for (const clipboardItem of clipboardItems) {
+        const imageType = clipboardItem.types.find((type) =>
+          type.startsWith('image/'),
+        );
+
+        if (!imageType) {
+          continue;
+        }
+
+        const blob = await clipboardItem.getType(imageType);
+        files.push(
+          toFileFromBlob(
+            blob,
+            `pasted-image.${guessExtensionFromMime(blob.type)}`,
+          ),
+        );
+      }
+
+      return files;
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const handleClipboardPaste = useCallback(
+    async (editor: Editor, clipboardData: DataTransfer) => {
+      const directFiles = extractClipboardImageFiles(clipboardData);
+      if (directFiles.length > 0) {
+        await handleImageFiles(editor, directFiles);
+
+        return;
+      }
+
+      const clipboardApiFiles = await readClipboardImageFiles();
+      if (clipboardApiFiles.length > 0) {
+        await handleImageFiles(editor, clipboardApiFiles);
+
+        return;
+      }
+
+      const pastedImageSource = extractClipboardImageSource(clipboardData);
+      if (pastedImageSource) {
+        await handlePasteImageSource(editor, pastedImageSource);
+      }
+    },
+    [handleImageFiles, handlePasteImageSource, readClipboardImageFiles],
   );
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        heading: { levels: [2, 3] },
+        heading: { levels: [1, 2, 3] },
         codeBlock: false,
       }),
-      MentorCodeBlockExtension.configure({
+      InstantCodeBlockExtension.configure({
         lowlight,
         defaultLanguage: 'plaintext',
       }),
@@ -390,15 +550,15 @@ function MentorMarkdownEditor({
           target: '_blank',
         },
       }),
-      MentorImageExtension,
+      ResizableImageExtension,
       Placeholder.configure({
-        placeholder: placeholder ?? '멘토 소개를 자유롭게 작성해주세요.',
+        placeholder: placeholder ?? '내용을 자유롭게 작성해주세요.',
       }),
     ],
     content: normalizedValue || '',
     onUpdate: ({ editor: updatedEditor }) => {
       isInternalUpdate.current = true;
-      onChange(normalizeMentorMarkdownContent(updatedEditor.getHTML()));
+      onChange(normalizeContent(updatedEditor.getHTML()));
     },
     onTransaction() {
       forceEditorRerender((prev) => prev + 1);
@@ -418,39 +578,25 @@ function MentorMarkdownEditor({
     },
     editorProps: {
       handlePaste: (view, event) => {
+        if (!imageConfig) {
+          return false;
+        }
+
         const clipboardData = event.clipboardData;
         if (!clipboardData) {
           return false;
         }
 
-        const imageFiles = Array.from(clipboardData.files).filter((file) =>
-          file.type.startsWith('image/'),
-        );
-
-        if (imageFiles.length > 0) {
+        if (hasClipboardImageHint(clipboardData)) {
           event.preventDefault();
-          const editorInstance = view.state
-            ? (view as unknown as { editor?: Editor }).editor
-            : undefined;
+          const editorInstance =
+            editorRef.current && !editorRef.current.isDestroyed
+              ? editorRef.current
+              : null;
 
           if (editorInstance) {
-            handleImageFiles(editorInstance, imageFiles).catch(() => {
+            handleClipboardPaste(editorInstance, clipboardData).catch(() => {
               setImageInsertError('이미지 붙여넣기에 실패했습니다.');
-            });
-          }
-
-          return true;
-        }
-
-        const pastedText = clipboardData.getData('text/plain').trim();
-        if (pastedText && isImageUrl(pastedText)) {
-          event.preventDefault();
-          const editorInstance = (view as unknown as { editor?: Editor })
-            .editor;
-
-          if (editorInstance) {
-            handlePasteImageUrl(editorInstance, pastedText).catch(() => {
-              setImageInsertError('이미지 URL 처리에 실패했습니다.');
             });
           }
 
@@ -460,6 +606,10 @@ function MentorMarkdownEditor({
         return false;
       },
       handleDrop: (view, event) => {
+        if (!imageConfig) {
+          return false;
+        }
+
         const dataTransfer = event.dataTransfer;
         if (!dataTransfer) {
           return false;
@@ -474,7 +624,10 @@ function MentorMarkdownEditor({
         }
 
         event.preventDefault();
-        const editorInstance = (view as unknown as { editor?: Editor }).editor;
+        const editorInstance =
+          editorRef.current && !editorRef.current.isDestroyed
+            ? editorRef.current
+            : null;
 
         if (editorInstance) {
           handleImageFiles(editorInstance, imageFiles).catch(() => {
@@ -488,6 +641,10 @@ function MentorMarkdownEditor({
   });
 
   useEffect(() => {
+    editorRef.current = editor ?? null;
+  }, [editor]);
+
+  useEffect(() => {
     if (!editor || editor.isDestroyed) {
       return;
     }
@@ -498,11 +655,11 @@ function MentorMarkdownEditor({
       return;
     }
 
-    const currentHtml = normalizeMentorMarkdownContent(editor.getHTML());
+    const currentHtml = normalizeContent(editor.getHTML());
     if (currentHtml !== normalizedValue) {
       editor.commands.setContent(normalizedValue || '', { emitUpdate: false });
     }
-  }, [editor, normalizedValue]);
+  }, [editor, normalizeContent, normalizedValue]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -536,6 +693,49 @@ function MentorMarkdownEditor({
     editor.chain().focus().setLink({ href: url.trim() }).run();
   };
 
+  const handleToggleCodeBlock = () => {
+    if (!editor) {
+      return;
+    }
+
+    const { selection, doc } = editor.state;
+    const { from, to, empty } = selection;
+
+    if (editor.isActive('codeBlock') || empty) {
+      editor.chain().focus().toggleCodeBlock().run();
+
+      return;
+    }
+
+    const selectedText = doc.textBetween(from, to, '\n', '\n');
+    if (!selectedText.includes('\n')) {
+      editor.chain().focus().toggleCodeBlock().run();
+
+      return;
+    }
+
+    editor
+      .chain()
+      .focus()
+      .insertContentAt(
+        { from, to },
+        {
+          type: 'codeBlock',
+          attrs: {
+            language: 'plaintext',
+          },
+          content: [
+            {
+              type: 'text',
+              text: selectedText,
+            },
+          ],
+        },
+      )
+      .setTextSelection(from + 1)
+      .run();
+  };
+
   const handleImageWidthChange = (nextWidth: number) => {
     if (!editor || selectedImagePos === null) {
       return;
@@ -563,14 +763,14 @@ function MentorMarkdownEditor({
 
     // 이미지 width 변경은 onUpdate가 누락될 수 있어 폼 값을 직접 동기화한다.
     isInternalUpdate.current = true;
-    onChange(normalizeMentorMarkdownContent(editor.getHTML()));
+    onChange(normalizeContent(editor.getHTML()));
   };
 
   const isImageActive = selectedImagePos !== null;
   const selectedImageWidth =
     editor && selectedImagePos !== null
       ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
-      : MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH;
+      : MARKDOWN_IMAGE_DEFAULT_WIDTH;
   const activeCodeBlockControl = (() => {
     if (!editor || !editor.isActive('codeBlock')) {
       return null;
@@ -631,6 +831,17 @@ function MentorMarkdownEditor({
           isActive={editor?.isActive('strike')}
           onClick={() => editor?.chain().focus().toggleStrike().run()}
         />
+        {HEADING_OPTIONS.map(({ icon, label, level }) => (
+          <ToolbarButton
+            key={label}
+            icon={icon}
+            label={label}
+            isActive={editor?.isActive('heading', { level })}
+            onClick={() =>
+              editor?.chain().focus().toggleHeading({ level }).run()
+            }
+          />
+        ))}
         <ToolbarButton
           icon={Link2}
           label="링크"
@@ -659,22 +870,24 @@ function MentorMarkdownEditor({
           icon={Code2}
           label="코드"
           isActive={editor?.isActive('codeBlock')}
-          onClick={() => editor?.chain().focus().toggleCodeBlock().run()}
+          onClick={handleToggleCodeBlock}
         />
-        <Button
-          type="button"
-          color="secondary"
-          size="small"
-          onClick={() => imageInputRef.current?.click()}
-          disabled={isUploadingImages}
-        >
-          {isUploadingImages ? (
-            <Loader2 className="mr-50 h-12 w-12 animate-spin" />
-          ) : (
-            <ImagePlus className="mr-50 h-12 w-12" />
-          )}
-          {isUploadingImages ? '업로드 중...' : '이미지'}
-        </Button>
+        {imageConfig && (
+          <Button
+            type="button"
+            color="secondary"
+            size="small"
+            onClick={() => imageInputRef.current?.click()}
+            disabled={isUploadingImages}
+          >
+            {isUploadingImages ? (
+              <Loader2 className="mr-50 h-12 w-12 animate-spin" />
+            ) : (
+              <ImagePlus className="mr-50 h-12 w-12" />
+            )}
+            {isUploadingImages ? '업로드 중...' : '이미지'}
+          </Button>
+        )}
       </div>
 
       {isImageActive && (
@@ -684,9 +897,9 @@ function MentorMarkdownEditor({
           </span>
           <input
             type="range"
-            min={MENTOR_MARKDOWN_IMAGE_MIN_WIDTH}
-            max={MENTOR_MARKDOWN_IMAGE_MAX_WIDTH}
-            step={MENTOR_MARKDOWN_IMAGE_WIDTH_STEP}
+            min={MARKDOWN_IMAGE_MIN_WIDTH}
+            max={MARKDOWN_IMAGE_MAX_WIDTH}
+            step={MARKDOWN_IMAGE_WIDTH_STEP}
             value={selectedImageWidth}
             onChange={(event) => {
               handleImageWidthChange(Number(event.target.value));
@@ -700,35 +913,35 @@ function MentorMarkdownEditor({
             type="button"
             color="secondary"
             size="small"
-            onClick={() =>
-              handleImageWidthChange(MENTOR_MARKDOWN_IMAGE_DEFAULT_WIDTH)
-            }
+            onClick={() => handleImageWidthChange(MARKDOWN_IMAGE_DEFAULT_WIDTH)}
           >
             기본 200px
           </Button>
         </div>
       )}
 
-      <input
-        ref={imageInputRef}
-        type="file"
-        multiple
-        accept=".jpg,.jpeg,.png,.webp,.gif,image/jpeg,image/png,image/webp,image/gif"
-        className="hidden"
-        onChange={(event) => {
-          if (!editor) {
-            return;
-          }
+      {imageConfig && (
+        <input
+          ref={imageInputRef}
+          type="file"
+          multiple
+          accept={toImageInputAccept(imageConfig.allowedImageExtensions)}
+          className="hidden"
+          onChange={(event) => {
+            if (!editor) {
+              return;
+            }
 
-          const files = Array.from(event.target.files ?? []);
-          handleImageFiles(editor, files).catch(() => {
-            setImageInsertError(
-              '이미지 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-            );
-          });
-          event.target.value = '';
-        }}
-      />
+            const files = Array.from(event.target.files ?? []);
+            handleImageFiles(editor, files).catch(() => {
+              setImageInsertError(
+                '이미지 업로드 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+              );
+            });
+            event.target.value = '';
+          }}
+        />
+      )}
 
       <div ref={editorContentWrapperRef} className="relative">
         {activeCodeBlockControl && (
@@ -795,4 +1008,4 @@ function MentorMarkdownEditor({
   );
 }
 
-export default memo(MentorMarkdownEditor);
+export default memo(MarkdownEditor);

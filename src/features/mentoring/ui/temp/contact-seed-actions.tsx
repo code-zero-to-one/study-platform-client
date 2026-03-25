@@ -26,8 +26,6 @@ const buildTempMentorRegistrationValues = (): MentorRegistrationFormValues => {
 
   return {
     ...defaults,
-    contactPhone: '01012345678',
-    contactEmail: 'mentor-temp@zeroone.dev',
     categories: ['커리어'],
     mentoringTitle: '임시 검증용 멘토링',
     jobGroup: '개발',

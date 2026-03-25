@@ -22,6 +22,22 @@ export interface MentorReview {
   method: MentoringMethodType;
 }
 
+export interface MentorPublicReadinessSteps {
+  basicInformation: boolean;
+  mentorInformation: boolean;
+  mentorDescription: boolean;
+  pricingAndTime: boolean;
+  schedule: boolean;
+  settlement: boolean;
+}
+
+export interface MentorPublicReadinessSnapshot {
+  listReady: boolean;
+  detailReady: boolean;
+  applicationReady: boolean;
+  steps: MentorPublicReadinessSteps;
+}
+
 export interface MentorProfile {
   id: number;
   nickname: string;
@@ -29,6 +45,7 @@ export interface MentorProfile {
   career: string;
   company: string;
   publicReadinessStage?: 'DETAIL_PREPARING' | 'APPLY_PREPARING' | 'APPLY_READY';
+  publicReadiness?: MentorPublicReadinessSnapshot;
   applicationReady?: boolean;
   rating: number;
   reviewCount: number;

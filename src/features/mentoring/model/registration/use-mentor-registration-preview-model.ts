@@ -2,14 +2,14 @@
 
 import { useMemo } from 'react';
 import {
-  buildPreviewMentorProfile,
-  toDurationMinutes,
-  toSafeInteger,
-} from '@/features/mentoring/model/mentor-registration-preview';
-import {
   applyMentorScheduleTextDrafts,
   createDefaultMentorSettings,
 } from '@/features/mentoring/model/mentor-settings';
+import {
+  buildPreviewMentorProfile,
+  toDurationMinutes,
+  toSafeInteger,
+} from '@/features/mentoring/model/registration/mentor-registration-preview';
 import type { MentorProfile } from '@/types/mentoring/domain';
 import { normalizeMentorMarkdownContent } from '@/types/mentoring/markdown';
 import type { MentorRegistrationOptions } from '@/types/mentoring/registration-options';
@@ -44,9 +44,6 @@ const normalizePreviewStringArray = (value: unknown): string[] => {
 };
 
 interface MentorRegistrationPreviewFields {
-  contactCountryCode?: MentorRegistrationFormValues['contactCountryCode'];
-  contactPhone?: string;
-  contactEmail?: string;
   mentoringTitle?: string;
   appealLine?: string;
   jobGroup?: string;
@@ -108,6 +105,36 @@ export const useMentorRegistrationPreviewModel = ({
 }: UseMentorRegistrationPreviewModelParams): MentorRegistrationPreviewModel => {
   const selectedRegistrationOptions =
     registrationOptions ?? EMPTY_REGISTRATION_OPTIONS;
+  const {
+    mentoringTitle,
+    appealLine,
+    jobGroup,
+    jobTitle,
+    careerYears,
+    careerEntries,
+    skillTags,
+    companyCategory,
+    companyName,
+    hideCompanyName,
+    listVisible,
+    maxParticipants,
+    noteEnabled,
+    notePrice,
+    simpleEnabled,
+    simplePrice,
+    deepEnabled,
+    deepPrice,
+    deepDurationMinutes,
+    offlineEnabled,
+    offlinePrice,
+    offlineDurationMinutes,
+    schedule,
+    scheduleDrafts,
+    detailedDescription,
+    interviewQuestions,
+    preNotice,
+    updatedAt,
+  } = fields;
 
   const jobGroupLabelMap = useMemo(() => {
     return new Map(
@@ -157,87 +184,100 @@ export const useMentorRegistrationPreviewModel = ({
   const entryOnboardingValues =
     useMemo<MentorRegistrationEntryOnboardingValues>(() => {
       return {
-        jobGroup: fields.jobGroup ?? '',
-        jobTitle: fields.jobTitle ?? '',
-        careerYears: fields.careerYears ?? '',
-        appealLine: fields.appealLine ?? '',
+        jobGroup: jobGroup ?? '',
+        jobTitle: jobTitle ?? '',
+        careerYears: careerYears ?? '',
+        appealLine: appealLine ?? '',
       };
-    }, [
-      fields.appealLine,
-      fields.careerYears,
-      fields.jobGroup,
-      fields.jobTitle,
-    ]);
+    }, [appealLine, careerYears, jobGroup, jobTitle]);
 
-  const displayJobGroup = jobGroupLabelMap.get(fields.jobGroup ?? '') ?? '';
-  const displayJobTitle = jobTitleLabelMap.get(fields.jobTitle ?? '') ?? '';
-  const displayCareer = careerLabelMap.get(fields.careerYears ?? '') ?? '';
-  const displayProfileKeywords = (fields.skillTags ?? [])
+  const displayJobGroup = jobGroupLabelMap.get(jobGroup ?? '') ?? '';
+  const displayJobTitle = jobTitleLabelMap.get(jobTitle ?? '') ?? '';
+  const displayCareer = careerLabelMap.get(careerYears ?? '') ?? '';
+  const displayProfileKeywords = (skillTags ?? [])
     .map((keyword) => coreKeywordLabelMap.get(keyword) ?? keyword)
     .filter((label) => label.length > 0);
 
   const previewFormValues = useMemo<MentorRegistrationFormValues>(() => {
     const defaults = createDefaultMentorSettings();
-    const scheduleDrafts =
-      fields.scheduleDrafts ?? createEmptyMentorScheduleDrafts();
-    const schedule = applyMentorScheduleTextDrafts({
-      schedule: fields.schedule ?? defaults.schedule,
-      drafts: scheduleDrafts,
+    const nextScheduleDrafts =
+      scheduleDrafts ?? createEmptyMentorScheduleDrafts();
+    const previewSchedule = applyMentorScheduleTextDrafts({
+      schedule: schedule ?? defaults.schedule,
+      drafts: nextScheduleDrafts,
     }).schedule;
 
     return {
       ...defaults,
-      contactCountryCode:
-        fields.contactCountryCode ?? defaults.contactCountryCode,
-      contactPhone: fields.contactPhone ?? '',
-      contactEmail: fields.contactEmail ?? '',
       categories: [],
-      mentoringTitle: fields.mentoringTitle ?? '',
-      appealLine: fields.appealLine ?? '',
-      jobGroup: fields.jobGroup ?? '',
-      jobTitle: fields.jobTitle ?? '',
-      careerYears: fields.careerYears ?? '',
-      careerEntries: fields.careerEntries ?? [],
-      skillTags: fields.skillTags,
-      companyCategory: fields.companyCategory ?? defaults.companyCategory,
-      companyName: fields.companyName ?? '',
-      hideCompanyName: fields.hideCompanyName ?? defaults.hideCompanyName,
-      listVisible: fields.listVisible ?? defaults.listVisible,
+      mentoringTitle: mentoringTitle ?? '',
+      appealLine: appealLine ?? '',
+      jobGroup: jobGroup ?? '',
+      jobTitle: jobTitle ?? '',
+      careerYears: careerYears ?? '',
+      careerEntries: careerEntries ?? [],
+      skillTags: skillTags,
+      companyCategory: companyCategory ?? defaults.companyCategory,
+      companyName: companyName ?? '',
+      hideCompanyName: hideCompanyName ?? defaults.hideCompanyName,
+      listVisible: listVisible ?? defaults.listVisible,
       maxParticipants: Math.min(
         10,
-        Math.max(
-          1,
-          toSafeInteger(fields.maxParticipants, defaults.maxParticipants),
-        ),
+        Math.max(1, toSafeInteger(maxParticipants, defaults.maxParticipants)),
       ),
-      noteEnabled: fields.noteEnabled ?? defaults.noteEnabled,
-      notePrice: toSafeInteger(fields.notePrice, defaults.notePrice),
-      simpleEnabled: fields.simpleEnabled ?? defaults.simpleEnabled,
-      simplePrice: toSafeInteger(fields.simplePrice, defaults.simplePrice),
-      deepEnabled: fields.deepEnabled ?? defaults.deepEnabled,
-      deepPrice: toSafeInteger(fields.deepPrice, defaults.deepPrice),
+      noteEnabled: noteEnabled ?? defaults.noteEnabled,
+      notePrice: toSafeInteger(notePrice, defaults.notePrice),
+      simpleEnabled: simpleEnabled ?? defaults.simpleEnabled,
+      simplePrice: toSafeInteger(simplePrice, defaults.simplePrice),
+      deepEnabled: deepEnabled ?? defaults.deepEnabled,
+      deepPrice: toSafeInteger(deepPrice, defaults.deepPrice),
       deepDurationMinutes: toDurationMinutes(
-        fields.deepDurationMinutes,
+        deepDurationMinutes,
         defaults.deepDurationMinutes,
       ),
-      offlineEnabled: fields.offlineEnabled ?? defaults.offlineEnabled,
-      offlinePrice: toSafeInteger(fields.offlinePrice, defaults.offlinePrice),
+      offlineEnabled: offlineEnabled ?? defaults.offlineEnabled,
+      offlinePrice: toSafeInteger(offlinePrice, defaults.offlinePrice),
       offlineDurationMinutes: toDurationMinutes(
-        fields.offlineDurationMinutes,
+        offlineDurationMinutes,
         defaults.offlineDurationMinutes,
       ),
-      schedule,
-      scheduleDrafts,
-      detailedDescription: normalizeMentorMarkdownContent(
-        fields.detailedDescription,
-      ),
-      interviewQuestions: normalizePreviewStringArray(
-        fields.interviewQuestions,
-      ),
-      preNotice: normalizePreviewString(fields.preNotice),
-      updatedAt: normalizePreviewString(fields.updatedAt) || defaults.updatedAt,
+      schedule: previewSchedule,
+      scheduleDrafts: nextScheduleDrafts,
+      detailedDescription: normalizeMentorMarkdownContent(detailedDescription),
+      interviewQuestions: normalizePreviewStringArray(interviewQuestions),
+      preNotice: normalizePreviewString(preNotice),
+      updatedAt: normalizePreviewString(updatedAt) || defaults.updatedAt,
     };
-  }, [fields]);
+  }, [
+    appealLine,
+    careerEntries,
+    careerYears,
+    companyCategory,
+    companyName,
+    deepDurationMinutes,
+    deepEnabled,
+    deepPrice,
+    detailedDescription,
+    hideCompanyName,
+    interviewQuestions,
+    jobGroup,
+    jobTitle,
+    listVisible,
+    maxParticipants,
+    mentoringTitle,
+    noteEnabled,
+    notePrice,
+    offlineDurationMinutes,
+    offlineEnabled,
+    offlinePrice,
+    preNotice,
+    schedule,
+    scheduleDrafts,
+    simpleEnabled,
+    simplePrice,
+    skillTags,
+    updatedAt,
+  ]);
 
   const previewMentorId = myMentorId ?? memberId ?? 0;
 
