@@ -1,4 +1,4 @@
-import { normalizeMentorProfileKeywordValues } from '@/features/mentoring/model/mentor-registration-keywords';
+import { normalizeMentorProfileKeywordValues } from '@/features/mentoring/model/registration/mentor-registration-keywords';
 import type { MentorRegistrationOptions } from '@/types/mentoring/registration-options';
 import type { MentorApiContractScope } from './mentor-api-contract';
 import {

@@ -1,11 +1,11 @@
 'use client';
 
 import { ApiError } from '@/api/client/api-error';
+import { useMentorDetailQuery } from '@/features/mentoring/model/directory/use-mentor-directory-query';
 import {
   getMentorPublicReadiness,
   MENTOR_APPLY_UNSUPPORTED_MESSAGE,
 } from '@/features/mentoring/model/mentor-public-readiness';
-import { useMentorDetailQuery } from '@/features/mentoring/model/use-mentor-directory-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { MentoringMethodType } from '@/types/mentoring/domain';
 import {

@@ -48,7 +48,7 @@ import {
   type MentoringRequestContentBlock,
   type MentoringRequestRichTextBlock,
   type MentoringRequestRichTextNode,
-} from '@/features/mentoring/model/request-content';
+} from '@/features/mentoring/model/apply/request-content';
 
 type FontSizeMark = 'sm' | 'md' | 'lg' | 'xl';
 type MarkFormat = 'bold' | 'italic' | 'underline' | 'strikethrough';

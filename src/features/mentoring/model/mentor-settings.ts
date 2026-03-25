@@ -14,12 +14,10 @@ export {
   MENTOR_SCHEDULE_TIMEZONE,
   COMPANY_CATEGORY_OPTIONS,
   CONSULTING_DURATION_OPTIONS,
-  CONTACT_COUNTRY_CODES,
   MENTOR_CAREER_ENTRY_MAX_COUNT,
   WEEKDAY_KEYS,
   WEEKDAY_LABEL_MAP,
   type CompanyCategory,
-  type ContactCountryCode,
   type ConsultingDurationMinutes,
   type MentorCareerEntry,
   type MentorScheduleTextDrafts,
@@ -181,9 +179,6 @@ export const formatMentorCareerEntryPeriodLabel = ({
 
 export const createDefaultMentorSettings = (): MentorSettings => {
   return {
-    contactCountryCode: '+82',
-    contactPhone: '',
-    contactEmail: '',
     categories: [],
     mentoringTitle: '',
     appealLine: '',

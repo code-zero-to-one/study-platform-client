@@ -15,7 +15,6 @@ import {
 import {
   COMPANY_CATEGORY_OPTIONS,
   CONSULTING_DURATION_OPTIONS,
-  CONTACT_COUNTRY_CODES,
   MENTOR_CAREER_ENTRY_MAX_COUNT,
   WEEKDAY_KEYS,
 } from '@/types/mentoring/settings';
@@ -244,22 +243,12 @@ const scheduleDraftsSchema = z.object({
   SUN: z.array(scheduleDraftTextSchema),
 });
 
-const legacyContactEmailSchema = z.string().trim().default('');
-
 const hasAnySchedule = (schedule: z.infer<typeof scheduleSchema>) => {
   return WEEKDAY_KEYS.some((key) => schedule.weekly[key].length > 0);
 };
 
 export const mentorRegistrationSchema = z
   .object({
-    contactCountryCode: z.enum(CONTACT_COUNTRY_CODES),
-    contactPhone: z
-      .string()
-      .trim()
-      .refine((value) => value === '' || /^\d{8,12}$/.test(value), {
-        message: '연락처는 숫자 8~12자리로 입력해주세요.',
-      }),
-    contactEmail: legacyContactEmailSchema,
     categories: z.array(z.string().trim().min(1)).default([]),
     mentoringTitle: z
       .string()

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMentorJoinController } from '@/features/mentoring/model/use-mentor-join-controller';
+import { useMentorJoinController } from '@/features/mentoring/model/directory/use-mentor-join-controller';
 import MentorJoinCard from './mentor-join-card';
 
 export default function MentorJoinCardContainer() {
