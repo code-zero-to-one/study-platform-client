@@ -20,6 +20,7 @@ import type {
   NoteConsultationChannel,
   NoteConsultationListItem,
 } from '@/types/mentoring/note-consultation-view';
+import { formatExternalLink } from '@/utils/format';
 
 function UserAvatar({
   name,
@@ -141,7 +142,7 @@ function QuestionCard({ request }: { request: MentoringRequest }) {
           {request.referenceLinks?.map((link) => (
             <a
               key={link}
-              href={link}
+              href={formatExternalLink(link)}
               target="_blank"
               rel="noopener noreferrer"
               className="font-designer-11m text-text-brand border-border-subtle inline-flex items-center gap-50 rounded-full border px-100 py-50 underline"

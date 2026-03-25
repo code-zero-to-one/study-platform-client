@@ -9,10 +9,17 @@ import { Modal } from '@/components/common/ui/modal';
 
 import { useSubmitHomework } from '@/hooks/queries/group-study-homework-api';
 import { useToastStore } from '@/stores/use-toast-store';
+import { formatExternalLink } from '@/utils/format';
+import { isValidUrl } from '@/utils/validation';
 
 const SubmitHomeworkFormSchema = z.object({
   textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.').max(1000),
-  attachmentLink: z.string().optional(),
+  attachmentLink: z
+    .string()
+    .optional()
+    .refine((val) => !val || isValidUrl(val), {
+      message: '올바른 URL 형식을 입력해주세요. (예: https://example.com)',
+    }),
 });
 
 type SubmitHomeworkFormValues = z.infer<typeof SubmitHomeworkFormSchema>;
@@ -98,7 +105,11 @@ function SubmitHomeworkForm({
         missionId,
         request: {
           textContent: values.textContent,
-          optionalSubmission: { link: values.attachmentLink },
+          optionalSubmission: {
+            link: values.attachmentLink
+              ? formatExternalLink(values.attachmentLink)
+              : values.attachmentLink,
+          },
         },
       },
       {

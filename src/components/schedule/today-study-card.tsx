@@ -12,6 +12,7 @@ import { TUTORIAL_DAILY_STUDY_MOCK } from '@/config/tutorial-mock';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useDailyStudyDetailQuery } from '@/hooks/queries/use-interview-query';
 import { DailyStudyDetail } from '@/types/api/interview.types';
+import { formatExternalLink } from '@/utils/format';
 
 const StudyDoneModal = dynamic(
   () => import('@/components/common/modals/study-done-modal'),
@@ -364,11 +365,13 @@ function StudySubject({ subject }: Pick<DailyStudyDetail, 'subject'>) {
 }
 
 function StudyLink({ link }: Pick<DailyStudyDetail, 'link'>) {
+  if (!link) return null;
+
   return (
     <div className="bg-background-alternative rounded-50 col-span-2 flex items-center gap-300 px-300 py-250">
       <span className="text-sm text-gray-600">스터디 링크</span>
 
-      <Link href={link} target="_blank" rel="noreferrer">
+      <Link href={formatExternalLink(link)} target="_blank" rel="noreferrer">
         <div className="flex cursor-pointer gap-75">
           <Image
             src="icons/Link.svg"

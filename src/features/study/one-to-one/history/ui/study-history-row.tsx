@@ -12,6 +12,7 @@ import {
 import dynamic from 'next/dynamic';
 import UserAvatar from '@/components/common/ui/avatar';
 import { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
+import { formatExternalLink } from '@/utils/format';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),
@@ -121,7 +122,7 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
       <div className="flex w-[80px] shrink-0 justify-center">
         {item.link ? (
           <a
-            href={item.link}
+            href={formatExternalLink(item.link)}
             target="_blank"
             rel="noopener noreferrer"
             className="text-text-subtle hover:text-text-strong group flex items-center justify-center p-100 transition-all"

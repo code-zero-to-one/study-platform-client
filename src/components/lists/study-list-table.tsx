@@ -11,6 +11,7 @@ import {
   type DailyStudy,
   type GetDailyStudiesResponse,
 } from '@/types/api/schedule.types';
+import { formatExternalLink } from '@/utils/format';
 import LinkIcon from 'public/icons/Link.svg';
 
 const TABLE_HEADERS = [
@@ -61,7 +62,7 @@ function mapDailyStudyToDisplayData(
     '진행 상태': getStatusBadge(row.progressStatus),
     '참고 자료': row.link ? (
       <a
-        href={row.link}
+        href={formatExternalLink(row.link)}
         target="_blank"
         rel="noopener noreferrer"
         onClick={() => {

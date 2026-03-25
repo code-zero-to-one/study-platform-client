@@ -7,6 +7,7 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import Tooltip from '@/components/common/ui/tooltip';
 import type { MVPTeam } from '@/types/one-to-one-study/hall-of-fame';
+import { formatExternalLink } from '@/utils/format';
 
 interface MVPTeamCardProps {
   team: MVPTeam;
@@ -104,7 +105,7 @@ export default function MVPTeamCard({ team, className }: MVPTeamCardProps) {
             {team.sharedLinks.map((link, i) => (
               <a
                 key={link.id}
-                href={link.url}
+                href={formatExternalLink(link.url)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-designer-13r text-text-subtle hover:text-text-information flex items-center gap-100 truncate transition-all hover:underline"
