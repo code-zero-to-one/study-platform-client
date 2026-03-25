@@ -4,6 +4,7 @@ import { sendGTMEvent } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
@@ -39,7 +40,7 @@ const GroupStudyFormModal = dynamic(
 
 type ActionKey = 'end' | 'delete';
 
-const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
+const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
 
 const END_MODAL_CONTENT = (
   <>
@@ -112,11 +113,12 @@ export default function PremiumStudyDetailPage({
             group_study_id: String(groupStudyId),
           });
           showToast('스터디가 종료되었습니다.');
-          setConfirmAction(null);
           router.push('/premium-study');
         },
         onError: () => {
           showToast('스터디 종료에 실패하였습니다.', 'error');
+        },
+        onSettled: () => {
           setConfirmAction(null);
         },
       },
@@ -263,7 +265,7 @@ export default function PremiumStudyDetailPage({
       />
 
       {/* 플로팅 정보 바 */}
-      <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
+      <div className={cn('mt-500', DETAIL_CONTENT_WIDTH)}>
         <StudyActiveTicker
           approvedCount={studyDetail.basicInfo.approvedCount}
           maxMembersCount={studyDetail.basicInfo.maxMembersCount}
@@ -272,14 +274,17 @@ export default function PremiumStudyDetailPage({
         />
       </div>
       <div
-        className={`mb-500 flex ${DETAIL_CONTENT_WIDTH} items-start justify-between`}
+        className={cn(
+          'mb-500 flex items-start justify-between',
+          DETAIL_CONTENT_WIDTH,
+        )}
       >
         <div className="flex w-full flex-col gap-150">
           <p className="font-designer-28b text-text-strong">
-            {studyDetail?.detailInfo.title}
+            {studyDetail.detailInfo.title}
           </p>
           <p className="font-designer-18r text-text-default">
-            {studyDetail?.detailInfo.summary}
+            {studyDetail.detailInfo.summary}
           </p>
         </div>
         {isLeader && (
