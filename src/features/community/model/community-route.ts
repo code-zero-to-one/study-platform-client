@@ -35,3 +35,11 @@ export const buildCommunityPostHref = (postId: number, page?: number) => {
 
   return normalizedPage ? `${detailPath}?page=${normalizedPage}` : detailPath;
 };
+
+export const buildCommunityEditHref = (postId: number, page?: number) => {
+  const normalizedPage =
+    typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const editPath = `/community/${postId}/edit`;
+
+  return normalizedPage ? `${editPath}?page=${normalizedPage}` : editPath;
+};

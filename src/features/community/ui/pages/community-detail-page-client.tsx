@@ -15,6 +15,7 @@ import CommunityAuthorProfileCard from '../community-author-profile-card';
 import CommunityCommentSection from '../community-comment-section';
 import CommunityDetailFeedSection from '../community-detail-feed-section';
 import { CommunityBoardBadge } from '../community-meta-badge';
+import CommunityPostOwnerActions from '../community-post-owner-actions';
 import CommunityReactionButton from '../community-reaction-button';
 import CommunitySectionShell from '../community-section-shell';
 
@@ -55,7 +56,7 @@ export default function CommunityDetailPageClient({
       <PageContainer className="flex flex-col gap-500 xl:gap-600">
         <CommunitySectionShell className="gap-250">
           <p className="font-designer-16r text-text-subtle">
-            Loading post.
+            글을 불러오는 중입니다.
           </p>
         </CommunitySectionShell>
       </PageContainer>
@@ -71,14 +72,14 @@ export default function CommunityDetailPageClient({
             className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
           >
             <ChevronLeft className="h-16 w-16" />
-            Back to community
+            커뮤니티로 돌아가기
           </Link>
           <div className="rounded-200 border border-border-subtle bg-background-default p-300">
             <p className="font-designer-20b text-text-strong">
-              Post not found.
+              글을 찾을 수 없어요.
             </p>
             <p className="mt-100 font-designer-14r text-text-subtle">
-              Return to the list and try another post.
+              목록으로 돌아가 다른 글을 확인해 주세요.
             </p>
           </div>
         </CommunitySectionShell>
@@ -96,7 +97,7 @@ export default function CommunityDetailPageClient({
           className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
         >
           <ChevronLeft className="h-16 w-16" />
-          Back to community
+          커뮤니티로 돌아가기
         </Link>
 
         <div className="flex flex-wrap items-center gap-100">
@@ -107,20 +108,24 @@ export default function CommunityDetailPageClient({
         </div>
 
         <div className="flex flex-col gap-200">
-          <div className="min-w-0">
-            <h1 className="font-designer-28b text-text-strong">
+          <div className="flex items-start justify-between gap-150">
+            <h1 className="min-w-0 flex-1 font-designer-28b text-text-strong">
               {state.post.title}
             </h1>
+            <CommunityPostOwnerActions
+              currentPage={returnPage}
+              post={state.post}
+            />
           </div>
 
           <CommunityAuthorProfileCard post={state.post} />
 
           <div className="flex flex-wrap items-center gap-150">
             <span className="font-designer-14r text-text-subtle">
-              Views {state.post.viewCount}
+              조회 {state.post.viewCount}
             </span>
             <span className="font-designer-14r text-text-subtle">
-              Comments {viewModel.commentCount}
+              댓글 {viewModel.commentCount}
             </span>
             <CommunityReactionButton
               isActive={viewModel.isLikedByViewer}
@@ -128,8 +133,8 @@ export default function CommunityDetailPageClient({
               onClick={actions.handleToggleLike}
               ariaLabel={
                 viewModel.isLikedByViewer
-                  ? 'Unlike post'
-                  : 'Like post'
+                  ? '좋아요 취소'
+                  : '좋아요'
               }
             />
           </div>

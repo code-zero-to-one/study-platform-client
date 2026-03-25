@@ -157,3 +157,18 @@ export const persistCommunityPostInteraction = (
 
   writeStoredInteractions([...filteredInteractions, nextInteraction]);
 };
+
+export const removeCommunityPostInteraction = (postId: number) => {
+  const interactions = readStoredInteractions();
+  const filteredInteractions = interactions.filter(
+    (interaction) => interaction.postId !== postId,
+  );
+
+  if (filteredInteractions.length === interactions.length) {
+    return false;
+  }
+
+  writeStoredInteractions(filteredInteractions);
+
+  return true;
+};

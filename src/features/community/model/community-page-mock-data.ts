@@ -133,7 +133,7 @@ const createComment = ({
   replies,
 });
 
-export const COMMUNITY_POSTS: readonly CommunityPost[] = [
+const COMMUNITY_POSTS_DATA = [
   {
     id: 1,
     board: COMMUNITY_BOARD.QNA,
@@ -331,7 +331,14 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
     createdAt: '3일 전',
     isTrending: true,
   },
-] as const;
+] as const satisfies readonly Omit<CommunityPost, 'origin'>[];
+
+export const COMMUNITY_POSTS: readonly CommunityPost[] = COMMUNITY_POSTS_DATA.map(
+  (post) => ({
+    ...post,
+    origin: 'mock',
+  }),
+);
 
 const COMMUNITY_POST_COMMENTS: Record<number, readonly CommunityComment[]> = {
   1: [

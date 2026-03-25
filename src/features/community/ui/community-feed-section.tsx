@@ -25,6 +25,7 @@ import {
 } from './community-meta-badge';
 import CommunityPostCard from './community-post-card';
 import CommunityPostListItem from './community-post-list-item';
+import CommunityPostOwnerActions from './community-post-owner-actions';
 import CommunityPostStats from './community-post-stats';
 import CommunitySectionShell from './community-section-shell';
 
@@ -74,7 +75,7 @@ function FeaturedCommunityPostItem({
               <div className="flex flex-wrap items-center gap-100">
                 <span className="inline-flex items-center gap-50 rounded-full bg-fill-brand-subtle-default px-100 py-50 font-designer-12b text-text-brand">
                   <TrendingUp className="h-14 w-14" />
-                  HOT
+                  인기
                 </span>
                 <CommunityBoardBadge board={post.board} showIcon={false} />
                 <CommunityMemberRoleBadge role={post.role} />
@@ -82,7 +83,7 @@ function FeaturedCommunityPostItem({
 
               <Link
                 href={detailHref}
-                aria-label={`${post.title} details`}
+                aria-label={`${post.title} 상세 보기`}
                 className="mt-100 block rounded-150 transition-opacity hover:opacity-80"
                 suppressHydrationWarning={true}
               >
@@ -96,11 +97,14 @@ function FeaturedCommunityPostItem({
             </div>
           </div>
 
-          <CommunityPostStats
-            viewCount={post.viewCount}
-            reactionCount={post.reactionCount}
-            className="shrink-0 sm:justify-end"
-          />
+          <div className="flex shrink-0 items-start gap-100">
+            <CommunityPostStats
+              viewCount={post.viewCount}
+              reactionCount={post.reactionCount}
+              className="sm:justify-end"
+            />
+            <CommunityPostOwnerActions currentPage={currentPage} post={post} />
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-100">
@@ -121,7 +125,7 @@ function FeaturedCommunityPostItem({
         {previewText ? (
           <Link
             href={detailHref}
-            aria-label={`${post.title} details`}
+            aria-label={`${post.title} 상세 보기`}
             className="block rounded-150 transition-opacity hover:opacity-80"
             suppressHydrationWarning={true}
           >
@@ -160,9 +164,9 @@ export default function CommunityFeedSection({
       <div className="flex flex-col gap-200 border-b border-border-subtle pb-200">
         <div className="flex flex-col gap-150 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-end gap-150">
-            <p className="font-designer-24b text-text-strong">Posts</p>
+            <p className="font-designer-24b text-text-strong">게시글</p>
             <p className="font-designer-13r text-text-subtle">
-              {postCount} items
+              {postCount}개
             </p>
           </div>
 
@@ -222,14 +226,14 @@ export default function CommunityFeedSection({
               <div className="flex flex-col gap-100">
                 <span className="inline-flex w-fit items-center gap-50 rounded-full border border-border-brand bg-background-default px-150 py-50 font-designer-12b text-text-brand">
                   <TrendingUp className="h-14 w-14" />
-                  COMMUNITY PICK
+                  커뮤니티 PICK
                 </span>
                 <div className="flex flex-col gap-50">
                   <p className="font-designer-24b text-text-strong">
-                    Top posts this week
+                    이번 주 인기 글
                   </p>
                   <p className="font-designer-14r text-text-subtle">
-                    Posts with the most attention are surfaced first.
+                    이번 주 가장 많은 반응을 받은 글을 먼저 보여드려요.
                   </p>
                 </div>
               </div>
@@ -239,7 +243,7 @@ export default function CommunityFeedSection({
                   TOP {featuredPosts.length}
                 </span>
                 <span className="font-designer-13r text-text-subtle">
-                  Only in All
+                  전체 탭에서만 보여요
                 </span>
               </div>
             </div>
