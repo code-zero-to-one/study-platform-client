@@ -113,7 +113,7 @@ export default async function Landing() {
             </Link>
           </div>
 
-          <div className="relative w-full max-w-1000">
+          <div className="relative w-full max-w-[1000px]">
             <Image
               src="/images/one-by-one-study.png"
               alt="zeroone 대표 이미지"

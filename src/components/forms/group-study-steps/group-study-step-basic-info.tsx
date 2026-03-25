@@ -46,7 +46,7 @@ const memberOptions = Array.from({ length: 20 }, (_, i) => {
   return { label: `${value}명`, value };
 });
 
-export default function Step1OpenGroupStudy() {
+export default function GroupStudyStepBasicInfo() {
   const { control, formState, watch } = useFormContext<GroupStudyFormValues>();
   const classification = useClassification();
   const mode = useMode();

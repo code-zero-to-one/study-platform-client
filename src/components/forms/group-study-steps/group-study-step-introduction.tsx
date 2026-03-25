@@ -8,9 +8,9 @@ import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 
-import { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
+import type { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
 
-export default function Step2OpenGroupStudy() {
+export default function GroupStudyStepIntroduction() {
   const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
   const scrollToNext = useScrollToNextField();
 
@@ -27,7 +27,10 @@ export default function Step2OpenGroupStudy() {
 
   useEffect(() => {
     if (thumbnailFile && thumbnailFile instanceof File) {
-      setImage(URL.createObjectURL(thumbnailFile));
+      const url = URL.createObjectURL(thumbnailFile);
+      setImage(url);
+
+      return () => URL.revokeObjectURL(url);
     } else if (thumbnailExtension === 'DEFAULT') {
       setImage(undefined);
     }
@@ -37,7 +40,6 @@ export default function Step2OpenGroupStudy() {
     if (!file) {
       setValue('thumbnailExtension', 'DEFAULT', { shouldValidate: true });
       setValue('thumbnailFile', null);
-      setImage(undefined);
 
       return;
     }
@@ -53,7 +55,6 @@ export default function Step2OpenGroupStudy() {
 
     setValue('thumbnailExtension', validExt, { shouldValidate: true });
     setValue('thumbnailFile', file, { shouldValidate: true });
-    setImage(URL.createObjectURL(file));
   };
 
   return (

@@ -9,15 +9,16 @@ import {
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
-import Step1OpenGroupStudy from '@/components/forms/group-study-steps/step1-group';
-import Step2OpenGroupStudy from '@/components/forms/group-study-steps/step2-group';
-import Step3OpenGroupStudy from '@/components/forms/group-study-steps/step3-group';
+
+import GroupStudyStepBasicInfo from '@/components/forms/group-study-steps/group-study-step-basic-info';
+import GroupStudyStepIntroduction from '@/components/forms/group-study-steps/group-study-step-introduction';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   GroupStudyFormSchema,
   type GroupStudyFormValues,
   type StudyClassification,
 } from '@/types/schemas/group-study-form.schema';
+import GroupStudyStepApplication from './group-study-steps/group-study-step-application';
 
 const ClassificationContext = createContext<StudyClassification>('GROUP_STUDY');
 export const useClassification = () => useContext(ClassificationContext);
@@ -151,9 +152,9 @@ export default function GroupStudyForm({
               className="flex flex-col gap-400"
               onSubmit={handleSubmit(onSubmit)}
             >
-              {step === 1 && <Step1OpenGroupStudy />}
-              {step === 2 && <Step2OpenGroupStudy />}
-              {step === 3 && <Step3OpenGroupStudy />}
+              {step === 1 && <GroupStudyStepBasicInfo />}
+              {step === 2 && <GroupStudyStepIntroduction />}
+              {step === 3 && <GroupStudyStepApplication />}
             </form>
           </FormProvider>
         </Modal.Body>
