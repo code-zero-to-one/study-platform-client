@@ -142,8 +142,6 @@ export default function StudyDetailPage({
     }
   }, [shouldCheckReview, reviewWritten]);
 
-  console.log({ showReviewModal });
-
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
 
