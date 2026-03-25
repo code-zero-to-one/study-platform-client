@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useState, useEffect } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { ToggleSwitch } from '@/components/common/ui/toggle';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
@@ -21,7 +22,13 @@ const StartStudyModal = dynamic(
   { ssr: false },
 );
 
-export default function StudyMatchingToggle() {
+interface StudyMatchingToggleProps {
+  showLabel?: boolean;
+}
+
+export default function StudyMatchingToggle({
+  showLabel = false,
+}: StudyMatchingToggleProps) {
   const { memberId, isAuthReady } = useAuthReady();
   const showToast = useToastStore((state) => state.showToast);
   const isLoggedIn = isAuthReady && !!memberId;
@@ -119,8 +126,18 @@ export default function StudyMatchingToggle() {
         onVerificationComplete={handleVerificationComplete}
         memberId={memberId}
       />
-      <div className="flex items-center gap-100">
-        <span className="font-designer-14r text-text-subtle">
+      <div
+        className={cn(
+          'flex items-center gap-100',
+          showLabel && 'w-full justify-between',
+        )}
+      >
+        <span
+          className={cn(
+            'font-designer-14r text-text-subtle',
+            !showLabel && 'hidden lg:inline',
+          )}
+        >
           1:1 스터디 매칭
         </span>
         <ToggleSwitch.Root
