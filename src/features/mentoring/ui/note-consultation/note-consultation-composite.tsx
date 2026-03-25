@@ -3,6 +3,7 @@
 import dayjs from 'dayjs';
 import { MessageCircle, Paperclip, Search, SendHorizontal } from 'lucide-react';
 import Link from 'next/link';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import Button from '@/components/common/ui/button';
 import { MENTORING_REQUEST_STATUS_META } from '@/features/mentoring/model/management-status-meta';
@@ -20,7 +21,6 @@ import type {
   NoteConsultationChannel,
   NoteConsultationListItem,
 } from '@/types/mentoring/note-consultation-view';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { formatExternalLink } from '@/utils/format';
 
 function UserAvatar({
@@ -63,7 +63,9 @@ function RequestListCard({
       onClick={onClick}
       className={cn(
         'rounded-150 w-full px-175 py-175 text-left transition-colors',
-        selected ? 'bg-fill-brand-subtle-default' : 'hover:bg-background-alternative',
+        selected
+          ? 'bg-fill-brand-subtle-default'
+          : 'hover:bg-background-alternative',
       )}
     >
       <div className="flex items-start gap-150">
