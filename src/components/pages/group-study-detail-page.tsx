@@ -3,7 +3,7 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
@@ -13,7 +13,9 @@ import {
   type StudyTabValue,
 } from '@/config/constants';
 import { useAuthReady } from '@/features/auth/model/use-auth';
+import { isWithinReviewAvailableWindow } from '@/hooks/common/use-group-study-review-reminder';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import { useGetGroupStudyReviewWritten } from '@/hooks/queries/group-study-review-api';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
@@ -31,6 +33,16 @@ import MissionSection from '../section/mission-section';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),
+  { ssr: false },
+);
+
+const GroupStudyReviewModal = dynamic(
+  () => import('@/components/common/modals/group-study-review-modal'),
+  { ssr: false },
+);
+
+const StudyCompletionModal = dynamic(
+  () => import('@/components/common/modals/study-completion-modal'),
   { ssr: false },
 );
 
@@ -100,6 +112,35 @@ export default function StudyDetailPage({
       groupStudyId,
       isLeader,
     });
+
+  // 후기 모달 — 종료 후 7일 이내 PARTICIPANT 스터디원에게 자동 표시
+  const isWithinReviewWindow =
+    studyDetail?.basicInfo?.status === 'COMPLETED' &&
+    isWithinReviewAvailableWindow(studyDetail?.basicInfo?.endDate);
+
+  const isParticipantMember = myApplicationStatus?.status === 'APPROVED';
+
+  const shouldCheckReview =
+    !!memberId && isParticipantMember && isWithinReviewWindow;
+
+  const { data: reviewWritten } = useGetGroupStudyReviewWritten(groupStudyId, {
+    enabled: shouldCheckReview,
+  });
+
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const hasAutoOpenedReviewRef = useRef(false);
+
+  useEffect(() => {
+    if (
+      shouldCheckReview &&
+      reviewWritten === false &&
+      !hasAutoOpenedReviewRef.current
+    ) {
+      hasAutoOpenedReviewRef.current = true;
+      setShowReviewModal(true);
+    }
+  }, [shouldCheckReview, reviewWritten]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -179,10 +220,16 @@ export default function StudyDetailPage({
 
   const availableTabs = useMemo(
     () =>
-      STUDY_DETAIL_TABS.map((tab) => ({
-        ...tab,
-        locked: MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember,
-      })),
+      STUDY_DETAIL_TABS.map((tab) => {
+        const locked =
+          MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember;
+
+        return {
+          ...tab,
+          locked,
+          lockedTooltip: locked ? '스터디 가입하여 확인' : undefined,
+        };
+      }),
     [isLeader, isMember],
   );
 
@@ -214,6 +261,23 @@ export default function StudyDetailPage({
 
   return (
     <div className="flex h-full w-full flex-col items-center">
+      {/* 후기 작성 모달 — 종료 후 7일 이내 미작성 시 자동 오픈 */}
+      {shouldCheckReview && studyDetail && (
+        <GroupStudyReviewModal
+          open={showReviewModal}
+          onOpenChange={setShowReviewModal}
+          groupStudyId={groupStudyId}
+          detailInfo={studyDetail.detailInfo}
+          basicInfo={studyDetail.basicInfo}
+          onSubmitSuccess={() =>
+            setTimeout(() => setShowCompletionModal(true), 300)
+          }
+        />
+      )}
+      <StudyCompletionModal
+        open={showCompletionModal}
+        onOpenChange={setShowCompletionModal}
+      />
       <ConfirmDeleteModal
         open={confirmAction !== null}
         onOpenChange={() => setConfirmAction(null)}

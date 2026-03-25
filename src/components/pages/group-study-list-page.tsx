@@ -3,12 +3,12 @@
 import dynamic from 'next/dynamic';
 import PageContainer from '@/components/common/layout/page-container';
 import GroupStudyPagination from '@/components/lists/group-study-pagination';
+import StudyListToolbar from '@/components/pages/study-list-toolbar';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGroupStudyReviewReminder } from '@/hooks/common/use-group-study-review-reminder';
 import { useStudyListFilter } from '@/hooks/common/use-study-list-filter';
 import GroupStudyList from '../lists/group-study-list';
 import MyParticipatingStudiesSection from '../section/my-participating-studies-section';
-import StudyListToolbar from '@/components/pages/study-list-toolbar';
 
 const GroupStudyReviewModal = dynamic(
   () => import('@/components/common/modals/group-study-review-modal'),
@@ -68,23 +68,21 @@ export default function GroupStudyListPage() {
     <div className="mx-auto w-full max-w-7xl px-400 py-600">
       {/* 미작성 후기 모달 — 완료된 스터디 후기를 아직 작성하지 않은 경우 자동으로 열림 */}
       {reviewStudyId && reviewDetailInfo && reviewBasicInfo && (
-        <>
-          <GroupStudyReviewModal
-            open={showReviewModal}
-            onOpenChange={setShowReviewModal}
-            groupStudyId={reviewStudyId}
-            detailInfo={reviewDetailInfo}
-            basicInfo={reviewBasicInfo}
-            onSubmitSuccess={() =>
-              setTimeout(() => setShowCompletionModal(true), 300)
-            }
-          />
-          <StudyCompletionModal
-            open={showCompletionModal}
-            onOpenChange={setShowCompletionModal}
-          />
-        </>
+        <GroupStudyReviewModal
+          open={showReviewModal}
+          onOpenChange={setShowReviewModal}
+          groupStudyId={reviewStudyId}
+          detailInfo={reviewDetailInfo}
+          basicInfo={reviewBasicInfo}
+          onSubmitSuccess={() =>
+            setTimeout(() => setShowCompletionModal(true), 300)
+          }
+        />
       )}
+      <StudyCompletionModal
+        open={showCompletionModal}
+        onOpenChange={setShowCompletionModal}
+      />
 
       {/* 배너 */}
       <div className="mb-600">

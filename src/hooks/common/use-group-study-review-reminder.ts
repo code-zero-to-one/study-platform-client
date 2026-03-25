@@ -2,10 +2,6 @@ import { useQueries } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { useEffect, useRef, useState } from 'react';
 import { axiosInstance } from '@/api/client/axios';
-import type {
-  GroupStudyBasicInfoResponseDto,
-  GroupStudyDetailInfoResponseDto,
-} from '@/api/openapi';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { groupStudyReviewQueryKeys } from '@/hooks/queries/group-study-review-api';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
@@ -17,7 +13,7 @@ interface UseGroupStudyReviewReminderOptions {
 
 const REVIEW_AVAILABLE_DAYS = 7;
 
-const isWithinReviewAvailableWindow = (endTime?: string) => {
+export const isWithinReviewAvailableWindow = (endTime?: string) => {
   if (!endTime) return false;
 
   const endDate = dayjs(endTime).startOf('day');
@@ -26,7 +22,10 @@ const isWithinReviewAvailableWindow = (endTime?: string) => {
   const today = dayjs().startOf('day');
   const elapsedDays = today.diff(endDate, 'day');
 
-  return elapsedDays >= 0 && elapsedDays <= REVIEW_AVAILABLE_DAYS;
+  // 종료 후 7일 이내.
+  // 음수인 경우는 아직 계획된 종료일 이전이지만, 이미 COMPLETED 상태인 경우(조기 종료 등)에도 노출해야 하므로
+  // 호출부에서 status === 'COMPLETED'를 함께 확인하도록 하고, 여기서는 상한선만 체크한다.
+  return elapsedDays <= REVIEW_AVAILABLE_DAYS;
 };
 
 /**
@@ -87,24 +86,26 @@ export function useGroupStudyReviewReminder({
 
   const allLoaded =
     reviewTargetStudies.length > 0 &&
-    reviewWrittenResults.every((r) => r.data !== undefined);
+    reviewWrittenResults.every(
+      (r) => r.status === 'success' || r.status === 'error',
+    );
 
   useEffect(() => {
     if (pendingStudy && allLoaded && !hasAutoOpenedRef.current) {
       hasAutoOpenedRef.current = true;
       setShowReviewModal(true);
     }
-  }, [pendingStudy, allLoaded]);
+  }, [pendingStudy?.studyId, allLoaded, pendingStudy]);
 
   const reviewDetailInfo = pendingStudy
-    ? ({ title: pendingStudy.title } as GroupStudyDetailInfoResponseDto)
+    ? { title: pendingStudy.title }
     : undefined;
 
   const reviewBasicInfo = pendingStudy
-    ? ({
+    ? {
         startDate: dayjs(pendingStudy.startTime).format('YYYY.MM.DD'),
         endDate: dayjs(pendingStudy.endTime).format('YYYY.MM.DD'),
-      } as GroupStudyBasicInfoResponseDto)
+      }
     : undefined;
 
   return {

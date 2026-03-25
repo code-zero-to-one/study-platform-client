@@ -6,6 +6,7 @@ import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import Pagination from '@/components/common/ui/pagination';
 import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 import { MemberStudyItem } from '@/types/api/group-study.types';
 
@@ -20,9 +21,10 @@ interface MemberGroupStudyList extends MemberStudyItem {
 }
 
 export default function CompletedPage() {
+  const { memberId } = useAuthReady();
   const [page, setPage] = useState<number>(1);
   const { data, isLoading } = useMemberStudyListQuery({
-    memberId: 1,
+    memberId: memberId ?? 0,
     studyType: 'GROUP_STUDY',
     studyStatus: 'COMPLETED',
     completedPage: page,

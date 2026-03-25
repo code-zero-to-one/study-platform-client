@@ -32,7 +32,7 @@ export default function StudyCompletionModal({
 
     const canvas = document.createElement('canvas');
     canvas.style.cssText =
-      'position:fixed;inset:0;width:100%;height:100%;z-index:45;pointer-events:none;';
+      'position:fixed;inset:0;width:100%;height:100%;z-index:55;pointer-events:none;';
     document.body.appendChild(canvas);
     canvasRef.current = canvas;
 
