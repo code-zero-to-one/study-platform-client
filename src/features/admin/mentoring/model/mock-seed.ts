@@ -16,9 +16,6 @@ export const createServerLikeMentorRegistrationValues = (
   weekly.SAT = ['11:00', '11:30', '12:00'];
 
   return {
-    contactCountryCode: '+82',
-    contactPhone: '01022334455',
-    contactEmail: 'mentor.seed@zeroone.dev',
     categories: ['커리어', '포트폴리오', '면접'],
     mentoringTitle: '백엔드/커리어 전환 실무형 멘토링 (서류·면접·포트폴리오)',
     appealLine: '백엔드 커리어 전환 멘토',

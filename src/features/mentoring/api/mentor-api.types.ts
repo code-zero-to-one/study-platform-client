@@ -165,6 +165,7 @@ export interface MentorProfileResponseDto {
   company?: string;
   publicReadinessStage?: string;
   applicationReady?: boolean;
+  publicReadiness?: MentorPublicReadinessResponseDto;
   identity?: IdentityResponseDto;
   stats?: StatsResponseDto;
   introduction?: IntroductionResponseDto;
@@ -257,7 +258,6 @@ export interface MentoringPolicyResponseDto {
 export interface MentorSettingsResponseDto {
   contact?: ContactResponseDto;
   profile?: ProfileResponseDto;
-  listVisible?: boolean;
   policy?: MentoringPolicyResponseDto;
   methods?: MethodResponseDto[];
   schedule?: ScheduleResponseDto;
@@ -275,10 +275,31 @@ export interface MyMentorSettingsResponseDto {
   // eslint-disable-next-line @rushstack/no-new-null -- backend contract returns null for unregistered users.
   mentorId?: number | null;
   registered?: boolean;
+  listVisible?: boolean;
   // eslint-disable-next-line @rushstack/no-new-null -- backend contract returns null for unregistered users.
   settings?: MentorSettingsResponseDto | null;
+  // eslint-disable-next-line @rushstack/no-new-null -- backend contract returns null for unregistered users.
+  publicReadinessStage?: string | null;
+  // eslint-disable-next-line @rushstack/no-new-null -- backend contract returns null for unregistered users.
+  publicReadiness?: MentorPublicReadinessResponseDto | null;
   // eslint-disable-next-line @rushstack/no-new-null -- legacy compatibility field; parser does not consume this field.
   mentor?: MyMentorCompatibilityResponseDto | null;
+}
+
+export interface MentorPublicReadinessStepsResponseDto {
+  basicInformation?: boolean;
+  mentorInformation?: boolean;
+  mentorDescription?: boolean;
+  pricingAndTime?: boolean;
+  schedule?: boolean;
+  settlement?: boolean;
+}
+
+export interface MentorPublicReadinessResponseDto {
+  listReady?: boolean;
+  detailReady?: boolean;
+  applicationReady?: boolean;
+  steps?: MentorPublicReadinessStepsResponseDto;
 }
 
 export interface MentorUpsertResponseDto {
@@ -333,9 +354,6 @@ export interface MentorWeeklyRangesRequestDto {
 }
 
 export interface MentorSettingsUpsertRequestDto {
-  // The mentoring registration form no longer owns mentor email as an input.
-  // Omission must be accepted while the backend removes this legacy field.
-  contactEmail?: string;
   categories: string[];
   mentoringTitle: string;
   appealLine: string;

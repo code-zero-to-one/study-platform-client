@@ -7,7 +7,7 @@ import {
   parseMentoringRequestRichTextDocument,
   type MentoringRequestContentBlock,
   type MentoringRequestRichTextNode,
-} from '@/features/mentoring/model/request-content';
+} from '@/features/mentoring/model/apply/request-content';
 
 interface RequestContentViewerProps {
   requestMessage: string;

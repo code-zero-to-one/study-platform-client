@@ -1,10 +1,10 @@
 import { type Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import {
   parseMentoringApplyRouteMentorId,
   parseMentoringApplySelectedType,
-} from '@/features/mentoring/model/mentoring-apply-route-contract';
+} from '@/features/mentoring/model/apply/mentoring-apply-route-contract';
+import { getMethodLabel } from '@/features/mentoring/model/mentor-profile-utils';
 import { isMentoringApplyEnabled } from '@/features/mentoring/model/mentoring-feature-flag';
 import MentoringApplyRouteClient from '@/features/mentoring/ui/apply/mentoring-apply-route-client';
 import type { MentoringMethodType } from '@/types/mentoring/domain';

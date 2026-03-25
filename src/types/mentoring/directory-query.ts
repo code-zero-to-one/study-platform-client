@@ -38,4 +38,5 @@ export type MentorEntryOnboardingStatusQueryKey = readonly [
   'mentoring',
   'mentor-directory',
   'entry-onboarding',
+  number,
 ];

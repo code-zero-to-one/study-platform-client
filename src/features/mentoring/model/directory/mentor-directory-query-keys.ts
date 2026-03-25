@@ -31,8 +31,9 @@ export const mentorDirectoryQueryKeys = {
     ...mentorDirectoryQueryKeys.directories(),
     'registration-options',
   ],
-  entryOnboarding: (): MentorEntryOnboardingStatusQueryKey => [
+  entryOnboarding: (memberId: number): MentorEntryOnboardingStatusQueryKey => [
     ...mentorDirectoryQueryKeys.directories(),
     'entry-onboarding',
+    memberId,
   ],
 };

@@ -27,6 +27,11 @@ import {
   type ProfileResponseDto,
 } from './mentor-api.types';
 import { requireMentorCoreKeywordLabels } from './mentor-core-keyword-contract';
+import {
+  mapMentorPublicReadiness,
+  normalizePublicReadinessStage,
+  toPublicReadinessStage,
+} from './mentor-public-readiness.mapper';
 
 const COMPANY_CATEGORY_SET = new Set([
   '네카라쿠배',
@@ -190,16 +195,6 @@ const normalizeCompanyCategory = (
   return COMPANY_CATEGORY_SET.has(value)
     ? (value as MentorSettings['companyCategory'])
     : '기타';
-};
-
-const normalizePublicReadinessStage = (
-  value: unknown,
-): MentorProfile['publicReadinessStage'] => {
-  return value === 'DETAIL_PREPARING' ||
-    value === 'APPLY_PREPARING' ||
-    value === 'APPLY_READY'
-    ? value
-    : undefined;
 };
 
 const normalizeMethodOption = ({
@@ -499,6 +494,16 @@ export const mapMentorProfile = ({
     ]),
   );
   const companyLabel = settings.hideCompanyName ? '' : settings.companyName;
+  const publicReadiness = source.publicReadiness
+    ? mapMentorPublicReadiness({
+        value: source.publicReadiness,
+        scope,
+        field: 'mentor.publicReadiness',
+      })
+    : undefined;
+  const publicReadinessStage =
+    normalizePublicReadinessStage(source.publicReadinessStage) ??
+    (publicReadiness ? toPublicReadinessStage(publicReadiness) : undefined);
 
   return {
     id: mentorId,
@@ -510,13 +515,13 @@ export const mapMentorProfile = ({
     role: settings.jobTitle,
     career: settings.careerYears,
     company: companyLabel,
-    publicReadinessStage: normalizePublicReadinessStage(
-      source.publicReadinessStage,
-    ),
+    publicReadinessStage,
+    publicReadiness,
     applicationReady:
-      typeof source.applicationReady === 'boolean'
+      publicReadiness?.applicationReady ??
+      (typeof source.applicationReady === 'boolean'
         ? source.applicationReady
-        : undefined,
+        : undefined),
     rating: typeof source.stats?.rating === 'number' ? source.stats.rating : 0,
     reviewCount:
       typeof source.stats?.reviewCount === 'number'

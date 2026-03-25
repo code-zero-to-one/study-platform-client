@@ -7,6 +7,65 @@ import {
   type MentorCareerEntry,
 } from '@/features/mentoring/model/mentor-settings';
 
+const hasSortableCareerPeriod = (entry: MentorCareerEntry) => {
+  return (
+    entry.periodEnabled &&
+    (entry.startMonth.length > 0 ||
+      entry.endMonth.length > 0 ||
+      entry.isCurrent)
+  );
+};
+
+const getEffectiveCareerEndMonth = (entry: MentorCareerEntry) => {
+  if (entry.isCurrent) {
+    return '9999-12';
+  }
+
+  if (entry.endMonth.length > 0) {
+    return entry.endMonth;
+  }
+
+  return entry.startMonth;
+};
+
+const sortCareerEntriesForDetail = (entries: MentorCareerEntry[]) => {
+  return entries
+    .map((entry, index) => ({ entry, index }))
+    .sort((left, right) => {
+      const leftHasPeriod = hasSortableCareerPeriod(left.entry);
+      const rightHasPeriod = hasSortableCareerPeriod(right.entry);
+
+      if (leftHasPeriod !== rightHasPeriod) {
+        return leftHasPeriod ? -1 : 1;
+      }
+
+      if (!leftHasPeriod && !rightHasPeriod) {
+        return left.index - right.index;
+      }
+
+      if (left.entry.isCurrent !== right.entry.isCurrent) {
+        return left.entry.isCurrent ? -1 : 1;
+      }
+
+      const endMonthComparison = getEffectiveCareerEndMonth(
+        right.entry,
+      ).localeCompare(getEffectiveCareerEndMonth(left.entry));
+      if (endMonthComparison !== 0) {
+        return endMonthComparison;
+      }
+
+      const startMonthComparison = right.entry.startMonth.localeCompare(
+        left.entry.startMonth,
+      );
+      if (startMonthComparison !== 0) {
+        return startMonthComparison;
+      }
+
+      return left.index - right.index;
+    })
+    .map(({ entry }) => entry);
+};
+
 interface MentorCareerHistoryPanelProps {
   careerEntries: MentorCareerEntry[];
   careerHistory: string[];
@@ -16,7 +75,7 @@ export default function MentorCareerHistoryPanel({
   careerEntries,
   careerHistory,
 }: MentorCareerHistoryPanelProps) {
-  const visibleEntries = careerEntries
+  const visibleEntries = sortCareerEntriesForDetail(careerEntries)
     .filter((entry) => entry.description.trim().length > 0)
     .slice(0, MENTOR_CAREER_ENTRY_MAX_COUNT);
   const visibleCareerHistory = careerHistory.slice(

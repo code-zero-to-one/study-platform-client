@@ -10,7 +10,10 @@ import {
   MENTORING_METHOD_REQUEST_TYPE_MAP,
   parseMentoringMethodType,
 } from '@/features/mentoring/model/mentoring-method';
-import type { MentoringMethodType } from '@/types/mentoring/domain';
+import type {
+  MentorProfile,
+  MentoringMethodType,
+} from '@/types/mentoring/domain';
 import { normalizeMentorMarkdownContent } from '@/types/mentoring/markdown';
 import type {
   MentorRegistrationOptions,
@@ -50,12 +53,19 @@ import {
   requireMentorCoreKeywordFormValues,
   type MentorCoreKeywordSnapshot,
 } from './mentor-core-keyword-contract';
+import {
+  mapMentorPublicReadiness,
+  normalizePublicReadinessStage,
+  toPublicReadinessStage,
+} from './mentor-public-readiness.mapper';
 
 export interface MyMentorSettingsFoundResult {
   kind: 'found';
   mentorId: number;
   settings: MentorRegistrationFormValues;
   savedCoreKeywords: MentorCoreKeywordSnapshot[];
+  publicReadinessStage?: MentorProfile['publicReadinessStage'];
+  publicReadiness?: MentorProfile['publicReadiness'];
 }
 
 export interface MyMentorSettingsNotFoundResult {
@@ -383,6 +393,7 @@ const toMentorMethodsFromArray = (source: MethodResponseDto[] | undefined) => {
 
 const toMentorSettingsFormValues = (
   source: MentorSettingsResponseDto,
+  listVisibleFromRoot?: boolean,
 ): MentorRegistrationFormValues => {
   const defaults = createDefaultMentorSettings();
   const methods = toMentorMethodsFromArray(source.methods);
@@ -394,12 +405,7 @@ const toMentorSettingsFormValues = (
   const company = profile?.company;
   const companyVisible =
     typeof company?.visible === 'boolean' ? company.visible : undefined;
-  const listVisible =
-    typeof source.listVisible === 'boolean'
-      ? source.listVisible
-      : typeof profile.listVisible === 'boolean'
-        ? profile.listVisible
-        : defaults.listVisible;
+  const listVisible = listVisibleFromRoot ?? defaults.listVisible;
   const content = source.content;
   const coreKeywordValues = requireMentorCoreKeywordFormValues({
     value: profile.coreKeywords,
@@ -709,12 +715,34 @@ export const mapMyMentorSettingsContent = (
     scope: 'my-mentor-settings-response',
     field: 'content.settings',
   });
+  const listVisibleFromRoot =
+    contentObject.listVisible === null ||
+    contentObject.listVisible === undefined
+      ? undefined
+      : requireBoolean({
+          value: contentObject.listVisible,
+          field: 'content.listVisible',
+        });
+  const publicReadiness =
+    contentObject.publicReadiness === null ||
+    contentObject.publicReadiness === undefined
+      ? undefined
+      : mapMentorPublicReadiness({
+          value: contentObject.publicReadiness,
+          scope: 'my-mentor-settings-response',
+          field: 'content.publicReadiness',
+        });
+  const publicReadinessStage =
+    normalizePublicReadinessStage(contentObject.publicReadinessStage) ??
+    (publicReadiness ? toPublicReadinessStage(publicReadiness) : undefined);
 
   return {
     kind: 'found',
     mentorId,
-    settings: toMentorSettingsFormValues(settings),
+    settings: toMentorSettingsFormValues(settings, listVisibleFromRoot),
     savedCoreKeywords: toMentorSavedCoreKeywordSnapshots(settings),
+    publicReadinessStage,
+    publicReadiness,
   };
 };
 
@@ -796,11 +824,9 @@ export const buildMentorSettingsUpsertRequest = ({
   const weekly = values.schedule.weekly;
   const weeklyRanges = toWeeklyRangesFromWeekly(weekly);
   const careerEntries = normalizeMentorCareerEntries(values.careerEntries);
-  const contactEmail = values.contactEmail.trim();
   const preNotice = values.preNotice.trim();
 
   return {
-    ...(contactEmail.length > 0 ? { contactEmail } : {}),
     categories: values.categories,
     mentoringTitle: values.mentoringTitle,
     appealLine: values.appealLine,
