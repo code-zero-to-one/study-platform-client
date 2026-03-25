@@ -12,6 +12,7 @@ import {
 import dynamic from 'next/dynamic';
 import UserAvatar from '@/components/common/ui/avatar';
 import { StudyHistoryItem } from '@/types/one-to-one-study/study-history';
+import { formatExternalLink } from '@/utils/format';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),
@@ -51,7 +52,7 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
                   image={partner.profileImage || undefined}
                   alt={partner.name}
                   size={32}
-                  className="h-8 w-8"
+                  className="h-400 w-400"
                 />
                 <span className="text-text-default truncate font-medium">
                   {partner.name}
@@ -65,7 +66,7 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
               image={undefined}
               alt="상대방 정보 없음"
               size={32}
-              className="h-8 w-8 opacity-60"
+              className="h-400 w-400 opacity-60"
             />
             <span className="truncate font-medium">상대방 정보 없음</span>
           </div>
@@ -75,12 +76,12 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
       {/* 역할 */}
       <div className="flex w-[120px] shrink-0 items-center justify-center gap-50">
         {item.role === 'INTERVIEWER' ? (
-          <span className="rounded-50 bg-fill-brand-subtle-default text-text-brand inline-flex items-center gap-50 px-150 py-25 text-[12px] font-medium">
+          <span className="rounded-50 bg-fill-brand-subtle-default text-text-brand font-designer-12m inline-flex items-center gap-50 px-150 py-25">
             <Mic className="h-3 w-3" />
             면접자
           </span>
         ) : (
-          <span className="rounded-50 bg-fill-information-subtle-default text-text-information inline-flex items-center gap-50 px-150 py-25 text-[12px] font-medium">
+          <span className="rounded-50 bg-fill-information-subtle-default text-text-information font-designer-12m inline-flex items-center gap-50 px-150 py-25">
             <User className="h-3 w-3" />
             지원자
           </span>
@@ -92,12 +93,12 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
         {item.attendance === 'ATTENDED' ? (
           <span className="text-text-success flex flex-col items-center gap-25">
             <CheckCircle className="h-4 w-4" />
-            <span className="text-[10px] font-bold">역할수행</span>
+            <span className="font-designer-10b">역할수행</span>
           </span>
         ) : (
           <span className="text-text-warning flex flex-col items-center gap-25">
             <Clock className="h-4 w-4" />
-            <span className="text-[10px] font-bold">미진행</span>
+            <span className="font-designer-10b">미진행</span>
           </span>
         )}
       </div>
@@ -107,12 +108,12 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
         {item.status === 'COMPLETED' ? (
           <span className="text-text-success flex flex-col items-center gap-25">
             <CheckCircle2 className="h-4 w-4" />
-            <span className="text-[10px] font-bold">완료</span>
+            <span className="font-designer-10b">완료</span>
           </span>
         ) : (
           <span className="text-text-warning flex flex-col items-center gap-25">
             <Clock className="h-4 w-4" />
-            <span className="text-[10px] font-bold">진행중</span>
+            <span className="font-designer-10b">진행중</span>
           </span>
         )}
       </div>
@@ -121,7 +122,7 @@ export const StudyHistoryRow = ({ item }: { item: StudyHistoryItem }) => {
       <div className="flex w-[80px] shrink-0 justify-center">
         {item.link ? (
           <a
-            href={item.link}
+            href={formatExternalLink(item.link)}
             target="_blank"
             rel="noopener noreferrer"
             className="text-text-subtle hover:text-text-strong group flex items-center justify-center p-100 transition-all"

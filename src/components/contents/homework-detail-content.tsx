@@ -17,6 +17,7 @@ import {
 } from '@/hooks/queries/peer-review-api';
 
 import { useUserStore } from '@/stores/useUserStore';
+import { formatExternalLink } from '@/utils/format';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),
@@ -132,7 +133,9 @@ export default function HomeworkDetailContent({
               제출한 과제
             </span>
             <a
-              href={homework.homeworkContent.optionalContent.link}
+              href={formatExternalLink(
+                homework.homeworkContent.optionalContent.link,
+              )}
               target="_blank"
               rel="noopener noreferrer"
               className="text-text-brand font-designer-14r hover:underline"
@@ -146,7 +149,7 @@ export default function HomeworkDetailContent({
       {/* 피어 리뷰 */}
       <PeerReviewSection
         homeworkId={homeworkId}
-        peerReviews={peerReviews ?? []}
+        peerReviews={peerReviews}
         isMyHomework={isMyHomework}
       />
     </div>

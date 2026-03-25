@@ -12,6 +12,7 @@ import { TUTORIAL_DAILY_STUDY_MOCK } from '@/config/tutorial-mock';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useDailyStudyDetailQuery } from '@/hooks/queries/use-interview-query';
 import { DailyStudyDetail } from '@/types/api/interview.types';
+import { formatExternalLink } from '@/utils/format';
 
 const StudyDoneModal = dynamic(
   () => import('@/components/common/modals/study-done-modal'),
@@ -95,7 +96,7 @@ export default function TodayStudyCard({
         description={
           isInterviewee ? '당신은 지원자입니다.' : '당신은 면접관입니다.'
         }
-        className="mb-4"
+        className="mb-200"
         titleClassName="font-bold-h5"
         descriptionClassName="font-designer-14r"
       />
@@ -158,7 +159,7 @@ const renderFeedback = (
     <div className="bg-background-alternative rounded-50 col-span-1 flex flex-col gap-100 px-300 py-250">
       <h3 className="font-designer-14m text-text-subtle">피드백</h3>
 
-      <div className="flex flex-col items-center justify-center gap-[10px]">
+      <div className="flex flex-col items-center justify-center gap-125">
         <Image
           src="/icons/feedback.svg"
           width={65}
@@ -308,8 +309,9 @@ function PartnerInfo({
           realName={realName ?? name}
           trigger={
             <button
+              type="button"
               data-tutorial="study-contact-button"
-              className="border-r-border-subtle rounded-l-75 hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-[10px] pl-150 transition"
+              className="border-r-border-subtle rounded-l-75 hover:bg-fill-neutral-subtle-hover flex flex-1 items-center gap-75 border-r py-75 pr-125 pl-150 transition"
             >
               <Image
                 src="/icons/phone.svg"
@@ -364,11 +366,13 @@ function StudySubject({ subject }: Pick<DailyStudyDetail, 'subject'>) {
 }
 
 function StudyLink({ link }: Pick<DailyStudyDetail, 'link'>) {
+  if (!link) return null;
+
   return (
     <div className="bg-background-alternative rounded-50 col-span-2 flex items-center gap-300 px-300 py-250">
-      <span className="text-sm text-gray-600">스터디 링크</span>
+      <span className="font-designer-14r text-text-subtle">스터디 링크</span>
 
-      <Link href={link} target="_blank" rel="noreferrer">
+      <Link href={formatExternalLink(link)} target="_blank" rel="noreferrer">
         <div className="flex cursor-pointer gap-75">
           <Image
             src="icons/Link.svg"
