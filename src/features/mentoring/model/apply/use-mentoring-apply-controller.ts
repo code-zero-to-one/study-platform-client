@@ -5,13 +5,6 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { type DateRange } from 'react-day-picker';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
-import {
-  getWeekdayKeyFromDate,
-  hasAnyWeeklyScheduleSlots,
-  parseDurationLabelToMinutes,
-  toTimeRangeLabel,
-} from '@/features/mentoring/model/mentor-settings';
 import {
   buildMentoringRequestMessage,
   createMentoringRequestRichTextBlock,
@@ -21,7 +14,14 @@ import {
   hasMentoringRequestAttachment,
   sanitizeMentoringRequestContents,
   type MentoringRequestContentBlock,
-} from '@/features/mentoring/model/request-content';
+} from '@/features/mentoring/model/apply/request-content';
+import { getMentorSettings } from '@/features/mentoring/model/mentor-profile-utils';
+import {
+  getWeekdayKeyFromDate,
+  hasAnyWeeklyScheduleSlots,
+  parseDurationLabelToMinutes,
+  toTimeRangeLabel,
+} from '@/features/mentoring/model/mentor-settings';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useMentoringManagementStore } from '@/stores/useMentoringManagementStore';
 import { useMentorOperationStore } from '@/stores/useMentorOperationStore';

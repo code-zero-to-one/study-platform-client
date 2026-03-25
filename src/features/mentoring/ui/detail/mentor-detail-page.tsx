@@ -3,7 +3,7 @@
 import { CircleCheck } from 'lucide-react';
 import {
   type CSSProperties,
-  useDeferredValue,
+  memo,
   useEffect,
   useMemo,
   useRef,
@@ -17,6 +17,7 @@ import {
 } from '@/features/mentoring/model/mentor-profile-utils';
 import { getMentorPublicReadiness } from '@/features/mentoring/model/mentor-public-readiness';
 import { useFloatingPanelScrollNudge } from '@/features/mentoring/model/use-floating-panel-scroll-nudge';
+import { useDebounce } from '@/hooks/use-debounce';
 import type {
   MentorProfile,
   MentoringMethodType,
@@ -26,7 +27,8 @@ import MentorDetailHeaderSection from './mentor-detail-header-section';
 import MentorDetailMethodSection from './mentor-detail-method-section';
 import MentorDetailReviewSection from './mentor-detail-review-section';
 import MentorDetailSidebarCta from './mentor-detail-sidebar-cta';
-import MentorMarkdownContent from '../registration/mentor-markdown-content';
+import MentorMarkdownContent from '../registration/markdown/mentor-markdown-content';
+import MentorMarkdownPreviewContent from '../registration/markdown/mentor-markdown-preview-content';
 
 type PreviewHighlightSection = MentorRegistrationPreviewHighlightSection;
 
@@ -39,6 +41,7 @@ interface MentorDetailPageProps {
 
 const DETAIL_SIDEBAR_TOP_OFFSET = 108;
 const DETAIL_SIDEBAR_BOTTOM_OFFSET = 32;
+const PREVIEW_DESCRIPTION_DEBOUNCE_MS = 280;
 
 interface MentorDetailPreparingSectionProps {
   title: string;
@@ -59,7 +62,7 @@ function MentorDetailPreparingSection({
   );
 }
 
-export default function MentorDetailPage({
+function MentorDetailPage({
   mentor,
   previewMode,
   showSettingsEditButton = false,
@@ -96,12 +99,13 @@ export default function MentorDetailPage({
         .filter((tag) => tag.length > 0),
     ),
   );
-  const deferredDetailedDescription = useDeferredValue(
+  const debouncedPreviewDetailedDescription = useDebounce(
     mentorSettings.detailedDescription,
+    PREVIEW_DESCRIPTION_DEBOUNCE_MS,
   );
   const previewDetailedDescription =
     previewMode === true
-      ? deferredDetailedDescription
+      ? debouncedPreviewDetailedDescription
       : mentorSettings.detailedDescription;
   const metMenteeCount =
     typeof mentor.menteeCount === 'number' ? mentor.menteeCount : undefined;
@@ -224,6 +228,12 @@ export default function MentorDetailPage({
                   title={publicReadiness.detailOverlayTitle}
                   description={publicReadiness.detailOverlayDescription}
                 />
+              ) : previewMode === true ? (
+                <MentorMarkdownPreviewContent
+                  content={previewDetailedDescription}
+                  className="mb-250"
+                  emptyMessage="멘토 소개가 아직 등록되지 않았습니다."
+                />
               ) : (
                 <MentorMarkdownContent
                   content={previewDetailedDescription}
@@ -328,3 +338,5 @@ export default function MentorDetailPage({
     </div>
   );
 }
+
+export default memo(MentorDetailPage);
