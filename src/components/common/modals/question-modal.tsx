@@ -312,7 +312,7 @@ export default function QuestionModal({
     <Modal.Root open={open} onOpenChange={handleOpenChange}>
       <Modal.Portal>
         <Modal.Overlay />
-        <Modal.Content size="medium" className="w-full sm:max-w-500">
+        <Modal.Content size="medium" className="w-full sm:max-w-[500px]">
           <Modal.Header className="border-border-default flex items-center justify-between border-b">
             <Modal.Title className="font-designer-20b text-text-strong">
               {isEditMode ? '스터디 문의 수정하기' : '스터디 문의하기'}
