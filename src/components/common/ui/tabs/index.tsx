@@ -1,11 +1,13 @@
 import { Lock } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import Tooltip from '@/components/common/ui/tooltip';
 
 interface TabItem {
   label: string;
   value: string;
   locked?: boolean;
+  lockedTooltip?: string;
 }
 
 interface SectionTabsProps {
@@ -19,6 +21,61 @@ interface SectionTabsProps {
   className?: string;
 }
 
+const tabBaseClass = 'font-designer-16b shrink-0 border-b-2 p-150';
+const lockedTabButtonClass = cn(
+  tabBaseClass,
+  'flex cursor-not-allowed items-center gap-50 border-transparent text-text-disabled',
+);
+
+function LockedTabButton({
+  label,
+  lockedTooltip,
+}: {
+  label: string;
+  lockedTooltip?: string;
+}) {
+  const [open, setOpen] = useState(false);
+
+  if (!lockedTooltip) {
+    return (
+      <button type="button" disabled className={lockedTabButtonClass}>
+        {label}
+        <Lock size={14} />
+      </button>
+    );
+  }
+
+  return (
+    <Tooltip
+      open={open}
+      onOpenChange={setOpen}
+      trigger={
+        <button
+          type="button"
+          aria-disabled="true"
+          className={lockedTabButtonClass}
+          onPointerEnter={(e) => {
+            if (e.pointerType === 'mouse') setOpen(true);
+          }}
+          onPointerLeave={(e) => {
+            if (e.pointerType === 'mouse') setOpen(false);
+          }}
+          onPointerDown={(e) => {
+            if (e.pointerType === 'touch') setOpen((prev) => !prev);
+          }}
+        >
+          {label}
+          <Lock size={14} />
+        </button>
+      }
+      value={lockedTooltip}
+      side="bottom"
+      delayDuration={0}
+      contentClassName="font-designer-12m rounded-100 bg-background-neutral-strong whitespace-nowrap px-200 shadow-lg"
+    />
+  );
+}
+
 export default function Tabs({
   tabs,
   activeTab,
@@ -28,31 +85,28 @@ export default function Tabs({
   return (
     <div
       className={cn(
-        'border-border-subtle flex w-full cursor-pointer gap-200 border-b',
+        'border-border-subtle flex w-full cursor-pointer gap-200 overflow-x-auto border-b',
         className,
       )}
     >
       {tabs.map((tab) =>
         tab.locked ? (
-          <button
+          <LockedTabButton
             key={tab.value}
-            type="button"
-            disabled
-            className="font-designer-16b flex cursor-not-allowed items-center gap-50 border-b-2 border-transparent p-150 text-[#D5D7DA]"
-          >
-            {tab.label}
-            <Lock size={14} />
-          </button>
+            label={tab.label}
+            lockedTooltip={tab.lockedTooltip}
+          />
         ) : (
           <button
             key={tab.value}
             type="button"
             onClick={() => onChange(tab.value)}
             className={cn(
-              'font-designer-16b border-b-2 p-150 transition-colors',
+              tabBaseClass,
+              'transition-colors',
               activeTab === tab.value
-                ? 'border-primary text-primary text-[#181D27]'
-                : 'border-transparent text-[#D5D7DA] hover:text-[#535862]',
+                ? 'border-primary text-primary text-text-strong'
+                : 'border-transparent text-text-disabled hover:text-text-subtle',
             )}
           >
             {tab.label}
