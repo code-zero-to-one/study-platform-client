@@ -1,128 +1,126 @@
-"use client";
+'use client';
 
-import { useCallback, useMemo, useState } from "react";
-import { GetGroupStudiesSortEnum } from "@/api/openapi/api/group-study-management-api";
+import { useCallback, useMemo, useState } from 'react';
+import { GetGroupStudiesSortEnum } from '@/api/openapi/api/group-study-management-api';
 import type {
-    GetGroupStudiesClassificationEnum,
-    GetGroupStudiesMethodEnum,
-    GetGroupStudiesTargetRolesEnum,
-    GetGroupStudiesTypeEnum,
-} from "@/api/openapi/api/group-study-management-api";
-import type { StudyFilterValues } from "@/components/filtering/study-filter";
-import { useGetStudies } from "@/hooks/queries/study-query";
+  GetGroupStudiesClassificationEnum,
+  GetGroupStudiesMethodEnum,
+  GetGroupStudiesTargetRolesEnum,
+  GetGroupStudiesTypeEnum,
+} from '@/api/openapi/api/group-study-management-api';
+import type { StudyFilterValues } from '@/components/filtering/study-filter';
+import { useGetStudies } from '@/hooks/queries/study-query';
 
 const PAGE_SIZE = 15;
 
 interface UseStudyListFilterParams {
-    classification: GetGroupStudiesClassificationEnum;
+  classification: GetGroupStudiesClassificationEnum;
 }
 
 export function useStudyListFilter({
-    classification,
+  classification,
 }: UseStudyListFilterParams) {
-    const [searchQuery, setSearchQuery] = useState("");
-    const [filterValues, setFilterValues] = useState<StudyFilterValues>({
-        type: [],
-        targetRoles: [],
-        method: [],
-        experienceLevels: [],
-        recruiting: false,
-    });
-    const [currentPage, setCurrentPage] = useState(1);
-    const [sort, setSort] = useState<GetGroupStudiesSortEnum>(
-        GetGroupStudiesSortEnum.Latest,
-    );
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterValues, setFilterValues] = useState<StudyFilterValues>({
+    type: [],
+    targetRoles: [],
+    method: [],
+    experienceLevels: [],
+    recruiting: false,
+  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [sort, setSort] = useState<GetGroupStudiesSortEnum>(
+    GetGroupStudiesSortEnum.Latest,
+  );
 
-    const isClientFiltered =
-        !!searchQuery || filterValues.experienceLevels.length > 0;
+  const isClientFiltered =
+    !!searchQuery || filterValues.experienceLevels.length > 0;
 
-    const { data, isLoading } = useGetStudies({
-        classification,
-        page: isClientFiltered ? 1 : currentPage,
-        pageSize: isClientFiltered ? 10000 : PAGE_SIZE,
-        type:
-            filterValues.type.length > 0
-                ? (filterValues.type as GetGroupStudiesTypeEnum[])
-                : undefined,
-        targetRoles:
-            filterValues.targetRoles.length > 0
-                ? (filterValues.targetRoles as GetGroupStudiesTargetRolesEnum[])
-                : undefined,
-        method:
-            filterValues.method.length > 0
-                ? (filterValues.method as GetGroupStudiesMethodEnum[])
-                : undefined,
-        recruiting: filterValues.recruiting ? true : undefined,
-        sort,
-    });
+  const { data, isLoading } = useGetStudies({
+    classification,
+    page: isClientFiltered ? 1 : currentPage,
+    pageSize: isClientFiltered ? 10000 : PAGE_SIZE,
+    type:
+      filterValues.type.length > 0
+        ? (filterValues.type as GetGroupStudiesTypeEnum[])
+        : undefined,
+    targetRoles:
+      filterValues.targetRoles.length > 0
+        ? (filterValues.targetRoles as GetGroupStudiesTargetRolesEnum[])
+        : undefined,
+    method:
+      filterValues.method.length > 0
+        ? (filterValues.method as GetGroupStudiesMethodEnum[])
+        : undefined,
+    recruiting: filterValues.recruiting ? true : undefined,
+    sort,
+  });
 
-    const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
+  const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
 
-    const handleSortChange = useCallback((value: GetGroupStudiesSortEnum) => {
-        setSort(value);
-        setCurrentPage(1);
-    }, []);
+  const handleSortChange = useCallback((value: GetGroupStudiesSortEnum) => {
+    setSort(value);
+    setCurrentPage(1);
+  }, []);
 
-    const handleFilterChange = useCallback((values: StudyFilterValues) => {
-        setFilterValues(values);
-        setCurrentPage(1);
-    }, []);
+  const handleFilterChange = useCallback((values: StudyFilterValues) => {
+    setFilterValues(values);
+    setCurrentPage(1);
+  }, []);
 
-    const handlePageChange = useCallback((page: number) => {
-        setCurrentPage(page);
-    }, []);
+  const handlePageChange = useCallback((page: number) => {
+    setCurrentPage(page);
+  }, []);
 
-    const handleSearch = useCallback((query: string) => {
-        setSearchQuery(query);
-        setCurrentPage(1);
-    }, []);
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  }, []);
 
-    const filteredStudies = useMemo(() => {
-        let result = allStudies;
+  const filteredStudies = useMemo(() => {
+    let result = allStudies;
 
-        if (filterValues.experienceLevels.length > 0) {
-            result = result.filter((study) =>
-                study.basicInfo?.experienceLevels?.some((level) =>
-                    filterValues.experienceLevels.includes(level),
-                ),
-            );
-        }
+    if (filterValues.experienceLevels.length > 0) {
+      result = result.filter((study) =>
+        study.basicInfo?.experienceLevels?.some((level) =>
+          filterValues.experienceLevels.includes(level),
+        ),
+      );
+    }
 
-        if (searchQuery) {
-            const lowerQuery = searchQuery.toLowerCase();
-            result = result.filter((study) =>
-                study.simpleDetailInfo?.title
-                    ?.toLowerCase()
-                    .includes(lowerQuery),
-            );
-        }
+    if (searchQuery) {
+      const lowerQuery = searchQuery.toLowerCase();
+      result = result.filter((study) =>
+        study.simpleDetailInfo?.title?.toLowerCase().includes(lowerQuery),
+      );
+    }
 
-        return result;
-    }, [allStudies, filterValues.experienceLevels, searchQuery]);
+    return result;
+  }, [allStudies, filterValues.experienceLevels, searchQuery]);
 
-    const totalPages = isClientFiltered
-        ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
-        : (data?.totalPages ?? 1);
+  const totalPages = isClientFiltered
+    ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
+    : (data?.totalPages ?? 1);
 
-    const displayStudies = useMemo(() => {
-        if (!isClientFiltered) return filteredStudies;
+  const displayStudies = useMemo(() => {
+    if (!isClientFiltered) return filteredStudies;
 
-        const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
 
-        return filteredStudies.slice(startIndex, startIndex + PAGE_SIZE);
-    }, [filteredStudies, isClientFiltered, currentPage]);
+    return filteredStudies.slice(startIndex, startIndex + PAGE_SIZE);
+  }, [filteredStudies, isClientFiltered, currentPage]);
 
-    return {
-        searchQuery,
-        filterValues,
-        currentPage,
-        totalPages,
-        displayStudies,
-        isLoading,
-        sort,
-        handleFilterChange,
-        handlePageChange,
-        handleSearch,
-        handleSortChange,
-    };
+  return {
+    searchQuery,
+    filterValues,
+    currentPage,
+    totalPages,
+    displayStudies,
+    isLoading,
+    sort,
+    handleFilterChange,
+    handlePageChange,
+    handleSearch,
+    handleSortChange,
+  };
 }

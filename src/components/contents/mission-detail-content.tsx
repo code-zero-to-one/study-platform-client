@@ -11,6 +11,7 @@ import MyHomeworkStatus from '../card/my-homework-status-card';
 
 interface MissionDetailContentProps {
   missionId: number;
+  showMyHomework?: boolean;
 }
 
 const HOMEWORK_STATUS_CONFIG = {
@@ -21,6 +22,7 @@ const HOMEWORK_STATUS_CONFIG = {
 
 export default function MissionDetailContent({
   missionId,
+  showMyHomework,
 }: MissionDetailContentProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -67,7 +69,7 @@ export default function MissionDetailContent({
       </div>
 
       {/* 내 과제 현황 */}
-      <MyHomeworkStatus missionId={missionId} />
+      {showMyHomework !== false && <MyHomeworkStatus missionId={missionId} />}
 
       {/* 제출 현황 */}
       <div className="flex flex-col gap-300">

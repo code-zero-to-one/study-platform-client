@@ -351,6 +351,7 @@ export default function PremiumStudyDetailPage({
           groupStudyId={groupStudyId}
           isMember={isMember}
           isLeader={isLeader}
+          showMyHomework={!isLeader}
         />
       )}
       {activeTab === 'lounge' && (
