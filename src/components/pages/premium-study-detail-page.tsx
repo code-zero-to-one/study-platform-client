@@ -53,7 +53,7 @@ const GroupStudyFormModal = dynamic(
 
 type ActionKey = 'end' | 'delete';
 
-const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
+const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
 
 const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
 
