@@ -11,8 +11,8 @@ import { groupStudyReviewQueryKeys } from '@/hooks/queries/group-study-review-ap
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
 
 interface UseGroupStudyReviewReminderOptions {
-  /** 'GROUP_STUDY' | 'PREMIUM_STUDY' — 목록 페이지 유형에 맞게 지정 */
-  studyType: 'GROUP_STUDY' | 'PREMIUM_STUDY';
+  /** 'GROUP_STUDY' | 'MENTOR_STUDY' — 목록 페이지 유형에 맞게 지정 */
+  studyType: 'GROUP_STUDY' | 'MENTOR_STUDY';
 }
 
 const REVIEW_AVAILABLE_DAYS = 7;

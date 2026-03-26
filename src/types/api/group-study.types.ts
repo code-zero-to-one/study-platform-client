@@ -336,7 +336,7 @@ export interface GroupStudyMyStatusResponse {
 // 회원의 스터디 리스트 조회 API 타입
 export interface MemberStudyListRequest {
   memberId: number;
-  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'PREMIUM_STUDY';
+  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'MENTOR_STUDY';
   studyStatus?: 'BOTH' | 'NOT_COMPLETED' | 'COMPLETED';
   inProgressPage?: number;
   inProgressPageSize?: number;
@@ -356,7 +356,7 @@ export interface MemberStudyItem {
   endTime: string;
   studyRole: 'PARTICIPANT' | 'LEADER';
   status: 'RECRUITING' | 'ENDING_SOON' | 'IN_PROGRESS' | 'COMPLETED';
-  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'PREMIUM_STUDY';
+  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'MENTOR_STUDY';
 }
 
 export interface MemberStudyListResponse {

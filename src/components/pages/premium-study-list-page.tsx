@@ -36,7 +36,7 @@ export default function PremiumStudyListPage() {
     reviewStudyId,
     reviewDetailInfo,
     reviewBasicInfo,
-  } = useGroupStudyReviewReminder({ studyType: 'PREMIUM_STUDY' });
+  } = useGroupStudyReviewReminder({ studyType: 'MENTOR_STUDY' });
 
   const {
     searchQuery,
@@ -51,7 +51,7 @@ export default function PremiumStudyListPage() {
     handleSearch,
     handleSortChange,
   } = useStudyListFilter({
-    classification: 'PREMIUM_STUDY',
+    classification: 'MENTOR_STUDY',
   });
 
   if (isLoading) {

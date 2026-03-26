@@ -8,12 +8,12 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
+import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
 import type { GroupStudyFullResponse } from '@/types/api/group-study.types';
-import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import SummaryStudyInfo from '../summary/study-info-summary';
 
 const UserProfileModal = dynamic(
