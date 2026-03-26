@@ -389,6 +389,25 @@ export interface MemberStudyListResponse {
   };
 }
 
+// V2 API 타입
+export interface MemberStudyListV2Request {
+  memberId: number;
+  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'MENTOR_STUDY';
+  studyStatus?: 'BOTH' | 'NOT_COMPLETED' | 'COMPLETED';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface MemberStudyPageResponse {
+  content: MemberStudyItem[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+}
+
 // 그룹 스터디 공지
 export interface GroupStudyNoticeRequest {
   noticeTitle: string;

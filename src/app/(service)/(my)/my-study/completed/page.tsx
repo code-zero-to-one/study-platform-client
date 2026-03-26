@@ -7,8 +7,8 @@ import Button from '@/components/common/ui/button';
 import Pagination from '@/components/common/ui/pagination';
 import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
-import { MemberStudyItem } from '@/types/api/group-study.types';
+import { useMemberStudyListV2Query } from '@/hooks/queries/use-member-study-list-query';
+import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
@@ -23,16 +23,15 @@ interface MemberGroupStudyList extends MemberStudyItem {
 export default function CompletedPage() {
   const { memberId } = useAuthReady();
   const [page, setPage] = useState<number>(1);
-  const { data, isLoading } = useMemberStudyListQuery({
-    memberId: memberId ?? 0,
+  const { data, isLoading } = useMemberStudyListV2Query({
+    memberId,
     studyType: 'GROUP_STUDY',
     studyStatus: 'COMPLETED',
-    completedPage: page,
+    page,
   });
 
   // status가 "COMPLETED"인 스터디 목록
-  const completedStudyList = (data?.completed.content ||
-    []) as MemberGroupStudyList[];
+  const completedStudyList = (data?.content || []) as MemberGroupStudyList[];
 
   if (isLoading) {
     return null;
@@ -65,7 +64,7 @@ export default function CompletedPage() {
         <Pagination
           page={page}
           onChangePage={setPage}
-          totalPages={data?.completed.totalPages || 1}
+          totalPages={data?.totalPages || 1}
         />
       </div>
     </div>
