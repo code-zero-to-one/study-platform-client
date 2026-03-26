@@ -8,7 +8,7 @@ import Button from '@/components/common/ui/button';
 import CompletedGroupStudyList from '@/components/lists/completed-group-study-list';
 import NotCompletedGroupStudyList from '@/components/lists/not-completed-group-study-list';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
+import { useMemberStudyListV2Query } from '@/hooks/queries/use-member-study-list-query';
 import type { MemberStudyItem } from '@/types/api/group-study.types';
 
 const GroupStudyFormModal = dynamic(
@@ -25,15 +25,27 @@ interface MemberGroupStudyList extends MemberStudyItem {
 export default function MyStudy() {
   const { memberId } = useAuthReady();
 
-  const { data, isLoading } = useMemberStudyListQuery({
-    memberId,
-    studyType: 'GROUP_STUDY',
-    studyStatus: 'BOTH',
-  });
+  const { data: notCompletedData, isLoading: isLoadingNotCompleted } =
+    useMemberStudyListV2Query({
+      memberId,
+      studyType: 'GROUP_STUDY',
+      studyStatus: 'NOT_COMPLETED',
+      pageSize: 50,
+    });
+
+  const { data: completedData, isLoading: isLoadingCompleted } =
+    useMemberStudyListV2Query({
+      memberId,
+      studyType: 'GROUP_STUDY',
+      studyStatus: 'COMPLETED',
+      pageSize: 9,
+    });
+
+  const isLoading = isLoadingNotCompleted || isLoadingCompleted;
 
   const { notCompletedStudyList, completedStudyList } = useMemo(() => {
     const now = new Date();
-    const allNotCompleted = data?.notCompleted?.content ?? [];
+    const allNotCompleted = notCompletedData?.content ?? [];
 
     const isEnded = (study: MemberStudyItem) =>
       study.status === 'COMPLETED' ||
@@ -50,11 +62,11 @@ export default function MyStudy() {
     return {
       notCompletedStudyList: active.slice(0, PREVIEW_LIMIT),
       completedStudyList: [
-        ...(data?.completed.content ?? []).filter(isGroupStudy),
+        ...(completedData?.content ?? []).filter(isGroupStudy),
         ...ended,
       ].slice(0, PREVIEW_LIMIT),
     };
-  }, [data]);
+  }, [notCompletedData, completedData]);
 
   if (isLoading) {
     return null;

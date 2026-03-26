@@ -7,7 +7,7 @@ import { useMemo } from 'react';
 import StudyCard from '@/components/card/study-card';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetStudies } from '@/hooks/queries/study-query';
-import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
+import { useMemberStudyListV2Query } from '@/hooks/queries/use-member-study-list-query';
 import { hashValue } from '@/utils/hash';
 
 interface MyParticipatingStudiesSectionProps {
@@ -41,16 +41,16 @@ export default function MyParticipatingStudiesSection({
   // 내가 참여중인 스터디 ID 목록만 가져오기
   // React Hooks 규칙: hooks는 항상 같은 순서로 호출되어야 하므로 early return 전에 호출
   // memberId가 없으면 enabled: false로 설정하여 실제 API 호출은 하지 않음
-  const { data: myStudiesData } = useMemberStudyListQuery({
+  const { data: myStudiesData } = useMemberStudyListV2Query({
     memberId: memberId ?? 0,
     studyType:
       classification === 'PREMIUM_STUDY' ? 'MENTOR_STUDY' : classification,
     studyStatus: 'NOT_COMPLETED', // 진행 중과 모집 중 모두 포함
-    inProgressPage: 1,
-    inProgressPageSize: 100, // 충분히 많이 가져오기
-    completedPage: 1,
-    completedPageSize: 1,
+    page: 1,
+    pageSize: 100, // 충분히 많이 가져오기
   });
+
+  console.log({ myStudiesData });
 
   // 일반 스터디 목록 가져오기 (카드에 필요한 완전한 정보를 위해)
   const { data: allStudiesData, isLoading } = useGetStudies({
@@ -62,18 +62,18 @@ export default function MyParticipatingStudiesSection({
 
   // 내가 참여중인 스터디 ID Set 생성 (IN_PROGRESS, RECRUITING)
   const participatingStudyIds = useMemo(() => {
-    if (!myStudiesData?.notCompleted?.content) return new Set<number>();
+    if (!myStudiesData?.content) return new Set<number>();
 
     const studyType = CLASSIFICATION_TO_STUDY_TYPE[classification];
 
-    const filtered = myStudiesData.notCompleted.content.filter(
+    const filtered = myStudiesData.content.filter(
       (study) =>
         (study.status === 'IN_PROGRESS' || study.status === 'RECRUITING') &&
         study.type === studyType,
     );
 
     return new Set(filtered.map((study) => study.studyId));
-  }, [myStudiesData?.notCompleted?.content, classification]);
+  }, [myStudiesData?.content, classification]);
 
   // 내가 참여중인 스터디만 필터링 (최대 3개)
   const participatingStudies = useMemo(() => {
