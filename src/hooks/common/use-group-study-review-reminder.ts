@@ -57,8 +57,9 @@ export function useGroupStudyReviewReminder({
     ) ?? [];
 
   // 종료 후 7일 이내인 스터디만 후기 대상
+  // realEndTime: 관리자 수동 완료 시 실제 종료 시각 (미설정이면 계획 종료일 endTime 사용)
   const reviewTargetStudies = participantStudies.filter((study) =>
-    isWithinReviewAvailableWindow(study.endTime),
+    isWithinReviewAvailableWindow(study.realEndTime ?? study.endTime),
   );
 
   // 모든 PARTICIPANT 스터디의 리뷰 작성 여부를 병렬로 조회

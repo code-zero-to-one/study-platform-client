@@ -17,9 +17,11 @@ import {
   STUDY_DETAIL_TABS,
   StudyTabValue,
 } from '@/config/constants';
-import { isWithinReviewAvailableWindow } from '@/hooks/common/use-group-study-review-reminder';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
-import { useGetGroupStudyReviewWritten } from '@/hooks/queries/group-study-review-api';
+import {
+  useGetGroupStudyReviewAvailability,
+  useGetGroupStudyReviewWritten,
+} from '@/hooks/queries/group-study-review-api';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
@@ -113,16 +115,20 @@ export default function PremiumStudyDetailPage({
       isLeader: !shouldFetchMyStatus,
     });
 
-  // 후기 모달 — 종료 후 7일 이내 PARTICIPANT 스터디원에게 자동 표시
-  const isWithinReviewWindow =
-    studyDetail?.basicInfo?.status === 'COMPLETED' &&
-    isWithinReviewAvailableWindow(studyDetail?.basicInfo?.endDate);
+  // 후기 모달 — PARTICIPANT 스터디원에게 자동 표시 (날짜 계산은 백엔드 위임)
   const isParticipantMember = myApplicationStatus?.status === 'APPROVED';
-  const shouldCheckReview =
-    !!memberId && isParticipantMember && isWithinReviewWindow;
+  const isCompleted = studyDetail?.basicInfo?.status === 'COMPLETED';
+  const shouldCheckAvailability =
+    !!memberId && isParticipantMember && isCompleted;
+
+  // 백엔드 realEndTime 기준으로 후기 작성 가능 여부 확인 (수동 완료 시나리오 대응)
+  const { data: availability } = useGetGroupStudyReviewAvailability(
+    groupStudyId,
+    { enabled: shouldCheckAvailability },
+  );
 
   const { data: reviewWritten } = useGetGroupStudyReviewWritten(groupStudyId, {
-    enabled: shouldCheckReview,
+    enabled: shouldCheckAvailability && availability?.available === true,
   });
 
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -131,14 +137,15 @@ export default function PremiumStudyDetailPage({
 
   useEffect(() => {
     if (
-      shouldCheckReview &&
+      shouldCheckAvailability &&
+      availability?.available &&
       reviewWritten === false &&
       !hasAutoOpenedReviewRef.current
     ) {
       hasAutoOpenedReviewRef.current = true;
       setShowReviewModal(true);
     }
-  }, [shouldCheckReview, reviewWritten]);
+  }, [shouldCheckAvailability, availability, reviewWritten]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -283,8 +290,8 @@ export default function PremiumStudyDetailPage({
 
   return (
     <div className="flex h-full w-full flex-col items-center">
-      {/* 후기 작성 모달 — 종료 후 7일 이내 미작성 시 자동 오픈 */}
-      {shouldCheckReview && studyDetail && (
+      {/* 후기 작성 모달 — availability API 기준 미작성 시 자동 오픈 */}
+      {shouldCheckAvailability && availability?.available && studyDetail && (
         <GroupStudyReviewModal
           open={showReviewModal}
           onOpenChange={setShowReviewModal}
@@ -401,7 +408,6 @@ export default function PremiumStudyDetailPage({
           groupStudyId={groupStudyId}
           isMember={isMember}
           isLeader={isLeader}
-          showMyHomework={!isLeader}
         />
       )}
       {activeTab === 'lounge' && (
