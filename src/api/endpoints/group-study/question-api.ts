@@ -14,11 +14,27 @@ export interface CreateQuestionRequest {
   imageExtension?: string;
 }
 
+export interface ModifyQuestionRequest {
+  title: string;
+  content: string;
+  category?: QuestionCategory;
+  imageExtension?: string;
+}
+
 export interface CreateQuestionResponse {
   statusCode: number;
   timestamp: string;
   content: {
     generatedQuestionId: number;
+    imageUploadUrl?: string;
+  };
+  message: string;
+}
+
+export interface ModifyQuestionResponse {
+  statusCode: number;
+  timestamp: string;
+  content: {
     imageUploadUrl?: string;
   };
   message: string;
@@ -110,6 +126,19 @@ export const getQuestions = async (
 export const getQuestion = async (groupStudyId: number, questionId: number) => {
   const { data } = await axiosInstance.get<GetQuestionResponse>(
     `/group-studies/${groupStudyId}/questions/${questionId}`,
+  );
+
+  return data;
+};
+
+export const modifyQuestion = async (
+  groupStudyId: number,
+  questionId: number,
+  request: ModifyQuestionRequest,
+) => {
+  const { data } = await axiosInstance.patch<ModifyQuestionResponse>(
+    `/group-studies/${groupStudyId}/questions/${questionId}`,
+    request,
   );
 
   return data;
