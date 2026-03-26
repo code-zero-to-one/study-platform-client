@@ -354,6 +354,8 @@ export interface MemberStudyItem {
   pendingCount?: number;
   startTime: string;
   endTime: string;
+  /** 관리자 수동 완료 시 실제 종료 시각. 미설정이면 endTime(계획 종료일)과 동일. */
+  realEndTime?: string;
   studyRole: 'PARTICIPANT' | 'LEADER';
   status: 'RECRUITING' | 'ENDING_SOON' | 'IN_PROGRESS' | 'COMPLETED';
   type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'MENTOR_STUDY';

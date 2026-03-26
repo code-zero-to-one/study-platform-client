@@ -3,8 +3,7 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
-import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import StudyActiveTicker from '@/components/common/ui/study-active-ticker';
 import Tabs from '@/components/common/ui/tabs';
@@ -20,6 +19,10 @@ import {
 } from '@/config/constants';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import {
+  useGetGroupStudyReviewAvailability,
+  useGetGroupStudyReviewWritten,
+} from '@/hooks/queries/group-study-review-api';
+import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
   useGroupStudyDetailQuery,
@@ -33,6 +36,16 @@ const ConfirmDeleteModal = dynamic(
   { ssr: false },
 );
 
+const GroupStudyReviewModal = dynamic(
+  () => import('@/components/common/modals/group-study-review-modal'),
+  { ssr: false },
+);
+
+const StudyCompletionModal = dynamic(
+  () => import('@/components/common/modals/study-completion-modal'),
+  { ssr: false },
+);
+
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
   { ssr: false },
@@ -40,7 +53,7 @@ const GroupStudyFormModal = dynamic(
 
 type ActionKey = 'end' | 'delete';
 
-const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
+const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
 
 const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
 
@@ -102,6 +115,38 @@ export default function PremiumStudyDetailPage({
       isLeader: !shouldFetchMyStatus,
     });
 
+  // 후기 모달 — PARTICIPANT 스터디원에게 자동 표시 (날짜 계산은 백엔드 위임)
+  const isParticipantMember = myApplicationStatus?.status === 'APPROVED';
+  const isCompleted = studyDetail?.basicInfo?.status === 'COMPLETED';
+  const shouldCheckAvailability =
+    !!memberId && isParticipantMember && isCompleted;
+
+  // 백엔드 realEndTime 기준으로 후기 작성 가능 여부 확인 (수동 완료 시나리오 대응)
+  const { data: availability } = useGetGroupStudyReviewAvailability(
+    groupStudyId,
+    { enabled: shouldCheckAvailability },
+  );
+
+  const { data: reviewWritten } = useGetGroupStudyReviewWritten(groupStudyId, {
+    enabled: shouldCheckAvailability && availability?.available === true,
+  });
+
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const hasAutoOpenedReviewRef = useRef(false);
+
+  useEffect(() => {
+    if (
+      shouldCheckAvailability &&
+      availability?.available &&
+      reviewWritten === false &&
+      !hasAutoOpenedReviewRef.current
+    ) {
+      hasAutoOpenedReviewRef.current = true;
+      setShowReviewModal(true);
+    }
+  }, [shouldCheckAvailability, availability, reviewWritten]);
+
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
 
@@ -115,12 +160,11 @@ export default function PremiumStudyDetailPage({
             group_study_id: String(groupStudyId),
           });
           showToast('스터디가 종료되었습니다.');
+          setConfirmAction(null);
           router.push('/premium-study');
         },
         onError: () => {
           showToast('스터디 종료에 실패하였습니다.', 'error');
-        },
-        onSettled: () => {
           setConfirmAction(null);
         },
       },
@@ -195,7 +239,7 @@ export default function PremiumStudyDetailPage({
 
   const activeTab = useMemo(() => {
     const hasAccessToRequestedTab = availableTabs.some(
-      (tab) => tab.value === requestedTab && !tab.locked,
+      (tab) => tab.value === requestedTab,
     );
 
     return hasAccessToRequestedTab ? requestedTab : 'intro';
@@ -246,6 +290,23 @@ export default function PremiumStudyDetailPage({
 
   return (
     <div className="flex h-full w-full flex-col items-center">
+      {/* 후기 작성 모달 — availability API 기준 미작성 시 자동 오픈 */}
+      {shouldCheckAvailability && availability?.available && studyDetail && (
+        <GroupStudyReviewModal
+          open={showReviewModal}
+          onOpenChange={setShowReviewModal}
+          groupStudyId={groupStudyId}
+          detailInfo={studyDetail.detailInfo}
+          basicInfo={studyDetail.basicInfo}
+          onSubmitSuccess={() =>
+            setTimeout(() => setShowCompletionModal(true), 300)
+          }
+        />
+      )}
+      <StudyCompletionModal
+        open={showCompletionModal}
+        onOpenChange={setShowCompletionModal}
+      />
       <ConfirmDeleteModal
         open={confirmAction !== null}
         onOpenChange={() => setConfirmAction(null)}
@@ -269,7 +330,7 @@ export default function PremiumStudyDetailPage({
       />
 
       {/* 플로팅 정보 바 */}
-      <div className={cn('mt-500', DETAIL_CONTENT_WIDTH)}>
+      <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
         <StudyActiveTicker
           approvedCount={studyDetail.basicInfo.approvedCount}
           maxMembersCount={studyDetail.basicInfo.maxMembersCount}
@@ -278,17 +339,14 @@ export default function PremiumStudyDetailPage({
         />
       </div>
       <div
-        className={cn(
-          'mb-500 flex items-start justify-between',
-          DETAIL_CONTENT_WIDTH,
-        )}
+        className={`mb-500 flex ${DETAIL_CONTENT_WIDTH} items-start justify-between`}
       >
         <div className="flex w-full flex-col gap-150">
           <p className="font-designer-28b text-text-strong">
-            {studyDetail.detailInfo.title}
+            {studyDetail?.detailInfo.title}
           </p>
           <p className="font-designer-18r text-text-default">
-            {studyDetail.detailInfo.summary}
+            {studyDetail?.detailInfo.summary}
           </p>
         </div>
         {isLeader && (
@@ -336,14 +394,12 @@ export default function PremiumStudyDetailPage({
       {activeTab === 'intro' && (
         <PremiumStudyInfoSection
           study={studyDetail as GroupStudyFullResponse}
-          isMember={isMember}
         />
       )}
       {activeTab === 'members' && (
         <GroupStudyMemberList
           groupStudyId={groupStudyId}
           leaderId={studyDetail.basicInfo.leader.memberId}
-          excludeLeaderFromMembers
           myApplicationStatus={myApplicationStatus}
         />
       )}
@@ -352,7 +408,6 @@ export default function PremiumStudyDetailPage({
           groupStudyId={groupStudyId}
           isMember={isMember}
           isLeader={isLeader}
-          showMyHomework={!isLeader}
         />
       )}
       {activeTab === 'lounge' && (
