@@ -185,7 +185,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
       targetRoles: [],
       method: [],
       experienceLevels: [],
-      recruiting: true, // 기본값: 모집 중만 보기
+      recruiting: false,
     });
   }, [onChange]);
 
@@ -195,7 +195,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
     values.targetRoles.length > 0 ||
     values.method.length > 0 ||
     values.experienceLevels.length > 0 ||
-    !values.recruiting; // recruiting이 false면 필터 적용 중
+    values.recruiting; // recruiting이 false면 필터 적용 중
 
   return (
     <div className="flex flex-wrap items-center gap-100">
