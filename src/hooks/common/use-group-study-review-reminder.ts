@@ -5,10 +5,10 @@ import { axiosInstance } from '@/api/client/axios';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { groupStudyReviewQueryKeys } from '@/hooks/queries/group-study-review-api';
 import { useMemberStudyListQuery } from '@/hooks/queries/use-member-study-list-query';
+import type { MemberStudyListRequest } from '@/types/api/group-study.types';
 
 interface UseGroupStudyReviewReminderOptions {
-  /** 'GROUP_STUDY' | 'MENTOR_STUDY' — 목록 페이지 유형에 맞게 지정 */
-  studyType: 'GROUP_STUDY' | 'MENTOR_STUDY';
+  studyType: MemberStudyListRequest['studyType'];
 }
 
 const REVIEW_AVAILABLE_DAYS = 7;
