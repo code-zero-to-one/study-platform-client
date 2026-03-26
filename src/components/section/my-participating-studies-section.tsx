@@ -50,8 +50,6 @@ export default function MyParticipatingStudiesSection({
     pageSize: 100, // 충분히 많이 가져오기
   });
 
-  console.log({ myStudiesData });
-
   // 일반 스터디 목록 가져오기 (카드에 필요한 완전한 정보를 위해)
   const { data: allStudiesData, isLoading } = useGetStudies({
     classification,
