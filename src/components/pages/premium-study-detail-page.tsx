@@ -336,6 +336,7 @@ export default function PremiumStudyDetailPage({
       {activeTab === 'intro' && (
         <PremiumStudyInfoSection
           study={studyDetail as GroupStudyFullResponse}
+          isMember={isMember}
         />
       )}
       {activeTab === 'members' && (

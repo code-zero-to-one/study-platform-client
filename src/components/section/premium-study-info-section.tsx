@@ -13,6 +13,7 @@ import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
 import type { GroupStudyFullResponse } from '@/types/api/group-study.types';
+import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import SummaryStudyInfo from '../summary/study-info-summary';
 
 const UserProfileModal = dynamic(
@@ -28,10 +29,12 @@ function getApplicantsList<T>(pages: { content: T[] }[] | undefined) {
 
 interface PremiumStudyInfoSectionProps {
   study: GroupStudyFullResponse;
+  isMember?: boolean;
 }
 
 export default function PremiumStudyInfoSection({
   study: studyDetail,
+  isMember,
 }: PremiumStudyInfoSectionProps) {
   const router = useRouter();
   const params = useParams();
@@ -160,7 +163,13 @@ export default function PremiumStudyInfoSection({
           </div>
         </div>
       </div>
-      <SummaryStudyInfo data={studyDetail} />
+      <div className="flex flex-col gap-400">
+        <SummaryStudyInfo data={studyDetail} />
+        <CurriculumSummarySection
+          curriculumSummary={studyDetail.curriculumSummary ?? []}
+          canAccessAll={isMember || isLeader}
+        />
+      </div>
     </div>
   );
 }
