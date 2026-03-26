@@ -5,6 +5,8 @@ import {
   CreateQuestionRequest,
   getQuestion,
   getQuestions,
+  modifyQuestion,
+  ModifyQuestionRequest,
 } from '@/api/endpoints/group-study/question-api';
 
 export const useCreateQuestion = () => {
@@ -34,10 +36,12 @@ export const useGetQuestions = ({
   groupStudyId,
   page = 1,
   pageSize = 15,
+  enabled = true,
 }: {
   groupStudyId: number;
   page?: number;
   pageSize?: number;
+  enabled?: boolean;
 }) => {
   return useQuery({
     queryKey: ['questions', groupStudyId, page, pageSize],
@@ -46,7 +50,7 @@ export const useGetQuestions = ({
 
       return data.content;
     },
-    enabled: !!groupStudyId,
+    enabled: !!groupStudyId && enabled,
     staleTime: 60 * 1000,
   });
 };
@@ -54,9 +58,11 @@ export const useGetQuestions = ({
 export const useGetQuestion = ({
   groupStudyId,
   questionId,
+  enabled = true,
 }: {
   groupStudyId: number;
   questionId: number;
+  enabled?: boolean;
 }) => {
   return useQuery({
     queryKey: ['question', groupStudyId, questionId],
@@ -65,8 +71,36 @@ export const useGetQuestion = ({
 
       return data.content;
     },
-    enabled: !!groupStudyId && !!questionId,
+    enabled: !!groupStudyId && !!questionId && enabled,
     staleTime: 60 * 1000,
+  });
+};
+
+export const useModifyQuestion = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      groupStudyId,
+      questionId,
+      request,
+    }: {
+      groupStudyId: number;
+      questionId: number;
+      request: ModifyQuestionRequest;
+    }) => {
+      const data = await modifyQuestion(groupStudyId, questionId, request);
+
+      return data.content;
+    },
+    onSuccess: async (_, variables) => {
+      await queryClient.invalidateQueries({
+        queryKey: ['question', variables.groupStudyId, variables.questionId],
+      });
+      await queryClient.invalidateQueries({
+        queryKey: ['questions', variables.groupStudyId],
+      });
+    },
   });
 };
 

@@ -10,7 +10,7 @@ import { getCookie } from './cookie';
 // json 요청
 export const axiosInstance = axios.create({
   baseURL: `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1/`,
-  timeout: 10000,
+  timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -205,7 +205,7 @@ axiosInstanceForMultipart.interceptors.response.use(
               if (originalRequest) {
                 originalRequest.headers.Authorization = `Bearer ${token}`;
 
-                return axiosInstance(originalRequest);
+                return axiosInstanceForMultipart(originalRequest);
               }
             })
             .catch((err) => {
@@ -224,7 +224,7 @@ axiosInstanceForMultipart.interceptors.response.use(
             if (originalRequest) {
               originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
-              return axiosInstance(originalRequest);
+              return axiosInstanceForMultipart(originalRequest);
             }
           } else {
             processFailedQueue(new Error('토큰 갱신 실패'));
