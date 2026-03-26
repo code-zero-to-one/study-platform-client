@@ -98,8 +98,6 @@ export const getMemberStudyListV2 = async ({
       },
     );
 
-    console.log({ res });
-
     return res.data.content;
   } catch (error) {
     if (isAxiosError(error) && error.response?.status === 400) {
