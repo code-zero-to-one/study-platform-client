@@ -351,6 +351,23 @@ export default async function Page() {
 
 `@/*`는 `./src/*`에 매핑됨 (tsconfig.json에서 설정)
 
+## 프론트엔드 로직 수정 시 탐색 규칙
+
+프론트엔드 로직(API 연동, 데이터 모델, 비즈니스 규칙)을 수정할 때는 **항상 프론트와 백엔드를 병렬로 탐색**한다.
+
+- **프론트엔드**: 현재 프로젝트 (`./src/`)
+- **백엔드**: `/Users/haseung/Documents/Dev/study-platform-mvp/src/` (Spring Boot)
+
+병렬 탐색이 필요한 상황:
+- API 요청/응답 타입 확인 (백엔드 DTO ↔ 프론트 타입 매핑)
+- 에러 코드 의미 파악 (백엔드 exception 정의 확인)
+- 비즈니스 규칙 검증 (백엔드 service/domain 로직 확인)
+- 신규 API 연동 전 백엔드 엔드포인트 확인
+
+탐색 방법: `Agent` 도구(subagent_type=Explore)를 두 개 병렬로 실행하거나, Grep/Glob을 동시에 호출.
+
+---
+
 ## 주요 컨벤션
 
 - **커밋 메시지**: `feat:`, `fix:`, `refactor:`, `style:`, `docs:`, `test:`, `chore:`

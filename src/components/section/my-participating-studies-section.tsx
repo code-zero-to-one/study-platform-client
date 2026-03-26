@@ -43,7 +43,8 @@ export default function MyParticipatingStudiesSection({
   // memberId가 없으면 enabled: false로 설정하여 실제 API 호출은 하지 않음
   const { data: myStudiesData } = useMemberStudyListQuery({
     memberId: memberId ?? 0,
-    studyType: classification,
+    studyType:
+      classification === 'PREMIUM_STUDY' ? 'MENTOR_STUDY' : classification,
     studyStatus: 'NOT_COMPLETED', // 진행 중과 모집 중 모두 포함
     inProgressPage: 1,
     inProgressPageSize: 100, // 충분히 많이 가져오기
