@@ -1,126 +1,128 @@
-'use client';
+"use client";
 
-import { useCallback, useMemo, useState } from 'react';
-import { GetGroupStudiesSortEnum } from '@/api/openapi/api/group-study-management-api';
+import { useCallback, useMemo, useState } from "react";
+import { GetGroupStudiesSortEnum } from "@/api/openapi/api/group-study-management-api";
 import type {
-  GetGroupStudiesClassificationEnum,
-  GetGroupStudiesMethodEnum,
-  GetGroupStudiesTargetRolesEnum,
-  GetGroupStudiesTypeEnum,
-} from '@/api/openapi/api/group-study-management-api';
-import type { StudyFilterValues } from '@/components/filtering/study-filter';
-import { useGetStudies } from '@/hooks/queries/study-query';
+    GetGroupStudiesClassificationEnum,
+    GetGroupStudiesMethodEnum,
+    GetGroupStudiesTargetRolesEnum,
+    GetGroupStudiesTypeEnum,
+} from "@/api/openapi/api/group-study-management-api";
+import type { StudyFilterValues } from "@/components/filtering/study-filter";
+import { useGetStudies } from "@/hooks/queries/study-query";
 
 const PAGE_SIZE = 15;
 
 interface UseStudyListFilterParams {
-  classification: GetGroupStudiesClassificationEnum;
+    classification: GetGroupStudiesClassificationEnum;
 }
 
 export function useStudyListFilter({
-  classification,
-}: UseStudyListFilterParams) {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterValues, setFilterValues] = useState<StudyFilterValues>({
-    type: [],
-    targetRoles: [],
-    method: [],
-    experienceLevels: [],
-    recruiting: true,
-  });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sort, setSort] = useState<GetGroupStudiesSortEnum>(
-    GetGroupStudiesSortEnum.Latest,
-  );
-
-  const isClientFiltered =
-    !!searchQuery || filterValues.experienceLevels.length > 0;
-
-  const { data, isLoading } = useGetStudies({
     classification,
-    page: isClientFiltered ? 1 : currentPage,
-    pageSize: isClientFiltered ? 10000 : PAGE_SIZE,
-    type:
-      filterValues.type.length > 0
-        ? (filterValues.type as GetGroupStudiesTypeEnum[])
-        : undefined,
-    targetRoles:
-      filterValues.targetRoles.length > 0
-        ? (filterValues.targetRoles as GetGroupStudiesTargetRolesEnum[])
-        : undefined,
-    method:
-      filterValues.method.length > 0
-        ? (filterValues.method as GetGroupStudiesMethodEnum[])
-        : undefined,
-    recruiting: filterValues.recruiting ? true : undefined,
-    sort,
-  });
+}: UseStudyListFilterParams) {
+    const [searchQuery, setSearchQuery] = useState("");
+    const [filterValues, setFilterValues] = useState<StudyFilterValues>({
+        type: [],
+        targetRoles: [],
+        method: [],
+        experienceLevels: [],
+        recruiting: false,
+    });
+    const [currentPage, setCurrentPage] = useState(1);
+    const [sort, setSort] = useState<GetGroupStudiesSortEnum>(
+        GetGroupStudiesSortEnum.Latest,
+    );
 
-  const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
+    const isClientFiltered =
+        !!searchQuery || filterValues.experienceLevels.length > 0;
 
-  const handleSortChange = useCallback((value: GetGroupStudiesSortEnum) => {
-    setSort(value);
-    setCurrentPage(1);
-  }, []);
+    const { data, isLoading } = useGetStudies({
+        classification,
+        page: isClientFiltered ? 1 : currentPage,
+        pageSize: isClientFiltered ? 10000 : PAGE_SIZE,
+        type:
+            filterValues.type.length > 0
+                ? (filterValues.type as GetGroupStudiesTypeEnum[])
+                : undefined,
+        targetRoles:
+            filterValues.targetRoles.length > 0
+                ? (filterValues.targetRoles as GetGroupStudiesTargetRolesEnum[])
+                : undefined,
+        method:
+            filterValues.method.length > 0
+                ? (filterValues.method as GetGroupStudiesMethodEnum[])
+                : undefined,
+        recruiting: filterValues.recruiting ? true : undefined,
+        sort,
+    });
 
-  const handleFilterChange = useCallback((values: StudyFilterValues) => {
-    setFilterValues(values);
-    setCurrentPage(1);
-  }, []);
+    const allStudies = useMemo(() => data?.content ?? [], [data?.content]);
 
-  const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
-  }, []);
+    const handleSortChange = useCallback((value: GetGroupStudiesSortEnum) => {
+        setSort(value);
+        setCurrentPage(1);
+    }, []);
 
-  const handleSearch = useCallback((query: string) => {
-    setSearchQuery(query);
-    setCurrentPage(1);
-  }, []);
+    const handleFilterChange = useCallback((values: StudyFilterValues) => {
+        setFilterValues(values);
+        setCurrentPage(1);
+    }, []);
 
-  const filteredStudies = useMemo(() => {
-    let result = allStudies;
+    const handlePageChange = useCallback((page: number) => {
+        setCurrentPage(page);
+    }, []);
 
-    if (filterValues.experienceLevels.length > 0) {
-      result = result.filter((study) =>
-        study.basicInfo?.experienceLevels?.some((level) =>
-          filterValues.experienceLevels.includes(level),
-        ),
-      );
-    }
+    const handleSearch = useCallback((query: string) => {
+        setSearchQuery(query);
+        setCurrentPage(1);
+    }, []);
 
-    if (searchQuery) {
-      const lowerQuery = searchQuery.toLowerCase();
-      result = result.filter((study) =>
-        study.simpleDetailInfo?.title?.toLowerCase().includes(lowerQuery),
-      );
-    }
+    const filteredStudies = useMemo(() => {
+        let result = allStudies;
 
-    return result;
-  }, [allStudies, filterValues.experienceLevels, searchQuery]);
+        if (filterValues.experienceLevels.length > 0) {
+            result = result.filter((study) =>
+                study.basicInfo?.experienceLevels?.some((level) =>
+                    filterValues.experienceLevels.includes(level),
+                ),
+            );
+        }
 
-  const totalPages = isClientFiltered
-    ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
-    : (data?.totalPages ?? 1);
+        if (searchQuery) {
+            const lowerQuery = searchQuery.toLowerCase();
+            result = result.filter((study) =>
+                study.simpleDetailInfo?.title
+                    ?.toLowerCase()
+                    .includes(lowerQuery),
+            );
+        }
 
-  const displayStudies = useMemo(() => {
-    if (!isClientFiltered) return filteredStudies;
+        return result;
+    }, [allStudies, filterValues.experienceLevels, searchQuery]);
 
-    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const totalPages = isClientFiltered
+        ? Math.ceil(filteredStudies.length / PAGE_SIZE) || 1
+        : (data?.totalPages ?? 1);
 
-    return filteredStudies.slice(startIndex, startIndex + PAGE_SIZE);
-  }, [filteredStudies, isClientFiltered, currentPage]);
+    const displayStudies = useMemo(() => {
+        if (!isClientFiltered) return filteredStudies;
 
-  return {
-    searchQuery,
-    filterValues,
-    currentPage,
-    totalPages,
-    displayStudies,
-    isLoading,
-    sort,
-    handleFilterChange,
-    handlePageChange,
-    handleSearch,
-    handleSortChange,
-  };
+        const startIndex = (currentPage - 1) * PAGE_SIZE;
+
+        return filteredStudies.slice(startIndex, startIndex + PAGE_SIZE);
+    }, [filteredStudies, isClientFiltered, currentPage]);
+
+    return {
+        searchQuery,
+        filterValues,
+        currentPage,
+        totalPages,
+        displayStudies,
+        isLoading,
+        sort,
+        handleFilterChange,
+        handlePageChange,
+        handleSearch,
+        handleSortChange,
+    };
 }
