@@ -51,7 +51,7 @@ export default function PremiumStudyListPage() {
     handleSearch,
     handleSortChange,
   } = useStudyListFilter({
-    classification: 'PREMIUM_STUDY',
+    classification: 'MENTOR_STUDY',
   });
 
   if (isLoading) {

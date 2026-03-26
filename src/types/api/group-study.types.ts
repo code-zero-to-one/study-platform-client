@@ -365,7 +365,7 @@ export interface MemberStudyItem {
   endTime: string;
   studyRole: 'PARTICIPANT' | 'LEADER';
   status: 'RECRUITING' | 'ENDING_SOON' | 'IN_PROGRESS' | 'COMPLETED';
-  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'PREMIUM_STUDY';
+  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'MENTOR_STUDY';
 }
 
 export interface MemberStudyListResponse {

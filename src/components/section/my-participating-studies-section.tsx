@@ -16,7 +16,7 @@ interface MyParticipatingStudiesSectionProps {
 
 const CLASSIFICATION_TO_STUDY_TYPE = {
   GROUP_STUDY: 'GROUP_STUDY',
-  PREMIUM_STUDY: 'PREMIUM_STUDY',
+  PREMIUM_STUDY: 'MENTOR_STUDY',
 } as const;
 
 export default function MyParticipatingStudiesSection({
