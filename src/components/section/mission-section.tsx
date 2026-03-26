@@ -33,6 +33,7 @@ interface MissionSectionProps {
   groupStudyId: number;
   isMember?: boolean;
   isLeader?: boolean;
+  showMyHomework?: boolean;
 }
 
 const FIRST_WEEK = 1;
@@ -41,6 +42,7 @@ export default function MissionSection({
   groupStudyId,
   isMember,
   isLeader: isLeaderProp,
+  showMyHomework,
 }: MissionSectionProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -185,7 +187,10 @@ export default function MissionSection({
           미션 상세
         </button>
 
-        <MissionDetailContent missionId={Number(missionId)} />
+        <MissionDetailContent
+          missionId={Number(missionId)}
+          showMyHomework={showMyHomework}
+        />
       </PageContainer>
     );
   }
