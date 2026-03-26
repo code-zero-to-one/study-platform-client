@@ -42,6 +42,8 @@ type ActionKey = 'end' | 'delete';
 
 const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
 
+const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
+
 const END_MODAL_CONTENT = (
   <>
     종료 후에는 더 이상 모집/활동이 불가합니다.
@@ -178,20 +180,22 @@ export default function PremiumStudyDetailPage({
 
   const availableTabs = useMemo(
     () =>
-      STUDY_DETAIL_TABS.filter(
-        (tab) =>
-          tab.value === 'intro' ||
-          tab.value === 'inquiry' ||
-          tab.value === 'mission' ||
-          isLeader ||
-          isMember,
-      ),
+      STUDY_DETAIL_TABS.map((tab) => {
+        const locked =
+          MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember;
+
+        return {
+          ...tab,
+          locked,
+          lockedTooltip: locked ? '스터디 가입하여 확인' : undefined,
+        };
+      }),
     [isLeader, isMember],
   );
 
   const activeTab = useMemo(() => {
     const hasAccessToRequestedTab = availableTabs.some(
-      (tab) => tab.value === requestedTab,
+      (tab) => tab.value === requestedTab && !tab.locked,
     );
 
     return hasAccessToRequestedTab ? requestedTab : 'intro';
