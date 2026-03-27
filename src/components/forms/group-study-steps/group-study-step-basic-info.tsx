@@ -51,7 +51,6 @@ export default function GroupStudyStepBasicInfo() {
   const classification = useClassification();
   const mode = useMode();
   const isPremiumStudy = classification === 'PREMIUM_STUDY';
-  console.log('isPremiumStudy: ', isPremiumStudy);
 
   const { field: typeField } = useController({
     name: 'type',
