@@ -10,8 +10,8 @@ import {
 } from '@/components/common/ui/(shadcn)/ui/dropdown-menu';
 import ToggleButton from '@/components/common/ui/toggle/button';
 import {
-  ROLE_OPTIONS_UI,
   STUDY_METHOD_LABELS,
+  TARGET_ROLE_OPTIONS_UI,
 } from '@/config/group-study-const';
 
 // 필터 옵션 타입
@@ -208,7 +208,7 @@ export default function StudyFilter({ values, onChange }: StudyFilterProps) {
 
       <FilterDropdown
         label="직무"
-        options={ROLE_OPTIONS_UI}
+        options={TARGET_ROLE_OPTIONS_UI}
         selected={values.targetRoles}
         onChange={handleTargetRolesChange}
       />

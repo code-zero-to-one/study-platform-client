@@ -73,7 +73,7 @@ export const STUDY_STATUS_LABELS = {
   COMPLETED: '모집 완료',
 } as const;
 
-export const ROLE_OPTIONS_UI = [
+export const TARGET_ROLE_OPTIONS_UI = [
   { label: '백엔드', value: 'BACKEND' },
   { label: '프론트엔드', value: 'FRONTEND' },
   { label: '기획', value: 'PLANNER' },

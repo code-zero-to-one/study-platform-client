@@ -19,20 +19,20 @@ import {
 } from '@/components/forms/group-study-form';
 import {
   STUDY_TYPES,
-  ROLE_OPTIONS_UI,
   EXPERIENCE_LEVEL_OPTIONS_UI,
   STUDY_METHODS,
   STUDY_METHOD_LABELS,
   STUDY_TYPE_LABELS,
   REGULAR_MEETINGS,
   REGULAR_MEETING_LABELS,
+  TARGET_ROLE_OPTIONS_UI,
 } from '@/config/group-study-const';
 import {
   useScrollToNextField,
   SCROLL_FIELD_ATTR,
 } from '@/hooks/use-scroll-to-next-field';
-import { TargetRole } from '@/types/api/group-study.types';
-import { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
+import type { TargetRole } from '@/types/api/group-study.types';
+import type { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
 import { formatKoreaYMD, getKoreaDate } from '@/utils/time';
 
 const methodOptions = STUDY_METHODS.map((v) => ({
@@ -51,6 +51,7 @@ export default function GroupStudyStepBasicInfo() {
   const classification = useClassification();
   const mode = useMode();
   const isPremiumStudy = classification === 'PREMIUM_STUDY';
+  console.log('isPremiumStudy: ', isPremiumStudy);
 
   const { field: typeField } = useController({
     name: 'type',
@@ -120,7 +121,7 @@ export default function GroupStudyStepBasicInfo() {
         required
         scrollable
       >
-        <GroupItems options={ROLE_OPTIONS_UI} />
+        <GroupItems options={TARGET_ROLE_OPTIONS_UI} />
       </FormField>
       <FormField<GroupStudyFormValues, 'maxMembersCount'>
         name="maxMembersCount"
