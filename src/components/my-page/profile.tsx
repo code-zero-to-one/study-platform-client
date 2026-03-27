@@ -76,7 +76,7 @@ export default function Profile({
           height={90}
           className="h-[90px] w-[90px] shrink-0 rounded-full object-cover"
         />
-        <div className="flex flex-grow flex-col gap-400">
+        <div className="flex min-w-0 grow flex-col gap-400">
           <div className="flex flex-col gap-300">
             <div className="flex flex-col gap-75">
               <div className="flex gap-50">
@@ -89,7 +89,7 @@ export default function Profile({
                   </Badge>
                 ))}
               </div>
-              <div className="font-designer-28b flex flex-row items-end justify-between gap-100">
+              <div className="font-designer-28b flex flex-col gap-75 sm:flex-row sm:items-end sm:justify-between">
                 <div className="flex items-center gap-50">
                   {memberProfile.nickname ?? '닉네임을 입력해주세요'}
                   {/* 본인 인증 배지 (트위터 스타일) */}
@@ -104,11 +104,11 @@ export default function Profile({
                 {!hidePhoneNumber &&
                   resolvedIsVerified &&
                   resolvedPhoneNumber && (
-                    <div className="flex flex-col items-end">
+                    <div className="flex flex-col items-start sm:items-end">
                       <div className="font-designer-14r text-text-subtle leading-none">
                         {memberProfile.memberName}
                       </div>
-                      <div className="flex flex-row items-center gap-100">
+                      <div className="flex flex-row flex-wrap items-center gap-100">
                         <PhoneIcon />
                         <span className="font-designer-14r text-text-subtle leading-none">
                           {formatPhoneNumber(resolvedPhoneNumber)}
@@ -132,7 +132,7 @@ export default function Profile({
               </p>
             </div>
 
-            <div className="grid grid-cols-[280px_1fr] gap-y-100">
+            <div className="grid grid-cols-1 gap-y-100 sm:grid-cols-[280px_1fr]">
               <div className="flex items-center gap-100">
                 <CakeIcon />
                 <span className="font-designer-14r text-text-subtle leading-none">

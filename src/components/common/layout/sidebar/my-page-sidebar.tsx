@@ -20,7 +20,7 @@ export default function Sidebar() {
   };
 
   return (
-    <div className="border-border-subtle box-border flex w-[300px] flex-col gap-150 border-x-1 px-300 pt-500">
+    <div className="border-border-subtle box-border hidden w-[300px] flex-col gap-150 border-x-1 px-300 pt-500 lg:flex">
       <SidebarItem
         onClick={() => router.push('/my-page')}
         isActive={pathname === '/my-page'}
@@ -47,7 +47,7 @@ export default function Sidebar() {
       </SidebarItem>
       <SidebarItem
         onClick={() => router.push('/my-study-review')}
-        isActive={pathname === '/my-study-review'}
+        isActive={pathname.startsWith('/my-study-review')}
       >
         스터디 후기
       </SidebarItem>
@@ -83,8 +83,9 @@ function SidebarItem({
   onClick: () => void;
 }) {
   return (
-    <div className="flex py-[14px] pr-[12px] pl-[24px]">
-      <div
+    <div className="flex py-175 pr-150 pl-150">
+      <button
+        type="button"
         onClick={onClick}
         className={cn(
           'font-designer-18m text-text-default cursor-pointer',
@@ -92,7 +93,7 @@ function SidebarItem({
         )}
       >
         {children}
-      </div>
+      </button>
     </div>
   );
 }
