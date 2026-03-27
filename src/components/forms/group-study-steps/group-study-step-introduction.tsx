@@ -44,16 +44,19 @@ export default function GroupStudyStepIntroduction() {
       return;
     }
 
-    const ext = file.name.split('.').pop()?.toUpperCase();
-    const validExt =
-      ext &&
+    const imageExtension = file.name.split('.').pop()?.toUpperCase();
+
+    const validImageExtension =
+      imageExtension &&
       THUMBNAIL_EXTENSION.includes(
-        ext as GroupStudyFormValues['thumbnailExtension'],
+        imageExtension as GroupStudyFormValues['thumbnailExtension'],
       )
-        ? (ext as GroupStudyFormValues['thumbnailExtension'])
+        ? (imageExtension as GroupStudyFormValues['thumbnailExtension'])
         : 'DEFAULT';
 
-    setValue('thumbnailExtension', validExt, { shouldValidate: true });
+    setValue('thumbnailExtension', validImageExtension, {
+      shouldValidate: true,
+    });
     setValue('thumbnailFile', file, { shouldValidate: true });
   };
 
