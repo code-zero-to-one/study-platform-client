@@ -78,9 +78,9 @@ export default function StudyInfoSection({
   }, [applicants]);
 
   return (
-    <div className="m-auto mt-500 flex w-[1164px] gap-600">
+    <div className="m-auto mt-500 flex w-full max-w-study-content flex-col gap-600 px-400 lg:flex-row">
       <div className="flex flex-1 flex-col gap-500">
-        <div className="relative h-[430px] w-full">
+        <div className="relative h-[220px] w-full lg:h-[430px]">
           <Image
             src={
               studyDetail?.detailInfo?.image?.resizedImages[0]
@@ -111,7 +111,7 @@ export default function StudyInfoSection({
                     </span>
                     <div className="font-designer-15r text-text-subtle flex items-center gap-100">
                       <span>스터디 리더</span>
-                      <span className="h-100 w-px bg-[#E9EAEB]" />
+                      <span className="h-100 w-px bg-border-subtle" />
                       <span>
                         {studyDetail.basicInfo.leader.simpleIntroduction}
                       </span>
@@ -128,7 +128,7 @@ export default function StudyInfoSection({
                 }
               />
             </div>
-            <div className="font-designer-16r whitespace-pre-line text-[#535862]">
+            <div className="font-designer-16r whitespace-pre-line text-text-subtle">
               {studyDetail?.detailInfo.description}
             </div>
           </div>
@@ -137,11 +137,11 @@ export default function StudyInfoSection({
             <div className="flex items-center justify-between">
               <div className="font-designer-20b flex gap-100">
                 <span>참가자 목록</span>
-                <span className="text-[#A4A7AE]">{`${approvedApplicants?.pages[0]?.totalElements ?? 0}명`}</span>
+                <span className="text-text-subtlest">{`${approvedApplicants?.pages[0]?.totalElements ?? 0}명`}</span>
               </div>
               {isLeader && (
                 <Button
-                  className="h-500 w-[80px] text-[16px] font-bold"
+                  className="h-500 w-[80px] font-designer-16b"
                   onClick={() =>
                     router.push(`/application-list/${groupStudyId}`)
                   }
@@ -172,6 +172,7 @@ export default function StudyInfoSection({
             questions={studyDetail.interviewPost?.interviewPost ?? []}
             trigger={
               <button
+                type="button"
                 ref={applyTriggerRef}
                 className="sr-only"
                 aria-hidden
