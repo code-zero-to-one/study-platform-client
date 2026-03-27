@@ -50,7 +50,6 @@ export default function GroupStudyStepBasicInfo() {
   const { control, formState, watch } = useFormContext<GroupStudyFormValues>();
   const classification = useClassification();
   const mode = useMode();
-  const isPremiumStudy = classification === 'PREMIUM_STUDY';
 
   const { field: typeField } = useController({
     name: 'type',
@@ -275,7 +274,7 @@ export default function GroupStudyStepBasicInfo() {
           </p>
         )}
       </div>
-      {isPremiumStudy && (
+      {classification === 'PREMIUM_STUDY' && (
         <FormField<GroupStudyFormValues, 'price'>
           name="price"
           label="참가비"
