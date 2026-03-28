@@ -16,6 +16,7 @@ import { useUserStore } from '@/stores/useUserStore';
 
 import type { GroupStudyFullResponse } from '@/types/api/group-study.types';
 import SummaryStudyInfo from '../summary/study-info-summary';
+import { MARKDOWN_DESCRIPTION_CLASS } from '../common/ui/editor/markdown-utils';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),
@@ -129,7 +130,7 @@ export default function PremiumStudyInfoSection({
             </div>
             <MarkdownContent
               content={studyDetail?.detailInfo.description}
-              className="[&_p]:font-designer-16r [&_p]:text-[#535862] [&_li]:font-designer-16r [&_li]:text-[#535862] [&_blockquote_p]:font-designer-16r [&_blockquote_p]:text-[#535862]"
+              className={MARKDOWN_DESCRIPTION_CLASS}
             />
           </div>
 
