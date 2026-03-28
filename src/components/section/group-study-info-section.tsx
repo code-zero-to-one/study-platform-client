@@ -14,8 +14,8 @@ import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 
-import SummaryStudyInfo from '../summary/study-info-summary';
 import { MARKDOWN_DESCRIPTION_CLASS } from '../common/ui/editor/markdown-utils';
+import SummaryStudyInfo from '../summary/study-info-summary';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),

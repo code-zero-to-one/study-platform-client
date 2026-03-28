@@ -15,8 +15,8 @@ import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
 
 import type { GroupStudyFullResponse } from '@/types/api/group-study.types';
-import SummaryStudyInfo from '../summary/study-info-summary';
 import { MARKDOWN_DESCRIPTION_CLASS } from '../common/ui/editor/markdown-utils';
+import SummaryStudyInfo from '../summary/study-info-summary';
 
 const UserProfileModal = dynamic(
   () => import('@/components/common/modals/user-profile-modal'),
