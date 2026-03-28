@@ -7,12 +7,8 @@ export interface MentorMarkdownImageUploadTicket {
 
 export const requestMentorMarkdownImageUploadTicket = async ({
   fileName,
-  fileType: _fileType,
-  fileSize: _fileSize,
 }: {
   fileName: string;
-  fileType: string;
-  fileSize: number;
 }) => {
   return getMentorIntroImageUploadTicket({
     fileName,

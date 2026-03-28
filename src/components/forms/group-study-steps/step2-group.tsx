@@ -18,8 +18,6 @@ import type { GroupStudyFormValues } from '@/types/schemas/group-study-form.sche
 const uploadGroupStudyMarkdownImage = async (file: File) => {
   const ticket = await requestMarkdownImageUploadTicket({
     fileName: file.name,
-    fileType: file.type,
-    fileSize: file.size,
   });
 
   await uploadMentorMarkdownImageFile({

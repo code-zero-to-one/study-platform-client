@@ -25,10 +25,9 @@ function MentorMarkdownEditor({
   placeholder,
 }: MentorMarkdownEditorProps) {
   const handleUploadImageFile = useCallback(async (file: File) => {
+    const { name: fileName } = file;
     const ticket = await requestMentorMarkdownImageUploadTicket({
-      fileName: file.name,
-      fileType: file.type,
-      fileSize: file.size,
+      fileName,
     });
 
     await uploadMentorMarkdownImageFile({
