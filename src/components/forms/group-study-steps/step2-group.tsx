@@ -105,7 +105,11 @@ export default function Step2OpenGroupStudy() {
         scrollable
         onAfterBlurFilled={() => scrollToNext('title')}
       >
-        <BaseInput placeholder="제목을 입력하세요." hideMeta={false} />
+        <BaseInput
+          placeholder="제목을 입력하세요."
+          hideMeta={false}
+          maxLength={100}
+        />
       </FormField>
 
       <FormField<GroupStudyFormValues, 'summary'>
@@ -120,6 +124,7 @@ export default function Step2OpenGroupStudy() {
         <BaseInput
           placeholder="목록에 노출될 스터디 요약을 입력하세요."
           hideMeta={false}
+          maxLength={200}
         />
       </FormField>
 
