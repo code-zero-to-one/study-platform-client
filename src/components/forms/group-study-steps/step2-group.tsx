@@ -2,18 +2,41 @@
 
 import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
+import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import FormField from '@/components/common/ui/form/form-field';
 import ImageUploadInput from '@/components/common/ui/image-upload-input';
-import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
+import { BaseInput } from '@/components/common/ui/input';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
+import {
+  requestMentorMarkdownImageUploadTicket,
+  uploadMentorMarkdownImageFile,
+} from '@/features/mentoring/model/mentor-markdown-image-upload';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 
 import { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
+
+const uploadGroupStudyMarkdownImage = async (file: File) => {
+  const ticket = await requestMentorMarkdownImageUploadTicket({
+    fileName: file.name,
+    fileType: file.type,
+    fileSize: file.size,
+  });
+
+  await uploadMentorMarkdownImageFile({
+    uploadUrl: ticket.uploadUrl,
+    file,
+  });
+
+  return ticket.publicUrl;
+};
 
 export default function Step2OpenGroupStudy() {
   const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
   const scrollToNext = useScrollToNextField();
 
+  const classification = useWatch<GroupStudyFormValues>({
+    name: 'classification',
+  });
   const thumbnailFile = useWatch<GroupStudyFormValues>({
     name: 'thumbnailFile',
   });
@@ -55,6 +78,9 @@ export default function Step2OpenGroupStudy() {
     setValue('thumbnailFile', file, { shouldValidate: true });
     setImage(URL.createObjectURL(file));
   };
+
+  const leaderRoleLabel =
+    classification === 'PREMIUM_STUDY' ? '멘토' : '리더';
 
   return (
     <>
@@ -103,12 +129,20 @@ export default function Step2OpenGroupStudy() {
       <FormField<GroupStudyFormValues, 'description'>
         name="description"
         label="스터디 소개"
+        helper={
+          <span className="whitespace-pre-line">
+            {`${leaderRoleLabel}님의 스터디가 돋보이도록 자세한 스터디 소개를 작성해주세요.\n이미지 업로드 시 자유롭게 크기 조정이 가능합니다.`}
+          </span>
+        }
         direction="vertical"
         size="medium"
         required
         scrollable
       >
-        <TextAreaInput placeholder="소개를 입력하세요." maxLength={1000} />
+        <MarkdownEditor
+          placeholder="스터디 소개를 자유롭게 작성해주세요."
+          uploadImage={uploadGroupStudyMarkdownImage}
+        />
       </FormField>
     </>
   );

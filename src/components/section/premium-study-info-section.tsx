@@ -8,6 +8,7 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
+import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 import { useIsLeader } from '@/stores/useLeaderStore';
 import { useUserStore } from '@/stores/useUserStore';
@@ -123,9 +124,10 @@ export default function PremiumStudyInfoSection({
                 }
               />
             </div>
-            <div className="font-designer-16r whitespace-pre-line text-[#535862]">
-              {studyDetail?.detailInfo.description}
-            </div>
+            <MarkdownContent
+              content={studyDetail?.detailInfo.description}
+              className="[&_p]:font-designer-16r [&_p]:text-[#535862] [&_li]:font-designer-16r [&_li]:text-[#535862] [&_blockquote_p]:font-designer-16r [&_blockquote_p]:text-[#535862]"
+            />
           </div>
 
           <div className="flex flex-col gap-200">
