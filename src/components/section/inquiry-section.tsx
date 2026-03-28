@@ -9,6 +9,7 @@ import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badg
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import InquiryListTable from '@/components/lists/inquiry-list-table';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   useCreateAnswer,
   useGetQuestion,
@@ -20,6 +21,11 @@ import { formatDateTimeDot } from '@/utils/time';
 
 const QuestionModal = dynamic(
   () => import('@/components/common/modals/question-modal'),
+  { ssr: false },
+);
+
+const LoginModal = dynamic(
+  () => import('@/components/common/modals/login-modal'),
   { ssr: false },
 );
 
@@ -107,11 +113,35 @@ function ListView({
   onPageChange,
   onSelectQuestion,
 }: ListViewProps) {
+  const { isHydrated, isAuthReady, memberId } = useAuthReady();
+
   const { data, isLoading } = useGetQuestions({
     groupStudyId,
     page,
     pageSize: PAGE_SIZE,
+    enabled: isAuthReady && typeof memberId === 'number',
   });
+
+  if (!isHydrated) {
+    return null;
+  }
+
+  if (!isAuthReady || typeof memberId !== 'number') {
+    return (
+      <div className="py-800 text-center">
+        <p className="font-designer-14r text-text-subtle mb-300">
+          로그인 후 문의를 확인할 수 있습니다.
+        </p>
+        <LoginModal
+          openTrigger={
+            <button className="font-designer-14m text-text-brand underline">
+              로그인하기
+            </button>
+          }
+        />
+      </div>
+    );
+  }
 
   const items = data?.content ?? [];
   const totalPages = data?.totalPages ?? 1;
@@ -169,14 +199,21 @@ function DetailView({
   isLeader = false,
   isAdmin = false,
 }: DetailViewProps) {
+  const router = useRouter();
+  const { memberId } = useAuthReady();
   const showToast = useToastStore((state) => state.showToast);
   const { data, isLoading } = useGetQuestion({ groupStudyId, questionId });
+  const canEditQuestion = memberId === data?.authorId;
 
   const moreMenuOptions = [
     {
       label: '수정하기',
       value: 'edit',
-      onMenuClick: () => showToast('준비 중인 기능입니다.', 'info'),
+      onMenuClick: () => {
+        router.push(
+          `/inquiry?groupStudyId=${groupStudyId}&studyType=${isPremium ? 'premium' : 'group'}&editQuestionId=${questionId}`,
+        );
+      },
     },
     {
       label: '삭제하기',
@@ -213,7 +250,9 @@ function DetailView({
                   {CATEGORY_LABEL[data.category] ?? data.category}
                 </span>
               )}
-              <MoreMenu options={moreMenuOptions} iconSize={20} />
+              {canEditQuestion && (
+                <MoreMenu options={moreMenuOptions} iconSize={20} />
+              )}
             </div>
 
             <h1 className="font-designer-24b text-text-default mb-300">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMentorProfileListController } from '@/features/mentoring/model/use-mentor-profile-list-controller';
+import { useMentorProfileListController } from '@/features/mentoring/model/directory/use-mentor-profile-list-controller';
 import MentorDirectoryList from '@/features/mentoring/ui/mentor-directory/mentor-directory-list';
 import type { MentorProfileListProps } from '@/types/mentoring/directory-view';
 

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { axiosInstanceV2 } from '@/api/client/axiosV2';
-import { mentorDirectoryQueryKeys } from '@/features/mentoring/model/mentor-directory-query-keys';
+import { mentorDirectoryQueryKeys } from '@/features/mentoring/model/directory/mentor-directory-query-keys';
 import type {
   AvailableStudyTimeResponse,
   CareerResponse,

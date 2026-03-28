@@ -26,7 +26,7 @@ export function useStudyListFilter({
     targetRoles: [],
     method: [],
     experienceLevels: [],
-    recruiting: true,
+    recruiting: false,
   });
   const [currentPage, setCurrentPage] = useState(1);
   const [sort, setSort] = useState<GetGroupStudiesSortEnum>(

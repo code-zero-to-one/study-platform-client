@@ -3,7 +3,7 @@
 import { sendGTMEvent } from '@next/third-parties/google';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import Tabs from '@/components/common/ui/tabs';
 import ChannelSection from '@/components/discussion/channel/lounge-section';
@@ -14,6 +14,10 @@ import {
 } from '@/config/constants';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
+import {
+  useGetGroupStudyReviewAvailability,
+  useGetGroupStudyReviewWritten,
+} from '@/hooks/queries/group-study-review-api';
 import {
   useCompleteGroupStudyMutation,
   useDeleteGroupStudyMutation,
@@ -34,6 +38,16 @@ const ConfirmDeleteModal = dynamic(
   { ssr: false },
 );
 
+const GroupStudyReviewModal = dynamic(
+  () => import('@/components/common/modals/group-study-review-modal'),
+  { ssr: false },
+);
+
+const StudyCompletionModal = dynamic(
+  () => import('@/components/common/modals/study-completion-modal'),
+  { ssr: false },
+);
+
 const GroupStudyFormModal = dynamic(
   () => import('@/components/common/modals/group-study-form-modal'),
   { ssr: false },
@@ -41,7 +55,7 @@ const GroupStudyFormModal = dynamic(
 
 type ActionKey = 'end' | 'delete'; // 필요 시 'edit' 등 추가
 
-const DETAIL_CONTENT_WIDTH = 'w-[1164px]';
+const DETAIL_CONTENT_WIDTH = 'w-full max-w-study-content px-400';
 const MEMBER_ONLY_TABS = new Set(['members', 'lounge']);
 
 const END_MODAL_CONTENT = (
@@ -100,6 +114,38 @@ export default function StudyDetailPage({
       groupStudyId,
       isLeader,
     });
+
+  // 후기 모달 — PARTICIPANT 스터디원에게 자동 표시 (날짜 계산은 백엔드 위임)
+  const isParticipantMember = myApplicationStatus?.status === 'APPROVED';
+  const isCompleted = studyDetail?.basicInfo?.status === 'COMPLETED';
+  const shouldCheckAvailability =
+    !!memberId && isParticipantMember && isCompleted;
+
+  // 백엔드 realEndTime 기준으로 후기 작성 가능 여부 확인 (수동 완료 시나리오 대응)
+  const { data: availability } = useGetGroupStudyReviewAvailability(
+    groupStudyId,
+    { enabled: shouldCheckAvailability },
+  );
+
+  const { data: reviewWritten } = useGetGroupStudyReviewWritten(groupStudyId, {
+    enabled: shouldCheckAvailability && availability?.available === true,
+  });
+
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
+  const hasAutoOpenedReviewRef = useRef(false);
+
+  useEffect(() => {
+    if (
+      shouldCheckAvailability &&
+      availability?.available &&
+      reviewWritten === false &&
+      !hasAutoOpenedReviewRef.current
+    ) {
+      hasAutoOpenedReviewRef.current = true;
+      setShowReviewModal(true);
+    }
+  }, [shouldCheckAvailability, availability, reviewWritten]);
 
   const { mutate: deleteGroupStudy } = useDeleteGroupStudyMutation();
   const { mutate: completeStudy } = useCompleteGroupStudyMutation();
@@ -179,10 +225,16 @@ export default function StudyDetailPage({
 
   const availableTabs = useMemo(
     () =>
-      STUDY_DETAIL_TABS.map((tab) => ({
-        ...tab,
-        locked: MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember,
-      })),
+      STUDY_DETAIL_TABS.map((tab) => {
+        const locked =
+          MEMBER_ONLY_TABS.has(tab.value) && !isLeader && !isMember;
+
+        return {
+          ...tab,
+          locked,
+          lockedTooltip: locked ? '스터디 가입하여 확인' : undefined,
+        };
+      }),
     [isLeader, isMember],
   );
 
@@ -214,6 +266,23 @@ export default function StudyDetailPage({
 
   return (
     <div className="flex h-full w-full flex-col items-center">
+      {/* 후기 작성 모달 — availability API 기준 미작성 시 자동 오픈 */}
+      {shouldCheckAvailability && availability?.available && studyDetail && (
+        <GroupStudyReviewModal
+          open={showReviewModal}
+          onOpenChange={setShowReviewModal}
+          groupStudyId={groupStudyId}
+          detailInfo={studyDetail.detailInfo}
+          basicInfo={studyDetail.basicInfo}
+          onSubmitSuccess={() =>
+            setTimeout(() => setShowCompletionModal(true), 300)
+          }
+        />
+      )}
+      <StudyCompletionModal
+        open={showCompletionModal}
+        onOpenChange={setShowCompletionModal}
+      />
       <ConfirmDeleteModal
         open={confirmAction !== null}
         onOpenChange={() => setConfirmAction(null)}

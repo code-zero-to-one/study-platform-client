@@ -26,7 +26,7 @@ const StudyReviewModal = dynamic(
 
 interface CompletedStudyReviewPageProps {
   basePath: string;
-  studyType: 'GROUP_STUDY' | 'PREMIUM_STUDY' | 'ONE_ON_ONE_STUDY';
+  studyType: 'GROUP_STUDY' | 'MENTOR_STUDY' | 'ONE_ON_ONE_STUDY';
   studyTypeName: string;
   hideTabNav?: boolean;
   hideEmptyMessage?: boolean;
@@ -65,7 +65,7 @@ function StudyRoleSection({
           ))}
         </ul>
       ) : (
-        <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center rounded-100 border border-border-subtle text-center">
+        <div className="font-designer-14r text-text-subtle flex h-200 items-center justify-center rounded-100 text-center">
           {emptyMessage}
         </div>
       )}

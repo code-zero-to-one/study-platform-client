@@ -47,9 +47,8 @@ const sanitizeMentorSettingsForDirectoryPersistence = (
 ): MentorSettings => {
   return {
     ...settings,
-    contactCountryCode: settings.contactCountryCode,
-    contactPhone: '',
-    contactEmail: '',
+    contactCountryCode: undefined,
+    contactPhone: undefined,
     companyName: '',
     hideCompanyName: true,
     preNotice: '',
@@ -212,9 +211,6 @@ export const createMentorProfileFromRegistration = (
     formValues.offlineDurationMinutes,
   );
   const normalizedSettings: MentorSettings = {
-    contactCountryCode: formValues.contactCountryCode,
-    contactPhone: formValues.contactPhone,
-    contactEmail: formValues.contactEmail,
     categories: formValues.categories ?? [],
     mentoringTitle: formValues.mentoringTitle ?? '',
     appealLine: formValues.appealLine ?? '',

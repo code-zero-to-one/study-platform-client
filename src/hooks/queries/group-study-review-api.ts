@@ -31,6 +31,8 @@ export const groupStudyReviewQueryKeys = {
     [...groupStudyReviewQueryKeys.details(), reviewId] as const,
   written: (groupStudyId: number) =>
     [...groupStudyReviewQueryKeys.all, 'written', groupStudyId] as const,
+  availability: (groupStudyId: number) =>
+    [...groupStudyReviewQueryKeys.all, 'availability', groupStudyId] as const,
 };
 
 export const groupStudyReviewDetailQueryOptions = (reviewId: number) => ({
@@ -88,6 +90,41 @@ export const useGetGroupStudyReviewDetail = (reviewId: number) => {
   return useQuery({
     ...groupStudyReviewDetailQueryOptions(reviewId),
     enabled: !!reviewId,
+  });
+};
+
+export type ReviewAvailabilityType =
+  | 'AVAILABLE'
+  | 'STUDY_NOT_COMPLETED'
+  | 'PERIOD_EXPIRED'
+  | 'ALREADY_REVIEWED';
+
+export interface ReviewAvailability {
+  available: boolean;
+  type: ReviewAvailabilityType;
+}
+
+/**
+ * 스터디 후기 작성 가능 여부 조회 (백엔드 realEndTime 기준)
+ * GET /group-studies/{groupStudyId}/reviews/availability
+ *
+ * 날짜 계산을 프론트에서 하지 않고 백엔드에 위임 — 수동 완료 시나리오를 정확히 처리
+ */
+export const useGetGroupStudyReviewAvailability = (
+  groupStudyId: number,
+  options?: { enabled?: boolean },
+) => {
+  return useQuery({
+    queryKey: groupStudyReviewQueryKeys.availability(groupStudyId),
+    queryFn: async () => {
+      const { data } = await axiosInstance.get<{
+        content: ReviewAvailability;
+      }>(`/group-studies/${groupStudyId}/reviews/availability`);
+
+      return data.content;
+    },
+    enabled: (options?.enabled ?? true) && !!groupStudyId,
+    staleTime: 60 * 1000,
   });
 };
 

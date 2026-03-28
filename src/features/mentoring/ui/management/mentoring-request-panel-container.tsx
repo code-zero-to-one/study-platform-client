@@ -1,6 +1,6 @@
 'use client';
 
-import { useMentoringRequestPanelController } from '@/features/mentoring/model/use-mentoring-request-panel-controller';
+import { useMentoringRequestPanelController } from '@/features/mentoring/model/apply/use-mentoring-request-panel-controller';
 import type { MentoringRequestPanelProps } from '@/types/mentoring/management-view';
 import MentoringRequestDetailCard from './mentoring-request-detail-card';
 import MentoringRequestEmpty from './mentoring-request-empty';

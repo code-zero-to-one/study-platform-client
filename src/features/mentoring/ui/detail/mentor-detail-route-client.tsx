@@ -8,7 +8,7 @@ import { MENTOR_REGISTRATION_TOAST_MESSAGES } from '@/features/mentoring/const/m
 import {
   useMentorDetailQuery,
   useMyMentorSettingsQuery,
-} from '@/features/mentoring/model/use-mentor-directory-query';
+} from '@/features/mentoring/model/directory/use-mentor-directory-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import MentorDetailPage from './mentor-detail-page';
 import {

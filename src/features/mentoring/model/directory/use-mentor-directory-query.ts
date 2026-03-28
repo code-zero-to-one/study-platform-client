@@ -82,12 +82,16 @@ export const useMentorRegistrationOptionsQuery = (enabled = true) => {
   });
 };
 
-export const useMentorEntryOnboardingStatusQuery = (enabled = true) => {
+export const useMentorEntryOnboardingStatusQuery = (
+  memberId: number | undefined,
+  enabled = true,
+) => {
   return useQuery({
-    queryKey: mentorDirectoryQueryKeys.entryOnboarding(),
+    queryKey: mentorDirectoryQueryKeys.entryOnboarding(memberId ?? 0),
     queryFn: () => getMentorEntryOnboardingStatus(),
-    staleTime: 5 * 60_000,
+    staleTime: 0,
     gcTime: 10 * 60_000,
-    enabled,
+    refetchOnMount: 'always',
+    enabled: enabled && Boolean(memberId),
   });
 };

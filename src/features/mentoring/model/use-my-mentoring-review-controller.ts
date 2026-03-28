@@ -3,7 +3,7 @@
 import dayjs from 'dayjs';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuthReady } from '@/features/auth/model/use-auth';
-import { useMentorDirectoryListQuery } from '@/features/mentoring/model/use-mentor-directory-query';
+import { useMentorDirectoryListQuery } from '@/features/mentoring/model/directory/use-mentor-directory-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   getRequestReviewEligibility,

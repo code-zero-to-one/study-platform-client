@@ -158,21 +158,15 @@ export interface DetailInfo {
   thumbnailExtension: ThumbnailExtension;
 }
 
-export interface SimpleDetailInfo {
-  thumbnail: Thumbnail;
-  title: string;
-  summary: string;
-}
-
 export interface Thumbnail {
   imageId: number;
   resizedImages: ResizedImage[];
 }
 
-export interface ResizedImage {
-  resizedImageId: number;
-  resizedImageUrl: string;
-  imageSizeType: ImageSizeType;
+export interface SimpleDetailInfo {
+  thumbnail: Thumbnail;
+  title: string;
+  summary: string;
 }
 
 export interface ImageSizeType {
@@ -342,17 +336,13 @@ export interface GroupStudyMyStatusResponse {
 // 회원의 스터디 리스트 조회 API 타입
 export interface MemberStudyListRequest {
   memberId: number;
-  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'PREMIUM_STUDY';
+  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'MENTOR_STUDY';
   studyStatus?: 'BOTH' | 'NOT_COMPLETED' | 'COMPLETED';
   inProgressPage?: number;
   inProgressPageSize?: number;
   completedPage?: number;
   completedPageSize?: number;
-}
-
-export interface Thumbnail {
-  imageId: number;
-  resizedImages: ResizedImage[];
+  asLeader?: boolean;
 }
 
 export interface MemberStudyItem {
@@ -361,11 +351,14 @@ export interface MemberStudyItem {
   thumbnail: Thumbnail;
   maxMembersCount: number;
   participantsCount: number;
+  pendingCount?: number;
   startTime: string;
   endTime: string;
+  /** 관리자 수동 완료 시 실제 종료 시각. 미설정이면 endTime(계획 종료일)과 동일. */
+  realEndTime?: string;
   studyRole: 'PARTICIPANT' | 'LEADER';
   status: 'RECRUITING' | 'ENDING_SOON' | 'IN_PROGRESS' | 'COMPLETED';
-  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'PREMIUM_STUDY';
+  type: 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'MENTOR_STUDY';
 }
 
 export interface MemberStudyListResponse {
@@ -377,7 +370,7 @@ export interface MemberStudyListResponse {
     totalPages: number;
     hasNext: boolean;
     hasPrevious: boolean;
-  };
+  } | null;
   completed: {
     content: MemberStudyItem[];
     page: number;
@@ -387,6 +380,25 @@ export interface MemberStudyListResponse {
     hasNext: boolean;
     hasPrevious: boolean;
   };
+}
+
+// V2 API 타입
+export interface MemberStudyListV2Request {
+  memberId: number;
+  studyType?: 'BOTH' | 'GROUP_STUDY' | 'ONE_ON_ONE_STUDY' | 'MENTOR_STUDY';
+  studyStatus?: 'BOTH' | 'NOT_COMPLETED' | 'COMPLETED';
+  page?: number;
+  pageSize?: number;
+}
+
+export interface MemberStudyPageResponse {
+  content: MemberStudyItem[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
 }
 
 // 그룹 스터디 공지

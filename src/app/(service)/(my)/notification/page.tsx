@@ -79,8 +79,8 @@ export default function NotificationPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center justify-between">
-        <div className="w-[140px]">
+      <div className="flex flex-col gap-200 sm:flex-row sm:items-center sm:justify-between">
+        <div className="w-140">
           <SingleDropdown
             size="s"
             options={categoryOptions}
