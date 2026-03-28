@@ -91,7 +91,7 @@ export default function Step1OpenGroupStudy() {
         scrollable
       >
         <RadioGroup
-          className="flex flex-row gap-300"
+          className="flex flex-wrap gap-300"
           value={typeField.value}
           onValueChange={(v) => {
             typeField.onChange(v);
