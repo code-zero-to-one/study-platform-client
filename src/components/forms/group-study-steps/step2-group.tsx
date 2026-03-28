@@ -8,15 +8,15 @@ import ImageUploadInput from '@/components/common/ui/image-upload-input';
 import { BaseInput } from '@/components/common/ui/input';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
 import {
-  requestMentorMarkdownImageUploadTicket,
+  requestMentorMarkdownImageUploadTicket as requestMarkdownImageUploadTicket,
   uploadMentorMarkdownImageFile,
 } from '@/features/mentoring/model/mentor-markdown-image-upload';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 
-import { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
+import type { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
 
 const uploadGroupStudyMarkdownImage = async (file: File) => {
-  const ticket = await requestMentorMarkdownImageUploadTicket({
+  const ticket = await requestMarkdownImageUploadTicket({
     fileName: file.name,
     fileType: file.type,
     fileSize: file.size,
@@ -79,8 +79,7 @@ export default function Step2OpenGroupStudy() {
     setImage(URL.createObjectURL(file));
   };
 
-  const leaderRoleLabel =
-    classification === 'PREMIUM_STUDY' ? '멘토' : '리더';
+  const leaderRoleLabel = classification === 'PREMIUM_STUDY' ? '멘토' : '리더';
 
   return (
     <>
