@@ -93,10 +93,6 @@ const HEADING_OPTIONS = [
   { icon: Heading3, label: 'H3', level: 3 },
 ] as const;
 
-const IMAGE_URL_PATTERN =
-  /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i;
-const REMOTE_URL_PATTERN = /^https?:\/\/\S+$/i;
-const DATA_URL_PATTERN = /^data:image\/[a-z0-9.+-]+;base64,/i;
 const INSTANT_CODE_BLOCK_INPUT_REGEX = /^```$/;
 const MARKDOWN_IMAGE_MIN_WIDTH = 80;
 const MARKDOWN_IMAGE_DEFAULT_WIDTH = 200;
@@ -141,16 +137,22 @@ interface ToolbarButtonProps {
   onClick: () => void;
 }
 
-const isImageUrl = (text: string): boolean => {
-  return IMAGE_URL_PATTERN.test(text.trim());
+type UrlKind = 'remote' | 'image' | 'data-image';
+
+const URL_PATTERNS: Record<UrlKind, RegExp> = {
+  remote: /^https?:\/\/\S+$/i,
+  image: /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i,
+  'data-image': /^data:image\/[a-z0-9.+-]+;base64,/i,
 };
 
-const isRemoteUrl = (text: string): boolean => {
-  return REMOTE_URL_PATTERN.test(text.trim());
-};
+const isAllowedUrl = (
+  text: string,
+  kinds: UrlKind | UrlKind[] = 'remote',
+): boolean => {
+  const trimmed = text.trim();
+  const targets = Array.isArray(kinds) ? kinds : [kinds];
 
-const isDataImageUrl = (text: string): boolean => {
-  return DATA_URL_PATTERN.test(text.trim());
+  return targets.some((kind) => URL_PATTERNS[kind].test(trimmed));
 };
 
 const clampImageWidth = (value: number) => {
@@ -256,16 +258,13 @@ const extractClipboardImageSource = (clipboardData: DataTransfer) => {
   if (pastedHtml) {
     const imageSource = extractHtmlImageUrls(pastedHtml)[0]?.trim();
 
-    if (
-      imageSource &&
-      (isDataImageUrl(imageSource) || isRemoteUrl(imageSource))
-    ) {
+    if (imageSource && isAllowedUrl(imageSource, ['remote', 'data-image'])) {
       return imageSource;
     }
   }
 
   const pastedText = clipboardData.getData('text/plain').trim();
-  if (pastedText && (isImageUrl(pastedText) || isDataImageUrl(pastedText))) {
+  if (pastedText && isAllowedUrl(pastedText, ['image', 'data-image'])) {
     return pastedText;
   }
 
@@ -285,7 +284,7 @@ const hasClipboardImageHint = (clipboardData: DataTransfer) => {
 
   const pastedText = clipboardData.getData('text/plain').trim();
 
-  return isImageUrl(pastedText) || isDataImageUrl(pastedText);
+  return isAllowedUrl(pastedText, ['image', 'data-image']);
 };
 
 function ToolbarButton({
