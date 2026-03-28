@@ -4,7 +4,7 @@ import { memo, useCallback } from 'react';
 import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import {
   requestMentorMarkdownImageUploadTicket,
-  uploadMentorMarkdownImageFile,
+  uploadMarkdownImageFile,
 } from '@/features/mentoring/model/mentor-markdown-image-upload';
 import {
   MENTOR_MARKDOWN_ALLOWED_IMAGE_EXTENSIONS,
@@ -30,7 +30,7 @@ function MentorMarkdownEditor({
       fileName,
     });
 
-    await uploadMentorMarkdownImageFile({
+    await uploadMarkdownImageFile({
       uploadUrl: ticket.uploadUrl,
       file,
     });

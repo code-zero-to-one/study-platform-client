@@ -145,10 +145,7 @@ const URL_PATTERNS: Record<UrlKind, RegExp> = {
   'data-image': /^data:image\/[a-z0-9.+-]+;base64,/i,
 };
 
-const isAllowedUrl = (
-  text: string,
-  kinds: UrlKind | UrlKind[] = 'remote',
-): boolean => {
+const isAllowedUrl = (text: string, kinds: UrlKind | UrlKind[] = 'remote') => {
   const trimmed = text.trim();
   const targets = Array.isArray(kinds) ? kinds : [kinds];
 
@@ -216,7 +213,7 @@ const toFileFromBlob = (blob: Blob, fileName: string): File => {
   return new File([blob], fileName, { type: blob.type });
 };
 
-const guessExtensionFromMime = (mimeType: string): string => {
+const getExtensionFromMime = (mimeType: string): string => {
   const map: Record<string, string> = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
@@ -505,8 +502,8 @@ function MarkdownEditor({
           throw new Error('이미지 파일이 아닙니다.');
         }
 
-        const ext = guessExtensionFromMime(blob.type);
-        const file = toFileFromBlob(blob, `pasted-image.${ext}`);
+        const extension = getExtensionFromMime(blob.type);
+        const file = toFileFromBlob(blob, `pasted-image.${extension}`);
 
         if (file.size > resolvedImageConfig.maxImageFileSize) {
           setImageInsertError(
@@ -554,7 +551,7 @@ function MarkdownEditor({
         files.push(
           toFileFromBlob(
             blob,
-            `pasted-image.${guessExtensionFromMime(blob.type)}`,
+            `pasted-image.${getExtensionFromMime(blob.type)}`,
           ),
         );
       }
@@ -652,7 +649,7 @@ function MarkdownEditor({
           return false;
         },
       },
-      handlePaste: (view, event) => {
+      handlePaste: (_, event) => {
         if (!resolvedImageConfig) {
           return false;
         }
@@ -680,7 +677,7 @@ function MarkdownEditor({
 
         return false;
       },
-      handleDrop: (view, event) => {
+      handleDrop: (_, event) => {
         if (!resolvedImageConfig) {
           return false;
         }
@@ -993,7 +990,7 @@ function MarkdownEditor({
             }}
             className="accent-background-brand-default w-[180px]"
           />
-          <span className="font-designer-12r text-text-default min-w-[48px]">
+          <span className="font-designer-12r text-text-default min-w-600">
             {selectedImageWidth}px
           </span>
           <Button

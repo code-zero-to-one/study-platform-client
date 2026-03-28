@@ -9,7 +9,7 @@ import { BaseInput } from '@/components/common/ui/input';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
 import {
   requestMentorMarkdownImageUploadTicket as requestMarkdownImageUploadTicket,
-  uploadMentorMarkdownImageFile,
+  uploadMarkdownImageFile,
 } from '@/features/mentoring/model/mentor-markdown-image-upload';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 
@@ -20,7 +20,7 @@ const uploadGroupStudyMarkdownImage = async (file: File) => {
     fileName: file.name,
   });
 
-  await uploadMentorMarkdownImageFile({
+  await uploadMarkdownImageFile({
     uploadUrl: ticket.uploadUrl,
     file,
   });

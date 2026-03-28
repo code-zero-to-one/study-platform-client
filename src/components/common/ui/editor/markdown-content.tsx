@@ -227,7 +227,7 @@ function MarkdownContent({
     <div
       ref={containerRef}
       className={cn(
-        'break-words',
+        'wrap-break-word',
         '[&_p]:font-designer-14r [&_p]:text-text-default [&_p]:mb-150 [&_p]:leading-relaxed',
         '[&_h1]:font-designer-24b [&_h1]:text-text-strong [&_h1]:mt-250 [&_h1]:mb-150',
         '[&_h2]:font-designer-20b [&_h2]:text-text-strong [&_h2]:mt-250 [&_h2]:mb-125',

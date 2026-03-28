@@ -15,7 +15,7 @@ export const requestMentorMarkdownImageUploadTicket = async ({
   });
 };
 
-export const uploadMentorMarkdownImageFile = async ({
+export const uploadMarkdownImageFile = async ({
   uploadUrl,
   file,
 }: {
