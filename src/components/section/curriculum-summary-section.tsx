@@ -70,8 +70,9 @@ export default function CurriculumSummarySection({
                   delayDuration={0}
                   key={item.missionId ?? index}
                   trigger={
-                    <div
-                      className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300 cursor-not-allowed"
+                    <button
+                      type="button"
+                      className="rounded-100 flex w-full items-center gap-150 border border-[#E9EAEB] px-200 py-300 cursor-not-allowed"
                       onClick={handleLockedClick}
                     >
                       <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
@@ -81,7 +82,7 @@ export default function CurriculumSummarySection({
                         {item.title}
                       </span>
                       <Lock className="h-225 w-225 shrink-0 text-[#A4A7AE]" />
-                    </div>
+                    </button>
                   }
                   value="스터디 가입하여 확인"
                   side="bottom"
@@ -91,21 +92,20 @@ export default function CurriculumSummarySection({
             }
 
             return (
-              <div
+              <button
+                type="button"
+                onClick={() => handleClickCurriculum(item.missionId)}
                 key={item.missionId ?? index}
-                className="rounded-100 flex items-center gap-150 border border-[#E9EAEB] px-200 py-300 hover:bg-fill-neutral-subtle-hover cursor-pointer"
+                className="rounded-100 flex w-full items-center gap-150 border border-[#E9EAEB] px-200 py-300 hover:bg-fill-neutral-subtle-hover cursor-pointer"
               >
                 <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
                   {item.weekNum}
                 </span>
-                <span className="font-designer-15m text-text-default flex-1 leading-snug">
+                <span className="font-designer-15m text-text-default flex flex-1 leading-snug">
                   {item.title}
                 </span>
-                <ExternalLink
-                  onClick={() => handleClickCurriculum(item.missionId)}
-                  className="h-225 w-225 shrink-0 cursor-pointer text-[#A4A7AE]"
-                />
-              </div>
+                <ExternalLink className="h-225 w-225 shrink-0 cursor-pointer text-[#A4A7AE]" />
+              </button>
             );
           })}
       </div>
@@ -113,6 +113,7 @@ export default function CurriculumSummarySection({
       <LoginModal
         openTrigger={
           <button
+            type="button"
             ref={loginTriggerRef}
             className="sr-only"
             aria-hidden
