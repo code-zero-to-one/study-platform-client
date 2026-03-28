@@ -1034,6 +1034,11 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   cursor: pointer;
 }
 
+.tiptap-editor .tiptap s,
+.tiptap-editor .tiptap del {
+  text-decoration: line-through;
+}
+
 .tiptap-editor .tiptap img {
   display: block;
   max-width: min(100%, 400px);
