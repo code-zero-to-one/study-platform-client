@@ -59,7 +59,7 @@
 /*
 tailwind 4.0부터는 전역 변수를 여기서 설정 가능
 
-4.0 달라진 설정: 
+4.0 달라진 설정:
 https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%EB%9D%BC%EC%A1%8C%EB%82%98%EC%9A%94
 
  @theme {
@@ -955,7 +955,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 .tiptap-editor .tiptap h1 {
   font-size: 24px;
   font-weight: 700;
-  line-height: 36px;
+  line-height: 34px;
   color: var(--color-text-strong);
   margin-top: 24px;
   margin-bottom: 12px;
@@ -1034,6 +1034,11 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   cursor: pointer;
 }
 
+.tiptap-editor .tiptap s,
+.tiptap-editor .tiptap del {
+  text-decoration: line-through;
+}
+
 .tiptap-editor .tiptap img {
   display: block;
   max-width: min(100%, 400px);
@@ -1045,6 +1050,11 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   margin-left: 0;
   margin-right: 0;
   margin-bottom: 12px;
+}
+
+.tiptap-editor .tiptap img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-border-brand);
+  outline-offset: 2px;
 }
 
 .tiptap-editor .tiptap hr {

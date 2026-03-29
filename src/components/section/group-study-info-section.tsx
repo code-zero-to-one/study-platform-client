@@ -10,9 +10,11 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
+import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 
+import { MARKDOWN_DESCRIPTION_CLASS } from '../common/ui/editor/markdown-utils';
 import SummaryStudyInfo from '../summary/study-info-summary';
 
 const UserProfileModal = dynamic(
@@ -128,9 +130,10 @@ export default function StudyInfoSection({
                 }
               />
             </div>
-            <div className="font-designer-16r whitespace-pre-line text-text-subtle">
-              {studyDetail?.detailInfo.description}
-            </div>
+            <MarkdownContent
+              content={studyDetail?.detailInfo.description}
+              className={MARKDOWN_DESCRIPTION_CLASS}
+            />
           </div>
 
           <div className="flex flex-col gap-200">

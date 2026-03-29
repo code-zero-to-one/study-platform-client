@@ -1,7 +1,7 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
-import { textblockTypeInputRule } from '@tiptap/core';
+import { Extension, textblockTypeInputRule } from '@tiptap/core';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import ImageExtension from '@tiptap/extension-image';
 import LinkExtension from '@tiptap/extension-link';
@@ -32,14 +32,17 @@ import {
   ListOrdered,
   Loader2,
   Quote,
+  Redo2,
   Strikethrough,
   Underline as UnderlineIcon,
+  Undo2,
 } from 'lucide-react';
 import { common, createLowlight } from 'lowlight'; // eslint-disable-line import/order
 import {
   memo,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
   type ComponentType,
@@ -90,15 +93,20 @@ const HEADING_OPTIONS = [
   { icon: Heading3, label: 'H3', level: 3 },
 ] as const;
 
-const IMAGE_URL_PATTERN =
-  /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i;
-const REMOTE_URL_PATTERN = /^https?:\/\/\S+$/i;
-const DATA_URL_PATTERN = /^data:image\/[a-z0-9.+-]+;base64,/i;
 const INSTANT_CODE_BLOCK_INPUT_REGEX = /^```$/;
 const MARKDOWN_IMAGE_MIN_WIDTH = 80;
 const MARKDOWN_IMAGE_DEFAULT_WIDTH = 200;
 const MARKDOWN_IMAGE_MAX_WIDTH = 400;
 const MARKDOWN_IMAGE_WIDTH_STEP = 10;
+const MARKDOWN_IMAGE_DEFAULT_MAX_COUNT = 3;
+const MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024;
+const MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS = [
+  'jpg',
+  'jpeg',
+  'png',
+  'webp',
+  'gif',
+] as const;
 
 export interface MarkdownEditorImageConfig {
   allowedImageExtensions: readonly string[];
@@ -108,11 +116,17 @@ export interface MarkdownEditorImageConfig {
 }
 
 interface MarkdownEditorProps {
-  value: string;
-  onChange: (next: string) => void;
+  id?: string;
+  name?: string;
+  value?: string;
+  onChange?: (next: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
+  uploadImage?: (file: File) => Promise<string>;
   normalizeContent?: (content: unknown) => string;
   imageConfig?: MarkdownEditorImageConfig;
+  'aria-invalid'?: boolean;
+  'aria-describedby'?: string;
 }
 
 interface ToolbarButtonProps {
@@ -123,16 +137,19 @@ interface ToolbarButtonProps {
   onClick: () => void;
 }
 
-const isImageUrl = (text: string): boolean => {
-  return IMAGE_URL_PATTERN.test(text.trim());
+type UrlKind = 'remote' | 'image' | 'data-image';
+
+const URL_PATTERNS: Record<UrlKind, RegExp> = {
+  remote: /^https?:\/\/\S+$/i,
+  image: /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i,
+  'data-image': /^data:image\/[a-z0-9.+-]+;base64,/i,
 };
 
-const isRemoteUrl = (text: string): boolean => {
-  return REMOTE_URL_PATTERN.test(text.trim());
-};
+const isAllowedUrl = (text: string, kinds: UrlKind | UrlKind[] = 'remote') => {
+  const trimmed = text.trim();
+  const targets = Array.isArray(kinds) ? kinds : [kinds];
 
-const isDataImageUrl = (text: string): boolean => {
-  return DATA_URL_PATTERN.test(text.trim());
+  return targets.some((kind) => URL_PATTERNS[kind].test(trimmed));
 };
 
 const clampImageWidth = (value: number) => {
@@ -184,11 +201,19 @@ const InstantCodeBlockExtension = CodeBlockLowlight.extend({
   },
 });
 
+const MarkdownHistoryShortcutsExtension = Extension.create({
+  addKeyboardShortcuts() {
+    return {
+      'Mod-y': () => this.editor.commands.redo(),
+    };
+  },
+});
+
 const toFileFromBlob = (blob: Blob, fileName: string): File => {
   return new File([blob], fileName, { type: blob.type });
 };
 
-const guessExtensionFromMime = (mimeType: string): string => {
+const getExtensionFromMime = (mimeType: string): string => {
   const map: Record<string, string> = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
@@ -230,16 +255,13 @@ const extractClipboardImageSource = (clipboardData: DataTransfer) => {
   if (pastedHtml) {
     const imageSource = extractHtmlImageUrls(pastedHtml)[0]?.trim();
 
-    if (
-      imageSource &&
-      (isDataImageUrl(imageSource) || isRemoteUrl(imageSource))
-    ) {
+    if (imageSource && isAllowedUrl(imageSource, ['remote', 'data-image'])) {
       return imageSource;
     }
   }
 
   const pastedText = clipboardData.getData('text/plain').trim();
-  if (pastedText && (isImageUrl(pastedText) || isDataImageUrl(pastedText))) {
+  if (pastedText && isAllowedUrl(pastedText, ['image', 'data-image'])) {
     return pastedText;
   }
 
@@ -259,7 +281,7 @@ const hasClipboardImageHint = (clipboardData: DataTransfer) => {
 
   const pastedText = clipboardData.getData('text/plain').trim();
 
-  return isImageUrl(pastedText) || isDataImageUrl(pastedText);
+  return isAllowedUrl(pastedText, ['image', 'data-image']);
 };
 
 function ToolbarButton({
@@ -288,11 +310,17 @@ function ToolbarButton({
 }
 
 function MarkdownEditor({
+  id,
+  name,
   value,
   onChange,
+  onBlur,
   placeholder,
+  uploadImage,
   normalizeContent = normalizeMarkdownContent,
   imageConfig,
+  'aria-invalid': ariaInvalid,
+  'aria-describedby': ariaDescribedBy,
 }: MarkdownEditorProps) {
   const [imageInsertError, setImageInsertError] = useState('');
   const [isUploadingImages, setIsUploadingImages] = useState(false);
@@ -303,14 +331,30 @@ function MarkdownEditor({
   const editorRef = useRef<Editor | null>(null);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeContent(value);
+  const resolvedImageConfig = useMemo(() => {
+    if (imageConfig) {
+      return imageConfig;
+    }
+
+    if (!uploadImage) {
+      return undefined;
+    }
+
+    return {
+      allowedImageExtensions: MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS,
+      maxImageCount: MARKDOWN_IMAGE_DEFAULT_MAX_COUNT,
+      maxImageFileSize: MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE,
+      uploadImageFile: uploadImage,
+    };
+  }, [imageConfig, uploadImage]);
 
   const uploadAndInsertFile = useCallback(
     async (editor: Editor, file: File) => {
-      if (!imageConfig) {
+      if (!resolvedImageConfig) {
         return;
       }
 
-      const publicUrl = await imageConfig.uploadImageFile(file);
+      const publicUrl = await resolvedImageConfig.uploadImageFile(file);
 
       editor
         .chain()
@@ -321,12 +365,12 @@ function MarkdownEditor({
         })
         .run();
     },
-    [imageConfig],
+    [resolvedImageConfig],
   );
 
   const validateImageFile = useCallback(
     (file: File): string | undefined => {
-      if (!imageConfig) {
+      if (!resolvedImageConfig) {
         return '이미지 업로드를 지원하지 않습니다.';
       }
 
@@ -338,32 +382,38 @@ function MarkdownEditor({
       if (
         extension &&
         extension !== 'blob' &&
-        !isAllowedImageExtension(extension, imageConfig.allowedImageExtensions)
+        !isAllowedImageExtension(
+          extension,
+          resolvedImageConfig.allowedImageExtensions,
+        )
       ) {
-        return `${file.name}: 허용되지 않은 확장자입니다. (${imageConfig.allowedImageExtensions.join('/')})`;
+        return `${file.name}: 허용되지 않은 확장자입니다. (${resolvedImageConfig.allowedImageExtensions.join('/')})`;
       }
 
-      if (file.size > imageConfig.maxImageFileSize) {
-        return `${file.name}: ${Math.floor(imageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`;
+      if (file.size > resolvedImageConfig.maxImageFileSize) {
+        return `${file.name}: ${Math.floor(resolvedImageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`;
       }
 
       return undefined;
     },
-    [imageConfig],
+    [resolvedImageConfig],
   );
 
   const handleImageFiles = useCallback(
     async (editor: Editor, files: File[]) => {
-      if (!imageConfig || files.length === 0 || isUploadingImages) {
+      if (!resolvedImageConfig || files.length === 0 || isUploadingImages) {
         return;
       }
 
       const existingCount = extractImageUrls(editor.getHTML()).length;
-      const remaining = Math.max(0, imageConfig.maxImageCount - existingCount);
+      const remaining = Math.max(
+        0,
+        resolvedImageConfig.maxImageCount - existingCount,
+      );
 
       if (remaining === 0) {
         setImageInsertError(
-          `이미지는 최대 ${imageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
+          `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
         );
 
         return;
@@ -404,7 +454,7 @@ function MarkdownEditor({
 
         if (files.length > remaining) {
           errors.push(
-            `이미지는 최대 ${imageConfig.maxImageCount}개까지 등록할 수 있습니다.`,
+            `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지 등록할 수 있습니다.`,
           );
         }
 
@@ -415,19 +465,24 @@ function MarkdownEditor({
         setIsUploadingImages(false);
       }
     },
-    [imageConfig, isUploadingImages, uploadAndInsertFile, validateImageFile],
+    [
+      isUploadingImages,
+      resolvedImageConfig,
+      uploadAndInsertFile,
+      validateImageFile,
+    ],
   );
 
   const handlePasteImageSource = useCallback(
     async (editor: Editor, source: string) => {
-      if (!imageConfig) {
+      if (!resolvedImageConfig) {
         return;
       }
 
       const existingCount = extractImageUrls(editor.getHTML()).length;
-      if (existingCount >= imageConfig.maxImageCount) {
+      if (existingCount >= resolvedImageConfig.maxImageCount) {
         setImageInsertError(
-          `이미지는 최대 ${imageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
+          `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
         );
 
         return;
@@ -447,12 +502,12 @@ function MarkdownEditor({
           throw new Error('이미지 파일이 아닙니다.');
         }
 
-        const ext = guessExtensionFromMime(blob.type);
-        const file = toFileFromBlob(blob, `pasted-image.${ext}`);
+        const extension = getExtensionFromMime(blob.type);
+        const file = toFileFromBlob(blob, `pasted-image.${extension}`);
 
-        if (file.size > imageConfig.maxImageFileSize) {
+        if (file.size > resolvedImageConfig.maxImageFileSize) {
           setImageInsertError(
-            `이미지가 ${Math.floor(imageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`,
+            `이미지가 ${Math.floor(resolvedImageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`,
           );
 
           return;
@@ -467,7 +522,7 @@ function MarkdownEditor({
         setIsUploadingImages(false);
       }
     },
-    [imageConfig, uploadAndInsertFile],
+    [resolvedImageConfig, uploadAndInsertFile],
   );
 
   const readClipboardImageFiles = useCallback(async () => {
@@ -496,7 +551,7 @@ function MarkdownEditor({
         files.push(
           toFileFromBlob(
             blob,
-            `pasted-image.${guessExtensionFromMime(blob.type)}`,
+            `pasted-image.${getExtensionFromMime(blob.type)}`,
           ),
         );
       }
@@ -542,6 +597,7 @@ function MarkdownEditor({
         lowlight,
         defaultLanguage: 'plaintext',
       }),
+      MarkdownHistoryShortcutsExtension,
       UnderlineExtension,
       LinkExtension.configure({
         openOnClick: false,
@@ -558,7 +614,7 @@ function MarkdownEditor({
     content: normalizedValue || '',
     onUpdate: ({ editor: updatedEditor }) => {
       isInternalUpdate.current = true;
-      onChange(normalizeContent(updatedEditor.getHTML()));
+      onChange?.(normalizeContent(updatedEditor.getHTML()));
     },
     onTransaction() {
       forceEditorRerender((prev) => prev + 1);
@@ -577,8 +633,24 @@ function MarkdownEditor({
       }
     },
     editorProps: {
-      handlePaste: (view, event) => {
-        if (!imageConfig) {
+      attributes: {
+        id: id ?? '',
+        'data-name': name ?? '',
+        spellcheck: 'true',
+        autocorrect: 'on',
+        autocapitalize: 'sentences',
+        'aria-invalid': ariaInvalid ? 'true' : 'false',
+        'aria-describedby': ariaDescribedBy ?? '',
+      },
+      handleDOMEvents: {
+        blur: () => {
+          onBlur?.();
+
+          return false;
+        },
+      },
+      handlePaste: (_, event) => {
+        if (!resolvedImageConfig) {
           return false;
         }
 
@@ -605,8 +677,8 @@ function MarkdownEditor({
 
         return false;
       },
-      handleDrop: (view, event) => {
-        if (!imageConfig) {
+      handleDrop: (_, event) => {
+        if (!resolvedImageConfig) {
           return false;
         }
 
@@ -763,7 +835,7 @@ function MarkdownEditor({
 
     // 이미지 width 변경은 onUpdate가 누락될 수 있어 폼 값을 직접 동기화한다.
     isInternalUpdate.current = true;
-    onChange(normalizeContent(editor.getHTML()));
+    onChange?.(normalizeContent(editor.getHTML()));
   };
 
   const isImageActive = selectedImagePos !== null;
@@ -808,6 +880,29 @@ function MarkdownEditor({
     <div className="rounded-125 border-border-subtle bg-background-default border">
       <div className="border-border-subtle flex flex-wrap items-center gap-75 border-b px-125 py-100">
         <ToolbarButton
+          icon={Undo2}
+          label="실행취소"
+          disabled={!editor?.can().undo()}
+          onClick={() => editor?.chain().focus().undo().run()}
+        />
+        <ToolbarButton
+          icon={Redo2}
+          label="다시실행"
+          disabled={!editor?.can().redo()}
+          onClick={() => editor?.chain().focus().redo().run()}
+        />
+        {HEADING_OPTIONS.map(({ icon, label, level }) => (
+          <ToolbarButton
+            key={label}
+            icon={icon}
+            label={label}
+            isActive={editor?.isActive('heading', { level })}
+            onClick={() =>
+              editor?.chain().focus().toggleHeading({ level }).run()
+            }
+          />
+        ))}
+        <ToolbarButton
           icon={Bold}
           label="굵게"
           isActive={editor?.isActive('bold')}
@@ -831,17 +926,6 @@ function MarkdownEditor({
           isActive={editor?.isActive('strike')}
           onClick={() => editor?.chain().focus().toggleStrike().run()}
         />
-        {HEADING_OPTIONS.map(({ icon, label, level }) => (
-          <ToolbarButton
-            key={label}
-            icon={icon}
-            label={label}
-            isActive={editor?.isActive('heading', { level })}
-            onClick={() =>
-              editor?.chain().focus().toggleHeading({ level }).run()
-            }
-          />
-        ))}
         <ToolbarButton
           icon={Link2}
           label="링크"
@@ -872,7 +956,7 @@ function MarkdownEditor({
           isActive={editor?.isActive('codeBlock')}
           onClick={handleToggleCodeBlock}
         />
-        {imageConfig && (
+        {resolvedImageConfig && (
           <Button
             type="button"
             color="secondary"
@@ -906,7 +990,7 @@ function MarkdownEditor({
             }}
             className="accent-background-brand-default w-[180px]"
           />
-          <span className="font-designer-12r text-text-default min-w-[48px]">
+          <span className="font-designer-12r text-text-default min-w-600">
             {selectedImageWidth}px
           </span>
           <Button
@@ -920,12 +1004,14 @@ function MarkdownEditor({
         </div>
       )}
 
-      {imageConfig && (
+      {resolvedImageConfig && (
         <input
           ref={imageInputRef}
           type="file"
           multiple
-          accept={toImageInputAccept(imageConfig.allowedImageExtensions)}
+          accept={toImageInputAccept(
+            resolvedImageConfig.allowedImageExtensions,
+          )}
           className="hidden"
           onChange={(event) => {
             if (!editor) {

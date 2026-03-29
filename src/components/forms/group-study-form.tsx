@@ -223,7 +223,7 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
         <div
           aria-current={isActive ? 'step' : undefined}
           className={cn(
-            'font-designer-13b flex h-300 w-300 items-center justify-center rounded-full',
+            'font-designer-13b flex h-300 w-300 shrink-0 items-center justify-center rounded-full',
             isActive && 'bg-background-brand-default text-text-inverse',
             isCompleted && 'bg-background-brand-subtle text-text-brand',
             !isActive &&
@@ -235,7 +235,7 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
         </div>
         <span
           className={cn(
-            'font-designer-14m',
+            'font-designer-13m whitespace-nowrap text-text-default',
             isActive && 'text-text-default',
             isCompleted && 'text-text-subtle',
             !isActive && !isCompleted && 'text-text-disabled',
@@ -249,7 +249,7 @@ function Stepper({ step }: { step: 1 | 2 | 3 }) {
   };
 
   return (
-    <nav aria-label="스터디 개설 단계" className="flex items-center">
+    <nav aria-label="스터디 개설 단계" className="flex w-full items-center">
       {([1, 2, 3] as const).map((n) => renderStep(n))}
     </nav>
   );

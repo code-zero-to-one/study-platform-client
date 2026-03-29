@@ -21,6 +21,12 @@ import swift from 'highlight.js/lib/languages/swift';
 import typescript from 'highlight.js/lib/languages/typescript';
 import xml from 'highlight.js/lib/languages/xml';
 import { marked } from 'marked';
+import { memo, useEffect, useMemo, useRef } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import {
+  isHtmlMarkdownContent,
+  normalizeMarkdownContent,
+} from './markdown-utils';
 
 hljs.registerLanguage('kotlin', kotlin);
 hljs.registerLanguage('sql', sql);
@@ -43,6 +49,12 @@ hljs.registerLanguage('go', go);
 hljs.registerLanguage('rust', rust);
 hljs.registerLanguage('swift', swift);
 hljs.registerLanguage('dart', dart);
+
+interface MarkdownContentProps {
+  content: unknown;
+  className?: string;
+  emptyMessage?: string;
+}
 
 const SANITIZE_OPTIONS: DOMPurify.Config = {
   ALLOWED_TAGS: [
@@ -72,11 +84,8 @@ const SANITIZE_OPTIONS: DOMPurify.Config = {
   ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#)/i,
 };
 
-const MENTOR_MARKDOWN_IMAGE_MIN_WIDTH = 80;
-const MENTOR_MARKDOWN_IMAGE_MAX_WIDTH = 400;
-
-export const MENTOR_MARKDOWN_CONTENT_CLASS =
-  'break-words [&_p]:font-designer-14r [&_p]:text-text-default [&_p]:mb-150 [&_p]:leading-relaxed [&_h1]:font-designer-24b [&_h1]:text-text-strong [&_h1]:mt-250 [&_h1]:mb-150 [&_h2]:font-designer-20b [&_h2]:text-text-strong [&_h2]:mt-250 [&_h2]:mb-125 [&_h3]:font-designer-18b [&_h3]:text-text-default [&_h3]:mt-200 [&_h3]:mb-100 [&_ul]:mb-150 [&_ul]:list-disc [&_ul]:space-y-50 [&_ul]:pl-250 [&_ol]:mb-150 [&_ol]:list-decimal [&_ol]:space-y-50 [&_ol]:pl-250 [&_li]:font-designer-14r [&_li]:text-text-default [&_li]:leading-relaxed [&_blockquote]:rounded-100 [&_blockquote]:bg-background-alternative [&_blockquote]:border-border-subtle [&_blockquote]:mb-150 [&_blockquote]:border-l-4 [&_blockquote]:px-150 [&_blockquote]:py-125 [&_blockquote_p]:font-designer-14r [&_blockquote_p]:text-text-subtle [&_blockquote_p]:leading-relaxed [&_a]:text-text-brand [&_a]:underline [&_s]:line-through [&_del]:line-through [&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-150 [&_img]:block [&_img]:h-auto [&_img]:border [&_img]:object-contain [&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-150 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100 [&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_pre_code]:py-0 [&_hr]:border-border-subtle [&_hr]:my-200';
+const MARKDOWN_IMAGE_MIN_WIDTH = 80;
+const MARKDOWN_IMAGE_MAX_WIDTH = 400;
 
 const parseSanitizedImageWidth = (
   value: string | undefined,
@@ -91,13 +100,9 @@ const parseSanitizedImageWidth = (
   }
 
   return Math.min(
-    MENTOR_MARKDOWN_IMAGE_MAX_WIDTH,
-    Math.max(MENTOR_MARKDOWN_IMAGE_MIN_WIDTH, Math.round(parsed)),
+    MARKDOWN_IMAGE_MAX_WIDTH,
+    Math.max(MARKDOWN_IMAGE_MIN_WIDTH, Math.round(parsed)),
   );
-};
-
-const isHtmlContent = (content: string): boolean => {
-  return /<[a-z][\s\S]*>/i.test(content);
 };
 
 const applyPostSanitizeAttributes = ({
@@ -139,9 +144,8 @@ const applyPostSanitizeAttributes = ({
     sanitizedHtml,
     'text/html',
   );
-  const anchors = document.querySelectorAll('a[href]');
 
-  anchors.forEach((anchor) => {
+  document.querySelectorAll('a[href]').forEach((anchor) => {
     anchor.setAttribute('target', '_blank');
     anchor.setAttribute('rel', 'noreferrer');
   });
@@ -168,43 +172,83 @@ const applyPostSanitizeAttributes = ({
   return document.body.innerHTML;
 };
 
-export const normalizeMentorMarkdownToSanitizedHtml = (content: unknown) => {
-  const normalizedContent = typeof content === 'string' ? content : '';
+function MarkdownContent({
+  content,
+  className,
+  emptyMessage = '아직 작성된 소개가 없습니다.',
+}: MarkdownContentProps) {
+  const normalizedContent = normalizeMarkdownContent(content);
+  const hasContent = normalizedContent.length > 0;
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  if (normalizedContent.trim().length === 0) {
-    return '';
-  }
+  const sanitizedHtml = useMemo(() => {
+    if (!hasContent) {
+      return '';
+    }
 
-  let html: string;
+    const html = isHtmlMarkdownContent(normalizedContent)
+      ? normalizedContent
+      : (() => {
+          const rendered = marked.parse(normalizedContent, {
+            breaks: true,
+            gfm: true,
+          });
 
-  if (isHtmlContent(normalizedContent)) {
-    html = normalizedContent;
-  } else {
-    const rendered = marked.parse(normalizedContent, {
-      breaks: true,
-      gfm: true,
+          return typeof rendered === 'string' ? rendered : '';
+        })();
+
+    const sanitized = DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+
+    return applyPostSanitizeAttributes({
+      originalHtml: html,
+      sanitizedHtml: sanitized,
     });
-    html = typeof rendered === 'string' ? rendered : '';
+  }, [hasContent, normalizedContent]);
+
+  useEffect(() => {
+    if (!containerRef.current) {
+      return;
+    }
+
+    containerRef.current.querySelectorAll('pre code').forEach((block) => {
+      hljs.highlightElement(block as HTMLElement);
+    });
+  }, [sanitizedHtml]);
+
+  if (!hasContent) {
+    return (
+      <p className="font-designer-14r text-text-subtle leading-relaxed">
+        {emptyMessage}
+      </p>
+    );
   }
 
-  const sanitized = DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+  return (
+    <div
+      ref={containerRef}
+      className={cn(
+        'wrap-break-word',
+        '[&_p]:font-designer-14r [&_p]:text-text-default [&_p]:mb-100 [&_p]:leading-relaxed',
+        '[&_h1]:font-designer-24b [&_h1]:text-text-strong [&_h1]:mt-250 [&_h1]:mb-100',
+        '[&_h2]:font-designer-20b [&_h2]:text-text-strong [&_h2]:mt-250 [&_h2]:mb-125',
+        '[&_h3]:font-designer-18b [&_h3]:text-text-default [&_h3]:mt-200 [&_h3]:mb-100',
+        '[&_ul]:mb-100 [&_ul]:list-disc [&_ul]:space-y-50 [&_ul]:pl-250',
+        '[&_ol]:mb-100 [&_ol]:list-decimal [&_ol]:space-y-50 [&_ol]:pl-250',
+        '[&_li]:font-designer-14r [&_li]:text-text-default [&_li]:leading-relaxed',
+        '[&_blockquote]:rounded-100 [&_blockquote]:bg-background-alternative [&_blockquote]:border-border-subtle [&_blockquote]:mb-100 [&_blockquote]:border-l-4 [&_blockquote]:px-150 [&_blockquote]:py-125',
+        '[&_blockquote_p]:font-designer-14r [&_blockquote_p]:text-text-subtle [&_blockquote_p]:leading-relaxed',
+        '[&_a]:text-text-brand [&_a]:underline',
+        '[&_s]:line-through [&_del]:line-through',
+        '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-100 [&_img]:block [&_img]:h-auto [&_img]:max-h-[400px] [&_img]:max-w-[min(100%,400px)] [&_img]:border [&_img]:object-contain',
+        '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-[2px]',
+        '[&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-100 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100',
+        '[&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_pre_code]:py-0',
+        '[&_hr]:border-border-subtle [&_hr]:my-200',
+        className,
+      )}
+      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+    />
+  );
+}
 
-  return applyPostSanitizeAttributes({
-    originalHtml: html,
-    sanitizedHtml: sanitized,
-  });
-};
-
-export const highlightMentorMarkdownCodeBlocks = (
-  container: HTMLElement | undefined,
-) => {
-  if (!container) {
-    return;
-  }
-
-  const codeBlocks = container.querySelectorAll('pre code');
-
-  codeBlocks.forEach((block) => {
-    hljs.highlightElement(block as HTMLElement);
-  });
-};
+export default memo(MarkdownContent);
