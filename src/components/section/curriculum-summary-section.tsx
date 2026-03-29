@@ -26,7 +26,7 @@ export default function CurriculumSummarySection({
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated } = useAuthReady();
-  console.log({ isAuthenticated });
+
   const loginTriggerRef = useRef<HTMLButtonElement>(null);
   const showToast = useToastStore((state) => state.showToast);
 
