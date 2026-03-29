@@ -83,9 +83,9 @@ export const attachApiLogger = (instance: AxiosInstance, label: string) => {
     const url = normalizeUrl(config);
     const params = shouldLogPayloads ? stringifyParams(config.params) : '';
 
-    console.log(
-      `[API ${label}] ${method} ${url}${params ? ` params=${params}` : ''}`,
-    );
+    // console.log(
+    //   `[API ${label}] ${method} ${url}${params ? ` params=${params}` : ''}`,
+    // );
 
     return config;
   });
@@ -96,9 +96,11 @@ export const attachApiLogger = (instance: AxiosInstance, label: string) => {
       const url = normalizeUrl(response.config);
       const data = shouldLogPayloads ? stringifyData(response.data) : '';
 
-      console.log(`[API ${label}] ${method} ${url} -> ${response.status}`);
+      // console.log(
+      //     `[API ${label}] ${method} ${url} -> ${response.status}`,
+      // );
       if (data) {
-        console.log(`[API ${label}] response=${data}`);
+        // console.log(`[API ${label}] response=${data}`);
       }
 
       return response;
@@ -110,11 +112,11 @@ export const attachApiLogger = (instance: AxiosInstance, label: string) => {
       const status = error.response?.status;
       const data = shouldLogPayloads ? stringifyData(error.response?.data) : '';
 
-      console.log(
-        `[API ${label}] ${method} ${url} -> ERROR${status ? ` ${status}` : ''}`,
-      );
+      // console.log(
+      //     `[API ${label}] ${method} ${url} -> ERROR${status ? ` ${status}` : ""}`,
+      // );
       if (data) {
-        console.log(`[API ${label}] response=${data}`);
+        // console.log(`[API ${label}] response=${data}`);
       }
 
       return Promise.reject(error);
