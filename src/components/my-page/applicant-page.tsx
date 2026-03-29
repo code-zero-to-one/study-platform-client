@@ -45,7 +45,9 @@ export default function ApplicantPage(props: ApplicantListProps) {
           showToast('적용되었습니다.');
           await refetch();
         },
-        onError: (err) => console.log(err),
+        onError: (err) => {
+          throw new Error(err);
+        },
       },
     );
   };
