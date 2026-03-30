@@ -115,154 +115,186 @@ function ImageSlider({ files }: { files: any[] }) {
   );
 }
 
+// 미디어(이미지/비디오) 블록 공통 래퍼
+function MediaFigure({
+  caption,
+  children,
+}: {
+  caption?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <figure className="my-800 w-full">
+      {children}
+      {caption && (
+        <figcaption className="mt-200 text-center text-[13px] text-[#8C9098]">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
+
 export default function BlogDetailPage({ article }: BlogDetailPageProps) {
-  // 마크다운 렌더러용 커스텀 컴포넌트 설정
   const MarkdownComponents = {
-    // 비디오 태그 처리
     video: (props: any) => {
-      const { src, controls, style, children } = props;
-
-      if (!src) {
-        return null;
-      }
-
+      const { src, children } = props;
+      if (!src) return null;
       const videoUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
-
       return (
-        <span className="mb-[18px] flex justify-center">
+        <MediaFigure>
           <video
-            controls={controls !== undefined ? controls : true}
+            controls
             playsInline
-            className="h-auto w-2/3 rounded-[10px]"
+            className="mx-auto w-full rounded-[4px] sm:w-4/5"
           >
             <source src={videoUrl} type="video/mp4" />
             {children}
           </video>
-        </span>
+        </MediaFigure>
       );
     },
-    // 이미지 변환 (![alt](src) -> <Image />)
+
     img: (image: any) => {
       const { src, alt } = image;
-
-      if (!src) {
-        return null;
-      }
-
-      // 이미지 URL 처리 (상대 경로면 STRAPI_URL 붙이기)
+      if (!src) return null;
       const imageUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
-
       return (
-        <span className="mb-[18px] flex justify-center">
+        <MediaFigure>
           <Image
             src={imageUrl}
-            alt={alt || 'Article Content Image'}
-            width={800}
+            alt={alt || ''}
+            width={740}
             height={500}
-            className="h-auto w-2/3 rounded-[10px] object-contain"
+            className="mx-auto w-full rounded-[4px] object-contain"
           />
-        </span>
+        </MediaFigure>
       );
     },
-    // 문단 (p)
+
     p: ({ children }: any) => (
-      <p className="font-designer-18r mb-[18px] leading-8 text-[#333D4B]">
+      <p className="mb-[28px] text-[16px] leading-[1.75] text-[#333d4b] [&_strong]:font-bold [&_strong]:text-[#191f28] sm:text-[17px]">
         {children}
       </p>
     ),
-    // 제목 (h1 ~ h5)
+
     h1: ({ children }: any) => (
-      <h1 className="mt-16 mb-200 text-3xl leading-tight font-bold text-[#181D27]">
+      <h1 className="mt-[56px] mb-[20px] text-[24px] font-bold leading-tight text-[#191f28] sm:text-[30px]">
         {children}
       </h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="mt-14 mb-200 text-2xl leading-tight font-bold text-[#181D27]">
+      <h2 className="mt-[60px] mb-[24px] text-[22px] font-bold leading-tight text-[#191f28] sm:text-[28px]">
         {children}
       </h2>
     ),
     h3: ({ children }: any) => (
-      <h3 className="mt-12 mb-200 text-xl leading-tight font-bold text-[#181D27]">
+      <h3 className="mt-[40px] mb-[16px] text-[19px] font-bold leading-tight text-[#191f28] sm:text-[22px]">
         {children}
       </h3>
     ),
     h4: ({ children }: any) => (
-      <h4 className="mt-10 mb-200 text-lg leading-tight font-bold text-[#181D27]">
+      <h4 className="mt-[32px] mb-[12px] text-[17px] font-bold leading-tight text-[#191f28] sm:text-[18px]">
         {children}
       </h4>
     ),
     h5: ({ children }: any) => (
-      <h5 className="mt-8 mb-200 text-base leading-tight font-bold text-[#181D27]">
+      <h5 className="mt-[24px] mb-[10px] text-[16px] font-bold leading-tight text-[#191f28]">
         {children}
       </h5>
     ),
-    // 리스트
+
     ul: ({ children }: any) => (
-      <ul className="my-8 list-inside list-disc space-y-3">{children}</ul>
+      <ul className="mb-[32px] list-disc space-y-[12px] pl-[24px] text-[16px] leading-[1.75] text-[#333d4b] sm:text-[17px]">
+        {children}
+      </ul>
     ),
     ol: ({ children }: any) => (
-      <ol className="my-8 list-inside list-decimal space-y-3">{children}</ol>
+      <ol className="mb-[32px] list-decimal space-y-[12px] pl-[24px] text-[16px] leading-[1.75] text-[#333d4b] sm:text-[17px]">
+        {children}
+      </ol>
     ),
-    li: ({ children }: any) => (
-      <li className="font-designer-18r leading-8 text-[#333D4B]">{children}</li>
-    ),
-    // 인용구
+    li: ({ children }: any) => <li>{children}</li>,
+
     blockquote: ({ children }: any) => (
-      <blockquote className="my-8 border-l-4 border-[var(--color-rose-500)] bg-[var(--color-rose-200)] p-6 leading-8 text-[#535862] italic">
+      <blockquote className="my-[32px] border-l-4 border-[var(--color-rose-500)] pl-[16px] text-[16px] leading-[1.75] text-[#535862] italic sm:text-[17px]">
         {children}
       </blockquote>
     ),
-    // 링크 (비디오 파일이면 video 태그로, 아니면 새 탭으로 열기)
+
     a: ({ href, children }: any) => {
-      if (!href) {
-        return <a>{children}</a>;
-      }
+      if (!href) return <a>{children}</a>;
 
-      // 비디오 파일 확장자 체크
       const isVideoFile = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(href);
-
       if (isVideoFile) {
         const videoUrl = href.startsWith('/') ? `${STRAPI_URL}${href}` : href;
-
         return (
-          <figure className="mb-[18px] flex justify-center">
-            <video controls playsInline className="h-auto w-2/3 rounded-[10px]">
+          <MediaFigure>
+            <video
+              controls
+              playsInline
+              className="mx-auto w-full rounded-[4px] sm:w-4/5"
+            >
               <source src={videoUrl} type="video/mp4" />
               브라우저가 비디오 태그를 지원하지 않습니다.
             </video>
-          </figure>
+          </MediaFigure>
         );
       }
 
-      // 일반 링크
       return (
         <a
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[var(--color-rose-500)] hover:underline"
+          className="text-[var(--color-rose-500)] underline-offset-2 hover:underline"
         >
           {children}
         </a>
       );
     },
-    // 구분선 (---)
-    hr: () => <hr className="my-8 border-t border-[#E5E7EB]" />,
+
+    hr: () => <hr className="my-[48px] border-0 border-t border-[#e5e5e5]" />,
+
+    strong: ({ children }: any) => (
+      <strong className="font-bold text-[#1a1a1a]">{children}</strong>
+    ),
+
+    code: ({ children, className }: any) => {
+      const isBlock = className?.includes('language-');
+      if (isBlock) {
+        return (
+          <code className="block overflow-x-auto rounded-[4px] bg-[#F6F8FA] px-[16px] py-[12px] font-mono text-[13px] leading-[1.7] text-[#333]">
+            {children}
+          </code>
+        );
+      }
+      return (
+        <code className="rounded-[3px] bg-[#F0F0F0] px-[5px] py-[2px] font-mono text-[13px] text-[#E03E1A]">
+          {children}
+        </code>
+      );
+    },
+
+    pre: ({ children }: any) => (
+      <pre className="my-[32px] overflow-x-auto rounded-[4px] bg-[#F6F8FA] p-[20px] text-[13px] leading-[1.7]">
+        {children}
+      </pre>
+    ),
   };
 
   const renderBlock = (block: any, index: number) => {
     // 1. Rich Text
     if (block.__component?.includes('rich-text')) {
-      // Case A: 배열 데이터 (Blocks Editor)
       if (Array.isArray(block.body)) {
         return (
-          <div key={index} className="space-y-6">
+          <div key={index} className="space-y-[16px]">
             {block.body.map((item: any, i: number) => {
               if (item.type === 'paragraph') {
                 return (
                   <p
                     key={i}
-                    className="font-designer-18r mb-6 leading-8 text-[#333D4B]"
+                    className="mb-[16px] text-[15px] leading-[1.8] text-[#333]"
                   >
                     {item.children?.map((child: any, j: number) => (
                       <span key={j}>{child.text}</span>
@@ -270,23 +302,17 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
                   </p>
                 );
               }
-
               return null;
             })}
           </div>
         );
       }
 
-      // Case B: 문자열 데이터 (Markdown)
       return (
-        <div
-          key={index}
-          className="blog-content-markdown font-designer-18r text-[#333D4B]"
-        >
+        <div key={index} className="text-[15px] text-[#333]">
           {block.body ? (
             <ReactMarkdown
               components={MarkdownComponents}
-              // Markdown 내부에 있는 <u>, <span>, <br> 등의 HTML 태그를 파싱하고 렌더링하도록 허용
               rehypePlugins={[rehypeRaw]}
             >
               {block.body}
@@ -301,132 +327,79 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       return (
         <blockquote
           key={index}
-          className="my-8 rounded-r-lg border-l-4 border-[var(--color-rose-500)] bg-[var(--color-rose-100)] p-6"
+          className="my-[32px] rounded-r-[4px] border-l-4 border-[var(--color-rose-500)] bg-[var(--color-rose-50)] py-[16px] pl-[16px] pr-[20px]"
         >
           {block.title && (
-            <p className="font-designer-18b mb-3 leading-8 text-[#333D4B]">
+            <p className="mb-[8px] text-[15px] font-bold leading-[1.8] text-[#333]">
               {block.title}
             </p>
           )}
-          <p className="font-designer-18r leading-8 text-[#535862] italic">
+          <p className="text-[15px] leading-[1.8] text-[#535862] italic">
             {block.body}
           </p>
         </blockquote>
       );
     }
 
-    // 3. 미디어 (단독 블록 - Media: 이미지, 비디오, GIF 등)
+    // 3. 미디어
     if (block.__component?.includes('media')) {
-      // block.file이 있는 경우 처리
-      if (block.file) {
-        const fileData = block.file.data || block.file;
+      const resolveMedia = (raw: any) => {
+        const fileData = raw?.data || raw;
         if (!fileData) return null;
-
-        const mediaUrl = fileData.url?.startsWith('/')
+        const url = fileData.url?.startsWith('/')
           ? `${STRAPI_URL}${fileData.url}`
           : fileData.url;
+        if (!url) return null;
+        return {
+          url,
+          mime: fileData.mime,
+          name: fileData.name || fileData.alternativeText,
+        };
+      };
 
-        if (!mediaUrl) return null;
+      const media = resolveMedia(block.file) ?? resolveMedia(block.data);
+      if (!media) return null;
 
-        // MIME 타입이나 확장자로 비디오인지 확인
-        const isVideo =
-          fileData.mime?.startsWith('video/') ||
-          mediaUrl.match(/\.(mp4|webm|ogg|mov)$/i);
+      const isVideo =
+        media.mime?.startsWith('video/') ||
+        /\.(mp4|webm|ogg|mov)$/i.test(media.url);
 
-        if (isVideo) {
-          return (
-            <figure key={index} className="mb-[18px] flex justify-center">
-              <video
-                controls
-                playsInline
-                className="h-auto w-2/3 rounded-[10px]"
-              >
-                <source src={mediaUrl} type={fileData.mime || 'video/mp4'} />
-                브라우저가 비디오 태그를 지원하지 않습니다.
-              </video>
-            </figure>
-          );
-        }
-
-        // 이미지 또는 GIF 처리
+      if (isVideo) {
         return (
-          <figure key={index} className="mb-[18px] flex justify-center">
-            <Image
-              src={mediaUrl}
-              alt={fileData.name || fileData.alternativeText || 'Media Image'}
-              width={800}
-              height={500}
-              className="h-auto w-2/3 rounded-[10px]"
-            />
-          </figure>
+          <MediaFigure key={index}>
+            <video
+              controls
+              playsInline
+              className="mx-auto w-full rounded-[4px] sm:w-4/5"
+            >
+              <source src={media.url} type={media.mime || 'video/mp4'} />
+              브라우저가 비디오 태그를 지원하지 않습니다.
+            </video>
+          </MediaFigure>
         );
       }
 
-      // block에 직접 미디어 데이터가 있는 경우 처리
-      if (block.data) {
-        const mediaData = Array.isArray(block.data)
-          ? block.data[0]
-          : block.data;
-        const mediaUrl = mediaData?.url?.startsWith('/')
-          ? `${STRAPI_URL}${mediaData.url}`
-          : mediaData?.url;
-
-        if (!mediaUrl) return null;
-
-        // MIME 타입이나 확장자로 비디오인지 확인
-        const isVideo =
-          mediaData.mime?.startsWith('video/') ||
-          mediaUrl.match(/\.(mp4|webm|ogg|mov)$/i);
-
-        if (isVideo) {
-          return (
-            <figure key={index} className="mb-[18px] flex justify-center">
-              <video
-                controls
-                playsInline
-                className="h-auto w-2/3 rounded-[10px]"
-              >
-                <source src={mediaUrl} type={mediaData.mime || 'video/mp4'} />
-                브라우저가 비디오 태그를 지원하지 않습니다.
-              </video>
-            </figure>
-          );
-        }
-
-        // 이미지 또는 GIF 처리
-        return (
-          <figure key={index} className="mb-[18px] flex justify-center">
-            <Image
-              src={mediaUrl}
-              alt={mediaData.name || mediaData.alternativeText || 'Media Image'}
-              width={800}
-              height={500}
-              className="h-auto w-2/3 rounded-[10px]"
-            />
-          </figure>
-        );
-      }
-
-      return null;
+      return (
+        <MediaFigure key={index}>
+          <Image
+            src={media.url}
+            alt={media.name || ''}
+            width={740}
+            height={500}
+            className="mx-auto w-full rounded-[4px] object-contain"
+          />
+        </MediaFigure>
+      );
     }
 
     // 4. 슬라이더
     if (block.__component?.includes('slider')) {
-      // files 데이터 확인 (여러 가능성 체크)
       let files = null;
+      if (block.files?.data) files = block.files.data;
+      else if (block.files && Array.isArray(block.files)) files = block.files;
+      else if (block.data && Array.isArray(block.data)) files = block.data;
 
-      if (block.files?.data) {
-        files = block.files.data;
-      } else if (block.files && Array.isArray(block.files)) {
-        files = block.files;
-      } else if (block.data && Array.isArray(block.data)) {
-        files = block.data;
-      }
-
-      if (!files || files.length === 0) {
-        return null;
-      }
-
+      if (!files || files.length === 0) return null;
       return <ImageSlider key={index} files={files} />;
     }
 
@@ -443,9 +416,9 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
   return (
     <div className="w-full">
-      {/* 커버 이미지 (GNB 바로 아래, 전체 너비) */}
+      {/* 커버 이미지 */}
       {coverUrl && (
-        <div className="relative h-[500px] w-full">
+        <div className="relative h-[360px] w-full sm:h-[480px]">
           <Image
             src={coverUrl}
             alt={article.title}
@@ -456,16 +429,17 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
         </div>
       )}
 
-      <div className="flex w-full justify-center py-600">
-        <article className="mx-auto w-full max-w-5xl">
-          {/* 제목 영역 (테두리 제거) */}
-          <div className="mb-[50px] p-300">
-            {/* 카테고리 버튼 */}
+      {/* 본문 전체 래퍼 */}
+      <div className="mx-auto w-full max-w-[740px] px-[24px] py-[56px] sm:px-[40px] lg:px-0">
+        <article>
+          {/* 헤더 영역 */}
+          <header className="mb-[48px]">
+            {/* 카테고리 */}
             {article.category && (
-              <div className="mb-100">
+              <div className="mb-[12px]">
                 <Link
                   href={`/insights?category=${article.category.slug}`}
-                  className="font-designer-15b inline-flex h-8 items-center justify-center gap-2 rounded-full bg-transparent px-3 text-[#535862] transition-colors hover:bg-[#F3F4F6]"
+                  className="font-designer-13r inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] px-[12px] py-[4px] text-[#535862] transition-colors hover:border-[var(--color-rose-500)] hover:text-[var(--color-rose-500)]"
                 >
                   {article.category.name}
                 </Link>
@@ -473,61 +447,62 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             )}
 
             {/* 제목 */}
-            <h1 className="font-designer-32b mb-100 leading-tight text-[#181D27]">
+            <h1 className="mb-[16px] text-[26px] font-bold leading-[1.35] text-[#191f28] sm:text-[34px]">
               {article.title}
             </h1>
 
-            {/* 발행일 */}
-            <div className="mb-2.5 text-[#535862]">
-              <time className="font-designer-15r">
-                {formatDate(article.createdAt)}
-              </time>
-            </div>
-
             {/* 설명 */}
             {article.description && (
-              <p className="font-designer-18r leading-[1.75] text-[#535862]">
+              <p className="mb-[16px] text-[18px] font-bold leading-[1.75] text-[#333]">
                 {article.description}
               </p>
             )}
-          </div>
 
-          {/* 본문 영역 카드 */}
-          <div className="rounded-100 mb-[75px] min-h-[200px] space-y-10 p-300">
+            {/* 발행일 */}
+            <time className="font-designer-14r text-[#8C9098]">
+              {formatDate(article.createdAt)}
+            </time>
+          </header>
+
+          {/* 본문 */}
+          <section className="min-h-[200px]">
             {article.blocks && article.blocks.length > 0 ? (
               article.blocks.map((block: any, index: number) =>
                 renderBlock(block, index),
               )
             ) : (
-              <p className="text-gray-400 italic">내용이 없습니다.</p>
+              <p className="text-[#9CA3AF] italic">내용이 없습니다.</p>
             )}
-          </div>
+          </section>
 
-          {/* 저자 영역 카드 */}
+          {/* 저자 */}
           {article.author && (
-            <div className="rounded-100 flex items-center border border-solid border-[#D5D7DA] p-300">
-              {article.author.avatar?.url && (
-                <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full">
-                  <Image
-                    src={`${STRAPI_URL}${article.author.avatar.url}`}
-                    alt={article.author.name || ''}
-                    width={80}
-                    height={80}
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <div className="ml-100 flex flex-col gap-1">
-                <span className="font-designer-20b text-[#181D27]">
-                  {article.author.name}
-                </span>
-                {article.author.email && (
-                  <span className="font-designer-16r text-[#535862]">
-                    {article.author.email}
-                  </span>
+            <>
+              <hr className="my-[48px] border-0 border-t border-[#e5e5e5]" />
+              <footer className="flex items-center gap-[16px] rounded-[8px] border border-[#E5E7EB] p-[20px]">
+                {article.author.avatar?.url && (
+                  <div className="relative h-[56px] w-[56px] flex-shrink-0 overflow-hidden rounded-full">
+                    <Image
+                      src={`${STRAPI_URL}${article.author.avatar.url}`}
+                      alt={article.author.name || ''}
+                      width={56}
+                      height={56}
+                      className="object-cover"
+                    />
+                  </div>
                 )}
-              </div>
-            </div>
+                <div className="flex flex-col gap-[4px]">
+                  <span className="font-designer-16b text-[#181D27]">
+                    {article.author.name}
+                  </span>
+                  {article.author.email && (
+                    <span className="font-designer-14r text-[#535862]">
+                      {article.author.email}
+                    </span>
+                  )}
+                </div>
+              </footer>
+            </>
           )}
         </article>
       </div>
