@@ -63,11 +63,23 @@ const CATEGORY_SLUG_ORDER = [
   'patch-note',
 ];
 
+interface FetchArticlesParams {
+  categorySlug?: string;
+  page?: number;
+  pageSize?: number;
+}
+
 // 전체 아티클 목록 조회 (최신 publishedAt 내림차순, 카테고리 slug로 필터링 가능)
-export async function fetchArticles(categorySlug?: string) {
+export async function fetchArticles({
+  categorySlug,
+  page = 1,
+  pageSize = 10,
+}: FetchArticlesParams = {}) {
   const query = new URLSearchParams();
   query.append('populate', '*');
   query.append('sort', 'publishedAt:desc');
+  query.append('pagination[page]', String(page));
+  query.append('pagination[pageSize]', String(pageSize));
 
   if (categorySlug) {
     query.append('filters[category][slug][$eq]', categorySlug);
