@@ -39,6 +39,13 @@ export default function StudyInfoSection({
   const groupStudyId = Number(params.id);
   const applyTriggerRef = useRef<HTMLButtonElement>(null);
 
+  const { data: pendingApplicants } = useApplicantsByStatusQuery({
+    groupStudyId,
+    status: 'PENDING',
+    enabled: isLeader,
+  });
+  const pendingCount = pendingApplicants?.pages[0]?.totalElements ?? 0;
+
   const handleLockedClick = () => {
     applyTriggerRef.current?.click();
   };
@@ -143,14 +150,21 @@ export default function StudyInfoSection({
                 <span className="text-text-subtlest">{`${approvedApplicants?.pages[0]?.totalElements ?? 0}명`}</span>
               </div>
               {isLeader && (
-                <Button
-                  className="h-500 w-[80px] font-designer-16b"
-                  onClick={() =>
-                    router.push(`/application-list/${groupStudyId}`)
-                  }
-                >
-                  관리하기
-                </Button>
+                <div className="relative">
+                  <Button
+                    className="h-500 w-[80px] font-designer-16b"
+                    onClick={() =>
+                      router.push(`/application-list/${groupStudyId}`)
+                    }
+                  >
+                    관리하기
+                  </Button>
+                  {pendingCount > 0 && (
+                    <span className="absolute -right-75 -top-75 flex h-225 min-w-225 items-center justify-center rounded-full bg-fill-danger-default-default px-30 font-designer-11b text-text-inverse">
+                      {pendingCount}
+                    </span>
+                  )}
+                </div>
               )}
             </div>
 

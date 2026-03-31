@@ -5,7 +5,7 @@ import {
 } from '@tanstack/react-query';
 import { getApplicantsByStatus } from '@/api/endpoints/group-study-application/get-applicants-by-status';
 import { updateApplicantByStatus } from '@/api/endpoints/group-study-application/update-applicant-by-status';
-import {
+import type {
   ApplyStatus,
   UpdateApplicantByStatusRequest,
 } from '@/types/api/group-study-application.types';
@@ -13,9 +13,11 @@ import {
 export const useApplicantsByStatusQuery = ({
   groupStudyId,
   status,
+  enabled = true,
 }: {
   groupStudyId: number;
   status: ApplyStatus;
+  enabled?: boolean;
 }) => {
   return useInfiniteQuery({
     queryKey: ['entryList', groupStudyId, status],
@@ -30,7 +32,7 @@ export const useApplicantsByStatusQuery = ({
     getNextPageParam: (lastPage) =>
       lastPage.hasNext ? lastPage.page + 1 : undefined,
     maxPages: 3,
-    enabled: !!groupStudyId,
+    enabled: enabled && !!groupStudyId,
   });
 };
 
