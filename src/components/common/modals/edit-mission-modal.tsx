@@ -5,9 +5,14 @@ import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/common/ui/button';
 import DatePicker from '@/components/common/ui/date-picker';
+import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import FormField from '@/components/common/ui/form/form-field';
-import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
+import { BaseInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
+import {
+  requestMentorMarkdownImageUploadTicket,
+  uploadMarkdownImageFile,
+} from '@/features/mentoring/model/mentor-markdown-image-upload';
 import {
   useGetMission,
   useGetMissions,
@@ -17,8 +22,17 @@ import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   createDisabledDateMatcherForMission,
-  MissionPeriod,
+  type MissionPeriod,
 } from '@/utils/time';
+
+const uploadMissionMarkdownImage = async (file: File) => {
+  const ticket = await requestMentorMarkdownImageUploadTicket({
+    fileName: file.name,
+  });
+  await uploadMarkdownImageFile({ uploadUrl: ticket.uploadUrl, file });
+
+  return ticket.publicUrl;
+};
 
 // Form Schema
 const EditMissionFormSchema = z.object({
@@ -244,15 +258,10 @@ function EditMissionForm({
             label="수행 가이드"
             direction="vertical"
             required
-            maxCharCount={5000}
-            showCounterRight={false}
           >
-            <TextAreaInput
-              id="guide"
+            <MarkdownEditor
               placeholder="미션 수행 가이드를 상세히 작성해 주세요."
-              maxLength={5000}
-              className="min-h-[230px]"
-              hideMeta
+              uploadImage={uploadMissionMarkdownImage}
             />
           </FormField>
 

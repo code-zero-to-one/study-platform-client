@@ -2,13 +2,31 @@
 
 import { useEffect, useState } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
+import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import FormField from '@/components/common/ui/form/form-field';
 import ImageUploadInput from '@/components/common/ui/image-upload-input';
 import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
+import {
+  requestMentorMarkdownImageUploadTicket as requestMarkdownImageUploadTicket,
+  uploadMarkdownImageFile,
+} from '@/features/mentoring/model/mentor-markdown-image-upload';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 
 import type { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
+
+const uploadGroupStudyMarkdownImage = async (file: File) => {
+  const ticket = await requestMarkdownImageUploadTicket({
+    fileName: file.name,
+  });
+
+  await uploadMarkdownImageFile({
+    uploadUrl: ticket.uploadUrl,
+    file,
+  });
+
+  return ticket.publicUrl;
+};
 
 export default function GroupStudyStepIntroduction() {
   const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
@@ -114,7 +132,10 @@ export default function GroupStudyStepIntroduction() {
         required
         scrollable
       >
-        <TextAreaInput placeholder="소개를 입력하세요." maxLength={1000} />
+        <MarkdownEditor
+          placeholder="스터디 소개를 자유롭게 작성해주세요."
+          uploadImage={uploadGroupStudyMarkdownImage}
+        />
       </FormField>
     </>
   );

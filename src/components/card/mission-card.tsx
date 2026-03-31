@@ -3,7 +3,7 @@
 import dayjs from 'dayjs';
 import { Lock } from 'lucide-react';
 import dynamic from 'next/dynamic';
-import { ComponentProps } from 'react';
+import { ComponentProps, SyntheticEvent } from 'react';
 
 import type { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/common/ui/badge';
@@ -122,32 +122,31 @@ export default function MissionCard({
       ? getDeadlineInfo(mission.endDate)
       : undefined;
 
+  const stopActionAreaPropagation = (event: SyntheticEvent) => {
+    event.stopPropagation();
+  };
+
   // 비가입자 2주차+ 잠금 카드
   if (isLocked) {
     return (
       <Tooltip
         trigger={
-          <li
-            className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-background-default p-300"
-            role="button"
-            tabIndex={0}
-            onClick={onLockedClick}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                onLockedClick?.();
-              }
-            }}
-          >
-            <MissionCardContent
-              title={mission.title}
-              weekNum={mission.weekNum}
-              statusConfig={statusConfig}
-              startDate={mission.startDate}
-              endDate={mission.endDate}
-              deadlineInfo={undefined}
-            />
-            <Lock className="text-text-subtle h-[18px] w-[18px] shrink-0" />
+          <li className="border-border-default rounded-100 border bg-background-default">
+            <button
+              type="button"
+              className="flex w-full cursor-pointer items-center justify-between p-300"
+              onClick={onLockedClick}
+            >
+              <MissionCardContent
+                title={mission.title}
+                weekNum={mission.weekNum}
+                statusConfig={statusConfig}
+                startDate={mission.startDate}
+                endDate={mission.endDate}
+                deadlineInfo={undefined}
+              />
+              <Lock className="text-text-subtle h-[18px] w-[18px] shrink-0" />
+            </button>
           </li>
         }
         value="스터디 가입 후 확인 가능"
@@ -159,62 +158,56 @@ export default function MissionCard({
   // 리더 + 진행 예정: 클릭 가능 + 수정/삭제 버튼 노출
   if (isLeader && mission.status === 'NOT_STARTED') {
     return (
-      <li
-        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
-        role="button"
-        tabIndex={0}
-        onClick={handleSelectMission}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleSelectMission();
-          }
-        }}
-      >
-        <MissionCardContent
-          title={mission.title}
-          weekNum={mission.weekNum}
-          statusConfig={statusConfig}
-          startDate={mission.startDate}
-          endDate={mission.endDate}
-          deadlineInfo={undefined}
-        />
-        <div className="flex flex-col gap-100">
-          <EditMissionModal
-            missionId={mission.missionId}
-            groupStudyId={groupStudyId}
+      <li className="border-border-default rounded-100 border bg-[#fff]">
+        <button
+          type="button"
+          className="flex w-full cursor-pointer items-center justify-between p-300"
+          onClick={handleSelectMission}
+        >
+          <MissionCardContent
+            title={mission.title}
+            weekNum={mission.weekNum}
+            statusConfig={statusConfig}
+            startDate={mission.startDate}
+            endDate={mission.endDate}
+            deadlineInfo={undefined}
           />
-          <DeleteMissionModal
-            missionId={mission.missionId}
-            groupStudyId={groupStudyId}
-          />
-        </div>
+          <div
+            className="flex flex-col gap-100"
+            role="none"
+            onClick={stopActionAreaPropagation}
+          >
+            <EditMissionModal
+              missionId={mission.missionId}
+              groupStudyId={groupStudyId}
+            />
+            <DeleteMissionModal
+              missionId={mission.missionId}
+              groupStudyId={groupStudyId}
+            />
+          </div>
+        </button>
       </li>
     );
   }
 
   if (isLeader && mission.status === 'ENDED') {
     return (
-      <li
-        className="border-border-default rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300"
-        role="button"
-        tabIndex={0}
-        onClick={handleSelectMission}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleSelectMission();
-          }
-        }}
-      >
-        <MissionCardContent
-          title={mission.title}
-          weekNum={mission.weekNum}
-          statusConfig={statusConfig}
-          startDate={mission.startDate}
-          endDate={mission.endDate}
-          deadlineInfo={undefined}
-        />
+      <li className="border-border-default rounded-100 border bg-[#fff]">
+        <button
+          type="button"
+          className="flex w-full cursor-pointer items-center justify-between p-300"
+          onClick={handleSelectMission}
+        >
+          <MissionCardContent
+            title={mission.title}
+            weekNum={mission.weekNum}
+            statusConfig={statusConfig}
+            startDate={mission.startDate}
+            endDate={mission.endDate}
+            deadlineInfo={undefined}
+          />
+        </button>
       </li>
     );
   }
@@ -224,29 +217,26 @@ export default function MissionCard({
     return (
       <li
         className={cn(
-          'rounded-100 flex cursor-pointer items-center justify-between border bg-[#fff] p-300',
+          'rounded-100 border bg-[#fff]',
           deadlineInfo?.isUrgent
             ? 'border-status-error'
             : 'border-border-default',
         )}
-        role="button"
-        tabIndex={0}
-        onClick={handleSelectMission}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            handleSelectMission();
-          }
-        }}
       >
-        <MissionCardContent
-          title={mission.title}
-          weekNum={mission.weekNum}
-          statusConfig={statusConfig}
-          startDate={mission.startDate}
-          endDate={mission.endDate}
-          deadlineInfo={deadlineInfo}
-        />
+        <button
+          type="button"
+          className="flex w-full cursor-pointer items-center justify-between p-300"
+          onClick={handleSelectMission}
+        >
+          <MissionCardContent
+            title={mission.title}
+            weekNum={mission.weekNum}
+            statusConfig={statusConfig}
+            startDate={mission.startDate}
+            endDate={mission.endDate}
+            deadlineInfo={deadlineInfo}
+          />
+        </button>
       </li>
     );
   }

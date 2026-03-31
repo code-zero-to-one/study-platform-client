@@ -18,6 +18,7 @@ import {
 
 import { useUserStore } from '@/stores/useUserStore';
 import { formatExternalLink } from '@/utils/format';
+import MarkdownContent from '../common/ui/editor/markdown-content';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),
@@ -122,9 +123,10 @@ export default function HomeworkDetailContent({
         </div>
 
         {/* 과제 내용 */}
-        <div className="text-text-default font-designer-14r whitespace-pre-wrap">
-          {homework.homeworkContent?.textContent}
-        </div>
+        <MarkdownContent
+          content={homework.homeworkContent?.textContent}
+          emptyMessage="과제 내용이 없습니다."
+        />
 
         {/* 제출한 과제 링크 */}
         {homework.homeworkContent?.optionalContent?.link && (
