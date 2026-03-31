@@ -141,6 +141,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       const { src, children } = props;
       if (!src) return null;
       const videoUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
+
       return (
         <MediaFigure>
           <video
@@ -159,6 +160,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       const { src, alt } = image;
       if (!src) return null;
       const imageUrl = src.startsWith('/') ? `${STRAPI_URL}${src}` : src;
+
       return (
         <MediaFigure>
           <Image
@@ -228,6 +230,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       const isVideoFile = /\.(mp4|webm|ogg|mov|avi|mkv)$/i.test(href);
       if (isVideoFile) {
         const videoUrl = href.startsWith('/') ? `${STRAPI_URL}${href}` : href;
+
         return (
           <MediaFigure>
             <video
@@ -269,6 +272,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
           </code>
         );
       }
+
       return (
         <code className="rounded-[3px] bg-[#F0F0F0] px-[5px] py-[2px] font-mono text-[13px] text-[#E03E1A]">
           {children}
@@ -302,6 +306,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
                   </p>
                 );
               }
+
               return null;
             })}
           </div>
@@ -350,6 +355,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
           ? `${STRAPI_URL}${fileData.url}`
           : fileData.url;
         if (!url) return null;
+
         return {
           url,
           mime: fileData.mime,
@@ -400,6 +406,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       else if (block.data && Array.isArray(block.data)) files = block.data;
 
       if (!files || files.length === 0) return null;
+
       return <ImageSlider key={index} files={files} />;
     }
 
