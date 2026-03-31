@@ -53,6 +53,7 @@ export function ToolbarButton({
       size="small"
       onClick={onClick}
       disabled={disabled}
+      aria-pressed={typeof isActive === 'boolean' ? isActive : undefined}
       className={cn(
         isActive &&
           'bg-background-neutral-subtle border-border-brand text-text-brand',

@@ -70,7 +70,7 @@ export const getExtensionFromMime = (mimeType: string): string => {
     'image/gif': 'gif',
   };
 
-  return map[mimeType] ?? 'png';
+  return map[mimeType] ?? mimeType.split('/')[1]?.toLowerCase() ?? '';
 };
 
 export const toImageInputAccept = (extensions: readonly string[]) => {

@@ -59,11 +59,16 @@ export function useImageUpload(
         return;
       }
 
-      const targetFiles = files.slice(0, remaining);
       const validFiles: File[] = [];
       const errors: string[] = [];
+      let hitLimit = false;
 
-      for (const file of targetFiles) {
+      for (const file of files) {
+        if (validFiles.length >= remaining) {
+          hitLimit = true;
+          break;
+        }
+
         const error = validateImageFileForUpload(file, resolvedImageConfig);
         if (error) {
           errors.push(error);
@@ -92,7 +97,7 @@ export function useImageUpload(
           }
         }
 
-        if (files.length > remaining) {
+        if (hitLimit) {
           errors.push(
             `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지 등록할 수 있습니다.`,
           );
@@ -138,12 +143,14 @@ export function useImageUpload(
         }
 
         const extension = getExtensionFromMime(blob.type);
-        const file = toFileFromBlob(blob, `pasted-image.${extension}`);
+        const file = toFileFromBlob(
+          blob,
+          extension ? `pasted-image.${extension}` : 'pasted-image',
+        );
 
-        if (file.size > resolvedImageConfig.maxImageFileSize) {
-          setImageInsertError(
-            `이미지가 ${Math.floor(resolvedImageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`,
-          );
+        const error = validateImageFileForUpload(file, resolvedImageConfig);
+        if (error) {
+          setImageInsertError(error);
 
           return;
         }
@@ -183,11 +190,9 @@ export function useImageUpload(
         }
 
         const blob = await clipboardItem.getType(imageType);
+        const ext = getExtensionFromMime(imageType);
         files.push(
-          toFileFromBlob(
-            blob,
-            `pasted-image.${getExtensionFromMime(blob.type)}`,
-          ),
+          toFileFromBlob(blob, ext ? `pasted-image.${ext}` : 'pasted-image'),
         );
       }
 
