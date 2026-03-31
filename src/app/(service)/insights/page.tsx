@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
 import {
   fetchArticles,
@@ -8,8 +9,11 @@ import {
 } from '@/api/strapi/api/fetch-articles';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
+import InsightsPagination from './ui/insights-pagination';
 
 export const revalidate = 60;
+
+const PAGE_SIZE = 10;
 
 export const metadata: Metadata = generateSEOMetadata({
   title: 'ZERO-ONE 인사이트',
@@ -37,27 +41,32 @@ function formatDate(dateString: string): string {
 }
 
 interface BlogPageProps {
-  searchParams: Promise<{ category?: string }>;
+  searchParams: Promise<{ category?: string; page?: string }>;
 }
 
 export default async function BlogPage({ searchParams }: BlogPageProps) {
-  const { category: selectedCategorySlug } = await searchParams;
+  const { category: selectedCategorySlug, page: pageParam } =
+    await searchParams;
 
-  const [categoriesRes, allArticlesRes] = await Promise.all([
+  const currentPage = Math.max(1, Number(pageParam) || 1);
+
+  const [categoriesRes, articlesRes, allArticlesForBadge] = await Promise.all([
     fetchCategories(),
-    fetchArticles(),
+    fetchArticles({
+      categorySlug: selectedCategorySlug,
+      page: currentPage,
+      pageSize: PAGE_SIZE,
+    }),
+    fetchArticles({ pageSize: 100 }),
   ]);
 
   const categories = categoriesRes.data ?? [];
-  const allArticles = allArticlesRes.data ?? [];
-
-  const articles = selectedCategorySlug
-    ? allArticles.filter((a) => a.category?.slug === selectedCategorySlug)
-    : allArticles;
+  const articles = articlesRes.data ?? [];
+  const totalPages = articlesRes.meta.pagination.pageCount;
 
   const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
   const recentCategorySlugs = new Set(
-    allArticles
+    (allArticlesForBadge.data ?? [])
       .filter((a) => new Date(a.publishedAt) >= threeDaysAgo)
       .map((a) => a.category?.slug)
       .filter((slug): slug is string => Boolean(slug)),
@@ -163,6 +172,16 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               </li>
             ))}
           </ul>
+        )}
+
+        {/* 페이지네이션 */}
+        {totalPages > 1 && (
+          <Suspense>
+            <InsightsPagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+            />
+          </Suspense>
         )}
       </div>
     </div>

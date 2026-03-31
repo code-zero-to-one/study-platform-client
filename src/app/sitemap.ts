@@ -100,7 +100,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 동적 페이지: 인사이트 상세 페이지
   const insightPages: MetadataRoute.Sitemap = [];
   try {
-    const articlesRes = await fetchArticles();
+    const articlesRes = await fetchArticles({ pageSize: 1000 });
     const articles = articlesRes.data || [];
 
     insightPages.push(

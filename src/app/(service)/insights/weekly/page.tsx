@@ -47,7 +47,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   // 카테고리 목록과 아티클 목록을 병렬로 가져오기
   const [categoriesRes, articlesRes] = await Promise.all([
     fetchCategories(),
-    fetchArticles(selectedCategorySlug),
+    fetchArticles({ categorySlug: selectedCategorySlug }),
   ]);
 
   const categories = categoriesRes.data ?? [];
