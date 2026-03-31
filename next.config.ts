@@ -19,6 +19,44 @@ if (process.env.ANALYZE === 'true') {
 const isProd = process.env.NODE_ENV === 'production';
 const isDev = process.env.NODE_ENV === 'development';
 
+const cspScriptSrcHosts = [
+  'https://www.googletagmanager.com',
+  'https://www.clarity.ms',
+  'https://scripts.clarity.ms',
+  'https://js.tosspayments.com',
+  'https://browser.sentry-cdn.com',
+  'https://static.cloudflareinsights.com',
+  'https://googleads.g.doubleclick.net',
+] as const;
+
+const cspImgSrcHosts = [
+  'https://img1.kakaocdn.net',
+  'https://lh3.googleusercontent.com',
+  'https://api.zeroone.it.kr',
+  'https://test-api.zeroone.it.kr',
+  'https://www.zeroone.it.kr',
+  'https://test-blog.zeroone.it.kr',
+  'https://www.google.com',
+  'https://www.google.co.kr',
+  'https://c.clarity.ms',
+  'https://c.bing.com',
+] as const;
+
+const cspConnectSrcHosts = [
+  'https://api.zeroone.it.kr',
+  'https://test-api.zeroone.it.kr',
+  'https://www.google-analytics.com',
+  'https://analytics.google.com',
+  'https://stats.g.doubleclick.net',
+  'https://www.google.com',
+  'https://www.clarity.ms',
+  'https://l.clarity.ms',
+  'https://api.tosspayments.com',
+  'https://kauth.kakao.com',
+  'https://accounts.google.com',
+  'https://*.ingest.sentry.io',
+] as const;
+
 const nextConfig: NextConfig = {
   // [보안] 보안 HTTP 헤더 설정.
   // CSP는 스테이징 검증 중이므로 Content-Security-Policy-Report-Only 모드로 먼저 배포.
@@ -26,13 +64,13 @@ const nextConfig: NextConfig = {
   async headers() {
     const cspDirectives = [
       "default-src 'self'",
-      // GTM, Clarity, 토스페이먼츠 스크립트 허용. 개발 환경에서는 'unsafe-eval' 추가(Next.js HMR 필요).
-      `script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.clarity.ms https://js.tosspayments.com https://browser.sentry-cdn.com${isDev ? " 'unsafe-eval'" : ''}`,
+      // 운영에서 실제 로드되는 GTM/Clarity/Cloudflare beacon 스크립트를 허용한다.
+      `script-src 'self' 'unsafe-inline' ${cspScriptSrcHosts.join(' ')}${isDev ? " 'unsafe-eval'" : ''}`,
       "style-src 'self' 'unsafe-inline'",
-      // 카카오·구글 프로필 이미지, 자사 API/CMS 이미지 도메인 허용
-      "img-src 'self' data: blob: https://img1.kakaocdn.net https://lh3.googleusercontent.com https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.zeroone.it.kr https://test-blog.zeroone.it.kr",
-      // API, GA, Clarity, 토스, 카카오/구글 OAuth 연결 허용. 개발에서는 HMR WebSocket 추가.
-      `connect-src 'self' https://api.zeroone.it.kr https://test-api.zeroone.it.kr https://www.google-analytics.com https://www.clarity.ms https://api.tosspayments.com https://kauth.kakao.com https://accounts.google.com https://*.ingest.sentry.io${isDev ? ' ws://localhost:*' : ''}`,
+      // 프로필 이미지와 현재 운영에서 사용 중인 Google/Clarity 추적 픽셀을 허용한다.
+      `img-src 'self' data: blob: ${cspImgSrcHosts.join(' ')}`,
+      // 운영에서 실제 호출되는 GA4, Ads, Clarity 수집 엔드포인트를 허용한다.
+      `connect-src 'self' ${cspConnectSrcHosts.join(' ')}${isDev ? ' ws://localhost:*' : ''}`,
       // 토스 결제창 iframe 허용
       'frame-src https://pay.toss.im https://cert.tosspayments.com',
       "font-src 'self' data:",

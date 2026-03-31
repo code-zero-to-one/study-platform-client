@@ -28,10 +28,10 @@ export const AUTH_VENDORS = {
 export type AuthVendor = (typeof AUTH_VENDORS)[keyof typeof AUTH_VENDORS];
 
 /**
- * 브라우저 쿠키 조합을 해석한 인증 세션 상태다.
+ * 프론트엔드가 access token과 디코딩된 claim을 바탕으로 해석한 인증 세션 상태다.
  * - ANONYMOUS: 액세스 토큰이 없음
- * - PENDING_SIGNUP: 액세스 토큰은 있지만 회원 식별자가 없음
- * - AUTHENTICATED_MEMBER: 액세스 토큰과 회원 식별자가 모두 있음
+ * - PENDING_SIGNUP: guest token이라 회원가입 추가 진행이 필요함
+ * - AUTHENTICATED_MEMBER: 액세스 토큰이 정식 회원 claim을 가리킴
  */
 export const AUTH_SESSION_STATES = {
   ANONYMOUS: 'anonymous',

@@ -6,10 +6,9 @@ import ClarityInit from '@/components/common/analytics/clarity-init';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import Header from '@/components/common/layout/home-header';
 import GlobalToast from '@/components/common/ui/global-toast';
-import type { AuthHydrationSession } from '@/features/auth/model/auth-hydration-context';
+import { createAuthHydrationSession } from '@/features/auth/model/auth-hydration-session';
 import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 import MainProvider from '@/providers';
-import { AUTH_SESSION_STATES } from '@/types/auth/domain';
 import { getOrganizationSchema, getWebsiteSchema } from '@/utils/seo';
 
 export const metadata: Metadata = {
@@ -57,16 +56,7 @@ export default async function LandingPageLayout({
   children: React.ReactNode;
 }>) {
   const initialSession = await readServerAuthSession();
-  const initialHydrationSession: AuthHydrationSession = {
-    accessToken:
-      initialSession.sessionState === AUTH_SESSION_STATES.ANONYMOUS
-        ? undefined
-        : initialSession.accessToken,
-    memberId:
-      initialSession.sessionState === AUTH_SESSION_STATES.AUTHENTICATED_MEMBER
-        ? initialSession.memberId
-        : undefined,
-  };
+  const initialHydrationSession = createAuthHydrationSession(initialSession);
   const organizationSchema = getOrganizationSchema();
   const websiteSchema = getWebsiteSchema();
 

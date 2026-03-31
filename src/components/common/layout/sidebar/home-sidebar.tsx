@@ -1,11 +1,14 @@
 import Image from 'next/image';
-import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
 import MyProfileCard from '@/components/common/cards/my-profile-card';
 import StartStudyModal from '@/components/common/modals/start-study-modal';
 import Calendar from '@/components/home/calendar';
 import FeedbackLink from '@/components/home/feedback-link';
 import TodoList from '@/components/lists/todo-list';
 import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
+import {
+  SERVER_USER_PROFILE_RESULT_KINDS,
+  tryGetUserProfileInServer,
+} from '@/features/auth/model/server-user-profile-result';
 import type { SincerityTemp } from '@/types/api/user.types';
 
 export default async function Sidebar() {
@@ -15,7 +18,11 @@ export default async function Sidebar() {
     return null;
   }
 
-  const userProfile = await tryGetUserProfileInServer(memberId);
+  const profileResult = await tryGetUserProfileInServer(memberId);
+  const userProfile =
+    profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS
+      ? profileResult.profile
+      : null;
 
   const fallbackSincerityTemp: SincerityTemp = {
     temperature: 36.5,
