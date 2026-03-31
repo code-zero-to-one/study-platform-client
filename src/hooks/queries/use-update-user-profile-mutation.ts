@@ -17,7 +17,6 @@ import type {
 } from '@/types/api/my-page.types';
 
 export const useUpdateUserProfileMutation = (memberId: number) => {
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -37,7 +36,6 @@ export const useUpdateUserProfileMutation = (memberId: number) => {
       await queryClient.invalidateQueries({
         queryKey: mentorDirectoryQueryKeys.all,
       });
-      router.refresh();
     },
   });
 };

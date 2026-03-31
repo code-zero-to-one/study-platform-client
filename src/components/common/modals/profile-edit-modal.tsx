@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useQueryClient } from '@tanstack/react-query';
 import { XIcon } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useMemo, useRef, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
@@ -75,6 +76,7 @@ function ProfileEditForm({
   memberId,
   onClose,
 }: Props & { onClose: () => void }) {
+  const router = useRouter();
   const showToast = useToastStore((state) => state.showToast);
   const queryClient = useQueryClient();
   const { mutateAsync: updateProfile } = useUpdateUserProfileMutation(memberId);
@@ -146,6 +148,7 @@ function ProfileEditForm({
     await queryClient.invalidateQueries({
       queryKey: ['userProfile', memberId],
     });
+    router.refresh();
     onClose();
   };
 
