@@ -4,15 +4,16 @@ import Badge from '@/components/common/ui/badge';
 import {
   COMMUNITY_BOARD,
   COMMUNITY_MEMBER_ROLE,
-  type CommunityBoard,
+  COMMUNITY_UNSUPPORTED_BOARD,
   type CommunityMemberRole,
+  type CommunityPostBoard,
 } from '@/types/community/domain';
 
 type BadgeColor = ComponentProps<typeof Badge>['color'];
 type BoardIcon = ComponentType<SVGProps<SVGSVGElement>>;
 
 const BOARD_META: Record<
-  CommunityBoard,
+  CommunityPostBoard,
   { color: BadgeColor; icon: BoardIcon; label: string }
 > = {
   [COMMUNITY_BOARD.QNA]: {
@@ -35,9 +36,14 @@ const BOARD_META: Record<
     icon: FileText,
     label: 'IT 지식',
   },
+  [COMMUNITY_UNSUPPORTED_BOARD]: {
+    color: 'gray',
+    icon: MessageSquareText,
+    label: '알 수 없는 게시판',
+  },
 } as const;
 
-export const getCommunityBoardMeta = (board: CommunityBoard) =>
+export const getCommunityBoardMeta = (board: CommunityPostBoard) =>
   BOARD_META[board];
 
 const ROLE_META: Record<
@@ -56,6 +62,10 @@ const ROLE_META: Record<
     color: 'orange',
     label: '멘토',
   },
+  [COMMUNITY_MEMBER_ROLE.UNKNOWN]: {
+    color: 'gray',
+    label: '사용자',
+  },
 } as const;
 
 export const getCommunityRoleMeta = (role: CommunityMemberRole) =>
@@ -65,7 +75,7 @@ export function CommunityBoardBadge({
   board,
   showIcon = true,
 }: {
-  board: CommunityBoard;
+  board: CommunityPostBoard;
   showIcon?: boolean;
 }) {
   const meta = getCommunityBoardMeta(board);

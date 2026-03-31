@@ -18,6 +18,7 @@ import {
   COMMUNITY_FEED_VIEW,
   type CommunityFeedView,
 } from '@/types/community/domain';
+import type { CommunityQnaQuestionSummary } from '@/types/community/qna-domain';
 import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import {
   CommunityBoardBadge,
@@ -27,6 +28,8 @@ import CommunityPostCard from './community-post-card';
 import CommunityPostListItem from './community-post-list-item';
 import CommunityPostOwnerActions from './community-post-owner-actions';
 import CommunityPostStats from './community-post-stats';
+import CommunityQnaQuestionCard from './community-qna-question-card';
+import CommunityQnaQuestionListItem from './community-qna-question-list-item';
 import CommunitySectionShell from './community-section-shell';
 
 const VIEW_ICON = {
@@ -38,10 +41,14 @@ interface CommunityFeedSectionProps {
   activeFilter: CommunityFeedFilter;
   activeView: CommunityFeedView;
   currentPage: number;
+  errorMessage?: string;
   featuredPosts: readonly CommunityPost[];
   filterOptions: readonly CommunityFeedFilterOption[];
+  isLoading?: boolean;
+  isQnaFilter?: boolean;
   postCount: number;
   posts: readonly CommunityPost[];
+  qnaQuestions: readonly CommunityQnaQuestionSummary[];
   showPagination: boolean;
   totalPages: number;
   viewOptions: readonly CommunityFeedViewOption[];
@@ -143,10 +150,14 @@ export default function CommunityFeedSection({
   activeFilter,
   activeView,
   currentPage,
+  errorMessage,
   featuredPosts,
   filterOptions,
+  isLoading = false,
+  isQnaFilter = false,
   postCount,
   posts,
+  qnaQuestions,
   showPagination,
   totalPages,
   viewOptions,
@@ -155,18 +166,26 @@ export default function CommunityFeedSection({
   onViewChange,
 }: CommunityFeedSectionProps) {
   const shouldShowFeaturedPosts =
+    !isQnaFilter &&
     activeFilter === COMMUNITY_FEED_FILTER.ALL &&
     currentPage === 1 &&
     featuredPosts.length > 0;
+  const sectionTitle = isQnaFilter ? '질문' : '게시글';
+  const emptyMessage = isQnaFilter
+    ? '아직 등록된 질문이 없습니다.'
+    : '아직 등록된 커뮤니티 글이 없습니다.';
+  const loadingMessage = isQnaFilter
+    ? '질문을 불러오는 중입니다.'
+    : '게시글을 불러오는 중입니다.';
 
   return (
     <CommunitySectionShell id="community-feed" className="gap-300">
       <div className="flex flex-col gap-200 border-b border-border-subtle pb-200">
         <div className="flex flex-col gap-150 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-end gap-150">
-            <p className="font-designer-24b text-text-strong">게시글</p>
+            <p className="font-designer-24b text-text-strong">{sectionTitle}</p>
             <p className="font-designer-13r text-text-subtle">
-              {postCount}개
+              {isLoading ? '불러오는 중' : `${postCount}개`}
             </p>
           </div>
 
@@ -263,12 +282,62 @@ export default function CommunityFeedSection({
       ) : null}
 
       {activeView === COMMUNITY_FEED_VIEW.LIST ? (
-        <div className="flex flex-col">
-          {posts.map((post) => (
-            <CommunityPostListItem
-              key={post.id}
+        errorMessage ? (
+          <p className="py-300 font-designer-14r text-text-error">
+            {errorMessage}
+          </p>
+        ) : isLoading ? (
+          <p className="py-300 font-designer-14r text-text-subtle">
+            {loadingMessage}
+          </p>
+        ) : posts.length === 0 &&
+          qnaQuestions.length === 0 &&
+          featuredPosts.length === 0 ? (
+          <p className="py-300 font-designer-14r text-text-subtle">
+            {emptyMessage}
+          </p>
+        ) : isQnaFilter ? (
+          <div className="flex flex-col">
+            {qnaQuestions.map((question) => (
+              <CommunityQnaQuestionListItem
+                key={question.id}
+                currentPage={currentPage}
+                question={question}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col">
+            {posts.map((post) => (
+              <CommunityPostListItem
+                key={post.id}
+                currentPage={currentPage}
+                post={post}
+              />
+            ))}
+          </div>
+        )
+      ) : errorMessage ? (
+        <p className="py-300 font-designer-14r text-text-error">
+          {errorMessage}
+        </p>
+      ) : isLoading ? (
+        <p className="py-300 font-designer-14r text-text-subtle">
+          {loadingMessage}
+        </p>
+      ) : posts.length === 0 &&
+        qnaQuestions.length === 0 &&
+        featuredPosts.length === 0 ? (
+        <p className="py-300 font-designer-14r text-text-subtle">
+          {emptyMessage}
+        </p>
+      ) : isQnaFilter ? (
+        <div className="grid gap-250 md:grid-cols-2">
+          {qnaQuestions.map((question) => (
+            <CommunityQnaQuestionCard
+              key={question.id}
               currentPage={currentPage}
-              post={post}
+              question={question}
             />
           ))}
         </div>

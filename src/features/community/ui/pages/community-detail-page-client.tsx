@@ -5,35 +5,32 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import PageContainer from '@/components/common/ui/page-container';
-import { COMMUNITY_MOCK_AUTHOR } from '@/features/community/model/community-page-mock-data';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
-import MentorMarkdownContent from '@/features/mentoring/ui/registration/mentor-markdown-content';
 import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
-import type { CommunityPost } from '@/types/community/domain';
+import { useUserStore } from '@/stores/useUserStore';
 import CommunityAuthorProfileCard from '../community-author-profile-card';
 import CommunityCommentSection from '../community-comment-section';
 import CommunityDetailFeedSection from '../community-detail-feed-section';
+import CommunityMarkdownContent from '../community-markdown-content';
 import { CommunityBoardBadge } from '../community-meta-badge';
 import CommunityPostOwnerActions from '../community-post-owner-actions';
 import CommunityReactionButton from '../community-reaction-button';
 import CommunitySectionShell from '../community-section-shell';
 
 interface CommunityDetailPageClientProps {
-  initialPost?: CommunityPost;
   postId: number;
   returnPage?: number;
 }
 
 export default function CommunityDetailPageClient({
-  initialPost,
   postId,
   returnPage,
 }: CommunityDetailPageClientProps) {
   const { state, actions, viewModel } = useCommunityDetailController({
-    initialPost,
     postId,
   });
+  const viewerImage = useUserStore((store) => store.profileImageUrl);
   const [isFeedVisible, setIsFeedVisible] = useState(false);
   const backHref = buildCommunityListHref(returnPage);
   const feedTriggerRef = useIntersectionObserver(
@@ -58,6 +55,30 @@ export default function CommunityDetailPageClient({
           <p className="font-designer-16r text-text-subtle">
             글을 불러오는 중입니다.
           </p>
+        </CommunitySectionShell>
+      </PageContainer>
+    );
+  }
+
+  if (state.errorMessage) {
+    return (
+      <PageContainer className="flex flex-col gap-500 xl:gap-600">
+        <CommunitySectionShell className="gap-250">
+          <Link
+            href={backHref}
+            className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
+          >
+            <ChevronLeft className="h-16 w-16" />
+            커뮤니티로 돌아가기
+          </Link>
+          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
+            <p className="font-designer-20b text-text-strong">
+              글을 불러오지 못했습니다.
+            </p>
+            <p className="mt-100 font-designer-14r text-text-subtle">
+              {state.errorMessage}
+            </p>
+          </div>
         </CommunitySectionShell>
       </PageContainer>
     );
@@ -131,11 +152,8 @@ export default function CommunityDetailPageClient({
               isActive={viewModel.isLikedByViewer}
               count={viewModel.reactionCount}
               onClick={actions.handleToggleLike}
-              ariaLabel={
-                viewModel.isLikedByViewer
-                  ? '좋아요 취소'
-                  : '좋아요'
-              }
+              disabled={!viewModel.isPostReactionEnabled}
+              ariaLabel={viewModel.isLikedByViewer ? '좋아요 취소' : '좋아요'}
             />
           </div>
         </div>
@@ -156,7 +174,7 @@ export default function CommunityDetailPageClient({
         ) : null}
 
         {hasRichContent ? (
-          <MentorMarkdownContent content={state.post.contentHtml ?? ''} />
+          <CommunityMarkdownContent content={state.post.contentHtml ?? ''} />
         ) : (
           <div className="flex flex-col gap-250">
             {state.post.content.map((paragraph, index) => (
@@ -174,7 +192,18 @@ export default function CommunityDetailPageClient({
       <CommunityCommentSection
         comments={viewModel.comments}
         commentCount={viewModel.commentCount}
-        viewerImage={COMMUNITY_MOCK_AUTHOR.image}
+        commentPlaceholder={
+          state.isAuthenticated
+            ? '댓글을 남겨보세요.'
+            : '로그인 후 댓글을 남길 수 있습니다.'
+        }
+        currentPage={viewModel.currentCommentsPage}
+        errorMessage={state.commentsErrorMessage}
+        isLoading={state.isCommentsLoading}
+        isCommentDisabled={!state.isAuthenticated}
+        showPagination={viewModel.showCommentPagination}
+        totalPages={viewModel.totalCommentPages}
+        viewerImage={viewerImage ?? '/profile-default.svg'}
         commentDraft={state.commentDraft}
         editingCommentId={state.editingCommentId}
         editingDraft={state.editingDraft}
@@ -191,6 +220,7 @@ export default function CommunityDetailPageClient({
         onSubmitComment={actions.handleSubmitComment}
         onSubmitEditedComment={actions.handleSubmitEditedComment}
         onSubmitReply={actions.handleSubmitReply}
+        onChangePage={actions.handleCommentPageChange}
         onToggleCommentReaction={actions.handleToggleCommentReaction}
       />
 

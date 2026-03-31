@@ -36,6 +36,36 @@ export const buildCommunityPostHref = (postId: number, page?: number) => {
   return normalizedPage ? `${detailPath}?page=${normalizedPage}` : detailPath;
 };
 
+export const buildCommunityQuestionHref = (
+  questionId: number,
+  page?: number,
+) => {
+  const normalizedPage =
+    typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const detailPath = `/community/questions/${questionId}`;
+
+  return normalizedPage ? `${detailPath}?page=${normalizedPage}` : detailPath;
+};
+
+export const buildCommunityQuestionWriteHref = (page?: number) => {
+  const normalizedPage =
+    typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const writePath = '/community/questions/write';
+
+  return normalizedPage ? `${writePath}?page=${normalizedPage}` : writePath;
+};
+
+export const buildCommunityQuestionEditHref = (
+  questionId: number,
+  page?: number,
+) => {
+  const normalizedPage =
+    typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const editPath = `/community/questions/${questionId}/edit`;
+
+  return normalizedPage ? `${editPath}?page=${normalizedPage}` : editPath;
+};
+
 export const buildCommunityEditHref = (postId: number, page?: number) => {
   const normalizedPage =
     typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;

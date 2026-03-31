@@ -6,8 +6,51 @@ import {
   AvatarImage as RadixAvatarImage,
 } from '@radix-ui/react-avatar';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { cn } from '../(shadcn)/lib/utils';
+
+const INVALID_AVATAR_SENTINEL = 'LOCAL';
+
+const normalizeAvatarPath = (value: string) => {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) {
+    return '';
+  }
+
+  const normalizedValue = trimmedValue.replace(/\/+$/, '');
+
+  return normalizedValue || '/';
+};
+
+const isKnownInvalidAvatarImage = (value: string) => {
+  const trimmedValue = value.trim();
+
+  if (!trimmedValue) {
+    return true;
+  }
+
+  if (trimmedValue.toUpperCase() === INVALID_AVATAR_SENTINEL) {
+    return true;
+  }
+
+  if (trimmedValue.startsWith('/')) {
+    return (
+      normalizeAvatarPath(trimmedValue).toUpperCase() ===
+      `/${INVALID_AVATAR_SENTINEL}`
+    );
+  }
+
+  try {
+    const parsedUrl = new URL(trimmedValue);
+
+    return (
+      normalizeAvatarPath(parsedUrl.pathname).toUpperCase() ===
+      `/${INVALID_AVATAR_SENTINEL}`
+    );
+  } catch {
+    return false;
+  }
+};
 
 interface UserAvatarProps {
   image: string | undefined;
@@ -28,12 +71,14 @@ export default function Avatar({
   const [isError, setIsError] = useState(false);
   const fallbackSize = typeof size === 'number' ? size : 32;
 
-  // 유효하지 않은 이미지 URL 필터링 (LOCAL, 빈 문자열, 상대 경로만 있는 경우 등)
+  useEffect(() => {
+    setIsError(false);
+  }, [image]);
+
   const isValidImage =
     image &&
     typeof image === 'string' &&
-    image.trim() !== '' &&
-    image.toUpperCase() !== 'LOCAL' &&
+    !isKnownInvalidAvatarImage(image) &&
     (image.startsWith('http://') ||
       image.startsWith('https://') ||
       image.startsWith('blob:') ||

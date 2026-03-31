@@ -1,37 +1,18 @@
 import type { CommunityPost } from '@/types/community/domain';
-import { extractImageUrls } from '@/types/mentoring/markdown';
+import {
+  extractCommunityMarkdownPlainText,
+  extractImageUrls,
+  hasMeaningfulCommunityMarkdownContent,
+} from '@/types/community/markdown';
 
 const COMMUNITY_SUMMARY_MAX_LENGTH = 140;
 
-const COMMUNITY_HTML_BREAK_TAGS =
-  /<(br|\/p|\/div|\/li|\/blockquote|\/h[1-6])[^>]*>/gi;
-const COMMUNITY_HTML_TAGS = /<[^>]+>/g;
-
-const decodeHtmlEntities = (content: string) => {
-  return content
-    .replace(/&nbsp;/gi, ' ')
-    .replace(/&amp;/gi, '&')
-    .replace(/&lt;/gi, '<')
-    .replace(/&gt;/gi, '>')
-    .replace(/&quot;/gi, '"')
-    .replace(/&#39;/gi, "'");
-};
-
 export const extractCommunityPlainText = (content: string) => {
-  const normalizedContent = decodeHtmlEntities(content)
-    .replace(COMMUNITY_HTML_BREAK_TAGS, '\n')
-    .replace(COMMUNITY_HTML_TAGS, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-
-  return normalizedContent;
+  return extractCommunityMarkdownPlainText(content);
 };
 
 export const hasMeaningfulCommunityContent = (content: string) => {
-  return (
-    extractCommunityPlainText(content).length > 0 ||
-    extractImageUrls(content).length > 0
-  );
+  return hasMeaningfulCommunityMarkdownContent(content);
 };
 
 export const createCommunityPostSummary = (content: string) => {

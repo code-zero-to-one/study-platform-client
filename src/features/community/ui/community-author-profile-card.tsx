@@ -12,6 +12,8 @@ interface CommunityAuthorProfileCardProps {
 export default function CommunityAuthorProfileCard({
   post,
 }: CommunityAuthorProfileCardProps) {
+  const hasAuthorIntro = post.authorIntro.trim().length > 0;
+
   return (
     <section className="flex items-start gap-200">
       <Avatar image={post.authorImage} alt={post.authorName} size={56} />
@@ -26,9 +28,11 @@ export default function CommunityAuthorProfileCard({
           <CommunityMemberRoleBadge role={post.role} />
         </div>
 
-        <p className="mt-100 font-designer-14r leading-250 text-text-subtle">
-          {post.authorIntro}
-        </p>
+        {hasAuthorIntro ? (
+          <p className="mt-100 font-designer-14r leading-250 text-text-subtle">
+            {post.authorIntro}
+          </p>
+        ) : null}
       </div>
     </section>
   );

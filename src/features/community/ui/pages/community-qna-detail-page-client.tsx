@@ -1,0 +1,243 @@
+"use client";
+
+import { ChevronLeft } from "lucide-react";
+import Link from "next/link";
+import PageContainer from "@/components/common/ui/page-container";
+import Pagination from "@/components/common/ui/pagination";
+import { buildCommunityListHref } from "@/features/community/model/community-route";
+import { useCommunityQnaDetailController } from "@/features/community/model/use-community-qna-detail-controller";
+import CommunityMarkdownContent from "../community-markdown-content";
+import CommunityQnaAnswerAcceptanceActions from "../community-qna-answer-acceptance-actions";
+import CommunityQnaAnswerCommentsSection from "../community-qna-answer-comments-section";
+import CommunityQnaAnswerComposeSection from "../community-qna-answer-compose-section";
+import CommunityQnaAnswerItem from "../community-qna-answer-item";
+import CommunityQnaAuthorSummary from "../community-qna-author-summary";
+import CommunityQnaQuestionCommentsSection from "../community-qna-question-comments-section";
+import CommunityQnaQuestionOwnerActions from "../community-qna-question-owner-actions";
+import CommunitySectionShell from "../community-section-shell";
+
+interface CommunityQnaDetailPageClientProps {
+  questionId: number;
+  returnPage?: number;
+  initialAnswerPage?: number;
+  initialCommentPage?: number;
+}
+
+export default function CommunityQnaDetailPageClient({
+  questionId,
+  returnPage,
+  initialAnswerPage,
+  initialCommentPage,
+}: CommunityQnaDetailPageClientProps) {
+  const { state, actions, viewModel } = useCommunityQnaDetailController({
+    questionId,
+    initialAnswerPage,
+    initialCommentPage,
+  });
+  const backHref = buildCommunityListHref(returnPage);
+
+  if (!state.isResolved) {
+    return (
+      <PageContainer className="flex flex-col gap-500 xl:gap-600">
+        <CommunitySectionShell className="gap-250">
+          <p className="font-designer-16r text-text-subtle">
+            질문을 불러오는 중입니다.
+          </p>
+        </CommunitySectionShell>
+      </PageContainer>
+    );
+  }
+
+  if (state.errorMessage) {
+    return (
+      <PageContainer className="flex flex-col gap-500 xl:gap-600">
+        <CommunitySectionShell className="gap-250">
+          <Link
+            href={backHref}
+            className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
+          >
+            <ChevronLeft className="h-16 w-16" />
+            커뮤니티로 돌아가기
+          </Link>
+          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
+            <p className="font-designer-20b text-text-strong">
+              질문을 불러오지 못했습니다.
+            </p>
+            <p className="mt-100 font-designer-14r text-text-subtle">
+              {state.errorMessage}
+            </p>
+          </div>
+        </CommunitySectionShell>
+      </PageContainer>
+    );
+  }
+
+  if (state.isNotFound || !state.question || !state.viewer) {
+    return (
+      <PageContainer className="flex flex-col gap-500 xl:gap-600">
+        <CommunitySectionShell className="gap-250">
+          <Link
+            href={backHref}
+            className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
+          >
+            <ChevronLeft className="h-16 w-16" />
+            커뮤니티로 돌아가기
+          </Link>
+          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
+            <p className="font-designer-20b text-text-strong">
+              질문을 찾을 수 없어요.
+            </p>
+            <p className="mt-100 font-designer-14r text-text-subtle">
+              목록으로 돌아가 다른 질문을 확인해 주세요.
+            </p>
+          </div>
+        </CommunitySectionShell>
+      </PageContainer>
+    );
+  }
+
+  return (
+    <PageContainer className="flex flex-col gap-400 xl:gap-500">
+      <CommunitySectionShell className="gap-250 border-b border-border-subtle pb-300">
+        <Link
+          href={backHref}
+          className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
+        >
+          <ChevronLeft className="h-16 w-16" />
+          커뮤니티로 돌아가기
+        </Link>
+
+        <div className="flex flex-wrap items-center gap-100">
+          {state.question.acceptedAnswerId ? (
+            <span className="rounded-full bg-fill-brand-subtle-default px-100 py-50 font-designer-12b text-text-brand">
+              채택 완료
+            </span>
+          ) : (
+            <span className="rounded-full bg-fill-static-default px-100 py-50 font-designer-12b text-text-subtle">
+              답변 대기
+            </span>
+          )}
+          <span className="font-designer-14r text-text-subtlest">
+            {state.question.createdAt}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-200">
+          <div className="flex items-start justify-between gap-150">
+            <h1 className="font-designer-28b text-text-strong">
+              {state.question.title}
+            </h1>
+            <CommunityQnaQuestionOwnerActions
+              canDelete={state.viewer.canDeleteQuestion}
+              canEdit={state.viewer.canEditQuestion}
+              currentPage={returnPage}
+              questionId={state.question.id}
+              revision={state.question.revision}
+            />
+          </div>
+
+          <CommunityQnaAuthorSummary author={state.question.author} />
+
+          <div className="flex flex-wrap items-center gap-150">
+            <span className="font-designer-14r text-text-subtle">
+              조회 {state.question.stats.viewCount}
+            </span>
+            <span className="font-designer-14r text-text-subtle">
+              답변 {state.question.stats.answerCount}
+            </span>
+          </div>
+        </div>
+      </CommunitySectionShell>
+
+      <CommunitySectionShell className="gap-300">
+        <CommunityMarkdownContent content={state.question.contentHtml} />
+
+        <CommunityQnaQuestionCommentsSection
+          comments={state.questionCommentsPageData?.items ?? []}
+          commentCount={viewModel.questionCommentCount}
+          currentPage={viewModel.commentPage}
+          onRefetchQuestionDetail={actions.refetchQuestionDetail}
+          questionId={questionId}
+          totalPages={viewModel.commentTotalPages}
+          showPagination={viewModel.showCommentPagination}
+          onChangePage={actions.handleCommentPageChange}
+          viewer={state.viewer}
+        />
+      </CommunitySectionShell>
+
+      <CommunityQnaAnswerComposeSection
+        answers={state.answersPageData?.items ?? []}
+        onRefetchQuestionDetail={actions.refetchQuestionDetail}
+        questionId={questionId}
+        viewer={state.viewer}
+      >
+        {({ headerAction, panel }) => (
+          <CommunitySectionShell className="gap-250">
+            <div className="flex flex-wrap items-start justify-between gap-150 border-b border-border-subtle pb-200">
+              <div className="flex flex-col gap-50">
+                <p className="font-designer-24b text-text-strong">
+                  답변
+                  <span className="ml-75 font-designer-16m text-text-brand">
+                    ({viewModel.answerCount})
+                  </span>
+                </p>
+                <p className="font-designer-14r text-text-subtle">
+                  {viewModel.answerCtaDescription}
+                </p>
+              </div>
+              {headerAction}
+            </div>
+
+            {panel}
+
+            {state.answersPageData?.items.length ? (
+              <div className="flex flex-col gap-150">
+                {state.answersPageData.items.map((answer) => (
+                  <CommunityQnaAnswerItem
+                    key={answer.id}
+                    answer={answer}
+                    actionSlot={
+                      <CommunityQnaAnswerAcceptanceActions
+                        answer={answer}
+                        canAcceptAnswer={state.viewer.canAcceptAnswer}
+                        currentAcceptedAnswerId={
+                          state.question.acceptedAnswerId
+                        }
+                        currentAnswerPage={viewModel.answerPage}
+                        onChangeAnswerPage={actions.handleAnswerPageChange}
+                        onRefetchQuestionDetail={actions.refetchQuestionDetail}
+                        questionId={questionId}
+                      />
+                    }
+                    isMine={viewModel.myAnswerId === answer.id}
+                    commentSection={
+                      <CommunityQnaAnswerCommentsSection
+                        answer={answer}
+                        onRefetchQuestionDetail={actions.refetchQuestionDetail}
+                        questionId={questionId}
+                      />
+                    }
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-200 border border-border-subtle bg-background-default p-250">
+                <p className="font-designer-14r text-text-subtle">
+                  아직 등록된 답변이 없습니다.
+                </p>
+              </div>
+            )}
+
+            {viewModel.showAnswerPagination ? (
+              <Pagination
+                page={viewModel.answerPage}
+                totalPages={viewModel.answerTotalPages}
+                onChangePage={actions.handleAnswerPageChange}
+              />
+            ) : null}
+          </CommunitySectionShell>
+        )}
+      </CommunityQnaAnswerComposeSection>
+    </PageContainer>
+  );
+}

@@ -1,28 +1,38 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { useAuth } from '@/features/auth/model/use-auth';
 import {
-  COMMUNITY_COMMENT_REACTION,
-  type CommunityComment,
-  type CommunityCommentReaction,
-  type CommunityPost,
+  createCommunityIdempotencyKey,
+  getCommunityErrorMessage,
+  isCommunityNotFoundError,
+} from '@/features/community/api/community-api';
+import {
+  useAssignCommunityCommentReactionMutation,
+  useAssignCommunityPostReactionMutation,
+  useCreateCommunityCommentMutation,
+  useCreateCommunityReplyMutation,
+  useDeleteCommunityCommentMutation,
+  useRecordCommunityPostViewMutation,
+  useUpdateCommunityCommentMutation,
+} from '@/features/community/model/use-community-mutation';
+import {
+  useCommunityCommentsQuery,
+  useCommunityPostDetailQuery,
+} from '@/features/community/model/use-community-query';
+import { useToastStore } from '@/stores/use-toast-store';
+import type {
+  CommunityComment,
+  CommunityCommentReactionSelection,
 } from '@/types/community/domain';
-import {
-  getCommunityPostInteraction,
-  persistCommunityPostInteraction,
-} from './community-detail-storage';
-import {
-  COMMUNITY_MOCK_AUTHOR,
-  getCommunityMockCommentsByPostId,
-} from './community-page-mock-data';
-import { findCommunityPostById } from './community-post-storage';
 
 interface UseCommunityDetailControllerParams {
-  initialPost?: CommunityPost;
   postId: number;
 }
 
-const createCommentId = () => Date.now() + Math.floor(Math.random() * 1000);
+const COMMUNITY_COMMENTS_PAGE = 1;
+const COMMUNITY_COMMENTS_PAGE_SIZE = 20;
+const EMPTY_COMMENTS: readonly CommunityComment[] = [];
 
 const findCommentById = (
   comments: readonly CommunityComment[],
@@ -43,222 +53,30 @@ const findCommentById = (
   return undefined;
 };
 
-const insertReply = (
-  comments: readonly CommunityComment[],
-  parentCommentId: number,
-  nextReply: CommunityComment,
-): readonly CommunityComment[] =>
-  comments.map((comment) => {
-    if (comment.id === parentCommentId) {
-      return {
-        ...comment,
-        replies: [...comment.replies, nextReply],
-      };
-    }
-
-    if (comment.replies.length === 0) {
-      return comment;
-    }
-
-    return {
-      ...comment,
-      replies: insertReply(comment.replies, parentCommentId, nextReply),
-    };
-  });
-
-const updateCommentReaction = (
-  comments: readonly CommunityComment[],
-  commentId: number,
-  nextReaction: CommunityCommentReaction,
-): readonly CommunityComment[] =>
-  comments.map((comment) => {
-    if (comment.id === commentId) {
-      const isLikeRequest = nextReaction === COMMUNITY_COMMENT_REACTION.LIKE;
-      const isDislikeRequest =
-        nextReaction === COMMUNITY_COMMENT_REACTION.DISLIKE;
-      const isRemovingCurrentReaction = comment.viewerReaction === nextReaction;
-
-      return {
-        ...comment,
-        likeCount: isRemovingCurrentReaction
-          ? Math.max(
-              0,
-              comment.likeCount -
-                (comment.viewerReaction === COMMUNITY_COMMENT_REACTION.LIKE
-                  ? 1
-                  : 0),
-            )
-          : Math.max(
-              0,
-              comment.likeCount +
-                (isLikeRequest ? 1 : 0) -
-                (comment.viewerReaction === COMMUNITY_COMMENT_REACTION.LIKE
-                  ? 1
-                  : 0),
-            ),
-        dislikeCount: isRemovingCurrentReaction
-          ? Math.max(
-              0,
-              comment.dislikeCount -
-                (comment.viewerReaction === COMMUNITY_COMMENT_REACTION.DISLIKE
-                  ? 1
-                  : 0),
-            )
-          : Math.max(
-              0,
-              comment.dislikeCount +
-                (isDislikeRequest ? 1 : 0) -
-                (comment.viewerReaction === COMMUNITY_COMMENT_REACTION.DISLIKE
-                  ? 1
-                  : 0),
-            ),
-        viewerReaction: isRemovingCurrentReaction ? undefined : nextReaction,
-      };
-    }
-
-    if (comment.replies.length === 0) {
-      return comment;
-    }
-
-    return {
-      ...comment,
-      replies: updateCommentReaction(comment.replies, commentId, nextReaction),
-    };
-  });
-
-const updateCommentContent = (
-  comments: readonly CommunityComment[],
-  commentId: number,
-  nextContent: string,
-): readonly CommunityComment[] =>
-  comments.map((comment) => {
-    if (comment.id === commentId) {
-      return {
-        ...comment,
-        content: nextContent,
-        isEdited: true,
-      };
-    }
-
-    if (comment.replies.length === 0) {
-      return comment;
-    }
-
-    return {
-      ...comment,
-      replies: updateCommentContent(comment.replies, commentId, nextContent),
-    };
-  });
-
-const removeComment = (
-  comments: readonly CommunityComment[],
-  commentId: number,
-): {
-  deletedCount: number;
-  nextComments: readonly CommunityComment[];
-} => {
-  let deletedCount = 0;
-
-  const countNestedComments = (targets: readonly CommunityComment[]): number =>
-    targets.reduce(
-      (accumulator, target) =>
-        accumulator + 1 + countNestedComments(target.replies),
-      0,
-    );
-
-  const nextComments = comments.flatMap((comment) => {
-    if (comment.id === commentId) {
-      deletedCount += 1 + countNestedComments(comment.replies);
-
-      return [];
-    }
-
-    if (comment.replies.length === 0) {
-      return [comment];
-    }
-
-    const nextReplies = removeComment(comment.replies, commentId);
-
-    deletedCount += nextReplies.deletedCount;
-
-    return [
-      {
-        ...comment,
-        replies: nextReplies.nextComments,
-      },
-    ];
-  });
-
-  return {
-    deletedCount,
-    nextComments,
-  };
-};
-
-const resolveDetailState = (
-  postId: number,
-  fallbackPost?: CommunityPost,
-  useStoredInteraction = false,
-): {
-  comments: readonly CommunityComment[];
-  commentCount: number;
-  isLikedByViewer: boolean;
-  post?: CommunityPost;
-  reactionCount: number;
-} => {
-  const resolvedPost = useStoredInteraction
-    ? (findCommunityPostById(postId) ?? fallbackPost)
-    : fallbackPost;
-  const storedInteraction = useStoredInteraction
-    ? getCommunityPostInteraction(postId)
-    : undefined;
-
-  return {
-    post: resolvedPost,
-    comments:
-      storedInteraction?.comments ?? getCommunityMockCommentsByPostId(postId),
-    commentCount:
-      storedInteraction?.commentCount ?? resolvedPost?.commentCount ?? 0,
-    isLikedByViewer: storedInteraction?.isLikedByViewer ?? false,
-    reactionCount:
-      storedInteraction?.reactionCount ?? resolvedPost?.reactionCount ?? 0,
-  };
-};
-
-const createViewerComment = (content: string): CommunityComment => ({
-  id: createCommentId(),
-  authorName: COMMUNITY_MOCK_AUTHOR.name,
-  authorImage: COMMUNITY_MOCK_AUTHOR.image,
-  authorRole: COMMUNITY_MOCK_AUTHOR.role,
-  content,
-  createdAt: '방금',
-  isAuthor: true,
-  likeCount: 0,
-  dislikeCount: 0,
-  viewerReaction: undefined,
-  replies: [],
-});
-
 export const useCommunityDetailController = ({
-  initialPost,
   postId,
 }: UseCommunityDetailControllerParams) => {
-  const initialState = resolveDetailState(postId, initialPost);
+  const { isAuthenticated } = useAuth();
+  const showToast = useToastStore((state) => state.showToast);
+  const recordPostViewMutation = useRecordCommunityPostViewMutation();
+  const assignPostReactionMutation = useAssignCommunityPostReactionMutation();
+  const createCommentMutation = useCreateCommunityCommentMutation();
+  const createReplyMutation = useCreateCommunityReplyMutation();
+  const updateCommentMutation = useUpdateCommunityCommentMutation();
+  const deleteCommentMutation = useDeleteCommunityCommentMutation();
+  const assignCommentReactionMutation =
+    useAssignCommunityCommentReactionMutation();
+  const viewedPostIdRef = useRef<number | undefined>(undefined);
+  const [commentsPage, setCommentsPage] = useState(COMMUNITY_COMMENTS_PAGE);
 
-  const [post, setPost] = useState<CommunityPost | undefined>(
-    initialState.post,
-  );
-  const [isResolved, setIsResolved] = useState(Boolean(initialState.post));
-  const [comments, setComments] = useState<readonly CommunityComment[]>(
-    initialState.comments,
-  );
-  const [commentCount, setCommentCount] = useState(initialState.commentCount);
-  const [reactionCount, setReactionCount] = useState(
-    initialState.reactionCount,
-  );
-  const [isLikedByViewer, setIsLikedByViewer] = useState(
-    initialState.isLikedByViewer,
-  );
+  const postQuery = useCommunityPostDetailQuery(postId);
+  const commentsQuery = useCommunityCommentsQuery({
+    postId,
+    page: commentsPage,
+    size: COMMUNITY_COMMENTS_PAGE_SIZE,
+    enabled: postQuery.isSuccess,
+  });
+
   const [commentDraft, setCommentDraft] = useState('');
   const [replyTargetId, setReplyTargetId] = useState<number | undefined>();
   const [replyDraft, setReplyDraft] = useState('');
@@ -267,43 +85,115 @@ export const useCommunityDetailController = ({
   >();
   const [editingDraft, setEditingDraft] = useState('');
 
-  useEffect(() => {
-    const nextState = resolveDetailState(postId, initialPost, true);
+  const post = postQuery.data;
+  const comments = commentsQuery.data?.items ?? EMPTY_COMMENTS;
+  const totalCommentPages = Math.max(
+    commentsQuery.data?.totalPages ?? COMMUNITY_COMMENTS_PAGE,
+    COMMUNITY_COMMENTS_PAGE,
+  );
+  const currentCommentsPage = commentsQuery.data?.page ?? commentsPage;
+  const isNotFound = isCommunityNotFoundError(postQuery.error);
+  const isResolved = isNotFound || !postQuery.isPending;
+  const postErrorMessage = postQuery.isError
+    ? isNotFound
+      ? ''
+      : getCommunityErrorMessage(
+          postQuery.error,
+          '커뮤니티 글을 불러오지 못했습니다.',
+        )
+    : '';
+  const commentsErrorMessage = commentsQuery.isError
+    ? getCommunityErrorMessage(
+        commentsQuery.error,
+        '커뮤니티 댓글을 불러오지 못했습니다.',
+      )
+    : '';
 
-    setPost(nextState.post);
-    setComments(nextState.comments);
-    setCommentCount(nextState.commentCount);
-    setReactionCount(nextState.reactionCount);
-    setIsLikedByViewer(nextState.isLikedByViewer);
-    setCommentDraft('');
-    setReplyDraft('');
+  const resetReplyState = () => {
     setReplyTargetId(undefined);
+    setReplyDraft('');
+  };
+
+  const resetEditingState = () => {
     setEditingCommentId(undefined);
     setEditingDraft('');
-    setIsResolved(true);
-  }, [initialPost, postId]);
+  };
+
+  const resetPagedCommentInteractionState = () => {
+    resetReplyState();
+    resetEditingState();
+  };
 
   useEffect(() => {
+    setCommentsPage(COMMUNITY_COMMENTS_PAGE);
+    setCommentDraft('');
+    setReplyTargetId(undefined);
+    setReplyDraft('');
+    setEditingCommentId(undefined);
+    setEditingDraft('');
+    viewedPostIdRef.current = undefined;
+  }, [postId]);
+
+  useEffect(() => {
+    if (
+      commentsPage > totalCommentPages &&
+      !commentsQuery.isPending &&
+      !commentsQuery.isError
+    ) {
+      setReplyTargetId(undefined);
+      setReplyDraft('');
+      setEditingCommentId(undefined);
+      setEditingDraft('');
+      setCommentsPage(totalCommentPages);
+    }
+  }, [
+    commentsPage,
+    commentsQuery.isError,
+    commentsQuery.isPending,
+    totalCommentPages,
+  ]);
+
+  useEffect(() => {
+    if (replyTargetId && !findCommentById(comments, replyTargetId)) {
+      resetReplyState();
+    }
+
+    if (editingCommentId && !findCommentById(comments, editingCommentId)) {
+      resetEditingState();
+    }
+  }, [comments, editingCommentId, replyTargetId]);
+
+  useEffect(() => {
+    if (!post || viewedPostIdRef.current === post.id) {
+      return;
+    }
+
+    viewedPostIdRef.current = post.id;
+    recordPostViewMutation.mutate(post.id);
+  }, [post, recordPostViewMutation]);
+
+  const handleToggleLike = async () => {
     if (!post) {
       return;
     }
 
-    persistCommunityPostInteraction({
-      postId: post.id,
-      comments,
-      commentCount,
-      isLikedByViewer,
-      reactionCount,
-    });
-  }, [commentCount, comments, isLikedByViewer, post, reactionCount]);
+    if (!isAuthenticated) {
+      showToast('로그인 후 좋아요를 누를 수 있습니다.', 'info');
 
-  const handleToggleLike = () => {
-    const nextLikedState = !isLikedByViewer;
+      return;
+    }
 
-    setIsLikedByViewer(nextLikedState);
-    setReactionCount((prevCount) =>
-      nextLikedState ? prevCount + 1 : Math.max(0, prevCount - 1),
-    );
+    try {
+      await assignPostReactionMutation.mutateAsync({
+        postId: post.id,
+        type: post.viewerReaction === 'like' ? 'none' : 'like',
+      });
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '좋아요 처리에 실패했습니다.'),
+        'error',
+      );
+    }
   };
 
   const handleCommentDraftChange = (nextValue: string) => {
@@ -318,21 +208,49 @@ export const useCommunityDetailController = ({
     setEditingDraft(nextValue);
   };
 
-  const handleSubmitComment = () => {
+  const handleSubmitComment = async () => {
     const normalizedComment = commentDraft.trim();
 
-    if (!normalizedComment) {
+    if (!post || !normalizedComment) {
       return;
     }
 
-    const nextComment = createViewerComment(normalizedComment);
+    if (!isAuthenticated) {
+      showToast('로그인 후 댓글을 작성할 수 있습니다.', 'info');
 
-    setComments((prevComments) => [nextComment, ...prevComments]);
-    setCommentCount((prevCount) => prevCount + 1);
-    setCommentDraft('');
+      return;
+    }
+
+    try {
+      await createCommentMutation.mutateAsync({
+        postId: post.id,
+        content: normalizedComment,
+        idempotencyKey: createCommunityIdempotencyKey('community-comment'),
+      });
+      setCommentDraft('');
+      if (commentsPage !== COMMUNITY_COMMENTS_PAGE) {
+        resetPagedCommentInteractionState();
+        setCommentsPage(COMMUNITY_COMMENTS_PAGE);
+      }
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '댓글 등록에 실패했습니다.'),
+        'error',
+      );
+    }
   };
 
   const handleOpenReply = (commentId: number) => {
+    const targetComment = findCommentById(comments, commentId);
+
+    if (!targetComment?.canReply) {
+      if (!isAuthenticated) {
+        showToast('로그인 후 답글을 작성할 수 있습니다.', 'info');
+      }
+
+      return;
+    }
+
     setReplyTargetId(commentId);
     setReplyDraft('');
     setEditingCommentId(undefined);
@@ -344,31 +262,40 @@ export const useCommunityDetailController = ({
     setReplyDraft('');
   };
 
-  const handleSubmitReply = () => {
-    if (!replyTargetId) {
-      return;
-    }
-
+  const handleSubmitReply = async () => {
     const normalizedReply = replyDraft.trim();
 
-    if (!normalizedReply) {
+    if (!post || !replyTargetId || !normalizedReply) {
       return;
     }
 
-    const nextReply = createViewerComment(normalizedReply);
+    if (!isAuthenticated) {
+      showToast('로그인 후 답글을 작성할 수 있습니다.', 'info');
 
-    setComments((prevComments) =>
-      insertReply(prevComments, replyTargetId, nextReply),
-    );
-    setCommentCount((prevCount) => prevCount + 1);
-    setReplyDraft('');
-    setReplyTargetId(undefined);
+      return;
+    }
+
+    try {
+      await createReplyMutation.mutateAsync({
+        postId: post.id,
+        commentId: replyTargetId,
+        content: normalizedReply,
+        idempotencyKey: createCommunityIdempotencyKey('community-reply'),
+      });
+      setReplyDraft('');
+      setReplyTargetId(undefined);
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '답글 등록에 실패했습니다.'),
+        'error',
+      );
+    }
   };
 
   const handleStartEditingComment = (commentId: number) => {
     const targetComment = findCommentById(comments, commentId);
 
-    if (!targetComment) {
+    if (!targetComment?.canEdit) {
       return;
     }
 
@@ -383,60 +310,115 @@ export const useCommunityDetailController = ({
     setEditingDraft('');
   };
 
-  const handleSubmitEditedComment = () => {
-    if (!editingCommentId) {
-      return;
-    }
-
+  const handleSubmitEditedComment = async () => {
     const normalizedContent = editingDraft.trim();
 
-    if (!normalizedContent) {
+    if (!post || !editingCommentId || !normalizedContent) {
       return;
     }
 
-    setComments((prevComments) =>
-      updateCommentContent(prevComments, editingCommentId, normalizedContent),
-    );
-    setEditingCommentId(undefined);
-    setEditingDraft('');
-  };
+    const targetComment = findCommentById(comments, editingCommentId);
 
-  const handleDeleteComment = (commentId: number) => {
-    const nextState = removeComment(comments, commentId);
-
-    if (nextState.deletedCount === 0) {
+    if (!targetComment?.revision) {
       return;
     }
 
-    setComments(nextState.nextComments);
-    setCommentCount((prevCount) =>
-      Math.max(0, prevCount - nextState.deletedCount),
-    );
-
-    if (
-      replyTargetId &&
-      !findCommentById(nextState.nextComments, replyTargetId)
-    ) {
-      setReplyTargetId(undefined);
-      setReplyDraft('');
-    }
-
-    if (
-      editingCommentId &&
-      !findCommentById(nextState.nextComments, editingCommentId)
-    ) {
+    try {
+      await updateCommentMutation.mutateAsync({
+        postId: post.id,
+        commentId: editingCommentId,
+        revision: targetComment.revision,
+        content: normalizedContent,
+      });
       setEditingCommentId(undefined);
       setEditingDraft('');
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '댓글 수정에 실패했습니다.'),
+        'error',
+      );
     }
   };
 
-  const handleToggleCommentReaction = (
+  const handleDeleteComment = async (commentId: number) => {
+    if (!post) {
+      return;
+    }
+
+    const targetComment = findCommentById(comments, commentId);
+
+    if (!targetComment?.revision || !targetComment.canDelete) {
+      return;
+    }
+
+    try {
+      await deleteCommentMutation.mutateAsync({
+        postId: post.id,
+        commentId,
+        revision: targetComment.revision,
+      });
+
+      if (editingCommentId === commentId) {
+        setEditingCommentId(undefined);
+        setEditingDraft('');
+      }
+
+      if (replyTargetId === commentId) {
+        setReplyTargetId(undefined);
+        setReplyDraft('');
+      }
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '댓글 삭제에 실패했습니다.'),
+        'error',
+      );
+    }
+  };
+
+  const handleToggleCommentReaction = async (
     commentId: number,
-    nextReaction: CommunityCommentReaction,
+    nextReaction: CommunityCommentReactionSelection,
   ) => {
-    setComments((prevComments) =>
-      updateCommentReaction(prevComments, commentId, nextReaction),
-    );
+    if (!post) {
+      return;
+    }
+
+    if (!isAuthenticated) {
+      showToast('로그인 후 댓글 반응을 남길 수 있습니다.', 'info');
+
+      return;
+    }
+
+    const targetComment = findCommentById(comments, commentId);
+
+    if (!targetComment || targetComment.isDeleted) {
+      return;
+    }
+
+    try {
+      await assignCommentReactionMutation.mutateAsync({
+        postId: post.id,
+        commentId,
+        type:
+          targetComment.viewerReaction === nextReaction ? 'none' : nextReaction,
+      });
+    } catch (error) {
+      showToast(
+        getCommunityErrorMessage(error, '댓글 반응 처리에 실패했습니다.'),
+        'error',
+      );
+    }
+  };
+
+  const handleCommentPageChange = (nextPage: number) => {
+    const normalizedPage = Math.max(nextPage, COMMUNITY_COMMENTS_PAGE);
+
+    if (normalizedPage === commentsPage) {
+      return;
+    }
+
+    resetPagedCommentInteractionState();
+    setCommentsPage(normalizedPage);
   };
 
   return {
@@ -444,13 +426,18 @@ export const useCommunityDetailController = ({
       commentDraft,
       editingCommentId,
       editingDraft,
+      commentsErrorMessage,
+      isAuthenticated,
+      isCommentsLoading: commentsQuery.isPending,
       isResolved,
-      post,
+      errorMessage: postErrorMessage,
+      post: isNotFound ? undefined : post,
       replyDraft,
       replyTargetId,
     },
     actions: {
       handleCancelEditingComment,
+      handleCommentPageChange,
       handleCloseReply,
       handleCommentDraftChange,
       handleDeleteComment,
@@ -465,13 +452,18 @@ export const useCommunityDetailController = ({
       handleToggleLike,
     },
     viewModel: {
-      commentCount,
+      commentCount:
+        commentsQuery.data?.totalCommentCount ?? post?.commentCount ?? 0,
       comments,
+      currentCommentsPage,
       editingSubmitEnabled: editingDraft.trim().length > 0,
       isCommentSubmitEnabled: commentDraft.trim().length > 0,
-      isLikedByViewer,
+      isLikedByViewer: post?.viewerReaction === 'like',
+      isPostReactionEnabled: isAuthenticated,
       isReplySubmitEnabled: replyDraft.trim().length > 0,
-      reactionCount,
+      reactionCount: post?.reactionCount ?? 0,
+      showCommentPagination: totalCommentPages > COMMUNITY_COMMENTS_PAGE,
+      totalCommentPages,
     },
   };
 };

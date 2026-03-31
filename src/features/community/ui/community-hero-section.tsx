@@ -9,10 +9,14 @@ const DISCORD_BUTTON_IMAGE = '/images/community-discord-logo-blurple.svg';
 
 interface CommunityHeroSectionProps {
   discordUrl: string;
+  writeHref: string;
+  writeLabel: string;
 }
 
 export default function CommunityHeroSection({
   discordUrl,
+  writeHref,
+  writeLabel,
 }: CommunityHeroSectionProps) {
   return (
     <CommunitySectionShell className="gap-300 border-b border-border-subtle pb-400">
@@ -43,7 +47,7 @@ export default function CommunityHeroSection({
 
         <div className="flex">
           <Button asChild size="large">
-            <Link href="/community/write">글 작성하기</Link>
+            <Link href={writeHref}>{writeLabel}</Link>
           </Button>
         </div>
       </div>

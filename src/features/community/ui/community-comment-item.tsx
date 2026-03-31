@@ -15,8 +15,9 @@ import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
 import type {
   CommunityComment,
-  CommunityCommentReaction,
+  CommunityCommentReactionSelection,
 } from '@/types/community/domain';
+import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import CommunityCommentForm from './community-comment-form';
 import { CommunityMemberRoleBadge } from './community-meta-badge';
 
@@ -39,7 +40,7 @@ interface CommunityCommentItemProps {
   onSubmitReply: () => void;
   onToggleCommentReaction: (
     commentId: number,
-    nextReaction: CommunityCommentReaction,
+    nextReaction: CommunityCommentReactionSelection,
   ) => void;
 }
 
@@ -48,20 +49,23 @@ function CommunityCommentActionButton({
   label,
   count,
   isActive = false,
+  disabled = false,
   onClick,
 }: {
   icon: ReactNode;
   label?: string;
   count?: number;
   isActive?: boolean;
+  disabled?: boolean;
   onClick: () => void;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={disabled}
       className={cn(
-        'inline-flex items-center gap-75 font-designer-13m transition-colors',
+        'inline-flex items-center gap-75 font-designer-13m transition-colors disabled:cursor-not-allowed disabled:text-text-disabled',
         isActive
           ? 'text-text-strong'
           : 'text-text-subtle hover:text-text-default',
@@ -125,11 +129,18 @@ export default function CommunityCommentItem({
 
         <div className="min-w-0 flex-1">
           <div className="relative flex items-start gap-150">
-            <div className={cn('min-w-0', comment.isAuthor && 'pr-500')}>
+            <div
+              className={cn(
+                'min-w-0',
+                (comment.canEdit || comment.canDelete) && 'pr-500',
+              )}
+            >
               <div className="flex flex-wrap items-center gap-75">
-                <span className="font-designer-14b text-text-strong">
-                  {comment.authorName}
-                </span>
+                <CommunityAuthorNameTrigger
+                  memberId={comment.authorMemberId}
+                  name={comment.authorName}
+                  className="font-designer-14b text-text-strong"
+                />
                 <CommunityMemberRoleBadge role={comment.authorRole} />
                 <span className="font-designer-13r text-text-subtlest">
                   {comment.createdAt}
@@ -142,7 +153,7 @@ export default function CommunityCommentItem({
               </div>
             </div>
 
-            {comment.isAuthor ? (
+            {comment.canEdit || comment.canDelete ? (
               <div className="absolute top-0 right-0">
                 <button
                   type="button"
@@ -162,28 +173,32 @@ export default function CommunityCommentItem({
                       onClick={() => setIsMenuOpen(false)}
                     />
                     <div className="absolute top-full right-0 z-10 mt-50 min-w-[132px] overflow-hidden rounded-150 border border-border-subtle bg-background-default shadow-3">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onStartEditing(comment.id);
-                          setIsMenuOpen(false);
-                        }}
-                        className="flex w-full items-center gap-100 px-150 py-125 font-designer-13m text-text-default transition-colors hover:bg-fill-neutral-subtle-hover"
-                      >
-                        <PencilLine className="h-14 w-14" />
-                        수정
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          onDeleteComment(comment.id);
-                          setIsMenuOpen(false);
-                        }}
-                        className="flex w-full items-center gap-100 px-150 py-125 font-designer-13m text-text-error transition-colors hover:bg-fill-danger-subtle-default"
-                      >
-                        <Trash2 className="h-14 w-14" />
-                        삭제
-                      </button>
+                      {comment.canEdit ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onStartEditing(comment.id);
+                            setIsMenuOpen(false);
+                          }}
+                          className="flex w-full items-center gap-100 px-150 py-125 font-designer-13m text-text-default transition-colors hover:bg-fill-neutral-subtle-hover"
+                        >
+                          <PencilLine className="h-14 w-14" />
+                          수정
+                        </button>
+                      ) : null}
+                      {comment.canDelete ? (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onDeleteComment(comment.id);
+                            setIsMenuOpen(false);
+                          }}
+                          className="flex w-full items-center gap-100 px-150 py-125 font-designer-13m text-text-error transition-colors hover:bg-fill-danger-subtle-default"
+                        >
+                          <Trash2 className="h-14 w-14" />
+                          삭제
+                        </button>
+                      ) : null}
                     </div>
                   </>
                 ) : null}
@@ -224,6 +239,7 @@ export default function CommunityCommentItem({
                     />
                   }
                   count={comment.likeCount}
+                  disabled={comment.isDeleted}
                   isActive={comment.viewerReaction === 'like'}
                   onClick={() => onToggleCommentReaction(comment.id, 'like')}
                 />
@@ -239,14 +255,17 @@ export default function CommunityCommentItem({
                     />
                   }
                   count={comment.dislikeCount}
+                  disabled={comment.isDeleted}
                   isActive={comment.viewerReaction === 'dislike'}
                   onClick={() => onToggleCommentReaction(comment.id, 'dislike')}
                 />
-                <CommunityCommentActionButton
-                  icon={<MessageSquareReply className="h-16 w-16" />}
-                  label="답글"
-                  onClick={() => onOpenReply(comment.id)}
-                />
+                {comment.canReply ? (
+                  <CommunityCommentActionButton
+                    icon={<MessageSquareReply className="h-16 w-16" />}
+                    label="답글"
+                    onClick={() => onOpenReply(comment.id)}
+                  />
+                ) : null}
               </div>
             </>
           )}
