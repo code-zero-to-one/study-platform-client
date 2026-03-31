@@ -1,6 +1,6 @@
 'use client';
 
-import { type Editor } from '@tiptap/react';
+import type { Editor } from '@tiptap/react';
 import { useCallback, useState } from 'react';
 import { extractImageUrls } from '@/utils/markdown-content';
 import {
@@ -115,7 +115,7 @@ export function useImageUpload(
 
   const handlePasteImageSource = useCallback(
     async (editor: Editor, source: string) => {
-      if (!resolvedImageConfig) {
+      if (!resolvedImageConfig || isUploadingImages) {
         return;
       }
 
@@ -164,7 +164,7 @@ export function useImageUpload(
         setIsUploadingImages(false);
       }
     },
-    [resolvedImageConfig, uploadAndInsertFile],
+    [resolvedImageConfig, uploadAndInsertFile, isUploadingImages],
   );
 
   const readClipboardImageFiles = useCallback(async (): Promise<File[]> => {
