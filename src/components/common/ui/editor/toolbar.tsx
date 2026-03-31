@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  Heading1,
-  Heading2,
-  Heading3,
-} from 'lucide-react';
+import { Heading1, Heading2, Heading3 } from 'lucide-react';
 import { type ComponentType } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
