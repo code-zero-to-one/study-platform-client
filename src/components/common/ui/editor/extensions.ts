@@ -11,7 +11,7 @@ import python from 'highlight.js/lib/languages/python';
 import rust from 'highlight.js/lib/languages/rust';
 import sql from 'highlight.js/lib/languages/sql';
 import swift from 'highlight.js/lib/languages/swift';
-import { common, createLowlight } from 'lowlight';  
+import { common, createLowlight } from 'lowlight';
 import { parseImageWidth, MARKDOWN_IMAGE_DEFAULT_WIDTH } from './image-utils';
 
 export const lowlight = createLowlight(common);
