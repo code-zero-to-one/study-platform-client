@@ -7,6 +7,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import { STRAPI_URL } from '@/api/strapi/api/common-strapi-fetch';
 import { Article } from '@/api/strapi/api/fetch-articles';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 
 interface BlogDetailPageProps {
   article: Article & { id: number; documentId: string };
@@ -39,10 +40,10 @@ function ImageSlider({ files }: { files: any[] }) {
   };
 
   return (
-    <div className="mb-[18px] flex justify-center">
+    <div className="mb-225 flex justify-center">
       <div className="w-2/3">
         {/* 이미지 컨테이너 */}
-        <div className="relative overflow-hidden rounded-[10px] bg-gray-100">
+        <div className="relative overflow-hidden rounded-125 bg-background-accent-gray-subtle">
           <div
             className="flex transition-transform duration-500 ease-in-out"
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -69,16 +70,17 @@ function ImageSlider({ files }: { files: any[] }) {
 
         {/* 인디케이터 (점) */}
         {files.length > 1 && (
-          <div className="mt-4 flex justify-center gap-2">
+          <div className="mt-100 flex justify-center gap-50">
             {files.map((_, index) => (
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`h-3 w-3 rounded-full transition-all ${
+                className={cn(
+                  'h-75 w-75 rounded-full transition-all',
                   index === currentIndex
-                    ? 'w-8 bg-[var(--color-rose-500)]'
-                    : 'bg-gray-400 hover:bg-gray-500'
-                }`}
+                    ? 'w-200 bg-background-brand-default'
+                    : 'bg-fill-neutral-default-default hover:bg-fill-neutral-default-hover',
+                )}
                 aria-label={`${index + 1}번째 이미지로 이동`}
               />
             ))}
@@ -86,25 +88,25 @@ function ImageSlider({ files }: { files: any[] }) {
         )}
 
         {/* 이미지 카운터 + 좌우 버튼 */}
-        <div className="mt-2 flex items-center justify-center gap-4">
+        <div className="mt-50 flex items-center justify-center gap-100">
           {/* 이전 버튼 */}
           <button
             onClick={goToPrevious}
-            className="mr-[10px] flex h-10 w-10 items-center justify-center rounded-full bg-transparent text-2xl text-gray-700 transition-all hover:bg-gray-200"
+            className="mr-125 flex h-500 w-500 items-center justify-center rounded-full bg-transparent text-2xl text-text-subtle transition-all hover:bg-fill-neutral-default-default"
             aria-label="이전 이미지"
           >
             &lt;
           </button>
 
           {/* 카운터 */}
-          <div className="flex items-center text-lg font-bold text-gray-700">
+          <div className="flex items-center text-lg font-bold text-text-subtle">
             {currentIndex + 1} / {files.length}
           </div>
 
           {/* 다음 버튼 */}
           <button
             onClick={goToNext}
-            className="ml-[10px] flex h-10 w-10 items-center justify-center rounded-full bg-transparent text-2xl text-gray-700 transition-all hover:bg-gray-200"
+            className="ml-125 flex h-500 w-500 items-center justify-center rounded-full bg-transparent text-2xl text-text-subtle transition-all hover:bg-fill-neutral-default-default"
             aria-label="다음 이미지"
           >
             &gt;
@@ -127,7 +129,7 @@ function MediaFigure({
     <figure className="my-800 w-full">
       {children}
       {caption && (
-        <figcaption className="mt-200 text-center text-[13px] text-[#8C9098]">
+        <figcaption className="mt-200 text-center font-designer-13r text-text-subtlest">
           {caption}
         </figcaption>
       )}
@@ -147,7 +149,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
           <video
             controls
             playsInline
-            className="mx-auto w-full rounded-[4px] sm:w-4/5"
+            className="mx-auto w-full rounded-50 sm:w-4/5"
           >
             <source src={videoUrl} type="video/mp4" />
             {children}
@@ -168,58 +170,58 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             alt={alt || ''}
             width={740}
             height={500}
-            className="mx-auto w-full rounded-[4px] object-contain"
+            className="mx-auto w-full rounded-50 object-contain"
           />
         </MediaFigure>
       );
     },
 
     p: ({ children }: any) => (
-      <p className="mb-[28px] text-[16px] leading-[1.75] text-[#333d4b] [&_strong]:font-bold [&_strong]:text-[#191f28] sm:text-[17px]">
+      <p className="mb-350 text-[16px] leading-[1.75] text-text-default [&_strong]:font-bold [&_strong]:text-text-strong sm:text-[17px]">
         {children}
       </p>
     ),
 
     h1: ({ children }: any) => (
-      <h1 className="mt-[56px] mb-[20px] text-[24px] font-bold leading-tight text-[#191f28] sm:text-[30px]">
+      <h1 className="mt-700 mb-250 text-[24px] font-bold leading-tight text-text-strong sm:text-[30px]">
         {children}
       </h1>
     ),
     h2: ({ children }: any) => (
-      <h2 className="mt-[60px] mb-[24px] text-[22px] font-bold leading-tight text-[#191f28] sm:text-[28px]">
+      <h2 className="mt-[60px] mb-300 text-[22px] font-bold leading-tight text-text-strong sm:text-[28px]">
         {children}
       </h2>
     ),
     h3: ({ children }: any) => (
-      <h3 className="mt-[40px] mb-[16px] text-[19px] font-bold leading-tight text-[#191f28] sm:text-[22px]">
+      <h3 className="mt-500 mb-200 text-[19px] font-bold leading-tight text-text-strong sm:text-[22px]">
         {children}
       </h3>
     ),
     h4: ({ children }: any) => (
-      <h4 className="mt-[32px] mb-[12px] text-[17px] font-bold leading-tight text-[#191f28] sm:text-[18px]">
+      <h4 className="mt-400 mb-150 text-[17px] font-bold leading-tight text-text-strong sm:text-[18px]">
         {children}
       </h4>
     ),
     h5: ({ children }: any) => (
-      <h5 className="mt-[24px] mb-[10px] text-[16px] font-bold leading-tight text-[#191f28]">
+      <h5 className="mt-300 mb-125 text-[16px] font-bold leading-tight text-text-strong">
         {children}
       </h5>
     ),
 
     ul: ({ children }: any) => (
-      <ul className="mb-[32px] list-disc space-y-[12px] pl-[24px] text-[16px] leading-[1.75] text-[#333d4b] sm:text-[17px]">
+      <ul className="mb-400 list-disc space-y-150 pl-300 text-[16px] leading-[1.75] text-text-default sm:text-[17px]">
         {children}
       </ul>
     ),
     ol: ({ children }: any) => (
-      <ol className="mb-[32px] list-decimal space-y-[12px] pl-[24px] text-[16px] leading-[1.75] text-[#333d4b] sm:text-[17px]">
+      <ol className="mb-400 list-decimal space-y-150 pl-300 text-[16px] leading-[1.75] text-text-default sm:text-[17px]">
         {children}
       </ol>
     ),
     li: ({ children }: any) => <li>{children}</li>,
 
     blockquote: ({ children }: any) => (
-      <blockquote className="my-[32px] border-l-4 border-[var(--color-rose-500)] pl-[16px] text-[16px] leading-[1.75] text-[#535862] italic sm:text-[17px]">
+      <blockquote className="my-400 border-l-4 border-border-brand pl-200 text-[16px] leading-[1.75] text-text-subtle italic sm:text-[17px]">
         {children}
       </blockquote>
     ),
@@ -236,7 +238,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             <video
               controls
               playsInline
-              className="mx-auto w-full rounded-[4px] sm:w-4/5"
+              className="mx-auto w-full rounded-50 sm:w-4/5"
             >
               <source src={videoUrl} type="video/mp4" />
               브라우저가 비디오 태그를 지원하지 않습니다.
@@ -250,38 +252,41 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
           href={href}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[var(--color-rose-500)] underline-offset-2 hover:underline"
+          className="text-text-brand underline-offset-2 hover:underline"
         >
           {children}
         </a>
       );
     },
 
-    hr: () => <hr className="my-[48px] border-0 border-t border-[#e5e5e5]" />,
+    hr: () => <hr className="my-600 border-0 border-t border-border-subtle" />,
 
     strong: ({ children }: any) => (
-      <strong className="font-bold text-[#1a1a1a]">{children}</strong>
+      <strong className="font-bold text-text-strong">{children}</strong>
     ),
 
+    // block code: pre가 배경/패딩/overflow 전담하므로 스타일 없이 반환
+    // inline code: 배경·색상·패딩만 담당
     code: ({ children, className }: any) => {
       const isBlock = className?.includes('language-');
       if (isBlock) {
         return (
-          <code className="block overflow-x-auto rounded-[4px] bg-[#F6F8FA] px-[16px] py-[12px] font-mono text-[13px] leading-[1.7] text-[#333]">
+          <code className="font-mono font-designer-13r leading-[1.7] text-text-default">
             {children}
           </code>
         );
       }
 
       return (
-        <code className="rounded-[3px] bg-[#F0F0F0] px-[5px] py-[2px] font-mono text-[13px] text-[#E03E1A]">
+        <code className="rounded-25 bg-background-accent-gray-subtle px-75 py-25 font-mono font-designer-13r text-text-error">
           {children}
         </code>
       );
     },
 
+    // pre가 블록 코드의 배경·패딩·overflow·radius를 단독 담당
     pre: ({ children }: any) => (
-      <pre className="my-[32px] overflow-x-auto rounded-[4px] bg-[#F6F8FA] p-[20px] text-[13px] leading-[1.7]">
+      <pre className="my-400 overflow-x-auto rounded-50 bg-background-alternative p-250 font-designer-13r leading-[1.7] text-text-default">
         {children}
       </pre>
     ),
@@ -292,13 +297,13 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
     if (block.__component?.includes('rich-text')) {
       if (Array.isArray(block.body)) {
         return (
-          <div key={index} className="space-y-[16px]">
+          <div key={index} className="space-y-200">
             {block.body.map((item: any, i: number) => {
               if (item.type === 'paragraph') {
                 return (
                   <p
                     key={i}
-                    className="mb-[16px] text-[15px] leading-[1.8] text-[#333]"
+                    className="mb-200 text-[16px] leading-[1.75] text-text-default"
                   >
                     {item.children?.map((child: any, j: number) => (
                       <span key={j}>{child.text}</span>
@@ -314,7 +319,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       }
 
       return (
-        <div key={index} className="text-[15px] text-[#333]">
+        <div key={index} className="text-[16px] text-text-default">
           {block.body ? (
             <ReactMarkdown
               components={MarkdownComponents}
@@ -332,14 +337,14 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       return (
         <blockquote
           key={index}
-          className="my-[32px] rounded-r-[4px] border-l-4 border-[var(--color-rose-500)] bg-[var(--color-rose-50)] py-[16px] pl-[16px] pr-[20px]"
+          className="my-400 rounded-r-50 border-l-4 border-border-brand bg-background-accent-rose-subtle py-200 pl-200 pr-250"
         >
           {block.title && (
-            <p className="mb-[8px] text-[15px] font-bold leading-[1.8] text-[#333]">
+            <p className="mb-100 text-[16px] font-bold leading-[1.75] text-text-default">
               {block.title}
             </p>
           )}
-          <p className="text-[15px] leading-[1.8] text-[#535862] italic">
+          <p className="text-[16px] leading-[1.75] text-text-subtle italic">
             {block.body}
           </p>
         </blockquote>
@@ -359,7 +364,8 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
         return {
           url,
           mime: fileData.mime,
-          name: fileData.name || fileData.alternativeText,
+          name: fileData.name,
+          alt: fileData.alternativeText || '',
         };
       };
 
@@ -376,7 +382,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             <video
               controls
               playsInline
-              className="mx-auto w-full rounded-[4px] sm:w-4/5"
+              className="mx-auto w-full rounded-50 sm:w-4/5"
             >
               <source src={media.url} type={media.mime || 'video/mp4'} />
               브라우저가 비디오 태그를 지원하지 않습니다.
@@ -389,10 +395,10 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
         <MediaFigure key={index}>
           <Image
             src={media.url}
-            alt={media.name || ''}
+            alt={media.alt}
             width={740}
             height={500}
-            className="mx-auto w-full rounded-[4px] object-contain"
+            className="mx-auto w-full rounded-50 object-contain"
           />
         </MediaFigure>
       );
@@ -437,16 +443,16 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       )}
 
       {/* 본문 전체 래퍼 */}
-      <div className="mx-auto w-full max-w-[740px] px-[24px] py-[56px] sm:px-[40px] lg:px-0">
+      <div className="mx-auto w-full max-w-[740px] px-300 py-700 sm:px-500 lg:px-0">
         <article>
           {/* 헤더 영역 */}
-          <header className="mb-[48px]">
+          <header className="mb-600">
             {/* 카테고리 */}
             {article.category && (
-              <div className="mb-[12px]">
+              <div className="mb-150">
                 <Link
                   href={`/insights?category=${article.category.slug}`}
-                  className="font-designer-13r inline-flex items-center gap-1 rounded-full border border-[#E5E7EB] px-[12px] py-[4px] text-[#535862] transition-colors hover:border-[var(--color-rose-500)] hover:text-[var(--color-rose-500)]"
+                  className="font-designer-13r inline-flex items-center gap-50 rounded-full border border-border-default px-150 py-50 text-text-subtle transition-colors hover:border-border-brand hover:text-text-brand"
                 >
                   {article.category.name}
                 </Link>
@@ -454,20 +460,20 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             )}
 
             {/* 제목 */}
-            <h1 className="mb-[16px] text-[26px] font-bold leading-[1.35] text-[#191f28] sm:text-[34px]">
+            <h1 className="mb-200 text-[26px] font-bold leading-[1.35] text-text-strong sm:text-[34px]">
               {article.title}
             </h1>
 
             {/* 설명 */}
             {article.description && (
-              <p className="mb-[16px] text-[18px] font-bold leading-[1.75] text-[#333]">
+              <p className="mb-200 text-[18px] font-bold leading-[1.75] text-text-default">
                 {article.description}
               </p>
             )}
 
             {/* 발행일 */}
-            <time className="font-designer-14r text-[#8C9098]">
-              {formatDate(article.createdAt)}
+            <time className="font-designer-14r text-text-subtlest">
+              {formatDate(article.publishedAt)}
             </time>
           </header>
 
@@ -478,19 +484,23 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
                 renderBlock(block, index),
               )
             ) : (
-              <p className="text-[#9CA3AF] italic">내용이 없습니다.</p>
+              <p className="text-text-subtlest italic">내용이 없습니다.</p>
             )}
           </section>
 
           {/* 저자 */}
           {article.author && (
             <>
-              <hr className="my-[48px] border-0 border-t border-[#e5e5e5]" />
-              <footer className="flex items-center gap-[16px] rounded-[8px] border border-[#E5E7EB] p-[20px]">
+              <hr className="my-600 border-0 border-t border-border-subtle" />
+              <footer className="flex items-center gap-200 rounded-100 border border-border-default p-250">
                 {article.author.avatar?.url && (
                   <div className="relative h-[56px] w-[56px] flex-shrink-0 overflow-hidden rounded-full">
                     <Image
-                      src={`${STRAPI_URL}${article.author.avatar.url}`}
+                      src={
+                        article.author.avatar.url.startsWith('/')
+                        ? `${STRAPI_URL}${article.author.avatar.url}`
+                        : article.author.avatar.url
+                      }
                       alt={article.author.name || ''}
                       width={56}
                       height={56}
@@ -498,12 +508,12 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
                     />
                   </div>
                 )}
-                <div className="flex flex-col gap-[4px]">
-                  <span className="font-designer-16b text-[#181D27]">
+                <div className="flex flex-col gap-50">
+                  <span className="font-designer-16b text-text-strong">
                     {article.author.name}
                   </span>
                   {article.author.email && (
-                    <span className="font-designer-14r text-[#535862]">
+                    <span className="font-designer-14r text-text-subtle">
                       {article.author.email}
                     </span>
                   )}
