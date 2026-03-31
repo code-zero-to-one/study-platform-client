@@ -498,8 +498,8 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
                     <Image
                       src={
                         article.author.avatar.url.startsWith('/')
-                        ? `${STRAPI_URL}${article.author.avatar.url}`
-                        : article.author.avatar.url
+                          ? `${STRAPI_URL}${article.author.avatar.url}`
+                          : article.author.avatar.url
                       }
                       alt={article.author.name || ''}
                       width={56}
