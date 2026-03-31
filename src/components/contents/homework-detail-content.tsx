@@ -7,6 +7,7 @@ import { useState } from 'react';
 import type { PeerReviewResponse } from '@/api/openapi/models';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
+import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import { useGetHomework } from '@/hooks/queries/group-study-homework-api';
 import { useGetMission } from '@/hooks/queries/mission-api';
@@ -122,9 +123,7 @@ export default function HomeworkDetailContent({
         </div>
 
         {/* 과제 내용 */}
-        <div className="text-text-default font-designer-14r whitespace-pre-wrap">
-          {homework.homeworkContent?.textContent}
-        </div>
+        <MarkdownContent content={homework.homeworkContent?.textContent} />
 
         {/* 제출한 과제 링크 */}
         {homework.homeworkContent?.optionalContent?.link && (

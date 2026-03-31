@@ -3,17 +3,30 @@ import { useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import Button from '@/components/common/ui/button';
+import MarkdownEditor from '@/components/common/ui/editor/markdown-editor';
 import FormField from '@/components/common/ui/form/form-field';
-import { BaseInput, TextAreaInput } from '@/components/common/ui/input';
+import { BaseInput } from '@/components/common/ui/input';
 import { Modal } from '@/components/common/ui/modal';
-
+import {
+  requestMentorMarkdownImageUploadTicket,
+  uploadMarkdownImageFile,
+} from '@/features/mentoring/model/mentor-markdown-image-upload';
 import { useEditHomework } from '@/hooks/queries/group-study-homework-api';
 import { useToastStore } from '@/stores/use-toast-store';
 import { formatExternalLink } from '@/utils/format';
 import { isValidUrl } from '@/utils/validation';
 
+const uploadHomeworkMarkdownImage = async (file: File) => {
+  const ticket = await requestMentorMarkdownImageUploadTicket({
+    fileName: file.name,
+  });
+  await uploadMarkdownImageFile({ uploadUrl: ticket.uploadUrl, file });
+
+  return ticket.publicUrl;
+};
+
 const EditHomeworkFormSchema = z.object({
-  textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.').max(1000),
+  textContent: z.string().min(1, '과제 상세 내용을 입력해주세요.'),
   attachmentLink: z
     .string()
     .optional()
@@ -138,14 +151,10 @@ function EditHomeworkForm({
             label="과제 상세 내용"
             direction="vertical"
             required
-            maxCharCount={1000}
-            showCounterRight={false}
           >
-            <TextAreaInput
-              id="textContent"
-              className="min-h-[230px]"
+            <MarkdownEditor
               placeholder="학습한 내용을 자세히 작성해 주세요."
-              maxLength={1000}
+              uploadImage={uploadHomeworkMarkdownImage}
             />
           </FormField>
 

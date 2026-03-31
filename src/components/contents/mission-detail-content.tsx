@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import type { HomeworkDetailResponseDto } from '@/api/openapi/models';
 import Avatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
+import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import Progress from '@/components/common/ui/progress';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import MyHomeworkStatus from '../card/my-homework-status-card';
@@ -61,10 +62,8 @@ export default function MissionDetailContent({
         <p className="text-text-subtlest font-designer-14r">
           제출 기간 : {mission.missionStartDate} - {mission.missionEndDate}
         </p>
-        <div className="bg-background-alternative rounded-100 mt-100 p-300 whitespace-pre-wrap">
-          <p className="text-text-default font-designer-14r">
-            {mission.missionGuide}
-          </p>
+        <div className="bg-background-alternative rounded-100 mt-100 p-300">
+          <MarkdownContent content={mission.missionGuide} emptyMessage="" />
         </div>
       </div>
 
