@@ -123,7 +123,10 @@ export default function HomeworkDetailContent({
         </div>
 
         {/* 과제 내용 */}
-        <MarkdownContent content={homework.homeworkContent?.textContent} />
+        <MarkdownContent
+          content={homework.homeworkContent?.textContent}
+          emptyMessage="과제 내용이 없습니다."
+        />
 
         {/* 제출한 과제 링크 */}
         {homework.homeworkContent?.optionalContent?.link && (
