@@ -1,6 +1,7 @@
 import { isAxiosError } from 'axios';
 import { type ApiError, isApiError } from '@/api/client/api-error';
 import { axiosInstance } from '@/api/client/axios';
+import { analyzeError, ErrorType } from '@/utils/error-handler';
 import type {
   CommunityQnaAcceptanceApiResponse,
   CommunityQnaAnswerCommentsPageApiResponse,
@@ -77,8 +78,13 @@ export const getCommunityQnaErrorMessage = (
     return apiError.message;
   }
 
-  if (error instanceof Error && error.message) {
-    return error.message;
+  const analyzedError = analyzeError(error);
+
+  if (
+    analyzedError.type === ErrorType.NETWORK ||
+    analyzedError.type === ErrorType.AUTH
+  ) {
+    return analyzedError.userMessage;
   }
 
   return fallbackMessage;

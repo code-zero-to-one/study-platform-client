@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { MessageCircle } from "lucide-react";
-import ConfirmDeleteModal from "@/components/common/modals/confirm-delete-modal";
-import FieldErrorText from "@/components/common/ui/form/field-error-text";
-import Pagination from "@/components/common/ui/pagination";
-import { useCommunityQnaQuestionCommentsController } from "@/features/community/model/use-community-qna-question-comments-controller";
+import { MessageCircle } from 'lucide-react';
+import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
+import FieldErrorText from '@/components/common/ui/form/field-error-text';
+import Pagination from '@/components/common/ui/pagination';
+import { useCommunityQnaQuestionCommentsController } from '@/features/community/model/use-community-qna-question-comments-controller';
 import type {
   CommunityQnaComment,
   CommunityQnaQuestionViewer,
-} from "@/types/community/qna-domain";
-import CommunityCommentForm from "./community-comment-form";
-import CommunityQnaCommentItem from "./community-qna-comment-item";
+} from '@/types/community/qna-domain';
+import CommunityCommentForm from './community-comment-form';
+import CommunityQnaCommentItem from './community-qna-comment-item';
 
 interface CommunityQnaQuestionCommentsSectionProps {
   comments: readonly CommunityQnaComment[];

@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { MessageCircle } from "lucide-react";
-import ConfirmDeleteModal from "@/components/common/modals/confirm-delete-modal";
-import Button from "@/components/common/ui/button";
-import FieldErrorText from "@/components/common/ui/form/field-error-text";
-import Pagination from "@/components/common/ui/pagination";
-import { useCommunityQnaAnswerCommentsController } from "@/features/community/model/use-community-qna-answer-comments-controller";
-import type { CommunityQnaAnswerItem } from "@/types/community/qna-domain";
-import CommunityCommentForm from "./community-comment-form";
-import CommunityQnaCommentItem from "./community-qna-comment-item";
+import { MessageCircle } from 'lucide-react';
+import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal';
+import Button from '@/components/common/ui/button';
+import FieldErrorText from '@/components/common/ui/form/field-error-text';
+import Pagination from '@/components/common/ui/pagination';
+import { useCommunityQnaAnswerCommentsController } from '@/features/community/model/use-community-qna-answer-comments-controller';
+import type { CommunityQnaAnswerItem } from '@/types/community/qna-domain';
+import CommunityCommentForm from './community-comment-form';
+import CommunityQnaCommentItem from './community-qna-comment-item';
 
 interface CommunityQnaAnswerCommentsSectionProps {
   answer: CommunityQnaAnswerItem;

@@ -1,11 +1,9 @@
 'use client';
 
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import {
-  getCommunityQnaErrorMessage,
-  isCommunityQnaNotFoundError,
-} from '@/features/community/api/community-qna-api';
+import { isCommunityQnaNotFoundError } from '@/features/community/api/community-qna-api';
 import { useCommunityQnaQuestionDetailQuery } from '@/features/community/model/use-community-qna-query';
+import { analyzeError, ErrorType, type ErrorInfo } from '@/utils/error-handler';
 import {
   COMMUNITY_DEFAULT_PAGE,
   normalizeCommunityPageParam,
@@ -13,6 +11,8 @@ import {
 
 const COMMUNITY_QNA_DEFAULT_ANSWER_PAGE_SIZE = 20;
 const COMMUNITY_QNA_DEFAULT_COMMENT_PAGE_SIZE = 20;
+const COMMUNITY_QNA_INVALID_AGGREGATE_MESSAGE =
+  '질문 상세 응답 형식이 올바르지 않습니다.';
 
 interface UseCommunityQnaDetailControllerParams {
   questionId: number;
@@ -90,11 +90,25 @@ export const useCommunityQnaDetailController = ({
   const viewer = detailQuery.data?.viewer;
   const questionCommentsPageData = detailQuery.data?.questionCommentsPage;
   const answersPageData = detailQuery.data?.answersPage;
+  const hasInvalidAggregate =
+    detailQuery.isSuccess &&
+    (!question || !viewer || !questionCommentsPageData || !answersPageData);
   const myAnswer = viewer?.myAnswerId
     ? answersPageData?.items.find((answer) => answer.id === viewer.myAnswerId)
     : undefined;
   const isNotFound =
     detailQuery.isError && isCommunityQnaNotFoundError(detailQuery.error);
+  const errorInfo: Pick<ErrorInfo, 'type' | 'userMessage'> | undefined =
+    isNotFound
+      ? undefined
+      : detailQuery.isError
+        ? analyzeError(detailQuery.error)
+        : hasInvalidAggregate
+          ? {
+              type: ErrorType.CLIENT,
+              userMessage: COMMUNITY_QNA_INVALID_AGGREGATE_MESSAGE,
+            }
+          : undefined;
 
   const answerCtaDescription = !viewer?.isAuthenticated
     ? '로그인 후 답변을 작성할 수 있습니다.'
@@ -114,13 +128,7 @@ export const useCommunityQnaDetailController = ({
       answersPageData,
       isResolved: detailQuery.isSuccess || detailQuery.isError,
       isNotFound,
-      errorMessage:
-        detailQuery.isError && !isNotFound
-          ? getCommunityQnaErrorMessage(
-              detailQuery.error,
-              '질문 상세를 불러오지 못했습니다.',
-            )
-          : '',
+      errorInfo,
     },
     actions: {
       handleAnswerPageChange: (nextPage: number) => {

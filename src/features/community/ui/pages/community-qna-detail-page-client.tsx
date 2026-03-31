@@ -1,20 +1,26 @@
-"use client";
+'use client';
 
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import PageContainer from "@/components/common/ui/page-container";
-import Pagination from "@/components/common/ui/pagination";
-import { buildCommunityListHref } from "@/features/community/model/community-route";
-import { useCommunityQnaDetailController } from "@/features/community/model/use-community-qna-detail-controller";
-import CommunityMarkdownContent from "../community-markdown-content";
-import CommunityQnaAnswerAcceptanceActions from "../community-qna-answer-acceptance-actions";
-import CommunityQnaAnswerCommentsSection from "../community-qna-answer-comments-section";
-import CommunityQnaAnswerComposeSection from "../community-qna-answer-compose-section";
-import CommunityQnaAnswerItem from "../community-qna-answer-item";
-import CommunityQnaAuthorSummary from "../community-qna-author-summary";
-import CommunityQnaQuestionCommentsSection from "../community-qna-question-comments-section";
-import CommunityQnaQuestionOwnerActions from "../community-qna-question-owner-actions";
-import CommunitySectionShell from "../community-section-shell";
+import { ChevronLeft } from 'lucide-react';
+import Link from 'next/link';
+import PageContainer from '@/components/common/ui/page-container';
+import Pagination from '@/components/common/ui/pagination';
+import { buildCommunityListHref } from '@/features/community/model/community-route';
+import { useCommunityQnaDetailController } from '@/features/community/model/use-community-qna-detail-controller';
+import { ErrorType } from '@/utils/error-handler';
+import CommunityMarkdownContent from '../community-markdown-content';
+import CommunityQnaAnswerAcceptanceActions from '../community-qna-answer-acceptance-actions';
+import CommunityQnaAnswerCommentsSection from '../community-qna-answer-comments-section';
+import CommunityQnaAnswerComposeSection from '../community-qna-answer-compose-section';
+import CommunityQnaAnswerItem from '../community-qna-answer-item';
+import CommunityQnaAuthorSummary from '../community-qna-author-summary';
+import CommunityQnaQuestionCommentsSection from '../community-qna-question-comments-section';
+import CommunityQnaQuestionOwnerActions from '../community-qna-question-owner-actions';
+import {
+  CommunityQnaNotFoundState,
+  CommunityQnaRouteErrorState,
+  CommunityQnaRouteLoading,
+} from '../community-qna-route-fallback';
+import CommunitySectionShell from '../community-section-shell';
 
 interface CommunityQnaDetailPageClientProps {
   questionId: number;
@@ -37,62 +43,38 @@ export default function CommunityQnaDetailPageClient({
   const backHref = buildCommunityListHref(returnPage);
 
   if (!state.isResolved) {
+    return <CommunityQnaRouteLoading />;
+  }
+
+  if (state.isNotFound) {
+    return <CommunityQnaNotFoundState backHref={backHref} />;
+  }
+
+  if (state.errorInfo) {
     return (
-      <PageContainer className="flex flex-col gap-500 xl:gap-600">
-        <CommunitySectionShell className="gap-250">
-          <p className="font-designer-16r text-text-subtle">
-            질문을 불러오는 중입니다.
-          </p>
-        </CommunitySectionShell>
-      </PageContainer>
+      <CommunityQnaRouteErrorState
+        backHref={backHref}
+        errorInfo={state.errorInfo}
+        onRetry={actions.refetchQuestionDetail}
+      />
     );
   }
 
-  if (state.errorMessage) {
+  if (
+    !state.question ||
+    !state.viewer ||
+    !state.questionCommentsPageData ||
+    !state.answersPageData
+  ) {
     return (
-      <PageContainer className="flex flex-col gap-500 xl:gap-600">
-        <CommunitySectionShell className="gap-250">
-          <Link
-            href={backHref}
-            className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
-          >
-            <ChevronLeft className="h-16 w-16" />
-            커뮤니티로 돌아가기
-          </Link>
-          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
-            <p className="font-designer-20b text-text-strong">
-              질문을 불러오지 못했습니다.
-            </p>
-            <p className="mt-100 font-designer-14r text-text-subtle">
-              {state.errorMessage}
-            </p>
-          </div>
-        </CommunitySectionShell>
-      </PageContainer>
-    );
-  }
-
-  if (state.isNotFound || !state.question || !state.viewer) {
-    return (
-      <PageContainer className="flex flex-col gap-500 xl:gap-600">
-        <CommunitySectionShell className="gap-250">
-          <Link
-            href={backHref}
-            className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
-          >
-            <ChevronLeft className="h-16 w-16" />
-            커뮤니티로 돌아가기
-          </Link>
-          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
-            <p className="font-designer-20b text-text-strong">
-              질문을 찾을 수 없어요.
-            </p>
-            <p className="mt-100 font-designer-14r text-text-subtle">
-              목록으로 돌아가 다른 질문을 확인해 주세요.
-            </p>
-          </div>
-        </CommunitySectionShell>
-      </PageContainer>
+      <CommunityQnaRouteErrorState
+        backHref={backHref}
+        errorInfo={{
+          type: ErrorType.CLIENT,
+          userMessage: '질문 상세 응답 형식이 올바르지 않습니다.',
+        }}
+        onRetry={actions.refetchQuestionDetail}
+      />
     );
   }
 
