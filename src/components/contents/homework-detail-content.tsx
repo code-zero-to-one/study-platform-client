@@ -8,6 +8,7 @@ import type { PeerReviewResponse } from '@/api/openapi/models';
 import Avatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
+import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import { useGetHomework } from '@/hooks/queries/group-study-homework-api';
 import { useGetMission } from '@/hooks/queries/mission-api';
 import {
@@ -122,9 +123,10 @@ export default function HomeworkDetailContent({
         </div>
 
         {/* 과제 내용 */}
-        <div className="text-text-default font-designer-14r whitespace-pre-wrap">
-          {homework.homeworkContent?.textContent}
-        </div>
+        <MarkdownContent
+          content={homework.homeworkContent?.textContent}
+          emptyMessage="과제 내용이 없습니다."
+        />
 
         {/* 제출한 과제 링크 */}
         {homework.homeworkContent?.optionalContent?.link && (

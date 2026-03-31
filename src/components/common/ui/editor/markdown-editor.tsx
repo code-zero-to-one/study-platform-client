@@ -1,30 +1,14 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
-import { Extension, textblockTypeInputRule } from '@tiptap/core';
-import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
-import ImageExtension from '@tiptap/extension-image';
 import LinkExtension from '@tiptap/extension-link';
 import Placeholder from '@tiptap/extension-placeholder';
 import UnderlineExtension from '@tiptap/extension-underline';
 import { type Editor, EditorContent, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import c from 'highlight.js/lib/languages/c';
-import cpp from 'highlight.js/lib/languages/cpp';
-import dart from 'highlight.js/lib/languages/dart';
-import go from 'highlight.js/lib/languages/go';
-import java from 'highlight.js/lib/languages/java';
-import kotlin from 'highlight.js/lib/languages/kotlin';
-import python from 'highlight.js/lib/languages/python';
-import rust from 'highlight.js/lib/languages/rust';
-import sql from 'highlight.js/lib/languages/sql';
-import swift from 'highlight.js/lib/languages/swift';
 import {
   Bold,
   Code2,
-  Heading1,
-  Heading2,
-  Heading3,
   ImagePlus,
   Italic,
   Link2,
@@ -37,83 +21,34 @@ import {
   Underline as UnderlineIcon,
   Undo2,
 } from 'lucide-react';
-import { common, createLowlight } from 'lowlight'; // eslint-disable-line import/order
-import {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ComponentType,
-} from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
+import { normalizeMarkdownContent } from '@/utils/markdown-content';
 import {
-  extractHtmlImageUrls,
-  extractImageUrls,
-  getFileExtension,
-  normalizeMarkdownContent,
-} from '@/utils/markdown-content';
+  InstantCodeBlockExtension,
+  lowlight,
+  MarkdownHistoryShortcutsExtension,
+  ResizableImageExtension,
+} from './extensions';
+import {
+  type MarkdownEditorImageConfig,
+  clampImageWidth,
+  hasClipboardImageHint,
+  MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS,
+  MARKDOWN_IMAGE_DEFAULT_MAX_COUNT,
+  MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE,
+  MARKDOWN_IMAGE_DEFAULT_WIDTH,
+  MARKDOWN_IMAGE_MAX_WIDTH,
+  MARKDOWN_IMAGE_MIN_WIDTH,
+  MARKDOWN_IMAGE_WIDTH_STEP,
+  parseImageWidth,
+  toImageInputAccept,
+} from './image-utils';
+import { CODE_LANGUAGES, HEADING_OPTIONS, ToolbarButton } from './toolbar';
+import { useImageUpload } from './use-image-upload';
 
-const lowlight = createLowlight(common);
-lowlight.register('kotlin', kotlin);
-lowlight.register('sql', sql);
-lowlight.register('java', java);
-lowlight.register('python', python);
-lowlight.register('cpp', cpp);
-lowlight.register('c', c);
-lowlight.register('go', go);
-lowlight.register('rust', rust);
-lowlight.register('swift', swift);
-lowlight.register('dart', dart);
-
-const CODE_LANGUAGES = [
-  { label: 'Plain Text', value: 'plaintext' },
-  { label: 'JavaScript', value: 'javascript' },
-  { label: 'TypeScript', value: 'typescript' },
-  { label: 'Java', value: 'java' },
-  { label: 'Kotlin', value: 'kotlin' },
-  { label: 'Python', value: 'python' },
-  { label: 'C', value: 'c' },
-  { label: 'C++', value: 'cpp' },
-  { label: 'Go', value: 'go' },
-  { label: 'Rust', value: 'rust' },
-  { label: 'Swift', value: 'swift' },
-  { label: 'Dart', value: 'dart' },
-  { label: 'SQL', value: 'sql' },
-  { label: 'HTML', value: 'html' },
-  { label: 'CSS', value: 'css' },
-  { label: 'JSON', value: 'json' },
-  { label: 'Bash', value: 'bash' },
-] as const;
-const HEADING_OPTIONS = [
-  { icon: Heading1, label: 'H1', level: 1 },
-  { icon: Heading2, label: 'H2', level: 2 },
-  { icon: Heading3, label: 'H3', level: 3 },
-] as const;
-
-const INSTANT_CODE_BLOCK_INPUT_REGEX = /^```$/;
-const MARKDOWN_IMAGE_MIN_WIDTH = 80;
-const MARKDOWN_IMAGE_DEFAULT_WIDTH = 200;
-const MARKDOWN_IMAGE_MAX_WIDTH = 400;
-const MARKDOWN_IMAGE_WIDTH_STEP = 10;
-const MARKDOWN_IMAGE_DEFAULT_MAX_COUNT = 3;
-const MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE = 5 * 1024 * 1024;
-const MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS = [
-  'jpg',
-  'jpeg',
-  'png',
-  'webp',
-  'gif',
-] as const;
-
-export interface MarkdownEditorImageConfig {
-  allowedImageExtensions: readonly string[];
-  maxImageCount: number;
-  maxImageFileSize: number;
-  uploadImageFile: (file: File) => Promise<string>;
-}
+export type { MarkdownEditorImageConfig } from './image-utils';
 
 interface MarkdownEditorProps {
   id?: string;
@@ -129,186 +64,6 @@ interface MarkdownEditorProps {
   'aria-describedby'?: string;
 }
 
-interface ToolbarButtonProps {
-  icon: ComponentType<{ className?: string }>;
-  label: string;
-  isActive?: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-}
-
-type UrlKind = 'remote' | 'image' | 'data-image';
-
-const URL_PATTERNS: Record<UrlKind, RegExp> = {
-  remote: /^https?:\/\/\S+$/i,
-  image: /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i,
-  'data-image': /^data:image\/[a-z0-9.+-]+;base64,/i,
-};
-
-const isAllowedUrl = (text: string, kinds: UrlKind | UrlKind[] = 'remote') => {
-  const trimmed = text.trim();
-  const targets = Array.isArray(kinds) ? kinds : [kinds];
-
-  return targets.some((kind) => URL_PATTERNS[kind].test(trimmed));
-};
-
-const clampImageWidth = (value: number) => {
-  return Math.min(
-    MARKDOWN_IMAGE_MAX_WIDTH,
-    Math.max(MARKDOWN_IMAGE_MIN_WIDTH, Math.round(value)),
-  );
-};
-
-const parseImageWidth = (value: unknown): number => {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    return MARKDOWN_IMAGE_DEFAULT_WIDTH;
-  }
-
-  return clampImageWidth(parsed);
-};
-
-const ResizableImageExtension = ImageExtension.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      width: {
-        default: MARKDOWN_IMAGE_DEFAULT_WIDTH,
-        parseHTML: (element: HTMLElement) =>
-          parseImageWidth(element.getAttribute('width')),
-        renderHTML: (attributes: Record<string, unknown>) => ({
-          width: String(parseImageWidth(attributes.width)),
-        }),
-      },
-    };
-  },
-});
-
-const InstantCodeBlockExtension = CodeBlockLowlight.extend({
-  addInputRules() {
-    const parentInputRules = this.parent?.() ?? [];
-
-    return [
-      textblockTypeInputRule({
-        find: INSTANT_CODE_BLOCK_INPUT_REGEX,
-        type: this.type,
-        getAttributes: () => ({
-          language: 'plaintext',
-        }),
-      }),
-      ...parentInputRules,
-    ];
-  },
-});
-
-const MarkdownHistoryShortcutsExtension = Extension.create({
-  addKeyboardShortcuts() {
-    return {
-      'Mod-y': () => this.editor.commands.redo(),
-    };
-  },
-});
-
-const toFileFromBlob = (blob: Blob, fileName: string): File => {
-  return new File([blob], fileName, { type: blob.type });
-};
-
-const getExtensionFromMime = (mimeType: string): string => {
-  const map: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
-  };
-
-  return map[mimeType] ?? 'png';
-};
-
-const toImageInputAccept = (extensions: readonly string[]) => {
-  return extensions.map((extension) => `.${extension}`).join(',');
-};
-
-const isAllowedImageExtension = (
-  extension: string,
-  allowedExtensions: readonly string[],
-) => {
-  return allowedExtensions.includes(extension);
-};
-
-const extractClipboardImageFiles = (clipboardData: DataTransfer): File[] => {
-  const directImageFiles = Array.from(clipboardData.files).filter((file) =>
-    file.type.startsWith('image/'),
-  );
-
-  if (directImageFiles.length > 0) {
-    return directImageFiles;
-  }
-
-  return Array.from(clipboardData.items)
-    .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
-    .map((item) => item.getAsFile())
-    .filter((file): file is File => file !== null);
-};
-
-const extractClipboardImageSource = (clipboardData: DataTransfer) => {
-  const pastedHtml = clipboardData.getData('text/html').trim();
-  if (pastedHtml) {
-    const imageSource = extractHtmlImageUrls(pastedHtml)[0]?.trim();
-
-    if (imageSource && isAllowedUrl(imageSource, ['remote', 'data-image'])) {
-      return imageSource;
-    }
-  }
-
-  const pastedText = clipboardData.getData('text/plain').trim();
-  if (pastedText && isAllowedUrl(pastedText, ['image', 'data-image'])) {
-    return pastedText;
-  }
-
-  return '';
-};
-
-const hasClipboardImageHint = (clipboardData: DataTransfer) => {
-  if (extractClipboardImageFiles(clipboardData).length > 0) {
-    return true;
-  }
-
-  if (
-    Array.from(clipboardData.items).some((item) => item.type.includes('html'))
-  ) {
-    return clipboardData.getData('text/html').includes('<img');
-  }
-
-  const pastedText = clipboardData.getData('text/plain').trim();
-
-  return isAllowedUrl(pastedText, ['image', 'data-image']);
-};
-
-function ToolbarButton({
-  icon: Icon,
-  label,
-  isActive,
-  disabled,
-  onClick,
-}: ToolbarButtonProps) {
-  return (
-    <Button
-      type="button"
-      color="secondary"
-      size="small"
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        isActive &&
-          'bg-background-neutral-subtle border-border-brand text-text-brand',
-      )}
-    >
-      <Icon className="mr-50 h-12 w-12" />
-      {label}
-    </Button>
-  );
-}
-
 function MarkdownEditor({
   id,
   name,
@@ -322,8 +77,6 @@ function MarkdownEditor({
   'aria-invalid': ariaInvalid,
   'aria-describedby': ariaDescribedBy,
 }: MarkdownEditorProps) {
-  const [imageInsertError, setImageInsertError] = useState('');
-  const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
   const [, forceEditorRerender] = useState(0);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -331,6 +84,7 @@ function MarkdownEditor({
   const editorRef = useRef<Editor | null>(null);
   const isInternalUpdate = useRef(false);
   const normalizedValue = normalizeContent(value);
+
   const resolvedImageConfig = useMemo(() => {
     if (imageConfig) {
       return imageConfig;
@@ -348,243 +102,13 @@ function MarkdownEditor({
     };
   }, [imageConfig, uploadImage]);
 
-  const uploadAndInsertFile = useCallback(
-    async (editor: Editor, file: File) => {
-      if (!resolvedImageConfig) {
-        return;
-      }
-
-      const publicUrl = await resolvedImageConfig.uploadImageFile(file);
-
-      editor
-        .chain()
-        .focus()
-        .setImage({
-          src: publicUrl,
-          width: MARKDOWN_IMAGE_DEFAULT_WIDTH,
-        })
-        .run();
-    },
-    [resolvedImageConfig],
-  );
-
-  const validateImageFile = useCallback(
-    (file: File): string | undefined => {
-      if (!resolvedImageConfig) {
-        return '이미지 업로드를 지원하지 않습니다.';
-      }
-
-      if (!file.type.startsWith('image/')) {
-        return `${file.name}: 이미지 파일이 아닙니다.`;
-      }
-
-      const extension = getFileExtension(file.name);
-      if (
-        extension &&
-        extension !== 'blob' &&
-        !isAllowedImageExtension(
-          extension,
-          resolvedImageConfig.allowedImageExtensions,
-        )
-      ) {
-        return `${file.name}: 허용되지 않은 확장자입니다. (${resolvedImageConfig.allowedImageExtensions.join('/')})`;
-      }
-
-      if (file.size > resolvedImageConfig.maxImageFileSize) {
-        return `${file.name}: ${Math.floor(resolvedImageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`;
-      }
-
-      return undefined;
-    },
-    [resolvedImageConfig],
-  );
-
-  const handleImageFiles = useCallback(
-    async (editor: Editor, files: File[]) => {
-      if (!resolvedImageConfig || files.length === 0 || isUploadingImages) {
-        return;
-      }
-
-      const existingCount = extractImageUrls(editor.getHTML()).length;
-      const remaining = Math.max(
-        0,
-        resolvedImageConfig.maxImageCount - existingCount,
-      );
-
-      if (remaining === 0) {
-        setImageInsertError(
-          `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
-        );
-
-        return;
-      }
-
-      const targetFiles = files.slice(0, remaining);
-      const validFiles: File[] = [];
-      const errors: string[] = [];
-
-      for (const file of targetFiles) {
-        const error = validateImageFile(file);
-        if (error) {
-          errors.push(error);
-        } else {
-          validFiles.push(file);
-        }
-      }
-
-      if (validFiles.length === 0) {
-        if (errors.length > 0) {
-          setImageInsertError(errors.join(' '));
-        }
-
-        return;
-      }
-
-      setIsUploadingImages(true);
-      setImageInsertError('');
-
-      try {
-        for (const file of validFiles) {
-          try {
-            await uploadAndInsertFile(editor, file);
-          } catch {
-            errors.push(`${file.name}: 업로드 실패`);
-          }
-        }
-
-        if (files.length > remaining) {
-          errors.push(
-            `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지 등록할 수 있습니다.`,
-          );
-        }
-
-        if (errors.length > 0) {
-          setImageInsertError(errors.join(' '));
-        }
-      } finally {
-        setIsUploadingImages(false);
-      }
-    },
-    [
-      isUploadingImages,
-      resolvedImageConfig,
-      uploadAndInsertFile,
-      validateImageFile,
-    ],
-  );
-
-  const handlePasteImageSource = useCallback(
-    async (editor: Editor, source: string) => {
-      if (!resolvedImageConfig) {
-        return;
-      }
-
-      const existingCount = extractImageUrls(editor.getHTML()).length;
-      if (existingCount >= resolvedImageConfig.maxImageCount) {
-        setImageInsertError(
-          `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
-        );
-
-        return;
-      }
-
-      setIsUploadingImages(true);
-      setImageInsertError('');
-
-      try {
-        const response = await fetch(source);
-        if (!response.ok) {
-          throw new Error('이미지를 가져올 수 없습니다.');
-        }
-
-        const blob = await response.blob();
-        if (!blob.type.startsWith('image/')) {
-          throw new Error('이미지 파일이 아닙니다.');
-        }
-
-        const extension = getExtensionFromMime(blob.type);
-        const file = toFileFromBlob(blob, `pasted-image.${extension}`);
-
-        if (file.size > resolvedImageConfig.maxImageFileSize) {
-          setImageInsertError(
-            `이미지가 ${Math.floor(resolvedImageConfig.maxImageFileSize / (1024 * 1024))}MB를 초과합니다.`,
-          );
-
-          return;
-        }
-
-        await uploadAndInsertFile(editor, file);
-      } catch {
-        setImageInsertError(
-          '이미지 URL을 가져올 수 없습니다. 이미지를 직접 복사(우클릭 → 이미지 복사)하거나 파일로 업로드해주세요.',
-        );
-      } finally {
-        setIsUploadingImages(false);
-      }
-    },
-    [resolvedImageConfig, uploadAndInsertFile],
-  );
-
-  const readClipboardImageFiles = useCallback(async () => {
-    if (
-      typeof navigator === 'undefined' ||
-      !navigator.clipboard ||
-      typeof navigator.clipboard.read !== 'function'
-    ) {
-      return [];
-    }
-
-    try {
-      const clipboardItems = await navigator.clipboard.read();
-      const files: File[] = [];
-
-      for (const clipboardItem of clipboardItems) {
-        const imageType = clipboardItem.types.find((type) =>
-          type.startsWith('image/'),
-        );
-
-        if (!imageType) {
-          continue;
-        }
-
-        const blob = await clipboardItem.getType(imageType);
-        files.push(
-          toFileFromBlob(
-            blob,
-            `pasted-image.${getExtensionFromMime(blob.type)}`,
-          ),
-        );
-      }
-
-      return files;
-    } catch {
-      return [];
-    }
-  }, []);
-
-  const handleClipboardPaste = useCallback(
-    async (editor: Editor, clipboardData: DataTransfer) => {
-      const directFiles = extractClipboardImageFiles(clipboardData);
-      if (directFiles.length > 0) {
-        await handleImageFiles(editor, directFiles);
-
-        return;
-      }
-
-      const clipboardApiFiles = await readClipboardImageFiles();
-      if (clipboardApiFiles.length > 0) {
-        await handleImageFiles(editor, clipboardApiFiles);
-
-        return;
-      }
-
-      const pastedImageSource = extractClipboardImageSource(clipboardData);
-      if (pastedImageSource) {
-        await handlePasteImageSource(editor, pastedImageSource);
-      }
-    },
-    [handleImageFiles, handlePasteImageSource, readClipboardImageFiles],
-  );
+  const {
+    imageInsertError,
+    isUploadingImages,
+    setImageInsertError,
+    handleImageFiles,
+    handleClipboardPaste,
+  } = useImageUpload(resolvedImageConfig);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -620,8 +144,6 @@ function MarkdownEditor({
       forceEditorRerender((prev) => prev + 1);
     },
     onSelectionUpdate: ({ editor: nextEditor }) => {
-      forceEditorRerender((prev) => prev + 1);
-
       if (nextEditor.isActive('image')) {
         setSelectedImagePos(nextEditor.state.selection.from);
 
@@ -988,7 +510,7 @@ function MarkdownEditor({
             onChange={(event) => {
               handleImageWidthChange(Number(event.target.value));
             }}
-            className="accent-background-brand-default w-[180px]"
+            className="accent-background-brand-default flex-1"
           />
           <span className="font-designer-12r text-text-default min-w-600">
             {selectedImageWidth}px
