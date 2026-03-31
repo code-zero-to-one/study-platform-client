@@ -1,14 +1,20 @@
 'use client';
 
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import { useEffect, useLayoutEffect } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
+import { z } from 'zod';
 import {
   AuthHydrationProvider,
   type AuthHydrationSession,
 } from '@/features/auth/model/auth-hydration-context';
+import { resetClientDerivedAuthState } from '@/features/auth/model/client-auth-cleanup';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import QueryProvider from '@/providers/query-provider';
 import { useUserStore } from '@/stores/useUserStore';
+import { AUTH_SESSION_STATES } from '@/types/auth/domain';
+
+// Zod v4 객체 JIT는 브라우저에서 Function(...) 경로를 사용하므로 CSP와 충돌한다.
+z.config({ jitless: true });
 
 interface ProviderProps {
   children: React.ReactNode;
@@ -16,18 +22,52 @@ interface ProviderProps {
 }
 
 function UserInitializer({ children }: ProviderProps) {
-  const { memberId: authMemberId, isAuthReady, isHydrated } = useAuthReady();
-  const { memberId, fetchAndSetUser, reset } = useUserStore();
+  const { memberId: authMemberId, isHydrated, sessionState } = useAuthReady();
+  const { memberId, fetchAndSetUser } = useUserStore();
+  const isAuthenticatedMemberSession =
+    sessionState === AUTH_SESSION_STATES.AUTHENTICATED_MEMBER;
+  const previousAuthenticatedMemberIdRef = useRef<number | undefined>(
+    undefined,
+  );
+  const hasInitializedRef = useRef(false);
 
   useLayoutEffect(() => {
     if (!isHydrated) {
       return;
     }
 
-    if (!isAuthReady) {
-      reset();
+    const nextAuthenticatedMemberId =
+      isAuthenticatedMemberSession && authMemberId ? authMemberId : undefined;
+    const previousAuthenticatedMemberId =
+      previousAuthenticatedMemberIdRef.current;
+
+    if (!hasInitializedRef.current) {
+      hasInitializedRef.current = true;
+      previousAuthenticatedMemberIdRef.current = nextAuthenticatedMemberId;
+
+      if (!nextAuthenticatedMemberId) {
+        resetClientDerivedAuthState();
+      }
+
+      return;
     }
-  }, [isAuthReady, isHydrated, reset]);
+
+    if (
+      previousAuthenticatedMemberId !== undefined &&
+      previousAuthenticatedMemberId !== nextAuthenticatedMemberId
+    ) {
+      resetClientDerivedAuthState();
+      previousAuthenticatedMemberIdRef.current = nextAuthenticatedMemberId;
+
+      return;
+    }
+
+    if (!nextAuthenticatedMemberId) {
+      resetClientDerivedAuthState();
+    }
+
+    previousAuthenticatedMemberIdRef.current = nextAuthenticatedMemberId;
+  }, [authMemberId, isAuthenticatedMemberSession, isHydrated]);
 
   useEffect(() => {
     // [보안 마이그레이션] sessionStorage 전환 이후 localStorage의 잔여 민감 데이터 정리.
@@ -36,7 +76,7 @@ function UserInitializer({ children }: ProviderProps) {
   }, []);
 
   useLayoutEffect(() => {
-    if (!isAuthReady || !authMemberId) {
+    if (!isAuthenticatedMemberSession || !authMemberId) {
       return;
     }
 
@@ -44,7 +84,7 @@ function UserInitializer({ children }: ProviderProps) {
       // eslint-disable-next-line no-void
       void fetchAndSetUser(authMemberId);
     }
-  }, [isAuthReady, authMemberId, memberId, fetchAndSetUser]);
+  }, [isAuthenticatedMemberSession, authMemberId, memberId, fetchAndSetUser]);
 
   return <>{children}</>;
 }

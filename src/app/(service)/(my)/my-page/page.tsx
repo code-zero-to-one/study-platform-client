@@ -4,7 +4,10 @@ import {
   QueryClient,
 } from '@tanstack/react-query';
 import Link from 'next/link';
-import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
+import {
+  SERVER_USER_PROFILE_RESULT_KINDS,
+  tryGetUserProfileInServer,
+} from '@/api/endpoints/user/get-user-profile.server';
 import Button from '@/components/common/ui/button';
 import Profile from '@/components/my-page/profile';
 import ProfileInfo from '@/components/my-page/profile-info';
@@ -32,9 +35,45 @@ export default async function MyPage() {
     );
   }
 
-  const safeProfile = await tryGetUserProfileInServer(memberId);
+  const profileResult = await tryGetUserProfileInServer(memberId);
 
-  if (!safeProfile) {
+  if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.AUTH_ERROR) {
+    return (
+      <section className="rounded-150 border-border-subtle bg-background-default border p-300">
+        <h2 className="font-designer-20b text-text-default mb-75">
+          로그인 정보를 다시 확인해주세요
+        </h2>
+        <p className="font-designer-14r text-text-subtle mb-200">
+          인증 정보가 일치하지 않아 프로필을 불러오지 못했습니다.
+        </p>
+        <Link href="/login">
+          <Button color="primary" size="medium">
+            로그인하러 가기
+          </Button>
+        </Link>
+      </section>
+    );
+  }
+
+  if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE) {
+    return (
+      <section className="rounded-150 border-border-subtle bg-background-default border p-300">
+        <h2 className="font-designer-20b text-text-default mb-75">
+          프로필 정보가 아직 준비되지 않았어요
+        </h2>
+        <p className="font-designer-14r text-text-subtle mb-200">
+          회원 정보가 아직 생성되지 않았거나 조회 대상이 존재하지 않습니다.
+        </p>
+        <Link href="/home">
+          <Button color="outlined" size="medium">
+            홈으로 이동
+          </Button>
+        </Link>
+      </section>
+    );
+  }
+
+  if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.REQUEST_FAILED) {
     return (
       <section className="rounded-150 border-border-subtle bg-background-default border p-300">
         <h2 className="font-designer-20b text-text-default mb-75">
@@ -52,6 +91,8 @@ export default async function MyPage() {
       </section>
     );
   }
+
+  const safeProfile = profileResult.profile;
 
   const queryClient = new QueryClient();
   queryClient.setQueryData<GetUserProfileResponse>(

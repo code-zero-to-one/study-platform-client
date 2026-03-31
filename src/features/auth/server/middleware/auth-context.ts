@@ -1,38 +1,42 @@
 import type { NextRequest } from 'next/server';
 import { AUTH_COOKIE_NAMES } from '@/features/auth/model/auth-cookie';
 import {
-  getAuthSessionState,
   normalizeMemberId,
+  resolveTokenBackedSession,
 } from '@/features/auth/model/auth-session';
-import { AUTH_ROLE_IDS, type AuthSessionState } from '@/types/auth/domain';
 import { decodeJwt } from '@/utils/jwt';
 
 export interface AuthContext {
   accessToken: string | undefined;
-  memberId: string | undefined;
-  decodedMemberId: string | undefined;
+  hasRefreshToken: boolean;
+  cookieMemberId: string | undefined;
   isGuestToken: boolean;
-  sessionState: AuthSessionState;
+  sessionState: ReturnType<typeof resolveTokenBackedSession>['sessionState'];
 }
 
 export function getAuthContext(request: NextRequest): AuthContext {
   const accessToken = request.cookies.get(
     AUTH_COOKIE_NAMES.ACCESS_TOKEN,
   )?.value;
-  const memberId = normalizeMemberId(
+  const hasRefreshToken = Boolean(
+    request.cookies.get(AUTH_COOKIE_NAMES.REFRESH_TOKEN)?.value,
+  );
+  const cookieMemberId = normalizeMemberId(
     request.cookies.get(AUTH_COOKIE_NAMES.MEMBER_ID)?.value,
   );
   const decoded = accessToken ? decodeJwt(accessToken) : null;
-  const decodedMemberId = normalizeMemberId(decoded?.memberId);
-  const isGuestToken = Array.isArray(decoded?.roleIds)
-    ? decoded.roleIds.includes(AUTH_ROLE_IDS.GUEST)
-    : false;
+  const resolvedSession = resolveTokenBackedSession({
+    accessToken,
+    memberId: cookieMemberId,
+    decodedToken: decoded,
+    allowExpiredTokenRecovery: true,
+  });
 
   return {
     accessToken,
-    memberId,
-    decodedMemberId,
-    isGuestToken,
-    sessionState: getAuthSessionState({ accessToken, memberId }),
+    hasRefreshToken,
+    cookieMemberId,
+    isGuestToken: resolvedSession.isGuestToken,
+    sessionState: resolvedSession.sessionState,
   };
 }

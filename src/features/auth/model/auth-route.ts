@@ -11,6 +11,11 @@ export const AUTH_ROUTE_PATHS = {
   CLEAR_SESSION_API: '/api/auth/clear-session',
 } as const;
 
+export const AUTH_ROUTE_QUERY_PARAMS = {
+  PROTECTED_TRANSIENT_RETRY: '__authRetry',
+  DOCUMENT_AUTH_RECOVERY: '__authRecovery',
+} as const;
+
 /**
  * 인증 미들웨어에서 별도 매칭 규칙을 갖는 특수 경로 prefix 모음이다.
  */
@@ -48,3 +53,106 @@ export const getClearSessionRedirectUrl = (redirectPath: string): string =>
   `${AUTH_ROUTE_PATHS.CLEAR_SESSION_API}?redirect=${encodeURIComponent(
     getSafeInternalRedirectPath(redirectPath, AUTH_ROUTE_PATHS.LOGIN),
   )}`;
+
+const getPathWithSearch = ({
+  pathname,
+  search,
+}: {
+  pathname: string;
+  search: string;
+}): string => `${pathname}${search}`;
+
+const updatePathSearchParams = ({
+  pathname,
+  search,
+  update,
+}: {
+  pathname: string;
+  search: string;
+  update: (searchParams: URLSearchParams) => void;
+}): string => {
+  const searchParams = new URLSearchParams(search);
+
+  update(searchParams);
+
+  const nextSearch = searchParams.toString();
+
+  return getPathWithSearch({
+    pathname,
+    search: nextSearch ? `?${nextSearch}` : '',
+  });
+};
+
+export const getProtectedTransientRetryPath = ({
+  pathname,
+  search,
+}: {
+  pathname: string;
+  search: string;
+}): string =>
+  updatePathSearchParams({
+    pathname,
+    search,
+    update: (searchParams) => {
+      searchParams.set(AUTH_ROUTE_QUERY_PARAMS.PROTECTED_TRANSIENT_RETRY, '1');
+    },
+  });
+
+export const getDocumentAuthRecoveryPath = ({
+  pathname,
+  search,
+}: {
+  pathname: string;
+  search: string;
+}): string =>
+  updatePathSearchParams({
+    pathname,
+    search,
+    update: (searchParams) => {
+      searchParams.set(AUTH_ROUTE_QUERY_PARAMS.DOCUMENT_AUTH_RECOVERY, '1');
+    },
+  });
+
+export const getAuthRecoveryCleanPath = ({
+  pathname,
+  search,
+}: {
+  pathname: string;
+  search: string;
+}): string =>
+  updatePathSearchParams({
+    pathname,
+    search,
+    update: (searchParams) => {
+      searchParams.delete(AUTH_ROUTE_QUERY_PARAMS.PROTECTED_TRANSIENT_RETRY);
+      searchParams.delete(AUTH_ROUTE_QUERY_PARAMS.DOCUMENT_AUTH_RECOVERY);
+    },
+  });
+
+export const getProtectedTransientRetryCleanPath = ({
+  pathname,
+  search,
+}: {
+  pathname: string;
+  search: string;
+}): string =>
+  getAuthRecoveryCleanPath({
+    pathname,
+    search,
+  });
+
+export const hasProtectedTransientRetryParam = (search: string): boolean => {
+  const searchParams = new URLSearchParams(search);
+
+  return (
+    searchParams.get(AUTH_ROUTE_QUERY_PARAMS.PROTECTED_TRANSIENT_RETRY) === '1'
+  );
+};
+
+export const hasDocumentAuthRecoveryParam = (search: string): boolean => {
+  const searchParams = new URLSearchParams(search);
+
+  return (
+    searchParams.get(AUTH_ROUTE_QUERY_PARAMS.DOCUMENT_AUTH_RECOVERY) === '1'
+  );
+};

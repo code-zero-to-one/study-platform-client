@@ -11,6 +11,10 @@ import {
   GoalStep,
   SuccessStep,
 } from '@/components/forms/sign-up-steps';
+import {
+  redirectToClearedLoginState,
+  resetClientDerivedAuthStateWithQueryCache,
+} from '@/features/auth/model/client-auth-cleanup';
 import { writeExistingMemberSession } from '@/features/auth/model/client-auth-session';
 import {
   useSignUpMutation,
@@ -116,34 +120,52 @@ export default function SignupModal({
         const content = data?.content;
         const memberId = content?.generatedMemberId;
         const accessToken = content?.accessToken;
-        if (memberId && accessToken) {
-          writeExistingMemberSession({
-            accessToken,
-            memberId,
-          });
+        if (!memberId || !accessToken) {
+          showToast(
+            '회원가입 후 로그인 세션을 확인하지 못했습니다. 다시 로그인해주세요.',
+            'error',
+          );
+          redirectToClearedLoginState();
 
-          // 이미지 업로드
-          if (signupData.file) {
-            const formData = new FormData();
-            formData.append('file', signupData.file);
-            uploadProfileImage.mutate({
-              memberId: Number(memberId),
-              filename: `profile-${memberId}`,
-              file: formData,
-            });
-          }
+          return;
+        }
 
-          const attributionParams = getAttributionParams();
+        resetClientDerivedAuthStateWithQueryCache();
+        const hasSavedExistingMemberSession = writeExistingMemberSession({
+          accessToken,
+          memberId,
+        });
 
-          sendGTMEvent({
-            event: 'custom_member_join',
-            dl_timestamp: new Date().toISOString(),
-            dl_member_id: hashValue(memberId),
-            ...attributionParams,
+        if (!hasSavedExistingMemberSession) {
+          showToast(
+            '회원가입 후 로그인 세션 저장에 실패했습니다. 다시 로그인해주세요.',
+            'error',
+          );
+          redirectToClearedLoginState();
+
+          return;
+        }
+
+        if (signupData.file) {
+          const formData = new FormData();
+          formData.append('file', signupData.file);
+          uploadProfileImage.mutate({
+            memberId: Number(memberId),
+            filename: `profile-${memberId}`,
+            file: formData,
           });
         }
 
-        // 모달 닫지 않고 success step으로 이동 (토큰 여부와 관계없이 성공 시 이동)
+        const attributionParams = getAttributionParams();
+
+        sendGTMEvent({
+          event: 'custom_member_join',
+          dl_timestamp: new Date().toISOString(),
+          dl_member_id: hashValue(memberId),
+          ...attributionParams,
+        });
+
+        // 모달 닫지 않고 success step으로 이동
         setCurrentStep('success');
       },
       onError: (error) => {

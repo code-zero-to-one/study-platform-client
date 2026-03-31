@@ -1,58 +1,123 @@
 import { isAxiosError } from 'axios';
-import { redirect } from 'next/navigation';
 import { axiosServerInstance } from '@/api/client/axios.server';
 import { GetUserProfileResponse } from '@/types/api/user.types';
 
-const shouldRedirectToLoginAfterProfileError = (status?: number) =>
-  status === 401 || status === 403 || status === 404;
+export const SERVER_USER_PROFILE_RESULT_KINDS = {
+  SUCCESS: 'success',
+  AUTH_ERROR: 'auth-error',
+  MISSING_PROFILE: 'missing-profile',
+  REQUEST_FAILED: 'request-failed',
+} as const;
 
-interface GetUserProfileInServerOptions {
-  redirectOnAuthOrMissingProfile?: boolean;
+export type ServerUserProfileResult =
+  | {
+      kind: typeof SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS;
+      profile: GetUserProfileResponse;
+    }
+  | {
+      kind: typeof SERVER_USER_PROFILE_RESULT_KINDS.AUTH_ERROR;
+      status: 401 | 403;
+      error: unknown;
+    }
+  | {
+      kind: typeof SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE;
+      status: 404;
+      error: unknown;
+    }
+  | {
+      kind: typeof SERVER_USER_PROFILE_RESULT_KINDS.REQUEST_FAILED;
+      status?: number;
+      error: unknown;
+    };
+
+type ServerUserProfileFailureResult = Exclude<
+  ServerUserProfileResult,
+  { kind: typeof SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS }
+>;
+
+export class ServerUserProfileRequestError extends Error {
+  public readonly kind: ServerUserProfileFailureResult['kind'];
+  public readonly status?: number;
+  public readonly causeError: unknown;
+
+  public constructor(result: ServerUserProfileFailureResult) {
+    super(
+      result.kind === SERVER_USER_PROFILE_RESULT_KINDS.AUTH_ERROR
+        ? '프로필 조회 중 인증 오류가 발생했습니다.'
+        : result.kind === SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE
+          ? '프로필 데이터를 찾을 수 없습니다.'
+          : '프로필 조회 요청이 실패했습니다.',
+    );
+    this.name = 'ServerUserProfileRequestError';
+    this.kind = result.kind;
+    this.status = result.status;
+    this.causeError = result.error;
+  }
 }
 
-export const getUserProfileInServer = async (
-  memberId: number,
-  options: GetUserProfileInServerOptions = {},
-): Promise<GetUserProfileResponse> => {
-  const { redirectOnAuthOrMissingProfile = true } = options;
+const classifyServerUserProfileError = (
+  error: unknown,
+): ServerUserProfileFailureResult | undefined => {
+  if (!isAxiosError(error)) {
+    return undefined;
+  }
 
+  const status = error.response?.status;
+
+  if (status === 401 || status === 403) {
+    return {
+      kind: SERVER_USER_PROFILE_RESULT_KINDS.AUTH_ERROR,
+      status,
+      error,
+    };
+  }
+
+  if (status === 404) {
+    return {
+      kind: SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE,
+      status,
+      error,
+    };
+  }
+
+  return {
+    kind: SERVER_USER_PROFILE_RESULT_KINDS.REQUEST_FAILED,
+    status,
+    error,
+  };
+};
+
+export const getUserProfileInServerResult = async (
+  memberId: number,
+): Promise<ServerUserProfileResult> => {
   try {
     const res = await axiosServerInstance.get(`/members/${memberId}/profile`);
 
-    return res.data.content;
+    return {
+      kind: SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS,
+      profile: res.data.content,
+    };
   } catch (error) {
-    // 회원가입 직후 프로필이 아직 생성되지 않았거나 인증 문제인 경우
-    // Route Handler로 리다이렉트하여 쿠키 삭제 후 로그인 페이지로 이동
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
+    const classifiedError = classifyServerUserProfileError(error);
 
-      if (
-        redirectOnAuthOrMissingProfile &&
-        shouldRedirectToLoginAfterProfileError(status)
-      ) {
-        redirect('/api/auth/clear-session?redirect=/login');
-      }
-    }
-
-    // 예상치 못한 에러는 다시 throw
-    throw error;
-  }
-};
-
-export const tryGetUserProfileInServer = async (memberId: number) => {
-  try {
-    return await getUserProfileInServer(memberId, {
-      redirectOnAuthOrMissingProfile: false,
-    });
-  } catch (error) {
-    if (isAxiosError(error)) {
-      const status = error.response?.status;
-
-      if (!error.response || shouldRedirectToLoginAfterProfileError(status)) {
-        return null;
-      }
+    if (classifiedError) {
+      return classifiedError;
     }
 
     throw error;
   }
 };
+
+export const getUserProfileInServer = async (
+  memberId: number,
+): Promise<GetUserProfileResponse> => {
+  const result = await getUserProfileInServerResult(memberId);
+
+  if (result.kind === SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
+    return result.profile;
+  }
+
+  throw new ServerUserProfileRequestError(result);
+};
+
+export const tryGetUserProfileInServer = getUserProfileInServerResult;
