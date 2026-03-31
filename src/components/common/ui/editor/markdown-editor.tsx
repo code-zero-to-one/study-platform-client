@@ -144,8 +144,6 @@ function MarkdownEditor({
       forceEditorRerender((prev) => prev + 1);
     },
     onSelectionUpdate: ({ editor: nextEditor }) => {
-      forceEditorRerender((prev) => prev + 1);
-
       if (nextEditor.isActive('image')) {
         setSelectedImagePos(nextEditor.state.selection.from);
 
@@ -512,7 +510,7 @@ function MarkdownEditor({
             onChange={(event) => {
               handleImageWidthChange(Number(event.target.value));
             }}
-            className="accent-background-brand-default w-[180px]"
+            className="accent-background-brand-default flex-1"
           />
           <span className="font-designer-12r text-text-default min-w-600">
             {selectedImageWidth}px

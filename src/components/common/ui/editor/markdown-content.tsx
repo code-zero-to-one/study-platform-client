@@ -24,6 +24,10 @@ import { marked } from 'marked';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import {
+  MARKDOWN_IMAGE_MAX_WIDTH,
+  MARKDOWN_IMAGE_MIN_WIDTH,
+} from './image-utils';
+import {
   isHtmlMarkdownContent,
   normalizeMarkdownContent,
 } from './markdown-utils';
@@ -83,9 +87,6 @@ const SANITIZE_OPTIONS: DOMPurify.Config = {
   ALLOW_DATA_ATTR: false,
   ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#)/i,
 };
-
-const MARKDOWN_IMAGE_MIN_WIDTH = 80;
-const MARKDOWN_IMAGE_MAX_WIDTH = 400;
 
 const parseSanitizedImageWidth = (
   value: string | undefined,
@@ -240,7 +241,7 @@ function MarkdownContent({
         '[&_a]:text-text-brand [&_a]:underline',
         '[&_s]:line-through [&_del]:line-through',
         '[&_img]:rounded-100 [&_img]:border-border-subtle [&_img]:mb-100 [&_img]:block [&_img]:h-auto [&_img]:max-h-[400px] [&_img]:max-w-[min(100%,400px)] [&_img]:border [&_img]:object-contain',
-        '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-[2px]',
+        '[&_code]:rounded-50 [&_code]:bg-background-alternative [&_code]:font-designer-13r [&_code]:px-75 [&_code]:py-25',
         '[&_pre]:rounded-100 [&_pre]:bg-background-alternative [&_pre]:mb-100 [&_pre]:overflow-x-auto [&_pre]:px-125 [&_pre]:py-100',
         '[&_pre_code]:bg-transparent [&_pre_code]:px-0 [&_pre_code]:py-0',
         '[&_hr]:border-border-subtle [&_hr]:my-200',

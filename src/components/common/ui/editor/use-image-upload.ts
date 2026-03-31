@@ -99,7 +99,7 @@ export function useImageUpload(
 
         if (hitLimit) {
           errors.push(
-            `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지 등록할 수 있습니다.`,
+            `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
           );
         }
 
