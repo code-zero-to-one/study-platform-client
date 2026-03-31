@@ -13,15 +13,6 @@ import {
   requestMentorMarkdownImageUploadTicket,
   uploadMarkdownImageFile,
 } from '@/features/mentoring/model/mentor-markdown-image-upload';
-
-const uploadMissionMarkdownImage = async (file: File) => {
-  const ticket = await requestMentorMarkdownImageUploadTicket({
-    fileName: file.name,
-  });
-  await uploadMarkdownImageFile({ uploadUrl: ticket.uploadUrl, file });
-
-  return ticket.publicUrl;
-};
 import {
   useGetMission,
   useGetMissions,
@@ -31,8 +22,17 @@ import { useGroupStudyDetailQuery } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import {
   createDisabledDateMatcherForMission,
-  MissionPeriod,
+  type MissionPeriod,
 } from '@/utils/time';
+
+const uploadMissionMarkdownImage = async (file: File) => {
+  const ticket = await requestMentorMarkdownImageUploadTicket({
+    fileName: file.name,
+  });
+  await uploadMarkdownImageFile({ uploadUrl: ticket.uploadUrl, file });
+
+  return ticket.publicUrl;
+};
 
 // Form Schema
 const EditMissionFormSchema = z.object({
