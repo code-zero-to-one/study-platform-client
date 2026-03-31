@@ -103,12 +103,18 @@ export const hasOnlyAllowedImageExtensions = (
   );
 };
 
-const toHtmlTextContent = (content: string) => {
+export const extractPlainTextFromHtml = (content: string): string => {
   return content
     .replace(HTML_BREAK_TAG_PATTERN, ' ')
     .replace(HTML_ENTITY_NBSP_PATTERN, ' ')
     .replace(HTML_TAG_PATTERN, ' ')
     .trim();
+};
+
+export const getContentTextLength = (content: string): number => {
+  if (!isHtmlContent(content)) return content.length;
+
+  return extractPlainTextFromHtml(content).length;
 };
 
 export const normalizeMarkdownContent = (content: unknown): string => {
@@ -129,5 +135,5 @@ export const normalizeMarkdownContent = (content: unknown): string => {
     return trimmed;
   }
 
-  return toHtmlTextContent(trimmed).length > 0 ? trimmed : '';
+  return extractPlainTextFromHtml(trimmed).length > 0 ? trimmed : '';
 };
