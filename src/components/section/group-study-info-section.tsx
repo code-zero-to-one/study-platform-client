@@ -10,9 +10,11 @@ import UserAvatar from '@/components/common/ui/avatar';
 import AvatarStack from '@/components/common/ui/avatar-stack';
 import type { AvatarStackMember } from '@/components/common/ui/avatar-stack';
 import Button from '@/components/common/ui/button';
+import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import CurriculumSummarySection from '@/components/section/curriculum-summary-section';
 import { useApplicantsByStatusQuery } from '@/hooks/queries/use-applicant-query';
 
+import { MARKDOWN_DESCRIPTION_CLASS } from '../common/ui/editor/markdown-utils';
 import SummaryStudyInfo from '../summary/study-info-summary';
 
 const UserProfileModal = dynamic(
@@ -45,14 +47,6 @@ export default function StudyInfoSection({
     groupStudyId,
     status: 'APPROVED',
   });
-
-  const { data: pendingApplicants } = useApplicantsByStatusQuery({
-    groupStudyId,
-    status: 'PENDING',
-    enabled: isLeader,
-  });
-  const pendingCount = pendingApplicants?.pages[0]?.totalElements ?? 0;
-
   const applicants = useMemo(
     () => approvedApplicants?.pages[0]?.content ?? [],
     [approvedApplicants?.pages],
@@ -136,9 +130,10 @@ export default function StudyInfoSection({
                 }
               />
             </div>
-            <div className="font-designer-16r whitespace-pre-line text-text-subtle">
-              {studyDetail?.detailInfo.description}
-            </div>
+            <MarkdownContent
+              content={studyDetail?.detailInfo.description}
+              className={MARKDOWN_DESCRIPTION_CLASS}
+            />
           </div>
 
           <div className="flex flex-col gap-200">
@@ -148,21 +143,14 @@ export default function StudyInfoSection({
                 <span className="text-text-subtlest">{`${approvedApplicants?.pages[0]?.totalElements ?? 0}명`}</span>
               </div>
               {isLeader && (
-                <div className="relative">
-                  <Button
-                    className="h-500 w-[80px] font-designer-16b"
-                    onClick={() =>
-                      router.push(`/application-list/${groupStudyId}`)
-                    }
-                  >
-                    관리하기
-                  </Button>
-                  {pendingCount > 0 && (
-                    <span className="absolute -right-75 -top-75 flex h-225 min-w-225 items-center justify-center rounded-full bg-fill-danger-default-default px-30 font-designer-11b text-text-inverse">
-                      {pendingCount}
-                    </span>
-                  )}
-                </div>
+                <Button
+                  className="h-500 w-[80px] font-designer-16b"
+                  onClick={() =>
+                    router.push(`/application-list/${groupStudyId}`)
+                  }
+                >
+                  관리하기
+                </Button>
               )}
             </div>
 

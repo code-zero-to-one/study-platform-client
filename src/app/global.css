@@ -392,9 +392,6 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-500: 40px;
   --spacing-600: 48px;
   --spacing-700: 56px;
-  --spacing-800: 64px;
-  --spacing-1000: 80px;
-  --spacing-1500: 120px;
 
   /* shadow */
   --shadow-*: initial;
@@ -465,10 +462,6 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   min-height: 200px;
 }
 
-@utility min-h-150 {
-  min-height: 150px;
-}
-
 @utility h-study-card {
   height: 244px;
 }
@@ -499,21 +492,8 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   max-width: 1164px;
 }
 
-@utility max-w-500 {
-  max-width: 500px;
-}
-
-@utility max-w-1496 {
-  max-width: 1496px;
-}
-
 @utility max-h-modal {
   max-height: 90vh;
-}
-
-@utility size-icon {
-  width: 36px;
-  height: 36px;
 }
 
 @utility grid-cols-content-sidebar-360 {
@@ -539,7 +519,6 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 @utility translate-y-panel {
   transform: translate3d(0, var(--panel-translate-y, 0px), 0);
 }
-
 @utility font-display-headings2 {
   font-size: 64px;
   font-weight: var(--font-weight-bold);
@@ -976,7 +955,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 .tiptap-editor .tiptap h1 {
   font-size: 24px;
   font-weight: 700;
-  line-height: 36px;
+  line-height: 34px;
   color: var(--color-text-strong);
   margin-top: 24px;
   margin-bottom: 12px;
@@ -1055,6 +1034,11 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   cursor: pointer;
 }
 
+.tiptap-editor .tiptap s,
+.tiptap-editor .tiptap del {
+  text-decoration: line-through;
+}
+
 .tiptap-editor .tiptap img {
   display: block;
   max-width: min(100%, 400px);
@@ -1066,6 +1050,11 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   margin-left: 0;
   margin-right: 0;
   margin-bottom: 12px;
+}
+
+.tiptap-editor .tiptap img.ProseMirror-selectednode {
+  outline: 2px solid var(--color-border-brand);
+  outline-offset: 2px;
 }
 
 .tiptap-editor .tiptap hr {
