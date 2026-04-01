@@ -307,7 +307,6 @@ export default function StudyDetailPage({
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
         <StudyActiveTicker
           approvedCount={studyDetail.basicInfo.approvedCount}
-          remainingSlot={studyDetail.basicInfo.remainingSlots}
           maxMembersCount={studyDetail.basicInfo.maxMembersCount}
           startDate={studyDetail.basicInfo.startDate}
           viewCount={studyDetail.viewCount}
