@@ -1,6 +1,10 @@
 import { deleteCookie, setCookie } from '@/api/client/cookie';
 import { decodeJwt } from '@/utils/jwt';
-import { AUTH_COOKIE_NAMES } from './auth-cookie';
+import {
+  AUTH_COOKIE_NAMES,
+  TOKEN_BACKED_AUTH_COOKIE_MAX_AGE_SECONDS,
+} from './auth-cookie';
+import { AUTH_EVENT_LEVELS, logAuthEvent } from './auth-debug-log';
 import { normalizeMemberId } from './auth-session';
 import { notifyAuthSessionChanged } from './client-auth-sync';
 
@@ -17,6 +21,10 @@ export const clearClientSession = (): void => {
   notifyAuthSessionChanged();
 };
 
+const tokenBackedCookieOptions = {
+  maxAge: TOKEN_BACKED_AUTH_COOKIE_MAX_AGE_SECONDS,
+} as const;
+
 export const writeExistingMemberSession = ({
   accessToken,
   memberId,
@@ -25,7 +33,7 @@ export const writeExistingMemberSession = ({
   accessToken: string;
   memberId: string;
   profileImageUrl?: string;
-}): void => {
+}): boolean => {
   const decodedMemberId = getDecodedMemberId(accessToken);
   const normalizedMemberId = normalizeMemberId(memberId);
 
@@ -42,23 +50,46 @@ export const writeExistingMemberSession = ({
   }
 
   if (!decodedMemberId || decodedMemberId !== normalizedMemberId) {
+    logAuthEvent({
+      level: AUTH_EVENT_LEVELS.ERROR,
+      layer: 'client-auth-session',
+      message: '기존 회원 세션 저장을 중단합니다.',
+      reason:
+        'access token의 memberId와 redirect memberId가 일치하지 않습니다.',
+      hasAccessToken: true,
+      hasIdentityCookie: Boolean(normalizedMemberId),
+    });
     clearClientSession();
 
-    return;
+    return false;
   }
 
-  setCookie(AUTH_COOKIE_NAMES.ACCESS_TOKEN, accessToken);
-  setCookie(AUTH_COOKIE_NAMES.MEMBER_ID, decodedMemberId);
+  setCookie(
+    AUTH_COOKIE_NAMES.ACCESS_TOKEN,
+    accessToken,
+    tokenBackedCookieOptions,
+  );
+  setCookie(
+    AUTH_COOKIE_NAMES.MEMBER_ID,
+    decodedMemberId,
+    tokenBackedCookieOptions,
+  );
 
   if (profileImageUrl) {
-    setCookie(AUTH_COOKIE_NAMES.SOCIAL_IMAGE_URL, profileImageUrl);
+    setCookie(
+      AUTH_COOKIE_NAMES.SOCIAL_IMAGE_URL,
+      profileImageUrl,
+      tokenBackedCookieOptions,
+    );
     notifyAuthSessionChanged();
 
-    return;
+    return true;
   }
 
   deleteCookie(AUTH_COOKIE_NAMES.SOCIAL_IMAGE_URL);
   notifyAuthSessionChanged();
+
+  return true;
 };
 
 export const writeNewMemberSession = ({
@@ -68,11 +99,19 @@ export const writeNewMemberSession = ({
   accessToken: string;
   profileImageUrl?: string;
 }): void => {
-  setCookie(AUTH_COOKIE_NAMES.ACCESS_TOKEN, accessToken);
+  setCookie(
+    AUTH_COOKIE_NAMES.ACCESS_TOKEN,
+    accessToken,
+    tokenBackedCookieOptions,
+  );
   deleteCookie(AUTH_COOKIE_NAMES.MEMBER_ID);
 
   if (profileImageUrl) {
-    setCookie(AUTH_COOKIE_NAMES.SOCIAL_IMAGE_URL, profileImageUrl);
+    setCookie(
+      AUTH_COOKIE_NAMES.SOCIAL_IMAGE_URL,
+      profileImageUrl,
+      tokenBackedCookieOptions,
+    );
     notifyAuthSessionChanged();
 
     return;
@@ -85,12 +124,20 @@ export const writeNewMemberSession = ({
 export const writeAccessTokenSession = (
   accessToken: string,
 ): string | undefined => {
-  setCookie(AUTH_COOKIE_NAMES.ACCESS_TOKEN, accessToken);
+  setCookie(
+    AUTH_COOKIE_NAMES.ACCESS_TOKEN,
+    accessToken,
+    tokenBackedCookieOptions,
+  );
 
   const decodedMemberId = getDecodedMemberId(accessToken);
 
   if (decodedMemberId) {
-    setCookie(AUTH_COOKIE_NAMES.MEMBER_ID, decodedMemberId);
+    setCookie(
+      AUTH_COOKIE_NAMES.MEMBER_ID,
+      decodedMemberId,
+      tokenBackedCookieOptions,
+    );
     notifyAuthSessionChanged();
 
     return decodedMemberId;

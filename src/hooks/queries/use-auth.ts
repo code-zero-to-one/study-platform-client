@@ -4,14 +4,16 @@
 // 한편, prefetchQuery 는 서버컴포넌트에서 사용하는 함수로 데이터를 미리 가져와서 캐시에 저장함
 
 import { useQuery } from '@tanstack/react-query';
-import { getCookie } from '@/api/client/cookie';
 import { getMemberId } from '@/api/endpoints/auth/auth';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 
 // 회원 Id 조회
 export const useMemberId = () => {
+  const { isAuthenticated } = useAuthReady();
+
   return useQuery<{ memberId: string }>({
     queryKey: ['member', 'me'],
     queryFn: getMemberId,
-    enabled: !!getCookie('accessToken'), // 토큰이 있을 때만 실행
+    enabled: isAuthenticated,
   });
 };

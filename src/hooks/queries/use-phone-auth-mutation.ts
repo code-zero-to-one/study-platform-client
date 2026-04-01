@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { getCookie } from '@/api/client/cookie';
 import { createApiInstance } from '@/api/client/open-api-instance';
 import { PhoneAuthApi } from '@/api/openapi';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 // mutation 내부에서는 store 직접 사용 허용 (API 성공 시 즉시 업데이트 목적)
 import { usePhoneVerificationStore } from '@/stores/use-phone-verification-store';
 import type {
@@ -33,6 +33,7 @@ export const useVerifyPhoneCodeMutation = (memberId?: number) => {
   const queryClient = useQueryClient();
   const router = useRouter();
   const { setVerified } = usePhoneVerificationStore();
+  const { memberId: authMemberId } = useAuthReady();
 
   return useMutation({
     mutationFn: async (data: VerifyPhoneCodeRequest) => {
@@ -42,7 +43,7 @@ export const useVerifyPhoneCodeMutation = (memberId?: number) => {
     },
     onSuccess: async (data, variables) => {
       if (data?.success) {
-        const currentMemberId = memberId ?? Number(getCookie('memberId'));
+        const currentMemberId = memberId ?? authMemberId;
 
         // 인증 상태 저장
         setVerified(variables.phoneNumber, currentMemberId || undefined);

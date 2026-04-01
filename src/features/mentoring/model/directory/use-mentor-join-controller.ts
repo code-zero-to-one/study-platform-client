@@ -81,7 +81,6 @@ export const useMentorJoinController = () => {
     }
 
     if (!isVerified) {
-      showToast(MENTORING_LIST_ERROR_MESSAGES.verificationRequired, 'error');
       setIsVerificationModalOpen(true);
 
       return;

@@ -11,9 +11,13 @@ import {
 } from '@/types/auth/domain';
 import { getAttributionParams } from '@/utils/attribution-tracker';
 import { hashValue } from '@/utils/hash';
-import { AUTH_ROUTE_PATHS, getClearSessionRedirectUrl } from './auth-route';
+import { AUTH_EVENT_LEVELS, logAuthEvent } from './auth-debug-log';
+import { AUTH_ROUTE_PATHS } from './auth-route';
 import {
-  clearClientSession,
+  clearClientAuthStateAndRedirect,
+  resetClientDerivedAuthStateWithQueryCache,
+} from './client-auth-cleanup';
+import {
   writeExistingMemberSession,
   writeNewMemberSession,
 } from './client-auth-session';
@@ -25,6 +29,8 @@ import {
 } from './parse-oauth-redirect-result';
 
 interface SearchParamsLike {
+  // URLSearchParams.get 계약과 맞추기 위해 null을 그대로 허용한다.
+  // eslint-disable-next-line @rushstack/no-new-null
   get(name: string): string | null;
 }
 
@@ -34,6 +40,12 @@ const logOAuthRedirectError = (
   message: string,
   payload: Record<string, unknown>,
 ): void => {
+  logAuthEvent({
+    level: AUTH_EVENT_LEVELS.ERROR,
+    layer: 'client-oauth-redirect',
+    message,
+  });
+
   if (!isDebugLoggingEnabled) {
     return;
   }
@@ -52,8 +64,7 @@ const isOAuthRedirectNewMemberSuccess = (
   redirectResult.kind === OAUTH_REDIRECT_RESULT_KINDS.NEW_MEMBER_SUCCESS;
 
 const replaceWithClearedLoginSession = (): void => {
-  clearClientSession();
-  window.location.replace(getClearSessionRedirectUrl(AUTH_ROUTE_PATHS.LOGIN));
+  clearClientAuthStateAndRedirect(AUTH_ROUTE_PATHS.LOGIN);
 };
 
 export const useOAuthRedirectController = (
@@ -82,6 +93,7 @@ export const useOAuthRedirectController = (
       }
 
       if (isOAuthRedirectNewMemberSuccess(redirectResult)) {
+        resetClientDerivedAuthStateWithQueryCache();
         writeNewMemberSession({
           accessToken: redirectResult.accessToken,
           profileImageUrl: redirectResult.profileImageUrl,
@@ -92,10 +104,21 @@ export const useOAuthRedirectController = (
         return;
       }
 
-      writeExistingMemberSession({
+      resetClientDerivedAuthStateWithQueryCache();
+      const hasSavedExistingMemberSession = writeExistingMemberSession({
         accessToken: redirectResult.accessToken,
         memberId: redirectResult.memberId,
       });
+
+      if (!hasSavedExistingMemberSession) {
+        logOAuthRedirectError(OAUTH_REDIRECT_LOG_MESSAGES.CONTRACT_MISMATCH, {
+          message: '기존 회원 세션 저장에 실패했습니다.',
+          snapshot: getOAuthRedirectParamSnapshot(searchParams),
+        });
+        replaceWithClearedLoginSession();
+
+        return;
+      }
 
       sendGTMEvent({
         event: 'custom_member_login',
@@ -108,8 +131,6 @@ export const useOAuthRedirectController = (
       router.replace(AUTH_ROUTE_PATHS.HOME);
       router.refresh();
     } catch (error) {
-      clearClientSession();
-
       if (error instanceof OAuthRedirectContractError) {
         logOAuthRedirectError(OAUTH_REDIRECT_LOG_MESSAGES.CONTRACT_MISMATCH, {
           message: error.message,
