@@ -23,7 +23,7 @@ export function SuccessStep({ onConfirm }: { onConfirm: () => void }) {
 
       <div className="mt-auto flex w-full flex-col gap-100">
         <Button size="large" onClick={onConfirm}>
-          로그인 하기
+          홈으로
         </Button>
       </div>
     </div>
