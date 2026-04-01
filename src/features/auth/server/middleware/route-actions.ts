@@ -5,6 +5,10 @@ import {
   getSafeInternalRedirectPath,
 } from '@/features/auth/model/auth-route';
 import {
+  createRequestHeadersWithServerAuthSessionOverride,
+  SERVER_AUTH_SESSION_OVERRIDE_STATES,
+} from '@/features/auth/model/server-auth-session-override';
+import {
   clearAuthCookies,
   copyResponseCookies,
   syncMemberIdCookie,
@@ -18,7 +22,6 @@ import {
 
 export interface RouteNextAction {
   type: 'next';
-  syncPendingSignupIdentity?: boolean;
 }
 
 export interface RouteRedirectAction {
@@ -43,11 +46,8 @@ export type RouteAction =
   | RouteClearAndNextAction
   | RouteClearAndRedirectAction;
 
-export const nextRouteAction = (
-  options?: Pick<RouteNextAction, 'syncPendingSignupIdentity'>,
-): RouteNextAction => ({
+export const nextRouteAction = (): RouteNextAction => ({
   type: 'next',
-  ...options,
 });
 
 export const redirectRouteAction = (to: string): RouteRedirectAction => ({
@@ -79,14 +79,85 @@ const isClearRouteAction = (
 ): action is RouteClearAndNextAction | RouteClearAndRedirectAction =>
   action.type === 'clear-and-next' || action.type === 'clear-and-redirect';
 
-const createActionResponse = (
-  request: NextRequest,
-  action: RouteAction,
-): NextResponse => {
+const createServerAuthSessionOverride = ({
+  action,
+  session,
+}: {
+  action: RouteAction;
+  session?: ResolvedRouteSession;
+}) => {
+  if (action.type === 'clear-and-next') {
+    return {
+      state: SERVER_AUTH_SESSION_OVERRIDE_STATES.ANONYMOUS,
+    } as const;
+  }
+
+  if (action.type !== 'next' || !session) {
+    return undefined;
+  }
+
+  if (isAuthenticatedRouteSession(session)) {
+    return {
+      state: SERVER_AUTH_SESSION_OVERRIDE_STATES.AUTHENTICATED,
+      accessToken: session.accessToken,
+      memberId: session.memberId,
+    } as const;
+  }
+
+  if (isPendingSignupRouteSession(session)) {
+    return {
+      state: SERVER_AUTH_SESSION_OVERRIDE_STATES.PENDING_SIGNUP,
+      accessToken: session.accessToken,
+    } as const;
+  }
+
+  return undefined;
+};
+
+const createRequestHeadersWithAuthSessionOverride = ({
+  request,
+  action,
+  session,
+}: {
+  request: NextRequest;
+  action: RouteAction;
+  session?: ResolvedRouteSession;
+}): Headers | undefined => {
+  if (action.type !== 'next' && action.type !== 'clear-and-next') {
+    return undefined;
+  }
+
+  return createRequestHeadersWithServerAuthSessionOverride({
+    requestHeaders: request.headers,
+    override: createServerAuthSessionOverride({ action, session }),
+  });
+};
+
+const createActionResponse = ({
+  request,
+  action,
+  session,
+}: {
+  request: NextRequest;
+  action: RouteAction;
+  session?: ResolvedRouteSession;
+}): NextResponse => {
+  const requestHeaders = createRequestHeadersWithAuthSessionOverride({
+    request,
+    action,
+    session,
+  });
+
   switch (action.type) {
     case 'next':
     case 'clear-and-next':
-      return NextResponse.next();
+      return requestHeaders
+        ? NextResponse.next({
+            request: {
+              headers: requestHeaders,
+            },
+          })
+        : NextResponse.next();
     case 'redirect':
     case 'clear-and-redirect': {
       const safePath = getSafeInternalRedirectPath(
@@ -100,8 +171,8 @@ const createActionResponse = (
 };
 
 const applyResolvedSession = (
+  request: NextRequest,
   response: NextResponse,
-  action: RouteAction,
   session: ResolvedRouteSession | undefined,
 ): void => {
   if (!session) {
@@ -110,29 +181,19 @@ const applyResolvedSession = (
 
   if (isAuthenticatedRouteSession(session)) {
     copyResponseCookies(session.response, response);
-    syncMemberIdCookie(response, session.currentMemberId, session.memberId);
+    syncMemberIdCookie(
+      request,
+      response,
+      session.currentMemberId,
+      session.memberId,
+    );
 
     return;
   }
 
-  const shouldSyncPendingSignupIdentity =
-    isPendingSignupRouteSession(session) &&
-    action.type === 'next' &&
-    action.syncPendingSignupIdentity &&
-    !session.isGuestToken &&
-    Boolean(session.decodedMemberId);
-
-  if (!shouldSyncPendingSignupIdentity) {
-    return;
+  if (isPendingSignupRouteSession(session)) {
+    copyResponseCookies(session.response, response);
   }
-
-  const nextMemberId = session.decodedMemberId;
-
-  if (!nextMemberId) {
-    return;
-  }
-
-  syncMemberIdCookie(response, session.currentMemberId, nextMemberId);
 };
 
 export const applyRouteAction = ({
@@ -144,9 +205,9 @@ export const applyRouteAction = ({
   action: RouteAction;
   session?: ResolvedRouteSession;
 }): NextResponse => {
-  const response = createActionResponse(request, action);
+  const response = createActionResponse({ request, action, session });
 
-  applyResolvedSession(response, action, session);
+  applyResolvedSession(request, response, session);
 
   if (isClearRouteAction(action)) {
     clearAuthCookies(

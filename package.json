@@ -21,6 +21,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "chromatic --project-token=chpt_bc3a617b8073f9f",
+    "test:unit": "vitest run --project unit",
     "api:on": "sh ./scripts/setup-backend.sh",
     "api:off": "docker-compose -f ../study-platform-mvp/docker-compose.yml down",
     "generate:api": "node scripts/api-generator.mjs",

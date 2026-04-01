@@ -11,8 +11,23 @@ const dirname =
 
 // More info at: https://storybook.js.org/docs/writing-tests/test-addon
 export default defineConfig({
+  resolve: {
+    alias: {
+      '@': path.join(dirname, 'src'),
+    },
+  },
   test: {
-    workspace: [
+    projects: [
+      {
+        extends: true,
+        test: {
+          name: 'unit',
+          environment: 'node',
+          include: ['src/**/*.test.ts'],
+          setupFiles: ['src/test/vitest.unit.setup.ts'],
+          exclude: ['.storybook/**'],
+        },
+      },
       {
         extends: true,
         plugins: [

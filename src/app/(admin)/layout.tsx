@@ -5,7 +5,6 @@ import type { Metadata } from 'next';
 import PageViewTracker from '@/components/common/analytics/page-view-tracker';
 import AdminSideBar from '@/components/common/layout/sidebar/admin-sidebar';
 import GlobalToast from '@/components/common/ui/global-toast';
-import type { AuthHydrationSession } from '@/features/auth/model/auth-hydration-context';
 import { requireAdminRoute } from '@/features/auth/model/server-route-guard';
 import MainProvider from '@/providers';
 
@@ -28,10 +27,9 @@ export default async function AdminLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { accessToken, memberId } = await requireAdminRoute();
-  const initialSession: AuthHydrationSession = {
+  const { accessToken } = await requireAdminRoute();
+  const initialSession = {
     accessToken,
-    memberId: String(memberId),
   };
 
   return (

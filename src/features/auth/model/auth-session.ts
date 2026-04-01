@@ -1,11 +1,11 @@
 import {
   AUTH_ROLE_IDS,
   AUTH_SESSION_STATES,
-  type AuthSessionLike,
   type AuthSessionState,
 } from '@/types/auth/domain';
 
 const MEMBER_ID_PATTERN = /^[1-9]\d*$/;
+const ACCESS_TOKEN_EXPIRY_CLOCK_SKEW_MS = 30_000;
 
 export interface TokenBackedDecodedLike {
   roleIds?: string[];
@@ -15,6 +15,7 @@ export interface TokenBackedDecodedLike {
 
 export interface ResolvedTokenBackedSession {
   sessionState: AuthSessionState;
+  resolvedMemberId?: string;
   cookieMemberId?: string;
   decodedMemberId?: string;
   isGuestToken: boolean;
@@ -44,21 +45,6 @@ export const normalizeMemberId = (
   return MEMBER_ID_PATTERN.test(normalized) ? normalized : undefined;
 };
 
-export const getAuthSessionState = ({
-  accessToken,
-  memberId,
-}: AuthSessionLike): AuthSessionState => {
-  if (!hasAccessToken(accessToken)) {
-    return AUTH_SESSION_STATES.ANONYMOUS;
-  }
-
-  if (normalizeMemberId(memberId)) {
-    return AUTH_SESSION_STATES.AUTHENTICATED_MEMBER;
-  }
-
-  return AUTH_SESSION_STATES.PENDING_SIGNUP;
-};
-
 export const isAnonymousSessionState = (
   sessionState: AuthSessionState,
 ): boolean => sessionState === AUTH_SESSION_STATES.ANONYMOUS;
@@ -70,13 +56,6 @@ export const isPendingSignupSessionState = (
 export const isAuthenticatedMemberSessionState = (
   sessionState: AuthSessionState,
 ): boolean => sessionState === AUTH_SESSION_STATES.AUTHENTICATED_MEMBER;
-
-export const isAuthenticatedMemberSession = (
-  session: AuthSessionLike,
-): boolean => isAuthenticatedMemberSessionState(getAuthSessionState(session));
-
-export const isPendingSignupSession = (session: AuthSessionLike): boolean =>
-  isPendingSignupSessionState(getAuthSessionState(session));
 
 export const toNumberMemberId = (
   memberId: number | string | null | undefined,
@@ -90,16 +69,18 @@ export const isExpiredDecodedToken = (
   decodedToken: TokenBackedDecodedLike | null | undefined,
 ): boolean =>
   typeof decodedToken?.exp !== 'number' ||
-  decodedToken.exp * 1000 <= Date.now();
+  decodedToken.exp * 1000 + ACCESS_TOKEN_EXPIRY_CLOCK_SKEW_MS <= Date.now();
 
 export const resolveTokenBackedSession = ({
   accessToken,
   memberId,
   decodedToken,
+  allowExpiredTokenRecovery = false,
 }: {
   accessToken?: string | null;
   memberId?: number | string | null;
   decodedToken?: TokenBackedDecodedLike | null;
+  allowExpiredTokenRecovery?: boolean;
 }): ResolvedTokenBackedSession => {
   const cookieMemberId = normalizeMemberId(memberId);
   const decodedMemberId = normalizeMemberId(decodedToken?.memberId);
@@ -108,9 +89,10 @@ export const resolveTokenBackedSession = ({
     : false;
   const isExpiredToken = isExpiredDecodedToken(decodedToken);
 
-  if (!hasAccessToken(accessToken) || isExpiredToken) {
+  if (!hasAccessToken(accessToken)) {
     return {
       sessionState: AUTH_SESSION_STATES.ANONYMOUS,
+      resolvedMemberId: undefined,
       cookieMemberId,
       decodedMemberId,
       isGuestToken,
@@ -118,31 +100,47 @@ export const resolveTokenBackedSession = ({
     };
   }
 
-  if (cookieMemberId && decodedMemberId && cookieMemberId === decodedMemberId) {
+  if (isExpiredToken && !allowExpiredTokenRecovery) {
     return {
-      sessionState: AUTH_SESSION_STATES.AUTHENTICATED_MEMBER,
+      sessionState: AUTH_SESSION_STATES.ANONYMOUS,
+      resolvedMemberId: undefined,
       cookieMemberId,
       decodedMemberId,
       isGuestToken,
-      isExpiredToken: false,
+      isExpiredToken,
     };
   }
 
   if (isGuestToken) {
+    // guest token은 깨진 세션이 아니라 가입 진행 상태다.
+    // expired recovery 중에도 authenticated나 anonymous로 성급히 확정하지 않는다.
     return {
       sessionState: AUTH_SESSION_STATES.PENDING_SIGNUP,
+      resolvedMemberId: undefined,
       cookieMemberId,
       decodedMemberId,
       isGuestToken,
-      isExpiredToken: false,
+      isExpiredToken,
+    };
+  }
+
+  if (decodedMemberId) {
+    return {
+      sessionState: AUTH_SESSION_STATES.AUTHENTICATED_MEMBER,
+      resolvedMemberId: decodedMemberId,
+      cookieMemberId,
+      decodedMemberId,
+      isGuestToken,
+      isExpiredToken,
     };
   }
 
   return {
     sessionState: AUTH_SESSION_STATES.ANONYMOUS,
+    resolvedMemberId: undefined,
     cookieMemberId,
     decodedMemberId,
     isGuestToken,
-    isExpiredToken: false,
+    isExpiredToken,
   };
 };

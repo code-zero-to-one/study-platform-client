@@ -5,6 +5,8 @@ export const AUTH_COOKIE_NAMES = {
   REFRESH_TOKEN: 'refresh_token',
 } as const;
 
+export const TOKEN_BACKED_AUTH_COOKIE_MAX_AGE_SECONDS = 60 * 60;
+
 export type AuthCookieName =
   (typeof AUTH_COOKIE_NAMES)[keyof typeof AUTH_COOKIE_NAMES];
 

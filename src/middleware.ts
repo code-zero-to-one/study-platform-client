@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { createRequestHeadersWithServerAuthSessionOverride } from '@/features/auth/model/server-auth-session-override';
 import { getAuthContext } from '@/features/auth/server/middleware/auth-context';
 import {
   handleLogin,
@@ -19,7 +20,13 @@ export async function middleware(request: NextRequest) {
 
   switch (routePolicy) {
     case ROUTE_POLICY_KINDS.BYPASS:
-      return NextResponse.next();
+      return NextResponse.next({
+        request: {
+          headers: createRequestHeadersWithServerAuthSessionOverride({
+            requestHeaders: request.headers,
+          }),
+        },
+      });
     case ROUTE_POLICY_KINDS.SIGN_UP:
       return handleSignUp(request, ctx);
     case ROUTE_POLICY_KINDS.LOGIN:

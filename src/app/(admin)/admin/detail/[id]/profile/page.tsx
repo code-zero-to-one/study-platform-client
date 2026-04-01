@@ -1,5 +1,8 @@
-import { QueryClient } from '@tanstack/react-query';
-import { getUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
+import { notFound } from 'next/navigation';
+import {
+  SERVER_USER_PROFILE_RESULT_KINDS,
+  tryGetUserProfileInServer,
+} from '@/api/endpoints/user/get-user-profile.server';
 import ProfileInfoCard from '@/components/common/cards/profile-info-card';
 import UserAvatar from '@/components/common/ui/avatar';
 import Badge from '@/components/common/ui/badge';
@@ -16,20 +19,18 @@ export default async function ProfilePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const queryClient = new QueryClient();
   const { id: memberId } = await params;
+  const profileResult = await tryGetUserProfileInServer(Number(memberId));
 
-  // 서버 side에서 첫 페이지 데이터 미리 가져오기
-  await queryClient.prefetchQuery({
-    queryKey: ['userProfile', memberId],
-    queryFn: () => getUserProfileInServer(Number(memberId)),
-  });
+  if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE) {
+    notFound();
+  }
 
-  const profile: GetUserProfileResponse = await queryClient.getQueryData([
-    'userProfile',
-    memberId,
-  ]);
+  if (profileResult.kind !== SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
+    throw profileResult.error;
+  }
 
+  const profile: GetUserProfileResponse = profileResult.profile;
   const temperPreset = getSincerityPresetByLevelName(
     profile.sincerityTemp.levelName,
   );

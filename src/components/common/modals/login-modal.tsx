@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { ReactNode, useEffect, useState } from 'react';
 import { testLogin } from '@/api/endpoints/auth/test-login';
 import { Modal } from '@/components/common/ui/modal';
+import { resetClientDerivedAuthStateWithQueryCache } from '@/features/auth/model/client-auth-cleanup';
 import { writeExistingMemberSession } from '@/features/auth/model/client-auth-session';
 import { useToastStore } from '@/stores/use-toast-store';
 import { getAttributionParams } from '@/utils/attribution-tracker';
@@ -37,11 +38,21 @@ export default function LoginModal({
         Number(testMemberId),
       );
 
-      writeExistingMemberSession({
+      resetClientDerivedAuthStateWithQueryCache();
+      const hasSavedExistingMemberSession = writeExistingMemberSession({
         accessToken,
         memberId,
         profileImageUrl,
       });
+
+      if (!hasSavedExistingMemberSession) {
+        showToast(
+          '로그인 세션 저장에 실패했습니다. 다시 시도해주세요.',
+          'error',
+        );
+
+        return;
+      }
 
       setIsOpen(false);
       router.push('/home');

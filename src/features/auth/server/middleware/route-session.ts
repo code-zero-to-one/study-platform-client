@@ -1,17 +1,29 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import {
-  isAnonymousSessionState,
   isPendingSignupSessionState,
+  resolveTokenBackedSession,
 } from '@/features/auth/model/auth-session';
-import type { AuthRoleId } from '@/types/auth/domain';
+import {
+  AUTH_ROLE_IDS,
+  AUTH_SESSION_STATES,
+  type AuthRoleId,
+} from '@/types/auth/domain';
 import { decodeJwt } from '@/utils/jwt';
 import {
   ACCESS_TOKEN_SESSION_STATES,
+  REFRESH_ACCESS_TOKEN_RESULT_STATES,
+  getFailureReasonByVerifyState,
+  refreshAccessToken,
   resolveAccessTokenSession,
+  verifyAccessToken,
   type AccessTokenSessionResolution,
 } from './access-token-session';
 import type { AuthContext } from './auth-context';
+import {
+  applyAccessTokenCookie,
+  applyRefreshTokenCookie,
+} from './auth-cookies';
 import {
   ACCESS_TOKEN_SESSION_FAILURE_REASONS,
   type AccessTokenSessionFailureReason,
@@ -42,11 +54,9 @@ export interface AnonymousRouteSession {
  */
 export interface PendingSignupRouteSession {
   kind: typeof ROUTE_SESSION_KINDS.PENDING_SIGNUP;
-  /** 현재 인증 컨텍스트에서 읽은 회원 식별자다. */
-  currentMemberId?: string;
-  /** 액세스 토큰을 decode 해서 얻은 회원 식별자다. */
-  decodedMemberId?: string;
+  accessToken: string;
   isGuestToken: boolean;
+  response: AccessTokenSessionResolution['response'];
 }
 
 export interface AuthenticatedRouteSession {
@@ -91,13 +101,19 @@ const createAnonymousRouteSession = (
   hasIdentityCookie,
 });
 
-const createPendingSignupRouteSession = (
-  ctx: AuthContext,
-): PendingSignupRouteSession => ({
+const createPendingSignupRouteSession = ({
+  accessToken,
+  isGuestToken,
+  response = NextResponse.next(),
+}: {
+  accessToken: string;
+  isGuestToken: boolean;
+  response?: AccessTokenSessionResolution['response'];
+}): PendingSignupRouteSession => ({
   kind: ROUTE_SESSION_KINDS.PENDING_SIGNUP,
-  currentMemberId: ctx.memberId,
-  decodedMemberId: ctx.decodedMemberId,
-  isGuestToken: ctx.isGuestToken,
+  accessToken,
+  isGuestToken,
+  response,
 });
 
 const createInvalidRouteSession = ({
@@ -119,27 +135,168 @@ const createNonGuestMissingMemberIdRouteSession = (): InvalidRouteSession =>
     response: NextResponse.next(),
   });
 
+const createMissingRoleIdsRouteSession = ({
+  response,
+}: {
+  response: AccessTokenSessionResolution['response'];
+}): InvalidRouteSession =>
+  createInvalidRouteSession({
+    reason:
+      ACCESS_TOKEN_SESSION_FAILURE_REASONS.MISSING_ROLE_IDS_FOR_AUTHENTICATED_TOKEN,
+    response,
+  });
+
+const decodeAccessTokenSafely = (
+  accessToken: string,
+): ReturnType<typeof decodeJwt> => {
+  try {
+    return decodeJwt(accessToken);
+  } catch {
+    return null;
+  }
+};
+
+const AUTH_ROLE_ID_SET = new Set<AuthRoleId>(Object.values(AUTH_ROLE_IDS));
+
+const isRecognizedAuthRoleId = (roleId: string): roleId is AuthRoleId =>
+  AUTH_ROLE_ID_SET.has(roleId as AuthRoleId);
+
+const applyRefreshedCookies = ({
+  request,
+  response,
+  accessToken,
+  refreshTokenSetCookieHeader,
+}: {
+  request: NextRequest;
+  response: NextResponse;
+  accessToken: string;
+  refreshTokenSetCookieHeader?: string;
+}): void => {
+  applyAccessTokenCookie(request, response, accessToken);
+
+  if (refreshTokenSetCookieHeader) {
+    applyRefreshTokenCookie(request, response, refreshTokenSetCookieHeader);
+  }
+};
+
 const createAuthenticatedRouteSession = ({
   currentMemberId,
-  resolvedSession,
+  accessToken,
+  memberId,
+  response,
 }: {
   currentMemberId: string | undefined;
-  resolvedSession: Extract<
-    AccessTokenSessionResolution,
-    { state: typeof ACCESS_TOKEN_SESSION_STATES.VALID }
-  >;
-}): AuthenticatedRouteSession => {
-  const decoded = decodeJwt(resolvedSession.accessToken);
-  const roleIds = Array.isArray(decoded?.roleIds) ? decoded.roleIds : [];
+  accessToken: string;
+  memberId: string;
+  response: AccessTokenSessionResolution['response'];
+}): AuthenticatedRouteSession | InvalidRouteSession => {
+  const decoded = decodeAccessTokenSafely(accessToken);
+
+  if (
+    !Array.isArray(decoded?.roleIds) ||
+    decoded.roleIds.some((roleId: unknown) => typeof roleId !== 'string')
+  ) {
+    return createMissingRoleIdsRouteSession({ response });
+  }
+
+  const roleIds = decoded.roleIds.filter(isRecognizedAuthRoleId);
 
   return {
     kind: ROUTE_SESSION_KINDS.AUTHENTICATED,
-    accessToken: resolvedSession.accessToken,
-    memberId: resolvedSession.memberId,
+    accessToken,
+    memberId,
     currentMemberId,
     roleIds,
-    response: resolvedSession.response,
+    response,
   };
+};
+
+const resolveRefreshTokenOnlyRouteSession = async (
+  request: NextRequest,
+  ctx: AuthContext,
+): Promise<ResolvedRouteSession> => {
+  const refreshedTokenResult = await refreshAccessToken(request);
+  const response = NextResponse.next();
+
+  if (
+    refreshedTokenResult.state === REFRESH_ACCESS_TOKEN_RESULT_STATES.INVALID
+  ) {
+    return createInvalidRouteSession({
+      reason: ACCESS_TOKEN_SESSION_FAILURE_REASONS.REFRESH_FAILED,
+      response,
+    });
+  }
+
+  if (
+    refreshedTokenResult.state ===
+    REFRESH_ACCESS_TOKEN_RESULT_STATES.REQUEST_FAILED
+  ) {
+    return createInvalidRouteSession({
+      reason: ACCESS_TOKEN_SESSION_FAILURE_REASONS.REFRESH_REQUEST_FAILED,
+      response,
+    });
+  }
+
+  const decodedToken = decodeAccessTokenSafely(
+    refreshedTokenResult.accessToken,
+  );
+  const refreshedSession = resolveTokenBackedSession({
+    accessToken: refreshedTokenResult.accessToken,
+    memberId: ctx.cookieMemberId,
+    decodedToken,
+    allowExpiredTokenRecovery: true,
+  });
+
+  if (
+    refreshedSession.sessionState === AUTH_SESSION_STATES.PENDING_SIGNUP &&
+    refreshedSession.isGuestToken
+  ) {
+    applyRefreshedCookies({
+      request,
+      response,
+      accessToken: refreshedTokenResult.accessToken,
+      refreshTokenSetCookieHeader:
+        refreshedTokenResult.refreshTokenSetCookieHeader,
+    });
+
+    return createPendingSignupRouteSession({
+      accessToken: refreshedTokenResult.accessToken,
+      isGuestToken: true,
+      response,
+    });
+  }
+
+  const verifyResult = await verifyAccessToken(
+    refreshedTokenResult.accessToken,
+  );
+
+  if (verifyResult.state !== ACCESS_TOKEN_SESSION_STATES.VALID) {
+    return createInvalidRouteSession({
+      reason: getFailureReasonByVerifyState(verifyResult.state),
+      response,
+    });
+  }
+
+  const authenticatedSession = createAuthenticatedRouteSession({
+    currentMemberId: ctx.cookieMemberId,
+    accessToken: refreshedTokenResult.accessToken,
+    memberId: String(verifyResult.memberId),
+    response,
+  });
+
+  if (!isAuthenticatedRouteSession(authenticatedSession)) {
+    return authenticatedSession;
+  }
+
+  applyRefreshedCookies({
+    request,
+    response: authenticatedSession.response,
+    accessToken: refreshedTokenResult.accessToken,
+    refreshTokenSetCookieHeader:
+      refreshedTokenResult.refreshTokenSetCookieHeader,
+  });
+
+  return authenticatedSession;
 };
 
 /**
@@ -147,51 +304,49 @@ const createAuthenticatedRouteSession = ({
  * 미들웨어가 사용할 라우트 세션 상태를 결정한다.
  *
  * 우선순위:
- * 1. 익명 세션
- * 2. 회원가입 대기 세션
- * 3. 액세스 토큰 누락 시 invalid
- * 4. 액세스 토큰 검증/재발급 성공 시 authenticated
- * 5. 검증/재발급 실패 시 invalid
+ * 1. access token이 있으면 pending-signup 또는 verify/refresh 경로로 해석
+ * 2. access token은 없지만 refresh_token이 있으면 복구를 먼저 시도
+ * 3. 둘 다 없을 때만 익명 세션으로 본다.
  */
 export async function resolveRouteSession(
   request: NextRequest,
   ctx: AuthContext,
 ): Promise<ResolvedRouteSession> {
-  if (isAnonymousSessionState(ctx.sessionState)) {
-    return createAnonymousRouteSession(Boolean(ctx.memberId));
-  }
+  if (ctx.accessToken) {
+    if (isPendingSignupSessionState(ctx.sessionState)) {
+      if (!ctx.isGuestToken) {
+        return createNonGuestMissingMemberIdRouteSession();
+      }
 
-  if (isPendingSignupSessionState(ctx.sessionState)) {
-    // 백엔드 신규 회원 계약상 guest token + memberId 없음은 정상 회원가입 대기 상태다.
-    // 반대로 guest claim 없이 memberId만 비어 있으면 불완전 세션으로 간주한다.
-    if (!ctx.isGuestToken) {
-      return createNonGuestMissingMemberIdRouteSession();
+      return createPendingSignupRouteSession({
+        accessToken: ctx.accessToken,
+        isGuestToken: ctx.isGuestToken,
+      });
     }
 
-    return createPendingSignupRouteSession(ctx);
-  }
+    const resolvedSession = await resolveAccessTokenSession(
+      request,
+      ctx.accessToken,
+    );
 
-  if (!ctx.accessToken) {
-    return createInvalidRouteSession({
-      reason: ACCESS_TOKEN_SESSION_FAILURE_REASONS.TOKEN_VERIFY_FAILED,
-      response: NextResponse.next(),
-    });
-  }
+    if (resolvedSession.state !== ACCESS_TOKEN_SESSION_STATES.VALID) {
+      return createInvalidRouteSession({
+        reason: resolvedSession.reason,
+        response: resolvedSession.response,
+      });
+    }
 
-  const resolvedSession = await resolveAccessTokenSession(
-    request,
-    ctx.accessToken,
-  );
-
-  if (resolvedSession.state !== ACCESS_TOKEN_SESSION_STATES.VALID) {
-    return createInvalidRouteSession({
-      reason: resolvedSession.reason,
+    return createAuthenticatedRouteSession({
+      currentMemberId: ctx.cookieMemberId,
+      accessToken: resolvedSession.accessToken,
+      memberId: resolvedSession.memberId,
       response: resolvedSession.response,
     });
   }
 
-  return createAuthenticatedRouteSession({
-    currentMemberId: ctx.memberId,
-    resolvedSession,
-  });
+  if (ctx.hasRefreshToken) {
+    return resolveRefreshTokenOnlyRouteSession(request, ctx);
+  }
+
+  return createAnonymousRouteSession(Boolean(ctx.cookieMemberId));
 }

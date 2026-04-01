@@ -1,7 +1,10 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
+import {
+  SERVER_USER_PROFILE_RESULT_KINDS,
+  tryGetUserProfileInServer,
+} from '@/api/endpoints/user/get-user-profile.server';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import UserAvatar from '@/components/common/ui/avatar';
 import FeedbackLink from '@/components/home/feedback-link';
@@ -15,6 +18,23 @@ const StartStudyModal = dynamic(
   () => import('@/components/common/modals/start-study-modal'),
 );
 
+function HomeDashboardFallback({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="rounded-200 border-border-subtle bg-background-default border p-300 shadow-sm">
+      <div className="flex flex-col gap-100">
+        <h3 className="font-designer-15b text-text-default">{title}</h3>
+        <p className="font-designer-13r text-text-subtle">{description}</p>
+      </div>
+    </div>
+  );
+}
+
 export default async function HomeDashboard() {
   const memberId = await readAuthenticatedMemberId();
 
@@ -22,7 +42,31 @@ export default async function HomeDashboard() {
     return null;
   }
 
-  const userProfile = await getUserProfileInServer(memberId);
+  const profileResult = await tryGetUserProfileInServer(memberId);
+
+  if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE) {
+    return null;
+  }
+
+  if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.AUTH_ERROR) {
+    return (
+      <HomeDashboardFallback
+        title="홈 정보를 다시 확인하는 중입니다."
+        description="로그인 정보를 다시 확인하고 있습니다. 잠시 후 다시 시도해주세요."
+      />
+    );
+  }
+
+  if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.REQUEST_FAILED) {
+    return (
+      <HomeDashboardFallback
+        title="홈 정보를 불러오지 못했습니다."
+        description="일시적인 오류가 발생했습니다. 잠시 후 다시 새로고침해주세요."
+      />
+    );
+  }
+
+  const userProfile = profileResult.profile;
   const temperPreset = getSincerityPresetByLevelName(
     userProfile.sincerityTemp.levelName,
   );

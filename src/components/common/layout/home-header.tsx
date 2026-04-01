@@ -1,7 +1,10 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
-import { tryGetUserProfileInServer } from '@/api/endpoints/user/get-user-profile.server';
+import {
+  SERVER_USER_PROFILE_RESULT_KINDS,
+  tryGetUserProfileInServer,
+} from '@/api/endpoints/user/get-user-profile.server';
 import HeaderNav from '@/components/common/layout/header-nav';
 import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown';
 import MobileMenuDrawer from '@/components/common/layout/mobile-menu-drawer';
@@ -26,12 +29,16 @@ export default async function Header() {
   let userProfile = null;
 
   if (isLoggedIn && memberId) {
-    try {
-      userProfile = await tryGetUserProfileInServer(memberId);
-    } catch (error) {
+    const profileResult = await tryGetUserProfileInServer(memberId);
+
+    if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
+      userProfile = profileResult.profile;
+    } else if (
+      profileResult.kind !== SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE
+    ) {
       console.error(
         `[Header] Failed to fetch user profile for memberId=${memberId}`,
-        error,
+        profileResult.error,
       );
     }
   }

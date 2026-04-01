@@ -14,7 +14,7 @@ import {
 import { decodeJwt } from '@/utils/jwt';
 import { AUTH_COOKIE_NAMES } from './auth-cookie';
 import { useAuthHydration } from './auth-hydration-context';
-import { resolveTokenBackedSession } from './auth-session';
+import { resolveTokenBackedSession, toNumberMemberId } from './auth-session';
 import {
   isAuthSessionStorageEvent,
   subscribeAuthSessionChange,
@@ -130,16 +130,14 @@ const decodeClientToken = (
 
 const createClientAuthSnapshot = ({
   accessToken,
-  memberId,
 }: {
   accessToken?: string;
-  memberId?: string;
 }): ClientAuthSnapshot => {
   const decodedToken = decodeClientToken(accessToken);
   const resolvedSession = resolveTokenBackedSession({
     accessToken,
-    memberId,
     decodedToken,
+    allowExpiredTokenRecovery: true,
   });
 
   if (resolvedSession.sessionState === AUTH_SESSION_STATES.ANONYMOUS) {
@@ -149,7 +147,7 @@ const createClientAuthSnapshot = ({
   const authenticatedMemberId =
     resolvedSession.sessionState === AUTH_SESSION_STATES.AUTHENTICATED_MEMBER &&
     hasDecodedMemberId(decodedToken)
-      ? decodedToken.memberId
+      ? toNumberMemberId(resolvedSession.resolvedMemberId)
       : undefined;
 
   return {
@@ -165,7 +163,6 @@ const createClientAuthSnapshot = ({
 function getCurrentClientAuthSnapshot(): ClientAuthSnapshot {
   return createClientAuthSnapshot({
     accessToken: getCookie(AUTH_COOKIE_NAMES.ACCESS_TOKEN),
-    memberId: getCookie(AUTH_COOKIE_NAMES.MEMBER_ID),
   });
 }
 

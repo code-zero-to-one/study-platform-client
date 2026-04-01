@@ -4,7 +4,6 @@ import React, { createContext, useContext } from 'react';
 
 export interface AuthHydrationSession {
   accessToken?: string;
-  memberId?: string;
 }
 
 interface AuthHydrationContextValue {

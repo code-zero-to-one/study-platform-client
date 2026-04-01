@@ -7,7 +7,6 @@ import { AUTH_ROLE_IDS } from '@/types/auth/domain';
 import {
   isAnonymousSessionState,
   isPendingSignupSessionState,
-  toNumberMemberId,
 } from './auth-session';
 import {
   readServerAuthSession,
@@ -40,13 +39,8 @@ export const requireAuthenticatedMemberRoute = async ({
   invalidSessionRedirectTo = AUTH_ROUTE_PATHS.LOGIN,
   pendingSignupRedirectTo = AUTH_ROUTE_PATHS.SIGN_UP,
 }: RequireAuthenticatedMemberRouteOptions = {}): Promise<AuthenticatedMemberRouteContext> => {
-  const {
-    accessToken,
-    memberId: memberIdValue,
-    sessionState,
-    decodedToken,
-    decodedMemberId,
-  } = await readServerAuthSession();
+  const { accessToken, sessionState, decodedToken, authenticatedMemberId } =
+    await readServerAuthSession();
 
   if (isAnonymousSessionState(sessionState)) {
     redirect(anonymousRedirectTo);
@@ -56,20 +50,14 @@ export const requireAuthenticatedMemberRoute = async ({
     redirect(pendingSignupRedirectTo);
   }
 
-  const memberId = toNumberMemberId(memberIdValue);
-
-  if (!accessToken || !memberId || !decodedToken || !decodedMemberId) {
-    redirectToClearedSession(invalidSessionRedirectTo);
-  }
-
-  if (decodedMemberId !== memberId) {
+  if (!accessToken || !authenticatedMemberId || !decodedToken) {
     redirectToClearedSession(invalidSessionRedirectTo);
   }
 
   return {
     accessToken,
     decodedToken,
-    memberId,
+    memberId: authenticatedMemberId,
   };
 };
 
