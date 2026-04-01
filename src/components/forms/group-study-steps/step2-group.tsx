@@ -13,7 +13,10 @@ import {
 } from '@/features/mentoring/model/mentor-markdown-image-upload';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 
-import type { GroupStudyFormValues } from '@/types/schemas/group-study-form.schema';
+import {
+  GROUP_STUDY_DESCRIPTION_MAX_LENGTH,
+  type GroupStudyFormValues,
+} from '@/types/schemas/group-study-form.schema';
 
 const uploadGroupStudyMarkdownImage = async (file: File) => {
   const ticket = await requestMarkdownImageUploadTicket({
@@ -140,6 +143,8 @@ export default function Step2OpenGroupStudy() {
         size="medium"
         required
         scrollable
+        showCounterRight
+        maxCharCount={GROUP_STUDY_DESCRIPTION_MAX_LENGTH}
       >
         <MarkdownEditor
           placeholder="스터디 소개를 자유롭게 작성해주세요."

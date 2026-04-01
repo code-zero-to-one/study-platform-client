@@ -14,6 +14,7 @@ import type {
   GroupStudyRequestCommon,
   GroupStudyUpdateRequest,
 } from '@/types/api/group-study.types';
+import { getContentTextLength } from '@/utils/markdown-content';
 import { getKoreaDate } from '@/utils/time';
 
 const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
@@ -94,10 +95,15 @@ const GroupStudyBaseObjectSchema = z.object({
     .string()
     .trim()
     .min(1, '스터디 소개를 입력해주세요.')
-    .max(
-      GROUP_STUDY_DESCRIPTION_MAX_LENGTH,
-      `스터디 소개는 ${GROUP_STUDY_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`,
-    ),
+    .superRefine((val, ctx) => {
+      const len = getContentTextLength(val);
+      if (len > GROUP_STUDY_DESCRIPTION_MAX_LENGTH) {
+        ctx.addIssue({
+          code: 'custom',
+          message: `스터디 소개는 ${GROUP_STUDY_DESCRIPTION_MAX_LENGTH}자 이하로 입력해주세요.`,
+        });
+      }
+    }),
   // 썸네일 START(2)
   thumbnailExtension: z
     .enum(THUMBNAIL_EXTENSION)

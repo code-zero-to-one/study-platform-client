@@ -10,6 +10,7 @@ import {
   type RegisterOptions,
 } from 'react-hook-form';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { getContentTextLength } from '@/utils/markdown-content';
 import { FieldControl, type ControlledChildProps } from './field-control';
 
 type Direction = 'horizontal' | 'vertical';
@@ -87,7 +88,8 @@ export default function FormField<
   const errId = `${fieldId}-error`;
 
   const watched = useWatch({ control, name }) as unknown;
-  const currentLen = typeof watched === 'string' ? watched.length : 0;
+  const currentLen =
+    typeof watched === 'string' ? getContentTextLength(watched) : 0;
 
   const error = get(formState.errors, name) as { message?: string } | undefined;
   const errorMsg = error?.message;
