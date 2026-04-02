@@ -17,8 +17,13 @@ export default function StudyActiveTicker({
   viewCount = 0,
   className = '',
 }: StudyActiveTickerProps) {
-  const remaining = Math.max(0, maxMembersCount - approvedCount);
-  const totalCount = maxMembersCount - remaining;
+  const safeApprovedCount = Number.isFinite(approvedCount) ? approvedCount : 0;
+  const safeMaxMembersCount = Number.isFinite(maxMembersCount)
+    ? maxMembersCount
+    : 0;
+  const remaining = Math.max(0, safeMaxMembersCount - safeApprovedCount);
+  const totalCount = safeApprovedCount;
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const messages = [
