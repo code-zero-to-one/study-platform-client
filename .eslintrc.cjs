@@ -91,6 +91,6 @@ module.exports = {
     'no-unused-expressions': ['error', { allowTernary: true }],
 
     // console.log 등 디버깅 코드 커밋 방지 (warn/error는 허용)
-    'no-console': ['error', { allow: ['warn', 'error'] }],
+    'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
   },
 };
