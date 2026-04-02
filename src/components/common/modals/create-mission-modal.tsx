@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import { Plus } from 'lucide-react';
 import { FormEvent, useState } from 'react';
@@ -124,6 +125,7 @@ function CreateMissionForm({
   existingMissions,
   onClose,
 }: CreateMissionFormProps) {
+  const queryClient = useQueryClient();
   const methods = useForm<CreateMissionFormValues>({
     resolver: zodResolver(CreateMissionFormSchema),
     mode: 'onChange',
