@@ -160,8 +160,11 @@ function CreateMissionForm({
         },
       },
       {
-        onSuccess: () => {
-          showToast('미션이 성공적으로 생성되었습니다!');
+        onSuccess: async () => {
+          await queryClient.invalidateQueries({
+            queryKey: ['missions', groupStudyId],
+          });
+          showToast('미션이 성공적으로 생성되었습니다.', 'success');
           onClose();
         },
         onError: () => {
