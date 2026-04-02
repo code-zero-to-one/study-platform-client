@@ -68,7 +68,9 @@ export default function MissionDetailContent({
       </div>
 
       {/* 내 과제 현황 */}
-      {showMyHomework !== false && <MyHomeworkStatusCard missionId={missionId} />}
+      {showMyHomework !== false && (
+        <MyHomeworkStatusCard missionId={missionId} />
+      )}
 
       {/* 제출 현황 */}
       <div className="flex flex-col gap-300">
@@ -132,8 +134,10 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
   };
 
   return (
-    <div
+    <button
+      type="button"
       onClick={handleClick}
+      disabled={isNotSubmitted}
       className={`border-border-subtle rounded-100 flex w-full items-center justify-between border p-200 transition-colors ${
         isNotSubmitted
           ? 'cursor-default'
@@ -169,6 +173,6 @@ function HomeworkCard({ homework, onSelectHomework }: HomeworkCardProps) {
           <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
         )}
       </div>
-    </div>
+    </button>
   );
 }
