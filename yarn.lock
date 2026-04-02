@@ -10287,11 +10287,6 @@ type-is@^2.0.1:
     media-typer "^1.1.0"
     mime-types "^3.0.0"
 
-"typecheck@tsc --project tsconfig.app.json --noEmit":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/typecheck/-/typecheck-0.1.2.tgz#016e200b08c656159c5844698a8bd4ec22ca0435"
-  integrity sha512-noA7T++dtHFemmk++XgotLp47kcu8ezbvN3hUUljZvntPGDWi9Ci0c24x6onS92PxOUNZFYChH8KPXRaoCcjgQ==
-
 typed-array-buffer@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/typed-array-buffer/-/typed-array-buffer-1.0.3.tgz#a72395450a4869ec033fd549371b47af3a2ee536"
