@@ -1,25 +1,11 @@
 // API 통신만 담당하는 순수 함수들
 
-import { axiosInstance, axiosInstanceForMultipart } from '@/api/client/axios';
-import { SignUpRequest } from '@/types/api/auth.types';
+import { axiosInstance } from '@/api/client/axios';
+import type { SignUpRequest } from '@/types/api/auth.types';
 
 // 회원가입 요청 API
 export async function signUp(data: SignUpRequest) {
   const res = await axiosInstance.post('/members', data);
-
-  return res.data;
-}
-
-// 프로필 이미지 업로드 API
-export async function uploadProfileImage(
-  memberId: number,
-  filename: string,
-  file: FormData,
-) {
-  const res = await axiosInstanceForMultipart.put(
-    `/files/images/profile-image/${filename}`,
-    file,
-  );
 
   return res.data;
 }
