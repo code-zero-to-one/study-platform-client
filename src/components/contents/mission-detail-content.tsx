@@ -8,7 +8,7 @@ import Badge from '@/components/common/ui/badge';
 import MarkdownContent from '@/components/common/ui/editor/markdown-content';
 import Progress from '@/components/common/ui/progress';
 import { useGetMission } from '@/hooks/queries/mission-api';
-import MyHomeworkStatus from '../card/my-homework-status-card';
+import MyHomeworkStatusCard from '../card/my-homework-status-card';
 
 interface MissionDetailContentProps {
   missionId: number;
@@ -68,7 +68,7 @@ export default function MissionDetailContent({
       </div>
 
       {/* 내 과제 현황 */}
-      {showMyHomework !== false && <MyHomeworkStatus missionId={missionId} />}
+      {showMyHomework !== false && <MyHomeworkStatusCard missionId={missionId} />}
 
       {/* 제출 현황 */}
       <div className="flex flex-col gap-300">
