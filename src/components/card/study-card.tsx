@@ -64,14 +64,13 @@ export default function StudyCard({ study, href, onClick }: StudyCardProps) {
       status,
       maxMembersCount = 0,
       approvedCount = 0,
-      remainingSlots,
       startDate,
     } = {},
   } = study ?? {};
   const studyType = type as StudyType;
 
   const isCompleted = study.basicInfo?.status === 'COMPLETED';
-  const remaining = remainingSlots ?? maxMembersCount - approvedCount;
+  const remaining = Math.max(0, maxMembersCount - approvedCount);
 
   return (
     <Link

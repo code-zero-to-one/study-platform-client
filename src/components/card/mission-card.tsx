@@ -7,7 +7,7 @@ import { ComponentProps, SyntheticEvent } from 'react';
 
 import type { MissionListResponse } from '@/api/openapi/models';
 import Badge from '@/components/common/ui/badge';
-import Button from '@/components/common/ui/button';
+
 import Tooltip from '@/components/common/ui/tooltip';
 import { cn } from '../common/ui/(shadcn)/lib/utils';
 
@@ -145,7 +145,7 @@ export default function MissionCard({
                 endDate={mission.endDate}
                 deadlineInfo={undefined}
               />
-              <Lock className="text-text-subtle h-[18px] w-[18px] shrink-0" />
+              <Lock className="text-text-subtle size-225 shrink-0" />
             </button>
           </li>
         }
@@ -293,7 +293,7 @@ function MissionCardContent({
         </span>
         <Badge color={statusConfig.color}>{statusConfig.label}</Badge>
       </div>
-      <span className="text-text-subtlest font-designer-12r">
+      <span className="text-text-subtlest text-left font-designer-12r">
         제출 기간 : {formatDate(startDate)} ~ {formatDate(endDate)}
       </span>
     </div>
