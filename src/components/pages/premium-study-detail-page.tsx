@@ -160,11 +160,12 @@ export default function PremiumStudyDetailPage({
             group_study_id: String(groupStudyId),
           });
           showToast('스터디가 종료되었습니다.');
-          setConfirmAction(null);
           router.push('/premium-study');
         },
         onError: () => {
           showToast('스터디 종료에 실패하였습니다.', 'error');
+        },
+        onSettled: () => {
           setConfirmAction(null);
         },
       },

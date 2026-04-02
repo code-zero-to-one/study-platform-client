@@ -1,7 +1,7 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
-import DOMPurify from 'dompurify';
+import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify';
 import hljs from 'highlight.js/lib/core';
 import bash from 'highlight.js/lib/languages/bash';
 import c from 'highlight.js/lib/languages/c';
@@ -44,7 +44,7 @@ hljs.registerLanguage('rust', rust);
 hljs.registerLanguage('swift', swift);
 hljs.registerLanguage('dart', dart);
 
-const SANITIZE_OPTIONS: DOMPurify.Config = {
+const SANITIZE_OPTIONS: DOMPurifyConfig = {
   ALLOWED_TAGS: [
     'a',
     'blockquote',
@@ -186,7 +186,7 @@ export const normalizeMentorMarkdownToSanitizedHtml = (content: unknown) => {
     html = typeof rendered === 'string' ? rendered : '';
   }
 
-  const sanitized = DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+  const sanitized = String(DOMPurify.sanitize(html, SANITIZE_OPTIONS));
 
   return applyPostSanitizeAttributes({
     originalHtml: html,
