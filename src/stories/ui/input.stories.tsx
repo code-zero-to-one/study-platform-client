@@ -13,8 +13,6 @@ type Story = StoryObj<typeof BaseInput>;
 export const Default: Story = {
   args: {
     placeholder: 'Search',
-    onChange: (event: ChangeEvent<HTMLInputElement>) => {
-      console.log('onChange', event.target.value);
-    },
+    onChange: (event: ChangeEvent<HTMLInputElement>) => {},
   },
 };
