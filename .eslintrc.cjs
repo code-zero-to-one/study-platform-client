@@ -89,5 +89,8 @@ module.exports = {
 
     // 삼항 연산자 내에서 사용되지 않는 표현식 허용
     'no-unused-expressions': ['error', { allowTernary: true }],
+
+    // console.log 등 디버깅 코드 커밋 방지 (warn/error는 허용)
+    'no-console': ['error', { allow: ['warn', 'error', 'info'] }],
   },
 };
