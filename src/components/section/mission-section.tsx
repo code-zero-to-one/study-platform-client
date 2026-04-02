@@ -53,9 +53,7 @@ export default function MissionSection({
 
   const missionId = searchParams.get('missionId');
   const homeworkId = searchParams.get('homeworkId');
-  const taskId = searchParams.get('taskId');
 
-  // TODO: API 연결 시 주석 해제
   const { data, isLoading } = useGetMissions({
     groupStudyId,
   });
@@ -122,9 +120,7 @@ export default function MissionSection({
 
   const handleBack = () => {
     const params = new URLSearchParams(searchParams.toString());
-    if (taskId) {
-      params.delete('taskId');
-    } else if (homeworkId) {
+    if (homeworkId) {
       params.delete('homeworkId');
     } else if (missionId) {
       params.delete('missionId');
@@ -153,27 +149,6 @@ export default function MissionSection({
     );
   }
 
-  // 과제 상세 보기 (legacy - taskId)
-  if (missionId && taskId) {
-    return (
-      <section className="flex flex-col gap-300">
-        <button
-          type="button"
-          onClick={handleBack}
-          className="text-text-default font-designer-16b flex w-fit items-center gap-50"
-        >
-          <ChevronLeft size={20} />
-          과제 상세
-        </button>
-
-        {/* TODO: TaskDetail 컴포넌트 추가 */}
-        <div>
-          과제 상세 (missionId: {missionId}, taskId: {taskId})
-        </div>
-      </section>
-    );
-  }
-
   // 미션 상세 보기
   if (missionId) {
     return (
@@ -189,7 +164,7 @@ export default function MissionSection({
 
         <MissionDetailContent
           missionId={Number(missionId)}
-          showMyHomework={showMyHomework}
+          showMyHomework={!!canAccessAll}
         />
       </PageContainer>
     );

@@ -25,7 +25,7 @@ import {
 } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import { Leader } from '@/types/api/group-study.types';
+import type { Leader } from '@/types/api/group-study.types';
 
 import StudyActiveTicker from '../common/ui/study-active-ticker';
 import GroupStudyMemberList from '../lists/study-member-list';

@@ -72,7 +72,7 @@ export default function CurriculumSummarySection({
                   trigger={
                     <button
                       type="button"
-                      className="rounded-100 flex w-full items-center gap-150 border border-[#E9EAEB] px-200 py-300 cursor-not-allowed"
+                      className="rounded-100 flex cursor-not-allowed items-center gap-150 border border-border-subtle px-200 py-300"
                       onClick={handleLockedClick}
                     >
                       <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
@@ -81,7 +81,7 @@ export default function CurriculumSummarySection({
                       <span className="font-designer-15m text-text-default flex-1 leading-snug">
                         {item.title}
                       </span>
-                      <Lock className="h-225 w-225 shrink-0 text-[#A4A7AE]" />
+                      <Lock className="h-225 w-225 shrink-0 text-text-subtlest" />
                     </button>
                   }
                   value="스터디 가입하여 확인"
@@ -93,10 +93,10 @@ export default function CurriculumSummarySection({
 
             return (
               <button
+                key={item.missionId ?? index}
                 type="button"
                 onClick={() => handleClickCurriculum(item.missionId)}
-                key={item.missionId ?? index}
-                className="rounded-100 flex w-full items-center gap-150 border border-[#E9EAEB] px-200 py-300 hover:bg-fill-neutral-subtle-hover cursor-pointer"
+                className="rounded-100 flex w-full cursor-pointer items-center gap-150 border border-border-subtle px-200 py-300 hover:bg-fill-neutral-subtle-hover"
               >
                 <span className="font-designer-15m w-250 shrink-0 text-center text-[#A4A7AE]">
                   {item.weekNum}
@@ -104,7 +104,7 @@ export default function CurriculumSummarySection({
                 <span className="font-designer-15m text-text-default flex flex-1 leading-snug">
                   {item.title}
                 </span>
-                <ExternalLink className="h-225 w-225 shrink-0 cursor-pointer text-[#A4A7AE]" />
+                <ExternalLink className="h-225 w-225 shrink-0 cursor-pointer text-text-subtlest" />
               </button>
             );
           })}
