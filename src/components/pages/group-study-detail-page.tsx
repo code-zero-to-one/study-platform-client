@@ -25,7 +25,7 @@ import {
 } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import { Leader } from '@/types/api/group-study.types';
+import type { Leader } from '@/types/api/group-study.types';
 
 import StudyActiveTicker from '../common/ui/study-active-ticker';
 import GroupStudyMemberList from '../lists/study-member-list';
@@ -307,7 +307,6 @@ export default function StudyDetailPage({
       <div className={`mt-500 ${DETAIL_CONTENT_WIDTH}`}>
         <StudyActiveTicker
           approvedCount={studyDetail.basicInfo.approvedCount}
-          remainingSlot={studyDetail.basicInfo.remainingSlots}
           maxMembersCount={studyDetail.basicInfo.maxMembersCount}
           startDate={studyDetail.basicInfo.startDate}
           viewCount={studyDetail.viewCount}

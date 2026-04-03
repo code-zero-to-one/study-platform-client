@@ -1,7 +1,7 @@
 'use client';
 
 import 'highlight.js/styles/github.css';
-import DOMPurify from 'dompurify';
+import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify';
 import hljs from 'highlight.js/lib/core';
 import bash from 'highlight.js/lib/languages/bash';
 import c from 'highlight.js/lib/languages/c';
@@ -60,7 +60,7 @@ interface MarkdownContentProps {
   emptyMessage?: string;
 }
 
-const SANITIZE_OPTIONS: DOMPurify.Config = {
+const SANITIZE_OPTIONS: DOMPurifyConfig = {
   ALLOWED_TAGS: [
     'a',
     'blockquote',
@@ -198,7 +198,7 @@ function MarkdownContent({
           return typeof rendered === 'string' ? rendered : '';
         })();
 
-    const sanitized = DOMPurify.sanitize(html, SANITIZE_OPTIONS);
+    const sanitized = String(DOMPurify.sanitize(html, SANITIZE_OPTIONS));
 
     return applyPostSanitizeAttributes({
       originalHtml: html,
@@ -207,11 +207,13 @@ function MarkdownContent({
   }, [hasContent, normalizedContent]);
 
   useEffect(() => {
-    if (!containerRef.current) {
+    const container = containerRef.current;
+    if (!container) {
       return;
     }
 
-    containerRef.current.querySelectorAll('pre code').forEach((block) => {
+    container.innerHTML = sanitizedHtml;
+    container.querySelectorAll('pre code').forEach((block) => {
       hljs.highlightElement(block as HTMLElement);
     });
   }, [sanitizedHtml]);
@@ -247,7 +249,6 @@ function MarkdownContent({
         '[&_hr]:border-border-subtle [&_hr]:my-200',
         className,
       )}
-      dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
     />
   );
 }

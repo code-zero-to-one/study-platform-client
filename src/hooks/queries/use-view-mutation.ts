@@ -41,7 +41,7 @@ export const useRecordArchiveViewMutation = () => {
     mutationFn: async (id: number) => {
       // 이미 조회한 아카이브인지 확인
       if (hasViewed(id)) {
-        console.log(`Archive ${id} already viewed, skipping API call`);
+        // console.log(`Archive ${id} already viewed, skipping API call`);
 
         return; // API 호출하지 않음
       }
@@ -60,7 +60,9 @@ export const useRecordArchiveViewMutation = () => {
 
       // window focus 등으로 진행 중인 아카이브 재요청을 취소하여
       // 낙관적 업데이트가 구버전 데이터로 덮어씌워지지 않도록 보호
-      await queryClient.cancelQueries({ queryKey: ARCHIVE_QUERY_KEYS.all });
+      await queryClient.cancelQueries({
+        queryKey: ARCHIVE_QUERY_KEYS.all,
+      });
 
       // 낙관적 업데이트: 조회수 즉시 +1
       queryClient.setQueriesData<ArchiveResponse>(

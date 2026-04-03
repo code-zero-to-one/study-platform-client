@@ -26,6 +26,7 @@ export default function CurriculumSummarySection({
   const pathname = usePathname();
   const router = useRouter();
   const { isAuthenticated } = useAuthReady();
+
   const loginTriggerRef = useRef<HTMLButtonElement>(null);
   const showToast = useToastStore((state) => state.showToast);
 
@@ -70,7 +71,8 @@ export default function CurriculumSummarySection({
                   delayDuration={0}
                   key={item.missionId ?? index}
                   trigger={
-                    <div
+                    <button
+                      type="button"
                       className="rounded-100 flex cursor-not-allowed items-center gap-150 border border-border-subtle px-200 py-300"
                       onClick={handleLockedClick}
                     >
@@ -81,7 +83,7 @@ export default function CurriculumSummarySection({
                         {item.title}
                       </span>
                       <Lock className="h-225 w-225 shrink-0 text-text-subtlest" />
-                    </div>
+                    </button>
                   }
                   value="스터디 가입하여 확인"
                   side="bottom"
@@ -91,9 +93,11 @@ export default function CurriculumSummarySection({
             }
 
             return (
-              <div
+              <button
                 key={item.missionId ?? index}
-                className="rounded-100 flex cursor-pointer items-center gap-150 border border-border-subtle px-200 py-300 hover:bg-fill-neutral-subtle-hover"
+                type="button"
+                onClick={() => handleClickCurriculum(item.missionId)}
+                className="rounded-100 flex w-full cursor-pointer items-center gap-150 border border-border-subtle px-200 py-300 hover:bg-fill-neutral-subtle-hover"
               >
                 <span className="font-designer-15m w-250 shrink-0 text-center text-text-subtlest">
                   {item.weekNum}
@@ -101,11 +105,8 @@ export default function CurriculumSummarySection({
                 <span className="font-designer-15m text-text-default flex-1 leading-snug">
                   {item.title}
                 </span>
-                <ExternalLink
-                  onClick={() => handleClickCurriculum(item.missionId)}
-                  className="h-225 w-225 shrink-0 cursor-pointer text-text-subtlest"
-                />
-              </div>
+                <ExternalLink className="h-225 w-225 shrink-0 cursor-pointer text-text-subtlest" />
+              </button>
             );
           })}
       </div>
@@ -114,6 +115,7 @@ export default function CurriculumSummarySection({
         openTrigger={
           <button
             ref={loginTriggerRef}
+            type="button"
             className="sr-only"
             aria-hidden
             tabIndex={-1}

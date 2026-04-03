@@ -9,18 +9,21 @@ interface StudyActiveTickerProps {
   startDate: string;
   viewCount?: number;
   className?: string;
-  remainingSlot?: number;
 }
 
 export default function StudyActiveTicker({
   approvedCount,
   maxMembersCount,
   viewCount = 0,
-  remainingSlot = 0,
   className = '',
 }: StudyActiveTickerProps) {
-  const remaining = Math.max(0, maxMembersCount - approvedCount);
-  const totalCount = maxMembersCount - remaining;
+  const safeApprovedCount = Number.isFinite(approvedCount) ? approvedCount : 0;
+  const safeMaxMembersCount = Number.isFinite(maxMembersCount)
+    ? maxMembersCount
+    : 0;
+  const remaining = Math.max(0, safeMaxMembersCount - safeApprovedCount);
+  const totalCount = safeApprovedCount;
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const messages = [
@@ -45,7 +48,7 @@ export default function StudyActiveTicker({
           </span>
           이 가입했고 현재{' '}
           <span className="font-designer-16b text-text-error">
-            {remainingSlot}자리
+            {remaining}자리
           </span>{' '}
           남았어요.
         </p>
