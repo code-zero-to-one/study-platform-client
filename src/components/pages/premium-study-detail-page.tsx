@@ -15,8 +15,9 @@ import PremiumStudyInfoSection from '@/components/section/premium-study-info-sec
 import {
   isStudyTabValue,
   STUDY_DETAIL_TABS,
-  StudyTabValue,
+  type StudyTabValue,
 } from '@/config/constants';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useGetGroupStudyMyStatus } from '@/hooks/queries/group-study-member-api';
 import {
   useGetGroupStudyReviewAvailability,
@@ -29,7 +30,10 @@ import {
 } from '@/hooks/queries/use-study-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import { useLeaderStore } from '@/stores/useLeaderStore';
-import { GroupStudyFullResponse, Leader } from '@/types/api/group-study.types';
+import type {
+  GroupStudyFullResponse,
+  Leader,
+} from '@/types/api/group-study.types';
 
 const ConfirmDeleteModal = dynamic(
   () => import('@/components/common/modals/confirm-delete-modal'),
@@ -88,16 +92,15 @@ export default function PremiumStudyDetailPage({
   const tabParam = searchParams.get('tab') ?? undefined;
   const requestedTab = isStudyTabValue(tabParam) ? tabParam : 'intro';
 
-  const {
-    data: studyDetail,
-    isLoading,
-    refetch: refetchStudyDetail,
-  } = useGroupStudyDetailQuery(groupStudyId);
+  const { data: studyDetail, isLoading } =
+    useGroupStudyDetailQuery(groupStudyId);
 
   const leaderId = studyDetail?.basicInfo.leader.memberId;
   const leader = studyDetail?.basicInfo.leader;
 
   const isLeader = leaderId === memberId;
+  const { data: authData } = useAuthReady();
+  const isAdmin = authData?.roleIds.includes('ROLE_ADMIN') ?? false;
   const shouldFetchMyStatus = leaderId !== undefined && !isLeader;
 
   // 리더 정보를 Zustand store에 저장
@@ -423,6 +426,7 @@ export default function PremiumStudyDetailPage({
           groupStudyId={groupStudyId}
           isPremium
           isLeader={isLeader}
+          isAdmin={isAdmin}
         />
       )}
     </div>
