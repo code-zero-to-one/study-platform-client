@@ -198,7 +198,7 @@ Error handling is centralized around `src/utils/error-handler.ts`. `src/utils/er
 2. **ApiError** — custom error transformed by axios interceptor. `isApiError()` type guard preserves `errorCode`, `statusCode`.
 3. **Generic Error / unknown** — fallback handling.
 
-```
+```text
 AxiosError → isAxiosError() ✅ → extract HTTP status/error code
 ApiError   → isApiError() ✅   → preserve errorCode/statusCode (interceptor-transformed)
 Error      → instanceof Error  → UNKNOWN type
