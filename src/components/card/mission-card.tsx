@@ -144,7 +144,7 @@ export default function MissionCard({
                 endDate={mission.endDate}
                 deadlineInfo={undefined}
               />
-              <Lock className="text-text-subtle h-[18px] w-[18px] shrink-0" />
+              <Lock className="text-text-subtle size-225 shrink-0" />
             </button>
           </li>
         }
