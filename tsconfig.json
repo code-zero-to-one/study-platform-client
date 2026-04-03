@@ -4,10 +4,9 @@
 {
   "exclude": ["node_modules/*", "build", "jest", "dist"],
   "compilerOptions": {
-    "target": "es5", // ts파일 변환 시 어떤 버전의 JS로
+    "target": "ES2017", // ts파일 변환 시 어떤 버전의 JS로
     "module": "esnext", // import 문법을 어떻게 할 것이냐
     "moduleResolution": "node",
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -27,6 +26,7 @@
     "allowJs": true,
     "noEmit": true,
     "incremental": true,
+    "tsBuildInfoFile": "./.tsbuildinfo",
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "isolatedModules": true,
