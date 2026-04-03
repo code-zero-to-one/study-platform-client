@@ -4,6 +4,7 @@ export interface SignUpResponse {
     generatedMemberId: string;
     accessToken?: string;
     refreshToken?: string;
+    uploadUrl?: string;
   };
   status: number;
   message: string;

@@ -134,14 +134,14 @@ function ProfileEditForm({
         imageFormData.append('file', defaultProfileFile);
       }
 
-      const filename = updatedProfile.profileImageUploadUrl.split('/').pop();
-      if (filename) {
-        try {
-          await uploadProfileImage({ memberId, filename, file: imageFormData });
-        } catch (error) {
-          console.error('이미지 업로드 실패:', error);
-          showToast('이미지 업로드에 실패했습니다.', 'error');
-        }
+      try {
+        await uploadProfileImage({
+          uploadUrl: updatedProfile.profileImageUploadUrl,
+          file: imageFormData,
+        });
+      } catch (error) {
+        console.error('이미지 업로드 실패:', error);
+        showToast('이미지 업로드에 실패했습니다.', 'error');
       }
     }
 
@@ -170,8 +170,9 @@ function ProfileEditForm({
                 setImage={setImage}
                 fileInputRef={fileInputRef}
                 handleImageChange={(e) => {
-                  if (e.target.files && e.target.files[0]) {
+                  if (e.target.files?.[0]) {
                     const file = e.target.files[0];
+                    if (image?.startsWith('blob:')) URL.revokeObjectURL(image);
                     setImage(URL.createObjectURL(file));
                   }
                 }}

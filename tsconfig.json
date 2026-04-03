@@ -8,7 +8,8 @@
     "module": "esnext", // import 문법을 어떻게 할 것이냐
     "moduleResolution": "node",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "public/*": ["./public/*"]
     },
     // lib옵션은 컴파일에 필요한 javascrtipt 내장 라이브러리를 지정할 수 있다.
     // 이 프로퍼티가 지정되어 있지 않다면 'target' 프로퍼티에 지정된 버전에 따라 필요한 타입 정의들에 대한 정보가 자동 지정된다.
