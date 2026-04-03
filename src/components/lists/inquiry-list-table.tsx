@@ -2,7 +2,7 @@
 
 import { Eye, LockIcon } from 'lucide-react';
 import { useState } from 'react';
-import type { QuestionListItemResponse } from '@/api/endpoints/group-study/question-api';
+import type { QuestionListItemResponse } from '@/api/endpoints/group-study/question';
 import InquiryStatusBadge from '@/components/common/ui/badge/inquiry-status-badge';
 import Pagination from '@/components/common/ui/pagination';
 import { useToastStore } from '@/stores/use-toast-store';
