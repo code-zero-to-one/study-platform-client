@@ -7,8 +7,8 @@ import { useState } from 'react';
 import { useLazyMount } from '@/hooks/common/use-lazy-mount';
 import { useUserStore } from '@/stores/useUserStore';
 
-const QuestionModal = dynamic(
-  () => import('@/components/common/modals/question-modal'),
+const CreateQuestionModal = dynamic(
+  () => import('@/components/common/modals/create-question-modal'),
   { ssr: false },
 );
 
@@ -33,6 +33,7 @@ export default function FloatingInquiryButton() {
 
   const triggerButton = (
     <button
+      type="button"
       className="bg-fill-brand-default-default hover:bg-fill-brand-default-hover fixed right-600 bottom-600 z-50 flex items-center gap-100 rounded-full px-300 py-200 shadow-lg transition-all hover:shadow-xl"
       aria-label="스터디 문의하기"
     >
@@ -50,6 +51,7 @@ export default function FloatingInquiryButton() {
   return (
     <>
       <button
+        type="button"
         className="bg-fill-brand-default-default hover:bg-fill-brand-default-hover fixed right-600 bottom-600 z-50 flex items-center gap-100 rounded-full px-300 py-200 shadow-lg transition-all hover:shadow-xl"
         aria-label="스터디 문의하기"
         onClick={() => setOpen(true)}
@@ -60,10 +62,10 @@ export default function FloatingInquiryButton() {
         </span>
       </button>
       {shouldMount && (
-        <QuestionModal
+        <CreateQuestionModal
           open={open}
           onOpenChange={setOpen}
-          studyId={studyId}
+          groupStudyId={studyId}
           studyType={studyType}
         />
       )}
