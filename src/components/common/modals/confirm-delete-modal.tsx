@@ -1,10 +1,10 @@
 'use client';
+import CloseIcon from 'public/icons/modal-close.svg';
 import { ReactNode } from 'react';
 
 import Button from '@/components/common/ui/button';
 import { Modal } from '@/components/common/ui/modal';
 
-import CloseIcon from 'public/icons/modal-close.svg';
 
 interface ConfirmDeleteModalProps {
   title: string;

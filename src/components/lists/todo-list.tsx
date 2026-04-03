@@ -1,11 +1,11 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import CheckIcon from 'public/icons/check.svg';
 import { useState } from 'react';
 import Button from '@/components/common/ui/button';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
-import CheckIcon from 'public/icons/check.svg';
 
 const PhoneVerificationModal = dynamic(
   () => import('@/components/common/modals/phone-verification-modal'),

@@ -1,6 +1,7 @@
 'use client';
 
 import { sendGTMEvent } from '@next/third-parties/google';
+import LinkIcon from 'public/icons/Link.svg';
 import { useState } from 'react';
 import UserAvatar from '@/components/common/ui/avatar';
 import Button from '@/components/common/ui/button';
@@ -12,7 +13,6 @@ import {
   type GetDailyStudiesResponse,
 } from '@/types/api/schedule.types';
 import { formatExternalLink } from '@/utils/format';
-import LinkIcon from 'public/icons/Link.svg';
 
 const TABLE_HEADERS = [
   '조',

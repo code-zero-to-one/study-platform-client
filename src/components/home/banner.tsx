@@ -2,9 +2,9 @@
 
 import { sendGTMEvent } from '@next/third-parties/google';
 import Image from 'next/image';
-import { Carousel } from '@/components/common/ui/carousel';
 import ArrowBackIcon from 'public/icons/arrow_back_ios.svg';
 import ArrowForwardIcon from 'public/icons/arrow_forward_ios.svg';
+import { Carousel } from '@/components/common/ui/carousel';
 
 const bannerImages = [
   '/images/banner.png',

@@ -1,6 +1,11 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import BronzeRankIcon from 'public/icons/bronze-rank.svg';
+import CaretDownIcon from 'public/icons/caret-down.svg';
+import CaretUpIcon from 'public/icons/caret-up.svg';
+import GoldRankIcon from 'public/icons/gold-rank.svg';
+import SilverRankIcon from 'public/icons/silver-rank.svg';
 import { useState } from 'react';
 import DiscretionaryEvaluationModal, {
   EVALUATION_COUNT,
@@ -11,12 +16,7 @@ import DiscretionGradeHistoryList from '@/components/lists/discretion-grade-hist
 
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import type { GroupStudyMember } from '@/types/api/group-study.types';
-import BronzeRankIcon from 'public/icons/bronze-rank.svg';
-import CaretDownIcon from 'public/icons/caret-down.svg';
-import CaretUpIcon from 'public/icons/caret-up.svg';
-import GoldRankIcon from 'public/icons/gold-rank.svg';
 
-import SilverRankIcon from 'public/icons/silver-rank.svg';
 
 const DeleteGroupStudyMemberModal = dynamic(
   () => import('@/components/common/modals/delete-group-study-member'),

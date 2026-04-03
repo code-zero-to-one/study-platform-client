@@ -1,9 +1,9 @@
 'use client';
 
-import React from 'react';
 import BronzeRankIcon from 'public/icons/bronze-rank.svg';
 import GoldRankIcon from 'public/icons/gold-rank.svg';
 import SilverRankIcon from 'public/icons/silver-rank.svg';
+import React from 'react';
 
 interface RankBadgeProps {
   rank: number;

@@ -2,6 +2,7 @@
 
 import { DotIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import NotiIcon from 'public/icons/notifications_none.svg';
 import { useState } from 'react';
 import { MemberNotificationResponse } from '@/api/openapi';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
@@ -17,7 +18,6 @@ import {
   useGetNotifications,
   useReadNotifications,
 } from '@/hooks/queries/notification-api';
-import NotiIcon from 'public/icons/notifications_none.svg';
 
 export default function NotificationDropdown() {
   const router = useRouter();

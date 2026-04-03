@@ -1,6 +1,9 @@
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
+import AccessTimeIcon from 'public/icons/access_time.svg';
+import AssignmentIcon from 'public/icons/assignment.svg';
+import SettingIcon from 'public/icons/setting.svg';
 import {
   SERVER_USER_PROFILE_RESULT_KINDS,
   tryGetUserProfileInServer,
@@ -10,9 +13,6 @@ import UserAvatar from '@/components/common/ui/avatar';
 import FeedbackLink from '@/components/home/feedback-link';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { readAuthenticatedMemberId } from '@/features/auth/model/server-auth-session';
-import AccessTimeIcon from 'public/icons/access_time.svg';
-import AssignmentIcon from 'public/icons/assignment.svg';
-import SettingIcon from 'public/icons/setting.svg';
 
 const StartStudyModal = dynamic(
   () => import('@/components/common/modals/start-study-modal'),
