@@ -55,29 +55,29 @@ CI pipeline: lint → typecheck → prettier → build → build-storybook → s
 
 ## Domain Warning: Mentoring vs MentorStudy
 
-### 멘토링 (1:1 개인 상담)
+### Mentoring (1:1 individual consultation)
 - **URL**: `/mentoring`, `/mentoring/[id]`, `/mentoring/[id]/apply`, `/mentoring/become-mentor`
-- **피처**: `src/features/mentoring/`
-- **API 훅**: `useMentorDirectoryQuery`, `useMentorDetail`, `useMentoringApplyController` 등
-- **백엔드 엔드포인트**: `/api/v1/mentors`
-- **성격**: 전문 멘토와 학습자의 1:1 상담. 별도 신청·수락 흐름. 과제·멤버 관리 없음.
+- **Feature**: `src/features/mentoring/`
+- **API hooks**: `useMentorDirectoryQuery`, `useMentorDetail`, `useMentoringApplyController`, etc.
+- **Backend endpoint**: `/api/v1/mentors`
+- **Nature**: 1:1 consultation between a professional mentor and a learner. Separate application/acceptance flow. No assignments or member management.
 
-### 멘토스터디 (그룹 스터디의 프리미엄 유형)
+### MentorStudy (premium type of group study)
 - **URL**: `/premium-study`, `/premium-study/[id]`
-- **컴포넌트**: `src/components/pages/premium-study-*.tsx`, `src/app/(service)/premium-study/`
-- **API 훅**: `useGetGroupStudyDetail`, `useGetGroupStudyList` (GroupStudy 훅 공용)
-- **백엔드 엔드포인트**: `/api/v1/group-studies` (쿼리 파라미터로 MENTOR_STUDY 구분)
-- **성격**: 그룹 스터디의 특수 유형(MentorStudy extends GroupStudy). 멤버 관리·과제·평가 포함.
+- **Components**: `src/components/pages/premium-study-*.tsx`, `src/app/(service)/premium-study/`
+- **API hooks**: `useGetGroupStudyDetail`, `useGetGroupStudyList` (shared GroupStudy hooks)
+- **Backend endpoint**: `/api/v1/group-studies` (MENTOR_STUDY distinguished by query parameter)
+- **Nature**: Special type of group study (MentorStudy extends GroupStudy). Includes member management, assignments, and evaluations.
 
-### 핵심 차이 요약
+### Key Differences
 
-| | 멘토링 | 멘토스터디 |
+| | Mentoring | MentorStudy |
 |---|---|---|
-| 참여 형태 | 1:1 | 1:N 그룹 |
-| 프론트 URL | `/mentoring/*` | `/premium-study/*` |
-| API 경로 | `/api/v1/mentors` | `/api/v1/group-studies` |
-| 엔티티 | `Mentor`, `MentoringApplication` | `MentorStudy extends GroupStudy` |
-| 과제·평가 | 없음 | 있음 |
+| Participation | 1:1 | 1:N group |
+| Frontend URL | `/mentoring/*` | `/premium-study/*` |
+| API path | `/api/v1/mentors` | `/api/v1/group-studies` |
+| Entity | `Mentor`, `MentoringApplication` | `MentorStudy extends GroupStudy` |
+| Assignments & Evaluations | No | Yes |
 
 ---
 
@@ -113,7 +113,7 @@ Use the generated API instance in the file to write TanStack Query hooks.
 
 #### TanStack Query Hook Patterns
 
-**useQuery (조회):**
+**useQuery (read):**
 
 ```typescript
 export const useGetMissions = ({
@@ -121,17 +121,17 @@ export const useGetMissions = ({
   page = 1,
 }: GetMissionsParams) => {
   return useQuery({
-    queryKey: ['missions', groupStudyId, page], // 리소스명 + 파라미터
+    queryKey: ['missions', groupStudyId, page], // resource name + params
     queryFn: async () => {
       const { data } = await missionApi.getMissions(groupStudyId, page);
-      return data.content; // content 추출
+      return data.content; // extract content
     },
-    enabled: !!groupStudyId, // 조건부 실행 (선택)
+    enabled: !!groupStudyId, // conditional execution (optional)
   });
 };
 ```
 
-**useMutation (생성/수정/삭제):**
+**useMutation (create/update/delete):**
 
 ```typescript
 export const useCreateMission = () => {
@@ -144,51 +144,51 @@ export const useCreateMission = () => {
     },
     onSuccess: async (_, variables) => {
       await queryClient.invalidateQueries({
-        queryKey: ['missions', variables.groupStudyId], // 관련 쿼리 무효화
+        queryKey: ['missions', variables.groupStudyId], // invalidate related queries
       });
     },
   });
 };
 ```
 
-**useMutation 콜백 패턴:**
+**useMutation callback pattern:**
 
-`onSettled`는 성공/실패 무관하게 항상 실행된다 (`finally` 블록과 동일). 성공 시에만 필요한 동작(페이지 이동, 성공 토스트)은 반드시 `onSuccess`에, 실패 처리는 `onError`에, UI 정리(모달 닫기, 상태 초기화)는 `onSettled`에 배치한다.
+`onSettled` always runs regardless of success/failure (equivalent to a `finally` block). Actions needed only on success (page navigation, success toast) must go in `onSuccess`; failure handling in `onError`; UI cleanup (closing modals, resetting state) in `onSettled`.
 
 ```typescript
-// 올바른 패턴
+// Correct pattern
 mutate(params, {
   onSuccess: () => {
     showToast('완료되었습니다.');
-    router.push('/list'); // 성공 시에만 이동
+    router.push('/list'); // only on success
   },
   onError: () => {
     showToast('실패하였습니다.', 'error');
   },
   onSettled: () => {
-    setConfirmAction(null); // 항상 UI 초기화
+    setConfirmAction(null); // always clean up UI
   },
 });
 ```
 
-**queryKey 컨벤션:**
+**queryKey convention:**
 
-- 단일 리소스: `['mission', missionId]`
-- 목록 리소스: `['missions', groupStudyId, page, size]`
-- 무효화 시 상위 키 사용: `queryKey: ['missions']` (해당 리소스 전체 무효화)
-- mutation이 여러 리소스에 영향을 줄 경우 관련 queryKey를 모두 무효화:
+- Single resource: `['mission', missionId]`
+- List resource: `['missions', groupStudyId, page, size]`
+- Invalidation uses parent key: `queryKey: ['missions']` (invalidates entire resource)
+- When a mutation affects multiple resources, invalidate all related queryKeys:
 
 ```typescript
 onSuccess: async (_, variables) => {
-  // 신청자 상태 변경 → 멤버 목록 + 신청자 목록 모두 갱신
+  // Applicant status change → refresh both member list and applicant list
   await queryClient.invalidateQueries({ queryKey: ['groupStudyMemberList', variables.groupStudyId] });
   await queryClient.invalidateQueries({ queryKey: ['entryList', variables.groupStudyId] });
 },
 ```
 
-#### 레거시 방식 (features 내부 API)
+#### Legacy Pattern (API inside features)
 
-`src/features/<도메인>/api/` 디렉토리에 직접 axios 함수 작성:
+Write axios functions directly in `src/features/<domain>/api/`:
 
 ```typescript
 import { axiosInstance } from '@/api/client/axios';
@@ -202,7 +202,7 @@ export const getArchive = async (params: GetArchiveParams) => {
 };
 ```
 
-레거시 방식은 기존 코드 유지보수용. 신규 API는 OpenAPI 방식 권장.
+Legacy pattern is for maintaining existing code only. New APIs should use the OpenAPI approach.
 
 ### State Management
 
@@ -220,27 +220,27 @@ export const getArchive = async (params: GetArchiveParams) => {
 
 ### Backend Data Safety Patterns
 
-빈 배열 안전성은 상위 컴포넌트의 `if (!arr?.length) return null` 가드로 이미 보장되므로 `Math.max` 호출 전 별도 방어 코드는 불필요하다.
+Empty array safety is already guaranteed by parent component `if (!arr?.length) return null` guards, so no additional defensive code before `Math.max` calls is needed.
 
-#### optional 필드를 React key와 핸들러에서 안전하게 사용하기
+#### Using Optional Fields Safely in React keys and Handlers
 
-백엔드에서 optional(`?`)로 내려오는 ID 필드를 React `key` prop에 직접 사용하면 여러 항목이 `undefined`로 중복되어 React가 잘못된 DOM 재사용을 할 수 있다. `??` 연산자로 `index` 폴백을 둔다.
+Using optional (`?`) ID fields from the backend directly as React `key` props can cause multiple items to have `key="undefined"`, leading to incorrect DOM reuse by React. Use `??` operator with `index` fallback.
 
 ```typescript
-// 잘못된 패턴 — missionId가 undefined이면 모든 항목이 key="undefined"로 중복
+// Wrong pattern — if missionId is undefined, all items get key="undefined"
 {items.map((item) => <div key={item.missionId}>...</div>)}
 
-// 올바른 패턴 — optional 필드 ?? index
+// Correct pattern — optional field ?? index
 {items.map((item, index) => <div key={item.missionId ?? index}>...</div>)}
 ```
 
-optional 필드를 이벤트 핸들러 내에서 사용할 때도 가드가 필요하다:
+Optional fields used inside event handlers also need guards:
 
 ```typescript
-// 잘못된 패턴 — missionId가 undefined이면 ?missionId=undefined 라우팅
+// Wrong pattern — if missionId is undefined, routes to ?missionId=undefined
 const handleClick = (id: number) => router.push(`...?missionId=${id}`);
 
-// 올바른 패턴 — 복구 가능한 실패는 Toast로 안내
+// Correct pattern — recoverable failures notify via Toast
 const handleClick = (id: number | undefined) => {
   if (!id) {
     showToast('정보를 불러올 수 없습니다.', 'error');
@@ -250,21 +250,21 @@ const handleClick = (id: number | undefined) => {
 };
 ```
 
-#### enum-like 문자열 타입 단언 안전 가드
+#### Safe Guards for enum-like String Type Assertions
 
-백엔드에서 프론트 타입 정의에 없는 값이 올 수 있다. `as StudyType` 같은 단순 타입 단언 대신 `in` 가드 + 폴백을 사용한다. TypeScript `as`는 런타임을 보호하지 않는다.
+The backend may send values not present in the frontend type definition. Use `in` guard + fallback instead of a simple `as StudyType` assertion. TypeScript `as` does not protect at runtime.
 
 ```typescript
-// 잘못된 패턴 — 알 수 없는 값 수신 시 undefined 렌더링 또는 런타임 오류
+// Wrong pattern — undefined rendering or runtime error when unknown value received
 const studyType = type as StudyType;
 <Badge>{STUDY_TYPE_LABELS[studyType]}</Badge>
 
-// 올바른 패턴 — in 가드 후 폴백 처리
+// Correct pattern — in guard with fallback
 const studyType =
   type && type in STUDY_TYPE_LABELS ? (type as StudyType) : undefined;
 <Badge>{studyType ? STUDY_TYPE_LABELS[studyType] : '스터디'}</Badge>
 
-// 목록 순회 시
+// When iterating lists
 {experienceLevels?.map((level) => (
   <Badge key={level}>
     {level in EXPERIENCE_LEVEL_LABELS
@@ -291,83 +291,83 @@ const studyType =
 
 ### Error Handling
 
-에러 처리는 `src/utils/error-handler.ts`를 중심으로 중앙 집중식 관리한다. `src/utils/error.ts`는 `extractErrorCode()` 하위 호환성용 deprecated 래퍼다.
+Error handling is centralized around `src/utils/error-handler.ts`. `src/utils/error.ts` is a deprecated backwards-compatibility wrapper for `extractErrorCode()`.
 
-#### 핵심 파일
+#### Core Files
 
-- `src/utils/error-handler.ts` — `analyzeError()`, `logError()`, `ErrorType`, `ErrorInfo`. 에러 코드-메시지 매핑(~40개), 한국어 fallback, Sentry 보고를 모두 담당
-- `src/config/query-client.ts` — `MutationCache` 글로벌 에러 핸들러. `onError`가 없는 mutation 실패 시 자동으로 에러 toast + Sentry 보고
-- `src/app/(service)/error.tsx`, `(landing)/error.tsx`, `(admin)/error.tsx` — route segment 에러 경계
-- `src/app/global-error.tsx` — root 에러 경계 (Sentry 자동 캡처)
-- `src/app/not-found.tsx` 및 각 route group의 `not-found.tsx`
+- `src/utils/error-handler.ts` — `analyzeError()`, `logError()`, `ErrorType`, `ErrorInfo`. Handles error code-to-message mapping (~40 codes), Korean fallback messages, and Sentry reporting.
+- `src/config/query-client.ts` — `MutationCache` global error handler. Automatically shows error toast + Sentry report when a mutation with no `onError` fails.
+- `src/app/(service)/error.tsx`, `(landing)/error.tsx`, `(admin)/error.tsx` — route segment error boundaries
+- `src/app/global-error.tsx` — root error boundary (auto-captures to Sentry)
+- `src/app/not-found.tsx` and each route group's `not-found.tsx`
 
-#### 에러 분류 체계
+#### Error Classification
 
-`analyzeError()`는 3가지 에러 타입을 순서대로 분류한다:
+`analyzeError()` classifies errors in order:
 
-1. **AxiosError** — `isAxiosError()` 통과. HTTP 상태 코드 + API 에러 응답 추출
-2. **ApiError** — axios 인터셉터가 변환한 커스텀 에러. `isApiError()` 타입 가드로 `errorCode`, `statusCode` 보존
-3. **일반 Error / unknown** — fallback 처리
+1. **AxiosError** — passes `isAxiosError()`. Extracts HTTP status code + API error response.
+2. **ApiError** — custom error transformed by axios interceptor. `isApiError()` type guard preserves `errorCode`, `statusCode`.
+3. **Generic Error / unknown** — fallback handling.
 
 ```
-AxiosError → isAxiosError() ✅ → HTTP 상태/에러 코드 추출
-ApiError   → isApiError() ✅   → errorCode/statusCode 보존 (인터셉터 변환 에러)
-Error      → instanceof Error  → UNKNOWN 타입
-unknown    → String(error)     → 기본 메시지
+AxiosError → isAxiosError() ✅ → extract HTTP status/error code
+ApiError   → isApiError() ✅   → preserve errorCode/statusCode (interceptor-transformed)
+Error      → instanceof Error  → UNKNOWN type
+unknown    → String(error)     → default message
 ```
 
-#### 에러 코드-메시지 매핑
+#### Error Code-to-Message Mapping
 
-`error-handler.ts`의 `codeMessages` 객체에서 중앙 관리. 에러 코드 prefix별 분류:
+Centrally managed in `codeMessages` object in `error-handler.ts`. Organized by error code prefix:
 
-| Prefix | 도메인 | 예시 |
-|--------|--------|------|
-| AUTH | 인증 | AUTH001(토큰 만료), AUTH002(권한 없음) |
-| CMM | 공통 | CMM001(입력값 오류), CMM006(접근 권한) |
-| MEM | 회원 | MEM002(회원 미존재), MEM003(중복 가입) |
-| GSM/GSA | 스터디 관리/신청 | GSM001(스터디 미존재), GSA003(정원 초과) |
-| HWK/EVL | 과제/평가 | HWK003(제출 기간 만료), EVL002(중복 평가) |
-| PAY 2xx | 결제 | PAY202(중복 승인), PAY207(금액 불일치) |
-| PAY 3xx | 환불 | PAY302(중복 환불), PAY307(환불 불가) |
-| FILE | 파일 | FILE001(업로드 실패), FILE002(형식 미지원) |
+| Prefix | Domain | Examples |
+|--------|--------|---------|
+| AUTH | Authentication | AUTH001 (token expired), AUTH002 (unauthorized) |
+| CMM | Common | CMM001 (invalid input), CMM006 (access denied) |
+| MEM | Member | MEM002 (member not found), MEM003 (duplicate signup) |
+| GSM/GSA | Study management/application | GSM001 (study not found), GSA003 (capacity exceeded) |
+| HWK/EVL | Assignment/evaluation | HWK003 (submission period expired), EVL002 (duplicate evaluation) |
+| PAY 2xx | Payment | PAY202 (duplicate approval), PAY207 (amount mismatch) |
+| PAY 3xx | Refund | PAY302 (duplicate refund), PAY307 (non-refundable) |
+| FILE | File | FILE001 (upload failed), FILE002 (unsupported format) |
 
-매핑에 없는 코드는 백엔드 `message`가 한국어이면 그대로 사용(`/[가-힣]/` 정규식). 에러 코드를 사용자에게 직접 노출하지 않는다.
+For unmapped codes, if the backend `message` is Korean (matched by `/[가-힣]/` regex), it is used as-is. Error codes are never exposed directly to the user.
 
-#### Mutation 에러 글로벌 핸들러
+#### Mutation Error Global Handler
 
-`query-client.ts`의 `MutationCache.onError`가 안전망 역할:
+`MutationCache.onError` in `query-client.ts` acts as a safety net:
 
-- `onError` 핸들러가 없는 mutation 실패 시 자동으로 에러 toast 표시 + Sentry 보고
-- 개별 `onError`가 있으면 글로벌 핸들러 스킵 (중복 방지)
-- Query 에러는 글로벌 핸들러 미적용 (다중 동시 실패 시 toast 폭주 방지)
+- Automatically shows error toast + Sentry report when a mutation without `onError` fails.
+- Skips global handler if individual `onError` is present (prevents double-handling).
+- Not applied to query errors (prevents toast flooding on simultaneous failures).
 
-#### 클라이언트 에러 처리 원칙
+#### Client Error Handling Principles
 
-- 복구 가능한 실패 (`recoverable`): 사용자 흐름을 유지한다. Inline error를 우선하고, Toast를 보조적으로 사용한다. **브라우저 시스템 `alert()`는 사용하지 않는다** — Toast(`useToastStore`)를 사용한다
-- 사용자 판단이 필요한 실패 (`action required`): 다음 행동을 선택해야 할 때 Modal 또는 앱 내 확인 UI를 사용한다. 브라우저 시스템 `alert()`는 사용하지 않으며 기존의 디자인 시스템을 활용한다
-- 치명적 실패 (`fatal`, page-level): 특정 화면이 더 이상 정상 동작할 수 없을 때 route segment의 `error.tsx` 또는 client error boundary를 사용한다
-- 애플리케이션 전체 실패 (`critical`, app-level): hydration mismatch, 인증 컨텍스트 붕괴, 전역 provider 오류처럼 앱 전체에 영향을 주는 경우 `global-error.tsx`가 잡고 Sentry로 자동 보고
+- **Recoverable failure**: Preserve user flow. Prefer inline error first, use Toast as secondary. **Never use browser `alert()`** — use Toast (`useToastStore`).
+- **Action required failure**: When the user must choose a next action, use Modal or in-app confirmation UI. No browser `alert()` — use existing design system.
+- **Fatal failure** (page-level): When a specific page can no longer function, use the route segment's `error.tsx` or client error boundary.
+- **Critical failure** (app-level): For hydration mismatches, auth context collapse, global provider errors — `global-error.tsx` catches and auto-reports to Sentry.
 
-Toast 사용 패턴:
+Toast usage pattern:
 
 ```typescript
-// 컴포넌트 내부 (React hook 사용)
+// Inside a component (using React hook)
 const showToast = useToastStore((state) => state.showToast);
 showToast('환불 요청이 접수되었습니다.', 'success');
 
-// Hook / React 외부 (getState 사용)
+// Outside React (using getState)
 useToastStore.getState().showToast(errorInfo.userMessage, 'error');
 ```
 
-`<GlobalToast />`는 `(service)`, `(landing)`, `(admin)` 세 레이아웃 모두에 마운트되어 있다.
+`<GlobalToast />` is mounted in all three layouts: `(service)`, `(landing)`, `(admin)`.
 
-#### 서버 에러 처리 원칙
+#### Server Error Handling Principles
 
-- SSR/Server Component에서 필수 데이터 로딩에 실패해 페이지가 성립하지 않으면 예외를 다시 던져 `error.tsx`로 보낸다
-- 리소스가 존재하지 않는 케이스는 `notFound()`로 분기한다
-- `fetchQuery()` / `prefetchQuery()`의 `queryFn`은 `undefined`를 반환하면 안 된다. 404는 `notFound()`, 그 외는 반드시 `throw error`
+- In SSR/Server Components, if critical data loading fails and the page cannot be rendered, re-throw the exception to propagate to `error.tsx`.
+- For resource-not-found cases, use `notFound()`.
+- `queryFn` in `fetchQuery()` / `prefetchQuery()` must never return `undefined`. Use `notFound()` for 404, and `throw error` for everything else.
 
-예: `src/api/endpoints/group-study/get-group-study-detail.server.ts`는 `GSM001`이면 `notFound()`, 나머지 에러는 `throw error` 한다
+Example: `src/api/endpoints/group-study/get-group-study-detail.server.ts` calls `notFound()` for `GSM001`, and `throw error` for other errors.
 
 ```typescript
 export default async function Page() {
@@ -376,34 +376,34 @@ export default async function Page() {
 }
 ```
 
-불필요한 `try/catch`로 에러를 삼켜 `undefined`를 반환하지 않는다.
+Do not swallow errors with unnecessary `try/catch` that returns `undefined`.
 
-#### 운영 보안 원칙
+#### Production Security Principles
 
-- Production에서는 `stack trace`, 원문 서버 메시지, 내부 경로, 민감한 백엔드 응답을 사용자 화면에 직접 노출하지 않는다
-- 3개 `error.tsx` 모두 `process.env.NODE_ENV === 'development'` 게이팅 적용: technicalMessage, error.message, error.stack은 개발 환경에서만 표시
-- 사용자 화면에는 일반화된 `userMessage`, 필요 시 `errorCode`, `statusCode`, `digest` 정도만 노출한다
-- `digest`는 서버 로그 또는 Sentry에서 원인을 찾기 위한 추적용 식별자로 사용한다
-- API route에서도 production 응답에는 상세 `details`를 그대로 넣지 않는 방향을 기본 원칙으로 삼는다
+- Never expose `stack trace`, raw server messages, internal paths, or sensitive backend responses to the user in production.
+- All 3 `error.tsx` files gate behind `process.env.NODE_ENV === 'development'`: `technicalMessage`, `error.message`, `error.stack` are only shown in development.
+- Only expose generalized `userMessage`, and optionally `errorCode`, `statusCode`, `digest` to the user.
+- `digest` is a trace identifier for finding the cause in server logs or Sentry.
+- API routes should also avoid including detailed `details` in production responses.
 
-#### 성공 페이지 원칙
+#### Success Page Principles
 
-- 스터디 생성, 스터디 참여, 결제 완료 같은 주요 성공 이벤트는 별도 success page 또는 완료 화면으로 사용자의 다음 행동을 명확히 안내한다
-- 브랜딩 요소는 환영 문구, 운영팀 메시지, 후속 행동 CTA 중심으로 넣고, 정보량이 많은 경우에도 핵심 CTA를 먼저 보이게 한다
+- Major success events (study creation, study join, payment complete) should have a dedicated success page or completion screen that clearly guides the user's next action.
+- Branding elements should center on welcome copy, team message, and follow-up CTA. Even with high information density, the primary CTA should be visible first.
 
-#### 모니터링 (Sentry)
+#### Monitoring (Sentry)
 
-`@sentry/nextjs`가 통합되어 있다. 에러는 `logError()` → `Sentry.captureException()` 경로로 자동 보고된다.
+`@sentry/nextjs` is integrated. Errors are auto-reported via `logError()` → `Sentry.captureException()`.
 
-- **SDK 설정 파일**: `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` (프로젝트 루트)
-- **Next.js instrumentation**: `src/instrumentation.ts` — 서버/엣지 런타임 초기화 + `onRequestError` 자동 캡처
-- **next.config.ts**: `withSentryConfig()` 래핑 — 소스맵 업로드, 트리셰이킹
-- **환경 변수**: `NEXT_PUBLIC_SENTRY_DSN` (런타임), `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` (CI 소스맵 업로드)
-- **환경 감지**: `NEXT_PUBLIC_API_BASE_URL` 기반으로 `production` / `staging` / `development` 자동 분류
-- **필터링**: AUTH001(토큰 만료)은 정상 플로우이므로 `beforeSend`에서 Sentry 보고 제외
-- **성능**: `tracesSampleRate: 0.1` (10%), Session Replay는 에러 시에만 기록 (`replaysOnErrorSampleRate: 1.0`)
-- DSN이 없으면 Sentry가 초기화되지 않으므로, 로컬 개발에서는 환경 변수 없이도 정상 동작한다
-- 운영 단계에서는 Slack 즉시 알림을 연동할 수 있지만, 노이즈를 줄이기 위해 임계치와 대상 에러 범위를 먼저 정의한다
+- **SDK config files**: `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` (project root)
+- **Next.js instrumentation**: `src/instrumentation.ts` — server/edge runtime init + `onRequestError` auto-capture
+- **next.config.ts**: wrapped with `withSentryConfig()` — source map upload, tree-shaking
+- **Env vars**: `NEXT_PUBLIC_SENTRY_DSN` (runtime), `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` (CI source map upload)
+- **Environment detection**: auto-classifies `production` / `staging` / `development` based on `NEXT_PUBLIC_API_BASE_URL`
+- **Filtering**: AUTH001 (token expired) is a normal flow — excluded from Sentry reporting via `beforeSend`
+- **Performance**: `tracesSampleRate: 0.1` (10%), Session Replay only on errors (`replaysOnErrorSampleRate: 1.0`)
+- Without DSN, Sentry does not initialize, so local development works without env vars.
+- In production, Slack instant alerts can be integrated, but define thresholds and error scope first to reduce noise.
 
 ### Path Aliases
 
