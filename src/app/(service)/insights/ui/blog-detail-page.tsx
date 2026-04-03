@@ -446,7 +446,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
       <div className="mx-auto w-full max-w-[740px] px-300 py-700 sm:px-500 lg:px-0">
         <article>
           {/* 헤더 영역 */}
-          <header className="mb-600">
+          <header>
             {/* 카테고리 */}
             {article.category && (
               <div className="mb-150">
@@ -460,7 +460,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             )}
 
             {/* 제목 */}
-            <h1 className="mb-200 text-[26px] font-bold leading-[1.35] text-text-strong sm:text-[34px]">
+            <h1 className="mb-200 text-[31px] font-bold leading-[1.35] text-text-strong sm:text-[39px]">
               {article.title}
             </h1>
 
@@ -472,10 +472,14 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
             )}
 
             {/* 발행일 */}
-            <time className="font-designer-14r text-text-subtlest">
-              {formatDate(article.publishedAt)}
+            <time className="mb-[30px] block font-designer-14r text-text-subtlest">
+              {formatDate(article.createdAt)}
             </time>
           </header>
+
+          <div className="pb-[10px]">
+            <hr className="border-0 border-t border-border-subtle" />
+          </div>
 
           {/* 본문 */}
           <section className="min-h-[200px]">
@@ -490,8 +494,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
 
           {/* 저자 */}
           {article.author && (
-            <>
-              <hr className="my-600 border-0 border-t border-border-subtle" />
+            <div>
               <footer className="flex items-center gap-200 rounded-100 border border-border-default p-250">
                 {article.author.avatar?.url && (
                   <div className="relative h-[56px] w-[56px] flex-shrink-0 overflow-hidden rounded-full">
@@ -519,7 +522,7 @@ export default function BlogDetailPage({ article }: BlogDetailPageProps) {
                   )}
                 </div>
               </footer>
-            </>
+            </div>
           )}
         </article>
       </div>
