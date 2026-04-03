@@ -1,240 +1,404 @@
 # CLAUDE.md
 
-이 파일은 Claude Code(claude.ai/code)가 본 저장소의 코드를 다룰 때 참고하는 가이드입니다.
+This file is a reference guide for Claude Code (claude.ai/code) when working with this repository.
 
-## 핵심 규칙 (모든 작업 전 반드시 숙지)
+## Core Rules (Must Review Before All Tasks)
 
-### 구현 시 행동 원칙
+### Implementation Principles
 
-- **탐색은 최대 2~3개 파일로 제한**. 탐색·계획에 세션을 소비하지 않는다. 파일 경로와 API 계약을 파악했으면 즉시 코드 작성을 시작한다.
-- **API 엔드포인트 조작 금지**. 존재하지 않는 엔드포인트를 임의로 만들지 않는다. 반드시 `src/hooks/queries/`, `src/api/`, `src/api/openapi/` 에서 실제 API를 확인한 뒤 사용한다. 없으면 TODO 플레이스홀더를 남기고 사용자에게 알린다.
-- **코드 리뷰·정리 시 한 번에 전부 수정**. 동일 파일에 여러 번 패스하지 않는다. 발견된 모든 이슈를 단일 패스로 처리한다.
+- **Limit exploration to 2–3 files max.** Do not spend the session on exploration or planning. Once you know the file path and API contract, start writing code immediately.
+- **Never fabricate API endpoints.** Do not invent endpoints that don't exist. Always verify real APIs in `src/hooks/queries/`, `src/api/`, `src/api/openapi/` before using them. If not found, leave a TODO placeholder and inform the user.
+- **Fix all issues in a single pass during code review.** Do not make multiple passes on the same file. Handle all discovered issues in one pass.
 
-### 구현 완료 기준
+### Completion Criteria
 
-코드를 작성·수정한 직후, **아래 3가지를 모두 통과해야 완료**로 간주한다:
+After writing or modifying code, **all 3 of the following must pass to consider the task complete**:
 
 ```bash
-yarn lint:fix       # ESLint 자동 수정
-yarn prettier:fix   # Prettier 포맷 적용
-yarn typecheck      # 타입 에러 없음 확인
+yarn lint:fix       # ESLint auto-fix
+yarn prettier:fix   # Prettier format
+yarn typecheck      # No type errors
 ```
 
-- 타입 변경이 없는 UI 수정은 `yarn typecheck` 생략 가능
-- "prettier 정리", "lint 수정" 단독 커밋은 이 기준을 지키지 않았다는 신호
-- 수정 범위가 넓더라도 lint/prettier는 **수정한 파일 범위 내에서만** 실행 (관련 없는 파일 개선 금지 원칙과 충돌하지 않음)
+- `yarn typecheck` can be skipped for UI-only changes with no type modifications
+- Standalone "prettier cleanup" or "lint fix" commits signal this criterion was not met
+- Even for broad changes, lint/prettier runs only **within the scope of modified files** (consistent with the no-unrelated-improvements principle)
 
-### 코드 컨벤션 (자동 적용)
+### Code Conventions (auto-applied)
 
-- `className` 조합은 항상 `cn()` 사용. 템플릿 리터럴 className 금지.
-- Tailwind 임의값(`p-[4px]`, `w-[320px]`) 금지. 프로젝트 커스텀 토큰 사용.
-- 색상·간격 하드코딩 금지. `global.css`의 `@theme inline` 토큰만 사용.
+- Always use `cn()` for `className` composition. No template literal classNames.
+- No Tailwind arbitrary values (`p-[4px]`, `w-[320px]`). Use project custom tokens.
+- No hardcoded colors/spacing. Use only `@theme inline` tokens from `global.css`.
 
 ---
 
-## 프로젝트 개요
+## Project Overview
 
-ZERO-ONE 스터디 플랫폼 — 매일 아침을 함께 시작하는 1:1 기상 스터디 플랫폼. Next.js 15 (App Router), React 19, TypeScript 5, Tailwind CSS 4 기반. 패키지 매니저는 **Yarn 1.22+**, Node.js >=20 필요.
+ZERO-ONE Study Platform — A 1:1 morning study platform to start every day together. Built on Next.js 15 (App Router), React 19, TypeScript 5, Tailwind CSS 4. Package manager: **Yarn 1.22+**, Node.js >=20 required.
 
-## 명령어
+## Commands
 
 ```bash
-yarn dev              # Turbopack 개발 서버 실행
-yarn build            # 프로덕션 빌드
-yarn lint             # ESLint 검사
-yarn lint:fix         # ESLint 자동 수정
-yarn typecheck        # TypeScript 타입 검사 (tsc --noEmit)
-yarn prettier         # Prettier 포맷 검사
-yarn prettier:fix     # Prettier 자동 포맷팅
-yarn storybook        # Storybook 개발 서버 (포트 6006)
-yarn build-storybook  # Storybook 빌드
-yarn generate:api <이름>  # API 쿼리 훅 보일러플레이트 생성 (예: yarn generate:api bank-search-api)
+yarn dev              # Run Turbopack dev server
+yarn build            # Production build
+yarn lint             # ESLint check
+yarn lint:fix         # ESLint auto-fix
+yarn typecheck        # TypeScript type check (tsc --noEmit)
+yarn prettier         # Prettier format check
+yarn prettier:fix     # Prettier auto-format
+yarn storybook        # Storybook dev server (port 6006)
+yarn build-storybook  # Storybook build
+yarn generate:api <name>  # Generate API query hook boilerplate (e.g., yarn generate:api bank-search-api)
 ```
 
-CI 파이프라인: lint → typecheck → prettier → build → build-storybook → 보안 감사.
+CI pipeline: lint → typecheck → prettier → build → build-storybook → security audit.
 
-## 도메인 혼동 주의: 멘토링 vs 멘토스터디
+## Domain Warning: Mentoring vs MentorStudy
 
 @.claude/rules/domain-entities.md
 
 ---
 
-## 아키텍처
+## Architecture
 
-### 라우팅 (Next.js App Router)
+### Routing (Next.js App Router)
 
-- `src/app/(landing)/` — 공개 랜딩 페이지 (`/`)
-- `src/app/(service)/` — 인증 필요 서비스 페이지 (home, my-page, payment, premium-study 등)
-- `src/app/(admin)/` — 관리자 페이지 (JWT의 `ROLE_ADMIN` 클레임으로 권한 보호)
-- `src/middleware.ts` — 인증 처리: accessToken 쿠키 검증, `/api/v1/auth/access-token/refresh`로 자동 갱신, `/admin/*` 경로 관리자 권한 확인
+- `src/app/(landing)/` — public landing page (`/`)
+- `src/app/(service)/` — authenticated service pages (home, my-page, payment, premium-study, etc.)
+- `src/app/(admin)/` — admin pages (protected by `ROLE_ADMIN` claim in JWT)
+- `src/middleware.ts` — auth handling: validates accessToken cookie, auto-refreshes via `/api/v1/auth/access-token/refresh`, checks admin permissions for `/admin/*` paths
 
-### API 레이어
+### API Layer
 
-**백엔드 API 문서 (Swagger):**
+**Backend API docs (Swagger):**
 
-- 스테이징: https://test-api.zeroone.it.kr/v3/api-docs
+- Staging: https://test-api.zeroone.it.kr/v3/api-docs
 - Swagger UI: https://test-api.zeroone.it.kr/swagger-ui/index.html
 
-두 가지 통신 패턴이 공존:
+Two communication patterns coexist:
 
-1. **레거시 axios** (`src/api/client/axios.ts`): baseURL `/api/v1/`, 토큰 갱신 큐 구현 (AUTH001 에러 시 갱신 트리거). 커스텀 엔드포인트에 사용.
-2. **OpenAPI 자동 생성** (`src/api/openapi/`): 백엔드 Swagger에서 자동 생성된 타입과 서비스. **`src/api/openapi/` 내 파일을 직접 수정 금지** — 재생성됨. ESLint에서 이 디렉토리 제외됨.
+1. **Legacy axios** (`src/api/client/axios.ts`): baseURL `/api/v1/`, token refresh queue (triggers on AUTH001 error). Used for custom endpoints.
+2. **OpenAPI auto-generated** (`src/api/openapi/`): Types and services auto-generated from backend Swagger. **Never modify files inside `src/api/openapi/`** — they are regenerated. This directory is excluded from ESLint.
 
-새 API 훅 추가 방법:
+How to add a new API hook:
 
 ```bash
-yarn generate:api <swagger-api-타이틀-이름>
-# src/hooks/queries/<이름>.ts 파일 생성 (createApiInstance 보일러플레이트 포함)
+yarn generate:api <swagger-api-title-name>
+# Creates src/hooks/queries/<name>.ts (with createApiInstance boilerplate)
 ```
 
-생성된 파일에서 API 인스턴스를 사용해 TanStack Query 훅을 작성.
+Use the generated API instance in the file to write TanStack Query hooks.
 
-#### TanStack Query 훅 작성 패턴
+#### TanStack Query Hook Patterns
 
 @.claude/rules/api-patterns.md
 
-### 상태 관리
+### State Management
 
-- **Zustand** (`src/stores/`): 전역 클라이언트 상태. `useUserStore` (유저 정보 persist), `useLeaderStore`.
-- **TanStack Query** (`src/hooks/queries/`): 서버 상태. 도메인별 쿼리 훅 (study, payment, evaluation, peer-review, settlement 등). 기본 staleTime: 60초.
-- **React Hook Form + Zod** (`src/types/schemas/`): 폼 상태 + 런타임 유효성 검증.
+- **Zustand** (`src/stores/`): Global client state. `useUserStore` (user info persist), `useLeaderStore`.
+- **TanStack Query** (`src/hooks/queries/`): Server state. Domain-specific query hooks (study, payment, evaluation, peer-review, settlement, etc.). Default staleTime: 60 seconds.
+- **React Hook Form + Zod** (`src/types/schemas/`): Form state + runtime validation.
 
-### 컴포넌트 구성
+### Component Structure
 
-- 공용 UI는 주로 `src/components/common/ui/` 아래에 위치한다. 예: `Button`, `Dialog`, `Toast`, `FloatingInquiryButton`
-- 공용 레이아웃은 `src/components/common/layout/` 아래에 위치한다. 예: `Header`, `AdminSideBar`
-- 공용 모달은 `src/components/common/modals/` 아래에 위치한다
-- 페이지 단위 조합 컴포넌트는 `src/components/pages/`, 도메인별 조합은 `payment/`, `discussion/`, `archive/`, `balance-game/`, `mentoring` 관련 디렉토리 등으로 분산되어 있다
-- `src/features/` 기반 구조와 전통적인 `components/`, `hooks/queries/` 구조가 공존한다. 신규 변경 시 xkdl 한 PR 안에서 구조를 섞어 바꾸지 않는다
+- Shared UI is primarily located under `src/components/common/ui/`. Examples: `Button`, `Dialog`, `Toast`, `FloatingInquiryButton`
+- Shared layouts are under `src/components/common/layout/`. Examples: `Header`, `AdminSideBar`
+- Shared modals are under `src/components/common/modals/`
+- Page-level composite components are in `src/components/pages/`; domain composites are spread across `payment/`, `discussion/`, `archive/`, `balance-game/`, `mentoring`-related directories, etc.
+- `src/features/`-based structure and traditional `components/`, `hooks/queries/` structure coexist. Do not mix structures within a single PR for new changes.
 
-### 백엔드 데이터 처리 안전 패턴
+### Backend Data Safety Patterns
 
-@.claude/rules/backend-data-safety.md
+Empty array safety is already guaranteed by parent component `if (!arr?.length) return null` guards, so no additional defensive code before `Math.max` calls is needed.
 
-### 스타일링
+#### Using Optional Fields Safely in React keys and Handlers
 
-- Tailwind CSS 4 + `@tailwindcss/postcss` 플러그인
-- 클래스 유틸리티: `clsx`, `tailwind-merge`, `class-variance-authority` (CVA)
-- `prettier-plugin-tailwindcss`로 Tailwind 클래스 정렬
-- `src/app/global.css`에서 CSS 변수로 테마 관리
-- `src/app/global.css`의 `@theme inline`에서 기본 토큰(`--color-*`, `--radius-*`, `--spacing-*`, `--shadow-*`)을 초기화하므로 기본 Tailwind 스케일 클래스(`p-4`, `rounded-lg`, `shadow-md`, `text-sm` 등) 사용 금지. 프로젝트 커스텀 토큰(`p-200`, `rounded-150`, `shadow-2`, `font-designer-*`, `text-text-*`)만 사용
+Using optional (`?`) ID fields from the backend directly as React `key` props can cause multiple items to have `key="undefined"`, leading to incorrect DOM reuse by React. Use `??` operator with `index` fallback.
 
-### 인증 플로우
+```typescript
+// Wrong pattern — if missionId is undefined, all items get key="undefined"
+{items.map((item) => <div key={item.missionId}>...</div>)}
 
-1. OAuth 로그인 (카카오/구글) → 서버에서 JWT access + refresh 토큰 발급
-2. `accessToken`은 쿠키에 저장 (JS 접근 가능), `refresh_token`은 httpOnly 쿠키에 저장
-3. Axios 인터셉터가 `AUTH001` 에러 감지 → 토큰 갱신 → 실패한 요청 재시도 (중복 갱신 방지를 위한 큐 사용)
-4. 미들웨어가 서버 측에서 네비게이션 시 토큰 검증, 유효하지 않으면 `/`로 리다이렉트
-
-### 에러 핸들링
-
-@.claude/rules/error-handling.md
-
-### 경로 별칭
-
-`@/*`는 `./src/*`에 매핑됨 (tsconfig.json에서 설정)
-
-## 주요 컨벤션
-
-- **커밋 메시지**: `feat :`, `fix :`, `refactor :`, `style :`, `docs :`, `test :`, `chore :` (콜론 앞뒤 공백 포함)
-- **브랜치 전략**: Feature 브랜치 → `develop` (스테이징: test.zeroone.it.kr) → `main` (프로덕션: www.zeroone.it.kr)
-- **ESLint 설정**: RushStack 기반, strict TypeScript, React hooks, TanStack Query 플러그인, 임포트 정렬 (알파벳 + 그룹별)
-- **Prettier**: 80자 너비, 작은따옴표, trailing comma, 2칸 들여쓰기
-- **SVG 처리**: `@svgr/webpack`이 next.config.ts에 설정되어 SVG를 React 컴포넌트로 임포트 가능
-
-## 문서화 규칙
-
-- 기능 개발 또는 버그 수정을 완료한 직후 **자동으로** `/doc` 커맨드를 실행해 `docs/` 폴더에 문서를 생성한다.
-- `/doc`는 `.claude/commands/doc.md`에 정의된 **로컬 프로젝트 커맨드**다. `Skill` tool 없이 파일의 지시를 직접 따른다.
-- 유형 판별은 브랜치명이 아닌 **커밋 메시지와 코드 패턴**으로만 한다.
-
-### 버그 수정 문서 (`bugfix-*.md`) 필수 서술 흐름
-
-문서는 반드시 아래 3단계 서술 구조를 따른다. "WHAT을 바꿨나"가 아니라 **"WHY → HOW & WHY THIS → RESULT"** 흐름으로 작성한다.
-
-1. **문제 파악** — 어떤 문제가 있었는가
-   - 증상: 사용자 관점에서 어떤 상황에서 무슨 문제가 발생했는가
-   - 근본 원인: 코드 레벨에서 왜 이 버그가 생겼는가 (문제 코드 + 발생 흐름)
-2. **해결 — 어떻게 & 왜 이 방법인가**
-   - 선택한 접근법과 그 이유 (수정 전/후 코드)
-   - **고려했지만 선택하지 않은 대안**: 다른 해결 방식은 없었는지, 왜 선택하지 않았는지 명시
-3. **결과** — 수정 후 무엇이 달라졌는가 (UX 변화, 동작 변화, 재발 방지 포인트)
-
-### 기능 개발 문서 (`feature-*.md`) 필수 서술 흐름
-
-1. **배경 — 왜 필요했나**
-   - 이 기능이 없을 때 어떤 불편함·한계가 있었는가. 어떤 사용자 문제를 해결하는가
-2. **구현 — 어떻게 & 왜 이 방법인가**
-   - 핵심 접근법과 선택 이유 (핵심 코드 + 구현 흐름)
-   - **고려한 다른 구현 방식**: 대안이 있었다면 왜 선택하지 않았는지 명시
-3. **결과** — 구현 후 무엇이 가능해졌는가 (사용자·개발자 관점 변화)
-
-## Claude 커맨드 & 스킬
-
-### 로컬 커맨드 우선 원칙
-
-이 프로젝트에는 `.claude/commands/`에 프로젝트 특화 커맨드가 정의되어 있다.
-**전역 스킬보다 로컬 커맨드를 항상 우선 사용한다.**
-
-| 작업 | 사용할 커맨드 | 사용하지 말 것 |
-|------|------------|-------------|
-| 코드 리뷰 | `/review` | `coderabbit:review`, `code-review:code-review` |
-| 커밋 | `/commit` | `sc:git`, `everything-claude-code:*` |
-| PR 생성 | `/pr` | `pr-creator` 에이전트 |
-| 문서 생성 | `/doc` | `sc:document` |
-| 구현 | `/implement` | `sc:implement`, `everything-claude-code:plan` |
-| 개념 설명 | `/explain` | `sc:explain` |
-| 신뢰 자료 | `/ref` | (에이전트 직접 호출 불필요) |
-
-`sc:*` 시리즈(SuperClaude)와 `everything-claude-code:go-*`, `everything-claude-code:springboot-*` 등 백엔드·Go 관련 전역 스킬은 **이 프로젝트에서 사용하지 않는다.**
-
-단, 아래 `sc:` 커맨드는 **로컬에 동등한 커맨드가 없으므로 예외적으로 사용 가능**하다:
-
-| `sc:` 커맨드 | 용도 |
-|-------------|------|
-| `sc:research` | 특정 주제 깊은 웹 리서치 (로컬 `/ref`는 구현 근거 인용 목적, 리서치 목적과 다름) |
-| `sc:brainstorm` | 요구사항 탐색·아이디어 발산 대화 |
-| `sc:estimate` | 개발 공수 산정 |
-
-### 자주 사용하는 커맨드
-
-```bash
-/commit                    # lint:fix → prettier:fix → typecheck → 커밋 메시지 생성 → 커밋 실행
-/review                    # 변경 파일 자동 감지 → 8기준 리뷰 + 프로젝트 특화 에이전트 연계
-/review-pr <PR번호>        # CodeRabbit 코멘트 수용/기각 + 독립 리뷰 + 수정 계획
-/pr                        # develop 대상 GitHub PR 자동 생성
-/explain <개념>            # 프레임워크 개념을 프로젝트 코드 예시와 함께 설명
-/doc                       # 작업 완료 후 docs/ 문서 자동 생성 (완료 후 /ref 제안)
-/ref <작업>                # MDN·OWASP·공식 문서 근거로 작업 수행 또는 인용 첨부
+// Correct pattern — optional field ?? index
+{items.map((item, index) => <div key={item.missionId ?? index}>...</div>)}
 ```
 
-### 브라우저 검증 (staging-verify 스킬)
+Optional fields used inside event handlers also need guards:
 
-스테이징 환경 URL: `https://test.zeroone.it.kr`
+```typescript
+// Wrong pattern — if missionId is undefined, routes to ?missionId=undefined
+const handleClick = (id: number) => router.push(`...?missionId=${id}`);
 
-"크롬에서 확인해줘 (스터디 id: XXX)" 형태로 요청하면 Chrome DevTools MCP로 자동 검증.
-지원 패턴:
+// Correct pattern — recoverable failures notify via Toast
+const handleClick = (id: number | undefined) => {
+  if (!id) {
+    showToast('정보를 불러올 수 없습니다.', 'error');
+    return;
+  }
+  router.push(`...?missionId=${id}`);
+};
+```
 
-- 그룹스터디 상세: `/group-study/{id}`
-- 미션 탭: `/group-study/{id}?tab=mission`
-- 평가 탭: `/group-study/{id}?tab=evaluation`
+#### Safe Guards for enum-like String Type Assertions
 
-### 커밋 리뷰 (commit-reviewer 에이전트)
+The backend may send values not present in the frontend type definition. Use `in` guard + fallback instead of a simple `as StudyType` assertion. TypeScript `as` does not protect at runtime.
 
-"이 커밋 문제 없는지 봐줘", "변경사항 로직 문제 있는지 파악해줘" 등 요청 시 자동 활성화.
-프로젝트 컨벤션(OpenAPI 우선, queryKey 패턴, staleTime 60초) 기준으로 검토.
+```typescript
+// Wrong pattern — undefined rendering or runtime error when unknown value received
+const studyType = type as StudyType;
+<Badge>{STUDY_TYPE_LABELS[studyType]}</Badge>
 
-## 환경 변수
+// Correct pattern — in guard with fallback
+const studyType =
+  type && type in STUDY_TYPE_LABELS ? (type as StudyType) : undefined;
+<Badge>{studyType ? STUDY_TYPE_LABELS[studyType] : '스터디'}</Badge>
 
-개발에 필요한 주요 `NEXT_PUBLIC_*` 변수:
+// When iterating lists
+{experienceLevels?.map((level) => (
+  <Badge key={level}>
+    {level in EXPERIENCE_LEVEL_LABELS
+      ? EXPERIENCE_LEVEL_LABELS[level as ExperienceLevel]
+      : level}
+  </Badge>
+))}
+```
 
-- `NEXT_PUBLIC_API_BASE_URL` — 백엔드 API 엔드포인트
-- `NEXT_PUBLIC_KAKAO_CLIENT_ID` — 카카오 OAuth
-- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — 구글 OAuth
-- `NEXT_PUBLIC_TOSS_CLIENT_KEY` — 토스페이먼츠
+### Styling
+
+- Tailwind CSS 4 + `@tailwindcss/postcss` plugin
+- Class utilities: `clsx`, `tailwind-merge`, `class-variance-authority` (CVA)
+- `prettier-plugin-tailwindcss` for Tailwind class sorting
+- Theme managed via CSS variables in `src/app/global.css`
+- `@theme inline` in `src/app/global.css` resets base tokens (`--color-*`, `--radius-*`, `--spacing-*`, `--shadow-*`), so base Tailwind scale classes (`p-4`, `rounded-lg`, `shadow-md`, `text-sm`, etc.) are prohibited. Use only project custom tokens (`p-200`, `rounded-150`, `shadow-2`, `font-designer-*`, `text-text-*`)
+
+### Auth Flow
+
+1. OAuth login (Kakao/Google) → server issues JWT access + refresh tokens
+2. `accessToken` stored in cookie (JS-accessible), `refresh_token` in httpOnly cookie
+3. Axios interceptor detects `AUTH001` error → refreshes token → retries failed request (queue used to prevent duplicate refreshes)
+4. Middleware validates token server-side during navigation, redirects to `/` if invalid
+
+### Error Handling
+
+Error handling is centralized around `src/utils/error-handler.ts`. `src/utils/error.ts` is a deprecated backwards-compatibility wrapper for `extractErrorCode()`.
+
+#### Core Files
+
+- `src/utils/error-handler.ts` — `analyzeError()`, `logError()`, `ErrorType`, `ErrorInfo`. Handles error code-to-message mapping (~40 codes), Korean fallback messages, and Sentry reporting.
+- `src/config/query-client.ts` — `MutationCache` global error handler. Automatically shows error toast + Sentry report when a mutation with no `onError` fails.
+- `src/app/(service)/error.tsx`, `(landing)/error.tsx`, `(admin)/error.tsx` — route segment error boundaries
+- `src/app/global-error.tsx` — root error boundary (auto-captures to Sentry)
+- `src/app/not-found.tsx` and each route group's `not-found.tsx`
+
+#### Error Classification
+
+`analyzeError()` classifies errors in order:
+
+1. **AxiosError** — passes `isAxiosError()`. Extracts HTTP status code + API error response.
+2. **ApiError** — custom error transformed by axios interceptor. `isApiError()` type guard preserves `errorCode`, `statusCode`.
+3. **Generic Error / unknown** — fallback handling.
+
+```text
+AxiosError → isAxiosError() ✅ → extract HTTP status/error code
+ApiError   → isApiError() ✅   → preserve errorCode/statusCode (interceptor-transformed)
+Error      → instanceof Error  → UNKNOWN type
+unknown    → String(error)     → default message
+```
+
+#### Error Code-to-Message Mapping
+
+Centrally managed in `codeMessages` object in `error-handler.ts`. Organized by error code prefix:
+
+| Prefix | Domain | Examples |
+|--------|--------|---------|
+| AUTH | Authentication | AUTH001 (token expired), AUTH002 (unauthorized) |
+| CMM | Common | CMM001 (invalid input), CMM006 (access denied) |
+| MEM | Member | MEM002 (member not found), MEM003 (duplicate signup) |
+| GSM/GSA | Study management/application | GSM001 (study not found), GSA003 (capacity exceeded) |
+| HWK/EVL | Assignment/evaluation | HWK003 (submission period expired), EVL002 (duplicate evaluation) |
+| PAY 2xx | Payment | PAY202 (duplicate approval), PAY207 (amount mismatch) |
+| PAY 3xx | Refund | PAY302 (duplicate refund), PAY307 (non-refundable) |
+| FILE | File | FILE001 (upload failed), FILE002 (unsupported format) |
+
+For unmapped codes, if the backend `message` is Korean (matched by `/[가-힣]/` regex), it is used as-is. Error codes are never exposed directly to the user.
+
+#### Mutation Error Global Handler
+
+`MutationCache.onError` in `query-client.ts` acts as a safety net:
+
+- Automatically shows error toast + Sentry report when a mutation without `onError` fails.
+- Skips global handler if individual `onError` is present (prevents double-handling).
+- Not applied to query errors (prevents toast flooding on simultaneous failures).
+
+#### Client Error Handling Principles
+
+- **Recoverable failure**: Preserve user flow. Prefer inline error first, use Toast as secondary. **Never use browser `alert()`** — use Toast (`useToastStore`).
+- **Action required failure**: When the user must choose a next action, use Modal or in-app confirmation UI. No browser `alert()` — use existing design system.
+- **Fatal failure** (page-level): When a specific page can no longer function, use the route segment's `error.tsx` or client error boundary.
+- **Critical failure** (app-level): For hydration mismatches, auth context collapse, global provider errors — `global-error.tsx` catches and auto-reports to Sentry.
+
+Toast usage pattern:
+
+```typescript
+// Inside a component (using React hook)
+const showToast = useToastStore((state) => state.showToast);
+showToast('환불 요청이 접수되었습니다.', 'success');
+
+// Outside React (using getState)
+useToastStore.getState().showToast(errorInfo.userMessage, 'error');
+```
+
+`<GlobalToast />` is mounted in all three layouts: `(service)`, `(landing)`, `(admin)`.
+
+#### Server Error Handling Principles
+
+- In SSR/Server Components, if critical data loading fails and the page cannot be rendered, re-throw the exception to propagate to `error.tsx`.
+- For resource-not-found cases, use `notFound()`.
+- `queryFn` in `fetchQuery()` / `prefetchQuery()` must never return `undefined`. Use `notFound()` for 404, and `throw error` for everything else.
+
+Example: `src/api/endpoints/group-study/get-group-study-detail.server.ts` calls `notFound()` for `GSM001`, and `throw error` for other errors.
+
+```typescript
+export default async function Page() {
+  const data = await fetchData();
+  return <PageView data={data} />;
+}
+```
+
+Do not swallow errors with unnecessary `try/catch` that returns `undefined`.
+
+#### Production Security Principles
+
+- Never expose `stack trace`, raw server messages, internal paths, or sensitive backend responses to the user in production.
+- All 3 `error.tsx` files gate behind `process.env.NODE_ENV === 'development'`: `technicalMessage`, `error.message`, `error.stack` are only shown in development.
+- Only expose generalized `userMessage`, and optionally `errorCode`, `statusCode`, `digest` to the user.
+- `digest` is a trace identifier for finding the cause in server logs or Sentry.
+- API routes should also avoid including detailed `details` in production responses.
+
+#### Success Page Principles
+
+- Major success events (study creation, study join, payment complete) should have a dedicated success page or completion screen that clearly guides the user's next action.
+- Branding elements should center on welcome copy, team message, and follow-up CTA. Even with high information density, the primary CTA should be visible first.
+
+#### Monitoring (Sentry)
+
+`@sentry/nextjs` is integrated. Errors are auto-reported via `logError()` → `Sentry.captureException()`.
+
+- **SDK config files**: `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts` (project root)
+- **Next.js instrumentation**: `src/instrumentation.ts` — server/edge runtime init + `onRequestError` auto-capture
+- **next.config.ts**: wrapped with `withSentryConfig()` — source map upload, tree-shaking
+- **Env vars**: `NEXT_PUBLIC_SENTRY_DSN` (runtime), `SENTRY_ORG` / `SENTRY_PROJECT` / `SENTRY_AUTH_TOKEN` (CI source map upload)
+- **Environment detection**: auto-classifies `production` / `staging` / `development` based on `NEXT_PUBLIC_API_BASE_URL`
+- **Filtering**: AUTH001 (token expired) is a normal flow — excluded from Sentry reporting via `beforeSend`
+- **Performance**: `tracesSampleRate: 0.1` (10%), Session Replay only on errors (`replaysOnErrorSampleRate: 1.0`)
+- Without DSN, Sentry does not initialize, so local development works without env vars.
+- In production, Slack instant alerts can be integrated, but define thresholds and error scope first to reduce noise.
+
+### Path Aliases
+
+`@/*` maps to `./src/*` (configured in tsconfig.json)
+
+## Key Conventions
+
+- **Commit messages**: `feat :`, `fix :`, `refactor :`, `style :`, `docs :`, `test :`, `chore :` (spaces around colon). Write in Korean, "WHY"-focused, under 50 characters.
+- **Branch strategy**: Feature branch → `develop` (staging: test.zeroone.it.kr) → `main` (production: www.zeroone.it.kr)
+- **ESLint config**: RushStack-based, strict TypeScript, React hooks, TanStack Query plugin, import sorting (alphabetical + by group)
+- **Prettier**: 80 char width, single quotes, trailing comma, 2-space indent
+- **SVG handling**: `@svgr/webpack` configured in next.config.ts — SVGs can be imported as React components
+
+## Documentation Rules
+
+- Immediately after completing a feature or bug fix, **automatically** run the `/doc` command to generate documentation in the `docs/` folder.
+- `/doc` is a **local project command** defined in `.claude/commands/doc.md`. Follow the file's instructions directly without the Skill tool.
+- Determine the type from **commit messages and code patterns only**, not from branch name.
+
+### Bugfix document (`bugfix-*.md`) required narrative flow
+
+Documents must follow the 3-step narrative structure below. Write as **"WHY → HOW & WHY THIS → RESULT"**, not "WHAT changed."
+
+1. **Problem** — what was the issue
+   - Symptom: what situation caused what problem from the user's perspective
+   - Root cause: why this bug occurred at the code level (problematic code + occurrence flow)
+2. **Solution — how & why this approach**
+   - Chosen approach and reasoning (before/after code)
+   - **Alternatives considered but not chosen**: were there other solutions, why weren't they chosen
+3. **Result** — what changed after the fix (UX changes, behavior changes, prevention points)
+
+### Feature document (`feature-*.md`) required narrative flow
+
+1. **Background — why it was needed**
+   - What inconvenience/limitation existed without this feature. What user problem does it solve?
+2. **Implementation — how & why this approach**
+   - Core approach and reasoning (key code + implementation flow)
+   - **Other implementation approaches considered**: if alternatives existed, why weren't they chosen
+3. **Result** — what became possible after implementation (changes from user/developer perspective)
+
+## Claude Commands & Skills
+
+### Local Command Priority Principle
+
+This project has project-specific commands defined in `.claude/commands/`.
+**Always use local commands over global skills.**
+
+| Task | Use | Do not use |
+|------|-----|-----------|
+| Code review | `/review` | `coderabbit:review`, `code-review:code-review` |
+| Commit | `/commit` | `sc:git`, `everything-claude-code:*` |
+| Create PR | `/pr` | `pr-creator` agent |
+| Generate docs | `/doc` | `sc:document` |
+| Implementation | `/implement` | `sc:implement`, `everything-claude-code:plan` |
+| Explain concepts | `/explain` | `sc:explain` |
+| Trusted references | `/ref` | (no need to call agent directly) |
+
+The `sc:*` series (SuperClaude) and backend/Go-related global skills like `everything-claude-code:go-*`, `everything-claude-code:springboot-*` **are not used in this project.**
+
+However, the following `sc:` commands are **exceptionally allowed** since there are no equivalent local commands:
+
+| `sc:` command | Purpose |
+|--------------|---------|
+| `sc:research` | Deep web research on a topic (local `/ref` is for citing implementation references, different purpose) |
+| `sc:brainstorm` | Requirements exploration and ideation conversations |
+| `sc:estimate` | Development effort estimation |
+
+### Frequently Used Commands
+
+```bash
+/commit                    # lint:fix → prettier:fix → typecheck → generate commit message → commit
+/review                    # auto-detect changed files → 13-criteria review + project-specific agents
+/review-pr <PR number>     # CodeRabbit comment accept/reject + independent review + fix plan
+/pr                        # auto-create GitHub PR targeting develop
+/explain <concept>         # explain framework concept with project code examples
+/doc                       # auto-generate docs/ documentation after task completion (suggests /ref after)
+/ref <task>                # perform task or attach citations with MDN/OWASP/official doc references
+```
+
+### Browser Verification (staging-verify skill)
+
+Staging URL: `https://test.zeroone.it.kr`
+
+Request "check in Chrome (study id: XXX)" format to auto-verify with Chrome DevTools MCP.
+Supported patterns:
+
+- Group study detail: `/group-study/{id}`
+- Mission tab: `/group-study/{id}?tab=mission`
+- Evaluation tab: `/group-study/{id}?tab=evaluation`
+
+### Commit Review (commit-reviewer agent)
+
+Auto-activated on requests like "check if this commit has issues", "check if changes have logic problems", etc.
+Reviews against project conventions (OpenAPI priority, queryKey patterns, staleTime 60s).
+
+## Environment Variables
+
+Key `NEXT_PUBLIC_*` variables needed for development:
+
+- `NEXT_PUBLIC_API_BASE_URL` — backend API endpoint
+- `NEXT_PUBLIC_KAKAO_CLIENT_ID` — Kakao OAuth
+- `NEXT_PUBLIC_GOOGLE_CLIENT_ID` — Google OAuth
+- `NEXT_PUBLIC_TOSS_CLIENT_KEY` — Toss Payments
 - `NEXT_PUBLIC_CLARITY_PROJECT_ID` — Microsoft Clarity
 - `NEXT_PUBLIC_GTM_ID` — Google Tag Manager
-- `NEXT_PUBLIC_SENTRY_DSN` — Sentry DSN (없으면 Sentry 비활성화)
-- `SENTRY_ORG` — Sentry 조직 (CI 소스맵 업로드용)
-- `SENTRY_PROJECT` — Sentry 프로젝트 (CI 소스맵 업로드용)
-- `SENTRY_AUTH_TOKEN` — Sentry 인증 토큰 (CI 소스맵 업로드용)
+- `NEXT_PUBLIC_SENTRY_DSN` — Sentry DSN (Sentry disabled if absent)
+- `SENTRY_ORG` — Sentry organization (for CI source map upload)
+- `SENTRY_PROJECT` — Sentry project (for CI source map upload)
+- `SENTRY_AUTH_TOKEN` — Sentry auth token (for CI source map upload)
