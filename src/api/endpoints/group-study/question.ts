@@ -40,6 +40,13 @@ export interface ModifyQuestionResponse {
   message: string;
 }
 
+export interface DeleteQuestionResponse {
+  statusCode: number;
+  timestamp: string;
+  content?: undefined;
+  message: string;
+}
+
 export interface QuestionListItemResponse {
   questionId: number;
   accessible: boolean;
@@ -139,6 +146,17 @@ export const modifyQuestion = async (
   const { data } = await axiosInstance.patch<ModifyQuestionResponse>(
     `/group-studies/${groupStudyId}/questions/${questionId}`,
     request,
+  );
+
+  return data;
+};
+
+export const deleteQuestion = async (
+  groupStudyId: number,
+  questionId: number,
+) => {
+  const { data } = await axiosInstance.delete<DeleteQuestionResponse>(
+    `/group-studies/${groupStudyId}/questions/${questionId}`,
   );
 
   return data;

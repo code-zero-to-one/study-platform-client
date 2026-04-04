@@ -11,8 +11,13 @@ import { useToastStore } from '@/stores/use-toast-store';
 
 const PAGE_SIZE = 15;
 
-const QuestionModal = dynamic(
-  () => import('@/components/common/modals/question-modal'),
+const CreateQuestionModal = dynamic(
+  () => import('@/components/common/modals/create-question-modal'),
+  { ssr: false },
+);
+
+const EditQuestionModal = dynamic(
+  () => import('@/components/common/modals/edit-question-modal'),
   { ssr: false },
 );
 
@@ -155,38 +160,26 @@ export default function InquiryPage() {
       />
 
       {/* 문의하기 모달 */}
-      <QuestionModal
+      <CreateQuestionModal
         open={isModalOpen}
         onOpenChange={setIsModalOpen}
-        studyId={groupStudyId}
+        groupStudyId={groupStudyId}
         studyType={studyType}
       />
 
-      <QuestionModal
-        open={hasValidEditQuestionId && !!editQuestion && canEditQuestion}
-        onOpenChange={(open) => {
-          if (!open) {
-            closeEditModal();
-          }
-        }}
-        studyId={groupStudyId}
-        studyType={studyType}
-        mode="edit"
-        questionId={editQuestionId ?? undefined}
-        initialValues={
-          editQuestion
-            ? {
-                title: editQuestion.title,
-                content: editQuestion.content,
-                category: editQuestion.category,
-                imageUrl:
-                  editQuestion.questionImage?.resizedImages?.[0]
-                    ?.resizedImageUrl,
-              }
-            : undefined
-        }
-        onAfterSubmit={closeEditModal}
-      />
+      {editQuestion && (
+        <EditQuestionModal
+          open={hasValidEditQuestionId && canEditQuestion}
+          onOpenChange={(open) => {
+            if (!open) {
+              closeEditModal();
+            }
+          }}
+          groupStudyId={groupStudyId}
+          question={editQuestion}
+          onSuccess={closeEditModal}
+        />
+      )}
 
       {hasValidEditQuestionId && isEditQuestionLoading && (
         <p className="font-designer-14r text-text-subtle mt-300 text-right">
