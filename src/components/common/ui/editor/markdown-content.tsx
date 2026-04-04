@@ -33,16 +33,17 @@ function MarkdownContent({
       return '';
     }
 
-    const html = isHtmlContent(normalizedContent)
-      ? normalizedContent
-      : (() => {
-          const rendered = marked.parse(normalizedContent, {
-            breaks: true,
-            gfm: true,
-          });
+    let html: string;
 
-          return typeof rendered === 'string' ? rendered : '';
-        })();
+    if (isHtmlContent(normalizedContent)) {
+      html = normalizedContent;
+    } else {
+      const rendered = marked.parse(normalizedContent, {
+        breaks: true,
+        gfm: true,
+      });
+      html = typeof rendered === 'string' ? rendered : '';
+    }
 
     const sanitized = String(DOMPurify.sanitize(html, SANITIZE_OPTIONS));
 

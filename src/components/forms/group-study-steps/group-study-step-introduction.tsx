@@ -6,13 +6,13 @@ import FormField from '@/components/common/ui/form/form-field';
 import ImageUploadInput from '@/components/common/ui/image-upload-input';
 import { BaseInput } from '@/components/common/ui/input';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
-import { getGroupStudyDescriptionTextLength } from '@/features/group-study/model/group-study-description';
 import GroupStudyMarkdownEditor from '@/features/group-study/ui/group-study-markdown-editor';
 import { useScrollToNextField } from '@/hooks/use-scroll-to-next-field';
 import {
   GROUP_STUDY_DESCRIPTION_MAX_LENGTH,
   type GroupStudyFormValues,
 } from '@/types/schemas/group-study-form.schema';
+import { getRichContentVisibleTextLength } from '@/utils/markdown-content-text';
 
 export default function GroupStudyStepIntroduction() {
   const { setValue, getValues } = useFormContext<GroupStudyFormValues>();
@@ -119,7 +119,7 @@ export default function GroupStudyStepIntroduction() {
         scrollable
         showCounterRight
         maxCharCount={GROUP_STUDY_DESCRIPTION_MAX_LENGTH}
-        getCharCount={getGroupStudyDescriptionTextLength}
+        getCharCount={getRichContentVisibleTextLength}
       >
         <GroupStudyMarkdownEditor placeholder="스터디 소개를 자유롭게 작성해주세요." />
       </FormField>

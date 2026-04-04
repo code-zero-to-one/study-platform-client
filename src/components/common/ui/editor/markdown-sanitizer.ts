@@ -33,6 +33,16 @@ export const SANITIZE_OPTIONS: DOMPurifyConfig = {
 const parseSanitizedImageWidth = (
   value: string | undefined,
 ): number | undefined => {
+  /**
+   * 문자열 형태의 픽셀 값을 숫자로 파싱합니다.
+   * 정상 범위를 벗어나면 undefined을 반환합니다.
+   * @param value 파싱할 픽셀 값 문자열
+   * @returns 파싱된 픽셀 값 또는 undefined (범위 초과 시)
+   * @example
+   * parseSanitizedImageWidth('250') // 250
+   * parseSanitizedImageWidth('50') // 80 (최소값으로 조정)
+   * parseSanitizedImageWidth('abc') // undefined
+   */
   if (!value) {
     return undefined;
   }
@@ -45,6 +55,19 @@ const parseSanitizedImageWidth = (
   return clampImageWidth(parsed);
 };
 
+/**
+ * 정화된 HTML에 원본에서 추출한 이미지 속성들을 적용합니다.
+ * 보안상 제거된 width, src 등을 원본에서 가져와 복원합니다.
+ * @param originalHtml 정화 전 원본 HTML
+ * @param sanitizedHtml DOMPurify로 정화된 HTML
+ * @returns 속성이 복원된 HTML 문자열
+ * @example
+ * const result = applyPostSanitizeAttributes({
+ *   originalHtml: '<img src="safe.jpg" width="250">',
+ *   sanitizedHtml: '<img>'
+ * })
+ * // 반환: '<img src="safe.jpg" width="250" target="_blank" rel="noreferrer">'
+ */
 export const applyPostSanitizeAttributes = ({
   originalHtml,
   sanitizedHtml,

@@ -12,7 +12,7 @@ import { useForm } from 'react-hook-form';
 import type { GroupStudyFullResponseDto } from '@/api/openapi';
 import { Modal } from '@/components/common/ui/modal';
 import GroupStudyForm from '@/components/forms/group-study-form';
-import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
+import { STUDY_TYPES, THUMBNAIL_EXTENSION } from '@/config/group-study-const';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
   hasPendingBlobImagesInGroupStudyDescription,
@@ -40,10 +40,87 @@ const PhoneVerificationModal = dynamic(
   { ssr: false },
 );
 
+function resolveClassification(
+  raw: string | undefined,
+  fallback: StudyClassification,
+): StudyClassification {
+  if (raw === 'GROUP_STUDY') return 'GROUP_STUDY';
+  if (raw === 'MENTOR_STUDY' || raw === 'PREMIUM_STUDY') return 'PREMIUM_STUDY';
+
+  return fallback;
+}
+
+/**
+ * 1. const T extends readonly string[]
+     T는 제네릭 타입 파라미터입니다.
+     readonly string[]를 상속한다는 뜻이라서, "문자열 배열 또는 문자열 튜플"만 받을 수 있습니다.
+     앞의 const는 const generic이라서, ['PROJECT', 'MENTORING'] 같은 튜플 리터럴 정보를 최대한 보존합니다.
+     그래서 STUDY_TYPES를 넣으면 T가 그냥 string[]가 아니라 readonly ['PROJECT', 'MENTORING', ...]처럼 추론됩니다.
+  2. values: T
+     첫 번째 인자로 받은 배열의 실제 타입을 T로 잡습니다.
+     예를 들어 isOneOf(STUDY_TYPES, normalized)를 호출하면 T는 typeof STUDY_TYPES가 됩니다.
+  3. : candidate is T[number]
+     이게 타입 가드입니다.
+     "함수가 true를 반환하면, 그 시점부터 candidate는 T[number] 타입이다"라는 뜻입니다.
+     T[number]는 배열/튜플의 원소 타입입니다.
+     예를 들면:
+     typeof STUDY_TYPES[number]
+     는
+     'PROJECT' | 'MENTORING' | 'SEMINAR' | ... 가 됩니다.
+ * @param values
+ * @param candidate
+ * @returns
+ */
+function isOneOf<const T extends readonly string[]>(
+  values: T,
+  candidate: string,
+): candidate is T[number] {
+  return values.some((value) => value === candidate);
+}
+
+function resolveStudyType(
+  raw: string | undefined,
+  resolvedClassification: StudyClassification,
+): GroupStudyFormValues['type'] | undefined {
+  const normalized =
+    resolvedClassification === 'GROUP_STUDY' && raw === 'MENTORING'
+      ? 'PROJECT'
+      : raw;
+
+  return normalized && isOneOf(STUDY_TYPES, normalized)
+    ? normalized
+    : undefined;
+}
+
+function resolveThumbnailExtension(
+  imageUrl: string | undefined,
+): GroupStudyFormValues['thumbnailExtension'] {
+  const ext = imageUrl?.split('.').pop()?.toUpperCase();
+
+  return ext && isOneOf(THUMBNAIL_EXTENSION, ext) ? ext : 'DEFAULT';
+}
+
+function prepareDescription(
+  content: GroupStudyFormValues['description'],
+  pendingImages: GroupStudyFormValues['descriptionPendingImages'],
+) {
+  const result = serializeGroupStudyDescriptionForRequest({
+    content,
+    pendingImages,
+  });
+  if (hasPendingBlobImagesInGroupStudyDescription(result.description)) {
+    throw new Error(
+      '스터디 소개 이미지 업로드 준비에 실패했습니다. 이미지를 다시 추가해주세요.',
+    );
+  }
+
+  return result;
+}
+
 interface GroupStudyModalProps {
   trigger?: React.ReactNode;
   open?: boolean;
-  onOpenChange?: () => void;
+  onOpenChange?: (open: boolean) => void;
   mode: 'create' | 'edit';
   groupStudyId?: number;
   classification?: StudyClassification;
@@ -54,7 +131,7 @@ export default function GroupStudyFormModal({
   mode,
   open: controlledOpen = false,
   groupStudyId,
-  onOpenChange: onControlledOpen,
+  onOpenChange: onClose,
   classification = 'GROUP_STUDY',
 }: GroupStudyModalProps) {
   const showToast = useToastStore((state) => state.showToast);
@@ -64,7 +141,7 @@ export default function GroupStudyFormModal({
   const { memberId } = useAuthReady();
   const { mutateAsync: createGroupStudy } = useCreateGroupStudyMutation();
   const { mutateAsync: updateGroupStudy } = useUpdateGroupStudyMutation(
-    groupStudyId!,
+    groupStudyId ?? 0,
   );
   const {
     data: groupStudyInfo,
@@ -133,34 +210,26 @@ export default function GroupStudyFormModal({
     if (mode === 'create') {
       setOpen(isOpen);
     } else {
-      if (onControlledOpen) onControlledOpen();
+      if (onClose) onClose(isOpen);
     }
   };
 
   const refineStudyDetail = useCallback(
     (value: GroupStudyFullResponseDto): GroupStudyFormValues => {
-      const rawClassification = value.basicInfo?.classification;
-      const refinedClassification: StudyClassification =
-        rawClassification === 'GROUP_STUDY'
-          ? 'GROUP_STUDY'
-          : rawClassification === 'MENTOR_STUDY'
-            ? 'PREMIUM_STUDY'
-            : classification;
-      const originalType = value.basicInfo?.type;
-
-      let refinedType = originalType;
-      if (
-        refinedClassification === 'GROUP_STUDY' &&
-        originalType === 'MENTORING'
-      ) {
-        refinedType = 'PROJECT';
-      }
+      const resolvedClassification = resolveClassification(
+        value.basicInfo?.classification,
+        classification,
+      );
+      const thumbnailUrl =
+        value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl;
 
       return {
-        classification: refinedClassification,
+        classification: resolvedClassification,
+        type: resolveStudyType(value.basicInfo?.type, resolvedClassification),
+        thumbnailExtension: resolveThumbnailExtension(thumbnailUrl),
+        thumbnailUrl,
         studyLeaderParticipation:
           value.basicInfo?.studyLeaderParticipation ?? false,
-        type: refinedType,
         targetRoles: value.basicInfo?.targetRoles,
         maxMembersCount: value.basicInfo?.maxMembersCount?.toString() ?? '',
         experienceLevels: value.basicInfo?.experienceLevels,
@@ -174,23 +243,10 @@ export default function GroupStudyFormModal({
         description: value.detailInfo?.description,
         summary: value.detailInfo?.summary,
         descriptionPendingImages: [],
-        interviewPost: value.interviewPost?.interviewPost?.map(
-          (q: { question?: string }) => q.question,
-        ),
-        thumbnailExtension: (() => {
-          const ext =
-            value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl
-              ?.split('.')
-              .pop()
-              ?.toUpperCase();
-
-          return (THUMBNAIL_EXTENSION as readonly string[]).includes(ext ?? '')
-            ? (ext as GroupStudyFormValues['thumbnailExtension'])
-            : 'DEFAULT';
-        })(),
-        thumbnailUrl:
-          value.detailInfo?.image?.resizedImages?.[0]?.resizedImageUrl,
-      };
+        interviewPost: value.interviewPost?.interviewPost
+          ?.map((q) => q.question)
+          .filter((q): q is string => Boolean(q)),
+      } satisfies GroupStudyFormValues;
     },
     [classification],
   );
@@ -225,138 +281,119 @@ export default function GroupStudyFormModal({
     pendingUploads: GroupStudyFormValues['descriptionPendingImages'];
   }) => {
     if (!pendingUploads || pendingUploads.length === 0) {
-      return {
-        failedCount: 0,
-      };
+      return { failedCount: 0 };
     }
 
-    const uploadPairs = pendingUploads.map((pendingUpload, index) => ({
-      pendingUpload,
-      uploadUrl: uploadUrls?.[index],
-    }));
-    const missingUploadUrlCount = uploadPairs.filter(
-      ({ uploadUrl }) => !uploadUrl,
-    ).length;
+    let missingCount = 0;
+    const tasks = pendingUploads
+      .map((item, i) => {
+        const url = uploadUrls?.[i];
+        if (!url) {
+          missingCount++;
 
-    const settledResults = await Promise.allSettled(
-      uploadPairs
-        .filter(
-          (pair): pair is typeof pair & { uploadUrl: string } =>
-            typeof pair.uploadUrl === 'string' && pair.uploadUrl.length > 0,
-        )
-        .map(({ uploadUrl, pendingUpload }) =>
-          uploadThumbnail(uploadUrl, pendingUpload.file),
-        ),
-    );
+          return null;
+        }
 
-    return {
-      failedCount:
-        missingUploadUrlCount +
-        settledResults.filter((result) => result.status === 'rejected').length,
-    };
+        return uploadThumbnail(url, item.file);
+      })
+      .filter((t): t is Promise<void> => t !== null);
+
+    const results = await Promise.allSettled(tasks);
+    const rejectedCount = results.filter((r) => r.status === 'rejected').length;
+
+    return { failedCount: missingCount + rejectedCount };
   };
 
-  const assertResolvedDescriptionImages = (description: string) => {
-    if (!hasPendingBlobImagesInGroupStudyDescription(description)) {
-      return;
-    }
+  const executeStudySubmit = async ({
+    values,
+    getPendingImages,
+    submitFn,
+    postSubmitAction,
+    messages,
+    onFinally,
+  }: {
+    values: GroupStudyFormValues;
+    getPendingImages: () => GroupStudyFormValues['descriptionPendingImages'];
+    submitFn: (description: string) => Promise<{
+      content?: {
+        thumbnailUploadUrl?: string;
+        descriptionImageUploadUrls?: string[];
+      };
+    }>;
+    postSubmitAction: () => Promise<unknown>;
+    messages: { success: string; partialSuccess: string; error: string };
+    onFinally: () => void;
+  }) => {
+    try {
+      const { description, pendingUploads } = prepareDescription(
+        values.description,
+        getPendingImages(),
+      );
 
-    throw new Error(
-      '스터디 소개 이미지 업로드 준비에 실패했습니다. 이미지를 다시 추가해주세요.',
-    );
+      const response = await submitFn(description);
+
+      if (values.thumbnailFile) {
+        const thumbnailUploadUrl = response.content?.thumbnailUploadUrl;
+        if (!thumbnailUploadUrl)
+          throw new Error('썸네일 업로드 URL이 없습니다.');
+        await uploadThumbnail(thumbnailUploadUrl, values.thumbnailFile);
+      }
+
+      const { failedCount } = await uploadDescriptionImages({
+        uploadUrls: response.content?.descriptionImageUploadUrls,
+        pendingUploads,
+      });
+
+      await postSubmitAction();
+      showToast(
+        failedCount > 0 ? messages.partialSuccess : messages.success,
+        failedCount > 0 ? 'info' : 'success',
+      );
+    } catch {
+      showToast(messages.error, 'error');
+    } finally {
+      onFinally();
+    }
   };
 
   const handleCreate = async (values: GroupStudyFormValues) => {
-    try {
-      const serializedDescription = serializeGroupStudyDescriptionForRequest({
-        content: values.description,
-        pendingImages: createMethods.getValues('descriptionPendingImages'),
-      });
-      assertResolvedDescriptionImages(serializedDescription.description);
-      const body = toCreateRequest({
-        ...values,
-        description: serializedDescription.description,
-      });
-      const createdResponse = await createGroupStudy(body);
-
-      if (values.thumbnailFile) {
-        if (!createdResponse.content.thumbnailUploadUrl) {
-          throw new Error('썸네일 업로드 URL이 없습니다.');
-        }
-
-        await uploadThumbnail(
-          createdResponse.content.thumbnailUploadUrl,
-          values.thumbnailFile,
-        );
-      }
-
-      const descriptionUploadResult = await uploadDescriptionImages({
-        uploadUrls: createdResponse.content?.descriptionImageUploadUrls,
-        pendingUploads: serializedDescription.pendingUploads,
-      });
-
-      await invalidateGroupStudyQueries();
-      showToast(
-        descriptionUploadResult.failedCount > 0
-          ? '그룹 스터디는 개설되었지만 일부 소개 이미지 업로드에 실패했습니다.'
-          : '그룹 스터디 개설이 완료되었습니다.',
-        descriptionUploadResult.failedCount > 0 ? 'info' : 'success',
-      );
-    } catch {
-      showToast(
-        '그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.',
-        'error',
-      );
-    } finally {
-      createMethods.reset(buildOpenGroupDefaultValues(classification));
-      setOpen(false);
-    }
+    await executeStudySubmit({
+      values,
+      getPendingImages: () =>
+        createMethods.getValues('descriptionPendingImages'),
+      submitFn: (description) =>
+        createGroupStudy(toCreateRequest({ ...values, description })),
+      postSubmitAction: invalidateGroupStudyQueries,
+      messages: {
+        success: '그룹 스터디 개설이 완료되었습니다.',
+        partialSuccess:
+          '그룹 스터디는 개설되었지만 일부 소개 이미지 업로드에 실패했습니다.',
+        error: '그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.',
+      },
+      onFinally: () => {
+        createMethods.reset(buildOpenGroupDefaultValues(classification));
+        setOpen(false);
+      },
+    });
   };
 
   const handleEdit = async (values: GroupStudyFormValues) => {
-    try {
-      const serializedDescription = serializeGroupStudyDescriptionForRequest({
-        content: values.description,
-        pendingImages: editMethods.getValues('descriptionPendingImages'),
-      });
-      assertResolvedDescriptionImages(serializedDescription.description);
-      const body = toUpdateRequest({
-        ...values,
-        description: serializedDescription.description,
-      });
-      const updatedResponse = await updateGroupStudy(body);
-
-      if (values.thumbnailFile) {
-        if (!updatedResponse.content.thumbnailUploadUrl) {
-          throw new Error('썸네일 업로드 URL이 없습니다.');
-        }
-
-        await uploadThumbnail(
-          updatedResponse.content.thumbnailUploadUrl,
-          values.thumbnailFile,
-        );
-      }
-
-      const descriptionUploadResult = await uploadDescriptionImages({
-        uploadUrls: updatedResponse.content?.descriptionImageUploadUrls,
-        pendingUploads: serializedDescription.pendingUploads,
-      });
-
-      await refetchGroupStudyInfo();
-      showToast(
-        descriptionUploadResult.failedCount > 0
-          ? '그룹 스터디는 수정되었지만 일부 소개 이미지 업로드에 실패했습니다.'
-          : '그룹 스터디 수정이 완료되었습니다.',
-        descriptionUploadResult.failedCount > 0 ? 'info' : 'success',
-      );
-    } catch {
-      showToast(
-        '그룹 스터디 수정 중 오류가 발생했습니다. 다시 시도해 주세요.',
-        'error',
-      );
-    } finally {
-      if (onControlledOpen) onControlledOpen();
-    }
+    await executeStudySubmit({
+      values,
+      getPendingImages: () => editMethods.getValues('descriptionPendingImages'),
+      submitFn: (description) =>
+        updateGroupStudy(toUpdateRequest({ ...values, description })),
+      postSubmitAction: refetchGroupStudyInfo,
+      messages: {
+        success: '그룹 스터디 수정이 완료되었습니다.',
+        partialSuccess:
+          '그룹 스터디는 수정되었지만 일부 소개 이미지 업로드에 실패했습니다.',
+        error: '그룹 스터디 수정 중 오류가 발생했습니다. 다시 시도해 주세요.',
+      },
+      onFinally: () => {
+        if (onClose) onClose(false);
+      },
+    });
   };
 
   const handleSubmitForm = async (values: GroupStudyFormValues) => {
