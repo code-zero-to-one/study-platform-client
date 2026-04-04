@@ -4,7 +4,9 @@ import { LayoutGrid, List, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
+import Pagination from '@/components/common/ui/pagination';
 import { getCommunityPostPreviewText } from '@/features/community/model/community-rich-content';
+import { buildCommunityPostHref } from '@/features/community/model/community-route';
 import type {
   CommunityFeedFilter,
   CommunityFeedFilterOption,
@@ -34,22 +36,30 @@ const VIEW_ICON = {
 interface CommunityFeedSectionProps {
   activeFilter: CommunityFeedFilter;
   activeView: CommunityFeedView;
+  currentPage: number;
   featuredPosts: readonly CommunityPost[];
   filterOptions: readonly CommunityFeedFilterOption[];
+  postCount: number;
   posts: readonly CommunityPost[];
+  showPagination: boolean;
+  totalPages: number;
   viewOptions: readonly CommunityFeedViewOption[];
   onFilterChange: (nextFilter: CommunityFeedFilter) => void;
+  onPageChange: (page: number) => void;
   onViewChange: (nextView: CommunityFeedView) => void;
 }
 
 function FeaturedCommunityPostItem({
+  currentPage,
   post,
   rank,
 }: {
+  currentPage: number;
   post: CommunityPost;
   rank: number;
 }) {
   const previewText = getCommunityPostPreviewText(post);
+  const detailHref = buildCommunityPostHref(post.id, currentPage);
 
   return (
     <article className="rounded-200 border border-border-subtle bg-background-default transition-colors hover:border-border-brand">
@@ -71,8 +81,8 @@ function FeaturedCommunityPostItem({
               </div>
 
               <Link
-                href={`/community/${post.id}`}
-                aria-label={`${post.title} 상세 보기`}
+                href={detailHref}
+                aria-label={`${post.title} details`}
                 className="mt-100 block rounded-150 transition-opacity hover:opacity-80"
                 suppressHydrationWarning={true}
               >
@@ -102,7 +112,7 @@ function FeaturedCommunityPostItem({
               className="font-designer-13r text-text-default"
             />
           </span>
-          <span className="font-designer-13r text-text-subtlest">•</span>
+          <span className="font-designer-13r text-text-subtlest">|</span>
           <span className="font-designer-13r text-text-subtlest">
             {post.createdAt}
           </span>
@@ -110,8 +120,8 @@ function FeaturedCommunityPostItem({
 
         {previewText ? (
           <Link
-            href={`/community/${post.id}`}
-            aria-label={`${post.title} 상세 보기`}
+            href={detailHref}
+            aria-label={`${post.title} details`}
             className="block rounded-150 transition-opacity hover:opacity-80"
             suppressHydrationWarning={true}
           >
@@ -128,26 +138,32 @@ function FeaturedCommunityPostItem({
 export default function CommunityFeedSection({
   activeFilter,
   activeView,
+  currentPage,
   featuredPosts,
   filterOptions,
+  postCount,
   posts,
+  showPagination,
+  totalPages,
   viewOptions,
   onFilterChange,
+  onPageChange,
   onViewChange,
 }: CommunityFeedSectionProps) {
   const shouldShowFeaturedPosts =
-    activeFilter === COMMUNITY_FEED_FILTER.ALL && featuredPosts.length > 0;
-  const postCount = shouldShowFeaturedPosts
-    ? posts.length + featuredPosts.length
-    : posts.length;
+    activeFilter === COMMUNITY_FEED_FILTER.ALL &&
+    currentPage === 1 &&
+    featuredPosts.length > 0;
 
   return (
     <CommunitySectionShell id="community-feed" className="gap-300">
       <div className="flex flex-col gap-200 border-b border-border-subtle pb-200">
         <div className="flex flex-col gap-150 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex items-end gap-150">
-            <p className="font-designer-24b text-text-strong">글</p>
-            <p className="font-designer-13r text-text-subtle">{postCount}개</p>
+            <p className="font-designer-24b text-text-strong">Posts</p>
+            <p className="font-designer-13r text-text-subtle">
+              {postCount} items
+            </p>
           </div>
 
           <div className="flex w-fit items-center gap-50 rounded-150 border border-border-subtle bg-background-default p-50">
@@ -210,10 +226,10 @@ export default function CommunityFeedSection({
                 </span>
                 <div className="flex flex-col gap-50">
                   <p className="font-designer-24b text-text-strong">
-                    이번 주 인기글
+                    Top posts this week
                   </p>
                   <p className="font-designer-14r text-text-subtle">
-                    많이 읽히고 반응이 모인 글부터 먼저 볼 수 있게 정리했습니다.
+                    Posts with the most attention are surfaced first.
                   </p>
                 </div>
               </div>
@@ -223,7 +239,7 @@ export default function CommunityFeedSection({
                   TOP {featuredPosts.length}
                 </span>
                 <span className="font-designer-13r text-text-subtle">
-                  전체 탭에서만 노출
+                  Only in All
                 </span>
               </div>
             </div>
@@ -233,6 +249,7 @@ export default function CommunityFeedSection({
             {featuredPosts.map((post, index) => (
               <FeaturedCommunityPostItem
                 key={post.id}
+                currentPage={currentPage}
                 post={post}
                 rank={index + 1}
               />
@@ -244,16 +261,32 @@ export default function CommunityFeedSection({
       {activeView === COMMUNITY_FEED_VIEW.LIST ? (
         <div className="flex flex-col">
           {posts.map((post) => (
-            <CommunityPostListItem key={post.id} post={post} />
+            <CommunityPostListItem
+              key={post.id}
+              currentPage={currentPage}
+              post={post}
+            />
           ))}
         </div>
       ) : (
         <div className="grid gap-250 md:grid-cols-2">
           {posts.map((post) => (
-            <CommunityPostCard key={post.id} post={post} />
+            <CommunityPostCard
+              key={post.id}
+              currentPage={currentPage}
+              post={post}
+            />
           ))}
         </div>
       )}
+
+      {showPagination ? (
+        <Pagination
+          page={currentPage}
+          totalPages={totalPages}
+          onChangePage={onPageChange}
+        />
+      ) : null}
     </CommunitySectionShell>
   );
 }

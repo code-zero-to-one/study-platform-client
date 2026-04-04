@@ -4,6 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import Avatar from '@/components/common/ui/avatar';
 import { getCommunityPostPreviewText } from '@/features/community/model/community-rich-content';
+import { buildCommunityPostHref } from '@/features/community/model/community-route';
 import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import {
@@ -14,23 +15,26 @@ import {
 import CommunityPostStats from './community-post-stats';
 
 interface CommunityPostListItemProps {
+  currentPage?: number;
   post: CommunityPost;
 }
 
 export default function CommunityPostListItem({
+  currentPage,
   post,
 }: CommunityPostListItemProps) {
   const boardMeta = getCommunityBoardMeta(post.board);
   const BoardIcon = boardMeta.icon;
   const previewText = getCommunityPostPreviewText(post);
+  const detailHref = buildCommunityPostHref(post.id, currentPage);
 
   return (
     <article className="border-b border-border-subtle py-250 transition-colors last:border-b-0 last:pb-0 first:pt-0">
       <div className="flex items-start gap-200">
         <div className="shrink-0">
           <Link
-            href={`/community/${post.id}`}
-            aria-label={`${post.title} 상세 보기`}
+            href={detailHref}
+            aria-label={`${post.title} details`}
             className="block rounded-150 transition-opacity hover:opacity-80"
             suppressHydrationWarning={true}
           >
@@ -77,8 +81,8 @@ export default function CommunityPostListItem({
               </div>
 
               <Link
-                href={`/community/${post.id}`}
-                aria-label={`${post.title} 상세 보기`}
+                href={detailHref}
+                aria-label={`${post.title} details`}
                 className="mt-100 block rounded-150 transition-opacity hover:opacity-80 sm:mt-75"
                 suppressHydrationWarning={true}
               >
