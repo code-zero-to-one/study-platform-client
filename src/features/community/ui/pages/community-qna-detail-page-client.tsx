@@ -11,6 +11,7 @@ import { COMMUNITY_BOARD } from '@/types/community/domain';
 import { ErrorType } from '@/utils/error-handler';
 import CommunityMarkdownContent from '../community-markdown-content';
 import { CommunityBoardBadge } from '../community-meta-badge';
+import CommunityQnaAnswerCommentsSection from '../community-qna-answer-comments-section';
 import CommunityQnaAnswerComposeSection from '../community-qna-answer-compose-section';
 import CommunityQnaAnswerItem from '../community-qna-answer-item';
 import CommunityQnaAuthorSummary from '../community-qna-author-summary';
@@ -178,6 +179,15 @@ export default function CommunityQnaDetailPageClient({
                       answer={answer}
                       actionSlot={isMyAnswer ? myAnswerAction : null}
                       isMine={isMyAnswer}
+                      commentSection={
+                        <CommunityQnaAnswerCommentsSection
+                          answer={answer}
+                          onRefetchQuestionDetail={
+                            actions.refetchQuestionDetail
+                          }
+                          questionId={questionId}
+                        />
+                      }
                     />
                   );
                 })}
