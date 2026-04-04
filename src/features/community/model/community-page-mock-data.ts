@@ -32,10 +32,6 @@ export const COMMUNITY_FEED_FILTER_OPTIONS: readonly CommunityFeedFilterOption[]
       id: COMMUNITY_FEED_FILTER.KNOWLEDGE,
       label: 'IT 지식',
     },
-    {
-      id: COMMUNITY_FEED_FILTER.POPULAR,
-      label: '인기글',
-    },
   ] as const;
 
 export const COMMUNITY_BOARD_OPTIONS: readonly CommunityBoardOption[] = [
@@ -71,7 +67,8 @@ export const COMMUNITY_FEED_VIEW_OPTIONS: readonly CommunityFeedViewOption[] = [
 export const COMMUNITY_DISCORD_URL = 'https://discord.gg/6JGu7G4F';
 
 export const COMMUNITY_MOCK_AUTHOR = {
-  name: 'ZERO-ONE 회원',
+  memberId: 101,
+  name: '개발러버',
   image: '/images/community-avatar-1.svg',
   intro: '루틴을 다시 잡고 있는 프론트엔드 취업 준비생입니다.',
   role: COMMUNITY_MEMBER_ROLE.NEWCOMER,
@@ -150,7 +147,8 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
     ],
     previewImage: '/images/community-post-routine.svg',
     previewImageAlt: '공부 루틴 메모와 할 일 정리 이미지',
-    authorName: '김서연',
+    authorMemberId: 101,
+    authorName: '개발러버',
     authorImage: '/images/community-avatar-1.svg',
     authorIntro:
       '백엔드 취업 준비를 다시 시작하면서 루틴을 재정비하고 있습니다.',
@@ -175,7 +173,8 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
     ],
     previewImage: '/images/community-post-portfolio.svg',
     previewImageAlt: '포트폴리오 메인 페이지 시안 이미지',
-    authorName: '이재호',
+    authorMemberId: 102,
+    authorName: '코드킹',
     authorImage: '/images/community-avatar-2.svg',
     authorIntro:
       '현업 프론트엔드 개발자로 일하면서 개인 작업물을 꾸준히 정리하고 있습니다.',
@@ -198,7 +197,8 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
       '정리해보니 page는 params 정규화, metadata, notFound 같은 서버 경계 책임만 남기고 실제 렌더와 상호작용은 feature의 page-client로 내리는 구조가 훨씬 안정적이었습니다. 그래야 테스트할 때도 UI 조각과 라우팅 책임을 분리해서 볼 수 있었습니다.',
       '결국 핵심은 파일을 잘게 쪼개는 게 아니라, 어떤 파일이 왜 바뀌는지를 분명히 만드는 것 같습니다. page 하나가 데이터 소스와 화면 상태를 동시에 쥐고 있으면 나중에 리뷰도 어려워집니다.',
     ],
-    authorName: '박민준',
+    authorMemberId: 123,
+    authorName: '개발자',
     authorImage: '/images/community-avatar-3.svg',
     authorIntro:
       '팀 단위 프론트엔드 아키텍처와 코드 리뷰를 주로 다루는 멘토입니다.',
@@ -221,7 +221,8 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
       '지금은 주 5일 모두 뭔가를 하겠다는 생각보다, 차라리 주 3회라도 끝까지 지키는 방식이 맞지 않을까 고민 중입니다. 혼자서 프로젝트를 완주한 분들은 어떤 기준으로 작업량을 쪼갰는지 궁금합니다.',
       '기능 목록을 세우는 것보다 흐름을 유지하는 루틴을 먼저 배우고 싶습니다. 캘린더를 쓰셨는지, 주간 회고를 했는지 같은 아주 실무적인 방법도 궁금해요.',
     ],
-    authorName: '정하은',
+    authorMemberId: 104,
+    authorName: '디벨로퍼',
     authorImage: '/images/community-avatar-4.svg',
     authorIntro:
       '비전공자로 전향 중이고, 작은 프로젝트를 끝까지 만드는 힘을 키우고 있습니다.',
@@ -246,7 +247,8 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
     ],
     previewImage: '/images/community-post-checklist.svg',
     previewImageAlt: 'RAG 설계 체크리스트와 흐름 정리 이미지',
-    authorName: '최윤서',
+    authorMemberId: 103,
+    authorName: '테크러버',
     authorImage: '/images/community-avatar-2.svg',
     authorIntro:
       '실무에서 AI 기능을 붙이며 데이터 정합성과 운영 안정성을 계속 점검하고 있습니다.',
@@ -269,7 +271,8 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
       '특히 이력서는 한 번에 완성하려고 하면 손도 못 대는 경우가 많아서, 이번에는 표현 어색한 부분만 고친다는 식으로 범위를 줄였습니다. 덕분에 완성은 아니어도 이전보다 훨씬 덜 막혔습니다.',
       '다음 주 목표는 기술면접 답변을 글로 정리하는 것입니다. 계속 주간 리듬을 이어가면서, 결과보다 흐름을 먼저 만들자는 기준으로 가보려고 합니다.',
     ],
-    authorName: '한도윤',
+    authorMemberId: 121,
+    authorName: '프로그래머',
     authorImage: '/images/community-avatar-1.svg',
     authorIntro:
       '매주 작은 완료를 쌓는 방식으로 취업 준비 리듬을 만들고 있습니다.',
@@ -291,7 +294,8 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
       '다만 오답노트를 너무 길게 쓰기 시작하면 금방 지치고, 반대로 너무 짧으면 나중에 다시 봤을 때 도움이 안 되는 것 같아서 적정선이 궁금합니다. 실전에서는 어떤 정도까지 남겨두는지 듣고 싶어요.',
       '반복해서 자주 틀리는 유형을 기록하는 방식이 더 나은지, 아니면 매번 풀었던 사고 흐름까지 적는 게 더 오래 남는지도 같이 궁금합니다.',
     ],
-    authorName: '오세민',
+    authorMemberId: 122,
+    authorName: '코더',
     authorImage: '/images/community-avatar-4.svg',
     authorIntro:
       '알고리즘과 자료구조를 다시 다지면서 학습 기록을 체계화하고 있습니다.',
@@ -316,7 +320,8 @@ export const COMMUNITY_POSTS: readonly CommunityPost[] = [
     ],
     previewImage: '/images/community-post-portfolio.svg',
     previewImageAlt: '프로젝트 설명 구조를 정리한 화면 이미지',
-    authorName: '문지훈',
+    authorMemberId: 104,
+    authorName: '디벨로퍼',
     authorImage: '/images/community-avatar-3.svg',
     authorIntro: '이력서와 면접 답변 흐름을 함께 보는 커리어 멘토입니다.',
     role: COMMUNITY_MEMBER_ROLE.MENTOR,

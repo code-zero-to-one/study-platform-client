@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useForm, useWatch } from 'react-hook-form';
+import { useUserStore } from '@/stores/useUserStore';
 import {
   COMMUNITY_BOARD,
   type CommunityBoard,
@@ -27,6 +28,15 @@ import {
 
 export const useCommunityWriteController = () => {
   const router = useRouter();
+  const {
+    memberId: currentMemberId,
+    nickname,
+    profileImageUrl,
+  } = useUserStore((state) => ({
+    memberId: state.memberId,
+    nickname: state.nickname,
+    profileImageUrl: state.profileImageUrl,
+  }));
   const form = useForm<CommunityWriteFormValues>({
     resolver: zodResolver(communityWriteSchema),
     mode: 'onChange',
@@ -68,8 +78,9 @@ export const useCommunityWriteController = () => {
       contentHtml: values.content,
       previewImage,
       previewImageAlt: previewImage ? `${values.title} 이미지` : undefined,
-      authorName: COMMUNITY_MOCK_AUTHOR.name,
-      authorImage: COMMUNITY_MOCK_AUTHOR.image,
+      authorMemberId: currentMemberId ?? COMMUNITY_MOCK_AUTHOR.memberId,
+      authorName: nickname ?? COMMUNITY_MOCK_AUTHOR.name,
+      authorImage: profileImageUrl ?? COMMUNITY_MOCK_AUTHOR.image,
       authorIntro: COMMUNITY_MOCK_AUTHOR.intro,
       role: COMMUNITY_MOCK_AUTHOR.role,
       viewCount: 0,

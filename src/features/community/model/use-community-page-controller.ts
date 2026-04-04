@@ -17,6 +17,8 @@ import {
 } from './community-page-mock-data';
 import { getCommunityFeedPosts } from './community-post-storage';
 
+const FEATURED_POST_LIMIT = 3;
+
 const filterPosts = (
   activeFilter: CommunityFeedFilter,
   posts: readonly CommunityPost[],
@@ -30,8 +32,6 @@ const filterPosts = (
       return posts.filter((post) => post.board === COMMUNITY_BOARD.ACHIEVEMENT);
     case COMMUNITY_FEED_FILTER.KNOWLEDGE:
       return posts.filter((post) => post.board === COMMUNITY_BOARD.KNOWLEDGE);
-    case COMMUNITY_FEED_FILTER.POPULAR:
-      return posts.filter((post) => post.isTrending);
     default:
       return posts;
   }
@@ -46,7 +46,15 @@ export const useCommunityPageController = () => {
     COMMUNITY_FEED_VIEW.LIST,
   );
 
-  const visiblePosts = filterPosts(activeFilter, posts);
+  const featuredPosts =
+    activeFilter === COMMUNITY_FEED_FILTER.ALL
+      ? posts.filter((post) => post.isTrending).slice(0, FEATURED_POST_LIMIT)
+      : [];
+  const featuredPostIds = new Set(featuredPosts.map((post) => post.id));
+  const visiblePosts =
+    activeFilter === COMMUNITY_FEED_FILTER.ALL
+      ? posts.filter((post) => !featuredPostIds.has(post.id))
+      : filterPosts(activeFilter, posts);
 
   useEffect(() => {
     setPosts(getCommunityFeedPosts());
@@ -83,6 +91,7 @@ export const useCommunityPageController = () => {
     },
     viewModel: {
       discordUrl: COMMUNITY_DISCORD_URL,
+      featuredPosts,
       filterOptions: COMMUNITY_FEED_FILTER_OPTIONS,
       viewOptions: COMMUNITY_FEED_VIEW_OPTIONS,
       visiblePosts,

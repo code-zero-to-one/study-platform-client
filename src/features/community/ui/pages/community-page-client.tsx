@@ -15,6 +15,7 @@ export default function CommunityPageClient() {
       <CommunityFeedSection
         activeFilter={state.activeFilter}
         activeView={state.activeView}
+        featuredPosts={viewModel.featuredPosts}
         filterOptions={viewModel.filterOptions}
         posts={viewModel.visiblePosts}
         onFilterChange={actions.handleFilterChange}

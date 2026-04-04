@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Avatar from '@/components/common/ui/avatar';
 import { getCommunityPostPreviewText } from '@/features/community/model/community-rich-content';
 import type { CommunityPost } from '@/types/community/domain';
+import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import {
   CommunityBoardBadge,
   CommunityMemberRoleBadge,
@@ -20,66 +21,72 @@ export default function CommunityPostCard({ post }: CommunityPostCardProps) {
 
   return (
     <article className="flex h-full flex-col rounded-200 border border-border-subtle bg-background-default p-250">
-      <Link
-        href={`/community/${post.id}`}
-        aria-label={`${post.title} 상세 보기`}
-        className="block rounded-150 transition-opacity hover:opacity-80"
-        suppressHydrationWarning={true}
-      >
-        <div className="flex items-start justify-between gap-200">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-100">
-              <CommunityBoardBadge board={post.board} showIcon={false} />
-              <span className="flex items-center gap-75">
-                <Avatar
-                  image={post.authorImage}
-                  alt={post.authorName}
-                  size={20}
-                />
-                <span className="font-designer-13r text-text-default">
-                  {post.authorName}
-                </span>
-              </span>
-              <CommunityMemberRoleBadge role={post.role} />
-              <span className="font-designer-13r text-text-subtlest">
-                {post.createdAt}
-              </span>
-            </div>
+      <div className="flex items-start justify-between gap-200">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-100">
+            <CommunityBoardBadge board={post.board} showIcon={false} />
+            <span className="flex items-center gap-75">
+              <Avatar
+                image={post.authorImage}
+                alt={post.authorName}
+                size={20}
+              />
+              <CommunityAuthorNameTrigger
+                memberId={post.authorMemberId}
+                name={post.authorName}
+                className="font-designer-13r text-text-default"
+              />
+            </span>
+            <CommunityMemberRoleBadge role={post.role} />
+            <span className="font-designer-13r text-text-subtlest">
+              {post.createdAt}
+            </span>
+          </div>
 
-            <p className="mt-150 line-clamp-2 font-designer-20b text-text-strong">
+          <Link
+            href={`/community/${post.id}`}
+            aria-label={`${post.title} 상세 보기`}
+            className="mt-150 block rounded-150 transition-opacity hover:opacity-80"
+            suppressHydrationWarning={true}
+          >
+            <p className="line-clamp-2 font-designer-20b text-text-strong">
               {post.title}
               <span className="ml-50 font-designer-16m text-text-brand">
                 ({post.commentCount})
               </span>
             </p>
-          </div>
-
-          <CommunityPostStats
-            viewCount={post.viewCount}
-            reactionCount={post.reactionCount}
-            className="shrink-0"
-          />
+            {previewText ? (
+              <p className="mt-150 line-clamp-2 font-designer-14r leading-250 text-text-subtle">
+                {previewText}
+              </p>
+            ) : null}
+          </Link>
         </div>
 
-        {previewText ? (
-          <p className="mt-150 line-clamp-2 font-designer-14r leading-250 text-text-subtle">
-            {previewText}
-          </p>
-        ) : null}
+        <CommunityPostStats
+          viewCount={post.viewCount}
+          reactionCount={post.reactionCount}
+          className="shrink-0"
+        />
+      </div>
 
-        {post.previewImage ? (
-          <div className="mt-200 overflow-hidden rounded-150 border border-border-subtle bg-background-alternative">
-            <Image
-              src={post.previewImage}
-              alt={post.previewImageAlt ?? post.title}
-              width={1200}
-              height={800}
-              className="h-auto w-full"
-              unoptimized
-            />
-          </div>
-        ) : null}
-      </Link>
+      {post.previewImage ? (
+        <Link
+          href={`/community/${post.id}`}
+          aria-label={`${post.title} 상세 보기`}
+          className="mt-200 block overflow-hidden rounded-150 border border-border-subtle bg-background-alternative transition-opacity hover:opacity-80"
+          suppressHydrationWarning={true}
+        >
+          <Image
+            src={post.previewImage}
+            alt={post.previewImageAlt ?? post.title}
+            width={1200}
+            height={800}
+            className="h-auto w-full"
+            unoptimized
+          />
+        </Link>
+      ) : null}
     </article>
   );
 }

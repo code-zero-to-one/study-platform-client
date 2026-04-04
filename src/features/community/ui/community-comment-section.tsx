@@ -58,15 +58,19 @@ export default function CommunityCommentSection({
 }: CommunityCommentSectionProps) {
   return (
     <CommunitySectionShell className="gap-250">
-      <div className="flex items-end justify-between border-b border-border-subtle pb-150">
-        <p className="font-designer-24b text-text-strong">댓글</p>
-        <p className="font-designer-13r text-text-subtle">{commentCount}개</p>
+      <div className="border-b border-border-subtle pb-150">
+        <p className="font-designer-24b text-text-strong">
+          댓글{' '}
+          <span className="font-designer-13r text-text-subtle">
+            {commentCount}개
+          </span>
+        </p>
       </div>
 
       <CommunityCommentForm
         authorImage={viewerImage}
         placeholder="댓글을 남겨보세요."
-        submitLabel="댓글 등록"
+        submitLabel="등록하기"
         value={commentDraft}
         onChange={onCommentDraftChange}
         onSubmit={onSubmitComment}
