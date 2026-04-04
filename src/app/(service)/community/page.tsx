@@ -1,6 +1,11 @@
 import { Metadata } from 'next';
+import { resolveCommunityPage } from '@/features/community/model/community-route';
 import CommunityPageClient from '@/features/community/ui/pages/community-page-client';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
+
+interface CommunityPageProps {
+  searchParams: Promise<{ page?: string | string[] }>;
+}
 
 export const metadata: Metadata = generateSEOMetadata({
   title: 'ZERO-ONE 커뮤니티',
@@ -18,6 +23,10 @@ export const metadata: Metadata = generateSEOMetadata({
   canonicalUrl: 'https://www.zeroone.it.kr/community',
 });
 
-export default function CommunityPage() {
-  return <CommunityPageClient />;
+export default async function CommunityPage({
+  searchParams,
+}: CommunityPageProps) {
+  const { page } = await searchParams;
+
+  return <CommunityPageClient initialPage={resolveCommunityPage(page)} />;
 }

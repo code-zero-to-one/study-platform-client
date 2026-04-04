@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getCommunityMockPostById } from '@/features/community/model/community-page-mock-data';
+import { normalizeCommunityPageParam } from '@/features/community/model/community-route';
 import CommunityDetailPageClient from '@/features/community/ui/pages/community-detail-page-client';
 import { generateMetadata as generateSEOMetadata } from '@/utils/seo';
 
 interface CommunityDetailPageProps {
   params: Promise<{ postId: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
 }
 
 const parsePostId = (rawPostId: string) => {
@@ -57,8 +59,10 @@ export async function generateMetadata({
 
 export default async function CommunityDetailPage({
   params,
+  searchParams,
 }: CommunityDetailPageProps) {
   const { postId: rawPostId } = await params;
+  const { page } = await searchParams;
   const normalizedPostId = parsePostId(rawPostId);
 
   if (!normalizedPostId) {
@@ -69,6 +73,7 @@ export default async function CommunityDetailPage({
     <CommunityDetailPageClient
       postId={normalizedPostId}
       initialPost={getCommunityMockPostById(normalizedPostId)}
+      returnPage={normalizeCommunityPageParam(page)}
     />
   );
 }
