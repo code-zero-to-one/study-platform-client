@@ -463,6 +463,10 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   min-height: 200px;
 }
 
+@utility min-h-rich-text-editor {
+  min-height: 260px;
+}
+
 @utility h-study-card {
   height: 244px;
 }
@@ -493,6 +497,10 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   max-width: 1164px;
 }
 
+@utility w-rich-text-slider {
+  width: 180px;
+}
+
 @utility max-h-modal {
   max-height: 90vh;
 }
@@ -520,6 +528,15 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
 @utility translate-y-panel {
   transform: translate3d(0, var(--panel-translate-y, 0px), 0);
 }
+
+@utility max-h-rich-text-image {
+  max-height: 400px;
+}
+
+@utility max-w-rich-text-image {
+  max-width: min(100%, 400px);
+}
+
 @utility font-display-headings2 {
   font-size: 64px;
   font-weight: var(--font-weight-bold);
