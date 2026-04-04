@@ -1,5 +1,6 @@
 import type { CommunityPost } from '@/types/community/domain';
 import { getCommunityPostInteraction } from './community-detail-storage';
+import { COMMUNITY_MOCK_AUTHOR } from './community-page-mock-data';
 import {
   COMMUNITY_POSTS,
   getCommunityMockPostById,
@@ -9,31 +10,41 @@ const COMMUNITY_LOCAL_POSTS_STORAGE_KEY = 'zeroone.community.local-posts';
 
 const COMMUNITY_MOCK_POST_IDS = new Set(COMMUNITY_POSTS.map((post) => post.id));
 
-const isCommunityPost = (value: unknown): value is CommunityPost => {
+const normalizeCommunityPost = (value: unknown): CommunityPost | undefined => {
   if (!value || typeof value !== 'object') {
-    return false;
+    return undefined;
   }
 
   const candidate = value as Partial<CommunityPost>;
 
-  return (
-    typeof candidate.id === 'number' &&
-    typeof candidate.board === 'string' &&
-    typeof candidate.title === 'string' &&
-    typeof candidate.summary === 'string' &&
-    Array.isArray(candidate.content) &&
-    (typeof candidate.contentHtml === 'string' ||
-      typeof candidate.contentHtml === 'undefined') &&
-    typeof candidate.authorName === 'string' &&
-    typeof candidate.authorImage === 'string' &&
-    typeof candidate.authorIntro === 'string' &&
-    typeof candidate.role === 'string' &&
-    typeof candidate.viewCount === 'number' &&
-    typeof candidate.reactionCount === 'number' &&
-    typeof candidate.commentCount === 'number' &&
-    typeof candidate.createdAt === 'string' &&
-    typeof candidate.isTrending === 'boolean'
-  );
+  if (
+    typeof candidate.id !== 'number' ||
+    typeof candidate.board !== 'string' ||
+    typeof candidate.title !== 'string' ||
+    typeof candidate.summary !== 'string' ||
+    !Array.isArray(candidate.content) ||
+    (typeof candidate.contentHtml !== 'string' &&
+      typeof candidate.contentHtml !== 'undefined') ||
+    typeof candidate.authorName !== 'string' ||
+    typeof candidate.authorImage !== 'string' ||
+    typeof candidate.authorIntro !== 'string' ||
+    typeof candidate.role !== 'string' ||
+    typeof candidate.viewCount !== 'number' ||
+    typeof candidate.reactionCount !== 'number' ||
+    typeof candidate.commentCount !== 'number' ||
+    typeof candidate.createdAt !== 'string' ||
+    typeof candidate.isTrending !== 'boolean'
+  ) {
+    return undefined;
+  }
+
+  return {
+    ...candidate,
+    authorMemberId:
+      typeof candidate.authorMemberId === 'number'
+        ? candidate.authorMemberId
+        : COMMUNITY_MOCK_AUTHOR.memberId,
+  } as CommunityPost;
 };
 
 const mergePostWithInteraction = (post: CommunityPost): CommunityPost => {
@@ -70,7 +81,9 @@ const readStoredCommunityPosts = (): readonly CommunityPost[] => {
       return [];
     }
 
-    return parsedValue.filter(isCommunityPost);
+    return parsedValue
+      .map(normalizeCommunityPost)
+      .filter((post): post is CommunityPost => Boolean(post));
   } catch {
     return [];
   }

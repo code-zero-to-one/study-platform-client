@@ -2,6 +2,7 @@
 
 import Avatar from '@/components/common/ui/avatar';
 import type { CommunityPost } from '@/types/community/domain';
+import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import { CommunityMemberRoleBadge } from './community-meta-badge';
 
 interface CommunityAuthorProfileCardProps {
@@ -17,9 +18,11 @@ export default function CommunityAuthorProfileCard({
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-100">
-          <p className="font-designer-20b text-text-strong">
-            {post.authorName}
-          </p>
+          <CommunityAuthorNameTrigger
+            memberId={post.authorMemberId}
+            name={post.authorName}
+            className="font-designer-20b text-text-strong"
+          />
           <CommunityMemberRoleBadge role={post.role} />
         </div>
 

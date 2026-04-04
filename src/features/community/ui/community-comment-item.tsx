@@ -124,8 +124,8 @@ export default function CommunityCommentItem({
         />
 
         <div className="min-w-0 flex-1">
-          <div className="flex items-start justify-between gap-150">
-            <div className="min-w-0">
+          <div className="relative flex items-start gap-150">
+            <div className={cn('min-w-0', comment.isAuthor && 'pr-500')}>
               <div className="flex flex-wrap items-center gap-75">
                 <span className="font-designer-14b text-text-strong">
                   {comment.authorName}
@@ -143,7 +143,7 @@ export default function CommunityCommentItem({
             </div>
 
             {comment.isAuthor ? (
-              <div className="relative shrink-0">
+              <div className="absolute top-0 right-0">
                 <button
                   type="button"
                   onClick={() => setIsMenuOpen((prevState) => !prevState)}
@@ -238,6 +238,7 @@ export default function CommunityCommentItem({
                       )}
                     />
                   }
+                  count={comment.dislikeCount}
                   isActive={comment.viewerReaction === 'dislike'}
                   onClick={() => onToggleCommentReaction(comment.id, 'dislike')}
                 />
@@ -284,7 +285,7 @@ export default function CommunityCommentItem({
               {isReplyListExpanded ? (
                 <div
                   className={cn(
-                    'mt-150 flex flex-col gap-250 border-l border-border-subtle pl-200',
+                    'mt-100 flex flex-col gap-150 border-l border-border-subtle pl-200',
                     depth > 0 && 'ml-200',
                   )}
                 >

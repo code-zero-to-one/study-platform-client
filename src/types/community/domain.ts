@@ -69,6 +69,7 @@ export interface CommunityPost {
   contentHtml?: string;
   previewImage?: string;
   previewImageAlt?: string;
+  authorMemberId: number;
   authorName: string;
   authorImage: string;
   authorIntro: string;
