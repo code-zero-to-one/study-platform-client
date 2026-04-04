@@ -65,8 +65,8 @@ export default function CommunityPostListItem({
     <CommunityFeedListItemShell
       className={cn(
         featuredFrame
-          ? 'border-border-brand shadow-1 transition-colors'
-          : 'transition-colors hover:border-border-brand',
+          ? 'border-l-3 border-l-border-brand bg-background-default hover-lift-brand'
+          : 'hover-lift-neutral',
       )}
       content={
         <Link

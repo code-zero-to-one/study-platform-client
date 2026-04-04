@@ -917,6 +917,42 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   }
 }
 
+@utility hover-lift-neutral {
+  transform: translateY(0) scale(1);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+  will-change: transform, box-shadow;
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    transform 300ms ease,
+    box-shadow 300ms ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--shadow-1);
+    background-color: var(--color-background-alternative);
+  }
+}
+
+@utility hover-lift-brand {
+  transform: translateY(0) scale(1);
+  box-shadow: 0 0 0 0 rgba(246, 61, 104, 0);
+  will-change: transform, box-shadow;
+  transition:
+    background-color 300ms ease,
+    border-color 300ms ease,
+    transform 300ms ease,
+    box-shadow 300ms ease;
+
+  &:hover,
+  &:focus-visible {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 20px 0 rgba(246, 61, 104, 0.25);
+    background-color: var(--color-fill-brand-subtle-hover);
+  }
+}
+
 @keyframes toast-enter {
   from {
     opacity: 0;

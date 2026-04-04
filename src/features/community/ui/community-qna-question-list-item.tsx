@@ -38,7 +38,7 @@ export default function CommunityQnaQuestionListItem({
 
   return (
     <CommunityFeedListItemShell
-      className="transition-colors hover:border-border-brand"
+      className="hover-lift-neutral"
       content={
         <Link
           href={detailHref}
