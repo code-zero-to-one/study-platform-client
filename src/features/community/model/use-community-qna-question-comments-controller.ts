@@ -6,8 +6,8 @@ import { useForm, useWatch } from 'react-hook-form';
 import {
   createCommunityQnaIdempotencyKey,
   getCommunityQnaAccessDeniedMessage,
-  getCommunityQnaAuthRequiredMessage,
   getCommunityQnaCommentRevisionConflictMessage,
+  getCommunityQnaAuthRequiredMessage,
   getCommunityQnaErrorMessage,
   getCommunityQnaIdempotencyConflictMessage,
   isCommunityQnaAccessDeniedError,
