@@ -39,12 +39,19 @@ import {
 export type CommunityWriteMode = 'create' | 'edit';
 
 interface UseCommunityWriteControllerParams {
+  initialBoard?: CommunityBoard;
   mode: CommunityWriteMode;
   postId?: number;
   returnPage?: number;
 }
 
+const resolveInitialBoard = (initialBoard?: CommunityBoard) =>
+  initialBoard && isCommunityBoard(initialBoard)
+    ? initialBoard
+    : COMMUNITY_BOARD.FREE;
+
 export const useCommunityWriteController = ({
+  initialBoard,
   mode,
   postId,
   returnPage,
@@ -61,7 +68,7 @@ export const useCommunityWriteController = ({
     resolver: zodResolver(communityWriteSchema),
     mode: 'onChange',
     defaultValues: {
-      board: COMMUNITY_BOARD.FREE,
+      board: resolveInitialBoard(initialBoard),
       title: '',
       content: '',
     },
@@ -140,6 +147,18 @@ export const useCommunityWriteController = ({
     returnPage,
     router,
   ]);
+
+  useEffect(() => {
+    if (isEditMode) {
+      return;
+    }
+
+    form.setValue('board', resolveInitialBoard(initialBoard), {
+      shouldDirty: false,
+      shouldTouch: false,
+      shouldValidate: true,
+    });
+  }, [form, initialBoard, isEditMode]);
 
   const handleBoardChange = (nextBoard: CommunityBoard) => {
     form.setValue('board', nextBoard, {

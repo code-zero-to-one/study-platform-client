@@ -1,3 +1,8 @@
+import {
+  type CommunityBoard,
+  isCommunityBoard,
+} from '@/types/community/domain';
+
 export const COMMUNITY_DEFAULT_PAGE = 1;
 export const COMMUNITY_PAGE_SIZE = 10;
 
@@ -20,6 +25,18 @@ export const resolveCommunityPage = (
   value: string | readonly string[] | undefined,
   fallback = COMMUNITY_DEFAULT_PAGE,
 ) => normalizeCommunityPageParam(value) ?? fallback;
+
+export const normalizeCommunityBoardParam = (
+  value: string | readonly string[] | undefined,
+): CommunityBoard | undefined => {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+
+  if (!rawValue || !isCommunityBoard(rawValue)) {
+    return undefined;
+  }
+
+  return rawValue;
+};
 
 export const buildCommunityListHref = (page?: number) => {
   const normalizedPage =

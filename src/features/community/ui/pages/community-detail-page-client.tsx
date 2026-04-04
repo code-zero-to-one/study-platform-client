@@ -8,12 +8,12 @@ import PageContainer from '@/components/common/ui/page-container';
 import { COMMUNITY_MOCK_AUTHOR } from '@/features/community/model/community-page-mock-data';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
-import MentorMarkdownContent from '@/features/mentoring/ui/registration/markdown/mentor-markdown-content';
 import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
 import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorProfileCard from '../community-author-profile-card';
 import CommunityCommentSection from '../community-comment-section';
 import CommunityDetailFeedSection from '../community-detail-feed-section';
+import CommunityMarkdownContent from '../community-markdown-content';
 import { CommunityBoardBadge } from '../community-meta-badge';
 import CommunityPostOwnerActions from '../community-post-owner-actions';
 import CommunityReactionButton from '../community-reaction-button';
@@ -152,7 +152,7 @@ export default function CommunityDetailPageClient({
         ) : null}
 
         {hasRichContent ? (
-          <MentorMarkdownContent content={state.post.contentHtml ?? ''} />
+          <CommunityMarkdownContent content={state.post.contentHtml ?? ''} />
         ) : (
           <div className="flex flex-col gap-250">
             {state.post.content.map((paragraph, index) => (
