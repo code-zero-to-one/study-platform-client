@@ -12,6 +12,7 @@ import { ErrorType } from '@/utils/error-handler';
 import CommunityMarkdownContent from '../community-markdown-content';
 import { CommunityBoardBadge } from '../community-meta-badge';
 import CommunityQnaAnswerComposeSection from '../community-qna-answer-compose-section';
+import CommunityQnaAnswerItem from '../community-qna-answer-item';
 import CommunityQnaAuthorSummary from '../community-qna-author-summary';
 import CommunityQnaQuestionCommentsSection from '../community-qna-question-comments-section';
 import {
@@ -147,7 +148,7 @@ export default function CommunityQnaDetailPageClient({
         questionId={questionId}
         viewer={state.viewer}
       >
-        {({ headerAction, panel }) => (
+        {({ headerAction, myAnswerAction, panel }) => (
           <CommunitySectionShell className="gap-250">
             <div className="flex flex-wrap items-start justify-between gap-150 border-b border-border-default pb-200">
               <div className="flex flex-col gap-50">
@@ -168,32 +169,18 @@ export default function CommunityQnaDetailPageClient({
 
             {state.answersPageData.items.length ? (
               <div className="flex flex-col gap-150">
-                {state.answersPageData.items.map((answer) => (
-                  <SurfacePanel
-                    key={answer.id}
-                    radius="lg"
-                    className="flex flex-col gap-250 p-250"
-                  >
-                    <div className="flex flex-wrap items-center justify-between gap-150">
-                      <CommunityQnaAuthorSummary
-                        author={answer.author}
-                        nameClassName="font-designer-18b text-text-strong"
-                      />
-                      <div className="flex flex-wrap items-center gap-100">
-                        {answer.isAccepted ? (
-                          <span className="rounded-full bg-fill-brand-subtle-default px-100 py-50 font-designer-12b text-text-brand">
-                            채택 답변
-                          </span>
-                        ) : null}
-                        <span className="font-designer-14r text-text-subtlest">
-                          {answer.createdAt}
-                        </span>
-                      </div>
-                    </div>
+                {state.answersPageData.items.map((answer) => {
+                  const isMyAnswer = viewModel.myAnswerId === answer.id;
 
-                    <CommunityMarkdownContent content={answer.contentHtml} />
-                  </SurfacePanel>
-                ))}
+                  return (
+                    <CommunityQnaAnswerItem
+                      key={answer.id}
+                      answer={answer}
+                      actionSlot={isMyAnswer ? myAnswerAction : null}
+                      isMine={isMyAnswer}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <SurfacePanel radius="lg" className="p-250">
