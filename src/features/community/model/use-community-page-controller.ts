@@ -10,12 +10,7 @@ import {
   type CommunityFeedView,
   type CommunityPost,
 } from '@/types/community/domain';
-import {
-  COMMUNITY_DISCORD_URL,
-  COMMUNITY_FEED_FILTER_OPTIONS,
-  COMMUNITY_FEED_VIEW_OPTIONS,
-  COMMUNITY_POSTS,
-} from './community-page-mock-data';
+import { COMMUNITY_POSTS } from './community-page-mock-data';
 import {
   getCommunityFeedPosts,
   subscribeCommunityPostsChange,
@@ -25,6 +20,11 @@ import {
   COMMUNITY_PAGE_SIZE,
   normalizeCommunityPageParam,
 } from './community-route';
+import {
+  COMMUNITY_DISCORD_URL,
+  COMMUNITY_FEED_FILTER_OPTIONS,
+  COMMUNITY_FEED_VIEW_OPTIONS,
+} from './community-view-config';
 
 const FEATURED_POST_LIMIT = 3;
 

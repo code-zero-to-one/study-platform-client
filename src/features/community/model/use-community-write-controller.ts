@@ -31,10 +31,7 @@ import {
   communityWriteSchema,
   type CommunityWriteFormValues,
 } from '@/types/schemas/community-write-schema';
-import {
-  COMMUNITY_BOARD_OPTIONS,
-  COMMUNITY_MOCK_AUTHOR,
-} from './community-page-mock-data';
+import { COMMUNITY_MOCK_AUTHOR } from './community-page-mock-data';
 import { isCommunityPostOwnedByMember } from './community-post-ownership';
 import {
   findCommunityLocalPostById,
@@ -50,6 +47,7 @@ import {
   buildCommunityListHref,
   buildCommunityPostHref,
 } from './community-route';
+import { COMMUNITY_BOARD_OPTIONS } from './community-view-config';
 
 export type CommunityWriteMode = 'create' | 'edit';
 
