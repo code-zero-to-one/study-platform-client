@@ -9,6 +9,7 @@ import { createPortal } from 'react-dom';
 
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Avatar from '@/components/common/ui/avatar';
+import Button from '@/components/common/ui/button';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import { useLogoutMutation } from '@/hooks/queries/use-auth-mutation';
 
@@ -28,11 +29,13 @@ const NAV_ITEMS = [
 interface MobileMenuDrawerProps {
   isLoggedIn: boolean;
   userImg?: string;
+  showDeveloperRegistrationEntry?: boolean;
 }
 
 export default function MobileMenuDrawer({
   isLoggedIn,
   userImg,
+  showDeveloperRegistrationEntry = false,
 }: MobileMenuDrawerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
@@ -178,6 +181,18 @@ export default function MobileMenuDrawer({
               <div className="border-t border-border-subtle px-400 py-300">
                 {isLoggedIn ? (
                   <div className="flex flex-col gap-200">
+                    {showDeveloperRegistrationEntry ? (
+                      <Button
+                        asChild
+                        size="small"
+                        color="outlined"
+                        className="font-designer-14m w-full"
+                      >
+                        <Link href="/developer-registration" onClick={close}>
+                          개발자 등록
+                        </Link>
+                      </Button>
+                    ) : null}
                     <Link
                       href="/my-page"
                       onClick={close}

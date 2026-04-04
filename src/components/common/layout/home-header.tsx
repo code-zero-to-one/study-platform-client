@@ -12,6 +12,7 @@ import Button from '@/components/common/ui/button';
 import StudyMatchingToggle from '@/components/home/study-matching-toggle';
 import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
 import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
+import { tryGetMyDeveloperRegistrationInServer } from '@/features/developer/api/developer-registration-api.server';
 
 const LoginModal = dynamic(
   () => import('@/components/common/modals/login-modal'),
@@ -27,18 +28,41 @@ export default async function Header() {
   const isLoggedIn = isAuthenticatedMemberSessionState(sessionState);
 
   let userProfile = null;
+  let developerRegistration = null;
 
   if (isLoggedIn && memberId) {
-    const profileResult = await tryGetUserProfileInServer(memberId);
+    const [profileSettled, developerRegistrationResult] =
+      await Promise.allSettled([
+        tryGetUserProfileInServer(memberId),
+        tryGetMyDeveloperRegistrationInServer(),
+      ]);
 
-    if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
-      userProfile = profileResult.profile;
-    } else if (
-      profileResult.kind !== SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE
-    ) {
+    if (profileSettled.status === 'fulfilled') {
+      const profileResult = profileSettled.value;
+
+      if (profileResult.kind === SERVER_USER_PROFILE_RESULT_KINDS.SUCCESS) {
+        userProfile = profileResult.profile;
+      } else if (
+        profileResult.kind !== SERVER_USER_PROFILE_RESULT_KINDS.MISSING_PROFILE
+      ) {
+        console.error(
+          `[Header] Failed to fetch user profile for memberId=${memberId}`,
+          profileResult.error,
+        );
+      }
+    } else {
       console.error(
         `[Header] Failed to fetch user profile for memberId=${memberId}`,
-        profileResult.error,
+        profileSettled.reason,
+      );
+    }
+
+    if (developerRegistrationResult.status === 'fulfilled') {
+      developerRegistration = developerRegistrationResult.value;
+    } else {
+      console.error(
+        `[Header] Failed to fetch developer registration for memberId=${memberId}`,
+        developerRegistrationResult.reason,
       );
     }
   }
@@ -47,6 +71,8 @@ export default async function Header() {
   const userImg = userProfile
     ? userInfo?.profileImage?.resizedImages[0].resizedImageUrl
     : undefined;
+  const showDeveloperRegistrationEntry =
+    isLoggedIn && developerRegistration?.registered === false;
 
   return (
     <header className="bg-background-default py-125 mix-blend-multiply">
@@ -79,7 +105,19 @@ export default async function Header() {
 
           <div className="ml-150">
             {isLoggedIn ? (
-              <HeaderUserDropdown userImg={userImg} />
+              <div className="flex items-center gap-150">
+                {showDeveloperRegistrationEntry ? (
+                  <Button
+                    asChild
+                    size="small"
+                    color="outlined"
+                    className="font-designer-14m whitespace-nowrap"
+                  >
+                    <Link href="/developer-registration">개발자 등록</Link>
+                  </Button>
+                ) : null}
+                <HeaderUserDropdown userImg={userImg} />
+              </div>
             ) : (
               <LoginModal
                 openTrigger={
@@ -95,7 +133,11 @@ export default async function Header() {
         {/* 모바일 햄버거 메뉴 */}
         <div className="flex items-center gap-100 lg:hidden">
           {isLoggedIn && <NotificationDropdown />}
-          <MobileMenuDrawer isLoggedIn={isLoggedIn} userImg={userImg} />
+          <MobileMenuDrawer
+            isLoggedIn={isLoggedIn}
+            userImg={userImg}
+            showDeveloperRegistrationEntry={showDeveloperRegistrationEntry}
+          />
         </div>
       </div>
     </header>
