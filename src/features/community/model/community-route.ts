@@ -35,7 +35,7 @@ export const buildCommunityListHref = (page?: number) => {
 
 export const normalizeCommunityBoardParam = (
   value: string | readonly string[] | undefined,
-): CommunityBoard | undefined => {
+) => {
   const rawValue = Array.isArray(value) ? value[0] : value;
 
   if (!rawValue || !isCommunityBoard(rawValue)) {

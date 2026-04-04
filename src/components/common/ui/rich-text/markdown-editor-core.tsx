@@ -32,15 +32,7 @@ import {
   Underline as UnderlineIcon,
 } from 'lucide-react';
 import { common, createLowlight } from 'lowlight'; // eslint-disable-line import/order
-import {
-  memo,
-  type ComponentType,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import {
@@ -197,7 +189,7 @@ export interface MarkdownEditorCoreProps {
 }
 
 interface ToolbarButtonProps {
-  icon: ComponentType<{ className?: string }>;
+  icon: React.ComponentType<{ className?: string }>;
   label: string;
   isActive?: boolean;
   disabled?: boolean;
