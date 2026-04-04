@@ -66,7 +66,7 @@ export default function GroupStudyForm({
 
   const methods = externalMethods ?? internalMethods;
 
-  const { handleSubmit, trigger, formState, control, watch } = methods;
+  const { handleSubmit, trigger, formState, control } = methods;
   const classification = useWatch({ name: 'classification', control });
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -123,7 +123,7 @@ export default function GroupStudyForm({
         field === 'summary' ||
         field === 'description'
       ) {
-        return !value || (typeof value === 'string' && value.trim() === '');
+        return typeof value !== 'string' || value.trim() === '';
       }
       if (field === 'thumbnailExtension') {
         return !value || value === 'DEFAULT';
@@ -133,7 +133,7 @@ export default function GroupStudyForm({
           !value ||
           !Array.isArray(value) ||
           value.length === 0 ||
-          value.some((q) => !q || q.trim() === '')
+          value.some((q) => typeof q !== 'string' || q.trim() === '')
         );
       }
 
