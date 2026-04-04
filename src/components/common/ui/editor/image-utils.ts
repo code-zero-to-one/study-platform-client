@@ -1,7 +1,4 @@
-import {
-  extractHtmlImageUrls,
-  getFileExtension,
-} from '@/utils/markdown-content';
+import { getFileExtension } from '@/utils/markdown-content-images';
 
 export interface MarkdownEditorImageConfig {
   allowedImageExtensions: readonly string[];
@@ -24,24 +21,13 @@ export const MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS = [
   'gif',
 ] as const;
 
-type UrlKind = 'remote' | 'image' | 'data-image';
-
-const URL_PATTERNS: Record<UrlKind, RegExp> = {
-  remote: /^https?:\/\/\S+$/i,
-  image: /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i,
-  'data-image': /^data:image\/[a-z0-9.+-]+;base64,/i,
-};
-
-export const isAllowedUrl = (
-  text: string,
-  kinds: UrlKind | UrlKind[] = 'remote',
-) => {
-  const trimmed = text.trim();
-  const targets = Array.isArray(kinds) ? kinds : [kinds];
-
-  return targets.some((kind) => URL_PATTERNS[kind].test(trimmed));
-};
-
+/**
+ * 이미지 너비를 80~400px 범위로 제한합니다.
+ * @example
+ * clampImageWidth(50) // 80
+ * clampImageWidth(200) // 200
+ * clampImageWidth(500) // 400
+ */
 export const clampImageWidth = (value: number) => {
   return Math.min(
     MARKDOWN_IMAGE_MAX_WIDTH,
@@ -49,6 +35,14 @@ export const clampImageWidth = (value: number) => {
   );
 };
 
+/**
+ * 너비 값을 숫자로 파싱하고 유효 범위로 조정합니다.
+ * @example
+ * parseImageWidth('250') // 250
+ * parseImageWidth('50') // 80 (최소값)
+ * parseImageWidth('abc') // 200 (기본값)
+ * parseImageWidth(undefined) // 200 (기본값)
+ */
 export const parseImageWidth = (value: unknown): number => {
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
@@ -58,25 +52,54 @@ export const parseImageWidth = (value: unknown): number => {
   return clampImageWidth(parsed);
 };
 
+/**
+ * Blob을 File 객체로 변환합니다.
+ * @example
+ * const blob = new Blob(['image data'], { type: 'image/png' })
+ * const file = toFileFromBlob(blob, 'screenshot.png')
+ * console.log(file.name) // 'screenshot.png'
+ */
 export const toFileFromBlob = (blob: Blob, fileName: string): File => {
   return new File([blob], fileName, { type: blob.type });
 };
 
+/**
+ * MIME 타입에서 파일 확장자를 추출합니다.
+ * @example
+ * getExtensionFromMime('image/jpeg') // 'jpg'
+ * getExtensionFromMime('image/png') // 'png'
+ * getExtensionFromMime('image/webp') // 'webp'
+ * getExtensionFromMime('image/gif') // 'gif'
+ * getExtensionFromMime('unknown/type') // 'type'
+ */
 export const getExtensionFromMime = (mimeType: string): string => {
-  const map: Record<string, string> = {
+  const imageMap: Record<string, string> = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
     'image/webp': 'webp',
     'image/gif': 'gif',
   };
 
-  return map[mimeType] ?? mimeType.split('/')[1]?.toLowerCase() ?? '';
+  return imageMap[mimeType] ?? mimeType.split('/')[1]?.toLowerCase() ?? '';
 };
 
+/**
+ * 확장자 배열을 input accept 형식으로 변환합니다.
+ * @example
+ * toImageInputAccept(['jpg', 'png']) // '.jpg,.png'
+ * toImageInputAccept(['jpg', 'png', 'webp']) // '.jpg,.png,.webp'
+ */
 export const toImageInputAccept = (extensions: readonly string[]) => {
   return extensions.map((extension) => `.${extension}`).join(',');
 };
 
+/**
+ * 파일 확장자가 허용된 목록에 포함되는지 확인합니다.
+ * @example
+ * isAllowedImageExtension('jpg', ['jpg', 'png']) // true
+ * isAllowedImageExtension('gif', ['jpg', 'png']) // false
+ * isAllowedImageExtension('png', ['jpg', 'png', 'webp']) // true
+ */
 export const isAllowedImageExtension = (
   extension: string,
   allowedExtensions: readonly string[],
@@ -84,59 +107,19 @@ export const isAllowedImageExtension = (
   return allowedExtensions.includes(extension);
 };
 
-export const extractClipboardImageFiles = (
-  clipboardData: DataTransfer,
-): File[] => {
-  const directImageFiles = Array.from(clipboardData.files).filter((file) =>
-    file.type.startsWith('image/'),
-  );
-
-  if (directImageFiles.length > 0) {
-    return directImageFiles;
-  }
-
-  return Array.from(clipboardData.items)
-    .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
-    .map((item) => item.getAsFile())
-    .filter((file): file is File => file !== null);
-};
-
-export const extractClipboardImageSource = (
-  clipboardData: DataTransfer,
-): string => {
-  const pastedHtml = clipboardData.getData('text/html').trim();
-  if (pastedHtml) {
-    const imageSource = extractHtmlImageUrls(pastedHtml)[0]?.trim();
-
-    if (imageSource && isAllowedUrl(imageSource, ['remote', 'data-image'])) {
-      return imageSource;
-    }
-  }
-
-  const pastedText = clipboardData.getData('text/plain').trim();
-  if (pastedText && isAllowedUrl(pastedText, ['image', 'data-image'])) {
-    return pastedText;
-  }
-
-  return '';
-};
-
-export const hasClipboardImageHint = (clipboardData: DataTransfer) => {
-  if (extractClipboardImageFiles(clipboardData).length > 0) {
-    return true;
-  }
-
-  if (
-    Array.from(clipboardData.items).some((item) => item.type.includes('html'))
-  ) {
-    return clipboardData.getData('text/html').includes('<img');
-  }
-
-  const pastedText = clipboardData.getData('text/plain').trim();
-
-  return isAllowedUrl(pastedText, ['image', 'data-image']);
-};
-
+/**
+ * 이미지 파일을 검증합니다 (MIME 타입, 확장자, 크기).
+ * @example
+ * const file = new File(['data'], 'image.jpg', { type: 'image/jpeg' })
+ * const config = {
+ *   allowedImageExtensions: ['jpg', 'png'],
+ *   maxImageCount: 3,
+ *   maxImageFileSize: 5 * 1024 * 1024,
+ *   uploadImageFile: async (f) => 'url'
+ * }
+ * const error = validateImageFileForUpload(file, config)
+ * console.log(error) // undefined (검증 통과)
+ */
 export const validateImageFileForUpload = (
   file: File,
   resolvedImageConfig: MarkdownEditorImageConfig,

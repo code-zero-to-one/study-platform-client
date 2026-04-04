@@ -2,47 +2,9 @@
 
 import 'highlight.js/styles/github.css';
 import DOMPurify, { type Config as DOMPurifyConfig } from 'dompurify';
-import hljs from 'highlight.js/lib/core';
-import bash from 'highlight.js/lib/languages/bash';
-import c from 'highlight.js/lib/languages/c';
-import cpp from 'highlight.js/lib/languages/cpp';
-import css from 'highlight.js/lib/languages/css';
-import dart from 'highlight.js/lib/languages/dart';
-import go from 'highlight.js/lib/languages/go';
-import java from 'highlight.js/lib/languages/java';
-import javascript from 'highlight.js/lib/languages/javascript';
-import json from 'highlight.js/lib/languages/json';
-import kotlin from 'highlight.js/lib/languages/kotlin';
-import plaintext from 'highlight.js/lib/languages/plaintext';
-import python from 'highlight.js/lib/languages/python';
-import rust from 'highlight.js/lib/languages/rust';
-import sql from 'highlight.js/lib/languages/sql';
-import swift from 'highlight.js/lib/languages/swift';
-import typescript from 'highlight.js/lib/languages/typescript';
-import xml from 'highlight.js/lib/languages/xml';
 import { marked } from 'marked';
-
-hljs.registerLanguage('kotlin', kotlin);
-hljs.registerLanguage('sql', sql);
-hljs.registerLanguage('typescript', typescript);
-hljs.registerLanguage('ts', typescript);
-hljs.registerLanguage('javascript', javascript);
-hljs.registerLanguage('js', javascript);
-hljs.registerLanguage('java', java);
-hljs.registerLanguage('python', python);
-hljs.registerLanguage('css', css);
-hljs.registerLanguage('html', xml);
-hljs.registerLanguage('xml', xml);
-hljs.registerLanguage('json', json);
-hljs.registerLanguage('bash', bash);
-hljs.registerLanguage('sh', bash);
-hljs.registerLanguage('plaintext', plaintext);
-hljs.registerLanguage('cpp', cpp);
-hljs.registerLanguage('c', c);
-hljs.registerLanguage('go', go);
-hljs.registerLanguage('rust', rust);
-hljs.registerLanguage('swift', swift);
-hljs.registerLanguage('dart', dart);
+import hljs from '@/components/common/ui/editor/hljs-setup';
+import { isHtmlContent } from '@/utils/markdown-content-shared';
 
 const SANITIZE_OPTIONS: DOMPurifyConfig = {
   ALLOWED_TAGS: [
@@ -71,6 +33,15 @@ const SANITIZE_OPTIONS: DOMPurifyConfig = {
   ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#)/i,
 };
 
+let _domParser: DOMParser | null = null;
+const getDomParser = (): DOMParser | null => {
+  if (typeof window === 'undefined') return null;
+
+  _domParser ??= new window.DOMParser();
+
+  return _domParser;
+};
+
 const MENTOR_MARKDOWN_IMAGE_MIN_WIDTH = 80;
 const MENTOR_MARKDOWN_IMAGE_MAX_WIDTH = 400;
 
@@ -95,10 +66,6 @@ const parseSanitizedImageWidth = (
   );
 };
 
-const isHtmlContent = (content: string): boolean => {
-  return /<[a-z][\s\S]*>/i.test(content);
-};
-
 const applyPostSanitizeAttributes = ({
   originalHtml,
   sanitizedHtml,
@@ -106,14 +73,12 @@ const applyPostSanitizeAttributes = ({
   originalHtml: string;
   sanitizedHtml: string;
 }) => {
-  if (typeof window === 'undefined') {
+  const parser = getDomParser();
+  if (!parser) {
     return sanitizedHtml;
   }
 
-  const originalDocument = new window.DOMParser().parseFromString(
-    originalHtml,
-    'text/html',
-  );
+  const originalDocument = parser.parseFromString(originalHtml, 'text/html');
   const widthBucketsBySrc = new Map<string, number[]>();
 
   originalDocument.querySelectorAll('img[src]').forEach((imageElement) => {
@@ -134,10 +99,7 @@ const applyPostSanitizeAttributes = ({
     widthBucketsBySrc.set(src, bucket);
   });
 
-  const document = new window.DOMParser().parseFromString(
-    sanitizedHtml,
-    'text/html',
-  );
+  const document = parser.parseFromString(sanitizedHtml, 'text/html');
   const anchors = document.querySelectorAll('a[href]');
 
   anchors.forEach((anchor) => {
