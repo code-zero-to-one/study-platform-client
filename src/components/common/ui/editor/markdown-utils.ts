@@ -8,10 +8,10 @@ import {
   hasAllowedImageExtension,
   hasOnlyAllowedImageExtensions as hasOnlyAllowedImageExtensionsBase,
   hasOnlyHttpsImageUrls as hasOnlyHttpsImageUrlsBase,
-  isHtmlContent,
   isHttpsImageUrl,
-  normalizeMarkdownContent,
-} from '@/utils/markdown-content';
+} from '@/utils/markdown-content-images';
+import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
+import { isHtmlContent } from '@/utils/markdown-content-shared';
 
 export const MARKDOWN_MAX_IMAGE_COUNT = 3;
 export const MARKDOWN_MAX_IMAGE_FILE_SIZE = 5 * 1024 * 1024;

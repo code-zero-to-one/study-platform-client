@@ -2,7 +2,7 @@
 
 import type { Editor } from '@tiptap/react';
 import { useCallback, useState } from 'react';
-import { extractImageUrls } from '@/utils/markdown-content';
+import { extractImageUrls } from '@/utils/markdown-content-images';
 import {
   type MarkdownEditorImageConfig,
   MARKDOWN_IMAGE_DEFAULT_WIDTH,

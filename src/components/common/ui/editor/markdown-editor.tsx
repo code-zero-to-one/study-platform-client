@@ -24,7 +24,7 @@ import {
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
-import { normalizeMarkdownContent } from '@/utils/markdown-content';
+import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
 import {
   InstantCodeBlockExtension,
   lowlight,
