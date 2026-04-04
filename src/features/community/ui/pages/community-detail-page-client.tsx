@@ -1,0 +1,169 @@
+'use client';
+
+import { ChevronLeft, ThumbsUp } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import Button from '@/components/common/ui/button';
+import PageContainer from '@/components/common/ui/page-container';
+import { COMMUNITY_MOCK_AUTHOR } from '@/features/community/model/community-page-mock-data';
+import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
+import MentorMarkdownContent from '@/features/mentoring/ui/registration/markdown/mentor-markdown-content';
+import type { CommunityPost } from '@/types/community/domain';
+import CommunityAuthorProfileCard from '../community-author-profile-card';
+import CommunityCommentSection from '../community-comment-section';
+import { CommunityBoardBadge } from '../community-meta-badge';
+import CommunitySectionShell from '../community-section-shell';
+
+interface CommunityDetailPageClientProps {
+  initialPost?: CommunityPost;
+  postId: number;
+}
+
+export default function CommunityDetailPageClient({
+  initialPost,
+  postId,
+}: CommunityDetailPageClientProps) {
+  const { state, actions, viewModel } = useCommunityDetailController({
+    initialPost,
+    postId,
+  });
+
+  if (!state.isResolved) {
+    return (
+      <PageContainer className="flex flex-col gap-500 xl:gap-600">
+        <CommunitySectionShell className="gap-250">
+          <p className="font-designer-16r text-text-subtle">
+            글을 불러오는 중입니다.
+          </p>
+        </CommunitySectionShell>
+      </PageContainer>
+    );
+  }
+
+  if (!state.post) {
+    return (
+      <PageContainer className="flex flex-col gap-500 xl:gap-600">
+        <CommunitySectionShell className="gap-250">
+          <Link
+            href="/community"
+            className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
+          >
+            <ChevronLeft className="h-16 w-16" />
+            커뮤니티로 돌아가기
+          </Link>
+          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
+            <p className="font-designer-20b text-text-strong">
+              글을 찾을 수 없습니다.
+            </p>
+            <p className="mt-100 font-designer-14r text-text-subtle">
+              목록으로 돌아가서 다른 글을 확인해주세요.
+            </p>
+          </div>
+        </CommunitySectionShell>
+      </PageContainer>
+    );
+  }
+
+  const hasRichContent = Boolean(state.post.contentHtml?.trim());
+
+  return (
+    <PageContainer className="flex flex-col gap-400 xl:gap-500">
+      <CommunitySectionShell className="gap-250 border-b border-border-subtle pb-300">
+        <Link
+          href="/community"
+          className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
+        >
+          <ChevronLeft className="h-16 w-16" />
+          커뮤니티로 돌아가기
+        </Link>
+
+        <div className="flex flex-wrap items-center gap-100">
+          <CommunityBoardBadge board={state.post.board} />
+          <span className="font-designer-14r text-text-subtlest">
+            {state.post.createdAt}
+          </span>
+        </div>
+
+        <div className="flex flex-col gap-200">
+          <div className="min-w-0">
+            <h1 className="font-designer-28b text-text-strong">
+              {state.post.title}
+            </h1>
+          </div>
+
+          <CommunityAuthorProfileCard post={state.post} />
+
+          <div className="flex flex-wrap items-center gap-150">
+            <span className="font-designer-14r text-text-subtle">
+              조회 {state.post.viewCount}
+            </span>
+            <span className="font-designer-14r text-text-subtle">
+              댓글 {viewModel.commentCount}
+            </span>
+            <Button
+              color={viewModel.isLikedByViewer ? 'primary' : 'outlined'}
+              size="small"
+              icon={<ThumbsUp className="h-14 w-14" />}
+              onClick={actions.handleToggleLike}
+            >
+              좋아요 {viewModel.reactionCount}
+            </Button>
+          </div>
+        </div>
+      </CommunitySectionShell>
+
+      <CommunitySectionShell className="gap-300">
+        {!hasRichContent && state.post.previewImage ? (
+          <div className="overflow-hidden rounded-200 border border-border-subtle bg-background-alternative">
+            <Image
+              src={state.post.previewImage}
+              alt={state.post.previewImageAlt ?? state.post.title}
+              width={1200}
+              height={800}
+              className="h-auto w-full"
+              unoptimized
+            />
+          </div>
+        ) : null}
+
+        {hasRichContent ? (
+          <MentorMarkdownContent content={state.post.contentHtml ?? ''} />
+        ) : (
+          <div className="flex flex-col gap-250">
+            {state.post.content.map((paragraph, index) => (
+              <p
+                key={`${state.post.id}-${index}`}
+                className="font-designer-16r leading-300 text-text-default"
+              >
+                {paragraph}
+              </p>
+            ))}
+          </div>
+        )}
+      </CommunitySectionShell>
+
+      <CommunityCommentSection
+        comments={viewModel.comments}
+        commentCount={viewModel.commentCount}
+        viewerImage={COMMUNITY_MOCK_AUTHOR.image}
+        commentDraft={state.commentDraft}
+        editingCommentId={state.editingCommentId}
+        editingDraft={state.editingDraft}
+        replyDraft={state.replyDraft}
+        replyTargetId={state.replyTargetId}
+        onCancelEditing={actions.handleCancelEditingComment}
+        onCloseReply={actions.handleCloseReply}
+        onCommentDraftChange={actions.handleCommentDraftChange}
+        onDeleteComment={actions.handleDeleteComment}
+        onEditingDraftChange={actions.handleEditingDraftChange}
+        onOpenReply={actions.handleOpenReply}
+        onReplyDraftChange={actions.handleReplyDraftChange}
+        onStartEditing={actions.handleStartEditingComment}
+        onSubmitComment={actions.handleSubmitComment}
+        onSubmitEditedComment={actions.handleSubmitEditedComment}
+        onSubmitReply={actions.handleSubmitReply}
+        onToggleCommentReaction={actions.handleToggleCommentReaction}
+      />
+    </PageContainer>
+  );
+}

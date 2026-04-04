@@ -92,6 +92,11 @@ const ROUTE_POLICIES: readonly RoutePolicy[] = [
   },
   {
     kind: ROUTE_POLICY_KINDS.PUBLIC_SESSION,
+    path: '/community',
+    match: ROUTE_MATCH_TYPES.PREFIX,
+  },
+  {
+    kind: ROUTE_POLICY_KINDS.PUBLIC_SESSION,
     path: '/insights',
     match: ROUTE_MATCH_TYPES.PREFIX,
   },
