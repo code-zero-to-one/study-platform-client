@@ -30,6 +30,8 @@ interface UseCommunityDetailControllerParams {
   postId: number;
 }
 
+const COMMUNITY_COMMENTS_PAGE = 1;
+
 const createCommentId = () => Date.now() + Math.floor(Math.random() * 1000);
 
 const findCommentById = (
@@ -531,14 +533,18 @@ export const useCommunityDetailController = ({
       updateCommentReaction(prevComments, commentId, nextReaction),
     );
   };
+  const handleCommentPageChange = () => {};
+  const commentsErrorMessage: string | undefined = undefined;
 
   return {
     state: {
       commentDraft,
+      commentsErrorMessage,
       editingCommentId,
       editingDraft,
       errorMessage,
       isAuthenticated,
+      isCommentsLoading: false,
       isResolved,
       post,
       replyDraft,
@@ -546,6 +552,7 @@ export const useCommunityDetailController = ({
     },
     actions: {
       handleCancelEditingComment,
+      handleCommentPageChange,
       handleCloseReply,
       handleCommentDraftChange,
       handleDeleteComment,
@@ -562,12 +569,15 @@ export const useCommunityDetailController = ({
     viewModel: {
       commentCount,
       comments,
+      currentCommentsPage: COMMUNITY_COMMENTS_PAGE,
       editingSubmitEnabled: editingDraft.trim().length > 0,
       isCommentSubmitEnabled: commentDraft.trim().length > 0,
       isLikedByViewer,
       isPostReactionEnabled: isAuthenticated,
       isReplySubmitEnabled: replyDraft.trim().length > 0,
       reactionCount,
+      showCommentPagination: false,
+      totalCommentPages: COMMUNITY_COMMENTS_PAGE,
     },
   };
 };

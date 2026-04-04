@@ -1,5 +1,6 @@
 'use client';
 
+import Pagination from '@/components/common/ui/pagination';
 import type {
   CommunityComment,
   CommunityCommentReaction,
@@ -12,7 +13,12 @@ interface CommunityCommentSectionProps {
   comments: readonly CommunityComment[];
   commentCount: number;
   commentPlaceholder?: string;
+  currentPage?: number;
+  errorMessage?: string;
+  isLoading?: boolean;
   isCommentDisabled?: boolean;
+  showPagination?: boolean;
+  totalPages?: number;
   viewerImage: string;
   commentDraft: string;
   editingCommentId?: number;
@@ -30,6 +36,7 @@ interface CommunityCommentSectionProps {
   onSubmitComment: () => void;
   onSubmitEditedComment: () => void;
   onSubmitReply: () => void;
+  onChangePage?: (page: number) => void;
   onToggleCommentReaction: (
     commentId: number,
     nextReaction: CommunityCommentReaction,
@@ -40,7 +47,12 @@ export default function CommunityCommentSection({
   comments,
   commentCount,
   commentPlaceholder = '댓글을 남겨보세요.',
+  currentPage = 1,
+  errorMessage,
+  isLoading = false,
   isCommentDisabled = false,
+  showPagination = false,
+  totalPages = 1,
   viewerImage,
   commentDraft,
   editingCommentId,
@@ -58,6 +70,7 @@ export default function CommunityCommentSection({
   onSubmitComment,
   onSubmitEditedComment,
   onSubmitReply,
+  onChangePage,
   onToggleCommentReaction,
 }: CommunityCommentSectionProps) {
   return (
@@ -81,7 +94,15 @@ export default function CommunityCommentSection({
         onSubmit={onSubmitComment}
       />
 
-      {comments.length > 0 ? (
+      {errorMessage ? (
+        <p className="py-300 font-designer-14r text-text-error">
+          {errorMessage}
+        </p>
+      ) : isLoading ? (
+        <p className="py-300 font-designer-14r text-text-subtle">
+          댓글을 불러오는 중입니다.
+        </p>
+      ) : comments.length > 0 ? (
         <div className="flex flex-col gap-150">
           {comments.map((comment) => (
             <CommunityCommentItem
@@ -110,6 +131,14 @@ export default function CommunityCommentSection({
           아직 댓글이 없습니다. 첫 댓글을 남겨보세요.
         </p>
       )}
+
+      {showPagination && onChangePage && !errorMessage && !isLoading ? (
+        <Pagination
+          page={currentPage}
+          totalPages={totalPages}
+          onChangePage={onChangePage}
+        />
+      ) : null}
     </CommunitySectionShell>
   );
 }

@@ -201,7 +201,12 @@ export default function CommunityDetailPageClient({
             ? '댓글을 남겨보세요.'
             : '로그인 후 댓글을 남길 수 있습니다.'
         }
+        currentPage={viewModel.currentCommentsPage}
+        errorMessage={state.commentsErrorMessage}
+        isLoading={state.isCommentsLoading}
         isCommentDisabled={!state.isAuthenticated}
+        showPagination={viewModel.showCommentPagination}
+        totalPages={viewModel.totalCommentPages}
         viewerImage={viewerImage ?? '/profile-default.svg'}
         commentDraft={state.commentDraft}
         editingCommentId={state.editingCommentId}
@@ -219,6 +224,7 @@ export default function CommunityDetailPageClient({
         onSubmitComment={actions.handleSubmitComment}
         onSubmitEditedComment={actions.handleSubmitEditedComment}
         onSubmitReply={actions.handleSubmitReply}
+        onChangePage={actions.handleCommentPageChange}
         onToggleCommentReaction={actions.handleToggleCommentReaction}
       />
 
