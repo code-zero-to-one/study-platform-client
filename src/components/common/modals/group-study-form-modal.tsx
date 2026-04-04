@@ -15,6 +15,10 @@ import GroupStudyForm from '@/components/forms/group-study-form';
 import { THUMBNAIL_EXTENSION } from '@/config/group-study-const';
 import { useAuthReady } from '@/features/auth/model/use-auth';
 import {
+  hasPendingBlobImagesInGroupStudyDescription,
+  serializeGroupStudyDescriptionForRequest,
+} from '@/features/group-study/model/group-study-markdown';
+import {
   useCreateGroupStudyMutation,
   useUpdateGroupStudyMutation,
 } from '@/hooks/queries/use-group-study-mutation';
@@ -106,10 +110,12 @@ export default function GroupStudyFormModal({
   };
 
   const handleOpenChange = (isOpen: boolean) => {
-    if (mode === 'create' && isOpen && isVerificationLoading) {
+    const isCreateOpening = mode === 'create' && isOpen;
+
+    if (isCreateOpening && isVerificationLoading) {
       return;
     }
-    if (mode === 'create' && isOpen && isVerificationError) {
+    if (isCreateOpening && isVerificationError) {
       showToast(
         '인증 상태를 확인할 수 없습니다. 잠시 후 다시 시도해주세요.',
         'error',
@@ -117,7 +123,7 @@ export default function GroupStudyFormModal({
 
       return;
     }
-    if (isOpen && mode === 'create' && !isVerified) {
+    if (isCreateOpening && !isVerified) {
       setIsVerificationModalOpen(true);
       setOpen(false); // 스터디 모달은 닫힘 유지
 
@@ -132,10 +138,8 @@ export default function GroupStudyFormModal({
   };
 
   const refineStudyDetail = useCallback(
-    (value: GroupStudyFullResponseDto) => {
+    (value: GroupStudyFullResponseDto): GroupStudyFormValues => {
       const rawClassification = value.basicInfo?.classification;
-      // 백엔드 normalizeClassification(): PREMIUM_STUDY → MENTOR_STUDY 로 응답 시 자동 변환
-      // 프론트 폼은 PREMIUM_STUDY 를 사용하므로 역매핑
       const refinedClassification: StudyClassification =
         rawClassification === 'GROUP_STUDY'
           ? 'GROUP_STUDY'
@@ -169,6 +173,7 @@ export default function GroupStudyFormModal({
         title: value.detailInfo?.title,
         description: value.detailInfo?.description,
         summary: value.detailInfo?.summary,
+        descriptionPendingImages: [],
         interviewPost: value.interviewPost?.interviewPost?.map(
           (q: { question?: string }) => q.question,
         ),
@@ -212,26 +217,92 @@ export default function GroupStudyFormModal({
     }
   };
 
+  const uploadDescriptionImages = async ({
+    uploadUrls,
+    pendingUploads,
+  }: {
+    uploadUrls: string[] | undefined;
+    pendingUploads: GroupStudyFormValues['descriptionPendingImages'];
+  }) => {
+    if (!pendingUploads || pendingUploads.length === 0) {
+      return {
+        failedCount: 0,
+      };
+    }
+
+    const uploadPairs = pendingUploads.map((pendingUpload, index) => ({
+      pendingUpload,
+      uploadUrl: uploadUrls?.[index],
+    }));
+    const missingUploadUrlCount = uploadPairs.filter(
+      ({ uploadUrl }) => !uploadUrl,
+    ).length;
+
+    const settledResults = await Promise.allSettled(
+      uploadPairs
+        .filter(
+          (pair): pair is typeof pair & { uploadUrl: string } =>
+            typeof pair.uploadUrl === 'string' && pair.uploadUrl.length > 0,
+        )
+        .map(({ uploadUrl, pendingUpload }) =>
+          uploadThumbnail(uploadUrl, pendingUpload.file),
+        ),
+    );
+
+    return {
+      failedCount:
+        missingUploadUrlCount +
+        settledResults.filter((result) => result.status === 'rejected').length,
+    };
+  };
+
+  const assertResolvedDescriptionImages = (description: string) => {
+    if (!hasPendingBlobImagesInGroupStudyDescription(description)) {
+      return;
+    }
+
+    throw new Error(
+      '스터디 소개 이미지 업로드 준비에 실패했습니다. 이미지를 다시 추가해주세요.',
+    );
+  };
+
   const handleCreate = async (values: GroupStudyFormValues) => {
     try {
-      const body = toCreateRequest(values);
-      const created = await createGroupStudy(body);
+      const serializedDescription = serializeGroupStudyDescriptionForRequest({
+        content: values.description,
+        pendingImages: createMethods.getValues('descriptionPendingImages'),
+      });
+      assertResolvedDescriptionImages(serializedDescription.description);
+      const body = toCreateRequest({
+        ...values,
+        description: serializedDescription.description,
+      });
+      const createdResponse = await createGroupStudy(body);
 
       if (values.thumbnailFile) {
-        if (!created.content.thumbnailUploadUrl) {
+        if (!createdResponse.content.thumbnailUploadUrl) {
           throw new Error('썸네일 업로드 URL이 없습니다.');
         }
 
         await uploadThumbnail(
-          created.content.thumbnailUploadUrl,
+          createdResponse.content.thumbnailUploadUrl,
           values.thumbnailFile,
         );
       }
 
+      const descriptionUploadResult = await uploadDescriptionImages({
+        uploadUrls: createdResponse.content?.descriptionImageUploadUrls,
+        pendingUploads: serializedDescription.pendingUploads,
+      });
+
       await invalidateGroupStudyQueries();
-      showToast('그룹 스터디 개설이 완료되었습니다.', 'success');
-    } catch (err) {
-      console.error('[handleCreate] 그룹 스터디 개설 실패:', err);
+      showToast(
+        descriptionUploadResult.failedCount > 0
+          ? '그룹 스터디는 개설되었지만 일부 소개 이미지 업로드에 실패했습니다.'
+          : '그룹 스터디 개설이 완료되었습니다.',
+        descriptionUploadResult.failedCount > 0 ? 'info' : 'success',
+      );
+    } catch {
       showToast(
         '그룹 스터디 개설 중 오류가 발생했습니다. 다시 시도해 주세요.',
         'error',
@@ -244,23 +315,41 @@ export default function GroupStudyFormModal({
 
   const handleEdit = async (values: GroupStudyFormValues) => {
     try {
-      const body = toUpdateRequest(values);
-      const updated = await updateGroupStudy(body);
+      const serializedDescription = serializeGroupStudyDescriptionForRequest({
+        content: values.description,
+        pendingImages: editMethods.getValues('descriptionPendingImages'),
+      });
+      assertResolvedDescriptionImages(serializedDescription.description);
+      const body = toUpdateRequest({
+        ...values,
+        description: serializedDescription.description,
+      });
+      const updatedResponse = await updateGroupStudy(body);
 
       if (values.thumbnailFile) {
-        if (!updated.content.thumbnailUploadUrl) {
+        if (!updatedResponse.content.thumbnailUploadUrl) {
           throw new Error('썸네일 업로드 URL이 없습니다.');
         }
 
         await uploadThumbnail(
-          updated.content.thumbnailUploadUrl,
+          updatedResponse.content.thumbnailUploadUrl,
           values.thumbnailFile,
         );
       }
 
+      const descriptionUploadResult = await uploadDescriptionImages({
+        uploadUrls: updatedResponse.content?.descriptionImageUploadUrls,
+        pendingUploads: serializedDescription.pendingUploads,
+      });
+
       await refetchGroupStudyInfo();
-      showToast('그룹 스터디 수정이 완료되었습니다.', 'success');
-    } catch (err) {
+      showToast(
+        descriptionUploadResult.failedCount > 0
+          ? '그룹 스터디는 수정되었지만 일부 소개 이미지 업로드에 실패했습니다.'
+          : '그룹 스터디 수정이 완료되었습니다.',
+        descriptionUploadResult.failedCount > 0 ? 'info' : 'success',
+      );
+    } catch {
       showToast(
         '그룹 스터디 수정 중 오류가 발생했습니다. 다시 시도해 주세요.',
         'error',
@@ -285,11 +374,6 @@ export default function GroupStudyFormModal({
       });
     }
   }, [open, mode]);
-
-  const editDefaultValues =
-    mode === 'edit' && groupStudyInfo
-      ? refineStudyDetail(groupStudyInfo)
-      : null;
 
   useEffect(() => {
     if (mode === 'edit' && controlledOpen && groupStudyInfo) {
@@ -328,7 +412,7 @@ export default function GroupStudyFormModal({
                 스터디 정보를 불러오는 중입니다...
               </Modal.Body>
             )}
-            {mode === 'edit' && !isGroupStudyLoading && editDefaultValues && (
+            {mode === 'edit' && !isGroupStudyLoading && groupStudyInfo && (
               <GroupStudyForm
                 methods={editMethods}
                 onSubmit={handleSubmitForm}
