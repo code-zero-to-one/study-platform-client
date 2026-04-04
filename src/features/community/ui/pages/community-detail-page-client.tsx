@@ -9,7 +9,6 @@ import { buildCommunityListHref } from '@/features/community/model/community-rou
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
 import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
 import { useUserStore } from '@/stores/useUserStore';
-import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorProfileCard from '../community-author-profile-card';
 import CommunityCommentSection from '../community-comment-section';
 import CommunityDetailFeedSection from '../community-detail-feed-section';
@@ -20,18 +19,15 @@ import CommunityReactionButton from '../community-reaction-button';
 import CommunitySectionShell from '../community-section-shell';
 
 interface CommunityDetailPageClientProps {
-  initialPost?: CommunityPost;
   postId: number;
   returnPage?: number;
 }
 
 export default function CommunityDetailPageClient({
-  initialPost,
   postId,
   returnPage,
 }: CommunityDetailPageClientProps) {
   const { state, actions, viewModel } = useCommunityDetailController({
-    initialPost,
     postId,
   });
   const viewerImage = useUserStore((store) => store.profileImageUrl);
@@ -75,7 +71,7 @@ export default function CommunityDetailPageClient({
             <ChevronLeft className="h-16 w-16" />
             커뮤니티로 돌아가기
           </Link>
-          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
+          <div className="rounded-200 border border-border-default bg-background-default p-300">
             <p className="font-designer-20b text-text-strong">
               글을 불러오지 못했습니다.
             </p>
@@ -99,7 +95,7 @@ export default function CommunityDetailPageClient({
             <ChevronLeft className="h-16 w-16" />
             커뮤니티로 돌아가기
           </Link>
-          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
+          <div className="rounded-200 border border-border-default bg-background-default p-300">
             <p className="font-designer-20b text-text-strong">
               글을 찾을 수 없어요.
             </p>
@@ -116,7 +112,7 @@ export default function CommunityDetailPageClient({
 
   return (
     <PageContainer className="flex flex-col gap-400 xl:gap-500">
-      <CommunitySectionShell className="gap-250 border-b border-border-subtle pb-300">
+      <CommunitySectionShell className="gap-250 border-b border-border-default pb-300">
         <Link
           href={backHref}
           className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
@@ -165,7 +161,7 @@ export default function CommunityDetailPageClient({
 
       <CommunitySectionShell className="gap-300">
         {!hasRichContent && state.post.previewImage ? (
-          <div className="overflow-hidden rounded-200 border border-border-subtle bg-background-alternative">
+          <div className="overflow-hidden rounded-200 border border-border-default bg-background-alternative">
             <Image
               src={state.post.previewImage}
               alt={state.post.previewImageAlt ?? state.post.title}
