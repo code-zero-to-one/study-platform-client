@@ -1,7 +1,9 @@
 'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
@@ -15,7 +17,10 @@ import TechStackIcon from '@/components/my-page/icon/tech-stack.svg';
 import VerifiedCheckIcon from '@/components/my-page/icon/verified-check.svg';
 import { getSincerityPresetByLevelName } from '@/config/sincerity-temp-presets';
 import { usePhoneVerificationStatus } from '@/hooks/queries/use-phone-verification-status';
+import { useUserStore } from '@/stores/useUserStore';
 import { MemberProfile, SincerityTemp } from '@/types/api/user.types';
+import { communityQnaQueryKeys } from '@/types/community/qna-query';
+import { communityQueryKeys } from '@/types/community/query';
 import { formatPhoneNumber } from '@/utils/format';
 
 const PhoneVerificationModal = dynamic(
@@ -41,6 +46,9 @@ export default function Profile({
   sincerityTemp,
   hidePhoneNumber = false,
 }: ProfileProps) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const fetchAndSetUser = useUserStore((state) => state.fetchAndSetUser);
   const temperPreset = getSincerityPresetByLevelName(sincerityTemp.levelName);
 
   const { isVerified, isLoading, isError, phoneNumber, setVerified } =
@@ -60,6 +68,20 @@ export default function Profile({
 
   const handleVerificationComplete = (phone: string) => {
     setVerified(phone);
+  };
+
+  const handleProfileUpdated = async () => {
+    await queryClient.invalidateQueries({
+      queryKey: ['userProfile', memberId],
+    });
+    await queryClient.invalidateQueries({
+      queryKey: communityQueryKeys.all,
+    });
+    await queryClient.invalidateQueries({
+      queryKey: communityQnaQueryKeys.all,
+    });
+    await fetchAndSetUser(memberId);
+    router.refresh();
   };
 
   return (
@@ -207,6 +229,7 @@ export default function Profile({
             <ProfileEditModal
               memberProfile={memberProfile}
               memberId={memberId}
+              onProfileUpdated={handleProfileUpdated}
             />
           )}
         </div>
