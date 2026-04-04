@@ -193,16 +193,16 @@ function UserProfileBody({
                     ? profile.memberProfile.techStacks
                         .map((tech) => tech.techStackName)
                         .join(', ')
-                    : '-'
+                    : undefined
                 }
               />
               <Field
                 icon={<GithubIcon />}
-                value={profile.memberProfile.githubLink?.url ?? '-'}
+                value={profile.memberProfile.githubLink?.url}
               />
               <Field
                 icon={<GlobeIcon />}
-                value={profile.memberProfile.blogOrSnsLink?.url ?? '-'}
+                value={profile.memberProfile.blogOrSnsLink?.url}
               />
               {/* 본인, 운영진, 스터디 참가자에게 노출 */}
               {canSeePhoneNumber && profile.isVerified && (
@@ -332,12 +332,16 @@ function Header({ title, onClose }: { title: string; onClose: () => void }) {
 }
 
 function Field({ icon, value }: { icon: React.ReactNode; value?: string }) {
+  const displayValue = value?.trim();
+
   return (
     <div className="flex items-center gap-100">
       {icon}
-      <span className="font-designer-14r text-text-subtle min-w-0 break-all leading-none">
-        {value ?? ''}
-      </span>
+      {displayValue ? (
+        <span className="font-designer-14r text-text-subtle min-w-0 break-all leading-none">
+          {displayValue}
+        </span>
+      ) : null}
     </div>
   );
 }
