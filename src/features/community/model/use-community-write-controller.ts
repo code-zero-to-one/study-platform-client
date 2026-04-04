@@ -2,9 +2,23 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { useAuthReady } from '@/features/auth/model/use-auth';
+import {
+  createCommunityIdempotencyKey,
+  getCommunityErrorMessage,
+  getCommunityPostRevisionConflictMessage,
+  getCommunityWriteContentErrorMessage,
+  isCommunityNotFoundError,
+  isCommunityPostRevisionConflictError,
+} from '@/features/community/api/community-api';
+import {
+  useCreateCommunityPostMutation,
+  useUpdateCommunityPostMutation,
+} from '@/features/community/model/use-community-mutation';
+import { useCommunityPostDetailQuery } from '@/features/community/model/use-community-query';
+import { useToastStore } from '@/stores/use-toast-store';
 import { useUserStore } from '@/stores/useUserStore';
 import {
   COMMUNITY_BOARD,
@@ -12,6 +26,7 @@ import {
   type CommunityBoard,
   type CommunityPost,
 } from '@/types/community/domain';
+import { registerCommunityMarkdownTrustedImageUrlsFromContent } from '@/types/community/markdown';
 import {
   communityWriteSchema,
   type CommunityWriteFormValues,
@@ -45,7 +60,16 @@ interface UseCommunityWriteControllerParams {
   returnPage?: number;
 }
 
-const resolveInitialBoard = (initialBoard?: CommunityBoard) =>
+const isGeneralCommunityWriteBoard = (
+  board: string,
+): board is Exclude<
+  CommunityWriteFormValues['board'],
+  typeof COMMUNITY_BOARD.QNA
+> => isCommunityBoard(board) && board !== COMMUNITY_BOARD.QNA;
+
+const resolveInitialBoard = (
+  initialBoard?: CommunityBoard,
+): CommunityWriteFormValues['board'] =>
   initialBoard && isCommunityBoard(initialBoard)
     ? initialBoard
     : COMMUNITY_BOARD.FREE;
@@ -56,7 +80,10 @@ export const useCommunityWriteController = ({
   postId,
   returnPage,
 }: UseCommunityWriteControllerParams) => {
+  const unsupportedBoardMessage =
+    '지원하지 않는 게시판 타입의 글이라 수정할 수 없습니다.';
   const router = useRouter();
+  const showToast = useToastStore((state) => state.showToast);
   const {
     isAuthenticated,
     isHydrated,
@@ -64,6 +91,10 @@ export const useCommunityWriteController = ({
   } = useAuthReady();
   const nickname = useUserStore((state) => state.nickname);
   const profileImageUrl = useUserStore((state) => state.profileImageUrl);
+  const createPostMutation = useCreateCommunityPostMutation();
+  const updatePostMutation = useUpdateCommunityPostMutation();
+  const isEditMode = mode === 'edit';
+  const initializedEditablePostIdRef = useRef<number | undefined>(undefined);
   const form = useForm<CommunityWriteFormValues>({
     resolver: zodResolver(communityWriteSchema),
     mode: 'onChange',
@@ -73,72 +104,92 @@ export const useCommunityWriteController = ({
       content: '',
     },
   });
-  const isEditMode = mode === 'edit';
-  const editablePost = useMemo(
+  const editableLocalPost = useMemo(
     () =>
       isEditMode && typeof postId === 'number'
         ? findCommunityLocalPostById(postId)
         : undefined,
     [isEditMode, postId],
   );
+  const shouldUseRemoteEdit =
+    isEditMode &&
+    typeof postId === 'number' &&
+    !editableLocalPost &&
+    isHydrated &&
+    isAuthenticated;
+  const editableRemotePostQuery = useCommunityPostDetailQuery(
+    postId ?? 0,
+    shouldUseRemoteEdit,
+  );
   const selectedBoard = useWatch({
     control: form.control,
     name: 'board',
   });
+  const isLocalEditOwned =
+    Boolean(authMemberId) &&
+    Boolean(editableLocalPost) &&
+    Boolean(
+      editableLocalPost &&
+        authMemberId &&
+        isCommunityPostOwnedByMember(editableLocalPost, authMemberId),
+    );
+  const isRemoteEditReady =
+    editableRemotePostQuery.isSuccess &&
+    Boolean(editableRemotePostQuery.data?.canEdit) &&
+    Boolean(
+      editableRemotePostQuery.data &&
+        isGeneralCommunityWriteBoard(editableRemotePostQuery.data.board),
+    );
   const isAccessReady =
     isHydrated &&
     isAuthenticated &&
-    (!isEditMode ||
-      Boolean(
-        typeof postId === 'number' &&
-          authMemberId &&
-          editablePost &&
-          isCommunityPostOwnedByMember(editablePost, authMemberId),
-      ));
+    (!isEditMode || isLocalEditOwned || isRemoteEditReady);
   const backHref =
     isEditMode && postId
       ? buildCommunityPostHref(postId, returnPage)
       : buildCommunityListHref(returnPage);
 
   useEffect(() => {
-    if (!isHydrated) {
+    if (!isHydrated || isAuthenticated) {
       return;
     }
 
-    if (!isAuthenticated || !authMemberId) {
-      router.replace('/login');
+    router.replace('/login');
+  }, [isAuthenticated, isHydrated, router]);
 
+  useEffect(() => {
+    initializedEditablePostIdRef.current = undefined;
+  }, [postId]);
+
+  useEffect(() => {
+    if (!isHydrated || !isAuthenticated || !isEditMode || !postId) {
       return;
     }
 
-    if (!isEditMode || !postId) {
+    if (!editableLocalPost) {
       return;
     }
 
-    const targetPost = editablePost;
-
-    if (!targetPost) {
-      router.replace('/community');
-
-      return;
-    }
-
-    if (!isCommunityPostOwnedByMember(targetPost, authMemberId)) {
+    if (
+      !authMemberId ||
+      !isCommunityPostOwnedByMember(editableLocalPost, authMemberId)
+    ) {
       router.replace(buildCommunityPostHref(postId, returnPage));
 
       return;
     }
 
     form.reset({
-      board: isCommunityBoard(targetPost.board)
-        ? targetPost.board
+      board: isCommunityBoard(editableLocalPost.board)
+        ? editableLocalPost.board
         : COMMUNITY_BOARD.FREE,
-      title: targetPost.title,
-      content: targetPost.contentHtml ?? targetPost.content.join('\n\n'),
+      title: editableLocalPost.title,
+      content:
+        editableLocalPost.contentHtml ?? editableLocalPost.content.join('\n\n'),
     });
   }, [
     authMemberId,
-    editablePost,
+    editableLocalPost,
     form,
     isAuthenticated,
     isEditMode,
@@ -146,6 +197,79 @@ export const useCommunityWriteController = ({
     postId,
     returnPage,
     router,
+  ]);
+
+  useEffect(() => {
+    if (!shouldUseRemoteEdit || !postId || !editableRemotePostQuery.isSuccess) {
+      return;
+    }
+
+    const editableRemotePost = editableRemotePostQuery.data;
+
+    if (!editableRemotePost.canEdit) {
+      router.replace(buildCommunityPostHref(postId, returnPage));
+
+      return;
+    }
+
+    if (!isGeneralCommunityWriteBoard(editableRemotePost.board)) {
+      showToast(unsupportedBoardMessage, 'error');
+      router.replace(buildCommunityPostHref(postId, returnPage));
+
+      return;
+    }
+
+    if (initializedEditablePostIdRef.current === postId) {
+      return;
+    }
+
+    registerCommunityMarkdownTrustedImageUrlsFromContent(
+      editableRemotePost.contentHtml ?? '',
+    );
+    form.reset({
+      board: editableRemotePost.board,
+      title: editableRemotePost.title,
+      content: editableRemotePost.contentHtml ?? '',
+    });
+    initializedEditablePostIdRef.current = postId;
+  }, [
+    editableRemotePostQuery.data,
+    editableRemotePostQuery.isSuccess,
+    form,
+    postId,
+    returnPage,
+    router,
+    shouldUseRemoteEdit,
+    showToast,
+  ]);
+
+  useEffect(() => {
+    if (!shouldUseRemoteEdit || !postId || !editableRemotePostQuery.isError) {
+      return;
+    }
+
+    if (isCommunityNotFoundError(editableRemotePostQuery.error)) {
+      router.replace('/community');
+
+      return;
+    }
+
+    showToast(
+      getCommunityErrorMessage(
+        editableRemotePostQuery.error,
+        '글 정보를 불러오지 못했습니다.',
+      ),
+      'error',
+    );
+    router.replace(buildCommunityPostHref(postId, returnPage));
+  }, [
+    editableRemotePostQuery.error,
+    editableRemotePostQuery.isError,
+    postId,
+    returnPage,
+    router,
+    shouldUseRemoteEdit,
+    showToast,
   ]);
 
   useEffect(() => {
@@ -172,31 +296,94 @@ export const useCommunityWriteController = ({
     router.push(backHref);
   };
 
-  const handleSubmit = form.handleSubmit((values) => {
-    const summary = createCommunityPostSummary(values.content);
-    const previewImage = extractCommunityPostPreviewImage(values.content);
-    const previewImageAlt = previewImage
-      ? `${values.title} 미리보기 이미지`
-      : undefined;
+  const handleSubmit = form.handleSubmit(async (values) => {
+    form.clearErrors('content');
 
-    if (isEditMode && postId) {
-      const targetPost = editablePost;
+    try {
+      if (isEditMode && postId) {
+        if (editableLocalPost) {
+          if (
+            !authMemberId ||
+            !isCommunityPostOwnedByMember(editableLocalPost, authMemberId)
+          ) {
+            router.replace(buildCommunityPostHref(postId, returnPage));
 
-      if (
-        !targetPost ||
-        !isCommunityPostOwnedByMember(targetPost, authMemberId)
-      ) {
-        router.replace(
-          targetPost
-            ? buildCommunityPostHref(postId, returnPage)
-            : '/community',
-        );
+            return;
+          }
+
+          const summary = createCommunityPostSummary(values.content);
+          const previewImage = extractCommunityPostPreviewImage(values.content);
+          const previewImageAlt = previewImage
+            ? `${values.title} 미리보기 이미지`
+            : undefined;
+          const nextPost: CommunityPost = {
+            ...editableLocalPost,
+            board: values.board,
+            title: values.title,
+            summary,
+            content: summary ? [summary] : [],
+            contentHtml: values.content,
+            previewImage,
+            previewImageAlt,
+          };
+
+          updateCommunityLocalPost(nextPost);
+          router.push(buildCommunityPostHref(postId, returnPage));
+
+          return;
+        }
+
+        const editableRemotePost = editableRemotePostQuery.data;
+
+        if (
+          !editableRemotePost?.revision ||
+          !editableRemotePost.canEdit ||
+          !isGeneralCommunityWriteBoard(editableRemotePost.board)
+        ) {
+          return;
+        }
+
+        const updatedPost = await updatePostMutation.mutateAsync({
+          postId,
+          revision: editableRemotePost.revision,
+          request: {
+            board: values.board,
+            contentHtml: values.content,
+            title: values.title,
+          },
+        });
+
+        showToast('글을 수정했습니다.');
+        router.push(buildCommunityPostHref(updatedPost.postId, returnPage));
 
         return;
       }
 
+      if (values.board !== COMMUNITY_BOARD.QNA) {
+        const createdPost = await createPostMutation.mutateAsync({
+          request: {
+            board: values.board,
+            contentHtml: values.content,
+            title: values.title,
+          },
+          idempotencyKey: createCommunityIdempotencyKey('community-post'),
+        });
+
+        showToast('글을 등록했습니다.');
+        router.push(buildCommunityPostHref(createdPost.postId, returnPage));
+
+        return;
+      }
+
+      const summary = createCommunityPostSummary(values.content);
+      const previewImage = extractCommunityPostPreviewImage(values.content);
+      const previewImageAlt = previewImage
+        ? `${values.title} 미리보기 이미지`
+        : undefined;
+      const nextPostId = Date.now();
       const nextPost: CommunityPost = {
-        ...targetPost,
+        id: nextPostId,
+        origin: 'local',
         board: values.board,
         title: values.title,
         summary,
@@ -204,46 +391,86 @@ export const useCommunityWriteController = ({
         contentHtml: values.content,
         previewImage,
         previewImageAlt,
+        authorMemberId: authMemberId ?? COMMUNITY_MOCK_AUTHOR.memberId,
+        authorName: nickname ?? COMMUNITY_MOCK_AUTHOR.name,
+        authorImage: profileImageUrl ?? COMMUNITY_MOCK_AUTHOR.image,
+        authorIntro: COMMUNITY_MOCK_AUTHOR.intro,
+        role: COMMUNITY_MOCK_AUTHOR.role,
+        viewCount: 0,
+        reactionCount: 0,
+        commentCount: 0,
+        createdAt: '방금 전',
+        isTrending: false,
       };
 
-      updateCommunityLocalPost(nextPost);
-      router.push(buildCommunityPostHref(postId, returnPage));
+      persistCommunityLocalPosts([nextPost, ...getCommunityPostsFromStorage()]);
+      router.push(buildCommunityPostHref(nextPostId, returnPage));
+    } catch (error) {
+      const contentErrorMessage = getCommunityWriteContentErrorMessage(error);
 
-      return;
+      if (contentErrorMessage) {
+        form.setError('content', {
+          type: 'server',
+          message: contentErrorMessage,
+        });
+        form.setFocus('content');
+
+        return;
+      }
+
+      if (isEditMode && postId && isCommunityPostRevisionConflictError(error)) {
+        const latestPostQuery = await editableRemotePostQuery.refetch();
+        const latestPost = latestPostQuery.data;
+
+        if (
+          latestPost?.canEdit &&
+          isGeneralCommunityWriteBoard(latestPost.board)
+        ) {
+          registerCommunityMarkdownTrustedImageUrlsFromContent(
+            latestPost.contentHtml ?? '',
+          );
+          form.reset({
+            board: latestPost.board,
+            title: latestPost.title,
+            content: latestPost.contentHtml ?? '',
+          });
+          initializedEditablePostIdRef.current = postId;
+        }
+
+        if (
+          latestPost?.canEdit &&
+          !isGeneralCommunityWriteBoard(latestPost.board)
+        ) {
+          showToast(unsupportedBoardMessage, 'error');
+          router.replace(buildCommunityPostHref(postId, returnPage));
+
+          return;
+        }
+
+        showToast(getCommunityPostRevisionConflictMessage(), 'error');
+
+        return;
+      }
+
+      showToast(
+        getCommunityErrorMessage(error, '글 저장에 실패했습니다.'),
+        'error',
+      );
     }
-
-    const nextPostId = Date.now();
-    const nextPost: CommunityPost = {
-      id: nextPostId,
-      origin: 'local',
-      board: values.board,
-      title: values.title,
-      summary,
-      content: summary ? [summary] : [],
-      contentHtml: values.content,
-      previewImage,
-      previewImageAlt,
-      authorMemberId: authMemberId ?? COMMUNITY_MOCK_AUTHOR.memberId,
-      authorName: nickname ?? COMMUNITY_MOCK_AUTHOR.name,
-      authorImage: profileImageUrl ?? COMMUNITY_MOCK_AUTHOR.image,
-      authorIntro: COMMUNITY_MOCK_AUTHOR.intro,
-      role: COMMUNITY_MOCK_AUTHOR.role,
-      viewCount: 0,
-      reactionCount: 0,
-      commentCount: 0,
-      createdAt: '방금 전',
-      isTrending: false,
-    };
-
-    persistCommunityLocalPosts([nextPost, ...getCommunityPostsFromStorage()]);
-    router.push(buildCommunityPostHref(nextPostId, returnPage));
   });
+
+  const isLoadingEditablePost =
+    shouldUseRemoteEdit && editableRemotePostQuery.isPending;
+  const isSubmitting =
+    form.formState.isSubmitting ||
+    createPostMutation.isPending ||
+    updatePostMutation.isPending;
 
   return {
     form,
     state: {
       isAccessReady,
-      isSubmitting: form.formState.isSubmitting,
+      isSubmitting,
     },
     actions: {
       handleBoardChange,
@@ -254,10 +481,13 @@ export const useCommunityWriteController = ({
       backHref,
       boardOptions: COMMUNITY_BOARD_OPTIONS,
       contentError: form.formState.errors.content?.message,
-      isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting,
+      isSubmitDisabled:
+        !form.formState.isValid ||
+        form.formState.isSubmitting ||
+        isLoadingEditablePost,
       pageDescription: isEditMode ? '글 수정' : '글 작성',
       pageTitle: isEditMode ? '커뮤니티 글 수정' : '커뮤니티 글 작성',
-      selectedBoard: selectedBoard ?? COMMUNITY_BOARD.FREE,
+      selectedBoard: selectedBoard ?? resolveInitialBoard(initialBoard),
       submitLabel: isEditMode ? '수정 완료' : '등록하기',
       titleError: form.formState.errors.title?.message,
     },
