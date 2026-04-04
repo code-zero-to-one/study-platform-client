@@ -11,6 +11,7 @@ import { COMMUNITY_BOARD } from '@/types/community/domain';
 import { ErrorType } from '@/utils/error-handler';
 import CommunityMarkdownContent from '../community-markdown-content';
 import { CommunityBoardBadge } from '../community-meta-badge';
+import CommunityQnaAnswerAcceptanceActions from '../community-qna-answer-acceptance-actions';
 import CommunityQnaAnswerCommentsSection from '../community-qna-answer-comments-section';
 import CommunityQnaAnswerComposeSection from '../community-qna-answer-compose-section';
 import CommunityQnaAnswerItem from '../community-qna-answer-item';
@@ -172,12 +173,31 @@ export default function CommunityQnaDetailPageClient({
               <div className="flex flex-col gap-150">
                 {state.answersPageData.items.map((answer) => {
                   const isMyAnswer = viewModel.myAnswerId === answer.id;
+                  const answerActionSlot =
+                    isMyAnswer || state.viewer.canAcceptAnswer ? (
+                      <div className="flex flex-wrap items-center justify-end gap-75">
+                        {isMyAnswer ? myAnswerAction : null}
+                        <CommunityQnaAnswerAcceptanceActions
+                          answer={answer}
+                          canAcceptAnswer={state.viewer.canAcceptAnswer}
+                          currentAcceptedAnswerId={
+                            state.question.acceptedAnswerId
+                          }
+                          currentAnswerPage={viewModel.answerPage}
+                          onChangeAnswerPage={actions.handleAnswerPageChange}
+                          onRefetchQuestionDetail={
+                            actions.refetchQuestionDetail
+                          }
+                          questionId={questionId}
+                        />
+                      </div>
+                    ) : null;
 
                   return (
                     <CommunityQnaAnswerItem
                       key={answer.id}
                       answer={answer}
-                      actionSlot={isMyAnswer ? myAnswerAction : null}
+                      actionSlot={answerActionSlot}
                       isMine={isMyAnswer}
                       commentSection={
                         <CommunityQnaAnswerCommentsSection
