@@ -284,24 +284,16 @@ export default function GroupStudyFormModal({
       return { failedCount: 0 };
     }
 
-    let missingCount = 0;
-    const tasks = pendingUploads
-      .map((item, i) => {
+    const results = await Promise.allSettled(
+      pendingUploads.map((item, i) => {
         const url = uploadUrls?.[i];
-        if (!url) {
-          missingCount++;
-
-          return null;
-        }
-
+        if (!url) return Promise.reject(new Error('업로드 URL 없음'));
         return uploadThumbnail(url, item.file);
-      })
-      .filter((t): t is Promise<void> => t !== null);
+      }),
+    );
+    const failedCount = results.filter((r) => r.status === 'rejected').length;
 
-    const results = await Promise.allSettled(tasks);
-    const rejectedCount = results.filter((r) => r.status === 'rejected').length;
-
-    return { failedCount: missingCount + rejectedCount };
+    return { failedCount };
   };
 
   const executeStudySubmit = async ({
@@ -447,6 +439,18 @@ export default function GroupStudyFormModal({
             {mode === 'edit' && isGroupStudyLoading && (
               <Modal.Body className="font-designer-16m text-text-subtle py-700 text-center">
                 스터디 정보를 불러오는 중입니다...
+              </Modal.Body>
+            )}
+            {mode === 'edit' && !isGroupStudyLoading && !groupStudyInfo && (
+              <Modal.Body className="font-designer-16m text-text-subtle py-700 text-center">
+                <p>스터디 정보를 불러올 수 없습니다.</p>
+                <button
+                  type="button"
+                  className="mt-400 underline"
+                  onClick={() => refetchGroupStudyInfo()}
+                >
+                  다시 시도
+                </button>
               </Modal.Body>
             )}
             {mode === 'edit' && !isGroupStudyLoading && groupStudyInfo && (

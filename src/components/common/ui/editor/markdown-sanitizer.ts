@@ -27,7 +27,7 @@ export const SANITIZE_OPTIONS: DOMPurifyConfig = {
   ],
   ALLOWED_ATTR: ['alt', 'class', 'href', 'src', 'title', 'width'],
   ALLOW_DATA_ATTR: false,
-  ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#)/i,
+  ALLOWED_URI_REGEXP: /^(?:https?:\/\/|mailto:|tel:|\/images\/|#|blob:)/i,
 };
 
 const parseSanitizedImageWidth = (

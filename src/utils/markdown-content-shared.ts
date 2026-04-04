@@ -11,12 +11,14 @@ export const decodeHtmlEntities = (value: string) => {
     .replace(/&gt;/gi, '>')
     .replace(/&quot;/gi, '"')
     .replace(/&#39;/gi, "'")
-    .replace(/&#(\d+);/gi, (_, decimal: string) =>
-      String.fromCodePoint(Number.parseInt(decimal, 10)),
-    )
-    .replace(/&#x([\da-f]+);/gi, (_, hex: string) =>
-      String.fromCodePoint(Number.parseInt(hex, 16)),
-    );
+    .replace(/&#(\d+);/gi, (match, decimal: string) => {
+      const cp = Number.parseInt(decimal, 10);
+      return cp >= 0 && cp <= 0x10ffff ? String.fromCodePoint(cp) : match;
+    })
+    .replace(/&#x([\da-f]+);/gi, (match, hex: string) => {
+      const cp = Number.parseInt(hex, 16);
+      return cp >= 0 && cp <= 0x10ffff ? String.fromCodePoint(cp) : match;
+    });
 };
 
 export const isHtmlContent = (content: string): boolean => {
