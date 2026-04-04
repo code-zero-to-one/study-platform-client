@@ -16,7 +16,10 @@ import {
   COMMUNITY_FEED_VIEW_OPTIONS,
   COMMUNITY_POSTS,
 } from './community-page-mock-data';
-import { getCommunityFeedPosts } from './community-post-storage';
+import {
+  getCommunityFeedPosts,
+  subscribeCommunityPostsChange,
+} from './community-post-storage';
 import {
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_PAGE_SIZE,
@@ -70,7 +73,7 @@ export const useCommunityPageController = ({
   const requestedPage =
     rawPageParam === null
       ? COMMUNITY_DEFAULT_PAGE
-      : normalizeCommunityPageParam(rawPageParam) ?? initialPage;
+      : (normalizeCommunityPageParam(rawPageParam) ?? initialPage);
 
   const featuredPosts =
     activeFilter === COMMUNITY_FEED_FILTER.ALL
@@ -95,6 +98,10 @@ export const useCommunityPageController = ({
 
   useEffect(() => {
     setPosts(getCommunityFeedPosts());
+
+    return subscribeCommunityPostsChange(() => {
+      setPosts(getCommunityFeedPosts());
+    });
   }, []);
 
   useEffect(() => {

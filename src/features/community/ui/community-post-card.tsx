@@ -11,6 +11,7 @@ import {
   CommunityBoardBadge,
   CommunityMemberRoleBadge,
 } from './community-meta-badge';
+import CommunityPostOwnerActions from './community-post-owner-actions';
 import CommunityPostStats from './community-post-stats';
 
 interface CommunityPostCardProps {
@@ -51,7 +52,7 @@ export default function CommunityPostCard({
 
           <Link
             href={detailHref}
-            aria-label={`${post.title} details`}
+            aria-label={`${post.title} 상세 보기`}
             className="mt-150 block rounded-150 transition-opacity hover:opacity-80"
             suppressHydrationWarning={true}
           >
@@ -69,17 +70,20 @@ export default function CommunityPostCard({
           </Link>
         </div>
 
-        <CommunityPostStats
-          viewCount={post.viewCount}
-          reactionCount={post.reactionCount}
-          className="shrink-0"
-        />
+        <div className="flex shrink-0 items-start gap-100">
+          <CommunityPostStats
+            viewCount={post.viewCount}
+            reactionCount={post.reactionCount}
+            className="shrink-0"
+          />
+          <CommunityPostOwnerActions currentPage={currentPage} post={post} />
+        </div>
       </div>
 
       {post.previewImage ? (
         <Link
           href={detailHref}
-          aria-label={`${post.title} details`}
+          aria-label={`${post.title} 상세 보기`}
           className="mt-200 block overflow-hidden rounded-150 border border-border-subtle bg-background-alternative transition-opacity hover:opacity-80"
           suppressHydrationWarning={true}
         >

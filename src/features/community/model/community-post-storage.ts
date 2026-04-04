@@ -1,4 +1,7 @@
-import type { CommunityPost } from '@/types/community/domain';
+import {
+  COMMUNITY_POST_ORIGIN,
+  type CommunityPost,
+} from '@/types/community/domain';
 import { getCommunityPostInteraction } from './community-detail-storage';
 import { COMMUNITY_MOCK_AUTHOR } from './community-page-mock-data';
 import {
@@ -7,6 +10,7 @@ import {
 } from './community-page-mock-data';
 
 const COMMUNITY_LOCAL_POSTS_STORAGE_KEY = 'zeroone.community.local-posts';
+const COMMUNITY_POSTS_CHANGE_EVENT = 'zeroone.community.posts.changed';
 
 const COMMUNITY_MOCK_POST_IDS = new Set(COMMUNITY_POSTS.map((post) => post.id));
 
@@ -40,6 +44,10 @@ const normalizeCommunityPost = (value: unknown): CommunityPost | undefined => {
 
   return {
     ...candidate,
+    origin:
+      candidate.origin === COMMUNITY_POST_ORIGIN.MOCK
+        ? COMMUNITY_POST_ORIGIN.MOCK
+        : COMMUNITY_POST_ORIGIN.LOCAL,
     authorMemberId:
       typeof candidate.authorMemberId === 'number'
         ? candidate.authorMemberId
@@ -102,14 +110,19 @@ export const persistCommunityLocalPosts = (posts: readonly CommunityPost[]) => {
     return;
   }
 
-  const localPosts = posts.filter(
-    (post) => !COMMUNITY_MOCK_POST_IDS.has(post.id),
-  );
+  const localPosts = posts
+    .filter((post) => !COMMUNITY_MOCK_POST_IDS.has(post.id))
+    .map((post) => ({
+      ...post,
+      origin: COMMUNITY_POST_ORIGIN.LOCAL,
+    }));
 
   window.localStorage.setItem(
     COMMUNITY_LOCAL_POSTS_STORAGE_KEY,
     JSON.stringify(localPosts),
   );
+
+  window.dispatchEvent(new Event(COMMUNITY_POSTS_CHANGE_EVENT));
 };
 
 export const findCommunityPostById = (
@@ -126,4 +139,62 @@ export const findCommunityPostById = (
   );
 
   return storedPost ? mergePostWithInteraction(storedPost) : undefined;
+};
+
+export const findCommunityLocalPostById = (
+  postId: number,
+): CommunityPost | undefined =>
+  readStoredCommunityPosts()
+    .map(mergePostWithInteraction)
+    .find((post) => post.id === postId);
+
+export const updateCommunityLocalPost = (nextPost: CommunityPost) => {
+  const storedPosts = readStoredCommunityPosts();
+  const postIndex = storedPosts.findIndex((post) => post.id === nextPost.id);
+
+  if (postIndex < 0) {
+    return undefined;
+  }
+
+  const updatedPost = {
+    ...nextPost,
+    origin: COMMUNITY_POST_ORIGIN.LOCAL,
+  };
+  const nextPosts = [...storedPosts];
+
+  nextPosts[postIndex] = updatedPost;
+  persistCommunityLocalPosts(nextPosts);
+
+  return mergePostWithInteraction(updatedPost);
+};
+
+export const deleteCommunityLocalPost = (postId: number) => {
+  const storedPosts = readStoredCommunityPosts();
+  const nextPosts = storedPosts.filter((post) => post.id !== postId);
+
+  if (nextPosts.length === storedPosts.length) {
+    return false;
+  }
+
+  persistCommunityLocalPosts(nextPosts);
+
+  return true;
+};
+
+export const subscribeCommunityPostsChange = (
+  onChange: () => void,
+): (() => void) => {
+  if (typeof window === 'undefined') {
+    return () => undefined;
+  }
+
+  const handleChange = () => {
+    onChange();
+  };
+
+  window.addEventListener(COMMUNITY_POSTS_CHANGE_EVENT, handleChange);
+
+  return () => {
+    window.removeEventListener(COMMUNITY_POSTS_CHANGE_EVENT, handleChange);
+  };
 };
