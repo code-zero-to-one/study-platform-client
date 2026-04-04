@@ -11,6 +11,8 @@ import CommunitySectionShell from './community-section-shell';
 interface CommunityCommentSectionProps {
   comments: readonly CommunityComment[];
   commentCount: number;
+  commentPlaceholder?: string;
+  isCommentDisabled?: boolean;
   viewerImage: string;
   commentDraft: string;
   editingCommentId?: number;
@@ -37,6 +39,8 @@ interface CommunityCommentSectionProps {
 export default function CommunityCommentSection({
   comments,
   commentCount,
+  commentPlaceholder = '댓글을 남겨보세요.',
+  isCommentDisabled = false,
   viewerImage,
   commentDraft,
   editingCommentId,
@@ -69,9 +73,10 @@ export default function CommunityCommentSection({
 
       <CommunityCommentForm
         authorImage={viewerImage}
-        placeholder="댓글을 남겨보세요."
+        placeholder={commentPlaceholder}
         submitLabel="등록하기"
         value={commentDraft}
+        disabled={isCommentDisabled}
         onChange={onCommentDraftChange}
         onSubmit={onSubmitComment}
       />
