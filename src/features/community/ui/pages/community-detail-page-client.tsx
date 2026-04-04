@@ -63,6 +63,30 @@ export default function CommunityDetailPageClient({
     );
   }
 
+  if (state.errorMessage) {
+    return (
+      <PageContainer className="flex flex-col gap-500 xl:gap-600">
+        <CommunitySectionShell className="gap-250">
+          <Link
+            href={backHref}
+            className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
+          >
+            <ChevronLeft className="h-16 w-16" />
+            커뮤니티로 돌아가기
+          </Link>
+          <div className="rounded-200 border border-border-subtle bg-background-default p-300">
+            <p className="font-designer-20b text-text-strong">
+              글을 불러오지 못했습니다.
+            </p>
+            <p className="mt-100 font-designer-14r text-text-subtle">
+              {state.errorMessage}
+            </p>
+          </div>
+        </CommunitySectionShell>
+      </PageContainer>
+    );
+  }
+
   if (!state.post) {
     return (
       <PageContainer className="flex flex-col gap-500 xl:gap-600">
