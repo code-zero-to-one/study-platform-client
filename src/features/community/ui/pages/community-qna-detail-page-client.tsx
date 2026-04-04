@@ -12,6 +12,7 @@ import { ErrorType } from '@/utils/error-handler';
 import CommunityMarkdownContent from '../community-markdown-content';
 import { CommunityBoardBadge } from '../community-meta-badge';
 import CommunityQnaAuthorSummary from '../community-qna-author-summary';
+import CommunityQnaQuestionCommentsSection from '../community-qna-question-comments-section';
 import {
   CommunityQnaNotFoundState,
   CommunityQnaRouteErrorState,
@@ -125,6 +126,18 @@ export default function CommunityQnaDetailPageClient({
 
       <CommunitySectionShell className="gap-300">
         <CommunityMarkdownContent content={state.question.contentHtml} />
+
+        <CommunityQnaQuestionCommentsSection
+          comments={state.questionCommentsPageData.items}
+          commentCount={viewModel.questionCommentCount}
+          currentPage={viewModel.commentPage}
+          onRefetchQuestionDetail={actions.refetchQuestionDetail}
+          questionId={questionId}
+          totalPages={viewModel.commentTotalPages}
+          showPagination={viewModel.showCommentPagination}
+          onChangePage={actions.handleCommentPageChange}
+          viewer={state.viewer}
+        />
       </CommunitySectionShell>
 
       <CommunitySectionShell className="gap-250">
