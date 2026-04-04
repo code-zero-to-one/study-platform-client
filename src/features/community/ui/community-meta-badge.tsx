@@ -1,5 +1,12 @@
-import { Award, CircleHelp, FileText, MessageSquareText } from 'lucide-react';
+import {
+  Award,
+  CircleHelp,
+  FileText,
+  MessageSquareText,
+  TrendingUp,
+} from 'lucide-react';
 import type { ComponentType, ComponentProps, SVGProps } from 'react';
+import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
 import {
   COMMUNITY_BOARD,
@@ -27,7 +34,7 @@ const BOARD_META: Record<
     label: '자유',
   },
   [COMMUNITY_BOARD.ACHIEVEMENT]: {
-    color: 'green',
+    color: 'orange',
     icon: Award,
     label: '자랑거리',
   },
@@ -38,8 +45,8 @@ const BOARD_META: Record<
   },
   [COMMUNITY_UNSUPPORTED_BOARD]: {
     color: 'gray',
-    icon: FileText,
-    label: '기타',
+    icon: MessageSquareText,
+    label: '알 수 없는 게시판',
   },
 } as const;
 
@@ -84,7 +91,7 @@ export function CommunityBoardBadge({
   return (
     <Badge color={meta.color}>
       <span className="flex items-center gap-50">
-        {showIcon ? <Icon className="h-14 w-14" /> : null}
+        {showIcon ? <Icon className="h-200 w-200" /> : null}
         {meta.label}
       </span>
     </Badge>
@@ -101,6 +108,28 @@ export function CommunityMemberRoleBadge({
   return (
     <Badge color={meta.color}>
       <span className="font-designer-12m">{meta.label}</span>
+    </Badge>
+  );
+}
+
+export function CommunityFeaturedRankBadge({
+  label,
+  compact = false,
+}: {
+  label: string;
+  compact?: boolean;
+}) {
+  return (
+    <Badge color="primary" className={compact ? 'px-75 py-25' : undefined}>
+      <span
+        className={cn(
+          'flex items-center font-designer-12b',
+          compact ? 'gap-25 font-designer-11b' : 'gap-50',
+        )}
+      >
+        <TrendingUp className={compact ? 'h-150 w-150' : 'h-200 w-200'} />
+        {label}
+      </span>
     </Badge>
   );
 }
