@@ -3,7 +3,7 @@
 import Pagination from '@/components/common/ui/pagination';
 import type {
   CommunityComment,
-  CommunityCommentReaction,
+  CommunityCommentReactionSelection,
 } from '@/types/community/domain';
 import CommunityCommentForm from './community-comment-form';
 import CommunityCommentItem from './community-comment-item';
@@ -13,12 +13,12 @@ interface CommunityCommentSectionProps {
   comments: readonly CommunityComment[];
   commentCount: number;
   commentPlaceholder?: string;
-  currentPage?: number;
+  currentPage: number;
   errorMessage?: string;
   isLoading?: boolean;
   isCommentDisabled?: boolean;
-  showPagination?: boolean;
-  totalPages?: number;
+  showPagination: boolean;
+  totalPages: number;
   viewerImage: string;
   commentDraft: string;
   editingCommentId?: number;
@@ -36,10 +36,10 @@ interface CommunityCommentSectionProps {
   onSubmitComment: () => void;
   onSubmitEditedComment: () => void;
   onSubmitReply: () => void;
-  onChangePage?: (page: number) => void;
+  onChangePage: (page: number) => void;
   onToggleCommentReaction: (
     commentId: number,
-    nextReaction: CommunityCommentReaction,
+    nextReaction: CommunityCommentReactionSelection,
   ) => void;
 }
 
@@ -47,12 +47,12 @@ export default function CommunityCommentSection({
   comments,
   commentCount,
   commentPlaceholder = '댓글을 남겨보세요.',
-  currentPage = 1,
+  currentPage,
   errorMessage,
   isLoading = false,
   isCommentDisabled = false,
-  showPagination = false,
-  totalPages = 1,
+  showPagination,
+  totalPages,
   viewerImage,
   commentDraft,
   editingCommentId,
@@ -75,7 +75,7 @@ export default function CommunityCommentSection({
 }: CommunityCommentSectionProps) {
   return (
     <CommunitySectionShell className="gap-250">
-      <div className="border-b border-border-subtle pb-150">
+      <div className="border-b border-border-default pb-150">
         <p className="font-designer-24b text-text-strong">
           댓글{' '}
           <span className="font-designer-13r text-text-subtle">
@@ -132,7 +132,7 @@ export default function CommunityCommentSection({
         </p>
       )}
 
-      {showPagination && onChangePage && !errorMessage && !isLoading ? (
+      {showPagination && !errorMessage && !isLoading ? (
         <Pagination
           page={currentPage}
           totalPages={totalPages}

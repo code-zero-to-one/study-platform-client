@@ -27,7 +27,7 @@ export default function CommunityDetailFeedSection({
   }
 
   return (
-    <CommunitySectionShell className="gap-250 border-t border-border-subtle pt-300">
+    <CommunitySectionShell className="gap-250 border-t border-border-default pt-300">
       <div className="flex flex-col gap-75">
         <h2 className="font-designer-24b text-text-strong">다른 글</h2>
         <p className="font-designer-14r text-text-subtle">
@@ -35,7 +35,7 @@ export default function CommunityDetailFeedSection({
         </p>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-150">
         {posts.map((post) => (
           <CommunityPostListItem key={post.id} post={post} />
         ))}

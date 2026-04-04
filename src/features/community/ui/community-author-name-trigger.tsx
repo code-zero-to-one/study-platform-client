@@ -9,7 +9,7 @@ const UserProfileModal = dynamic(
 );
 
 interface CommunityAuthorNameTriggerProps {
-  memberId: number;
+  memberId?: number;
   name: string;
   className?: string;
 }
@@ -19,6 +19,10 @@ export default function CommunityAuthorNameTrigger({
   name,
   className,
 }: CommunityAuthorNameTriggerProps) {
+  if (typeof memberId !== 'number') {
+    return <span className={cn(className)}>{name}</span>;
+  }
+
   return (
     <UserProfileModal
       memberId={memberId}
