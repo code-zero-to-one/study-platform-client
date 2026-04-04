@@ -1,10 +1,5 @@
-const HTML_BREAK_TAG_PATTERN = /<br\s*\/?>/gi;
-const HTML_TAG_PATTERN = /<[^>]+>/g;
-const HTML_MEDIA_TAG_PATTERN = /<(img|video|audio|iframe|embed)\b/i;
-const HTML_ENTITY_NBSP_PATTERN = /&nbsp;/gi;
-const HTML_OPEN_TAG_PATTERN = /<[a-z][a-z0-9-]*(?:\s[^<>]*?)?>/i;
-const HTML_CLOSE_TAG_PATTERN = /<\/[a-z][a-z0-9-]*\s*>/i;
-const HTML_SELF_CLOSING_TAG_PATTERN = /<[a-z][a-z0-9-]*(?:\s[^<>]*?)?\/>/i;
+import { isHtmlContent } from './markdown-content-shared';
+
 const MARKDOWN_IMAGE_PATTERN = /!\[[^\]]*]\(([^)\s]+)(?:\s+"[^"]*")?\)/g;
 const HTML_IMAGE_SRC_PATTERN =
   /<img[^>]+src\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi;
@@ -41,14 +36,6 @@ export const extractMarkdownImageUrls = (markdown: string): string[] => {
   return Array.from(markdown.matchAll(MARKDOWN_IMAGE_PATTERN))
     .map((match) => normalizeMarkdownImageUrl(match[1] ?? ''))
     .filter((url) => url.length > 0);
-};
-
-export const isHtmlContent = (content: string): boolean => {
-  return (
-    HTML_OPEN_TAG_PATTERN.test(content) ||
-    HTML_CLOSE_TAG_PATTERN.test(content) ||
-    HTML_SELF_CLOSING_TAG_PATTERN.test(content)
-  );
 };
 
 export const isHttpsImageUrl = (url: string) => {
@@ -88,46 +75,4 @@ export const extractImageUrls = (content: string): string[] => {
   }
 
   return extractMarkdownImageUrls(content);
-};
-
-export const hasOnlyHttpsImageUrls = (content: string) => {
-  return extractImageUrls(content).every(isHttpsImageUrl);
-};
-
-export const hasOnlyAllowedImageExtensions = (
-  content: string,
-  allowedExtensions: readonly string[],
-) => {
-  return extractImageUrls(content).every((url) =>
-    hasAllowedImageExtension(url, allowedExtensions),
-  );
-};
-
-const toHtmlTextContent = (content: string) => {
-  return content
-    .replace(HTML_BREAK_TAG_PATTERN, ' ')
-    .replace(HTML_ENTITY_NBSP_PATTERN, ' ')
-    .replace(HTML_TAG_PATTERN, ' ')
-    .trim();
-};
-
-export const normalizeMarkdownContent = (content: unknown): string => {
-  if (typeof content !== 'string') {
-    return '';
-  }
-
-  const trimmed = content.trim();
-  if (!trimmed) {
-    return '';
-  }
-
-  if (!isHtmlContent(trimmed)) {
-    return trimmed;
-  }
-
-  if (HTML_MEDIA_TAG_PATTERN.test(trimmed)) {
-    return trimmed;
-  }
-
-  return toHtmlTextContent(trimmed).length > 0 ? trimmed : '';
 };

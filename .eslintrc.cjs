@@ -82,10 +82,7 @@ module.exports = {
     ],
 
     // 특정 코드 블록 사이에 줄바꿈 강제
-    'padding-line-between-statements': [
-      'error',
-      { blankLine: 'always', prev: '*', next: 'return' }, // 모든 코드 뒤에는 return문 앞에 빈 줄 추가
-    ],
+    'padding-line-between-statements': ['error'],
 
     // 삼항 연산자 내에서 사용되지 않는 표현식 허용
     'no-unused-expressions': ['error', { allowTernary: true }],

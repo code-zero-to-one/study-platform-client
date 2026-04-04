@@ -330,7 +330,7 @@ export default function PremiumStudyDetailPage({
         mode="edit"
         groupStudyId={groupStudyId}
         classification="PREMIUM_STUDY"
-        onOpenChange={() => setShowStudyFormModal(!showStudyFormModal)}
+        onOpenChange={(open) => setShowStudyFormModal(open)}
       />
 
       {/* 플로팅 정보 바 */}
