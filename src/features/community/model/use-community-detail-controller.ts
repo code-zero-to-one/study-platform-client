@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/features/auth/model/use-auth';
 import {
   getCommunityErrorMessage,
   isCommunityNotFoundError,
 } from '@/features/community/api/community-api';
+import { useToastStore } from '@/stores/use-toast-store';
 import {
   COMMUNITY_COMMENT_REACTION,
   COMMUNITY_POST_ORIGIN,
@@ -259,6 +261,8 @@ export const useCommunityDetailController = ({
   initialPost,
   postId,
 }: UseCommunityDetailControllerParams) => {
+  const { isAuthenticated } = useAuth();
+  const showToast = useToastStore((state) => state.showToast);
   const fallbackPost = useMemo(
     () => findCommunityPostById(postId) ?? initialPost,
     [initialPost, postId],
@@ -349,6 +353,12 @@ export const useCommunityDetailController = ({
   }, [commentCount, comments, isLikedByViewer, post, reactionCount]);
 
   const handleToggleLike = () => {
+    if (!isAuthenticated) {
+      showToast('로그인 후 좋아요를 누를 수 있습니다.', 'info');
+
+      return;
+    }
+
     const nextLikedState = !isLikedByViewer;
 
     setIsLikedByViewer(nextLikedState);
@@ -372,7 +382,11 @@ export const useCommunityDetailController = ({
   const handleSubmitComment = () => {
     const normalizedComment = commentDraft.trim();
 
-    if (!normalizedComment) {
+    if (!normalizedComment || !isAuthenticated) {
+      if (!isAuthenticated) {
+        showToast('로그인 후 댓글을 작성할 수 있습니다.', 'info');
+      }
+
       return;
     }
 
@@ -384,6 +398,12 @@ export const useCommunityDetailController = ({
   };
 
   const handleOpenReply = (commentId: number) => {
+    if (!isAuthenticated) {
+      showToast('로그인 후 답글을 작성할 수 있습니다.', 'info');
+
+      return;
+    }
+
     setReplyTargetId(commentId);
     setReplyDraft('');
     setEditingCommentId(undefined);
@@ -402,7 +422,11 @@ export const useCommunityDetailController = ({
 
     const normalizedReply = replyDraft.trim();
 
-    if (!normalizedReply) {
+    if (!normalizedReply || !isAuthenticated) {
+      if (!isAuthenticated) {
+        showToast('로그인 후 답글을 작성할 수 있습니다.', 'info');
+      }
+
       return;
     }
 
@@ -417,6 +441,12 @@ export const useCommunityDetailController = ({
   };
 
   const handleStartEditingComment = (commentId: number) => {
+    if (!isAuthenticated) {
+      showToast('로그인 후 댓글을 수정할 수 있습니다.', 'info');
+
+      return;
+    }
+
     const targetComment = findCommentById(comments, commentId);
 
     if (!targetComment) {
@@ -453,6 +483,12 @@ export const useCommunityDetailController = ({
   };
 
   const handleDeleteComment = (commentId: number) => {
+    if (!isAuthenticated) {
+      showToast('로그인 후 댓글을 삭제할 수 있습니다.', 'info');
+
+      return;
+    }
+
     const nextState = removeComment(comments, commentId);
 
     if (nextState.deletedCount === 0) {
@@ -485,6 +521,12 @@ export const useCommunityDetailController = ({
     commentId: number,
     nextReaction: CommunityCommentReaction,
   ) => {
+    if (!isAuthenticated) {
+      showToast('로그인 후 댓글 반응을 남길 수 있습니다.', 'info');
+
+      return;
+    }
+
     setComments((prevComments) =>
       updateCommentReaction(prevComments, commentId, nextReaction),
     );
@@ -496,6 +538,7 @@ export const useCommunityDetailController = ({
       editingCommentId,
       editingDraft,
       errorMessage,
+      isAuthenticated,
       isResolved,
       post,
       replyDraft,
@@ -522,6 +565,7 @@ export const useCommunityDetailController = ({
       editingSubmitEnabled: editingDraft.trim().length > 0,
       isCommentSubmitEnabled: commentDraft.trim().length > 0,
       isLikedByViewer,
+      isPostReactionEnabled: isAuthenticated,
       isReplySubmitEnabled: replyDraft.trim().length > 0,
       reactionCount,
     },

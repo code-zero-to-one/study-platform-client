@@ -5,10 +5,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import PageContainer from '@/components/common/ui/page-container';
-import { COMMUNITY_MOCK_AUTHOR } from '@/features/community/model/community-page-mock-data';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
 import { useIntersectionObserver } from '@/hooks/common/use-intersection-observer';
+import { useUserStore } from '@/stores/useUserStore';
 import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorProfileCard from '../community-author-profile-card';
 import CommunityCommentSection from '../community-comment-section';
@@ -34,6 +34,7 @@ export default function CommunityDetailPageClient({
     initialPost,
     postId,
   });
+  const viewerImage = useUserStore((store) => store.profileImageUrl);
   const [isFeedVisible, setIsFeedVisible] = useState(false);
   const backHref = buildCommunityListHref(returnPage);
   const feedTriggerRef = useIntersectionObserver(
@@ -155,6 +156,7 @@ export default function CommunityDetailPageClient({
               isActive={viewModel.isLikedByViewer}
               count={viewModel.reactionCount}
               onClick={actions.handleToggleLike}
+              disabled={!viewModel.isPostReactionEnabled}
               ariaLabel={viewModel.isLikedByViewer ? '좋아요 취소' : '좋아요'}
             />
           </div>
@@ -194,7 +196,13 @@ export default function CommunityDetailPageClient({
       <CommunityCommentSection
         comments={viewModel.comments}
         commentCount={viewModel.commentCount}
-        viewerImage={COMMUNITY_MOCK_AUTHOR.image}
+        commentPlaceholder={
+          state.isAuthenticated
+            ? '댓글을 남겨보세요.'
+            : '로그인 후 댓글을 남길 수 있습니다.'
+        }
+        isCommentDisabled={!state.isAuthenticated}
+        viewerImage={viewerImage ?? '/profile-default.svg'}
         commentDraft={state.commentDraft}
         editingCommentId={state.editingCommentId}
         editingDraft={state.editingDraft}
