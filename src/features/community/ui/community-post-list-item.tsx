@@ -12,6 +12,7 @@ import {
   CommunityMemberRoleBadge,
   getCommunityBoardMeta,
 } from './community-meta-badge';
+import CommunityPostOwnerActions from './community-post-owner-actions';
 import CommunityPostStats from './community-post-stats';
 
 interface CommunityPostListItemProps {
@@ -34,7 +35,7 @@ export default function CommunityPostListItem({
         <div className="shrink-0">
           <Link
             href={detailHref}
-            aria-label={`${post.title} details`}
+            aria-label={`${post.title} 상세 보기`}
             className="block rounded-150 transition-opacity hover:opacity-80"
             suppressHydrationWarning={true}
           >
@@ -82,7 +83,7 @@ export default function CommunityPostListItem({
 
               <Link
                 href={detailHref}
-                aria-label={`${post.title} details`}
+                aria-label={`${post.title} 상세 보기`}
                 className="mt-100 block rounded-150 transition-opacity hover:opacity-80 sm:mt-75"
                 suppressHydrationWarning={true}
               >
@@ -101,11 +102,17 @@ export default function CommunityPostListItem({
               </Link>
             </div>
 
-            <CommunityPostStats
-              viewCount={post.viewCount}
-              reactionCount={post.reactionCount}
-              className="shrink-0 sm:justify-end"
-            />
+            <div className="flex shrink-0 items-start gap-100">
+              <CommunityPostStats
+                viewCount={post.viewCount}
+                reactionCount={post.reactionCount}
+                className="sm:justify-end"
+              />
+              <CommunityPostOwnerActions
+                currentPage={currentPage}
+                post={post}
+              />
+            </div>
           </div>
         </div>
       </div>

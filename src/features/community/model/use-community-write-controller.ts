@@ -2,7 +2,9 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
+import { useEffect, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
+import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useUserStore } from '@/stores/useUserStore';
 import {
   COMMUNITY_BOARD,
@@ -17,26 +19,43 @@ import {
   COMMUNITY_BOARD_OPTIONS,
   COMMUNITY_MOCK_AUTHOR,
 } from './community-page-mock-data';
+import { isCommunityPostOwnedByMember } from './community-post-ownership';
 import {
+  findCommunityLocalPostById,
   getCommunityPostsFromStorage,
   persistCommunityLocalPosts,
+  updateCommunityLocalPost,
 } from './community-post-storage';
 import {
   createCommunityPostSummary,
   extractCommunityPostPreviewImage,
 } from './community-rich-content';
+import {
+  buildCommunityListHref,
+  buildCommunityPostHref,
+} from './community-route';
 
-export const useCommunityWriteController = () => {
+export type CommunityWriteMode = 'create' | 'edit';
+
+interface UseCommunityWriteControllerParams {
+  mode: CommunityWriteMode;
+  postId?: number;
+  returnPage?: number;
+}
+
+export const useCommunityWriteController = ({
+  mode,
+  postId,
+  returnPage,
+}: UseCommunityWriteControllerParams) => {
   const router = useRouter();
   const {
-    memberId: currentMemberId,
-    nickname,
-    profileImageUrl,
-  } = useUserStore((state) => ({
-    memberId: state.memberId,
-    nickname: state.nickname,
-    profileImageUrl: state.profileImageUrl,
-  }));
+    isAuthenticated,
+    isHydrated,
+    memberId: authMemberId,
+  } = useAuthReady();
+  const nickname = useUserStore((state) => state.nickname);
+  const profileImageUrl = useUserStore((state) => state.profileImageUrl);
   const form = useForm<CommunityWriteFormValues>({
     resolver: zodResolver(communityWriteSchema),
     mode: 'onChange',
@@ -46,11 +65,78 @@ export const useCommunityWriteController = () => {
       content: '',
     },
   });
-
+  const isEditMode = mode === 'edit';
+  const editablePost = useMemo(
+    () =>
+      isEditMode && typeof postId === 'number'
+        ? findCommunityLocalPostById(postId)
+        : undefined,
+    [isEditMode, postId],
+  );
   const selectedBoard = useWatch({
     control: form.control,
     name: 'board',
   });
+  const isAccessReady =
+    isHydrated &&
+    isAuthenticated &&
+    (!isEditMode ||
+      Boolean(
+        typeof postId === 'number' &&
+          authMemberId &&
+          editablePost &&
+          isCommunityPostOwnedByMember(editablePost, authMemberId),
+      ));
+  const backHref =
+    isEditMode && postId
+      ? buildCommunityPostHref(postId, returnPage)
+      : buildCommunityListHref(returnPage);
+
+  useEffect(() => {
+    if (!isHydrated) {
+      return;
+    }
+
+    if (!isAuthenticated || !authMemberId) {
+      router.replace('/login');
+
+      return;
+    }
+
+    if (!isEditMode || !postId) {
+      return;
+    }
+
+    const targetPost = editablePost;
+
+    if (!targetPost) {
+      router.replace('/community');
+
+      return;
+    }
+
+    if (!isCommunityPostOwnedByMember(targetPost, authMemberId)) {
+      router.replace(buildCommunityPostHref(postId, returnPage));
+
+      return;
+    }
+
+    form.reset({
+      board: targetPost.board,
+      title: targetPost.title,
+      content: targetPost.contentHtml ?? targetPost.content.join('\n\n'),
+    });
+  }, [
+    authMemberId,
+    editablePost,
+    form,
+    isAuthenticated,
+    isEditMode,
+    isHydrated,
+    postId,
+    returnPage,
+    router,
+  ]);
 
   const handleBoardChange = (nextBoard: CommunityBoard) => {
     form.setValue('board', nextBoard, {
@@ -61,24 +147,61 @@ export const useCommunityWriteController = () => {
   };
 
   const handleCancel = () => {
-    router.push('/community');
+    router.push(backHref);
   };
 
   const handleSubmit = form.handleSubmit((values) => {
-    const postId = Date.now();
     const summary = createCommunityPostSummary(values.content);
     const previewImage = extractCommunityPostPreviewImage(values.content);
+    const previewImageAlt = previewImage
+      ? `${values.title} 미리보기 이미지`
+      : undefined;
 
+    if (isEditMode && postId) {
+      const targetPost = editablePost;
+
+      if (
+        !targetPost ||
+        !isCommunityPostOwnedByMember(targetPost, authMemberId)
+      ) {
+        router.replace(
+          targetPost
+            ? buildCommunityPostHref(postId, returnPage)
+            : '/community',
+        );
+
+        return;
+      }
+
+      const nextPost: CommunityPost = {
+        ...targetPost,
+        board: values.board,
+        title: values.title,
+        summary,
+        content: summary ? [summary] : [],
+        contentHtml: values.content,
+        previewImage,
+        previewImageAlt,
+      };
+
+      updateCommunityLocalPost(nextPost);
+      router.push(buildCommunityPostHref(postId, returnPage));
+
+      return;
+    }
+
+    const nextPostId = Date.now();
     const nextPost: CommunityPost = {
-      id: postId,
+      id: nextPostId,
+      origin: 'local',
       board: values.board,
       title: values.title,
       summary,
       content: summary ? [summary] : [],
       contentHtml: values.content,
       previewImage,
-      previewImageAlt: previewImage ? `${values.title} 이미지` : undefined,
-      authorMemberId: currentMemberId ?? COMMUNITY_MOCK_AUTHOR.memberId,
+      previewImageAlt,
+      authorMemberId: authMemberId ?? COMMUNITY_MOCK_AUTHOR.memberId,
       authorName: nickname ?? COMMUNITY_MOCK_AUTHOR.name,
       authorImage: profileImageUrl ?? COMMUNITY_MOCK_AUTHOR.image,
       authorIntro: COMMUNITY_MOCK_AUTHOR.intro,
@@ -86,17 +209,18 @@ export const useCommunityWriteController = () => {
       viewCount: 0,
       reactionCount: 0,
       commentCount: 0,
-      createdAt: '방금',
+      createdAt: '방금 전',
       isTrending: false,
     };
 
     persistCommunityLocalPosts([nextPost, ...getCommunityPostsFromStorage()]);
-    router.push(`/community/${postId}`);
+    router.push(buildCommunityPostHref(nextPostId, returnPage));
   });
 
   return {
     form,
     state: {
+      isAccessReady,
       isSubmitting: form.formState.isSubmitting,
     },
     actions: {
@@ -105,11 +229,15 @@ export const useCommunityWriteController = () => {
       handleSubmit,
     },
     viewModel: {
+      backHref,
       boardOptions: COMMUNITY_BOARD_OPTIONS,
-      isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting,
-      selectedBoard: selectedBoard ?? COMMUNITY_BOARD.FREE,
-      titleError: form.formState.errors.title?.message,
       contentError: form.formState.errors.content?.message,
+      isSubmitDisabled: !form.formState.isValid || form.formState.isSubmitting,
+      pageDescription: isEditMode ? '글 수정' : '글 작성',
+      pageTitle: isEditMode ? '커뮤니티 글 수정' : '커뮤니티 글 작성',
+      selectedBoard: selectedBoard ?? COMMUNITY_BOARD.FREE,
+      submitLabel: isEditMode ? '수정 완료' : '등록하기',
+      titleError: form.formState.errors.title?.message,
     },
   };
 };

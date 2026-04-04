@@ -34,8 +34,15 @@ export const COMMUNITY_COMMENT_REACTION = {
   DISLIKE: 'dislike',
 } as const;
 
+export const COMMUNITY_POST_ORIGIN = {
+  LOCAL: 'local',
+  MOCK: 'mock',
+} as const;
+
 export type CommunityCommentReaction =
   (typeof COMMUNITY_COMMENT_REACTION)[keyof typeof COMMUNITY_COMMENT_REACTION];
+export type CommunityPostOrigin =
+  (typeof COMMUNITY_POST_ORIGIN)[keyof typeof COMMUNITY_POST_ORIGIN];
 
 export interface CommunityFeedFilterOption {
   id: CommunityFeedFilter;
@@ -62,6 +69,7 @@ export interface CommunityBoardOption {
 
 export interface CommunityPost {
   id: number;
+  origin: CommunityPostOrigin;
   board: CommunityBoard;
   title: string;
   summary: string;

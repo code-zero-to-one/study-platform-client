@@ -11,5 +11,5 @@ export const metadata: Metadata = {
 };
 
 export default function CommunityWritePage() {
-  return <CommunityWritePageClient />;
+  return <CommunityWritePageClient mode="create" />;
 }
