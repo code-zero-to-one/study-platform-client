@@ -11,6 +11,7 @@ import { COMMUNITY_BOARD } from '@/types/community/domain';
 import { ErrorType } from '@/utils/error-handler';
 import CommunityMarkdownContent from '../community-markdown-content';
 import { CommunityBoardBadge } from '../community-meta-badge';
+import CommunityQnaAnswerComposeSection from '../community-qna-answer-compose-section';
 import CommunityQnaAuthorSummary from '../community-qna-author-summary';
 import CommunityQnaQuestionCommentsSection from '../community-qna-question-comments-section';
 import {
@@ -140,64 +141,78 @@ export default function CommunityQnaDetailPageClient({
         />
       </CommunitySectionShell>
 
-      <CommunitySectionShell className="gap-250">
-        <div className="flex flex-col gap-50 border-b border-border-default pb-200">
-          <p className="font-designer-24b text-text-strong">
-            답변
-            <span className="ml-75 font-designer-16m text-text-brand">
-              ({viewModel.answerCount})
-            </span>
-          </p>
-          <p className="font-designer-14r text-text-subtle">
-            {viewModel.answerCtaDescription}
-          </p>
-        </div>
+      <CommunityQnaAnswerComposeSection
+        answers={state.answersPageData.items}
+        onRefetchQuestionDetail={actions.refetchQuestionDetail}
+        questionId={questionId}
+        viewer={state.viewer}
+      >
+        {({ headerAction, panel }) => (
+          <CommunitySectionShell className="gap-250">
+            <div className="flex flex-wrap items-start justify-between gap-150 border-b border-border-default pb-200">
+              <div className="flex flex-col gap-50">
+                <p className="font-designer-24b text-text-strong">
+                  답변
+                  <span className="ml-75 font-designer-16m text-text-brand">
+                    ({viewModel.answerCount})
+                  </span>
+                </p>
+                <p className="font-designer-14r text-text-subtle">
+                  {viewModel.answerCtaDescription}
+                </p>
+              </div>
+              {headerAction}
+            </div>
 
-        {state.answersPageData.items.length ? (
-          <div className="flex flex-col gap-150">
-            {state.answersPageData.items.map((answer) => (
-              <SurfacePanel
-                key={answer.id}
-                radius="lg"
-                className="flex flex-col gap-250 p-250"
-              >
-                <div className="flex flex-wrap items-center justify-between gap-150">
-                  <CommunityQnaAuthorSummary
-                    author={answer.author}
-                    nameClassName="font-designer-18b text-text-strong"
-                  />
-                  <div className="flex flex-wrap items-center gap-100">
-                    {answer.isAccepted ? (
-                      <span className="rounded-full bg-fill-brand-subtle-default px-100 py-50 font-designer-12b text-text-brand">
-                        채택 답변
-                      </span>
-                    ) : null}
-                    <span className="font-designer-14r text-text-subtlest">
-                      {answer.createdAt}
-                    </span>
-                  </div>
-                </div>
+            {panel}
 
-                <CommunityMarkdownContent content={answer.contentHtml} />
+            {state.answersPageData.items.length ? (
+              <div className="flex flex-col gap-150">
+                {state.answersPageData.items.map((answer) => (
+                  <SurfacePanel
+                    key={answer.id}
+                    radius="lg"
+                    className="flex flex-col gap-250 p-250"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-150">
+                      <CommunityQnaAuthorSummary
+                        author={answer.author}
+                        nameClassName="font-designer-18b text-text-strong"
+                      />
+                      <div className="flex flex-wrap items-center gap-100">
+                        {answer.isAccepted ? (
+                          <span className="rounded-full bg-fill-brand-subtle-default px-100 py-50 font-designer-12b text-text-brand">
+                            채택 답변
+                          </span>
+                        ) : null}
+                        <span className="font-designer-14r text-text-subtlest">
+                          {answer.createdAt}
+                        </span>
+                      </div>
+                    </div>
+
+                    <CommunityMarkdownContent content={answer.contentHtml} />
+                  </SurfacePanel>
+                ))}
+              </div>
+            ) : (
+              <SurfacePanel radius="lg" className="p-250">
+                <p className="font-designer-14r text-text-subtle">
+                  아직 등록된 답변이 없습니다.
+                </p>
               </SurfacePanel>
-            ))}
-          </div>
-        ) : (
-          <SurfacePanel radius="lg" className="p-250">
-            <p className="font-designer-14r text-text-subtle">
-              아직 등록된 답변이 없습니다.
-            </p>
-          </SurfacePanel>
-        )}
+            )}
 
-        {viewModel.showAnswerPagination ? (
-          <Pagination
-            page={viewModel.answerPage}
-            totalPages={viewModel.answerTotalPages}
-            onChangePage={actions.handleAnswerPageChange}
-          />
-        ) : null}
-      </CommunitySectionShell>
+            {viewModel.showAnswerPagination ? (
+              <Pagination
+                page={viewModel.answerPage}
+                totalPages={viewModel.answerTotalPages}
+                onChangePage={actions.handleAnswerPageChange}
+              />
+            ) : null}
+          </CommunitySectionShell>
+        )}
+      </CommunityQnaAnswerComposeSection>
     </PageContainer>
   );
 }
