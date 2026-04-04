@@ -4,14 +4,19 @@ import type { Editor } from '@tiptap/react';
 import { useCallback, useState } from 'react';
 import { extractImageUrls } from '@/utils/markdown-content-images';
 import {
-  type MarkdownEditorImageConfig,
-  MARKDOWN_IMAGE_DEFAULT_WIDTH,
   extractClipboardImageFiles,
   extractClipboardImageSource,
+} from './clipboard-utils';
+import {
+  type MarkdownEditorImageConfig,
+  MARKDOWN_IMAGE_DEFAULT_WIDTH,
   getExtensionFromMime,
   toFileFromBlob,
   validateImageFileForUpload,
 } from './image-utils';
+
+const maxImageCountError = (count: number) =>
+  `이미지는 최대 ${count}개까지만 등록할 수 있습니다.`;
 
 export function useImageUpload(
   resolvedImageConfig: MarkdownEditorImageConfig | undefined,
@@ -53,7 +58,7 @@ export function useImageUpload(
 
       if (remaining === 0) {
         setImageInsertError(
-          `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
+          maxImageCountError(resolvedImageConfig.maxImageCount),
         );
 
         return;
@@ -98,9 +103,7 @@ export function useImageUpload(
         }
 
         if (hitLimit) {
-          errors.push(
-            `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
-          );
+          errors.push(maxImageCountError(resolvedImageConfig.maxImageCount));
         }
 
         if (errors.length > 0) {
@@ -122,7 +125,7 @@ export function useImageUpload(
       const existingCount = extractImageUrls(editor.getHTML()).length;
       if (existingCount >= resolvedImageConfig.maxImageCount) {
         setImageInsertError(
-          `이미지는 최대 ${resolvedImageConfig.maxImageCount}개까지만 등록할 수 있습니다.`,
+          maxImageCountError(resolvedImageConfig.maxImageCount),
         );
 
         return;

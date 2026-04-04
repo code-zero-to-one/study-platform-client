@@ -1,7 +1,4 @@
-import {
-  extractHtmlImageUrls,
-  getFileExtension,
-} from '@/utils/markdown-content';
+import { getFileExtension } from '@/utils/markdown-content-images';
 
 export interface MarkdownEditorImageConfig {
   allowedImageExtensions: readonly string[];
@@ -24,24 +21,6 @@ export const MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS = [
   'gif',
 ] as const;
 
-type UrlKind = 'remote' | 'image' | 'data-image';
-
-const URL_PATTERNS: Record<UrlKind, RegExp> = {
-  remote: /^https?:\/\/\S+$/i,
-  image: /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i,
-  'data-image': /^data:image\/[a-z0-9.+-]+;base64,/i,
-};
-
-export const isAllowedUrl = (
-  text: string,
-  kinds: UrlKind | UrlKind[] = 'remote',
-) => {
-  const trimmed = text.trim();
-  const targets = Array.isArray(kinds) ? kinds : [kinds];
-
-  return targets.some((kind) => URL_PATTERNS[kind].test(trimmed));
-};
-
 export const clampImageWidth = (value: number) => {
   return Math.min(
     MARKDOWN_IMAGE_MAX_WIDTH,
@@ -63,14 +42,14 @@ export const toFileFromBlob = (blob: Blob, fileName: string): File => {
 };
 
 export const getExtensionFromMime = (mimeType: string): string => {
-  const map: Record<string, string> = {
+  const imageMap: Record<string, string> = {
     'image/jpeg': 'jpg',
     'image/png': 'png',
     'image/webp': 'webp',
     'image/gif': 'gif',
   };
 
-  return map[mimeType] ?? mimeType.split('/')[1]?.toLowerCase() ?? '';
+  return imageMap[mimeType] ?? mimeType.split('/')[1]?.toLowerCase() ?? '';
 };
 
 export const toImageInputAccept = (extensions: readonly string[]) => {
@@ -82,59 +61,6 @@ export const isAllowedImageExtension = (
   allowedExtensions: readonly string[],
 ) => {
   return allowedExtensions.includes(extension);
-};
-
-export const extractClipboardImageFiles = (
-  clipboardData: DataTransfer,
-): File[] => {
-  const directImageFiles = Array.from(clipboardData.files).filter((file) =>
-    file.type.startsWith('image/'),
-  );
-
-  if (directImageFiles.length > 0) {
-    return directImageFiles;
-  }
-
-  return Array.from(clipboardData.items)
-    .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
-    .map((item) => item.getAsFile())
-    .filter((file): file is File => file !== null);
-};
-
-export const extractClipboardImageSource = (
-  clipboardData: DataTransfer,
-): string => {
-  const pastedHtml = clipboardData.getData('text/html').trim();
-  if (pastedHtml) {
-    const imageSource = extractHtmlImageUrls(pastedHtml)[0]?.trim();
-
-    if (imageSource && isAllowedUrl(imageSource, ['remote', 'data-image'])) {
-      return imageSource;
-    }
-  }
-
-  const pastedText = clipboardData.getData('text/plain').trim();
-  if (pastedText && isAllowedUrl(pastedText, ['image', 'data-image'])) {
-    return pastedText;
-  }
-
-  return '';
-};
-
-export const hasClipboardImageHint = (clipboardData: DataTransfer) => {
-  if (extractClipboardImageFiles(clipboardData).length > 0) {
-    return true;
-  }
-
-  if (
-    Array.from(clipboardData.items).some((item) => item.type.includes('html'))
-  ) {
-    return clipboardData.getData('text/html').includes('<img');
-  }
-
-  const pastedText = clipboardData.getData('text/plain').trim();
-
-  return isAllowedUrl(pastedText, ['image', 'data-image']);
 };
 
 export const validateImageFileForUpload = (

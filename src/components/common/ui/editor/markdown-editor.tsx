@@ -21,10 +21,18 @@ import {
   Underline as UnderlineIcon,
   Undo2,
 } from 'lucide-react';
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type FormEvent,
+  memo,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import { normalizeMarkdownContent } from '@/utils/markdown-content-normalize';
+import { hasClipboardImageHint } from './clipboard-utils';
 import {
   InstantCodeBlockExtension,
   lowlight,
@@ -34,7 +42,6 @@ import {
 import {
   type MarkdownEditorImageConfig,
   clampImageWidth,
-  hasClipboardImageHint,
   MARKDOWN_IMAGE_DEFAULT_ALLOWED_EXTENSIONS,
   MARKDOWN_IMAGE_DEFAULT_MAX_COUNT,
   MARKDOWN_IMAGE_DEFAULT_MAX_FILE_SIZE,
@@ -79,6 +86,8 @@ function MarkdownEditor({
 }: MarkdownEditorProps) {
   const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
   const [, forceEditorRerender] = useState(0);
+  const [isLinkInputOpen, setIsLinkInputOpen] = useState(false);
+  const [linkInputValue, setLinkInputValue] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const editorContentWrapperRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<Editor | null>(null);
@@ -278,13 +287,23 @@ function MarkdownEditor({
       return;
     }
 
-    const url = window.prompt('링크 URL을 입력해주세요.', 'https://');
+    setLinkInputValue('https://');
+    setIsLinkInputOpen(true);
+  };
 
-    if (!url) {
-      return;
+  const handleLinkSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const trimmedUrl = linkInputValue.trim();
+    if (editor && trimmedUrl) {
+      editor.chain().focus().setLink({ href: trimmedUrl }).run();
     }
+    setIsLinkInputOpen(false);
+    setLinkInputValue('');
+  };
 
-    editor.chain().focus().setLink({ href: url.trim() }).run();
+  const handleLinkCancel = () => {
+    setIsLinkInputOpen(false);
+    setLinkInputValue('');
   };
 
   const handleToggleCodeBlock = () => {
@@ -365,7 +384,8 @@ function MarkdownEditor({
     editor && selectedImagePos !== null
       ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
       : MARKDOWN_IMAGE_DEFAULT_WIDTH;
-  const activeCodeBlockControl = (() => {
+
+  const activeCodeBlockControl = useMemo(() => {
     if (!editor || !editor.isActive('codeBlock')) {
       return null;
     }
@@ -396,7 +416,8 @@ function MarkdownEditor({
       top: Math.max(6, codeBlockRect.top - wrapperRect.top + 6),
       left: Math.max(10, codeBlockRect.left - wrapperRect.left + 10),
     };
-  })();
+    // editor.state는 매 트랜잭션마다 새 객체 — 선택·텍스트 변경 시 재계산
+  }, [editor, editor?.state]);
 
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
@@ -495,6 +516,40 @@ function MarkdownEditor({
           </Button>
         )}
       </div>
+
+      {isLinkInputOpen && (
+        <form
+          onSubmit={handleLinkSubmit}
+          className="border-border-subtle flex items-center gap-100 border-b px-125 py-75"
+        >
+          <input
+            type="url"
+            value={linkInputValue}
+            onChange={(e) => setLinkInputValue(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') handleLinkCancel();
+            }}
+            placeholder="https://"
+            autoFocus
+            aria-label="링크 URL 입력"
+            className={cn(
+              'font-designer-14r text-text-default bg-background-default',
+              'min-w-0 flex-1 border-0 p-0 focus:outline-none',
+            )}
+          />
+          <Button type="submit" color="primary" size="small">
+            추가
+          </Button>
+          <Button
+            type="button"
+            color="secondary"
+            size="small"
+            onClick={handleLinkCancel}
+          >
+            취소
+          </Button>
+        </form>
+      )}
 
       {isImageActive && (
         <div className="border-border-subtle flex items-center gap-100 border-b px-150 py-100">
