@@ -8,6 +8,7 @@ import { useAuthReady } from '@/features/auth/model/use-auth';
 import { useUserStore } from '@/stores/useUserStore';
 import {
   COMMUNITY_BOARD,
+  isCommunityBoard,
   type CommunityBoard,
   type CommunityPost,
 } from '@/types/community/domain';
@@ -122,7 +123,9 @@ export const useCommunityWriteController = ({
     }
 
     form.reset({
-      board: targetPost.board,
+      board: isCommunityBoard(targetPost.board)
+        ? targetPost.board
+        : COMMUNITY_BOARD.FREE,
       title: targetPost.title,
       content: targetPost.contentHtml ?? targetPost.content.join('\n\n'),
     });
