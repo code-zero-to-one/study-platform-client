@@ -26,6 +26,13 @@ export const resolveCommunityPage = (
   fallback = COMMUNITY_DEFAULT_PAGE,
 ) => normalizeCommunityPageParam(value) ?? fallback;
 
+export const buildCommunityListHref = (page?: number) => {
+  const normalizedPage =
+    typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+
+  return normalizedPage ? `/community?page=${normalizedPage}` : '/community';
+};
+
 export const normalizeCommunityBoardParam = (
   value: string | readonly string[] | undefined,
 ): CommunityBoard | undefined => {
@@ -38,11 +45,25 @@ export const normalizeCommunityBoardParam = (
   return rawValue;
 };
 
-export const buildCommunityListHref = (page?: number) => {
+export const buildCommunityWriteHref = (
+  page?: number,
+  board?: CommunityBoard,
+) => {
   const normalizedPage =
     typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const searchParams = new URLSearchParams();
 
-  return normalizedPage ? `/community?page=${normalizedPage}` : '/community';
+  if (normalizedPage) {
+    searchParams.set('page', String(normalizedPage));
+  }
+
+  if (board) {
+    searchParams.set('board', board);
+  }
+
+  const query = searchParams.toString();
+
+  return query ? `/community/write?${query}` : '/community/write';
 };
 
 export const buildCommunityPostHref = (postId: number, page?: number) => {
@@ -51,6 +72,36 @@ export const buildCommunityPostHref = (postId: number, page?: number) => {
   const detailPath = `/community/${postId}`;
 
   return normalizedPage ? `${detailPath}?page=${normalizedPage}` : detailPath;
+};
+
+export const buildCommunityQuestionHref = (
+  questionId: number,
+  page?: number,
+) => {
+  const normalizedPage =
+    typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const detailPath = `/community/questions/${questionId}`;
+
+  return normalizedPage ? `${detailPath}?page=${normalizedPage}` : detailPath;
+};
+
+export const buildCommunityQuestionWriteHref = (page?: number) => {
+  const normalizedPage =
+    typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const writePath = '/community/questions/write';
+
+  return normalizedPage ? `${writePath}?page=${normalizedPage}` : writePath;
+};
+
+export const buildCommunityQuestionEditHref = (
+  questionId: number,
+  page?: number,
+) => {
+  const normalizedPage =
+    typeof page === 'number' ? normalizeCommunityPageNumber(page) : undefined;
+  const editPath = `/community/questions/${questionId}/edit`;
+
+  return normalizedPage ? `${editPath}?page=${normalizedPage}` : editPath;
 };
 
 export const buildCommunityEditHref = (postId: number, page?: number) => {
