@@ -58,7 +58,7 @@ export default function CommunityCommentForm({
             }
           }}
           className={cn(
-            'w-full resize-none border-b border-border-subtle bg-transparent py-100 font-designer-15r leading-250 text-text-default placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
+            'w-full resize-none border-b border-border-default bg-transparent py-100 font-designer-15r leading-250 text-text-default placeholder:text-text-subtlest focus:border-border-brand focus:outline-none',
             disabled &&
               'cursor-not-allowed border-border-disabled text-text-disabled',
           )}

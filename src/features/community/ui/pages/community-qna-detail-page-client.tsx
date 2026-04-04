@@ -4,7 +4,6 @@ import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import PageContainer from '@/components/common/ui/page-container';
 import Pagination from '@/components/common/ui/pagination';
-import SurfacePanel from '@/components/common/ui/surface-panel';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityQnaDetailController } from '@/features/community/model/use-community-qna-detail-controller';
 import { COMMUNITY_BOARD } from '@/types/community/domain';
@@ -121,6 +120,7 @@ export default function CommunityQnaDetailPageClient({
               revision={state.question.revision}
             />
           </div>
+
           <CommunityQnaAuthorSummary author={state.question.author} />
 
           <div className="flex flex-wrap items-center gap-150">
@@ -130,9 +130,6 @@ export default function CommunityQnaDetailPageClient({
             <span className="font-designer-14r text-text-subtle">
               답변 {state.question.stats.answerCount}
             </span>
-            <span className="font-designer-14r text-text-subtle">
-              댓글 {state.question.stats.questionCommentCount}
-            </span>
           </div>
         </div>
       </CommunitySectionShell>
@@ -141,7 +138,7 @@ export default function CommunityQnaDetailPageClient({
         <CommunityMarkdownContent content={state.question.contentHtml} />
 
         <CommunityQnaQuestionCommentsSection
-          comments={state.questionCommentsPageData.items}
+          comments={state.questionCommentsPageData?.items ?? []}
           commentCount={viewModel.questionCommentCount}
           currentPage={viewModel.commentPage}
           onRefetchQuestionDetail={actions.refetchQuestionDetail}
@@ -154,7 +151,7 @@ export default function CommunityQnaDetailPageClient({
       </CommunitySectionShell>
 
       <CommunityQnaAnswerComposeSection
-        answers={state.answersPageData.items}
+        answers={state.answersPageData?.items ?? []}
         onRefetchQuestionDetail={actions.refetchQuestionDetail}
         questionId={questionId}
         viewer={state.viewer}
@@ -178,35 +175,37 @@ export default function CommunityQnaDetailPageClient({
 
             {panel}
 
-            {state.answersPageData.items.length ? (
+            {state.answersPageData?.items.length ? (
               <div className="flex flex-col gap-150">
                 {state.answersPageData.items.map((answer) => {
                   const isMyAnswer = viewModel.myAnswerId === answer.id;
-                  const answerActionSlot =
-                    isMyAnswer || state.viewer.canAcceptAnswer ? (
-                      <div className="flex flex-wrap items-center justify-end gap-75">
-                        {isMyAnswer ? myAnswerAction : null}
-                        <CommunityQnaAnswerAcceptanceActions
-                          answer={answer}
-                          canAcceptAnswer={state.viewer.canAcceptAnswer}
-                          currentAcceptedAnswerId={
-                            state.question.acceptedAnswerId
-                          }
-                          currentAnswerPage={viewModel.answerPage}
-                          onChangeAnswerPage={actions.handleAnswerPageChange}
-                          onRefetchQuestionDetail={
-                            actions.refetchQuestionDetail
-                          }
-                          questionId={questionId}
-                        />
-                      </div>
-                    ) : null;
 
                   return (
                     <CommunityQnaAnswerItem
                       key={answer.id}
                       answer={answer}
-                      actionSlot={answerActionSlot}
+                      actionSlot={
+                        isMyAnswer || state.viewer.canAcceptAnswer ? (
+                          <div className="flex flex-wrap items-center justify-end gap-75">
+                            {isMyAnswer ? myAnswerAction : null}
+                            <CommunityQnaAnswerAcceptanceActions
+                              answer={answer}
+                              canAcceptAnswer={state.viewer.canAcceptAnswer}
+                              currentAcceptedAnswerId={
+                                state.question.acceptedAnswerId
+                              }
+                              currentAnswerPage={viewModel.answerPage}
+                              onChangeAnswerPage={
+                                actions.handleAnswerPageChange
+                              }
+                              onRefetchQuestionDetail={
+                                actions.refetchQuestionDetail
+                              }
+                              questionId={questionId}
+                            />
+                          </div>
+                        ) : null
+                      }
                       isMine={isMyAnswer}
                       commentSection={
                         <CommunityQnaAnswerCommentsSection
@@ -222,11 +221,11 @@ export default function CommunityQnaDetailPageClient({
                 })}
               </div>
             ) : (
-              <SurfacePanel radius="lg" className="p-250">
+              <div className="rounded-200 border border-border-default bg-background-default p-250">
                 <p className="font-designer-14r text-text-subtle">
                   아직 등록된 답변이 없습니다.
                 </p>
-              </SurfacePanel>
+              </div>
             )}
 
             {viewModel.showAnswerPagination ? (
