@@ -87,13 +87,14 @@ export const finalizeQuestionSubmission = async ({
 
   try {
     if (!imageUploadUrl) {
-      return;
+      throw new Error('Missing image upload URL');
     }
 
     await uploadQuestionImage(imageUploadUrl, image.file);
     await onAfterImageUpload?.();
   } catch (error) {
     console.error('문의 이미지 업로드 오류:', error);
+    throw error;
   } finally {
     setIsFinalizing(false);
   }

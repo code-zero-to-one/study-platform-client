@@ -21,11 +21,6 @@ import { useToastStore } from '@/stores/use-toast-store';
 import { CATEGORY_LABEL } from '@/types/schemas/question.schema';
 import { formatDateTimeDot } from '@/utils/time';
 
-const CreateQuestionModal = dynamic(
-  () => import('@/components/common/modals/create-question-modal'),
-  { ssr: false },
-);
-
 const EditQuestionModal = dynamic(
   () => import('@/components/common/modals/edit-question-modal'),
   { ssr: false },
@@ -58,7 +53,6 @@ export default function InquirySection({
   const hasValidQuestionId =
     Number.isInteger(parsedQuestionId) && parsedQuestionId > 0;
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [page, setPage] = useState(1);
 
   const handleSelectQuestion = (id: number) => {
@@ -93,13 +87,6 @@ export default function InquirySection({
           isAdmin={isAdmin}
         />
       )}
-
-      <CreateQuestionModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        groupStudyId={groupStudyId}
-        studyType={isPremium ? 'premium' : 'group'}
-      />
     </div>
   );
 }
