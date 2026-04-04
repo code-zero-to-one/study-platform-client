@@ -282,7 +282,7 @@ function MissionCardContent({
   return (
     <div className="flex flex-col gap-100">
       {deadlineInfo && (
-        <span className={cn('font-designer-12b', 'text-text-brand')}>
+        <span className={cn('font-designer-12b', 'text-text-brand text-left')}>
           {deadlineInfo.text}
         </span>
       )}
