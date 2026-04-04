@@ -1,8 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { getCommunityFeedPosts } from '@/features/community/model/community-post-storage';
-import type { CommunityPost } from '@/types/community/domain';
+import { useCommunityRelatedPostsQuery } from '@/features/community/model/use-community-query';
 import CommunityPostListItem from './community-post-list-item';
 import CommunitySectionShell from './community-section-shell';
 
@@ -11,23 +9,20 @@ interface CommunityDetailFeedSectionProps {
   isVisible: boolean;
 }
 
+const COMMUNITY_RELATED_POSTS_SIZE = 4;
+
 export default function CommunityDetailFeedSection({
   currentPostId,
   isVisible,
 }: CommunityDetailFeedSectionProps) {
-  const [posts, setPosts] = useState<readonly CommunityPost[]>([]);
+  const relatedPostsQuery = useCommunityRelatedPostsQuery({
+    postId: currentPostId,
+    size: COMMUNITY_RELATED_POSTS_SIZE,
+    enabled: isVisible,
+  });
+  const posts = relatedPostsQuery.data ?? [];
 
-  useEffect(() => {
-    if (!isVisible) {
-      return;
-    }
-
-    setPosts(
-      getCommunityFeedPosts().filter((post) => post.id !== currentPostId),
-    );
-  }, [currentPostId, isVisible]);
-
-  if (!isVisible || posts.length === 0) {
+  if (!isVisible || relatedPostsQuery.isError || posts.length === 0) {
     return null;
   }
 
