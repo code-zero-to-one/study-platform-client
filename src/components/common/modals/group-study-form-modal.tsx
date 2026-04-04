@@ -140,9 +140,8 @@ export default function GroupStudyFormModal({
   const [open, setOpen] = useState<boolean>(false);
   const { memberId } = useAuthReady();
   const { mutateAsync: createGroupStudy } = useCreateGroupStudyMutation();
-  const { mutateAsync: updateGroupStudy } = useUpdateGroupStudyMutation(
-    groupStudyId ?? 0,
-  );
+  const { mutateAsync: updateGroupStudy } =
+    useUpdateGroupStudyMutation(groupStudyId);
   const {
     data: groupStudyInfo,
     isLoading: isGroupStudyLoading,
@@ -316,6 +315,7 @@ export default function GroupStudyFormModal({
     messages: { success: string; partialSuccess: string; error: string };
     onFinally: () => void;
   }) => {
+    let succeed = false;
     try {
       const { description, pendingUploads } = prepareDescription(
         values.description,
@@ -341,10 +341,11 @@ export default function GroupStudyFormModal({
         failedCount > 0 ? messages.partialSuccess : messages.success,
         failedCount > 0 ? 'info' : 'success',
       );
+      succeed = true;
     } catch {
       showToast(messages.error, 'error');
     } finally {
-      onFinally();
+      if (succeed) onFinally();
     }
   };
 
@@ -370,6 +371,13 @@ export default function GroupStudyFormModal({
   };
 
   const handleEdit = async (values: GroupStudyFormValues) => {
+    if (!groupStudyId) {
+      showToast(
+        '스터디 정보를 불러오는 데 실패했습니다. 잠시 후 다시 시도해주세요.',
+        'error',
+      );
+      return;
+    }
     await executeStudySubmit({
       values,
       getPendingImages: () => editMethods.getValues('descriptionPendingImages'),
