@@ -1,8 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@/features/auth/model/use-auth';
 import {
+  createCommunityIdempotencyKey,
   getCommunityErrorMessage,
   isCommunityNotFoundError,
 } from '@/features/community/api/community-api';
@@ -23,7 +24,19 @@ import {
   getCommunityMockCommentsByPostId,
 } from './community-page-mock-data';
 import { findCommunityPostById } from './community-post-storage';
-import { useCommunityPostDetailQuery } from './use-community-query';
+import {
+  useAssignCommunityCommentReactionMutation,
+  useAssignCommunityPostReactionMutation,
+  useCreateCommunityCommentMutation,
+  useCreateCommunityReplyMutation,
+  useDeleteCommunityCommentMutation,
+  useRecordCommunityPostViewMutation,
+  useUpdateCommunityCommentMutation,
+} from './use-community-mutation';
+import {
+  useCommunityCommentsQuery,
+  useCommunityPostDetailQuery,
+} from './use-community-query';
 
 interface UseCommunityDetailControllerParams {
   initialPost?: CommunityPost;
@@ -31,6 +44,8 @@ interface UseCommunityDetailControllerParams {
 }
 
 const COMMUNITY_COMMENTS_PAGE = 1;
+const COMMUNITY_COMMENTS_PAGE_SIZE = 20;
+const EMPTY_COMMENTS: readonly CommunityComment[] = [];
 
 const createCommentId = () => Date.now() + Math.floor(Math.random() * 1000);
 
@@ -265,16 +280,35 @@ export const useCommunityDetailController = ({
 }: UseCommunityDetailControllerParams) => {
   const { isAuthenticated } = useAuth();
   const showToast = useToastStore((state) => state.showToast);
+  const recordPostViewMutation = useRecordCommunityPostViewMutation();
+  const assignPostReactionMutation = useAssignCommunityPostReactionMutation();
+  const createCommentMutation = useCreateCommunityCommentMutation();
+  const createReplyMutation = useCreateCommunityReplyMutation();
+  const updateCommentMutation = useUpdateCommunityCommentMutation();
+  const deleteCommentMutation = useDeleteCommunityCommentMutation();
+  const assignCommentReactionMutation =
+    useAssignCommunityCommentReactionMutation();
+  const viewedPostIdRef = useRef<number | undefined>(undefined);
   const fallbackPost = useMemo(
     () => findCommunityPostById(postId) ?? initialPost,
     [initialPost, postId],
   );
+  const [commentsPage, setCommentsPage] = useState(COMMUNITY_COMMENTS_PAGE);
   const shouldUseServerDetail =
     fallbackPost?.origin !== COMMUNITY_POST_ORIGIN.LOCAL;
   const postDetailQuery = useCommunityPostDetailQuery(
     postId,
     shouldUseServerDetail,
   );
+  const commentsQuery = useCommunityCommentsQuery({
+    postId,
+    page: commentsPage,
+    size: COMMUNITY_COMMENTS_PAGE_SIZE,
+    enabled:
+      shouldUseServerDetail &&
+      (postDetailQuery.data?.origin === COMMUNITY_POST_ORIGIN.API ||
+        fallbackPost?.origin === COMMUNITY_POST_ORIGIN.API),
+  });
   const initialState = resolveDetailState(postId, fallbackPost);
 
   const [post, setPost] = useState<CommunityPost | undefined>(
@@ -307,6 +341,48 @@ export const useCommunityDetailController = ({
           '글을 불러오지 못했습니다.',
         )
       : undefined;
+  const isServerPost = post?.origin === COMMUNITY_POST_ORIGIN.API;
+  const activeComments = isServerPost
+    ? (commentsQuery.data?.items ?? EMPTY_COMMENTS)
+    : comments;
+  const currentCommentsPage = isServerPost
+    ? (commentsQuery.data?.page ?? commentsPage)
+    : COMMUNITY_COMMENTS_PAGE;
+  const totalCommentPages = isServerPost
+    ? Math.max(
+        commentsQuery.data?.totalPages ?? COMMUNITY_COMMENTS_PAGE,
+        COMMUNITY_COMMENTS_PAGE,
+      )
+    : COMMUNITY_COMMENTS_PAGE;
+  const activeCommentCount = isServerPost
+    ? (commentsQuery.data?.totalCommentCount ?? post?.commentCount ?? 0)
+    : commentCount;
+  const activeReactionCount = isServerPost
+    ? (post?.reactionCount ?? 0)
+    : reactionCount;
+  const activeIsLikedByViewer = isServerPost
+    ? post?.viewerReaction === 'like'
+    : isLikedByViewer;
+  const commentsErrorMessage =
+    isServerPost && commentsQuery.isError
+      ? getCommunityErrorMessage(
+          commentsQuery.error,
+          '댓글을 불러오지 못했습니다.',
+        )
+      : undefined;
+  const isCommentsLoading = isServerPost && commentsQuery.isPending;
+  const resetReplyState = () => {
+    setReplyTargetId(undefined);
+    setReplyDraft('');
+  };
+  const resetEditingState = () => {
+    setEditingCommentId(undefined);
+    setEditingDraft('');
+  };
+  const resetPagedCommentInteractionState = () => {
+    resetReplyState();
+    resetEditingState();
+  };
 
   useEffect(() => {
     if (shouldUseServerDetail && postDetailQuery.isPending && !fallbackPost) {
@@ -315,10 +391,11 @@ export const useCommunityDetailController = ({
       return;
     }
 
+    const nextResolvedPost = postDetailQuery.data ?? fallbackPost;
     const nextState = resolveDetailState(
       postId,
-      postDetailQuery.data ?? fallbackPost,
-      true,
+      nextResolvedPost,
+      nextResolvedPost?.origin !== COMMUNITY_POST_ORIGIN.API,
     );
 
     setPost(nextState.post);
@@ -341,7 +418,7 @@ export const useCommunityDetailController = ({
   ]);
 
   useEffect(() => {
-    if (!post) {
+    if (!post || isServerPost) {
       return;
     }
 
@@ -352,11 +429,65 @@ export const useCommunityDetailController = ({
       isLikedByViewer,
       reactionCount,
     });
-  }, [commentCount, comments, isLikedByViewer, post, reactionCount]);
+  }, [
+    commentCount,
+    comments,
+    isLikedByViewer,
+    isServerPost,
+    post,
+    reactionCount,
+  ]);
 
-  const handleToggleLike = () => {
+  useEffect(() => {
+    setCommentsPage(COMMUNITY_COMMENTS_PAGE);
+    viewedPostIdRef.current = undefined;
+  }, [postId]);
+
+  useEffect(() => {
+    if (replyTargetId && !findCommentById(activeComments, replyTargetId)) {
+      resetReplyState();
+    }
+
+    if (
+      editingCommentId &&
+      !findCommentById(activeComments, editingCommentId)
+    ) {
+      resetEditingState();
+    }
+  }, [activeComments, editingCommentId, replyTargetId]);
+
+  useEffect(() => {
+    if (!isServerPost || !post || viewedPostIdRef.current === post.id) {
+      return;
+    }
+
+    viewedPostIdRef.current = post.id;
+    recordPostViewMutation.mutate(post.id);
+  }, [isServerPost, post, recordPostViewMutation]);
+
+  const handleToggleLike = async () => {
     if (!isAuthenticated) {
       showToast('로그인 후 좋아요를 누를 수 있습니다.', 'info');
+
+      return;
+    }
+
+    if (!post) {
+      return;
+    }
+
+    if (isServerPost) {
+      try {
+        await assignPostReactionMutation.mutateAsync({
+          postId: post.id,
+          type: post.viewerReaction === 'like' ? 'none' : 'like',
+        });
+      } catch (error) {
+        showToast(
+          getCommunityErrorMessage(error, '좋아요 처리에 실패했습니다.'),
+          'error',
+        );
+      }
 
       return;
     }
@@ -384,10 +515,35 @@ export const useCommunityDetailController = ({
   const handleSubmitComment = () => {
     const normalizedComment = commentDraft.trim();
 
-    if (!normalizedComment || !isAuthenticated) {
+    if (!normalizedComment || !isAuthenticated || !post) {
       if (!isAuthenticated) {
         showToast('로그인 후 댓글을 작성할 수 있습니다.', 'info');
       }
+
+      return;
+    }
+
+    if (isServerPost) {
+      createCommentMutation
+        .mutateAsync({
+          postId: post.id,
+          content: normalizedComment,
+          idempotencyKey: createCommunityIdempotencyKey('community-comment'),
+        })
+        .then(() => {
+          setCommentDraft('');
+
+          if (commentsPage !== COMMUNITY_COMMENTS_PAGE) {
+            resetPagedCommentInteractionState();
+            setCommentsPage(COMMUNITY_COMMENTS_PAGE);
+          }
+        })
+        .catch((error) => {
+          showToast(
+            getCommunityErrorMessage(error, '댓글 등록에 실패했습니다.'),
+            'error',
+          );
+        });
 
       return;
     }
@@ -406,6 +562,12 @@ export const useCommunityDetailController = ({
       return;
     }
 
+    const targetComment = findCommentById(activeComments, commentId);
+
+    if (isServerPost && !targetComment?.canReply) {
+      return;
+    }
+
     setReplyTargetId(commentId);
     setReplyDraft('');
     setEditingCommentId(undefined);
@@ -418,7 +580,7 @@ export const useCommunityDetailController = ({
   };
 
   const handleSubmitReply = () => {
-    if (!replyTargetId) {
+    if (!replyTargetId || !post) {
       return;
     }
 
@@ -428,6 +590,28 @@ export const useCommunityDetailController = ({
       if (!isAuthenticated) {
         showToast('로그인 후 답글을 작성할 수 있습니다.', 'info');
       }
+
+      return;
+    }
+
+    if (isServerPost) {
+      createReplyMutation
+        .mutateAsync({
+          postId: post.id,
+          commentId: replyTargetId,
+          content: normalizedReply,
+          idempotencyKey: createCommunityIdempotencyKey('community-reply'),
+        })
+        .then(() => {
+          setReplyDraft('');
+          setReplyTargetId(undefined);
+        })
+        .catch((error) => {
+          showToast(
+            getCommunityErrorMessage(error, '답글 등록에 실패했습니다.'),
+            'error',
+          );
+        });
 
       return;
     }
@@ -449,9 +633,9 @@ export const useCommunityDetailController = ({
       return;
     }
 
-    const targetComment = findCommentById(comments, commentId);
+    const targetComment = findCommentById(activeComments, commentId);
 
-    if (!targetComment) {
+    if (!targetComment || (isServerPost && !targetComment.canEdit)) {
       return;
     }
 
@@ -477,6 +661,38 @@ export const useCommunityDetailController = ({
       return;
     }
 
+    if (isServerPost) {
+      if (!post) {
+        return;
+      }
+
+      const targetComment = findCommentById(activeComments, editingCommentId);
+
+      if (!targetComment?.revision) {
+        return;
+      }
+
+      updateCommentMutation
+        .mutateAsync({
+          postId: post.id,
+          commentId: editingCommentId,
+          revision: targetComment.revision,
+          content: normalizedContent,
+        })
+        .then(() => {
+          setEditingCommentId(undefined);
+          setEditingDraft('');
+        })
+        .catch((error) => {
+          showToast(
+            getCommunityErrorMessage(error, '댓글 수정에 실패했습니다.'),
+            'error',
+          );
+        });
+
+      return;
+    }
+
     setComments((prevComments) =>
       updateCommentContent(prevComments, editingCommentId, normalizedContent),
     );
@@ -487,6 +703,42 @@ export const useCommunityDetailController = ({
   const handleDeleteComment = (commentId: number) => {
     if (!isAuthenticated) {
       showToast('로그인 후 댓글을 삭제할 수 있습니다.', 'info');
+
+      return;
+    }
+
+    if (isServerPost) {
+      if (!post) {
+        return;
+      }
+
+      const targetComment = findCommentById(activeComments, commentId);
+
+      if (!targetComment?.revision || !targetComment.canDelete) {
+        return;
+      }
+
+      deleteCommentMutation
+        .mutateAsync({
+          postId: post.id,
+          commentId,
+          revision: targetComment.revision,
+        })
+        .then(() => {
+          if (replyTargetId === commentId) {
+            resetReplyState();
+          }
+
+          if (editingCommentId === commentId) {
+            resetEditingState();
+          }
+        })
+        .catch((error) => {
+          showToast(
+            getCommunityErrorMessage(error, '댓글 삭제에 실패했습니다.'),
+            'error',
+          );
+        });
 
       return;
     }
@@ -529,12 +781,54 @@ export const useCommunityDetailController = ({
       return;
     }
 
+    if (isServerPost) {
+      if (!post) {
+        return;
+      }
+
+      const targetComment = findCommentById(activeComments, commentId);
+
+      if (!targetComment || targetComment.isDeleted) {
+        return;
+      }
+
+      assignCommentReactionMutation
+        .mutateAsync({
+          postId: post.id,
+          commentId,
+          type:
+            targetComment.viewerReaction === nextReaction
+              ? 'none'
+              : nextReaction,
+        })
+        .catch((error) => {
+          showToast(
+            getCommunityErrorMessage(error, '댓글 반응 처리에 실패했습니다.'),
+            'error',
+          );
+        });
+
+      return;
+    }
+
     setComments((prevComments) =>
       updateCommentReaction(prevComments, commentId, nextReaction),
     );
   };
-  const handleCommentPageChange = () => {};
-  const commentsErrorMessage: string | undefined = undefined;
+  const handleCommentPageChange = (nextPage: number) => {
+    if (!isServerPost) {
+      return;
+    }
+
+    const normalizedPage = Math.max(nextPage, COMMUNITY_COMMENTS_PAGE);
+
+    if (normalizedPage === commentsPage) {
+      return;
+    }
+
+    resetPagedCommentInteractionState();
+    setCommentsPage(normalizedPage);
+  };
 
   return {
     state: {
@@ -544,7 +838,7 @@ export const useCommunityDetailController = ({
       editingDraft,
       errorMessage,
       isAuthenticated,
-      isCommentsLoading: false,
+      isCommentsLoading,
       isResolved,
       post,
       replyDraft,
@@ -567,17 +861,17 @@ export const useCommunityDetailController = ({
       handleToggleLike,
     },
     viewModel: {
-      commentCount,
-      comments,
-      currentCommentsPage: COMMUNITY_COMMENTS_PAGE,
+      commentCount: activeCommentCount,
+      comments: activeComments,
+      currentCommentsPage,
       editingSubmitEnabled: editingDraft.trim().length > 0,
       isCommentSubmitEnabled: commentDraft.trim().length > 0,
-      isLikedByViewer,
+      isLikedByViewer: activeIsLikedByViewer,
       isPostReactionEnabled: isAuthenticated,
       isReplySubmitEnabled: replyDraft.trim().length > 0,
-      reactionCount,
-      showCommentPagination: false,
-      totalCommentPages: COMMUNITY_COMMENTS_PAGE,
+      reactionCount: activeReactionCount,
+      showCommentPagination: isServerPost && totalCommentPages > 1,
+      totalCommentPages,
     },
   };
 };
