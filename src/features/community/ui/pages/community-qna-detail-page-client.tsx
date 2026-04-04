@@ -17,6 +17,7 @@ import CommunityQnaAnswerComposeSection from '../community-qna-answer-compose-se
 import CommunityQnaAnswerItem from '../community-qna-answer-item';
 import CommunityQnaAuthorSummary from '../community-qna-author-summary';
 import CommunityQnaQuestionCommentsSection from '../community-qna-question-comments-section';
+import CommunityQnaQuestionOwnerActions from '../community-qna-question-owner-actions';
 import {
   CommunityQnaNotFoundState,
   CommunityQnaRouteErrorState,
@@ -108,10 +109,18 @@ export default function CommunityQnaDetailPageClient({
         </div>
 
         <div className="flex flex-col gap-200">
-          <h1 className="font-designer-28b text-text-strong">
-            {state.question.title}
-          </h1>
-
+          <div className="flex items-start justify-between gap-150">
+            <h1 className="font-designer-28b text-text-strong">
+              {state.question.title}
+            </h1>
+            <CommunityQnaQuestionOwnerActions
+              canDelete={state.viewer.canDeleteQuestion}
+              canEdit={state.viewer.canEditQuestion}
+              currentPage={returnPage}
+              questionId={state.question.id}
+              revision={state.question.revision}
+            />
+          </div>
           <CommunityQnaAuthorSummary author={state.question.author} />
 
           <div className="flex flex-wrap items-center gap-150">
