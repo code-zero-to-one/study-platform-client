@@ -57,7 +57,7 @@ export default function CommunityWritePageClient({
 
   return (
     <PageContainer className="flex flex-col gap-400 xl:gap-500">
-      <CommunitySectionShell className="gap-250 border-b border-border-subtle pb-300">
+      <CommunitySectionShell className="gap-250 border-b border-border-default pb-300">
         <Link
           href={viewModel.backHref}
           className="inline-flex items-center gap-75 font-designer-14m text-text-subtle transition-colors hover:text-text-default"
@@ -107,7 +107,7 @@ export default function CommunityWritePageClient({
         <FormSectionCard
           title={
             <span className="inline-flex items-center gap-75">
-              <FilePenLine className="text-text-brand h-18 w-18" />
+              <FilePenLine className="text-text-brand h-225 w-225" />
               게시판
             </span>
           }
