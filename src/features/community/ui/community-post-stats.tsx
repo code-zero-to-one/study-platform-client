@@ -30,11 +30,11 @@ export default function CommunityPostStats({
       )}
     >
       <span className="flex items-center gap-50">
-        <Eye className="h-16 w-16" />
+        <Eye className="h-200 w-200" />
         {formatCompactCount(viewCount)}
       </span>
       <span className="flex items-center gap-50">
-        <ThumbsUp className="h-16 w-16" />
+        <ThumbsUp className="h-200 w-200" />
         {formatCompactCount(reactionCount)}
       </span>
     </div>

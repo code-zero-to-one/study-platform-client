@@ -1,14 +1,17 @@
 'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import type { MouseEvent } from 'react';
 import Avatar from '@/components/common/ui/avatar';
 import { getCommunityPostPreviewText } from '@/features/community/model/community-rich-content';
 import { buildCommunityPostHref } from '@/features/community/model/community-route';
 import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorNameTrigger from './community-author-name-trigger';
+import { isCommunityCardNestedInteraction } from './community-card-navigation';
 import {
   CommunityBoardBadge,
+  CommunityFeaturedRankBadge,
   CommunityMemberRoleBadge,
 } from './community-meta-badge';
 import CommunityPostOwnerActions from './community-post-owner-actions';
@@ -16,22 +19,43 @@ import CommunityPostStats from './community-post-stats';
 
 interface CommunityPostCardProps {
   currentPage?: number;
+  featuredLabel?: string;
   post: CommunityPost;
+  showBoardBadge?: boolean;
 }
 
 export default function CommunityPostCard({
   currentPage,
+  featuredLabel,
   post,
+  showBoardBadge = true,
 }: CommunityPostCardProps) {
+  const router = useRouter();
   const previewText = getCommunityPostPreviewText(post);
   const detailHref = buildCommunityPostHref(post.id, currentPage);
 
+  const handleCardClick = (event: MouseEvent<HTMLElement>) => {
+    if (isCommunityCardNestedInteraction(event.target)) {
+      return;
+    }
+
+    router.push(detailHref);
+  };
+
   return (
-    <article className="flex h-full flex-col rounded-200 border border-border-subtle bg-background-default p-250">
+    <article
+      className="flex h-full cursor-pointer flex-col rounded-200 border border-border-default bg-background-default p-250"
+      onClick={handleCardClick}
+    >
       <div className="flex items-start justify-between gap-200">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-100">
-            <CommunityBoardBadge board={post.board} showIcon={false} />
+            {featuredLabel ? (
+              <CommunityFeaturedRankBadge label={featuredLabel} />
+            ) : null}
+            {showBoardBadge ? (
+              <CommunityBoardBadge board={post.board} showIcon={false} />
+            ) : null}
             <span className="flex items-center gap-75">
               <Avatar
                 image={post.authorImage}
@@ -84,7 +108,7 @@ export default function CommunityPostCard({
         <Link
           href={detailHref}
           aria-label={`${post.title} 상세 보기`}
-          className="mt-200 block overflow-hidden rounded-150 border border-border-subtle bg-background-alternative transition-opacity hover:opacity-80"
+          className="mt-200 block overflow-hidden rounded-150 border border-border-default bg-background-alternative transition-opacity hover:opacity-80"
           suppressHydrationWarning={true}
         >
           <Image

@@ -18,19 +18,27 @@ export default function CommunityPageClient({
 
   return (
     <PageContainer className="flex flex-col gap-500 xl:gap-600">
-      <CommunityHeroSection discordUrl={viewModel.discordUrl} />
+      <CommunityHeroSection
+        discordUrl={viewModel.discordUrl}
+        writeHref={viewModel.writeHref}
+        writeLabel={viewModel.writeLabel}
+      />
 
       <CommunityFeedSection
         activeFilter={state.activeFilter}
         activeView={state.activeView}
         currentPage={state.currentPage}
+        errorMessage={state.errorMessage}
         featuredPosts={viewModel.featuredPosts}
         filterOptions={viewModel.filterOptions}
+        isLoading={state.isLoading}
+        isQnaFilter={viewModel.isQnaFilter}
         onFilterChange={actions.handleFilterChange}
         onPageChange={actions.handlePageChange}
         onViewChange={actions.handleViewChange}
         postCount={viewModel.postCount}
         posts={viewModel.paginatedPosts}
+        qnaQuestions={viewModel.qnaQuestions}
         showPagination={viewModel.showPagination}
         totalPages={viewModel.totalPages}
         viewOptions={viewModel.viewOptions}
