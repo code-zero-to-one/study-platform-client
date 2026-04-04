@@ -392,6 +392,7 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   --spacing-500: 40px;
   --spacing-600: 48px;
   --spacing-700: 56px;
+  --spacing-1400: 112px;
 
   /* shadow */
   --shadow-*: initial;
@@ -867,6 +868,14 @@ https://velog.io/@oneook/tailwindcss-4.0-%EB%AC%B4%EC%97%87%EC%9D%B4-%EB%8B%AC%E
   font-weight: var(--font-weight-bold);
   line-height: 17px;
   letter-spacing: 0;
+}
+
+@utility max-h-markdown-img {
+  max-height: 400px;
+}
+
+@utility max-w-markdown-img {
+  max-width: min(100%, 400px);
 }
 
 @layer utilities {
