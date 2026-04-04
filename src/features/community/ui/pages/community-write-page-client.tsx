@@ -13,22 +13,26 @@ import {
   useCommunityWriteController,
   type CommunityWriteMode,
 } from '@/features/community/model/use-community-write-controller';
-import MentorMarkdownEditor from '@/features/mentoring/ui/registration/markdown/mentor-markdown-editor';
+import type { CommunityBoard } from '@/types/community/domain';
 import { COMMUNITY_WRITE_TITLE_MAX_LENGTH } from '@/types/schemas/community-write-schema';
+import CommunityMarkdownEditor from '../community-markdown-editor';
 import CommunitySectionShell from '../community-section-shell';
 
 interface CommunityWritePageClientProps {
+  initialBoard?: CommunityBoard;
   mode: CommunityWriteMode;
   postId?: number;
   returnPage?: number;
 }
 
 export default function CommunityWritePageClient({
+  initialBoard,
   mode,
   postId,
   returnPage,
 }: CommunityWritePageClientProps) {
   const { form, state, actions, viewModel } = useCommunityWriteController({
+    initialBoard,
     mode,
     postId,
     returnPage,
@@ -142,7 +146,7 @@ export default function CommunityWritePageClient({
             name="content"
             control={control}
             render={({ field }) => (
-              <MentorMarkdownEditor
+              <CommunityMarkdownEditor
                 value={field.value}
                 onChange={field.onChange}
                 placeholder="글 내용을 작성해 주세요."
