@@ -1,10 +1,4 @@
-import {
-  Award,
-  CircleHelp,
-  FileText,
-  MessageSquareText,
-  TrendingUp,
-} from 'lucide-react';
+import { Award, CircleHelp, FileText, MessageSquareText } from 'lucide-react';
 import type { ComponentType, ComponentProps, SVGProps } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Badge from '@/components/common/ui/badge';
@@ -15,6 +9,7 @@ import {
   type CommunityMemberRole,
   type CommunityPostBoard,
 } from '@/types/community/domain';
+import CommunityFeaturedFlameIcon from './community-featured-flame-icon';
 
 type BadgeColor = ComponentProps<typeof Badge>['color'];
 type BoardIcon = ComponentType<SVGProps<SVGSVGElement>>;
@@ -127,7 +122,9 @@ export function CommunityFeaturedRankBadge({
           compact ? 'gap-25 font-designer-11b' : 'gap-50',
         )}
       >
-        <TrendingUp className={compact ? 'h-150 w-150' : 'h-200 w-200'} />
+        <CommunityFeaturedFlameIcon
+          className={compact ? 'h-150 w-150' : undefined}
+        />
         {label}
       </span>
     </Badge>

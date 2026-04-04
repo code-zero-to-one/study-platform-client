@@ -1577,6 +1577,18 @@
   resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.4.0.tgz#08d6c5e20cf7e4cc02fd181c4b0c225cd31dbb60"
   integrity sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==
 
+"@lottiefiles/dotlottie-react@^0.18.9":
+  version "0.18.9"
+  resolved "https://registry.yarnpkg.com/@lottiefiles/dotlottie-react/-/dotlottie-react-0.18.9.tgz#151550140ef84a51cf5e621c6c8a9c1bc108e309"
+  integrity sha512-8JFTIuegP5IXz37VK5EXQpt2uRVRX+E5zAeTlpjo2aj2aCGWRLDstVALhYYySjH4jg9RZa3tVt2/rBJfPTjBdg==
+  dependencies:
+    "@lottiefiles/dotlottie-web" "0.69.0"
+
+"@lottiefiles/dotlottie-web@0.69.0":
+  version "0.69.0"
+  resolved "https://registry.yarnpkg.com/@lottiefiles/dotlottie-web/-/dotlottie-web-0.69.0.tgz#e22138ee67d2059132f6d0cbe96d37fca483c635"
+  integrity sha512-dYGkMvg1bGOrSHxIKosPV3lJ+qLSEb83mTrO9qmq1gyhsztw/fDAEe2N9DZdjL6iuVZeLr3SrABuu6XmITiEdQ==
+
 "@mdx-js/react@^3.0.0":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@mdx-js/react/-/react-3.1.1.tgz#24bda7fffceb2fe256f954482123cda1be5f5fef"
