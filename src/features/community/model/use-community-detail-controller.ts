@@ -1,8 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  getCommunityErrorMessage,
+  isCommunityNotFoundError,
+} from '@/features/community/api/community-api';
 import {
   COMMUNITY_COMMENT_REACTION,
+  COMMUNITY_POST_ORIGIN,
   type CommunityComment,
   type CommunityCommentReaction,
   type CommunityPost,
@@ -16,6 +21,7 @@ import {
   getCommunityMockCommentsByPostId,
 } from './community-page-mock-data';
 import { findCommunityPostById } from './community-post-storage';
+import { useCommunityPostDetailQuery } from './use-community-query';
 
 interface UseCommunityDetailControllerParams {
   initialPost?: CommunityPost;
@@ -195,6 +201,14 @@ const removeComment = (
   };
 };
 
+const resolveDetailPost = (postId: number, fallbackPost?: CommunityPost) => {
+  if (fallbackPost?.origin === COMMUNITY_POST_ORIGIN.API) {
+    return fallbackPost;
+  }
+
+  return findCommunityPostById(postId) ?? fallbackPost;
+};
+
 const resolveDetailState = (
   postId: number,
   fallbackPost?: CommunityPost,
@@ -207,7 +221,7 @@ const resolveDetailState = (
   reactionCount: number;
 } => {
   const resolvedPost = useStoredInteraction
-    ? (findCommunityPostById(postId) ?? fallbackPost)
+    ? resolveDetailPost(postId, fallbackPost)
     : fallbackPost;
   const storedInteraction = useStoredInteraction
     ? getCommunityPostInteraction(postId)
@@ -219,7 +233,9 @@ const resolveDetailState = (
       storedInteraction?.comments ?? getCommunityMockCommentsByPostId(postId),
     commentCount:
       storedInteraction?.commentCount ?? resolvedPost?.commentCount ?? 0,
-    isLikedByViewer: storedInteraction?.isLikedByViewer ?? false,
+    isLikedByViewer:
+      storedInteraction?.isLikedByViewer ??
+      resolvedPost?.viewerReaction === 'like',
     reactionCount:
       storedInteraction?.reactionCount ?? resolvedPost?.reactionCount ?? 0,
   };
@@ -243,7 +259,17 @@ export const useCommunityDetailController = ({
   initialPost,
   postId,
 }: UseCommunityDetailControllerParams) => {
-  const initialState = resolveDetailState(postId, initialPost);
+  const fallbackPost = useMemo(
+    () => findCommunityPostById(postId) ?? initialPost,
+    [initialPost, postId],
+  );
+  const shouldUseServerDetail =
+    fallbackPost?.origin !== COMMUNITY_POST_ORIGIN.LOCAL;
+  const postDetailQuery = useCommunityPostDetailQuery(
+    postId,
+    shouldUseServerDetail,
+  );
+  const initialState = resolveDetailState(postId, fallbackPost);
 
   const [post, setPost] = useState<CommunityPost | undefined>(
     initialState.post,
@@ -266,9 +292,28 @@ export const useCommunityDetailController = ({
     number | undefined
   >();
   const [editingDraft, setEditingDraft] = useState('');
+  const errorMessage =
+    postDetailQuery.isError &&
+    !fallbackPost &&
+    !isCommunityNotFoundError(postDetailQuery.error)
+      ? getCommunityErrorMessage(
+          postDetailQuery.error,
+          '글을 불러오지 못했습니다.',
+        )
+      : undefined;
 
   useEffect(() => {
-    const nextState = resolveDetailState(postId, initialPost, true);
+    if (shouldUseServerDetail && postDetailQuery.isPending && !fallbackPost) {
+      setIsResolved(false);
+
+      return;
+    }
+
+    const nextState = resolveDetailState(
+      postId,
+      postDetailQuery.data ?? fallbackPost,
+      true,
+    );
 
     setPost(nextState.post);
     setComments(nextState.comments);
@@ -281,7 +326,13 @@ export const useCommunityDetailController = ({
     setEditingCommentId(undefined);
     setEditingDraft('');
     setIsResolved(true);
-  }, [initialPost, postId]);
+  }, [
+    fallbackPost,
+    postDetailQuery.data,
+    postDetailQuery.isPending,
+    postId,
+    shouldUseServerDetail,
+  ]);
 
   useEffect(() => {
     if (!post) {
@@ -444,6 +495,7 @@ export const useCommunityDetailController = ({
       commentDraft,
       editingCommentId,
       editingDraft,
+      errorMessage,
       isResolved,
       post,
       replyDraft,
