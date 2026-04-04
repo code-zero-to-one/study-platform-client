@@ -48,6 +48,7 @@ export interface FormFieldProps<
 
   showCounterRight?: boolean;
   maxCharCount?: number;
+  getCharCount?: (value: unknown) => number;
 
   /** true로 설정하면 data-scroll-field 속성을 wrapper div에 추가 (자동 스크롤 위치 마킹) */
   scrollable?: boolean;
@@ -76,6 +77,7 @@ export default function FormField<
   children,
   showCounterRight = false,
   maxCharCount,
+  getCharCount,
   scrollable,
   onAfterChange,
   onAfterBlurFilled,
@@ -87,7 +89,11 @@ export default function FormField<
   const errId = `${fieldId}-error`;
 
   const watched = useWatch({ control, name }) as unknown;
-  const currentLen = typeof watched === 'string' ? watched.length : 0;
+  const currentLen = getCharCount
+    ? getCharCount(watched)
+    : typeof watched === 'string'
+      ? watched.length
+      : 0;
 
   const error = get(formState.errors, name) as { message?: string } | undefined;
   const errorMsg = error?.message;
@@ -95,7 +101,7 @@ export default function FormField<
   const leftCol =
     direction === 'vertical'
       ? 'w-full items-center gap-75'
-      : 'w-[112px] gap-100 pt-100';
+      : 'w-1400 gap-100 pt-100';
 
   return (
     <div
