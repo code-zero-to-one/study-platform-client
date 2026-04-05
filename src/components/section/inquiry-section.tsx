@@ -240,19 +240,18 @@ function DetailView({
   }[] = [];
 
   if (isQuestionAuthor) {
-    moreMenuOptions.push({
-      label: '수정하기',
-      value: 'edit',
-      onMenuClick: handleEditQuestion,
-    });
-  }
-
-  if (isQuestionAuthor) {
-    moreMenuOptions.push({
-      label: '삭제하기',
-      value: 'delete',
-      onMenuClick: handleDeleteQuestion,
-    });
+    moreMenuOptions.push(
+      {
+        label: '수정하기',
+        value: 'edit',
+        onMenuClick: handleEditQuestion,
+      },
+      {
+        label: '삭제하기',
+        value: 'delete',
+        onMenuClick: handleDeleteQuestion,
+      },
+    );
   }
 
   if (isLoading) {
