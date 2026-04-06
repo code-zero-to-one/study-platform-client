@@ -36,6 +36,11 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import {
+  CODE_LANGUAGES,
+  HEADING_OPTIONS,
+  ToolbarButton,
+} from '@/components/common/ui/editor/toolbar';
+import {
   extractImageUrls,
   getFileExtension,
 } from '@/lib/rich-text/markdown-utils';
@@ -51,26 +56,6 @@ lowlight.register('go', go);
 lowlight.register('rust', rust);
 lowlight.register('swift', swift);
 lowlight.register('dart', dart);
-
-const CODE_LANGUAGES = [
-  { label: 'Plain Text', value: 'plaintext' },
-  { label: 'JavaScript', value: 'javascript' },
-  { label: 'TypeScript', value: 'typescript' },
-  { label: 'Java', value: 'java' },
-  { label: 'Kotlin', value: 'kotlin' },
-  { label: 'Python', value: 'python' },
-  { label: 'C', value: 'c' },
-  { label: 'C++', value: 'cpp' },
-  { label: 'Go', value: 'go' },
-  { label: 'Rust', value: 'rust' },
-  { label: 'Swift', value: 'swift' },
-  { label: 'Dart', value: 'dart' },
-  { label: 'SQL', value: 'sql' },
-  { label: 'HTML', value: 'html' },
-  { label: 'CSS', value: 'css' },
-  { label: 'JSON', value: 'json' },
-  { label: 'Bash', value: 'bash' },
-] as const;
 
 const IMAGE_URL_PATTERN =
   /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i;
@@ -186,39 +171,6 @@ export interface MarkdownEditorCoreProps {
     uploadUrl: string;
     file: File;
   }) => Promise<void>;
-}
-
-interface ToolbarButtonProps {
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  isActive?: boolean;
-  disabled?: boolean;
-  onClick: () => void;
-}
-
-function ToolbarButton({
-  icon: Icon,
-  label,
-  isActive,
-  disabled,
-  onClick,
-}: ToolbarButtonProps) {
-  return (
-    <Button
-      type="button"
-      color="secondary"
-      size="small"
-      onClick={onClick}
-      disabled={disabled}
-      className={cn(
-        isActive &&
-          'bg-background-neutral-subtle border-border-brand text-text-brand',
-      )}
-    >
-      <Icon className="mr-50 h-12 w-12" />
-      {label}
-    </Button>
-  );
 }
 
 function MarkdownEditorCore({
@@ -437,7 +389,7 @@ function MarkdownEditorCore({
     immediatelyRender: false,
     extensions: [
       StarterKit.configure({
-        heading: { levels: [2, 3] },
+        heading: { levels: [1, 2, 3] },
         codeBlock: false,
         link: false,
         underline: false,
@@ -624,6 +576,17 @@ function MarkdownEditorCore({
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
       <div className="border-border-subtle flex flex-wrap items-center gap-75 border-b px-125 py-100">
+        {HEADING_OPTIONS.map(({ icon, label, level }) => (
+          <ToolbarButton
+            key={label}
+            icon={icon}
+            label={label}
+            isActive={editor?.isActive('heading', { level })}
+            onClick={() =>
+              editor?.chain().focus().toggleHeading({ level }).run()
+            }
+          />
+        ))}
         <ToolbarButton
           icon={Bold}
           label="굵게"
