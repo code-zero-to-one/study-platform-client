@@ -1,9 +1,8 @@
 'use client';
 
 import { ChevronLeft } from 'lucide-react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { memo, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import PageContainer from '@/components/common/ui/page-container';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
@@ -11,8 +10,8 @@ import { useIntersectionObserver } from '@/hooks/common/use-intersection-observe
 import { useUserStore } from '@/stores/useUserStore';
 import CommunityAuthorProfileCard from '../community-author-profile-card';
 import CommunityCommentSection from '../community-comment-section';
+import CommunityDetailBodySection from '../community-detail-body-section';
 import CommunityDetailFeedSection from '../community-detail-feed-section';
-import CommunityMarkdownContent from '../community-markdown-content';
 import { CommunityBoardBadge } from '../community-meta-badge';
 import CommunityPostOwnerActions from '../community-post-owner-actions';
 import CommunityReactionButton from '../community-reaction-button';
@@ -22,78 +21,6 @@ interface CommunityDetailPageClientProps {
   postId: number;
   returnPage?: number;
 }
-
-interface CommunityPostContentSectionProps {
-  content: readonly string[];
-  contentHtml?: string;
-  postId: number;
-  previewImage?: string;
-  previewImageAlt?: string;
-  title: string;
-}
-
-const buildCommunityParagraphItems = (
-  postId: number,
-  content: readonly string[],
-) => {
-  const paragraphCounts = new Map<string, number>();
-
-  return content.map((paragraph) => {
-    const baseKey = `${postId}-${paragraph.slice(0, 48)}-${paragraph.length}`;
-    const occurrence = (paragraphCounts.get(baseKey) ?? 0) + 1;
-
-    paragraphCounts.set(baseKey, occurrence);
-
-    return {
-      key: `${baseKey}-${occurrence}`,
-      paragraph,
-    };
-  });
-};
-
-const CommunityPostContentSection = memo(function CommunityPostContentSection({
-  content,
-  contentHtml,
-  postId,
-  previewImage,
-  previewImageAlt,
-  title,
-}: CommunityPostContentSectionProps) {
-  const hasRichContent = Boolean(contentHtml?.trim());
-  const paragraphItems = buildCommunityParagraphItems(postId, content);
-
-  return (
-    <CommunitySectionShell className="gap-300">
-      {!hasRichContent && previewImage ? (
-        <div className="overflow-hidden rounded-200 border border-border-default bg-background-alternative">
-          <Image
-            src={previewImage}
-            alt={previewImageAlt ?? title}
-            width={1200}
-            height={800}
-            sizes="100vw"
-            className="h-auto w-full"
-          />
-        </div>
-      ) : null}
-
-      {hasRichContent ? (
-        <CommunityMarkdownContent content={contentHtml ?? ''} />
-      ) : (
-        <div className="flex flex-col gap-250">
-          {paragraphItems.map(({ key, paragraph }) => (
-            <p
-              key={key}
-              className="font-designer-16r leading-300 text-text-default"
-            >
-              {paragraph}
-            </p>
-          ))}
-        </div>
-      )}
-    </CommunitySectionShell>
-  );
-});
 
 export default function CommunityDetailPageClient({
   postId,
@@ -231,11 +158,11 @@ export default function CommunityDetailPageClient({
         </div>
       </CommunitySectionShell>
 
-      <CommunityPostContentSection
+      <CommunityDetailBodySection
         postId={state.post.id}
         title={state.post.title}
+        contentHtml={state.post.contentHtml ?? undefined}
         content={state.post.content}
-        contentHtml={state.post.contentHtml}
         previewImage={state.post.previewImage}
         previewImageAlt={state.post.previewImageAlt}
       />
