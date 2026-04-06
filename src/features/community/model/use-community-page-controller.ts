@@ -15,6 +15,10 @@ import {
 } from '@/types/community/domain';
 import { COMMUNITY_QNA_QUESTION_STATUS } from '@/types/community/qna-domain';
 import {
+  scrollToCommunityFeed,
+  scrollToCommunityFeedOnFilterChange,
+} from './community-feed-scroll';
+import {
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_PAGE_SIZE,
   buildCommunityWriteHref,
@@ -25,12 +29,6 @@ import {
   COMMUNITY_FEED_FILTER_OPTIONS,
   COMMUNITY_FEED_VIEW_OPTIONS,
 } from './community-view-config';
-
-const scrollToCommunityFeed = () => {
-  document.getElementById('community-feed')?.scrollIntoView({
-    block: 'start',
-  });
-};
 
 interface UseCommunityPageControllerParams {
   initialPage: number;
@@ -151,7 +149,7 @@ export const useCommunityPageController = ({
     });
 
     replacePage(COMMUNITY_DEFAULT_PAGE);
-    scrollToCommunityFeed();
+    scrollToCommunityFeedOnFilterChange();
   };
 
   const handleViewChange = (nextView: CommunityFeedView) => {
