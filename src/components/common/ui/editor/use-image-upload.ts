@@ -194,16 +194,9 @@ export function useImageUpload(
         }
 
         const blob = await response.blob();
-        if (!blob.type.startsWith('image/')) {
-          throw new Error('이미지 파일이 아닙니다.');
-        }
-
-        const extension = getExtensionFromMime(blob.type);
-        const filename = extension
-          ? `pasted-image.${extension}`
-          : 'pasted-image';
+        const extension = getExtensionFromMime(blob.type) || 'png';
         const normalizedFile = await normalizeImageFileForUpload(
-          toFileFromBlob(blob, filename),
+          toFileFromBlob(blob, `pasted-image.${extension}`),
         );
 
         const error = getImageFileUploadValidationError(

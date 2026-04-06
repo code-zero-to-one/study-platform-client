@@ -32,13 +32,27 @@ import {
   Underline as UnderlineIcon,
 } from 'lucide-react';
 import { common, createLowlight } from 'lowlight'; // eslint-disable-line import/order
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import {
+  MARKDOWN_IMAGE_DEFAULT_WIDTH,
+  MARKDOWN_IMAGE_MAX_WIDTH,
+  MARKDOWN_IMAGE_MIN_WIDTH,
+  MARKDOWN_IMAGE_WIDTH_STEP,
+  clampImageWidth,
   getExtensionFromMime,
   getImageFileNormalizationErrorMessage,
   normalizeImageFileForUpload,
+  parseImageWidth,
   toFileFromBlob,
 } from '@/components/common/ui/editor/image-utils';
 import {
@@ -65,30 +79,10 @@ lowlight.register('dart', dart);
 
 const IMAGE_URL_PATTERN =
   /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif|heic|heif)(\?[^\s]*)?$/i;
-const IMAGE_WIDTH_MIN = 80;
-const IMAGE_WIDTH_DEFAULT = 200;
-const IMAGE_WIDTH_MAX = 400;
-const IMAGE_WIDTH_STEP = 10;
 const BYTES_PER_MEGABYTE = 1024 * 1024;
 
 const isImageUrl = (text: string): boolean => {
   return IMAGE_URL_PATTERN.test(text.trim());
-};
-
-const clampImageWidth = (value: number) => {
-  return Math.min(
-    IMAGE_WIDTH_MAX,
-    Math.max(IMAGE_WIDTH_MIN, Math.round(value)),
-  );
-};
-
-const parseImageWidth = (value: unknown): number => {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) {
-    return IMAGE_WIDTH_DEFAULT;
-  }
-
-  return clampImageWidth(parsed);
 };
 
 const formatFileSizeLimit = (bytes: number) => {
@@ -123,7 +117,7 @@ const MarkdownImageExtension = ImageExtension.extend({
     return {
       ...this.parent?.(),
       width: {
-        default: IMAGE_WIDTH_DEFAULT,
+        default: MARKDOWN_IMAGE_DEFAULT_WIDTH,
         parseHTML: (element: HTMLElement) =>
           parseImageWidth(element.getAttribute('width')),
         renderHTML: (attributes: Record<string, unknown>) => ({
@@ -179,7 +173,10 @@ function MarkdownEditorCore({
   const [selectedImagePos, setSelectedImagePos] = useState<number | null>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const isInternalUpdate = useRef(false);
-  const [, setRenderKey] = useState(0);
+  const [, forceEditorRender] = useReducer(
+    (renderCount: number) => renderCount + 1,
+    0,
+  );
 
   const allowedExtensionsLabel = useMemo(() => {
     return allowedImageExtensions.join('/');
@@ -216,7 +213,7 @@ function MarkdownEditorCore({
         .focus()
         .setImage({
           src: ticket.publicUrl,
-          width: IMAGE_WIDTH_DEFAULT,
+          width: MARKDOWN_IMAGE_DEFAULT_WIDTH,
         })
         .run();
     },
@@ -360,10 +357,6 @@ function MarkdownEditorCore({
         }
 
         const blob = await response.blob();
-        if (!blob.type.startsWith('image/')) {
-          throw new Error('이미지 파일이 아닙니다.');
-        }
-
         const extension = getExtensionFromMime(blob.type) || 'png';
         const normalizedFile = await normalizeImageFileForUpload(
           toFileFromBlob(blob, `pasted-image.${extension}`),
@@ -423,7 +416,7 @@ function MarkdownEditorCore({
       onChange(updatedEditor.getHTML());
     },
     onTransaction() {
-      setRenderKey((prev) => prev + 1);
+      forceEditorRender();
     },
     onSelectionUpdate: ({ editor: nextEditor }) => {
       if (nextEditor.isActive('image')) {
@@ -577,7 +570,7 @@ function MarkdownEditorCore({
   const selectedImageWidth =
     editor && selectedImagePos !== null
       ? parseImageWidth(editor.state.doc.nodeAt(selectedImagePos)?.attrs.width)
-      : IMAGE_WIDTH_DEFAULT;
+      : MARKDOWN_IMAGE_DEFAULT_WIDTH;
 
   return (
     <div className="rounded-125 border-border-subtle bg-background-default border">
@@ -698,9 +691,9 @@ function MarkdownEditorCore({
           </span>
           <input
             type="range"
-            min={IMAGE_WIDTH_MIN}
-            max={IMAGE_WIDTH_MAX}
-            step={IMAGE_WIDTH_STEP}
+            min={MARKDOWN_IMAGE_MIN_WIDTH}
+            max={MARKDOWN_IMAGE_MAX_WIDTH}
+            step={MARKDOWN_IMAGE_WIDTH_STEP}
             value={selectedImageWidth}
             onChange={(event) => {
               handleImageWidthChange(Number(event.target.value));
@@ -714,9 +707,9 @@ function MarkdownEditorCore({
             type="button"
             color="secondary"
             size="small"
-            onClick={() => handleImageWidthChange(IMAGE_WIDTH_DEFAULT)}
+            onClick={() => handleImageWidthChange(MARKDOWN_IMAGE_DEFAULT_WIDTH)}
           >
-            기본 200px
+            {`기본 ${MARKDOWN_IMAGE_DEFAULT_WIDTH}px`}
           </Button>
         </div>
       )}

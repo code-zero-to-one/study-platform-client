@@ -212,23 +212,6 @@ const hasMatchingImageExtension = (
   );
 };
 
-const recreateImageFile = ({
-  blob,
-  fileName,
-  mimeType,
-  lastModified,
-}: {
-  blob: Blob;
-  fileName: string;
-  mimeType: SupportedImageMimeType;
-  lastModified: number;
-}) => {
-  return new File([blob], fileName, {
-    type: mimeType,
-    lastModified,
-  });
-};
-
 const isHeicLikeImageMimeType = (
   mimeType: string | undefined,
 ): mimeType is 'image/heic' | 'image/heif' => {
@@ -249,10 +232,8 @@ const convertHeicImageFileToJpeg = async (file: File) => {
       throw new Error();
     }
 
-    return recreateImageFile({
-      blob: convertedBlob,
-      fileName: replaceFileExtension(file.name, 'jpg'),
-      mimeType: 'image/jpeg',
+    return new File([convertedBlob], replaceFileExtension(file.name, 'jpg'), {
+      type: 'image/jpeg',
       lastModified: file.lastModified,
     });
   } catch {
@@ -288,15 +269,14 @@ export const normalizeImageFileForUpload = async (file: File) => {
     return file;
   }
 
-  return recreateImageFile({
-    blob: file,
-    fileName: replaceFileExtension(
-      file.name,
-      getExtensionFromMime(resolvedMimeType),
-    ),
-    mimeType: resolvedMimeType,
-    lastModified: file.lastModified,
-  });
+  return new File(
+    [file],
+    replaceFileExtension(file.name, getExtensionFromMime(resolvedMimeType)),
+    {
+      type: resolvedMimeType,
+      lastModified: file.lastModified,
+    },
+  );
 };
 
 export const getImageFileNormalizationErrorMessage = (
