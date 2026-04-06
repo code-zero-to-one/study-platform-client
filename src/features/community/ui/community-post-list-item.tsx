@@ -6,8 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { MouseEvent } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
+import { buildCommunityFeedItemDetailHref } from '@/features/community/model/community-feed-item';
 import { getCommunityPostPreviewText } from '@/features/community/model/community-rich-content';
-import { buildCommunityPostHref } from '@/features/community/model/community-route';
 import type { CommunityPost } from '@/types/community/domain';
 import { isCommunityCardNestedInteraction } from './community-card-navigation';
 import CommunityFeedAuthorMeta from './community-feed-author-meta';
@@ -40,7 +40,11 @@ export default function CommunityPostListItem({
   const BoardIcon = boardMeta.icon;
   const PlaceholderIcon = featuredFrame ? Trophy : BoardIcon;
   const previewText = getCommunityPostPreviewText(post);
-  const detailHref = buildCommunityPostHref(post.id, currentPage);
+  const detailHref = buildCommunityFeedItemDetailHref(
+    post.id,
+    post.board,
+    currentPage,
+  );
   const mediaBadge =
     featuredLabel || showBoardBadge ? (
       <>
