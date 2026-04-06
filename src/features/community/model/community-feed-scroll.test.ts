@@ -3,7 +3,7 @@ import { shouldScrollToCommunityFeedOnFilterChange } from '@/features/community/
 
 describe('community-feed-scroll', () => {
   describe('shouldScrollToCommunityFeedOnFilterChange', () => {
-    it('does not force-scroll when viewport is already above the feed anchor', () => {
+    it('does not force-scroll when viewport is already at or above the feed anchor', () => {
       expect(
         shouldScrollToCommunityFeedOnFilterChange({
           feedTop: 305,
@@ -14,6 +14,12 @@ describe('community-feed-scroll', () => {
         shouldScrollToCommunityFeedOnFilterChange({
           feedTop: 305,
           scrollY: 150,
+        }),
+      ).toBe(false);
+      expect(
+        shouldScrollToCommunityFeedOnFilterChange({
+          feedTop: 305,
+          scrollY: 305,
         }),
       ).toBe(false);
     });
