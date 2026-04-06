@@ -14,14 +14,14 @@ export default function EditorVisibleTextCounter({
   return (
     <div
       className={cn(
-        'border-border-subtle flex border-t px-150 py-100',
+        'flex px-150 pt-50 pb-100',
         helperText ? 'items-center justify-between gap-100' : 'justify-end',
       )}
     >
       {helperText ? (
-        <p className="font-designer-12r text-text-subtle">{helperText}</p>
+        <p className="font-designer-13r text-text-subtlest">{helperText}</p>
       ) : null}
-      <p className="font-designer-12r text-text-subtle">
+      <p className="font-designer-13r text-text-subtlest">
         {currentLength.toLocaleString()} / {maxLength.toLocaleString()}
       </p>
     </div>
