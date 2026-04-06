@@ -10,7 +10,9 @@ import {
 import {
   type MarkdownEditorImageConfig,
   MARKDOWN_IMAGE_DEFAULT_WIDTH,
+  getImageFileNormalizationErrorMessage,
   getExtensionFromMime,
+  normalizeImageFileForUpload,
   toFileFromBlob,
   validateImageFileForUpload,
 } from './image-utils';
@@ -93,11 +95,22 @@ export function useImageUpload(
           break;
         }
 
-        const error = validateImageFileForUpload(file, resolvedImageConfig);
+        let normalizedFile: File;
+        try {
+          normalizedFile = await normalizeImageFileForUpload(file);
+        } catch (error) {
+          errors.push(getImageFileNormalizationErrorMessage(file.name, error));
+          continue;
+        }
+
+        const error = validateImageFileForUpload(
+          normalizedFile,
+          resolvedImageConfig,
+        );
         if (error) {
           errors.push(error);
         } else {
-          validFiles.push(file);
+          validFiles.push(normalizedFile);
         }
       }
 
@@ -178,17 +191,32 @@ export function useImageUpload(
         const filename = extension
           ? `pasted-image.${extension}`
           : 'pasted-image';
-        const file = toFileFromBlob(blob, filename);
+        const normalizedFile = await normalizeImageFileForUpload(
+          toFileFromBlob(blob, filename),
+        );
 
-        const error = validateImageFileForUpload(file, resolvedImageConfig);
+        const error = validateImageFileForUpload(
+          normalizedFile,
+          resolvedImageConfig,
+        );
         if (error) {
           setImageInsertError(error);
 
           return;
         }
 
-        await uploadAndInsertFile(editor, file);
-      } catch {
+        await uploadAndInsertFile(editor, normalizedFile);
+      } catch (error) {
+        if (
+          error instanceof Error &&
+          error.message.trim() &&
+          error.message !== 'Failed to fetch'
+        ) {
+          setImageInsertError(error.message.trim());
+
+          return;
+        }
+
         setImageInsertError(
           '이미지 URL을 가져올 수 없습니다. 이미지를 직접 복사(우클릭 → 이미지 복사)하거나 파일로 업로드해주세요.',
         );

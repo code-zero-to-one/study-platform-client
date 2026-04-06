@@ -36,6 +36,12 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/components/common/ui/(shadcn)/lib/utils';
 import Button from '@/components/common/ui/button';
 import {
+  getExtensionFromMime,
+  getImageFileNormalizationErrorMessage,
+  normalizeImageFileForUpload,
+  toFileFromBlob,
+} from '@/components/common/ui/editor/image-utils';
+import {
   CODE_LANGUAGES,
   HEADING_OPTIONS,
   ToolbarButton,
@@ -58,7 +64,7 @@ lowlight.register('swift', swift);
 lowlight.register('dart', dart);
 
 const IMAGE_URL_PATTERN =
-  /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)(\?[^\s]*)?$/i;
+  /^https?:\/\/.+\.(jpg|jpeg|png|webp|gif|heic|heif)(\?[^\s]*)?$/i;
 const IMAGE_WIDTH_MIN = 80;
 const IMAGE_WIDTH_DEFAULT = 200;
 const IMAGE_WIDTH_MAX = 400;
@@ -127,21 +133,6 @@ const MarkdownImageExtension = ImageExtension.extend({
     };
   },
 });
-
-const toFileFromBlob = (blob: Blob, fileName: string): File => {
-  return new File([blob], fileName, { type: blob.type });
-};
-
-const guessExtensionFromMime = (mimeType: string): string => {
-  const map: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
-  };
-
-  return map[mimeType] ?? 'png';
-};
 
 export interface MarkdownImageUploadTicket {
   uploadUrl: string;
@@ -283,11 +274,19 @@ function MarkdownEditorCore({
       const errors: string[] = [];
 
       for (const file of targetFiles) {
-        const error = validateImageFile(file);
+        let normalizedFile: File;
+        try {
+          normalizedFile = await normalizeImageFileForUpload(file);
+        } catch (error) {
+          errors.push(getImageFileNormalizationErrorMessage(file.name, error));
+          continue;
+        }
+
+        const error = validateImageFile(normalizedFile);
         if (error) {
           errors.push(error);
         } else {
-          validFiles.push(file);
+          validFiles.push(normalizedFile);
         }
       }
 
@@ -354,18 +353,19 @@ function MarkdownEditorCore({
           throw new Error('이미지 파일이 아닙니다.');
         }
 
-        const ext = guessExtensionFromMime(blob.type);
-        const file = toFileFromBlob(blob, `pasted-image.${ext}`);
+        const extension = getExtensionFromMime(blob.type) || 'png';
+        const normalizedFile = await normalizeImageFileForUpload(
+          toFileFromBlob(blob, `pasted-image.${extension}`),
+        );
+        const error = validateImageFile(normalizedFile);
 
-        if (file.size > maxImageFileSize) {
-          setImageInsertError(
-            `이미지가 ${maxImageFileSizeLabel}를 초과합니다.`,
-          );
+        if (error) {
+          setImageInsertError(error);
 
           return;
         }
 
-        await uploadAndInsertFile(editor, file);
+        await uploadAndInsertFile(editor, normalizedFile);
       } catch (error) {
         setImageInsertError(
           getMarkdownEditorErrorMessage(
@@ -377,12 +377,7 @@ function MarkdownEditorCore({
         setIsUploadingImages(false);
       }
     },
-    [
-      maxImageCount,
-      maxImageFileSize,
-      maxImageFileSizeLabel,
-      uploadAndInsertFile,
-    ],
+    [maxImageCount, uploadAndInsertFile, validateImageFile],
   );
 
   const editor = useEditor({
