@@ -232,7 +232,6 @@ export const useCommunityWriteController = ({
           },
         });
 
-        showToast('글을 수정했습니다.');
         router.push(buildCommunityPostHref(updatedPost.postId, returnPage));
 
         return;
@@ -248,7 +247,6 @@ export const useCommunityWriteController = ({
             createCommunityQnaIdempotencyKey('community-question'),
         });
 
-        showToast('질문을 등록했습니다.');
         router.push(buildCommunityQuestionHref(createdQuestion.id, returnPage));
 
         return;
@@ -263,7 +261,6 @@ export const useCommunityWriteController = ({
         idempotencyKey: createCommunityIdempotencyKey('community-post'),
       });
 
-      showToast('글을 등록했습니다.');
       router.push(buildCommunityPostHref(createdPost.postId, returnPage));
     } catch (error) {
       const contentErrorMessage = getCommunityWriteContentErrorMessage(error);

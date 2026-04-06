@@ -14,7 +14,10 @@ import {
   type CommunityWriteMode,
 } from '@/features/community/model/use-community-write-controller';
 import type { CommunityBoard } from '@/types/community/domain';
-import { COMMUNITY_WRITE_TITLE_MAX_LENGTH } from '@/types/schemas/community-write-schema';
+import {
+  COMMUNITY_WRITE_CONTENT_MAX_VISIBLE_LENGTH,
+  COMMUNITY_WRITE_TITLE_MAX_LENGTH,
+} from '@/types/schemas/community-write-schema';
 import CommunityMarkdownEditor from '../community-markdown-editor';
 import CommunitySectionShell from '../community-section-shell';
 
@@ -150,6 +153,9 @@ export default function CommunityWritePageClient({
                 value={field.value}
                 onChange={field.onChange}
                 placeholder="글 내용을 작성해 주세요."
+                visibleTextCounter={{
+                  maxLength: COMMUNITY_WRITE_CONTENT_MAX_VISIBLE_LENGTH,
+                }}
               />
             )}
           />

@@ -12,7 +12,10 @@ import {
   useCommunityQnaQuestionWriteController,
   type CommunityQnaQuestionWriteMode,
 } from '@/features/community/model/use-community-qna-question-write-controller';
-import { COMMUNITY_WRITE_TITLE_MAX_LENGTH } from '@/types/schemas/community-write-schema';
+import {
+  COMMUNITY_WRITE_CONTENT_MAX_VISIBLE_LENGTH,
+  COMMUNITY_WRITE_TITLE_MAX_LENGTH,
+} from '@/types/schemas/community-write-schema';
 import CommunityMarkdownEditor from '../community-markdown-editor';
 import CommunitySectionShell from '../community-section-shell';
 
@@ -131,6 +134,9 @@ export default function CommunityQnaQuestionWritePageClient({
                 value={field.value}
                 onChange={field.onChange}
                 placeholder="질문 내용을 자세히 작성해 주세요."
+                visibleTextCounter={{
+                  maxLength: COMMUNITY_WRITE_CONTENT_MAX_VISIBLE_LENGTH,
+                }}
               />
             )}
           />

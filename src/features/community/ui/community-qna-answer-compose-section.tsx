@@ -10,6 +10,7 @@ import type {
   CommunityQnaAnswerItem,
   CommunityQnaQuestionViewer,
 } from '@/types/community/qna-domain';
+import { COMMUNITY_QNA_ANSWER_CONTENT_MAX_VISIBLE_LENGTH } from '@/types/schemas/community-qna-answer-write-schema';
 import CommunityMarkdownEditor from './community-markdown-editor';
 import CommunitySectionShell from './community-section-shell';
 
@@ -77,6 +78,9 @@ export default function CommunityQnaAnswerComposeSection({
               value={field.value}
               onChange={field.onChange}
               placeholder="답변 내용을 작성해 주세요."
+              visibleTextCounter={{
+                maxLength: COMMUNITY_QNA_ANSWER_CONTENT_MAX_VISIBLE_LENGTH,
+              }}
             />
           )}
         />

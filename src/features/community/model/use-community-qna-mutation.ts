@@ -72,14 +72,14 @@ export const useCreateCommunityQnaQuestionMutation = () => {
         mapCommunityQnaQuestionDetail,
       ),
     onError: () => {},
-    onSuccess: async (response) => {
-      await Promise.all([
+    onSuccess: (response) => {
+      Promise.all([
         invalidateCommunityQnaQuestionListQueries(queryClient),
         invalidateCommunityQnaQuestionAggregateQueries(
           queryClient,
           response.id,
         ),
-      ]);
+      ]).catch(() => {});
     },
   });
 };
@@ -101,14 +101,14 @@ export const useUpdateCommunityQnaQuestionMutation = () => {
         mapCommunityQnaQuestionDetail,
       ),
     onError: () => {},
-    onSuccess: async (_, variables) => {
-      await Promise.all([
+    onSuccess: (_, variables) => {
+      Promise.all([
         invalidateCommunityQnaQuestionListQueries(queryClient),
         invalidateCommunityQnaQuestionAggregateQueries(
           queryClient,
           variables.questionId,
         ),
-      ]);
+      ]).catch(() => {});
     },
   });
 };
