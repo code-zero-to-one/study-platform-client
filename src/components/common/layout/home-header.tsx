@@ -1,26 +1,13 @@
-import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import {
   SERVER_USER_PROFILE_RESULT_KINDS,
   tryGetUserProfileInServer,
 } from '@/api/endpoints/user/get-user-profile.server';
-import HeaderNav from '@/components/common/layout/header-nav';
-import HeaderUserDropdown from '@/components/common/layout/header-user-dropdown';
-import MobileMenuDrawer from '@/components/common/layout/mobile-menu-drawer';
-import Button from '@/components/common/ui/button';
-import StudyMatchingToggle from '@/components/home/study-matching-toggle';
+import HomeHeaderClient from '@/components/common/layout/home-header-client';
 import { isAuthenticatedMemberSessionState } from '@/features/auth/model/auth-session';
 import { readServerAuthSession } from '@/features/auth/model/server-auth-session';
 import { tryGetMyDeveloperRegistrationInServer } from '@/features/developer/api/developer-registration-api.server';
-
-const LoginModal = dynamic(
-  () => import('@/components/common/modals/login-modal'),
-);
-
-const NotificationDropdown = dynamic(
-  () => import('@/components/common/modals/notification-dropdown'),
-);
 
 export default async function Header() {
   const { sessionState, authenticatedMemberId: memberId } =
@@ -92,53 +79,12 @@ export default async function Header() {
           </span>
         </div>
 
-        {/* 데스크톱 네비게이션 */}
-        <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-between">
-          <HeaderNav isLoggedIn={isLoggedIn} />
-
-          {isLoggedIn && (
-            <div className="flex items-center gap-200">
-              <StudyMatchingToggle />
-              <NotificationDropdown />
-            </div>
-          )}
-
-          <div className="ml-150">
-            {isLoggedIn ? (
-              <div className="flex items-center gap-150">
-                {showDeveloperRegistrationEntry ? (
-                  <Button
-                    asChild
-                    size="small"
-                    color="outlined"
-                    className="font-designer-14m whitespace-nowrap"
-                  >
-                    <Link href="/developer-registration">개발자 등록</Link>
-                  </Button>
-                ) : null}
-                <HeaderUserDropdown userImg={userImg} />
-              </div>
-            ) : (
-              <LoginModal
-                openTrigger={
-                  <Button size="small" className="font-designer-14m">
-                    로그인 / 회원가입
-                  </Button>
-                }
-              />
-            )}
-          </div>
-        </div>
-
-        {/* 모바일 햄버거 메뉴 */}
-        <div className="flex items-center gap-100 lg:hidden">
-          {isLoggedIn && <NotificationDropdown />}
-          <MobileMenuDrawer
-            isLoggedIn={isLoggedIn}
-            userImg={userImg}
-            showDeveloperRegistrationEntry={showDeveloperRegistrationEntry}
-          />
-        </div>
+        <HomeHeaderClient
+          initialSessionState={sessionState}
+          initialAuthenticatedMemberId={memberId}
+          initialUserImg={userImg}
+          initialShowDeveloperRegistrationEntry={showDeveloperRegistrationEntry}
+        />
       </div>
     </header>
   );
