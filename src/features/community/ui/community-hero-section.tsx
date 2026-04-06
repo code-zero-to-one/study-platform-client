@@ -40,7 +40,6 @@ export default function CommunityHeroSection({
               alt="Discord"
               width={219}
               height={32}
-              unoptimized
             />
           </Link>
         </div>

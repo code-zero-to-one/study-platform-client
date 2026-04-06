@@ -36,6 +36,8 @@ export interface CommunityQnaQuestionSummary {
   revision: number;
   title: string;
   excerpt: string;
+  previewImage?: string;
+  previewImageAlt?: string;
   author: CommunityQnaAuthor;
   stats: CommunityQnaQuestionStats;
   accepted: boolean;
@@ -50,6 +52,8 @@ export interface CommunityQnaQuestionDetail {
   title: string;
   contentHtml: string;
   excerpt: string;
+  previewImage?: string;
+  previewImageAlt?: string;
   author: CommunityQnaAuthor;
   stats: CommunityQnaQuestionStats;
   acceptedAnswerId?: number;

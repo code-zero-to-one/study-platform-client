@@ -106,8 +106,8 @@ export default function CommunityPostListItem({
                 alt={post.previewImageAlt ?? post.title}
                 width={48}
                 height={48}
+                sizes="48px"
                 className="h-600 w-600 object-cover"
-                unoptimized
               />
             </div>
           ) : (

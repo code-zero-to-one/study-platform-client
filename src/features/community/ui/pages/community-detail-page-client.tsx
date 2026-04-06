@@ -3,7 +3,7 @@
 import { ChevronLeft } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import PageContainer from '@/components/common/ui/page-container';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityDetailController } from '@/features/community/model/use-community-detail-controller';
@@ -22,6 +22,58 @@ interface CommunityDetailPageClientProps {
   postId: number;
   returnPage?: number;
 }
+
+interface CommunityPostContentSectionProps {
+  content: readonly string[];
+  contentHtml?: string;
+  postId: number;
+  previewImage?: string;
+  previewImageAlt?: string;
+  title: string;
+}
+
+const CommunityPostContentSection = memo(function CommunityPostContentSection({
+  content,
+  contentHtml,
+  postId,
+  previewImage,
+  previewImageAlt,
+  title,
+}: CommunityPostContentSectionProps) {
+  const hasRichContent = Boolean(contentHtml?.trim());
+
+  return (
+    <CommunitySectionShell className="gap-300">
+      {!hasRichContent && previewImage ? (
+        <div className="overflow-hidden rounded-200 border border-border-default bg-background-alternative">
+          <Image
+            src={previewImage}
+            alt={previewImageAlt ?? title}
+            width={1200}
+            height={800}
+            sizes="100vw"
+            className="h-auto w-full"
+          />
+        </div>
+      ) : null}
+
+      {hasRichContent ? (
+        <CommunityMarkdownContent content={contentHtml ?? ''} />
+      ) : (
+        <div className="flex flex-col gap-250">
+          {content.map((paragraph) => (
+            <p
+              key={`${postId}-${paragraph.slice(0, 48)}-${paragraph.length}`}
+              className="font-designer-16r leading-300 text-text-default"
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      )}
+    </CommunitySectionShell>
+  );
+});
 
 export default function CommunityDetailPageClient({
   postId,
@@ -45,7 +97,9 @@ export default function CommunityDetailPageClient({
   );
 
   useEffect(() => {
-    setIsFeedVisible(false);
+    if (postId > 0) {
+      setIsFeedVisible(false);
+    }
   }, [postId]);
 
   if (!state.isResolved) {
@@ -108,8 +162,6 @@ export default function CommunityDetailPageClient({
     );
   }
 
-  const hasRichContent = Boolean(state.post.contentHtml?.trim());
-
   return (
     <PageContainer className="flex flex-col gap-400 xl:gap-500">
       <CommunitySectionShell className="gap-250 border-b border-border-default pb-300">
@@ -159,35 +211,14 @@ export default function CommunityDetailPageClient({
         </div>
       </CommunitySectionShell>
 
-      <CommunitySectionShell className="gap-300">
-        {!hasRichContent && state.post.previewImage ? (
-          <div className="overflow-hidden rounded-200 border border-border-default bg-background-alternative">
-            <Image
-              src={state.post.previewImage}
-              alt={state.post.previewImageAlt ?? state.post.title}
-              width={1200}
-              height={800}
-              className="h-auto w-full"
-              unoptimized
-            />
-          </div>
-        ) : null}
-
-        {hasRichContent ? (
-          <CommunityMarkdownContent content={state.post.contentHtml ?? ''} />
-        ) : (
-          <div className="flex flex-col gap-250">
-            {state.post.content.map((paragraph, index) => (
-              <p
-                key={`${state.post.id}-${index}`}
-                className="font-designer-16r leading-300 text-text-default"
-              >
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        )}
-      </CommunitySectionShell>
+      <CommunityPostContentSection
+        postId={state.post.id}
+        title={state.post.title}
+        content={state.post.content}
+        contentHtml={state.post.contentHtml}
+        previewImage={state.post.previewImage}
+        previewImageAlt={state.post.previewImageAlt}
+      />
 
       <CommunityCommentSection
         comments={viewModel.comments}

@@ -1,6 +1,7 @@
 'use client';
 
 import { CircleHelp } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { MouseEvent } from 'react';
@@ -66,9 +67,22 @@ export default function CommunityQnaQuestionListItem({
           className="block rounded-150 transition-opacity hover:opacity-80"
           suppressHydrationWarning={true}
         >
-          <div className="flex h-600 w-600 items-center justify-center rounded-150 border border-border-default bg-background-default">
-            <CircleHelp className="h-225 w-225 text-text-brand" />
-          </div>
+          {question.previewImage ? (
+            <div className="overflow-hidden rounded-150 border border-border-default bg-background-default">
+              <Image
+                src={question.previewImage}
+                alt={question.previewImageAlt ?? question.title}
+                width={48}
+                height={48}
+                sizes="48px"
+                className="h-600 w-600 object-cover"
+              />
+            </div>
+          ) : (
+            <div className="flex h-600 w-600 items-center justify-center rounded-150 border border-border-default bg-background-default">
+              <CircleHelp className="h-225 w-225 text-text-brand" />
+            </div>
+          )}
         </Link>
       }
       mediaBadge={

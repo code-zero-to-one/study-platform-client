@@ -1,6 +1,6 @@
 'use client';
 
-import { CircleHelp } from 'lucide-react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { MouseEvent } from 'react';
@@ -40,27 +40,15 @@ export default function CommunityQnaQuestionCard({
   };
 
   return (
+    /* biome-ignore lint/a11y/useKeyWithClickEvents: 카드 내부에 상세 링크와 액션이 함께 있어 기존 전체 클릭 패턴을 유지한다. */
     <article
       className="flex h-full cursor-pointer flex-col rounded-200 border border-border-default bg-background-default p-250"
       onClick={handleCardClick}
     >
-      <div className="mb-200 inline-flex flex-col items-center gap-100">
-        <CommunityBoardBadge board={COMMUNITY_BOARD.QNA} showIcon={false} />
-        <Link
-          href={detailHref}
-          aria-label={`${question.title} 상세 보기`}
-          className="block rounded-150 transition-opacity hover:opacity-80"
-          suppressHydrationWarning={true}
-        >
-          <div className="flex h-600 w-600 items-center justify-center rounded-150 border border-border-default bg-background-default">
-            <CircleHelp className="h-225 w-225 text-text-brand" />
-          </div>
-        </Link>
-      </div>
-
       <div className="flex items-start justify-between gap-200">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-100">
+            <CommunityBoardBadge board={COMMUNITY_BOARD.QNA} showIcon={false} />
             <span className="flex items-center gap-75">
               <Avatar
                 image={question.author.profileImageUrl}
@@ -104,6 +92,24 @@ export default function CommunityQnaQuestionCard({
           <CommunityQnaQuestionStats question={question} className="shrink-0" />
         </div>
       </div>
+
+      {question.previewImage ? (
+        <Link
+          href={detailHref}
+          aria-label={`${question.title} 상세 보기`}
+          className="mt-200 block overflow-hidden rounded-150 border border-border-default bg-background-alternative transition-opacity hover:opacity-80"
+          suppressHydrationWarning={true}
+        >
+          <Image
+            src={question.previewImage}
+            alt={question.previewImageAlt ?? question.title}
+            width={1200}
+            height={800}
+            sizes="(max-width: 767px) 100vw, 50vw"
+            className="h-auto w-full"
+          />
+        </Link>
+      ) : null}
     </article>
   );
 }
