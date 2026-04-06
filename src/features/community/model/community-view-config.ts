@@ -28,5 +28,5 @@ export const COMMUNITY_FEED_VIEW_OPTIONS: readonly CommunityFeedViewOption[] = [
   { id: COMMUNITY_FEED_VIEW.CARD, label: '카드형' },
 ] as const;
 
-export const COMMUNITY_DISCORD_URL = 'https://discord.gg/6JGu7G4F';
+export const COMMUNITY_DISCORD_URL = 'https://discord.gg/jyG7K9AeNJ';
 export const COMMUNITY_DEFAULT_VIEWER_IMAGE = '/profile-default.svg';
