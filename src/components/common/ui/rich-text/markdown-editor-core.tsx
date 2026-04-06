@@ -223,6 +223,25 @@ function MarkdownEditorCore({
     [requestImageUploadTicket, uploadImageFile],
   );
 
+  const collectUploadErrors = useCallback(
+    async (editor: Editor, files: File[]) => {
+      const uploadErrors: string[] = [];
+
+      for (const file of files) {
+        try {
+          await uploadAndInsertFile(editor, file);
+        } catch (error) {
+          uploadErrors.push(
+            `${file.name}: ${getMarkdownEditorErrorMessage(error, '업로드에 실패했습니다.')}`,
+          );
+        }
+      }
+
+      return uploadErrors;
+    },
+    [uploadAndInsertFile],
+  );
+
   const validateImageFile = useCallback(
     (file: File): string | undefined => {
       if (!file.type.startsWith('image/')) {
@@ -302,15 +321,7 @@ function MarkdownEditorCore({
       setImageInsertError('');
 
       try {
-        for (const file of validFiles) {
-          try {
-            await uploadAndInsertFile(editor, file);
-          } catch (error) {
-            errors.push(
-              `${file.name}: ${getMarkdownEditorErrorMessage(error, '업로드에 실패했습니다.')}`,
-            );
-          }
-        }
+        errors.push(...(await collectUploadErrors(editor, validFiles)));
 
         if (files.length > remaining) {
           errors.push(
@@ -325,7 +336,7 @@ function MarkdownEditorCore({
         setIsUploadingImages(false);
       }
     },
-    [isUploadingImages, maxImageCount, uploadAndInsertFile, validateImageFile],
+    [collectUploadErrors, isUploadingImages, maxImageCount, validateImageFile],
   );
 
   const handlePasteImageUrl = useCallback(

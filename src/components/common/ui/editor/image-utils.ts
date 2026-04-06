@@ -344,10 +344,10 @@ export const isAllowedImageExtension = (
  *   maxImageFileSize: 5 * 1024 * 1024,
  *   uploadImageFile: async (f) => 'url'
  * }
- * const error = validateImageFileForUpload(file, config)
+ * const error = getImageFileUploadValidationError(file, config)
  * console.log(error) // undefined (검증 통과)
  */
-export const validateImageFileForUpload = (
+export const getImageFileUploadValidationError = (
   file: File,
   resolvedImageConfig: MarkdownEditorImageConfig,
 ): string | undefined => {

@@ -10,11 +10,11 @@ import {
 import {
   type MarkdownEditorImageConfig,
   MARKDOWN_IMAGE_DEFAULT_WIDTH,
+  getImageFileUploadValidationError,
   getImageFileNormalizationErrorMessage,
   getExtensionFromMime,
   normalizeImageFileForUpload,
   toFileFromBlob,
-  validateImageFileForUpload,
 } from './image-utils';
 
 const maxImageCountError = (count: number) =>
@@ -57,6 +57,23 @@ export function useImageUpload(
       imageCommand.run();
     },
     [resolvedImageConfig],
+  );
+
+  const collectUploadErrors = useCallback(
+    async (editor: Editor, files: File[]) => {
+      const uploadErrors: string[] = [];
+
+      for (const file of files) {
+        try {
+          await uploadAndInsertFile(editor, file);
+        } catch {
+          uploadErrors.push(`${file.name}: 업로드 실패`);
+        }
+      }
+
+      return uploadErrors;
+    },
+    [uploadAndInsertFile],
   );
 
   /**
@@ -103,7 +120,7 @@ export function useImageUpload(
           continue;
         }
 
-        const error = validateImageFileForUpload(
+        const error = getImageFileUploadValidationError(
           normalizedFile,
           resolvedImageConfig,
         );
@@ -126,13 +143,7 @@ export function useImageUpload(
       setImageInsertError('');
 
       try {
-        for (const file of validFiles) {
-          try {
-            await uploadAndInsertFile(editor, file);
-          } catch {
-            errors.push(`${file.name}: 업로드 실패`);
-          }
-        }
+        errors.push(...(await collectUploadErrors(editor, validFiles)));
 
         if (hitLimit) {
           errors.push(maxImageCountError(maxImageCount));
@@ -145,7 +156,7 @@ export function useImageUpload(
         setIsUploadingImages(false);
       }
     },
-    [isUploadingImages, resolvedImageConfig, uploadAndInsertFile],
+    [collectUploadErrors, isUploadingImages, resolvedImageConfig],
   );
 
   /**
@@ -195,7 +206,7 @@ export function useImageUpload(
           toFileFromBlob(blob, filename),
         );
 
-        const error = validateImageFileForUpload(
+        const error = getImageFileUploadValidationError(
           normalizedFile,
           resolvedImageConfig,
         );
@@ -224,7 +235,7 @@ export function useImageUpload(
         setIsUploadingImages(false);
       }
     },
-    [resolvedImageConfig, uploadAndInsertFile, isUploadingImages],
+    [isUploadingImages, resolvedImageConfig, uploadAndInsertFile],
   );
 
   /**
