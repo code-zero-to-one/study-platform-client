@@ -247,13 +247,13 @@ export const normalizeImageFileForUpload = async (file: File) => {
   const detectedMimeType = detectImageMimeTypeFromHeader(
     new Uint8Array(await file.slice(0, IMAGE_HEADER_BYTE_LENGTH).arrayBuffer()),
   );
+  const reportedMimeType = normalizeImageMimeType(file.type);
 
   if (isHeicLikeImageMimeType(detectedMimeType)) {
     return convertHeicImageFileToJpeg(file);
   }
 
-  const reportedMimeType = normalizeImageMimeType(file.type);
-  if (isHeicLikeImageMimeType(reportedMimeType)) {
+  if (!detectedMimeType && isHeicLikeImageMimeType(reportedMimeType)) {
     return convertHeicImageFileToJpeg(file);
   }
 
