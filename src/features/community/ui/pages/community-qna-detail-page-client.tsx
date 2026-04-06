@@ -6,6 +6,7 @@ import PageContainer from '@/components/common/ui/page-container';
 import Pagination from '@/components/common/ui/pagination';
 import { buildCommunityListHref } from '@/features/community/model/community-route';
 import { useCommunityQnaDetailController } from '@/features/community/model/use-community-qna-detail-controller';
+import { useUserStore } from '@/stores/useUserStore';
 import { COMMUNITY_BOARD } from '@/types/community/domain';
 import { ErrorType } from '@/utils/error-handler';
 import CommunityMarkdownContent from '../community-markdown-content';
@@ -42,6 +43,7 @@ export default function CommunityQnaDetailPageClient({
     initialAnswerPage,
     initialCommentPage,
   });
+  const viewerImage = useUserStore((store) => store.profileImageUrl);
   const backHref = buildCommunityListHref(returnPage);
 
   if (!state.isResolved) {
@@ -147,6 +149,7 @@ export default function CommunityQnaDetailPageClient({
           showPagination={viewModel.showCommentPagination}
           onChangePage={actions.handleCommentPageChange}
           viewer={state.viewer}
+          viewerImage={viewerImage ?? '/profile-default.svg'}
         />
       </CommunitySectionShell>
 
@@ -214,6 +217,7 @@ export default function CommunityQnaDetailPageClient({
                             actions.refetchQuestionDetail
                           }
                           questionId={questionId}
+                          viewerImage={viewerImage ?? '/profile-default.svg'}
                         />
                       }
                     />

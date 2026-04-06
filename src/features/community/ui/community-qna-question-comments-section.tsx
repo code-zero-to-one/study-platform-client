@@ -22,6 +22,7 @@ interface CommunityQnaQuestionCommentsSectionProps {
   showPagination: boolean;
   totalPages: number;
   viewer?: CommunityQnaQuestionViewer;
+  viewerImage: string;
 }
 
 export default function CommunityQnaQuestionCommentsSection({
@@ -34,6 +35,7 @@ export default function CommunityQnaQuestionCommentsSection({
   showPagination,
   totalPages,
   viewer,
+  viewerImage,
 }: CommunityQnaQuestionCommentsSectionProps) {
   const { state, actions, viewModel } =
     useCommunityQnaQuestionCommentsController({
@@ -61,41 +63,37 @@ export default function CommunityQnaQuestionCommentsSection({
         </button>
 
         {state.isExpanded ? (
-          <div className="flex flex-col gap-200">
-            <div className="rounded-200 border border-border-default bg-background-default p-250">
-              {viewer?.isAuthenticated ? (
-                <div className="flex flex-col gap-100">
-                  <CommunityCommentForm
-                    authorImage=""
-                    placeholder="질문에 대한 댓글을 남겨보세요."
-                    submitLabel="댓글 등록"
-                    value={viewModel.createDraft}
-                    onChange={actions.handleCreateDraftChange}
-                    onSubmit={actions.handleSubmitComment}
-                    disabled={state.isSubmitting}
-                    isCompact={true}
-                  />
-                  <FieldErrorText message={viewModel.createError} />
-                </div>
-              ) : (
-                <p className="font-designer-14r text-text-subtle">
-                  로그인 후 질문 댓글을 작성할 수 있습니다.
-                </p>
-              )}
-            </div>
+          <div className="flex flex-col gap-250">
+            {viewer?.isAuthenticated ? (
+              <div className="flex flex-col gap-100">
+                <CommunityCommentForm
+                  authorImage={viewerImage}
+                  placeholder="질문에 대한 댓글을 남겨보세요."
+                  submitLabel="댓글 등록"
+                  value={viewModel.createDraft}
+                  onChange={actions.handleCreateDraftChange}
+                  onSubmit={actions.handleSubmitComment}
+                  disabled={state.isSubmitting}
+                />
+                <FieldErrorText message={viewModel.createError} />
+              </div>
+            ) : (
+              <p className="py-300 font-designer-14r text-text-subtle">
+                로그인 후 질문 댓글을 작성할 수 있습니다.
+              </p>
+            )}
 
             {comments.length === 0 ? (
-              <div className="rounded-200 border border-border-default bg-background-default p-250">
-                <p className="font-designer-14r text-text-subtle">
-                  아직 질문 댓글이 없습니다.
-                </p>
-              </div>
+              <p className="py-300 font-designer-14r text-text-subtle">
+                아직 질문 댓글이 없습니다. 첫 댓글을 남겨보세요.
+              </p>
             ) : (
               <div className="flex flex-col gap-150">
                 {comments.map((comment) => (
                   <CommunityQnaCommentItem
                     key={comment.id}
                     comment={comment}
+                    viewerImage={viewerImage}
                     editError={
                       state.editingCommentId === comment.id
                         ? viewModel.editError
