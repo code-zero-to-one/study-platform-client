@@ -31,6 +31,17 @@ const hasSameParagraphs = (
   );
 };
 
+const areCommunityDetailBodySectionPropsEqual = (
+  previousProps: CommunityDetailBodySectionProps,
+  nextProps: CommunityDetailBodySectionProps,
+) =>
+  previousProps.postId === nextProps.postId &&
+  previousProps.title === nextProps.title &&
+  previousProps.contentHtml === nextProps.contentHtml &&
+  previousProps.previewImage === nextProps.previewImage &&
+  previousProps.previewImageAlt === nextProps.previewImageAlt &&
+  hasSameParagraphs(previousProps.content, nextProps.content);
+
 function CommunityDetailBodySection({
   postId,
   title,
@@ -39,7 +50,8 @@ function CommunityDetailBodySection({
   previewImage,
   previewImageAlt,
 }: CommunityDetailBodySectionProps) {
-  const hasRichContent = Boolean(contentHtml?.trim());
+  const richContent = contentHtml ?? '';
+  const hasRichContent = richContent.trim().length > 0;
 
   return (
     <CommunitySectionShell className="gap-300">
@@ -57,7 +69,7 @@ function CommunityDetailBodySection({
       ) : null}
 
       {hasRichContent ? (
-        <CommunityMarkdownContent content={contentHtml ?? ''} />
+        <CommunityMarkdownContent content={richContent} />
       ) : (
         <div className="flex flex-col gap-250">
           {content.map((paragraph, index) => (
@@ -74,13 +86,11 @@ function CommunityDetailBodySection({
   );
 }
 
-export default memo(
+const MemoizedCommunityDetailBodySection = memo(
   CommunityDetailBodySection,
-  (previousProps, nextProps) =>
-    previousProps.postId === nextProps.postId &&
-    previousProps.title === nextProps.title &&
-    previousProps.contentHtml === nextProps.contentHtml &&
-    previousProps.previewImage === nextProps.previewImage &&
-    previousProps.previewImageAlt === nextProps.previewImageAlt &&
-    hasSameParagraphs(previousProps.content, nextProps.content),
+  areCommunityDetailBodySectionPropsEqual,
 );
+
+MemoizedCommunityDetailBodySection.displayName = 'CommunityDetailBodySection';
+
+export default MemoizedCommunityDetailBodySection;
