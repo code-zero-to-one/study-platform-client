@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import type { MouseEvent } from 'react';
+import { useState, type MouseEvent } from 'react';
 import Avatar from '@/components/common/ui/avatar';
 import { buildCommunityQuestionHref } from '@/features/community/model/community-route';
 import { COMMUNITY_BOARD } from '@/types/community/domain';
@@ -24,12 +24,74 @@ interface CommunityQnaQuestionCardProps {
   question: CommunityQnaQuestionSummary;
 }
 
+const COMMUNITY_ALLOWED_IMAGE_HOSTS = new Set([
+  'api.zeroone.it.kr',
+  'blog.zeroone.it.kr',
+  'img1.kakaocdn.net',
+  'lh3.googleusercontent.com',
+  'test-api.zeroone.it.kr',
+  'test-blog.zeroone.it.kr',
+  'www.zeroone.it.kr',
+]);
+
+const isAllowedCommunityPreviewImageSrc = (value?: string) => {
+  const normalizedValue = value?.trim();
+
+  if (!normalizedValue) {
+    return false;
+  }
+
+  if (normalizedValue.startsWith('/')) {
+    return true;
+  }
+
+  try {
+    const imageUrl = new URL(normalizedValue);
+
+    if (imageUrl.hostname === 'localhost') {
+      if (imageUrl.port === '1337') {
+        return imageUrl.pathname.startsWith('/uploads/');
+      }
+
+      return process.env.NODE_ENV !== 'production' && imageUrl.port === '8080';
+    }
+
+    if (
+      imageUrl.protocol !== 'https:' ||
+      !COMMUNITY_ALLOWED_IMAGE_HOSTS.has(imageUrl.hostname)
+    ) {
+      return false;
+    }
+
+    if (
+      imageUrl.hostname === 'blog.zeroone.it.kr' ||
+      imageUrl.hostname === 'test-blog.zeroone.it.kr'
+    ) {
+      return imageUrl.pathname.startsWith('/uploads/');
+    }
+
+    return true;
+  } catch {
+    return false;
+  }
+};
+
 export default function CommunityQnaQuestionCard({
   currentPage,
   question,
 }: CommunityQnaQuestionCardProps) {
   const router = useRouter();
+  const [failedPreviewImageSrc, setFailedPreviewImageSrc] = useState<
+    string | undefined
+  >();
   const detailHref = buildCommunityQuestionHref(question.id, currentPage);
+  const previewImageSrc = isAllowedCommunityPreviewImageSrc(
+    question.previewImage,
+  )
+    ? question.previewImage
+    : undefined;
+  const shouldShowPreviewImage =
+    previewImageSrc && failedPreviewImageSrc !== previewImageSrc;
 
   const handleCardClick = (event: MouseEvent<HTMLElement>) => {
     if (isCommunityCardNestedInteraction(event.target)) {
@@ -93,7 +155,7 @@ export default function CommunityQnaQuestionCard({
         </div>
       </div>
 
-      {question.previewImage ? (
+      {shouldShowPreviewImage ? (
         <Link
           href={detailHref}
           aria-label={`${question.title} 상세 보기`}
@@ -101,12 +163,15 @@ export default function CommunityQnaQuestionCard({
           suppressHydrationWarning={true}
         >
           <Image
-            src={question.previewImage}
+            src={previewImageSrc}
             alt={question.previewImageAlt ?? question.title}
             width={1200}
             height={800}
             sizes="(max-width: 767px) 100vw, 50vw"
             className="h-auto w-full"
+            onError={() => {
+              setFailedPreviewImageSrc(previewImageSrc);
+            }}
           />
         </Link>
       ) : null}
