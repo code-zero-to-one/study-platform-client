@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { MouseEvent } from 'react';
 import Avatar from '@/components/common/ui/avatar';
+import { buildCommunityFeedItemDetailHref } from '@/features/community/model/community-feed-item';
 import { getCommunityPostPreviewText } from '@/features/community/model/community-rich-content';
-import { buildCommunityPostHref } from '@/features/community/model/community-route';
 import type { CommunityPost } from '@/types/community/domain';
 import CommunityAuthorNameTrigger from './community-author-name-trigger';
 import { isCommunityCardNestedInteraction } from './community-card-navigation';
@@ -32,7 +32,11 @@ export default function CommunityPostCard({
 }: CommunityPostCardProps) {
   const router = useRouter();
   const previewText = getCommunityPostPreviewText(post);
-  const detailHref = buildCommunityPostHref(post.id, currentPage);
+  const detailHref = buildCommunityFeedItemDetailHref(
+    post.id,
+    post.board,
+    currentPage,
+  );
 
   const handleCardClick = (event: MouseEvent<HTMLElement>) => {
     if (isCommunityCardNestedInteraction(event.target)) {

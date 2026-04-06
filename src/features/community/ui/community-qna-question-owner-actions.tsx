@@ -17,7 +17,7 @@ interface CommunityQnaQuestionOwnerActionsProps {
   canEdit: boolean;
   currentPage?: number;
   questionId: number;
-  revision: number;
+  revision?: number;
 }
 
 interface CommunityQnaQuestionOwnerMenuOption {
@@ -44,6 +44,11 @@ export default function CommunityQnaQuestionOwnerActions({
 
   const handleDelete = async () => {
     try {
+      if (!revision) {
+        showToast('질문 정보를 다시 불러온 뒤 삭제해 주세요.', 'error');
+        return;
+      }
+
       await deleteQuestionMutation.mutateAsync({
         questionId,
         revision,
@@ -70,7 +75,7 @@ export default function CommunityQnaQuestionOwnerActions({
     });
   }
 
-  if (canDelete) {
+  if (canDelete && revision) {
     options.push({
       label: '삭제',
       value: 'delete',

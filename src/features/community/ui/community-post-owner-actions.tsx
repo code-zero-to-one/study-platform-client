@@ -6,6 +6,10 @@ import ConfirmDeleteModal from '@/components/common/modals/confirm-delete-modal'
 import MoreMenu from '@/components/common/ui/dropdown/more-menu';
 import { getCommunityErrorMessage } from '@/features/community/api/community-api';
 import {
+  COMMUNITY_FEED_ITEM_KIND,
+  getCommunityFeedItemKind,
+} from '@/features/community/model/community-feed-item';
+import {
   buildCommunityEditHref,
   buildCommunityListHref,
 } from '@/features/community/model/community-route';
@@ -13,6 +17,7 @@ import { useDeleteCommunityPostMutation } from '@/features/community/model/use-c
 import { useCommunityPostDetailQuery } from '@/features/community/model/use-community-query';
 import { useToastStore } from '@/stores/use-toast-store';
 import type { CommunityPost } from '@/types/community/domain';
+import CommunityQnaQuestionOwnerActions from './community-qna-question-owner-actions';
 
 interface CommunityPostOwnerActionsProps {
   currentPage?: number;
@@ -33,11 +38,28 @@ export default function CommunityPostOwnerActions({
   const pathname = usePathname();
   const showToast = useToastStore((state) => state.showToast);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const feedItemKind = getCommunityFeedItemKind(post.board);
+  const isQnaItem = feedItemKind === COMMUNITY_FEED_ITEM_KIND.QNA;
   const deletePostMutation = useDeleteCommunityPostMutation();
-  const postDetailQuery = useCommunityPostDetailQuery(post.id, !post.revision);
+  const postDetailQuery = useCommunityPostDetailQuery(
+    post.id,
+    !post.revision && !isQnaItem,
+  );
 
   if (!post.canEdit && !post.canDelete) {
     return null;
+  }
+
+  if (isQnaItem) {
+    return (
+      <CommunityQnaQuestionOwnerActions
+        canDelete={Boolean(post.canDelete)}
+        canEdit={Boolean(post.canEdit)}
+        currentPage={currentPage}
+        questionId={post.id}
+        revision={post.revision}
+      />
+    );
   }
 
   const listHref = buildCommunityListHref(currentPage);
